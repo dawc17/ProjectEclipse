@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -88,6 +89,7 @@ public static class DevRaidHealthBarValidator
                     life.SetRaidStyle(true);
                 }
             }
+            VerifySmoothSegmentHandoff(template, canvas.transform);
             Canvas.ForceUpdateCanvases();
             if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null)
             {
@@ -104,7 +106,7 @@ public static class DevRaidHealthBarValidator
                 }
                 finally { RenderTexture.active = previous; }
             }
-            Debug.Log("[RaidHealthBarValidation] PASS: fixed width, blue sprites, depletion/carry, x40/x36/x1/x0, counter alignment, story style restoration.");
+            Debug.Log("[RaidHealthBarValidation] PASS: fixed width, blue sprites, depletion/carry, smooth segment handoff, x40/x36/x1/x0, counter alignment, story style restoration.");
         }
         catch (Exception error)
         {
@@ -125,5 +127,56 @@ public static class DevRaidHealthBarValidator
     private static void Require(bool condition, string label)
     {
         if (!condition) throw new InvalidOperationException("[RaidHealthBarValidation] " + label);
+    }
+
+    private static void VerifySmoothSegmentHandoff(PlayerLifeBar template, Transform parent)
+    {
+        var life = UnityEngine.Object.Instantiate(template, parent, false);
+        try
+        {
+            life.gameObject.SetActive(true);
+            var parameters = new ModelParameters { CIDCNCDFONA = 1, ShieldTotal = 2 };
+            parameters.GFNCMLFKBGP(1f);
+            life.Init(parameters);
+            life.SetRaidStyle(true);
+
+            // Cross into the second segment with carry-over damage. The old
+            // implementation immediately set the display to 75%; the new one
+            // must visibly drain the first segment, fill its replacement, then
+            // animate the 25% carry-over damage.
+            parameters.GEACPINOAAN(-1.25f);
+            float expectedFraction = parameters.CurrentHealthBarFraction;
+            life.Render();
+            float firstFrameFill = GetLifeLayer(life, "_healthBar").fillAmount;
+            Require(firstFrameFill > expectedFraction + 0.05f && firstFrameFill < 1f,
+                "First segment must drain before replacement appears");
+
+            bool sawEmptySegment = false;
+            bool sawReplacementFilling = false;
+            for (int frame = 0; frame < 180; frame++)
+            {
+                life.Render();
+                float fill = GetLifeLayer(life, "_healthBar").fillAmount;
+                if (fill <= 0.01f) sawEmptySegment = true;
+                if (sawEmptySegment && fill > 0.01f && fill < 0.99f) sawReplacementFilling = true;
+            }
+            Require(sawEmptySegment, "Exhausted segment must reach empty");
+            Require(sawReplacementFilling, "Replacement segment must fill smoothly");
+            Require(Mathf.Abs(GetLifeLayer(life, "_healthBar").fillAmount - expectedFraction) < 0.0001f,
+                "Carry-over damage after replacement");
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(life.gameObject);
+        }
+    }
+
+    private static ResolutionImageSkew GetLifeLayer(PlayerLifeBar life, string fieldName)
+    {
+        FieldInfo field = typeof(PlayerLifeBar).GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
+        if (field == null) throw new InvalidOperationException("[RaidHealthBarValidation] Life-bar field missing: " + fieldName);
+        ResolutionImageSkew layer = field.GetValue(life) as ResolutionImageSkew;
+        if (layer == null) throw new InvalidOperationException("[RaidHealthBarValidation] Life-bar layer missing: " + fieldName);
+        return layer;
     }
 }

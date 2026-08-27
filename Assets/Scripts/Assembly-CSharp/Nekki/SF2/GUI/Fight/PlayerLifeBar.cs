@@ -34,6 +34,22 @@ namespace Nekki.SF2.GUI.Fight
 
 		private int _remainingBars;
 
+		private enum RaidHealthBarTransition
+		{
+			None,
+			DrainingSegment,
+			FillingReplacement
+		}
+
+		// Raid life is represented one segment at a time. Keep the visual
+		// handoff separate from the model so an exhausted segment can finish
+		// draining before the next one appears.
+		private RaidHealthBarTransition _raidHealthBarTransition;
+
+		private int _pendingSegmentsToDrain;
+
+		private float _pendingHealthBarFraction;
+
 		private bool _capturedNormalStyle;
 		private string _normalHealthSprite;
 		private string _normalBackgroundSprite;
@@ -115,6 +131,9 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void ResetLife()
 		{
+			_raidHealthBarTransition = RaidHealthBarTransition.None;
+			_pendingSegmentsToDrain = 0;
+			_pendingHealthBarFraction = 0f;
 			_remainingBars = HEGIABHIPHA.RemainingHealthBars;
 			FBFNFLBPACL = 0f;
 			SetValBarValue(KIPMKKDPEKH());
@@ -183,9 +202,19 @@ namespace Nekki.SF2.GUI.Fight
 		private void UpdateLife()
 		{
 			float num = KIPMKKDPEKH();
-			if (_remainingBars != HEGIABHIPHA.RemainingHealthBars)
+			int remainingHealthBars = HEGIABHIPHA.RemainingHealthBars;
+			if (_raidHealthBarTransition != RaidHealthBarTransition.None)
 			{
-				// Refill the next segment without a false healing/damage tween.
+				UpdateRaidHealthBarTransition(num, remainingHealthBars);
+				return;
+			}
+			if (_remainingBars != remainingHealthBars)
+			{
+				if (HEGIABHIPHA.HealthBarCount > 1 && remainingHealthBars < _remainingBars)
+				{
+					StartRaidHealthBarTransition(num, remainingHealthBars);
+					return;
+				}
 				ResetLife();
 				return;
 			}
@@ -203,6 +232,91 @@ namespace Nekki.SF2.GUI.Fight
 					SetValBarValue(num, 10);
 				}
 			}
+		}
+
+		private void StartRaidHealthBarTransition(float targetFraction, int remainingHealthBars)
+		{
+			_pendingSegmentsToDrain = Mathf.Max(1, _remainingBars - remainingHealthBars);
+			_pendingHealthBarFraction = targetFraction;
+			_remainingBars = remainingHealthBars;
+			BeginDrainingRaidHealthBarSegment();
+		}
+
+		private void UpdateRaidHealthBarTransition(float targetFraction, int remainingHealthBars)
+		{
+			// A hit can arrive while the HUD is still handing off the previous
+			// segment. Fold its carry-over damage into this transition instead of
+			// snapping the fill to the latest model value.
+			if (remainingHealthBars > _remainingBars)
+			{
+				// Cross-segment healing is rare and must remain truthful; cancel the
+				// damage-only handoff rather than animating it in the wrong direction.
+				ResetLife();
+				return;
+			}
+			if (remainingHealthBars < _remainingBars)
+			{
+				_pendingSegmentsToDrain += _remainingBars - remainingHealthBars;
+				_remainingBars = remainingHealthBars;
+			}
+			_pendingHealthBarFraction = targetFraction;
+			if (_raidHealthBarTransition == RaidHealthBarTransition.DrainingSegment)
+			{
+				if (GDJBAIIDKDE != 0f || GJBDOHGGIAA != 0f)
+				{
+					return;
+				}
+				if (_remainingBars <= 0)
+				{
+					CompleteRaidHealthBarTransition();
+					return;
+				}
+				BeginFillingReplacementRaidHealthBarSegment();
+				return;
+			}
+			if (GDJBAIIDKDE != 1f || GJBDOHGGIAA != 1f)
+			{
+				return;
+			}
+			if (_pendingSegmentsToDrain > 1)
+			{
+				_pendingSegmentsToDrain--;
+				BeginDrainingRaidHealthBarSegment();
+				return;
+			}
+			CompleteRaidHealthBarTransition();
+		}
+
+		private void BeginDrainingRaidHealthBarSegment()
+		{
+			FBFNFLBPACL = 0f;
+			_raidHealthBarTransition = RaidHealthBarTransition.DrainingSegment;
+			SetValBarValue(0f, OMDLEFBIGKK);
+			SetHitBarValue(0f, COBDMAGFJDB);
+		}
+
+		private void BeginFillingReplacementRaidHealthBarSegment()
+		{
+			_raidHealthBarTransition = RaidHealthBarTransition.FillingReplacement;
+			SetValBarValue(1f, OMDLEFBIGKK);
+			SetHitBarValue(1f, OMDLEFBIGKK);
+		}
+
+		private void CompleteRaidHealthBarTransition()
+		{
+			_raidHealthBarTransition = RaidHealthBarTransition.None;
+			_pendingSegmentsToDrain = 0;
+			if (_remainingBars <= 0 || _pendingHealthBarFraction >= 1f)
+			{
+				return;
+			}
+			float num = _pendingHealthBarFraction - CNNFPAMBLCN;
+			if (num >= 0f)
+			{
+				return;
+			}
+			FBFNFLBPACL = ((Mathf.Abs(num) < 0.01f) ? 1 : CNPPCMJEHIF);
+			SetValBarValue(_pendingHealthBarFraction, OMDLEFBIGKK);
 		}
 
 		public void SetValBarValue(float value, int frames = 0)
