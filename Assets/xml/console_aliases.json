@@ -1,0 +1,6 @@
+{
+  "promo fp": "rqbn promo_FirstPayment_OnFightEnter",
+  "promo ip b": "atp name Test_GemsPromo",
+  "promo ip g": "atp name Test_CoinsPromo",
+  "promo rp": "rqbn promo_RepeatPayment_SessionStart_Ruby"
+}

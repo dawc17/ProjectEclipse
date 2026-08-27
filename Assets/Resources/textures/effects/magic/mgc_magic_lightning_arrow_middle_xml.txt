@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>magic_lightning_arrow_middle_1.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{164,53}}</string>
+        <key>offset</key>
+        <string>{0,5}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{164,53}}</string>
+        <key>sourceSize</key>
+        <string>{164,53}</string>
+      </dict>
+      <key>magic_lightning_arrow_middle_2.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{178,51}}</string>
+        <key>offset</key>
+        <string>{0,2}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{178,51}}</string>
+        <key>sourceSize</key>
+        <string>{178,51}</string>
+      </dict>
+      <key>magic_lightning_arrow_middle_3.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{176,60}}</string>
+        <key>offset</key>
+        <string>{0,-1.5}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{176,60}}</string>
+        <key>sourceSize</key>
+        <string>{176,60}</string>
+      </dict>
+      <key>magic_lightning_arrow_middle_4.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{178,44}}</string>
+        <key>offset</key>
+        <string>{0,-6.5}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{178,44}}</string>
+        <key>sourceSize</key>
+        <string>{178,44}</string>
+      </dict>
+      <key>magic_lightning_arrow_middle_5.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{164,41}}</string>
+        <key>offset</key>
+        <string>{0,-4}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{164,41}}</string>
+        <key>sourceSize</key>
+        <string>{164,41}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>mgc_magic_lightning_arrow_middle.png</string>
+      <key>size</key>
+      <string>{178,60}</string>
+      <key>textureFileName</key>
+      <string>mgc_magic_lightning_arrow_middle.png</string>
+    </dict>
+  </dict>
+</plist>

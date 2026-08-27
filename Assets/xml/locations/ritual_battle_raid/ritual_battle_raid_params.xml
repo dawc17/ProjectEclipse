@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x161416" Wall="90" Floor="57" Width="1536" Height="512">
+  <Layer Type="1" Factor="0.1">
+    <Image X="-50" Y="-20" ClassName="back3" Width="2048" Height="1024" IsOpaque="1" />
+    <Image X="-50" Y="-20" ClassName="back2" Width="2048" Height="1024" IsOpaque="0" />
+    <Image X="-50" Y="-20" ClassName="back1" Width="2048" Height="1024" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.2">
+    <Image X="50" Y="0" ClassName="middle" Width="2048" Height="1024" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.4">
+    <Image X="80" Y="0" ClassName="front2" Width="2048" Height="1024" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.8" Scaling="1">
+    <Image X="25" Y="-15" ClassName="front1" Width="2048" Height="1024" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1">
+    <Image X="3" Y="4" ClassName="dojo" Width="3152" Height="1064" IsOpaque="0" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="690" PlayerPositionY="-93" EnemyPositionX="973" EnemyPositionY="-105" />
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1">
+    <Image X="-640" Y="220" ClassName="dojo_floor_1" Width="512" Height="118" Color="0x161416" />
+    <Image X="-384" Y="220" ClassName="dojo_floor_2" Width="512" Height="118" Color="0x161416" />
+    <Image X="-128" Y="220" ClassName="dojo_floor_1" Width="512" Height="118" Color="0x161416" />
+    <Image X="128" Y="220" ClassName="dojo_floor_2" Width="512" Height="118" Color="0x161416" />
+    <Image X="384" Y="220" ClassName="dojo_floor_1" Width="512" Height="118" Color="0x161416" />
+    <Image X="640" Y="220" ClassName="dojo_floor_2" Width="512" Height="118" Color="0x161416" />
+    <Image X="-685.912" Y="0" ClassName="left_wall" Width="148.35" Height="1120" Color="0x161416" />
+    <Image X="683.81" Y="0" ClassName="right_wall" Width="156.758" Height="1120" Color="0x161416" />
+    <Image X="-890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x161416" IsOpaque="1" />
+    <Image X="890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x161416" IsOpaque="1" />
+    <Image X="0" Y="-462" ClassName="pixel_1" Width="1960" Height="400" Color="0x161416" IsOpaque="1" />
+    <Image X="0" Y="470" ClassName="pixel_1" Width="1960" Height="500" Color="0x161416" IsOpaque="1" />
+  </Layer>
+</Root>

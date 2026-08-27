@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Width="whole world width"-->
+<!-- Width2="visible world width"-->
+<!-- Height="whole world height"40  6|7 1524   -->
+<Root Music="6|7" Color="0x281409" Wall="305" Floor="80" Width="1960" Height="560">
+  <Layer Type="1" Factor="0.1" Atlas="bg">
+    <Image X="-256" Y="0" ClassName="background_1" Width="512" Height="512"/>
+    <Image X="256" Y="0" ClassName="background_2" Width="512" Height="512"/>
+    <ParticleEffect X="-100" Y="-300" ClassName="snow"/>    
+  </Layer>
+
+  <Layer Type="1" Factor="1" Atlas="atlas_layer2" Scaling="1">
+    <Image X="-512" Y="20" ClassName="layer_2_1" Width="512" Height="512"/>
+    <Image X="0" Y="20" ClassName="layer_2_2" Width="512" Height="512"/>
+    <Image X="512" Y="20" ClassName="layer_2_3" Width="512" Height="512"/>
+  </Layer>
+
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="690" PlayerPositionY="-93"
+                  EnemyPositionX="973" EnemyPositionY="-105"/>
+    
+  </Layer>
+
+  <Layer Type="1" Factor="1" Atlas="atlas_layer3" Scaling="1">
+    <Image X="-640" Y="225" ClassName="layer_3_1" Width="256" Height="64"/>
+    <Image X="-384" Y="225" ClassName="layer_3_2" Width="256" Height="64"/>
+    <Image X="-128" Y="225" ClassName="layer_3_1" Width="256" Height="64"/>
+    <Image X="128" Y="225" ClassName="layer_3_2" Width="256" Height="64"/>
+    <Image X="384" Y="225" ClassName="layer_3_1" Width="256" Height="64"/>
+    <Image X="640" Y="225" ClassName="layer_3_2" Width="256" Height="64"/>
+    <Image X="-10" Y="-202" ClassName="layer_5" Width="316" Height="148"/>
+    <Image X="-680" Y="0" ClassName="left" Width="86" Height="560"/>
+    <Image X="680" Y="0" ClassName="right" Width="86" Height="560"/>
+    <Image X="-890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x281409"/>
+    <Image X="890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x281409"/>
+    <Image X="0" Y="-426" ClassName="pixel_1" Width="1960" Height="400" Color="0x281409"/>
+    <Image X="0" Y="470" ClassName="pixel_1" Width="1960" Height="500" Color="0x281409"/>
+  </Layer>
+</Root>
+

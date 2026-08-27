@@ -1,0 +1,25 @@
+fileFormatVersion: 2
+guid: 75d4c026cf7ab77438ad17c90355a640
+timeCreated: 1787682273
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  name:
+  fontSize: 18
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Sakkal Majalla
+  fontNames:
+  - Sakkal Majalla
+  fallbackFontReferences:
+  - {fileID: 0}
+  customCharacters:
+  fontRenderingMode: 0
+  output:
+    hasEmptyFontData: 0
+  ascentCalculationMode: 1
+  userData:
+  assetBundleName:
+  assetBundleVariant:

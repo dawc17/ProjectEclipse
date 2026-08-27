@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <Ranged-Node1_1 Type="Node"  X="-150"  Y="250"  Z="0"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Cloth="0" />
+    <Ranged-Node2_1 Type="Node"  X="-150"  Y="150"  Z="0"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Cloth="0" />
+    <Ranged-Node3_1 Type="Node"  X="-100"  Y="150"  Z="0"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Cloth="0" />
+    <Ranged-Node4_1 Type="Node"  X="-150"  Y="150"  Z="-50"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Cloth="0" />
+
+  </Nodes>
+  <Edges>
+    <Ranged-Edge1_1 Type="Edge"  Length="70.7106781005859"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="Ranged-Node3_1"  End2="Ranged-Node4_1" />
+    <Ranged-Edge2_1 Type="Edge"  Length="111.803398132324"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="Ranged-Node1_1"  End2="Ranged-Node4_1" />
+    <Ranged-Edge3_1 Type="Edge"  Length="50"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="Ranged-Node4_1"  End2="Ranged-Node2_1" />
+    <Ranged-Edge4_1 Type="Edge"  Length="50"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="Ranged-Node3_1"  End2="Ranged-Node2_1" />
+    <Ranged-Edge5_1 Type="Edge"  Length="111.803398132324"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="Ranged-Node3_1"  End2="Ranged-Node1_1" />
+    <Ranged-Edge6_1 Type="Edge"  Length="100"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="Ranged-Node2_1"  End2="Ranged-Node1_1" />
+
+  </Edges>
+  <Figures>
+    <NP_Ranged-Node1_1 Type="NodePoint"  Node="Ranged-Node1_1"  Radius="3" />
+    <NP_Ranged-Node2_1 Type="NodePoint"  Node="Ranged-Node2_1"  Radius="3" />
+    <NP_Ranged-Node3_1 Type="NodePoint"  Node="Ranged-Node3_1"  Radius="3" />
+    <NP_Ranged-Node4_1 Type="NodePoint"  Node="Ranged-Node4_1"  Radius="3" />
+
+    <EL_Ranged-Edge1_1 Type="EdgeLine"  Edge="Ranged-Edge1_1"  Width="0" />
+    <EL_Ranged-Edge2_1 Type="EdgeLine"  Edge="Ranged-Edge2_1"  Width="0" />
+    <EL_Ranged-Edge3_1 Type="EdgeLine"  Edge="Ranged-Edge3_1"  Width="0" />
+    <EL_Ranged-Edge4_1 Type="EdgeLine"  Edge="Ranged-Edge4_1"  Width="0" />
+    <EL_Ranged-Edge5_1 Type="EdgeLine"  Edge="Ranged-Edge5_1"  Width="0" />
+    <EL_Ranged-Edge6_1 Type="EdgeLine"  Edge="Ranged-Edge6_1"  Width="0" />
+
+  </Figures>
+
+</Scene>

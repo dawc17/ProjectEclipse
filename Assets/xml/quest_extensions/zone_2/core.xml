@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Quests>
+  <Quest Name="zone2_new_items">
+    <Events>
+      <Activate />
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="zone2_new_items" />
+      <Equal Value1="_NewItemsAnnounce" Value2="1" Not="1" />
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="NewItemsAnnounce" Value="1" />
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_1">
+        <Line Text="endzone1_newland_1" ButtonText="dlgStoryBtnMore" />
+        <Line Text="endzone1_newland_2" ButtonText="dlgStoryBtnMore" />
+        <Button Type="Right" Color="Beige" Text="OK" />
+      </Dialog>
+    </Actions>
+  </Quest>
+</Quests>

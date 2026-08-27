@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x0f1801" Wall="350" Floor="80" Width="2236" Height="512">
+  <Layer Type="1" Factor="0.1" >
+    <Image X="-1260" Y="-15" ClassName="background" Width="504" Height="504" IsOpaque="1" />
+<Image X="-756"  Y="-15" ClassName="background" Width="504" Height="504" IsOpaque="1" />
+<Image X="-252"  Y="-15" ClassName="background" Width="504" Height="504" IsOpaque="1" />
+<Image X="252"   Y="-15" ClassName="background" Width="504" Height="504" IsOpaque="1" />
+<Image X="756"   Y="-15" ClassName="background" Width="504" Height="504" IsOpaque="1" />
+<Image X="1260"  Y="-15" ClassName="background" Width="504" Height="504" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.3" >
+  	<Image X="-1134" Y="-50" ClassName="layer_f1" Width="504" Height="612" />
+<Image X="-630"  Y="-50" ClassName="layer_f1" Width="504" Height="612" />
+<Image X="-126"  Y="-50" ClassName="layer_f1" Width="504" Height="612" />
+<Image X="378"   Y="-50" ClassName="layer_f1" Width="504" Height="612" />
+<Image X="882"   Y="-50" ClassName="layer_f1" Width="504" Height="612" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" >
+    <Image X="-1134" Y="-51.792" ClassName="layer_f2" Width="504" Height="608.414" />
+<Image X="-630"  Y="-51.792" ClassName="layer_f2" Width="504" Height="608.414" />
+<Image X="-126"  Y="-51.792" ClassName="layer_f2" Width="504" Height="608.414" />
+<Image X="378"   Y="-51.792" ClassName="layer_f2" Width="504" Height="608.414" />
+<Image X="882"   Y="-51.792" ClassName="layer_f2" Width="504" Height="608.414" />
+<Image X="1386"  Y="-51.792" ClassName="layer_f2" Width="504" Height="608.414" />
+    <NewParticleEffect X="-220" Y="-250" ClassName="leafs_small" />
+  </Layer>
+  <Layer Type="1" Factor="1">
+    <NewParticleEffect X="-220" Y="-280" ClassName="leafs" />
+    <NewParticleEffect X="-220" Y="-280" ClassName="leafs" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1"  Scaling="1">
+    <SimpleEffect X="-328" Y="-200" Type="Picture" PictureLocation="local" ClassName="layer_2_2_2" Width="656" Height="756">
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="25" Ease="-1" />
+        <Point Period="3.5" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-644.468" Y="-200" Type="Picture" PictureLocation="local" ClassName="layer_2_2_1" Width="627.812" Height="756">
+      <OscillationX Offset="0">
+        <Point Period="2.2" Value="0" Ease="-1" />
+        <Point Period="3.4" Value="8" Ease="1" />
+      </OscillationX>
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="25" Ease="-1" />
+        <Point Period="3.1" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="339.531" Y="-200" Type="Picture" PictureLocation="local" ClassName="layer_2_2_1" Width="627.812" Height="756">
+      <OscillationX Offset="0">
+        <Point Period="2.2" Value="0" Ease="-1" />
+        <Point Period="3.4" Value="8" Ease="1" />
+      </OscillationX>
+      <Transparency Offset="0">
+        <Point Period="3.1" Value="55" Ease="-1" />
+        <Point Period="2.1" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="656" Y="-200" Type="Picture" PictureLocation="local" ClassName="layer_2_2_2" Width="656" Height="756">
+      <Transparency Offset="0">
+        <Point Period="2.1" Value="65" Ease="-1" />
+        <Point Period="4.1" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <Image X="-853.5" Y="-112.5" ClassName="left" Width="241" Height="635" />
+    <Image X="850.5" Y="-115.5" ClassName="right" Width="247" Height="629" />
+     <Image X="-1024" Y="180" ClassName="layer_3_2" Width="256" Height="64" />
+<Image X="-896" Y="180" ClassName="layer_3_1" Width="256" Height="64" />
+<Image X="-768" Y="180" ClassName="layer_3_2" Width="256" Height="64" />
+<Image X="-640" Y="180" ClassName="layer_3_1" Width="256" Height="64" />
+<Image X="-384" Y="180" ClassName="layer_3_2" Width="256" Height="64" />
+<Image X="-128" Y="180" ClassName="layer_3_1" Width="256" Height="64" />
+<Image X="128" Y="180" ClassName="layer_3_2" Width="256" Height="64" />
+<Image X="384" Y="180" ClassName="layer_3_1" Width="256" Height="64" />
+<Image X="640" Y="180" ClassName="layer_3_2" Width="256" Height="64" />
+<Image X="768" Y="180" ClassName="layer_3_1" Width="256" Height="64" />
+<Image X="896" Y="180" ClassName="layer_3_2" Width="256" Height="64" />
+<Image X="1152" Y="180" ClassName="layer_3_1" Width="256" Height="64" />
+    
+    <Image X="0" Y="429" ClassName="pixel_1" Width="2250" Height="460" Color="0x0f1801" IsOpaque="1" />
+  </Layer>
+</Root>

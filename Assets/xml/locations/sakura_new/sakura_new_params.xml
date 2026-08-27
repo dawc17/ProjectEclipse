@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="168" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" >
+    <Image X="0" Y="-15" ClassName="background_1" Width="1536" Height="512" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" >
+    <Image X="-111.796" Y="-5" ClassName="layer2" Width="1366.406" Height="492" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" >
+    <Image X="0" Y="-20" ClassName="layer1_1" Width="1536" Height="512" />
+    <NewParticleEffect X="-220" Y="-260" ClassName="leafs_s" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <NewParticleEffect X="-220" Y="-260" ClassName="leafs_s" />
+    <NewParticleEffect X="-220" Y="-260" ClassName="leafs_s" />
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1"  Scaling="1">
+    <Image X="-896" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="-768" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="-640" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="-384" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="-128" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="128" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="384" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="640" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="768" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="896" Y="207" ClassName="floor" Width="512" Height="124" />
+    <Image X="-712.5" Y="-160" ClassName="left" Width="511" Height="672" />
+    <Image X="712.5" Y="-160" ClassName="right" Width="511" Height="672" />
+    <Image X="0" Y="429" ClassName="pixel_1" Width="2000" Height="460" Color="0x000000" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.1" >
+    <Image X="-102.480" Y="7.5" ClassName="layer3" Width="1385.039" Height="497" />
+  </Layer>
+</Root>

@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root>
+  <CurrentUser ID="1">
+    <Sounds>
+      <Sound Value="1.0" Mute="0" />
+      <Music Value="1.0" Mute="0" />
+    </Sounds>
+    <WatchedVideos>
+      <Video Name="/storage/emulated/0/Android/data/com.sf2.de/files/gamedata/bundles/intro.mp4" WatchedCount="1" />
+    </WatchedVideos>
+  </CurrentUser>
+  <Warriors>
+    <Warrior ID="1" FirstName="NAME_SHADOW" Avatar="avatar_hero" Voice="Male" Money="0" Bonus="50" Strength="3" Stamina="3" Level="1" Experience="0" Power="5" PowerSyncTime="" Difficulty="50" LastLotteryEnterTime="0" LastLotteryPlayTime="0" LotteryDaysMax="6" LotteryDays="0" RateTime="0" Skeleton="Skeleton" Armor="Body" Helm="Head" Weapon="Fists" Ranged="NoRanged" Magic="NoMagic" ShowUpgrades="0" ArenaRating="0" ArenaRank="0" Tutorial="MOVE" Tactic="Player" CurrentZone="ZONE_1" PaymentActionsResendRequestCompleted="1" RaidToggleIsVisible="0" EclipseMode="Off" SaveSlot="0">
+	  <Sounds>
+		<Sound Value="1.0" Mute="0" />
+		<Music Value="1.0" Mute="0" />
+	  </Sounds>
+      <Items>
+        <Item Name="Unlimited_Energy" Equipped="0" Count="1" UpgradeLevel="0" DeliveryTime="0" DeliveryUpgradeLevel="0" AcquireType="Item" />
+        <Item Name="Body" Equipped="1" Count="1" />
+        <Item Name="Head" Equipped="1" Count="1" />
+        <Item Name="Fists" Equipped="1" Count="1" />
+        <Item Name="NoRanged" Equipped="1" Count="1" />
+        <Item Name="NoMagic" Equipped="1" Count="1" />
+      </Items>
+      <Battles>
+        <Battle Name="ZONE_1|BOSS_LYNX|" />
+      </Battles>
+      <Currencies />
+      <Quests>
+        <Variables>
+	        	<Variable Name="ShowIntroVideo" Value="0" />
+        </Variables>
+        <Quests>
+        </Quests>
+      </Quests>
+    </Warrior>
+  </Warriors>
+  <Versions>
+    <Version Value="2.41.9" />
+    <DataVersion Value="2.41.9.0" />
+  </Versions>
+</Root>

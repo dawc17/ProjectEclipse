@@ -1,0 +1,135 @@
+{
+  "AiEnabled": true,
+  "CheckNetworkLoginTimeoutSec": 1,
+  "ConfigResponseTimeout": 1,
+  "ControllerGripRelativeRadius": 0.5,
+  "ControllerPrimaryAngle": 55,
+  "ControllerTouchZoneExtensionFactor": 1.5,
+  "DebugStatistics": false,
+  "GPG": {
+    "CloudSavesCount": 0,
+    "TokenUpdatePeriodInSeconds": 1
+  },
+  "HideLanguageFlags": {
+    "Android": true,
+    "Default": true
+  },
+  "IgnoreShopHide": false,
+  "Internet": {
+    "ConfigUrl": "",
+    "EULAUrl": {
+      "chn": "",
+      "eng": "",
+      "rus": ""
+    },
+    "FBLikeAltUrl": {
+      "Android": "",
+      "Default": "",
+      "iOS": ""
+    },
+    "FBLikeUrl": {
+      "Android": "",
+      "Default": "",
+      "iOS": ""
+    },
+    "FBPostLinkUrl": {
+      "Android": "",
+      "Default": "",
+      "iOS": ""
+    },
+    "FBPostPicture": "",
+    "MusicStoreUrl": {
+      "Android": "",
+      "Default": "",
+      "iOS": ""
+    },
+    "PostAchievements": {
+      "Android": false,
+      "Default": false,
+      "iOS": false
+    },
+    "RateUrl": {
+      "Android": "",
+      "China": "",
+      "Default": "",
+      "Huawei": "",
+      "Samsung": "",
+      "iOS": ""
+    },
+    "Server": {
+      "GetUrl": "",
+      "PutUrl": ""
+    },
+    "SupportUrl": {
+      "eng": "",
+      "rus": ""
+    }
+  },
+  "ItemInfo": {
+    "ReplaceAnyDeliveryTime": -1
+  },
+  "LoadTactics": true,
+  "LogRules": {
+    "All": true,
+    "Animations": {
+      "All": true
+    },
+    "Hits": {
+      "All": true,
+      "Damage": true,
+      "Style": true
+    },
+    "ModelAI": {
+      "All": false
+    },
+    "Perks": {
+      "All": true
+    },
+    "Quests": {
+      "Actions": true,
+      "All": true
+    },
+    "Tactics": {
+      "All": true,
+      "Archiver": true,
+      "Reactions": true,
+      "TacticsValues": true
+    }
+  },
+  "MainMenuCanShowRaidModeInShopScene": false,
+  "NotificationsGame": {
+    "EscapeClickHidesNotification": true
+  },
+  "OpenAltUrlTimeout": 1,
+  "ServerResponseTimeout": 1,
+  "ShakeScreenParams": {
+    "AmplFactor": {
+      "x": 0.75,
+      "y": 0.3
+    },
+    "Diagonal": {
+      "x": 10,
+      "y": 30
+    },
+    "FreqFactor": {
+      "x": 1,
+      "y": 0.75
+    }
+  },
+  "ShowChatInShopScene": "Never",
+  "ShowController": true,
+  "ShowIntro": false,
+  "ShowPVP": true,
+  "SkipContentDownload": true,
+  "SkipReloadTacticsInSurvivalMode": true,
+  "SocialAuthorizeTimeout": 1,
+  "StartLockScreenDelay": 500,
+  "TacticsCaching": {
+    "Android": 3000,
+    "Default": 3000,
+    "Switch": 2400,
+    "iOS": 1900
+  },
+  "UseGamepad": false,
+  "UseLocalRaidConfig": false
+}

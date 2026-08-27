@@ -1,0 +1,54 @@
+{
+  "SpritesPresets": {
+    "China": {
+      "Loader": {
+        "LeftSprite": "Logo.left",
+        "RightSprite": "Logo.right"
+      },
+      "Preloader": {
+        "FullSprite": "Preloader"
+      }
+    },
+    "Default": {
+      "Loader": {
+        "LeftSprite": "Logo.left",
+        "RightSprite": "Logo.right"
+      },
+      "Preloader": {
+        "FullSprite": "Preloader"
+      }
+    },
+    "Japan": {
+      "Loader": {
+        "LeftSprite": "Logo.left",
+        "RightSprite": "Logo.right"
+      },
+      "Preloader": {
+        "FullSprite": "Preloader"
+      }
+    },
+    "Korea": {
+      "Loader": {
+        "LeftSprite": "Logo.left",
+        "RightSprite": "Logo.right"
+      },
+      "Preloader": {
+        "FullSprite": "Preloader"
+      }
+    },
+    "Paid": {
+      "Loader": {
+        "LeftSprite": "Logo.left",
+        "RightSprite": "Logo.right"
+      },
+      "Preloader": {
+        "LeftSprite": "startLoadingPaid_left.img",
+        "RightSprite": "startLoadingPaid_right.img"
+      }
+    }
+  },
+  "TexturePaths": {
+    "Loader": "Textures/Logos/",
+    "Preloader": "UI/Fullscreen/"
+  }
+}

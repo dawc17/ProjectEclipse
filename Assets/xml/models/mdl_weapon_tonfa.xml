@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <WEAPON_TONFA-MacroNode1_1 Type="MacroNode"  X="-145.34114074707"  Y="163.638153076172"  Z="-0.234232649207115"  Mass="1.81588351726532"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="-2.25454568862915E-5"  LCC2="0.0559427924454212"  LCC3="0.818159282207489"  LCC4="0.125920489430428"  MC1="-3.27519373968244E-5"  MC2="0.0812684744596481"  MC3="1.18854558467865"  MC4="0.182925552129745" />
+    <WEAPON_TONFA-MacroNode2_1 Type="MacroNode"  X="-138.5126953125"  Y="143.942596435547"  Z="-0.17721064388752"  Mass="1.53376054763794"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="8.73208045959473E-5"  LCC2="0.18981522321701"  LCC3="0.87982839345932"  LCC4="-0.0697309374809265"  MC1="0.000107143365312368"  MC2="0.232904881238937"  MC3="1.07955694198608"  MC4="-0.0855604484677315" />
+    <WEAPON_TONFA-MacroNode3_1 Type="MacroNode"  X="-200.773056030273"  Y="125.933517456055"  Z="-0.801397621631622"  Mass="0.164823859930038"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="-0.0120790898799896"  LCC2="-1.17079591751099"  LCC3="2.47535800933838"  LCC4="-0.292483001947403"  MC1="-0.00159273785538971"  MC2="-0.154380083084106"  MC3="0.326398462057114"  MC4="-0.0385665446519852" />
+    <WEAPON_TONFA-MacroNode4_1 Type="MacroNode"  X="-119.891105651855"  Y="149.88899230957"  Z="-0.00121158559340984"  Mass="2.4334921836853"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="0.00397842656821012"  LCC2="0.597174644470215"  LCC3="0.396263778209686"  LCC4="0.0025831509847194"  MC1="0.00774517608806491"  MC2="1.16257584095001"  MC3="0.771443843841553"  MC4="0.0050288625061512" />
+    <WEAPON_TONFA-MacroNode5_1 Type="MacroNode"  X="-145.662338256836"  Y="164.59326171875"  Z="-0.23707289993763"  Mass="1.82499384880066"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="-2.26795673370361E-5"  LCC2="0.0496662147343159"  LCC3="0.814941704273224"  LCC4="0.135414749383926"  MC1="-3.31120572809596E-5"  MC2="0.0725124254822731"  MC3="1.18981087207794"  MC4="0.197704866528511" />
+    <WEAPON_TONFA-MacroNode1_2 Type="MacroNode"  X="-145.34114074707"  Y="163.638153076172"  Z="-0.234232649207115"  Mass="1.81588351726532"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_2"  ChildNode2="Weapon-Node3_2"  ChildNode3="Weapon-Node2_2"  ChildNode4="Weapon-Node1_2"  LCC1="-2.25454568862915E-5"  LCC2="0.0559427924454212"  LCC3="0.818159282207489"  LCC4="0.125920489430428"  MC1="-3.27519373968244E-5"  MC2="0.0812684744596481"  MC3="1.18854558467865"  MC4="0.182925552129745" />
+    <WEAPON_TONFA-MacroNode2_2 Type="MacroNode"  X="-138.5126953125"  Y="143.942596435547"  Z="-0.17721064388752"  Mass="1.53376054763794"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_2"  ChildNode2="Weapon-Node3_2"  ChildNode3="Weapon-Node2_2"  ChildNode4="Weapon-Node1_2"  LCC1="8.73208045959473E-5"  LCC2="0.18981522321701"  LCC3="0.87982839345932"  LCC4="-0.0697309374809265"  MC1="0.000107143365312368"  MC2="0.232904881238937"  MC3="1.07955694198608"  MC4="-0.0855604484677315" />
+    <WEAPON_TONFA-MacroNode3_2 Type="MacroNode"  X="-200.773056030273"  Y="125.933517456055"  Z="-0.801397621631622"  Mass="0.164823859930038"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_2"  ChildNode2="Weapon-Node3_2"  ChildNode3="Weapon-Node2_2"  ChildNode4="Weapon-Node1_2"  LCC1="-0.0120790898799896"  LCC2="-1.17079591751099"  LCC3="2.47535800933838"  LCC4="-0.292483001947403"  MC1="-0.00159273785538971"  MC2="-0.154380083084106"  MC3="0.326398462057114"  MC4="-0.0385665446519852" />
+    <WEAPON_TONFA-MacroNode4_2 Type="MacroNode"  X="-119.891105651855"  Y="149.88899230957"  Z="-0.00121158559340984"  Mass="2.4334921836853"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_2"  ChildNode2="Weapon-Node3_2"  ChildNode3="Weapon-Node2_2"  ChildNode4="Weapon-Node1_2"  LCC1="0.00397842656821012"  LCC2="0.597174644470215"  LCC3="0.396263778209686"  LCC4="0.0025831509847194"  MC1="0.00774517608806491"  MC2="1.16257584095001"  MC3="0.771443843841553"  MC4="0.0050288625061512" />
+    <WEAPON_TONFA-MacroNode5_2 Type="MacroNode"  X="-145.662338256836"  Y="164.59326171875"  Z="-0.23707289993763"  Mass="1.82499384880066"  Fixed="1"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_2"  ChildNode2="Weapon-Node3_2"  ChildNode3="Weapon-Node2_2"  ChildNode4="Weapon-Node1_2"  LCC1="-2.26795673370361E-5"  LCC2="0.0496662147343159"  LCC3="0.814941704273224"  LCC4="0.135414749383926"  MC1="-3.31120572809596E-5"  MC2="0.0725124254822731"  MC3="1.18981087207794"  MC4="0.197704866528511" />
+  </Nodes>
+  <Edges>
+    <WEAPON_TONFA-Edge1_1 Type="Edge"  Length="75"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0" Radius="4.5" Margin1="0" Margin2="0" Node1="WEAPON_TONFA-MacroNode3_1"  Node2="WEAPON_TONFA-MacroNode4_1"  Force="1795.94311523438"  SubNodesCount="0"  End1="WEAPON_TONFA-MacroNode3_1"  End2="WEAPON_TONFA-MacroNode4_1" />
+    <WEAPON_TONFA-Edge2_1 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="WEAPON_TONFA-MacroNode2_1"  Node2="WEAPON_TONFA-MacroNode1_1"  Force="162.304794311523"  SubNodesCount="0"  End1="WEAPON_TONFA-MacroNode2_1"  End2="WEAPON_TONFA-MacroNode1_1" />
+    <WEAPON_TONFA-Edge3_1 Type="Edge"  Length="1"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="WEAPON_TONFA-MacroNode5_1"  Node2="WEAPON_TONFA-MacroNode1_1"  Force="1.47277462482452"  SubNodesCount="0"  End1="WEAPON_TONFA-MacroNode5_1"  End2="WEAPON_TONFA-MacroNode1_1" />
+    <WEAPON_TONFA-Edge1_2 Type="Edge"  Length="75"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0" Radius="4.5" Margin1="0" Margin2="0" Node1="WEAPON_TONFA-MacroNode3_2"  Node2="WEAPON_TONFA-MacroNode4_2"  Force="1795.94311523438"  SubNodesCount="0"  End1="WEAPON_TONFA-MacroNode3_2"  End2="WEAPON_TONFA-MacroNode4_2" />
+    <WEAPON_TONFA-Edge2_2 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="WEAPON_TONFA-MacroNode2_2"  Node2="WEAPON_TONFA-MacroNode1_2"  Force="162.304794311523"  SubNodesCount="0"  End1="WEAPON_TONFA-MacroNode2_2"  End2="WEAPON_TONFA-MacroNode1_2" />
+    <WEAPON_TONFA-Edge3_2 Type="Edge"  Length="1"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="WEAPON_TONFA-MacroNode5_2"  Node2="WEAPON_TONFA-MacroNode1_2"  Force="1.47277462482452"  SubNodesCount="0"  End1="WEAPON_TONFA-MacroNode5_2"  End2="WEAPON_TONFA-MacroNode1_2" />
+  </Edges>
+  <Figures>
+    <WEAPON_TONFA-Capsule-Edge1_1 Type="Capsule"  Edge="WEAPON_TONFA-Edge1_1"  Radius1="4.5"  Radius2="4.5"  Margin1="0"  Margin2="0" />
+    <WEAPON_TONFA-Capsule-Edge2_1 Type="Capsule"  Edge="WEAPON_TONFA-Edge2_1"  Radius1="2.79999995231628"  Radius2="2.79999995231628"  Margin1="0"  Margin2="0" />
+    <WEAPON_TONFA-Capsule-Edge3_1 Type="Capsule"  Edge="WEAPON_TONFA-Edge3_1"  Radius1="4.5"  Radius2="4.5"  Margin1="0"  Margin2="0" />
+    <WEAPON_TONFA-Capsule-Edge1_2 Type="Capsule"  Edge="WEAPON_TONFA-Edge1_2"  Radius1="4.5"  Radius2="4.5"  Margin1="0"  Margin2="0" />
+    <WEAPON_TONFA-Capsule-Edge2_2 Type="Capsule"  Edge="WEAPON_TONFA-Edge2_2"  Radius1="2.79999995231628"  Radius2="2.79999995231628"  Margin1="0"  Margin2="0" />
+    <WEAPON_TONFA-Capsule-Edge3_2 Type="Capsule"  Edge="WEAPON_TONFA-Edge3_2"  Radius1="4.5"  Radius2="4.5"  Margin1="0"  Margin2="0" />
+    <NP_TONFA-MacroNode1_1 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode1_1"  Radius="3" />
+    <NP_TONFA-MacroNode2_1 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode2_1"  Radius="3" />
+    <NP_TONFA-MacroNode3_1 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode3_1"  Radius="3" />
+    <NP_TONFA-MacroNode4_1 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode4_1"  Radius="3" />
+    <NP_TONFA-MacroNode5_1 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode5_1"  Radius="3" />
+    <NP_TONFA-MacroNode1_2 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode1_2"  Radius="3" />
+    <NP_TONFA-MacroNode2_2 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode2_2"  Radius="3" />
+    <NP_TONFA-MacroNode3_2 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode3_2"  Radius="3" />
+    <NP_TONFA-MacroNode4_2 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode4_2"  Radius="3" />
+    <NP_TONFA-MacroNode5_2 Type="NodePoint"  Node="WEAPON_TONFA-MacroNode5_2"  Radius="3" />
+    <EL_TONFA-Edge1_1 Type="EdgeLine"  Edge="WEAPON_TONFA-Edge1_1"  Width="1" />
+    <EL_TONFA-Edge2_1 Type="EdgeLine"  Edge="WEAPON_TONFA-Edge2_1"  Width="1" />
+    <EL_TONFA-Edge3_1 Type="EdgeLine"  Edge="WEAPON_TONFA-Edge3_1"  Width="1" />
+    <EL_TONFA-Edge1_2 Type="EdgeLine"  Edge="WEAPON_TONFA-Edge1_2"  Width="1" />
+    <EL_TONFA-Edge2_2 Type="EdgeLine"  Edge="WEAPON_TONFA-Edge2_2"  Width="1" />
+    <EL_TONFA-Edge3_2 Type="EdgeLine"  Edge="WEAPON_TONFA-Edge3_2"  Width="1" />
+    <NF_TONFA-MacroNode3_2 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode3_2"  Radius="5" />
+    <NF_TONFA-MacroNode3_1 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode3_1"  Radius="5" />
+    <NF_TONFA-MacroNode5_2 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode5_2"  Radius="5" />
+    <NF_TONFA-MacroNode4_2 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode4_2"  Radius="5" />
+    <NF_TONFA-MacroNode2_2 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode2_2"  Radius="5" />
+    <NF_TONFA-MacroNode1_2 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode1_2"  Radius="5" />
+    <NF_TONFA-MacroNode5_1 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode5_1"  Radius="5" />
+    <NF_TONFA-MacroNode4_1 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode4_1"  Radius="5" />
+    <NF_TONFA-MacroNode2_1 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode2_1"  Radius="5" />
+    <NF_TONFA-MacroNode1_1 Type="NodeFixer"  Node="WEAPON_TONFA-MacroNode1_1"  Radius="5" />
+  </Figures>
+</Scene>

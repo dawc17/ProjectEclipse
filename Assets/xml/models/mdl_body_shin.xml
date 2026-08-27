@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <BODY_SHIN-Node5 Type="Node"  X="328.373352050781"  Y="63.056022644043"  Z="68.8827285766602"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node6 Type="Node"  X="277.457183837891"  Y="58.9516830444336"  Z="59.7559089660644"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node10 Type="Node"  X="292.817749023438"  Y="90.5897903442383"  Z="93.284912109375"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node11 Type="Node"  X="275.147308349609"  Y="53.5751533508301"  Z="45.8534965515137"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node12 Type="Node"  X="344.078125"  Y="55.8933067321777"  Z="70.156120300293"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node13 Type="Node"  X="334.128601074219"  Y="54.9362564086914"  Z="69.8557739257812"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node14 Type="Node"  X="281.212768554687"  Y="51.9851303100586"  Z="53.6433792114258"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node17 Type="Node"  X="366.218383789063"  Y="53.8518333435059"  Z="75.1019134521484"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node19 Type="Node"  X="253.756683349609"  Y="49.9390563964844"  Z="43.0732650756836"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node22 Type="Node"  X="337.370727539063"  Y="132.852935791016"  Z="80.8623352050781"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node23 Type="Node"  X="272.998413085938"  Y="134.586944580078"  Z="55.8066864013672"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node24 Type="Node"  X="326.209136962891"  Y="66.4171676635742"  Z="70.5450286865234"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node25 Type="Node"  X="317.353088378906"  Y="54.382698059082"  Z="69.3176879882813"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node26 Type="Node"  X="310.921600341797"  Y="73.2565612792969"  Z="67.5907592773437"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node27 Type="Node"  X="283.566253662109"  Y="62.4957389831543"  Z="55.4334411621094"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node28 Type="Node"  X="293.23486328125"  Y="52.005126953125"  Z="60.0662460327148"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-Node29 Type="Node"  X="295.825775146484"  Y="71.6394119262695"  Z="62.8563232421875"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" Attenuation="0.1" />
+    <BODY_SHIN-MacroNode3 Type="MacroNode"  X="297.447174072266"  Y="83.305908203125"  Z="77.4843902587891"  Mass="0.114694409072399"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NStomach"  ChildNode2="NHip_1"  ChildNode3="NPelvisF"  ChildNode4="NHip_2"  LCC1="-0.7310391664505"  LCC2="0.819492638111114"  LCC3="0.0678001940250397"  LCC4="0.843746364116669" />
+    <BODY_SHIN-MacroNode4 Type="MacroNode"  X="293.582763671875"  Y="108.543174743652"  Z="92.2406158447266"  Mass="0.0673831626772881"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NStomach"  ChildNode2="NHip_1"  ChildNode3="NPelvisF"  ChildNode4="NHip_2"  LCC1="0.420398950576782"  LCC2="0.831940770149231"  LCC3="-1.11044061183929"  LCC4="0.858100891113281" />
+    <BODY_SHIN-MacroNode5 Type="MacroNode"  X="338.854858398438"  Y="81.6391983032227"  Z="73.5161819458008"  Mass="0.770615637302399"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="NHip_2"  ChildNode2="NKnee_2"  LCC1="0.36926656961441"  LCC2="0.63073343038559" />
+    <BODY_SHIN-MacroNode6 Type="MacroNode"  X="272.119140625"  Y="78.1658706665039"  Z="50.5943641662598"  Mass="0.767900109291077"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="NKnee_1"  ChildNode2="NHip_1"  LCC1="0.61221182346344"  LCC2="0.38778817653656" />
+    <BODY_SHIN-MacroNode7 Type="MacroNode"  X="310.963195800781"  Y="74.4558792114258"  Z="73.7251052856445"  Mass="0.00914453249424696"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="BODY_SHIN-MacroNode3"  ChildNode2="BODY_SHIN-Node5"  LCC1="0.562864720821381"  LCC2="0.437135279178619" />
+    <BODY_SHIN-MacroNode8 Type="MacroNode"  X="288.283508300781"  Y="72.1468658447266"  Z="69.3606872558594"  Mass="0.00848893262445927"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="BODY_SHIN-Node6"  ChildNode2="BODY_SHIN-MacroNode3"  LCC1="0.458272755146027"  LCC2="0.541727244853973" />
+    <BODY_SHIN-MacroNode9 Type="MacroNode"  X="346.310668945313"  Y="148.272521972656"  Z="89.9352798461914"  Mass="0.355414927005768"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="NShoulder_2"  ChildNode2="NElbow_2"  LCC1="0.270473599433899"  LCC2="0.729526400566101" />
+    <BODY_SHIN-MacroNode10 Type="MacroNode"  X="264.969360351562"  Y="152.305252075195"  Z="51.159496307373"  Mass="0.38625580072403"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="NElbow_1"  ChildNode2="NShoulder_1"  LCC1="0.677159070968628"  LCC2="0.322840958833694" />
+  </Nodes>
+  <Edges>
+    <BODY_SHIN-Edge132 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node5"  End2="NKnee_2" />
+    <BODY_SHIN-Edge135 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NKnee_1"  End2="BODY_SHIN-Node6" />
+    <BODY_SHIN-Edge143 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NAnkle_2"  End2="BODY_SHIN-Node12" />
+    <BODY_SHIN-Edge144 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node12"  End2="NKnee_2" />
+    <BODY_SHIN-Edge145 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NKnee_1"  End2="BODY_SHIN-Node11" />
+    <BODY_SHIN-Edge146 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NAnkle_1"  End2="BODY_SHIN-Node11" />
+    <BODY_SHIN-Edge151 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node13"  End2="BODY_SHIN-Node12" />
+    <BODY_SHIN-Edge152 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node13"  End2="BODY_SHIN-Node5" />
+    <BODY_SHIN-Edge153 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node14"  End2="BODY_SHIN-Node6" />
+    <BODY_SHIN-Edge154 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node11"  End2="BODY_SHIN-Node14" />
+    <BODY_SHIN-Edge155 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NAnkle_2"  End2="BODY_SHIN-Node17" />
+    <BODY_SHIN-Edge156 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node17"  End2="NKnee_2" />
+    <BODY_SHIN-Edge159 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NKnee_1"  End2="BODY_SHIN-Node19" />
+    <BODY_SHIN-Edge160 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node19"  End2="NAnkle_1" />
+    <BODY_SHIN-Edge163 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NHip_2"  End2="BODY_SHIN-Node5" />
+    <BODY_SHIN-Edge166 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NHip_1"  End2="BODY_SHIN-Node6" />
+    <BODY_SHIN-Edge168 Type="Edge"  Length="37.7514381408691"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-MacroNode3"  End2="BODY_SHIN-Node5" />
+    <BODY_SHIN-Edge169 Type="Edge"  Length="36.1531295776367"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node6"  End2="BODY_SHIN-MacroNode3" />
+    <BODY_SHIN-Edge171 Type="Edge"  Length="18.0000095367432"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node10"  End2="BODY_SHIN-MacroNode3" />
+    <BODY_SHIN-Edge172 Type="Edge"  Length="17.9999942779541"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node10"  End2="BODY_SHIN-MacroNode4" />
+    <BODY_SHIN-Edge177 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node22"  End2="BODY_SHIN-MacroNode9" />
+    <BODY_SHIN-Edge178 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NChestS_2"  End2="BODY_SHIN-Node22" />
+    <BODY_SHIN-Edge179 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NChestS_1"  End2="BODY_SHIN-Node23" />
+    <BODY_SHIN-Edge180 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-MacroNode10"  End2="BODY_SHIN-Node23" />
+    <BODY_SHIN-Edge181 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node24"  End2="BODY_SHIN-MacroNode5" />
+    <BODY_SHIN-Edge182 Type="Edge"  Length="15"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node25"  End2="BODY_SHIN-Node24" />
+    <BODY_SHIN-Edge183 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node26"  End2="BODY_SHIN-Node25" />
+    <BODY_SHIN-Edge184 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node26"  End2="NPelvisF" />
+    <BODY_SHIN-Edge185 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node29"  End2="NPelvisF" />
+    <BODY_SHIN-Edge186 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node28"  End2="BODY_SHIN-Node29" />
+    <BODY_SHIN-Edge187 Type="Edge"  Length="15"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node27"  End2="BODY_SHIN-Node28" />
+    <BODY_SHIN-Edge188 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-MacroNode6"  End2="BODY_SHIN-Node27" />
+    <BODY_SHIN-Edge189 Type="Edge"  Length="17"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node29"  End2="BODY_SHIN-Node27" />
+    <BODY_SHIN-Edge190 Type="Edge"  Length="17"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_SHIN-Node26"  End2="BODY_SHIN-Node24" />
+  </Edges>
+  <Figures>
+    <BODY_SHIN-Capsule_EFootS_1 Type="Capsule"  Edge="EFootS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EFoot_1 Type="Capsule"  Edge="EFoot_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EFootS_2 Type="Capsule"  Edge="EFootS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EToeC_1 Type="Capsule"  Edge="EToeC_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EFoot_2 Type="Capsule"  Edge="EFoot_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EHeel_2 Type="Capsule"  Edge="EHeel_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EToeS_1 Type="Capsule"  Edge="EToeS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EHeep_1 Type="Capsule"  Edge="EHeep_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EInstepS_1 Type="Capsule"  Edge="EInstepS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EToe_1 Type="Capsule"  Edge="EToe_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EInstep_1 Type="Capsule"  Edge="EInstep_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EToeC_2 Type="Capsule"  Edge="EToeC_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EInstepS_2 Type="Capsule"  Edge="EInstepS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EInstep_2 Type="Capsule"  Edge="EInstep_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EToeS_2 Type="Capsule"  Edge="EToeS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EToe_2 Type="Capsule"  Edge="EToe_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_ECalf_1 Type="Capsule"  Edge="ECalf_1"  Radius1="8"  Radius2="8"  Margin1="0"  Margin2="0.400000005960464" />
+    <BODY_SHIN-Capsule_ECalf_2 Type="Capsule"  Edge="ECalf_2"  Radius1="8"  Radius2="8"  Margin1="0"  Margin2="0.400000005960464" />
+    <BODY_SHIN-Capsule-1_ECalf_1 Type="Capsule"  Edge="ECalf_1"  Radius1="15"  Radius2="15"  Margin1="0.699999988079071"  Margin2="0" />
+    <BODY_SHIN-Capsule-1_ECalf_2 Type="Capsule"  Edge="ECalf_2"  Radius1="15"  Radius2="15"  Margin1="0.699999988079071"  Margin2="0" />
+    <BODY_SHIN-Capsule_EThigh_1 Type="Capsule"  Edge="EThigh_1"  Radius1="15"  Radius2="15"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_SHIN-Capsule_EThigh_2 Type="Capsule"  Edge="EThigh_2"  Radius1="15"  Radius2="15"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_SHIN-Capsule-1_EThigh_1 Type="Capsule"  Edge="EThigh_1"  Radius1="15"  Radius2="15"  Margin1="0.400000005960464"  Margin2="0" />
+    <BODY_SHIN-Capsule-1_EThigh_2 Type="Capsule"  Edge="EThigh_2"  Radius1="15"  Radius2="15"  Margin1="0.400000005960464"  Margin2="0" />
+    <BODY_SHIN-Capsule_EGroin Type="Capsule"  Edge="EGroin"  Radius1="15"  Radius2="15"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Muscle120 Type="Capsule"  Edge="Muscle120"  Radius1="10"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EPelvisM Type="Capsule"  Edge="EPelvisM"  Radius1="13"  Radius2="13"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Muscle117 Type="Capsule"  Edge="Muscle117"  Radius1="10"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Muscle119 Type="Capsule"  Edge="Muscle119"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EStomach Type="Capsule"  Edge="EStomach"  Radius1="18"  Radius2="18"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EArm_1 Type="Capsule"  Edge="EArm_1"  Radius1="9"  Radius2="9"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_SHIN-Capsule-1_EForearm_1 Type="Capsule"  Edge="EForearm_1"  Radius1="9"  Radius2="9"  Margin1="0.5"  Margin2="0" />
+    <BODY_SHIN-Capsule_Muscle116 Type="Capsule"  Edge="Muscle116"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge20_2 Type="Capsule"  Edge="Edge20_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge24_2 Type="Capsule"  Edge="Edge24_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge22_2 Type="Capsule"  Edge="Edge22_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-Edge19_2 Type="Capsule"  Edge="Edge19_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge25_2 Type="Capsule"  Edge="Edge25_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge23_2 Type="Capsule"  Edge="Edge23_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge21_2 Type="Capsule"  Edge="Edge21_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-1_EForearm_2 Type="Capsule"  Edge="EForearm_2"  Radius1="9"  Radius2="9"  Margin1="0.5"  Margin2="0" />
+    <BODY_SHIN-Capsule-Edge12_2 Type="Capsule"  Edge="Edge12_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EFingers_2 Type="Capsule"  Edge="EFingers_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EForearm_2 Type="Capsule"  Edge="EForearm_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_SHIN-Capsule_EHand_2 Type="Capsule"  Edge="EHand_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge26_2 Type="Capsule"  Edge="Edge26_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge7_2 Type="Capsule"  Edge="Edge7_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EForearm_1 Type="Capsule"  Edge="EForearm_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_SHIN-Capsule_EFingersS_2 Type="Capsule"  Edge="EFingersS_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge27_2 Type="Capsule"  Edge="Edge27_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EHandS_2 Type="Capsule"  Edge="EHandS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EHandC_2 Type="Capsule"  Edge="EHandC_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-Edge17_2 Type="Capsule"  Edge="Edge17_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge20_1 Type="Capsule"  Edge="Edge20_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EArm_2 Type="Capsule"  Edge="EArm_2"  Radius1="9"  Radius2="9"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_SHIN-Capsule-Edge19_1 Type="Capsule"  Edge="Edge19_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge9_2 Type="Capsule"  Edge="Edge9_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-Edge16_2 Type="Capsule"  Edge="Edge16_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge22_1 Type="Capsule"  Edge="Edge22_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge21_1 Type="Capsule"  Edge="Edge21_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EHand_1 Type="Capsule"  Edge="EHand_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge24_1 Type="Capsule"  Edge="Edge24_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Muscle118 Type="Capsule"  Edge="Muscle118"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge23_1 Type="Capsule"  Edge="Edge23_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge25_1 Type="Capsule"  Edge="Edge25_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EFingers_1 Type="Capsule"  Edge="EFingers_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-Edge17_1 Type="Capsule"  Edge="Edge17_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-1_EArm_1 Type="Capsule"  Edge="EArm_1"  Radius1="12"  Radius2="12"  Margin1="0.5"  Margin2="0" />
+    <BODY_SHIN-Capsule_EChest Type="Capsule"  Edge="EChest"  Radius1="18"  Radius2="18"  Margin1="0.200000002980232"  Margin2="0" />
+    <BODY_SHIN-Capsule_EHandS_1 Type="Capsule"  Edge="EHandS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-Edge12_1 Type="Capsule"  Edge="Edge12_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EHandC_1 Type="Capsule"  Edge="EHandC_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge7_1 Type="Capsule"  Edge="Edge7_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge26_1 Type="Capsule"  Edge="Edge26_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EFingersS_1 Type="Capsule"  Edge="EFingersS_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Muscle115 Type="Capsule"  Edge="Muscle115"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge27_1 Type="Capsule"  Edge="Edge27_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-Edge16_1 Type="Capsule"  Edge="Edge16_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_Edge9_1 Type="Capsule"  Edge="Edge9_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule-1_EArm_2 Type="Capsule"  Edge="EArm_2"  Radius1="12"  Radius2="12"  Margin1="0.5"  Margin2="0" />
+    <BODY_SHIN-Capsule_EClavicle_1 Type="Capsule"  Edge="EClavicle_1"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Capsule_EClavicle_2 Type="Capsule"  Edge="EClavicle_2"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_SHIN-Triangle-1 Type="Triangle"  DoubleSided="-1"  Node1="NHeel_2"  Node2="NToe_2"  Node3="NAnkle_2" />
+    <BODY_SHIN-Triangle-2 Type="Triangle"  DoubleSided="-1"  Node1="NHeel_1"  Node2="NToe_1"  Node3="NAnkle_1" />
+    <BODY_SHIN-Triangle-3 Type="Triangle"  DoubleSided="-1"  Node1="NHeel_2"  Node2="NToeS_2"  Node3="NToe_2" />
+    <BODY_SHIN-Triangle-4 Type="Triangle"  DoubleSided="-1"  Node1="NFingertipsSS_2"  Node2="NFingertipsS_2"  Node3="NFingertips_2" />
+    <BODY_SHIN-Triangle-5 Type="Triangle"  DoubleSided="-1"  Node1="NToeS_2"  Node2="NToe_2"  Node3="NAnkle_2" />
+    <BODY_SHIN-Triangle-6 Type="Triangle"  DoubleSided="-1"  Node1="NToeS_1"  Node2="NToe_1"  Node3="NHeel_1" />
+    <BODY_SHIN-Triangle-7 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node26"  Node2="BODY_SHIN-Node24"  Node3="BODY_SHIN-Node25" />
+    <BODY_SHIN-Triangle-8 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node27"  Node2="BODY_SHIN-Node28"  Node3="BODY_SHIN-Node29" />
+    <BODY_SHIN-Triangle-9 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_2"  Node2="NAnkle_2"  Node3="BODY_SHIN-Node17" />
+    <BODY_SHIN-Triangle-10 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node12"  Node2="NAnkle_2"  Node3="NKnee_2" />
+    <BODY_SHIN-Triangle-11 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node13"  Node2="BODY_SHIN-Node12"  Node3="NKnee_2" />
+    <BODY_SHIN-Triangle-12 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node5"  Node2="BODY_SHIN-Node13"  Node3="NKnee_2" />
+    <BODY_SHIN-Triangle-13 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_SHIN-Node5"  Node3="NKnee_2" />
+    <BODY_SHIN-Triangle-14 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-MacroNode3"  Node2="BODY_SHIN-MacroNode7"  Node3="BODY_SHIN-MacroNode8" />
+    <BODY_SHIN-Triangle-15 Type="Triangle"  DoubleSided="-1"  Node1="NShoulder_2"  Node2="BODY_SHIN-Node22"  Node3="BODY_SHIN-MacroNode9" />
+    <BODY_SHIN-Triangle-16 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_SHIN-MacroNode3"  Node3="BODY_SHIN-Node5" />
+    <BODY_SHIN-Triangle-17 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="BODY_SHIN-MacroNode3"  Node3="NHip_2" />
+    <BODY_SHIN-Triangle-18 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node6"  Node2="BODY_SHIN-MacroNode3"  Node3="NHip_1" />
+    <BODY_SHIN-Triangle-19 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="BODY_SHIN-Node6"  Node3="NHip_1" />
+    <BODY_SHIN-Triangle-20 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="BODY_SHIN-Node14"  Node3="BODY_SHIN-Node6" />
+    <BODY_SHIN-Triangle-21 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="BODY_SHIN-Node11"  Node3="BODY_SHIN-Node14" />
+    <BODY_SHIN-Triangle-22 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_SHIN-Node24"  Node3="BODY_SHIN-MacroNode5" />
+    <BODY_SHIN-Triangle-23 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="NAnkle_1"  Node3="BODY_SHIN-Node11" />
+    <BODY_SHIN-Triangle-24 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node19"  Node2="NAnkle_1"  Node3="NKnee_1" />
+    <BODY_SHIN-Triangle-25 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node26"  Node2="BODY_SHIN-Node24"  Node3="NHip_2" />
+    <BODY_SHIN-Triangle-26 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="BODY_SHIN-Node10"  Node3="BODY_SHIN-Node6" />
+    <BODY_SHIN-Triangle-27 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-MacroNode4"  Node2="NHip_1"  Node3="BODY_SHIN-Node10" />
+    <BODY_SHIN-Triangle-28 Type="Triangle"  DoubleSided="-1"  Node1="BODY_SHIN-Node5"  Node2="NHip_2"  Node3="BODY_SHIN-Node10" />
+    <BODY_SHIN-Triangle-29 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_SHIN-Node10"  Node3="BODY_SHIN-MacroNode4" />
+    <BODY_SHIN-Triangle-30 Type="Triangle"  DoubleSided="-1"  Node1="NPelvisF"  Node2="BODY_SHIN-Node26"  Node3="NHip_2" />
+    <BODY_SHIN-Triangle-31 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="NPelvisF"  Node3="BODY_SHIN-Node29" />
+    <BODY_SHIN-Triangle-32 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="BODY_SHIN-Node27"  Node3="BODY_SHIN-Node29" />
+    <BODY_SHIN-Triangle-33 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="BODY_SHIN-MacroNode6"  Node3="BODY_SHIN-Node27" />
+    <BODY_SHIN-Triangle-34 Type="Triangle"  DoubleSided="-1"  Node1="NChestS_2"  Node2="NShoulder_2"  Node3="BODY_SHIN-Node22" />
+    <BODY_SHIN-Triangle-35 Type="Triangle"  DoubleSided="-1"  Node1="NShoulder_1"  Node2="BODY_SHIN-MacroNode10"  Node3="BODY_SHIN-Node23" />
+    <BODY_SHIN-Triangle-36 Type="Triangle"  DoubleSided="-1"  Node1="NChestS_1"  Node2="NShoulder_1"  Node3="BODY_SHIN-Node23" />
+  </Figures>
+</Scene>

@@ -1,0 +1,309 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" >
+    <Image X="0" Y="-15" ClassName="background_1" Width="3368" Height="1024" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.15" >
+    <Image X="0" Y="-15" ClassName="layer0_1" Width="3072" Height="1024" />
+  </Layer>
+  <Layer Type="1" Factor="0.2" >
+    <Image X="1" Y="19" ClassName="layer1_1" Width="3072" Height="1024" />
+    <SimpleEffect X="-600" Y="-380" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="14" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152" />
+      <ReappearY Min="0" Max="300" />
+      <Speed X="1.1" Y="0.1" />
+    </SimpleEffect>
+    <SimpleEffect X="-550" Y="-400" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="2" Offset="33" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152" />
+      <ReappearY Min="0" Max="300" />
+      <Speed X="1.2" Y="0.15" />
+    </SimpleEffect>
+    <SimpleEffect X="-450" Y="-340" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152" />
+      <ReappearY Min="0" Max="300" />
+      <Speed X="0.8" Y="0.2" />
+    </SimpleEffect>
+    <SimpleEffect X="-500" Y="-320" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="2" Offset="21" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152" />
+      <ReappearY Min="0" Max="300" />
+      <Speed X="0.7" Y="0.2" />
+    </SimpleEffect>
+    <SimpleEffect X="-400" Y="-360" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="4" Offset="80" Width="28" Height="60">
+      <ReappearX Min="-1152" Max="1152" />
+      <ReappearY Min="0" Max="300" />
+      <Speed X="0.8" Y="0.2" />
+    </SimpleEffect>
+    <SimpleEffect X="-600" Y="-380" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="4" Offset="70" Width="28" Height="60">
+      <ReappearX Min="-1152" Max="1152" />
+      <ReappearY Min="0" Max="300" />
+      <Speed X="0.7" Y="0.2" />
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.24" >
+    <Image X="0" Y="-12" ClassName="layer2_1" Width="3072" Height="1024" />
+  </Layer>
+  <Layer Type="1" Factor="0.2" >
+    <SimpleEffect X="11.328" Y="-15" Type="Picture" PictureLocation="local" ClassName="light" Width="3368" Height="1024">
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="35" Ease="-1" />
+        <Point Period="3.5" Value="70" Ease="1" />
+        <Point Period="1.1" Value="55" Ease="-1" />
+        <Point Period="3.5" Value="80" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.2">
+    <SimpleEffect X="0" Y="150" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-40" Y="150" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-80" Y="150" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="60" Y="150" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-80" Y="120" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-120" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-200" Y="150" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="60" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-709" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-120" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-170" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.76" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="80" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="90" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.98" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="10" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.67" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="10" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.7" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.75" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="20" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.8" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="70" Y="100" Type="Picture" PictureLocation="local" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.7" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="130" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.6" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.75" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="1.5" Value="-100" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="1" Value="-100" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.75" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="180" Type="Picture" PictureLocation="local" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="1.5" Value="-100" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.75" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="180" Type="Picture" ClassName="Green_leafs" Width="10" Height="10">
+      <OscillationY Offset="0.08">
+        <Point Period="1.4" Value="0" Ease="-1" />
+        <Point Period="1.2" Value="1" Ease="1" />
+        <Point Period="1.9" Value="0" Ease="-1" />
+        <Point Period="0.7" Value="1" Ease="1" />
+      </OscillationY>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="180" Type="Picture" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="60" Y="120" Type="Picture" ClassName="leafs_on" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="0" Y="180" Type="Picture" ClassName="Pink_leafs" Width="10" Height="10">
+      <OscillationY Offset="0.08">
+        <Point Period="1.4" Value="0" Ease="-1" />
+        <Point Period="1.2" Value="1" Ease="1" />
+        <Point Period="1.9" Value="0" Ease="-1" />
+        <Point Period="0.7" Value="1" Ease="1" />
+      </OscillationY>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.75" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-120" Y="180" Type="Picture" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="300" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-170" Y="180" Type="Picture" ClassName="leafs_s" Width="10" Height="10">
+      <Rotation Offset="0">
+        <Point Period="3" Value="-359" Ease="0" />
+        <Point Period="0.000001" Value="0" Ease="0" />
+      </Rotation>
+      <ReappearX Min="-600" Max="400" />
+      <Speed X="0.75" Y="0" />
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="600" PlayerPositionY="-90" EnemyPositionX="880" EnemyPositionY="-90" />
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1">
+    <Image X="-854" Y="-110" ClassName="left" Width="800" Height="1360" />
+    <Image X="836" Y="-110" ClassName="right" Width="800" Height="1360" />
+    <Image X="-896" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="-640" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="-384" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="-128" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="128" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="384" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="640" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="896" Y="192" ClassName="floor" Width="515" Height="112" />
+    <Image X="0" Y="470" ClassName="pixel_1" Width="2000" Height="540" Color="0x000000" IsOpaque="1" />
+  </Layer>
+</Root>

@@ -1,0 +1,68 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.05" >
+    <Image X="0" Y="-15" ClassName="background_1" Width="1536" Height="512" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.1" >
+    <SimpleEffect X="0" Y="-360" Type="Picture" PictureLocation="local" ClassName="flame_glow3" Width="1424" Height="1024">
+      <Transparency Offset="0">
+        <Point Period="0.5" Value="70" Ease="-1" />
+        <Point Period="0.4" Value="80" Ease="1" />
+        <Point Period="0.6" Value="70" Ease="-1" />
+        <Point Period="0.3" Value="80" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-300" Y="-110" Type="Sequention" ClassName="fire1" PictureLocation="global" Speed="2" Offset="30" Width="300" Height="150" />
+    <SimpleEffect X="-90" Y="-90" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="30" Width="196" Height="150" />
+    <SimpleEffect X="110" Y="-90" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="20" Width="196" Height="150" />
+    <SimpleEffect X="180" Y="-90" Type="Sequention" ClassName="fire1" PictureLocation="global" Speed="2" Offset="10" Width="196" Height="150" />
+    <SimpleEffect X="250" Y="-50" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="40" Width="196" Height="150" />
+    <SimpleEffect X="-0" Y="-340" Type="Picture" PictureLocation="local" ClassName="flame_glow3" Width="1024" Height="1024">
+      <Transparency Offset="0">
+        <Point Period="0.4" Value="74" Ease="-1" />
+        <Point Period="0.5" Value="90" Ease="1" />
+        <Point Period="0.3" Value="74" Ease="-1" />
+        <Point Period="0.6" Value="90" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.1" >
+    <Image X="0" Y="20" ClassName="layer1_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.15" >
+    <SimpleEffect X="0" Y="-200" Type="Picture" PictureLocation="local" ClassName="flame_glow3" Width="1424" Height="1024">
+      <Transparency Offset="0">
+        <Point Period="0.4" Value="64" Ease="-1" />
+        <Point Period="0.5" Value="80" Ease="1" />
+        <Point Period="0.3" Value="64" Ease="-1" />
+        <Point Period="0.6" Value="80" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <ParticleEffect X="0" Y="111" ClassName="spark_fire1" />
+    <SimpleEffect X="-270" Y="150" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="37" Width="256" Height="256" />
+    <SimpleEffect X="-400" Y="90" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="20" Width="330" Height="330" />
+    <SimpleEffect X="-160" Y="140" Type="Sequention" ClassName="fire1" PictureLocation="global" Speed="2" Offset="17" Width="256" Height="196" />
+    <SimpleEffect X="-60" Y="155" Type="Sequention" ClassName="fire1" PictureLocation="global" Speed="2" Offset="47" Width="384" Height="192" />
+    <SimpleEffect X="-30" Y="50" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="57" Width="300" Height="300" />
+    <SimpleEffect X="100" Y="155" Type="Sequention" ClassName="fire1" PictureLocation="global" Speed="2" Offset="17" Width="384" Height="192" />
+    <SimpleEffect X="160" Y="120" Type="Sequention" ClassName="fire1" PictureLocation="global" Speed="2" Offset="27" Width="384" Height="192" />
+    <SimpleEffect X="350" Y="80" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="37" Width="300" Height="240" />
+    <SimpleEffect X="450" Y="140" Type="Sequention" ClassName="fire2" PictureLocation="global" Speed="2" Offset="37" Width="256" Height="196" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1"  Scaling="1">
+    <Image X="-770" Y="-130" ClassName="left" Width="500" Height="680" />
+    <Image X="770" Y="-130" ClassName="right" Width="500" Height="680" />
+    <Image X="-896" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="-640" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="-384" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="-128" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="128" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="384" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="640" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="896" Y="198.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="0" Y="390" ClassName="pixel_1" Width="2000" Height="390" Color="0x000000" IsOpaque="1" />
+  </Layer>
+</Root>

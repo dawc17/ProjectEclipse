@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!213 &21300000
+Sprite:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: ach_health_remained_silver
+  m_Rect:
+    serializedVersion: 2
+    x: 2.042908
+    y: 0.076120496
+    width: 187.88097
+    height: 185.89713
+  m_Offset: {x: -0.98339194, y: 1.975324}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.49476588, y: 0.5106259}
+  m_Extrude: 1
+  m_IsPolygon: 0
+  m_AtlasName:
+  m_PackingTag:
+  m_RD:
+    serializedVersion: 2
+    texture: {fileID: 2800000, guid: 2f2f46b68a360af47b4f2c76a4c16a49, type: 3}
+    alphaTexture: {fileID: 0}
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 30
+      topology: 0
+      firstVertex: 0
+      vertexCount: 12
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 0b000a000900080009000a00070009000800050007000800060007000500040006000500030004000500010004000300000001000300020001000000
+    m_VertexData:
+      m_CurrentChannels: 9
+      m_VertexCount: 12
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 12
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 240
+      _typelessdata: d7a3703f85eb513f0000000000000000000000003333733f9a9959bf0000000000000000000000003333733f5c8f423f0000000000000000000000003d0a573fc3f5683f0000000000000000000000003d0a573f333373bf000000000000000000000000713d4abfc3f5683f00000000000000000000000085eb51bf333373bf000000000000000000000000ae4761bfae4761bf0000000000000000000000000ad763bf3d0a573f000000000000000000000000c3f568bf85eb51bf0000000000000000000000007b146ebf48e13a3f0000000000000000000000007b146ebf48e13abf000000000000000000000000
+    textureRect:
+      serializedVersion: 2
+      x: 2.042908
+      y: 0.076120496
+      width: 187.88097
+      height: 185.89713
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 100, y: 95, z: 100, w: 95}

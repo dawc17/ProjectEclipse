@@ -1,0 +1,497 @@
+using System;
+using System.Runtime.CompilerServices;
+using System.Xml;
+using UnityEngine;
+
+public class Vector3f : Vector2f
+{
+	private float KNHMBKIGHLB;
+
+	public float MMHBGPFEICN
+	{
+		get
+		{
+			return KMFEKANLCFO();
+		}
+		set
+		{
+			set_Z(value);
+		}
+	}
+
+	public float IHGONCCOKMK
+	{
+		get
+		{
+			return KLIOMCPELLF();
+		}
+	}
+
+	public float EDEIJKAKONA
+	{
+		get
+		{
+			return IGJNMAOKEKK();
+		}
+	}
+
+	public static Vector3f NNCHJCLKHHA
+	{
+		get
+		{
+			return GGGOJLHLFOJ();
+		}
+	}
+
+	public static Vector3f FJBHJIFKOMF
+	{
+		get
+		{
+			return LOOCMJMEFIM();
+		}
+	}
+
+	public static Vector3f DDLDNKIDIGO
+	{
+		get
+		{
+			return JCFHLFIGEMK();
+		}
+	}
+
+	public static Vector3f Zero
+	{
+		get
+		{
+			return GIJAIFMOOOI();
+		}
+	}
+
+	public static Vector3f MOAPAKKGMPF
+	{
+		get
+		{
+			return GMFLBGGIMBL();
+		}
+	}
+
+	public Vector3f()
+	{
+		PPKLGHELJIF = (DGGMCNNEGCA = (KNHMBKIGHLB = 0f));
+	}
+
+	public Vector3f(float LHNJJFDIJKK, float FFFHIOALHGM = 0f, float PDCENMEKIAP = 0f)
+	{
+		PPKLGHELJIF = LHNJJFDIJKK;
+		DGGMCNNEGCA = FFFHIOALHGM;
+		KNHMBKIGHLB = PDCENMEKIAP;
+	}
+
+	public Vector3f(Vector3f BEHOPOPCJGB)
+	{
+		PPKLGHELJIF = BEHOPOPCJGB.GILCBJJPKBK();
+		DGGMCNNEGCA = BEHOPOPCJGB.OBIMBNIBEFG();
+		KNHMBKIGHLB = BEHOPOPCJGB.KMFEKANLCFO();
+	}
+
+	public Vector3f(Vector3 BEHOPOPCJGB)
+	{
+		PPKLGHELJIF = BEHOPOPCJGB.x;
+		DGGMCNNEGCA = BEHOPOPCJGB.y;
+		KNHMBKIGHLB = BEHOPOPCJGB.z;
+	}
+
+	public float KMFEKANLCFO()
+	{
+		return KNHMBKIGHLB;
+	}
+
+	public void set_Z(float value)
+	{
+		KNHMBKIGHLB = value;
+	}
+
+	public float KLIOMCPELLF()
+	{
+		return Mathf.Sqrt(PPKLGHELJIF * PPKLGHELJIF + DGGMCNNEGCA * DGGMCNNEGCA + KNHMBKIGHLB * KNHMBKIGHLB);
+	}
+
+	public float IGJNMAOKEKK()
+	{
+		return Mathf.Sqrt(PPKLGHELJIF * PPKLGHELJIF + DGGMCNNEGCA * DGGMCNNEGCA);
+	}
+
+	public static Vector3f GGGOJLHLFOJ()
+	{
+		return new Vector3f(1f);
+	}
+
+	public static Vector3f LOOCMJMEFIM()
+	{
+		return new Vector3f(0f, 1f);
+	}
+
+	public static Vector3f JCFHLFIGEMK()
+	{
+		return new Vector3f(0f, 1f);
+	}
+
+	public static Vector3f GIJAIFMOOOI()
+	{
+		return new Vector3f(0f);
+	}
+
+	public static Vector3f GMFLBGGIMBL()
+	{
+		return new Vector3f(1f, 1f, 1f);
+	}
+
+	[SpecialName]
+	public static Vector3f PHEFFKMOOCM(Vector3f BEHOPOPCJGB, float LIAILCGJBDK)
+	{
+		return new Vector3f(BEHOPOPCJGB.GILCBJJPKBK() + LIAILCGJBDK, BEHOPOPCJGB.OBIMBNIBEFG() + LIAILCGJBDK, BEHOPOPCJGB.KMFEKANLCFO() + LIAILCGJBDK);
+	}
+
+	[SpecialName]
+	public static Vector3f PHEFFKMOOCM(Vector3f NBMEGFBPGFE, Vector3f AKKEJFKBIHF)
+	{
+		return new Vector3f(NBMEGFBPGFE.GILCBJJPKBK() + AKKEJFKBIHF.GILCBJJPKBK(), NBMEGFBPGFE.OBIMBNIBEFG() + AKKEJFKBIHF.OBIMBNIBEFG(), NBMEGFBPGFE.KMFEKANLCFO() + AKKEJFKBIHF.KMFEKANLCFO());
+	}
+
+	[SpecialName]
+	public static Vector3f MJOKEBGPHKB(Vector3f BEHOPOPCJGB, float LIAILCGJBDK)
+	{
+		return new Vector3f(BEHOPOPCJGB.GILCBJJPKBK() - LIAILCGJBDK, BEHOPOPCJGB.OBIMBNIBEFG() - LIAILCGJBDK, BEHOPOPCJGB.KMFEKANLCFO() - LIAILCGJBDK);
+	}
+
+	[SpecialName]
+	public static Vector3f MJOKEBGPHKB(Vector3f NBMEGFBPGFE, Vector3f AKKEJFKBIHF)
+	{
+		return new Vector3f(NBMEGFBPGFE.GILCBJJPKBK() - AKKEJFKBIHF.GILCBJJPKBK(), NBMEGFBPGFE.OBIMBNIBEFG() - AKKEJFKBIHF.OBIMBNIBEFG(), NBMEGFBPGFE.KMFEKANLCFO() - AKKEJFKBIHF.KMFEKANLCFO());
+	}
+
+	[SpecialName]
+	public static Vector3f op_Multiply(Vector3f BEHOPOPCJGB, float LIAILCGJBDK)
+	{
+		return new Vector3f(BEHOPOPCJGB.GILCBJJPKBK() * LIAILCGJBDK, BEHOPOPCJGB.OBIMBNIBEFG() * LIAILCGJBDK, BEHOPOPCJGB.KMFEKANLCFO() * LIAILCGJBDK);
+	}
+
+	[SpecialName]
+	public static float op_Multiply(Vector3f NBMEGFBPGFE, Vector3f AKKEJFKBIHF)
+	{
+		return NBMEGFBPGFE.GILCBJJPKBK() * AKKEJFKBIHF.GILCBJJPKBK() + NBMEGFBPGFE.OBIMBNIBEFG() * AKKEJFKBIHF.OBIMBNIBEFG() + NBMEGFBPGFE.KMFEKANLCFO() * AKKEJFKBIHF.KMFEKANLCFO();
+	}
+
+	[SpecialName]
+	public static Vector3 op_Implicit(Vector3f BEHOPOPCJGB)
+	{
+		return new Vector3(BEHOPOPCJGB.GILCBJJPKBK(), BEHOPOPCJGB.OBIMBNIBEFG(), BEHOPOPCJGB.KMFEKANLCFO());
+	}
+
+	[SpecialName]
+	public static Vector3f op_Implicit(Vector3 BEHOPOPCJGB)
+	{
+		return new Vector3f(BEHOPOPCJGB.x, BEHOPOPCJGB.y, BEHOPOPCJGB.z);
+	}
+
+	public static float Distance(Vector3f NBMEGFBPGFE, Vector3f AKKEJFKBIHF)
+	{
+		float num = AKKEJFKBIHF.PPKLGHELJIF - NBMEGFBPGFE.PPKLGHELJIF;
+		float num2 = AKKEJFKBIHF.DGGMCNNEGCA - NBMEGFBPGFE.DGGMCNNEGCA;
+		float num3 = AKKEJFKBIHF.KNHMBKIGHLB - NBMEGFBPGFE.KNHMBKIGHLB;
+		return Mathf.Sqrt(num * num + num2 * num2 + num3 * num3);
+	}
+
+	public float Distance(Vector3f BEHOPOPCJGB)
+	{
+		return Distance(BEHOPOPCJGB, this);
+	}
+
+	public Vector3f Add(float LIAILCGJBDK)
+	{
+		PPKLGHELJIF += LIAILCGJBDK;
+		DGGMCNNEGCA += LIAILCGJBDK;
+		KNHMBKIGHLB += LIAILCGJBDK;
+		return this;
+	}
+
+	public Vector3f Add(float LHNJJFDIJKK, float FFFHIOALHGM, float PDCENMEKIAP)
+	{
+		PPKLGHELJIF += LHNJJFDIJKK;
+		DGGMCNNEGCA += FFFHIOALHGM;
+		KNHMBKIGHLB += PDCENMEKIAP;
+		return this;
+	}
+
+	public Vector3f Add(Vector3f BEHOPOPCJGB)
+	{
+		PPKLGHELJIF += BEHOPOPCJGB.GILCBJJPKBK();
+		DGGMCNNEGCA += BEHOPOPCJGB.OBIMBNIBEFG();
+		KNHMBKIGHLB += BEHOPOPCJGB.KMFEKANLCFO();
+		return this;
+	}
+
+	public void Add(Vector3f BEHOPOPCJGB, float LMBKGOKPDGM)
+	{
+		PPKLGHELJIF += BEHOPOPCJGB.PPKLGHELJIF * LMBKGOKPDGM;
+		DGGMCNNEGCA += BEHOPOPCJGB.DGGMCNNEGCA * LMBKGOKPDGM;
+		KNHMBKIGHLB += BEHOPOPCJGB.KNHMBKIGHLB * LMBKGOKPDGM;
+	}
+
+	public void GLGNIMKANCA(Vector3f BEHOPOPCJGB, float LMBKGOKPDGM)
+	{
+		PPKLGHELJIF += BEHOPOPCJGB.PPKLGHELJIF * LMBKGOKPDGM;
+		DGGMCNNEGCA += BEHOPOPCJGB.DGGMCNNEGCA * LMBKGOKPDGM;
+	}
+
+	public new Vector3f Add(Vector2f PALAIICCALN)
+	{
+		PPKLGHELJIF += PALAIICCALN.GILCBJJPKBK();
+		DGGMCNNEGCA += PALAIICCALN.OBIMBNIBEFG();
+		return this;
+	}
+
+	public Vector3f EHGLHOGAIDI(float LIAILCGJBDK)
+	{
+		PPKLGHELJIF -= LIAILCGJBDK;
+		DGGMCNNEGCA -= LIAILCGJBDK;
+		KNHMBKIGHLB -= LIAILCGJBDK;
+		return this;
+	}
+
+	public Vector3f EHGLHOGAIDI(float LHNJJFDIJKK, float FFFHIOALHGM, float PDCENMEKIAP)
+	{
+		PPKLGHELJIF -= LHNJJFDIJKK;
+		DGGMCNNEGCA -= FFFHIOALHGM;
+		KNHMBKIGHLB -= PDCENMEKIAP;
+		return this;
+	}
+
+	public Vector3f EHGLHOGAIDI(Vector3f BEHOPOPCJGB)
+	{
+		PPKLGHELJIF -= BEHOPOPCJGB.GILCBJJPKBK();
+		DGGMCNNEGCA -= BEHOPOPCJGB.OBIMBNIBEFG();
+		KNHMBKIGHLB -= BEHOPOPCJGB.KMFEKANLCFO();
+		return this;
+	}
+
+	public new Vector3f EHGLHOGAIDI(Vector2f PALAIICCALN)
+	{
+		PPKLGHELJIF -= PALAIICCALN.GILCBJJPKBK();
+		DGGMCNNEGCA -= PALAIICCALN.OBIMBNIBEFG();
+		return this;
+	}
+
+	public new Vector3f Multiply(float LIAILCGJBDK)
+	{
+		PPKLGHELJIF *= LIAILCGJBDK;
+		DGGMCNNEGCA *= LIAILCGJBDK;
+		KNHMBKIGHLB *= LIAILCGJBDK;
+		return this;
+	}
+
+	public Vector3f Multiply(float LHNJJFDIJKK, float FFFHIOALHGM, float PDCENMEKIAP)
+	{
+		PPKLGHELJIF *= LHNJJFDIJKK;
+		DGGMCNNEGCA *= FFFHIOALHGM;
+		KNHMBKIGHLB *= PDCENMEKIAP;
+		return this;
+	}
+
+	public Vector3f Cross(Vector3f BEHOPOPCJGB)
+	{
+		return new Vector3f(DGGMCNNEGCA * BEHOPOPCJGB.KMFEKANLCFO() - KNHMBKIGHLB * BEHOPOPCJGB.OBIMBNIBEFG(), KNHMBKIGHLB * BEHOPOPCJGB.GILCBJJPKBK() - PPKLGHELJIF * BEHOPOPCJGB.KMFEKANLCFO(), PPKLGHELJIF * BEHOPOPCJGB.OBIMBNIBEFG() - DGGMCNNEGCA - BEHOPOPCJGB.GILCBJJPKBK());
+	}
+
+	public bool IsEqual(float CBNDEKHFGIJ, float NHELNADHNBA, float FEAAEKAELOH)
+	{
+		return PPKLGHELJIF == CBNDEKHFGIJ && DGGMCNNEGCA == NHELNADHNBA && KNHMBKIGHLB == FEAAEKAELOH;
+	}
+
+	public static Vector3f Cross(Vector3f GIIIFLBEONP, Vector3f OIFPGODHFGH, Vector3f HNAPOAIMLGE, Vector3f LOJLJJPGPEC)
+	{
+		float num = (OIFPGODHFGH.OBIMBNIBEFG() - GIIIFLBEONP.OBIMBNIBEFG()) * (HNAPOAIMLGE.GILCBJJPKBK() - LOJLJJPGPEC.GILCBJJPKBK()) - (HNAPOAIMLGE.OBIMBNIBEFG() - LOJLJJPGPEC.OBIMBNIBEFG()) * (OIFPGODHFGH.GILCBJJPKBK() - GIIIFLBEONP.GILCBJJPKBK());
+		float num2 = (OIFPGODHFGH.OBIMBNIBEFG() - GIIIFLBEONP.OBIMBNIBEFG()) * (HNAPOAIMLGE.GILCBJJPKBK() - GIIIFLBEONP.GILCBJJPKBK()) - (HNAPOAIMLGE.OBIMBNIBEFG() - GIIIFLBEONP.OBIMBNIBEFG()) * (OIFPGODHFGH.GILCBJJPKBK() - GIIIFLBEONP.GILCBJJPKBK());
+		float num3 = (HNAPOAIMLGE.OBIMBNIBEFG() - GIIIFLBEONP.OBIMBNIBEFG()) * (HNAPOAIMLGE.GILCBJJPKBK() - LOJLJJPGPEC.GILCBJJPKBK()) - (HNAPOAIMLGE.OBIMBNIBEFG() - LOJLJJPGPEC.OBIMBNIBEFG()) * (HNAPOAIMLGE.GILCBJJPKBK() - GIIIFLBEONP.GILCBJJPKBK());
+		if ((double)num == 0.0 && (double)num2 == 0.0 && (double)num3 == 0.0)
+		{
+			return null;
+		}
+		if ((double)num == 0.0)
+		{
+			return null;
+		}
+		float num4 = num2 / num;
+		float num5 = num3 / num;
+		float lHNJJFDIJKK = GIIIFLBEONP.GILCBJJPKBK() + (OIFPGODHFGH.GILCBJJPKBK() - GIIIFLBEONP.GILCBJJPKBK()) * num5;
+		float fFFHIOALHGM = GIIIFLBEONP.OBIMBNIBEFG() + (OIFPGODHFGH.OBIMBNIBEFG() - GIIIFLBEONP.OBIMBNIBEFG()) * num5;
+		if (0f < num4 && num4 < 1f && ((0f < num5) & (num5 < 1f)))
+		{
+			return new Vector3f(lHNJJFDIJKK, fFFHIOALHGM);
+		}
+		return null;
+	}
+
+	public static Vector3f Middle(Vector3f GIIIFLBEONP, Vector3f OIFPGODHFGH)
+	{
+		return PHEFFKMOOCM(GIIIFLBEONP, op_Multiply(MJOKEBGPHKB(OIFPGODHFGH, GIIIFLBEONP), 0.5f));
+	}
+
+	public static void Middle(Vector3f GIIIFLBEONP, Vector3f OIFPGODHFGH, Vector3f AMKKLMOONEP)
+	{
+		AMKKLMOONEP.PPKLGHELJIF = GIIIFLBEONP.PPKLGHELJIF + (OIFPGODHFGH.PPKLGHELJIF - GIIIFLBEONP.PPKLGHELJIF) * 0.5f;
+		AMKKLMOONEP.DGGMCNNEGCA = GIIIFLBEONP.DGGMCNNEGCA + (OIFPGODHFGH.DGGMCNNEGCA - GIIIFLBEONP.DGGMCNNEGCA) * 0.5f;
+		AMKKLMOONEP.KNHMBKIGHLB = GIIIFLBEONP.KNHMBKIGHLB + (OIFPGODHFGH.KNHMBKIGHLB - GIIIFLBEONP.KNHMBKIGHLB) * 0.5f;
+	}
+
+	public static Vector3f Closest(Vector3f PALAIICCALN, Vector3f NJIAPLENBIL, Vector3f COMFFMDIPBM)
+	{
+		Vector3f nBMEGFBPGFE = MJOKEBGPHKB(PALAIICCALN, NJIAPLENBIL);
+		float num = op_Multiply(nBMEGFBPGFE, COMFFMDIPBM);
+		float num2 = op_Multiply(COMFFMDIPBM, COMFFMDIPBM);
+		float lIAILCGJBDK = 0f;
+		if (num2 != 0f)
+		{
+			lIAILCGJBDK = num / num2;
+		}
+		return PHEFFKMOOCM(NJIAPLENBIL, op_Multiply(COMFFMDIPBM, lIAILCGJBDK));
+	}
+
+	public void Reset()
+	{
+		PPKLGHELJIF = 0f;
+		DGGMCNNEGCA = 0f;
+		KNHMBKIGHLB = 0f;
+	}
+
+	public static Vector3f Round(Vector3f BEHOPOPCJGB, float CFCPPNJKNAL)
+	{
+		BEHOPOPCJGB.JPFALPBDBAP(Round(BEHOPOPCJGB.GILCBJJPKBK(), CFCPPNJKNAL));
+		BEHOPOPCJGB.IBNFLLGPOLD(Round(BEHOPOPCJGB.OBIMBNIBEFG(), CFCPPNJKNAL));
+		BEHOPOPCJGB.set_Z(Round(BEHOPOPCJGB.KMFEKANLCFO(), CFCPPNJKNAL));
+		return BEHOPOPCJGB;
+	}
+
+	public Vector3f Round(float CFCPPNJKNAL)
+	{
+		PPKLGHELJIF = Round(PPKLGHELJIF, CFCPPNJKNAL);
+		DGGMCNNEGCA = Round(DGGMCNNEGCA, CFCPPNJKNAL);
+		KNHMBKIGHLB = Round(KNHMBKIGHLB, CFCPPNJKNAL);
+		return this;
+	}
+
+	public Vector3f NBDMEIKNJBG()
+	{
+		float num = KLIOMCPELLF();
+		if (num != 0f)
+		{
+			num = 1f / num;
+		}
+		PPKLGHELJIF *= num;
+		DGGMCNNEGCA *= num;
+		KNHMBKIGHLB *= num;
+		return this;
+	}
+
+	public static Vector3f KBNMOFDDLOM(Vector3f NBMEGFBPGFE, Vector3f AKKEJFKBIHF)
+	{
+		return MJOKEBGPHKB(NBMEGFBPGFE, AKKEJFKBIHF).Cross(JCFHLFIGEMK()).NBDMEIKNJBG();
+	}
+
+	public static float Factor(Vector3f AKDMNIEKKKC, Vector3f FOIDOJMGNHP, Vector3f CJJFBEHAMBL)
+	{
+		FOIDOJMGNHP.set_Z(0f);
+		AKDMNIEKKKC.set_Z(0f);
+		CJJFBEHAMBL.set_Z(0f);
+		return Distance(FOIDOJMGNHP, CJJFBEHAMBL) / Distance(FOIDOJMGNHP, AKDMNIEKKKC);
+	}
+
+	public Vector3f Clone()
+	{
+		return new Vector3f(PPKLGHELJIF, DGGMCNNEGCA, KNHMBKIGHLB);
+	}
+
+	public Vector3f Set(Vector3f BEHOPOPCJGB)
+	{
+		PPKLGHELJIF = BEHOPOPCJGB.PPKLGHELJIF;
+		DGGMCNNEGCA = BEHOPOPCJGB.DGGMCNNEGCA;
+		KNHMBKIGHLB = BEHOPOPCJGB.KNHMBKIGHLB;
+		return this;
+	}
+
+	public Vector3f Set(Vector3 BEHOPOPCJGB)
+	{
+		PPKLGHELJIF = BEHOPOPCJGB.x;
+		DGGMCNNEGCA = BEHOPOPCJGB.y;
+		KNHMBKIGHLB = BEHOPOPCJGB.z;
+		return this;
+	}
+
+	public Vector3f Set(float LHNJJFDIJKK = 0f, float FFFHIOALHGM = 0f, float PDCENMEKIAP = 0f)
+	{
+		PPKLGHELJIF = LHNJJFDIJKK;
+		DGGMCNNEGCA = FFFHIOALHGM;
+		KNHMBKIGHLB = PDCENMEKIAP;
+		return this;
+	}
+
+	public void SetMiddlePoint3D(Vector3f LHBNIMGFKIB, Vector3f AAOIAEJJINO)
+	{
+		PPKLGHELJIF = LHBNIMGFKIB.GILCBJJPKBK() + (AAOIAEJJINO.GILCBJJPKBK() - LHBNIMGFKIB.GILCBJJPKBK()) * 0.5f;
+		DGGMCNNEGCA = LHBNIMGFKIB.OBIMBNIBEFG() + (AAOIAEJJINO.OBIMBNIBEFG() - LHBNIMGFKIB.OBIMBNIBEFG()) * 0.5f;
+		KNHMBKIGHLB = LHBNIMGFKIB.KMFEKANLCFO() + (AAOIAEJJINO.KMFEKANLCFO() - LHBNIMGFKIB.KMFEKANLCFO()) * 0.5f;
+	}
+
+	public void OBGEKPIDMOP()
+	{
+		PPKLGHELJIF = (int)PPKLGHELJIF;
+		DGGMCNNEGCA = (int)DGGMCNNEGCA;
+		KNHMBKIGHLB = (int)KNHMBKIGHLB;
+	}
+
+	public static Vector3f Create(XmlNode MEEAKLDGLDF)
+	{
+		if (MEEAKLDGLDF == null)
+		{
+			return null;
+		}
+		Vector3f eMAFACPEPDK = new Vector3f();
+		try
+		{
+			eMAFACPEPDK.PPKLGHELJIF = float.Parse(MEEAKLDGLDF.Attributes["X"].Value);
+		}
+		catch
+		{
+			throw new Exception("Error : parse X eeror type");
+		}
+		try
+		{
+			eMAFACPEPDK.DGGMCNNEGCA = float.Parse(MEEAKLDGLDF.Attributes["Y"].Value);
+			return eMAFACPEPDK;
+		}
+		catch
+		{
+			throw new Exception("Error : parse Y eeror type");
+		}
+	}
+
+	public override string ToString()
+	{
+		return "X=" + PPKLGHELJIF.ToString("F4") + " Y=" + DGGMCNNEGCA.ToString("F4") + " Z=" + KNHMBKIGHLB.ToString("F4");
+	}
+
+	public new static float Round(float Value, float JMLMHGAMNKN)
+	{
+		return Mathf.Floor(Value * JMLMHGAMNKN + 0.5f) / JMLMHGAMNKN;
+	}
+
+	public static Vector3f GetDivisionPoint3D(Vector3f LHBNIMGFKIB, Vector3f AAOIAEJJINO, float ratio)
+	{
+		return new Vector3f(LHBNIMGFKIB.PPKLGHELJIF + (AAOIAEJJINO.PPKLGHELJIF - LHBNIMGFKIB.PPKLGHELJIF) * ratio, LHBNIMGFKIB.DGGMCNNEGCA + (AAOIAEJJINO.DGGMCNNEGCA - LHBNIMGFKIB.DGGMCNNEGCA) * ratio, LHBNIMGFKIB.KNHMBKIGHLB + (AAOIAEJJINO.KNHMBKIGHLB - LHBNIMGFKIB.KNHMBKIGHLB) * ratio);
+	}
+
+	public static void GetDivisionPoint3D(Vector3f LHBNIMGFKIB, Vector3f AAOIAEJJINO, float ratio, Vector3f FFFLNOBCBGL)
+	{
+		FFFLNOBCBGL.Set(LHBNIMGFKIB.PPKLGHELJIF + (AAOIAEJJINO.PPKLGHELJIF - LHBNIMGFKIB.PPKLGHELJIF) * ratio, LHBNIMGFKIB.DGGMCNNEGCA + (AAOIAEJJINO.DGGMCNNEGCA - LHBNIMGFKIB.DGGMCNNEGCA) * ratio, LHBNIMGFKIB.KNHMBKIGHLB + (AAOIAEJJINO.KNHMBKIGHLB - LHBNIMGFKIB.KNHMBKIGHLB) * ratio);
+	}
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <MAGIC_ASTEROID-Node1 Type="Node"  X="58.9753265380859"  Y="532.816101074219"  Z="1.5970551270339E-11"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node2 Type="Node"  X="58.9753265380859"  Y="512.816101074219"  Z="1.5970551270339E-11"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node3 Type="Node"  X="62.6493988037109"  Y="577.823486328125"  Z="-2.89774818723609E-11"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node4 Type="Node"  X="62.6493988037109"  Y="557.823486328125"  Z="-2.89774818723609E-11"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node5 Type="Node"  X="64.1085586547852"  Y="617.508544921875"  Z="-1.73625541027844E-11"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node6 Type="Node"  X="64.1085586547852"  Y="597.508544921875"  Z="-1.73625541027844E-11"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node7 Type="Node"  X="59.7478103637695"  Y="646.80859375"  Z="1.37889699658444E-12"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node8 Type="Node"  X="59.7478103637695"  Y="671.80859375"  Z="1.37889699658444E-12"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node9 Type="Node"  X="25"  Y="370"  Z="0"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <MAGIC_ASTEROID-Node10 Type="Node"  X="100"  Y="370"  Z="0"  Mass="10"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+  </Nodes>
+  <Edges>
+    <MAGIC_ASTEROID-Edge1 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0" Radius="65" Node1="MAGIC_ASTEROID-Node2"  Node2="MAGIC_ASTEROID-Node1"  Force="0"  SubNodesCount="0"  End1="MAGIC_ASTEROID-Node2"  End2="MAGIC_ASTEROID-Node1" />
+    <MAGIC_ASTEROID-Edge2 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0" Radius="10" Node1="MAGIC_ASTEROID-Node4"  Node2="MAGIC_ASTEROID-Node3"  Force="0"  SubNodesCount="0"  End1="MAGIC_ASTEROID-Node4"  End2="MAGIC_ASTEROID-Node3" />
+    <MAGIC_ASTEROID-Edge3 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0" Radius="10" Node1="MAGIC_ASTEROID-Node6"  Node2="MAGIC_ASTEROID-Node5"  Force="0"  SubNodesCount="0"  End1="MAGIC_ASTEROID-Node6"  End2="MAGIC_ASTEROID-Node5" />
+    <MAGIC_ASTEROID-Edge4 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0" Radius="5" Node1="MAGIC_ASTEROID-Node7"  Node2="MAGIC_ASTEROID-Node8"  Force="0"  SubNodesCount="0"  End1="MAGIC_ASTEROID-Node7"  End2="MAGIC_ASTEROID-Node8" />
+    <MAGIC_ASTEROID-Edge5 Type="Edge"  Length="75"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0" Radius="10" Node1="MAGIC_ASTEROID-Node10"  Node2="MAGIC_ASTEROID-Node9"  Force="0"  SubNodesCount="0"  End1="MAGIC_ASTEROID-Node10"  End2="MAGIC_ASTEROID-Node9" />
+  </Edges>
+  <Figures>
+  </Figures>
+</Scene>

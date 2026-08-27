@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <Fireball-MacroNode1 Type="MacroNode"  X="-200.000015258789"  Y="152.000015258789"  Z="-5.02914190292358E-6"  Mass="0.406437993049622"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="1.00582838058472E-7"  LCC2="-1"  LCC3="1.9799998998642"  LCC4="0.0199999995529652"  MC1="2.04403427517263E-8"  MC2="-0.203218996524811"  MC3="0.40237358212471"  MC4="0.00406437972560525" />
+    <Fireball-MacroNode2 Type="MacroNode"  X="-100"  Y="152"  Z="0"  Mass="1.99840152263641"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="0"  LCC2="1"  LCC3="-0.0199999995529652"  LCC4="0.0199999995529652"  MC1="0"  MC2="0.999200761318207"  MC3="-0.0199840143322945"  MC4="0.0199840143322945" />
+  </Nodes>
+  <Edges>
+    <Fireball-Edge1 Type="Edge"  Length="100.000015258789"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="Fireball-MacroNode2"  Node2="Fireball-MacroNode1"  Force="0"  SubNodesCount="0"  End1="Fireball-MacroNode2"  End2="Fireball-MacroNode1" />
+  </Edges>
+  <Figures/>
+</Scene>

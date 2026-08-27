@@ -1,0 +1,3 @@
+current_name	clean_name	evidence
+RaidLootContainer	MapButtonInfo	Fields Name/Image/Timer/coords/type plus Image/Sequence and Both/Story/Raid enums exactly identify Switch MapButtonInfo
+PvpLocation	GameResistance	Exact MaxValue/Name/Icon/Color layout and ResistanceStruct ownership in the clean build

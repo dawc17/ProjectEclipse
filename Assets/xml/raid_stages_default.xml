@@ -1,0 +1,4185 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Stages>
+  <Zones>
+    <Zone Name="ZONE_RAID" FileName="Raid1.1">
+      <Battle Name="BOSS_1" Alias="RAIDBOSS_FIRE" Title="RAIDBOSS_FIRE_TITLE" Icon="vulcan_raid" Preview="preview_raid_base.vulcan_raid" Type="FINAL_BATTLE" Description="descVolcano{3}" X="-10" Y="-180" Location="vulcan_raid" Music="vulcan">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="17" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Volcano" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="51">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION">
+                  <Set Frames="600" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_1_HARDMODE" Alias="RAIDBOSS_FIRE" Title="RAIDBOSS_FIRE_TITLE" Icon="vulcan_raid" Preview="preview_raid_base.vulcan_raid" Type="FINAL_BATTLE" Description="descPowerMode{3}" X="-10" Y="-180" Location="vulcan_raid" Music="vulcan">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="17">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="50" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="16" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="9" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Volcano" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="51" Avatar="boss_fire_hardmode" ShieldTotal="20">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION">
+                  <Set Frames="300" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HOT_GROUND" />
+              <HotGround Frames="720" ApplyTo="Player">
+                <Node Name="NToeTip_1" Axis="Y" Max="11" />
+                <Node Name="NToeTip_2" Axis="Y" Max="11" />
+                <Node Name="NKnee_1" Axis="Y" Max="30" />
+                <Node Name="NKnee_2" Axis="Y" Max="30" />
+                <Node Name="NPivot" Axis="Y" Max="30" />
+                <Node Name="NNeck" Axis="Y" Max="30" />
+                <Node Name="NTop" Axis="Y" Max="30" />
+                <Animation Name="ThrowFall" />
+                <Animation Name="Jump" />
+                <Animation Name="PhysicalFall" />
+              </HotGround>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_SON_OF_HEAVEN" Alias="RAIDBOSS_CNY" Title="RAIDBOSS_CNY_Title" Icon="CHNY26" IconAtlas="BattleBtnCHNY26" Preview="preview_ChineseNewYear26.son_of_the_sun_preview" Type="FINAL_BATTLE" Description="descSonOfHeaven{5}" X="-175" Y="-230" Location="new_year_china_dojo" Music="ninja_in_the_night_old">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="18" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_SonOfHeaven" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="120">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HERMITSTORM" />
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.2" DamageFactor="931" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_SON_OF_HEAVEN_HARDMODE" Alias="RAIDBOSS_CNY" Title="RAIDBOSS_CNY_Title" Icon="CHNY26" IconAtlas="BattleBtnCHNY26" Preview="preview_ChineseNewYear26.son_of_the_sun_preview" Type="FINAL_BATTLE" Description="descPowerMode{5}" X="-175" Y="-230" Location="new_year_china_dojo" Music="ninja_in_the_night_old">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="18">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="71" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="21" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="13" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_SonOfHeaven" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="120" Avatar="new_man_shuang_gou_hardmode" ShieldTotal="21">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HERMITSTORM" />
+                <Perk Name="PERK_CONCUSSION">
+                  <Set Chance="0.15" Frames="420" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.1" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_JUMPS" />
+              <NoAnimation Name="Jump" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_2" Alias="RAIDBOSS_Stone" Title="RAIDBOSS_Stone_Title" Icon="megalith_raid" Preview="preview_raid_base.megalith_raid" Type="FINAL_BATTLE" Description="descMegalith{7}" X="-370" Y="-180" Location="megalith_raid" Music="crystal">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="19" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Megalith" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="177">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ROCK">
+                  <Set Chance="0.2" Lifesteal="0" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_2_HARDMODE" Alias="RAIDBOSS_Stone" Title="RAIDBOSS_Stone_Title" Icon="megalith_raid" Preview="preview_raid_base.megalith_raid" Type="FINAL_BATTLE" Description="descPowerMode{7}" X="-370" Y="-180" Location="megalith_raid" Music="crystal">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="19">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="104" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="31" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="19" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Megalith" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="177" Avatar="boss_crystal_hardmode" ShieldTotal="22">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ROCK">
+                  <Set Chance="1" Lifesteal="0" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.12" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_ABSORBPTION_BODY_ARMOR ">
+                  <Set Aspect="100000" Chance="0.07" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_ABSORBPTION_HEAD_HELM ">
+                  <Set Aspect="100000" Chance="0.07" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_DOUBLE" />
+              <NoAnimation Name="3key" />
+              <NoAnimation Name="DoubleSlash" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_PUPPETEER" Alias="RAIDBOSS_PUPPETEER" Title="RAIDBOSS_PUPPETEER_TITLE" Icon="ascension_raid" IconAtlas="BattleBtnAscension" Preview="preview_main.statue" Type="FINAL_BATTLE" Description="descPuppeteer{9}" X="-405" Y="-40" Location="statue" Music="halls_of_the_dead_heroes">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="21" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Puppeteer" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="266">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_PUPPETEER_HARDMODE" Alias="RAIDBOSS_PUPPETEER" Title="RAIDBOSS_PUPPETEER_TITLE" Icon="ascension_raid" IconAtlas="BattleBtnAscension" Preview="preview_main.statue" Type="FINAL_BATTLE" Description="descPowerMode{9}" X="-405" Y="-40" Location="statue" Music="halls_of_the_dead_heroes">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="21">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="150" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="45" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="28" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Puppeteer" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="266" ShieldTotal="23">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY">
+                  <Set Frames="540" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="INVERTED_JOYSTICK" />
+              <InvertJoystick />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_3" Alias="RAIDBOSS_Mushroom" Title="RAIDBOSS_Mushroom_Title" Icon="fungus_raid" Preview="preview_raid_base.fungus_raid" Type="FINAL_BATTLE" Description="descFungus{12}" X="-180" Y="-60" Location="fungus_raid" Music="fungus">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="25" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Fungus" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="371">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_EARTHQUAKE" />
+                <Perk Name="PERK_ROCK">
+                  <Set Chance="0.2" Lifesteal="0" />
+                </Perk>
+                <Perk Name="PERK_CONCUSSION">
+                  <Set Chance="0.1" Frames="360" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_3_HARDMODE" Alias="RAIDBOSS_Mushroom" Title="RAIDBOSS_Mushroom_Title" Icon="fungus_raid" Preview="preview_raid_base.fungus_raid" Type="FINAL_BATTLE" Description="descPowerMode{12}" X="-180" Y="-60" Location="fungus_raid" Music="fungus">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="25">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="259" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="78" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="47" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Fungus" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="371" Avatar="boss_mushroom_hardmode" ShieldTotal="24">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_EARTHQUAKE" />
+                <Perk Name="PERK_CONCUSSION">
+                  <Set Chance="0.35" Frames="600" />
+                </Perk>
+                <Perk Name="PERK_ROCK">
+                  <Set Chance="0.33" Lifesteal="0" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" Chance="0.35" Frames="600" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="RANDOM_AREA_HEALTH_DEGENERATION" />
+              <RandomArea Image="ra_bleed" Icon="ra_bleed_icon" Width="500" FadeIn="60" FramesOn="180" FadeOut="60" FramesOff="240" />
+              <Perk Name="PERK_AREA_HEALTH_DEGENERATION" ApplyTo="Player">
+                <Set AttributeBleeding="-350" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB_VULCAN" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnRitualVulcan" Icon="ritual_vulcan_raid" Preview="preview_raid_ritual_vulcan.ritual_vulcan_raid" Type="FINAL_BATTLE" Description="descLamb{15}" X="-10" Y="-10" Location="ritual_vulcan_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="28" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb_Vulcan" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="482">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB_VULCAN_HARDMODE" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnRitualVulcan" Icon="ritual_vulcan_raid" Preview="preview_raid_ritual_vulcan.ritual_vulcan_raid" Type="FINAL_BATTLE" Description="descPowerMode{15}" X="-10" Y="-10" Location="ritual_vulcan_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="28">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="447" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="134" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="81" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb_Vulcan" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="482" ShieldTotal="26">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_COBRA">
+                  <Set Chance="1" Health="0.1" Frames="240" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.07" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_DOUBLE" />
+              <NoAnimation Name="3key" />
+              <NoAnimation Name="DoubleSlash" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_4" Alias="RAIDBOSS_Vortex" Title="RAIDBOSS_Vortex_Title" Icon="vortex_raid" Preview="preview_raid_base.vortex_raid" Type="FINAL_BATTLE" Description="descVortex{18}" X="-260" Y="123" Location="vortex_raid" Music="vortex">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="31" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Vortex" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="587">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.33" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_4_HARDMODE" Alias="RAIDBOSS_Vortex" Title="RAIDBOSS_Vortex_Title" Icon="vortex_raid" Preview="preview_raid_base.vortex_raid" Type="FINAL_BATTLE" Description="descPowerMode{18}" X="-260" Y="123" Location="vortex_raid" Music="vortex">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="31">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="772" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="231" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="138" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Vortex" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="587" Avatar="boss_vortex_hardmode" ShieldTotal="28">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.33" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="EARTHQUAKE" />
+              <Perk Name="PERK_RULE_EARTHQUAKE" ApplyTo="Bot">
+                <Set Frames_quake="600" Frames_prequake="60" Health="0.01" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+    <Zone Name="ZONE_RAID1" FileName="Raid1.2">
+      <Battle Name="BOSS_5" Alias="RAIDBOSS_Fatum" Title="RAIDBOSS_Fatum_Title" Icon="fatum_raid" Preview="preview_raid_base.fatum_raid" Type="FINAL_BATTLE" Description="descFatum{21}" X="-60" Y="15" Location="fatum_raid" Music="fatum">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="36" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Fatum" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="698">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_5_HARDMODE" Alias="RAIDBOSS_Fatum" Title="RAIDBOSS_Fatum_Title" Icon="fatum_raid" Preview="preview_raid_base.fatum_raid" Type="FINAL_BATTLE" Description="descPowerMode{21}" X="-60" Y="15" Location="fatum_raid" Music="fatum">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="36">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1334" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="400" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="241" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Fatum" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="698" Avatar="boss_fatum_hardmode" ShieldTotal="30">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_MIRROR">
+                  <Set Chance="0.3" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_HEALTHBAR" />
+              <NoHealthBar />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB_FUNGUS" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnRitualFungus" Icon="ritual_fungus_raid" Preview="preview_raid_ritual_fungus.ritual_fungus_raid" Type="FINAL_BATTLE" Description="descLamb{24}" X="150" Y="0" Location="ritual_fungus_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="42" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb_Fungus" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="803">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB_FUNGUS_HARDMODE" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnRitualFungus" Icon="ritual_fungus_raid" Preview="preview_raid_ritual_fungus.ritual_fungus_raid" Type="FINAL_BATTLE" Description="descPowerMode{24}" X="150" Y="0" Location="ritual_fungus_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="42">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="2304" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="690" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="413" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb_Fungus" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="803" Avatar="boss_lamb_fungus_hard" ShieldTotal="32">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.12" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.15" DamageFactor="2015" Frames="420" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_HEALTHBAR" />
+              <NoHealthBar />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_WOLF_WIND" Alias="RAIDBOSS_WIND_WOLF_TITLE" Title="RAIDBOSS_WIND_WOLF" IconAtlas="BattleBtnWindWolf" Icon="wind_wolf_raid" Preview="preview_raid_events_wind_wolf_raid_new" Type="FINAL_BATTLE" Description="descWolfWind{27}" X="-430" Y="65" Location="american_event_24" Music="fight_independence_day">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="47" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Wolf_Wind" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="914">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_WOLF_WIND_HARDMODE" Alias="RAIDBOSS_WIND_WOLF_TITLE" Title="RAIDBOSS_WIND_WOLF" IconAtlas="BattleBtnWindWolf" Icon="wind_wolf_raid" Preview="preview_raid_events_wind_wolf_raid_new" Type="FINAL_BATTLE" Description="descPowerMode{27}" X="-430" Y="65" Location="american_event_24" Music="fight_independence_day">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="47">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="3983" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="1195" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="717" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Wolf_Wind" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="914" ShieldTotal="34">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+                <Perk Name="PERK_GUST_SET_WIND_MAKER">
+                  <Set Frames="720" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="2015" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HOT_GROUND" />
+              <HotGround Frames="720" ApplyTo="Player">
+                <Node Name="NToeTip_1" Axis="Y" Max="11" />
+                <Node Name="NToeTip_2" Axis="Y" Max="11" />
+                <Node Name="NKnee_1" Axis="Y" Max="30" />
+                <Node Name="NKnee_2" Axis="Y" Max="30" />
+                <Node Name="NPivot" Axis="Y" Max="30" />
+                <Node Name="NNeck" Axis="Y" Max="30" />
+                <Node Name="NTop" Axis="Y" Max="30" />
+                <Animation Name="ThrowFall" />
+                <Animation Name="Jump" />
+                <Animation Name="PhysicalFall" />
+              </HotGround>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_6" Alias="RAIDBOSS_Arkhos" Title="RAIDBOSS_Arkhos_Title" Icon="arkhos_raid" Preview="preview_raid_base.arkhos_raid" Type="FINAL_BATTLE" Description="descArkhos{29}" X="-290" Y="-70" Location="arkhos_raid" Music="holyman7">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="51" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Arkhos" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="984">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_RAT_WAVE" />
+                <Perk Name="PERK_BLOCK_BREAKER" />
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.2" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.33" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_6_HARDMODE" Alias="RAIDBOSS_Arkhos" Title="RAIDBOSS_Arkhos_Title" Icon="arkhos_raid" Preview="preview_raid_base.arkhos_raid" Type="FINAL_BATTLE" Description="descPowerMode{29}" X="-290" Y="-70" Location="arkhos_raid" Music="holyman7">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="51">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="5734" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="1720" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="1033" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Arkhos" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="984" Avatar="boss_arkhos_hardmode" ShieldTotal="35">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_RAT_WAVE" />
+                <Perk Name="PERK_BLOCK_BREAKER" />
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.2" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.33" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_KICKS" />
+              <NoButton Name="Kick" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_7" Alias="RAIDBOSS_Hoaxen" Title="RAIDBOSS_Hoaxen_Title" Icon="hoaxen_raid" Preview="preview_raid_base.hoaxen_raid" Type="FINAL_BATTLE" Description="descHoaxen{31}" X="-60" Y="-230" Location="hoaxen_raid" Music="holyman8">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="55" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Hoaxen" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1049">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HOAXEN_TENTACLES" />
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_FIGHT_WITH_HOAXEN" ApplyTo="Player" />
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_7_HARDMODE" Alias="RAIDBOSS_Hoaxen" Title="RAIDBOSS_Hoaxen_Title" Icon="hoaxen_raid" Preview="preview_raid_base.hoaxen_raid" Type="FINAL_BATTLE" Description="descPowerMode{31}" X="-60" Y="-230" Location="hoaxen_raid" Music="holyman8">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="55">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="8257" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="2477" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="1487" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Hoaxen" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1049" Avatar="boss_hoaxen_hardmode" ShieldTotal="36">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HOAXEN_TENTACLES" />
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_ROCK">
+                  <Set Chance="0.25" Lifesteal="0" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_BLOCKS" />
+              <RemoveInterval Type="Block" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_FIGHT_WITH_HOAXEN" ApplyTo="Player" />
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+    <Zone Name="ZONE_RAID2" FileName="Raid1.3">
+      <Battle Name="BOSS_8" Alias="RAIDBOSS_Hunger" Title="RAIDBOSS_Hunger_Title" Icon="hunger_raid" Preview="preview_raid_base.hunger_raid" Type="FINAL_BATTLE" Description="descKarcer{33}" X="-223" Y="-180" Location="hunger_raid" Music="hunger">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="61" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Karcer" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1130">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.15" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.1" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_8_HARDMODE" Alias="RAIDBOSS_Hunger" Title="RAIDBOSS_Hunger_Title" Icon="hunger_raid" Preview="preview_raid_base.hunger_raid" Type="FINAL_BATTLE" Description="descPowerMode{33}" X="-223" Y="-180" Location="hunger_raid" Music="hunger">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="61">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="11889" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="3567" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="2141" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Karcer" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1130" Avatar="boss_hunger_hardmode" ShieldTotal="38">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.15" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.1" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.12" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="EARTHQUAKE" />
+              <Perk Name="PERK_RULE_EARTHQUAKE" ApplyTo="Bot">
+                <Set Frames_quake="540" Frames_prequake="60" Health="0.01" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB_HUNGER" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnRitualHunger" Icon="ritual_hunger_raid" Preview="preview_raid_ritual_hunger.ritual_hunger_raid" Type="FINAL_BATTLE" Description="descLamb{36}" X="-420" Y="-195" Location="ritual_hunger_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="69" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb_Hunger" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1235">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_WEAPON">
+                  <Set Aspect="100000" Base="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB_HUNGER_HARDMODE" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnRitualHunger" Icon="ritual_hunger_raid" Preview="preview_raid_ritual_hunger.ritual_hunger_raid" Type="FINAL_BATTLE" Description="descPowerMode{36}" X="-420" Y="-195" Location="ritual_hunger_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="69">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="20544" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="6163" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="3697" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb_Hunger" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1235" Avatar="boss_lamb_hunger_hard" ShieldTotal="40">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.15" DamageFactor="2015" Frames="360" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.1" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" Chance="0.33" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_WEAPON">
+                  <Set Aspect="100000" Base="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="RANDOM_AREA_HEALTH_DEGENERATION" />
+              <RandomArea Image="ra_bleed" Icon="ra_bleed_icon" Width="500" FadeIn="60" FramesOn="180" FadeOut="60" FramesOff="240" />
+              <Perk Name="PERK_AREA_HEALTH_DEGENERATION" ApplyTo="Player">
+                <Set AttributeBleeding="-350" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_9" Alias="RAIDBOSS_War" Title="RAIDBOSS_War_Title" Icon="war_raid" Preview="preview_raid_base.war_raid" Type="FINAL_BATTLE" Description="descDrakaina{39}" X="29" Y="-104" Location="war_raid" Music="drakaina">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="79" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Drakaina" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1341">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_WAR_WHIRL">
+                  <Set Frames="800" />
+                </Perk>
+                <Perk Name="PERK_SUPLEX" />
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Frames="300" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.30" DamageFactor="4855" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_9_HARDMODE" Alias="RAIDBOSS_War" Title="RAIDBOSS_War_Title" Icon="war_raid" Preview="preview_raid_base.war_raid" Type="FINAL_BATTLE" Description="descPowerMode{39}" X="29" Y="-104" Location="war_raid" Music="drakaina">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="79">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="35501" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="10650" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="6389" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Drakaina" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1341" Avatar="boss_war_hardmode" ShieldTotal="42">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_WAR_WHIRL">
+                  <Set Frames="700" />
+                </Perk>
+                <Perk Name="PERK_SUPLEX" />
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Frames="300" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.30" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="FRAGILITY" />
+              <RandomArea Image="ra_debuff" Icon="ra_debuff_icon" Width="600" FadeIn="3" FramesOn="240" FadeOut="4" FramesOff="160" />
+              <Perk Name="PERK_AREA_FRAGILITY" ApplyTo="Player">
+                <Set AttributeDamageFactor="10000" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_BANSHEE" Alias="RAIDBOSS_Witch_banshee" Title="RAIDBOSS_Witch_banshee_Title" IconAtlas="BattleBtnHalloween" Icon="halloween_raid" Preview="preview_halloween_morgana_ghost" Type="FINAL_BATTLE" Description="descBanshee{41}" X="200" Y="-135" Location="haloween_dojo_2019" Music="fight_halloween2019">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="85" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Banshee" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1423">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.25" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.35" MagicDamageRecharge="10000" />
+                </Perk>
+                <Perk Name="PERK_OVERCHARGE">
+                  <Set DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_BANSHEE_HARDMODE" Alias="RAIDBOSS_Witch_banshee" Title="RAIDBOSS_Witch_banshee_Title" IconAtlas="BattleBtnHalloween" Icon="halloween_raid" Preview="preview_halloween_morgana_ghost" Type="FINAL_BATTLE" Description="descPowerMode{41}" X="200" Y="-135" Location="haloween_dojo_2019" Music="fight_halloween2019">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="85">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="51122" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="15337" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="9203" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Banshee" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1423" ShieldTotal="44">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.25" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.3" MagicDamageRecharge="10000" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.2" DamageFactor="4330" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="EARTHQUAKE" />
+              <Perk Name="PERK_RULE_EARTHQUAKE" ApplyTo="Bot">
+                <Set Frames_quake="600" Frames_prequake="60" Health="0.01" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_10" Alias="RAIDBOSS_Tenebris" Title="RAIDBOSS_Tenebris_Title" Icon="fear_raid" Preview="preview_raid_base.tenebris_raid" Type="FINAL_BATTLE" Description="descTenebris{44}" X="-189" Y="38" Location="fear_raid" Music="fear">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="98" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Tenebris" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1505">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_FEAR_RAY" />
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.33" MagicDamageRecharge="10000" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.1" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.35" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.33" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_10_HARDMODE" Alias="RAIDBOSS_Tenebris" Title="RAIDBOSS_Tenebris_Title" Icon="fear_raid" Preview="preview_raid_base.tenebris_raid" Type="FINAL_BATTLE" Description="descPowerMode{44}" X="-189" Y="38" Location="fear_raid" Music="fear">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="98">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="86957" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="26087" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="15652" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Tenebris" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1505" Avatar="boss_tenebris_hardmode" ShieldTotal="46">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_FEAR_RAY" />
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.33" MagicDamageRecharge="10000" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.25" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.35" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.33" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_SHOCK">
+                  <Set ChanceFactor="2500" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HEALTH_DROPS" />
+              <Regeneration Rate="-0.0001" FramesAfterHit="120" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_ARCHITECT_1" Alias="RAIDBOSS_ARCHITECT" Title="RAIDBOSS_ARCHITECT_TITLE" IconAtlas="BattleBtnSummerFest25Arch" Icon="arch" Preview="preview_summerFest25.preview_raid_events_summerFest25Arch" Type="FINAL_BATTLE" Description="descArchitect{45}" X="-390" Y="75" Location="dock" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="103" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Architect" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1568" Avatar="boss_architect_hummer" ShieldTotal="42">
+              <Items>
+                <Item Name="WEAPON_BP_S4_SCRIPTWRITER" />
+              </Items>
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.25" />
+                </Perk>
+                <Perk Name="PERK_MIRROR" />
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_ARCHITECT_1_HARDMODE" Alias="RAIDBOSS_ARCHITECT" Title="RAIDBOSS_ARCHITECT_TITLE" IconAtlas="BattleBtnSummerFest25Arch" Icon="arch" Preview="preview_summerFest25.preview_raid_events_summerFest25Arch" Type="FINAL_BATTLE" Description="descPowerMode{45}" X="-390" Y="75" Location="dock" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="117">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="104348" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="31304" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="18783" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Architect" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1568" Avatar="boss_architect_hummer" ShieldTotal="47">
+              <Items>
+                <Item Name="WEAPON_BP_S4_SCRIPTWRITER" />
+              </Items>
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION">
+                  <Set Frames="480" />
+                </Perk>
+                <Perk Name="PERK_DIRECTOR_SET_PLOT_TWIST" />
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.25" />
+                </Perk>
+                <Perk Name="PERK_MIRROR">
+                  <Set Chance="0.50" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_FURIOUS">
+                  <Set Chance="0.2" DamageFactor="1375" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_BLOCKS" />
+              <RemoveInterval Type="Block" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+    <Zone Name="ZONE_RAID3" FileName="Raid2.1">
+      <Battle Name="BOSS_11" Alias="RAIDBOSS_GATEKEEPER" Title="RAIDBOSS_GATEKEEPER_TITLE" Icon="gatekeeper_raid" Preview="preview_raid_base.gatekeeper_raid" Type="FINAL_BATTLE" Description="descGatekeeper{46}" X="-30" Y="35" Location="gatekeeper_raid" Music="raids_gatekeeper">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="107" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Cyborg_Gatekeeper" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1634">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_POWER_FIELD">
+                  <Set Frames="800" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER" />
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION_HELM">
+                  <Set Chance="0.25" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+          	<Perk Name="PERK_NO_THROWS" ApplyTo="Player" />
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_11_HARDMODE" Alias="RAIDBOSS_GATEKEEPER" Title="RAIDBOSS_GATEKEEPER_TITLE" Icon="gatekeeper_raid" Preview="preview_raid_base.gatekeeper_raid" Type="FINAL_BATTLE" Description="descPowerMode{46}" X="-30" Y="35" Location="gatekeeper_raid" Music="raids_gatekeeper">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="107">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="125217" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="37565" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="22539" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Cyborg_Gatekeeper" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1634" ShieldTotal="48">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_POWER_FIELD">
+                  <Set Frames="700" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION_HELM">
+                  <Set Chance="0.3" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_SHOCK">
+                  <Set ChanceFactor="2000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_HEALTHBAR" />
+              <NoHealthBar />
+            </ComplexRule>
+            <Perk Name="PERK_NO_THROWS" ApplyTo="Player" />
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_ARCHITECT_2" Alias="RAIDBOSS_ARCHITECT" Title="RAIDBOSS_ARCHITECT_TITLE" IconAtlas="BattleBtnArchitect" Icon="architect_raid" Preview="preview_raid_events_architect_raid" Type="FINAL_BATTLE" Description="descArchitect{48}" X="-120" Y="-210" Location="dojo_hw22" Music="fight_halloween2022">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="117" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Architect" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1634">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.35" />
+                </Perk>
+                <Perk Name="PERK_MIRROR" />
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION_HELM">
+                  <Set Chance="0.25" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_ARCHITECT_2_HARDMODE" Alias="RAIDBOSS_ARCHITECT" Title="RAIDBOSS_ARCHITECT_TITLE" IconAtlas="BattleBtnArchitect" Icon="architect_raid" Preview="preview_raid_events_architect_raid" Type="FINAL_BATTLE" Description="descPowerMode{48}" X="-120" Y="-210" Location="dojo_hw22" Music="fight_halloween2022">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="117">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="180313" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="54094" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="32456" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Architect" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1634" ShieldTotal="50">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION">
+                  <Set Frames="480" />
+                </Perk>
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.35" />
+                </Perk>
+                <Perk Name="PERK_MIRROR">
+                  <Set Chance="0.50" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.2" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION_HELM">
+                  <Set Chance="0.25" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_KICKS" />
+              <NoButton Name="Kick" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_12" Alias="RAIDBOSS_SATURN" Title="RAIDBOSS_SATURN_TITLE" Icon="saturn_raid" Preview="preview_raid_base.saturn_raid" Type="FINAL_BATTLE" Description="descSaturn{50}" X="60" Y="-85" Location="saturn_raid" Music="raids_saturn">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="127" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Saturn" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1660">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_SUPER_BLASTER">
+                  <Set Frames="660" InitialFrames="300" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.15" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" Frames="480" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                  <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION">
+                    <Set Chance="0.3" />
+                  </Perk>
+                  <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION_HELM">
+                    <Set Chance="0.25" />
+                  </Perk>
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_12_HARDMODE" Alias="RAIDBOSS_SATURN" Title="RAIDBOSS_SATURN_TITLE" Icon="saturn_raid" Preview="preview_raid_base.saturn_raid" Type="FINAL_BATTLE" Description="descPowerMode{50}" X="60" Y="-85" Location="saturn_raid" Music="raids_saturn">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="127">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="259650" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="77896" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="46737" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Saturn" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1660" Avatar="boss_saturn_hard" ShieldTotal="52">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_SUPER_BLASTER">
+                  <Set Frames="550" InitialFrames="300" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.15" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" Frames="480" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION">
+                  <Set Chance="0.3" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_CRITICAL_PROTECTION_HELM">
+                  <Set Chance="0.25" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_DEFENSE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HARD_GROUND" />
+              <Perk Name="HARD_GROUND" ApplyTo="Bot">
+                <Set Damage="0.1" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_13" Alias="BLACKNESS" Title="BLACKNESS_TITLE" Icon="blackness_raid" Preview="preview_raid_base.blackness_raid" Type="FINAL_BATTLE" Description="descBlackness{51}" X="-430" Y="85" Location="blackness_raid" Music="raids_blackness">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="140" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Blackness" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1830">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_GRASP_OF_DARKNESS">
+                  <Set Frames="800" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set DamageFactor="4855" Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.55" Frames="600" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_13_HARDMODE" Alias="BLACKNESS" Title="BLACKNESS_TITLE" Icon="blackness_raid" Preview="preview_raid_base.blackness_raid" Type="FINAL_BATTLE" Description="descPowerMode{51}" X="-430" Y="85" Location="blackness_raid" Music="raids_blackness">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="140">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="311581" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="93475" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="56085" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Blackness" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1830" ShieldTotal="54">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_GRASP_OF_DARKNESS">
+                  <Set Frames="700" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.12" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set DamageFactor="4855" Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.55" Frames="600" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="LIGHT_IN_THE_DARK" />
+              <LightInTheDarkness LightRadius="0.20" LightShape="1" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_14" Alias="RAIDBOSS_HUNTER" Title="RAIDBOSS_HUNTER_TITLE" Icon="hunter_raid" Preview="preview_raid_base.hunter_raid" Type="FINAL_BATTLE" Description="descStalker{52}" X="-190" Y="-45" Location="hunter_raid" Music="raids_hunter">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="146" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Stalker" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1840">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HUNTERFLY">
+                  <Set Frames="900" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.35" Frames="600" />
+                </Perk>
+                <Perk Name="PERK_MIRROR">
+                  <Set Frames="150" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_14_HARDMODE" Alias="RAIDBOSS_HUNTER" Title="RAIDBOSS_HUNTER_TITLE" Icon="hunter_raid" Preview="preview_raid_base.hunter_raid" Type="FINAL_BATTLE" Description="descPowerMode{52}" X="-190" Y="-45" Location="hunter_raid" Music="raids_hunter">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="146">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="373897" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="112169" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="67301" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Stalker" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1840" ShieldTotal="55">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_HUNTERFLY">
+                  <Set Frames="800" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" Frames="480" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.35" Frames="600" />
+                </Perk>
+                <Perk Name="PERK_MIRROR">
+                  <Set Frames="150" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="FRAGILITY" />
+              <RandomArea Image="ra_debuff" Icon="ra_debuff_icon" Width="600" FadeIn="30" FramesOn="240" FadeOut="30" FramesOff="160" />
+              <Perk Name="PERK_AREA_FRAGILITY" ApplyTo="Player">
+                <Set AttributeDamageFactor="10000" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+    <Zone Name="ZONE_RAID4" FileName="Raid1_2">
+      <Battle Name="BOSS_WHISPER" Alias="RAIDBOSS_WHISPER" Title="RAIDBOSS_WHISPER_TITLE" IconAtlas="BattleBtnHalloween25Whisper" Icon="whisper" Preview="halloween25preview.whisper" Type="FINAL_BATTLE" Description="descWhisper{4}" X="-10" Y="-180" Location="hw24_ancient_temple" Music="raid_hw24">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="17" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Whisper" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="85">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_WHISPER_HARDMODE" Alias="RAIDBOSS_WHISPER" Title="RAIDBOSS_WHISPER_TITLE" IconAtlas="BattleBtnHalloween25Whisper" Icon="whisper" Preview="halloween25preview.whisper" Type="FINAL_BATTLE" Description="descPowerMode{4}" X="-10" Y="-180" Location="hw24_ancient_temple" Music="raid_hw24">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="17">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="61" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="17" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="9" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Whisper" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="85" Avatar="boss_whisper_hardmode" ShieldTotal="20">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_MIRROR">
+                  <Set Chance="0.3" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HEALTH_DROPS" />
+              <Regeneration Rate="-0.0001" FramesAfterHit="60" ApplyTo="Player" />
+              <Attributes DamageFactor="1000" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_SON_OF_THE_SUN" Alias="RAIDBOSS_CNY24" Title="RAIDBOSS_CNY24_Title" IconAtlas="CNY25" Icon="son_of_the_sun_raid" Preview="preview_raid_events_CNY25.son_of_the_sun" Type="FINAL_BATTLE" Description="descSonOfTheSun{6}" X="-175" Y="-230" Location="dojo_cny25" Music="raid_newyear18">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="19" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_SonOfTheSun" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="155">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_SON_OF_THE_SUN_HARDMODE" Alias="RAIDBOSS_CNY24" Title="RAIDBOSS_CNY24_Title" IconAtlas="CNY25" Icon="son_of_the_sun_raid" Preview="preview_raid_events_CNY25.son_of_the_sun" Type="FINAL_BATTLE" Description="descPowerMode{6}" X="-175" Y="-230" Location="dojo_cny25" Music="raid_newyear18">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="19">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="87" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="26" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="16" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_SonOfTheSun" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="155" ShieldTotal="24">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION">
+                  <Set Frames="660" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.12" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="LIGHT_IN_THE_DARK" />
+              <LightInTheDarkness LightRadius="0.20" LightShape="1" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_RAVANA" Alias="BOSS_RAVANA" Title="BOSS_RAVANA_Title" IconAtlas="BattleBtnRavana" Icon="ravana_raid" Preview="preview_raid_ravana_raid" Type="FINAL_BATTLE" Description="descRavana{8}" X="-370" Y="-180" Location="dojo_indian_event" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="20" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Ravana" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="231">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_RAVANA_HARDMODE" Alias="BOSS_RAVANA" Title="BOSS_RAVANA_Title" IconAtlas="BattleBtnRavana" Icon="ravana_raid" Preview="preview_raid_ravana_raid" Type="FINAL_BATTLE" Description="descPowerMode{8}" X="-370" Y="-180" Location="dojo_indian_event" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="20">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="125" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="37" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="22" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Ravana" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="231" Avatar="boss_ravana_hard" ShieldTotal="22">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_SKANDA_SET_KARMA" />
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.15" DamageFactor="2015" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ROCK">
+                  <Set Chance="0.25" Lifesteal="0" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_BLOCKS" />
+              <RemoveInterval Type="Block" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_ADANTI" Alias="BOSS_BISON_21" Title="BOSS_BISON_Title" IconAtlas="BattleBtnAmerican25" Icon="bison" Preview="preview_raid_events_bison_raid" Type="FINAL_BATTLE" Description="descAdanti{11}" X="-405" Y="-40" Location="dojo_american_event_22" Music="fight_independence_day">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="23" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Adanti" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="336">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_ADANTI_HARDMODE" Alias="BOSS_BISON_21" Title="BOSS_BISON_Title" IconAtlas="BattleBtnAmerican25" Icon="bison" Preview="preview_raid_events_bison_raid" Type="FINAL_BATTLE" Description="descPowerMode{11}" X="-405" Y="-40" Location="dojo_american_event_22" Music="fight_independence_day">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="23">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="216" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="64" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="38" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Adanti" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="336" Avatar="boss_bison_hard" ShieldTotal="24">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.2" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HOT_GROUND" />
+              <HotGround Frames="720" ApplyTo="Player">
+                <Node Name="NToeTip_1" Axis="Y" Max="11" />
+                <Node Name="NToeTip_2" Axis="Y" Max="11" />
+                <Node Name="NKnee_1" Axis="Y" Max="30" />
+                <Node Name="NKnee_2" Axis="Y" Max="30" />
+                <Node Name="NPivot" Axis="Y" Max="30" />
+                <Node Name="NNeck" Axis="Y" Max="30" />
+                <Node Name="NTop" Axis="Y" Max="30" />
+                <Animation Name="ThrowFall" />
+                <Animation Name="Jump" />
+                <Animation Name="PhysicalFall" />
+              </HotGround>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_COUNTESS" Alias="RAIDBOSS_Witch_old" Title="RAIDBOSS_Witch_old_Title" IconAtlas="BattleBtnHalloween" Icon="halloween_raid" Preview="preview_halloween_morgana_old" Type="FINAL_BATTLE" Description="descCountess{14}" X="-180" Y="-60" Location="haloween_dojo_2019" Music="fight_halloween2019">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="27" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Countess" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="447">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_COUNTESS_HARDMODE" Alias="RAIDBOSS_Witch_old" Title="RAIDBOSS_Witch_old_Title" IconAtlas="BattleBtnHalloween" Icon="halloween_raid" Preview="preview_halloween_morgana_old" Type="FINAL_BATTLE" Description="descPowerMode{14}" X="-180" Y="-60" Location="haloween_dojo_2019" Music="fight_halloween2019">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="27">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="372" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="111" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="66" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Countess" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="447" ShieldTotal="25">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_MIRROR">
+                  <Set Chance="0.3" DamageFactor="5850" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="INVERTED_JOYSTICK" />
+              <InvertJoystick />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+    <Zone Name="ZONE_RAID5" FileName="Raid2_2">
+      <Battle Name="BOSS_MORGANA" Alias="RAIDBOSS_Witch_young" Title="RAIDBOSS_Witch_young_Title" IconAtlas="BattleBtnHalloween" Icon="halloween_raid" Preview="preview_raid_events_morgana_raid_old" Type="FINAL_BATTLE" Description="descMorgana{17}" X="-60" Y="15" Location="haloween_dojo" Music="fatum">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="30" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Morgana" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="447">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_MORGANA_HARDMODE" Alias="RAIDBOSS_Witch_young" Title="RAIDBOSS_Witch_young_Title" IconAtlas="BattleBtnHalloween" Icon="halloween_raid" Preview="preview_raid_events_morgana_raid_old" Type="FINAL_BATTLE" Description="descPowerMode{17}" X="-60" Y="15" Location="haloween_dojo" Music="fatum">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="30">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="643" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="193" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="116" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Morgana" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="447" ShieldTotal="27">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+                  <Set Aspect="100000" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_DOUBLE" />
+              <NoAnimation Name="3key" />
+              <NoAnimation Name="DoubleSlash" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnLamb" Icon="lamb_raid" Preview="preview_raid_events_lamb_raid" Type="FINAL_BATTLE" Description="descLamb{20}" X="150" Y="0" Location="ritual_battle_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="34" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="663">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.33" DamageFactor="5945" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_LAMB_HARDMODE" Alias="RAIDBOSS_LAMB" Title="RAIDBOSS_LAMB_Title" IconAtlas="BattleBtnLamb" Icon="lamb_raid" Preview="preview_raid_events_lamb_raid" Type="FINAL_BATTLE" Description="descPowerMode{20}" X="150" Y="0" Location="ritual_battle_raid" Music="dark_ritual">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="34">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1111" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="334" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="200" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Lamb" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="663" Avatar="boss_lamb_hard" ShieldTotal="30">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" Frames="480" />
+                </Perk>
+                <Perk Name="PERK_FULL_POWER">
+                  <Set Chance="0.2" DamageFactor="3785" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.33" DamageFactor="5945" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HOT_GROUND" />
+              <HotGround Frames="720" ApplyTo="Player">
+                <Node Name="NToeTip_1" Axis="Y" Max="11" />
+                <Node Name="NToeTip_2" Axis="Y" Max="11" />
+                <Node Name="NKnee_1" Axis="Y" Max="30" />
+                <Node Name="NKnee_2" Axis="Y" Max="30" />
+                <Node Name="NPivot" Axis="Y" Max="30" />
+                <Node Name="NNeck" Axis="Y" Max="30" />
+                <Node Name="NTop" Axis="Y" Max="30" />
+                <Animation Name="ThrowFall" />
+                <Animation Name="Jump" />
+                <Animation Name="PhysicalFall" />
+              </HotGround>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_RAKSHASA" Alias="RAIDBOSS_RAKSHASA_TITLE" Title="RAIDBOSS_RAKSHASA" IconAtlas="BattleBtnRakshasa" Icon="rakshasa_raid" Preview="preview_raid_rakshasa" Type="FINAL_BATTLE" Description="descRakshasa{23}" X="-430" Y="60" Location="dojo_indian_event_22" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="39" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Rakshasa" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="768">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_RAKSHASA_HARDMODE" Alias="RAIDBOSS_RAKSHASA_TITLE" Title="RAIDBOSS_RAKSHASA" IconAtlas="BattleBtnRakshasa" Icon="rakshasa_raid" Preview="preview_raid_rakshasa" Type="FINAL_BATTLE" Description="descPowerMode{23}" X="-430" Y="60" Location="dojo_indian_event_22" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="39">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1920" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="576" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="344" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Rakshasa" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="768" Avatar="boss_rakshasa_hardmode" ShieldTotal="33">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" Frames="300" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.2" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.2" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_DOUBLE" />
+              <NoAnimation Name="3key" />
+              <NoAnimation Name="DoubleSlash" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_HALLOWEEN_PUPPETEER" Alias="RAIDBOSS_PUPPETEER" Title="RAIDBOSS_PUPPETEER_TITLE" IconAtlas="BattleBtnPuppeteer" Icon="puppeteer_raid" Preview="preview_raid_puppeteer_raid" Type="FINAL_BATTLE" Description="descPuppeteer{26}" X="-290" Y="-70" Location="dojo_hw21" Music="fight_halloween2019">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="45" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Puppeteer_Halloween" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="879">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.15" DamageFactor="2015" Frames="360" />
+                </Perk>
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.3" DamageFactor="-100000" Frames="180" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_HALLOWEEN_PUPPETEER_HARDMODE" Alias="RAIDBOSS_PUPPETEER" Title="RAIDBOSS_PUPPETEER_TITLE" IconAtlas="BattleBtnPuppeteer" Icon="puppeteer_raid" Preview="preview_raid_puppeteer_raid" Type="FINAL_BATTLE" Description="descPowerMode{26}" X="-290" Y="-70" Location="dojo_hw21" Music="fight_halloween2019">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="45">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="3318" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="995" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="598" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Puppeteer_Halloween" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="879" ShieldTotal="35">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY">
+                  <Set Frames="540" />
+                </Perk>
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.3" DamageFactor="-100000" Frames="180" />
+                </Perk>
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.2" DamageFactor="3785" Frames="480" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.15" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_KICKS" />
+              <NoButton Name="Kick" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+    <Zone Name="ZONE_RAID6" FileName="Raid3_2">
+      <Battle Name="BOSS_FARADEYA" Alias="RAIDBOSS_FARADAY" Title="RAIDBOSS_FARADAY_Title" IconAtlas="BattleBtnNrityu" Icon="nrityu_raid" Preview="preview_raid_events_india_24" Type="FINAL_BATTLE" Description="descFaradeya{30}" X="-223" Y="-180" Location="dojo_india24" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="53" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Faradeya" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1019">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_GRASP_OF_DARKNESS" />
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.6" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.15" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Avatar Name="character_nrityu" />
+            <Name Name="CharacterIndia24Nrityu" />
+            <EquipItem Name="WEAPON_INDIA_24" ApplyTo="Player" />
+            <EquipItem Name="BODY_WOMAN" ApplyTo="Player" />
+            <EquipItem Name="HELM_CROWN_OF_NIGHT" ApplyTo="Player" />
+            <EquipItem Name="RANGED_IND21_KUNAI" ApplyTo="Player" />
+            <EquipItem Name="MAGIC_INDIA_24" ApplyTo="Player" />
+            <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_WEAPON" ApplyTo="Player">
+              <Set Aspect="100000" />
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON" ApplyTo="Player">
+              <Set Aspect="100000" />
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_REJUVENATION_ARMOR" ApplyTo="Player">
+              <Set Aspect="100000" />
+            </Perk>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_FARADEYA_HARDMODE" Alias="RAIDBOSS_FARADAY" Title="RAIDBOSS_FARADAY_Title" IconAtlas="BattleBtnNrityu" Icon="nrityu_raid" Preview="preview_raid_events_india_24" Type="FINAL_BATTLE" Description="descPowerMode{30}" X="-223" Y="-180" Location="dojo_india24" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="53">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="6880" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="2064" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="1240" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Faradeya" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1019" ShieldTotal="39">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_GRASP_OF_DARKNESS" />
+                <Perk Name="PERK_BLOCK_BREAKER">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.2" DamageFactor="4330" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.6" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Avatar Name="character_nrityu" />
+            <Name Name="CharacterIndia24Nrityu" />
+            <EquipItem Name="WEAPON_INDIA_24" ApplyTo="Player" />
+            <EquipItem Name="BODY_WOMAN" ApplyTo="Player" />
+            <EquipItem Name="HELM_CROWN_OF_NIGHT" ApplyTo="Player" />
+            <EquipItem Name="RANGED_IND21_KUNAI" ApplyTo="Player" />
+            <EquipItem Name="MAGIC_INDIA_24" ApplyTo="Player" />
+            <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_WEAPON" ApplyTo="Player">
+              <Set Aspect="100000" />
+            </Perk>
+            <ComplexRule>
+              <Description Alias="EARTHQUAKE" />
+              <Perk Name="PERK_RULE_EARTHQUAKE" ApplyTo="Bot">
+                <Set Frames_quake="540" Frames_prequake="60" Health="0.02" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_BERSTUUK" Alias="RAIDBOSS_BERSTUUK" Title="RAIDBOSS_BERSTUUK_TITLE" IconAtlas="BattleBtnBerstuuk" Icon="berstuuk_raid" Preview="preview_berstuuk_events.berstuuk_raid" Type="FINAL_BATTLE" Description="descBerstuuk{34}" X="-420" Y="-195" Location="fall_event_24" Music="raids_berstuuk">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="63" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Berstuuk" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1165">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ROOT_POTION" />
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_BERSTUUK_HARDMODE" Alias="RAIDBOSS_BERSTUUK" Title="RAIDBOSS_BERSTUUK_TITLE" IconAtlas="BattleBtnBerstuuk" Icon="berstuuk_raid" Preview="preview_berstuuk_events.berstuuk_raid" Type="FINAL_BATTLE" Description="descPowerMode{34}" X="-420" Y="-195" Location="fall_event_24" Music="raids_berstuuk">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="63">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="14268" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="4280" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="2567" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Berstuuk" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1165" ShieldTotal="41">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_ROOT_POTION" />
+                <Perk Name="PERK_INVISIBILITY" />
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.15" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="NO_BLOCKS" />
+              <RemoveInterval Type="Block" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_DANDY" Alias="RAIDBOSS_DANDY" Title="RAIDBOSS_DANDY_Title" IconAtlas="BattleBtnNrityu" Icon="nrityu_raid" Preview="preview_raid_events_india_24" Type="FINAL_BATTLE" Description="descDandy{38}" X="29" Y="-104" Location="dojo_india25" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="76" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Dandy" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1275">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_LIGHTING_CHAIN" />
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="0.42" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_DANDY_HARDMODE" Alias="RAIDBOSS_DANDY" Title="RAIDBOSS_DANDY_Title" IconAtlas="BattleBtnNrityu" Icon="nrityu_raid" Preview="preview_raid_events_india_24" Type="FINAL_BATTLE" Description="descPowerMode{38}" X="29" Y="-104" Location="dojo_india25" Music="fight43_bihu_india">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="76">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="29584" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="8875" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="5325" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Dandy" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1275" ShieldTotal="45">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_LIGHTING_CHAIN">
+                  <Set Frames="500" />
+                </Perk>
+                <Perk Name="PERK_STEEL_FOOT">
+                  <Set Chance="1" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="HEALTH_DROPS" />
+              <Regeneration Rate="-0.0002" FramesAfterHit="150" ApplyTo="Player" />
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_SHURALE" Alias="RAIDBOSS_SHURALE" Title="RAIDBOSS_SHURALE_TITLE" IconAtlas="BattleBtnShurale" Icon="shurale_raid" Preview="preview_raid_events_ny_25" Type="FINAL_BATTLE" Description="descShurale{42}" X="-189" Y="38" Location="mountains_ny_25" Music="raids_shurale">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="90" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Shurale" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1368">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.3" DamageFactor="-100000" Frames="180" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.33" MagicDamageRecharge="10000" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.33" DamageFactor="5945" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.33" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_SHURALE_HARDMODE" Alias="RAIDBOSS_SHURALE" Title="RAIDBOSS_SHURALE_TITLE" IconAtlas="BattleBtnShurale" Icon="shurale_raid" Preview="preview_raid_events_ny_25" Type="FINAL_BATTLE" Description="descPowerMode{42}" X="-189" Y="38" Location="mountains_ny_25" Music="raids_shurale">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="90">
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="61348" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="18403" />
+              <Currency Drop="1" ShowReward="1" Name="ForgeMaterial3" ExpectedValue="11041" />
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Shurale" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1368" ShieldTotal="47">
+              <AttributesAlign>
+                <Delta Factor="0" Shift="0" Priority="1" />
+                <Delta Factor="1" Shift="-10" Priority="1" />
+              </AttributesAlign>
+              <Perks>
+                <Perk Name="PERK_GUARDIAN_SET_PROTECTION" />
+                <Perk Name="PERK_RICOCHET">
+                  <Set Chance="0.3" DamageFactor="-100000" Frames="180" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.33" MagicDamageRecharge="10000" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" DamageFactor="4150" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.33" DamageFactor="5945" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.33" DamageFactor="4855" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <ComplexRule>
+              <Description Alias="TRANSIENT_BLEEDING" />
+              <Perk Name="PERK_TRANSIENT_BLEEDING" ApplyTo="Player">
+                <Set AttributeBleeding="-500" />
+              </Perk>
+            </ComplexRule>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+    <Zone Name="ZONE_RAID7" FileName="Map2_raid">
+      <Battle Name="BOSS_INVISIBLE" Alias="NAME_INVISIBLE" Title="RAIDBOSS_Invisible_Title" Icon="snowflake_raid" IconAtlas="BattleBtnSnowflake" Preview="preview_pvp_randomLocation" Type="FINAL_BATTLE" Description="descInvisible{45}" X="-200" Y="-230" Location="fuji" Music="raids_freeze">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="102" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Boss_Invisible" Tactic="Aggressive" MagicInitialCharge="5000" WarriorPower="1568">
+              <Perks>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" Health="0.25" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="BOSS_HAUNTED_PRINCE" Alias="RAIDBOSS_Prince" Title="RAIDBOSS_PRINCE_TITLE" Icon="sensei" Preview="preview_pvp_magic_rocks" Type="FINAL_BATTLE" Description="descHauntedPrince{47}" X="75" Y="-180" Location="magic_rocks" Music="flying_rocks">
+        <Fight Name="1" Power="0" Rounds="0" RoundTime="999" Replays="0">
+          <Rewards>
+            <Reward PrizeBase="1" />
+            <Reward PrizeBase="1" Exp="1" Bonus="112" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Haunted_Prince" Tactic="Aggressive" WarriorPower="1589">
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+                <Perk Name="PERK_COBRA">
+                  <Set Chance="0.33" Health="0.25" />
+                </Perk>
+                <Perk Name="PERK_AVENGER">
+                  <Set Chance="0.33" Health="0.25" />
+                </Perk>
+                <Perk Name="PERK_HELM_BREAKER">
+                  <Set Chance="0.33" Health="0.25" />
+                </Perk>
+                <Perk Name="PERK_PAIN_RAGE">
+                  <Set Chance="0.33" Health="0.25" />
+                </Perk>
+                <Perk Name="PERK_MARTIAL_SPIRIT">
+                  <Set Chance="0.33" Health="0.25" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+                  <Set Aspect="100000" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="Survival_MERCENARY" Alias="MERCENARY_RAID" Title="MERCENARY_RAID_Title" Icon="fire_hell" Preview="preview_pvp_burning_town" Type="SURVIVAL" X="-450" Y="-30" Location="burning_town" Music="burning_town_old">
+        <Fight Name="1" Power="0" Rounds="1" Replays="0" RoundTime="999" HealthRecovery="0.1">
+          <Rewards>
+            <Reward Bonus="0" Exp="1" PrizeBase="1" />
+            <Reward Bonus="2" Exp="1" PrizeBase="1" />
+            <Reward Bonus="4" Exp="1" PrizeBase="1" />
+            <Reward Bonus="6" Exp="1" PrizeBase="1" />
+            <Reward Bonus="9" Exp="1" PrizeBase="1" />
+            <Reward Bonus="11" Exp="1" PrizeBase="1" />
+            <Reward Bonus="14" Exp="1" PrizeBase="1" />
+            <Reward Bonus="17" Exp="1" PrizeBase="1" />
+            <Reward Bonus="20" Exp="1" PrizeBase="1" />
+            <Reward Bonus="23" Exp="1" PrizeBase="1" />
+            <Reward Bonus="28" Exp="1" PrizeBase="1" />
+            <Reward Bonus="32" Exp="1" PrizeBase="1" />
+            <Reward Bonus="36" Exp="1" PrizeBase="1" />
+            <Reward Bonus="41" Exp="1" PrizeBase="1" />
+            <Reward Bonus="46" Exp="1" PrizeBase="1" />
+            <Reward Bonus="51" Exp="1" PrizeBase="1" />
+            <Reward Bonus="57" Exp="1" PrizeBase="1" />
+            <Reward Bonus="63" Exp="1" PrizeBase="1" />
+            <Reward Bonus="69" Exp="1" PrizeBase="1" />
+            <Reward Bonus="77" Exp="1" PrizeBase="1" />
+            <Reward Bonus="84" Exp="1" PrizeBase="1" />
+            <Reward Bonus="93" Exp="1" PrizeBase="1" />
+            <Reward Bonus="101" Exp="1" PrizeBase="1" />
+            <Reward Bonus="111" Exp="1" PrizeBase="1" />
+            <Reward Bonus="122" Exp="1" PrizeBase="1" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Sai_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Tonfa_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Wakidzashi_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Claws_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Axes_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Katana_2_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Katana_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Sword_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Sword_2_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Swords_3_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Sword_2_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Shuriken_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Nunchaku_2_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Stilettos_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Cloak_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Shuang_Gou_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Axes_2_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Yari_2_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Man_Fists_2_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Staff_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Whip_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Looter_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_Fan_Mercenary" Tactic="Aggressive" WarriorPower="1801" ShieldTotal="2" />
+            <Warrior Template="Girl_HW15" Tactic="Aggressive" WarriorPower="1075" ShieldTotal="2" />
+          </Warriors>
+          <Rules>
+            <RandomRule Refresh="EachRound">
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_DEFENSE_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_DEFENSE_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_REJUVENATION_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_REJUVENATION_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_BODY_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_HEAD_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_SHIELDING_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_SHIELDING_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+            </RandomRule>
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+      <Battle Name="Survival_DEMON" Alias="DEMON_RAID" Title="DEMON_RAID_Title" Icon="duel" Preview="preview_pvp_flooded_village" Type="SURVIVAL" X="-165" Y="50" Location="flooded_village" Music="fight38_sakura_forest">
+        <Fight Name="1" Power="0" Rounds="1" Replays="0" RoundTime="999" HealthRecovery="0.1">
+          <Rewards>
+            <Reward Bonus="0" Exp="1" PrizeBase="1" />
+            <Reward Bonus="2" Exp="1" PrizeBase="1" />
+            <Reward Bonus="11" Exp="1" PrizeBase="1" />
+            <Reward Bonus="23" Exp="1" PrizeBase="1" />
+            <Reward Bonus="41" Exp="1" PrizeBase="1" />
+            <Reward Bonus="64" Exp="1" PrizeBase="1" />
+            <Reward Bonus="133" Exp="1" PrizeBase="1" />
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Boss_Lynx_Young" Tactic="Aggressive" WarriorPower="1840" ShieldTotal="2">
+              <Perks>
+                <Perk Name="PERK_INVISIBILITY" />
+              </Perks>
+            </Warrior>
+            <Warrior Template="Boss_Hermit_Young" Tactic="Aggressive" WarriorPower="1840" ShieldTotal="2">
+              <Perks>
+                <Perk Name="PERK_HERMITSTORM" />
+              </Perks>
+            </Warrior>
+            <Warrior Template="Boss_Butcher_Young" Tactic="Aggressive" WarriorPower="1840" ShieldTotal="2">
+              <Perks>
+                <Perk Name="PERK_EARTHQUAKE" />
+              </Perks>
+            </Warrior>
+            <Warrior Template="Boss_Wasp_Young" Tactic="Aggressive" WarriorPower="1840" ShieldTotal="2">
+              <Perks>
+                <Perk Name="PERK_WASP_FLY" />
+              </Perks>
+            </Warrior>
+            <Warrior Template="Boss_Widow_Young" Tactic="Aggressive" WarriorPower="1840" ShieldTotal="2">
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION" />
+              </Perks>
+            </Warrior>
+            <Warrior Template="Boss_Shogun_Young" Tactic="Aggressive" WarriorPower="1840" ShieldTotal="2">
+              <Perks>
+                <Perk Name="PERK_ASSISTANTS" />
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <RandomRule Refresh="EachRound">
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_DEFENSE_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_DEFENSE_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_REJUVENATION_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_REJUVENATION_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_WEAPON" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_RANGED" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_MAGIC" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_SHIELDING_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_SHIELDING_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+              <ComplexRule>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_ARMOR" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_HELM" ApplyTo="Bot">
+                  <Set Aspect="100000" />
+                </Perk>
+              </ComplexRule>
+            </RandomRule>
+            <RulesWithConditions>
+              <Conditions>
+                <Equal Value1="_RaidChargeButton" Value2="0" />
+              </Conditions>
+              <RuleList>
+                <NoButton Name="RaidCharge" />
+              </RuleList>
+            </RulesWithConditions>
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+  </Zones>
+</Stages>

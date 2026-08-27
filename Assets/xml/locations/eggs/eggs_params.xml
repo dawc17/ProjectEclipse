@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="7" Color="0x020001" Wall="170" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.05" Atlas="eggs_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1024" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="eggs_atlas_layer1">
+    <Image X="0" Y="-20" ClassName="layer1_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="eggs_atlas_layer2">
+    <Image X="0" Y="-20" ClassName="layer2_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="eggs_atlas_layer3">
+    <Image X="0" Y="-20" ClassName="capsules_1" Width="512" Height="512" />
+    <Image X="512" Y="-20" ClassName="capsules_2" Width="512" Height="512" />
+    <Image X="0" Y="-20" ClassName="layer3_1" Width="1536" Height="512" />
+    <SimpleEffect X="20" Y="-20" Type="Picture" PictureLocation="local" ClassName="spot_light2" Width="254" Height="134">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1" />
+        <Point Period="1.2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-20" Y="90" Type="Picture" PictureLocation="local" ClassName="spot_light" Width="254" Height="134">
+      <Transparency Offset="0">
+        <Point Period="2.4" Value="55" Ease="-1" />
+        <Point Period="0.7" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="70" Y="90" Type="Picture" PictureLocation="local" ClassName="spot_light2" Width="254" Height="134">
+      <Transparency Offset="0">
+        <Point Period="2.4" Value="45" Ease="-1" />
+        <Point Period="1.5" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="eggs_atlas_layer3">
+    <SimpleEffect X="0" Y="80" Type="Picture" PictureLocation="local" ClassName="smoke_1" Width="1536" Height="256">
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="65" Ease="-1" />
+        <Point Period="3.5" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="eggs_atlas_layer4" Scaling="1">
+    <Image X="-896" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="-640" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="-384" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="-128" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="128" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="384" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="640" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="896" Y="192" ClassName="floor" Width="256" Height="54" Color="0x020001" />
+    <Image X="0" Y="440" ClassName="pixel_1" Width="2000" Height="512" Color="0x020001" IsOpaque="1" />
+    <Image X="-827" Y="-90" ClassName="left" Width="400" Height="680" Color="0x020001" />
+    <Image X="815" Y="-120" ClassName="right" Width="400" Height="680" Color="0x020001" />
+  </Layer>
+</Root>

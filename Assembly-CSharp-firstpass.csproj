@@ -1,0 +1,1603 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <LangVersion>7.3</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>10.0.20506</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <RootNamespace></RootNamespace>
+    <ProjectGuid>{BC3C38AE-ED04-B288-BA63-7F92E64B03B8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <AssemblyName>Assembly-CSharp-firstpass</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <BaseDirectory>.</BaseDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Temp\Bin\Debug\</OutputPath>
+    <DefineConstants>UNITY_2019_4_41;UNITY_2019_4;UNITY_2019;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;UNITY_ANALYTICS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;INCLUDE_DYNAMIC_GI;ENABLE_MONO_BDWGC;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;PLATFORM_STANDALONE;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_4_6;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Temp\bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <NoWarn>0169</NoWarn>
+    <AllowUnsafeBlocks>False</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoConfig>true</NoConfig>
+    <NoStdLib>true</NoStdLib>
+    <AddAdditionalExplicitAssemblyReferences>false</AddAdditionalExplicitAssemblyReferences>
+    <ImplicitlyExpandNETStandardFacades>false</ImplicitlyExpandNETStandardFacades>
+    <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <UnityProjectGenerator>Package</UnityProjectGenerator>
+    <UnityProjectGeneratorVersion>2.0.15</UnityProjectGeneratorVersion>
+    <UnityProjectType>GamePlugins:3</UnityProjectType>
+    <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
+    <UnityVersion>2019.4.41f2</UnityVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Analyzer Include="C:\Program Files\Microsoft Visual Studio\18\Professional\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\-PrivateImplementationDetails--0FBE0DF0-FC90-4BFE-A708-5047FD34A125-\__BB_OBFUSCATOR_VERSION_1_24_4.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\-PrivateImplementationDetails--4fd65d1a-0b52-4d4f-985e-80b29ddb55fe-\ArrayCopy128.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\-PrivateImplementationDetails--4fd65d1a-0b52-4d4f-985e-80b29ddb55fe-\ArrayCopy148.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ABCAONADOMK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ADEKACKLIJG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AEGCCCNBCML.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AFAILJMEENE.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AFJHGKAEJPG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AHFEJIOPFGP.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AHLJIMDEAJD.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AIBCPDGLFPB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AIEMPPBDGNH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AJAIAKCIJIJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AJFBHEIDBOE.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AKMKLAINLOL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ANEPNHNMPMJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\APMHDDIADMF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Adler.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AdvLog.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AliasEventInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AliasValueDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AnchorAlias.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AnchorAssigner.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AnchorAssigningObjectGraphVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AndroidLocalNotification.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AppStoresSupport\AppStoreSetting.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ArrayMetadata.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ArrayNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AssetBundleSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AssetsData.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AudioSettings.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AuthenticationSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BCHANFGJONF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BDFAHMBGHDH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BECKAHJIEGE.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BFNKPHDJNII.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BGMMMMHMIJF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BHBPOHDAGPH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BHJHIPILHJB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BIGFDIOHKIG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BLFPJCPALDH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BLIMHGJLDLD.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BMBGFBGIAPL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BNIEFDKHAJN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BPGAOEMIFNN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BPKEFFDGEIC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Base.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BaseEventLog.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BaseHub.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Beebyte\Obfuscator\DoNotFakeAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Beebyte\Obfuscator\ObfuscateLiteralsAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Beebyte\Obfuscator\RenameAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Beebyte\Obfuscator\ReplaceLiteralsWithNameAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Beebyte\Obfuscator\SkipAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Beebyte\Obfuscator\SkipRenameAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BestHTTP\HTTPUpdateDelegator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BinTree.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BitDecoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BitEncoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BitTreeDecoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BitTreeEncoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BundleConfig.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BundleData.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BundlesUtil.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CCCOMMIFIMB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CDKCDPDMGDK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CEILAGAKGKF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CFGBMHKCENK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CHEMCBIKGLL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CHOAMHPCPFL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CICDLBEGBEA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CKPADCLAMFF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CLPJGGPLMAB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CNJMKCEKKNN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CONPPMAEFDN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CRC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CRC32.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CThreadTimer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CacheMaintenanceSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Callbacks.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CertificateValidator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ChainedEventEmitter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ChainedObjectGraphVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Chanel.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ClientMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeBlocks.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Detectors\ActDetectorBase.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Detectors\InjectionDetector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Detectors\ObscuredCheatingDetector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Detectors\SpeedHackDetector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Detectors\WallHackDetector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Examples\ActRotatorExample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Examples\ActTesterGui.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Examples\ObscuredPerformanceTests.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredBool.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredByte.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredChar.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredDecimal.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredDouble.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredFloat.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredInt.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredLong.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredQuaternion.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredSByte.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredShort.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredString.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredUInt.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredULong.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredUShort.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredVector2.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredVector3.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CommandForm.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CommandLineReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Comment.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ComparisonExpression.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Compressor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ConditionExtension.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Connection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ConnectionAPISample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ConnectionStatusSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Cookie.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CookieJar.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CopyEncoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CoroutineManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Crc32Helper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CrcCalculatorStream.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Credentials.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Crypto.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CultureInfoAdapter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CustomSerializationObjectGraphVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DDGGLIIKFPL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DEFBJFOKOPM.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DFIPCKIEILP.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DHGLHLDFDAC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DMOMPOFCMJJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DOIKIDPKFKN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DPEICFAJMJH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DataContractAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DataMemberAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DataMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DefaultExclusiveObjectGraphVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DefaultLogger.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DefaultObjectFactory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DeflateInput.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DeflateManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DeflateStreamAsyncResult.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DeflaterManaged.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DemoHub.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DemoHubSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DemoScript.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Deserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DeviceComparison.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DeviceInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DeviceInfoForcibly.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Digest.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DigestStore.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DocumentEnd.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DocumentLoadingState.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DocumentStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DownloadObb.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EBINODDAIEO.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ECDAJBEFCAH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EDMIJLJOPPF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EGGHFJMOPCE.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EKKDGIILGMA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Emitter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EmitterState.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EmittingObjectGraphVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EnumMemberAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EnumerableNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EquationLine.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Error.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventDescriptor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventDispatcher.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventLog.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventNames.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventSource.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventSourceResponse.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EventTable.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Extensions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ExtentionBehaviour.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FDDLCAEBEHB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FEENMMBNDJA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FFBEMOKFDNL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FGDKNBEFPFN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FGIMNEGFGPM.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FGMEPPMFFKG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FGNDEBGHBMC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FHIEGKMHOCC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FHONDODMKGE.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FIKEKJBAKBO.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FNEEAGNNFNN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FNINOHKIPKH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FailureMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FakeList.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FastEncoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FastEncoderStatics.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FastEncoderWindow.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FsmContext.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FullObjectGraphTraversalStrategy.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FunctionExtension.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FunctionResult.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GAHJEMHNLNB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GAHNKDKDAGM.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GCEHGHHBNOA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GDDEBPANOCH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GDEMLIAGBCB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GGIECEPGFNH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GUIHelper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GUIMessageList.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GZipConstants.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GZipDecoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GZipFormatter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GameInit.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GamePad.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GamepadState.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GeneralStatistics.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GenericCollectionNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GenericDictionaryNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GenericInstanceMethod.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GenericStaticMethod.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GlobalLoad.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GlobalPath.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GlobalPaths.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GuidConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HCEPBIAOJKG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HHLELELECLA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HJDLGPHLPNF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HKALCPMGELL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HLNFFAMCLEH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HNKFEGCMBJB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPCacheFileInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPCacheFileLock.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPCacheMaintananceParams.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPCacheService.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPConnection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPFieldData.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPFormBase.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPMultiPartForm.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPProtocolFactory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPProxy.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPProxyResponse.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPRange.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPRequest.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPResponse.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HTTPUrlEncodedForm.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HandshakeData.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HashCode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HeaderAuthenticator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HeartbeatManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HorizontalLayout.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Hub.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HuffmanTree.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IAliasProvider.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IAuthenticationProvider.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IBEOFCPMMJJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ICFMIHIKGOD.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ICodeProgress.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ICoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IConnection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IDeflater.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IEventDispatcher.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IEventEmitter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IFileFormatReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IFileFormatWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IHeartbeat.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IHub.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IHubMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IInWindowStream.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IJLCEKHNLFC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IJsonWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ILogger.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ILookAheadBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IMatchFinder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\INamingConvention.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\INodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\INodeTypeResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IObjectDescriptor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IObjectFactory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IObjectGraphVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IOrderedDictionary.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IPIGAJKKJLN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IPOJNIHHDMF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IPPLMFLBMNF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IParser.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IParsingEventVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IPropertyDescriptor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IProtocol.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IScanner.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IServerMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ISetDecoderProperties.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ISocialNetwork.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ISocket.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ITransport.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ITypeInspector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ITypeResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IValuePromise.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IWebSocketFrameWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IWriteCoderProperties.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IYamlSerializable.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IYamlTypeConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IYamlVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InWindow.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InfTree.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InflateBlocks.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InflateCodes.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InflateManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Inflater.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InputBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InternalConstants.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InternalInflateConstants.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\InternalSettings.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JAHNDKHBMPG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JEEIPOLICHA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JFCEKCIHELB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JHHBEDGPFDM.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JJHBPGBNFPC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JLDHCFFAIPK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JMNFHMEBPFD.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JNEBPDNJFJG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JODGINIKFJF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Json.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonData.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonEventEmitter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonMapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonMockWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KAOCBBMMFOG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KCEBOGOANEH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KINIMNHPNLB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KJJGIJBMJJG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KMAENHJICNF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KMBJIOLJJCE.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KMLMEACFJGA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KNCKFKIOPHE.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KOOPFFDDANF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KeepAliveMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KeyValuePair.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\KeyValuePairList.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LAAFHDKKJFL.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LACLODBGJEI.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LADGKBEOMDK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LBMMAKIBFHD.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LCGIFKDMOMP.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LENCKBHFKLD.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LFFGCBPOGPJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LJLKMCGDKJK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LJPCIAOIJNK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LKDPANKMCOG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LLJPGGEJCPK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LLLOJBFMONN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LNHBEIOHMGB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LPADMPIAIPF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LambdaObjectFactory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LargeFileDownloadSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LedgerSettings.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Lexer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\LocalInternalSettings.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MD5.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MD5CryptoServiceProvider.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MGGJFKDFADC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MKMJBGGLKCM.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MNPBDHNFEBB.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MOEOPMHGKCI.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MappingStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Match.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MergingParser.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Message.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MethodCallMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\MultiMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NBCBGEPFIKG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NBGCAMIJKDA.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NCGDJIDCIIM.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NDIMGDKIMBD.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NEKGJNOFOFN.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NGDOLJPDPBI.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NHMEKPMHION.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NKFKKGNBHDK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NLHENJCBLHC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NNBBLIKMEDJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NamingConventionTypeInspector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NativeExtensions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NegotiationData.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Audio\AudioManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Audio\AudioUnit.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Social\Avatars.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Social\SocialWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Utils\GlobalTimer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Yaml\Mapping.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Yaml\Node.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Yaml\Scalar.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Yaml\Sequence.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Yaml\YamlDocumentNekki.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiExtentions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiLog.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiMath.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiRandom.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiUri.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiWebDownload.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiWebHandler.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiWebHandlerDownload.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiWebHandlerRequest.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiWebHelper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiWebRequest.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiZipTest.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonArray.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonBinaryType.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonBinaryWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonObject.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonObjectId.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonProperty.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonRegex.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonString.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonToken.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonType.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonValue.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ConstructorHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\BsonObjectIdConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\CustomCreationConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\DateTimeConverterBase.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\IXmlDeclaration.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\IXmlDocument.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\IXmlElement.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\IXmlNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\IsoDateTimeConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\JavaScriptDateTimeConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\JsonDateTimeSerializationMode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\KeyValuePairConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\RegexConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\StringEnumConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\XmlDeclarationWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\XmlDocumentWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\XmlElementWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\XmlNodeConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Converters\XmlNodeWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\DefaultValueHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Formatting.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\IJsonLineInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonArrayAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConstructorAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonContainerAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConvert.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConverterAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConverterCollection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonIgnoreAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonObjectAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonPropertyAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonReaderException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonSerializationException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonSerializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonSerializerSettings.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonTextReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonTextWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonToken.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonValidatingReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonWriterException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\IJEnumerable.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JArray.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JConstructor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JContainer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JEnumerable.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JObject.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JPath.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JProperty.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JPropertyDescriptor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JRaw.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JToken.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JTokenEqualityComparer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JTokenReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JTokenType.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JTokenWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JValue.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\LinqExtensions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\MemberSerialization.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\MissingMemberHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\NullValueHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObjectCreationHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\AddingNewEventArgs.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\AddingNewEventHandler.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\INotifyCollectionChanged.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\INotifyPropertyChanging.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\NotifyCollectionChangedAction.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\NotifyCollectionChangedEventArgs.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\NotifyCollectionChangedEventHandler.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\PropertyChangingEventArgs.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ObservableSupport\PropertyChangingEventHandler.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\PreserveReferencesHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\ReferenceLoopHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Required.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchema.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaBuilder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaConstants.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaGenerator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaModel.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaModelBuilder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaNodeCollection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaType.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\JsonSchemaWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\SchemaExtensions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\UndefinedSchemaIdHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\ValidationEventArgs.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Schema\ValidationEventHandler.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\CachedAttributeGetter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\CamelCasePropertyNamesContractResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\DefaultContractResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\DefaultReferenceResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\DefaultSerializationBinder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\ErrorContext.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\ErrorEventArgs.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\IContractResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\IMetadataTypeAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\IReferenceResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\IValueProvider.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonArrayContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonDictionaryContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonFormatterConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonISerializableContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonLinqContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonObjectContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonPrimitiveContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonProperty.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonPropertyCollection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonSerializerInternalBase.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonSerializerInternalReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonSerializerInternalWriter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonSerializerProxy.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonStringContract.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonTypeReflector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\LateBoundMetadataTypeAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\ObjectConstructor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\OnErrorAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\ReflectionValueProvider.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\ResolverContractKey.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\TypeNameHandling.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\Base64Encoder.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\BidirectionalDictionary.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\CollectionUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\CollectionWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\ConvertUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\Creator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\D1.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\DateTimeUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\DictionaryWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\EnumUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\EnumValue.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\EnumValues.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\IWrappedCollection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\IWrappedDictionary.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\IWrappedList.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\JavaScriptUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\LateBoundReflectionDelegateFactory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\ListWrapper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\MathUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\MethodCall.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\MiscellaneousUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\ReflectionDelegateFactory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\ReflectionUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\StringBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\StringUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\ThreadSafeStore.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\ValidationUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\WriteState.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NodeEvent.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NodeValueDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NullNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OAJFDGLHJMC.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OBBKIBFJEMI.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OHLFKFFAOMF.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OIICDHINNMK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OIPMMMLGOAJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OOINGNLNJGM.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OPBDIMHHCMJ.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObjectAnchorCollection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObjectDescriptor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObjectEventInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObjectMetadata.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObjectNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObscuredPrefs.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnBeforeRedirectionDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnDownloadProgressDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnErrorDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnMethodCallDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnNonHubMessageDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnRequestFinishedDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnRetryDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnUploadProgressDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnWebSocketBinaryDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnWebSocketClosedDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnWebSocketErrorDelegate.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OrderedDictionaryEnumerator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OutBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OutWindow.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OutputBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OutputWindow.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OverallUnitPool.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PAFDJLCFOGH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PBGMOJFHMGI.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PDFHPHPODBK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PEELJCOAGOH.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PEILCKGHHDP.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PFIHGFCNOEG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PILIPIHGBEG.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Packet.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ParameterizedThreadStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Parser.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ParserToken.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ParsingEvent.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlayCommand.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistDocument.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElement.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElementArray.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElementBoolean.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElementDict.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElementInteger.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElementString.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PollingTransport.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PostSendTransportBase.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PreciseLocale.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PreciseLocaleText.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ProgressMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Properties\AssemblyInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PropertyDescriptor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PropertyMetadata.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\CodeLib\Pair.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\CodeLib\StringHelper.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\BlockScalarModifier.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\ChompingMethod.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\DataItem.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\Directive.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\GlobalTagPrefix.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\LocalTagPrefix.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\Mapping.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\MappingEntry.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\NamedTagHandle.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\NodeProperty.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\NonSpecificTag.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\ParserInput.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\PrimaryTagHandle.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\ReservedDirective.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\Scalar.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\SecondaryTagHandle.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\Sequence.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\ShorthandTag.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\Tag.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\TagDirective.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\TagHandle.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\TagPrefix.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\TextInput.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\VerbatimTag.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\YamlDirective.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\YamlDocument.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\YamlParser.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\YamlStream.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\YamlVersion.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QualityCondition.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Rand.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\RandomGenerator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ReadableAndWritablePropertiesTypeInspector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ReadablePropertiesTypeInspector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ReflectionExtensions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ReflectionUtility.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ResourcesUtil.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ResultMessage.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\RoundtripObjectGraphTraversalStrategy.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Routiner.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\RpnParser.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\RpnValue.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SFSocial.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SR.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SampleCookieAuthentication.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SampleDescriptor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SampleSelector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Saves.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Scalar.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ScalarEventInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ScalarNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SceneConfig.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SceneLoader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SendMeLog.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Serializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SerializerState.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ServerProviderBase.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ServerSentEventsTransport.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SharedUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleJSON\JSON.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleJSON\JSONArray.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleJSON\JSONBinaryTag.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleJSON\JSONClass.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleJSON\JSONData.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleJSON\JSONLazyCreator.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleJSON\JSONNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SimpleStreamingSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Social.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Socket.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SocketIOChatSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SocketIOWePlaySample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SocketManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SocketOptions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\StandardRegexOptions.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\StaticObjectsManager.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\StaticTree.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\StatisticsQueryFlags.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\StreamFragment.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\StreamStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SwitchForm.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SwitchResult.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SysDlg.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SystemProperties.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TagDirectiveCollection.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TagMappings.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TagNodeTypeResolver.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TextureDownloadSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TexturesUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Thread.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TransportBase.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TypeAssigningEventEmitter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TypeConverter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TypeConverterNodeDeserializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TypeInspectorSkeleton.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TypedDemoHub.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\UVAnimation.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Unity\IO\Compression\InvalidDataException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\UnityEngine\Purchasing\DemoInventory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\UnityForm.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\UploadStream.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\UserInfo.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\VK.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Vector2D.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Vector3D.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\VerificationSettings.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\VersionContainer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\VerticalLayout.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WWWAuthenticateHeaderParser.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WaitForTime.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocket.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketBinaryFrame.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketClose.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketContinuationFrame.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketFrameReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketPong.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketResponse.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketSample.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WebSocketStausCodes.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WrapperFactory.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\WriterContext.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlAliasAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlAttributesTypeInspector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\AnchorNotFoundException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\CharacterAnalyzer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Cursor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\DuplicateAnchorException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\ForwardAnchorNotSupportedException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\InsertionQueue.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\LookAheadBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Mark.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Scanner.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\SemanticErrorException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\SimpleKey.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\StringLookAheadBuffer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\SyntaxErrorException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\Anchor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\AnchorAlias.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\BlockEnd.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\BlockEntry.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\BlockMappingStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\BlockSequenceStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\Comment.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\DocumentEnd.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\DocumentStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\FlowEntry.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\FlowMappingEnd.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\FlowMappingStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\FlowSequenceEnd.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\FlowSequenceStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\Key.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\Scalar.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\StreamEnd.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\StreamStart.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\Tag.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\TagDirective.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\Token.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\Value.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\VersionDirective.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Version.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\YamlException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\RepresentationModel\YamlAliasNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\RepresentationModel\YamlDocument.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\RepresentationModel\YamlMappingNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\RepresentationModel\YamlNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\RepresentationModel\YamlScalarNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\RepresentationModel\YamlSequenceNode.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\RepresentationModel\YamlStream.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlFormatter.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlMemberAttribute.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlNodeIdentityEqualityComparer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlTypeConverters.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlUtils.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlVisitor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZTree.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZlibBaseStream.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZlibCodec.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZlibConstants.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZlibException.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZlibStream.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZlibStreamFlavor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\xxHash.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Plugins\MobileNativePopups.dll" />
+    <None Include="Assets\Plugins\P31RestKit.dll" />
+    <None Include="Assets\Plugins\DOTween46.dll" />
+    <None Include="Assets\Plugins\System.Configuration.dll" />
+    <None Include="Assets\Plugins\Facebook.Unity.Settings.dll" />
+    <None Include="Assets\Plugins\Vectrosity.dll" />
+    <None Include="Assets\Plugins\DOTween43.dll" />
+    <None Include="Assets\Plugins\Facebook.Unity.IOS.dll" />
+    <None Include="Assets\Plugins\DOTween.dll" />
+    <None Include="Assets\Plugins\System.Runtime.InteropServices.dll" />
+    <None Include="Assets\Plugins\Facebook.Unity.dll" />
+    <None Include="Assets\Plugins\protobuf-net.dll" />
+    <None Include="Assets\Plugins\Mono.Data.SqliteClient.dll" />
+    <None Include="Assets\Plugins\DOTween50.dll" />
+    <None Include="Assets\Plugins\Mono.Data.dll" />
+    <None Include="Assets\Plugins\UnityEngine.Purchasing.dll" />
+    <None Include="Assets\Plugins\Facebook.Unity.Android.dll" />
+    <None Include="Assets\Plugins\TcpClientImplementation.dll" />
+    <None Include="Assets\Plugins\System.EnterpriseServices.dll" />
+    <None Include="Assets\Plugins\SmartFox2X.dll" />
+    <None Include="Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="UnityEngine">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AIModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.AIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ARModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ARModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AccessibilityModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.AccessibilityModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AndroidJNIModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.AndroidJNIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.AssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClothModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ClothModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterInputModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ClusterInputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ClusterRendererModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ClusterRendererModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CrashReportingModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.CrashReportingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DSPGraphModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.DSPGraphModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.DirectorModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GameCenterModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.GameCenterModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.GridModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.GridModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.HotReloadModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.HotReloadModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.InputModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.JSONSerializeModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.JSONSerializeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.LocalizationModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.LocalizationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PerformanceReportingModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.PerformanceReportingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ProfilerModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ProfilerModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ScreenCaptureModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ScreenCaptureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SharedInternalsModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.SharedInternalsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteMaskModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.SpriteMaskModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpriteShapeModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.SpriteShapeModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.StreamingModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.StreamingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SubstanceModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.SubstanceModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SubsystemsModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.SubsystemsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TLSModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.TLSModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.TerrainModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainPhysicsModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.TerrainPhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.TextCoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TilemapModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.TilemapModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIElementsModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UIElementsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UNETModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UNETModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UmbraModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UmbraModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityAnalyticsModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityAnalyticsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityConnectModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityConnectModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityTestProtocolModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityTestProtocolModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAssetBundleModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestAssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestAudioModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestAudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestWWWModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityWebRequestWWWModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VFXModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.VFXModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VRModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.VRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VehiclesModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.VehiclesModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VideoModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.VideoModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.WindModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.WindModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.XRModule">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.XRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEditor.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween">
+      <HintPath>Assets\Plugins\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween43">
+      <HintPath>Assets\Plugins\DOTween43.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween46">
+      <HintPath>Assets\Plugins\DOTween46.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween50">
+      <HintPath>Assets\Plugins\DOTween50.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.Unity.Android">
+      <HintPath>Assets\Plugins\Facebook.Unity.Android.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.Unity">
+      <HintPath>Assets\Plugins\Facebook.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.Unity.IOS">
+      <HintPath>Assets\Plugins\Facebook.Unity.IOS.dll</HintPath>
+    </Reference>
+    <Reference Include="Facebook.Unity.Settings">
+      <HintPath>Assets\Plugins\Facebook.Unity.Settings.dll</HintPath>
+    </Reference>
+    <Reference Include="MobileNativePopups">
+      <HintPath>Assets\Plugins\MobileNativePopups.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data">
+      <HintPath>Assets\Plugins\Mono.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Data.SqliteClient">
+      <HintPath>Assets\Plugins\Mono.Data.SqliteClient.dll</HintPath>
+    </Reference>
+    <Reference Include="P31RestKit">
+      <HintPath>Assets\Plugins\P31RestKit.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>Assets\Plugins\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="SmartFox2X">
+      <HintPath>Assets\Plugins\SmartFox2X.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration">
+      <HintPath>Assets\Plugins\System.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="System.EnterpriseServices">
+      <HintPath>Assets\Plugins\System.EnterpriseServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices">
+      <HintPath>Assets\Plugins\System.Runtime.InteropServices.dll</HintPath>
+    </Reference>
+    <Reference Include="TcpClientImplementation">
+      <HintPath>Assets\Plugins\TcpClientImplementation.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Purchasing">
+      <HintPath>Assets\Plugins\UnityEngine.Purchasing.dll</HintPath>
+    </Reference>
+    <Reference Include="Vectrosity">
+      <HintPath>Assets\Plugins\Vectrosity.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Analytics.Editor">
+      <HintPath>Library\PackageCache\com.unity.analytics@3.6.12\Unity.Analytics.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Analytics.Tracker">
+      <HintPath>Library\PackageCache\com.unity.analytics@3.6.12\Unity.Analytics.Tracker.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Analytics.StandardEvents">
+      <HintPath>Library\PackageCache\com.unity.analytics@3.6.12\AnalyticsStandardEvents\Unity.Analytics.StandardEvents.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Runtime.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Xml.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.IO.Compression.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Microsoft.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Win32.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\Microsoft.Win32.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="netstandard">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\netstandard.dll</HintPath>
+    </Reference>
+    <Reference Include="System.AppContext">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.AppContext.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Concurrent">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Collections.Concurrent.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.NonGeneric">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Collections.NonGeneric.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Collections.Specialized">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Collections.Specialized.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Annotations">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ComponentModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.EventBasedAsync">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ComponentModel.EventBasedAsync.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ComponentModel.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.TypeConverter">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ComponentModel.TypeConverter.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Console">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Console.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.Common">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Data.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Contracts">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Debug">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.Debug.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.FileVersionInfo">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.FileVersionInfo.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Process">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.Process.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.StackTrace">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.StackTrace.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.TextWriterTraceListener">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.TextWriterTraceListener.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.Tools">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.Tools.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Diagnostics.TraceSource">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Diagnostics.TraceSource.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Drawing.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Dynamic.Runtime">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Dynamic.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization.Calendars">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Globalization.Calendars.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Globalization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization.Extensions">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Globalization.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression.ZipFile">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.Compression.ZipFile.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.FileSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.DriveInfo">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.FileSystem.DriveInfo.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.FileSystem.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.FileSystem.Watcher">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.FileSystem.Watcher.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.IsolatedStorage">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.IsolatedStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.MemoryMappedFiles">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.MemoryMappedFiles.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Pipes">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.Pipes.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.UnmanagedMemoryStream">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.IO.UnmanagedMemoryStream.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Expressions">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Linq.Expressions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Parallel">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Linq.Parallel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Linq.Queryable">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Linq.Queryable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Rtc">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.Http.Rtc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.NameResolution">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.NameResolution.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.NetworkInformation">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.NetworkInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Ping">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.Ping.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Requests">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.Requests.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Security">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Sockets">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.Sockets.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.WebHeaderCollection">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.WebHeaderCollection.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.WebSockets.Client">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.WebSockets.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.WebSockets">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Net.WebSockets.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ObjectModel">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ObjectModel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Emit">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Reflection.Emit.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Emit.ILGeneration">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Reflection.Emit.ILGeneration.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Emit.Lightweight">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Reflection.Emit.Lightweight.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Extensions">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Reflection.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reflection.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Reflection.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.Reader">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Resources.Reader.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.ResourceManager">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Resources.ResourceManager.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Resources.Writer">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Resources.Writer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.VisualC">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.CompilerServices.VisualC.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Extensions">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Handles">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.Handles.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.InteropServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.WindowsRuntime">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.InteropServices.WindowsRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Numerics">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Formatters">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.Serialization.Formatters.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Json">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.Serialization.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.Serialization.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Xml">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Runtime.Serialization.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Claims">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.Claims.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Algorithms">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.Cryptography.Algorithms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Csp">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.Cryptography.Csp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Encoding">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.Cryptography.Encoding.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.Cryptography.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Cryptography.X509Certificates">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.Cryptography.X509Certificates.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.Principal.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.SecureString">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Security.SecureString.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceModel.Duplex">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ServiceModel.Duplex.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceModel.Http">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ServiceModel.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceModel.NetTcp">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ServiceModel.NetTcp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceModel.Primitives">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ServiceModel.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ServiceModel.Security">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ServiceModel.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Text.Encoding.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encoding.Extensions">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Text.Encoding.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.RegularExpressions">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Text.RegularExpressions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Overlapped">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Threading.Overlapped.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Parallel">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Threading.Tasks.Parallel.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Thread">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Threading.Thread.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.ThreadPool">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Threading.ThreadPool.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Timer">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Threading.Timer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.ReaderWriter">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.ReaderWriter.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XDocument">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.XDocument.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XmlDocument">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.XmlDocument.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XmlSerializer">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.XmlSerializer.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XPath">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.XPath.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.XPath.XDocument">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\Facades\System.Xml.XPath.XDocument.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityScript">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\unityscript\UnityScript.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityScript.Lang">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\unityscript\UnityScript.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Boo.Lang">
+      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\unityscript\Boo.Lang.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Timeline.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Monetization">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.Monetization.dll</HintPath>
+    </Reference>
+    <Reference Include="com.unity.multiplayer-hlapi.Editor">
+      <HintPath>Library\ScriptAssemblies\com.unity.multiplayer-hlapi.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VSCode.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Advertisements">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Timeline">
+      <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
+    </Reference>
+    <Reference Include="com.unity.multiplayer-weaver.Editor">
+      <HintPath>Library\ScriptAssemblies\com.unity.multiplayer-weaver.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.XR.LegacyInputHelpers">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.XR.LegacyInputHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Rider.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Analytics">
+      <HintPath>Library\ScriptAssemblies\Analytics.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.2D.Sprite.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.2D.Tilemap.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.2D.Tilemap.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.SpatialTracking">
+      <HintPath>Library\ScriptAssemblies\UnityEditor.SpatialTracking.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SpatialTracking">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.SpatialTracking.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.VisualStudio.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Advertisements.Editor">
+      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Analytics.DataPrivacy">
+      <HintPath>Library\ScriptAssemblies\Unity.Analytics.DataPrivacy.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.XR.LegacyInputHelpers">
+      <HintPath>Library\ScriptAssemblies\UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.PlasticSCM.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.UI">
+      <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="com.unity.multiplayer-hlapi.Runtime">
+      <HintPath>Library\ScriptAssemblies\com.unity.multiplayer-hlapi.Runtime.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="GenerateTargetFrameworkMonikerAttribute" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

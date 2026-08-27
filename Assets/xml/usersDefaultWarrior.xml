@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Warrior ID="1" FirstName="NAME_SHADOW" Avatar="avatar_hero" Voice="Male" Money="0" Bonus="50" Strength="3" Stamina="3" Level="1" Experience="0" Power="5" PowerSyncTime="" Difficulty="50" LastLotteryEnterTime="0" LastLotteryPlayTime="0" LotteryDaysMax="6" LotteryDays="0" RateTime="0" Skeleton="Skeleton" Armor="Body" Helm="Head" Weapon="Fists" Ranged="NoRanged" Magic="NoMagic" ShowUpgrades="0" ArenaRating="0" ArenaRank="0" Tutorial="MOVE" Tactic="Player" CurrentZone="ZONE_1" PaymentActionsResendRequestCompleted="1" RaidToggleIsVisible="0" EclipseMode="Off" SaveSlot="0">
+  <Items>
+    <Item Name="Unlimited_Energy" Equipped="0" Count="1" UpgradeLevel="0" DeliveryTime="0" DeliveryUpgradeLevel="0" AcquireType="Item" />
+    <Item Name="Body" Equipped="1" Count="1" />
+    <Item Name="Head" Equipped="1" Count="1" />
+    <Item Name="Fists" Equipped="1" Count="1" />
+    <Item Name="NoRanged" Equipped="1" Count="1" />
+    <Item Name="NoMagic" Equipped="1" Count="1" />
+  </Items>
+  <Battles>
+    <Battle Name="ZONE_1|BOSS_LYNX|" />
+  </Battles>
+  <Currencies />
+</Warrior>

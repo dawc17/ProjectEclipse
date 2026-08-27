@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1336" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="ruins_village_bg" Path="Locations/ruins_village/">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1536" Height="512" IsOpaque="1" />
+    <ParticleEffect X="410" Y="90" ClassName="dust3" />
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="ruins_village_atlas_layer1" Path="Locations/ruins_village/">
+    <Image X="0" Y="0" ClassName="layer1_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="ruins_village_atlas_layer2" Path="Locations/ruins_village/">
+    <Image X="0" Y="0" ClassName="layer2_1" Width="1536" Height="512" />
+    <ParticleEffect X="410" Y="90" ClassName="dust3" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="568" PlayerPositionY="-94" EnemyPositionX="768" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="ruins_village_atlas_layer3" Scaling="1" Path="Locations/ruins_village/">
+    <Image X="-896" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="-640" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="-384" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="-128" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="128" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="384" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="640" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="896" Y="191" ClassName="floor" Width="256" Height="52" Color="0x000000" />
+    <Image X="-470" Y="-130" ClassName="left" Width="447" Height="680" Color="0x000000" />
+    <Image X="591" Y="-130" ClassName="right" Width="433" Height="680" Color="0x000000" />
+    <Image X="0" Y="390" ClassName="pixel_1" Width="2000" Height="360" Color="0x000000" />
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="ruins_village_atlas_layer4" Path="Locations/ruins_village/">
+    <Image X="150" Y="-50" ClassName="layer3" Width="1536" Height="512" />
+  </Layer>
+</Root>

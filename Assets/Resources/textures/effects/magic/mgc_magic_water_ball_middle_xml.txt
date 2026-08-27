@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+  <dict>
+    <key>frames</key>
+    <dict>
+      <key>magic_water_ball_middle_1.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{73,66}}</string>
+        <key>offset</key>
+        <string>{0,-0.5}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{73,66}}</string>
+        <key>sourceSize</key>
+        <string>{73,66}</string>
+      </dict>
+      <key>magic_water_ball_middle_2.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{64,78}}</string>
+        <key>offset</key>
+        <string>{-0.5,-2.5}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{64,78}}</string>
+        <key>sourceSize</key>
+        <string>{64,78}</string>
+      </dict>
+      <key>magic_water_ball_middle_3.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{68,75}}</string>
+        <key>offset</key>
+        <string>{-1.5,-1}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{68,75}}</string>
+        <key>sourceSize</key>
+        <string>{68,75}</string>
+      </dict>
+      <key>magic_water_ball_middle_4.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{67,77}}</string>
+        <key>offset</key>
+        <string>{1,3}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{67,77}}</string>
+        <key>sourceSize</key>
+        <string>{67,77}</string>
+      </dict>
+      <key>magic_water_ball_middle_5.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{64,71}}</string>
+        <key>offset</key>
+        <string>{2.5,2}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{64,71}}</string>
+        <key>sourceSize</key>
+        <string>{64,71}</string>
+      </dict>
+      <key>magic_water_ball_middle_6.png</key>
+      <dict>
+        <key>frame</key>
+        <string>{{0,0},{72,61}}</string>
+        <key>offset</key>
+        <string>{0.5,0}</string>
+        <key>rotated</key>
+        <false />
+        <key>sourceColorRect</key>
+        <string>{{0,0},{72,61}}</string>
+        <key>sourceSize</key>
+        <string>{72,61}</string>
+      </dict>
+    </dict>
+    <key>metadata</key>
+    <dict>
+      <key>format</key>
+      <integer>2</integer>
+      <key>realTextureFileName</key>
+      <string>mgc_magic_water_ball_middle.png</string>
+      <key>size</key>
+      <string>{73,78}</string>
+      <key>textureFileName</key>
+      <string>mgc_magic_water_ball_middle.png</string>
+    </dict>
+  </dict>
+</plist>

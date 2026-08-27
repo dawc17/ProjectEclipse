@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <MacroNode1 Type="MacroNode"  X="-1290.47534179688"  Y="0.477706909179688"  Z="5.34113496541977E-5"  Mass="0.00184003007598221"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="-1.06822699308395E-6"  LCC2="-22.8095054626465"  LCC3="23.8047294616699"  LCC4="0.00477706920355558"  MC1="-9.82784853498231E-10"  MC2="-0.0209850873798132"  MC3="0.0219007097184658"  MC4="4.39497534898692E-6" />
+    <MacroNode2 Type="MacroNode"  X="946.5244140625"  Y="0.477706909179688"  Z="-4.19560819864273E-5"  Mass="0.0021757292561233"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="8.39121639728546E-7"  LCC2="21.930492401123"  LCC3="-20.9352703094482"  LCC4="0.00477706920355558"  MC1="9.12850739442916E-10"  MC2="0.023857407271862"  MC3="-0.0227747391909361"  MC4="5.19680452271132E-6" />
+  </Nodes>
+  <Edges>
+    <Edge1 Type="Edge"  Length="2237"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="1"  Node1="MacroNode2"  Node2="MacroNode1"  Force="-0.0533342324197292"  SubNodesCount="0"  End1="MacroNode2"  End2="MacroNode1" />
+  </Edges>
+  <Figures/>
+</Scene>

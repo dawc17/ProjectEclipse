@@ -1,0 +1,216 @@
+android_type	clean_type	evidence
+JNPIOKEKMII	Achievement	XML field literals and complete field/method layout match Switch Achievement
+MIMGGIPBGJH	GameCenter_Android	GameCenterAbstract override surface and explicit GameCenter_Android log literals identify platform implementation
+MFDOJMEAPDN	QuestActionHideMapButton	QUEST_ACTION_HIDE_MAP_BUTTON factory case and map-button removal body identify action
+PNODHDPKBMN	QuestActionChangePlayerAvatar	Avatar XML parse and player-avatar action body match Switch type
+LIKEHAOJFBC	QuestActionDialogCheckTickets	Exact unobfuscated QUEST_ACTION_DIALOG_CHECK_TICKETS factory case
+ENPLKJMLLIH	QuestActionDialogLottery	Exact unobfuscated QUEST_ACTION_DIALOG_LOTTERY factory case
+DPFFGDMBLKB	QuestActionFight	Exact unobfuscated QUEST_ACTION_FIGHT factory case
+JCKHNJBNBAJ	QuestActionVariable	Exact unobfuscated QUEST_ACTION_VARIABLE factory case
+GINMCNPCIPN	QuestActionGotoZone	Exact unobfuscated QUEST_ACTION_GOTO_ZONE factory case
+NHMCLALEPEK	QuestActionUpgrades	Exact unobfuscated QUEST_ACTION_UPGRADES factory case
+HIKAHIOIHIA	QuestActionForge	Exact unobfuscated QUEST_ACTION_FORGE factory case
+HGOLHBNDKFG	QuestActionShop	Exact unobfuscated QUEST_ACTION_SHOP factory case
+JKHIBMJDLOA	QuestActionNews	Exact unobfuscated QUEST_ACTION_NEWS factory case
+BBAKODPKEPI	QuestActionActivate	Exact unobfuscated QUEST_ACTION_ACTIVATE factory case
+HHPAEJNAAMB	QuestActionChangeScene	Exact unobfuscated QUEST_ACTION_CHANGE_SCENE factory case
+KIBHCBGJLMN	QuestActionChangeTab	Exact unobfuscated QUEST_ACTION_CHANGE_TAB factory case
+BKCNEABMPHL	QuestActionGiveItem	Exact unobfuscated QUEST_ACTION_GIVE_ITEM factory case
+KEHEFBGBNDH	QuestActionForceExecution	Exact unobfuscated QUEST_ACTION_FORCE_EXECUTION factory case
+BBNAHLALCBK	QuestActionGiveCurrency	Exact unobfuscated QUEST_ACTION_GIVE_CURRENCY factory case
+INJNCLFDJAG	QuestActionDeliver	Exact unobfuscated QUEST_ACTION_DELIVER factory case
+NNCLPHKBNJD	QuestActionAttachFile	Exact unobfuscated QUEST_ACTION_ATTACH_FILE factory case
+GGPAHMKFNCA	QuestActionRecount	Exact unobfuscated QUEST_ACTION_RECOUNT factory case
+JONFNPIDLLE	QuestActionShowAd	Exact unobfuscated QUEST_ACTION_SHOW_AD factory case
+DBOJBNAAOAD	QuestActionOpenUrl	Exact unobfuscated QUEST_ACTION_OPEN_URL factory case
+NEMDLCHDOCA	QuestActionResetPerks	Exact unobfuscated QUEST_ACTION_RESET_PERKS factory case
+FCPEMEFLGBB	QuestActionUpgradesCleanup	Exact unobfuscated QUEST_ACTION_UPGRADES_CLEANUP factory case
+NCEILOIPOOE	QuestActionSessionSettings	Exact unobfuscated QUEST_ACTION_SESSION_SETTINGS factory case
+PAHAIGEMJFP	QuestActionResetDuelTimer	Exact unobfuscated QUEST_ACTION_RESET_DUEL_TIMER factory case
+EEEBABDLBJB	QuestActionSendStrangerStats	Exact unobfuscated QUEST_ACTION_SEND_STRANGER_STATS factory case
+BPNIFLMLGHB	QuestActionSendDiscountStats	Exact unobfuscated QUEST_ACTION_SEND_DISCOUNT_STATS factory case
+OLJMADEOLID	QuestActionSetCurrentZone	Exact unobfuscated QUEST_ACTION_SET_CURRENT_ZONE factory case
+NMOAACKEMIL	QuestActionSetLanguage	Exact unobfuscated QUEST_ACTION_SET_LANGUAGE factory case
+DGJOLLPMFOO	QuestActionBuyItem	Exact unobfuscated QUEST_ACTION_BUY_ITEM factory case
+DLNLGGHDDJL	QuestActionShowStarterPackTimer	Exact unobfuscated QUEST_ACTION_SHOW_STARTER_PACK_TIMER factory case
+CHBHDBLKOAF	QuestActionHideStarterPackTimer	Exact unobfuscated QUEST_ACTION_HIDE_STARTER_PACK_TIMER factory case
+ENBJNBDOLPK	QuestActionShowVideo	Exact unobfuscated QUEST_ACTION_SHOW_VIDEO factory case
+FBONLJIGKKA	QuestActionUpdateScreen	Exact unobfuscated QUEST_ACTION_UPDATE_SCREEN factory case
+GIBFCCMNFPA	QuestActionActivateTimer	Exact unobfuscated QUEST_ACTION_ACTIVATE_TIMER factory case
+PCGOIFOINKC	QuestActionEndTimer	Exact unobfuscated QUEST_ACTION_END_TIMER factory case
+JCMJHAGMFNC	QuestActionShowMapButton	Exact unobfuscated QUEST_ACTION_SHOW_MAP_BUTTON factory case
+HFLBDGJHEIA	QuestActionEclipseMode	Exact unobfuscated QUEST_ACTION_ECLIPSE_MODE factory case
+KCDDKIDBHNM	QuestActionToggleGroup	Exact unobfuscated QUEST_ACTION_TOGGLE_GROUP factory case
+GKOMKBHAJIJ	QuestActionRemovePack	Exact unobfuscated QUEST_ACTION_REMOVE_PACK factory case
+OEOIFJCDODM	QuestActionRestartApplication	Exact unobfuscated QUEST_ACTION_RESTART_APPLICATION factory case
+KCKGOMHOACA	QuestActionResetCrashFlag	Exact unobfuscated QUEST_ACTION_RESET_CRASH_FLAG factory case
+CINAMLAFLCN	QuestActionSetLowGraphics	Exact unobfuscated QUEST_ACTION_SET_LOW_GRAPHICS factory case
+NOCHJLLNIKO	QuestActionResetEnchantments	Exact unobfuscated QUEST_ACTION_RESET_ENCHANTMENTS factory case
+GJEPKICKHHK	QuestActionGiveFreeRecipe	Exact unobfuscated QUEST_ACTION_GIVE_FREE_RECIPE factory case
+PNPPMHFFOOM	QuestActionOpenForge	Exact unobfuscated QUEST_ACTION_OPEN_FORGE factory case
+HFILCLMKABD	QuestActionShowSetTutorial	Exact unobfuscated QUEST_ACTION_SHOW_SET_TUTORIAL factory case
+FCAMPLENMMC	QuestActionShowCredits	Exact unobfuscated QUEST_ACTION_SHOW_CREDITS factory case
+CAOPJNBDLJB	QuestActionGiveAchievement	Exact unobfuscated QUEST_ACTION_GIVE_ACHIEVEMENT factory case
+MIOPOJOAECK	QuestActionShowRaidToggleBtn	Exact unobfuscated QUEST_ACTION_SHOW_RAID_TOGGLE_BTN factory case
+OFHNEDEEJGI	QuestActionOpenLeagueDialog	Exact unobfuscated QUEST_ACTION_OPEN_LEAGUE_DIALOG factory case
+FLLKBEBLENE	QuestActionSetStoryTutorialStep	Exact unobfuscated QUEST_ACTION_SET_STORY_TUTORIAL_STEP factory case
+HBGBGKDAPON	QuestActionSetRaidInfoTutorialStep	Exact unobfuscated QUEST_ACTION_SET_RAID_INFO_TUTORIAL_STEP factory case
+KLDGEBKDDMA	QuestActionUnzip	Exact unobfuscated QUEST_ACTION_UNZIP factory case
+GNEJMMGFCNF	QuestActionBuyPack	Exact unobfuscated QUEST_ACTION_BUY_PACK factory case
+DKMKJJGAHMA	QuestActionMenuBtnFlashing	Exact unobfuscated QUEST_ACTION_MENU_BTN_FLASHING factory case
+OCNFDKBACBK	QuestActionStoryTutorialMove	Exact unobfuscated QUEST_ACTION_STORY_TUTORIAL_MOVE factory case
+KDDNHLLMDDG	QuestActionStoryTutorialPunchbag	Exact unobfuscated QUEST_ACTION_STORY_TUTORIAL_PUNCHBAG factory case
+AIJNHGGCMKH	QuestActionStoryTutorialLearnPerk	Exact unobfuscated QUEST_ACTION_STORY_TUTORIAL_LEARN_PERK factory case
+MJMKJILIJDO	QuestActionFacebookAPICall	QUEST_ACTION_FB factory case and matching Switch quest-action vocabulary
+GFIJGHGKGPE	QuestActionSetFBIndicator	QUEST_ACTION_FB_INDICATOR factory case and Switch type name
+KGPNNKIGFGD	QuestActionTapjoyActionCall	QUEST_ACTION_TAPJOY_CALL factory case and Switch type name
+NCIDIIGMMIM	QuestActionEclipseModeTutorial	Exact unobfuscated QUEST_ACTION_ECLIPSE_MODE_TUTORIAL factory semantics
+AHPCKIHOBBD	QuestActionEclipseModeSwitchBackTutorial	Exact unobfuscated QUEST_ACTION_ECLIPSE_MODE_SWITCH_BACK_TUTORIAL factory semantics
+EAHOMGCANLF	QuestActionEclipseModeReplayTutorial	Exact unobfuscated QUEST_ACTION_ECLIPSE_MODE_REPLAY_TUTORIAL factory semantics
+KBFMIDDEKAM	QuestActionMapMask	QUEST_ACTION_SET_MAP_MASK factory case, Color XML parse, and map mask body
+HPOBJPMAOHJ	QuestActionShowForgeTutorial	Exact unobfuscated QUEST_ACTION_SHOW_FORGE_TUTORIAL factory semantics
+DJIODEPANKC	QuestActionShowRaidTutorial	Exact unobfuscated QUEST_ACTION_SHOW_RAID_TUTORIAL factory semantics
+HFDKKKDNANL	QuestActionShowRaidFightTutorial	Exact unobfuscated QUEST_ACTION_SHOW_RAID_FIGHT_TUTORIAL factory semantics
+MEIMBEJCMAG	QuestActionShowRaidLeaguesTutorial	Exact unobfuscated QUEST_ACTION_SHOW_RAID_LEAGUES_TUTORIAL factory semantics
+KAMGACHFHGB	QuestActionSwitchToRaidsMap	QUEST_ACTION_SWITCH_TO_RAIDS factory case and Switch type name
+NAHJDECAJMO	QuestActionStoryTutorialClickFight	Factory case plus explicit boss selection and fight-button tutorial body
+IHEPPCJBDND	AvatarRule	RuleParser Avatar XML factory case and Switch rule type
+JIJCBBGHICP	NameRule	RuleParser Name XML factory case and Switch rule type
+PIOKMDENJFB	CrazyRule	RuleCrazy factory case and Switch rule type
+ECLAEMJEABE	NoHealthBarRule	RuleNoHealthBar factory case and Switch rule type
+IDCIPCJHOJO	TimeoutWinRule	RuleTimeoutWin factory case and Switch rule type
+CIDLGBLLOMA	WinShockRule	RuleWinShock factory case and Switch rule type
+GOKFICMCIGK	MapButtonController	MapButtons XML, MapButtonInfo collection, add/remove events, and singleton controller body
+ABGPMGKCLBF	ActionDelete	ActionsParser Delete XML factory case
+ADCIAFCEOLE	ActionTryOnEnd	ActionsParser TryOnEnd XML factory case
+KCBLJINLCOB	ActionStopEffect	ActionsParser StopEffect XML factory case
+ADGMLBFBLHA	ActionStopFollowEffect	ActionsParser StopFollowEffect XML factory case
+ILANMPAHHEK	ActionHitEffect	ActionsParser HitEffect XML factory case
+HNLBIPKJEAD	ActionStopSound	ActionsParser StopSound XML factory case
+PHFCNOBALGE	ActionZoomEffect	ActionsParser ZoomEffect case plus EffectTime and ZoomScale body
+OKKENHDAINP	EventKeyPressed	EventParser KeyPressed XML factory case
+NMGIKFFGOMF	EventKeyReleased	EventParser KeyReleased XML factory case
+CNHAJBPAJAF	EventIntervalEnd	EventParser IntervalEnd XML factory case
+NBFEDMCCKPJ	EventIntervalStart	EventParser IntervalStart XML factory case
+ELGNDOJMOBH	EventHit	EventParser Hit XML factory case
+CFLGJOMFOHK	PerkEventRoundStage	PerkEvent RoundStageStart factory case
+EFGCBFIEOKH	PerkEventEveryFrame	PerkEvent EveryFrame factory case
+CNMECAIJNNJ	PerkActionFlag	PerkAction ModFlag factory case and ACTION_FLAG discriminator
+HHMDDFCJDEO	PerkActionClearAction	PerkAction ClearMods factory case and ACTION_CLEAR_ACTION discriminator
+CLBEGGLEHMB	PerkActionAddBullets	PerkAction AddBullets factory case and ACTION_ADD_BULLETS discriminator
+IGDDHFCDELM	PerkActionSetModFrames	PerkAction SetModFrames factory case and ACTION_SET_MOD_FRAMES discriminator
+FBLKPCHKAHM	PerkActionSetModEffect	PerkAction ApplyModEffect factory case and ACTION_MOD_EFFECT discriminator
+EFIMNMBMCIJ	ModHealthChange	PerkAction ModHealthChange factory case and Switch type name
+BLAIFJHNJIO	PerkActionProvoke	PerkAction Provoke factory case and ACTION_PROVOKE discriminator
+FBDAHEODOGP	PerkActionSetTactics	PerkAction SetTactic factory case and ACTION_SET_TACTICS discriminator
+GGFKBGKDALP	PerkActionLifesteal	PerkAction Lifesteal factory case and ACTION_LIFE_STEAL discriminator
+FJIKHLBDCNI	ModInvisibility	PerkAction ModInvisibility factory case and Switch type name
+NMCKMGOCCBO	PerkActionVariable	PerkAction ModVariable factory case and ACTION_VARIABLE discriminator
+ACEHLJCDLKB	PerkActionChangeHitEffectScale	PerkAction ChangeHitEffectScale case and discriminator
+DMPBHHGACBP	PerkActionChangeAdditionalDamageValue	PerkAction ChangeAdditionalDamageValue case and discriminator
+KICCMFJMNBN	ConditionRound	ConditionsParser ROUND discriminator
+MPHPPFOONFG	ConditionPhysics	ConditionsParser PHYSICS_FRAME discriminator and frame-range body
+HCLABEOLHHC	ConditionHealth	ConditionsParser HEALTH discriminator and health-ratio body
+KOOGCJOEANH	ConditionItemInfo	ConditionsParser ITEM discriminator and item-list comparison body
+NEMOJHMEMDA	ConditionWeapon	ConditionsParser WEAPONS discriminator and equipped-item comparison body
+OCFBPGLOBAJ	ConditionBirth	ConditionsParser BIRTH discriminator
+APFAGGLOOAA	ConditionName	ConditionsParser NAME discriminator
+IILPMMPBEON	PerkConditionRandom	PerkCondition Random factory case and Chance random body
+CMIABGEHFFO	PerkConditionCombo	PerkCondition Combo factory case and combo-count body
+NNMPPEBALGI	PerkConditionCurrentAnimation	PerkCondition CurrentAnimation factory case
+JJPGFOFLJNN	PerkConditionCurrentInterval	PerkCondition CurrentInterval factory case
+KIEPEAHMJBH	PerkConditionHealth	PerkCondition Health factory case and explicit diagnostic literal
+CMDFAEOMPCP	PerkConditionRound	PerkCondition Round factory case and round-number body
+JHPEOJILIKI	PerkConditionBullets	PerkCondition Bullets factory case and bullet-type body
+FNLFMAAJCAC	PerkConditionMagicCharge	PerkCondition MagicCharge factory case and charge body
+EFMPHACAMBE	PerkConditionModExists	PerkCondition ModExists factory case
+HIAIEMFHBAH	PerkConditionPain	PerkCondition Pain factory case and pain-value body
+ECPMEIMDIOF	PerkConditionComparison	CONDITION_PERK_COMPARISON discriminator and Compare expression body
+AOIHFGABCMP	DialogsOpener	Dialog-opening methods and dialog localization-key literals
+BLHMMFJHLPP	PurchaseController	Purchasing initialization, receipt lifecycle callbacks, and payment analytics body
+BLHOBLHCPIP	RaidCheatManager	Raid and progression cheat command help table
+FDJJGMBGBLB	RemoteLicenseChecker	RemoteLicenseChecker diagnostics and platform/license response body
+FEMGGEAGICG	ChangingSprite	Animated picture/particle diagnostics and location-rendering usage
+GDKHPMIFOCJ	CUDLRCommands	CUDLR command registration and help text
+KEMMIFBFDPK	ArgsDict	Dictionary<string, object> base and exact Switch structural match
+KFHBAODPJMF	ColorUtils	Color parsing/conversion utility surface and strong structural margin
+KMKIHHLEAGA	XmlUtils	XML loading/parsing body and explicit XmlUtils diagnostic literal
+LIONODAIICJ	DumpController	Dump restore/download, MD5 validation, replacement, and completion callback body
+LJHBBMMFBFF	UIExtensions	UI extension-method surface and structural match
+LNLMMOEJIJF	AdvertConfig	Exact field/method fingerprint and isolated structural match
+OKBKNMCOIEN	SecurityModule	LoadingModule base and SecurityModule.CheckStarted diagnostic
+PMOKJKOPOPJ	ItemBuyHelper	Item purchase, currency delivery, sound, and perk-reset body
+FHEOIDHGCBH	ModelType	Enemy/Parent/Both/Child parsing vocabulary and ModelType diagnostic
+LALBHECIPLD	StageType	StartStance/Fight/EndStance/TryOn parsing vocabulary and StageType diagnostic
+CAGGDFBMJKG	MarketSettings	AssemblyController Market XML node and China/Japan/Korea/Amazon/Steam platform flags
+AHGEFEJNIAB	ConditionStatus	Exact StatusComplete/StatusOpen/StatusIncomplete enum member set in Switch dump
+DIAODIFNGLI	PlayerType	Exact PLAYER_NONE/PLAYER_ME/PLAYER_ENEMY enum member set in Switch dump
+DPOHKPAKPPM	GameOverTypes	Exact six-member GAME_OVER enum fingerprint in Switch dump
+ECHINOPKGGI	FightCID	24 exact fight-control members; Android version also contains the older merged quadrant values
+ELKGJAOHJGM	StoryTutorialStepCode	Exact 24-member STEP_* enum fingerprint in Switch dump
+EOONKPMBNBE	EdgeType	Exact Edge/Muscle enum and ModelEdge call-site semantics
+FADHDBNEDHM	ActionType	Exact 23-member ACTION_* perk enum fingerprint in Switch dump
+FOEBIHELFMF	LicenseRequestResult	Exact Success/Failed/Error security result constants in Switch dump
+GBHDNJFHNNE	FightEvent	All 13 Android event members occur in the Switch FightEvent enum
+GCDPHDDEFFA	PointsTableType	Exact POINTS_TABLE_CONTEST/POINTS_TABLE_SCORE fingerprint in Switch dump
+GKCKAHAMGDO	DialogType	29 matching Dialog* members and dialog factory call sites
+GLGBHNDMIOD	EndRoundType	All six Android EndRoundType* members occur in the Switch enum
+HHOJHNPKKFB	ConditionCompare	Exact five-member comparison enum fingerprint in Switch dump
+IDDHECOKKJN	ConditionType	Exact four-member ConditionFight* enum fingerprint in Switch dump
+IPKNDMINFMJ	ScreenType	Module*/Loader screen-routing members and ScreenType switch in the clean build
+JFDAFJIMFBC	VisualObjectType	VISUAL_OBJECT_* enum used solely by Scene.GetVisualObject
+JJIOADLDPPE	GooglePlayLicenseCheckError	Exact Google Play license error constant names in Switch dump
+JONMJFCIKON	ScreenFightType	Exact 13-member fight-screen enum fingerprint in Switch dump
+JPCHBCLGMLK	BulletType	Exact MAGIC_BULLET/RAID_CHARGE_BULLET fingerprint in Switch dump
+KGJKCFCFEED	PermissionRequestResult	Exact Granded/Denied/UserSkip fingerprint and permission callback usage
+LBFKFBALMGA	SliderType	Exact 17-member Slider* enum fingerprint in Switch dump
+LNELMKGKPJN	SceneTypes	All 11 Android Scene* members occur in the Switch SceneTypes enum
+LPIMFGEBPDP	ConditionSubType	Exact Zone/Battle/Fight condition subtype fingerprint in Switch dump
+MDBNGLBPGCG	GameValueType	Exact Gold/Gems/Energy/CurrencyType fingerprint in Switch dump
+MOKGEHOHDJK	RuleAppliance	Exact ApplianceNone/Player/Opponent/All fingerprint in Switch dump
+NKFFAPINAHC	TableViewOrientation	Vertical/Horizontal enum used by TableView and TableViewScroll
+NMIMFBKDALL	EdgeSubType	Exact None/Blade enum and ModelEdge call-site semantics
+NPIPAOAPBCK	ComboTypeEvent	Exact COMBO_START/INCREASE/STOP fingerprint in Switch dump
+ODDKMLFHJGP	LicenseFailReason	Exact platform/license failure constants in Switch dump
+OIPHFIEDJKL	ShopSection	All eight Android shop section members occur in the Switch enum
+OLHMJFIOMHL	ComboTypes	Exact six-member TypeCombo/TypeCritical/etc. fingerprint in Switch dump
+PCKPFBFHKJH	ItemAction	All 18 Android Item_* actions occur in the Switch ItemAction enum
+PJMEMGHKKBM	BattleType	Exact 23-member Fight* enum fingerprint in Switch dump
+AACAFOBANOH	UpgradeIndexItem	Exact nested UPGRADE_INDEX_* enum plus Index/Type shape in Switch dump
+AMFMMNEOJCM	TransformExtensions	Transform local-position X/Y/Z extension method bodies
+BJEJMIMNJBP	ShopOverrideConteyner	Parses Type/Screen/Name XML entries and exposes screen lookup
+BKKPCBGAEHC	BattleReplayable	Replayable battle base usage, Rules parsing, status update, and BattleAscension inheritance
+DNEFNINBKKF	News	NewsItem collection with Reset/add/remove behavior matching the clean build
+ENKGAHJKICL	DelayedAnimation	Exact Animation/Count/IsFrameShift/FrameShift fields and Clear behavior
+FIHMEHKAOCP	GroupModel	Exact Name/IsRandom/NoDoubles field shape and ModelParameters usage
+FIIMJHJLBBP	OutdateLevels	OutdateLevelItem XML parser and IsType behavior
+GCCJGHNNJBM	AntichitingModule	First clean-build loader slot after permissions; initializes device/security properties
+GIIGEHIAJKN	DialogsManager	DialogType factory, dialog prefab registry, singleton, and unknown-dialog diagnostic
+IAEEPHNBLCB	ComboCounter	Exact combo/hit/frame counters, properties, update, hit, and reset behavior
+IFPOAGEPNIJ	InitializationModule	Third pre-intro loader slot, matching clean loader module order
+JDHKIJEIDCO	EventTriggers	Exact trigger lists grouped by EventAnimation event type
+JHJPEFFBMFM	ShopOverride	Three-string screen/type/item override record owned by ShopOverrideConteyner
+JKNHDJLBJBJ	AttachFileModule	Second clean-build loader slot after device/security initialization
+JLINNJGCFOG	Module	Exact screen lifecycle events, ScreenInfo routing, ModuleHolder, and screen-name conversion
+KNPEKEDPFHN	CurrencyBaseValues	CurrencyBaseValue XML collection, Parse, and GetBaseValue behavior
+MHOJFHKHIIL	Style	Exact Name/TextImage/BarImage/StyleMultiplier shape and StyleLevels usage
+OBIJPKHAMGI	Util	Exact generic Swap<T>(ref T, ref T) utility body in Switch dump
+PAHLFJIMKCL	BattleRaid	RaidData parsing, raid currency sufficiency check, and Battle base constructor
+PNFEKCJBPLC	ParseModule	Post-intro loader slot performing game-data/parser initialization
+GNCBNIMEEHA	SealsController	ProfileScene seals table construction, List<UserItem> seal population, and exact clean-build controller role
+INMPMLGPGCB	TricksController	ProfileScene tricks table construction, List<Trick> population, and exact clean-build controller role
+MLFKAHLDEFA	PerksController	ProfileScene perks table construction, perk-tree population, and exact clean-build controller role
+NEJHFNLDGDD	AchievementsController	ProfileScene achievements table construction, Pair<Achievement,int> population, and exact clean-build controller role
+MAECMDMCFEB	AchievementInfo	Achievement UI call sites explicitly name instances achievementInfo and the record carries achievement presentation/callback data
+OFDBKGBBAJH	TrickInfo	Trick UI call sites explicitly name instances trickInfo and the record carries trick presentation/callback data
+JOPONFMDIKE	CharProgLevel	Exact min:uint/max:uint/value:long field layout, XmlNode constructor, and collection-owner matches in the Switch metadata
+NEFJOLLPNMB	ItemSets	Owns, parses, and queries the complete ItemSet collection
+FHPJJGPJLHD	ProfilePerkContainer	Exact Level plus List<ProfilePerk> layout and PerkTree GetProfilePerkContainers return-type match
+LAPFHLGNAAF	CurrencyStruct	Exact GameCurrency plus ObscuredInt layout, Roster currencies owner, and FightResult GetCurrencies return-type match
+LFIMDCGEGBG	MoneyStruct	Exact GameCurrency plus ObscuredInt layout and FightResult MoneyRewardStruct.StructMoney field-type match
+LONBLHKCFDH	ResistanceStruct	Resistance object plus ObscuredInt layout and FightResult GetResistances return-type match
+NIDJICDJLHC	GiveItemLogin	Exact Name/UpgradeLevel/Count/Equip field layout and GiveLogin.Items owner match
+PNLAKFHBBDM	AspectConstants	Exact three-float layout and GameUtils get_AspectConstants return-type match
+INODIOJPNJH	Recipe	RecipeItemInfo _Recipe field, constructor position, and ForgeManager GetRecipeByName return type
+PANAKJICBKI	RecipePrice	RecipeItemInfo _RecipePrice field, constructor position, delivery-time and bonus-price usage
+JDLLFCPGEME	ForgeManager	Singleton owner of GetRecipePrice, GetRecipeByName, and GetAspectValueByLevel matching the clean ForgeManager surface

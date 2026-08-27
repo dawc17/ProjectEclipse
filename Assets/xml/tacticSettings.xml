@@ -1,0 +1,495 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TacticsSettings>
+  <BothBot Enabled="0" />
+  <Tactics>
+    <Tactic Name="Standard" Template="UseTables">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="800" Antilimit="800" Limit="1600" DistanceFactor="0.002" Shift="-0.25" />
+        <Animation Name="BackStep" Base="250" AntiLimit="250" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Name="BackHandflip" Base="500" AntiLimit="500" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="ShortAttack" Base="1000" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="100" AntiLimit="-200" Limit="800" DistanceFactor="0.002" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="1000" />
+        <Animation Name="BossAbility" Base="3000" />
+        <Animation Name="Retreat" Base="100" AntiLimit="100" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Base="100" Limit="1000" ConditionalDesigionFactor="0.25" />
+      </AnimationWeights>
+    </Tactic>
+    <Tactic Name="Test" Template="UseTables">
+      <AnimationWeights />
+    </Tactic>
+    <Tactic Name="NoTables" Type="Tabular">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="800" />
+        <Animation Name="BackStep" Base="250" />
+        <Animation Name="BackHandflip" Base="500" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="WallJump_50" Base="1000" />
+        <Animation Name="WallJump_100" Base="1000" />
+        <Animation Name="ShortAttack" Base="1000" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="400" />
+        <Animation Name="MagicPlayer" Base="1000" />
+        <Animation Name="BossAbility" Base="3000" />
+        <Animation Base="100" />
+      </AnimationWeights>
+      <UseDefense>
+        <CounterAttackChance Base="0" Limit="0" />
+        <DodgeChance Base="0" Limit="0" />
+        <BlockChance Base="0" CounterFactor="0.2" DamageFactor="4" AnimationFramesFactor="0.03" Limit="1" />
+      </UseDefense>
+      <UseSafeAttackChance Base="0" Limit="0" />
+      <TableAttackChance Base="0" Limit="0" />
+      <DodgeMissilesChance Base="0" />
+      <QuickAttacks>
+        <QuickAttackChance Animation="Throw" Base="0.05" Limit="0.3">
+          <AnimationFactors Animation="Throw" DamageFactor="4" CounterFactor="0.5" />
+        </QuickAttackChance>
+        <QuickAttackChance Animation="ShortAttack" Base="0.2" />
+      </QuickAttacks>
+      <Evades>
+        <EvadeChance Animation="Throw" Base="0.02" Limit="1">
+          <AnimationFactors Animation="Throw" CounterFactor="0.2" DamageFactor="4" />
+        </EvadeChance>
+      </Evades>
+      <CautiousMovementsChance Base="0" Limit="0" />
+      <DistanceError>
+        <Min Base="0" />
+        <Max Base="0" />
+      </DistanceError>
+      <FrameError>
+        <Min Base="0" />
+        <Max Base="0" />
+      </FrameError>
+      <ResponseDelay>
+        <Min Base="0" />
+        <Max Base="0" />
+      </ResponseDelay>
+      <EnemyResponseDelay>
+        <Min Base="30" />
+        <Max Base="60" />
+      </EnemyResponseDelay>
+      <ExpectedWait>
+        <Animation Name="Step" Base="1000" Limit="1000" />
+        <Animation Base="3" HealthFactor="3" Limit="15" />
+      </ExpectedWait>
+      <Memory Strikes="3" RoundFactor="1" />
+    </Tactic>
+    <Tactic Name="UseTables" Type="Tabular">
+      <UseDefense>
+        <CounterAttackChance Base="0" CounterFactor="0.05" HitFactor="0.15" DamageFactor="0.5" AnimationFramesFactor="0.0015" Limit="1" />
+        <DodgeChance Base="0" CounterFactor="0.05" HitFactor="0.15" DamageFactor="0.5" AnimationFramesFactor="0.0015" Limit="1" />
+        <BlockChance Base="0" CounterFactor="0.05" HitFactor="0.15" DamageFactor="0.5" AnimationFramesFactor="0.005" Limit="1" />
+      </UseDefense>
+      <UseSafeAttackChance Base="0.05" CounterFactor="0.2" AnimationFramesFactor="0.0015" Limit="1" />
+      <TableAttackChance Base="0" CounterFactor="0.2" AnimationFramesFactor="0.0015" Limit="1" />
+      <DodgeMissilesChance Base="0" ChildFramesFactor="0.005" Limit="1" DistanceFactor="0.0002">
+        <AnimationFactors Animation="RangedMissile" HitFactor="0.3" DamageFactor="1" />
+        <AnimationFactors Animation="RangedPlayer" CounterFactor="0.1" />
+      </DodgeMissilesChance>
+      <DodgeMagicChance Base="0.1" ChildFramesFactor="0.005" Limit="1">
+        <AnimationFactors Animation="MagicMissile" HitFactor="0.3" DamageFactor="1" />
+        <AnimationFactors Animation="MagicPlayer" CounterFactor="0.1" />
+      </DodgeMagicChance>
+      <QuickAttacks>
+        <QuickAttackChance Animation="Throw" Base="0.05" Limit="0.3">
+          <AnimationFactors Animation="Throw" HitFactor="1" />
+        </QuickAttackChance>
+        <QuickAttackChance Animation="ShortAttack" Base="0.2" />
+      </QuickAttacks>
+      <Evades>
+        <EvadeChance Animation="Throw" Base="0.05" Limit="1">
+          <AnimationFactors Animation="Throw" HitFactor="1" />
+        </EvadeChance>
+      </Evades>
+      <CautiousMovementsChance Base="0.2" HealthFactor="1" EnemyHealthFactor="-1" Limit="0.4" AntiLimit="0" DistanceFactor="0.00125">
+        <AnimationFactors Animation="RangedMissile" HitFactor="0.1" DamageFactor="0.33" />
+        <AnimationFactors Animation="RangedPlayer" CounterFactor="0.033" />
+      </CautiousMovementsChance>
+      <DistanceError>
+        <Min Base="0" />
+        <Max Base="0" />
+      </DistanceError>
+      <FrameError>
+        <Min Base="0" />
+        <Max Base="0" />
+      </FrameError>
+      <ResponseDelay>
+        <Min Base="0" />
+        <Max Base="0" />
+      </ResponseDelay>
+      <EnemyResponseDelay>
+        <Min Base="30" />
+        <Max Base="60" />
+      </EnemyResponseDelay>
+      <ExpectedWait>
+        <Animation Name="Step" Base="1000" Limit="1000" />
+        <Animation Base="5" HealthFactor="1" EnemyHealthFactor="-1" Limit="15" AntiLimit="1" />
+      </ExpectedWait>
+      <Memory Strikes="3" RoundFactor="1" />
+    </Tactic>
+    <Tactic Name="Sensei" Type="Tabular">
+      <UseDefense>
+        <CounterAttackChance Base="1" />
+        <DodgeChance Base="1" />
+        <BlockChance Base="1" />
+      </UseDefense>
+      <UseSafeAttackChance Base="1" />
+      <TableAttackChance Base="1" />
+      <DodgeMissilesChance Base="1" />
+      <QuickAttacks>
+        <QuickAttackChance Animation="Throw" Base="1" />
+        <QuickAttackChance Animation="ShortAttack" Base="1" />
+      </QuickAttacks>
+      <Evades>
+        <EvadeChance Animation="Throw" Base="1" />
+      </Evades>
+      <CautiousMovementsChance Base="1" />
+      <DistanceError>
+        <Min Base="0" />
+        <Max Base="0" />
+      </DistanceError>
+      <FrameError>
+        <Min Base="0" />
+        <Max Base="0" />
+      </FrameError>
+      <ResponseDelay>
+        <Min Base="0" />
+        <Max Base="0" />
+      </ResponseDelay>
+      <EnemyResponseDelay>
+        <Min Base="30" />
+        <Max Base="60" />
+      </EnemyResponseDelay>
+      <ExpectedWait>
+        <Animation Name="Step" Base="1000" Limit="1000" />
+        <Animation Base="30" HealthFactor="3" EnemyHealthFactor="-3" Limit="45" AntiLimit="1" />
+      </ExpectedWait>
+      <Memory Strikes="3" RoundFactor="1" />
+    </Tactic>
+    <Tactic Name="Lynx_Ranged" Template="Standard">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="400" />
+        <Animation Name="BackStep" Base="800" />
+        <Animation Name="BackHandflip" Base="800" AntiLimit="1600" Limit="800" DistanceFactor="0.0025" Shift="-0.5" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="WallJump_50" Base="1000" />
+        <Animation Name="WallJump_100" Base="1000" />
+        <Animation Name="ShortAttack" Base="1000" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="800" AntiLimit="800" Limit="1600" DistanceFactor="0.0025" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="1000" />
+        <Animation Name="BossAbility" Base="3000" />
+        <Animation Base="100" />
+      </AnimationWeights>
+    </Tactic>
+    <Tactic Name="Shogun" Template="Standard">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="400" />
+        <Animation Name="BackStep" Base="800" />
+        <Animation Name="BackHandflip" Base="500" AntiLimit="500" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="WallJump_50" Base="1000" />
+        <Animation Name="WallJump_100" Base="1000" />
+        <Animation Name="ShortAttack" Base="1000" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="400" AntiLimit="400" Limit="1000" DistanceFactor="0.0025" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="1000" />
+        <Animation Name="BossAbility" Base="3000" />
+        <Animation Name="Retreat" Base="100" AntiLimit="100" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Base="100" />
+      </AnimationWeights>
+    </Tactic>
+    <Tactic Name="Shogun_Aggressive" Template="Standard">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="500" />
+        <Animation Name="Retreat" Base="1" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="WallJump_50" Base="1000" />
+        <Animation Name="WallJump_100" Base="1000" />
+        <Animation Name="ShortAttack" Base="1000" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="400" AntiLimit="400" Limit="1000" DistanceFactor="0.0025" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="1000" />
+        <Animation Name="SummonAssistant" Base="3000" />
+        <Animation Base="100" />
+      </AnimationWeights>
+    </Tactic>
+    <Tactic Name="Titan_Aggressive" Template="Standard">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="500" />
+        <Animation Name="Retreat" Base="100" />
+        <Animation Name="ShortAttack" Base="50" />
+        <Animation Name="Weapon" Base="300" />
+        <Animation Name="TitanThrow" Base="2000" />
+        <Animation Name="RangedPlayer" Base="200" AntiLimit="200" Limit="800" DistanceFactor="0.0025" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="800" />
+        <Animation Name="TitanGiantSwordSuperSlash" Base="1000" />
+        <Animation Base="100" />
+      </AnimationWeights>
+      <UseDefense>
+        <DodgeChance Base="0" Limit="0" />
+      </UseDefense>
+      <DodgeMissilesChance Base="0" Limit="0" />
+    </Tactic>
+    <Tactic Name="Careful" Template="Standard">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="1200" Antilimit="1200" Limit="2000" DistanceFactor="0.002" Shift="-0.25" />
+        <Animation Name="BackStep" Base="500" AntiLimit="500" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Name="BackHandflip" Base="750" AntiLimit="750" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="WallJump_50" Base="1000" />
+        <Animation Name="WallJump_100" Base="1000" />
+        <Animation Name="ShortAttack" Base="1000" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="400" AntiLimit="400" Limit="1000" DistanceFactor="0.0025" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="1000" />
+        <Animation Name="BossAbility" Base="3000" />
+        <Animation Name="Retreat" Base="100" AntiLimit="100" Limit="1" DistanceFactor="0.0025" Shift="-0.25" />
+        <Animation Base="100" />
+      </AnimationWeights>
+      <Evades>
+        <EvadeChance Animation="Throw" Base="0.2" Limit="1">
+          <AnimationFactors Animation="Throw" HitFactor="2" />
+        </EvadeChance>
+      </Evades>
+    </Tactic>
+    <Tactic Name="Aggressive" Template="Standard">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="1000" />
+        <Animation Name="Retreat" Base="1" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="WallJump_50" Base="1000" />
+        <Animation Name="WallJump_100" Base="1000" />
+        <Animation Name="ShortAttack" Base="1000" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="400" AntiLimit="400" Limit="1000" DistanceFactor="0.0025" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="1000" />
+        <Animation Name="BossAbility" Base="3000" />
+        <Animation Base="100" />
+      </AnimationWeights>
+      <ExpectedWait>
+        <Animation Name="Step" Base="1000" Limit="1000" />
+        <Animation Base="0" Limit="0" />
+      </ExpectedWait>
+    </Tactic>
+    <Tactic Name="Beginner" Template="NoTables" Type="Random">
+      <AnimationWeights>
+        <Animation Name="BackHandflip" Base="1" />
+        <Animation Name="WallJump_50" Base="1" />
+        <Animation Name="WallJump_100" Base="1" />
+        <Animation Name="Retreat" Base="1" />
+        <Animation Base="100" />
+      </AnimationWeights>
+    </Tactic>
+    <Tactic Name="Lynx_Invisible" Template="Standard" Type="Tabular">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="800" />
+        <Animation Name="Retreat" Base="1" />
+        <Animation Name="Duck" Base="1" />
+        <Animation Name="JumpUp" Base="1" />
+        <Animation Name="Weapon" Base="200" />
+        <Animation Name="RangedPlayer" Base="0" />
+        <Animation Name="MagicPlayer" Base="0" />
+        <Animation Name="BossAbility" Base="0" />
+        <Animation Base="100" />
+      </AnimationWeights>
+    </Tactic>
+    <Tactic Name="Titan_Aggressive" Template="Standard">
+      <AnimationWeights>
+        <Animation Name="ForwardStep" Base="500" />
+        <Animation Name="Retreat" Base="100" />
+        <Animation Name="ShortAttack" Base="400" />
+        <Animation Name="TitanHeadBlow" Base="50" />
+        <Animation Name="Weapon" Base="300" />
+        <Animation Name="TitanThrow" Base="2000" />
+        <Animation Name="RangedPlayer" Base="200" AntiLimit="200" Limit="800" DistanceFactor="0.0025" Shift="-0.75">
+          <AnimationFactors Animation="RangedMissile" HitFactor="-0.3" DamageFactor="-1" />
+        </Animation>
+        <Animation Name="MagicPlayer" Base="800" />
+        <Animation Name="TitanGiantSwordSuperSlash" Base="1000" />
+        <Animation Base="100" />
+      </AnimationWeights>
+      <UseDefense>
+        <DodgeChance Base="0" Limit="0" />
+      </UseDefense>
+      <DodgeMissilesChance Base="0" Limit="0" />
+    </Tactic>
+  </Tactics>
+  <Random>
+    <Intervals>
+      <Interval Name="Uninterrupt" />
+      <Interval Name="SelfUninterrupt" />
+    </Intervals>
+    <Delays>
+      <Delay Animation="Step" Min="0" Max="0" />
+      <Delay Animation="Controlled" Min="0" Max="10" />
+      <Delay Animation="SweepHit" Min="15" Max="20" />
+      <Delay Animation="MiddleHit" Min="5" Max="20" />
+    </Delays>
+    <BeginnerCheat Treshold="0.4" />
+  </Random>
+  <ItemEquivalents />
+  <NoDecision>
+    <Intervals>
+      <Interval Name="Uninterrupt" />
+      <Interval Name="SemiUninterrupt" />
+    </Intervals>
+    <Moves>
+      <Move Name="Physical" />
+    </Moves>
+  </NoDecision>
+  <IgnoredEnemyAnimations />
+  <RandomizingEnemyAnimation>
+    <Animation Name="Stance" />
+  </RandomizingEnemyAnimation>
+  <CautiousMovements>
+    <Animation Name="Step" />
+  </CautiousMovements>
+  <SafeDodges>
+    <Animation Name="BackHandflip" />
+    <Animation Name="Step" />
+  </SafeDodges>
+  <EmergencyDodges>
+    <Animation Name="Wall" />
+  </EmergencyDodges>
+  <EvadeThrowDodges>
+    <Animation Name="BackHandflip" />
+  </EvadeThrowDodges>
+  <EvadeUnsafeDodges>
+    <Animation Name="Step" />
+  </EvadeUnsafeDodges>
+  <UnexpectedMoves>
+    <Move Name="Physical" />
+    <Move Name="Hit" />
+    <Move Name="ThrowFall" />
+  </UnexpectedMoves>
+  <MissileAnimations>
+    <Animation Name="RangedMissile" />
+    <Animation Name="MagicMissile" />
+    <Animation Name="MagicMissileStart" />
+  </MissileAnimations>
+  <MagicAnimations>
+    <Animation Name="MagicMissile" />
+    <Animation Name="MagicStart" />
+  </MagicAnimations>
+  <DistanceNode Name="NPivot" />
+  <Debug>
+    <ShowErrorIfAnimationNotFound Value="0" />
+  </Debug>
+  <ConditionalDecisions>
+    <PlayerAnimation Name="MagicSawPlayer">
+      <Reactions>
+        <Animations Names="WallJump_50|FrontFlip|WallJump_100" Priority="10">
+          <Conditions>
+            <ModelItem Player="EnemyChild" SlotType="Weapon" SubType="MagicSaw" />
+            <Operator Type="Or">
+              <Operator Type="And">
+                <Animation Player="EnemyChild" Animations="MagicSawMiddle" />
+                <Operator Type="And">
+                  <Distance From="Me" To="EnemyChild" Operator="LessEqual" Distance="950" />
+                  <Distance From="Me" To="EnemyChild" Operator="GreaterEqual" Distance="600" />
+                </Operator>
+              </Operator>
+              <Operator Type="And">
+                <Animation Player="EnemyChild" Animations="MagicSawStart" />
+                <Distance From="Me" To="EnemyChild" Operator="LessEqual" Distance="600" />
+                <Distance From="Me" To="EnemyChild" Operator="GreaterEqual" Distance="350" />
+              </Operator>
+              <Operator Type="And">
+                <Animation Player="EnemyChild" Animations="MagicSawStart" />
+                <AnimationFrame Player="EnemyChild" Operator="GreaterEqual" Frame="14" />
+                <Distance From="Me" To="EnemyChild" Operator="Greater" Distance="600" />
+              </Operator>
+            </Operator>
+          </Conditions>
+        </Animations>
+        <Animations Names="LowPunch|LowKick" Priority="15">
+          <Conditions>
+            <Distance From="Me" To="Enemy" Operator="LessEqual" Distance="200" />
+            <AnimationFrame Player="Enemy" Operator="LessEqual" Frame="5" />
+          </Conditions>
+        </Animations>
+      </Reactions>
+    </PlayerAnimation>
+    <PlayerAnimation Name="GroundPunch">
+      <Reactions>
+        <Animations Names="WallJump_50|FrontFlip|WallJump_100" Priority="1">
+          <Conditions>
+            <AnimationFrame Player="Enemy" Operator="LessEqual" Frame="7" />
+          </Conditions>
+        </Animations>
+        <Animations Names="Jump" Priority="2">
+          <Conditions>
+            <AnimationFrame Player="Enemy" Operator="Equal" Frame="8" />
+          </Conditions>
+        </Animations>
+      </Reactions>
+    </PlayerAnimation>
+    <PlayerAnimation Name="HermitStormPlayerIdle">
+      <Reactions>
+        <Animations Names="ReverseJumpKick|DoubleJumpKick|ShortJumpKick|FrontJumpKick|FrontJumpScissorsKick|TwoFootJumpKick|DodgeReverseKick|ShortUpwardElbowStrike|AxeKick|AxeKickOld|DodgeKick" Priority="40">
+          <Conditions>
+            <Distance From="Me" To="Enemy" Operator="Less" Distance="300" />
+          </Conditions>
+        </Animations>
+        <Animations Names="AirPunch|BackFlipKick|RangedMissle|ForwardRoll|FrontFlip|DoubleStepForward|MagicPlayer" Priority="35">
+          <Conditions>
+            <Distance From="Me" To="Enemy" Operator="GreaterEqual" Distance="300" />
+          </Conditions>
+        </Animations>
+      </Reactions>
+    </PlayerAnimation>
+    <PlayerAnimation Name="HermitStormPlayer">
+      <Reactions>
+        <Animations Names="AxeKick|AxeKickOld|FrontJumpKick|FrontJumpScissorsKick|ShortUpwardElbowStrike" Priority="30">
+          <Conditions>
+            <Distance From="Me" To="Enemy" Operator="Less" Distance="300" />
+          </Conditions>
+        </Animations>
+        <Animations Names="AirPunch|BackFlipKick|RangedMissle|FrontFlip" Priority="25">
+          <Conditions>
+            <Distance From="Me" To="Enemy" Operator="GreaterEqual" Distance="300" />
+          </Conditions>
+        </Animations>
+      </Reactions>
+    </PlayerAnimation>
+    <PlayerAnimation Name="WallRunUp">
+      <Reactions>
+        <Animations Names="ReverseJumpKick|DoubleJumpKick|ShortJumpKick|FrontJumpKick|FrontJumpScissorsKick|TwoFootJumpKick|DodgeReverseKick|ShortUpwardElbowStrike|AxeKick|AxeKickOld|DodgeKick" Priority="40">
+          <Conditions>
+            <Distance From="Me" To="Enemy" Operator="Less" Distance="300" />
+          </Conditions>
+        </Animations>
+        <Animations Names="AirPunch|BackFlipKick|RangedMissle|ForwardRoll|FrontFlip|DoubleStepForward|MagicPlayer" Priority="35">
+          <Conditions>
+            <Distance From="Me" To="Enemy" Operator="GreaterEqual" Distance="300" />
+          </Conditions>
+        </Animations>
+      </Reactions>
+    </PlayerAnimation>
+  </ConditionalDecisions>
+</TacticsSettings>

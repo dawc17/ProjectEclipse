@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="graveyard_ships_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1300" Height="512" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="graveyard_ships_atlas_layer5">
+    <SimpleEffect X="-1152" Y="-37.5" Type="Picture" PictureLocation="local" ClassName="sand_10" Width="512" Height="251">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="2" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="-37.5" Type="Picture" PictureLocation="local" ClassName="sand_10" Width="512" Height="251">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="2" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="-37.5" Type="Picture" PictureLocation="local" ClassName="sand_10" Width="512" Height="251">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="2" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="-37.5" Type="Picture" PictureLocation="local" ClassName="sand_10" Width="512" Height="251">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="2" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="-37.5" Type="Picture" PictureLocation="local" ClassName="sand_10" Width="512" Height="251">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="2" Y="0" />
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="graveyard_ships_atlas_layer1">
+    <SimpleEffect X="10" Y="-115" Type="Sequention" ClassName="graveyard_ships_flag3" PictureLocation="global" Speed="8" Offset="0" Width="84" Height="33" />
+    <Image X="0" Y="0" ClassName="layer1_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.23" Atlas="graveyard_ships_atlas_layer5">
+    <SimpleEffect X="1142" Y="22.5" Type="Picture" PictureLocation="local" ClassName="sand_3" Width="460" Height="239">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="4.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-13.5" Y="39.5" Type="Picture" PictureLocation="local" ClassName="sand_4" Width="467" Height="225">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="4.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="498.5" Y="39.5" Type="Picture" PictureLocation="local" ClassName="sand_4" Width="467" Height="225">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="2.5" Y="0" />
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.23" Atlas="graveyard_ships_atlas_layer2">
+    <SimpleEffect X="493" Y="-150" Type="Sequention" ClassName="graveyard_ships_flag1" PictureLocation="global" Speed="10" Offset="0" Width="82" Height="58" />
+    <Image X="0" Y="0" ClassName="layer2_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.23" Atlas="graveyard_ships_atlas_layer5">
+    <SimpleEffect X="-1152" Y="54.75" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="226.5">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="4.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="54.75" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="226.5">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="4.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="54.75" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="226.5">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="4.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="54.75" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="226.5">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="4.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="54.75" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="226.5">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="4.5" Y="0" />
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="graveyard_ships_atlas_layer5">
+    <SimpleEffect X="-1152" Y="54.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="1024" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="6.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="54.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="1024" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="6.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="54.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="1024" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="6.5" Y="0" />
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="graveyard_ships_atlas_layer3">
+    <Image X="20" Y="26" ClassName="layer3_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="graveyard_ships_atlas_layer4" Scaling="1">
+    <Image X="-900" Y="-160" ClassName="left" Width="348" Height="680" />
+    <Image X="900" Y="-160" ClassName="right" Width="348" Height="680" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="graveyard_ships_atlas_layer5" Scaling="1">
+    <SimpleEffect X="-1152" Y="64.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="5.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="64.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="5.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="64.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="5.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="64.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="5.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="64.5" Type="Picture" PictureLocation="local" ClassName="sand_new" Width="512" Height="453">
+      <ReappearX Min="-1152" Max="1408" />
+      <Speed X="5.5" Y="0" />
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="graveyard_ships_atlas_layer4" Scaling="1">
+    <Image X="-896" Y="191" ClassName="floor" Width="256" Height="48" Color="0x0000FF" />
+    <Image X="-640" Y="191" ClassName="floor" Width="256" Height="48" Color="0x0000FF" />
+    <Image X="-384" Y="191" ClassName="floor" Width="256" Height="48" Color="0x0000FF" />
+    <Image X="-128" Y="191" ClassName="floor" Width="256" Height="48" Color="0x0000FF" />
+    <Image X="128" Y="191" ClassName="floor" Width="256" Height="48" Color="0x0000FF" />
+    <Image X="384" Y="191" ClassName="floor" Width="256" Height="48" Color="0x0000FF" />
+    <Image X="642" Y="191" ClassName="floor" Width="260" Height="48" Color="0x0000FF" />
+    <Image X="896" Y="191" ClassName="floor" Width="260" Height="48" Color="0x0000FF" />
+    <Image X="0" Y="370" ClassName="pixel_1" Width="2000" Height="360" Color="0x000000" IsOpaque="1" />
+  </Layer>
+</Root>

@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x280911" Wall="305" Floor="77" Width="1960" Height="560">
+  <Layer Type="1" Factor="0.4" >
+    <Image X="0" Y="0" ClassName="background_1" Width="2048" Height="1024" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" >
+    <Image X="-50" Y="0" ClassName="layer_1_1" Width="2040" Height="1020" />
+  </Layer>
+  <Layer Type="1" Factor="0.4"  Scaling="1">
+    <Image X="-50" Y="-12" ClassName="layer_2_1" Width="2040" Height="1020" />
+  </Layer>
+  <Layer Type="1" Factor="1"  Scaling="1">
+    <Image X="0" Y="20" ClassName="layer_3_0" Width="3072" Height="1024" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="690" PlayerPositionY="-93" EnemyPositionX="973" EnemyPositionY="-105" />
+  </Layer>
+  <Layer Type="1" Factor="1"  Scaling="1">
+    <Image X="-10" Y="-193.5" ClassName="layer_5" Width="620" Height="290" Color="0x280911" />
+  </Layer>
+  <Layer Type="1" Factor="1"  Scaling="1">
+    <Image X="-640" Y="226.5" ClassName="layer_3_1" Width="512" Height="118" />
+    <Image X="-384" Y="226.5" ClassName="layer_3_2" Width="512" Height="118" />
+    <Image X="-128" Y="226.5" ClassName="layer_3_1" Width="512" Height="118" />
+    <Image X="128" Y="226.5" ClassName="layer_3_2" Width="512" Height="118" />
+    <Image X="384" Y="226.5" ClassName="layer_3_1" Width="512" Height="118" />
+    <Image X="640" Y="226.5" ClassName="layer_3_2" Width="512" Height="118" />
+    <Image X="-685.912" Y="0" ClassName="left" Width="148.35" Height="1120" />
+    <Image X="683.81" Y="0" ClassName="right" Width="156.758" Height="1120" />
+    <Image X="-10" Y="-198.5" ClassName="layer_5" Width="620" Height="290" Color="0x280911" />
+    <Image X="-890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x280911" IsOpaque="1" />
+    <Image X="890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x280911" IsOpaque="1" />
+    <Image X="0" Y="-426" ClassName="pixel_1" Width="1960" Height="400" Color="0x280911" IsOpaque="1" />
+    <Image X="0" Y="470" ClassName="pixel_1" Width="1960" Height="500" Color="0x280911" IsOpaque="1" />
+  </Layer>
+</Root>

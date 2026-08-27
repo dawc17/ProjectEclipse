@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <MassBomb-MacroNode1 Type="MacroNode"  X="-150"  Y="130"  Z="0"  Mass="1.3513514995575"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="5.96046447753906E-8"  LCC2="0"  LCC3="1.19999992847443"  LCC4="-0.199999988079071"  MC1="4.0273413048908E-8"  MC2="0"  MC3="0.81081086397171"  MC4="-0.135135143995285" />
+    <MassBomb-MacroNode2 Type="MacroNode"  X="-150"  Y="230"  Z="0"  Mass="2.94117665290833"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="5.96046447753906E-8"  LCC2="0"  LCC3="0.199999988079071"  LCC4="0.799999952316284"  MC1="8.76538948091365E-8"  MC2="0"  MC3="0.294117659330368"  MC4="1.17647063732147" />
+  </Nodes>
+  <Edges>
+    <MassBomb-Edge1 Type="Edge"  Length="100"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="MassBomb-MacroNode2"  Node2="MassBomb-MacroNode1"  Force="0"  SubNodesCount="0"  End1="MassBomb-MacroNode2"  End2="MassBomb-MacroNode1" />
+  </Edges>
+  <Figures/>
+</Scene>

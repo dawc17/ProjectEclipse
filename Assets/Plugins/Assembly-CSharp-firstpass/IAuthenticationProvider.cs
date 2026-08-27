@@ -1,0 +1,22 @@
+public interface IAuthenticationProvider
+{
+	bool CBIBNHGGEBI { get; }
+
+	event LACLODBGJEI EFCGDJPAJIG;
+
+	event BCHANFGJONF HMIFKIFAFMK;
+
+	bool MCHOHLKGMBI();
+
+	void IJPBAJDFAED(LACLODBGJEI value);
+
+	void KFGAHIPDDOF(LACLODBGJEI value);
+
+	void NEAGLBOCLHI(BCHANFGJONF value);
+
+	void BFANLHDOICD(BCHANFGJONF value);
+
+	void MKODIGEMHFN();
+
+	void PrepareRequest(HTTPRequest ONOCIELLAPL, FHIEGKMHOCC LFLGCDNKNJI);
+}

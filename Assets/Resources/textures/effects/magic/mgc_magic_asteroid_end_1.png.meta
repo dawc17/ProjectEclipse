@@ -1,0 +1,428 @@
+fileFormatVersion: 2
+guid: f4bdc71c7ed31c245a511b1d5c42892c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6851703866094486332
+    second: magic_asteroid_end_1_1
+  - first:
+      213: 6458584016809653731
+    second: magic_asteroid_end_1_10
+  - first:
+      213: 355650071182564121
+    second: magic_asteroid_end_1_11
+  - first:
+      213: -420343219920680737
+    second: magic_asteroid_end_1_12
+  - first:
+      213: -6133278102471128753
+    second: magic_asteroid_end_1_13
+  - first:
+      213: -1044606652082644932
+    second: magic_asteroid_end_1_14
+  - first:
+      213: 8231677365464589608
+    second: magic_asteroid_end_1_2
+  - first:
+      213: 4532822328000948341
+    second: magic_asteroid_end_1_3
+  - first:
+      213: 4637363781995517441
+    second: magic_asteroid_end_1_4
+  - first:
+      213: 1892298513796506198
+    second: magic_asteroid_end_1_5
+  - first:
+      213: -434723737411675256
+    second: magic_asteroid_end_1_6
+  - first:
+      213: -1197167782150468543
+    second: magic_asteroid_end_1_7
+  - first:
+      213: 7571754591360900646
+    second: magic_asteroid_end_1_8
+  - first:
+      213: -8886859112079842199
+    second: magic_asteroid_end_1_9
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c338bb44d54261f50800000000000000
+      internalID: 6851703866094486332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e574f9b1ff71a950800000000000000
+      internalID: 6458584016809653731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91bdd2dfad58fe400800000000000000
+      internalID: 355650071182564121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd842ec8114aa2af0800000000000000
+      internalID: -420343219920680737
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_13
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f49c681bf0832eaa0800000000000000
+      internalID: -6133278102471128753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c389a94d8cfc081f0800000000000000
+      internalID: -1044606652082644932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 825e32a53facc3270800000000000000
+      internalID: 8231677365464589608
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 578a47234e1d7ee30800000000000000
+      internalID: 4532822328000948341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 106da183ac93b5040800000000000000
+      internalID: 4637363781995517441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 65227d3f87bc24a10800000000000000
+      internalID: 1892298513796506198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88b9528601d87f9f0800000000000000
+      internalID: -434723737411675256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14c0168be3ec26fe0800000000000000
+      internalID: -1197167782150468543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62edf781fa6441960800000000000000
+      internalID: 7571754591360900646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_asteroid_end_1_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 371
+        width: 155
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 964a98fd8b88ba480800000000000000
+      internalID: -8886859112079842199
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

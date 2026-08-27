@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <Node1 Type="Node"  X="-195.645980834961"  Y="202.770050048828"  Z="-12.5"  Mass="10"  Fixed="1"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <Node2 Type="Node"  X="-211.291152954102"  Y="156.545684814453"  Z="-12.5"  Mass="10"  Fixed="1"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <Node3 Type="Node"  X="-72.618049621582"  Y="198.503219604492"  Z="-12.5"  Mass="10"  Fixed="1"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+    <Node4 Type="Node"  X="-58.1055870056152"  Y="160.48828125"  Z="-12.5"  Mass="10"  Fixed="1"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="0"  Rank="0" />
+  </Nodes>
+  <Edges>
+    <MagicDeathRayEdge1 Type="Edge"  Length="48.8002395629883"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="Node2"  Node2="Node1"  Force="0"  SubNodesCount="0"  Width="1"  End1="Node2"  End2="Node1" Radius="10" />
+    <MagicDeathRayEdge2 Type="Edge"  Length="40.6908721923828"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="Node4"  Node2="Node3"  Force="0"  SubNodesCount="0"  Width="1"  End1="Node4"  End2="Node3" Radius="10" />
+  </Edges>
+  <Figures/>
+</Scene>

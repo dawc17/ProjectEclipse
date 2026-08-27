@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <MacroNode1 Type="MacroNode"  X="-450"  Y="250"  Z="0"  Mass="0.476190507411957"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="0"  LCC2="-1"  LCC3="1"  LCC4="1"  MC1="0"  MC2="-0.333333343267441"  MC3="0.333333343267441"  MC4="0.333333343267441" />
+    <MacroNode2 Type="MacroNode"  X="-450"  Y="150"  Z="0"  Mass="0.28571429848671"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="0"  LCC2="-1"  LCC3="2"  LCC4="0"  MC1="0"  MC2="-0.200000002980232"  MC3="0.400000005960464"  MC4="0" />
+    <MacroNode3 Type="MacroNode"  X="150"  Y="250"  Z="0"  Mass="0.158730164170265"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="0"  LCC2="2"  LCC3="-2"  LCC4="1"  MC1="0"  MC2="0.222222223877907"  MC3="-0.222222223877907"  MC4="0.111111111938953" />
+    <MacroNode4 Type="MacroNode"  X="150"  Y="150"  Z="0"  Mass="0.28571429848671"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="0"  LCC2="2"  LCC3="-1"  LCC4="0"  MC1="0"  MC2="0.400000005960464"  MC3="-0.200000002980232"  MC4="0" />
+  </Nodes>
+  <Edges>
+    <lightningEdge1 Type="Edge"  Length="180.277557373047"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="MacroNode4"  Node2="MacroNode1"  Force="0"  SubNodesCount="0"  End1="MacroNode4"  End2="MacroNode1" />
+    <lightningEdge2 Type="Edge"  Length="180.277557373047"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="MacroNode3"  Node2="MacroNode2"  Force="0"  SubNodesCount="0"  End1="MacroNode3"  End2="MacroNode2" />
+  </Edges>
+  <Figures/>
+</Scene>

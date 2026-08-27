@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <BODY_KENJI-Node3 Type="Node"  X="-46.5406303405762"  Y="163.421371459961"  Z="20.0144023895264"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node5 Type="Node"  X="-27.0580806732178"  Y="122.545265197754"  Z="11.326509475708"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node6 Type="Node"  X="-2.09991693496704"  Y="124.65478515625"  Z="10.3226289749146"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node8 Type="Node"  X="18.6899375915527"  Y="166.063583374023"  Z="17.1824245452881"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node10 Type="Node"  X="-5.64472150802612"  Y="170.038009643555"  Z="-6.7181978225708"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node11 Type="Node"  X="8.15917205810547"  Y="113.233734130859"  Z="24.4853229522705"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node12 Type="Node"  X="-36.4634590148926"  Y="111.652526855469"  Z="25.3939304351807"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node13 Type="Node"  X="-31.7115497589111"  Y="117.095291137695"  Z="18.4046058654785"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node14 Type="Node"  X="3.06495046615601"  Y="118.901351928711"  Z="17.4523067474365"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node17 Type="Node"  X="-32.1395416259766"  Y="109.835166931152"  Z="37.9433403015137"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node19 Type="Node"  X="4.66842699050903"  Y="112.860778808594"  Z="36.9338226318359"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node20 Type="Node"  X="-4.8723406791687"  Y="157.036117553711"  Z="16.1703395843506"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node21 Type="Node"  X="14.4496583938599"  Y="153.811096191406"  Z="20.1949367523193"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node22 Type="Node"  X="32.9511451721191"  Y="147.435333251953"  Z="24.3204956054688"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node23 Type="Node"  X="12.5016183853149"  Y="166.247207641602"  Z="12.52232837677"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node24 Type="Node"  X="31.8987407684326"  Y="161.875564575195"  Z="14.6738405227661"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-Node25 Type="Node"  X="50.2991638183594"  Y="154.4931640625"  Z="17.3041763305664"  Mass="0.00999999977648258"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <BODY_KENJI-MacroNode1 Type="MacroNode"  X="-34.0247688293457"  Y="172.525344848633"  Z="4.62931060791016"  Mass="0.102876923978329"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NStomach"  ChildNode2="NHip_1"  ChildNode3="NPelvisF"  ChildNode4="NHip_2"  LCC1="0.304892897605896"  LCC2="-0.401235342025757"  LCC3="-0.221589893102646"  LCC4="1.31793236732483" />
+    <BODY_KENJI-MacroNode2 Type="MacroNode"  X="6.20572900772095"  Y="175.009262084961"  Z="2.94050025939941"  Mass="0.0999077707529068"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NStomach"  ChildNode2="NHip_1"  ChildNode3="NPelvisF"  ChildNode4="NHip_2"  LCC1="0.344268083572388"  LCC2="1.25391626358032"  LCC3="0.0359338633716106"  LCC4="-0.63411819934845" />
+    <BODY_KENJI-MacroNode3 Type="MacroNode"  X="-15.0943355560303"  Y="155.815536499023"  Z="-12.8873262405396"  Mass="0.0928339436650276"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NStomach"  ChildNode2="NHip_1"  ChildNode3="NPelvisF"  ChildNode4="NHip_2"  LCC1="-0.7310391664505"  LCC2="0.819492638111115"  LCC3="0.0678001940250397"  LCC4="0.843746364116669" />
+    <BODY_KENJI-MacroNode4 Type="MacroNode"  X="-16.7244644165039"  Y="183.470397949219"  Z="-2.15616130828857"  Mass="0.0666265487670898"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NStomach"  ChildNode2="NHip_1"  ChildNode3="NPelvisF"  ChildNode4="NHip_2"  LCC1="0.420398950576782"  LCC2="0.831940770149231"  LCC3="-1.11044061183929"  LCC4="0.858100891113281" />
+    <BODY_KENJI-MacroNode5 Type="MacroNode"  X="-22.2383861541748"  Y="158.735000610352"  Z="6.39783573150635"  Mass="0.139751836657524"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NHip_1"  ChildNode2="NPelvisF"  ChildNode3="NStomach"  ChildNode4="NHip_2"  LCC1="-0.394426196813583"  LCC2="0.988455355167389"  LCC3="-0.0315635092556477"  LCC4="0.437534362077713" />
+    <BODY_KENJI-MacroNode6 Type="MacroNode"  X="-5.60963106155396"  Y="160.044281005859"  Z="6.73480796813965"  Mass="0.117717638611794"  Fixed="0"  Visible="1"  NodesCount="4"  ChildNode1="NStomach"  ChildNode2="NHip_1"  ChildNode3="NPelvisF"  ChildNode4="NHip_2"  LCC1="0.0259553492069244"  LCC2="0.251624017953873"  LCC3="1.14031612873077"  LCC4="-0.417895466089249" />
+    <BODY_KENJI-MacroNode7 Type="MacroNode"  X="-19.7819576263428"  Y="142.970596313477"  Z="-3.54039144515991"  Mass="0.0111425966024399"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="BODY_KENJI-MacroNode3"  ChildNode2="BODY_KENJI-Node5"  LCC1="0.60839056968689"  LCC2="0.39160943031311" />
+    <BODY_KENJI-MacroNode8 Type="MacroNode"  X="-9.83141136169434"  Y="143.36865234375"  Z="-3.61479949951172"  Mass="0.0205667894333601"  Fixed="0"  Visible="1"  NodesCount="2"  ChildNode1="BODY_KENJI-Node6"  ChildNode2="BODY_KENJI-MacroNode3"  LCC1="0.405213713645935"  LCC2="0.594786286354065" />
+  </Nodes>
+  <Edges>
+    <BODY_KENJI-Edge132 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node5"  End2="NKnee_2" />
+    <BODY_KENJI-Edge134 Type="Edge"  Length="40"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node3"  End2="NKnee_2" />
+    <BODY_KENJI-Edge135 Type="Edge"  Length="30"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NKnee_1"  End2="BODY_KENJI-Node6" />
+    <BODY_KENJI-Edge137 Type="Edge"  Length="40"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NKnee_1"  End2="BODY_KENJI-Node8" />
+    <BODY_KENJI-Edge143 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NAnkle_2"  End2="BODY_KENJI-Node12" />
+    <BODY_KENJI-Edge144 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node12"  End2="NKnee_2" />
+    <BODY_KENJI-Edge145 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NKnee_1"  End2="BODY_KENJI-Node11" />
+    <BODY_KENJI-Edge146 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NAnkle_1"  End2="BODY_KENJI-Node11" />
+    <BODY_KENJI-Edge151 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node13"  End2="BODY_KENJI-Node12" />
+    <BODY_KENJI-Edge152 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node13"  End2="BODY_KENJI-Node5" />
+    <BODY_KENJI-Edge153 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node14"  End2="BODY_KENJI-Node6" />
+    <BODY_KENJI-Edge154 Type="Edge"  Length="10"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node11"  End2="BODY_KENJI-Node14" />
+    <BODY_KENJI-Edge155 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NAnkle_2"  End2="BODY_KENJI-Node17" />
+    <BODY_KENJI-Edge156 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node17"  End2="NKnee_2" />
+    <BODY_KENJI-Edge159 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NKnee_1"  End2="BODY_KENJI-Node19" />
+    <BODY_KENJI-Edge160 Type="Edge"  Length="45"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node19"  End2="NAnkle_1" />
+    <BODY_KENJI-Edge163 Type="Edge"  Length="50"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NHip_2"  End2="BODY_KENJI-Node5" />
+    <BODY_KENJI-Edge164 Type="Edge"  Length="35"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NHip_2"  End2="BODY_KENJI-Node3" />
+    <BODY_KENJI-Edge165 Type="Edge"  Length="15"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-MacroNode1"  End2="BODY_KENJI-Node3" />
+    <BODY_KENJI-Edge166 Type="Edge"  Length="50"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NHip_1"  End2="BODY_KENJI-Node6" />
+    <BODY_KENJI-Edge167 Type="Edge"  Length="35"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node8"  End2="NHip_1" />
+    <BODY_KENJI-Edge168 Type="Edge"  Length="37.7514381408691"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-MacroNode3"  End2="BODY_KENJI-Node5" />
+    <BODY_KENJI-Edge169 Type="Edge"  Length="36.1531295776367"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node6"  End2="BODY_KENJI-MacroNode3" />
+    <BODY_KENJI-Edge170 Type="Edge"  Length="15"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-MacroNode2"  End2="BODY_KENJI-Node8" />
+    <BODY_KENJI-Edge171 Type="Edge"  Length="18.0000095367432"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node10"  End2="BODY_KENJI-MacroNode3" />
+    <BODY_KENJI-Edge172 Type="Edge"  Length="17.9999942779541"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node10"  End2="BODY_KENJI-MacroNode4" />
+    <BODY_KENJI-Edge173 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node20"  End2="BODY_KENJI-MacroNode5" />
+    <BODY_KENJI-Edge174 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node21"  End2="BODY_KENJI-Node20" />
+    <BODY_KENJI-Edge175 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node22"  End2="BODY_KENJI-Node21" />
+    <BODY_KENJI-Edge176 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node25"  End2="BODY_KENJI-Node22" />
+    <BODY_KENJI-Edge177 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node24"  End2="BODY_KENJI-Node25" />
+    <BODY_KENJI-Edge178 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node23"  End2="BODY_KENJI-Node24" />
+    <BODY_KENJI-Edge179 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node23"  End2="BODY_KENJI-MacroNode6" />
+    <BODY_KENJI-Edge180 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node23"  End2="BODY_KENJI-Node20" />
+    <BODY_KENJI-Edge181 Type="Edge"  Length="20"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="BODY_KENJI-Node24"  End2="BODY_KENJI-Node21" />
+  </Edges>
+  <Figures>
+    <BODY_KENJI-Capsule_EFootS_1 Type="Capsule"  Edge="EFootS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EFoot_1 Type="Capsule"  Edge="EFoot_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EFootS_2 Type="Capsule"  Edge="EFootS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EToeC_1 Type="Capsule"  Edge="EToeC_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EFoot_2 Type="Capsule"  Edge="EFoot_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EHeel_2 Type="Capsule"  Edge="EHeel_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EToeS_1 Type="Capsule"  Edge="EToeS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EHeep_1 Type="Capsule"  Edge="EHeep_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EInstepS_1 Type="Capsule"  Edge="EInstepS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EToe_1 Type="Capsule"  Edge="EToe_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EInstep_1 Type="Capsule"  Edge="EInstep_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EToeC_2 Type="Capsule"  Edge="EToeC_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EInstepS_2 Type="Capsule"  Edge="EInstepS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EInstep_2 Type="Capsule"  Edge="EInstep_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EToeS_2 Type="Capsule"  Edge="EToeS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EToe_2 Type="Capsule"  Edge="EToe_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_ECalf_1 Type="Capsule"  Edge="ECalf_1"  Radius1="8"  Radius2="8"  Margin1="0"  Margin2="0.400000005960464" />
+    <BODY_KENJI-Capsule_ECalf_2 Type="Capsule"  Edge="ECalf_2"  Radius1="8"  Radius2="8"  Margin1="0"  Margin2="0.400000005960464" />
+    <BODY_KENJI-Capsule-1_ECalf_1 Type="Capsule"  Edge="ECalf_1"  Radius1="15"  Radius2="15"  Margin1="0.699999988079071"  Margin2="0" />
+    <BODY_KENJI-Capsule-1_ECalf_2 Type="Capsule"  Edge="ECalf_2"  Radius1="15"  Radius2="15"  Margin1="0.699999988079071"  Margin2="0" />
+    <BODY_KENJI-Capsule_EThigh_1 Type="Capsule"  Edge="EThigh_1"  Radius1="15"  Radius2="15"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_KENJI-Capsule_EThigh_2 Type="Capsule"  Edge="EThigh_2"  Radius1="15"  Radius2="15"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_KENJI-Capsule-1_EThigh_1 Type="Capsule"  Edge="EThigh_1"  Radius1="15"  Radius2="15"  Margin1="0.400000005960464"  Margin2="0" />
+    <BODY_KENJI-Capsule-1_EThigh_2 Type="Capsule"  Edge="EThigh_2"  Radius1="15"  Radius2="15"  Margin1="0.400000005960464"  Margin2="0" />
+    <BODY_KENJI-Capsule_EGroin Type="Capsule"  Edge="EGroin"  Radius1="15"  Radius2="15"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Muscle120 Type="Capsule"  Edge="Muscle120"  Radius1="10"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EPelvisM Type="Capsule"  Edge="EPelvisM"  Radius1="13"  Radius2="13"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Muscle117 Type="Capsule"  Edge="Muscle117"  Radius1="10"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Muscle119 Type="Capsule"  Edge="Muscle119"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EStomach Type="Capsule"  Edge="EStomach"  Radius1="18"  Radius2="18"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EArm_1 Type="Capsule"  Edge="EArm_1"  Radius1="9"  Radius2="9"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_KENJI-Capsule-1_EForearm_1 Type="Capsule"  Edge="EForearm_1"  Radius1="9"  Radius2="9"  Margin1="0.5"  Margin2="0" />
+    <BODY_KENJI-Capsule_Muscle116 Type="Capsule"  Edge="Muscle116"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge20_2 Type="Capsule"  Edge="Edge20_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge24_2 Type="Capsule"  Edge="Edge24_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge22_2 Type="Capsule"  Edge="Edge22_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge19_2 Type="Capsule"  Edge="Edge19_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge25_2 Type="Capsule"  Edge="Edge25_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge23_2 Type="Capsule"  Edge="Edge23_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge21_2 Type="Capsule"  Edge="Edge21_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule-1_EForearm_2 Type="Capsule"  Edge="EForearm_2"  Radius1="9"  Radius2="9"  Margin1="0.5"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge12_2 Type="Capsule"  Edge="Edge12_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EFingers_2 Type="Capsule"  Edge="EFingers_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EForearm_2 Type="Capsule"  Edge="EForearm_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_KENJI-Capsule_EHand_2 Type="Capsule"  Edge="EHand_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge26_2 Type="Capsule"  Edge="Edge26_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge7_2 Type="Capsule"  Edge="Edge7_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EForearm_1 Type="Capsule"  Edge="EForearm_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_KENJI-Capsule_EFingersS_2 Type="Capsule"  Edge="EFingersS_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge27_2 Type="Capsule"  Edge="Edge27_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EHandS_2 Type="Capsule"  Edge="EHandS_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EHandC_2 Type="Capsule"  Edge="EHandC_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge17_2 Type="Capsule"  Edge="Edge17_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge20_1 Type="Capsule"  Edge="Edge20_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EArm_2 Type="Capsule"  Edge="EArm_2"  Radius1="9"  Radius2="9"  Margin1="0"  Margin2="0.699999988079071" />
+    <BODY_KENJI-Capsule_Edge19_1 Type="Capsule"  Edge="Edge19_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge9_2 Type="Capsule"  Edge="Edge9_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge16_2 Type="Capsule"  Edge="Edge16_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge22_1 Type="Capsule"  Edge="Edge22_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge21_1 Type="Capsule"  Edge="Edge21_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EHand_1 Type="Capsule"  Edge="EHand_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge24_1 Type="Capsule"  Edge="Edge24_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Muscle118 Type="Capsule"  Edge="Muscle118"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge23_1 Type="Capsule"  Edge="Edge23_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge25_1 Type="Capsule"  Edge="Edge25_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EFingers_1 Type="Capsule"  Edge="EFingers_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge17_1 Type="Capsule"  Edge="Edge17_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule-1_EArm_1 Type="Capsule"  Edge="EArm_1"  Radius1="12"  Radius2="12"  Margin1="0.5"  Margin2="0" />
+    <BODY_KENJI-Capsule_EChest Type="Capsule"  Edge="EChest"  Radius1="18"  Radius2="18"  Margin1="0.200000002980232"  Margin2="0" />
+    <BODY_KENJI-Capsule_EHandS_1 Type="Capsule"  Edge="EHandS_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge12_1 Type="Capsule"  Edge="Edge12_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EHandC_1 Type="Capsule"  Edge="EHandC_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge7_1 Type="Capsule"  Edge="Edge7_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge26_1 Type="Capsule"  Edge="Edge26_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EFingersS_1 Type="Capsule"  Edge="EFingersS_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Muscle115 Type="Capsule"  Edge="Muscle115"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge27_1 Type="Capsule"  Edge="Edge27_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge16_1 Type="Capsule"  Edge="Edge16_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_Edge9_1 Type="Capsule"  Edge="Edge9_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule-1_EArm_2 Type="Capsule"  Edge="EArm_2"  Radius1="12"  Radius2="12"  Margin1="0.5"  Margin2="0" />
+    <BODY_KENJI-Capsule_EClavicle_1 Type="Capsule"  Edge="EClavicle_1"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Capsule_EClavicle_2 Type="Capsule"  Edge="EClavicle_2"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0" />
+    <BODY_KENJI-Triangle-1 Type="Triangle"  DoubleSided="-1"  Node1="NHeel_2"  Node2="NToe_2"  Node3="NAnkle_2" />
+    <BODY_KENJI-Triangle-2 Type="Triangle"  DoubleSided="-1"  Node1="NHeel_1"  Node2="NToe_1"  Node3="NAnkle_1" />
+    <BODY_KENJI-Triangle-3 Type="Triangle"  DoubleSided="-1"  Node1="NHeel_2"  Node2="NToeS_2"  Node3="NToe_2" />
+    <BODY_KENJI-Triangle-4 Type="Triangle"  DoubleSided="-1"  Node1="NFingertipsSS_2"  Node2="NFingertipsS_2"  Node3="NFingertips_2" />
+    <BODY_KENJI-Triangle-5 Type="Triangle"  DoubleSided="-1"  Node1="NToeS_2"  Node2="NToe_2"  Node3="NAnkle_2" />
+    <BODY_KENJI-Triangle-6 Type="Triangle"  DoubleSided="-1"  Node1="NToeS_1"  Node2="NToe_1"  Node3="NHeel_1" />
+    <BODY_KENJI-Triangle-7 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-MacroNode8"  Node2="BODY_KENJI-MacroNode3"  Node3="BODY_KENJI-MacroNode7" />
+    <BODY_KENJI-Triangle-8 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-MacroNode2"  Node2="NHip_1"  Node3="BODY_KENJI-Node8" />
+    <BODY_KENJI-Triangle-9 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_2"  Node2="NAnkle_2"  Node3="BODY_KENJI-Node17" />
+    <BODY_KENJI-Triangle-10 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node12"  Node2="NAnkle_2"  Node3="NKnee_2" />
+    <BODY_KENJI-Triangle-11 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node13"  Node2="BODY_KENJI-Node12"  Node3="NKnee_2" />
+    <BODY_KENJI-Triangle-12 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node5"  Node2="BODY_KENJI-Node13"  Node3="NKnee_2" />
+    <BODY_KENJI-Triangle-13 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_KENJI-Node5"  Node3="NKnee_2" />
+    <BODY_KENJI-Triangle-14 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="NKnee_2"  Node3="BODY_KENJI-Node3" />
+    <BODY_KENJI-Triangle-15 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_KENJI-MacroNode1"  Node3="BODY_KENJI-Node3" />
+    <BODY_KENJI-Triangle-16 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_KENJI-MacroNode3"  Node3="BODY_KENJI-Node5" />
+    <BODY_KENJI-Triangle-17 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="BODY_KENJI-MacroNode3"  Node3="NHip_2" />
+    <BODY_KENJI-Triangle-18 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node6"  Node2="BODY_KENJI-MacroNode3"  Node3="NHip_1" />
+    <BODY_KENJI-Triangle-19 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="BODY_KENJI-Node6"  Node3="NHip_1" />
+    <BODY_KENJI-Triangle-20 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="BODY_KENJI-Node14"  Node3="BODY_KENJI-Node6" />
+    <BODY_KENJI-Triangle-21 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="BODY_KENJI-Node11"  Node3="BODY_KENJI-Node14" />
+    <BODY_KENJI-Triangle-22 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node24"  Node2="BODY_KENJI-Node22"  Node3="BODY_KENJI-Node21" />
+    <BODY_KENJI-Triangle-23 Type="Triangle"  DoubleSided="-1"  Node1="NKnee_1"  Node2="NAnkle_1"  Node3="BODY_KENJI-Node11" />
+    <BODY_KENJI-Triangle-24 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node19"  Node2="NAnkle_1"  Node3="NKnee_1" />
+    <BODY_KENJI-Triangle-25 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node24"  Node2="BODY_KENJI-Node25"  Node3="BODY_KENJI-Node22" />
+    <BODY_KENJI-Triangle-26 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="BODY_KENJI-Node10"  Node3="BODY_KENJI-Node6" />
+    <BODY_KENJI-Triangle-27 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-MacroNode4"  Node2="NHip_1"  Node3="BODY_KENJI-Node10" />
+    <BODY_KENJI-Triangle-28 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node5"  Node2="NHip_2"  Node3="BODY_KENJI-Node10" />
+    <BODY_KENJI-Triangle-29 Type="Triangle"  DoubleSided="-1"  Node1="NHip_2"  Node2="BODY_KENJI-Node10"  Node3="BODY_KENJI-MacroNode4" />
+    <BODY_KENJI-Triangle-30 Type="Triangle"  DoubleSided="-1"  Node1="NHip_1"  Node2="NKnee_1"  Node3="BODY_KENJI-Node8" />
+    <BODY_KENJI-Triangle-31 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-MacroNode6"  Node2="BODY_KENJI-Node20"  Node3="BODY_KENJI-MacroNode5" />
+    <BODY_KENJI-Triangle-32 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-MacroNode6"  Node2="BODY_KENJI-Node23"  Node3="BODY_KENJI-Node20" />
+    <BODY_KENJI-Triangle-33 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node23"  Node2="BODY_KENJI-Node21"  Node3="BODY_KENJI-Node20" />
+    <BODY_KENJI-Triangle-34 Type="Triangle"  DoubleSided="-1"  Node1="BODY_KENJI-Node23"  Node2="BODY_KENJI-Node24"  Node3="BODY_KENJI-Node21" />
+  </Figures>
+</Scene>

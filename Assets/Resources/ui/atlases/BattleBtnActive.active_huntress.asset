@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!213 &21300000
+Sprite:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: BattleBtnActive.active_huntress
+  m_Rect:
+    serializedVersion: 2
+    x: 636.05133
+    y: 1183.0267
+    width: 228.92192
+    height: 224.94649
+  m_Offset: {x: 7.4877124, y: -5.499976}
+  m_Border: {x: 0, y: 0, z: 0, w: 0}
+  m_PixelsToUnits: 100
+  m_Pivot: {x: 0.5327086, y: 0.47554985}
+  m_Extrude: 1
+  m_IsPolygon: 0
+  m_AtlasName:
+  m_PackingTag:
+  m_RD:
+    serializedVersion: 2
+    texture: {fileID: 2800000, guid: 96beb625133f9cf43a9da7ecbc6820f9, type: 3}
+    alphaTexture: {fileID: 0}
+    m_SubMeshes:
+    - serializedVersion: 2
+      firstByte: 0
+      indexCount: 99
+      topology: 0
+      firstVertex: 0
+      vertexCount: 25
+      localAABB:
+        m_Center: {x: 0, y: 0, z: 0}
+        m_Extent: {x: 0, y: 0, z: 0}
+    m_IndexBuffer: 0c000a001600090016000a001500160009001800170008000c00080017000b000c001700160008000c001500080016000900080015000d000f001300120013000f001400130012001200110004000300040011001000110012000f00100012000300110000001000000011000200000010000f00020010000d0002000f000e0002000d0007000a000b000c000b000a0009000a000700080009000700060008000700050006000700010006000500040001000500030001000400000001000300020001000000
+    m_VertexData:
+      m_CurrentChannels: 9
+      m_VertexCount: 25
+      m_Channels:
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 3
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 12
+        format: 0
+        dimension: 2
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      - stream: 0
+        offset: 0
+        format: 0
+        dimension: 0
+      m_DataSize: 500
+      _typelessdata: 5c8f423f666666bf000000000000000000000000cdcc0c3fc3f588bf000000000000000000000000b81e453f666666bf0000000000000000000000000000403fae4761bf000000000000000000000000d7a3303f3d0a973f000000000000000000000000b81e05be3d0a973f000000000000000000000000e17a94bec3f588bf00000000000000000000000085eb11bfcdcc4c3f0000000000000000000000009a9919bf0ad783bf000000000000000000000000d7a370bf0ad7a33c000000000000000000000000000080bf0ad7a33c000000000000000000000000c3f588bf3333333f000000000000000000000000000080bf0ad723bd000000000000000000000000295c4f3f52b85ebf000000000000000000000000295c4f3f666666bf000000000000000000000000295c4f3f3d0a57bf000000000000000000000000b81e453f3d0a57bf0000000000000000000000000000403ff6285cbf0000000000000000000000000000803fe17a943f000000000000000000000000c3f5883f1f852bbf000000000000000000000000c3f5883f6666863f000000000000000000000000d7a370bf8fc2f5bc0000000000000000000000008fc275bf0ad723bd000000000000000000000000f6289cbff628dc3e000000000000000000000000f6289cbfb81e853e000000000000000000000000
+    textureRect:
+      serializedVersion: 2
+      x: 636.05133
+      y: 1183.0267
+      width: 228.92192
+      height: 224.94649
+    textureRectOffset: {x: 0, y: 0}
+    atlasRectOffset: {x: -1, y: -1}
+    settingsRaw: 64
+    uvTransform: {x: 100, y: 758, z: 100, w: 1290}

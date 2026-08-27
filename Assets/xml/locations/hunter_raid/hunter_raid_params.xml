@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="180" Floor="65" Width="1936" Height="615">
+  <Layer Type="1" Factor="0.55" Atlas="hunter_raid_bg" Scaling="1">
+    <Image X="0" Y="-20" ClassName="Background_" Width="1354" Height="615" />
+  </Layer>
+  <Layer Type="1" Factor="0.65" Atlas="hunter_raid_bg" Scaling="1">
+    <Image X="0" Y="-20" ClassName="Columns 1" Width="588" Height="615" />
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="hunter_raid_bg" Scaling="1">
+    <Image X="0" Y="116" ClassName="triangle 1" Width="1216" Height="283" />
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="hunter_raid_bg" Scaling="1">
+    <Image X="0" Y="-20" ClassName="Columns 2" Width="644" Height="615" />
+  </Layer>
+  <Layer Type="1" Factor="0.75" Atlas="hunter_raid_bg" Scaling="1">
+    <Image X="0" Y="136" ClassName="triangle 2" Width="1196" Height="306" />
+  </Layer>
+  <Layer Type="1" Factor="0.75" Atlas="hunter_raid_mid" Scaling="1">
+    <Image X="11" Y="8" ClassName="Columns 3" Width="1081" Height="615" />
+  </Layer>
+  <Layer Type="1" Factor="0.8" Atlas="hunter_raid_mid" Scaling="1">
+    <Image X="0" Y="-20" ClassName="Middle Columns_" Width="1619" Height="615" />
+  </Layer>
+  <Layer Type="1" Factor="0.85" Atlas="hunter_raid_mid" Scaling="1">
+    <Image X="0" Y="-20" ClassName="Columns 4" Width="1599" Height="615" />
+  </Layer>
+  <Layer Type="1" Factor="0.9" Atlas="hunter_raid_mid" Scaling="1">
+    <Image X="0" Y="60" ClassName="triangle 3" Width="1928" Height="356" />
+  </Layer>
+  <Layer Type="1" Factor="0.8" Atlas="hunter_raid_mid" Scaling="1">
+    <Image X="0" Y="84.2" ClassName="Crystal" Width="610" Height="351" />
+  </Layer>
+  <Layer Type="1" Factor="0.95" Atlas="hunter_raid_front" Scaling="1">
+    <Image X="0" Y="-13" ClassName="Columns 5" Width="1936" Height="615" />
+  </Layer>
+  <Layer Type="1" Factor="0.95" Atlas="hunter_raid_front" Scaling="1">
+    <Image X="0" Y="118" ClassName="triangle 4" Width="1836" Height="310" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="hunter_raid_front" Scaling="1">
+    <Image X="-924.6" Y="-42.99999" ClassName="walls_l" Width="555" Height="583" />
+    <Image X="869" Y="-38" ClassName="walls_r" Width="621" Height="583" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="hunter_raid_front" Scaling="1">
+    <Image X="0" Y="233" ClassName="Arena" Width="1936" Height="65" />
+  </Layer>
+  <Layer Type="1" Factor="1" Path="Locations/dojo/" Atlas="dojo_atlas_layer3" Scaling="1">
+    <Image X="0" Y="518" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1" />
+  </Layer>
+</Root>

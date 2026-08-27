@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x080819" Wall="300" Floor="81" Width="1960" Height="565">
+  <Layer Type="1" Factor="0.4">
+    <Image X="0" Y="0" ClassName="background_1" Width="2048" Height="1024" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.5" >
+    <Image X="-415" Y="65" ClassName="layer_1_2" Width="-1202" Height="440" />
+  </Layer>
+  <Layer Type="1" Factor="0.5" >
+    <Image X="0" Y="-10" ClassName="layer_1_1" Width="2604" Height="1024" />
+  </Layer>
+  <Layer Type="1" Factor="0.6" >
+    <Image X="0" Y="-10" ClassName="layer_1_2" Width="2604" Height="1024" />
+    <Image X="1302" Y="-10" ClassName="layer_1_2" Width="2604" Height="1024" />
+  </Layer>
+  <Layer Type="1" Factor="0.7" >
+    <Image X="0" Y="-10" ClassName="layer_1_3" Width="2604" Height="1024" />
+  </Layer>
+  <Layer Type="1" Factor="0.8" >
+    <Image X="0" Y="-10" ClassName="layer_2_1" Width="2604" Height="1024" />
+  </Layer>
+  <Layer Type="1" Factor="0.9" >
+    <Image X="0" Y="-10" ClassName="layer_2_2" Width="2604" Height="1024" />
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1">
+    <Image X="0" Y="20" ClassName="dojo_walls" Width="3160" Height="1024" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="690" PlayerPositionY="-93" EnemyPositionX="973" EnemyPositionY="-105" />
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1">
+    <SimpleEffect X="480" Y="-15.312" Type="Picture" PictureLocation="local" ClassName="layer_4" Width="1200" Height="1058.75">
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="45" Ease="-1" />
+        <Point Period="3.5" Value="75" Ease="1" />
+        <Point Period="2.1" Value="55" Ease="-1" />
+        <Point Period="2.5" Value="75" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <Image X="-640" Y="223.5" ClassName="dojo_floor_1" Width="512" Height="118" Color="0x080819" />
+    <Image X="-384" Y="223.5" ClassName="dojo_floor_2" Width="512" Height="118" Color="0x080819" />
+    <Image X="-128" Y="223.5" ClassName="dojo_floor_1" Width="512" Height="118" Color="0x080819" />
+    <Image X="128" Y="223.5" ClassName="dojo_floor_2" Width="512" Height="118" Color="0x080819" />
+    <Image X="384" Y="223.5" ClassName="dojo_floor_1" Width="512" Height="118" Color="0x080819" />
+    <Image X="640" Y="223.5" ClassName="dojo_floor_2" Width="512" Height="118" Color="0x080819" />
+    <Image X="-684.912" Y="0" ClassName="left_wall" Width="148.35" Height="1120" Color="0x080819" />
+    <Image X="679" Y="0" ClassName="right_wall" Width="156.758" Height="1120" Color="0x080819" />
+    <Image X="-10" Y="-198.5" ClassName="dojo_punch_bag_holder" Width="620" Height="330" Color="0x080819" />
+    <Image X="-895" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x080819" IsOpaque="1" />
+    <Image X="890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x080819" IsOpaque="1" />
+    <Image X="0" Y="-426" ClassName="pixel_1" Width="1960" Height="400" Color="0x080819" IsOpaque="1" />
+    <Image X="0" Y="470" ClassName="pixel_1" Width="1960" Height="500" Color="0x080819" IsOpaque="1" />
+  </Layer>
+</Root>

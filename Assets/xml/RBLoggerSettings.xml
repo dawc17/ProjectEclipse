@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root>
+  <LogEditor Value="0" />
+  <LogRelease Value="1" />
+  <LogFSRelease Value="0" />
+  <LogLongCommandsRelease Value="0" />
+  <EnableTimerLog Value="1" />
+  <UserSendReportDelay Value="30" />
+  <WaitVideoNull Value="20" />
+  <WaitVideoPlaying Value="100" />
+  <WaitLoadGameloaderScene Value="30" />
+</Root>

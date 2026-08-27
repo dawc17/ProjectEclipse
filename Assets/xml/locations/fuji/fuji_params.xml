@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1896" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="fuji_bg">
+    <Image X="-128" Y="-15" ClassName="background_1" Width="1536" Height="512" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="fuji_atlas_layer1">
+    <Image X="-128" Y="-50" ClassName="layer1_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="fuji_atlas_layer2">
+    <Image X="-128" Y="-50" ClassName="layer2_1" Width="1536" Height="512" />
+    <SimpleEffect X="-403" Y="6" Type="Sequention" ClassName="flag_left" PictureLocation="global" Speed="8" Offset="6" Width="46" Height="68" />
+    <SimpleEffect X="-160" Y="32" Type="Sequention" ClassName="flag_right" PictureLocation="global" Speed="8" Offset="8" Width="44" Height="40" />
+    <SimpleEffect X="-16" Y="10" Type="Sequention" ClassName="flag_right" PictureLocation="global" Speed="8" Offset="0" Width="40" Height="58" />
+  </Layer>
+  <Layer Type="1" Factor="0.8" Atlas="fuji_atlas_layer3" Scaling="1">
+    <Image X="-664.5" Y="-30.648" ClassName="layer3_1" Width="407" Height="493.296" />
+    <Image X="664" Y="-31.038" ClassName="layer3_2" Width="408" Height="494.076" />
+    <ParticleEffect X="-100" Y="-300" ClassName="snow" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="fuji_atlas_layer4" Scaling="1">
+    <Image X="-896" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="-768" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="-640" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="-384" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="-128" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="128" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="384" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="640" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="768" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="896" Y="202.5" ClassName="floor" Width="256" Height="63" />
+    <Image X="-839.5" Y="-160" ClassName="left" Width="481" Height="680" />
+    <Image X="839.5" Y="-160" ClassName="right" Width="481" Height="680" />
+    <Image X="0" Y="429" ClassName="pixel_1" Width="2000" Height="460" Color="0x000000" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="fuji_atlas_layer5">
+    <Image X="-75.703" Y="-32.5" ClassName="layer4" Width="1208.594" Height="477" />
+  </Layer>
+</Root>

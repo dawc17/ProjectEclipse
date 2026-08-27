@@ -1,0 +1,1148 @@
+fileFormatVersion: 2
+guid: d089d7f70531d6543944b4c229093192
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -6175583959205133178
+    second: magic_fire_pillar_end_1
+  - first:
+      213: -1423160676445630669
+    second: magic_fire_pillar_end_10
+  - first:
+      213: -1879318434592261511
+    second: magic_fire_pillar_end_11
+  - first:
+      213: -9078935299916372760
+    second: magic_fire_pillar_end_12
+  - first:
+      213: 5940847627352843006
+    second: magic_fire_pillar_end_13
+  - first:
+      213: -6021428851608747310
+    second: magic_fire_pillar_end_14
+  - first:
+      213: 1412671408039183181
+    second: magic_fire_pillar_end_15
+  - first:
+      213: -4013478649027019874
+    second: magic_fire_pillar_end_16
+  - first:
+      213: 6770197922118119509
+    second: magic_fire_pillar_end_17
+  - first:
+      213: -3026793617217352692
+    second: magic_fire_pillar_end_18
+  - first:
+      213: -4715925288963920808
+    second: magic_fire_pillar_end_19
+  - first:
+      213: -7848727237919341490
+    second: magic_fire_pillar_end_2
+  - first:
+      213: -5627514485127278393
+    second: magic_fire_pillar_end_20
+  - first:
+      213: 2668689276396831347
+    second: magic_fire_pillar_end_21
+  - first:
+      213: 3447117159989765119
+    second: magic_fire_pillar_end_22
+  - first:
+      213: 9099942061756279274
+    second: magic_fire_pillar_end_23
+  - first:
+      213: -6972245604744331429
+    second: magic_fire_pillar_end_24
+  - first:
+      213: 8618091894457703966
+    second: magic_fire_pillar_end_25
+  - first:
+      213: 3246225164131148979
+    second: magic_fire_pillar_end_26
+  - first:
+      213: 4278017223059641631
+    second: magic_fire_pillar_end_27
+  - first:
+      213: -7796711133902076971
+    second: magic_fire_pillar_end_28
+  - first:
+      213: -8280853780957154568
+    second: magic_fire_pillar_end_29
+  - first:
+      213: 3070205683989680410
+    second: magic_fire_pillar_end_3
+  - first:
+      213: 6623564193018217835
+    second: magic_fire_pillar_end_30
+  - first:
+      213: 7125285006011623355
+    second: magic_fire_pillar_end_31
+  - first:
+      213: 9122776978361393830
+    second: magic_fire_pillar_end_32
+  - first:
+      213: 967072526741451188
+    second: magic_fire_pillar_end_33
+  - first:
+      213: 4723104677738367951
+    second: magic_fire_pillar_end_34
+  - first:
+      213: 4864551740333195987
+    second: magic_fire_pillar_end_35
+  - first:
+      213: -7846545232195808394
+    second: magic_fire_pillar_end_36
+  - first:
+      213: 4092025792396968329
+    second: magic_fire_pillar_end_37
+  - first:
+      213: 967859216938485522
+    second: magic_fire_pillar_end_38
+  - first:
+      213: -6377345616657626124
+    second: magic_fire_pillar_end_39
+  - first:
+      213: 8543246580061344565
+    second: magic_fire_pillar_end_4
+  - first:
+      213: -2357724726834708413
+    second: magic_fire_pillar_end_40
+  - first:
+      213: -1222493013651629227
+    second: magic_fire_pillar_end_41
+  - first:
+      213: -1854136488834637949
+    second: magic_fire_pillar_end_42
+  - first:
+      213: -7163873072223853771
+    second: magic_fire_pillar_end_43
+  - first:
+      213: -250620796102722384
+    second: magic_fire_pillar_end_44
+  - first:
+      213: 6114901499825592233
+    second: magic_fire_pillar_end_5
+  - first:
+      213: -3037894059159283370
+    second: magic_fire_pillar_end_6
+  - first:
+      213: 8221442257701665644
+    second: magic_fire_pillar_end_7
+  - first:
+      213: -6113650041509595129
+    second: magic_fire_pillar_end_8
+  - first:
+      213: 6222894516598505474
+    second: magic_fire_pillar_end_9
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 976
+        width: 62
+        height: 48
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6844af6db1beb4aa0800000000000000
+      internalID: -6175583959205133178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 730
+        width: 84
+        height: 294
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33f472ea7eaef3ce0800000000000000
+      internalID: -1423160676445630669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 721
+        width: 83
+        height: 303
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 97af84e37d15be5e0800000000000000
+      internalID: -1879318434592261511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 714
+        width: 83
+        height: 310
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8e4eabd6274210280800000000000000
+      internalID: -9078935299916372760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_13
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 766
+        width: 102
+        height: 258
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef2a61de071227250800000000000000
+      internalID: 5940847627352843006
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 766
+        width: 102
+        height: 258
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d28293cc569f6ca0800000000000000
+      internalID: -6021428851608747310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_15
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 774
+        width: 87
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d43c6843921da9310800000000000000
+      internalID: 1412671408039183181
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 774
+        width: 87
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9b312bde624d48c0800000000000000
+      internalID: -4013478649027019874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_17
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 761
+        width: 100
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55030fed32394fd50800000000000000
+      internalID: 6770197922118119509
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 761
+        width: 100
+        height: 263
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c0c0755ed3baef5d0800000000000000
+      internalID: -3026793617217352692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_19
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 750
+        width: 93
+        height: 274
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85c260c8feaad8eb0800000000000000
+      internalID: -4715925288963920808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 974
+        width: 77
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4482e45928b31390800000000000000
+      internalID: -7848727237919341490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 750
+        width: 93
+        height: 274
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c09f91446d07e1b0800000000000000
+      internalID: -5627514485127278393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_21
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 746
+        width: 85
+        height: 278
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 372078fe1c6190520800000000000000
+      internalID: 2668689276396831347
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_22
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 746
+        width: 85
+        height: 278
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff3e75c1bce96df20800000000000000
+      internalID: 3447117159989765119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_23
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 743
+        width: 101
+        height: 281
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae96e93771d794e70800000000000000
+      internalID: 9099942061756279274
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 743
+        width: 101
+        height: 281
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5f7f62209b9d3f90800000000000000
+      internalID: -6972245604744331429
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_25
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 744
+        width: 94
+        height: 280
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1e13dadaec999770800000000000000
+      internalID: 8618091894457703966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_26
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 744
+        width: 94
+        height: 280
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b4a8f86698ec0d20800000000000000
+      internalID: 3246225164131148979
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_27
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 736
+        width: 104
+        height: 288
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f15197b9ff19e5b30800000000000000
+      internalID: 4278017223059641631
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 736
+        width: 104
+        height: 288
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d30f6f48848cc390800000000000000
+      internalID: -7796711133902076971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_29
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 733
+        width: 112
+        height: 291
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f2391d2c5f741d80800000000000000
+      internalID: -8280853780957154568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 877
+        width: 82
+        height: 147
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a11179d8dcf8b9a20800000000000000
+      internalID: 3070205683989680410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 733
+        width: 112
+        height: 291
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b6509d75a80abeb50800000000000000
+      internalID: 6623564193018217835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_31
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 730
+        width: 108
+        height: 294
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb76dba26f812e260800000000000000
+      internalID: 7125285006011623355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 730
+        width: 108
+        height: 294
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a2a758c35d9a9e70800000000000000
+      internalID: 9122776978361393830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_33
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 731
+        width: 103
+        height: 293
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b1b67cd65bbb6d00800000000000000
+      internalID: 967072526741451188
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_34
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 731
+        width: 103
+        height: 293
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcbc4992ea6db8140800000000000000
+      internalID: 4723104677738367951
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_35
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 805
+        width: 95
+        height: 219
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d2811ac80c528340800000000000000
+      internalID: 4864551740333195987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 805
+        width: 94
+        height: 219
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6731fe02fa87b1390800000000000000
+      internalID: -7846545232195808394
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_37
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 843
+        width: 77
+        height: 181
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 981ce8717cbc9c830800000000000000
+      internalID: 4092025792396968329
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_38
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 843
+        width: 76
+        height: 181
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 217c43274d68e6d00800000000000000
+      internalID: 967859216938485522
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_39
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 863
+        width: 84
+        height: 161
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fb4a3543fd1f77a0800000000000000
+      internalID: -6377345616657626124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 864
+        width: 82
+        height: 160
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53390212085bf8670800000000000000
+      internalID: 8543246580061344565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_40
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 863
+        width: 84
+        height: 161
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 340ccda4adda74fd0800000000000000
+      internalID: -2357724726834708413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_41
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 881
+        width: 81
+        height: 143
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 55bd5e4c415d80fe0800000000000000
+      internalID: -1222493013651629227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_42
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 881
+        width: 81
+        height: 143
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 38fdbe1efa8c446e0800000000000000
+      internalID: -1854136488834637949
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_43
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 912
+        width: 83
+        height: 112
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5336c1a856fc49c90800000000000000
+      internalID: -7163873072223853771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_44
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1023
+        width: 1
+        height: 1
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0bcb8fab6bd958cf0800000000000000
+      internalID: -250620796102722384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 824
+        width: 86
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a79b95148e7cd450800000000000000
+      internalID: 6114901499825592233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 801
+        width: 86
+        height: 223
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6599a8ad27b37d5d0800000000000000
+      internalID: -3037894059159283370
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 774
+        width: 79
+        height: 250
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c6b71bf9c2e681270800000000000000
+      internalID: 8221442257701665644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 759
+        width: 79
+        height: 265
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 708b4c2cda3f72ba0800000000000000
+      internalID: -6113650041509595129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_fire_pillar_end_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 732
+        width: 84
+        height: 292
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2008490b7992c5650800000000000000
+      internalID: 6222894516598505474
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <WEAPON_STAFF-MacroNode14 Type="MacroNode"  X="-145.834182739258"  Y="51.1666870117188"  Z="0.00106096267700195"  Mass="0.361304551362991"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="-2.12192535400391E-5"  LCC2="0.0833163410425186"  LCC3="1.90503799915314"  LCC4="-0.988333106040955"  MC1="-4.59996772406157E-6"  MC2="0.0180615428835154"  MC3="0.412979334592819"  MC4="-0.214253544807434" />
+    <WEAPON_STAFF-MacroNode15 Type="MacroNode"  X="-146.196807861328"  Y="162.16552734375"  Z="0.00100657343864441"  Mass="2.50901007652283"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="-2.01314687728882E-5"  LCC2="0.0760638415813446"  LCC3="0.802300989627838"  LCC4="0.121655270457268"  MC1="-3.03060332953464E-5"  MC2="0.114506959915161"  MC3="1.20778870582581"  MC4="0.183140575885773" />
+    <WEAPON_STAFF-MacroNode16 Type="MacroNode"  X="-146.550537109375"  Y="273.16552734375"  Z="-5.96046447753906E-6"  Mass="1.03383445739746"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Weapon-Node4_1"  ChildNode2="Weapon-Node3_1"  ChildNode3="Weapon-Node2_1"  ChildNode4="Weapon-Node1_1"  LCC1="1.19209289550781E-7"  LCC2="0.0689892545342445"  LCC3="-0.300644665956497"  LCC4="1.2316552400589"  MC1="7.39456069709377E-8"  MC2="0.042794082313776"  MC3="-0.186490088701248"  MC4="0.763996601104736" />
+  </Nodes>
+  <Edges>
+    <WEAPON_STAFF-Edge13 Type="Edge"  Length="111.000564575195"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="WEAPON_STAFF-MacroNode16"  Node2="WEAPON_STAFF-MacroNode15"  Force="0"  SubNodesCount="0"  End1="WEAPON_STAFF-MacroNode16"  End2="WEAPON_STAFF-MacroNode15" Radius="4" Margin1="0" Margin2="0"/>
+    <WEAPON_STAFF-Edge14 Type="Edge"  Length="110.999435424805"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="WEAPON_STAFF-MacroNode15"  Node2="WEAPON_STAFF-MacroNode14"  Force="0"  SubNodesCount="0"  End1="WEAPON_STAFF-MacroNode15"  End2="WEAPON_STAFF-MacroNode14" Radius="4" Margin1="0" Margin2="0"/>
+  </Edges>
+  <Figures>
+    <WEAPON_STAFF-Capsule_Edge13_1 Type="Capsule"  Edge="WEAPON_STAFF-Edge13"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <WEAPON_STAFF-Capsule_Edge14_1 Type="Capsule"  Edge="WEAPON_STAFF-Edge14"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+  </Figures>
+</Scene>

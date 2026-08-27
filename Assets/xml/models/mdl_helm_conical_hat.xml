@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+ <Nodes>
+  <HE8-MacroNode1 Type="MacroNode" X="-0.276026874780655" Y="225.706726074219" Z="9.20530986785889" Mass="0.0224180612713099" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-0.125365018844604" LCC2="0.0125091569498181" LCC3="-0.116080172359943" LCC4="1.22893607616425" />
+  <HE8-MacroNode2 Type="MacroNode" X="43.4955673217773" Y="203.717559814453" Z="-2.49436902999878" Mass="0.00305264280177653" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="2.91103792190552" LCC2="-1.09294104576111" LCC3="-1.05076396465302" LCC4="0.2326670140028" />
+  <HE8-MacroNode3 Type="MacroNode" X="45.3451805114746" Y="203.703491210938" Z="14.976978302002" Mass="0.00371173722669482" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="2.21024012565613" LCC2="0.49416521191597" LCC3="-1.92988085746765" LCC4="0.225475445389748" />
+  <HE8-MacroNode4 Type="MacroNode" X="40.2494850158691" Y="203.668212890625" Z="31.7996788024902" Mass="0.00281914789229631" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="1.22130072116852" LCC2="2.02634048461914" LCC3="-2.46538162231445" LCC4="0.217740446329117" />
+  <HE8-MacroNode5 Type="MacroNode" X="28.9840545654297" Y="203.776763916016" Z="45.2939872741699" Mass="0.0019093977753073" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="0.0964161902666092" LCC2="3.25965929031372" LCC3="-2.57402348518372" LCC4="0.217948004603386" />
+  <HE8-MacroNode6 Type="MacroNode" X="13.264045715332" Y="203.77668762207" Z="53.6071128845215" Mass="0.00148406054358929" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-0.996776282787323" LCC2="4.02450895309448" LCC3="-2.24299550056458" LCC4="0.215262815356255" />
+  <HE8-MacroNode7 Type="MacroNode" X="-4.51722526550293" Y="203.672271728516" Z="55.5687103271484" Mass="0.00139303936157376" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-1.89622759819031" LCC2="4.21311140060425" LCC3="-1.52713716030121" LCC4="0.21025338768959" />
+  <HE8-MacroNode8 Type="MacroNode" X="-21.6529998779297" Y="203.669540405273" Z="50.7849884033203" Mass="0.00159188150428236" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-2.46512293815613" LCC2="3.78824424743652" LCC3="-0.535479962825775" LCC4="0.21235865354538" />
+  <HE8-MacroNode9 Type="MacroNode" X="-35.5340843200684" Y="203.638412475586" Z="39.782341003418" Mass="0.00220299139618874" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-2.60474514961243" LCC2="2.79614043235779" LCC3="0.593200087547302" LCC4="0.215404778718948" />
+  <HE8-MacroNode10 Type="MacroNode" X="-44.0476264953613" Y="203.644744873047" Z="24.2816772460938" Mass="0.00327260093763471" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-2.29732847213745" LCC2="1.39205396175385" LCC3="1.68358778953552" LCC4="0.22168692946434" />
+  <HE8-MacroNode11 Type="MacroNode" X="-45.8972434997559" Y="203.636810302734" Z="6.56695652008057" Mass="0.00357753597199917" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-1.58507931232452" LCC2="-0.21719191968441" LCC3="2.57429957389832" LCC4="0.227971702814102" />
+  <HE8-MacroNode12 Type="MacroNode" X="-40.8016090393066" Y="203.707641601563" Z="-10.589165687561" Mass="0.00248070224188268" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="-0.581966400146484" LCC2="-1.77964949607849" LCC3="3.12417125701904" LCC4="0.237444669008255" />
+  <HE8-MacroNode13 Type="MacroNode" X="-29.536111831665" Y="203.731155395508" Z="-24.6203994750977" Mass="0.00162466790061444" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="0.564022302627563" LCC2="-3.06167793273926" LCC3="3.25421667098999" LCC4="0.243438974022865" />
+  <HE8-MacroNode14 Type="MacroNode" X="-13.8161649703979" Y="203.798553466797" Z="-33.1887969970703" Mass="0.001258181524463" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="1.66713964939117" LCC2="-3.84968256950378" LCC3="2.9332640171051" LCC4="0.249279126524925" />
+  <HE8-MacroNode15 Type="MacroNode" X="3.96516966819763" Y="203.835632324219" Z="-34.8951148986816" Mass="0.00119764206465334" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="2.55666589736938" LCC2="-4.01513004302979" LCC3="2.20732998847961" LCC4="0.251134276390076" />
+  <HE8-MacroNode16 Type="MacroNode" X="21.1008720397949" Y="203.706451416016" Z="-29.5743370056152" Mass="0.00139643251895905" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="3.10444927215576" LCC2="-3.54154109954834" LCC3="1.19426190853119" LCC4="0.242829889059067" />
+  <HE8-MacroNode17 Type="MacroNode" X="34.9820251464844" Y="203.701873779297" Z="-18.2385025024414" Mass="0.00196273718029261" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHeadS_1" ChildNode2="NHeadF" ChildNode3="NHeadS_2" ChildNode4="NTop" LCC1="3.22991251945496" LCC2="-2.51917624473572" LCC3="0.0512248128652573" LCC4="0.238038942217827" />
+ </Nodes>
+ <Edges/>
+ <Figures>
+  <Capsule_ENeck Type="Capsule" Edge="ENeck" Radius1="8" Radius2="8" Margin1="0" Margin2="0" />
+  <Capsule_EHead Type="Capsule" Edge="EHead" Radius1="13" Radius2="13" Margin1="0" Margin2="0.5" />
+  <HE8-Triangle-1 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode2" Node3="HE8-MacroNode3" />
+  <HE8-Triangle-2 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode3" Node3="HE8-MacroNode4" />
+  <HE8-Triangle-3 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode4" Node3="HE8-MacroNode5" />
+  <HE8-Triangle-4 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode5" Node3="HE8-MacroNode6" />
+  <HE8-Triangle-5 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode6" Node3="HE8-MacroNode7" />
+  <HE8-Triangle-6 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode7" Node3="HE8-MacroNode8" />
+  <HE8-Triangle-7 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode8" Node3="HE8-MacroNode9" />
+  <HE8-Triangle-8 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode9" Node3="HE8-MacroNode10" />
+  <HE8-Triangle-9 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode10" Node3="HE8-MacroNode11" />
+  <HE8-Triangle-10 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode11" Node3="HE8-MacroNode12" />
+  <HE8-Triangle-11 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode12" Node3="HE8-MacroNode13" />
+  <HE8-Triangle-12 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode13" Node3="HE8-MacroNode14" />
+  <HE8-Triangle-13 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode14" Node3="HE8-MacroNode15" />
+  <HE8-Triangle-14 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode15" Node3="HE8-MacroNode16" />
+  <HE8-Triangle-15 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode16" Node3="HE8-MacroNode17" />
+  <HE8-Triangle-16 Type="Triangle" DoubleSided="0" Node1="HE8-MacroNode1" Node2="HE8-MacroNode17" Node3="HE8-MacroNode2" />
+ </Figures>
+</Scene>

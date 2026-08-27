@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="350" Floor="70" Width="2186" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="vulcan_raid_background">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1024" Height="512" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.20" Atlas="vulcan_raid_layer2">
+    <Image X="0" Y="-28" ClassName="layer2_1" Width="1300" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.20" Atlas="vulcan_raid_layer5">
+    <SimpleEffect X="-133.5" Y="-66" Type="Picture" PictureLocation="local" ClassName="light_NEW" Width="759" Height="420">
+      <Transparency Offset="0">
+        <Point Period="0.4" Value="64" Ease="-1" />
+        <Point Period="0.5" Value="80" Ease="1" />
+        <Point Period="0.3" Value="64" Ease="-1" />
+        <Point Period="0.6" Value="80" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="vulcan_raid_layer3">
+    <Image X="-512" Y="92.5" ClassName="layer3_1" Width="512" Height="287" />
+    <Image X="0" Y="151" ClassName="layer3_2" Width="512" Height="170" />
+    <Image X="512" Y="128.5" ClassName="layer3_3" Width="512" Height="215" />
+    <ParticleEffect X="0" Y="160" ClassName="spark_fire2" />
+  </Layer>
+  <Layer Type="1" Factor="0.45" Atlas="vulcan_raid_layer5">
+    <Image X="-12.604" Y="62" ClassName="smoke_2" Width="1799.875" Height="222" />
+    <Image X="21.427" Y="36" ClassName="smoke" Width="1724.25" Height="400" />
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="vulcan_raid_layer3">
+    <Image X="-512" Y="-196.5" ClassName="layer4_1" Width="512" Height="159" />
+    <Image X="0" Y="-179" ClassName="layer4_2" Width="512" Height="194" />
+    <Image X="512" Y="-139" ClassName="layer4_3" Width="512" Height="274" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="vulcan_raid_layer5" Scaling="1">
+    <Image X="-670" Y="-35.5" ClassName="left" Width="400" Height="553" />
+    <Image X="670" Y="-53" ClassName="right" Width="400" Height="588" />
+    <Image X="0" Y="440" ClassName="pixel_1" Width="2000" Height="490" Color="0x000000" IsOpaque="1" />
+    <Image X="-668" Y="216.265" ClassName="floor" Width="304" Height="94.683" />
+    <Image X="-368" Y="216.265" ClassName="floor" Width="304" Height="94.683" />
+    <Image X="-68" Y="216.265" ClassName="floor" Width="304" Height="94.683" />
+    <Image X="132" Y="216.265" ClassName="floor" Width="304" Height="94.683" />
+    <Image X="432" Y="216.265" ClassName="floor" Width="304" Height="94.683" />
+    <Image X="732" Y="216.265" ClassName="floor" Width="304" Height="94.683" />
+  </Layer>
+</Root>

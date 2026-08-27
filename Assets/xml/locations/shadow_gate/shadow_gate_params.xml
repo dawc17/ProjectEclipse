@@ -1,0 +1,110 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.05" Atlas="shadow_gate_atlas_layer4">
+    <Image X="0" Y="190" ClassName="pixel_1" Width="2000" Height="400" Color="0xD6BC95" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.05" Atlas="shadow_gate_bg">
+    <Image X="0" Y="-5" ClassName="background_1" Width="1536" Height="534" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.08" Atlas="shadow_gate_atlas_layer1">
+    <Image X="0" Y="100" ClassName="layer1_1" Width="1536" Height="330" />
+    <SimpleEffect X="-48" Y="-105.5" Type="Picture" PictureLocation="local" ClassName="stones_3" Width="210" Height="147">
+      <OscillationY Offset="10">
+        <Point Period="7" Value="0" Ease="1" />
+        <Point Period="7" Value="0" Ease="-1" />
+      </OscillationY>
+      <Rotation Offset="10">
+        <Point Period="7" Value="0.5" Ease="-1" />
+        <Point Period="7" Value="-0.5" Ease="1" />
+      </Rotation>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.11" Atlas="shadow_gate_atlas_layer1">
+    <Image X="0" Y="80" ClassName="layer2_1" Width="1536" Height="440" />
+    <SimpleEffect X="-896" Y="137.734" Type="Picture" PictureLocation="local" ClassName="dust_2" Width="256" Height="74.531">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="142.656" Type="Picture" PictureLocation="local" ClassName="dust_1" Width="256" Height="64.687">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-384" Y="137.734" Type="Picture" PictureLocation="local" ClassName="dust_2" Width="256" Height="74.531">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="142.656" Type="Picture" PictureLocation="local" ClassName="dust_1" Width="256" Height="64.687">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="128" Y="142.656" Type="Picture" PictureLocation="local" ClassName="dust_1" Width="256" Height="64.687">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="137.734" Type="Picture" PictureLocation="local" ClassName="dust_2" Width="256" Height="74.531">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="640" Y="142.656" Type="Picture" PictureLocation="local" ClassName="dust_1" Width="256" Height="64.687">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="137.734" Type="Picture" PictureLocation="local" ClassName="dust_2" Width="256" Height="74.531">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="1152" Y="142.656" Type="Picture" PictureLocation="local" ClassName="dust_1" Width="256" Height="64.687">
+      <ReappearX Min="-1152" Max="1152" />
+      <Speed X="0.5" Y="0" />
+    </SimpleEffect>
+    <SimpleEffect X="-77" Y="-110" Type="Picture" PictureLocation="local" ClassName="stones_1" Width="226" Height="130">
+      <OscillationY Offset="30">
+        <Point Period="9" Value="0" Ease="1" />
+        <Point Period="9" Value="0" Ease="-1" />
+      </OscillationY>
+      <Rotation Offset="30">
+        <Point Period="9" Value="0.5" Ease="-1" />
+        <Point Period="9" Value="-0.5" Ease="1" />
+      </Rotation>
+    </SimpleEffect>
+    <SimpleEffect X="-63" Y="-105.5" Type="Picture" PictureLocation="local" ClassName="stones_2" Width="292" Height="147">
+      <OscillationY Offset="80">
+        <Point Period="8" Value="0" Ease="1" />
+        <Point Period="8" Value="0" Ease="-1" />
+      </OscillationY>
+      <Rotation Offset="80">
+        <Point Period="8" Value="0.5" Ease="-1" />
+        <Point Period="8" Value="-0.5" Ease="1" />
+      </Rotation>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="shadow_gate_atlas_layer3">
+    <SimpleEffect X="0" Y="-80" Type="Picture" PictureLocation="local" ClassName="layer4_1" Width="1536" Height="512">
+      <Transparency Offset="0">
+        <Point Period="2.1" Value="25" Ease="-1" />
+        <Point Period="3.5" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="shadow_gate_atlas_layer1">
+    <SimpleEffect X="0" Y="240" Type="Picture" PictureLocation="local" ClassName="layer5_1" Width="1536" Height="128">
+      <Transparency Offset="0">
+        <Point Period="2.1" Value="25" Ease="-1" />
+        <Point Period="3.5" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="shadow_gate_atlas_layer4" Scaling="1">
+    <Image X="-640" Y="220" ClassName="floor" Width="256" Height="128" />
+    <Image X="-384" Y="220" ClassName="floor" Width="256" Height="128" />
+    <Image X="-128" Y="220" ClassName="floor" Width="256" Height="128" />
+    <Image X="128" Y="220" ClassName="floor" Width="256" Height="128" />
+    <Image X="384" Y="220" ClassName="floor" Width="256" Height="128" />
+    <Image X="640" Y="220" ClassName="floor" Width="256" Height="128" />
+    <Image X="-890" Y="24.5" ClassName="left" Width="500" Height="891" />
+    <Image X="890" Y="24.5" ClassName="right" Width="500" Height="891" />
+  </Layer>
+</Root>

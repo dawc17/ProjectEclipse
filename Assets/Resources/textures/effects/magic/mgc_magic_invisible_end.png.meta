@@ -1,0 +1,908 @@
+fileFormatVersion: 2
+guid: f95b0b6145eed4c488407a9dea4a9049
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 2514024834451650688
+    second: magic_invisible_end_1
+  - first:
+      213: -6866288693751703664
+    second: magic_invisible_end_10
+  - first:
+      213: -3450962610323118657
+    second: magic_invisible_end_11
+  - first:
+      213: 2873204691009988617
+    second: magic_invisible_end_12
+  - first:
+      213: 12690775625246174
+    second: magic_invisible_end_13
+  - first:
+      213: 861503945556270555
+    second: magic_invisible_end_14
+  - first:
+      213: 2327363644262413656
+    second: magic_invisible_end_15
+  - first:
+      213: -1093770388520003714
+    second: magic_invisible_end_16
+  - first:
+      213: -7513622273418551829
+    second: magic_invisible_end_17
+  - first:
+      213: -48334664188266627
+    second: magic_invisible_end_18
+  - first:
+      213: -3489525174634950548
+    second: magic_invisible_end_19
+  - first:
+      213: 4491175930740603450
+    second: magic_invisible_end_2
+  - first:
+      213: 8724734661022642934
+    second: magic_invisible_end_20
+  - first:
+      213: -1568496450592365699
+    second: magic_invisible_end_21
+  - first:
+      213: 1675830582136965319
+    second: magic_invisible_end_22
+  - first:
+      213: -404802790524730782
+    second: magic_invisible_end_23
+  - first:
+      213: -4268022073449721286
+    second: magic_invisible_end_24
+  - first:
+      213: -8868006886090995332
+    second: magic_invisible_end_25
+  - first:
+      213: 694996832112227854
+    second: magic_invisible_end_26
+  - first:
+      213: -3409971828572148945
+    second: magic_invisible_end_27
+  - first:
+      213: 4747411800569709190
+    second: magic_invisible_end_28
+  - first:
+      213: -461823754552185620
+    second: magic_invisible_end_29
+  - first:
+      213: -6799365691174339037
+    second: magic_invisible_end_3
+  - first:
+      213: -6526122430839748921
+    second: magic_invisible_end_30
+  - first:
+      213: 2070384970207164684
+    second: magic_invisible_end_31
+  - first:
+      213: -1734724320760120003
+    second: magic_invisible_end_32
+  - first:
+      213: 2407032688574393278
+    second: magic_invisible_end_33
+  - first:
+      213: -4331499920717698410
+    second: magic_invisible_end_34
+  - first:
+      213: -6065069100376031490
+    second: magic_invisible_end_4
+  - first:
+      213: 2154981370081680528
+    second: magic_invisible_end_5
+  - first:
+      213: 6791699110618646733
+    second: magic_invisible_end_6
+  - first:
+      213: 2615517342328114611
+    second: magic_invisible_end_7
+  - first:
+      213: 402960641346510435
+    second: magic_invisible_end_8
+  - first:
+      213: 6625892639304303118
+    second: magic_invisible_end_9
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 47
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 1
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: magic_invisible_end_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 933
+        width: 122
+        height: 91
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 088300e544c93e220800000000000000
+      internalID: 2514024834451650688
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 830
+        width: 217
+        height: 194
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09716abefca06b0a0800000000000000
+      internalID: -6866288693751703664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 829
+        width: 241
+        height: 195
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb529863ac7bb10d0800000000000000
+      internalID: -3450962610323118657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 839
+        width: 240
+        height: 185
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 908e2ae817cafd720800000000000000
+      internalID: 2873204691009988617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_13
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 843
+        width: 256
+        height: 181
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed5211571361d2000800000000000000
+      internalID: 12690775625246174
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 825
+        width: 256
+        height: 199
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdd9a77264da4fb00800000000000000
+      internalID: 861503945556270555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_15
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 818
+        width: 159
+        height: 206
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8557b6f47e47c4020800000000000000
+      internalID: 2327363644262413656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 820
+        width: 155
+        height: 204
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e779c6e60a522d0f0800000000000000
+      internalID: -1093770388520003714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_17
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 824
+        width: 142
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bed9c68e9504ab790800000000000000
+      internalID: -7513622273418551829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 816
+        width: 136
+        height: 208
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7778b601e7445ff0800000000000000
+      internalID: -48334664188266627
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_19
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 814
+        width: 134
+        height: 210
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c60d91b8757b29fc0800000000000000
+      internalID: -3489525174634950548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 919
+        width: 127
+        height: 105
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3af397b6bcd35e30800000000000000
+      internalID: 4491175930740603450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 811
+        width: 128
+        height: 213
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f2fac5d2fb741970800000000000000
+      internalID: 8724734661022642934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_21
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 829
+        width: 127
+        height: 195
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d732bf6d9c49b3ae0800000000000000
+      internalID: -1568496450592365699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_22
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 823
+        width: 125
+        height: 201
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c88208190fb14710800000000000000
+      internalID: 1675830582136965319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_23
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 827
+        width: 123
+        height: 197
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 262cfaab10ad16af0800000000000000
+      internalID: -404802790524730782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 830
+        width: 122
+        height: 194
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a32d0828980f4c4c0800000000000000
+      internalID: -4268022073449721286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_25
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 842
+        width: 124
+        height: 182
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7904d8c8b28ee480800000000000000
+      internalID: -8868006886090995332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_26
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 846
+        width: 124
+        height: 178
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e063212cfef15a900800000000000000
+      internalID: 694996832112227854
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_27
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 850
+        width: 130
+        height: 174
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2b2edf40b85da0d0800000000000000
+      internalID: -3409971828572148945
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 849
+        width: 130
+        height: 175
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 682847731e132e140800000000000000
+      internalID: 4747411800569709190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_29
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 892
+        width: 129
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cec6419fdb54799f0800000000000000
+      internalID: -461823754552185620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 892
+        width: 140
+        height: 132
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32e339fadecc3a1a0800000000000000
+      internalID: -6799365691174339037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 932
+        width: 129
+        height: 92
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c6861dd93e8e65a0800000000000000
+      internalID: -6526122430839748921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_31
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 932
+        width: 131
+        height: 92
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c097189392c7bbc10800000000000000
+      internalID: 2070384970207164684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 930
+        width: 131
+        height: 94
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3dbcd5db650de7e0800000000000000
+      internalID: -1734724320760120003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_33
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 923
+        width: 138
+        height: 101
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ebbea3d2a7f776120800000000000000
+      internalID: 2407032688574393278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_34
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 921
+        width: 138
+        height: 103
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69a2df875cb63e3c0800000000000000
+      internalID: -4331499920717698410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 863
+        width: 135
+        height: 161
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efe73ed89cb84dba0800000000000000
+      internalID: -6065069100376031490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 831
+        width: 165
+        height: 193
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09c9d45732808ed10800000000000000
+      internalID: 2154981370081680528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 832
+        width: 165
+        height: 192
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc8c2cd6b56f04e50800000000000000
+      internalID: 6791699110618646733
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 827
+        width: 183
+        height: 197
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bd475d4a2f2c4420800000000000000
+      internalID: 2615517342328114611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 826
+        width: 187
+        height: 198
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36e1ced719a979500800000000000000
+      internalID: 402960641346510435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: magic_invisible_end_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 827
+        width: 207
+        height: 197
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e02cb9dff36e3fb50800000000000000
+      internalID: 6625892639304303118
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

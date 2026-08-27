@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="ice_cave_bg_wide">
+    <Image X="0" Y="-30" ClassName="background_1" Width="1300" Height="512" />
+    <SimpleEffect X="0" Y="-30" Type="Picture" PictureLocation="local" ClassName="glow_1" Width="1024" Height="512">
+      <Transparency Offset="0">
+        <Point Period="5.1" Value="25" Ease="-1" />
+        <Point Period="5.5" Value="55" Ease="1" />
+        <Point Period="4.5" Value="25" Ease="-1" />
+        <Point Period="6.5" Value="60" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="ice_cave_atlas_layer1">
+    <Image X="0" Y="-28" ClassName="layer1_1" Width="1536" Height="512" />
+    <ParticleEffect X="410" Y="-50" ClassName="ice_cave_snow" />
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="ice_cave_atlas_layer2">
+    <Image X="0" Y="-20" ClassName="layer2_1" Width="1536" Height="512" />
+    <ParticleEffect X="410" Y="100" ClassName="ice_cave_snow" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="ice_cave_atlas_layer3" Scaling="1">
+    <Image X="-896" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="-640" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="-384" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="-128" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="128" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="384" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="640" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="896" Y="195.5" ClassName="floor" Width="256" Height="53" />
+    <Image X="-791" Y="-130" ClassName="left" Width="408" Height="680" Color="0x000000" />
+    <Image X="776.5" Y="-130" ClassName="right" Width="473" Height="680" Color="0x000000" />
+    <Image X="0" Y="390" ClassName="pixel_1" Width="2000" Height="360" Color="0x000000" IsOpaque="1" />
+  </Layer>
+</Root>

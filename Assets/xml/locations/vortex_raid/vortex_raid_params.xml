@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="vortex_raid_background">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1200" Height="512" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.12" Atlas="vortex_raid_layer2">
+    <Image X="0" Y="-20" ClassName="layer_2_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="vortex_raid_layer3">
+    <Image X="0" Y="-15" ClassName="layer3_1" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="vortex_raid_floor">
+    <Image X="-545" Y="38" ClassName="smoke1_1" Width="410" Height="165" />
+    <Image X="418" Y="27" ClassName="smoke1_2" Width="678" Height="179" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-93" EnemyPositionX="1068" EnemyPositionY="-105" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="vortex_raid_floor" Scaling="1">
+    <Image X="-830" Y="78.562" ClassName="left" Width="360" Height="567.875" />
+    <Image X="830" Y="101.75" ClassName="right" Width="360" Height="521.5" />
+    <Image X="-896" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="-640" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="-384" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="-128" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="128" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="384" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="640" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="896" Y="187" ClassName="vortex_raid_floor" Width="256" Height="50" />
+    <Image X="0" Y="440" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1" />
+  </Layer>
+</Root>

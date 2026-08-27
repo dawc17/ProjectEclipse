@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?><Credits><Part Name="Producers:">Evgeny Dyabin
+Dmitry Terekhin
+   </Part><Part Name="Project managers:">Maxim Koblov
+Sergey Sorokin
+Dmitry Pimenov
+Alexey Ilyukhin
+Mikhail Antonov
+Stepan Kuleshov
+   </Part><Part Name="Lead game designer:">Oleg Egorov
+   </Part><Part Name="Game designers:">Evgeny Dyabin
+Dmitry Pimenov
+Sergey Makarov
+Alexander Scherbakov
+Philip Shuleyko
+Valentin Voznesenskiy
+Andrey Revenko
+Andrey Trubetskoy
+Lev Timoshenko
+Stepan Shabanov
+Alexander Argunov
+Anton Voronin
+Sergey Sorokin
+Andrey Shlyupikov
+Sergey Kim
+Daria Morgunova
+Alexander Pleskanovsky
+   </Part><Part Name="Lead programmer:">Alexander Panov
+   </Part><Part Name="Programmers:">Nikolay Prihodko
+Semen Zenkov
+Stanislav Korotaev
+Alexander Grishanin
+Ruslan Stepanov
+Vyacheslav Nikulin
+Igor Denis
+Eduard Korogodov
+Alexey Moiseev
+Oleg Durov
+Anton Evtushenko
+Alexey Volotskov
+Ilya Harin
+Andrey Kalinichenko
+Vladimir Martinyuk
+Ilya Volkov
+Kirill Korepanov
+Victor Smirnov
+Vladimir Shapovalenko
+Abdrashitov Ruslan
+   </Part><Part Name="Lead animator:">Evgeny Khapugin
+   </Part><Part Name="Animators:">Dmitry Tereshchenko
+Alexey Silantev
+Artem Kurmesh
+Alexey Panteleev 
+Maxim Knyazev
+   </Part><Part Name="Lead artist:">Rinat Timerkaev
+   </Part><Part Name="Artists:">Olga Ivanova
+Evgeny Novosiltsev
+Alexey Krapivin
+Alexey Melnikov
+Alexander Nemov
+Valerii Vegera
+Alisa Khusnutdinova
+Ekaterina Yakovleva
+Elena Voevodina
+Daria Kanavskaya
+   </Part><Part Name="Story:">Alex Kulagin
+Vitaly Aleksashin
+Oleg Martynov
+Oleg Egorov
+   </Part><Part Name="Music and sound effects:">Mikhail Kostylev
+Sergey Sbitnev
+Mikhail Afanasyev
+   </Part><Part Name="Testers:">Nikita Peredriy
+Tatiana Muromtseva 
+Vasiliy Skobelev
+Arseniy Dashevskiy
+Denis Potekhin
+Alena Natalukha
+Aleksandr Klinovoy
+Sergey Kostarev
+Elina Luzhkova
+Georgy Romanov
+Artem Pashkin
+Nikita Pushnoy
+   </Part><Part Name="Special thanks">Sergey Babaev
+Dmitry Stepanyuk
+Denis Romanko
+Maxim Slobodyanyuk
+Shamil Magomedov
+Andrey Rybolovlev
+Maxim Chulyuchkin
+Ivan Kireev
+   </Part></Credits>

@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Stages>
+  <Zones>
+    <Zone Name="ZONE_7">
+      <Battle Name="BOSS_TITAN" Alias="BOSS_TITAN" Title="BOSS_TITAN_TITLE" Icon="titan" Preview="preview_bosses.titan" Type="BOSSES" X="-120" Y="-80" Location="neural_network" Music="fight37_Titan_Epic_Fight">
+        <Fight Name="1" Description="fight_locked_chapter2" Locked="1" Power="1" Rounds="2" RoundTime="99" Replays="1">
+          <Rewards>
+            <Reward Money="0" Exp="0" PrizeBase="500" />
+            <Reward Exp="8000000" Money="1590000000000">
+              <NormalModeReward>
+                <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="965" />
+                <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="384" />
+              </NormalModeReward>
+              <EclipseModeReward PrizeBase="1000">
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="21429" />
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="11429" />
+              </EclipseModeReward>
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Batons_4" Tactic="Standard" WarriorPower="1629" />
+          </Warriors>
+          <Rules>
+            <Attributes DamageFactor="-4219" ApplyTo="Player" />
+            <Attributes DamageFactor="-2219" ApplyTo="Bot" />
+            <Attributes Eclipse="1" WarriorPower="5" ApplyTo="Bot" />
+          </Rules>
+        </Fight>
+        <Fight Name="2" Locked="1" Power="1" Rounds="2" RoundTime="99" Replays="1">
+          <Rewards>
+            <Reward Money="0" Exp="0" PrizeBase="500" />
+            <Reward Exp="8000000" Money="2600000000000">
+              <NormalModeReward>
+                <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="2042" />
+                <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="524" />
+              </NormalModeReward>
+              <EclipseModeReward PrizeBase="1000">
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="36000" />
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="16000" />
+              </EclipseModeReward>
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Swords_2" Tactic="Standard" WarriorPower="1665" />
+          </Warriors>
+          <Rules>
+            <Attributes DamageFactor="-4219" ApplyTo="Player" />
+            <Attributes DamageFactor="-719" ApplyTo="Bot" />
+            <Attributes Eclipse="1" WarriorPower="5" ApplyTo="Bot" />
+          </Rules>
+        </Fight>
+        <Fight Name="3" Locked="1" Power="1" Rounds="2" RoundTime="99" Replays="1">
+          <Rewards>
+            <Reward Money="0" Exp="0" PrizeBase="500" />
+            <Reward Exp="8000000" Money="4200000000000">
+              <NormalModeReward>
+                <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="3031" />
+                <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="603" />
+              </NormalModeReward>
+              <EclipseModeReward PrizeBase="1000">
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="84829" />
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="38282" />
+              </EclipseModeReward>
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Spear" Tactic="Standard" WarriorPower="1731" />
+          </Warriors>
+          <Rules>
+            <Attributes DamageFactor="-4219" ApplyTo="Player" />
+            <Attributes DamageFactor="-2219" ApplyTo="Bot" />
+            <Attributes Eclipse="1" WarriorPower="5" ApplyTo="Bot" />
+          </Rules>
+        </Fight>
+        <Fight Name="4" Locked="1" Power="1" Rounds="2" RoundTime="99" Replays="1">
+          <Rewards>
+            <Reward Money="0" Exp="0" PrizeBase="500" />
+            <Reward Exp="8000000" Money="6870000000000">
+              <NormalModeReward>
+                <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="3032" />
+                <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="608" />
+              </NormalModeReward>
+              <EclipseModeReward PrizeBase="1000">
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="93313" />
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="44790" />
+              </EclipseModeReward>
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Man_Heavy_Hammer" Tactic="Standard" WarriorPower="1766" />
+          </Warriors>
+          <Rules>
+            <Attributes DamageFactor="-4219" ApplyTo="Player" />
+            <Attributes DamageFactor="-2219" ApplyTo="Bot" />
+            <Attributes Eclipse="1" WarriorPower="5" ApplyTo="Bot" />
+          </Rules>
+        </Fight>
+        <Fight Name="5" Locked="1" Power="1" Rounds="2" RoundTime="99" Replays="1">
+          <Rewards>
+            <Reward Money="0" Exp="0" PrizeBase="500" />
+            <Reward Exp="150000">
+              <NormalModeReward Money="1260000">
+                <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="286.84" />
+                <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="52.67" />
+              </NormalModeReward>
+              <EclipseModeReward PrizeBase="1000">
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1826" />
+                <Currency Drop="1" ShowReward="1" Name="ForgeMaterial2" ExpectedValue="879" />
+              </EclipseModeReward>
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Girl_Kusarigama_2" Tactic="Standard" />
+          </Warriors>
+          <Rules>
+            <Attributes DamageFactor="-4219" ApplyTo="Player" />
+            <Attributes DamageFactor="-2219" ApplyTo="Bot" />
+            <Attributes Eclipse="1" WarriorPower="32" ApplyTo="Bot" />
+          </Rules>
+        </Fight>
+        <Fight Name="6" Locked="1" Power="1" Rounds="3" RoundTime="99" Replays="1">
+          <Rewards>
+            <Reward Money="0" Exp="0" PrizeBase="500" />
+            <Reward Exp="750000" Bonus="3">
+              <Item Name="drop_name_orangeseal" ShowReward="1" />
+              <NormalModeReward PrizeBase="500">
+                <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="491.15" />
+                <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="91.27" />
+              </NormalModeReward>
+              <EclipseModeReward PrizeBase="1000">
+                <Currency Drop="1" Name="ForgeMaterial1" ExpectedValue="3652" />
+                <Currency Drop="1" Name="ForgeMaterial2" ExpectedValue="1758" />
+                <Currency Drop="1" Name="ForgeMaterial3" ExpectedValue="50" />
+              </EclipseModeReward>
+            </Reward>
+          </Rewards>
+          <Warriors>
+            <Warrior Template="Huntress_Fan" Tactic="Standard" MagicInitialCharge="5000" MagicPainRecharge="-4150" MagicDamageRecharge="5850">
+              <Items>
+                <Item Name="RANGED_GHOST_KUNAI" />
+                <Item Name="MAGIC_ENERGY_BALL" />
+              </Items>
+              <Perks>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON">
+                  <Set Aspect="100000" Chance="0.25" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_RANGED">
+                  <Set Aspect="100000" Chance="0.25" />
+                </Perk>
+              </Perks>
+            </Warrior>
+            <Warrior Template="Huntress_Fan" Tactic="Standard" MagicInitialCharge="5000" MagicPainRecharge="-4150" MagicDamageRecharge="5850">
+              <Items>
+                <Item Name="RANGED_ASSASINS_DAGGER" />
+                <Item Name="MAGIC_ICE_BALL" />
+              </Items>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION">
+                  <Set Frames="480" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON">
+                  <Set Aspect="100000" Chance="0.25" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_RANGED">
+                  <Set Aspect="100000" Chance="0.25" />
+                </Perk>
+              </Perks>
+            </Warrior>
+            <Warrior Template="Huntress_Fan" Tactic="Standard" MagicInitialCharge="5000" MagicPainRecharge="-4150" MagicDamageRecharge="5850">
+              <Items>
+                <Item Name="RANGED_ASSASINS_DAGGER" />
+                <Item Name="MAGIC_ICE_PINS" />
+              </Items>
+              <Perks>
+                <Perk Name="PERK_TELEPORTATION">
+                  <Set Frames="300" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_ARMOR">
+                  <Set Aspect="100000" ChanceFactor="1.375" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_HELM">
+                  <Set Aspect="100000" ChanceFactor="1.375" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON">
+                  <Set Aspect="100000" Chance="0.25" />
+                </Perk>
+                <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_RANGED">
+                  <Set Aspect="100000" Chance="0.25" />
+                </Perk>
+              </Perks>
+            </Warrior>
+          </Warriors>
+          <Rules>
+            <RechargeMagicEachRound ApplyTo="Bot" />
+            <Attributes DamageFactor="-4778" ApplyTo="Player" />
+            <Attributes DamageFactor="-6778" ApplyTo="Bot" />
+            <Perk Name="PERK_ANTI_SHOCK" ApplyTo="Bot" />
+            <Attributes Eclipse="1" WarriorPower="5" ApplyTo="Bot" />
+          </Rules>
+        </Fight>
+      </Battle>
+    </Zone>
+  </Zones>
+</Stages>

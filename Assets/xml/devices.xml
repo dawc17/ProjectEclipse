@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root>
+  <Config>
+    <RamLimit Value="0" />
+    <TabletDiagonal Value="6.5" />
+  </Config>
+  <Devices />
+  <QualityConditions>
+    <Condition Name="HIGH">
+      <Less Value="0" Than="1" />
+    </Condition>
+  </QualityConditions>
+  <ForcedLowTextureQualityDevices ResetItemImageCacheValue="20" />
+</Root>

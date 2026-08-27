@@ -1,0 +1,48 @@
+using System.Collections.Generic;
+
+public class News
+{
+	private List<NewsItem> HOGDMAJCMJP = new List<NewsItem>();
+
+	public List<NewsItem> PMEBINFGHLH
+	{
+		get
+		{
+			return MEFNHIALOED();
+		}
+	}
+
+	public List<NewsItem> MEFNHIALOED()
+	{
+		return HOGDMAJCMJP;
+	}
+
+	public void Reset()
+	{
+		HOGDMAJCMJP.Clear();
+	}
+
+	public void EJDDCELLCBK(string name, string BEPKJNKCKPH, string MDDOAGNHAHE, int OKNNNLIPODI, bool HNJDHGDLLPD, long NKKKMPPEMKE, List<NewsButton> HJNAHNICGMH, string PEMOECLNECD = "", bool EIKKPDKMMHK = false, string KINPMPFPFHD = "", string EJENJNPEDOH = "")
+	{
+		NewsItem pONDDFBMFOO = HOGDMAJCMJP.Find((NewsItem DHDMNHCIPEH) => DHDMNHCIPEH.Id == OKNNNLIPODI);
+		if (pONDDFBMFOO != null)
+		{
+			HOGDMAJCMJP.Remove(pONDDFBMFOO);
+		}
+		pONDDFBMFOO = new NewsItem();
+		pONDDFBMFOO.Title = PEMOECLNECD;
+		pONDDFBMFOO.Name = name;
+		pONDDFBMFOO.Url = BEPKJNKCKPH;
+		pONDDFBMFOO.MDDOAGNHAHE = MDDOAGNHAHE;
+		pONDDFBMFOO.Id = OKNNNLIPODI;
+		pONDDFBMFOO.DCHJDPCEODD = HNJDHGDLLPD;
+		pONDDFBMFOO.EndDate = NKKKMPPEMKE;
+		pONDDFBMFOO.CIKJHDEGHGD = false;
+		pONDDFBMFOO.GAHGCJNGDMH = false;
+		pONDDFBMFOO.EGBHELMJJKO = EIKKPDKMMHK;
+		pONDDFBMFOO.COIGFENOMJD = KINPMPFPFHD;
+		pONDDFBMFOO.DHKDOHFKOOJ = HJNAHNICGMH;
+		pONDDFBMFOO.KJHMHHBJEDH = EJENJNPEDOH;
+		MEFNHIALOED().Add(pONDDFBMFOO);
+	}
+}

@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+ <Nodes>
+  <A28-Node22 Type="Node" X="-24.5599250793457" Y="19.6005477905273" Z="24.7795295715332" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node24 Type="Node" X="-13.3157548904419" Y="11.4259157180786" Z="24.9219970703125" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node25 Type="Node" X="-21.8735294342041" Y="46.6854400634766" Z="24.307092666626" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node26 Type="Node" X="-19.1870002746582" Y="73.7703857421875" Z="23.834644317627" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node45 Type="Node" X="12.7634429931641" Y="19.6005306243896" Z="24.7794895172119" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node46 Type="Node" X="1.51929092407227" Y="11.4259490966797" Z="24.9219608306885" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node47 Type="Node" X="-5.89831447601318" Y="1.55075454711914" Z="25.094202041626" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node48 Type="Node" X="7.39028596878052" Y="73.7703094482422" Z="23.8346462249756" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-Node49 Type="Node" X="10.0768661499023" Y="46.685417175293" Z="24.307092666626" Mass="0.001" Fixed="0" PinFixed="0" Visible="1" Collisible="0" Passive="0" Cloth="1" Rank="0" Attenuation="0.1" />
+  <A28-MacroNode1 Type="MacroNode" X="-6.30777406692505" Y="156.281555175781" Z="-19.6308345794678" Mass="0.00521843181923032" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="1.34638404846191" LCC2="-1.87445640563965" LCC3="1.33905577659607" LCC4="0.189016595482826" />
+  <A28-MacroNode2 Type="MacroNode" X="-19.830020904541" Y="155.711517333984" Z="-17.0277633666992" Mass="0.00567446136847138" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.627171874046326" LCC2="-1.65103018283844" LCC3="1.85198175907135" LCC4="0.171876415610313" />
+  <A28-MacroNode3 Type="MacroNode" X="-28.2668285369873" Y="170.869430541992" Z="-18.6916255950928" Mass="0.00490525318309665" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.0409749746322632" LCC2="-1.79544448852539" LCC3="2.01748108863831" LCC4="0.736988425254822" />
+  <A28-MacroNode4 Type="MacroNode" X="-12.6690502166748" Y="180.555801391602" Z="-20.2727546691895" Mass="0.00606906460598111" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.638075709342957" LCC2="-1.91518688201904" LCC3="1.18654274940491" LCC4="1.09056842327118" />
+  <A28-MacroNode5 Type="MacroNode" X="-22.9866638183594" Y="193.221389770508" Z="-17.14768409729" Mass="0.00658497819676995" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-0.205810904502869" LCC2="-1.62846744060516" LCC3="1.27208042144775" LCC4="1.56219804286957" />
+  <A28-MacroNode6 Type="MacroNode" X="-28.8056888580322" Y="196.6259765625" Z="-1.95003533363342" Mass="0.00991578213870525" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.22672188282013" LCC2="-0.249144285917282" LCC3="0.791402578353882" LCC4="1.68446362018585" />
+  <A28-MacroNode7 Type="MacroNode" X="-26.430477142334" Y="192.169662475586" Z="11.6424150466919" Mass="0.0074410242959857" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.65828800201416" LCC2="0.984294533729553" LCC3="0.160771861672401" LCC4="1.51322162151337" />
+  <A28-MacroNode8 Type="MacroNode" X="-18.3851776123047" Y="179.201782226563" Z="19.596887588501" Mass="0.00666859420016408" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.41804540157318" LCC2="1.70228099822998" LCC3="-0.311125040054321" LCC4="1.02688944339752" />
+  <A28-MacroNode9 Type="MacroNode" X="-38.7986640930176" Y="164.351333618164" Z="-17.5125255584717" Mass="0.00380210555158556" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-0.367707222700119" LCC2="-1.70443570613861" LCC3="2.57311606407166" LCC4="0.499026983976364" />
+  <A28-MacroNode10 Type="MacroNode" X="-48.6645965576172" Y="175.510452270508" Z="-14.6211261749268" Mass="0.00337648019194603" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.15255999565125" LCC2="-1.43999683856964" LCC3="2.67776441574097" LCC4="0.91479229927063" />
+  <A28-MacroNode11 Type="MacroNode" X="-54.8410720825195" Y="179.430847167969" Z="-3.95662713050842" Mass="0.00351500767283142" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.99190485477448" LCC2="-0.472567349672318" LCC3="2.40640091896057" LCC4="1.0580712556839" />
+  <A28-MacroNode12 Type="MacroNode" X="-51.9920921325684" Y="174.693939208984" Z="7.41848039627075" Mass="0.00393746746703982" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-2.29547691345215" LCC2="0.559486746788025" LCC3="1.85885798931122" LCC4="0.87713223695755" />
+  <A28-MacroNode13 Type="MacroNode" X="-44.4957656860352" Y="162.889541625977" Z="13.770622253418" Mass="0.00487894704565406" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-2.02834796905518" LCC2="1.13243889808655" LCC3="1.4611896276474" LCC4="0.434719502925873" />
+  <A28-MacroNode14 Type="MacroNode" X="-7.94485092163086" Y="162.262939453125" Z="25.2007389068604" Mass="0.00596952391788363" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-0.888472437858582" LCC2="2.20498108863831" LCC3="-0.71004593372345" LCC4="0.393537282943726" />
+  <A28-MacroNode15 Type="MacroNode" X="-31.8931903839111" Y="147.598068237305" Z="17.1380481719971" Mass="0.00759945856407285" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.32941293716431" LCC2="1.43546950817108" LCC3="1.03148984909058" LCC4="-0.137546360492706" />
+  <A28-MacroNode16 Type="MacroNode" X="-26.4762363433838" Y="150.94970703125" Z="20.9425468444824" Mass="0.00709869991987944" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.32088816165924" LCC2="1.7896124124527" LCC3="0.548191845417023" LCC4="-0.0169161558151245" />
+  <A28-MacroNode17 Type="MacroNode" X="-23.6175117492676" Y="152.700332641602" Z="21.9050979614258" Mass="0.00707536749541759" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.26825904846191" LCC2="1.8814789056778" LCC3="0.340298116207123" LCC4="0.0464820377528667" />
+  <A28-MacroNode18 Type="MacroNode" X="-17.8048610687256" Y="156.259582519531" Z="23.8618545532227" Mass="0.00659404788166285" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.16122436523438" LCC2="2.06823468208313" LCC3="-0.082389660179615" LCC4="0.175379276275635" />
+  <A28-MacroNode19 Type="MacroNode" X="0.0533528327941895" Y="180.555770874023" Z="-20.2727012634277" Mass="0.00609861267730594" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="1.21270799636841" LCC2="-1.90329194068909" LCC3="0.604712784290314" LCC4="1.08587121963501" />
+  <A28-MacroNode20 Type="MacroNode" X="15.6511135101318" Y="170.86930847168" Z="-18.6916465759277" Mass="0.00499164965003729" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="2.02462387084961" LCC2="-1.75440096855164" LCC3="0.00900371372699738" LCC4="0.720773458480835" />
+  <A28-MacroNode21 Type="MacroNode" X="7.21431255340576" Y="155.711441040039" Z="-17.0277614593506" Mass="0.00577272335067391" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="1.84868729114532" LCC2="-1.62575459480286" LCC3="0.615176022052765" LCC4="0.161891356110573" />
+  <A28-MacroNode22 Type="MacroNode" X="-6.30776643753052" Y="184.294815063477" Z="-20.6675510406494" Mass="0.00613796105608344" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.874082207679749" LCC2="-1.94149875640869" LCC3="0.840574383735657" LCC4="1.22684228420258" />
+  <A28-MacroNode23 Type="MacroNode" X="10.3711442947388" Y="193.22135925293" Z="-17.1476078033447" Mass="0.00661511532962322" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="1.30086183547974" LCC2="-1.59728455543518" LCC3="-0.253460347652435" LCC4="1.54988312721252" />
+  <A28-MacroNode24 Type="MacroNode" X="36.0490417480469" Y="175.510208129883" Z="-14.6211442947388" Mass="0.00342977070249617" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="2.67371368408203" LCC2="-1.36082565784454" LCC3="-1.19640326499939" LCC4="0.883515119552612" />
+  <A28-MacroNode25 Type="MacroNode" X="16.1900005340576" Y="196.625747680664" Z="-1.95000612735748" Mass="0.00973029062151909" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.805605173110962" LCC2="-0.207089096307755" LCC3="-1.26636338233948" LCC4="1.66784739494324" />
+  <A28-MacroNode26 Type="MacroNode" X="42.225528717041" Y="179.430480957031" Z="-3.95653176307678" Mass="0.00352232647128403" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="2.39231252670288" LCC2="-0.381841033697128" LCC3="-2.03270268440247" LCC4="1.02223098278046" />
+  <A28-MacroNode27 Type="MacroNode" X="13.8149881362915" Y="192.169509887695" Z="11.6424198150635" Mass="0.00726396171376109" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.159484386444092" LCC2="1.02190792560577" LCC3="-1.6797548532486" LCC4="1.49836254119873" />
+  <A28-MacroNode28 Type="MacroNode" X="39.3765869140625" Y="174.693756103516" Z="7.41848945617676" Mass="0.00390400551259518" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="1.83138298988342" LCC2="0.64488011598587" LCC3="-2.319664478302" LCC4="0.843401372432709" />
+  <A28-MacroNode29 Type="MacroNode" X="5.76971673965454" Y="179.201721191406" Z="19.596887588501" Mass="0.00658481568098068" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-0.327037930488586" LCC2="1.72485613822937" LCC3="-1.41578936576843" LCC4="1.01797115802765" />
+  <A28-MacroNode30 Type="MacroNode" X="31.8801002502441" Y="162.889343261719" Z="13.7706165313721" Mass="0.00484576402232051" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="1.42133176326752" LCC2="1.20381879806519" LCC3="-2.03167128562927" LCC4="0.40652072429657" />
+  <A28-MacroNode31 Type="MacroNode" X="-4.67077398300171" Y="162.262847900391" Z="25.2007522583008" Mass="0.00596271408721805" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-0.740591287612915" LCC2="2.20804214477539" LCC3="-0.859777092933655" LCC4="0.392326205968857" />
+  <A28-MacroNode32 Type="MacroNode" X="19.2777004241943" Y="147.597900390625" Z="17.1380424499512" Mass="0.00761813670396805" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.981830239295959" LCC2="1.48329281806946" LCC3="-1.3086838722229" LCC4="-0.156439200043678" />
+  <A28-MacroNode33 Type="MacroNode" X="26.1831188201904" Y="164.351119995117" Z="-17.5125465393066" Mass="0.00389032834209502" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="2.5673348903656" LCC2="-1.64370596408844" LCC3="-0.398663967847824" LCC4="0.475035041570663" />
+  <A28-MacroNode34 Type="MacroNode" X="2.06779956817627" Y="158.171051025391" Z="24.9129180908203" Mass="0.00612823199480772" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-0.347156286239624" LCC2="2.1842041015625" LCC3="-1.07546699047089" LCC4="0.238419190049171" />
+  <A28-MacroNode35 Type="MacroNode" X="-14.6832523345947" Y="158.171081542969" Z="24.9129180908203" Mass="0.00615826295688748" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-1.10375332832336" LCC2="2.16854858398438" LCC3="-0.309399098157883" LCC4="0.244603857398033" />
+  <A28-MacroNode36 Type="MacroNode" X="5.16539192199707" Y="156.274215698242" Z="23.8699417114258" Mass="0.00655228458344936" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="-0.124366208910942" LCC2="2.09045171737671" LCC3="-1.1335254907608" LCC4="0.167439982295036" />
+  <A28-MacroNode37 Type="MacroNode" X="13.8607473373413" Y="150.949584960938" Z="20.9425506591797" Mass="0.00706708477810025" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.501017808914185" LCC2="1.82731139659882" LCC3="-1.2965202331543" LCC4="-0.0318089984357357" />
+  <A28-MacroNode38 Type="MacroNode" X="10.9941921234131" Y="152.704925537109" Z="21.9076156616211" Mass="0.00703491549938917" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NChestS_1" ChildNode2="NChestF" ChildNode3="NChestS_2" ChildNode4="NNeck" LCC1="0.294850438833237" LCC2="1.91406011581421" LCC3="-1.24278664588928" LCC4="0.0338760875165462" />
+  <A28-MacroNode39 Type="MacroNode" X="-31.2373600006104" Y="121.913230895996" Z="6.76277589797974" Mass="0.0123530570417643" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.763583660125732" LCC2="0.512941956520081" LCC3="1.45443534851074" LCC4="-0.20379364490509" />
+  <A28-MacroNode40 Type="MacroNode" X="-21.70680809021" Y="124.320159912109" Z="-7.84606695175171" Mass="0.0106017356738448" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.266207486391068" LCC2="-0.827857375144958" LCC3="1.65005230903625" LCC4="-0.0884024202823639" />
+  <A28-MacroNode41 Type="MacroNode" X="-5.89831638336182" Y="124.885627746582" Z="-12.0053405761719" Mass="0.00888311862945557" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.16379714012146" LCC2="-1.23402619361877" LCC3="1.11996293067932" LCC4="-0.0497338399291039" />
+  <A28-MacroNode42 Type="MacroNode" X="-5.89831018447876" Y="118.940727233887" Z="25.5310611724854" Mass="0.00696171354502439" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.362044781446457" LCC2="2.16621923446655" LCC3="-0.487362086772919" LCC4="-0.316812366247177" />
+  <A28-MacroNode43 Type="MacroNode" X="-24.7911243438721" Y="119.830657958984" Z="21.1095218658447" Mass="0.00764529593288898" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.05466985702515" LCC2="1.80097055435181" LCC3="0.546769320964813" LCC4="-0.293070018291473" />
+  <A28-MacroNode44 Type="MacroNode" X="-31.2373657226563" Y="129.254776000977" Z="7.92567777633667" Mass="0.0126428250223398" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.974926471710205" LCC2="0.631937444210052" LCC3="1.25414431095123" LCC4="0.0888447389006615" />
+  <A28-MacroNode45 Type="MacroNode" X="-6.10311508178711" Y="132.218551635742" Z="-10.7797803878784" Mass="0.0120859816670418" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.940466642379761" LCC2="-1.10897374153137" LCC3="0.926160514354706" LCC4="0.242346525192261" />
+  <A28-MacroNode46 Type="MacroNode" X="-24.7911205291748" Y="127.172225952148" Z="22.272481918335" Mass="0.00670813210308552" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.26601588726044" LCC2="1.91997158527374" LCC3="0.346474409103394" LCC4="-0.000430149550084025" />
+  <A28-MacroNode47 Type="MacroNode" X="-26.762638092041" Y="120.172912597656" Z="6.48718929290771" Mass="0.0164614152163267" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.507851183414459" LCC2="0.476467341184616" LCC3="1.3009238243103" LCC4="-0.269540011882782" />
+  <A28-MacroNode48 Type="MacroNode" X="-20.6515979766846" Y="122.119201660156" Z="-5.2140736579895" Mass="0.0133567899465561" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.246605962514877" LCC2="-0.594625532627106" LCC3="1.52563083171844" LCC4="-0.177611321210861" />
+  <A28-MacroNode49 Type="MacroNode" X="-5.89831447601318" Y="122.493980407715" Z="-8.16872310638428" Mass="0.0127393761649728" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.04673433303833" LCC2="-0.889721810817719" LCC3="0.991353332996368" LCC4="-0.148365780711174" />
+  <A28-MacroNode50 Type="MacroNode" X="-20.6515998840332" Y="118.55086517334" Z="17.9261589050293" Mass="0.0115220826119184" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.696141600608826" LCC2="1.50171411037445" LCC3="0.532825708389282" LCC4="-0.33839824795723" />
+  <A28-MacroNode51 Type="MacroNode" X="19.4408893585205" Y="121.912948608398" Z="6.76277637481689" Mass="0.0111660724505782" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.56535387039185" LCC2="0.419235110282898" LCC3="-0.821830689907074" LCC4="-0.162758395075798" />
+  <A28-MacroNode52 Type="MacroNode" X="9.9101676940918" Y="124.319984436035" Z="-7.84606504440308" Mass="0.00972969923168421" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.71917736530304" LCC2="-0.886318862438202" LCC3="0.229943096637726" LCC4="-0.0628014877438545" />
+  <A28-MacroNode53 Type="MacroNode" X="6.84728574752808" Y="131.640243530273" Z="-7.89743328094482" Mass="0.0127825178205967" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.42109537124634" LCC2="-0.8720423579216" LCC3="0.223491311073303" LCC4="0.227455735206604" />
+  <A28-MacroNode54 Type="MacroNode" X="19.4408855438232" Y="129.254501342773" Z="7.92567920684814" Mass="0.0116531066596508" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.35401129722595" LCC2="0.53823059797287" LCC3="-1.02212178707123" LCC4="0.129879981279373" />
+  <A28-MacroNode55 Type="MacroNode" X="12.9944849014282" Y="119.830459594727" Z="21.1095333099365" Mass="0.00748773757368326" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.68178117275238" LCC2="1.73110389709473" LCC3="-1.15041089057922" LCC4="-0.262474209070206" />
+  <A28-MacroNode56 Type="MacroNode" X="12.9944868087769" Y="127.172027587891" Z="22.2724704742432" Mass="0.00664816377684474" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.470436334609985" LCC2="1.85010278224945" LCC3="-1.35070478916168" LCC4="0.0301656667143106" />
+  <A28-MacroNode57 Type="MacroNode" X="-5.89831066131592" Y="126.282104492188" Z="26.6939907073975" Mass="0.00598062807694077" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.573385179042816" LCC2="2.28521680831909" LCC3="-0.687651515007019" LCC4="-0.0241800900548697" />
+  <A28-MacroNode58 Type="MacroNode" X="14.9661636352539" Y="120.172668457031" Z="6.48719024658203" Mass="0.0146622778847814" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.40981125831604" LCC2="0.399308532476425" LCC3="-0.573368549346924" LCC4="-0.235751330852509" />
+  <A28-MacroNode59 Type="MacroNode" X="8.85512733459473" Y="122.119010925293" Z="-5.21409797668457" Mass="0.0121294502168894" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="1.60260021686554" LCC2="-0.649187386035919" LCC3="0.200307413935661" LCC4="-0.153720304369926" />
+  <A28-MacroNode60 Type="MacroNode" X="-5.89831161499023" Y="117.851501464844" Z="21.1431636810303" Mass="0.0107527729123831" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.144781053066254" LCC2="1.76550328731537" LCC3="-0.263791620731354" LCC4="-0.356930613517761" />
+  <A28-MacroNode61 Type="MacroNode" X="8.85513114929199" Y="118.550735473633" Z="17.9261608123779" Mass="0.0111389011144638" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.65985119342804" LCC2="1.44715464115143" LCC3="-0.792499780654907" LCC4="-0.314506024122238" />
+  <A28-MacroNode62 Type="MacroNode" X="-19.8299884796143" Y="98.9160919189453" Z="24.950267791748" Mass="0.00568341230973601" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.540099024772644" LCC2="2.10287094116211" LCC3="0.565547108650208" LCC4="-1.12831902503967" />
+  <A28-MacroNode63 Type="MacroNode" X="-6.30774879455566" Y="128.083999633789" Z="26.9707355499268" Mass="0.0057326452806592" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.643690586090088" LCC2="2.31439161300659" LCC3="-0.718021810054779" LCC4="0.0473207719624043" />
+  <A28-MacroNode64 Type="MacroNode" X="-19.8299961090088" Y="127.963279724121" Z="24.4436492919922" Mass="0.00626053055748343" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.15102589130402" LCC2="2.10953283309937" LCC3="0.00797414034605026" LCC4="0.0335189588367939" />
+  <A28-MacroNode65 Type="MacroNode" X="-28.5952835083008" Y="145.71647644043" Z="17.4192028045654" Mass="0.00644603185355663" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.63108587265015" LCC2="1.51961958408356" LCC3="0.369694769382477" LCC4="0.741771519184113" />
+  <A28-MacroNode66 Type="MacroNode" X="-19.4629669189453" Y="131.640380859375" Z="-7.89743375778198" Mass="0.0134532367810607" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.21199806034565" LCC2="-0.823393285274506" LCC3="1.40524351596832" LCC4="0.206151768565178" />
+  <A28-MacroNode67 Type="MacroNode" X="-21.452564239502" Y="149.966751098633" Z="21.9056243896484" Mass="0.00508924061432481" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.59336459636688" LCC2="1.92181646823883" LCC3="-0.242443040013313" LCC4="0.913991153240204" />
+  <A28-MacroNode68 Type="MacroNode" X="-15.8104763031006" Y="153.296844482422" Z="23.8846797943115" Mass="0.00443632761016488" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.49396300315857" LCC2="2.09726738929749" LCC3="-0.653469383716583" LCC4="1.05016493797302" />
+  <A28-MacroNode69 Type="MacroNode" X="-6.30774784088135" Y="89.6896057128906" Z="25.7838973999023" Mass="0.00520491693168879" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.245704412460327" LCC2="2.13688254356384" LCC3="0.104350455105305" LCC4="-1.48693740367889" />
+  <A28-MacroNode70 Type="MacroNode" X="7.21432685852051" Y="127.963150024414" Z="24.4436492919922" Mass="0.00634027412161231" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.0918059125542641" LCC2="2.05952644348145" LCC3="-1.20674967765808" LCC4="0.0554173216223717" />
+  <A28-MacroNode71 Type="MacroNode" X="7.21433782577515" Y="98.9159393310547" Z="24.9502658843994" Mass="0.00565242534503341" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.702732980251312" LCC2="2.05286455154419" LCC3="-0.649176895618439" LCC4="-1.10642063617706" />
+  <A28-MacroNode72 Type="MacroNode" X="15.97975730896" Y="145.716262817383" Z="17.4191913604736" Mass="0.00662160664796829" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.417377293109894" LCC2="1.43719673156738" LCC3="-1.63243889808655" LCC4="0.777864873409271" />
+  <A28-MacroNode73 Type="MacroNode" X="-6.30775356292725" Y="158.870880126953" Z="25.237398147583" Mass="0.0037524001672864" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.23844277858734" LCC2="2.21273446083069" LCC3="-1.25396966934204" LCC4="1.27967798709869" />
+  <A28-MacroNode74 Type="MacroNode" X="8.83703804016113" Y="149.966598510742" Z="21.9056148529053" Mass="0.00520295463502407" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.201394259929657" LCC2="1.86580836772919" LCC3="-1.60293138027191" LCC4="0.938517272472382" />
+  <A28-MacroNode75 Type="MacroNode" X="3.19497966766357" Y="153.296768188477" Z="23.8847007751465" Mass="0.00450056046247482" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.620561957359314" LCC2="2.06212735176086" LCC3="-1.50712072849274" LCC4="1.06555533409119" />
+  <A28-MacroNode76 Type="MacroNode" X="-6.30774593353271" Y="89.6614074707031" Z="28.5667781829834" Mass="0.00448747770860791" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.123586058616638" LCC2="2.38971924781799" LCC3="-0.0230645965784788" LCC4="-1.49024069309235" />
+  <A28-MacroNode77 Type="MacroNode" X="-6.30775213241577" Y="128.05598449707" Z="29.7537288665771" Mass="0.00456976424902678" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.765816688537598" LCC2="2.56723880767822" LCC3="-0.845444321632385" LCC4="0.0440221838653088" />
+  <A28-MacroNode78 Type="MacroNode" X="-24.5048885345459" Y="148.165435791016" Z="20.8348026275635" Mass="0.00537623791024089" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.64713740348816" LCC2="1.8268837928772" LCC3="-0.0200779121369123" LCC4="0.840331554412842" />
+  <A28-MacroNode79 Type="MacroNode" X="-12.5195941925049" Y="155.23893737793" Z="25.0391578674316" Mass="0.00403237994760275" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-1.43598508834839" LCC2="2.19961643218994" LCC3="-0.893211305141449" LCC4="1.12958002090454" />
+  <A28-MacroNode80 Type="MacroNode" X="-0.0959105491638184" Y="155.238891601563" Z="25.0391578674316" Mass="0.00407017255201936" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="-0.865050673484802" LCC2="2.17664432525635" LCC3="-1.4512345790863" LCC4="1.13964092731476" />
+  <A28-MacroNode81 Type="MacroNode" X="11.8892002105713" Y="148.165237426758" Z="20.8347759246826" Mass="0.00551313813775778" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NStomachS_1" ChildNode2="NStomachF" ChildNode3="NStomachS_2" ChildNode4="NChest" LCC1="0.0253674983978271" LCC2="1.75958669185638" LCC3="-1.65475487709045" LCC4="0.869800686836243" />
+  <A28-MacroNode82 Type="MacroNode" X="-31.2373447418213" Y="117.018432617188" Z="5.98755788803101" Mass="0.0423287265002728" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="-1.13788270950317" LCC2="0.435667186975479" LCC3="1.10094225406647" LCC4="0.601273238658905" />
+  <A28-MacroNode83 Type="MacroNode" X="-24.7911167144775" Y="119.425659179688" Z="-8.6213846206665" Mass="0.0317678935825825" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="-0.231481850147247" LCC2="-0.900213181972504" LCC3="1.43341958522797" LCC4="0.698275506496429" />
+  <A28-MacroNode84 Type="MacroNode" X="-5.89832639694214" Y="119.991371154785" Z="-12.7804927825928" Mass="0.0260638184845448" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="0.815027415752411" LCC2="-1.29627883434296" LCC3="0.766052067279816" LCC4="0.715199530124664" />
+  <A28-MacroNode85 Type="MacroNode" X="-5.89829397201538" Y="114.045547485352" Z="24.7557506561279" Mass="0.01374442409724" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="-0.755748510360718" LCC2="2.12056016921997" LCC3="-0.835845708847046" LCC4="0.471034020185471" />
+  <A28-MacroNode86 Type="MacroNode" X="-24.7910938262939" Y="114.935882568359" Z="20.3344669342041" Mass="0.0171139724552631" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="-1.44522964954376" LCC2="1.73549461364746" LCC3="0.195599675178528" LCC4="0.514135360717773" />
+  <A28-MacroNode87 Type="MacroNode" X="-33.8829460144043" Y="106.754402160645" Z="6.48214817047119" Mass="0.0427375324070454" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="-1.06653034687042" LCC2="0.491308808326721" LCC3="1.41915118694305" LCC4="0.156070381402969" />
+  <A28-MacroNode88 Type="MacroNode" X="-27.1672916412354" Y="107.823089599609" Z="-12.2970294952393" Mass="0.0221626684069633" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="0.0687869638204575" LCC2="-1.22282671928406" LCC3="1.96084082126617" LCC4="0.193198934197426" />
+  <A28-MacroNode89 Type="MacroNode" X="-5.89833974838257" Y="107.777503967285" Z="-17.1349258422852" Mass="0.0170093309134245" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="1.26828396320343" LCC2="-1.68231153488159" LCC3="1.23150527477264" LCC4="0.182522341609001" />
+  <A28-MacroNode90 Type="MacroNode" X="-25.1215038299561" Y="98.5793380737305" Z="21.4844093322754" Mass="0.017308883368969" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="-1.16883504390717" LCC2="1.85344099998474" LCC3="0.511837065219879" LCC4="-0.19644296169281" />
+  <A28-MacroNode91 Type="MacroNode" X="-16.5003814697266" Y="100.855209350586" Z="23.3622417449951" Mass="0.0164500344544649" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="-0.904240310192108" LCC2="2.01430678367615" LCC3="-0.0105116227641702" LCC4="-0.0995548516511917" />
+  <A28-MacroNode92 Type="MacroNode" X="12.9944534301758" Y="119.425415039063" Z="-8.62138557434082" Mass="0.0297591052949429" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="1.50953686237335" LCC2="-0.935305416584015" LCC3="-0.260333865880966" LCC4="0.686102271080017" />
+  <A28-MacroNode93 Type="MacroNode" X="19.4408645629883" Y="117.018188476563" Z="5.98754453659058" Mass="0.0405378043651581" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="1.19718074798584" LCC2="0.38860011100769" LCC3="-1.17072916030884" LCC4="0.584948301315308" />
+  <A28-MacroNode94 Type="MacroNode" X="22.0864486694336" Y="106.754150390625" Z="6.48214721679688" Mass="0.0405152402818203" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="1.51233005523682" LCC2="0.439328819513321" LCC3="-1.0897011756897" LCC4="0.13804230093956" />
+  <A28-MacroNode95 Type="MacroNode" X="15.3706121444702" Y="107.822952270508" Z="-12.2970066070557" Mass="0.0208008028566837" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="2.02877259254456" LCC2="-1.26233041286469" LCC3="0.0540589801967144" LCC4="0.179498881101608" />
+  <A28-MacroNode96 Type="MacroNode" X="12.9944839477539" Y="114.935684204102" Z="20.3344631195068" Mass="0.0172760877758265" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="0.295788884162903" LCC2="1.70040225982666" LCC3="-1.49815464019775" LCC4="0.501963496208191" />
+  <A28-MacroNode97 Type="MacroNode" X="4.70376491546631" Y="100.855117797852" Z="23.3622493743896" Mass="0.0165491495281458" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="0.0727665647864342" LCC2="1.99461495876312" LCC3="-0.960997521877289" LCC4="-0.106384001672268" />
+  <A28-MacroNode98 Type="MacroNode" X="13.3248748779297" Y="98.5791397094727" Z="21.4844074249268" Mass="0.0174446143209934" Fixed="0" Visible="1" NodesCount="4" ChildNode1="NHip_1" ChildNode2="NPelvisF" ChildNode3="NHip_2" ChildNode4="NStomach" LCC1="0.60263067483902" LCC2="1.81773495674133" LCC3="-1.21153795719147" LCC4="-0.208827689290047" />
+ </Nodes>
+ <Edges>
+  <A28-Edge131 Type="Edge" Length="27.2219524383545" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node25" End2="A28-Node26" />
+  <A28-Edge132 Type="Edge" Length="27.2218818664551" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node25" End2="A28-Node22" />
+  <A28-Edge133 Type="Edge" Length="27.2219524383545" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node49" End2="A28-Node48" />
+  <A28-Edge134 Type="Edge" Length="27.2219104766846" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node49" End2="A28-Node45" />
+  <A28-Edge135 Type="Edge" Length="13.9023408889771" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node46" End2="A28-Node45" />
+  <A28-Edge136 Type="Edge" Length="12.3519239425659" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node46" End2="A28-Node47" />
+  <A28-Edge137 Type="Edge" Length="14.8350467681885" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node46" End2="A28-Node24" />
+  <A28-Edge138 Type="Edge" Length="12.3517961502075" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node47" End2="A28-Node24" />
+  <A28-Edge139 Type="Edge" Length="13.9023790359497" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node24" End2="A28-Node22" />
+  <A28-Edge140 Type="Edge" Length="37.3233604431152" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node45" End2="A28-Node22" />
+  <A28-Edge141 Type="Edge" Length="31.950403213501" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node49" End2="A28-Node25" />
+  <A28-Edge142 Type="Edge" Length="26.5772857666016" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node48" End2="A28-Node26" />
+  <A28-Edge143 Type="Edge" Length="27.221830368042" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node48" End2="A28-MacroNode97" />
+  <A28-Edge144 Type="Edge" Length="36.1189270019531" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node26" End2="A28-MacroNode97" />
+  <A28-Edge145 Type="Edge" Length="27.2217998504639" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node26" End2="A28-MacroNode91" />
+  <A28-Edge146 Type="Edge" Length="39.8771781921387" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node49" End2="A28-Node26" />
+  <A28-Edge147 Type="Edge" Length="43.9718322753906" WithSign="0" Fixed="0" Visible="1" Collisible="0" SubNodesCount="0" End1="A28-Node22" End2="A28-Node49" />
+ </Edges>
+ <Figures>
+  <A28-Triangle1 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode39" Node2="A28-MacroNode40" Node3="A28-MacroNode66" />
+  <A28-Triangle10 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode48" Node2="A28-MacroNode40" Node3="A28-MacroNode39" />
+  <A28-Triangle100 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode1" Node2="A28-MacroNode21" Node3="A28-MacroNode20" />
+  <A28-Triangle101 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode20" Node2="A28-MacroNode19" Node3="A28-MacroNode1" />
+  <A28-Triangle102 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode1" Node2="A28-MacroNode19" Node3="A28-MacroNode22" />
+  <A28-Triangle103 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode19" Node2="A28-MacroNode20" Node3="A28-MacroNode24" />
+  <A28-Triangle104 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode24" Node2="A28-MacroNode23" Node3="A28-MacroNode19" />
+  <A28-Triangle105 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode23" Node2="A28-MacroNode24" Node3="A28-MacroNode26" />
+  <A28-Triangle106 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode26" Node2="A28-MacroNode25" Node3="A28-MacroNode23" />
+  <A28-Triangle107 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode25" Node2="A28-MacroNode26" Node3="A28-MacroNode28" />
+  <A28-Triangle108 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode28" Node2="A28-MacroNode27" Node3="A28-MacroNode25" />
+  <A28-Triangle109 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode27" Node2="A28-MacroNode28" Node3="A28-MacroNode30" />
+  <A28-Triangle11 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode40" Node2="A28-MacroNode48" Node3="A28-MacroNode49" />
+  <A28-Triangle110 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode30" Node2="A28-MacroNode29" Node3="A28-MacroNode27" />
+  <A28-Triangle111 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode34" Node2="A28-MacroNode31" Node3="A28-MacroNode29" />
+  <A28-Triangle112 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode24" Node2="A28-MacroNode20" Node3="A28-MacroNode33" />
+  <A28-Triangle113 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode38" Node2="A28-MacroNode37" Node3="A28-MacroNode81" />
+  <A28-Triangle114 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode81" Node2="A28-MacroNode74" Node3="A28-MacroNode38" />
+  <A28-Triangle115 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode34" Node2="A28-MacroNode36" Node3="A28-MacroNode75" />
+  <A28-Triangle116 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode75" Node2="A28-MacroNode80" Node3="A28-MacroNode34" />
+  <A28-Triangle117 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode21" Node2="A28-MacroNode1" Node3="A28-MacroNode45" />
+  <A28-Triangle118 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode45" Node2="A28-MacroNode53" Node3="A28-MacroNode21" />
+  <A28-Triangle119 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode69" Node2="A28-MacroNode62" Node3="A28-MacroNode76" />
+  <A28-Triangle12 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode49" Node2="A28-MacroNode41" Node3="A28-MacroNode40" />
+  <A28-Triangle120 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode64" Node2="A28-MacroNode63" Node3="A28-MacroNode77" />
+  <A28-Triangle121 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode63" Node2="A28-MacroNode70" Node3="A28-MacroNode77" />
+  <A28-Triangle122 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode71" Node2="A28-MacroNode69" Node3="A28-MacroNode76" />
+  <A28-Triangle123 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode8" Node2="A28-MacroNode14" Node3="A28-MacroNode35" />
+  <A28-Triangle124 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode18" Node2="A28-MacroNode17" Node3="A28-MacroNode13" />
+  <A28-Triangle125 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode13" Node2="A28-MacroNode8" Node3="A28-MacroNode18" />
+  <A28-Triangle126 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode16" Node2="A28-MacroNode15" Node3="A28-MacroNode13" />
+  <A28-Triangle127 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode13" Node2="A28-MacroNode17" Node3="A28-MacroNode16" />
+  <A28-Triangle128 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode64" Node2="A28-MacroNode65" Node3="A28-MacroNode78" />
+  <A28-Triangle129 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode64" Node2="A28-MacroNode67" Node3="A28-MacroNode68" />
+  <A28-Triangle13 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode42" Node2="A28-MacroNode60" Node3="A28-MacroNode50" />
+  <A28-Triangle130 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode68" Node2="A28-MacroNode63" Node3="A28-MacroNode64" />
+  <A28-Triangle131 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode63" Node2="A28-MacroNode68" Node3="A28-MacroNode79" />
+  <A28-Triangle132 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode64" Node2="A28-MacroNode78" Node3="A28-MacroNode67" />
+  <A28-Triangle133 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode63" Node2="A28-MacroNode73" Node3="A28-MacroNode80" />
+  <A28-Triangle134 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode63" Node2="A28-MacroNode80" Node3="A28-MacroNode75" />
+  <A28-Triangle135 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode70" Node2="A28-MacroNode63" Node3="A28-MacroNode75" />
+  <A28-Triangle136 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode75" Node2="A28-MacroNode74" Node3="A28-MacroNode70" />
+  <A28-Triangle137 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode70" Node2="A28-MacroNode74" Node3="A28-MacroNode81" />
+  <A28-Triangle138 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode29" Node2="A28-MacroNode36" Node3="A28-MacroNode34" />
+  <A28-Triangle139 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode30" Node2="A28-MacroNode38" Node3="A28-MacroNode36" />
+  <A28-Triangle14 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode50" Node2="A28-MacroNode43" Node3="A28-MacroNode42" />
+  <A28-Triangle140 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode36" Node2="A28-MacroNode29" Node3="A28-MacroNode30" />
+  <A28-Triangle141 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode30" Node2="A28-MacroNode32" Node3="A28-MacroNode37" />
+  <A28-Triangle142 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode30" Node2="A28-MacroNode37" Node3="A28-MacroNode38" />
+  <A28-Triangle143 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode13" Node2="A28-MacroNode9" Node3="A28-MacroNode10" />
+  <A28-Triangle144 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode13" Node2="A28-MacroNode12" Node3="A28-MacroNode10" />
+  <A28-Triangle145 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode11" Node2="A28-MacroNode12" Node3="A28-MacroNode10" />
+  <A28-Triangle146 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode24" Node2="A28-MacroNode26" Node3="A28-MacroNode28" />
+  <A28-Triangle147 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode30" Node2="A28-MacroNode24" Node3="A28-MacroNode28" />
+  <A28-Triangle148 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode30" Node2="A28-MacroNode33" Node3="A28-MacroNode24" />
+  <A28-Triangle15 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode43" Node2="A28-MacroNode50" Node3="A28-MacroNode47" />
+  <A28-Triangle16 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode47" Node2="A28-MacroNode39" Node3="A28-MacroNode43" />
+  <A28-Triangle17 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode83" Node2="A28-MacroNode82" Node3="A28-MacroNode87" />
+  <A28-Triangle18 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode87" Node2="A28-MacroNode88" Node3="A28-MacroNode83" />
+  <A28-Triangle19 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode84" Node2="A28-MacroNode83" Node3="A28-MacroNode88" />
+  <A28-Triangle2 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode66" Node2="A28-MacroNode44" Node3="A28-MacroNode39" />
+  <A28-Triangle20 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode88" Node2="A28-MacroNode89" Node3="A28-MacroNode84" />
+  <A28-Triangle21 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode86" Node2="A28-MacroNode85" Node3="A28-MacroNode91" />
+  <A28-Triangle22 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode91" Node2="A28-MacroNode90" Node3="A28-MacroNode86" />
+  <A28-Triangle23 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode87" Node2="A28-MacroNode82" Node3="A28-MacroNode86" />
+  <A28-Triangle24 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode86" Node2="A28-MacroNode90" Node3="A28-MacroNode87" />
+  <A28-Triangle25 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode82" Node2="A28-MacroNode83" Node3="A28-MacroNode48" />
+  <A28-Triangle26 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode48" Node2="A28-MacroNode47" Node3="A28-MacroNode82" />
+  <A28-Triangle27 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode83" Node2="A28-MacroNode84" Node3="A28-MacroNode49" />
+  <A28-Triangle28 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode49" Node2="A28-MacroNode48" Node3="A28-MacroNode83" />
+  <A28-Triangle29 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode85" Node2="A28-MacroNode86" Node3="A28-MacroNode50" />
+  <A28-Triangle3 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode40" Node2="A28-MacroNode41" Node3="A28-MacroNode45" />
+  <A28-Triangle30 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode50" Node2="A28-MacroNode60" Node3="A28-MacroNode85" />
+  <A28-Triangle31 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode86" Node2="A28-MacroNode82" Node3="A28-MacroNode47" />
+  <A28-Triangle32 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode47" Node2="A28-MacroNode50" Node3="A28-MacroNode86" />
+  <A28-Triangle33 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode85" Node2="A28-MacroNode97" Node3="A28-MacroNode91" />
+  <A28-Triangle34 Type="Triangle" DoubleSided="-1" Node1="A28-Node45" Node2="A28-Node46" Node3="A28-Node24" />
+  <A28-Triangle35 Type="Triangle" DoubleSided="-1" Node1="A28-Node24" Node2="A28-Node22" Node3="A28-Node45" />
+  <A28-Triangle36 Type="Triangle" DoubleSided="-1" Node1="A28-Node24" Node2="A28-Node46" Node3="A28-Node47" />
+  <A28-Triangle37 Type="Triangle" DoubleSided="-1" Node1="A28-Node26" Node2="A28-Node48" Node3="A28-Node49" />
+  <A28-Triangle38 Type="Triangle" DoubleSided="-1" Node1="A28-Node49" Node2="A28-Node25" Node3="A28-Node26" />
+  <A28-Triangle39 Type="Triangle" DoubleSided="-1" Node1="A28-Node25" Node2="A28-Node49" Node3="A28-Node45" />
+  <A28-Triangle4 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode45" Node2="A28-MacroNode66" Node3="A28-MacroNode40" />
+  <A28-Triangle40 Type="Triangle" DoubleSided="-1" Node1="A28-Node45" Node2="A28-Node22" Node3="A28-Node25" />
+  <A28-Triangle41 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode51" Node2="A28-MacroNode54" Node3="A28-MacroNode53" />
+  <A28-Triangle42 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode53" Node2="A28-MacroNode52" Node3="A28-MacroNode51" />
+  <A28-Triangle43 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode52" Node2="A28-MacroNode53" Node3="A28-MacroNode45" />
+  <A28-Triangle44 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode45" Node2="A28-MacroNode41" Node3="A28-MacroNode52" />
+  <A28-Triangle45 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode42" Node2="A28-MacroNode57" Node3="A28-MacroNode56" />
+  <A28-Triangle46 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode56" Node2="A28-MacroNode55" Node3="A28-MacroNode42" />
+  <A28-Triangle47 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode55" Node2="A28-MacroNode56" Node3="A28-MacroNode54" />
+  <A28-Triangle48 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode54" Node2="A28-MacroNode51" Node3="A28-MacroNode55" />
+  <A28-Triangle49 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode51" Node2="A28-MacroNode52" Node3="A28-MacroNode59" />
+  <A28-Triangle5 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode42" Node2="A28-MacroNode43" Node3="A28-MacroNode46" />
+  <A28-Triangle50 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode59" Node2="A28-MacroNode58" Node3="A28-MacroNode51" />
+  <A28-Triangle51 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode52" Node2="A28-MacroNode41" Node3="A28-MacroNode49" />
+  <A28-Triangle52 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode49" Node2="A28-MacroNode59" Node3="A28-MacroNode52" />
+  <A28-Triangle53 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode42" Node2="A28-MacroNode55" Node3="A28-MacroNode61" />
+  <A28-Triangle54 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode61" Node2="A28-MacroNode60" Node3="A28-MacroNode42" />
+  <A28-Triangle55 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode55" Node2="A28-MacroNode51" Node3="A28-MacroNode58" />
+  <A28-Triangle56 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode58" Node2="A28-MacroNode61" Node3="A28-MacroNode55" />
+  <A28-Triangle57 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode92" Node2="A28-MacroNode95" Node3="A28-MacroNode94" />
+  <A28-Triangle58 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode94" Node2="A28-MacroNode93" Node3="A28-MacroNode92" />
+  <A28-Triangle59 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode84" Node2="A28-MacroNode89" Node3="A28-MacroNode95" />
+  <A28-Triangle6 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode46" Node2="A28-MacroNode57" Node3="A28-MacroNode42" />
+  <A28-Triangle60 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode95" Node2="A28-MacroNode92" Node3="A28-MacroNode84" />
+  <A28-Triangle61 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode96" Node2="A28-MacroNode98" Node3="A28-MacroNode97" />
+  <A28-Triangle62 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode97" Node2="A28-MacroNode85" Node3="A28-MacroNode96" />
+  <A28-Triangle63 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode96" Node2="A28-MacroNode93" Node3="A28-MacroNode94" />
+  <A28-Triangle64 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode94" Node2="A28-MacroNode98" Node3="A28-MacroNode96" />
+  <A28-Triangle65 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode93" Node2="A28-MacroNode58" Node3="A28-MacroNode59" />
+  <A28-Triangle66 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode59" Node2="A28-MacroNode92" Node3="A28-MacroNode93" />
+  <A28-Triangle67 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode92" Node2="A28-MacroNode59" Node3="A28-MacroNode49" />
+  <A28-Triangle68 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode49" Node2="A28-MacroNode84" Node3="A28-MacroNode92" />
+  <A28-Triangle69 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode85" Node2="A28-MacroNode60" Node3="A28-MacroNode61" />
+  <A28-Triangle7 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode43" Node2="A28-MacroNode39" Node3="A28-MacroNode44" />
+  <A28-Triangle70 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode61" Node2="A28-MacroNode96" Node3="A28-MacroNode85" />
+  <A28-Triangle71 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode96" Node2="A28-MacroNode61" Node3="A28-MacroNode58" />
+  <A28-Triangle72 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode58" Node2="A28-MacroNode93" Node3="A28-MacroNode96" />
+  <A28-Triangle73 Type="Triangle" DoubleSided="-1" Node1="A28-Node48" Node2="A28-Node26" Node3="A28-MacroNode91" />
+  <A28-Triangle74 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode91" Node2="A28-MacroNode97" Node3="A28-Node48" />
+  <A28-Triangle75 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode77" Node2="A28-MacroNode76" Node3="A28-MacroNode64" />
+  <A28-Triangle76 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode76" Node2="A28-MacroNode62" Node3="A28-MacroNode64" />
+  <A28-Triangle77 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode79" Node2="A28-MacroNode73" Node3="A28-MacroNode63" />
+  <A28-Triangle78 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode1" Node2="A28-MacroNode4" Node3="A28-MacroNode3" />
+  <A28-Triangle79 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode3" Node2="A28-MacroNode2" Node3="A28-MacroNode1" />
+  <A28-Triangle8 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode44" Node2="A28-MacroNode46" Node3="A28-MacroNode43" />
+  <A28-Triangle80 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode1" Node2="A28-MacroNode22" Node3="A28-MacroNode4" />
+  <A28-Triangle81 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode4" Node2="A28-MacroNode5" Node3="A28-MacroNode10" />
+  <A28-Triangle82 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode10" Node2="A28-MacroNode3" Node3="A28-MacroNode4" />
+  <A28-Triangle83 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode5" Node2="A28-MacroNode6" Node3="A28-MacroNode11" />
+  <A28-Triangle84 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode11" Node2="A28-MacroNode10" Node3="A28-MacroNode5" />
+  <A28-Triangle85 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode6" Node2="A28-MacroNode7" Node3="A28-MacroNode12" />
+  <A28-Triangle86 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode12" Node2="A28-MacroNode11" Node3="A28-MacroNode6" />
+  <A28-Triangle87 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode7" Node2="A28-MacroNode8" Node3="A28-MacroNode13" />
+  <A28-Triangle88 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode13" Node2="A28-MacroNode12" Node3="A28-MacroNode7" />
+  <A28-Triangle89 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode8" Node2="A28-MacroNode35" Node3="A28-MacroNode18" />
+  <A28-Triangle9 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode39" Node2="A28-MacroNode47" Node3="A28-MacroNode48" />
+  <A28-Triangle90 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode10" Node2="A28-MacroNode9" Node3="A28-MacroNode3" />
+  <A28-Triangle91 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode17" Node2="A28-MacroNode67" Node3="A28-MacroNode78" />
+  <A28-Triangle92 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode78" Node2="A28-MacroNode16" Node3="A28-MacroNode17" />
+  <A28-Triangle93 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode35" Node2="A28-MacroNode79" Node3="A28-MacroNode68" />
+  <A28-Triangle94 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode68" Node2="A28-MacroNode18" Node3="A28-MacroNode35" />
+  <A28-Triangle95 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode45" Node2="A28-MacroNode1" Node3="A28-MacroNode2" />
+  <A28-Triangle96 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode2" Node2="A28-MacroNode66" Node3="A28-MacroNode45" />
+  <A28-Triangle97 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode77" Node2="A28-MacroNode70" Node3="A28-MacroNode76" />
+  <A28-Triangle98 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode76" Node2="A28-MacroNode70" Node3="A28-MacroNode71" />
+  <A28-Triangle99 Type="Triangle" DoubleSided="-1" Node1="A28-MacroNode70" Node2="A28-MacroNode81" Node3="A28-MacroNode72" />
+  <Capsule-1_EArm_1 Type="Capsule" Edge="EArm_1" Radius1="12" Radius2="12" Margin1="0.5" Margin2="0" />
+  <Capsule-1_EArm_2 Type="Capsule" Edge="EArm_2" Radius1="12" Radius2="12" Margin1="0.5" Margin2="0" />
+  <Capsule-1_ECalf_1 Type="Capsule" Edge="ECalf_1" Radius1="12" Radius2="12" Margin1="0.5" Margin2="0" />
+  <Capsule-1_ECalf_2 Type="Capsule" Edge="ECalf_2" Radius1="12" Radius2="12" Margin1="0.5" Margin2="0" />
+  <Capsule-1_EForearm_1 Type="Capsule" Edge="EForearm_1" Radius1="9" Radius2="9" Margin1="0.5" Margin2="0" />
+  <Capsule-1_EForearm_2 Type="Capsule" Edge="EForearm_2" Radius1="9" Radius2="9" Margin1="0.5" Margin2="0" />
+  <Capsule-1_EThigh_1 Type="Capsule" Edge="EThigh_1" Radius1="15" Radius2="15" Margin1="0.400000005960464" Margin2="0" />
+  <Capsule-1_EThigh_2 Type="Capsule" Edge="EThigh_2" Radius1="15" Radius2="15" Margin1="0.400000005960464" Margin2="0" />
+  <Capsule_EArm_1 Type="Capsule" Edge="EArm_1" Radius1="9" Radius2="9" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_EArm_2 Type="Capsule" Edge="EArm_2" Radius1="9" Radius2="9" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_ECalf_1 Type="Capsule" Edge="ECalf_1" Radius1="8" Radius2="8" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_ECalf_2 Type="Capsule" Edge="ECalf_2" Radius1="8" Radius2="8" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_EChest Type="Capsule" Edge="EChest" Radius1="18" Radius2="18" Margin1="0.200000002980232" Margin2="0" />
+  <Capsule_EClavicle_1 Type="Capsule" Edge="EClavicle_1" Radius1="12" Radius2="12" Margin1="0" Margin2="0" />
+  <Capsule_EClavicle_2 Type="Capsule" Edge="EClavicle_2" Radius1="12" Radius2="12" Margin1="0" Margin2="0" />
+  <Capsule_Edge12_1 Type="Capsule" Edge="Edge12_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge12_2 Type="Capsule" Edge="Edge12_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge16_1 Type="Capsule" Edge="Edge16_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge16_2 Type="Capsule" Edge="Edge16_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge17_1 Type="Capsule" Edge="Edge17_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge17_2 Type="Capsule" Edge="Edge17_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge19_1 Type="Capsule" Edge="Edge19_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge19_2 Type="Capsule" Edge="Edge19_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge20_1 Type="Capsule" Edge="Edge20_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge20_2 Type="Capsule" Edge="Edge20_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge21_1 Type="Capsule" Edge="Edge21_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge21_2 Type="Capsule" Edge="Edge21_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge22_1 Type="Capsule" Edge="Edge22_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge22_2 Type="Capsule" Edge="Edge22_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge23_1 Type="Capsule" Edge="Edge23_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge23_2 Type="Capsule" Edge="Edge23_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge24_1 Type="Capsule" Edge="Edge24_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge24_2 Type="Capsule" Edge="Edge24_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge25_1 Type="Capsule" Edge="Edge25_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge25_2 Type="Capsule" Edge="Edge25_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge26_1 Type="Capsule" Edge="Edge26_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge26_2 Type="Capsule" Edge="Edge26_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge27_1 Type="Capsule" Edge="Edge27_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge27_2 Type="Capsule" Edge="Edge27_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge7_1 Type="Capsule" Edge="Edge7_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge7_2 Type="Capsule" Edge="Edge7_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge9_1 Type="Capsule" Edge="Edge9_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_Edge9_2 Type="Capsule" Edge="Edge9_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_EFingersS_1 Type="Capsule" Edge="EFingersS_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_EFingersS_2 Type="Capsule" Edge="EFingersS_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_EFingers_1 Type="Capsule" Edge="EFingers_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_EFingers_2 Type="Capsule" Edge="EFingers_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_EFootS_1 Type="Capsule" Edge="EFootS_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EFootS_2 Type="Capsule" Edge="EFootS_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EFoot_1 Type="Capsule" Edge="EFoot_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EFoot_2 Type="Capsule" Edge="EFoot_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EForearm_1 Type="Capsule" Edge="EForearm_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_EForearm_2 Type="Capsule" Edge="EForearm_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_EGroin Type="Capsule" Edge="EGroin" Radius1="15" Radius2="15" Margin1="0" Margin2="0" />
+  <Capsule_EHandC_1 Type="Capsule" Edge="EHandC_1" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_EHandC_2 Type="Capsule" Edge="EHandC_2" Radius1="5" Radius2="5" Margin1="0" Margin2="0" />
+  <Capsule_EHandS_1 Type="Capsule" Edge="EHandS_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EHandS_2 Type="Capsule" Edge="EHandS_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EHand_1 Type="Capsule" Edge="EHand_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EHand_2 Type="Capsule" Edge="EHand_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EHeel_2 Type="Capsule" Edge="EHeel_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EHeep_1 Type="Capsule" Edge="EHeep_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EInstepS_1 Type="Capsule" Edge="EInstepS_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EInstepS_2 Type="Capsule" Edge="EInstepS_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EInstep_1 Type="Capsule" Edge="EInstep_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EInstep_2 Type="Capsule" Edge="EInstep_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EPelvisM Type="Capsule" Edge="EPelvisM" Radius1="13" Radius2="13" Margin1="0" Margin2="0" />
+  <Capsule_EStomach Type="Capsule" Edge="EStomach" Radius1="18" Radius2="18" Margin1="0" Margin2="0" />
+  <Capsule_EThigh_1 Type="Capsule" Edge="EThigh_1" Radius1="12" Radius2="12" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_EThigh_2 Type="Capsule" Edge="EThigh_2" Radius1="12" Radius2="12" Margin1="0" Margin2="0.699999988079071" />
+  <Capsule_EToeC_1 Type="Capsule" Edge="EToeC_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EToeC_2 Type="Capsule" Edge="EToeC_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EToeS_1 Type="Capsule" Edge="EToeS_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EToeS_2 Type="Capsule" Edge="EToeS_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EToe_1 Type="Capsule" Edge="EToe_1" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_EToe_2 Type="Capsule" Edge="EToe_2" Radius1="4" Radius2="4" Margin1="0" Margin2="0" />
+  <Capsule_Muscle115 Type="Capsule" Edge="Muscle115" Radius1="12" Radius2="12" Margin1="0" Margin2="0" />
+  <Capsule_Muscle116 Type="Capsule" Edge="Muscle116" Radius1="12" Radius2="12" Margin1="0" Margin2="0" />
+  <Capsule_Muscle117 Type="Capsule" Edge="Muscle117" Radius1="10" Radius2="10" Margin1="0" Margin2="0" />
+  <Capsule_Muscle118 Type="Capsule" Edge="Muscle118" Radius1="12" Radius2="12" Margin1="0" Margin2="0" />
+  <Capsule_Muscle119 Type="Capsule" Edge="Muscle119" Radius1="12" Radius2="12" Margin1="0" Margin2="0" />
+  <Capsule_Muscle120 Type="Capsule" Edge="Muscle120" Radius1="10" Radius2="10" Margin1="0" Margin2="0" />
+  <Triangle-1 Type="Triangle" DoubleSided="0" Node1="NHeel_2" Node2="NToe_2" Node3="NAnkle_2" />
+  <Triangle-2 Type="Triangle" DoubleSided="0" Node1="NHeel_1" Node2="NToe_1" Node3="NAnkle_1" />
+  <Triangle-3 Type="Triangle" DoubleSided="0" Node1="NHeel_2" Node2="NToeS_2" Node3="NToe_2" />
+  <Triangle-4 Type="Triangle" DoubleSided="0" Node1="NFingertipsSS_2" Node2="NFingertipsS_2" Node3="NFingertips_2" />
+  <Triangle-5 Type="Triangle" DoubleSided="0" Node1="NToeS_2" Node2="NToe_2" Node3="NAnkle_2" />
+  <Triangle-6 Type="Triangle" DoubleSided="0" Node1="NToeS_1" Node2="NToe_1" Node3="NHeel_1" />
+ </Figures>
+</Scene>

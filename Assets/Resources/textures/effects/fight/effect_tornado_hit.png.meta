@@ -1,0 +1,788 @@
+fileFormatVersion: 2
+guid: 2422c0e4c4e77234fbc8051ff5058dfc
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2725196145366065351
+    second: effect_tornado_hit_1
+  - first:
+      213: 5639322499270145026
+    second: effect_tornado_hit_10
+  - first:
+      213: 7757593717321117344
+    second: effect_tornado_hit_11
+  - first:
+      213: -1193142225120678802
+    second: effect_tornado_hit_12
+  - first:
+      213: 8026707571832622662
+    second: effect_tornado_hit_13
+  - first:
+      213: -7743016756538884008
+    second: effect_tornado_hit_14
+  - first:
+      213: 5029933787729743531
+    second: effect_tornado_hit_15
+  - first:
+      213: 1380403036845494528
+    second: effect_tornado_hit_16
+  - first:
+      213: 8079740014716370450
+    second: effect_tornado_hit_17
+  - first:
+      213: 5902687533201919909
+    second: effect_tornado_hit_18
+  - first:
+      213: -3903489246062441374
+    second: effect_tornado_hit_19
+  - first:
+      213: -5970188008952370337
+    second: effect_tornado_hit_2
+  - first:
+      213: 3902261617169157918
+    second: effect_tornado_hit_20
+  - first:
+      213: -2197878572417522023
+    second: effect_tornado_hit_21
+  - first:
+      213: 5316567871672023897
+    second: effect_tornado_hit_22
+  - first:
+      213: 745920490460889655
+    second: effect_tornado_hit_23
+  - first:
+      213: 4545165966467503059
+    second: effect_tornado_hit_24
+  - first:
+      213: -4769797442948622337
+    second: effect_tornado_hit_25
+  - first:
+      213: -498163689442866508
+    second: effect_tornado_hit_26
+  - first:
+      213: 919387274684878275
+    second: effect_tornado_hit_27
+  - first:
+      213: 4949639738100435406
+    second: effect_tornado_hit_28
+  - first:
+      213: 8561630372154298722
+    second: effect_tornado_hit_3
+  - first:
+      213: -4982974647297514390
+    second: effect_tornado_hit_4
+  - first:
+      213: 6852422332669051109
+    second: effect_tornado_hit_5
+  - first:
+      213: -1370573958536022294
+    second: effect_tornado_hit_6
+  - first:
+      213: 3421804109553062350
+    second: effect_tornado_hit_7
+  - first:
+      213: -8038815456550312392
+    second: effect_tornado_hit_8
+  - first:
+      213: -4878972658907958038
+    second: effect_tornado_hit_9
+  - first:
+      213: 5422979758119682822
+    second: effect_tornado_hit_29
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 47
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 1
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: effect_tornado_hit_1
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 446
+        width: 31
+        height: 313
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93f11346b882e2ad0800000000000000
+      internalID: -2725196145366065351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_10
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 1201
+        width: 87
+        height: 845
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2047dd64fe5e24e40800000000000000
+      internalID: 5639322499270145026
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_11
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 1355
+        width: 87
+        height: 691
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ae2ab8626288ab60800000000000000
+      internalID: 7757593717321117344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_12
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 1355
+        width: 87
+        height: 691
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6ca921c77b117fe0800000000000000
+      internalID: -1193142225120678802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_13
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 1355
+        width: 87
+        height: 691
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64e850f5208946f60800000000000000
+      internalID: 8026707571832622662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_14
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 1355
+        width: 87
+        height: 691
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8504a90c8474b8490800000000000000
+      internalID: -7743016756538884008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_15
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 598
+        width: 87
+        height: 601
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: baecd55512aedc540800000000000000
+      internalID: 5029933787729743531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_16
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 598
+        width: 87
+        height: 601
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 001db029f3d282310800000000000000
+      internalID: 1380403036845494528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_17
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 7
+        width: 75
+        height: 589
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 21ebdae2cb0012070800000000000000
+      internalID: 8079740014716370450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_18
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 7
+        width: 75
+        height: 589
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5af80a4a90f8ae150800000000000000
+      internalID: 5902687533201919909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_19
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 21
+        width: 79
+        height: 575
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26c04e7563504d9c0800000000000000
+      internalID: -3903489246062441374
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_2
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 446
+        width: 31
+        height: 313
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5be81423a1a52da0800000000000000
+      internalID: -5970188008952370337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_20
+      rect:
+        serializedVersion: 2
+        x: 79
+        y: 21
+        width: 79
+        height: 575
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1f4208044e972630800000000000000
+      internalID: 3902261617169157918
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_21
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 1475
+        width: 73
+        height: 571
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9966c9f45119f71e0800000000000000
+      internalID: -2197878572417522023
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_22
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 1475
+        width: 73
+        height: 571
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95bf3479f4e38c940800000000000000
+      internalID: 5316567871672023897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_23
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 1086
+        width: 57
+        height: 387
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7324b98ebba0a5a00800000000000000
+      internalID: 745920490460889655
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_24
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 1086
+        width: 57
+        height: 387
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d39d7c7d5ca31f30800000000000000
+      internalID: 4545165966467503059
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_25
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 761
+        width: 47
+        height: 323
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff71b724f764ecdb0800000000000000
+      internalID: -4769797442948622337
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_26
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 761
+        width: 47
+        height: 323
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ba82ca83ca2619f0800000000000000
+      internalID: -498163689442866508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_27
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 805
+        width: 21
+        height: 279
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3cd4b9eead152cc00800000000000000
+      internalID: 919387274684878275
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_28
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 805
+        width: 21
+        height: 279
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec942a31e17a0b440800000000000000
+      internalID: 4949639738100435406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_3
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 684
+        width: 87
+        height: 669
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 261d376467501d670800000000000000
+      internalID: 8561630372154298722
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_4
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 684
+        width: 87
+        height: 669
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a64ed0f85fae8dab0800000000000000
+      internalID: -4982974647297514390
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_5
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 684
+        width: 87
+        height: 669
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e041bd4ec1b81f50800000000000000
+      internalID: 6852422332669051109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_6
+      rect:
+        serializedVersion: 2
+        x: 91
+        y: 684
+        width: 87
+        height: 669
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae63f0f0f3ebafce0800000000000000
+      internalID: -1370573958536022294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_7
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 1201
+        width: 87
+        height: 845
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec1d1e845b0bc7f20800000000000000
+      internalID: 3421804109553062350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_8
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 1201
+        width: 87
+        height: 845
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83626690fe3607090800000000000000
+      internalID: -8038815456550312392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_9
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 1201
+        width: 87
+        height: 845
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae4b2f477386a4cb0800000000000000
+      internalID: -4878972658907958038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_tornado_hit_29
+      rect:
+        serializedVersion: 2
+        x: 1
+        y: 2046
+        width: 1
+        height: 1
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6038bda9b5b424b40800000000000000
+      internalID: 5422979758119682822
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

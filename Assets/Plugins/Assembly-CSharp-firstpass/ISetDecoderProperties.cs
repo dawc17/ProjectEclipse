@@ -1,0 +1,4 @@
+public interface ISetDecoderProperties
+{
+	void SetDecoderProperties(byte[] properties);
+}

@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" >
+    <Image X="0" Y="-50" ClassName="background_1" Width="1200" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.15" >
+    <Image X="0" Y="-45" ClassName="layer1_1" Width="1300" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.15" >
+    <Image X="-146.243" Y="13.248" ClassName="light" Width="108.540" Height="114.604" />
+    <Image X="-150.738" Y="27.730" ClassName="lamp1" Width="30.380" Height="74.538" />
+    <Image X="31" Y="-15" ClassName="layer_3" Width="922" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.25" >
+    <Image X="-352" Y="46" ClassName="layer2_1" Width="420" Height="270" />
+    <Image X="312" Y="-75" ClassName="layer2_2" Width="500" Height="512" />
+    <Image X="-396" Y="71.5" ClassName="lamp2" Width="59" Height="153" />
+    <Image X="316" Y="71.5" ClassName="lamp2" Width="59" Height="153" />
+    <SimpleEffect X="-387.334" Y="40" ClassName="light2" Type="Picture" PictureLocation="local" Width="211.993" Height="224.806">
+      <Transparency Offset="0.5">
+        <Point Period="0.5" Value="82" Ease="-1" />
+        <Point Period="0.7" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="322.665" Y="40" ClassName="light2" Type="Picture" PictureLocation="local" Width="211.993" Height="224.806">
+      <Transparency Offset="0.1">
+        <Point Period="0.5" Value="82" Ease="-1" />
+        <Point Period="0.7" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.25" >
+    <Image X="-396" Y="33.5" ClassName="lamp3" Width="59" Height="77" />
+    <Image X="316" Y="33.5" ClassName="lamp3" Width="59" Height="77" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1"  Scaling="1">
+    <Image X="-724.56" Y="-120" ClassName="left" Width="570.88" Height="680" />
+    <Image X="724.56" Y="-120" ClassName="right" Width="570.88" Height="680" />
+    <Image X="-768" Y="138" ClassName="floor" Width="256" Height="170" />
+    <Image X="-512" Y="138" ClassName="floor" Width="256" Height="170" />
+    <Image X="-256" Y="138" ClassName="floor" Width="256" Height="170" />
+    <Image X="0" Y="138" ClassName="floor" Width="256" Height="170" />
+    <Image X="256" Y="138" ClassName="floor" Width="256" Height="170" />
+    <Image X="512" Y="138" ClassName="floor" Width="256" Height="170" />
+    <Image X="768" Y="138" ClassName="floor" Width="256" Height="170" />
+    <Image X="0" Y="450" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1" />
+  </Layer>
+</Root>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <TitanBody_MacroNode1_1 Type="MacroNode"  X="238.499969482422"  Y="270.999938964844"  Z="120.499984741211"  Mass="0.0142048159614205"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="0.94096314907074"  LCC2="0.330393970012665"  LCC3="-1.82338166236877"  LCC4="1.55202448368073"  MC1="0.0878873914480209"  MC2="0.0518720522522926"  MC3="-0.286272019147873"  MC4="0.243668764829636" />
+    <TitanBody_MacroNode1_2 Type="MacroNode"  X="201.000106811523"  Y="270.999908447266"  Z="119.500015258789"  Mass="0.0133875533938408"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="0.933863878250122"  LCC2="1.65870654582977"  LCC3="-1.84984111785889"  LCC4="0.257270663976669"  MC1="0.0822059363126755"  MC2="0.245434999465942"  MC3="-0.273716747760773"  MC4="0.0380677469074726" />
+    <TitanBody_MacroNode3_1 Type="MacroNode"  X="260.499938964844"  Y="241"  Z="112.460723876953"  Mass="0.00594170857220888"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="0.0915515422821045"  LCC2="0.282298922538757"  LCC3="-2.42065811157227"  LCC4="3.04680752754211"  MC1="0.00357680604793131"  MC2="0.018538998439908"  MC3="-0.158968284726143"  MC4="0.20008847117424" />
+    <TitanBody_MacroNode3_2 Type="MacroNode"  X="178.999984741211"  Y="240.999923706055"  Z="111.46076965332"  Mass="0.00581339094787836"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="0.0759767144918442"  LCC2="3.12753915786743"  LCC3="-2.39611744880676"  LCC4="0.192601576447487"  MC1="0.0029042128007859"  MC2="0.200954616069794"  MC3="-0.153958380222321"  MC4="0.0123752811923623" />
+    <TitanBody_MacroNode4_1 Type="MacroNode"  X="260.500091552734"  Y="217.000061035156"  Z="120.022003173828"  Mass="0.00655894074589014"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="-0.593141317367554"  LCC2="0.354123204946518"  LCC3="-1.89962208271027"  LCC4="3.13864016532898"  MC1="-0.0255805719643831"  MC2="0.0256716497242451"  MC3="-0.137710362672806"  MC4="0.227531179785728" />
+    <TitanBody_MacroNode4_2 Type="MacroNode"  X="179.000076293945"  Y="217.000030517578"  Z="119.021942138672"  Mass="0.00643809419125319"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="-0.608714699745178"  LCC2="3.19936871528625"  LCC3="-1.87508893013"  LCC4="0.284434914588928"  MC1="-0.0257685203105211"  MC2="0.227660313248634"  MC3="-0.133427366614342"  MC4="0.0202397871762514" />
+    <TitanBody_MacroNode2_1 Type="MacroNode"  X="251.500061035156"  Y="262.000122070313"  Z="114.5"  Mass="0.00824970472604036"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="0.687831163406372"  LCC2="0.222626656293869"  LCC3="-2.26089286804199"  LCC4="2.35043501853943"  MC1="0.0373111478984356"  MC2="0.0202993098646402"  MC3="-0.206150352954865"  MC4="0.214314892888069" />
+    <TitanBody_MacroNode2_2 Type="MacroNode"  X="188.000061035156"  Y="262"  Z="113.500015258789"  Mass="0.00795465148985386"  Fixed="1"  Visible="1"  Selectable="1"  Rank="0"  NodesCount="4"  ChildNode1="NNeck"  ChildNode2="NChestS_2"  ChildNode3="NChestF"  ChildNode4="NChestS_1"  LCC1="0.675722539424896"  LCC2="2.44730925559998"  LCC3="-2.25721764564514"  LCC4="0.134185865521431"  MC1="0.0353433676064014"  MC2="0.215167030692101"  MC3="-0.198454201221466"  MC4="0.0117975994944572" />
+    <TitanBody_Node1 Type="Node"  X="251.540130615234"  Y="205.67268371582"  Z="133.184234619141"  Mass="0.05"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+    <TitanBody_Node2 Type="Node"  X="188.967071533203"  Y="205.758514404297"  Z="134.419281005859"  Mass="0.05"  Fixed="0"  PinFixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Passive="0"  Cloth="1"  Rank="0" />
+  </Nodes>
+  <Edges>
+    <TitanBody_Edge1_1 Type="Edge"  Length="16.9115028381348"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_MacroNode2_1"  Node2="TitanBody_MacroNode1_1"  Force="-548.616760253906"  SubNodesCount="0"  Width="1"  End1="TitanBody_MacroNode2_1"  End2="TitanBody_MacroNode1_1" />
+    <TitanBody_Edge1_2 Type="Edge"  Length="16.9115219116211"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_MacroNode2_2"  Node2="TitanBody_MacroNode1_2"  Force="-548.617309570313"  SubNodesCount="0"  Width="1"  End1="TitanBody_MacroNode2_2"  End2="TitanBody_MacroNode1_2" />
+    <TitanBody_Edge2_1 Type="Edge"  Length="22.93821144104"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_MacroNode3_1"  Node2="TitanBody_MacroNode2_1"  Force="-268.550445556641"  SubNodesCount="0"  Width="1"  End1="TitanBody_MacroNode3_1"  End2="TitanBody_MacroNode2_1" />
+    <TitanBody_Edge2_2 Type="Edge"  Length="22.9382457733154"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_MacroNode3_2"  Node2="TitanBody_MacroNode2_2"  Force="-268.545837402344"  SubNodesCount="0"  Width="1"  End1="TitanBody_MacroNode3_2"  End2="TitanBody_MacroNode2_2" />
+    <TitanBody_Edge3_1 Type="Edge"  Length="25.1628704071045"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_MacroNode4_1"  Node2="TitanBody_MacroNode3_1"  Force="754.913818359375"  SubNodesCount="0"  Width="1"  End1="TitanBody_MacroNode4_1"  End2="TitanBody_MacroNode3_1" />
+    <TitanBody_Edge3_2 Type="Edge"  Length="25.1627941131592"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_MacroNode4_2"  Node2="TitanBody_MacroNode3_2"  Force="754.913269042969"  SubNodesCount="0"  Width="1"  End1="TitanBody_MacroNode4_2"  End2="TitanBody_MacroNode3_2" />
+    <TitanBody_Edge4_1 Type="Edge"  Length="19.5405921936035"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_Node1"  Node2="TitanBody_MacroNode4_1"  Force="263.925170898438"  SubNodesCount="0"  Width="1"  End1="TitanBody_Node1"  End2="TitanBody_MacroNode4_1" />
+    <TitanBody_Edge4_2 Type="Edge"  Length="21.5125713348389"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="TitanBody_Node2"  Node2="TitanBody_MacroNode4_2"  Force="300.854797363281"  SubNodesCount="0"  Width="1"  End1="TitanBody_Node2"  End2="TitanBody_MacroNode4_2" />
+    <TitanBody_Edge5_1 Type="Edge"  Length="20.8086528778076"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="NStomachS_1"  Node2="TitanBody_Node1"  Force="111.1318359375"  SubNodesCount="0"  Width="1"  End1="NStomachS_1"  End2="TitanBody_Node1" />
+    <TitanBody_Edge5_2 Type="Edge"  Length="20.8086528778076"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="NStomachS_2"  Node2="TitanBody_Node2"  Force="111.1318359375"  SubNodesCount="0"  Width="1"  End1="NStomachS_2"  End2="TitanBody_Node2" />
+  </Edges>
+  <Figures>
+    <Capsule_EFootS_1 Type="Capsule"  Edge="EFootS_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EFoot_1 Type="Capsule"  Edge="EFoot_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EFootS_2 Type="Capsule"  Edge="EFootS_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EToeC_1 Type="Capsule"  Edge="EToeC_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EFoot_2 Type="Capsule"  Edge="EFoot_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EHeel_2 Type="Capsule"  Edge="EHeel_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EToeS_1 Type="Capsule"  Edge="EToeS_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EHeep_1 Type="Capsule"  Edge="EHeep_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EInstepS_1 Type="Capsule"  Edge="EInstepS_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EToe_1 Type="Capsule"  Edge="EToe_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EInstep_1 Type="Capsule"  Edge="EInstep_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EToeC_2 Type="Capsule"  Edge="EToeC_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EInstepS_2 Type="Capsule"  Edge="EInstepS_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EInstep_2 Type="Capsule"  Edge="EInstep_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EToeS_2 Type="Capsule"  Edge="EToeS_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EToe_2 Type="Capsule"  Edge="EToe_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_ECalf_1 Type="Capsule"  Edge="ECalf_1"  Radius1="10"  Radius2="10"  Margin1="0"  Margin2="0.400000005960464" />
+    <Capsule_ECalf_2 Type="Capsule"  Edge="ECalf_2"  Radius1="10"  Radius2="10"  Margin1="0"  Margin2="0.400000005960464" />
+    <Capsule-1_ECalf_1 Type="Capsule"  Edge="ECalf_1"  Radius1="20"  Radius2="20"  Margin1="0.600000023841858"  Margin2="0.100000001490116" />
+    <Capsule-1_ECalf_2 Type="Capsule"  Edge="ECalf_2"  Radius1="20"  Radius2="20"  Margin1="0.600000023841858"  Margin2="0.100000001490116" />
+    <Capsule_EThigh_1 Type="Capsule"  Edge="EThigh_1"  Radius1="14"  Radius2="14"  Margin1="0"  Margin2="0.300000011920929" />
+    <Capsule_EThigh_2 Type="Capsule"  Edge="EThigh_2"  Radius1="14"  Radius2="14"  Margin1="0"  Margin2="0.300000011920929" />
+    <Capsule-1_EThigh_1 Type="Capsule"  Edge="EThigh_1"  Radius1="22"  Radius2="22"  Margin1="0.600000023841858"  Margin2="0" />
+    <Capsule-1_EThigh_2 Type="Capsule"  Edge="EThigh_2"  Radius1="22"  Radius2="22"  Margin1="0.600000023841858"  Margin2="0" />
+    <Capsule_EGroin Type="Capsule"  Edge="EGroin"  Radius1="26"  Radius2="26"  Margin1="0"  Margin2="0" />
+    <Capsule_Muscle120 Type="Capsule"  Edge="Muscle120"  Radius1="13"  Radius2="13"  Margin1="0"  Margin2="0" />
+    <Capsule_EPelvisM Type="Capsule"  Edge="EPelvisM"  Radius1="17"  Radius2="17"  Margin1="0"  Margin2="0" />
+    <Capsule_Muscle117 Type="Capsule"  Edge="Muscle117"  Radius1="13"  Radius2="13"  Margin1="0"  Margin2="0" />
+    <Capsule_Muscle119 Type="Capsule"  Edge="Muscle119"  Radius1="16"  Radius2="16"  Margin1="0"  Margin2="0" />
+    <Capsule_EStomach Type="Capsule"  Edge="EStomach"  Radius1="30"  Radius2="30"  Margin1="0"  Margin2="0.5" />
+    <Capsule_EArm_1 Type="Capsule"  Edge="EArm_1"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0.699999988079071" />
+    <Capsule-1_EForearm_1 Type="Capsule"  Edge="EForearm_1"  Radius1="13"  Radius2="13"  Margin1="0.300000011920929"  Margin2="0" />
+    <Capsule_Muscle116 Type="Capsule"  Edge="Muscle116"  Radius1="16"  Radius2="16"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge20_2 Type="Capsule"  Edge="Edge20_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge24_2 Type="Capsule"  Edge="Edge24_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge22_2 Type="Capsule"  Edge="Edge22_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge19_2 Type="Capsule"  Edge="Edge19_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge25_2 Type="Capsule"  Edge="Edge25_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge23_2 Type="Capsule"  Edge="Edge23_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge21_2 Type="Capsule"  Edge="Edge21_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule-1_EForearm_2 Type="Capsule"  Edge="EForearm_2"  Radius1="13"  Radius2="13"  Margin1="0.300000011920929"  Margin2="0" />
+    <Capsule_Edge12_2 Type="Capsule"  Edge="Edge12_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EFingers_2 Type="Capsule"  Edge="EFingers_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EForearm_2 Type="Capsule"  Edge="EForearm_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0.699999988079071" />
+    <Capsule_EHand_2 Type="Capsule"  Edge="EHand_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge26_2 Type="Capsule"  Edge="Edge26_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge7_2 Type="Capsule"  Edge="Edge7_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EForearm_1 Type="Capsule"  Edge="EForearm_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0.699999988079071" />
+    <Capsule_EFingersS_2 Type="Capsule"  Edge="EFingersS_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge27_2 Type="Capsule"  Edge="Edge27_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EHandS_2 Type="Capsule"  Edge="EHandS_2"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_EHandC_2 Type="Capsule"  Edge="EHandC_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge17_2 Type="Capsule"  Edge="Edge17_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge20_1 Type="Capsule"  Edge="Edge20_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EArm_2 Type="Capsule"  Edge="EArm_2"  Radius1="12"  Radius2="12"  Margin1="0"  Margin2="0.699999988079071" />
+    <Capsule_Edge19_1 Type="Capsule"  Edge="Edge19_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge9_2 Type="Capsule"  Edge="Edge9_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge16_2 Type="Capsule"  Edge="Edge16_2"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge22_1 Type="Capsule"  Edge="Edge22_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge21_1 Type="Capsule"  Edge="Edge21_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EHand_1 Type="Capsule"  Edge="EHand_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge24_1 Type="Capsule"  Edge="Edge24_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Muscle118 Type="Capsule"  Edge="Muscle118"  Radius1="23"  Radius2="23"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge23_1 Type="Capsule"  Edge="Edge23_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge25_1 Type="Capsule"  Edge="Edge25_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EFingers_1 Type="Capsule"  Edge="EFingers_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge17_1 Type="Capsule"  Edge="Edge17_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule-1_EArm_1 Type="Capsule"  Edge="EArm_1"  Radius1="16"  Radius2="16"  Margin1="0.5"  Margin2="0" />
+    <Capsule_EChest Type="Capsule"  Edge="EChest"  Radius1="39"  Radius2="39"  Margin1="0.200000002980232"  Margin2="0.5" />
+    <Capsule_EHandS_1 Type="Capsule"  Edge="EHandS_1"  Radius1="5"  Radius2="5"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge12_1 Type="Capsule"  Edge="Edge12_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EHandC_1 Type="Capsule"  Edge="EHandC_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge7_1 Type="Capsule"  Edge="Edge7_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge26_1 Type="Capsule"  Edge="Edge26_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_EFingersS_1 Type="Capsule"  Edge="EFingersS_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Muscle115 Type="Capsule"  Edge="Muscle115"  Radius1="23"  Radius2="23"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge27_1 Type="Capsule"  Edge="Edge27_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge16_1 Type="Capsule"  Edge="Edge16_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule_Edge9_1 Type="Capsule"  Edge="Edge9_1"  Radius1="6"  Radius2="6"  Margin1="0"  Margin2="0" />
+    <Capsule-1_EArm_2 Type="Capsule"  Edge="EArm_2"  Radius1="16"  Radius2="16"  Margin1="0.5"  Margin2="0" />
+    <Capsule_EClavicle_1 Type="Capsule"  Edge="EClavicle_1"  Radius1="16"  Radius2="16"  Margin1="0"  Margin2="0" />
+    <Capsule_EClavicle_2 Type="Capsule"  Edge="EClavicle_2"  Radius1="16"  Radius2="16"  Margin1="0"  Margin2="0" />
+    <Capsule_ENeck Type="Capsule"  Edge="ENeck"  Radius1="10"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_ENeck-1 Type="Capsule"  Edge="ENeck"  Radius1="26"  Radius2="26"  Margin1="0"  Margin2="0.400000005960464" />
+    <Capsule_EArm_1-1 Type="Capsule"  Edge="EArm_1"  Radius1="26"  Radius2="26"  Margin1="0.899999976158142"  Margin2="0" />
+    <Capsule_EArm_2-1 Type="Capsule"  Edge="EArm_2"  Radius1="26"  Radius2="26"  Margin1="0.800000011920929"  Margin2="0" />
+    <Capsule_EForearm_1-1 Type="Capsule"  Edge="EForearm_1"  Radius1="17"  Radius2="17"  Margin1="0.699999988079071"  Margin2="0" />
+    <Capsule_EForearm_2-1 Type="Capsule"  Edge="EForearm_2"  Radius1="17"  Radius2="17"  Margin1="0.699999988079071"  Margin2="0" />
+    <Capsule_ECalf_2-1 Type="Capsule"  Edge="ECalf_2"  Radius1="16"  Radius2="16"  Margin1="0.400000005960464"  Margin2="0.400000005960464" />
+    <Capsule_ECalf_1-1 Type="Capsule"  Edge="ECalf_1"  Radius1="16"  Radius2="16"  Margin1="0.400000005960464"  Margin2="0.400000005960464" />
+    <Capsule_EThigh_1-1 Type="Capsule"  Edge="EThigh_1"  Radius1="23"  Radius2="23"  Margin1="0"  Margin2="0.990000009536743" />
+    <Capsule_EThigh_2-1 Type="Capsule"  Edge="EThigh_2"  Radius1="23"  Radius2="23"  Margin1="0"  Margin2="0.990000009536743" />
+    <Capsule_TitanBody1_1 Type="Capsule"  Edge="TitanBody_Edge1_1"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody1_2 Type="Capsule"  Edge="TitanBody_Edge1_2"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody2_1 Type="Capsule"  Edge="TitanBody_Edge2_1"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody2_2 Type="Capsule"  Edge="TitanBody_Edge2_2"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody3_1 Type="Capsule"  Edge="TitanBody_Edge3_1"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody3_2 Type="Capsule"  Edge="TitanBody_Edge3_2"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody4_1 Type="Capsule"  Edge="TitanBody_Edge4_1"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody4_2 Type="Capsule"  Edge="TitanBody_Edge4_2"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody5_1 Type="Capsule"  Edge="TitanBody_Edge5_1"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Capsule_TitanBody5_2 Type="Capsule"  Edge="TitanBody_Edge5_2"  Radius1="2"  Radius2="10"  Margin1="0"  Margin2="0" />
+    <Triangle-6 Type="Triangle"  DoubleSided="0"  Node1="NToeS_1"  Node2="NToe_1"  Node3="NHeel_1" />
+    <Triangle-2 Type="Triangle"  DoubleSided="0"  Node1="NHeel_1"  Node2="NToe_1"  Node3="NAnkle_1" />
+    <Triangle-3 Type="Triangle"  DoubleSided="0"  Node1="NHeel_2"  Node2="NToeS_2"  Node3="NToe_2" />
+    <Triangle-1 Type="Triangle"  DoubleSided="0"  Node1="NHeel_2"  Node2="NToe_2"  Node3="NAnkle_2" />
+    <Triangle-5 Type="Triangle"  DoubleSided="0"  Node1="NToeS_2"  Node2="NToe_2"  Node3="NAnkle_2" />
+    <Triangle-4 Type="Triangle"  DoubleSided="0"  Node1="NFingertipsSS_2"  Node2="NFingertipsS_2"  Node3="NFingertips_2" />
+  </Figures>
+</Scene>

@@ -1,0 +1,1004 @@
+fileFormatVersion: 2
+guid: 3bf76acfd2851d14fbfde4b8381aa8ad
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1092269533596516937
+    second: effect_time_bomb_1
+  - first:
+      213: 5343724911458631466
+    second: effect_time_bomb_10
+  - first:
+      213: 1123524776454067063
+    second: effect_time_bomb_11
+  - first:
+      213: -4457374375345483994
+    second: effect_time_bomb_12
+  - first:
+      213: -1458177518049329350
+    second: effect_time_bomb_13
+  - first:
+      213: 1441420054750950165
+    second: effect_time_bomb_14
+  - first:
+      213: -6208826900374014040
+    second: effect_time_bomb_15
+  - first:
+      213: 7576910844777067516
+    second: effect_time_bomb_16
+  - first:
+      213: -4147199185497523338
+    second: effect_time_bomb_17
+  - first:
+      213: 8614185376019189344
+    second: effect_time_bomb_18
+  - first:
+      213: 7629592819738409215
+    second: effect_time_bomb_19
+  - first:
+      213: 7372573502978373861
+    second: effect_time_bomb_2
+  - first:
+      213: -2913175798824346999
+    second: effect_time_bomb_20
+  - first:
+      213: -4543620619821788662
+    second: effect_time_bomb_21
+  - first:
+      213: -4697507796981221762
+    second: effect_time_bomb_22
+  - first:
+      213: 5415304838014501544
+    second: effect_time_bomb_23
+  - first:
+      213: 7011013160019328961
+    second: effect_time_bomb_24
+  - first:
+      213: -1055340102098194215
+    second: effect_time_bomb_25
+  - first:
+      213: 184951740121330511
+    second: effect_time_bomb_26
+  - first:
+      213: 6085549041997950459
+    second: effect_time_bomb_27
+  - first:
+      213: 2149813006317761818
+    second: effect_time_bomb_28
+  - first:
+      213: 8536905423800239507
+    second: effect_time_bomb_29
+  - first:
+      213: -4238162672032849749
+    second: effect_time_bomb_3
+  - first:
+      213: 1863287912104834065
+    second: effect_time_bomb_30
+  - first:
+      213: -845507863964981168
+    second: effect_time_bomb_31
+  - first:
+      213: -4751174507499908931
+    second: effect_time_bomb_32
+  - first:
+      213: -3992926509434188593
+    second: effect_time_bomb_33
+  - first:
+      213: 1627525655827026487
+    second: effect_time_bomb_34
+  - first:
+      213: -1284213612296939050
+    second: effect_time_bomb_35
+  - first:
+      213: -5877839973547141190
+    second: effect_time_bomb_36
+  - first:
+      213: -2819345506006986873
+    second: effect_time_bomb_37
+  - first:
+      213: -5900891825150597764
+    second: effect_time_bomb_38
+  - first:
+      213: -6194017576283742264
+    second: effect_time_bomb_4
+  - first:
+      213: -990025474993361795
+    second: effect_time_bomb_5
+  - first:
+      213: 6486861374000560615
+    second: effect_time_bomb_6
+  - first:
+      213: 8987373543345902943
+    second: effect_time_bomb_7
+  - first:
+      213: -7694058943477671741
+    second: effect_time_bomb_8
+  - first:
+      213: 1048123844182166661
+    second: effect_time_bomb_9
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 47
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 1
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: effect_time_bomb_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 995
+        width: 30
+        height: 29
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 942800d8a55882f00800000000000000
+      internalID: 1092269533596516937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_10
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 937
+        width: 107
+        height: 87
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2fb5e4ae79b82a40800000000000000
+      internalID: 5343724911458631466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 932
+        width: 110
+        height: 92
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 77315ecd4df879f00800000000000000
+      internalID: 1123524776454067063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 929
+        width: 112
+        height: 95
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62f8a9e2f993422c0800000000000000
+      internalID: -4457374375345483994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_13
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 925
+        width: 114
+        height: 99
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3f7539e54383cbe0800000000000000
+      internalID: -1458177518049329350
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 895
+        width: 113
+        height: 129
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 513fd8f17e3f00410800000000000000
+      internalID: 1441420054750950165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_15
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 893
+        width: 114
+        height: 131
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a7315374d0d5d9a0800000000000000
+      internalID: -6208826900374014040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 891
+        width: 111
+        height: 133
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf3fdb5e448962960800000000000000
+      internalID: 7576910844777067516
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_17
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 890
+        width: 118
+        height: 134
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67b71a740503276c0800000000000000
+      internalID: -4147199185497523338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_18
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 889
+        width: 122
+        height: 135
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06e0df6a5fbbb8770800000000000000
+      internalID: 8614185376019189344
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_19
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 883
+        width: 126
+        height: 141
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ff8f0690f32c1e960800000000000000
+      internalID: 7629592819738409215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_2
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 995
+        width: 43
+        height: 29
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e8bb751a84a05660800000000000000
+      internalID: 7372573502978373861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 882
+        width: 131
+        height: 142
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98a5fceab025297d0800000000000000
+      internalID: -2913175798824346999
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_21
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 877
+        width: 135
+        height: 147
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a02d1619e11d1f0c0800000000000000
+      internalID: -4543620619821788662
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_22
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 873
+        width: 138
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e767e4f0c891fceb0800000000000000
+      internalID: -4697507796981221762
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_23
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 873
+        width: 147
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a20f440f07072b40800000000000000
+      internalID: 5415304838014501544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 873
+        width: 152
+        height: 151
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1cf7a86b25f1c4160800000000000000
+      internalID: 7011013160019328961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_25
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 869
+        width: 163
+        height: 155
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d07631c4cdaa51f0800000000000000
+      internalID: -1055340102098194215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_26
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 869
+        width: 172
+        height: 155
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f43b582b0a4119200800000000000000
+      internalID: 184951740121330511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_27
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 870
+        width: 170
+        height: 154
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bfda18f6c96347450800000000000000
+      internalID: 6085549041997950459
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 870
+        width: 133
+        height: 154
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a15b51ff98ba5dd10800000000000000
+      internalID: 2149813006317761818
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_29
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 868
+        width: 133
+        height: 156
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 39508b2a04e297670800000000000000
+      internalID: 8536905423800239507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_3
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 989
+        width: 58
+        height: 35
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba0692921850f25c0800000000000000
+      internalID: -4238162672032849749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_30
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 868
+        width: 133
+        height: 156
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 114b943eb7abbd910800000000000000
+      internalID: 1863287912104834065
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_31
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 874
+        width: 126
+        height: 150
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0586191d3172444f0800000000000000
+      internalID: -845507863964981168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 874
+        width: 126
+        height: 150
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db0939e45ff601eb0800000000000000
+      internalID: -4751174507499908931
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_33
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 882
+        width: 81
+        height: 142
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fcc4feebe764698c0800000000000000
+      internalID: -3992926509434188593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_34
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 882
+        width: 81
+        height: 142
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 732976206f1269610800000000000000
+      internalID: 1627525655827026487
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_35
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 909
+        width: 73
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d9d15f068e8d2ee0800000000000000
+      internalID: -1284213612296939050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 909
+        width: 73
+        height: 115
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab7912aafa7bd6ea0800000000000000
+      internalID: -5877839973547141190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_37
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 940
+        width: 35
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78f0c57233cafd8d0800000000000000
+      internalID: -2819345506006986873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_38
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 940
+        width: 35
+        height: 84
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7564e73622db1ea0800000000000000
+      internalID: -5900891825150597764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 984
+        width: 74
+        height: 40
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8cfd419e4dd6a0aa0800000000000000
+      internalID: -6194017576283742264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_5
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 980
+        width: 90
+        height: 44
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7cee6c6319b242f0800000000000000
+      internalID: -990025474993361795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_6
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 971
+        width: 100
+        height: 53
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7e971800d06f50a50800000000000000
+      internalID: 6486861374000560615
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 958
+        width: 102
+        height: 66
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5550eade9099bc70800000000000000
+      internalID: 8987373543345902943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 949
+        width: 103
+        height: 75
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c89811e726393590800000000000000
+      internalID: -7694058943477671741
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: effect_time_bomb_9
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 941
+        width: 106
+        height: 83
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58c4815451fab8e00800000000000000
+      internalID: 1048123844182166661
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,26 @@
+public enum BattleType
+{
+	FightNone = 0,
+	FightChallenge = 1,
+	FightBosses = 2,
+	FightTournament = 3,
+	FightStory = 4,
+	FightSurvival = 5,
+	FightTutorial = 6,
+	FightPeriodic = 7,
+	FightBossesIntermission = 8,
+	FightAscension = 9,
+	FightReplayable = 10,
+	FightBossesReplayable = 11,
+	FightFriendly = 12,
+	FightAuto = 13,
+	FightDummy = 14,
+	FightAi = 15,
+	FightUnregister = 16,
+	FightFake = 17,
+	FightPVP = 18,
+	FightFinal = 19,
+	FightFinalReplayable = 20,
+	FightRaid = 21,
+	FightFinalTitan = 22
+}

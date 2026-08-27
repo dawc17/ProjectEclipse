@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <NNeck Type="Node"  X="0.563725769519806"  Y="199.007369995117"  Z="0.0753389671444893"  Mass="9.375" Attenuation="0.02" Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" />    <NBottom Type="Node"  X="1.10728430747986"  Y="19.0098323822021"  Z="0.422382354736328"  Mass="9.375"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" />
+    <Node4 Type="Node"  X="0.439390540122986"  Y="223.007049560547"  Z="0.0566163659095764"  Mass="9.375" Attenuation="0.02" Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" />
+    <Node5 Type="Node"  X="0.30309134721756"  Y="248.006683349609"  Z="0.0334014855325222"  Mass="9.375" Attenuation="0.02" Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" />
+    <Node6 Type="Node"  X="0.151344001293182"  Y="273.006225585938"  Z="0.015036053955555"  Mass="9.375" Attenuation="0.02" Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" />
+    <Node7 Type="Node"  X="0.00181222206447274"  Y="298.005798339844"  Z="-0.000348959118127823"  Mass="9.375" Attenuation="0.02" Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" />
+    <Node12 Type="Node"  X="0"  Y="335.005798339844" Z="0"  Mass="9.375" Attenuation="0.02"  Weak="1" Fixed="1"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="0"  Rank="0" />
+    <NPivot Type="Node"  X="1.2478973865509"  Y="109.008666992187"  Z="-0.206396013498306"  Mass="9.375" Attenuation="0.02" Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1" Rank="0" />
+    <Node13 Type="Node"  X="11.8385210037231"  Y="198.960494995117"  Z="-0.0509985871613026"  Mass="0.01"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" Attenuation = "1.1" />
+    <Node14 Type="Node"  X="-5.18331527709961"  Y="198.974975585938"  Z="-9.6256742477417"  Mass="0.01"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" Attenuation = "1.1" />
+    <Node15 Type="Node"  X="-4.96401977539063"  Y="199.08903503418"  Z="9.90267562866211"  Mass="0.01"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" Attenuation = "1.1" />
+    <Node16 Type="Node"  X="-2.33083772659302"  Y="224.467407226562"  Z="-4.60375595092773"  Mass="0.01"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" Attenuation = "1.1" />
+    <Node17 Type="Node"  X="5.83565807342529"  Y="224.483459472656"  Z="-0.00707804737612605"  Mass="0.01"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" Attenuation = "1.1" />
+    <Node18 Type="Node"  X="-2.2276725769043"  Y="224.502563476562"  Z="4.77543258666992"  Mass="0.01"  Fixed="0"  PinFixed="0"  Visible="1"  Collisible="1"  Passive="0"  Cloth="1"  Rank="0" Attenuation = "1.1" />
+    <COM Type="CenterOfMass" X="0"  Y="335.005798339844" Z="0" Mass="0" Fixed="0" Visible="1" NodesCount="1" ChildNode1="Node12"/>
+    
+  </Nodes>
+  <Edges>
+    <Body Type="Edge"  Length="185"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NBottom"  End2="NNeck" />
+    <Edge8 Type="Edge"  Length="24"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node4"  End2="NNeck" />
+    <Edge9 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node5"  End2="Node4" />
+    <Edge10 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node6"  End2="Node5" />
+    <Edge11 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node7"  End2="Node6" />
+    <Edge15 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node12"  End2="Node7" />
+    <Edge16 Type="Edge"  Length="87"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="1" Margin1="0" Margin2="0.2" Radius="15"  SubNodesCount="0"  End1="NPivot"  End2="NNeck" Defense="BodyDefense" />
+    <Edge17 Type="Edge"  Length="87"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="1" Margin1="0" Margin2="0.2" Radius="15"  SubNodesCount="0"  End1="NPivot"  End2="NBottom" Defense="BodyDefense" />
+    <Edge18 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node15"  End2="Node13" />
+    <Edge19 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node15"  End2="Node14" />
+    <Edge20 Type="Edge"  Length="25"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node13"  End2="Node14" />
+    <Edge21 Type="Edge"  Length="12.5"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node13"  End2="NNeck" />
+    <Edge22 Type="Edge"  Length="12.5"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node14"  End2="NNeck" />
+    <Edge23 Type="Edge"  Length="12.5"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NNeck"  End2="Node15" />
+    <Edge24 Type="Edge"  Length="91"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NPivot"  End2="Node13" />
+    <Edge25 Type="Edge"  Length="91"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NPivot"  End2="Node15" />
+    <Edge26 Type="Edge"  Length="91"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="NPivot"  End2="Node14" />
+    <Edge27 Type="Edge"  Length="22"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node16" End2="Node14" />
+    <Edge28 Type="Edge"  Length="22"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node5"  End2="Node16" />
+    <Edge29 Type="Edge"  Length="22"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node18"  End2="Node15" />
+    <Edge30 Type="Edge"  Length="22"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node18" End2="Node5" />
+    <Edge31 Type="Edge"  Length="22"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node17"   End2="Node13" />
+    <Edge32 Type="Edge"  Length="22"  WithSign="0"  Fixed="0"  Visible="1"  Collisible="0"  SubNodesCount="0"  End1="Node17"  End2="Node5" />
+  </Edges>
+  <Figures>
+
+  </Figures>
+
+</Scene>

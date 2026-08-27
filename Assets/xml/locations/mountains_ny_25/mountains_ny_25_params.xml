@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Color="0x000000" Wall="200" Floor="5" Width="1658" Height="512">
+  <Layer Type="1" Factor="0" Atlas="mountains_ny_25_bg">
+    <Image X="0" Y="0" ClassName="bg" Width="1658" Height="560" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="mountains_ny_25_bg">
+    <Image X="-100" Y="12" ClassName="mountains_far" Width="882" Height="277" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="mountains_ny_25_bg">
+    <Image X="0" Y="0" ClassName="mountains_close" Width="1658" Height="560" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="mountains_ny_25_bg">
+    <Image X="0" Y="149" ClassName="hill" Width="1425" Height="253" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="mountains_ny_25_mid">
+    <Image X="473" Y="-15" ClassName="rock" Width="714" Height="512" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.45" Atlas="mountains_ny_25_mid">
+    <Image X="-498" Y="22" ClassName="forest" Width="664" Height="428" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="mountains_ny_25_mid">
+    <Image X="-479" Y="-38" ClassName="trees" Width="705" Height="474" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.6" Atlas="mountains_ny_25_mid">
+    <Image X="0" Y="10" ClassName="green_hill" Width="1658" Height="554" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="0.8" Atlas="mountains_ny_25_forground">
+    <Image X="0" Y="10" ClassName="forground" Width="1858" Height="560" IsOpaque="0" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="mountains_ny_25_forground" Scaling="1">
+    <Image X="0" Y="212" ClassName="grass" Width="1544" Height="126" IsOpaque="0" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="529" PlayerPositionY="-94" EnemyPositionX="729" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="mountains_ny_25_forground" Scaling="1">
+    <Image X="0" Y="284" ClassName="ground" Width="2000" Height="113" IsOpaque="0" />
+    <Image X="-617" Y="69" ClassName="wall_l" Width="92" Height="359" IsOpaque="0" />
+    <Image X="654" Y="56" ClassName="wall_r" Width="276" Height="409" IsOpaque="0" />
+  </Layer>
+</Root>

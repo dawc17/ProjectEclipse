@@ -1,0 +1,572 @@
+fileFormatVersion: 2
+guid: 0208dc3ab41c6174ebf524a2f8494899
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4894776383854101681
+    second: ringout_1
+  - first:
+      213: -154397193583489677
+    second: ringout_10
+  - first:
+      213: 1770832448315129940
+    second: ringout_11
+  - first:
+      213: 1988664483089210788
+    second: ringout_12
+  - first:
+      213: 6680804539341486959
+    second: ringout_13
+  - first:
+      213: -7469676524658741165
+    second: ringout_14
+  - first:
+      213: -4128825171097795599
+    second: ringout_15
+  - first:
+      213: 4917716136584109962
+    second: ringout_16
+  - first:
+      213: 4393469638723894630
+    second: ringout_17
+  - first:
+      213: 5421200588191341587
+    second: ringout_18
+  - first:
+      213: 7071966698826112589
+    second: ringout_19
+  - first:
+      213: -3208534507486035466
+    second: ringout_2
+  - first:
+      213: 2683401682099823963
+    second: ringout_20
+  - first:
+      213: 4493110714128664651
+    second: ringout_3
+  - first:
+      213: -5897860153153452062
+    second: ringout_4
+  - first:
+      213: -5963802538274130873
+    second: ringout_5
+  - first:
+      213: -4247280415943027022
+    second: ringout_6
+  - first:
+      213: -5692972126647018801
+    second: ringout_7
+  - first:
+      213: -9111603737182847831
+    second: ringout_8
+  - first:
+      213: -5443159496603445778
+    second: ringout_9
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 47
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 1
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: ringout_1
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 10
+        width: 256
+        height: 118
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b4489eff2dbde340800000000000000
+      internalID: 4894776383854101681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_10
+      rect:
+        serializedVersion: 2
+        x: 776
+        y: 766
+        width: 122
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37d832a02987bddf0800000000000000
+      internalID: -154397193583489677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_11
+      rect:
+        serializedVersion: 2
+        x: 518
+        y: 900
+        width: 256
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4500f8ebab2439810800000000000000
+      internalID: 1770832448315129940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_12
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 778
+        width: 256
+        height: 120
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4add7fb9fc7299b10800000000000000
+      internalID: 1988664483089210788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_13
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 508
+        width: 120
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6b3445055cf6bc50800000000000000
+      internalID: 6680804539341486959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_14
+      rect:
+        serializedVersion: 2
+        x: 364
+        y: 508
+        width: 116
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35034a0e6c0665890800000000000000
+      internalID: -7469676524658741165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_15
+      rect:
+        serializedVersion: 2
+        x: 362
+        y: 250
+        width: 116
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f34601e16773b6c0800000000000000
+      internalID: -4128825171097795599
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_16
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 508
+        width: 118
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a8f5d4365cc3f3440800000000000000
+      internalID: 4917716136584109962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_17
+      rect:
+        serializedVersion: 2
+        x: 242
+        y: 250
+        width: 118
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66df99bdb5db8fc30800000000000000
+      internalID: 4393469638723894630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_18
+      rect:
+        serializedVersion: 2
+        x: 124
+        y: 508
+        width: 118
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31c98435639fb3b40800000000000000
+      internalID: 5421200588191341587
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_19
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 900
+        width: 256
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4e1ce26e3ca42260800000000000000
+      internalID: 7071966698826112589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_2
+      rect:
+        serializedVersion: 2
+        x: 122
+        y: 250
+        width: 118
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6f146bf6ddef873d0800000000000000
+      internalID: -3208534507486035466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_20
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 900
+        width: 256
+        height: 122
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b55ee33dc9b5d3520800000000000000
+      internalID: 2683401682099823963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_3
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 130
+        width: 256
+        height: 118
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b480424936cba5e30800000000000000
+      internalID: 4493110714128664651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_4
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 132
+        width: 256
+        height: 116
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e78b5c5077962ea0800000000000000
+      internalID: -5897860153153452062
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_5
+      rect:
+        serializedVersion: 2
+        x: 518
+        y: 782
+        width: 256
+        height: 116
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 744f89360315c3da0800000000000000
+      internalID: -5963802538274130873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_6
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 250
+        width: 114
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b61e3af6f0ae05c0800000000000000
+      internalID: -4247280415943027022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_7
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 782
+        width: 256
+        height: 116
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fca110373008ef0b0800000000000000
+      internalID: -5692972126647018801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_8
+      rect:
+        serializedVersion: 2
+        x: 2
+        y: 250
+        width: 118
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ac38172da41d8180800000000000000
+      internalID: -9111603737182847831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: ringout_9
+      rect:
+        serializedVersion: 2
+        x: 900
+        y: 766
+        width: 120
+        height: 256
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee55825e6430674b0800000000000000
+      internalID: -5443159496603445778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

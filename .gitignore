@@ -1,0 +1,61 @@
+# ================= Unity generated =================
+# Unanchored so they also match nested Unity projects (e.g. Tools/SpriteRepairProject)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]serSettings/
+MemoryCaptures/
+Recordings/
+sysinfo.txt
+
+# NOTE: root .sln / .csproj are intentionally TRACKED (build scripts depend on them).
+# If you ever want them ignored, uncomment:
+# *.csproj
+# *.sln
+
+# ================= Visual Studio / Rider =================
+.vs/
+.idea/
+*.user
+*.suo
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.csproj.bak
+
+# ================= Python =================
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+
+# Bundled/vendored runtimes and packages - reproducible, don't commit
+.tools/
+Tools/python-packages/
+
+# ================= Build output =================
+BuildScripts/out/
+*.log
+
+# ================= Heavy reference material (12.5 GB) =================
+# Local-only reference dumps / decompiled builds / CDN bundles.
+# If something here must be shared, whitelist it explicitly, e.g.:
+# !ResearchSources/XMLMigration/something-important.txt
+ResearchSources/
+
+# ================= OS junk =================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.stackdump
+
+# Crashlytics (Unity default)
+crashlytics-build.properties

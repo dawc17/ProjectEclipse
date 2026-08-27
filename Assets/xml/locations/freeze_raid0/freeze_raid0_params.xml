@@ -1,0 +1,146 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x00000A" Wall="230" Floor="20" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.12" Atlas="freeze_raid0_background">
+    <Image X="0" Y="-150" ClassName="background" Width="1020" Height="242" />
+  </Layer>
+  <Layer Type="1" Factor="0.20" Atlas="freeze_raid0_layer4">
+    <Image X="-295" Y="-65" ClassName="layer4" Width="630" Height="160" />
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="freeze_raid0_background">
+    <Image X="10" Y="-54" ClassName="layer3" Width="1121" Height="320" />
+  </Layer>
+  <Layer Type="1" Factor="0.40" Atlas="freeze_raid0_background">
+    <Image X="140" Y="23" ClassName="layer2" Width="1650" Height="442" />
+  </Layer>
+  <Layer Type="1" Factor="0.40" Atlas="freeze_raid0_layer0">
+    <ParticleEffect X="-100" Y="-350" ClassName="snow" />
+    <ParticleEffect X="100" Y="-250" ClassName="snow" />
+    <ParticleEffect X="0" Y="0" ClassName="snow" />
+    <ParticleEffect X="0" Y="0" ClassName="snow" />
+    <SimpleEffect X="-71" Y="-11" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="30" Height="30">
+      <Transparency Offset="0.2">
+        <Point Period="0.4" Value="5" Ease="-2" />
+        <Point Period="1.2" Value="200" Ease="2" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-50" Y="6" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="28" Height="28">
+      <Transparency Offset="0">
+        <Point Period="0.5" Value="15" Ease="-2" />
+        <Point Period="0.9" Value="200" Ease="2" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-90" Y="48" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="33" Height="33">
+      <Transparency Offset="0.5">
+        <Point Period="0.6" Value="5" Ease="-2" />
+        <Point Period="1.1" Value="200" Ease="2" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-126" Y="41" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="25" Height="25">
+      <Transparency Offset="0">
+        <Point Period="0.3" Value="15" Ease="-2" />
+        <Point Period="0.9" Value="200" Ease="2" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-52" Y="68" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="27" Height="27">
+      <Transparency Offset="0.5">
+        <Point Period="0.4" Value="5" Ease="-2" />
+        <Point Period="1.1" Value="200" Ease="2" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-143" Y="102" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="27" Height="27">
+      <Transparency Offset="1.5">
+        <Point Period="0.4" Value="15" Ease="-2" />
+        <Point Period="1.1" Value="200" Ease="2" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-97" Y="101" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="38" Height="38">
+      <Transparency Offset="0">
+        <Point Period="0.3" Value="15" Ease="-1" />
+        <Point Period="2" Value="200" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-60" Y="107" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="33" Height="33">
+      <Transparency Offset="1">
+        <Point Period="0.3" Value="15" Ease="-1" />
+        <Point Period="2" Value="200" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-34" Y="101" Type="Picture" PictureLocation="local" ClassName="svet-tree" Width="27" Height="27">
+      <Transparency Offset="0.5">
+        <Point Period="0.4" Value="5" Ease="-2" />
+        <Point Period="1.1" Value="200" Ease="2" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-297" Y="34" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="30" Height="30">
+      <Transparency Offset="0">
+        <Point Period="0.3" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-297" Y="34" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="30" Height="30">
+      <Transparency Offset="0">
+        <Point Period="0.3" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-142" Y="53" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="30" Height="30">
+      <Transparency Offset="2">
+        <Point Period="0.5" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-142" Y="53" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="30" Height="30">
+      <Transparency Offset="2">
+        <Point Period="0.5" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="95" Y="68" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="33" Height="48">
+      <Transparency Offset="2">
+        <Point Period="0.4" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="95" Y="68" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="33" Height="48">
+      <Transparency Offset="2">
+        <Point Period="0.4" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="325" Y="80" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="30" Height="48">
+      <Transparency Offset="2">
+        <Point Period="0.6" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="325" Y="80" Type="Picture" PictureLocation="local" ClassName="svet_window" Width="30" Height="48">
+      <Transparency Offset="2">
+        <Point Period="0.6" Value="15" Ease="-1" />
+        <Point Period="2" Value="100" Ease="1" />
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="freeze_raid0_background">
+    <Image X="70" Y="0" ClassName="layer1" Width="2060" Height="512" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="freeze_raid0_layer0" Scaling="1">
+    <Image X="-816" Y="-232" ClassName="top-left" Width="355" Height="224" />
+    <Image X="800" Y="-165" ClassName="top-right" Width="355" Height="214" />
+    <Image X="-765" Y="100" ClassName="wall-left" Width="125" Height="316" />
+    <Image X="777" Y="100" ClassName="wall-right" Width="123" Height="301" />
+    <Image X="-896" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="-640" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="-384" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="-128" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="128" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="384" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="640" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="896" Y="250" ClassName="floor" Width="260" Height="30" />
+    <Image X="847" Y="-522" ClassName="pixel_1" Width="450" Height="500" Color="0x00000A" />
+    <Image X="-900" Y="-590" ClassName="pixel_1" Width="536" Height="500" Color="0x00000A" />
+    <Image X="0" Y="680" ClassName="pixel_1" Width="2000" Height="840" Color="0x00000A" />
+  </Layer>
+</Root>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <HermitStorm-MacroNode1 Type="MacroNode"  X="263.068084716797"  Y="401.395263671875"  Z="1.00005221366882"  Mass="0.285668581724167"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="-0.0199999995529652"  LCC2="-1"  LCC3="2"  LCC4="0.0199999995529652"  MC1="-0.00399936037138104"  MC2="-0.199968010187149"  MC3="0.399936020374298"  MC4="0.00399936037138104" />
+    <HermitStorm-MacroNode2 Type="MacroNode"  X="363.068084716797"  Y="401.395263671875"  Z="0.999936580657959"  Mass="1.42742955684662"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node4_1"  ChildNode2="Magic-Node3_1"  ChildNode3="Magic-Node2_1"  ChildNode4="Magic-Node1_1"  LCC1="-0.0199999995529652"  LCC2="1"  LCC3="0"  LCC4="0.0199999995529652"  MC1="-0.0199840143322945"  MC2="0.999200701713562"  MC3="0"  MC4="0.0199840143322945" />
+    <HermitStorm-MacroNode3 Type="MacroNode"  X="212.603881835938"  Y="421.394897460938"  Z="0.000100568802736234"  Mass="0.12039452791214"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node1_1"  ChildNode2="Magic-Node4_1"  ChildNode3="Magic-Node3_1"  ChildNode4="Magic-Node2_1"  LCC1="0.219995737075806"  LCC2="2.23132062160403E-7"  LCC3="-2.00928425788879"  LCC4="2.78928828239441"  MC1="0.0185403991490602"  MC2="1.88047160065707E-8"  MC3="-0.169334784150124"  MC4="0.235070541501045" />
+    <HermitStorm-MacroNode4 Type="MacroNode"  X="532.76953125"  Y="421.395141601563"  Z="-0.00025749730411917"  Mass="0.0440684854984283"  Fixed="0"  Visible="1"  Selectable="1"  NodesCount="4"  ChildNode1="Magic-Node1_1"  ChildNode2="Magic-Node4_1"  ChildNode3="Magic-Node3_1"  ChildNode4="Magic-Node2_1"  LCC1="0.219998836517334"  LCC2="-2.11339283850975E-8"  LCC3="4.3940281867981"  LCC4="-3.61402702331543"  MC1="0.00678651081398129"  MC2="-6.51938170115329E-10"  MC3="0.135546714067459"  MC4="-0.111485287547112" />
+  </Nodes>
+  <Edges>
+    <HermitStorm-Edge1 Type="Edge"  Length="100"  WithSign="0"  Fixed="0"  Visible="1"  Selectable="1"  Collisible="0"  Node1="HermitStorm-MacroNode2"  Node2="HermitStorm-MacroNode1"  Force="0"  SubNodesCount="0"  End1="HermitStorm-MacroNode2"  End2="HermitStorm-MacroNode1" />
+  </Edges>
+  <Figures/>
+</Scene>

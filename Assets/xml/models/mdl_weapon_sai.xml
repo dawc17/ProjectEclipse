@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<Scene>
+  <Nodes>
+    <WEAPON_SAI-MacroNode11_1 Type="MacroNode"  X="-150"  Y="160"  Z="0"  Mass="0.554323792457581"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="2.98023223876953E-8"  LCC2="0.899999976158142"  LCC3="0.0999999940395355" />
+    <WEAPON_SAI-MacroNode12_1 Type="MacroNode"  X="-150"  Y="230"  Z="0"  Mass="0.668449223041534"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0"  LCC2="0.200000002980232"  LCC3="0.800000011920929" />
+    <WEAPON_SAI-MacroNode13_1 Type="MacroNode"  X="-150"  Y="125"  Z="0"  Mass="0.279720276594162"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0"  LCC2="1.25"  LCC3="-0.25" />
+    <WEAPON_SAI-MacroNode14_1 Type="MacroNode"  X="-152.5"  Y="160"  Z="0"  Mass="0.496771037578583"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.0499999225139618"  LCC2="0.949999928474426"  LCC3="0.0999999940395355" />
+    <WEAPON_SAI-MacroNode15_1 Type="MacroNode"  X="-147.5"  Y="160"  Z="0"  Mass="0.618429124355316"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.0499999821186066"  LCC2="0.850000023841858"  LCC3="0.0999999940395355" />
+    <WEAPON_SAI-MacroNode16_1 Type="MacroNode"  X="-162.5"  Y="157.5"  Z="0"  Mass="0.313750118017197"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.249999940395355"  LCC2="1.17499995231628"  LCC3="0.0749999955296516" />
+    <WEAPON_SAI-MacroNode17_1 Type="MacroNode"  X="-167.5"  Y="162.5"  Z="0"  Mass="0.277373284101486"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.350000023841858"  LCC2="1.22500002384186"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode18_1 Type="MacroNode"  X="-165"  Y="180"  Z="0"  Mass="0.385208010673523"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.299999982118607"  LCC2="1"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode19_1 Type="MacroNode"  X="-167.5"  Y="185"  Z="0"  Mass="0.365096718072891"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.349999994039536"  LCC2="1"  LCC3="0.349999994039536" />
+    <WEAPON_SAI-MacroNode20_1 Type="MacroNode"  X="-162.5"  Y="180"  Z="0"  Mass="0.430848777294159"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.250000029802322"  LCC2="0.950000047683716"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode21_1 Type="MacroNode"  X="-162.5"  Y="165"  Z="0"  Mass="0.351000338792801"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.25"  LCC2="1.10000002384186"  LCC3="0.149999991059303" />
+    <WEAPON_SAI-MacroNode22_1 Type="MacroNode"  X="-160"  Y="162.5"  Z="0"  Mass="0.375269770622253"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="-0.199999928474426"  LCC2="1.07499992847443"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode23_1 Type="MacroNode"  X="-140"  Y="162.5"  Z="0"  Mass="0.889086544513702"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.200000047683716"  LCC2="0.674999952316284"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode24_1 Type="MacroNode"  X="-137.5"  Y="157.5"  Z="0"  Mass="0.867867171764374"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.25"  LCC2="0.675000011920929"  LCC3="0.0749999955296516" />
+    <WEAPON_SAI-MacroNode25_1 Type="MacroNode"  X="-137.5"  Y="165"  Z="0"  Mass="1.02145051956177"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.249999985098839"  LCC2="0.600000023841858"  LCC3="0.149999991059303" />
+    <WEAPON_SAI-MacroNode26_1 Type="MacroNode"  X="-132.5"  Y="162.5"  Z="0"  Mass="1.09859919548035"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.350000023841858"  LCC2="0.524999976158142"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode27_1 Type="MacroNode"  X="-135"  Y="180"  Z="0"  Mass="1.33689844608307"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.300000041723251"  LCC2="0.400000005960464"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode28_1 Type="MacroNode"  X="-137.5"  Y="180"  Z="0"  Mass="1.28040981292725"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.249999970197678"  LCC2="0.450000017881393"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode29_1 Type="MacroNode"  X="-132.5"  Y="185"  Z="0"  Mass="1.35685205459595"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_1"  ChildNode2="Weapon-Node2_1"  ChildNode3="Weapon-Node1_1"  LCC1="0.349999994039536"  LCC2="0.300000011920929"  LCC3="0.349999994039536" />
+
+    <WEAPON_SAI-MacroNode11_2 Type="MacroNode"  X="-150"  Y="160"  Z="0"  Mass="0.554323792457581"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="2.98023223876953E-8"  LCC2="0.899999976158142"  LCC3="0.0999999940395355" />
+    <WEAPON_SAI-MacroNode12_2 Type="MacroNode"  X="-150"  Y="230"  Z="0"  Mass="0.668449223041534"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0"  LCC2="0.200000002980232"  LCC3="0.800000011920929" />
+    <WEAPON_SAI-MacroNode13_2 Type="MacroNode"  X="-150"  Y="125"  Z="0"  Mass="0.279720276594162"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0"  LCC2="1.25"  LCC3="-0.25" />
+    <WEAPON_SAI-MacroNode14_2 Type="MacroNode"  X="-152.5"  Y="160"  Z="0"  Mass="0.496771037578583"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.0499999225139618"  LCC2="0.949999928474426"  LCC3="0.0999999940395355" />
+    <WEAPON_SAI-MacroNode15_2 Type="MacroNode"  X="-147.5"  Y="160"  Z="0"  Mass="0.618429124355316"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.0499999821186066"  LCC2="0.850000023841858"  LCC3="0.0999999940395355" />
+    <WEAPON_SAI-MacroNode16_2 Type="MacroNode"  X="-162.5"  Y="157.5"  Z="0"  Mass="0.313750118017197"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.249999940395355"  LCC2="1.17499995231628"  LCC3="0.0749999955296516" />
+    <WEAPON_SAI-MacroNode17_2 Type="MacroNode"  X="-167.5"  Y="162.5"  Z="0"  Mass="0.277373284101486"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.350000023841858"  LCC2="1.22500002384186"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode18_2 Type="MacroNode"  X="-165"  Y="180"  Z="0"  Mass="0.385208010673523"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.299999982118607"  LCC2="1"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode19_2 Type="MacroNode"  X="-167.5"  Y="185"  Z="0"  Mass="0.365096718072891"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.349999994039536"  LCC2="1"  LCC3="0.349999994039536" />
+    <WEAPON_SAI-MacroNode20_2 Type="MacroNode"  X="-162.5"  Y="180"  Z="0"  Mass="0.430848777294159"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.250000029802322"  LCC2="0.950000047683716"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode21_2 Type="MacroNode"  X="-162.5"  Y="165"  Z="0"  Mass="0.351000338792801"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.25"  LCC2="1.10000002384186"  LCC3="0.149999991059303" />
+    <WEAPON_SAI-MacroNode22_2 Type="MacroNode"  X="-160"  Y="162.5"  Z="0"  Mass="0.375269770622253"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="-0.199999928474426"  LCC2="1.07499992847443"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode23_2 Type="MacroNode"  X="-140"  Y="162.5"  Z="0"  Mass="0.889086544513702"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.200000047683716"  LCC2="0.674999952316284"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode24_2 Type="MacroNode"  X="-137.5"  Y="157.5"  Z="0"  Mass="0.867867171764374"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.25"  LCC2="0.675000011920929"  LCC3="0.0749999955296516" />
+    <WEAPON_SAI-MacroNode25_2 Type="MacroNode"  X="-137.5"  Y="165"  Z="0"  Mass="1.02145051956177"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.249999985098839"  LCC2="0.600000023841858"  LCC3="0.149999991059303" />
+    <WEAPON_SAI-MacroNode26_2 Type="MacroNode"  X="-132.5"  Y="162.5"  Z="0"  Mass="1.09859919548035"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.350000023841858"  LCC2="0.524999976158142"  LCC3="0.125" />
+    <WEAPON_SAI-MacroNode27_2 Type="MacroNode"  X="-135"  Y="180"  Z="0"  Mass="1.33689844608307"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.300000041723251"  LCC2="0.400000005960464"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode28_2 Type="MacroNode"  X="-137.5"  Y="180"  Z="0"  Mass="1.28040981292725"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.249999970197678"  LCC2="0.450000017881393"  LCC3="0.299999982118607" />
+    <WEAPON_SAI-MacroNode29_2 Type="MacroNode"  X="-132.5"  Y="185"  Z="0"  Mass="1.35685205459595"  Fixed="0"  Visible="1"  NodesCount="3"  ChildNode1="Weapon-Node3_2"  ChildNode2="Weapon-Node2_2"  ChildNode3="Weapon-Node1_2"  LCC1="0.349999994039536"  LCC2="0.300000011920929"  LCC3="0.349999994039536" />
+  </Nodes>
+  <Edges>
+    <WEAPON_SAI-Edge30_1 Type="Edge"  Length="35"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="WEAPON_SAI-MacroNode13_1"  End2="WEAPON_SAI-MacroNode11_1" />
+    <WEAPON_SAI-Edge31_1 Type="Edge"  Length="70"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="WEAPON_SAI-MacroNode12_1"  End2="WEAPON_SAI-MacroNode11_1" />
+
+    <WEAPON_SAI-Edge30_2 Type="Edge"  Length="35"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="WEAPON_SAI-MacroNode13_2"  End2="WEAPON_SAI-MacroNode11_2" />
+    <WEAPON_SAI-Edge31_2 Type="Edge"  Length="70"  WithSign="0"  Visible="1"  SubNodesCount="0"  End1="WEAPON_SAI-MacroNode12_2"  End2="WEAPON_SAI-MacroNode11_2" />
+  </Edges>
+  <Figures>
+    <WEAPON_SAI-Capsule-Edge30_1 Type="Capsule"  Edge="WEAPON_SAI-Edge30_1"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <WEAPON_SAI-Capsule-Edge31_1 Type="Capsule"  Edge="WEAPON_SAI-Edge31_1"  Radius1="1"  Radius2="1"  Margin1="0.5"  Margin2="0" />
+    <WEAPON_SAI-Triangle-1_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode20_1"  Node2="WEAPON_SAI-MacroNode18_1"  Node3="WEAPON_SAI-MacroNode19_1" />
+    <WEAPON_SAI-Triangle-2_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode20_1"  Node2="WEAPON_SAI-MacroNode17_1"  Node3="WEAPON_SAI-MacroNode18_1" />
+    <WEAPON_SAI-Triangle-3_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode20_1"  Node2="WEAPON_SAI-MacroNode21_1"  Node3="WEAPON_SAI-MacroNode17_1" />
+    <WEAPON_SAI-Triangle-4_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode21_1"  Node2="WEAPON_SAI-MacroNode16_1"  Node3="WEAPON_SAI-MacroNode17_1" />
+    <WEAPON_SAI-Triangle-5_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode16_1"  Node2="WEAPON_SAI-MacroNode22_1"  Node3="WEAPON_SAI-MacroNode21_1" />
+    <WEAPON_SAI-Triangle-6_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode23_1"  Node2="WEAPON_SAI-MacroNode16_1"  Node3="WEAPON_SAI-MacroNode22_1" />
+    <WEAPON_SAI-Triangle-7_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode23_1"  Node2="WEAPON_SAI-MacroNode24_1"  Node3="WEAPON_SAI-MacroNode16_1" />
+    <WEAPON_SAI-Triangle-8_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode15_1"  Node2="WEAPON_SAI-MacroNode12_1"  Node3="WEAPON_SAI-MacroNode14_1" />
+    <WEAPON_SAI-Triangle-9_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode24_1"  Node2="WEAPON_SAI-MacroNode25_1"  Node3="WEAPON_SAI-MacroNode23_1" />
+    <WEAPON_SAI-Triangle-10_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode25_1"  Node2="WEAPON_SAI-MacroNode26_1"  Node3="WEAPON_SAI-MacroNode24_1" />
+    <WEAPON_SAI-Triangle-11_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode26_1"  Node2="WEAPON_SAI-MacroNode25_1"  Node3="WEAPON_SAI-MacroNode28_1" />
+    <WEAPON_SAI-Triangle-12_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode27_1"  Node2="WEAPON_SAI-MacroNode26_1"  Node3="WEAPON_SAI-MacroNode28_1" />
+    <WEAPON_SAI-Triangle-13_1 Type="Triangle"  Node1="WEAPON_SAI-MacroNode27_1"  Node2="WEAPON_SAI-MacroNode29_1"  Node3="WEAPON_SAI-MacroNode28_1" />
+
+    <WEAPON_SAI-Capsule-Edge30_2 Type="Capsule"  Edge="WEAPON_SAI-Edge30_2"  Radius1="4"  Radius2="4"  Margin1="0"  Margin2="0" />
+    <WEAPON_SAI-Capsule-Edge31_2 Type="Capsule"  Edge="WEAPON_SAI-Edge31_2"  Radius1="1"  Radius2="1"  Margin1="0.5"  Margin2="0" />
+    <WEAPON_SAI-Triangle-1_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode20_2"  Node2="WEAPON_SAI-MacroNode18_2"  Node3="WEAPON_SAI-MacroNode19_2" />
+    <WEAPON_SAI-Triangle-2_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode20_2"  Node2="WEAPON_SAI-MacroNode17_2"  Node3="WEAPON_SAI-MacroNode18_2" />
+    <WEAPON_SAI-Triangle-3_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode20_2"  Node2="WEAPON_SAI-MacroNode21_2"  Node3="WEAPON_SAI-MacroNode17_2" />
+    <WEAPON_SAI-Triangle-4_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode21_2"  Node2="WEAPON_SAI-MacroNode16_2"  Node3="WEAPON_SAI-MacroNode17_2" />
+    <WEAPON_SAI-Triangle-5_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode16_2"  Node2="WEAPON_SAI-MacroNode22_2"  Node3="WEAPON_SAI-MacroNode21_2" />
+    <WEAPON_SAI-Triangle-6_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode23_2"  Node2="WEAPON_SAI-MacroNode16_2"  Node3="WEAPON_SAI-MacroNode22_2" />
+    <WEAPON_SAI-Triangle-7_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode23_2"  Node2="WEAPON_SAI-MacroNode24_2"  Node3="WEAPON_SAI-MacroNode16_2" />
+    <WEAPON_SAI-Triangle-8_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode15_2"  Node2="WEAPON_SAI-MacroNode12_2"  Node3="WEAPON_SAI-MacroNode14_2" />
+    <WEAPON_SAI-Triangle-9_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode24_2"  Node2="WEAPON_SAI-MacroNode25_2"  Node3="WEAPON_SAI-MacroNode23_2" />
+    <WEAPON_SAI-Triangle-10_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode25_2"  Node2="WEAPON_SAI-MacroNode26_2"  Node3="WEAPON_SAI-MacroNode24_2" />
+    <WEAPON_SAI-Triangle-11_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode26_2"  Node2="WEAPON_SAI-MacroNode25_2"  Node3="WEAPON_SAI-MacroNode28_2" />
+    <WEAPON_SAI-Triangle-12_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode27_2"  Node2="WEAPON_SAI-MacroNode26_2"  Node3="WEAPON_SAI-MacroNode28_2" />
+    <WEAPON_SAI-Triangle-13_2 Type="Triangle"  Node1="WEAPON_SAI-MacroNode27_2"  Node2="WEAPON_SAI-MacroNode29_2"  Node3="WEAPON_SAI-MacroNode28_2" />
+  </Figures>
+</Scene>
