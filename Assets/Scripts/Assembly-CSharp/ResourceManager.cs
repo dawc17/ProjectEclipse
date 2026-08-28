@@ -219,15 +219,8 @@ public static class ResourceManager
 		{
 			if (!_devXmlRootInit)
 			{
+				_devXmlRoot = GameplayContentArchive.GetXmlRoot();
 				_devXmlRootInit = true;
-				try
-				{
-					_devXmlRoot = Path.GetFullPath(Path.Combine(Application.dataPath, "xml"));
-				}
-				catch
-				{
-					_devXmlRoot = null;
-				}
 			}
 			return _devXmlRoot;
 		}

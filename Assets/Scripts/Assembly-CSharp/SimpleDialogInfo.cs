@@ -3,6 +3,8 @@ using Nekki.SF2.GUI.Dialogs;
 
 public class SimpleDialogInfo
 {
+	public bool UseLiteralText;
+
 	public string Title = string.Empty;
 
 	public string GGDJIPKMKFC = string.Empty;

@@ -58,31 +58,9 @@ namespace Nekki.Social
 
 		private IEnumerator Load()
 		{
-			_inProcess = true;
-			ALPOFHNCFOE aLPOFHNCFOE = null;
-			foreach (KeyValuePair<string, ALPOFHNCFOE> item in ECDIFOJMMEL)
-			{
-				aLPOFHNCFOE = item.Value;
-			}
-			if (aLPOFHNCFOE != null)
-			{
-				WWW wWW = new WWW(aLPOFHNCFOE.Info.CIHLLDHJLON());
-				yield return wWW;
-				if (string.IsNullOrEmpty(wWW.error))
-				{
-					if (_avatars.ContainsKey(aLPOFHNCFOE.Info.NDLJPNCIJIP()))
-					{
-						_avatars[aLPOFHNCFOE.Info.NDLJPNCIJIP()] = wWW.texture;
-					}
-					else
-					{
-						_avatars.Add(aLPOFHNCFOE.Info.NDLJPNCIJIP(), wWW.texture);
-					}
-					aLPOFHNCFOE.OnDone(aLPOFHNCFOE.Info.NDLJPNCIJIP(), _avatars[aLPOFHNCFOE.Info.NDLJPNCIJIP()]);
-				}
-				ECDIFOJMMEL.Remove(aLPOFHNCFOE.Info.NDLJPNCIJIP());
-			}
+			ECDIFOJMMEL.Clear();
 			_inProcess = false;
+			yield break;
 		}
 	}
 }

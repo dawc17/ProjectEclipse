@@ -570,146 +570,35 @@ public abstract class ServerProviderBase : MonoBehaviour
 
 	public virtual void Join(Action<bool> onDone, Action<string> onError)
 	{
-		if (Check())
-		{
-			IEnumerator enumerator = JoinRoutine(onDone, onError);
-			if (!UserInfo.op_Implicit(Social.NLEKLPFPLPC()))
-			{
-				AdvLog.LOPHFKMOPAA("ServerProvider.Join(..) hold while SocialWrapper.CurrentUser is null");
-				_holdRoutine.Add(enumerator);
-			}
-			else
-			{
-				StartCoroutine(enumerator);
-			}
-		}
+		onError?.Invoke("offline build");
 	}
 
 	protected virtual IEnumerator JoinRoutine(Action<bool> onDone, Action<string> onError)
 	{
-		Form lBFANOCPALF = new Form();
-		lBFANOCPALF.Add("uid", Social.NLEKLPFPLPC().NDLJPNCIJIP());
-		lBFANOCPALF.Add("photo", Social.NLEKLPFPLPC().CIHLLDHJLON());
-		lBFANOCPALF.Add("fname", Social.NLEKLPFPLPC().FJANLLCDPCP());
-		lBFANOCPALF.Add("lname", Social.NLEKLPFPLPC().GKKFLFIACMN());
-		WWW wWW = new WWW(string.Format("{0}/join.php", NFKOPHMCLFF()), Form.op_Implicit(lBFANOCPALF));
-		yield return wWW;
-		if (!string.IsNullOrEmpty(wWW.error))
-		{
-			onError(wWW.error);
-			yield break;
-		}
-		try
-		{
-			FFCINPEAEBE fFCINPEAEBE = FFCINPEAEBE.Get(wWW.text);
-			if (string.IsNullOrEmpty(fFCINPEAEBE.JDONBAPIJCG))
-			{
-				onDone(fFCINPEAEBE.GIHDDAKBMHE.Equals("new"));
-			}
-			else
-			{
-				onError(fFCINPEAEBE.JDONBAPIJCG ?? string.Empty);
-			}
-		}
-		catch (Exception ex)
-		{
-			onError(ex.Message);
-		}
+		onError?.Invoke("offline build");
+		yield break;
 	}
 
 	public virtual void SaveData(string LOKLDPLAPOL, string data, Action onDone, Action<string> onError)
 	{
-		if (Check())
-		{
-			IEnumerator enumerator = SaveDataRoutine(LOKLDPLAPOL, data, onDone, onError);
-			if (!UserInfo.op_Implicit(Social.NLEKLPFPLPC()))
-			{
-				AdvLog.LOPHFKMOPAA("ServerProvider.SaveData(..) hold while SocialWrapper.CurrentUser is null");
-				_holdRoutine.Add(enumerator);
-			}
-			else
-			{
-				StartCoroutine(enumerator);
-			}
-		}
+		onError?.Invoke("offline build");
 	}
 
 	protected virtual IEnumerator SaveDataRoutine(string LOKLDPLAPOL, string data, Action onDone, Action<string> onError)
 	{
-		Form lBFANOCPALF = new Form();
-		lBFANOCPALF.Add("uid", SocialWrapper.NLEKLPFPLPC().NDLJPNCIJIP());
-		lBFANOCPALF.Add("alias", LOKLDPLAPOL);
-		lBFANOCPALF.Add("data", data);
-		WWW wWW = new WWW(string.Format("{0}/put.php", NFKOPHMCLFF()), Form.op_Implicit(lBFANOCPALF));
-		yield return wWW;
-		if (!string.IsNullOrEmpty(wWW.error))
-		{
-			onError(wWW.error);
-			yield break;
-		}
-		try
-		{
-			FFCINPEAEBE fFCINPEAEBE = FFCINPEAEBE.Get(wWW.text);
-			if (string.IsNullOrEmpty(fFCINPEAEBE.JDONBAPIJCG))
-			{
-				onDone();
-			}
-			else
-			{
-				onError(fFCINPEAEBE.JDONBAPIJCG ?? string.Empty);
-			}
-		}
-		catch (Exception ex)
-		{
-			onError(ex.Message);
-		}
+		onError?.Invoke("offline build");
+		yield break;
 	}
 
 	public virtual void LoadData(string LOKLDPLAPOL, Action<string> onDone, Action<string> onError)
 	{
-		if (Check())
-		{
-			IEnumerator enumerator = LoadDataRoutine(LOKLDPLAPOL, onDone, onError);
-			if (!UserInfo.op_Implicit(Social.NLEKLPFPLPC()))
-			{
-				AdvLog.LOPHFKMOPAA("ServerProvider.LoadData(..) holden while SocialWrapper.CurrentUser is null");
-				_holdRoutine.Add(enumerator);
-			}
-			else
-			{
-				StartCoroutine(enumerator);
-			}
-		}
+		onError?.Invoke("offline build");
 	}
 
 	protected virtual IEnumerator LoadDataRoutine(string LOKLDPLAPOL, Action<string> onDone, Action<string> onError)
 	{
-		Form lBFANOCPALF = new Form();
-		lBFANOCPALF.Add("uid", Social.NLEKLPFPLPC().NDLJPNCIJIP());
-		lBFANOCPALF.Add("alias", LOKLDPLAPOL);
-		WWW wWW = new WWW(string.Format("{0}/get.php", NFKOPHMCLFF()), Form.op_Implicit(lBFANOCPALF));
-		yield return wWW;
-		if (!string.IsNullOrEmpty(wWW.error))
-		{
-			onError(wWW.error);
-			yield break;
-		}
-		try
-		{
-			FFCINPEAEBE fFCINPEAEBE = FFCINPEAEBE.Get(wWW.text);
-			if (string.IsNullOrEmpty(fFCINPEAEBE.JDONBAPIJCG))
-			{
-				onDone(Unescape(fFCINPEAEBE.GIHDDAKBMHE));
-			}
-			else
-			{
-				onError(fFCINPEAEBE.JDONBAPIJCG ?? string.Empty);
-			}
-		}
-		catch (Exception ex)
-		{
-			onError(ex.Message);
-		}
+		onError?.Invoke("offline build");
+		yield break;
 	}
 
 	protected string Unescape(string DCJLKCFKCOM)
@@ -723,135 +612,39 @@ public abstract class ServerProviderBase : MonoBehaviour
 
 	public virtual void TimeSync(Action<long> onDone, Action<string> onError)
 	{
-		if (Check())
-		{
-			IEnumerator routine = TimeSyncRoutine(onDone, onError);
-			StartCoroutine(routine);
-		}
+		onDone?.Invoke((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
 	}
 
 	protected virtual IEnumerator TimeSyncRoutine(Action<long> onDone, Action<string> onError)
 	{
-		WWW wWW = new WWW(form: Form.op_Implicit(new Form()), url: string.Format("{0}/time.php", NFKOPHMCLFF()));
-		yield return wWW;
-		if (!string.IsNullOrEmpty(wWW.error))
-		{
-			onError(wWW.error);
-			yield break;
-		}
-		try
-		{
-			FFCINPEAEBE fFCINPEAEBE = FFCINPEAEBE.Get(wWW.text);
-			if (string.IsNullOrEmpty(fFCINPEAEBE.JDONBAPIJCG))
-			{
-				onDone(long.Parse(fFCINPEAEBE.GIHDDAKBMHE.Trim()));
-			}
-			else
-			{
-				onError(fFCINPEAEBE.JDONBAPIJCG ?? string.Empty);
-			}
-		}
-		catch (Exception ex)
-		{
-			onError(ex.Message);
-		}
+		onDone?.Invoke((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
+		yield break;
 	}
 
 	public virtual void WipeUser(Action onDone, Action<string> onError)
 	{
-		if (Check())
-		{
-			IEnumerator enumerator = WipeUserRoutine(onDone, onError);
-			if (!UserInfo.op_Implicit(Social.NLEKLPFPLPC()))
-			{
-				AdvLog.LOPHFKMOPAA("ServerProvider.WipeUser(..) hold while SocialWrapper.CurrentUser is null");
-				_holdRoutine.Add(enumerator);
-			}
-			else
-			{
-				StartCoroutine(enumerator);
-			}
-		}
+		onError?.Invoke("offline build");
 	}
 
 	protected virtual IEnumerator WipeUserRoutine(Action onDone, Action<string> onError)
 	{
-		Form lBFANOCPALF = new Form();
-		lBFANOCPALF.Add("uid", Social.NLEKLPFPLPC().NDLJPNCIJIP());
-		WWW wWW = new WWW(string.Format("{0}/wipe.php", NFKOPHMCLFF()), Form.op_Implicit(lBFANOCPALF));
-		yield return wWW;
-		if (!string.IsNullOrEmpty(wWW.error))
-		{
-			onError(wWW.error);
-			yield break;
-		}
-		try
-		{
-			FFCINPEAEBE fFCINPEAEBE = FFCINPEAEBE.Get(wWW.text);
-			if (string.IsNullOrEmpty(fFCINPEAEBE.JDONBAPIJCG))
-			{
-				onDone();
-			}
-			else
-			{
-				onError(fFCINPEAEBE.JDONBAPIJCG ?? string.Empty);
-			}
-		}
-		catch (Exception ex)
-		{
-			onError(ex.Message);
-		}
+		onError?.Invoke("offline build");
+		yield break;
 	}
 
 	public virtual NNFJBMBACHB Query(APKPDGMFGDL KOGEDGJJMPO)
 	{
-		WWW wWW = new WWW(string.Format("{0}/query.php", NFKOPHMCLFF()), APKPDGMFGDL.op_Implicit(KOGEDGJJMPO));
-		while (!wWW.isDone && string.IsNullOrEmpty(wWW.error))
-		{
-		}
-		if (!string.IsNullOrEmpty(wWW.error))
-		{
-			throw new Exception(wWW.error);
-		}
-		string aJSON = wWW.text.Replace("\\\"", "\"");
-		JSONNode jSONNode = JSON.Parse(aJSON);
-		if (string.IsNullOrEmpty(jSONNode["error"]))
-		{
-			return new NNFJBMBACHB(jSONNode["response"].AsArray, KOGEDGJJMPO);
-		}
-		throw new Exception(jSONNode["error"]);
+		throw new NotSupportedException("Remote queries are disabled in the offline build.");
 	}
 
 	public virtual void Query(APKPDGMFGDL KOGEDGJJMPO, Action<NNFJBMBACHB> onDone, Action<string> onError)
 	{
-		StartCoroutine(LGDPJMAFNJH(KOGEDGJJMPO, onDone, onError));
+		onError?.Invoke("offline build");
 	}
 
 	protected virtual IEnumerator LGDPJMAFNJH(APKPDGMFGDL KOGEDGJJMPO, Action<NNFJBMBACHB> onDone, Action<string> onError)
 	{
-		WWW wWW = new WWW(string.Format("{0}/query.php", NFKOPHMCLFF()), APKPDGMFGDL.op_Implicit(KOGEDGJJMPO));
-		yield return wWW;
-		if (!string.IsNullOrEmpty(wWW.error))
-		{
-			onError(wWW.error);
-			yield break;
-		}
-		try
-		{
-			string aJSON = wWW.text.Replace("\\\"", "\"");
-			JSONNode jSONNode = JSON.Parse(aJSON);
-			if (string.IsNullOrEmpty(jSONNode["error"]))
-			{
-				onDone(new NNFJBMBACHB(jSONNode["response"].AsArray, KOGEDGJJMPO));
-			}
-			else
-			{
-				onError(jSONNode["error"]);
-			}
-		}
-		catch (Exception ex)
-		{
-			onError(ex.Message);
-		}
+		onError?.Invoke("offline build");
+		yield break;
 	}
 }

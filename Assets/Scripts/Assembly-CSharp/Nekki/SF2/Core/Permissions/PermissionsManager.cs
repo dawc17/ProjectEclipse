@@ -51,54 +51,22 @@ namespace Nekki.SF2.Core.Permissions
 
 		public bool CheckPermissions(string[] OHELAJEAOLC)
 		{
-			if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
-			{
-				bool flag = false;
-				using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-				{
-					return androidJavaClass.CallStatic<bool>("CheckPermissions", new object[1] { HIOIONCFPEP(OHELAJEAOLC) });
-				}
-			}
-			return true;
+			return true; // Offline gameplay requests no account or phone permissions.
 		}
 
 		public bool IsShouldShowRequestPermissionsRationale(string[] OHELAJEAOLC)
 		{
-			if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
-			{
-				bool flag = false;
-				using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-				{
-					return androidJavaClass.CallStatic<bool>("IsShouldShowRequestPermissionsRationale", new object[1] { HIOIONCFPEP(OHELAJEAOLC) });
-				}
-			}
-			return true;
+			return false;
 		}
 
 		public void RequestPermissions(string[] OHELAJEAOLC, Action<string[], PermissionRequestResult> PLFCFPHMKJM, PermissionDialog ECHGBOPIDEP)
 		{
-			_Permissions = OHELAJEAOLC;
-			DCGFFIDPABB = PLFCFPHMKJM;
-			if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
-			{
-				using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-				{
-					androidJavaClass.CallStatic("RequestPermissions", HIOIONCFPEP(OHELAJEAOLC), ECHGBOPIDEP.IDLDKFEPJLI(), ECHGBOPIDEP.ILMJJEMPKCN(), ECHGBOPIDEP.EDPLBKPHCMN()[0], ECHGBOPIDEP.EDPLBKPHCMN()[1], ECHGBOPIDEP.EDPLBKPHCMN()[2]);
-				}
-			}
+			PLFCFPHMKJM?.Invoke(OHELAJEAOLC, PermissionRequestResult.Granded);
 		}
 
 		public void RequestPermissionsWithExplanation(string[] OHELAJEAOLC, Action<string[], PermissionRequestResult> PLFCFPHMKJM, PermissionDialog CLLNCCOKMHK, PermissionDialog ECHGBOPIDEP)
 		{
-			_Permissions = OHELAJEAOLC;
-			DCGFFIDPABB = PLFCFPHMKJM;
-			if (Application.platform == RuntimePlatform.Android && !Application.isEditor)
-			{
-				using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-				{
-					androidJavaClass.CallStatic("RequestPermissionsWithExplanation", HIOIONCFPEP(OHELAJEAOLC), CLLNCCOKMHK.IDLDKFEPJLI(), CLLNCCOKMHK.ILMJJEMPKCN(), CLLNCCOKMHK.EDPLBKPHCMN()[0], ECHGBOPIDEP.IDLDKFEPJLI(), ECHGBOPIDEP.ILMJJEMPKCN(), ECHGBOPIDEP.EDPLBKPHCMN()[0], ECHGBOPIDEP.EDPLBKPHCMN()[1], ECHGBOPIDEP.EDPLBKPHCMN()[2]);
-				}
-			}
+			PLFCFPHMKJM?.Invoke(OHELAJEAOLC, PermissionRequestResult.Granded);
 		}
 
 		private static AndroidJavaObject HIOIONCFPEP(string[] AALGCAPHOED)

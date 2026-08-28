@@ -9,7 +9,6 @@ using Nekki.SF2.Core;
 using Nekki.SF2.Core.Quests;
 using Nekki.SF2.GUI.Menu;
 using Nekki.Utils;
-using TheNextFlow.UnityPlugins;
 using UnityEngine;
 
 public class ListSF
@@ -335,7 +334,8 @@ public class ListSF
 
 	public void IAAELKAKHPN()
 	{
-		MHOCDMBMALI();
+		FMDDGHBNGHG = false;
+		CEPOJOPGFIG();
 	}
 
 	public void MHOCDMBMALI()
@@ -1638,7 +1638,7 @@ public class ListSF
 			message = LocalizationManager.GetString("HackMessage");
 			cancel = LocalizationManager.GetString("HackButton");
 		}
-		MobileNativePopups.OpenAlertDialog(title, message, cancel, HAKPODKIJDJ);
+		DialogsOpener.OpenLocalAlertDialog(title, message, cancel, HAKPODKIJDJ);
 	}
 
 	private void HAKPODKIJDJ()

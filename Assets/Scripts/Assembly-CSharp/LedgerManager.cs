@@ -11,8 +11,8 @@ public class LedgerManager
 
 	public void Check()
 	{
-		string bEPKJNKCKPH = GeneralConfig.ELEBLBJKDBI().IMOKGIDCANG().KLMLKCKNNFD() + "clist";
-		ServerProvider.get_Instance().CheckLedger(bEPKJNKCKPH, ACPAMDHCFFE);
+		// The dojo calls this during Fight construction. Offline startup does not
+		// load remote ledger settings, and local fights must not depend on them.
 	}
 
 	private void ACPAMDHCFFE(bool DCJLKCFKCOM, string data, object IEHMCKBJCAK)
@@ -100,12 +100,7 @@ public class LedgerManager
 
 	private void LIIBANIDLLI()
 	{
-		if (unconfirmedIds.Count > 0)
-		{
-			string bEPKJNKCKPH = GeneralConfig.ELEBLBJKDBI().IMOKGIDCANG().KLMLKCKNNFD() + "caccept";
-			string dIAIIPCBMFL = string.Join(",", unconfirmedIds.Select((int OKNNNLIPODI) => OKNNNLIPODI.ToString()).ToArray());
-			ServerProvider.get_Instance().ConfirmLedger(bEPKJNKCKPH, KDLADLABMGE, dIAIIPCBMFL);
-		}
+		// No remote reward confirmation in offline builds.
 	}
 
 	private void KDLADLABMGE(bool DCJLKCFKCOM, string data, object IEHMCKBJCAK)

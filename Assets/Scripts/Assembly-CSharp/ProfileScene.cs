@@ -82,6 +82,10 @@ public class ProfileScene : Scene<ProfileScene>
 	private bool OHDPMGDBCCF = true;
 
 	private bool IBADMKPHOOJ;
+	private bool _trickPreviewActive;
+	private string _previewAnimationName;
+	public event System.Action<object> TrickPreviewCompleted;
+	public event System.Action<object> ProfileClosing;
 
 	private float BKACEHDPGKC = 1f;
 
@@ -219,6 +223,7 @@ public class ProfileScene : Scene<ProfileScene>
 
 	private void CGFOHBFAJBL()
 	{
+		_trickPreviewActive = true;
 		_leftPanel.gameObject.SetActive(false);
 		EIDKMLIOKOD = true;
 		OHDPMGDBCCF = false;
@@ -233,10 +238,13 @@ public class ProfileScene : Scene<ProfileScene>
 
 	private void LDFKBJAHGII(object data)
 	{
-		if (IBADMKPHOOJ)
+		Model.EventModel modelEvent = data as Model.EventModel;
+		InfoAnimation animation = modelEvent == null ? null : modelEvent.Data as InfoAnimation;
+		if (IBADMKPHOOJ && animation != null && animation.Name == _previewAnimationName)
 		{
-			ModelContainer.ResetModel();
 			IBADMKPHOOJ = false;
+			_previewAnimationName = null;
+			ModelContainer.ResetModel();
 			_backgroundLeft.color = Constants.GFBLKELEBEH;
 			_backgroundRight.color = Constants.GFBLKELEBEH;
 			OOHJAHDHEAP();
@@ -292,8 +300,9 @@ public class ProfileScene : Scene<ProfileScene>
 				BKACEHDPGKC = 1f;
 				EIDKMLIOKOD = false;
 				_leftPanel.gameObject.SetActive(true);
-				SubItem.EnableAnimation(true);
-				GameUtils.KKNGFGMJKHG();
+				bool completedPreview = _trickPreviewActive;
+				ReleaseTrickPreviewInput();
+				if (completedPreview) TrickPreviewCompleted?.Invoke(null);
 			}
 			_profileUIGroup.alpha = BKACEHDPGKC;
 		}
@@ -319,10 +328,26 @@ public class ProfileScene : Scene<ProfileScene>
 	{
 		if (MKGONDJABAH != null)
 		{
-			ModelContainer.PlayAnimation(MKGONDJABAH.Name);
 			IBADMKPHOOJ = true;
+			_previewAnimationName = MKGONDJABAH.Name;
 			MKGONDJABAH = null;
+			if (ModelContainer.TryPlayAnimation(_previewAnimationName)) return;
 		}
+		// A missing recovered animation must not strand the hidden UI/input lock.
+		Debug.LogWarning("[Profile] Preview unavailable; restoring profile controls.");
+		IBADMKPHOOJ = false;
+		_previewAnimationName = null;
+		_backgroundLeft.color = Constants.GFBLKELEBEH;
+		_backgroundRight.color = Constants.GFBLKELEBEH;
+		OOHJAHDHEAP();
+	}
+
+	private void ReleaseTrickPreviewInput()
+	{
+		if (!_trickPreviewActive) return;
+		_trickPreviewActive = false;
+		SubItem.EnableAnimation(true);
+		GameUtils.KKNGFGMJKHG();
 	}
 
 	private void INKIBPEDNJL()
@@ -1007,6 +1032,8 @@ public class ProfileScene : Scene<ProfileScene>
 
 	private new void OnDestroy()
 	{
+		ReleaseTrickPreviewInput();
+		ProfileClosing?.Invoke(null);
 		_perksTable.onSelectCell.RemoveAllListeners();
 		_achievementsTable.onSelectCell.RemoveAllListeners();
 		_achievementsTable.onSelectCell.RemoveAllListeners();

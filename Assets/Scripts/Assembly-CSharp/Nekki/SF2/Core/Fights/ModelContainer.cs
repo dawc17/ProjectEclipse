@@ -260,11 +260,18 @@ namespace Nekki.SF2.Core.Fights
 
 		public void PlayAnimation(string name, int AOJJBKLCHJO = 1)
 		{
+			TryPlayAnimation(name);
+		}
+
+		public bool TryPlayAnimation(string name)
+		{
 			InfoAnimation pJAHIOELGGD = AnimationData.BCIFKBJAFEC(name);
-			if (pJAHIOELGGD != null)
+			if (pJAHIOELGGD != null && _playerModel != null)
 			{
 				_playerModel.PlayAnimationDelay(pJAHIOELGGD);
+				return true;
 			}
+			return false;
 		}
 
 		private void HMAGHCEBOPK(object data)

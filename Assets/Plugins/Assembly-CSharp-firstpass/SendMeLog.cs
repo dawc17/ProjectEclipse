@@ -56,7 +56,7 @@ public class SendMeLog : MonoBehaviour
 			string text = WWW.EscapeURL(string.Format("Log from [{0}:{1}:{2}] {3}", SystemInfo.deviceModel, SystemInfo.deviceName, SystemInfo.deviceType, SystemInfo.deviceUniqueIdentifier)).Replace("+", "%20");
 			string text2 = WWW.EscapeURL(Log.ToString()).Replace("+", "%20");
 			string url = "mailto:" + _email + "?subject=" + text + "&body=" + text2;
-			Application.OpenURL(url);
+			OfflineServices.OpenExternalUrl(url);
 		}
 	}
 }

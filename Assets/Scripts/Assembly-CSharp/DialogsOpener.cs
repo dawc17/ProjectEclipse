@@ -6,6 +6,25 @@ using UnityEngine;
 
 public class DialogsOpener
 {
+	// Local replacement for the removed MobileNativePopups plugin. Reuse the
+	// game's touch/mouse dialog and its existing input-lock lifetime.
+	public static void OpenLocalAlertDialog(string title, string message, string ok, Action onOk)
+	{
+		OpenLocalAlertDialog(title, message, ok, string.Empty, onOk, null);
+	}
+
+	public static void OpenLocalAlertDialog(string title, string message, string ok, string cancel, Action onOk, Action onCancel)
+	{
+		bool completed = false;
+		PEDJMOMBJJI(title, message, ok, cancel, result =>
+		{
+			if (completed) return;
+			completed = true;
+			Action callback = string.IsNullOrEmpty(cancel) || Convert.ToInt32(result) == 1 ? onOk : onCancel;
+			if (callback != null) callback();
+		}, literalText: true);
+	}
+
 	public const float HFHFJGIMFED = 65f;
 
 	public const float OFMFMJCFEPF = 90f;
@@ -58,7 +77,7 @@ public class DialogsOpener
 		return DialogsManager.LAEGPJHIGAM(DialogType.DialogStranger, jGMLAFOPBBC);
 	}
 
-	public static BaseDialog PEDJMOMBJJI(string HHAAFADDOJB, string HCPNFPMHFCM, string ALOJJLCOGMP, string PAJIOGEINPI = "", Action<object> ODDEOFKLIAG = null, LabelButton.FBMGEHJPPIK HGAGMJENCNM = LabelButton.FBMGEHJPPIK.BUTTON_WHITE, LabelButton.FBMGEHJPPIK PHBOACBIMMF = LabelButton.FBMGEHJPPIK.BUTTON_DARK, bool LMAFOFCILBL = false, bool EPHHGNKDPEG = false, string DOEEIGAHKEN = "")
+	public static BaseDialog PEDJMOMBJJI(string HHAAFADDOJB, string HCPNFPMHFCM, string ALOJJLCOGMP, string PAJIOGEINPI = "", Action<object> ODDEOFKLIAG = null, LabelButton.FBMGEHJPPIK HGAGMJENCNM = LabelButton.FBMGEHJPPIK.BUTTON_WHITE, LabelButton.FBMGEHJPPIK PHBOACBIMMF = LabelButton.FBMGEHJPPIK.BUTTON_DARK, bool LMAFOFCILBL = false, bool EPHHGNKDPEG = false, string DOEEIGAHKEN = "", bool literalText = false)
 	{
 		BaseDialog.KBDHPMOMJLL hJNAHNICGMH = BaseDialog.KBDHPMOMJLL.FOOTER_BOTH;
 		if (ALOJJLCOGMP == string.Empty || PAJIOGEINPI == string.Empty)
@@ -67,6 +86,7 @@ public class DialogsOpener
 			hJNAHNICGMH = ((ALOJJLCOGMP != string.Empty) ? BaseDialog.KBDHPMOMJLL.FOOTER_OK : ((PAJIOGEINPI != string.Empty) ? BaseDialog.KBDHPMOMJLL.FOOTER_CANCEL : BaseDialog.KBDHPMOMJLL.FOOTER_NONE));
 		}
 		SimpleDialogInfo jGMLAFOPBBC = new SimpleDialogInfo(HHAAFADDOJB, HCPNFPMHFCM, hJNAHNICGMH, ALOJJLCOGMP, PAJIOGEINPI, HGAGMJENCNM, PHBOACBIMMF, LMAFOFCILBL, EPHHGNKDPEG, DOEEIGAHKEN, ODDEOFKLIAG);
+		jGMLAFOPBBC.UseLiteralText = literalText;
 		BaseDialog baseDialog = DialogsManager.LAEGPJHIGAM(DialogType.DialogSimple, jGMLAFOPBBC);
 		if (ODDEOFKLIAG != null)
 		{
@@ -216,6 +236,6 @@ public class DialogsOpener
 
 	public static void LMHIIMALDKF()
 	{
-		Application.OpenURL(InternetController.DMFANLAIJMN());
+		OfflineServices.OpenExternalUrl(InternetController.DMFANLAIJMN());
 	}
 }

@@ -1,46 +1,107 @@
 using System.Collections.Generic;
 using Nekki.SF2.Core.Tutorials;
 using Nekki.SF2.GUI;
+using UnityEngine;
 
 public class QuestActionStoryTutorialShowBlock : QuestAction
 {
 	private LabelButton showButon;
+	private ProfileScene profile;
+	private TutorialCanvas tutorialCanvas;
+	private bool running;
 
 	public override void DEJMHFMLKIC(QuestParameters GFIHPBCEEOB)
 	{
 		base.DEJMHFMLKIC(GFIHPBCEEOB);
-		TutorialCanvas.get_Instance().set_BlockOn(true);
-		ProfileScene current = Scene<ProfileScene>.get_Current();
-		if (current == null)
+		running = true;
+		profile = Scene<ProfileScene>.get_Current();
+		if (profile == null)
 		{
-			OGIJONMKABB();
+			Complete();
 			return;
 		}
-		List<Trick> list = GameUtils.KLLGJKHALGH();
-		list.Sort((Trick KOOLDHKJHNH, Trick MHFCMOONCHB) => KOOLDHKJHNH.Rank.CompareTo(MHFCMOONCHB.Rank));
-		Trick iHNIKIHKFHC = list[0];
-		string mENAJEAJJBE = iHNIKIHKFHC.KJHMOGGECBN.Name;
-		current.ScrollToItemByName(SliderType.SliderTricks, mENAJEAJJBE);
-		LabelButton btnStrikeShow = current.GetBtnStrikeShow();
-		btnStrikeShow.set_IsFlashing(true);
-		btnStrikeShow.GetComponent<TutorialComponent>().IsActive = true;
-		btnStrikeShow.onClick.AddListener(CDABOCGCPOH);
+		// Use the profile's block demonstration, not whichever fight move sorts first.
+		List<Trick> list = GameUtils.KLLGJKHALGH(SceneTypes.SceneProfile);
+		Trick block = list.Find(trick => trick.KJHMOGGECBN != null && trick.KJHMOGGECBN.Name == "HighBlockProfile");
+		if (block == null)
+		{
+			Debug.LogWarning("[Tutorial] Block demonstration unavailable; releasing tutorial input.");
+			Complete();
+			return;
+		}
+		profile.ScrollToItemByName(SliderType.SliderTricks, block.Name);
+		showButon = profile.GetBtnStrikeShow();
+		if (showButon == null || showButon.GetComponent<TutorialComponent>() == null)
+		{
+			Debug.LogWarning("[Tutorial] Block Show button unavailable; releasing tutorial input.");
+			Complete();
+			return;
+		}
+		profile.TrickPreviewCompleted += PCOFDIIBLCB;
+		profile.ProfileClosing += OnProfileClosing;
+		tutorialCanvas = TutorialCanvas.get_Instance();
+		tutorialCanvas.set_BlockOn(true);
+		showButon.set_IsFlashing(true);
+		showButon.GetComponent<TutorialComponent>().IsActive = true;
+		showButon.onClick.AddListener(CDABOCGCPOH);
 	}
 
 	private void CDABOCGCPOH()
 	{
-		ProfileScene current = Scene<ProfileScene>.get_Current();
-		current.ModelContainer.AddEventListener(0, PCOFDIIBLCB);
-		LabelButton btnStrikeShow = current.GetBtnStrikeShow();
-		btnStrikeShow.set_IsFlashing(false);
-		btnStrikeShow.GetComponent<TutorialComponent>().IsActive = false;
-		btnStrikeShow.onClick.RemoveListener(CDABOCGCPOH);
+		// ProfileScene owns the temporary preview lock from here. The persistent
+		// tutorial canvas must not follow the player into another scene.
+		if (tutorialCanvas != null) tutorialCanvas.set_BlockOn(false);
+		ClearButton();
 	}
 
 	private void PCOFDIIBLCB(object data)
 	{
-		ProfileScene current = Scene<ProfileScene>.get_Current();
-		current.ModelContainer.RemoveEventListener(0, PCOFDIIBLCB);
+		Complete();
+	}
+
+	private void OnProfileClosing(object data)
+	{
+		if (!running) return;
+		GKFMJKAAJCA();
+		// Cancel this run without advancing SHOW_BLOCK or opening the next
+		// tutorial on a scene being destroyed. Re-entering Profile can retry it.
+		PJGEOIKPGFH();
+	}
+
+	private void Complete()
+	{
+		if (!running) return;
+		running = false;
+		Cleanup();
 		OGIJONMKABB();
+	}
+
+	private void ClearButton()
+	{
+		if (showButon == null) return;
+		showButon.set_IsFlashing(false);
+		TutorialComponent component = showButon.GetComponent<TutorialComponent>();
+		if (component != null) component.IsActive = false;
+		showButon.onClick.RemoveListener(CDABOCGCPOH);
+		showButon = null;
+	}
+
+	private void Cleanup()
+	{
+		ClearButton();
+		if (profile != null)
+		{
+			profile.TrickPreviewCompleted -= PCOFDIIBLCB;
+			profile.ProfileClosing -= OnProfileClosing;
+		}
+		profile = null;
+		if (tutorialCanvas != null) tutorialCanvas.set_BlockOn(false);
+		tutorialCanvas = null;
+	}
+
+	public override void GKFMJKAAJCA()
+	{
+		running = false;
+		Cleanup();
 	}
 }

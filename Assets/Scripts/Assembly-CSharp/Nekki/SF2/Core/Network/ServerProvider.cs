@@ -304,82 +304,19 @@ namespace Nekki.SF2.Core.Network
 
 		protected override IEnumerator TimeSyncRoutine(Action<long> onDone, Action<string> onError)
 		{
-			WWW wWW = new WWW(get_TimeServerURL());
-			yield return wWW;
-			if (!string.IsNullOrEmpty(wWW.error))
-			{
-				onError(wWW.error);
-				yield break;
-			}
-			try
-			{
-				JSONNode jSONNode = JSON.Parse(wWW.text);
-				if (jSONNode["data"].Value.Equals("time"))
-				{
-					string value = jSONNode["value"]["timestamp"].Value;
-					long obj = long.Parse(value.Trim());
-					onDone(obj);
-				}
-				else
-				{
-					onError("data is not time");
-				}
-			}
-			catch (Exception ex)
-			{
-				onError(ex.Message);
-			}
+			onDone?.Invoke((long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds);
+			yield break;
 		}
 
 		private IEnumerator DOINCEFMGCL(string OBPHDPKKNLO, WWWForm OLMGMKFEOIK, Action<bool, string, object> p_delegate = null, object JHJDJOFPHPH = null)
 		{
-			if (OFFLINE)
-			{
-				p_delegate?.Invoke(false, "offline build", JHJDJOFPHPH);
-				yield break;
-			}
-			WWW wWW = new WWW(headers: new Dictionary<string, string> { { "User-Agent", "Nekki-mobile" } }, url: OBPHDPKKNLO, postData: OLMGMKFEOIK.data);
-			yield return wWW;
-			if (p_delegate == null)
-			{
-				yield break;
-			}
-			if (!string.IsNullOrEmpty(wWW.error))
-			{
-				UnityEngine.Debug.Log("ServerProvider: error - " + wWW.error);
-				p_delegate(false, wWW.error, JHJDJOFPHPH);
-				yield break;
-			}
-			try
-			{
-				p_delegate(true, wWW.text, JHJDJOFPHPH);
-			}
-			catch (Exception ex)
-			{
-				p_delegate(false, ex.Message, JHJDJOFPHPH);
-				LLLOJBFMONN.Error("Exception: " + ex.Message + "\nST: " + ex.StackTrace);
-			}
+			p_delegate?.Invoke(false, "offline build", JHJDJOFPHPH);
+			yield break;
 		}
 
 		public void Login(string JOPFPMFKGEO, Action<LoginData> PFCLKAALAAL, Dictionary<string, string> FBDKJJBICOK)
 		{
-			Form lBFANOCPALF = new Form();
-			if (FBDKJJBICOK != null)
-			{
-				foreach (KeyValuePair<string, string> item in FBDKJJBICOK)
-				{
-					lBFANOCPALF.Add(item.Key, item.Value);
-				}
-			}
-			lBFANOCPALF.Add("action", "user");
-			lBFANOCPALF.Add("account", JOPFPMFKGEO);
-			BGDAPMPOMFF(lBFANOCPALF);
-			GBNCELMKNFH(lBFANOCPALF);
-			AHNOPMCFKPJ(lBFANOCPALF);
-			EDPIKBGBIGN(lBFANOCPALF);
-			AMJMKNFBAMJ = PFCLKAALAAL;
-			LLLOJBFMONN.Write(lBFANOCPALF.ToString());
-			StartCoroutine(DOINCEFMGCL(get_PutServer(), (WWWForm)(lBFANOCPALF), IFIJMNGKNIM));
+			PFCLKAALAAL?.Invoke(new LoginData { EOKFDJIIKEA = false });
 		}
 
 		private KeyValuePair<long, long>? LKADGHNHOKL(JSONNode node)
@@ -657,54 +594,17 @@ namespace Nekki.SF2.Core.Network
 			}
 		}
 
-		public static bool OFFLINE = true;
+		public const bool OFFLINE = true;
 
 		public void DownloadFile(string p_url, Action<byte[], string, string> p_onDownloadComplete, Action<float> MDJEOHMECHA = null, int DGDKHFPEHOG = 0)
 		{
-			if (OFFLINE)
-			{
-				p_onDownloadComplete(new byte[0], "offline build", p_url);
-				return;
-			}
-			if (InternetUtils.JLBPKAFHNNN())
-			{
-				StartCoroutine(DownloadFileRoutine(p_url, p_onDownloadComplete, MDJEOHMECHA, DGDKHFPEHOG));
-			}
-			else
-			{
-				p_onDownloadComplete(new byte[0], "Internet is not available", p_url);
-			}
+			p_onDownloadComplete?.Invoke(new byte[0], "offline build", p_url);
 		}
 
 		private IEnumerator DownloadFileRoutine(string p_url, Action<byte[], string, string> p_onDownloadComplete, Action<float> MDJEOHMECHA = null, int DGDKHFPEHOG = 0)
 		{
-			WWW wWW = new WWW(p_url);
-			DateTime now = DateTime.Now;
-			while (!wWW.isDone && Application.internetReachability != NetworkReachability.NotReachable)
-			{
-				if (MDJEOHMECHA != null)
-				{
-					MDJEOHMECHA(wWW.progress);
-				}
-				if (DGDKHFPEHOG > 0)
-				{
-					double totalSeconds = (DateTime.Now - now).TotalSeconds;
-					if (totalSeconds > (double)DGDKHFPEHOG)
-					{
-						break;
-					}
-				}
-				yield return null;
-			}
-			if (!wWW.isDone)
-			{
-				wWW.Dispose();
-				p_onDownloadComplete(new byte[0], "Timeout", p_url);
-			}
-			else
-			{
-				p_onDownloadComplete(wWW.bytes, wWW.error, p_url);
-			}
+			p_onDownloadComplete?.Invoke(new byte[0], "offline build", p_url);
+			yield break;
 		}
 
 		public void RestoreDump(Dictionary<string, string> data, Action<bool, JSONNode, object> p_delegate, uint DGDKHFPEHOG = 5000u, bool DINOLNKLNNP = false)
@@ -776,33 +676,8 @@ namespace Nekki.SF2.Core.Network
 
 		private IEnumerator GBGCNNHAJBI(string OBPHDPKKNLO, WWWForm OLMGMKFEOIK, Action<bool, string, object> p_delegate = null, object JHJDJOFPHPH = null)
 		{
-			if (OFFLINE)
-			{
-				p_delegate?.Invoke(false, "offline build", JHJDJOFPHPH);
-				yield break;
-			}
-			UnityWebRequest unityWebRequest = UnityWebRequest.Post(OBPHDPKKNLO, OLMGMKFEOIK);
-			unityWebRequest.SetRequestHeader("User-Agent", "Nekki-mobile");
-			yield return unityWebRequest.Send();
-			if (p_delegate == null)
-			{
-				yield break;
-			}
-			if (!string.IsNullOrEmpty(unityWebRequest.error))
-			{
-				UnityEngine.Debug.Log("ServerProvider: error - " + unityWebRequest.error);
-				p_delegate(false, unityWebRequest.error, JHJDJOFPHPH);
-				yield break;
-			}
-			try
-			{
-				p_delegate(true, null, JHJDJOFPHPH);
-			}
-			catch (Exception ex)
-			{
-				p_delegate(false, ex.Message, JHJDJOFPHPH);
-				UnityEngine.Debug.Log("Exception: " + ex.Message + "\nST: " + ex.StackTrace);
-			}
+			p_delegate?.Invoke(false, "offline build", JHJDJOFPHPH);
+			yield break;
 		}
 	}
 }

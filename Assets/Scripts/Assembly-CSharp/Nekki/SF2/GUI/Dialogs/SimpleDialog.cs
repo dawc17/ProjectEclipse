@@ -33,6 +33,8 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		private Action<object> _dlg;
 
+		private bool _useLiteralText;
+
 		private string KKHONCCHNMG = string.Empty;
 
 		private bool LOOHNJPAAHD;
@@ -49,11 +51,13 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		public override void Init(object data)
 		{
+			_useLiteralText = false;
 			string dIKEFIIPNBE = string.Empty;
 			KBDHPMOMJLL hJNAHNICGMH = KBDHPMOMJLL.FOOTER_NONE;
 			if (data != null)
 			{
 				SimpleDialogInfo jJMIOMABAKK = (SimpleDialogInfo)data;
+				_useLiteralText = jJMIOMABAKK.UseLiteralText;
 				BGJJDGOBPKA = jJMIOMABAKK.BKANENCBCOA;
 				EBCJGLPLHAD = jJMIOMABAKK.FFPLNDENING;
 				CHEHEHHMDNF = jJMIOMABAKK.HBMMFJGFCPH;
@@ -72,7 +76,8 @@ namespace Nekki.SF2.GUI.Dialogs
 		protected override void Start()
 		{
 			base.Start();
-			_label.set_Alias(KKHONCCHNMG);
+			_label.set_Alias(_useLiteralText ? string.Empty : KKHONCCHNMG);
+			if (_useLiteralText) _label.set_text(KKHONCCHNMG);
 			_checkBox.gameObject.SetActive(LOOHNJPAAHD);
 			_checkBoxLabel.gameObject.SetActive(LOOHNJPAAHD);
 			if (LOOHNJPAAHD)
@@ -80,6 +85,12 @@ namespace Nekki.SF2.GUI.Dialogs
 				CreateCheckBox(CJJBDGPDOFF, IAHHOEJJJHP);
 			}
 			CGICCNNDLPC();
+		}
+
+		protected override void SetupHeader(string title)
+		{
+			base.SetupHeader(_useLiteralText ? string.Empty : title);
+			if (_useLiteralText) _header.set_text(title);
 		}
 
 		protected virtual void JNFDOIOKDJH(bool value)
@@ -210,7 +221,8 @@ namespace Nekki.SF2.GUI.Dialogs
 				break;
 			}
 			GAMILDJHFDB.SetColor(color);
-			GAMILDJHFDB.SetAlias(alias);
+			GAMILDJHFDB.SetAlias(_useLiteralText ? string.Empty : alias);
+			if (_useLiteralText) GAMILDJHFDB.SetText(alias);
 			GAMILDJHFDB.ButtonId = buttonId;
 			GAMILDJHFDB.RemoveEventListener(2, OnClose);
 			GAMILDJHFDB.AddEventListener(2, OnClose);

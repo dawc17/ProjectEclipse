@@ -10,7 +10,7 @@ using Nekki.SF2.GUI.Common;
 using Nekki.SF2.GUI.Menu;
 using Nekki.SF2.GUI.Shop;
 using UnityEngine;
-using UnityEngine.Purchasing;
+using SF2.Offline;
 
 public static class RaidCheatManager
 {

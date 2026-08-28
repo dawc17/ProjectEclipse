@@ -15,7 +15,6 @@ public class LoginModule : LoadingModule
 		if (!CHIHBINEGFL && !IADDNBMPDGL)
 		{
 			GameUtils.CGFHDKDJCPL();
-			RemoteLicenseCache.Init(SystemProperties.IJOILMDCIMI().BJPLJICEBGH());
 			NetworkController fDJHFPIFMIK = NetworkController.ELEBLBJKDBI();
 			fDJHFPIFMIK.OnLoginComplete = (Action<object>)Delegate.Combine(fDJHFPIFMIK.OnLoginComplete, new Action<object>(OnLoginComplete));
 			ListSF.ELEBLBJKDBI().IAAELKAKHPN();

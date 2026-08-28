@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using SimpleJSON;
-using UnityEngine.Purchasing;
+using SF2.Offline;
 
 public class FIKEKJBAKBO
 {

@@ -187,7 +187,7 @@ namespace Nekki.SF2.GUI.Dialogs
 		{
 			if (KNPONKPJHFJ != string.Empty)
 			{
-				Application.OpenURL(KNPONKPJHFJ);
+				OfflineServices.OpenExternalUrl(KNPONKPJHFJ);
 			}
 		}
 

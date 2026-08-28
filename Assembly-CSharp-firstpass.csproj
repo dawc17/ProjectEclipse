@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Temp\Bin\Debug\</OutputPath>
-    <DefineConstants>UNITY_2019_4_41;UNITY_2019_4;UNITY_2019;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;UNITY_ANALYTICS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;INCLUDE_DYNAMIC_GI;ENABLE_MONO_BDWGC;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;PLATFORM_STANDALONE;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_4_6;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <DefineConstants>UNITY_2019_4_41;UNITY_2019_4;UNITY_2019;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_COLLAB_SOFTLOCKS;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_NATIVE_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_RUNTIME_PERMISSIONS;ENABLE_ENGINE_CODE_STRIPPING;ENABLE_ONSCREEN_KEYBOARD;INCLUDE_DYNAMIC_GI;ENABLE_MONO_BDWGC;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;ENABLE_VIDEO;PLATFORM_ANDROID;UNITY_ANDROID;UNITY_ANDROID_API;ENABLE_EGL;ENABLE_NETWORK;ENABLE_RUNTIME_GI;ENABLE_CRUNCH_TEXTURE_COMPRESSION;PLATFORM_SUPPORTS_ADS_ID;UNITY_CAN_SHOW_SPLASH_SCREEN;UNITY_HAS_GOOGLEVR;UNITY_HAS_TANGO;ENABLE_SPATIALTRACKING;UNITY_ASTC_ONLY_DECOMPRESS;ENABLE_UNITYADS_RUNTIME;UNITY_UNITYADS_API;ENABLE_MONO;NET_4_6;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_LEGACY_INPUT_MANAGER;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169</NoWarn>
@@ -49,7 +49,7 @@
     <UnityProjectGenerator>Package</UnityProjectGenerator>
     <UnityProjectGeneratorVersion>2.0.15</UnityProjectGeneratorVersion>
     <UnityProjectType>GamePlugins:3</UnityProjectType>
-    <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
+    <UnityBuildTarget>Android:13</UnityBuildTarget>
     <UnityVersion>2019.4.41f2</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -641,7 +641,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OAJFDGLHJMC.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OBBKIBFJEMI.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OHLFKFFAOMF.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OIICDHINNMK.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OIPMMMLGOAJ.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OOINGNLNJGM.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OPBDIMHHCMJ.cs" />
@@ -651,6 +650,8 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObjectMetadata.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObjectNodeDeserializer.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ObscuredPrefs.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OfflineServices.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OfflineStoreData.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnBeforeRedirectionDelegate.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnDownloadProgressDelegate.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnErrorDelegate.cs" />
@@ -672,7 +673,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PBGMOJFHMGI.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PDFHPHPODBK.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PEELJCOAGOH.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PEILCKGHHDP.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PFIHGFCNOEG.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PILIPIHGBEG.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Packet.cs" />
@@ -881,26 +881,18 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\xxHash.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Plugins\MobileNativePopups.dll" />
-    <None Include="Assets\Plugins\P31RestKit.dll" />
     <None Include="Assets\Plugins\DOTween46.dll" />
     <None Include="Assets\Plugins\System.Configuration.dll" />
-    <None Include="Assets\Plugins\Facebook.Unity.Settings.dll" />
     <None Include="Assets\Plugins\Vectrosity.dll" />
     <None Include="Assets\Plugins\DOTween43.dll" />
-    <None Include="Assets\Plugins\Facebook.Unity.IOS.dll" />
     <None Include="Assets\Plugins\DOTween.dll" />
     <None Include="Assets\Plugins\System.Runtime.InteropServices.dll" />
-    <None Include="Assets\Plugins\Facebook.Unity.dll" />
     <None Include="Assets\Plugins\protobuf-net.dll" />
     <None Include="Assets\Plugins\Mono.Data.SqliteClient.dll" />
     <None Include="Assets\Plugins\DOTween50.dll" />
     <None Include="Assets\Plugins\Mono.Data.dll" />
-    <None Include="Assets\Plugins\UnityEngine.Purchasing.dll" />
-    <None Include="Assets\Plugins\Facebook.Unity.Android.dll" />
     <None Include="Assets\Plugins\TcpClientImplementation.dll" />
     <None Include="Assets\Plugins\System.EnterpriseServices.dll" />
-    <None Include="Assets\Plugins\SmartFox2X.dll" />
     <None Include="Assets\Plugins\System.Runtime.CompilerServices.Unsafe.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -930,12 +922,6 @@
     </Reference>
     <Reference Include="UnityEngine.ClothModule">
       <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ClothModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ClusterInputModule">
-      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ClusterInputModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.ClusterRendererModule">
-      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.ClusterRendererModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.CoreModule.dll</HintPath>
@@ -1042,9 +1028,6 @@
     <Reference Include="UnityEngine.UmbraModule">
       <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UmbraModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.UnityAnalyticsModule">
-      <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityAnalyticsModule.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEngine.UnityConnectModule">
       <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\Managed\UnityEngine\UnityEngine.UnityConnectModule.dll</HintPath>
     </Reference>
@@ -1099,35 +1082,14 @@
     <Reference Include="DOTween50">
       <HintPath>Assets\Plugins\DOTween50.dll</HintPath>
     </Reference>
-    <Reference Include="Facebook.Unity.Android">
-      <HintPath>Assets\Plugins\Facebook.Unity.Android.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.Unity">
-      <HintPath>Assets\Plugins\Facebook.Unity.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.Unity.IOS">
-      <HintPath>Assets\Plugins\Facebook.Unity.IOS.dll</HintPath>
-    </Reference>
-    <Reference Include="Facebook.Unity.Settings">
-      <HintPath>Assets\Plugins\Facebook.Unity.Settings.dll</HintPath>
-    </Reference>
-    <Reference Include="MobileNativePopups">
-      <HintPath>Assets\Plugins\MobileNativePopups.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.Data">
       <HintPath>Assets\Plugins\Mono.Data.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Data.SqliteClient">
       <HintPath>Assets\Plugins\Mono.Data.SqliteClient.dll</HintPath>
     </Reference>
-    <Reference Include="P31RestKit">
-      <HintPath>Assets\Plugins\P31RestKit.dll</HintPath>
-    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>Assets\Plugins\protobuf-net.dll</HintPath>
-    </Reference>
-    <Reference Include="SmartFox2X">
-      <HintPath>Assets\Plugins\SmartFox2X.dll</HintPath>
     </Reference>
     <Reference Include="System.Configuration">
       <HintPath>Assets\Plugins\System.Configuration.dll</HintPath>
@@ -1144,20 +1106,8 @@
     <Reference Include="TcpClientImplementation">
       <HintPath>Assets\Plugins\TcpClientImplementation.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Purchasing">
-      <HintPath>Assets\Plugins\UnityEngine.Purchasing.dll</HintPath>
-    </Reference>
     <Reference Include="Vectrosity">
       <HintPath>Assets\Plugins\Vectrosity.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.Editor">
-      <HintPath>Library\PackageCache\com.unity.analytics@3.6.12\Unity.Analytics.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>Library\PackageCache\com.unity.analytics@3.6.12\Unity.Analytics.Tracker.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>Library\PackageCache\com.unity.analytics@3.6.12\AnalyticsStandardEvents\Unity.Analytics.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib">
       <HintPath>F:\UnityInstalls\2019.4.41f2\Editor\Data\MonoBleedingEdge\lib\mono\4.7.1-api\mscorlib.dll</HintPath>
@@ -1519,17 +1469,11 @@
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Monetization">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Monetization.dll</HintPath>
-    </Reference>
     <Reference Include="com.unity.multiplayer-hlapi.Editor">
       <HintPath>Library\ScriptAssemblies\com.unity.multiplayer-hlapi.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Advertisements">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
@@ -1549,9 +1493,6 @@
     <Reference Include="Unity.Rider.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Analytics">
-      <HintPath>Library\ScriptAssemblies\Analytics.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.2D.Sprite.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
     </Reference>
@@ -1567,20 +1508,11 @@
     <Reference Include="Unity.VisualStudio.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.Advertisements.Editor">
-      <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>Library\ScriptAssemblies\Unity.Analytics.DataPrivacy.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor.XR.LegacyInputHelpers">
       <HintPath>Library\ScriptAssemblies\UnityEditor.XR.LegacyInputHelpers.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.PlasticSCM.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.PlasticSCM.Editor.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>

@@ -352,6 +352,12 @@ public class NekkiWebRequest
 
 	private void EMPGOCGHMBI()
 	{
+		NCOLKNHMCPJ = false;
+		if (!OfflineServices.IsLocalContent(KLMLKCKNNFD()))
+		{
+			NCOLKNHMCPJ = true;
+			return; // Completion/error handling remains in the normal request loop.
+		}
 		Log("WebRequest Send " + KLMLKCKNNFD());
 		if (JIHAABLAAOL && !CertificateValidator.GLHLIEOFFLN(KLMLKCKNNFD()))
 		{
@@ -482,6 +488,7 @@ public class NekkiWebRequest
 	{
 		if (NCOLKNHMCPJ)
 		{
+			if (!OfflineServices.IsLocalContent(KLMLKCKNNFD())) return OfflineServices.Unavailable;
 			return "HTTPS certificate check error";
 		}
 		if (CBBLPPKALMA)

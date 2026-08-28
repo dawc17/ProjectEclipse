@@ -86,7 +86,7 @@ public class NewsButtonMaker : global::EventDispatcher<object>
 		}
 		if (fBKMFDJBJIB.Url != string.Empty)
 		{
-			Application.OpenURL(fBKMFDJBJIB.Url);
+			OfflineServices.OpenExternalUrl(fBKMFDJBJIB.Url);
 			return;
 		}
 		if (fBKMFDJBJIB.EGBHELMJJKO && _dialog != null)

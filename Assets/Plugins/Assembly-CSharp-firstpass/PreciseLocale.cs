@@ -1,38 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public static class PreciseLocale
 {
-	private class OFGHLGPJEKM
-	{
-		private static AndroidJavaClass OGJIGPGJJDD = new AndroidJavaClass("com.kokosoft.preciselocale.PreciseLocale");
-
-		public static string FBPILFMCNGJ()
-		{
-			return OGJIGPGJJDD.CallStatic<string>("getRegion", new object[0]);
-		}
-
-		public static string PBPAPAFAMJB()
-		{
-			return OGJIGPGJJDD.CallStatic<string>("getLanguage", new object[0]);
-		}
-
-		public static string BGMAJFGKCEB()
-		{
-			return OGJIGPGJJDD.CallStatic<string>("getLanguageID", new object[0]);
-		}
-
-		public static string OHHPBPBCFPL()
-		{
-			return OGJIGPGJJDD.CallStatic<string>("getCurrencyCode", new object[0]);
-		}
-
-		public static string HIMMFECDKCI()
-		{
-			return OGJIGPGJJDD.CallStatic<string>("getCurrencySymbol", new object[0]);
-		}
-	}
-
 	private static readonly Dictionary<SystemLanguage, string> NAHDBCDHJHO = new Dictionary<SystemLanguage, string>
 	{
 		{
@@ -203,31 +175,60 @@ public static class PreciseLocale
 
 	public static string FBPILFMCNGJ()
 	{
-		return OFGHLGPJEKM.FBPILFMCNGJ();
+		RegionInfo region = GetLocalRegion();
+		return region == null ? string.Empty : region.TwoLetterISORegionName;
 	}
 
 	public static string BGMAJFGKCEB()
 	{
-		return OFGHLGPJEKM.BGMAJFGKCEB();
+		string language = PBPAPAFAMJB();
+		string region = FBPILFMCNGJ();
+		return string.IsNullOrEmpty(region) ? language : language + "_" + region;
 	}
 
 	public static string PBPAPAFAMJB()
 	{
-		return OFGHLGPJEKM.PBPAPAFAMJB();
+		// Unity already reads the device language. No third-party Java plugin is
+		// needed, and unsupported device languages must not block game startup.
+		string language = Application.systemLanguage.ToLanguageCode();
+		return language == "?" ? "en" : language;
 	}
 
 	public static string OHHPBPBCFPL()
 	{
-		return OFGHLGPJEKM.OHHPBPBCFPL();
+		RegionInfo region = GetLocalRegion();
+		return region == null ? string.Empty : region.ISOCurrencySymbol;
 	}
 
 	public static string HIMMFECDKCI()
 	{
-		return OFGHLGPJEKM.HIMMFECDKCI();
+		RegionInfo region = GetLocalRegion();
+		return region == null ? string.Empty : region.CurrencySymbol;
+	}
+
+	private static RegionInfo GetLocalRegion()
+	{
+		// Some player runtimes only expose an invariant/default managed culture.
+		// Use a region only when that culture agrees with Unity's device language;
+		// otherwise retain the language-only locale instead of inventing a region.
+		CultureInfo culture = CultureInfo.CurrentCulture;
+		string language = PBPAPAFAMJB();
+		string cultureLanguage = culture.TwoLetterISOLanguageName;
+		bool matches = cultureLanguage == language || (language == "no" && (cultureLanguage == "nb" || cultureLanguage == "nn"));
+		if (!matches || culture.IsNeutralCulture || string.IsNullOrEmpty(culture.Name)) return null;
+		try
+		{
+			return new RegionInfo(culture.Name);
+		}
+		catch (ArgumentException)
+		{
+			return null;
+		}
 	}
 
 	public static string ToLanguageCode(this SystemLanguage HBGOBBALPBP)
 	{
+		if (HBGOBBALPBP == SystemLanguage.ChineseSimplified || HBGOBBALPBP == SystemLanguage.ChineseTraditional) return "zh";
 		string value;
 		if (NAHDBCDHJHO.TryGetValue(HBGOBBALPBP, out value))
 		{

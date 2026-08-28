@@ -170,62 +170,17 @@ namespace Nekki.SF2.Core.Security
 
 		private static void FIPIAKMLEOH(AFDFFNCKPHM PCJAKPJMKGN)
 		{
-			NBBJCMPFHKM(LicenseRequestResult.Success);
+			EEKMOKDIJHN(PCJAKPJMKGN);
 		}
 
 		private static void OFOENCFPCOK(AFDFFNCKPHM PCJAKPJMKGN)
 		{
-			try
-			{
-				LLJPGGEJCPK.JOIGJOFNIKI(PCJAKPJMKGN.LNEFNLLOGGH().GJOHIPDEMOB, PCJAKPJMKGN.LNEFNLLOGGH().JHNMCGGGGGO, PCJAKPJMKGN.LNEFNLLOGGH().AIPAICPCNBE, PCJAKPJMKGN.LNEFNLLOGGH().AJKBKHIGBJN, PCJAKPJMKGN.LNEFNLLOGGH().OCGDKIOJGLP, PCJAKPJMKGN.LNEFNLLOGGH().GJOHIPDEMOB);
-			}
-			catch (Exception exception)
-			{
-				Debug.LogException(exception);
-				CKHHDELAJDO = LicenseFailReason.LicenseCheckerCorrupted;
-				NBBJCMPFHKM(LicenseRequestResult.Failed);
-			}
+			EEKMOKDIJHN(PCJAKPJMKGN);
 		}
 
 		private static void PEPPKCELDGC(AFDFFNCKPHM PCJAKPJMKGN)
 		{
-			try
-			{
-				using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-				{
-					if (PCJAKPJMKGN.HLNECMJHMCP().NKGJFHCEBLA())
-					{
-						androidJavaClass.CallStatic("EnableGooglePlayLicenseCheck", PCJAKPJMKGN.HLNECMJHMCP().OGKBLPIJPBK);
-					}
-					if (PCJAKPJMKGN.HLNECMJHMCP().PDJAOJGPFEG())
-					{
-						androidJavaClass.CallStatic("EnableSigningCertificateCheck", PCJAKPJMKGN.HLNECMJHMCP().FBFKEJEOELM);
-					}
-					if (PCJAKPJMKGN.HLNECMJHMCP().ENNGMHNJDKH)
-					{
-						androidJavaClass.CallStatic("EnableInstallIdCheck");
-					}
-					if (PCJAKPJMKGN.HLNECMJHMCP().GIIGLIJLPPB)
-					{
-						androidJavaClass.CallStatic("EnableDebugCheck");
-					}
-					if (PCJAKPJMKGN.HLNECMJHMCP().IJPBIJAIHIO)
-					{
-						androidJavaClass.CallStatic("EnableEmulatorCheck", PCJAKPJMKGN.HLNECMJHMCP().FKINJGAKICM);
-					}
-					if (PCJAKPJMKGN.HLNECMJHMCP().ONJIELDFHMP)
-					{
-						androidJavaClass.CallStatic("EnableUnauthorizedAppsCheck");
-					}
-					androidJavaClass.CallStatic("StartCheckLicense");
-				}
-			}
-			catch (Exception exception)
-			{
-				Debug.LogException(exception);
-				CKHHDELAJDO = LicenseFailReason.LicenseCheckerCorrupted;
-				NBBJCMPFHKM(LicenseRequestResult.Failed);
-			}
+			EEKMOKDIJHN(PCJAKPJMKGN);
 		}
 
 		private static void EEKMOKDIJHN(AFDFFNCKPHM PCJAKPJMKGN)
@@ -236,79 +191,16 @@ namespace Nekki.SF2.Core.Security
 
 		public string GetSignature()
 		{
-			if (Application.isEditor)
-			{
-				return string.Empty;
-			}
-			if (Application.platform == RuntimePlatform.Android)
-			{
-				try
-				{
-					string result = string.Empty;
-					using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-					{
-						result = androidJavaClass.CallStatic<string>("GetSignature", new object[0]);
-					}
-					return result;
-				}
-				catch (Exception exception)
-				{
-					Debug.LogException(exception);
-					return string.Empty;
-				}
-			}
 			return string.Empty;
 		}
 
 		public string GetInstallerId()
 		{
-			if (Application.isEditor)
-			{
-				return string.Empty;
-			}
-			if (Application.platform == RuntimePlatform.Android)
-			{
-				try
-				{
-					string result = string.Empty;
-					using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-					{
-						result = androidJavaClass.CallStatic<string>("GetInstallerId", new object[0]);
-					}
-					return result;
-				}
-				catch (Exception exception)
-				{
-					Debug.LogException(exception);
-					return string.Empty;
-				}
-			}
 			return string.Empty;
 		}
 
 		public static GooglePlayLicenseServerResponse GetGooglePlayLicenseServerResponse()
 		{
-			if (Application.isEditor)
-			{
-				return null;
-			}
-			if (Application.platform == RuntimePlatform.Android)
-			{
-				try
-				{
-					string mGDHJCDGOLJ = string.Empty;
-					using (AndroidJavaClass androidJavaClass = new AndroidJavaClass(CJEBLHDIJGP()))
-					{
-						mGDHJCDGOLJ = androidJavaClass.CallStatic<string>("GetLicenseServerResponse", new object[0]);
-					}
-					return GooglePlayLicenseServerResponse.Parse(mGDHJCDGOLJ);
-				}
-				catch (Exception exception)
-				{
-					Debug.LogException(exception);
-					return null;
-				}
-			}
 			return null;
 		}
 

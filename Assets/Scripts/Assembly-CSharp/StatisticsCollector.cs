@@ -398,36 +398,12 @@ public class StatisticsCollector
 
 	public static void BPDGOKGHDHB(StatisticsEvent.JDNFFHILFAF IGABHEMGKKE, ArgsDict LKIOKGCNKHE = null)
 	{
-		if (AOJJOEHEPGM().DCFPONJAING.Length != 0)
-		{
-			_Current.DCFPONJAING.Append("\n");
-		}
-		AOJJOEHEPGM().DCFPONJAING.Append(StatisticsEvent.PCGEAIIJICB(IGABHEMGKKE, LKIOKGCNKHE));
-		if (StatisticsEvent.KLOICDEDMEB(IGABHEMGKKE))
-		{
-			_Current.GGGEHAGCLGC();
-		}
-		if (StatisticsEvent.IFDADIENEKC(IGABHEMGKKE))
-		{
-			_Current.Send();
-		}
+		// Remote analytics removed. Combat/stat counters elsewhere remain local.
 	}
 
 	public static void KBILEMGFDDC(StatisticsEvent.JDNFFHILFAF IGABHEMGKKE, ArgsDict LKIOKGCNKHE = null)
 	{
-		if (AOJJOEHEPGM().PHGGNFPBOKD.Length != 0)
-		{
-			_Current.PHGGNFPBOKD.Append("\n");
-		}
-		AOJJOEHEPGM().PHGGNFPBOKD.Append(StatisticsEvent.PCGEAIIJICB(IGABHEMGKKE, LKIOKGCNKHE));
-		if (StatisticsEvent.KLOICDEDMEB(IGABHEMGKKE))
-		{
-			_Current.AGNMPDEFABN();
-		}
-		if (StatisticsEvent.IFDADIENEKC(IGABHEMGKKE))
-		{
-			_Current.OPGFPNFAOLH();
-		}
+		// Remote analytics removed. Combat/stat counters elsewhere remain local.
 	}
 
 	public void GLKJABEOHDF(bool MAACIEHOLML)
@@ -745,42 +721,7 @@ public class StatisticsCollector
 
 	private void Send(string EFGLOMANJHN, ref long DNGJNMNHIOB, Action<bool, string, object, string> p_delegate, int PCOENEHCGNI = 2000000, bool AOOKEDHEDHJ = true, string IBODMPMJELJ = "save_json_log")
 	{
-		FileInfo fileInfo = new FileInfo(EFGLOMANJHN);
-		if (!fileInfo.Exists)
-		{
-			return;
-		}
-		StringBuilder stringBuilder = new StringBuilder();
-		try
-		{
-			StreamReader streamReader = fileInfo.OpenText();
-			streamReader.BaseStream.Seek(DNGJNMNHIOB, SeekOrigin.Begin);
-			while (stringBuilder.Length < PCOENEHCGNI && !streamReader.EndOfStream)
-			{
-				stringBuilder.Append(streamReader.ReadLine());
-				stringBuilder.Append("\n");
-			}
-			DNGJNMNHIOB = streamReader.BaseStream.Position;
-			streamReader.Close();
-		}
-		catch (Exception ex)
-		{
-			LLLOJBFMONN.Error(ex.Message);
-		}
-		if (AOOKEDHEDHJ)
-		{
-			AHOPPPNPOHB();
-		}
-		if (stringBuilder.Length == 0)
-		{
-			p_delegate(false, null, null, null);
-			return;
-		}
-		string logResultStr = stringBuilder.ToString();
-		ServerProvider.get_Instance().SaveJsonLogAction(logResultStr, (bool AMKKLMOONEP, string GHDPPHAAPCA, object JHJDJOFPHPH) =>
-		{
-			p_delegate(AMKKLMOONEP, GHDPPHAAPCA, JHJDJOFPHPH, logResultStr);
-		}, IBODMPMJELJ);
+		// No telemetry transport.
 	}
 
 	public void EBPNOCPEOFN(bool AMKKLMOONEP, string GHDPPHAAPCA, object JHJDJOFPHPH, string CCNACAJIIGA)

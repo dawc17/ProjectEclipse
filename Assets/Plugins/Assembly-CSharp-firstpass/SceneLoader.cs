@@ -201,65 +201,29 @@ public class SceneLoader : ExtentionBehaviour
 
 	private static IEnumerator FAGFELJKCDF(string MHOCFOODLLL)
 	{
-		string url = string.Format("{0}/{1}/SceneRoot_{2}.ab", "http://127.0.0.1", GPFPJDOHCKI(), MHOCFOODLLL);
-		WWW wWW = new WWW(url);
-		yield return wWW;
-		if (string.IsNullOrEmpty(wWW.error))
+		GameObject gameObject = GlobalLoad.ACMMJDJDNDP(string.Format("Export/SceneRoot_{0}", MHOCFOODLLL));
+		if ((bool)gameObject)
 		{
-			File.WriteAllBytes(string.Format("{0}/{1}/SceneRoot_{2}.ab", get_Datapath(), GPFPJDOHCKI(), MHOCFOODLLL), wWW.bytes);
-			if (!CachedScenes.ContainsKey(MHOCFOODLLL))
-			{
-				CachedScenes.Add(MHOCFOODLLL, wWW.assetBundle);
-			}
-			else
-			{
-				CachedScenes[MHOCFOODLLL] = wWW.assetBundle;
-			}
-			get_Instance().callEvent(0, Object.Instantiate(CachedScenes[MHOCFOODLLL].mainAsset));
+			get_Instance().callEvent(0, Object.Instantiate(gameObject));
 		}
 		else
 		{
-			GameObject gameObject = GlobalLoad.ACMMJDJDNDP(string.Format("Export/SceneRoot_{0}", MHOCFOODLLL));
-			if ((bool)gameObject)
-			{
-				get_Instance().callEvent(0, Object.Instantiate(gameObject));
-			}
-			else
-			{
-				get_Instance().CCOFFJPPAKC(string.Format("cant load scene {0}: {1}", MHOCFOODLLL, wWW.error));
-			}
+			get_Instance().CCOFFJPPAKC(string.Format("cant load local scene {0}", MHOCFOODLLL));
 		}
+		yield break;
 	}
 
 	private static IEnumerator BHELPLHFJOE(string MHOCFOODLLL)
 	{
-		string url = string.Format("{0}/{1}/SceneRoot_{2}_config.ab", "http://127.0.0.1", GPFPJDOHCKI(), MHOCFOODLLL);
-		WWW wWW = new WWW(url);
-		yield return wWW;
-		if (string.IsNullOrEmpty(wWW.error))
+		GameObject gameObject = GlobalLoad.ACMMJDJDNDP(string.Format("Export/SceneRoot_{0}_config", MHOCFOODLLL));
+		if ((bool)gameObject)
 		{
-			File.WriteAllBytes(string.Format("{0}/{1}/SceneRoot_{2}_config.ab", get_Datapath(), GPFPJDOHCKI(), MHOCFOODLLL), wWW.bytes);
-			if (!CachedScenes.ContainsKey(MHOCFOODLLL))
-			{
-				CachedScenes.Add(MHOCFOODLLL, wWW.assetBundle);
-			}
-			else
-			{
-				CachedScenes[MHOCFOODLLL] = wWW.assetBundle;
-			}
-			get_Instance().callEvent(0, Object.Instantiate(CachedScenes[MHOCFOODLLL].mainAsset));
+			get_Instance().callEvent(0, Object.Instantiate(gameObject));
 		}
 		else
 		{
-			GameObject gameObject = GlobalLoad.ACMMJDJDNDP(string.Format("Export/SceneRoot_{0}_config", MHOCFOODLLL));
-			if ((bool)gameObject)
-			{
-				get_Instance().callEvent(0, Object.Instantiate(gameObject));
-			}
-			else
-			{
-				get_Instance().LOPHFKMOPAA(string.Format("cant load scene config {0}: {1}", MHOCFOODLLL, wWW.error));
-			}
+			get_Instance().LOPHFKMOPAA(string.Format("cant load local scene config {0}", MHOCFOODLLL));
 		}
+		yield break;
 	}
 }

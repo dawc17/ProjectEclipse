@@ -22,7 +22,6 @@ public class PreInitializationModule : LoadingModule
 			ApplicationController.Init();
 			RaidCheatManager.Init();
 			SF2Paths.Init();
-			FBController.Init();
 		}
 	}
 }

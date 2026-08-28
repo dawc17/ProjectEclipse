@@ -1,4 +1,4 @@
-using UnityEngine.Purchasing;
+using SF2.Offline;
 
 public static class KNCKFKIOPHE
 {

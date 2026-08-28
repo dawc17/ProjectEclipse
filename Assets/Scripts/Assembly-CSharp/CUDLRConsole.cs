@@ -182,15 +182,9 @@ public static class CUDLRConsole
 
 	private static bool APCADECIHHC()
 	{
-		try
-		{
-			return AESUtils.JLONJPHLPAL(OAJBEGCDMIB(), ENFBNOGCCBH, GBMFFFDKANM).Contains(SystemProperties.IJOILMDCIMI());
-		}
-		catch (Exception exception)
-		{
-			UnityEngine.Debug.LogException(exception);
-		}
-		return false;
+		// Local debug builds do not use the original encrypted device whitelist.
+		// Release builds keep the optional debug listener disabled.
+		return UnityEngine.Debug.isDebugBuild;
 	}
 
 	public static bool EHGELAGEGDL()
@@ -205,14 +199,10 @@ public static class CUDLRConsole
 
 	public static void Init()
 	{
+		if (!APCADECIHHC()) return;
 		if (!IPAGAFLCOGL())
 		{
 			ConsoleUI.Log("Can't start CUDLR for unsupported platform!");
-			return;
-		}
-		if (!APCADECIHHC())
-		{
-			ConsoleUI.Log("Can't start CUDLR for unregistered device <" + SystemProperties.IJOILMDCIMI() + ">!");
 			return;
 		}
 		Server server = Server.Init(44444);
@@ -228,19 +218,6 @@ public static class CUDLRConsole
 		case Server.ServerInitStatus.Success:
 			IGHJHMJNENG(true);
 			string localIp = "127.0.0.1";
-			try
-			{
-				System.Net.IPAddress[] addresses = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName()).AddressList;
-				foreach (System.Net.IPAddress ipAddress in addresses)
-				{
-					if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
-					{
-						localIp = ipAddress.ToString();
-						break;
-					}
-				}
-			}
-			catch { }
 			ConsoleUI.Log("Starting CUDLR Server on 'http://" + localIp + ":" + server.Port + "'");
 			break;
 		case Server.ServerInitStatus.Error_NoFreePorts:

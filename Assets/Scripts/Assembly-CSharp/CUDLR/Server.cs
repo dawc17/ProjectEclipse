@@ -124,7 +124,7 @@ namespace CUDLR
 			fileRoot = Path.Combine(Application.streamingAssetsPath, "CUDLR");
 			RegisterRoutes();
 			RegisterFileHandlers();
-			listener.Prefixes.Add("http://*:" + Port + "/");
+			listener.Prefixes.Add("http://127.0.0.1:" + Port + "/");
 			listener.Start();
 			listener.BeginGetContext(ListenerCallback, null);
 			StartCoroutine(HandleRequests());

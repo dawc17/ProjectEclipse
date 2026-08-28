@@ -27,7 +27,7 @@ public class QuestActionOpenUrl : QuestAction
 			string text = lNIDLHOIHIM.ToString();
 			if (text != string.Empty)
 			{
-				Application.OpenURL(text);
+				OfflineServices.OpenExternalUrl(text);
 			}
 		}
 		if (flag && CJGCIONCAGD != string.Empty)
@@ -39,7 +39,7 @@ public class QuestActionOpenUrl : QuestAction
 			string text2 = lNIDLHOIHIM2.ToString();
 			if (text2 != string.Empty)
 			{
-				Application.OpenURL(text2);
+				OfflineServices.OpenExternalUrl(text2);
 			}
 		}
 		OGIJONMKABB();

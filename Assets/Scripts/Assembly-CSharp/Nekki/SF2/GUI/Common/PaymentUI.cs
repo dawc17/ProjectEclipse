@@ -2,7 +2,7 @@ using System;
 using Nekki.SF2.GUI.Scripts;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Purchasing;
+using SF2.Offline;
 
 namespace Nekki.SF2.GUI.Common
 {

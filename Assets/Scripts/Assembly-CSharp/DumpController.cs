@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Nekki.SF2.Core.Network;
 using SimpleJSON;
-using TheNextFlow.UnityPlugins;
 using UnityEngine;
 
 public class DumpController
@@ -277,7 +276,7 @@ public class DumpController
 		string title = LocalizationManager.GetString("restoreTitle");
 		string ok = LocalizationManager.GetString("restoreBtnUpdate");
 		string cancel = LocalizationManager.GetString("CANCEL");
-		MobileNativePopups.OpenAlertDialog(title, message, ok, cancel, IELIDGGGNMN, EIOLICMENMJ);
+		DialogsOpener.OpenLocalAlertDialog(title, message, ok, cancel, IELIDGGGNMN, EIOLICMENMJ);
 	}
 
 	private void IELIDGGGNMN()
@@ -297,7 +296,7 @@ public class DumpController
 		string title = LocalizationManager.GetString("restoreTitle");
 		string ok = LocalizationManager.GetString("restoreBtnRestore");
 		string cancel = LocalizationManager.GetString("CANCEL");
-		MobileNativePopups.OpenAlertDialog(title, message, ok, cancel, EJJOACFABFE, FGBCJACJMKF);
+		DialogsOpener.OpenLocalAlertDialog(title, message, ok, cancel, EJJOACFABFE, FGBCJACJMKF);
 	}
 
 	private void EJJOACFABFE()
@@ -316,7 +315,7 @@ public class DumpController
 		string title = LocalizationManager.GetString("restoreTitle");
 		string ok = LocalizationManager.GetString("restoreBtnRestore");
 		string cancel = LocalizationManager.GetString("CANCEL");
-		MobileNativePopups.OpenAlertDialog(title, message, ok, cancel, LGMMGIDANCG, MLJJFPFKKFF);
+		DialogsOpener.OpenLocalAlertDialog(title, message, ok, cancel, LGMMGIDANCG, MLJJFPFKKFF);
 	}
 
 	private void LGMMGIDANCG()

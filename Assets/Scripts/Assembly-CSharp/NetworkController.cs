@@ -51,8 +51,16 @@ public class NetworkController
 
 	public void IFFDOFMDABC()
 	{
-		GLPIGAOBNOP = true;
-		DOJCMIFHJKM();
+		// Complete the local session without config fetches, cloud saves, news,
+		// licensing, or a fake successful server login.
+		GLPIGAOBNOP = false;
+		if (CHAPOJPCOJI)
+		{
+			ListSF.ELEBLBJKDBI().MAOPKFNKHOI();
+			CHAPOJPCOJI = false;
+		}
+		ListSF.CCDKHLAMKKO().BIHELGAGPGO();
+		AHPFEEAOFMD();
 	}
 
 	private void DOJCMIFHJKM()

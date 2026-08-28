@@ -135,14 +135,7 @@ namespace Nekki.SF2.GUI.Scenes
 			Clear();
 			FCFFELHCEEA.Stop();
 			FCFFELHCEEA.AddModule(new PreInitializationModule());
-			if (SystemProperties.FHHPHDIBEFM())
-			{
-				FCFFELHCEEA.AddModule(new SecurityModule());
-			}
-			if (SystemProperties.IPJFCBAGMJJ())
-			{
-				FCFFELHCEEA.AddModule(new PermissionsModule());
-			}
+			// Offline players need neither store licensing nor account/phone permissions.
 			FCFFELHCEEA.AddModule(new AntichitingModule());
 			FCFFELHCEEA.AddModule(new AttachFileModule());
 			FCFFELHCEEA.AddModule(new InitializationModule());

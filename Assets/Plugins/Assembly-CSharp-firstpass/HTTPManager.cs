@@ -461,20 +461,10 @@ public static class HTTPManager
 
 	public static HTTPRequest EMPGOCGHMBI(HTTPRequest ONOCIELLAPL)
 	{
-		lock (Locker)
-		{
-			PAINOJOIGMC();
-			if (NIEABCELPDJ)
-			{
-				ONOCIELLAPL.set_State(CFGBMHKCENK.Queued);
-				LCCNAGOGEBC.Add(ONOCIELLAPL);
-			}
-			else
-			{
-				KDCMNDFKCAA(ONOCIELLAPL);
-			}
-			return ONOCIELLAPL;
-		}
+		ONOCIELLAPL.set_Exception(new NotSupportedException("Network services are disabled in the offline build."));
+		ONOCIELLAPL.set_State(CFGBMHKCENK.Error);
+		ONOCIELLAPL.FOIICPPDENH()?.Invoke(ONOCIELLAPL, null);
+		return ONOCIELLAPL;
 	}
 
 	public static GeneralStatistics CBGIGIBGBLD(StatisticsQueryFlags AGADCPIIGLC)

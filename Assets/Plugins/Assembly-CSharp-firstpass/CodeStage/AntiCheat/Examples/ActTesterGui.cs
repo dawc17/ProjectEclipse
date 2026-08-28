@@ -650,7 +650,7 @@ namespace CodeStage.AntiCheat.Examples
 			}
 			if (GUILayout.Button(GCKANEECDHE, array))
 			{
-				Application.OpenURL(BEPKJNKCKPH);
+				OfflineServices.OpenExternalUrl(BEPKJNKCKPH);
 			}
 		}
 

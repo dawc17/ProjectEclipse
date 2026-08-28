@@ -27,7 +27,7 @@ public static class GameSettings
 
 	private static bool GACDAELBEOD = false;
 
-	private static bool KCIMHHCHABH = true;
+	private static bool KCIMHHCHABH = false;
 
 	private static List<QualityOption> DGOBOBLPICD = new List<QualityOption>();
 
@@ -41,7 +41,8 @@ public static class GameSettings
 
 	public static void IFBKAJPILOI()
 	{
-		KCIMHHCHABH = !Application.isEditor;
+		// Local, moddable saves are accepted in every player and in the editor.
+		KCIMHHCHABH = false;
 	}
 
 	public static void OCIPKAONMOP()

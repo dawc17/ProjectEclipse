@@ -16,6 +16,7 @@ public static class InternetUtils
 	public class DownloadFileResult
 	{
 		private WWW DFLDEDJIPEJ;
+		private string _offlineUrl;
 
 		public string Url
 		{
@@ -70,19 +71,24 @@ public static class InternetUtils
 			DFLDEDJIPEJ = OKFCHMDJIAL;
 		}
 
+		public DownloadFileResult(string offlineUrl)
+		{
+			_offlineUrl = offlineUrl;
+		}
+
 		public string KLMLKCKNNFD()
 		{
-			return DFLDEDJIPEJ.url;
+			return DFLDEDJIPEJ == null ? _offlineUrl : DFLDEDJIPEJ.url;
 		}
 
 		public byte[] CHIGLEKCFFN()
 		{
-			return DFLDEDJIPEJ.bytes;
+			return DFLDEDJIPEJ == null ? null : DFLDEDJIPEJ.bytes;
 		}
 
 		public string FCJBMLGHAME()
 		{
-			return DFLDEDJIPEJ.error;
+			return DFLDEDJIPEJ == null ? OfflineServices.Unavailable : DFLDEDJIPEJ.error;
 		}
 
 		public bool ANGCJOIMCCB()
@@ -102,6 +108,7 @@ public static class InternetUtils
 
 		public bool GCFAACCPOPF()
 		{
+			if (DFLDEDJIPEJ == null) return false;
 			bool result = false;
 			try
 			{
@@ -135,11 +142,12 @@ public static class InternetUtils
 	public static bool FCJPEABOFAA()
 	{
 		//Discarded unreachable code: IL_002f, IL_003b, IL_0072, IL_00f3, IL_00fe, IL_0113, IL_0123, IL_0138, IL_0148
-		return true;
+		return false;
 	}
 
 	public static DownloadFileResult EMANDFAOCNO(string p_url)
 	{
+		if (!OfflineServices.IsLocalContent(p_url)) return new DownloadFileResult(p_url);
 		WWW wWW = new WWW(p_url);
 		while (!wWW.isDone)
 		{
@@ -149,6 +157,7 @@ public static class InternetUtils
 
 	public static long GetContentLength(string p_url)
 	{
+		if (!OfflineServices.IsLocalContent(p_url)) return 0L;
 		UnityWebRequest unityWebRequest = UnityWebRequest.Head(p_url);
 		unityWebRequest.Send();
 		while (!unityWebRequest.isDone && Application.internetReachability != NetworkReachability.NotReachable)

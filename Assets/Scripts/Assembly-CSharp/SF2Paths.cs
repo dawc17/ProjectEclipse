@@ -381,7 +381,7 @@ public static class SF2Paths
 	public static string CBFMFIHKMFI()
 	{
 		string text = string.Empty;
-		if (Application.isEditor)
+		if (Application.platform != RuntimePlatform.Android || Application.isEditor)
 		{
 			return text;
 		}

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using UnityEngine.Purchasing;
+using SF2.Offline;
 
 public static class ICFMIHIKGOD
 {
-	private static ADEKACKLIJG PKKAGCHKEKH = null;
+	private static ADEKACKLIJG PKKAGCHKEKH = new ADEKACKLIJG();
 
 	private static FNEEAGNNFNN IJDIOGKIAMM;
 
@@ -59,8 +59,7 @@ public static class ICFMIHIKGOD
 	public static void Init(FNEEAGNNFNN ONDHILAOLIM, JNEBPDNJFJG IHLKACMLEGK, ProductDefinition[] OCMDJBDPLJK, Dictionary<string, object> PCJAKPJMKGN = null)
 	{
 		IJDIOGKIAMM = ONDHILAOLIM;
-		PKKAGCHKEKH = new PEILCKGHHDP(OCMDJBDPLJK, PCJAKPJMKGN);
-		KMAENHJICNF.Init(IHLKACMLEGK);
+		// Keep UI subscriptions on the inert local facade; no store or verification service.
 	}
 
 	public static List<JLDHCFFAIPK> MDLJADJGDOL()
@@ -91,7 +90,7 @@ public static class ICFMIHIKGOD
 
 	public static bool LHGPKEFEHDH()
 	{
-		return PKKAGCHKEKH.CFEJGPGNOMM<OIICDHINNMK>();
+		return false;
 	}
 
 	public static JLDHCFFAIPK GDFHMOEGPMD(string ODJCLFJHKFP, string BGMLFNGKDHI, string DNHKNDPBGNM, string BGLGHEMMANM)
@@ -129,18 +128,8 @@ public static class ICFMIHIKGOD
 
 	public static void DCPEBKEGOHG()
 	{
-		int i = 0;
-		for (int count = OEHDEFBEPKP.Count; i < count; i++)
-		{
-			if (OEHDEFBEPKP[i].IIHBCPBNCCB())
-			{
-				KMAENHJICNF.HAFFDGFGHKI(OEHDEFBEPKP[i]);
-			}
-			else
-			{
-				KMAENHJICNF.OLDKPFOOPIG(OEHDEFBEPKP[i]);
-			}
-		}
+		// Preserve any recovered pending transactions without contacting a store
+		// or verification backend when the payment UI opens.
 	}
 
 	public static void AGLGFEGPGHH(JLDHCFFAIPK PAENLDALDGB)

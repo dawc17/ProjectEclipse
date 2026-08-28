@@ -251,6 +251,10 @@ namespace Nekki.SF2.GUI.Dialogs
 			if (lblCredits != null) lblCredits.gameObject.SetActive(false);
 			if (btnSupport != null) btnSupport.gameObject.SetActive(false);
 			if (lblSupport != null) lblSupport.gameObject.SetActive(false);
+			if (btnGameCenter != null) btnGameCenter.gameObject.SetActive(false);
+			if (lblGameCenter != null) lblGameCenter.gameObject.SetActive(false);
+			if (btnItunes != null) btnItunes.gameObject.SetActive(false);
+			if (lblItunes != null) lblItunes.gameObject.SetActive(false);
 		}
 
 		private void OnDestroy()
@@ -477,6 +481,11 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected void OHDFPIADEIG(ResolutionButton GAMILDJHFDB, string CGNJEDIFEKJ, string AOFLEGLGGAC, float DHDMNHCIPEH, float BGEEALIPKCC, AHDEAELNGBD OKNNNLIPODI)
 		{
+			if (OKNNNLIPODI == AHDEAELNGBD.BTN_GAMECENTER || OKNNNLIPODI == AHDEAELNGBD.BTN_ITUNES)
+			{
+				if (GAMILDJHFDB != null) GAMILDJHFDB.gameObject.SetActive(false);
+				return;
+			}
 			GAMILDJHFDB.SetNormalSprite("UI/Atlases/", CGNJEDIFEKJ);
 			GAMILDJHFDB.SetPressedSprite("UI/Atlases/", (!PEPADDIALAO()) ? CGNJEDIFEKJ : AOFLEGLGGAC);
 			GAMILDJHFDB.ButtonId = (int)OKNNNLIPODI;
@@ -488,6 +497,11 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected void PGMBIJFAEHP(LabelAlias NCJDCOLEFHG, string LOKLDPLAPOL)
 		{
+			if (NCJDCOLEFHG == lblGameCenter || NCJDCOLEFHG == lblItunes)
+			{
+				if (NCJDCOLEFHG != null) NCJDCOLEFHG.gameObject.SetActive(false);
+				return;
+			}
 			NCJDCOLEFHG.gameObject.SetActive(true);
 			NCJDCOLEFHG.set_Alias(LOKLDPLAPOL);
 			NCJDCOLEFHG.alignment = TextAnchor.MiddleLeft;
@@ -814,13 +828,13 @@ namespace Nekki.SF2.GUI.Dialogs
 			case AHDEAELNGBD.BTN_SUPPORT:
 			{
 				string url2 = GameUtils.JOEMCCADMON.EBCODADFJLB(LocalizationManager.ILAJKOBCHFH.name, LocalizationManager.POIPGLLCCKC);
-				Application.OpenURL(url2);
+				OfflineServices.OpenExternalUrl(url2);
 				break;
 			}
 			case AHDEAELNGBD.BTN_ITUNES:
 			{
 				string url = InternetController.MMIHGFKCMCC();
-				Application.OpenURL(url);
+				OfflineServices.OpenExternalUrl(url);
 				break;
 			}
 			}

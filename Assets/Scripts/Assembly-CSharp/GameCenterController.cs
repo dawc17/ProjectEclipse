@@ -57,7 +57,7 @@ public static class GameCenterController
 	{
 		if (_Current == null)
 		{
-			_Current = new GameCenter_Android();
+			_Current = new GameCenter_Emulator();
 			_Current.Init();
 		}
 	}
@@ -69,12 +69,12 @@ public static class GameCenterController
 
 	public static bool EPACOIFEICA()
 	{
-		return _Current.EPACOIFEICA();
+		return AOJJOEHEPGM().EPACOIFEICA();
 	}
 
 	public static bool CPOLMPAAHOL()
 	{
-		return _Current.CPOLMPAAHOL();
+		return AOJJOEHEPGM().CPOLMPAAHOL();
 	}
 
 	public static void EFKOIIKEHDO()

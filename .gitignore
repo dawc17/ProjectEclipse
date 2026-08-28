@@ -45,6 +45,10 @@ Tools/python-packages/
 BuildScripts/out/
 *.log
 
+# Rebuilt automatically from Assets/xml before every player build.
+/Assets/Resources/SF2Content/gameplay.bytes
+/Assets/Resources/SF2Content/gameplay.bytes.meta
+
 # ================= Heavy reference material (12.5 GB) =================
 # Local-only reference dumps / decompiled builds / CDN bundles.
 # If something here must be shared, whitelist it explicitly, e.g.:
@@ -59,3 +63,4 @@ desktop.ini
 
 # Crashlytics (Unity default)
 crashlytics-build.properties
+/Tools/LegacyServices

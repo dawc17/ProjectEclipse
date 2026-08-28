@@ -1,7 +1,6 @@
 using System.Collections;
 using Nekki.SF2.Core;
 using Nekki.SF2.Core.Security;
-using TheNextFlow.UnityPlugins;
 using UnityEngine;
 
 public class SecurityModule : LoadingModule
@@ -154,7 +153,7 @@ public class SecurityModule : LoadingModule
 		{
 			CoroutineManager.get_Current().StartRoutine(POPBLHFELGO());
 		}
-		MobileNativePopups.OpenAlertDialog(DJBOLGEPGDB(), LBDBAEJMDDC, "OK", () =>
+		DialogsOpener.OpenLocalAlertDialog(DJBOLGEPGDB(), LBDBAEJMDDC, "OK", () =>
 		{
 			ApplicationController.Quit();
 		});

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using CodeStage.AntiCheat.ObscuredTypes;
 using Nekki.SF2.Core.Network;
-using UnityEngine.Purchasing;
+using SF2.Offline;
 
 public static class PurchaseController
 {
@@ -23,35 +23,7 @@ public static class PurchaseController
 
 	public static void Init()
 	{
-		if (!NDHHFHHBFEC)
-		{
-			NDHHFHHBFEC = true;
-			ICFMIHIKGOD.Init(Roster.PKACFPCOHJH(), ServerProvider.get_Instance(), ListSF.DJBOFEEKJMP().FOEGEPKLGJN(), new Dictionary<string, object> { 
-			{
-				"AndroidPublicKey",
-				Constants.DPMDLBCBJJD()
-			} });
-			ADEKACKLIJG aDEKACKLIJG = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG.PGICGKMBACN = (Action<string>)Delegate.Combine(aDEKACKLIJG.PGICGKMBACN, new Action<string>(OINELJEKFJJ));
-			ADEKACKLIJG aDEKACKLIJG2 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG2.JILHGHCHDKN = (Action<string>)Delegate.Combine(aDEKACKLIJG2.JILHGHCHDKN, new Action<string>(ABAEDAIOHDI));
-			ADEKACKLIJG aDEKACKLIJG3 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG3.JEAJAJMDPNL = (Action<string>)Delegate.Combine(aDEKACKLIJG3.JEAJAJMDPNL, new Action<string>(FBGKOONDOHL));
-			ADEKACKLIJG aDEKACKLIJG4 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG4.ENCIAJBEOEA = (Action<string, PurchaseFailureReason>)Delegate.Combine(aDEKACKLIJG4.ENCIAJBEOEA, new Action<string, PurchaseFailureReason>(GJEBBAGEDKK));
-			ADEKACKLIJG aDEKACKLIJG5 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG5.JOFLHEEPJIB = (Action<string, string>)Delegate.Combine(aDEKACKLIJG5.JOFLHEEPJIB, new Action<string, string>(JOFLHEEPJIB));
-			ADEKACKLIJG aDEKACKLIJG6 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG6.AFBIACPALAJ = (Action<string, string>)Delegate.Combine(aDEKACKLIJG6.AFBIACPALAJ, new Action<string, string>(KJCGIEJEIII));
-			ADEKACKLIJG aDEKACKLIJG7 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG7.CFBBLIBNILI = (Action<string, string>)Delegate.Combine(aDEKACKLIJG7.CFBBLIBNILI, new Action<string, string>(EBPMIIEIBEE));
-			ADEKACKLIJG aDEKACKLIJG8 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG8.GDFEPPLAKBP = (Action<string, string>)Delegate.Combine(aDEKACKLIJG8.GDFEPPLAKBP, new Action<string, string>(CIJDKLKMLKG));
-			ADEKACKLIJG aDEKACKLIJG9 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG9.PDAKLFLLIKK = (Action<string, string>)Delegate.Combine(aDEKACKLIJG9.PDAKLFLLIKK, new Action<string, string>(FHODCLGKJIC));
-			ADEKACKLIJG aDEKACKLIJG10 = ICFMIHIKGOD.OFFDIMCJOIC();
-			aDEKACKLIJG10.CIIDFBBIICE = (Action)Delegate.Combine(aDEKACKLIJG10.CIIDFBBIICE, new Action(CIIDFBBIICE));
-		}
+		NDHHFHHBFEC = true; // Inert store facade already exists; no keys or backend initialization.
 	}
 
 	private static void OINELJEKFJJ(string FDKNIPNGFNF)

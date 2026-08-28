@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Xml;
 using CodeStage.AntiCheat.ObscuredTypes;
-using UnityEngine.Purchasing;
+using SF2.Offline;
 
 public class ItemInfo
 {

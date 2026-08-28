@@ -162,14 +162,11 @@ namespace Nekki.Utils
 
 		public static void ServerTimeSync(Action AFMCMJDBDIN = null, Action onError = null)
 		{
+			// Local clock only; keep timer callbacks and elapsed-time gameplay working.
 			IGNLAKOKBPN = true;
-			AAMLMIEHEIO = false;
 			NOIAHFNMDFC = AFMCMJDBDIN;
 			GEKNEIFHPAI = onError;
-			if (ServerProviderBase.get_Instance() != null)
-			{
-				ServerProviderBase.get_Instance().TimeSync(ANFPDNJJKGB, JAIJHNAIKJE);
-			}
+			ANFPDNJJKGB(ConvertToUnixTimestamp(DateTime.UtcNow));
 		}
 
 		public static void ServerTimeExtended(long CFGPDFHPGJP)
