@@ -295,7 +295,6 @@ public static class ResourceManager
 			{
 				{ "UpdateShopItems", "UpdateScene" },
 				{ "ValidatePacks", "ShowForgeTutorial" },
-				{ "UpdateEclipseBattles", "ShowForgeTutorial" },
 				{ "ShowArrow", "ShowForgeTutorial" },
 				{ "HideArrow", "ShowForgeTutorial" },
 				{ "ShowHint", "ShowForgeTutorial" },
@@ -764,6 +763,44 @@ public static class ResourceManager
 			return custom.OuterXml;
 		}
 
+		private static int EnsureSurvivalRewardRows(XmlDocument document)
+		{
+			int addedRows = 0;
+			foreach (XmlElement battle in document.SelectNodes("//Battle[@Type='SURVIVAL']"))
+			{
+				foreach (XmlElement fight in battle.SelectNodes("./Fight"))
+				{
+					XmlElement warrior = fight.SelectSingleNode("./Warriors/Warrior[@Number]") as XmlElement;
+					XmlElement rewards = fight["Rewards"];
+					if (warrior == null || rewards == null)
+					{
+						continue;
+					}
+					int waves;
+					if (!int.TryParse(warrior.GetAttribute("Number"), out waves) || waves <= 0)
+					{
+						continue;
+					}
+					XmlNodeList rewardNodes = rewards.SelectNodes("./Reward");
+					XmlElement terminalReward = rewards.SelectSingleNode("./Reward[last()]") as XmlElement;
+					if (terminalReward == null)
+					{
+						continue;
+					}
+					// Survival reward index 0 is the initial state; the legacy result
+					// flow selects the reward at the completed-wave index. Recovered
+					// late-game tables have no authored payouts beyond wave six, so keep
+					// their terminal payout rather than producing a null reward.
+					for (int rewardCount = rewardNodes.Count; rewardCount <= waves; rewardCount++)
+					{
+						rewards.AppendChild(document.ImportNode(terminalReward, true));
+						addedRows++;
+					}
+				}
+			}
+			return addedRows;
+		}
+
 		private static string AdaptStages(string file)
 		{
 			XmlDocument custom = LoadPlainXml(file);
@@ -865,6 +902,12 @@ public static class ResourceManager
 			{
 				Debug.Log("[DevXml] inherited newer battle-level rules into " +
 					inheritedRuleSets + " legacy fight definitions");
+			}
+			int addedSurvivalRewardRows = EnsureSurvivalRewardRows(custom);
+			if (addedSurvivalRewardRows != 0 && _devXmlLogged.Add("survival-reward-rows"))
+			{
+				Debug.Log("[Survival] supplied " + addedSurvivalRewardRows +
+					" missing terminal reward row(s) for full-length survival battles");
 			}
 
 			// The old fight HUD has room for two timer digits.  New data commonly

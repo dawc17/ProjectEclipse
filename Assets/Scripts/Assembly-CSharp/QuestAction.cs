@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using Nekki.SF2.Core.Quests;
+using Nekki.SF2.GUI;
+using Nekki.SF2.GUI.Map;
 using UnityEngine;
 
 public class QuestAction : global::EventDispatcher<object>
@@ -121,7 +123,8 @@ public class QuestAction : global::EventDispatcher<object>
 		QUEST_ACTION_STORY_TUTORIAL_SHOW_BLOCK = 95,
 		QUEST_ACTION_IF = 96,
 		QUEST_ACTION_RUN = 97,
-		QUEST_ACTION_CHANGE_DOJO_LOCATION = 98
+		QUEST_ACTION_CHANGE_DOJO_LOCATION = 98,
+		QUEST_ACTION_UPDATE_ECLIPSE_BATTLES = 99
 	}
 
 	public int Index;
@@ -347,6 +350,8 @@ public class QuestAction : global::EventDispatcher<object>
 			return PODELEEIBMP.QUEST_ACTION_RUN;
 		case "ChangeDojoLocation":
 			return PODELEEIBMP.QUEST_ACTION_CHANGE_DOJO_LOCATION;
+		case "UpdateEclipseBattles":
+			return PODELEEIBMP.QUEST_ACTION_UPDATE_ECLIPSE_BATTLES;
 		default:
 			LLLOJBFMONN.Error(string.Format("{0} {1}", "Unknown quest type: ", LFLGCDNKNJI));
 			return PODELEEIBMP.QUEST_ACTION_NONE;
@@ -559,6 +564,8 @@ public class QuestAction : global::EventDispatcher<object>
 			return new QuestActionRun();
 		case PODELEEIBMP.QUEST_ACTION_CHANGE_DOJO_LOCATION:
 			return new QuestActionChangeDojoLocation();
+		case PODELEEIBMP.QUEST_ACTION_UPDATE_ECLIPSE_BATTLES:
+			return new QuestActionUpdateEclipseBattles();
 		default:
 			LLLOJBFMONN.Error(string.Format("{0} {1}", "QuestAction.getClassActionByType - type: ", LFLGCDNKNJI));
 			return new QuestAction();
@@ -824,5 +831,155 @@ public class QuestActionChangeDojoLocation : QuestAction
 		condition.MCPIOGALBMK(_name, result);
 		GameUtils.NIPABEEAMHJ = result.ToString();
 		OGIJONMKABB();
+	}
+}
+
+public class QuestActionUpdateEclipseBattles : QuestAction
+{
+	public override void DEJMHFMLKIC(QuestParameters parameters)
+	{
+		base.DEJMHFMLKIC(parameters);
+		Roster roster = ListSF.CCDKHLAMKKO();
+		ListSF listSF = ListSF.ELEBLBJKDBI();
+		if (roster == null || listSF == null)
+		{
+			OGIJONMKABB();
+			return;
+		}
+		bool eclipseMode = roster.JPMPIDFGCJL();
+		MapScene current = Scene<MapScene>.get_Current();
+		Battle selectedBattle = GetSelectedBattle(current);
+		Battle selectedReplacement = null;
+		List<Battle> changedBattles = new List<Battle>();
+		foreach (Battle normalBattle in listSF.MMCHMBIKIEP())
+		{
+			string eclipseBattleName = GetEclipseBattleName(normalBattle);
+			if (string.IsNullOrEmpty(eclipseBattleName))
+			{
+				continue;
+			}
+			Zone zone = normalBattle.LKDFFCADHNO();
+			Battle eclipseBattle = FindBattle(zone, eclipseBattleName);
+			if (eclipseBattle == null)
+			{
+				continue;
+			}
+			// A mode switch may only exchange an already unlocked pair.  In
+			// particular, never hide a normal battle before its Eclipse replay
+			// counterpart has been introduced by the story progression.
+			if (normalBattle.NNPNEABKHPP() == null || eclipseBattle.NNPNEABKHPP() == null)
+			{
+				continue;
+			}
+			// Base and intermission entries share an Eclipse replacement.  Normal
+			// progression removes the base roster entry before it adds the
+			// intermission one, but old saves can contain both.  In that case only
+			// the current intermission entry may drive the shared replacement.
+			if (HasActiveIntermissionSource(normalBattle, zone, eclipseBattleName))
+			{
+				continue;
+			}
+			SetBattleHidden(normalBattle, eclipseMode, changedBattles);
+			SetBattleHidden(eclipseBattle, !eclipseMode, changedBattles);
+			if (normalBattle == selectedBattle && eclipseMode)
+			{
+				selectedReplacement = eclipseBattle;
+			}
+			else if (eclipseBattle == selectedBattle && !eclipseMode)
+			{
+				selectedReplacement = normalBattle;
+			}
+		}
+		if (changedBattles.Count != 0)
+		{
+			listSF.EJANJEEGOOE();
+			if (current != null)
+			{
+				foreach (Battle battle in changedBattles)
+				{
+					current.UpdateBattleButtonHidden(battle);
+				}
+				// The replacement button used to remain disabled until the player
+				// visited another zone.  Reselecting the paired battle rebuilds the
+				// preview and reapplies the current zone's input state immediately.
+				if (selectedReplacement != null)
+				{
+					current.SelectBattle(selectedReplacement, 0f);
+				}
+				else
+				{
+					current.UpdateCurrentZone();
+				}
+			}
+		}
+		OGIJONMKABB();
+	}
+
+	private static string GetEclipseBattleName(Battle battle)
+	{
+		XmlNode node = battle.MMLPEMNIFBD().IOJIGDNFCFL();
+		if (node == null || node.Attributes == null)
+		{
+			return string.Empty;
+		}
+		XmlAttribute attribute = node.Attributes["EclipseToggleName"];
+		return (attribute == null) ? string.Empty : attribute.Value;
+	}
+
+	private static Battle FindBattle(Zone zone, string name)
+	{
+		if (zone == null)
+		{
+			return null;
+		}
+		foreach (Battle battle in zone.LGIIBNJFADA)
+		{
+			if (battle.get_Name() == name)
+			{
+				return battle;
+			}
+		}
+		return null;
+	}
+
+	private static Battle GetSelectedBattle(MapScene mapScene)
+	{
+		if (mapScene == null)
+		{
+			return null;
+		}
+		ZoneScrollItem currentZone = mapScene.GetCurrentZone();
+		return (currentZone == null) ? null : currentZone.get_LastBattle();
+	}
+
+	private static bool HasActiveIntermissionSource(Battle battle, Zone zone, string eclipseBattleName)
+	{
+		if (battle.get_Name().EndsWith("_INTERMISSION", StringComparison.Ordinal))
+		{
+			return false;
+		}
+		foreach (Battle candidate in zone.LGIIBNJFADA)
+		{
+			if (candidate == battle || candidate.NNPNEABKHPP() == null || !candidate.get_Name().EndsWith("_INTERMISSION", StringComparison.Ordinal))
+			{
+				continue;
+			}
+			if (GetEclipseBattleName(candidate) == eclipseBattleName)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static void SetBattleHidden(Battle battle, bool hidden, List<Battle> changedBattles)
+	{
+		RosterBattle rosterBattle = battle.NNPNEABKHPP();
+		if (rosterBattle == null || rosterBattle.KAPIELMDIIK() == hidden)
+		{
+			return;
+		}
+		rosterBattle.HCEOCBOFIGC(hidden);
+		changedBattles.Add(battle);
 	}
 }

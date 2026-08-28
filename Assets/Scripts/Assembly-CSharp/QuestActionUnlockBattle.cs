@@ -17,6 +17,8 @@ public class QuestActionUnlockBattle : QuestAction
 
 	private string GFAMDGCPINA = string.Empty;
 
+	private string _hidden = string.Empty;
+
 	public override void Parse(XmlNode EPKLCPOEELO)
 	{
 		base.Parse(EPKLCPOEELO);
@@ -25,7 +27,7 @@ public class QuestActionUnlockBattle : QuestAction
 		LNKJGCAAJHN = EPKLCPOEELO.Attributes["Locked"].ParseBool();
 		_name = EPKLCPOEELO.Attributes["Name"].CIPOICEEIBK(string.Empty);
 		LIHHPCMHCCE = EPKLCPOEELO.Attributes["Instant"].ParseBool();
-		INMFGOMPJEO = EPKLCPOEELO.Attributes["Hidden"].ParseBool();
+		_hidden = EPKLCPOEELO.Attributes["Hidden"].CIPOICEEIBK(string.Empty);
 		GFAMDGCPINA = EPKLCPOEELO.Attributes["ReplayCount"].CIPOICEEIBK(string.Empty);
 	}
 
@@ -42,6 +44,23 @@ public class QuestActionUnlockBattle : QuestAction
 			ConditionExtension.CompareResult lNIDLHOIHIM2 = new ConditionExtension.CompareResult();
 			kKDGLNECFHA.MCPIOGALBMK(GFAMDGCPINA, lNIDLHOIHIM2);
 			oAHPBDFKJOK = (int)lNIDLHOIHIM2.resultNumber;
+		}
+		if (!string.IsNullOrEmpty(_hidden))
+		{
+			// 2.41.x intermission data uses this compact infix form.  The legacy
+			// quest evaluator only understands ?Sub(...), so it used to parse as
+			// false and exposed Eclipse battles while the mode was disabled.
+			if (_hidden.Trim() == "1 - _$InEclipseMode")
+			{
+				Roster roster = ListSF.CCDKHLAMKKO();
+				INMFGOMPJEO = roster == null || !roster.JPMPIDFGCJL();
+			}
+			else
+			{
+				ConditionExtension.CompareResult lNIDLHOIHIM3 = new ConditionExtension.CompareResult();
+				kKDGLNECFHA.MCPIOGALBMK(_hidden, lNIDLHOIHIM3);
+				INMFGOMPJEO = lNIDLHOIHIM3.resultNumber > 0.0;
+			}
 		}
 		FightIDS mOCEDDJOAEB = new FightIDS();
 		mOCEDDJOAEB.SetFightIDSByString(lNIDLHOIHIM.resultSTR);

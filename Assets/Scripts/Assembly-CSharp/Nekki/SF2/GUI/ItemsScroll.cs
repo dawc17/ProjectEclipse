@@ -134,7 +134,7 @@ namespace Nekki.SF2.GUI
 		{
 			if (scrollContent != null)
 			{
-				return scrollContent.transform.position;
+				return ((RectTransform)scrollContent.transform).anchoredPosition;
 			}
 			return new Vector2(0f, 0f);
 		}
@@ -143,8 +143,21 @@ namespace Nekki.SF2.GUI
 		{
 			if (scrollContent != null)
 			{
-				scrollContent.transform.position = LCCLEFMKLPB;
+				((RectTransform)scrollContent.transform).anchoredPosition = LCCLEFMKLPB;
 			}
+		}
+
+		private Vector2 KMCOHAGCFBN(BaseScrollItem item)
+		{
+			RectTransform rectTransform = (RectTransform)scrollContent.transform;
+			Transform parent = rectTransform.parent;
+			if (parent == null)
+			{
+				return rectTransform.anchoredPosition;
+			}
+			Vector3 vector = parent.InverseTransformPoint(base.transform.position);
+			Vector3 vector2 = parent.InverseTransformPoint(item.get_CenterPosition());
+			return rectTransform.anchoredPosition + (Vector2)(vector - vector2);
 		}
 
 		public void Init()
@@ -201,19 +214,17 @@ namespace Nekki.SF2.GUI
 		{
 			if (!CGAPKDMAENM)
 			{
-				Vector2 vector = base.transform.position - item.get_CenterPosition();
-				Vector2 vector2 = scrollContent.gameObject.transform.position;
-				Vector2 vector3 = vector2 + vector;
+				Vector2 vector = KMCOHAGCFBN(item);
 				if (_Duration == 0f)
 				{
-					scrollContent.gameObject.transform.position = vector3;
+					SetContentPosition(vector);
 					onScrollEnd.Invoke();
 					StopMovement();
 				}
 				else
 				{
 					StopMovement();
-					MoveTo(vector3, _Duration);
+					MoveTo(vector, _Duration);
 				}
 			}
 		}

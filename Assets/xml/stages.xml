@@ -2377,7 +2377,7 @@
           </Rules>
         </Fight>
       </Battle>
-      <Battle Name="Survival_INTERMISSION" Alias="Survival_INTERMISSION" Title="Survival_INTERMISSION_TITLE" Icon="survival" Preview="preview_main.bamboo_grove" Type="SURVIVAL" X="-310" Y="-165" Location="emerald_forest_new" Music="samurai_spirit">
+      <Battle Name="Survival_INTERMISSION" Alias="Survival_INTERMISSION" Title="Survival_INTERMISSION_TITLE" Icon="survival" Preview="preview_main.bamboo_grove" Type="SURVIVAL" X="-310" Y="-165" Location="bamboo_grove" Music="samurai_spirit">
         <Fight Name="1" Power="0" Rounds="1" Replays="0" RoundTime="150" HealthRecovery="0.1">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="10000" />
@@ -2431,7 +2431,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Generic_1" Random="1" NoDoubles="1" />
                 <Group Name="Survival_INTERMISSION_1" />
@@ -7165,7 +7165,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Generic_2" Random="1" NoDoubles="1" />
                 <Group Name="Survival_INTERMISSION_2" />
@@ -12751,7 +12751,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Generic_3" Random="1" NoDoubles="1" />
                 <Group Name="Survival_INTERMISSION_3" />
@@ -18052,7 +18052,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Generic_4" Random="1" NoDoubles="1" />
                 <Group Name="Survival_INTERMISSION_4" />
@@ -23464,7 +23464,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Generic_5" Random="1" NoDoubles="1" />
                 <Group Name="Survival_INTERMISSION_5" />
@@ -29302,7 +29302,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Generic_6" Random="1" NoDoubles="1" />
                 <Group Name="Survival_INTERMISSION_6" />
@@ -32558,7 +32558,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Survival_7" />
                 <Group Name="Generic_7" Random="1" NoDoubles="1" />
@@ -32637,7 +32637,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Survival_7_2" />
                 <Group Name="Generic_7" Random="1" NoDoubles="1" />
@@ -38153,7 +38153,7 @@
             </Reward>
           </Rewards>
           <Warriors>
-            <Warrior Number="6" Tactic="Standard">
+            <Warrior Number="10" Tactic="Standard">
               <Groups>
                 <Group Name="Survival_7_3" />
                 <Group Name="Generic_7_3" Random="1" />
@@ -41926,6 +41926,10 @@
         <Warrior EnchantmentResistance="1947" />
         <Warrior EnchantmentResistance="1970" />
         <Warrior EnchantmentResistance="1993" />
+        <Warrior EnchantmentResistance="2016" />
+        <Warrior EnchantmentResistance="2039" />
+        <Warrior EnchantmentResistance="2062" />
+        <Warrior EnchantmentResistance="2085" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_Parameters_7_2">
         <Warrior EnchantmentResistance="1983" />
@@ -41934,6 +41938,10 @@
         <Warrior EnchantmentResistance="2052" />
         <Warrior EnchantmentResistance="2075" />
         <Warrior EnchantmentResistance="2098" />
+        <Warrior EnchantmentResistance="2121" />
+        <Warrior EnchantmentResistance="2144" />
+        <Warrior EnchantmentResistance="2167" />
+        <Warrior EnchantmentResistance="2190" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_Parameters_7_3">
         <Warrior EnchantmentResistance="2088" />
@@ -41942,6 +41950,10 @@
         <Warrior EnchantmentResistance="2157" />
         <Warrior EnchantmentResistance="2180" />
         <Warrior EnchantmentResistance="2203" />
+        <Warrior EnchantmentResistance="2226" />
+        <Warrior EnchantmentResistance="2249" />
+        <Warrior EnchantmentResistance="2272" />
+        <Warrior EnchantmentResistance="2295" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_1">
         <Warrior Template="Default">
@@ -42324,19 +42336,7 @@
         </Warrior>
         <Warrior Template="Default">
           <AttributesAlign>
-            <Delta Factor="0.86" Shift="216" Priority="1" />
-            <Delta Factor="1" Shift="-10" Priority="1" />
-          </AttributesAlign>
-        </Warrior>
-        <Warrior Template="Default">
-          <AttributesAlign>
             <Delta Factor="0.86" Shift="221" Priority="1" />
-            <Delta Factor="1" Shift="-10" Priority="1" />
-          </AttributesAlign>
-        </Warrior>
-        <Warrior Template="Default">
-          <AttributesAlign>
-            <Delta Factor="0.86" Shift="226" Priority="1" />
             <Delta Factor="1" Shift="-10" Priority="1" />
           </AttributesAlign>
         </Warrior>
@@ -42348,7 +42348,43 @@
         </Warrior>
         <Warrior Template="Default">
           <AttributesAlign>
-            <Delta Factor="0.86" Shift="236" Priority="1" />
+            <Delta Factor="0.86" Shift="241" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="251" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="261" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="271" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="281" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="291" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="301" Priority="1" />
             <Delta Factor="1" Shift="-10" Priority="1" />
           </AttributesAlign>
         </Warrior>
@@ -42362,19 +42398,7 @@
         </Warrior>
         <Warrior Template="Default">
           <AttributesAlign>
-            <Delta Factor="0.86" Shift="231" Priority="1" />
-            <Delta Factor="1" Shift="-10" Priority="1" />
-          </AttributesAlign>
-        </Warrior>
-        <Warrior Template="Default">
-          <AttributesAlign>
             <Delta Factor="0.86" Shift="236" Priority="1" />
-            <Delta Factor="1" Shift="-10" Priority="1" />
-          </AttributesAlign>
-        </Warrior>
-        <Warrior Template="Default">
-          <AttributesAlign>
-            <Delta Factor="0.86" Shift="241" Priority="1" />
             <Delta Factor="1" Shift="-10" Priority="1" />
           </AttributesAlign>
         </Warrior>
@@ -42386,7 +42410,43 @@
         </Warrior>
         <Warrior Template="Default">
           <AttributesAlign>
-            <Delta Factor="0.86" Shift="251" Priority="1" />
+            <Delta Factor="0.86" Shift="256" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="266" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="276" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="286" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="296" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="306" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="316" Priority="1" />
             <Delta Factor="1" Shift="-10" Priority="1" />
           </AttributesAlign>
         </Warrior>
@@ -42400,19 +42460,7 @@
         </Warrior>
         <Warrior Template="Default">
           <AttributesAlign>
-            <Delta Factor="0.86" Shift="246" Priority="1" />
-            <Delta Factor="1" Shift="-10" Priority="1" />
-          </AttributesAlign>
-        </Warrior>
-        <Warrior Template="Default">
-          <AttributesAlign>
             <Delta Factor="0.86" Shift="251" Priority="1" />
-            <Delta Factor="1" Shift="-10" Priority="1" />
-          </AttributesAlign>
-        </Warrior>
-        <Warrior Template="Default">
-          <AttributesAlign>
-            <Delta Factor="0.86" Shift="256" Priority="1" />
             <Delta Factor="1" Shift="-10" Priority="1" />
           </AttributesAlign>
         </Warrior>
@@ -42424,58 +42472,118 @@
         </Warrior>
         <Warrior Template="Default">
           <AttributesAlign>
-            <Delta Factor="0.86" Shift="266" Priority="1" />
+            <Delta Factor="0.86" Shift="271" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="281" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="291" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="301" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="311" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="321" Priority="1" />
+            <Delta Factor="1" Shift="-10" Priority="1" />
+          </AttributesAlign>
+        </Warrior>
+        <Warrior Template="Default">
+          <AttributesAlign>
+            <Delta Factor="0.86" Shift="331" Priority="1" />
             <Delta Factor="1" Shift="-10" Priority="1" />
           </AttributesAlign>
         </Warrior>
       </WarriorGroup>
       <WarriorGroup Name="Survival_INTERMISSION_1">
         <Warrior WarriorPower="1315" />
-        <Warrior WarriorPower="1321" />
-        <Warrior WarriorPower="1327" />
-        <Warrior WarriorPower="1333" />
-        <Warrior WarriorPower="1339" />
+        <Warrior WarriorPower="1330" />
         <Warrior WarriorPower="1345" />
+        <Warrior WarriorPower="1360" />
+        <Warrior WarriorPower="1375" />
+        <Warrior WarriorPower="1390" />
+        <Warrior WarriorPower="1405" />
+        <Warrior WarriorPower="1420" />
+        <Warrior WarriorPower="1435" />
+        <Warrior WarriorPower="1450" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_INTERMISSION_2">
         <Warrior WarriorPower="1356" />
-        <Warrior WarriorPower="1362" />
-        <Warrior WarriorPower="1368" />
-        <Warrior WarriorPower="1374" />
-        <Warrior WarriorPower="1380" />
+        <Warrior WarriorPower="1371" />
         <Warrior WarriorPower="1386" />
+        <Warrior WarriorPower="1401" />
+        <Warrior WarriorPower="1416" />
+        <Warrior WarriorPower="1431" />
+        <Warrior WarriorPower="1446" />
+        <Warrior WarriorPower="1461" />
+        <Warrior WarriorPower="1476" />
+        <Warrior WarriorPower="1491" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_INTERMISSION_3">
         <Warrior WarriorPower="1397" />
-        <Warrior WarriorPower="1403" />
-        <Warrior WarriorPower="1409" />
-        <Warrior WarriorPower="1415" />
-        <Warrior WarriorPower="1421" />
+        <Warrior WarriorPower="1412" />
         <Warrior WarriorPower="1427" />
+        <Warrior WarriorPower="1442" />
+        <Warrior WarriorPower="1457" />
+        <Warrior WarriorPower="1472" />
+        <Warrior WarriorPower="1487" />
+        <Warrior WarriorPower="1502" />
+        <Warrior WarriorPower="1517" />
+        <Warrior WarriorPower="1532" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_INTERMISSION_4">
         <Warrior WarriorPower="1438" />
-        <Warrior WarriorPower="1444" />
-        <Warrior WarriorPower="1450" />
-        <Warrior WarriorPower="1456" />
-        <Warrior WarriorPower="1462" />
+        <Warrior WarriorPower="1453" />
         <Warrior WarriorPower="1468" />
+        <Warrior WarriorPower="1483" />
+        <Warrior WarriorPower="1498" />
+        <Warrior WarriorPower="1513" />
+        <Warrior WarriorPower="1528" />
+        <Warrior WarriorPower="1543" />
+        <Warrior WarriorPower="1558" />
+        <Warrior WarriorPower="1573" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_INTERMISSION_5">
         <Warrior WarriorPower="1479" />
-        <Warrior WarriorPower="1485" />
-        <Warrior WarriorPower="1491" />
-        <Warrior WarriorPower="1497" />
-        <Warrior WarriorPower="1503" />
+        <Warrior WarriorPower="1494" />
         <Warrior WarriorPower="1509" />
+        <Warrior WarriorPower="1524" />
+        <Warrior WarriorPower="1539" />
+        <Warrior WarriorPower="1554" />
+        <Warrior WarriorPower="1569" />
+        <Warrior WarriorPower="1584" />
+        <Warrior WarriorPower="1599" />
+        <Warrior WarriorPower="1614" />
       </WarriorGroup>
       <WarriorGroup Name="Survival_INTERMISSION_6">
         <Warrior WarriorPower="1520" />
-        <Warrior WarriorPower="1526" />
-        <Warrior WarriorPower="1532" />
-        <Warrior WarriorPower="1538" />
-        <Warrior WarriorPower="1544" />
+        <Warrior WarriorPower="1535" />
         <Warrior WarriorPower="1550" />
+        <Warrior WarriorPower="1565" />
+        <Warrior WarriorPower="1580" />
+        <Warrior WarriorPower="1595" />
+        <Warrior WarriorPower="1610" />
+        <Warrior WarriorPower="1625" />
+        <Warrior WarriorPower="1640" />
+        <Warrior WarriorPower="1655" />
       </WarriorGroup>
       <WarriorGroup Name="Eclipse_1">
         <Warrior WarriorPower="179" />
