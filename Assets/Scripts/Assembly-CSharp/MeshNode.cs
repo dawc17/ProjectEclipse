@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SF2DE.Rendering.Interpolation;
 using UnityEngine;
 
 public class MeshNode
@@ -45,7 +46,7 @@ public class MeshNode
 			float x;
 			float y;
 			float z;
-			ModelRenderInterpolation.GetPosition(MFONEBKEMAD[i], alpha, out x, out y, out z);
+			FightInterpolation.SamplePosition(MFONEBKEMAD[i], alpha, out x, out y, out z);
 			Vertices[i].Set(x, y, 0f);
 		}
 	}

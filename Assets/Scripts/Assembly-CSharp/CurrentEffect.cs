@@ -1,3 +1,4 @@
+using SF2DE.Rendering.Interpolation;
 using UnityEngine;
 
 public class CurrentEffect

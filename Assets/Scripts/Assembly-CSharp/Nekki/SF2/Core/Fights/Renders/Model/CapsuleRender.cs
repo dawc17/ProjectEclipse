@@ -1,3 +1,4 @@
+using SF2DE.Rendering.Interpolation;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -15,15 +16,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 
 		private LineRenderer _LineRender;
 
-		private Vector3 _PreviousStart;
-
-		private Vector3 _CurrentStart;
-
-		private Vector3 _PreviousEnd;
-
-		private Vector3 _CurrentEnd;
-
-		private bool _InterpolationInitialized;
+		private readonly VectorSegmentInterpolation _Interpolation = new VectorSegmentInterpolation();
 
 		public float NFOMECHPEOP
 		{
@@ -127,22 +120,9 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 				Vector3f eMAFACPEPDK2 = _Base.MINOGAHDDHA();
 				Vector3 rawStart = new Vector3(eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG(), eMAFACPEPDK.KMFEKANLCFO());
 				Vector3 rawEnd = new Vector3(eMAFACPEPDK2.GILCBJJPKBK(), eMAFACPEPDK2.OBIMBNIBEFG(), eMAFACPEPDK2.KMFEKANLCFO());
-				if (!_InterpolationInitialized)
-				{
-					_PreviousStart = _CurrentStart = rawStart;
-					_PreviousEnd = _CurrentEnd = rawEnd;
-					_InterpolationInitialized = true;
-				}
-				else if (rawStart != _CurrentStart || rawEnd != _CurrentEnd)
-				{
-					_PreviousStart = _CurrentStart;
-					_PreviousEnd = _CurrentEnd;
-					_CurrentStart = rawStart;
-					_CurrentEnd = rawEnd;
-				}
-				float alpha = ModelRenderInterpolation.GetCurrentAlpha();
-				Vector3 start = Vector3.LerpUnclamped(_PreviousStart, _CurrentStart, alpha);
-				Vector3 end = Vector3.LerpUnclamped(_PreviousEnd, _CurrentEnd, alpha);
+				Vector3 start;
+				Vector3 end;
+				_Interpolation.Sample(rawStart, rawEnd, out start, out end);
 				float num = end.x - start.x;
 				float num2 = end.y - start.y;
 				float x = start.x + num * _Base.JAEOCMCOEFE();

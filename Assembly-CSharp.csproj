@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Generated file, do not modify, your changes will be overwritten (use AssetPostprocessor.OnGeneratedCSProject) -->
   <PropertyGroup>
@@ -164,7 +164,8 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionRandom.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LabelButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionImageLE.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\ModelRenderInterpolation.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\FightInterpolation.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\VectorSegmentInterpolation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\TrickContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\InvulnerabilityRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LogMessage.cs" />

@@ -1,5 +1,5 @@
 # Exercises the pure interpolation clock from the compiled runtime and audits
-# that interpolation remains confined to visible mesh construction.
+# that interpolation remains confined to presentation code.
 $ErrorActionPreference = 'Stop'
 $projectPath = Split-Path $PSScriptRoot -Parent
 . (Join-Path $PSScriptRoot 'LoadUnityManagedAssemblies.ps1')
@@ -10,7 +10,7 @@ function Assert-True($condition, [string]$label) {
     $script:checks++
 }
 
-$type = $assembly.GetType('ModelRenderInterpolation', $true)
+$type = $assembly.GetType('SF2DE.Rendering.Interpolation.FightInterpolation', $true)
 $method = $type.GetMethod('CalculateAlpha')
 $cases = @(
     @(10.0, 10.0, 0.02, 0.0),
@@ -26,7 +26,7 @@ foreach ($case in $cases) {
 }
 
 $mesh = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/MeshNode.cs')
-$interpolation = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/ModelRenderInterpolation.cs')
+$interpolation = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/SF2DE/Rendering/Interpolation/FightInterpolation.cs')
 $physics = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/ModelPhysics.cs')
 $collision = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/ModelCollision.cs')
 $frameRateFiles = @(
@@ -35,11 +35,11 @@ $frameRateFiles = @(
     'Assets/Scripts/Assembly-CSharp/Nekki/SF2/Core/ApplicationController.cs'
 )
 
-Assert-True ($mesh.Contains('ModelRenderInterpolation.GetPosition')) 'Visible mesh does not use interpolation'
+Assert-True ($mesh.Contains('FightInterpolation.SamplePosition')) 'Visible mesh does not use interpolation'
 Assert-True ($interpolation.Contains('node.ICLEOFDKDIF()')) 'Interpolation does not read the authoritative current pose'
 Assert-True ($interpolation.Contains('node.FOGHEPNAPLC()')) 'Interpolation does not read the previous pose'
-Assert-True (!$physics.Contains('ModelRenderInterpolation')) 'Model physics depends on render interpolation'
-Assert-True (!$collision.Contains('ModelRenderInterpolation')) 'Collision depends on render interpolation'
+Assert-True (!$physics.Contains('FightInterpolation')) 'Model physics depends on render interpolation'
+Assert-True (!$collision.Contains('FightInterpolation')) 'Collision depends on render interpolation'
 Assert-True (!$interpolation.Contains('AMPCKAIPIHH(')) 'Interpolation writes the authoritative current pose'
 Assert-True (!$interpolation.Contains('LAHLFIKENPP(')) 'Interpolation writes the authoritative previous pose'
 foreach ($relative in $frameRateFiles) {
@@ -48,4 +48,4 @@ foreach ($relative in $frameRateFiles) {
     Assert-True (!$source.Contains('targetFrameRate = 60')) "Hard 60 FPS cap remains in $relative"
 }
 
-Write-Output "PASS: $checks frame interpolation assertions (clock, mesh-only reads, no simulation writes, no 60 FPS cap)."
+Write-Output "PASS: $checks frame interpolation assertions (clock, presentation-only reads, no simulation writes, no 60 FPS cap)."

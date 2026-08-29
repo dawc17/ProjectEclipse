@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SF2DE.Rendering.Interpolation;
 using UnityEngine;
 
 public class Render

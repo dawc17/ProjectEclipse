@@ -1,66 +1,69 @@
 using UnityEngine;
 
-// Presentation-only interpolation for fight objects that bypass ModelNode and
-// are advanced directly by the fixed-step fight simulation.
-public class FightTransformInterpolation : MonoBehaviour
+namespace SF2DE.Rendering.Interpolation
 {
-	private Vector3 _previousPosition;
-
-	private Vector3 _currentPosition;
-
-	private Quaternion _previousRotation = Quaternion.identity;
-
-	private Quaternion _currentRotation = Quaternion.identity;
-
-	private bool _initialized;
-
-	public Vector3 CurrentPosition
+	// Presentation-only interpolation for fight objects that bypass ModelNode and
+	// are advanced directly by the fixed-step fight simulation.
+	public class FightTransformInterpolation : MonoBehaviour
 	{
-		get { return _currentPosition; }
-	}
+		private Vector3 _previousPosition;
 
-	public Quaternion CurrentRotation
-	{
-		get { return _currentRotation; }
-	}
+		private Vector3 _currentPosition;
 
-	public void Snap(Vector3 position, Quaternion rotation)
-	{
-		_previousPosition = position;
-		_currentPosition = position;
-		_previousRotation = rotation;
-		_currentRotation = rotation;
-		_initialized = true;
-		Apply(1f);
-	}
+		private Quaternion _previousRotation = Quaternion.identity;
 
-	public void Push(Vector3 position, Quaternion rotation)
-	{
-		if (!_initialized)
+		private Quaternion _currentRotation = Quaternion.identity;
+
+		private bool _initialized;
+
+		public Vector3 CurrentPosition
 		{
-			Snap(position, rotation);
-			return;
+			get { return _currentPosition; }
 		}
-		_previousPosition = _currentPosition;
-		_previousRotation = _currentRotation;
-		_currentPosition = position;
-		_currentRotation = rotation;
-		// Keep the Unity transform authoritative between simulation and LateUpdate.
-		// LateUpdate only substitutes the visible interpolated pose before rendering.
-		Apply(1f);
-	}
 
-	private void LateUpdate()
-	{
-		if (_initialized)
+		public Quaternion CurrentRotation
 		{
-			Apply(ModelRenderInterpolation.GetCurrentAlpha());
+			get { return _currentRotation; }
 		}
-	}
 
-	private void Apply(float alpha)
-	{
-		transform.localPosition = Vector3.LerpUnclamped(_previousPosition, _currentPosition, alpha);
-		transform.localRotation = Quaternion.SlerpUnclamped(_previousRotation, _currentRotation, alpha);
+		public void Snap(Vector3 position, Quaternion rotation)
+		{
+			_previousPosition = position;
+			_currentPosition = position;
+			_previousRotation = rotation;
+			_currentRotation = rotation;
+			_initialized = true;
+			Apply(1f);
+		}
+
+		public void Push(Vector3 position, Quaternion rotation)
+		{
+			if (!_initialized)
+			{
+				Snap(position, rotation);
+				return;
+			}
+			_previousPosition = _currentPosition;
+			_previousRotation = _currentRotation;
+			_currentPosition = position;
+			_currentRotation = rotation;
+			// Keep the Unity transform authoritative between simulation and LateUpdate.
+			// LateUpdate only substitutes the visible interpolated pose before rendering.
+			Apply(1f);
+		}
+
+		private void LateUpdate()
+		{
+			if (_initialized)
+			{
+				Apply(FightInterpolation.CurrentAlpha);
+			}
+		}
+
+		private void Apply(float alpha)
+		{
+			transform.localPosition = Vector3.LerpUnclamped(_previousPosition, _currentPosition, alpha);
+			transform.localRotation = Quaternion.SlerpUnclamped(_previousRotation, _currentRotation, alpha);
+		}
 	}
 }

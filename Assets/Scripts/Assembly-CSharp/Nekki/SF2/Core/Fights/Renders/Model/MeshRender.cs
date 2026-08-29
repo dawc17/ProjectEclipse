@@ -1,3 +1,4 @@
+using SF2DE.Rendering.Interpolation;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -64,7 +65,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 		{
 			if (JBLMEBBICJI != null)
 			{
-				JBLMEBBICJI.Render(ModelRenderInterpolation.GetCurrentAlpha());
+				JBLMEBBICJI.Render(FightInterpolation.CurrentAlpha);
 				_Mesh.vertices = JBLMEBBICJI.Vertices;
 				_Mesh.RecalculateBounds();
 			}

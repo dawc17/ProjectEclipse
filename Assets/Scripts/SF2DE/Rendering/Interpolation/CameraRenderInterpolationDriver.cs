@@ -1,19 +1,22 @@
 using UnityEngine;
 
-public class CameraRenderInterpolationDriver : MonoBehaviour
+namespace SF2DE.Rendering.Interpolation
 {
-	private global::Camera _camera;
-
-	public void Init(global::Camera camera)
+	public class CameraRenderInterpolationDriver : MonoBehaviour
 	{
-		_camera = camera;
-	}
+		private global::Camera _camera;
 
-	private void LateUpdate()
-	{
-		if (_camera != null && SF2DisplayFrameRate.InterpolationEnabled)
+		public void Init(global::Camera camera)
 		{
-			_camera.RenderInterpolatedPresentation();
+			_camera = camera;
+		}
+
+		private void LateUpdate()
+		{
+			if (_camera != null && FightInterpolation.Enabled)
+			{
+				_camera.RenderInterpolatedPresentation();
+			}
 		}
 	}
 }

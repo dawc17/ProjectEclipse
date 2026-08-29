@@ -1,3 +1,4 @@
+using SF2DE.Rendering.Interpolation;
 using UnityEngine;
 
 namespace Nekki.SF2.Core.Fights.Renders.Model
@@ -40,13 +41,13 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 
 		private void Update()
 		{
-			float alpha = ModelRenderInterpolation.GetCurrentAlpha();
+			float alpha = FightInterpolation.CurrentAlpha;
 			float x;
 			float y;
 			float z;
-			ModelRenderInterpolation.GetPosition(JJNIIAEBGIA.OGLAOHGLBHI(), alpha, out x, out y, out z);
+			FightInterpolation.SamplePosition(JJNIIAEBGIA.OGLAOHGLBHI(), alpha, out x, out y, out z);
 			_Line.SetPosition(0, new Vector3(x, y, -1f));
-			ModelRenderInterpolation.GetPosition(JJNIIAEBGIA.KMHHBEKNHCJ(), alpha, out x, out y, out z);
+			FightInterpolation.SamplePosition(JJNIIAEBGIA.KMHHBEKNHCJ(), alpha, out x, out y, out z);
 			_Line.SetPosition(1, new Vector3(x, y, -1f));
 		}
 	}

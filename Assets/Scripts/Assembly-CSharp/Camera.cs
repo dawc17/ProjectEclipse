@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Nekki.SF2.Core.Fights.Controller;
 using Nekki.SF2.GUI.Fight;
+using SF2DE.Rendering.Interpolation;
 using UnityEngine;
 
 public class Camera : global::EventDispatcher<object>
@@ -262,9 +263,9 @@ public class Camera : global::EventDispatcher<object>
 		{
 			return;
 		}
-		ModelRenderInterpolation.GetPosition(JNBAHPMBLOL, alpha, _InterpolatedCameraPosition);
-		ModelRenderInterpolation.GetPosition(NGOEHKEKBIL, alpha, _InterpolatedCameraTarget);
-		ModelRenderInterpolation.GetPosition(CIJJBMDDAFL, alpha, _InterpolatedFocusPosition);
+		FightInterpolation.SamplePosition(JNBAHPMBLOL, alpha, _InterpolatedCameraPosition);
+		FightInterpolation.SamplePosition(NGOEHKEKBIL, alpha, _InterpolatedCameraTarget);
+		FightInterpolation.SamplePosition(CIJJBMDDAFL, alpha, _InterpolatedFocusPosition);
 		if (NOLKMEPOJIE)
 		{
 			float zoomScale = Mathf.Lerp(_PreviousZoomScale, _CurrentZoomScale, alpha);
@@ -451,7 +452,7 @@ public class Camera : global::EventDispatcher<object>
 		{
 			return;
 		}
-		float alpha = ModelRenderInterpolation.GetCurrentAlpha();
+		float alpha = FightInterpolation.CurrentAlpha;
 		DrawInterpolatedPosition(alpha);
 		DrawInterpolatedQuakeEffect(alpha);
 		BMBGCIEFJGB.SyncAdditionalDrawsLayerTransform();
