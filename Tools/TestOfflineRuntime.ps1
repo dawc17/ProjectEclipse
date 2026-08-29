@@ -154,6 +154,78 @@ Assert-True ($alertAccepted -eq 2) 'Single-button alert dismiss did not complete
 [OfflineAlertFixture]::Selection.Invoke(1)
 $checks++
 
+# Compile the settings helpers against UI fakes: desktop prefabs omit credits
+# and support. This checks managed control flow, not Unity rendering/import.
+$settingsSource = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Dialogs/SettingsDialog.cs')
+$settingsMethods = foreach ($name in @('OHDFPIADEIG', 'PGMBIJFAEHP', 'BOPCBJJIHNK')) {
+    $method = [regex]::Match($settingsSource, '(?ms)^\t\tprotected void ' + $name + '\([^\r\n]*\)\r?\n\t\t\{.*?^\t\t\}')
+    Assert-True $method.Success ('Settings helper not found: ' + $name)
+    $method.Value.Replace('protected void', 'public void')
+}
+$settingsEnum = [regex]::Match($settingsSource, '(?ms)^\t\tpublic enum AHDEAELNGBD\r?\n\t\t\{.*?^\t\t\}')
+Assert-True $settingsEnum.Success 'Settings button IDs not found'
+$settingsFixture = @'
+using System;
+public class OfflineSettingsFixture {
+    public class GameObject { public bool activeSelf; public void SetActive(bool value) { activeSelf = value; } }
+    public struct Vector2 { public float x, y; public Vector2(float x, float y) { this.x = x; this.y = y; } }
+    public class Transform { public Vector2 localPosition; }
+    public class ResolutionButton {
+        public GameObject gameObject = new GameObject();
+        public Transform transform = new Transform();
+        public int ButtonId, Listeners;
+        public bool interactable;
+        public string Normal, Pressed;
+        public void SetNormalSprite(string path, string sprite) { Normal = sprite; }
+        public void SetPressedSprite(string path, string sprite) { Pressed = sprite; }
+        public void RemoveEventListener(int id, Action<object> callback) { Listeners = 0; }
+        public void AddEventListener(int id, Action<object> callback) { Listeners++; }
+    }
+    public enum TextAnchor { MiddleLeft }
+    public class LabelAlias {
+        public GameObject gameObject = new GameObject();
+        public string Alias; public int FontSize, color; public TextAnchor alignment;
+        public void set_Alias(string value) { Alias = value; }
+        public void set_LabelFontSize(int value) { FontSize = value; }
+    }
+    public static class Constants { public const int PJJIMHMJPAL = 1; }
+    public static class SystemProperties { public static bool DDIDANINPJE() { return true; } }
+    public ResolutionButton btnMusic = new ResolutionButton(), btnSound = new ResolutionButton(),
+        btnLanguage = new ResolutionButton(), btnGameCenter = new ResolutionButton(), btnCredits, btnSupport;
+    public LabelAlias lblGameCenter = new LabelAlias(), lblItunes = new LabelAlias();
+    public bool SelectedSprites;
+    private bool PEPADDIALAO() { return SelectedSprites; }
+    private void OnClickButton(object data) { }
+/* ENUM */
+/* METHODS */
+}
+'@
+Add-Type -TypeDefinition $settingsFixture.Replace('/* ENUM */', $settingsEnum.Value).Replace('/* METHODS */', ($settingsMethods -join "`n"))
+$settings = New-Object OfflineSettingsFixture
+foreach ($buttonId in @('BTN_CREDITS', 'BTN_SUPPORT')) {
+    $id = [OfflineSettingsFixture+AHDEAELNGBD][Enum]::Parse([OfflineSettingsFixture+AHDEAELNGBD], $buttonId)
+    $settings.OHDFPIADEIG($null, 'normal', 'pressed', 0, 0, $id)
+    $checks++
+}
+$settings.PGMBIJFAEHP($null, 'Settings_Credits')
+$settings.PGMBIJFAEHP($null, 'Settings_Support')
+$checks += 2
+foreach ($selected in @($false, $true)) {
+    $settings.SelectedSprites = $selected
+    $settings.OHDFPIADEIG($settings.btnMusic, 'normal', 'pressed', -670, 200, [OfflineSettingsFixture+AHDEAELNGBD]::BTN_MUSIC)
+    $expectedPressed = if ($selected) { 'pressed' } else { 'normal' }
+    Assert-True ($settings.btnMusic.Normal -ceq 'normal' -and $settings.btnMusic.Pressed -ceq $expectedPressed) 'Settings music sprites changed'
+    Assert-True ($settings.btnMusic.gameObject.activeSelf -and $settings.btnMusic.Listeners -eq 1 -and $settings.btnMusic.ButtonId -eq 0) 'Settings music activation/events changed'
+    Assert-True ($settings.btnMusic.transform.localPosition.x -eq -670 -and $settings.btnMusic.transform.localPosition.y -eq 200) 'Settings music position changed'
+}
+$settingsLabel = New-Object OfflineSettingsFixture+LabelAlias
+$settings.PGMBIJFAEHP($settingsLabel, 'Settings_Music')
+Assert-True ($settingsLabel.gameObject.activeSelf -and $settingsLabel.Alias -ceq 'Settings_Music' -and $settingsLabel.FontSize -eq 101) 'Existing settings label no longer initializes'
+foreach ($hide in @($true, $false)) {
+    $settings.BOPCBJJIHNK($hide)
+    Assert-True ($settings.btnMusic.gameObject.activeSelf -eq !$hide -and $settings.btnSound.gameObject.activeSelf -eq !$hide -and $settings.btnLanguage.gameObject.activeSelf -eq !$hide) 'Settings visibility fails without credits/support'
+}
+
 # A new content version must not overwrite user edits to the old extracted copy.
 $fixture = Join-Path $testRoot 'fixture'
 New-Item -ItemType Directory -Path $fixture | Out-Null

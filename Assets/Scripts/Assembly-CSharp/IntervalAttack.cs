@@ -361,7 +361,9 @@ public class IntervalAttack : IntervalAnimation
 		{
 			NPKNOBDPPMC = true;
 			string text = xmlNode.Attributes["Name"].CIPOICEEIBK(string.Empty);
-			FODLDCDBJHG = new List<string>(text.Split('|'));
+			// Model.Strike uses an empty list to bypass every block interval.
+			// Splitting an absent Name into [""] instead targets a nonexistent guard.
+			FODLDCDBJHG = new List<string>(text.Split(new[] { '|' }, System.StringSplitOptions.RemoveEmptyEntries));
 		}
 		XmlNode xmlNode2 = NodeInterval["IgnoresInvulnerable"];
 		if (xmlNode2 != null)
@@ -423,6 +425,13 @@ public class IntervalAttack : IntervalAnimation
 			if (name == "Damage")
 			{
 				AJNCNCFDLKL.Add(new global::Pair<string, float>(text, pOFHDGJAFMP));
+				// Ranged and magic damage remain unblockable even in cast/follow-up
+				// intervals that omit IgnoresBlock. Ordinary melee keeps its XML rules.
+				if (!NPKNOBDPPMC && (text == "RangedDamage" || text == "MagicDamage"))
+				{
+					NPKNOBDPPMC = true;
+					FODLDCDBJHG = new List<string>();
+				}
 				continue;
 			}
 			if (name == "Defense")

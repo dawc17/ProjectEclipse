@@ -2188,6 +2188,7 @@
     <None Include="Assets\Resources\gamedata\locations\graveyard_ships\params.txt" />
     <None Include="Assets\Resources\textures\locations\ruins_village\ruins_village_atlas_layer4_xml.txt" />
     <None Include="Assets\Resources\textures\locations\castle_and_bridge\castle_and_bridge_atlas_layer1_xml.txt" />
+    <None Include="Assets\users.xml" />
     <None Include="Assets\xml\models\mdl_ranged_bobine.xml" />
     <None Include="Assets\Resources\textures\locations\waterfall\waterfall_bg_xml.txt" />
     <None Include="Assets\Resources\gamedata\internalSettings.txt" />

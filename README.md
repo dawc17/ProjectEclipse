@@ -17,3 +17,9 @@ msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 ```
 
 See `AGENTS.md` for project conventions and validation guidance.
+
+## Engine upgrade preparation
+
+The main project remains on Unity 2019.4.41f2. See
+[`Tools/UNITY_2022_UPGRADE.md`](Tools/UNITY_2022_UPGRADE.md) for the audited risks,
+baseline tests, verified checkpoint tool and isolated Unity 2022.3 migration steps.

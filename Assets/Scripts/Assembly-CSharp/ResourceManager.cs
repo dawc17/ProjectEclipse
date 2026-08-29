@@ -361,10 +361,25 @@ public static class ResourceManager
 							XmlAttribute name = legacy.Attributes == null ? null : legacy.Attributes["Name"];
 							if (name != null && names.Add(name.Value))
 							{
-								targetSection.AppendChild(document.ImportNode(legacy, true));
+								XmlElement imported = (XmlElement)document.ImportNode(legacy, true);
+								if (sectionName == "Moves")
+									imported.SetAttribute("UseLegacyTemplates", "1");
+								targetSection.AppendChild(imported);
 								restored++;
 							}
 						}
+					}
+					if (restored != 0)
+					{
+						// The newer table has flattened its templates into each move.
+						// Its empty template markers cannot supply the locks, conditions,
+						// actions or alignment still inherited by bundled legacy moves.
+						// Keep their original definitions separate so modern moves do not
+						// inherit duplicate actions or obsolete restrictions.
+						XmlElement legacyTemplates = document.CreateElement("LegacyTemplates");
+						foreach (XmlNode template in baseline.SelectNodes("/Movesxml/Templates/Template"))
+							legacyTemplates.AppendChild(document.ImportNode(template, true));
+						document.DocumentElement.AppendChild(legacyTemplates);
 					}
 					if (restored != 0 && _devXmlLogged.Add("moves-legacy-merge"))
 						Debug.Log("[DevXml] restored " + restored +

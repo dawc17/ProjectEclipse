@@ -332,7 +332,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			{
 				btnMusic.transform.BGNJGIACJBG(0f);
 				btnSound.transform.BGNJGIACJBG(-200f);
-				btnCredits.transform.OKHPLHPBPKJ(0f);
+				if (btnCredits != null) btnCredits.transform.OKHPLHPBPKJ(0f);
 				btnLanguage.transform.BGNJGIACJBG(0f);
 			}
 			else if (AssemblyController.JONCCPLEIBE().OPCBKOOFMAK())
@@ -353,7 +353,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			}
 			else if (SystemProperties.DDIDANINPJE())
 			{
-				btnCredits.transform.OKHPLHPBPKJ(-620f);
+				if (btnCredits != null) btnCredits.transform.OKHPLHPBPKJ(-620f);
 				NHCFEKKGMAE();
 			}
 			else
@@ -481,6 +481,11 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected void OHDFPIADEIG(ResolutionButton GAMILDJHFDB, string CGNJEDIFEKJ, string AOFLEGLGGAC, float DHDMNHCIPEH, float BGEEALIPKCC, AHDEAELNGBD OKNNNLIPODI)
 		{
+			// Desktop prefabs can omit the legacy credits/support controls.
+			if (GAMILDJHFDB == null)
+			{
+				return;
+			}
 			if (OKNNNLIPODI == AHDEAELNGBD.BTN_GAMECENTER || OKNNNLIPODI == AHDEAELNGBD.BTN_ITUNES)
 			{
 				if (GAMILDJHFDB != null) GAMILDJHFDB.gameObject.SetActive(false);
@@ -497,6 +502,10 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected void PGMBIJFAEHP(LabelAlias NCJDCOLEFHG, string LOKLDPLAPOL)
 		{
+			if (NCJDCOLEFHG == null)
+			{
+				return;
+			}
 			if (NCJDCOLEFHG == lblGameCenter || NCJDCOLEFHG == lblItunes)
 			{
 				if (NCJDCOLEFHG != null) NCJDCOLEFHG.gameObject.SetActive(false);
@@ -923,13 +932,13 @@ namespace Nekki.SF2.GUI.Dialogs
 		{
 			btnSound.gameObject.SetActive(!JILGHDDEMPE);
 			btnMusic.gameObject.SetActive(!JILGHDDEMPE);
-			btnCredits.gameObject.SetActive(!JILGHDDEMPE);
+			if (btnCredits != null) btnCredits.gameObject.SetActive(!JILGHDDEMPE);
 			btnLanguage.gameObject.SetActive(!JILGHDDEMPE);
 			if (SystemProperties.DDIDANINPJE())
 			{
 				btnGameCenter.interactable = !JILGHDDEMPE;
 			}
-			btnSupport.gameObject.SetActive(!JILGHDDEMPE);
+			if (btnSupport != null) btnSupport.gameObject.SetActive(!JILGHDDEMPE);
 		}
 	}
 }

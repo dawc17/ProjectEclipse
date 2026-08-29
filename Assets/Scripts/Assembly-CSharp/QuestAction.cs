@@ -879,6 +879,17 @@ public class QuestActionUpdateEclipseBattles : QuestAction
 			{
 				continue;
 			}
+			// Run on fight return, mode switches and session initialization so
+			// completed Eclipse segments (including old saves) remain replayable.
+			BattleReplayable replayable = eclipseBattle as BattleReplayable;
+			if (replayable != null && replayable.TryStartNextReplay())
+			{
+				changedBattles.Add(eclipseBattle);
+				if (eclipseMode && eclipseBattle == selectedBattle)
+				{
+					selectedReplacement = eclipseBattle;
+				}
+			}
 			SetBattleHidden(normalBattle, eclipseMode, changedBattles);
 			SetBattleHidden(eclipseBattle, !eclipseMode, changedBattles);
 			if (normalBattle == selectedBattle && eclipseMode)

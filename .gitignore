@@ -55,6 +55,10 @@ BuildScripts/out/
 # !ResearchSources/XMLMigration/something-important.txt
 ResearchSources/
 
+# Local engine-upgrade checkpoints and isolated working copies (never delete as Temp).
+/UpgradeBackups/
+/UpgradeWorkspaces/
+
 # ================= OS junk =================
 .DS_Store
 Thumbs.db

@@ -25,6 +25,42 @@ public class BattleReplayable : Battle
 		return (MEOMPEEPCJJ != null) ? MEOMPEEPCJJ.ODCFKCJJDKN() : 0;
 	}
 
+	public bool TryStartNextReplay()
+	{
+		if (MEOMPEEPCJJ == null || MEOMPEEPCJJ.NLIJBCHAEBK())
+		{
+			return false;
+		}
+		List<FightList> fights = ANNHMNIHKCC();
+		if (fights.Count == 0)
+		{
+			return false;
+		}
+		// Wins are lifetime counters used by rewards and quests. Advance the
+		// cycle instead of clearing them, and only after EVERY fight is done.
+		// Deriving the cycle from saved wins also repairs already completed saves.
+		int completedCycles = int.MaxValue;
+		foreach (FightList fight in fights)
+		{
+			RosterFight rosterFight = fight.FLKFFDLLBKA();
+			if (rosterFight == null || fight.EJGGHHEOGPG <= 0)
+			{
+				return false;
+			}
+			completedCycles = System.Math.Min(completedCycles, rosterFight.JAJNIKDMPPO() / fight.EJGGHHEOGPG);
+		}
+		if (completedCycles <= HLBOMMKJAAO())
+		{
+			return false;
+		}
+		MEOMPEEPCJJ.FHCHCHPPMEI(completedCycles);
+		foreach (FightList fight in fights)
+		{
+			ListSF.DINPFDGMEAB(fight);
+		}
+		return true;
+	}
+
 	public virtual void MJJFFAOLCCK(FightList KGKDKENMAOA)
 	{
 		int num = HLBOMMKJAAO();

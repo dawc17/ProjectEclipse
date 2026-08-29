@@ -8,6 +8,8 @@ public static class MovesParser
 
 	private static Dictionary<string, XmlNode> _TemplateTemp;
 
+	private static Dictionary<string, XmlNode> _LegacyTemplateTemp;
+
 	public static void Parse(string path, List<InfoAnimation> DPPDBCBFHIL, Dictionary<string, TemplateAnimation> CBNKICJENCB, List<Trick> IAGDAAPCDNI, List<Trigger> CMHFKBKKKOK, bool OOJAEKEOEFJ)
 	{
 		MovesMaps.Init();
@@ -16,13 +18,18 @@ public static class MovesParser
 		XmlNode iLCCDINCICK = xmlDocument["Movesxml"]["Moves"];
 		XmlNode hKPPBKPJOEO = xmlDocument["Movesxml"]["Triggers"];
 		AKGCKOGKJBD(aFHNINCKJEE, CBNKICJENCB);
+		_LegacyTemplateTemp = new Dictionary<string, XmlNode>();
+		foreach (XmlNode template in xmlDocument.SelectNodes("/Movesxml/LegacyTemplates/Template"))
+			_LegacyTemplateTemp.Add(template.Attributes["Name"].Value, template);
 		MNCBOOGMKGB(iLCCDINCICK, CBNKICJENCB, DPPDBCBFHIL, IAGDAAPCDNI);
 		KOKCNPLBFAG(hKPPBKPJOEO, CMHFKBKKKOK);
 		_TemplateTemp.Clear();
 		_TemplateTemp = null;
+		_LegacyTemplateTemp.Clear();
+		_LegacyTemplateTemp = null;
 	}
 
-	private static void SetMoveTemplate(XmlNode KIKPDADFBDM, XmlNode LFKJDMIPCEA, List<XmlNode> HKIBBEPJGCH)
+	private static void SetMoveTemplate(XmlNode KIKPDADFBDM, XmlNode LFKJDMIPCEA, List<XmlNode> HKIBBEPJGCH, Dictionary<string, XmlNode> templates)
 	{
 		XmlAttribute xmlAttribute = LFKJDMIPCEA.Attributes["Template"];
 		if (xmlAttribute == null)
@@ -45,11 +52,11 @@ public static class MovesParser
 			if (!flag)
 			{
 				XmlNode value = null;
-				if (_TemplateTemp.TryGetValue(array[i], out value))
+				if (templates.TryGetValue(array[i], out value))
 				{
 					HKIBBEPJGCH.Add(value);
 					AddAttributes(KIKPDADFBDM, value);
-					SetMoveTemplate(KIKPDADFBDM, value, HKIBBEPJGCH);
+					SetMoveTemplate(KIKPDADFBDM, value, HKIBBEPJGCH, templates);
 				}
 				else
 				{
@@ -80,7 +87,11 @@ public static class MovesParser
 		foreach (XmlNode childNode in nodes.ChildNodes)
 		{
 			list2.Clear();
-			SetMoveTemplate(childNode, childNode, list2);
+			// Imported legacy moves retain their own inheritance graph. Template
+			// names remain unchanged for CurrentAnimation and AI membership checks.
+			Dictionary<string, XmlNode> templates = childNode.Attributes["UseLegacyTemplates"].ParseBool()
+				? _LegacyTemplateTemp : _TemplateTemp;
+			SetMoveTemplate(childNode, childNode, list2, templates);
 			InfoAnimation pJAHIOELGGD = new InfoAnimation();
 			pJAHIOELGGD.Name = childNode.Attributes["Name"].CIPOICEEIBK(string.Empty);
 			pJAHIOELGGD.Id = childNode.Attributes["ID"].ParseInt();
