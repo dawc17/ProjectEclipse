@@ -103,6 +103,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\EEFBHOOPEMK.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DialogsOpener.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Content\ContentOverrideCompatibility.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Content\ContentOverridePaths.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionSwitchToRaidsMap.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QualityOption.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestUtils.cs" />

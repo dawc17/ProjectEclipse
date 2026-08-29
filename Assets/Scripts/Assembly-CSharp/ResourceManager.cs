@@ -72,14 +72,6 @@ public static class ResourceManager
 		// Newer plaintext gamedata is adapted at the boundary before old parsers see it.
 		private static bool _devXmlGameplayOverridesEnabled = true;
 
-		private static bool IsDevModelRequest(string requestPath)
-		{
-			string normalizedPath = requestPath.Replace('\\', '/');
-			return normalizedPath.IndexOf("/models/", StringComparison.OrdinalIgnoreCase) >= 0 ||
-				normalizedPath.StartsWith("models/", StringComparison.OrdinalIgnoreCase) ||
-				normalizedPath.StartsWith("assets/models/", StringComparison.OrdinalIgnoreCase);
-		}
-
 		private static bool IsCompatibleDevXml(string requestPath, string file, string text)
 		{
 			try
@@ -95,7 +87,7 @@ public static class ResourceManager
 				if (ContentOverrideCompatibility.Validate(
 					xmlDocument,
 					Path.GetFileName(requestPath),
-					IsDevModelRequest(requestPath),
+					ContentOverridePaths.IsModelRequest(requestPath),
 					out reason))
 				{
 					return true;
@@ -443,14 +435,12 @@ public static class ResourceManager
 		public static bool TryDevXml(string ONEIGMLOGDC, out string text)
 		{
 			text = null;
-			string rel = ONEIGMLOGDC.Replace('\\', '/').TrimStart('/');
-			int gamedataIndex = rel.IndexOf("gamedata/", StringComparison.OrdinalIgnoreCase);
-			if (gamedataIndex < 0)
+			string gamedataRelativePath;
+			if (!ContentOverridePaths.TryGetGamedataRelativePath(ONEIGMLOGDC, out gamedataRelativePath))
 			{
 				return false;
 			}
-			string gamedataRelativePath = rel.Substring(gamedataIndex + "gamedata/".Length);
-			bool isModelRequest = IsDevModelRequest(gamedataRelativePath);
+			bool isModelRequest = ContentOverridePaths.IsModelRequest(gamedataRelativePath);
 			if (!_devXmlGameplayOverridesEnabled && !isModelRequest)
 			{
 				if (_devXmlLogged.Add("gameplay-disabled"))
@@ -463,10 +453,9 @@ public static class ResourceManager
 			// The exported project already contains the recovered content. The legacy
 			// external packs manifest otherwise treats later acts as absent and opens a
 			// downloader that cannot install modern Unity bundles into this 2019 project.
-			if (string.Equals(Path.GetFileName(gamedataRelativePath), "packs.xml",
-				StringComparison.OrdinalIgnoreCase))
+			if (ContentOverridePaths.IsPacksManifest(gamedataRelativePath))
 			{
-				text = "<?xml version=\"1.0\" encoding=\"utf-8\"?><Packs />";
+				text = ContentOverridePaths.EmptyPacksManifest;
 				if (_devXmlLogged.Add("local-packs-manifest"))
 				{
 					Debug.Log("[DevXml] local content mode: skipping obsolete pack downloads");
@@ -484,24 +473,7 @@ public static class ResourceManager
 				_devXmlLogged.Add("lookup:" + ONEIGMLOGDC);
 				Debug.Log("[DevXml] lookup: " + ONEIGMLOGDC);
 			}
-			var candidates = new List<string>();
-			candidates.Add(gamedataRelativePath);
-			string normalizedRelativePath = gamedataRelativePath.Replace('\\', '/');
-			if (normalizedRelativePath.EndsWith("/params.xml", StringComparison.OrdinalIgnoreCase))
-			{
-				string directory = Path.GetDirectoryName(gamedataRelativePath);
-				string locationName = Path.GetFileName(directory);
-				if (!string.IsNullOrEmpty(directory) && !string.IsNullOrEmpty(locationName))
-				{
-					candidates.Add(Path.Combine(directory, locationName + "_params.xml"));
-				}
-			}
-			if (gamedataRelativePath.StartsWith("assets/", StringComparison.OrdinalIgnoreCase))
-			{
-				candidates.Add(gamedataRelativePath.Substring("assets/".Length));
-			}
-			candidates.Add(Path.GetFileName(gamedataRelativePath));
-			foreach (string cand in candidates)
+			foreach (string cand in ContentOverridePaths.BuildCandidates(gamedataRelativePath))
 			{
 				if (string.IsNullOrEmpty(cand))
 				{
