@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Nekki.SF2.GUI;
 using Nekki.SF2.GUI.Fight;
+using SF2DE.Underworld.UI;
 
 // Exercises the real prefab and runtime widgets without loading/changing a save.
 public static class DevRaidHealthBarValidator
@@ -58,7 +59,7 @@ public static class DevRaidHealthBarValidator
                 parameters.GFNCMLFKBGP(1);
                 life.Init(parameters);
                 life.SetRaidStyle(true);
-                var counter = RaidShieldBar.Attach(rect, parameters, font);
+				var counter = UnderworldRaidShieldBar.Attach(rect, parameters, font);
                 parameters.GEACPINOAAN(-damages[row]);
                 life.Render(); // Includes cross-bar reset, not only direct fill assignment.
                 life.SetValBarValue(parameters.CurrentHealthBarFraction);

@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Nekki.SF2.GUI.Fight
+namespace SF2DE.Underworld.UI
 {
 	// Count includes the currently draining bar. ShieldTotal is a total,
 	// not a number of bonus bars. Keep large pools inside the HUD.
-	public class RaidShieldBar : MonoBehaviour
+	public class UnderworldRaidShieldBar : MonoBehaviour
 	{
 		private ModelParameters _parameters;
 		private Text _count;
@@ -26,7 +26,7 @@ namespace Nekki.SF2.GUI.Fight
 			gameObject.SetActive(value && _parameters.ShieldTotal > 0);
 		}
 
-		public static RaidShieldBar Attach(Transform parent, ModelParameters parameters, Font font)
+		public static UnderworldRaidShieldBar Attach(Transform parent, ModelParameters parameters, Font font)
 		{
 			if (parent == null || parameters == null || parameters.ShieldTotal <= 0)
 				return null;
@@ -61,7 +61,7 @@ namespace Nekki.SF2.GUI.Fight
 			count.alignment = TextAnchor.MiddleLeft;
 			count.color = new Color(1f, 0.84f, 0.55f, 1f);
 			count.raycastTarget = false;
-			RaidShieldBar bar = host.AddComponent<RaidShieldBar>();
+			UnderworldRaidShieldBar bar = host.AddComponent<UnderworldRaidShieldBar>();
 			bar._parameters = parameters;
 			bar._count = count;
 			bar.UpdateBar(1f);

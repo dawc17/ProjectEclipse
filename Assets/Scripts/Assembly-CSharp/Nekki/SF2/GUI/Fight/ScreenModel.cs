@@ -1,5 +1,6 @@
 using System;
 using CodeStage.AntiCheat.ObscuredTypes;
+using SF2DE.Underworld.UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -35,8 +36,7 @@ namespace Nekki.SF2.GUI.Fight
 		[SerializeField]
 		private PlayerLifeBar _lifeBar;
 
-		// Recovered Underworld raid UI: stacked boss health bars overlay.
-		private RaidShieldBar _raidShields;
+		private UnderworldRaidShieldBar _raidShields;
 
 		[SerializeField]
 		private StylePanel _stylePanel;
@@ -152,7 +152,7 @@ namespace Nekki.SF2.GUI.Fight
 			if (raidBoss)
 			{
 				RectTransform lifeBarRect = _lifeBar.get_rectTransform();
-				_raidShields = RaidShieldBar.Attach(lifeBarRect, _parameters, _name.font);
+				_raidShields = UnderworldRaidShieldBar.Attach(lifeBarRect, _parameters, _name.font);
 			}
 		}
 
