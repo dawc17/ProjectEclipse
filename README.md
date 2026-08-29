@@ -1,7 +1,7 @@
 # Eclipse
 
-Eclipse is an open-source Shadow Fight 2 reconstruction/base project built from
-an AssetRipper-exported Unity project. It targets **Unity 2022.3.62f3**.
+Eclipse is an open-source Shadow Fight 2 base project built from
+an exported Unity project. It targets **Unity 2022.3.62f3**.
 
 The base project is intentionally not the Definitive Edition mod. Project-owned
 engine, compatibility, desktop, presentation, and future modding code lives under
