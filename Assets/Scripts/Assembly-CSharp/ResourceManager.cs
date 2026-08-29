@@ -312,10 +312,15 @@ public static class ResourceManager
 					custom,
 					runtimeBaseline,
 					new[] { "AssemblySettings", "Internet", "Supports", "EULA", "Log", "ForcedLogConditions", "StarterPackTimer" });
-				if (importedRuntimeSections != 0 && _devXmlLogged.Add("settings-runtime-sections"))
+				int importedMapGuiSettings = InternalSettingsCompatibility.ImportMissingSubtree(
+					custom,
+					runtimeBaseline,
+					"/Settings/GUI/Map/Challenge");
+				if ((importedRuntimeSections != 0 || importedMapGuiSettings != 0) && _devXmlLogged.Add("settings-runtime-sections"))
 				{
 					Debug.Log("[DevXml] restored " + importedRuntimeSections +
-						" legacy runtime settings section(s) without replacing vanilla settings");
+						" legacy runtime settings section(s) and " + importedMapGuiSettings +
+						" nested runtime setting(s) without replacing vanilla settings");
 				}
 			}
 

@@ -71,6 +71,24 @@ namespace Eclipse.Content
 			return imported;
 		}
 
+		public static int ImportMissingSubtree(
+			XmlDocument document,
+			XmlDocument fallback,
+			string xpath)
+		{
+			if (document == null || fallback == null || string.IsNullOrEmpty(xpath))
+			{
+				return 0;
+			}
+
+			XmlElement target = document.SelectSingleNode(xpath) as XmlElement;
+			XmlElement fallbackTarget = fallback.SelectSingleNode(xpath) as XmlElement;
+			if (target == null || fallbackTarget == null)
+			{
+				return 0;
+			}
+			return MergeMissingSettings(document, target, fallbackTarget);
+		}
 		public static int ImportMissingTopLevelSections(
 			XmlDocument document,
 			XmlDocument fallback,
