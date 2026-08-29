@@ -3391,6 +3391,10 @@
       <Project>{BC3C38AE-ED04-B288-BA63-7F92E64B03B8}</Project>
       <Name>Assembly-CSharp-firstpass</Name>
     </ProjectReference>
+    <ProjectReference Include="SF2DE.Runtime.csproj">
+      <Project>{DC90723D-EECD-372A-D545-A7F5B4923F53}</Project>
+      <Name>SF2DE.Runtime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

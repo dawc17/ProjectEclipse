@@ -411,7 +411,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SocketIOWePlaySample.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlMemberAttribute.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DataMessage.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Runtime\Presentation\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Packet.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConverter.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AIBCPDGLFPB.cs" />
@@ -498,7 +497,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FunctionExtension.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Crypto.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CoroutineManager.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Runtime\Offline\OfflineServices.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DOIKIDPKFKN.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredDouble.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BPGAOEMIFNN.cs" />
@@ -618,7 +616,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Social.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonReader.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SwitchForm.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Runtime\Offline\OfflineStoreData.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConverterCollection.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AssetsData.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\YamlDocument.cs" />
@@ -870,7 +867,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Yaml\Node.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CHOAMHPCPFL.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FIKEKJBAKBO.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Runtime\Presentation\MotionBlur\SF2MotionBlur.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\BlockEntry.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonReaderException.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IObjectGraphVisitor.cs" />
@@ -1868,6 +1864,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="SF2DE.Runtime.csproj">
+      <Project>{DC90723D-EECD-372A-D545-A7F5B4923F53}</Project>
+      <Name>SF2DE.Runtime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
