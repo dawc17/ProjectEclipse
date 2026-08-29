@@ -32,8 +32,8 @@ namespace Eclipse.Content
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private static bool _indexed;
-        private static AssetBundle _activeBundle;
-        private static string _activeBundlePath;
+        private static readonly Dictionary<string, AssetBundle> OpenBundles =
+            new Dictionary<string, AssetBundle>(StringComparer.OrdinalIgnoreCase);
 
         public static bool IsSupportedAssetType(Type type)
         {
@@ -255,27 +255,28 @@ namespace Eclipse.Content
 
         private static AssetBundle OpenBundle(string path)
         {
-            if (_activeBundle != null && string.Equals(_activeBundlePath, path, StringComparison.OrdinalIgnoreCase))
-                return _activeBundle;
-
-            if (_activeBundle != null)
-            {
-                _activeBundle.Unload(false);
-                _activeBundle = null;
-                _activeBundlePath = null;
-            }
+            AssetBundle bundle;
+            if (OpenBundles.TryGetValue(path, out bundle) && bundle != null)
+                return bundle;
 
             if (FailedBundles.Contains(path))
                 return null;
-            _activeBundle = AssetBundle.LoadFromFile(path);
-            if (_activeBundle == null)
+
+            bundle = AssetBundle.LoadFromFile(path);
+            if (bundle == null)
             {
                 FailedBundles.Add(path);
                 Debug.LogWarning("[ResearchArt] Could not load bundle '" + path + "'.");
                 return null;
             }
-            _activeBundlePath = path;
-            return _activeBundle;
+
+            // Keep every bundle that has served runtime art open for the session.
+            // Texture/audio payloads may be backed by a CAB-*.resource stream inside
+            // the bundle archive. Unload(false) closes that archive even though the
+            // Unity object survives, which later produces an "Opening file failed"
+            // native dialog when the renderer/audio system touches the stream.
+            OpenBundles[path] = bundle;
+            return bundle;
         }
     }
 }
