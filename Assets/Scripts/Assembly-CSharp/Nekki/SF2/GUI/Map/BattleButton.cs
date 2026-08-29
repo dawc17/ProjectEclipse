@@ -71,15 +71,13 @@ namespace Nekki.SF2.GUI.Map
 		public void Init(string LPCAHLHLBJE, string KEIJPCJFLEO, string HHBECAKNFHD, string NGHGFJCOMIP, bool NIBIMBDBPMI, string iconAtlas = "")
 		{
 			// Zones 1-6 still tag their original Tournament/Lynx map entries with
-			// the legacy BattleBtnStart atlas. The modern art bundle no longer ships
-			// that atlas and uses BattleBtnBase instead, but those old map slots were
-			// authored for a 150x150 icon footprint rather than the normal 300x300
-			// battle button. Keep the modern bundle art while preserving that layout
-			// contract. The label is a child with its own size, so only the image/button
-			// rect shrinks and the map text remains at the intended scale.
+			// the legacy BattleBtnStart atlas. The modern bundle no longer ships that
+			// atlas, so those normal states fall back to recovered BattleBtnBase art
+			// while their Eclipse replacements come from the bundle. ResolutionImage
+			// restores the fallback sprites' stripped padding without changing the
+			// 300x300 map-button hit area or label layout.
 			if (iconAtlas == "BattleBtnStart")
 			{
-				GetComponent<RectTransform>().sizeDelta = new Vector2(150f, 150f);
 				iconAtlas = string.Empty;
 			}
 			bool raidDefault = iconAtlas == "BattleBtn_raid";

@@ -11,6 +11,8 @@ namespace Nekki.SF2.GUI
 
 		private static readonly Dictionary<Sprite, Sprite> RepairedSprites = new Dictionary<Sprite, Sprite>();
 
+		private static readonly HashSet<Sprite> RepairedSpriteValues = new HashSet<Sprite>();
+
 		private static readonly HashSet<string> LoggedCompatibilitySprites = new HashSet<string>();
 
 		public const string DefaultAtlasPath = "UI/Atlases/";
@@ -103,20 +105,48 @@ namespace Nekki.SF2.GUI
 		protected override void OnPopulateMesh(VertexHelper toFill)
 		{
 			base.OnPopulateMesh(toFill);
-			if (string.IsNullOrEmpty(_SpriteName) || !_SpriteName.StartsWith("MenuButtons."))
+			if (string.IsNullOrEmpty(_SpriteName))
+			{
+				return;
+			}
+
+			Sprite displayedSprite = overrideSprite != null ? overrideSprite : sprite;
+			if (_SpriteName.StartsWith("BattleBtn") && displayedSprite != null && RepairedSpriteValues.Contains(displayedSprite))
+			{
+				// AssetRipper collapsed transparent padding from recovered battle-button
+				// atlas members. The remaining trimmed pixels are then stretched across
+				// the map-button rect, making normal-mode icons oversized and distorted
+				// while their bundle-backed Eclipse variants retain the correct padding.
+				// Restore the trimmed sprite's native footprint and center offset only in
+				// the generated mesh so the hit area and child label layout stay intact.
+				Rect targetRect = rectTransform.rect;
+				float scaleX = (targetRect.width > 0f) ? Mathf.Min(1f, displayedSprite.rect.width / targetRect.width) : 1f;
+				float scaleY = (targetRect.height > 0f) ? Mathf.Min(1f, displayedSprite.rect.height / targetRect.height) : 1f;
+				Vector2 offset = displayedSprite.bounds.center * displayedSprite.pixelsPerUnit;
+				TransformMesh(toFill, new Vector2(scaleX, scaleY), offset);
+			}
+
+			if (!_SpriteName.StartsWith("MenuButtons."))
 			{
 				return;
 			}
 			// The exported atlas members lost the transparent source padding that
-			// surrounded the navigation artwork.  UGUI consequently stretches the
-			// trimmed pixels across the full button rect.  Restore that padding in
+			// surrounded the navigation artwork. UGUI consequently stretches the
+			// trimmed pixels across the full button rect. Restore that padding in
 			// the generated mesh so the original hit area and child badges stay put.
+			TransformMesh(toFill, new Vector2(MenuButtonArtworkScale, MenuButtonArtworkScale), Vector2.zero);
+		}
+
+		private void TransformMesh(VertexHelper toFill, Vector2 scale, Vector2 offset)
+		{
 			Vector2 center = rectTransform.rect.center;
 			UIVertex vertex = default(UIVertex);
 			for (int i = 0; i < toFill.currentVertCount; i++)
 			{
 				toFill.PopulateUIVertex(ref vertex, i);
-				vertex.position = center + ((Vector2)vertex.position - center) * MenuButtonArtworkScale;
+				Vector2 position = (Vector2)vertex.position - center;
+				position = new Vector2(position.x * scale.x, position.y * scale.y);
+				vertex.position = center + position + offset;
 				toFill.SetUIVertex(vertex, i);
 			}
 		}
@@ -399,6 +429,7 @@ namespace Nekki.SF2.GUI
 			repaired = Sprite.Create(sprite.texture, rect, pivot, sprite.pixelsPerUnit, 0u, SpriteMeshType.FullRect, sprite.border);
 			repaired.name = sprite.name;
 			RepairedSprites[sprite] = repaired;
+			RepairedSpriteValues.Add(repaired);
 			return repaired;
 		}
 
