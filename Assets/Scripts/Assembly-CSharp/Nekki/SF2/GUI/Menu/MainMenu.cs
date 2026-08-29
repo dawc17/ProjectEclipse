@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Nekki.SF2.Core.Quests;
 using Nekki.SF2.GUI.Shop;
+using SF2DE.UI.TopBar;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -157,7 +158,7 @@ namespace Nekki.SF2.GUI.Menu
 			_experience.Init();
 			_energy.Init();
 			_materials.Init();
-			ConfigureCompactTopBar();
+			DesktopTopBarLayout.Configure(_experience, _energy, _money);
 			LGGBLFOKHAO();
 			GBKFLJIEHBH();
 			HIPEIJPLBJJ();
@@ -173,20 +174,6 @@ namespace Nekki.SF2.GUI.Menu
 			SetNormalViewMode(false);
 			UpdateMenu();
 			_menuBlocker.gameObject.SetActive(false);
-		}
-
-		private void ConfigureCompactTopBar()
-		{
-			_energy.gameObject.SetActive(false);
-			_money.ConfigureCompactTopBar();
-			HorizontalLayoutGroup component = _experience.transform.parent.GetComponent<HorizontalLayoutGroup>();
-			if (component != null)
-			{
-				component.childForceExpandWidth = false;
-				component.childControlWidth = true;
-				component.childAlignment = TextAnchor.MiddleCenter;
-				component.spacing = 30f;
-			}
 		}
 
 		private void OnDestroy()

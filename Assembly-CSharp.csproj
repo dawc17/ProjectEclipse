@@ -396,6 +396,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightEvent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionEclipseModeTutorial.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MainMenu.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\UI\TopBar\DesktopTopBarLayout.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightResult.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionChangeImpulse.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AttributesRule.cs" />
