@@ -152,6 +152,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionFight.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ComboStatistic.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\FightInterpolation.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Diagnostics\EffectFollowDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionImageAvatar.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\BaseScrollContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\QueuedCommand.cs" />
