@@ -843,11 +843,14 @@ public class InfoAnimation
 		if (!string.IsNullOrEmpty(FileName))
 		{
 			AnimationContainerStruct aGAMDIHPFPF = IAPAKFDEKOI();
-			if (aGAMDIHPFPF == null)
+			if (aGAMDIHPFPF == null || aGAMDIHPFPF.Container == null)
 			{
 				string iFKJHHPJPLP = SF2Paths.CBKLONCNPCP() + "/" + FileName;
 				OOICKIBOFGH(iFKJHHPJPLP);
-				DDPBDPEDIGC();
+				if (_AnimationContainer != null)
+				{
+					DDPBDPEDIGC();
+				}
 			}
 			else
 			{
@@ -1606,6 +1609,10 @@ public class InfoAnimation
 
 	private void DDPBDPEDIGC()
 	{
+		if (_AnimationContainer == null)
+		{
+			return;
+		}
 		AnimationContainerStruct aGAMDIHPFPF = new AnimationContainerStruct();
 		aGAMDIHPFPF.FileName = FileName;
 		aGAMDIHPFPF.Container = _AnimationContainer;
