@@ -11,7 +11,6 @@ namespace Nekki.SF2.GUI
 
 		private static readonly Dictionary<Sprite, Sprite> RepairedSprites = new Dictionary<Sprite, Sprite>();
 
-		private static readonly HashSet<Sprite> RepairedSpriteValues = new HashSet<Sprite>();
 
 		private static readonly HashSet<string> LoggedCompatibilitySprites = new HashSet<string>();
 
@@ -111,19 +110,25 @@ namespace Nekki.SF2.GUI
 			}
 
 			Sprite displayedSprite = overrideSprite != null ? overrideSprite : sprite;
-			if (_SpriteName.StartsWith("BattleBtn") && displayedSprite != null && RepairedSpriteValues.Contains(displayedSprite))
+			if (_SpriteName.StartsWith("BattleBtn") && displayedSprite != null)
 			{
-				// AssetRipper collapsed transparent padding from recovered battle-button
-				// atlas members. The remaining trimmed pixels are then stretched across
-				// the map-button rect, making normal-mode icons oversized and distorted
-				// while their bundle-backed Eclipse variants retain the correct padding.
-				// Restore the trimmed sprite's native footprint and center offset only in
-				// the generated mesh so the hit area and child label layout stay intact.
+				// AssetRipper collapsed the transparent 300x300 canvas around recovered
+				// map-button atlas members. Some states lost their mesh as well, while
+				// others (notably BattleBtnActive) kept valid geometry but still expose
+				// only the tightly trimmed ~200px sprite rect. UGUI stretches either form
+				// across the 300x300 button. Use the currently displayed state sprite so
+				// base, selected, locked and locked-selected variants receive the same
+				// padding restoration. Modern bundle sprites already have a 300x300 rect,
+				// making this transform a no-op for them.
 				Rect targetRect = rectTransform.rect;
-				float scaleX = (targetRect.width > 0f) ? Mathf.Min(1f, displayedSprite.rect.width / targetRect.width) : 1f;
-				float scaleY = (targetRect.height > 0f) ? Mathf.Min(1f, displayedSprite.rect.height / targetRect.height) : 1f;
-				Vector2 offset = displayedSprite.bounds.center * displayedSprite.pixelsPerUnit;
-				TransformMesh(toFill, new Vector2(scaleX, scaleY), offset);
+				if (targetRect.width > 0f && targetRect.height > 0f &&
+					(displayedSprite.rect.width < targetRect.width - 1f || displayedSprite.rect.height < targetRect.height - 1f))
+				{
+					float scaleX = Mathf.Min(1f, displayedSprite.rect.width / targetRect.width);
+					float scaleY = Mathf.Min(1f, displayedSprite.rect.height / targetRect.height);
+					Vector2 offset = displayedSprite.bounds.center * displayedSprite.pixelsPerUnit;
+					TransformMesh(toFill, new Vector2(scaleX, scaleY), offset);
+				}
 			}
 
 			if (!_SpriteName.StartsWith("MenuButtons."))
@@ -429,7 +434,6 @@ namespace Nekki.SF2.GUI
 			repaired = Sprite.Create(sprite.texture, rect, pivot, sprite.pixelsPerUnit, 0u, SpriteMeshType.FullRect, sprite.border);
 			repaired.name = sprite.name;
 			RepairedSprites[sprite] = repaired;
-			RepairedSpriteValues.Add(repaired);
 			return repaired;
 		}
 
