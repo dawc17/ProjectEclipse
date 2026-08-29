@@ -30,6 +30,17 @@ namespace Eclipse.Content
             new Dictionary<string, List<BundleAsset>>(StringComparer.OrdinalIgnoreCase);
         private static readonly HashSet<string> FailedBundles =
             new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, Sprite> SpriteCache =
+            new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
+        private static readonly Dictionary<string, string> SpriteAliases =
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                // Modern raid bundles moved forge currencies out of the legacy
+                // MiscSprites atlas while current gameplay data retains the old ids.
+                { "miscsprites.forge_green", "ui/atlases/raidcurrencyforge.forge_green" },
+                { "miscsprites.forge_red", "ui/atlases/raidcurrencyforge.forge_red" },
+                { "miscsprites.forge_purple", "ui/atlases/raidcurrencyforge.forge_purple" }
+            };
 
         private static bool _indexed;
         private static readonly Dictionary<string, AssetBundle> OpenBundles =
@@ -47,6 +58,9 @@ namespace Eclipse.Content
                 return null;
 
             EnsureIndex();
+            if (typeof(T) == typeof(Sprite))
+                return LoadSprite(resourcePath) as T;
+
             foreach (BundleAsset entry in FindCandidates(resourcePath, typeof(T)))
             {
                 AssetBundle bundle = OpenBundle(entry.BundlePath);
@@ -57,6 +71,76 @@ namespace Eclipse.Content
                     return asset;
             }
             return null;
+        }
+
+        private static Sprite LoadSprite(string resourcePath)
+        {
+            string normalized = Normalize(resourcePath);
+            string alias;
+            if (SpriteAliases.TryGetValue(normalized, out alias) ||
+                SpriteAliases.TryGetValue(GetLastSegment(normalized), out alias))
+                normalized = alias;
+
+            Sprite cached;
+            if (SpriteCache.TryGetValue(normalized, out cached) && cached != null)
+                return cached;
+
+            foreach (BundleAsset entry in FindCandidates(normalized, typeof(Sprite)))
+            {
+                AssetBundle bundle = OpenBundle(entry.BundlePath);
+                if (bundle == null)
+                    continue;
+                Sprite asset = bundle.LoadAsset<Sprite>(entry.AssetPath);
+                if (asset != null && SpriteNameMatches(asset.name, normalized))
+                {
+                    SpriteCache[normalized] = asset;
+                    return asset;
+                }
+            }
+
+            Sprite member = LoadSpriteMember(normalized);
+            if (member != null)
+                SpriteCache[normalized] = member;
+            return member;
+        }
+
+        private static Sprite LoadSpriteMember(string resourcePath)
+        {
+            string normalized = Normalize(resourcePath);
+            int slash = normalized.LastIndexOf('/');
+            string requestedName = (slash < 0) ? normalized : normalized.Substring(slash + 1);
+            int dot = requestedName.IndexOf('.');
+            if (dot <= 0 || dot == requestedName.Length - 1)
+                return null;
+
+            string atlasName = requestedName.Substring(0, dot);
+            string memberName = requestedName.Substring(dot + 1);
+            string atlasPath = ((slash < 0) ? string.Empty : normalized.Substring(0, slash + 1)) + atlasName;
+            foreach (BundleAsset entry in FindCandidates(atlasPath, typeof(Sprite)))
+            {
+                AssetBundle bundle = OpenBundle(entry.BundlePath);
+                if (bundle == null)
+                    continue;
+                Sprite[] sprites = bundle.LoadAssetWithSubAssets<Sprite>(entry.AssetPath);
+                if (sprites == null)
+                    continue;
+                foreach (Sprite sprite in sprites)
+                {
+                    if (sprite != null &&
+                        (string.Equals(sprite.name, requestedName, StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(sprite.name, memberName, StringComparison.OrdinalIgnoreCase)))
+                        return sprite;
+                }
+            }
+            return null;
+        }
+
+        private static bool SpriteNameMatches(string spriteName, string resourcePath)
+        {
+            if (string.IsNullOrEmpty(spriteName))
+                return false;
+            string requestedName = GetLastSegment(Normalize(resourcePath));
+            return string.Equals(spriteName, requestedName, StringComparison.OrdinalIgnoreCase);
         }
 
         public static T[] LoadWithSubAssets<T>(string resourcePath) where T : UnityEngine.Object

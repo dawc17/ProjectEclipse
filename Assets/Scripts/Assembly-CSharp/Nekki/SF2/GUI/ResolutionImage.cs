@@ -333,31 +333,69 @@ namespace Nekki.SF2.GUI
 
 		private static Sprite OPHFAHOKBOK(string texturePath, string JGIGOMLGLPN)
 		{
-			string oNEIGMLOGDC = (texturePath ?? string.Empty) + DIHMNAGPFCG(JGIGOMLGLPN);
-			Sprite sprite = ResourcesAndBundles.Load<Sprite>(oNEIGMLOGDC);
+			string spriteName = DIHMNAGPFCG(JGIGOMLGLPN);
+			string normalizedTexturePath = (texturePath ?? string.Empty).Replace('\\', '/');
+			string oNEIGMLOGDC = normalizedTexturePath + spriteName;
+			int dot = spriteName.IndexOf('.');
+			if (dot > 0 && !normalizedTexturePath.EndsWith("/", System.StringComparison.Ordinal))
+			{
+				string atlasName = spriteName.Substring(0, dot);
+				int slash = normalizedTexturePath.LastIndexOf('/');
+				string textureName = (slash < 0) ? normalizedTexturePath : normalizedTexturePath.Substring(slash + 1);
+				if (textureName.Equals(atlasName, System.StringComparison.OrdinalIgnoreCase))
+				{
+					oNEIGMLOGDC = ((slash < 0) ? string.Empty : normalizedTexturePath.Substring(0, slash + 1)) + spriteName;
+				}
+			}
+			return RepairInvalidRecoveredSprite(ResourcesAndBundles.Load<Sprite>(oNEIGMLOGDC));
+		}
+
+		private static Sprite RepairInvalidRecoveredSprite(Sprite sprite)
+		{
 			if (sprite == null || sprite.texture == null)
 			{
 				return sprite;
 			}
-			bool flag = !string.IsNullOrEmpty(texturePath) && texturePath.Replace('\\', '/').TrimEnd('/').EndsWith("UI/zones", System.StringComparison.OrdinalIgnoreCase);
-			if (!flag && (sprite.vertices == null || sprite.vertices.Length >= 3))
+
+			Vector2[] vertices = sprite.vertices;
+			Vector2[] uv = sprite.uv;
+			bool invalidGeometry = vertices == null || vertices.Length < 3;
+			bool invalidUv = uv == null || uv.Length < 3;
+			if (!invalidUv)
+			{
+				invalidUv = true;
+				Vector2 first = uv[0];
+				for (int i = 1; i < uv.Length; i++)
+				{
+					if ((uv[i] - first).sqrMagnitude > 1E-08f)
+					{
+						invalidUv = false;
+						break;
+					}
+				}
+			}
+			if (!invalidGeometry && !invalidUv)
 			{
 				return sprite;
 			}
+
 			Sprite repaired;
 			if (RepairedSprites.TryGetValue(sprite, out repaired) && repaired != null)
 			{
 				return repaired;
 			}
 
-			// Several AssetStudio-exported standalone sprites (notably Map1.1-3
-			// and Map2.4-6) retained their texture and crop rectangle but lost all
-			// mesh vertices. UGUI then renders a plain white quad. Recreate only
-			// those structurally invalid sprites as full rectangles at runtime.
+			// AssetRipper preserved many atlas crop rectangles but emitted either no
+			// mesh at all or four vertices whose UVs are all (0,0). The latter
+			// produces the solid white rectangles seen in currency and difficulty
+			// glyphs. Rebuild only structurally invalid sprites from their original
+			// atlas rectangle. Valid bundle and recovered sprites are left untouched.
 			Rect rect = sprite.rect;
-			Vector2 pivot = new Vector2(
-				(rect.width <= 0f) ? 0.5f : sprite.pivot.x / rect.width,
-				(rect.height <= 0f) ? 0.5f : sprite.pivot.y / rect.height);
+			if (rect.width <= 0f || rect.height <= 0f)
+			{
+				return sprite;
+			}
+			Vector2 pivot = new Vector2(sprite.pivot.x / rect.width, sprite.pivot.y / rect.height);
 			repaired = Sprite.Create(sprite.texture, rect, pivot, sprite.pixelsPerUnit, 0u, SpriteMeshType.FullRect, sprite.border);
 			repaired.name = sprite.name;
 			RepairedSprites[sprite] = repaired;
@@ -377,7 +415,7 @@ namespace Nekki.SF2.GUI
 			{
 				sprite = AtlasCache.GetSpriteFromAtlas("UI/Atlases/" + MPOGAEPOJCO(text), JGIGOMLGLPN);
 			}
-			return sprite;
+			return RepairInvalidRecoveredSprite(sprite);
 		}
 
 		protected static string DIHMNAGPFCG(string JGIGOMLGLPN)

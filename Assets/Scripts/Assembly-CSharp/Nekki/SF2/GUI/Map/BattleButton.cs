@@ -70,6 +70,13 @@ namespace Nekki.SF2.GUI.Map
 
 		public void Init(string LPCAHLHLBJE, string KEIJPCJFLEO, string HHBECAKNFHD, string NGHGFJCOMIP, bool NIBIMBDBPMI, string iconAtlas = "")
 		{
+			// Modern vanilla still labels the original Lynx/Tournament entries as
+			// BattleBtnStart in stages.xml, but the modern runtime renders them from
+			// the normal BattleBtnBase/Active/Lock atlas family.
+			if (iconAtlas == "BattleBtnStart")
+			{
+				iconAtlas = string.Empty;
+			}
 			bool raidDefault = iconAtlas == "BattleBtn_raid";
 			string baseAtlas = string.IsNullOrEmpty(iconAtlas) ? "BattleBtnBase" :
 				(raidDefault ? "BattleBtnBase_raid" : iconAtlas + "Base");
