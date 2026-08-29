@@ -1,4 +1,5 @@
 using CodeStage.AntiCheat.ObscuredTypes;
+using SF2DE.Underworld.UI;
 using UnityEngine;
 
 namespace Nekki.SF2.GUI.Fight
@@ -32,56 +33,16 @@ namespace Nekki.SF2.GUI.Fight
 
 		private bool _lockLifeUpdate;
 
-		private int _remainingBars;
+		private readonly UnderworldRaidLifeBarTransition _raidTransition =
+			new UnderworldRaidLifeBarTransition();
 
-		private enum RaidHealthBarTransition
-		{
-			None,
-			DrainingSegment,
-			FillingReplacement
-		}
-
-		// Raid life is represented one segment at a time. Keep the visual
-		// handoff separate from the model so an exhausted segment can finish
-		// draining before the next one appears.
-		private RaidHealthBarTransition _raidHealthBarTransition;
-
-		private int _pendingSegmentsToDrain;
-
-		private float _pendingHealthBarFraction;
-
-		private bool _capturedNormalStyle;
-		private string _normalHealthSprite;
-		private string _normalBackgroundSprite;
-		private Color _normalBackgroundColor;
-		private Color _normalHealthColor;
+		private readonly UnderworldRaidLifeBarStyle _raidStyle =
+			new UnderworldRaidLifeBarStyle();
 
 		public void SetRaidStyle(bool raidBoss)
 		{
-			if (_healthBar == null || _background == null)
-				return;
-			if (!_capturedNormalStyle)
-			{
-				_normalHealthSprite = _healthBar.get_SpriteName();
-				_normalBackgroundSprite = _background.get_SpriteName();
-				_normalBackgroundColor = _background.color;
-				_normalHealthColor = _healthBar.color;
-				_capturedNormalStyle = true;
-			}
-			// Use the recovered blue gradient, not a tint of the red/orange bar.
-			// All layers retain the prefab's fixed width, skew and fill direction.
-			// The ordinary gold hit layer remains the delayed damage indicator.
-			_healthBar.set_SpriteName(raidBoss ? "FightUI.Raid_HealthBar_Full" : _normalHealthSprite);
-			_background.set_SpriteName(raidBoss ? "FightUI.Raid_HealthBar_Full" : _normalBackgroundSprite);
-			_healthBar.color = raidBoss ? Color.white : _normalHealthColor;
-			_background.color = raidBoss ? new Color(0.25f, 0.44f, 0.38f, 1f) : _normalBackgroundColor;
+			_raidStyle.Apply(_healthBar, _background, raidBoss);
 		}
-
-		private const int CNPPCMJEHIF = 60;
-
-		private const int OMDLEFBIGKK = 10;
-
-		private const int COBDMAGFJDB = 30;
 
 		public bool IILLNODMAMI
 		{
@@ -131,10 +92,7 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void ResetLife()
 		{
-			_raidHealthBarTransition = RaidHealthBarTransition.None;
-			_pendingSegmentsToDrain = 0;
-			_pendingHealthBarFraction = 0f;
-			_remainingBars = HEGIABHIPHA.RemainingHealthBars;
+			_raidTransition.Reset(HEGIABHIPHA.RemainingHealthBars);
 			FBFNFLBPACL = 0f;
 			SetValBarValue(KIPMKKDPEKH());
 			SetHitBarValue(KIPMKKDPEKH());
@@ -202,20 +160,16 @@ namespace Nekki.SF2.GUI.Fight
 		private void UpdateLife()
 		{
 			float num = KIPMKKDPEKH();
-			int remainingHealthBars = HEGIABHIPHA.RemainingHealthBars;
-			if (_raidHealthBarTransition != RaidHealthBarTransition.None)
+			UnderworldRaidLifeBarUpdate raidUpdate = _raidTransition.Update(
+				num,
+				HEGIABHIPHA.RemainingHealthBars,
+				HEGIABHIPHA.HealthBarCount,
+				GDJBAIIDKDE,
+				GJBDOHGGIAA,
+				CNNFPAMBLCN);
+			if (raidUpdate.Handled)
 			{
-				UpdateRaidHealthBarTransition(num, remainingHealthBars);
-				return;
-			}
-			if (_remainingBars != remainingHealthBars)
-			{
-				if (HEGIABHIPHA.HealthBarCount > 1 && remainingHealthBars < _remainingBars)
-				{
-					StartRaidHealthBarTransition(num, remainingHealthBars);
-					return;
-				}
-				ResetLife();
+				ApplyRaidLifeBarUpdate(raidUpdate);
 				return;
 			}
 			float num2 = num - CNNFPAMBLCN;
@@ -234,89 +188,25 @@ namespace Nekki.SF2.GUI.Fight
 			}
 		}
 
-		private void StartRaidHealthBarTransition(float targetFraction, int remainingHealthBars)
+		private void ApplyRaidLifeBarUpdate(UnderworldRaidLifeBarUpdate update)
 		{
-			_pendingSegmentsToDrain = Mathf.Max(1, _remainingBars - remainingHealthBars);
-			_pendingHealthBarFraction = targetFraction;
-			_remainingBars = remainingHealthBars;
-			BeginDrainingRaidHealthBarSegment();
-		}
-
-		private void UpdateRaidHealthBarTransition(float targetFraction, int remainingHealthBars)
-		{
-			// A hit can arrive while the HUD is still handing off the previous
-			// segment. Fold its carry-over damage into this transition instead of
-			// snapping the fill to the latest model value.
-			if (remainingHealthBars > _remainingBars)
+			if (update.ResetLife)
 			{
-				// Cross-segment healing is rare and must remain truthful; cancel the
-				// damage-only handoff rather than animating it in the wrong direction.
 				ResetLife();
 				return;
 			}
-			if (remainingHealthBars < _remainingBars)
+			if (update.SetHitDelay)
 			{
-				_pendingSegmentsToDrain += _remainingBars - remainingHealthBars;
-				_remainingBars = remainingHealthBars;
+				FBFNFLBPACL = update.HitDelay;
 			}
-			_pendingHealthBarFraction = targetFraction;
-			if (_raidHealthBarTransition == RaidHealthBarTransition.DrainingSegment)
+			if (update.SetHealthBar)
 			{
-				if (GDJBAIIDKDE != 0f || GJBDOHGGIAA != 0f)
-				{
-					return;
-				}
-				if (_remainingBars <= 0)
-				{
-					CompleteRaidHealthBarTransition();
-					return;
-				}
-				BeginFillingReplacementRaidHealthBarSegment();
-				return;
+				SetValBarValue(update.HealthBarValue, update.HealthBarFrames);
 			}
-			if (GDJBAIIDKDE != 1f || GJBDOHGGIAA != 1f)
+			if (update.SetHitBar)
 			{
-				return;
+				SetHitBarValue(update.HitBarValue, update.HitBarFrames);
 			}
-			if (_pendingSegmentsToDrain > 1)
-			{
-				_pendingSegmentsToDrain--;
-				BeginDrainingRaidHealthBarSegment();
-				return;
-			}
-			CompleteRaidHealthBarTransition();
-		}
-
-		private void BeginDrainingRaidHealthBarSegment()
-		{
-			FBFNFLBPACL = 0f;
-			_raidHealthBarTransition = RaidHealthBarTransition.DrainingSegment;
-			SetValBarValue(0f, OMDLEFBIGKK);
-			SetHitBarValue(0f, COBDMAGFJDB);
-		}
-
-		private void BeginFillingReplacementRaidHealthBarSegment()
-		{
-			_raidHealthBarTransition = RaidHealthBarTransition.FillingReplacement;
-			SetValBarValue(1f, OMDLEFBIGKK);
-			SetHitBarValue(1f, OMDLEFBIGKK);
-		}
-
-		private void CompleteRaidHealthBarTransition()
-		{
-			_raidHealthBarTransition = RaidHealthBarTransition.None;
-			_pendingSegmentsToDrain = 0;
-			if (_remainingBars <= 0 || _pendingHealthBarFraction >= 1f)
-			{
-				return;
-			}
-			float num = _pendingHealthBarFraction - CNNFPAMBLCN;
-			if (num >= 0f)
-			{
-				return;
-			}
-			FBFNFLBPACL = ((Mathf.Abs(num) < 0.01f) ? 1 : CNPPCMJEHIF);
-			SetValBarValue(_pendingHealthBarFraction, OMDLEFBIGKK);
 		}
 
 		public void SetValBarValue(float value, int frames = 0)

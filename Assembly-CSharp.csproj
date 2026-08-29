@@ -379,6 +379,8 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionSound.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PurchaseController.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidShieldBar.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarTransition.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarStyle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSet.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NKOOJDKHHBD.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionStoryTutorialDoubleSweep.cs" />
