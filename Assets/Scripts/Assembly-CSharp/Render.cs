@@ -40,6 +40,8 @@ public class Render
 
 	private SpriteRenderer IBDNNMHPOOA;
 
+	private FightTransformInterpolation _PerkActivationAreaInterpolation;
+
 	private bool NEPJDGDCCFL;
 
 	private float NIKDOKGPFOI;
@@ -351,12 +353,14 @@ public class Render
 	public void CreatePerkActivationArea(float JMLAKAKDBBL, string KHPKDMGDMAB, string ADONPNOBBDE)
 	{
 		ALCGBGHPDCL = new GameObject("PerkActivationArea").AddComponent<SpriteRenderer>();
+		_PerkActivationAreaInterpolation = ALCGBGHPDCL.gameObject.AddComponent<FightTransformInterpolation>();
 		ALCGBGHPDCL.sprite = ResourcesAndBundles.Load<Sprite>(KHPKDMGDMAB);
 		ALCGBGHPDCL.transform.SetParent(EPKHDFIIFIL.MJNPBMOAFML().transform, false);
 		ALCGBGHPDCL.gameObject.SetActive(false);
 		RectTransform rectTransform = ALCGBGHPDCL.gameObject.AddComponent<RectTransform>();
 		Vector2 sizeDelta = rectTransform.sizeDelta;
 		rectTransform.localPosition = new Vector2(0f, sizeDelta.y - _location.GBNPHCHGKDO / 8f - _location.FEIHFIPFNKF / 2f);
+		_PerkActivationAreaInterpolation.Snap(rectTransform.localPosition, rectTransform.localRotation);
 		rectTransform.localScale = new Vector2(JMLAKAKDBBL / sizeDelta.x, _location.FEIHFIPFNKF * 2f / sizeDelta.y);
 		if (!string.IsNullOrEmpty(ADONPNOBBDE))
 		{
@@ -378,7 +382,9 @@ public class Render
 		if (ALCGBGHPDCL != null)
 		{
 			ALCGBGHPDCL.gameObject.SetActive(true);
-			ALCGBGHPDCL.transform.localPosition = new Vector2(MGMMDGFPBLP, ALCGBGHPDCL.transform.localPosition.y);
+			Vector3 position = _PerkActivationAreaInterpolation.CurrentPosition;
+			position.x = MGMMDGFPBLP;
+			_PerkActivationAreaInterpolation.Push(position, _PerkActivationAreaInterpolation.CurrentRotation);
 			Color color = ALCGBGHPDCL.color;
 			color.a = KGJALFLDIBG;
 			ALCGBGHPDCL.color = color;
@@ -414,6 +420,7 @@ public class Render
 			UnityEngine.Object.Destroy(ALCGBGHPDCL.gameObject);
 			IBDNNMHPOOA = null;
 			ALCGBGHPDCL = null;
+			_PerkActivationAreaInterpolation = null;
 		}
 	}
 
@@ -466,11 +473,16 @@ public class Render
 
 	public void UpdateAdditionalDrawsLayer()
 	{
+		SyncAdditionalDrawsLayerTransform();
+		EPKHDFIIFIL.Render();
+	}
+
+	public void SyncAdditionalDrawsLayerTransform()
+	{
 		EPKHDFIIFIL.MJNPBMOAFML().transform.localScale = _location.gameLayer.MJNPBMOAFML().transform.localScale;
 		Vector3 localPosition = _location.gameLayer.MJNPBMOAFML().transform.localPosition;
 		localPosition.z = EPKHDFIIFIL.AOCHPHIHPIA;
 		EPKHDFIIFIL.MJNPBMOAFML().transform.localPosition = localPosition;
-		EPKHDFIIFIL.Render();
 	}
 
 	public void CDDKOOMODHG(Model ACENLMONNPA)

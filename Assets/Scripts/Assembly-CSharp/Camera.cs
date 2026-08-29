@@ -71,6 +71,16 @@ public class Camera : global::EventDispatcher<object>
 
 	private GameObject _UnityObject;
 
+	private readonly Vector3f _InterpolatedCameraPosition = new Vector3f();
+
+	private readonly Vector3f _InterpolatedCameraTarget = new Vector3f();
+
+	private readonly Vector3f _InterpolatedFocusPosition = new Vector3f();
+
+	private float _PreviousZoomScale;
+
+	private float _CurrentZoomScale;
+
 	public Render DAAACGKPJAL
 	{
 		get
@@ -246,6 +256,26 @@ public class Camera : global::EventDispatcher<object>
 		}
 	}
 
+	private void DrawInterpolatedPosition(float alpha)
+	{
+		if (CIJJBMDDAFL == null)
+		{
+			return;
+		}
+		ModelRenderInterpolation.GetPosition(JNBAHPMBLOL, alpha, _InterpolatedCameraPosition);
+		ModelRenderInterpolation.GetPosition(NGOEHKEKBIL, alpha, _InterpolatedCameraTarget);
+		ModelRenderInterpolation.GetPosition(CIJJBMDDAFL, alpha, _InterpolatedFocusPosition);
+		if (NOLKMEPOJIE)
+		{
+			float zoomScale = Mathf.Lerp(_PreviousZoomScale, _CurrentZoomScale, alpha);
+			BMBGCIEFJGB.UpdatePosition(_InterpolatedCameraPosition, _InterpolatedCameraTarget, _InterpolatedFocusPosition.GILCBJJPKBK(), _InterpolatedFocusPosition.OBIMBNIBEFG(), zoomScale);
+		}
+		else
+		{
+			BMBGCIEFJGB.UpdatePosition(_InterpolatedCameraPosition, _InterpolatedCameraTarget, _InterpolatedFocusPosition.GILCBJJPKBK(), _InterpolatedFocusPosition.OBIMBNIBEFG());
+		}
+	}
+
 	private void DrawQuakeEffect()
 	{
 		if (OHNBKMHOMJI && IONLHJIDACJ != null)
@@ -264,12 +294,25 @@ public class Camera : global::EventDispatcher<object>
 		}
 	}
 
+	private void DrawInterpolatedQuakeEffect(float alpha)
+	{
+		if (OHNBKMHOMJI && IONLHJIDACJ != null)
+		{
+			float duration = EPIPOLDCCHD;
+			float elapsed = Mathf.Max(0f, EPIPOLDCCHD - BIPHAGJDGOL - (1f - alpha));
+			float x = Mathf.Sin(IONLHJIDACJ.KFEMKHHANDC * elapsed) * IONLHJIDACJ.FMICELIGLPG * (duration - elapsed) / duration;
+			float y = Mathf.Sin(IONLHJIDACJ.GGJBPLHAHFH * elapsed) * IONLHJIDACJ.PPKAMOILNLN * (duration - elapsed) / duration;
+			BMBGCIEFJGB.PGJEGJKFHND(x * SystemProperties.NHIDNIPGCPC, y * SystemProperties.NHIDNIPGCPC);
+		}
+	}
+
 	private void DrawZoomEffect()
 	{
 		if (!NOLKMEPOJIE)
 		{
 			return;
 		}
+		_PreviousZoomScale = _CurrentZoomScale;
 		float num = Mathf.Abs(OOFFFLEFKFA.JCNPAOMNJCL - OOFFFLEFKFA.AFBPPNDBMEC) / ((float)OOFFFLEFKFA.OFJCKMNLAEP / 2f);
 		if (OOFFFLEFKFA.BJDFMKOCNBN <= OOFFFLEFKFA.OFJCKMNLAEP / 2)
 		{
@@ -288,6 +331,7 @@ public class Camera : global::EventDispatcher<object>
 			}
 		}
 		OOFFFLEFKFA.BJDFMKOCNBN++;
+		_CurrentZoomScale = OOFFFLEFKFA.ALOKJEILMLK;
 	}
 
 	private void RenderEffect()
@@ -341,6 +385,7 @@ public class Camera : global::EventDispatcher<object>
 		_UnityObject = new GameObject("Camera");
 		_UnityObject.transform.SetParent(PKHKBAJOHHF, false);
 		_UnityObject.transform.localPosition = new Vector3(0f, 0f);
+		_UnityObject.AddComponent<CameraRenderInterpolationDriver>().Init(this);
 	}
 
 	public void Clear()
@@ -367,6 +412,8 @@ public class Camera : global::EventDispatcher<object>
 		HLDMKKKKAMI = false;
 		showZoomEffectCount = 0;
 		NOLKMEPOJIE = false;
+		_PreviousZoomScale = 0f;
+		_CurrentZoomScale = 0f;
 	}
 
 	public void Render()
@@ -396,6 +443,18 @@ public class Camera : global::EventDispatcher<object>
 			DrawQuakeEffect();
 			DrawZoomEffect();
 		}
+	}
+
+	public void RenderInterpolatedPresentation()
+	{
+		if (!PMJCGFONEPA || BMBGCIEFJGB == null)
+		{
+			return;
+		}
+		float alpha = ModelRenderInterpolation.GetCurrentAlpha();
+		DrawInterpolatedPosition(alpha);
+		DrawInterpolatedQuakeEffect(alpha);
+		BMBGCIEFJGB.SyncAdditionalDrawsLayerTransform();
 	}
 
 	public void PHGNIPMBJEH(Vector3f NAAPALOFBCI, Vector3f KKIKIDNALOL, float time, bool HKNHLNGMOJC, string HJCIKLIPILA, float NOOOCHHKECH)
@@ -495,6 +554,8 @@ public class Camera : global::EventDispatcher<object>
 			}
 			OOFFFLEFKFA.AFBPPNDBMEC = BMBGCIEFJGB.KMMOLDBJBIG();
 			OOFFFLEFKFA.ALOKJEILMLK = OOFFFLEFKFA.AFBPPNDBMEC;
+			_PreviousZoomScale = OOFFFLEFKFA.ALOKJEILMLK;
+			_CurrentZoomScale = OOFFFLEFKFA.ALOKJEILMLK;
 			OOFFFLEFKFA.BJDFMKOCNBN = 0;
 			showZoomEffectCount = OOFFFLEFKFA.OFJCKMNLAEP;
 		}

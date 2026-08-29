@@ -64,7 +64,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 		{
 			if (JBLMEBBICJI != null)
 			{
-				JBLMEBBICJI.Render();
+				JBLMEBBICJI.Render(ModelRenderInterpolation.GetCurrentAlpha());
 				_Mesh.vertices = JBLMEBBICJI.Vertices;
 				_Mesh.RecalculateBounds();
 			}

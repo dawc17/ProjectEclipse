@@ -38,14 +38,14 @@ public class MeshNode
 		_TrianglesList = null;
 	}
 
-	public void Render()
+	public void Render(float alpha)
 	{
 		for (int i = 0; i < Vertices.Length; i++)
 		{
 			float x;
 			float y;
 			float z;
-			ModelRenderInterpolation.GetPosition(MFONEBKEMAD[i], out x, out y, out z);
+			ModelRenderInterpolation.GetPosition(MFONEBKEMAD[i], alpha, out x, out y, out z);
 			Vertices[i].Set(x, y, 0f);
 		}
 	}

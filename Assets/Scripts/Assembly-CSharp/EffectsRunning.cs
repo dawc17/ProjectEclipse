@@ -81,28 +81,6 @@ public class EffectsRunning
 		CocosAnimation cocosAnimation = gameObject.AddComponent<CocosAnimation>();
 		bool effectLoaded = cocosAnimation.Init(oNNKJLOGHGH, true);
 		cocosAnimation.SetSortingOrder(IBODMPMJELJ.GetPriority());
-		InfoAnimation currentAnimation = ACENLMONNPA.FHBLLPCEAHG();
-		Debug.Log("[MagicTrace] effect-start actor=" + ACENLMONNPA.get_Name() +
-			" animation=" + ((currentAnimation != null) ? currentAnimation.Name : "<none>") +
-			" animationFile=" + ((currentAnimation != null) ? currentAnimation.FileName : "<none>") +
-			" action=" + IBODMPMJELJ.get_Name() +
-			" sequence=" + IBODMPMJELJ.EPDMGFELIMC() +
-			" loaded=" + effectLoaded +
-			" position=" + eMAFACPEPDK.GILCBJJPKBK() + "," + eMAFACPEPDK.OBIMBNIBEFG() + "," + eMAFACPEPDK.KMFEKANLCFO() +
-			" scale=" + localScale.x + "," + localScale.y +
-			" rotation=" + IBODMPMJELJ.GetStartRotation() +
-			" items=" + ACENLMONNPA.GetMagicTraceItems());
-		DistancePoint effectPoint = IBODMPMJELJ.ECJPLFFAMJO();
-		Debug.Log("[EffectTransform] start actor=" + ACENLMONNPA.get_Name() +
-			" action=" + IBODMPMJELJ.get_Name() +
-			" sequence=" + IBODMPMJELJ.EPDMGFELIMC() +
-			" anchorPlayer=" + effectPoint.OOFFOILONLO +
-			" anchorObject=" + effectPoint.HLGJJGHDEAP +
-			" anchorPart=" + effectPoint.Part +
-			" shift=" + effectPoint.GEHDIPOGEOL + "," + effectPoint.KLGJPPOOBFF +
-			" follow=" + IBODMPMJELJ.DIGCODDLDAD() +
-			" direction=" + dGJJDPIAEAO.PCAOCHAIBJC +
-			" resolved=" + eMAFACPEPDK.GILCBJJPKBK() + "," + eMAFACPEPDK.OBIMBNIBEFG());
 		if (!effectLoaded)
 		{
 			LLLOJBFMONN.Write("Effect NO " + oNNKJLOGHGH);

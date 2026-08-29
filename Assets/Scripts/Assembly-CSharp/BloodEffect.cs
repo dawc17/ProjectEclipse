@@ -13,9 +13,13 @@ internal class BloodEffect
 
 	private int frames;
 
+	private FightTransformInterpolation _Interpolation;
+
 	public BloodEffect(Vector3f JLHLMAFLMFO)
 	{
 		_UnityObject = new GameObject("BloodEffect");
+		_Interpolation = _UnityObject.AddComponent<FightTransformInterpolation>();
+		_Interpolation.Snap(Vector3.zero, Quaternion.identity);
 		frames = 0;
 		index = 0;
 		BIPGHENGCFI = 0;
@@ -42,20 +46,21 @@ internal class BloodEffect
 
 	public void Render()
 	{
-		Vector3 localPosition = _UnityObject.transform.localPosition;
+		Vector3 localPosition = _Interpolation.CurrentPosition;
 		localPosition.x += KKIKIDNALOL.GILCBJJPKBK();
 		localPosition.y += KKIKIDNALOL.OBIMBNIBEFG();
-		_UnityObject.transform.localPosition = localPosition;
 		Vector3f kKIKIDNALOL = KKIKIDNALOL;
 		kKIKIDNALOL.IBNFLLGPOLD(kKIKIDNALOL.OBIMBNIBEFG() + 0.2f);
 		int num = ((!(KKIKIDNALOL.GILCBJJPKBK() < 0f)) ? 1 : (-1));
 		float z = Mathf.Atan((0f - KKIKIDNALOL.OBIMBNIBEFG()) / KKIKIDNALOL.GILCBJJPKBK()) / (float)Math.PI * 180f - 90f * (float)num + 180f;
-		_UnityObject.transform.eulerAngles = new Vector3(0f, 0f, z);
+		Quaternion worldRotation = Quaternion.Euler(0f, 0f, z);
+		Quaternion localRotation = (_UnityObject.transform.parent == null) ? worldRotation : Quaternion.Inverse(_UnityObject.transform.parent.rotation) * worldRotation;
+		_Interpolation.Push(localPosition, localRotation);
 	}
 
 	public void SetPosition(Vector3f NAAPALOFBCI)
 	{
-		_UnityObject.transform.localPosition = new Vector3(NAAPALOFBCI.GILCBJJPKBK(), NAAPALOFBCI.OBIMBNIBEFG(), 0f);
+		_Interpolation.Snap(new Vector3(NAAPALOFBCI.GILCBJJPKBK(), NAAPALOFBCI.OBIMBNIBEFG(), 0f), _Interpolation.CurrentRotation);
 	}
 
 	public void SetScale(float JDCCBCNFENK)

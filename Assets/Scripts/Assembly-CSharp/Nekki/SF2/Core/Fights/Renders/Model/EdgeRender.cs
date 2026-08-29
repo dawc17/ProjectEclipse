@@ -40,10 +40,14 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 
 		private void Update()
 		{
-			Vector3f eMAFACPEPDK = JJNIIAEBGIA.OGLAOHGLBHI().ICLEOFDKDIF();
-			Vector3f eMAFACPEPDK2 = JJNIIAEBGIA.KMHHBEKNHCJ().ICLEOFDKDIF();
-			_Line.SetPosition(0, new Vector3(eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG(), -1f));
-			_Line.SetPosition(1, new Vector3(eMAFACPEPDK2.GILCBJJPKBK(), eMAFACPEPDK2.OBIMBNIBEFG(), -1f));
+			float alpha = ModelRenderInterpolation.GetCurrentAlpha();
+			float x;
+			float y;
+			float z;
+			ModelRenderInterpolation.GetPosition(JJNIIAEBGIA.OGLAOHGLBHI(), alpha, out x, out y, out z);
+			_Line.SetPosition(0, new Vector3(x, y, -1f));
+			ModelRenderInterpolation.GetPosition(JJNIIAEBGIA.KMHHBEKNHCJ(), alpha, out x, out y, out z);
+			_Line.SetPosition(1, new Vector3(x, y, -1f));
 		}
 	}
 }

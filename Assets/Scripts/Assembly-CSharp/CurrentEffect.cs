@@ -12,6 +12,8 @@ public class CurrentEffect
 
 	public bool stopFollowEffect;
 
+	private FightTransformInterpolation _Interpolation;
+
 	private Vector3 _PreviousAnchor;
 
 	private bool _HasPreviousAnchor;
@@ -27,6 +29,15 @@ public class CurrentEffect
 		EGJHGBCEPHO = GHDAPMGLICD;
 		BHHCMELOEJF = EDMCLHEOJGD;
 		stopFollowEffect = false;
+		if (LLOLBKJMKNC.DIGCODDLDAD())
+		{
+			_Interpolation = EGJHGBCEPHO.GetComponent<FightTransformInterpolation>();
+			if (_Interpolation == null)
+			{
+				_Interpolation = EGJHGBCEPHO.AddComponent<FightTransformInterpolation>();
+			}
+			_Interpolation.Snap(EGJHGBCEPHO.transform.localPosition, EGJHGBCEPHO.transform.localRotation);
+		}
 		_HasPreviousAnchor = false;
 		_LoggedAnchorJumps = 0;
 		_PreviousDirection = 0;
@@ -57,14 +68,15 @@ public class CurrentEffect
 		_PreviousAnchor = anchor;
 		_PreviousDirection = num;
 		_HasPreviousAnchor = true;
-		EGJHGBCEPHO.transform.localPosition = anchor;
+		Quaternion rotation = _Interpolation.CurrentRotation;
 		Vector2f hEJKLMNOLLG = LLOLBKJMKNC.MABFDDNEOGO().HLBBNCBJHGB(kDOGKKGDOBK);
 		if (hEJKLMNOLLG.GILCBJJPKBK() != 0f || hEJKLMNOLLG.OBIMBNIBEFG() != 0f)
 		{
 			hEJKLMNOLLG.JPFALPBDBAP(hEJKLMNOLLG.GILCBJJPKBK() * (float)num);
 			hEJKLMNOLLG.IBNFLLGPOLD(hEJKLMNOLLG.OBIMBNIBEFG() * (float)num);
 			float z = Vector2f.GetAngle2DDegreeSigned(hEJKLMNOLLG, new Vector2f(1f));
-			EGJHGBCEPHO.transform.localEulerAngles = new Vector3(0f, 0f, z);
+			rotation = Quaternion.Euler(0f, 0f, z);
 		}
+		_Interpolation.Push(anchor, rotation);
 	}
 }

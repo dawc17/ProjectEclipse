@@ -100,6 +100,16 @@ namespace Nekki.SF2.GUI.Dialogs
 		[SerializeField]
 		private LabelAlias lblMusicAdv;
 
+		private static readonly int[] FrameRateOptions = { 0, 60, 120, 144, 165, 240, 360 };
+
+		private ResolutionButton _btnFrameRate;
+
+		private LabelAlias _lblFrameRate;
+
+		private ResolutionButton _btnMotionBlur;
+
+		private LabelAlias _lblMotionBlur;
+
 		public override void Init(object data)
 		{
 			BNEHHACJNGB = GraphicsController.PMAODLMLDLK();
@@ -107,20 +117,16 @@ namespace Nekki.SF2.GUI.Dialogs
 			Init("Settings_Advanced_Title", "Settings_Advanced", "Settings_Back", KBDHPMOMJLL.FOOTER_CANCEL);
 		}
 
-		protected override void HLJBLAPMDCB()
-		{
-			BBDGOPHHDBJ();
-			EBNPPFKKPLD();
-			AABKDFHHFOF();
-			GPLBHPLJNAE();
-			LMAAIDIDNEF();
-			ALBPEOFFDKK();
-			// Graphics quality switching is not wired for the reconstructed desktop
-			// renderer yet.  Hide the incomplete entry instead of exposing a control
-			// that throws through GraphicsController/Roster.
-			if (btnGraphics != null) btnGraphics.gameObject.SetActive(false);
-			if (lblGraphics != null) lblGraphics.gameObject.SetActive(false);
-		}
+			protected override void HLJBLAPMDCB()
+			{
+				BBDGOPHHDBJ();
+				EBNPPFKKPLD();
+				SetupDesktopRenderSettings();
+				AABKDFHHFOF();
+				GPLBHPLJNAE();
+				LMAAIDIDNEF();
+				ALBPEOFFDKK();
+			}
 
 		protected override void FLOHKIBCOKG()
 		{
@@ -167,12 +173,24 @@ namespace Nekki.SF2.GUI.Dialogs
 					NPMFPLFMFMI();
 				}
 				break;
-			case AHDEAELNGBD.BTN_LOCATION_RESOLUTION:
-				GraphicsController.FELIOKHNIKI();
-				GDPCOKJGAJO();
-				break;
+				case AHDEAELNGBD.BTN_LOCATION_RESOLUTION:
+					GraphicsController.FELIOKHNIKI();
+					GDPCOKJGAJO();
+					break;
+				case AHDEAELNGBD.BTN_RENDER_INTERPOLATION:
+					SF2DisplayFrameRate.ToggleInterpolation();
+					UpdateDesktopRenderLabels();
+					break;
+				case AHDEAELNGBD.BTN_MAX_FRAME_RATE:
+					CycleMaxFrameRate();
+					UpdateDesktopRenderLabels();
+					break;
+				case AHDEAELNGBD.BTN_MOTION_BLUR:
+					SF2DisplayFrameRate.ToggleMotionBlur();
+					UpdateDesktopRenderLabels();
+					break;
+				}
 			}
-		}
 
 		public override void OnClose(object data)
 		{
@@ -275,17 +293,17 @@ namespace Nekki.SF2.GUI.Dialogs
 			}
 		}
 
-		protected void AOFFEDGGNMN()
-		{
-			bool flag = SoundController.AAFLCDKJEPL();
-			OHDFPIADEIG(btnSoundAdv, (!flag) ? "SettingsButtons.sound" : "SettingsButtons.sound_off", (!flag) ? "SettingsButtons.sound_selected" : "SettingsButtons.sound_off_selected", -620f, -300f, AHDEAELNGBD.BTN_SOUND_ADV);
-		}
+			protected void AOFFEDGGNMN()
+			{
+				bool flag = SoundController.AAFLCDKJEPL();
+				OHDFPIADEIG(btnSoundAdv, (!flag) ? "SettingsButtons.sound" : "SettingsButtons.sound_off", (!flag) ? "SettingsButtons.sound_selected" : "SettingsButtons.sound_off_selected", -620f, -375f, AHDEAELNGBD.BTN_SOUND_ADV);
+			}
 
-		protected void IHPJIBKOPDL()
-		{
-			bool flag = SoundController.ELHMADOKHHE();
-			OHDFPIADEIG(btnMusicAdv, (!flag) ? "SettingsButtons.music" : "SettingsButtons.music_off", (!flag) ? "SettingsButtons.music_selected" : "SettingsButtons.music_off_selected", -620f, -100f, AHDEAELNGBD.BTN_MUSIC_ADV);
-		}
+			protected void IHPJIBKOPDL()
+			{
+				bool flag = SoundController.ELHMADOKHHE();
+				OHDFPIADEIG(btnMusicAdv, (!flag) ? "SettingsButtons.music" : "SettingsButtons.music_off", (!flag) ? "SettingsButtons.music_selected" : "SettingsButtons.music_off_selected", -620f, -235f, AHDEAELNGBD.BTN_MUSIC_ADV);
+			}
 
 		protected void AABJCHNIDJP()
 		{
@@ -304,12 +322,85 @@ namespace Nekki.SF2.GUI.Dialogs
 		{
 		}
 
-		protected void ALBPEOFFDKK()
-		{
-			float jMLAKAKDBBL = 1500f;
-			ChangeButtonTouchZone(btnGraphics, jMLAKAKDBBL);
-			ChangeButtonTouchZone(btnController, jMLAKAKDBBL);
-		}
+			protected void ALBPEOFFDKK()
+			{
+				float jMLAKAKDBBL = 1500f;
+				ChangeButtonTouchZone(btnGraphics, jMLAKAKDBBL);
+				ChangeButtonTouchZone(_btnFrameRate, jMLAKAKDBBL);
+				ChangeButtonTouchZone(_btnMotionBlur, jMLAKAKDBBL);
+				ChangeButtonTouchZone(btnController, jMLAKAKDBBL);
+			}
+
+			private void SetupDesktopRenderSettings()
+			{
+				if (btnGraphics == null || _content == null)
+				{
+					return;
+				}
+
+				Transform frameRateRow = _content.transform.Find("btnLocationRes");
+				if (frameRateRow != null)
+				{
+					_btnFrameRate = frameRateRow.GetComponent<ResolutionButton>();
+					_lblFrameRate = frameRateRow.GetComponentInChildren<LabelAlias>(true);
+				}
+
+				if (_btnMotionBlur == null)
+				{
+					GameObject motionBlurRow = UnityEngine.Object.Instantiate(btnGraphics.gameObject, _content.transform, false);
+					motionBlurRow.name = "btnMotionBlur";
+					_btnMotionBlur = motionBlurRow.GetComponent<ResolutionButton>();
+					_lblMotionBlur = motionBlurRow.GetComponentInChildren<LabelAlias>(true);
+				}
+
+				OHDFPIADEIG(btnGraphics, "SettingsButtons.graphics", "SettingsButtons.graphics_selected", -620f, 325f, AHDEAELNGBD.BTN_RENDER_INTERPOLATION);
+				OHDFPIADEIG(_btnFrameRate, "SettingsButtons.graphics", "SettingsButtons.graphics_selected", -620f, 185f, AHDEAELNGBD.BTN_MAX_FRAME_RATE);
+				OHDFPIADEIG(_btnMotionBlur, "SettingsButtons.graphics", "SettingsButtons.graphics_selected", -620f, 45f, AHDEAELNGBD.BTN_MOTION_BLUR);
+				OHDFPIADEIG(btnController, "SettingsButtons.controller", "SettingsButtons.controller_selected", -620f, -95f, AHDEAELNGBD.BTN_CONTROLLER);
+				IHPJIBKOPDL();
+				AOFFEDGGNMN();
+
+				btnMusicAdv.transform.BGNJGIACJBG(-235f);
+				btnSoundAdv.transform.BGNJGIACJBG(-375f);
+				UpdateDesktopRenderLabels();
+			}
+
+			private void UpdateDesktopRenderLabels()
+			{
+				SetDesktopRenderLabel(lblGraphics, "Frame interpolation: " + (SF2DisplayFrameRate.InterpolationEnabled ? "On" : "Off"));
+				string frameRate = SF2DisplayFrameRate.MaxFrameRate <= 0 ? "Display / VSync" : SF2DisplayFrameRate.MaxFrameRate + " FPS";
+				SetDesktopRenderLabel(_lblFrameRate, "Max frame rate: " + frameRate);
+				SetDesktopRenderLabel(_lblMotionBlur, "Motion blur: " + (SF2DisplayFrameRate.MotionBlurEnabled ? "On" : "Off"));
+			}
+
+			private void SetDesktopRenderLabel(LabelAlias label, string text)
+			{
+				if (label == null)
+				{
+					return;
+				}
+				label.gameObject.SetActive(true);
+				label.set_Alias(string.Empty);
+				label.alignment = TextAnchor.MiddleLeft;
+				label.set_LabelFontSize(101);
+				label.color = Constants.PJJIMHMJPAL;
+				label.set_text(text);
+			}
+
+			private void CycleMaxFrameRate()
+			{
+				int current = SF2DisplayFrameRate.MaxFrameRate;
+				for (int i = 0; i < FrameRateOptions.Length; i++)
+				{
+					if (FrameRateOptions[i] == current)
+					{
+						int nextIndex = (i + 1) % FrameRateOptions.Length;
+						SF2DisplayFrameRate.SetMaxFrameRate(FrameRateOptions[nextIndex]);
+						return;
+					}
+				}
+				SF2DisplayFrameRate.SetMaxFrameRate(0);
+			}
 
 		protected void DFLOLCIKPEM()
 		{

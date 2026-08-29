@@ -131,56 +131,6 @@ public class CocosAnimation : MonoBehaviour
 		_Animation.AIFNJAPCCII();
 		_Animation.JBPCHMAGDMI();
 		LDDLAKECNEG = _Animation.BFJEFNHKPJI().Count;
-		int loadedSprites = 0;
-		string firstFrame = "<none>";
-		string lastFrame = "<none>";
-		Vector2 minimumOffset = new Vector2(float.MaxValue, float.MaxValue);
-		Vector2 maximumOffset = new Vector2(float.MinValue, float.MinValue);
-		Vector2 minimumSpriteSize = new Vector2(float.MaxValue, float.MaxValue);
-		Vector2 maximumSpriteSize = new Vector2(float.MinValue, float.MinValue);
-		Vector2 minimumSourceSize = new Vector2(float.MaxValue, float.MaxValue);
-		Vector2 maximumSourceSize = new Vector2(float.MinValue, float.MinValue);
-		Vector2 previousOffset = Vector2.zero;
-		float maximumOffsetStep = 0f;
-		for (int i = 0; i < LDDLAKECNEG; i++)
-		{
-			CocosAnimationData.SpriteFrameCocos frame = _Animation.BFJEFNHKPJI()[i];
-			Sprite sprite = frame.HJADPLOLOBH();
-			if (sprite != null)
-				loadedSprites++;
-			string description = frame.get_Name() + "=>" + ((sprite != null) ? sprite.name : "<missing>");
-			if (i == 0)
-				firstFrame = description;
-			if (i == LDDLAKECNEG - 1)
-				lastFrame = description;
-			Vector2 offset = frame.LMJCBAFGAFL();
-			minimumOffset = Vector2.Min(minimumOffset, offset);
-			maximumOffset = Vector2.Max(maximumOffset, offset);
-			if (i > 0)
-				maximumOffsetStep = Mathf.Max(maximumOffsetStep, Vector2.Distance(previousOffset, offset));
-			previousOffset = offset;
-			if (sprite != null)
-			{
-				Vector2 spriteSize = new Vector2(sprite.rect.width, sprite.rect.height);
-				minimumSpriteSize = Vector2.Min(minimumSpriteSize, spriteSize);
-				maximumSpriteSize = Vector2.Max(maximumSpriteSize, spriteSize);
-			}
-			Vector2 sourceSize = frame.PFIECJPOFFB();
-			minimumSourceSize = Vector2.Min(minimumSourceSize, sourceSize);
-			maximumSourceSize = Vector2.Max(maximumSourceSize, sourceSize);
-		}
-		Debug.Log("[MagicTrace] sprite-sequence requested=" + ONEIGMLOGDC +
-			" resolved=" + _Animation.GetResourcePath() +
-			" frames=" + LDDLAKECNEG +
-			" loadedSprites=" + loadedSprites +
-			" first=" + firstFrame +
-			" last=" + lastFrame);
-		Debug.Log("[EffectTransform] metadata sequence=" + ONEIGMLOGDC +
-			" offsetCorrection=invert-recovered" +
-			" rawOffsetRange=" + minimumOffset.x + "," + minimumOffset.y + ".." + maximumOffset.x + "," + maximumOffset.y +
-			" maxOffsetStep=" + maximumOffsetStep +
-			" spriteSizeRange=" + minimumSpriteSize.x + "x" + minimumSpriteSize.y + ".." + maximumSpriteSize.x + "x" + maximumSpriteSize.y +
-			" sourceCanvasRange=" + minimumSourceSize.x + "x" + minimumSourceSize.y + ".." + maximumSourceSize.x + "x" + maximumSourceSize.y);
 		_IsWork = true;
 		return true;
 	}

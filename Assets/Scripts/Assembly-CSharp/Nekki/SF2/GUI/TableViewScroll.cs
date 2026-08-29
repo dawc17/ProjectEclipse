@@ -94,7 +94,7 @@ namespace Nekki.SF2.GUI
 
 		private void OKPMNKIOOOE()
 		{
-			set_content(new GameObject("Table View Content", typeof(RectTransform)).GetComponent<RectTransform>());
+			set_content(new GameObject("Table View Content", typeof(RectTransform), typeof(CanvasRenderer)).GetComponent<RectTransform>());
 			get_content().SetParent(base.gameObject.GetComponent<RectTransform>(), false);
 			get_content().offsetMin = Vector2.zero;
 			get_content().offsetMax = Vector2.zero;
