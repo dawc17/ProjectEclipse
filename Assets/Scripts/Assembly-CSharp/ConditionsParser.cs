@@ -82,6 +82,9 @@ public class ConditionsParser
 		case ConditionAnimation.DGAGKLODADD.BATTLE_TYPE:
 			result = new Eclipse.Content.BattleTypeMoveCondition(node);
 			break;
+		case ConditionAnimation.DGAGKLODADD.BOSS_ABILITY_STATE:
+			result = new Eclipse.Content.BossAbilityStateMoveCondition(node);
+			break;
 		default:
 			LLLOJBFMONN.Error("ERROR: ConditionsParser - no condition for \"{0}\"", name);
 			break;

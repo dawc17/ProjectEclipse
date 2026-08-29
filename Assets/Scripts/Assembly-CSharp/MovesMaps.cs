@@ -41,6 +41,7 @@ public static class MovesMaps
 		EDIIJIFPPAP.Add("ModelMirrored", ConditionAnimation.DGAGKLODADD.MIRROR);
 		EDIIJIFPPAP.Add("ModExists", ConditionAnimation.DGAGKLODADD.MOD_EXISTS);
 		EDIIJIFPPAP.Add("BattleType", ConditionAnimation.DGAGKLODADD.BATTLE_TYPE);
+		EDIIJIFPPAP.Add("BossAbilityState", ConditionAnimation.DGAGKLODADD.BOSS_ABILITY_STATE);
 		IMIDLONNDLK.Add("Up", FightCID.QuadrantUp);
 		IMIDLONNDLK.Add("Up-Forward", FightCID.QuadrantUpForward);
 		IMIDLONNDLK.Add("Forward", FightCID.QuadrantForward);

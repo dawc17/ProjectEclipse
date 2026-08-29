@@ -28,7 +28,8 @@ public class ConditionAnimation
 		MOD_EXISTS = 20,
 		EVENT = 21,
 		DIRECTION = 22,
-		BATTLE_TYPE = 23
+		BATTLE_TYPE = 23,
+		BOSS_ABILITY_STATE = 24
 	}
 
 	protected ModelType.KEIDBIOIFGA OOFFOILONLO;

@@ -57,6 +57,8 @@ public class ModelConditions
 
 	public EndRoundType EndRoundType;
 
+	public int BossAbilityState;
+
 	public int PCAOCHAIBJC;
 
 	public int FOIHIKCEBJF;

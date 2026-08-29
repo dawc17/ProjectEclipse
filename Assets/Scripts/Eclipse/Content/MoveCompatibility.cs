@@ -152,4 +152,81 @@ namespace Eclipse.Content
 			return IsNot ? !matches : matches;
 		}
 	}
+	public sealed class BossAbilityStateMoveCondition : global::ConditionAnimation
+	{
+		private readonly int _expectedState;
+
+		public BossAbilityStateMoveCondition(XmlNode node)
+			: base(DGAGKLODADD.BOSS_ABILITY_STATE)
+		{
+			_expectedState = node == null || node.Attributes == null
+				? 0
+				: node.Attributes["Value"].ParseInt(0);
+		}
+
+		public override bool IsEqual(global::ModelConditions conditions)
+		{
+			bool matches = conditions != null && conditions.BossAbilityState == _expectedState;
+			return IsNot ? !matches : matches;
+		}
+	}
+
+	public sealed class CameraWeightMoveAction : global::ActionAnimation
+	{
+		public float MeWeight { get; private set; }
+		public float EnemyWeight { get; private set; }
+		public float Time { get; private set; }
+		public float Delay { get; private set; }
+
+		public CameraWeightMoveAction(XmlNode node)
+			: base(FADAJCEEKIO.CAMERA_WEIGHT)
+		{
+			Parse(node);
+			MeWeight = node.Attributes["MeWeight"].ParseFloat(0.5f);
+			EnemyWeight = node.Attributes["EnemyWeight"].ParseFloat(0.5f);
+			Time = node.Attributes["Time"].ParseFloat();
+			Delay = node.Attributes["Delay"].ParseFloat();
+		}
+
+		public override void Visit(global::Model model)
+		{
+			// Every CameraWeight node in vanilla 2.41.9 is attached to a FightPVP
+			// move. Eclipse currently has no PVP camera/state subsystem to receive
+			// these weights, so retain and parse the data without fabricating camera
+			// semantics for normal fights. Implement this when PVP itself is restored.
+		}
+	}
+
+	public sealed class EnableBossAbilityMoveAction : global::ActionAnimation
+	{
+		private readonly int _state;
+
+		public EnableBossAbilityMoveAction(XmlNode node)
+			: base(FADAJCEEKIO.ENABLE_BOSS_ABILITY)
+		{
+			Parse(node);
+			_state = node == null || node.Attributes == null
+				? 0
+				: node.Attributes["Value"].ParseInt(0);
+		}
+
+		public override void Visit(global::Model model)
+		{
+			if (model == null)
+			{
+				return;
+			}
+			global::Model target = model.NMGNPBMFJKP(OJLDHGKPLNC());
+			if (target == null)
+			{
+				target = model;
+			}
+			global::ModelConditions conditions = target.EBABHGHPLFK();
+			if (conditions != null)
+			{
+				conditions.BossAbilityState = _state;
+			}
+		}
+	}
+
 }

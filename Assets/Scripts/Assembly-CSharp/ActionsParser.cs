@@ -59,6 +59,12 @@ public static class ActionsParser
 		case "ModFlag":
 			result = new ActionAnimationModFlag(node);
 			break;
+		case "CameraWeight":
+			result = new Eclipse.Content.CameraWeightMoveAction(node);
+			break;
+		case "EnableBossAbility":
+			result = new Eclipse.Content.EnableBossAbilityMoveAction(node);
+			break;
 		default:
 			LLLOJBFMONN.Error("ERROR: ActionsParser::create - no action \"{0}\" found", name);
 			break;

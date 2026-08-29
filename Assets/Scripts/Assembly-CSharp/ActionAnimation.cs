@@ -20,7 +20,9 @@ public class ActionAnimation
 		SET_COOLDOWN = 12,
 		SET_END_STAGE = 13,
 		PLAY_ANIMATION = 14,
-		MOD_FLAG = 15
+		MOD_FLAG = 15,
+		CAMERA_WEIGHT = 16,
+		ENABLE_BOSS_ABILITY = 17
 	}
 
 	public enum JKEBPJCEEKM
