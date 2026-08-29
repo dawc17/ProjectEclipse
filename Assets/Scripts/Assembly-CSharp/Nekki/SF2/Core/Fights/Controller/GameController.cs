@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Nekki.SF2.GUI;
-using SF2DE.Input;
+using Eclipse.Input;
 using UnityEngine;
 
 namespace Nekki.SF2.Core.Fights.Controller

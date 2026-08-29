@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using SF2DE.Content;
-using SF2DE.Underworld.Content;
+using Eclipse.Content;
+using Eclipse.Underworld.Content;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -146,7 +146,7 @@ public static class ResourceManager
 		{
 			// The newer table is additive and still omits definitions required by
 			// this Special Edition runtime. ResourceManager owns access to the
-			// bundled baseline; the schema transformations live in SF2DE.Content.
+			// bundled baseline; the schema transformations live in Eclipse.Content.
 			try
 			{
 				TextAsset bundledMoves = ResourcesAndBundles.Load<TextAsset>("gamedata/animations/moves");

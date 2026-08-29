@@ -2,34 +2,44 @@
 
 ## Project overview
 
-This repository is an AssetRipper-exported Unity project for SF2 DE. It targets
-**Unity 2022.3.62f3**. Treat recovered game code and assets as archival data:
-make narrow, evidence-based changes and preserve serialized Unity identity.
+This repository is Eclipse, an open-source Shadow Fight 2 reconstruction/base
+project built from an AssetRipper export. It targets **Unity 2022.3.62f3**.
+Treat recovered game code and assets as archival data: make narrow,
+evidence-based changes and preserve serialized Unity identity.
+
+Definitive Edition is a downstream mod/content target, not the identity of the
+base project. Do not hard-code new DE policy into Eclipse when the behavior can
+wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
 
 ## Important locations
 
-- `Assets/Scripts/Assembly-CSharp/` — main recovered game C# source.
-- `Assets/Plugins/Assembly-CSharp-firstpass/` — recovered firstpass C# source.
-- `Assets/Scripts/SF2DE/` — project-owned reconstruction, desktop, compatibility,
-  and presentation code. Keep SF2DE-owned source here, not under `Assets/Plugins/`.
-- `Assets/Scripts/SF2DE/Runtime/` — project-owned code that must be visible to
-  both recovered predefined assemblies. It is compiled by `SF2DE.Runtime.asmdef`;
-  keep this assembly independent of recovered `Assembly-CSharp` types to avoid
-  circular assembly dependencies.
-- `Assets/Editor/` — Unity editor validation/import tools.
-- `Assets/xml/` and `Assets/Resources/` — game configuration and recovered
+- `Assets/Scripts/Assembly-CSharp/` - main recovered game C# source.
+- `Assets/Plugins/Assembly-CSharp-firstpass/` - recovered firstpass C# source.
+- `Assets/Scripts/Eclipse/` - project-owned reconstruction, desktop,
+  compatibility, and presentation code. Keep Eclipse-owned source here, not
+  under `Assets/Plugins/`.
+- `Assets/Scripts/Eclipse/Runtime/` - project-owned code that must be visible to
+  both recovered predefined assemblies. It is compiled by
+  `Eclipse.Runtime.asmdef`; keep this assembly independent of recovered
+  `Assembly-CSharp` types to avoid circular assembly dependencies.
+- `Assets/Editor/` - Unity editor validation/import tools.
+- `Assets/xml/` and `Assets/Resources/` - game configuration and recovered
   resources; XML and resource paths are often runtime contracts.
-- `Deobfuscation/` — audited, repeatable identifier-recovery workflow. Read
+- `Deobfuscation/` - audited, repeatable identifier-recovery workflow. Read
   `Deobfuscation/README.md` before changing mappings or running its scripts.
-- `Tools/` — focused repair, extraction, audit, and runtime-check utilities.
-- `BuildScripts/` — project-specific build and reference maintenance scripts.
+- `Tools/` - focused repair, extraction, audit, and runtime-check utilities.
+- `BuildScripts/` - project-specific build and reference maintenance scripts.
 
 ## Working conventions
 
 - Keep changes scoped to the requested issue. Do not reformat, rename, or
   "clean up" unrelated recovered/decompiled code.
 - Treat `Assets/Plugins/` as recovered/legacy plugin territory. Do not add new
-  SF2DE-owned runtime source there.
+  Eclipse-owned runtime source there.
+- Prefer vanilla/base compatibility and reusable hooks over DE-specific policy.
+  When behavior is a DE feature (monetization removal, unlimited energy,
+  restored content, permanent events, etc.), keep it isolated so it can become
+  a downstream mod/configuration once the modding API exists.
 - Preserve every Unity `.meta` file and its GUID. When moving or renaming an
   asset or script, move its `.meta` file with it; never regenerate GUIDs unless
   the task explicitly requires a new asset.
@@ -51,6 +61,8 @@ Run the smallest relevant checks first. From the repository root, the normal
 managed compile checks are:
 
 ```powershell
+msbuild Eclipse.Runtime.csproj /nologo /v:quiet /clp:ErrorsOnly
+msbuild Assembly-CSharp-firstpass.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 ```

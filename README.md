@@ -1,25 +1,30 @@
-# SF2 DE Exported Unity Project
+# Eclipse
 
-AssetRipper-exported Unity project for SF2 DE, targeting Unity **2019.4.41f2**.
+Eclipse is an open-source Shadow Fight 2 reconstruction/base project built from
+an AssetRipper-exported Unity project. It targets **Unity 2022.3.62f3**.
+
+The base project is intentionally not the Definitive Edition mod. Project-owned
+engine, compatibility, desktop, presentation, and future modding code lives under
+`Assets/Scripts/Eclipse/`. Definitive Edition content should ultimately sit on top
+of this base through data/mod APIs rather than define the base game's behavior.
 
 ## Layout
 
-- `Assets/` — recovered game code, assets, resources, and editor tools.
-- `Deobfuscation/` — reviewed identifier-recovery workflow.
-- `Tools/` — validation, repair, and audit utilities.
-- `BuildScripts/` — project build and reference scripts.
+- `Assets/` - recovered game code, assets, resources, and editor tools.
+- `Assets/Scripts/Eclipse/` - Eclipse-owned reconstruction and platform code.
+- `Deobfuscation/` - reviewed identifier-recovery workflow.
+- `Tools/` - validation, repair, and audit utilities.
+- `BuildScripts/` - project build and reference scripts.
 
 ## Verify
 
 ```powershell
+msbuild Eclipse.Runtime.csproj /nologo /v:quiet /clp:ErrorsOnly
+msbuild Assembly-CSharp-firstpass.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 ```
 
 See `AGENTS.md` for project conventions and validation guidance.
-
-## Engine upgrade preparation
-
-The main project remains on Unity 2019.4.41f2. See
-[`Tools/UNITY_2022_UPGRADE.md`](Tools/UNITY_2022_UPGRADE.md) for the audited risks,
-baseline tests, verified checkpoint tool and isolated Unity 2022.3 migration steps.
+See `DE_SCOPE_AUDIT.md` for the current separation between reusable Eclipse work
+and behavior that overlaps with the Definitive Edition feature set.

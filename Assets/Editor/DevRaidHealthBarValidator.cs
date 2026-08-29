@@ -9,7 +9,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Nekki.SF2.GUI;
 using Nekki.SF2.GUI.Fight;
-using SF2DE.Underworld.UI;
+using Eclipse.Underworld.UI;
 
 // Exercises the real prefab and runtime widgets without loading/changing a save.
 public static class DevRaidHealthBarValidator

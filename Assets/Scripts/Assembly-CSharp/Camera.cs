@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Nekki.SF2.Core.Fights.Controller;
 using Nekki.SF2.GUI.Fight;
-using SF2DE.Rendering.Interpolation;
+using Eclipse.Rendering.Interpolation;
 using UnityEngine;
 
 public class Camera : global::EventDispatcher<object>

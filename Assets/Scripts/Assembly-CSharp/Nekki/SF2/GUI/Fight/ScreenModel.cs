@@ -1,6 +1,6 @@
 using System;
 using CodeStage.AntiCheat.ObscuredTypes;
-using SF2DE.Underworld.UI;
+using Eclipse.Underworld.UI;
 using UnityEngine;
 using UnityEngine.UI;
 

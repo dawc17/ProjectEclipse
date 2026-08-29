@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using SF2DE.Rendering.Interpolation;
+using Eclipse.Rendering.Interpolation;
 using UnityEngine;
 
 public class MeshNode

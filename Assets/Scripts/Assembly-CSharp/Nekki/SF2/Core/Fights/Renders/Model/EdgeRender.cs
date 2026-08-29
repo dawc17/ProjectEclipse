@@ -1,4 +1,4 @@
-using SF2DE.Rendering.Interpolation;
+using Eclipse.Rendering.Interpolation;
 using UnityEngine;
 
 namespace Nekki.SF2.Core.Fights.Renders.Model

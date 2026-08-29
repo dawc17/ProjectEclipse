@@ -4,7 +4,7 @@ using System.Diagnostics;
 using CodeStage.AntiCheat.ObscuredTypes;
 using Nekki.SF2.Core.Fights.Controller;
 using Nekki.SF2.GUI.Fight;
-using SF2DE.Underworld;
+using Eclipse.Underworld;
 using UnityEngine;
 
 public class Fight

@@ -1,5 +1,5 @@
-using SF2DE.Rendering.Diagnostics;
-using SF2DE.Rendering.Interpolation;
+using Eclipse.Rendering.Diagnostics;
+using Eclipse.Rendering.Interpolation;
 using UnityEngine;
 
 public class CurrentEffect

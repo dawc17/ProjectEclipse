@@ -1,4 +1,4 @@
-using SF2DE.Rendering.Interpolation;
+using Eclipse.Rendering.Interpolation;
 using UnityEngine;
 using UnityEngine.Rendering;
 

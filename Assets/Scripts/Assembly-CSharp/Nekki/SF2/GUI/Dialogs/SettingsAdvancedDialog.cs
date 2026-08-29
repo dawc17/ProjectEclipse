@@ -1,6 +1,6 @@
 using System;
 using Nekki.SF2.GUI.Scenes;
-using SF2DE.UI.Settings;
+using Eclipse.UI.Settings;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;

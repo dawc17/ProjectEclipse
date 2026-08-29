@@ -10,7 +10,7 @@ function Assert-True($condition, [string]$label) {
     $script:checks++
 }
 
-$type = $assembly.GetType('SF2DE.Rendering.Interpolation.FightInterpolation', $true)
+$type = $assembly.GetType('Eclipse.Rendering.Interpolation.FightInterpolation', $true)
 $method = $type.GetMethod('CalculateAlpha')
 $cases = @(
     @(10.0, 10.0, 0.02, 0.0),
@@ -26,7 +26,7 @@ foreach ($case in $cases) {
 }
 
 $mesh = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/MeshNode.cs')
-$interpolation = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/SF2DE/Rendering/Interpolation/FightInterpolation.cs')
+$interpolation = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Eclipse/Rendering/Interpolation/FightInterpolation.cs')
 $physics = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/ModelPhysics.cs')
 $collision = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/ModelCollision.cs')
 $frameRateFiles = @(

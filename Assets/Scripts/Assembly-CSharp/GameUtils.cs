@@ -9,7 +9,7 @@ using Nekki.SF2.GUI;
 using Nekki.SF2.GUI.Fight;
 using Nekki.SF2.GUI.Map;
 using Nekki.SF2.GUI.Shop;
-using SF2DE.Underworld.Diagnostics;
+using Eclipse.Underworld.Diagnostics;
 using UnityEngine;
 
 public static class GameUtils

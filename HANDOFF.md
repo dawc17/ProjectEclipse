@@ -1,4 +1,4 @@
-﻿# SF2DE Architecture Handoff
+# Eclipse Architecture Handoff
 
 Date: 2026-08-29
 Branch: `refactor/sf2de-architecture`
@@ -10,7 +10,7 @@ The architecture/refactor pass is in a very good state and has been runtime-smok
 The central rule of this branch is now mostly achieved:
 
 - recovered/decompiled classes stay as thin integration hosts;
-- project-owned behavior lives under `Assets/Scripts/SF2DE/`;
+- project-owned behavior lives under `Assets/Scripts/Eclipse/`;
 - Unity serialized identity stays in recovered components/prefabs;
 - compatibility policy is separated from filesystem/Unity orchestration;
 - fixed-step gameplay logic is not being rewritten just to make recovered code prettier.
@@ -50,7 +50,7 @@ There are also small project-regeneration commits between extraction batches. Un
 
 `ResourceManager` has reached the intended boundary. Keep it as the recovered integration/orchestration layer.
 
-Project-owned content policy is now under `Assets/Scripts/SF2DE/Content/`:
+Project-owned content policy is now under `Assets/Scripts/Eclipse/Content/`:
 
 - `ContentOverrideCompatibility.cs`
 - `ContentOverridePaths.cs`
@@ -61,7 +61,7 @@ Project-owned content policy is now under `Assets/Scripts/SF2DE/Content/`:
 - `QuestCompatibility.cs`
 - `StageCompatibility.cs`
 
-Underworld-specific stage compatibility remains under `Assets/Scripts/SF2DE/Underworld/Content/`.
+Underworld-specific stage compatibility remains under `Assets/Scripts/Eclipse/Underworld/Content/`.
 
 `ResourceManager` should continue to own things that actually belong to a loader:
 
@@ -78,7 +78,7 @@ Do not move those out merely to reduce its line count.
 
 ### Underworld
 
-Owned Underworld behavior is split under `Assets/Scripts/SF2DE/Underworld/`.
+Owned Underworld behavior is split under `Assets/Scripts/Eclipse/Underworld/`.
 
 Recovered classes such as `Fight`, `MapPanel`, `MapScene`, `ZoneScrollItem`, `ScreenModel`, `PlayerLifeBar`, and `GameUtils` should contain small adapter calls only where practical.
 
@@ -96,24 +96,24 @@ Do not extract the whole `MapScene` mode/selection state machine unless a real m
 
 ### Rendering/interpolation
 
-Owned interpolation code is under `Assets/Scripts/SF2DE/Rendering/Interpolation/`.
+Owned interpolation code is under `Assets/Scripts/Eclipse/Rendering/Interpolation/`.
 
 The recovered `Camera`, effect/render classes, etc. should keep fixed-step simulation and recovered rendering calls. Owned helpers may hold presentation interpolation state and sampling logic.
 
 `FightCameraInterpolation` now owns camera interpolation scratch state and zoom history. Do not move camera simulation, quake lifetime, zoom progression, or recovered `Render` behavior into it.
 
-Effect follow diagnostics are under `Assets/Scripts/SF2DE/Rendering/Diagnostics/`.
+Effect follow diagnostics are under `Assets/Scripts/Eclipse/Rendering/Diagnostics/`.
 
 ### Desktop/UI/input
 
-Desktop settings controls, top-bar layout, and fight gamepad input have already been extracted into `SF2DE` ownership. Recovered UI/controller classes should stay thin hosts.
+Desktop settings controls, top-bar layout, and fight gamepad input have already been extracted into Eclipse ownership. Recovered UI/controller classes should stay thin hosts.
 
 ## Validation already performed
 
 During this pass all four managed projects were repeatedly compiled:
 
 ```powershell
-msbuild SF2DE.Runtime.csproj /nologo /v:quiet /clp:ErrorsOnly
+msbuild Eclipse.Runtime.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp-firstpass.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
@@ -173,11 +173,11 @@ Keep this focused. Do not build a giant test framework just for these helpers.
 
 Document the final ownership rule succinctly:
 
-> Recovered classes are integration hosts. New reconstruction, compatibility, desktop, Underworld, and presentation behavior belongs under `Assets/Scripts/SF2DE/` unless Unity serialization or assembly constraints require otherwise.
+> Recovered classes are integration hosts. New reconstruction, compatibility, desktop, Underworld, and presentation behavior belongs under `Assets/Scripts/Eclipse/` unless Unity serialization or assembly constraints require otherwise.
 
-Also document the exceptions: `SF2DE.Runtime` cannot depend on recovered `Assembly-CSharp` types, and some global runtime types may intentionally remain global because of predefined-assembly or Unity component identity constraints.
+Also document the exceptions: `Eclipse.Runtime` cannot depend on recovered `Assembly-CSharp` types, and some global runtime types may intentionally remain global because of predefined-assembly or Unity component identity constraints.
 
-### 4. Audit the few remaining global types under `Assets/Scripts/SF2DE/`
+### 4. Audit the few remaining global types under `Assets/Scripts/Eclipse/`
 
 Current global/project-owned files include at least:
 

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SF2DE.UI.TopBar;
+using Eclipse.UI.TopBar;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SF2DE.Underworld.UI;
+using Eclipse.Underworld.UI;
 using UnityEngine;
 
 namespace Nekki.SF2.GUI.Map

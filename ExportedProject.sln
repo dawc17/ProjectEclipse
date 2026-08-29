@@ -5,7 +5,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-firstpass",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{5BB7E9B2-DAAC-E6A6-6D4C-F52FF86D00FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SF2DE.Runtime", "SF2DE.Runtime.csproj", "{DC90723D-EECD-372A-D545-A7F5B4923F53}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eclipse.Runtime", "Eclipse.Runtime.csproj", "{DC90723D-EECD-372A-D545-A7F5B4923F53}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{14CC17B2-3AA0-F344-03FA-8D292556EFFE}"
 EndProject

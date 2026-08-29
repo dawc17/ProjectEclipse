@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Nekki.SF2.Core.Quests;
 using Nekki.SF2.GUI.Shop;
-using SF2DE.UI.TopBar;
+using Eclipse.UI.TopBar;
 using UnityEngine;
 using UnityEngine.UI;
 

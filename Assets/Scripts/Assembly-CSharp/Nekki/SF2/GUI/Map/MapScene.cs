@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using Nekki.SF2.GUI.Menu;
-using SF2DE.Underworld;
+using Eclipse.Underworld;
 using UnityEngine;
 using UnityEngine.UI;
 

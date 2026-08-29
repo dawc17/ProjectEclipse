@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using SF2DE.Content;
+using Eclipse.Content;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;

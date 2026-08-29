@@ -84,7 +84,7 @@ function Clear-SaveFiles {
 }
 
 function Assert-GameIsClosed {
-    $processes = Get-Process -Name 'Shadow Fight 2', 'ShadowFight2', 'SF2DE' -ErrorAction SilentlyContinue
+    $processes = Get-Process -Name 'Shadow Fight 2', 'ShadowFight2', 'Eclipse' -ErrorAction SilentlyContinue
     if ($null -ne $processes) {
         throw 'Close Shadow Fight 2 before switching saves. Running it now could overwrite the selected profile.'
     }
