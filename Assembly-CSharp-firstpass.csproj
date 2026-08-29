@@ -411,6 +411,7 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SocketIOWePlaySample.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlMemberAttribute.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DataMessage.cs" />
+    <Compile Include="Assets\Plugins\SF2DE\Presentation\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Packet.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConverter.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AIBCPDGLFPB.cs" />
@@ -497,7 +498,7 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FunctionExtension.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Crypto.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CoroutineManager.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OfflineStoreData.cs" />
+    <Compile Include="Assets\Plugins\SF2DE\Offline\OfflineServices.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DOIKIDPKFKN.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredDouble.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BPGAOEMIFNN.cs" />
@@ -571,7 +572,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\ForwardAnchorNotSupportedException.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\StandardRegexOptions.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\HKALCPMGELL.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlVisitor.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TagMappings.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\JsonEventEmitter.cs" />
@@ -618,6 +618,7 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Social.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Bson\BsonReader.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SwitchForm.cs" />
+    <Compile Include="Assets\Plugins\SF2DE\Offline\OfflineStoreData.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonConverterCollection.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AssetsData.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\YamlDocument.cs" />
@@ -818,7 +819,6 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Deserializer.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ZlibCodec.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\D1.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OfflineServices.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AEGCCCNBCML.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\ObscuredTypes\ObscuredFloat.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\LinqExtensions.cs" />
@@ -870,6 +870,7 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Nekki\Yaml\Node.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CHOAMHPCPFL.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FIKEKJBAKBO.cs" />
+    <Compile Include="Assets\Plugins\SF2DE\Presentation\MotionBlur\SF2MotionBlur.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\BlockEntry.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\JsonReaderException.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IObjectGraphVisitor.cs" />

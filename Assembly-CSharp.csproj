@@ -165,6 +165,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionRandom.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LabelButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionImageLE.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\ModelRenderInterpolation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\TrickContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\InvulnerabilityRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LogMessage.cs" />
@@ -291,7 +292,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Compressor.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ProfilePerkContainer.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionsSequence.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\GameplayContentArchive.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MovesParser.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\ContentDuel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LocationSelectorDarknessData.cs" />
@@ -347,6 +347,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\DetailedDamages.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RuleAppliance.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EventHit.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\CameraRenderInterpolationDriver.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ParseModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\ProgressBricksPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\TrickCell.cs" />
@@ -592,7 +593,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\UIExtensions.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Round.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionChangeScene.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CameraRenderInterpolationDriver.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\StyleBarStrip.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\SimpleDialog.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Fight.cs" />
@@ -624,7 +624,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionStopFollowEffect.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\-PrivateImplementationDetails--f198b91c-f2c5-4211-a0cf-3cd1cbc59e09-\ArrayCopy128.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionChangePlayerAvatar.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\FightTransformInterpolation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\EndFightScreen.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionForeach.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionToggleGroup.cs" />
@@ -652,6 +651,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDiscount.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionPlayer.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ModelAi.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Content\GameplayContentArchive.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UpgradeData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ITableView.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ScreenType.cs" />
@@ -741,6 +741,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionSetFBIndicator.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EnterScreen.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionRoundResult.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\FightTransformInterpolation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\GameCenter_Emulator.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PressButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSets.cs" />
@@ -810,7 +811,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionSetModFrames.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Constants.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\ShopTableViewCell.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\ModelRenderInterpolation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\PerkContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Camera.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\BaseDialog.cs" />
