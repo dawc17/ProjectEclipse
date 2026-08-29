@@ -2762,6 +2762,14 @@ public static class GameUtils
 
 	private static bool COLBOMHLHBB(ItemInfo item)
 	{
+		// Newer vanilla lists can legitimately omit historical/seasonal item
+		// definitions still present in an existing local save. Such UserItems
+		// remain useful as save data, but they cannot participate in equipment
+		// perk compatibility until an ItemInfo exists in the active list.
+		if (item == null)
+		{
+			return false;
+		}
 		switch (item.Type)
 		{
 		case "Weapon":

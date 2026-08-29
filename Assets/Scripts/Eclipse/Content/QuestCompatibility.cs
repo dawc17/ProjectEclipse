@@ -135,9 +135,57 @@ namespace Eclipse.Content
 			case "RaidIndicateRaidBtn":
 			case "SceneMenuScroll":
 			case "ShowRaidLoot":
+			case "UnlockCharacter":
 				return new DeferredQuestAction();
 			default:
 				return null;
+			}
+		}
+
+		public static bool TryGetModernSysInfo(string name, out string stringValue, out double numberValue)
+		{
+			stringValue = string.Empty;
+			numberValue = 0.0;
+			switch (name)
+			{
+			// The recovered runtime is the paid/Special Edition codebase. Its
+			// bundled internalSettings also points at config_SF2_paid.xml. Modern
+			// quest data expresses that build channel through these newer flags.
+			case "Paid":
+				numberValue = 1.0;
+				return true;
+			case "AnyF2P":
+			case "ChinaF2P":
+			case "SamsungF2P":
+			case "NBO":
+				numberValue = 0.0;
+				return true;
+
+			// Eclipse is a local PC port, not a Switch/Steam/mobile service build.
+			// Do not advertise online/platform features whose backing subsystem is
+			// absent or intentionally deferred in this recovered runtime.
+			case "Switch":
+			case "AdvertisingSupport":
+			case "FacebookLoginSupport":
+			case "RaidsSupport":
+			case "LowGraphicsSupport":
+				numberValue = 0.0;
+				return true;
+
+			case "IsDebug":
+				numberValue = global::SystemProperties.DBBOCENKMGD() ? 1.0 : 0.0;
+				return true;
+			case "IsSocialAuthorized":
+				numberValue = global::GameCenterController.OBDJPKOJADA() ? 1.0 : 0.0;
+				return true;
+			case "FramesCount":
+				numberValue = UnityEngine.Time.frameCount;
+				return true;
+			case "OsVersion":
+				stringValue = Environment.OSVersion.Version.Major.ToString();
+				return true;
+			default:
+				return false;
 			}
 		}
 

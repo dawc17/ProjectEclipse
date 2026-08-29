@@ -1146,6 +1146,15 @@ public class QuestCondition : ConditionExtension
 			BMDEBHIHIAJ.resultNumber = (NGOFBFGBICM.ELEBLBJKDBI().FHKBBLCJNFH() ? 1 : 0);
 			break;
 		default:
+			string compatibilityString;
+			double compatibilityNumber;
+			if (Eclipse.Content.QuestCompatibility.TryGetModernSysInfo(
+				KJFKPMCPIBH.HBDLDIKHFEG, out compatibilityString, out compatibilityNumber))
+			{
+				BMDEBHIHIAJ.resultSTR = compatibilityString;
+				BMDEBHIHIAJ.resultNumber = compatibilityNumber;
+				break;
+			}
 			LLLOJBFMONN.Error(string.Format("{0},\"{1}\"", "QuestCondition.SysInfoFunction - unknown property ", KJFKPMCPIBH.HBDLDIKHFEG));
 			break;
 		}
