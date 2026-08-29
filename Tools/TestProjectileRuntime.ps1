@@ -3,7 +3,8 @@
 # loading is skipped. No saves or Unity UI.
 $ErrorActionPreference = 'Stop'
 $projectPath = Split-Path $PSScriptRoot -Parent
-$assembly = [Reflection.Assembly]::LoadFrom((Join-Path $projectPath 'Temp/Bin/Debug/Assembly-CSharp.dll'))
+. (Join-Path $PSScriptRoot 'LoadUnityManagedAssemblies.ps1')
+$assembly = Import-SF2ManagedRuntime $projectPath
 $checks = 0
 function Assert-True($condition, [string]$label) {
     if (!$condition) { throw $label }

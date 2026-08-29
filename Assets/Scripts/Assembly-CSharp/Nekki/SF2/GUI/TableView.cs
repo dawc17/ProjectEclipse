@@ -5,6 +5,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SocialPlatforms;
+using Range = UnityEngine.SocialPlatforms.Range;
 using UnityEngine.UI;
 
 namespace Nekki.SF2.GUI

@@ -75,7 +75,7 @@ TextureImporter:
       213: -2306487122121246774
     second: magic_rocks_fire_12
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -92,9 +92,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -126,10 +129,15 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -141,6 +149,33 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -660,9 +695,33 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-  spritePackingTag: 
+    nameFileIdTable:
+      magic_rocks_fire_1: 7712860141660417171
+      magic_rocks_fire_10: 2941334528518488917
+      magic_rocks_fire_11: 494010218612973478
+      magic_rocks_fire_12: -2306487122121246774
+      magic_rocks_fire_13: 1533693043738734659
+      magic_rocks_fire_14: -211359027567257179
+      magic_rocks_fire_15: 5220261429434842074
+      magic_rocks_fire_16: 8020287450461115829
+      magic_rocks_fire_17: 6329264420489204325
+      magic_rocks_fire_18: -6023714420501157669
+      magic_rocks_fire_19: 4018833627095961656
+      magic_rocks_fire_2: 8119596071427849537
+      magic_rocks_fire_20: -2942029300334686000
+      magic_rocks_fire_21: 6912684565345790997
+      magic_rocks_fire_22: 5521162762409706603
+      magic_rocks_fire_23: -3371243019392832183
+      magic_rocks_fire_24: -4224295824670897211
+      magic_rocks_fire_3: -8013055226505104292
+      magic_rocks_fire_4: -4597190778037235476
+      magic_rocks_fire_5: -6443065662405044704
+      magic_rocks_fire_6: 2627871551954258783
+      magic_rocks_fire_7: -921819886952504614
+      magic_rocks_fire_8: -9003981018188291935
+      magic_rocks_fire_9: 1062272603275753360
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

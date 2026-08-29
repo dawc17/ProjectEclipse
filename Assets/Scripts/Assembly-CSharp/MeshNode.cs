@@ -40,11 +40,13 @@ public class MeshNode
 
 	public void Render()
 	{
-		Vector3f eMAFACPEPDK = null;
 		for (int i = 0; i < Vertices.Length; i++)
 		{
-			eMAFACPEPDK = MFONEBKEMAD[i].ICLEOFDKDIF();
-			Vertices[i].Set(eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG(), 0f);
+			float x;
+			float y;
+			float z;
+			ModelRenderInterpolation.GetPosition(MFONEBKEMAD[i], out x, out y, out z);
+			Vertices[i].Set(x, y, 0f);
 		}
 	}
 }

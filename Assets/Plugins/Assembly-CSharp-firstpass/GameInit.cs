@@ -76,7 +76,7 @@ public abstract class GameInit
 
 	public virtual void EHAJODIAFEG()
 	{
-		Application.targetFrameRate = 60;
+		SF2DisplayFrameRate.Apply();
 		IMMENGDGOOC();
 	}
 

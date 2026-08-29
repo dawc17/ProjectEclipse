@@ -1,8 +1,15 @@
 # Unity 2022.3 upgrade preparation
 
-Prepared 2026-08-29. **The main project still targets Unity 2019.4.41f2.**
-No engine migration, package update, art extraction or bundle-loader change has
-been applied. Do not open the original checkout with a newer editor.
+Prepared and promoted 2026-08-29. **The main project now targets Unity
+2022.3.62f3 (96770f904ca7).** The isolated workspace was promoted with
+`Tools/FinalizeUnityUpgrade.py`; its conflict audit reported zero conflicts and
+the verified Unity 2019 checkpoint remains available for rollback. Art bundle
+loading is still deferred.
+
+The main project identity is again `sf2/de128`. Its live `users.xml` and
+`users_backup.xml` match the verified private save archive byte-for-byte. The
+temporary isolated tutorial profile remains under the suffixed product name and
+is not the active save for the promoted checkout.
 
 ## Checkpoint and isolated workspace
 

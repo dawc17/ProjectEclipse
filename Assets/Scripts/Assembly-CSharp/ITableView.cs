@@ -1,6 +1,7 @@
 using Nekki.SF2.GUI;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
+using Range = UnityEngine.SocialPlatforms.Range;
 
 public interface ITableView
 {

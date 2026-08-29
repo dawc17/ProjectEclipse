@@ -75,7 +75,7 @@ TextureImporter:
       213: -9148816245941517199
     second: magic_asteroid_end_2_9
   externalObjects: {}
-  serializedVersion: 11
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -92,9 +92,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -126,10 +129,15 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
   applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
@@ -141,6 +149,33 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -660,9 +695,33 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-  spritePackingTag: 
+    nameFileIdTable:
+      magic_asteroid_end_2_1: -1800902772715822601
+      magic_asteroid_end_2_10: 8688817554663182307
+      magic_asteroid_end_2_11: 7563254772126341398
+      magic_asteroid_end_2_12: -7205381378625698
+      magic_asteroid_end_2_13: 188610069127172253
+      magic_asteroid_end_2_14: 7342241421956124877
+      magic_asteroid_end_2_15: 7481737646338924266
+      magic_asteroid_end_2_16: -4526701505902454562
+      magic_asteroid_end_2_17: 5248898679134090419
+      magic_asteroid_end_2_18: 7991235332541990345
+      magic_asteroid_end_2_19: 2924238621944265069
+      magic_asteroid_end_2_2: 1569560500152177361
+      magic_asteroid_end_2_20: -4652226163811044028
+      magic_asteroid_end_2_21: 7622143229890707511
+      magic_asteroid_end_2_22: 1122827478321666975
+      magic_asteroid_end_2_23: 1875249721022180163
+      magic_asteroid_end_2_24: 4020235082291866471
+      magic_asteroid_end_2_3: -4514135812956978279
+      magic_asteroid_end_2_4: 4950776731777357706
+      magic_asteroid_end_2_5: 4256437193858268503
+      magic_asteroid_end_2_6: -233856042679860221
+      magic_asteroid_end_2_7: -7311620764453188736
+      magic_asteroid_end_2_8: 4032093609963561909
+      magic_asteroid_end_2_9: -9148816245941517199
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

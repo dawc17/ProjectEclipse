@@ -1,5 +1,6 @@
 using System;
 using UnityEngine.SocialPlatforms;
+using Range = UnityEngine.SocialPlatforms.Range;
 
 public static class RangeExtension
 {

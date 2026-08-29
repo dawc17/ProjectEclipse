@@ -90,7 +90,7 @@ public class SceneLoader : ExtentionBehaviour
 			Object.Destroy(get_gameObject());
 			return;
 		}
-		Application.targetFrameRate = 60;
+		SF2DisplayFrameRate.Apply();
 		_inited = true;
 		Init();
 		EDAPJLKMFPC = this;

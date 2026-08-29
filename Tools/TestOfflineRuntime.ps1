@@ -1,8 +1,8 @@
 # Build Assembly-CSharp.csproj first. Uses only Temp fixtures, never live saves.
 $ErrorActionPreference = 'Stop'
 $projectPath = Split-Path $PSScriptRoot -Parent
-[Reflection.Assembly]::LoadFrom((Join-Path $projectPath 'Temp/Bin/Debug/Assembly-CSharp.dll')) | Out-Null
-[Reflection.Assembly]::LoadFrom((Join-Path $projectPath 'Temp/Bin/Debug/Assembly-CSharp-firstpass.dll')) | Out-Null
+. (Join-Path $PSScriptRoot 'LoadUnityManagedAssemblies.ps1')
+$null = Import-SF2ManagedRuntime $projectPath
 $testRoot = Join-Path $projectPath ('Temp/offline-tests/' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $testRoot -Force | Out-Null
 $checks = 0

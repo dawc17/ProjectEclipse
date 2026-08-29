@@ -625,7 +625,8 @@ public static class ResourceManager
 					continue;
 				}
 
-				string root = GetDevXmlRoot();
+				string root = Path.GetFullPath(GetDevXmlRoot()).TrimEnd(
+					Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 				string includeFile = Path.GetFullPath(Path.Combine(root,
 					child.Attributes["File"].Value.Replace('/', Path.DirectorySeparatorChar)));
 				if (!includeFile.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||

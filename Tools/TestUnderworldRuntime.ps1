@@ -2,7 +2,8 @@
 # or reading/writing a save. Build Assembly-CSharp.csproj before running.
 $ErrorActionPreference = 'Stop'
 $projectPath = Split-Path $PSScriptRoot -Parent
-[Reflection.Assembly]::LoadFrom((Join-Path $projectPath 'Temp/Bin/Debug/Assembly-CSharp.dll')) | Out-Null
+. (Join-Path $PSScriptRoot 'LoadUnityManagedAssemblies.ps1')
+$null = Import-SF2ManagedRuntime $projectPath
 $checks = 0
 function Assert-Near($actual, $expected, $label) {
     if ([Math]::Abs($actual - $expected) -gt 0.0002) { throw "${label}: expected $expected, got $actual" }

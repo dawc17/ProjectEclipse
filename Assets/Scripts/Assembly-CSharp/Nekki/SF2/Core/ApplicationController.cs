@@ -148,7 +148,7 @@ namespace Nekki.SF2.Core
 
 		private void Awake()
 		{
-			Application.targetFrameRate = 60;
+			SF2DisplayFrameRate.Apply();
 			Application.runInBackground = !Application.isMobilePlatform;
 			UnityEngine.Debug.LogFormat("Application.installMode={0}", Application.installMode);
 			UnityEngine.Debug.LogFormat("Application.installerName={0}", Application.installerName);

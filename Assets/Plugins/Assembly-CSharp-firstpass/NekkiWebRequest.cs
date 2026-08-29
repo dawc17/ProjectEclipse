@@ -305,7 +305,7 @@ public class NekkiWebRequest
 	public virtual void Send(string JJEOAIKCKAM, string MHAANIPLCJD, bool GHIGJJCMEDI)
 	{
 		JIHAABLAAOL = GHIGJJCMEDI;
-		Send(UnityWebRequest.Post(JJEOAIKCKAM, MHAANIPLCJD));
+		Send(UnityWebRequest.PostWwwForm(JJEOAIKCKAM, MHAANIPLCJD));
 	}
 
 	public virtual void Send(string JJEOAIKCKAM, Dictionary<string, string> MHAANIPLCJD, bool GHIGJJCMEDI)

@@ -3,7 +3,7 @@
 ## Project overview
 
 This repository is an AssetRipper-exported Unity project for SF2 DE. It targets
-**Unity 2019.4.41f2**. Treat recovered game code and assets as archival data:
+**Unity 2022.3.62f3**. Treat recovered game code and assets as archival data:
 make narrow, evidence-based changes and preserve serialized Unity identity.
 
 ## Important locations
@@ -63,7 +63,7 @@ python .\Deobfuscation\apply_reviewed_maps.py
 python .\Deobfuscation\apply_reviewed_maps.py --dry-run
 ```
 
-When Unity is available, use the matching 2019.4.41f2 editor and run the
+When Unity is available, use the matching 2022.3.62f3 editor and run the
 relevant menu validator under `SF2` or `Tools > SF2` after importing modified
 assets. Managed compilation and static audits cannot validate Unity native
 sprite import or thumbnail rendering.
