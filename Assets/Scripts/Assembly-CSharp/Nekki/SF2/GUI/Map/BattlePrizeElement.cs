@@ -7,6 +7,8 @@ namespace Nekki.SF2.GUI.Map
 	{
 		public const string ICONS_ATLAS = "MiscSprites";
 
+		private const float ICON_MAX_SIZE = 40f;
+
 		[SerializeField]
 		private ResolutionImage _icon;
 
@@ -18,7 +20,12 @@ namespace Nekki.SF2.GUI.Map
 			_icon.set_TexturePath("MiscSprites");
 			_icon.set_SpriteName(ADONPNOBBDE);
 			_icon.SetNativeSize();
-			_icon.rectTransform.localScale = new Vector3(JPDGMJHNKPK, JPDGMJHNKPK);
+			float nativeWidth = _icon.rectTransform.rect.width;
+			float nativeHeight = _icon.rectTransform.rect.height;
+			float nativeMax = Mathf.Max(nativeWidth, nativeHeight);
+			float iconScale = (nativeMax > ICON_MAX_SIZE) ? ICON_MAX_SIZE / nativeMax : 1f;
+			iconScale *= JPDGMJHNKPK;
+			_icon.rectTransform.localScale = new Vector3(iconScale, iconScale);
 			_value.fontSize = CFMPJLLNCFF;
 			_value.color = Constants.PJJIMHMJPAL;
 			_value.text = value.ToString();
