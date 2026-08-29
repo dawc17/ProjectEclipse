@@ -507,11 +507,11 @@ public class Fight
 		{
 			item2.ABNCNNHMLII();
 		}
-			AKBNKDBHCEO = IDAAONBIBJM[ADJAMFGBOAP];
-			GINNOLEJDFM = AKBNKDBHCEO.HBFMBOHLKPJ;
-			MIEPNNMDNBO();
-			Zone locationZone = KGKDKENMAOA.CNAOMDMIGLJ == null ? null : KGKDKENMAOA.CNAOMDMIGLJ.OAEIILGHJMG;
-			bool raidLayout = UnderworldZonePolicy.IsRaidZone(locationZone);
+		AKBNKDBHCEO = IDAAONBIBJM[ADJAMFGBOAP];
+		GINNOLEJDFM = AKBNKDBHCEO.HBFMBOHLKPJ;
+		MIEPNNMDNBO();
+		Zone locationZone = KGKDKENMAOA.CNAOMDMIGLJ == null ? null : KGKDKENMAOA.CNAOMDMIGLJ.OAEIILGHJMG;
+		bool raidLayout = UnderworldZonePolicy.IsRaidZone(locationZone);
 		_location = new Location(KGKDKENMAOA.JKMJHIIMHPG, KGKDKENMAOA.NPPIFKKLNCN, raidLayout);
 		_location.init();
 		NMNCKBPFCCP.JJCKADKCDIF.Set(_location.JJNMOJLLDEC);
@@ -2254,7 +2254,7 @@ public class Fight
 			flag = false;
 			flag2 = false;
 		}
-			bool eNCAKAAMEPN = UnderworldZonePolicy.ShouldShowRoundPips(cNAOMDMIGLJ);
+		bool eNCAKAAMEPN = UnderworldZonePolicy.ShouldShowRoundPips(cNAOMDMIGLJ);
 		if (preFight != null)
 		{
 			preFight.CreateVS(NMNCKBPFCCP, list, num, bBBNBKIMHJC, flag2, flag);
