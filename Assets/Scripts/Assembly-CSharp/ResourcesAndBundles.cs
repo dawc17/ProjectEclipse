@@ -4,7 +4,12 @@ public static class ResourcesAndBundles
 {
 	public static T Load<T>(string ONEIGMLOGDC) where T : Object
 	{
-		T val = BundleManager.LoadAsset<T>(ONEIGMLOGDC);
+		T val = Eclipse.Content.ResearchArtBundleOverride.Load<T>(ONEIGMLOGDC);
+		if (val != null)
+		{
+			return val;
+		}
+		val = BundleManager.LoadAsset<T>(ONEIGMLOGDC);
 		if (val != null)
 		{
 			return val;
@@ -14,7 +19,12 @@ public static class ResourcesAndBundles
 
 	public static T[] BNCMBJOICHI<T>(string ONEIGMLOGDC) where T : Object
 	{
-		T[] array = BundleManager.LoadAssetWithSubAssets<T>(ONEIGMLOGDC);
+		T[] array = Eclipse.Content.ResearchArtBundleOverride.LoadWithSubAssets<T>(ONEIGMLOGDC);
+		if (array != null)
+		{
+			return array;
+		}
+		array = BundleManager.LoadAssetWithSubAssets<T>(ONEIGMLOGDC);
 		if (array != null)
 		{
 			return array;
