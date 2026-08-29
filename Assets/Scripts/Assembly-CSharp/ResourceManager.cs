@@ -246,12 +246,9 @@ public static class ResourceManager
 
 		private static void NormalizeMoves(XmlDocument document)
 		{
-			// The 2.41.x table is an additive live-service table, not a complete
-			// replacement for the Special Edition table embedded in this client.
-			// In particular it no longer contains several legacy magic/ranged and
-			// shop animations which are still referenced by this executable's AI
-			// tables and item models.  Merge missing named entries from the bundled
-			// table before resolving templates.  Custom entries always win.
+			// The newer table is additive and still omits definitions required by
+			// this Special Edition runtime. ResourceManager owns access to the
+			// bundled baseline; the schema transformations live in SF2DE.Content.
 			try
 			{
 				TextAsset bundledMoves = ResourcesAndBundles.Load<TextAsset>("gamedata/animations/moves");
@@ -260,112 +257,33 @@ public static class ResourceManager
 					XmlDocument baseline = new XmlDocument();
 					baseline.XmlResolver = null;
 					baseline.LoadXml(bundledMoves.text);
-					int restored = 0;
-					string[] sections = { "Templates", "Moves", "Triggers" };
-					foreach (string sectionName in sections)
-					{
-						XmlNode targetSection = document.SelectSingleNode("/Movesxml/" + sectionName);
-						XmlNode sourceSection = baseline.SelectSingleNode("/Movesxml/" + sectionName);
-						if (targetSection == null || sourceSection == null)
-							continue;
-						HashSet<string> names = new HashSet<string>(StringComparer.Ordinal);
-						foreach (XmlNode existing in targetSection.ChildNodes)
-						{
-							XmlAttribute name = existing.Attributes == null ? null : existing.Attributes["Name"];
-							if (name != null)
-								names.Add(name.Value);
-						}
-						foreach (XmlNode legacy in sourceSection.ChildNodes)
-						{
-							XmlAttribute name = legacy.Attributes == null ? null : legacy.Attributes["Name"];
-							if (name != null && names.Add(name.Value))
-							{
-								XmlElement imported = (XmlElement)document.ImportNode(legacy, true);
-								if (sectionName == "Moves")
-									imported.SetAttribute("UseLegacyTemplates", "1");
-								targetSection.AppendChild(imported);
-								restored++;
-							}
-						}
-					}
-					if (restored != 0)
-					{
-						// The newer table has flattened its templates into each move.
-						// Its empty template markers cannot supply the locks, conditions,
-						// actions or alignment still inherited by bundled legacy moves.
-						// Keep their original definitions separate so modern moves do not
-						// inherit duplicate actions or obsolete restrictions.
-						XmlElement legacyTemplates = document.CreateElement("LegacyTemplates");
-						foreach (XmlNode template in baseline.SelectNodes("/Movesxml/Templates/Template"))
-							legacyTemplates.AppendChild(document.ImportNode(template, true));
-						document.DocumentElement.AppendChild(legacyTemplates);
-					}
+					int restored = MoveCompatibility.MergeMissingLegacyDefinitions(document, baseline);
 					if (restored != 0 && _devXmlLogged.Add("moves-legacy-merge"))
+					{
 						Debug.Log("[DevXml] restored " + restored +
 							" legacy magic/ranged animation definitions missing from the newer table");
+					}
 				}
 			}
 			catch (Exception exception)
 			{
 				if (_devXmlLogged.Add("moves-legacy-merge-error"))
+				{
 					Debug.LogWarning("[DevXml] could not merge bundled move compatibility data: " + exception.Message);
+				}
 			}
 
 			// Newer one-frame move ModFlag actions are supported by the compatibility
 			// bridge in ActionsParser and must remain in the adapted document.
-
-			XmlNode templatesNode = document.SelectSingleNode("/Movesxml/Templates");
-			if (templatesNode == null)
+			foreach (MoveTemplateCompatibilityIssue issue in MoveCompatibility.RemoveUnavailableTemplates(document))
 			{
-				return;
-			}
-
-			HashSet<string> templateNames = new HashSet<string>(StringComparer.Ordinal);
-			foreach (XmlNode templateNode in templatesNode.ChildNodes)
-			{
-				XmlAttribute name = templateNode.Attributes == null ? null : templateNode.Attributes["Name"];
-				if (name != null && !string.IsNullOrEmpty(name.Value))
-				{
-					templateNames.Add(name.Value);
-				}
-			}
-
-			XmlNodeList templatedNodes = document.SelectNodes(
-				"/Movesxml/Templates/Template[@Template] | /Movesxml/Moves/Move[@Template]");
-			foreach (XmlNode templatedNode in templatedNodes)
-			{
-				XmlAttribute attribute = templatedNode.Attributes["Template"];
-				List<string> compatible = new List<string>();
-				List<string> missing = new List<string>();
-				foreach (string templateName in attribute.Value.Split('|'))
-				{
-					if (templateNames.Contains(templateName))
-					{
-						compatible.Add(templateName);
-					}
-					else if (!string.IsNullOrEmpty(templateName))
-					{
-						missing.Add(templateName);
-					}
-				}
-				if (missing.Count == 0)
-				{
-					continue;
-				}
-				if (compatible.Count == 0)
-				{
-					templatedNode.Attributes.Remove(attribute);
-				}
-				else
-				{
-					attribute.Value = string.Join("|", compatible.ToArray());
-				}
-				string moveName = templatedNode.Attributes["Name"].CIPOICEEIBK(templatedNode.Name);
-				string logKey = "move-template:" + moveName + ":" + string.Join("|", missing.ToArray());
+				string missing = string.Join(", ", issue.MissingTemplates);
+				string logKey = "move-template:" + issue.MoveName + ":" +
+					string.Join("|", issue.MissingTemplates);
 				if (_devXmlLogged.Add(logKey))
 				{
-					Debug.LogWarning("[DevXml] move '" + moveName + "' drops unavailable newer template(s): " +
-						string.Join(", ", missing.ToArray()));
+					Debug.LogWarning("[DevXml] move '" + issue.MoveName +
+						"' drops unavailable newer template(s): " + missing);
 				}
 			}
 		}
