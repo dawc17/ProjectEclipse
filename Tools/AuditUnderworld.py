@@ -27,7 +27,7 @@ def plist_frames(path):
 
 
 def audit():
-    stages = ET.parse(ASSETS / 'xml/raid_stages_default.xml').getroot()
+    stages = ET.parse(ASSETS / 'vanillaXml/raid_stages_default.xml').getroot()
     locations = {}
     for battle in stages.iter('Battle'):
         for node in [battle, *battle.iter('Fight')]:
@@ -38,7 +38,7 @@ def audit():
     details = []
     for location, battles in sorted(locations.items()):
         folder = RES / 'textures/locations' / location
-        candidates = list((ASSETS / 'xml/locations' / location).glob('*params.xml'))
+        candidates = list((ASSETS / 'vanillaXml/locations' / location).glob('*params.xml'))
         if not candidates:
             candidates = list((RES / 'gamedata/locations' / location).glob('params.*'))
         if not candidates:

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="village_bg">
+    <Image X="0" Y="-30" ClassName="background_1" Width="1024" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="village_atlas_layer1">
+    <Image X="0" Y="-25" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.5" Atlas="village_atlas_layer2">
+    <Image X="0" Y="-25" ClassName="layer2_1" Width="1536" Height="512"/>
+    <SimpleEffect X="-200" Y="86" Type="Sequention" ClassName="cloth3" PictureLocation="global" Speed="4" Offset="2" Width="138" Height="35"/>
+    <SimpleEffect X="-62" Y="86" Type="Sequention" ClassName="cloth3" PictureLocation="global" Speed="4" Offset="22" Width="138" Height="35"/>
+    <SimpleEffect X="70" Y="85" Type="Sequention" ClassName="cloth3" PictureLocation="global" Speed="4" Offset="43" Width="138" Height="35"/>
+    <SimpleEffect X="-565" Y="-112" Type="Sequention" ClassName="cloth1" PictureLocation="global" Speed="3" Offset="0.1" Width="242" Height="132"/>
+  </Layer>
+  <Layer Type="1" Factor="0.6" Atlas="village_atlas_layer3">
+    <Image X="596" Y="-40" ClassName="layer3" Width="344" Height="512"/>
+    <SimpleEffect X="600" Y="-163" Type="Sequention" ClassName="cloth2" PictureLocation="global" Speed="3" Offset="0.1" Width="306" Height="116"/>
+    <SimpleEffect X="137" Y="-190" Type="Picture" PictureLocation="local" ClassName="layer5" Width="1062" Height="762">
+      <Transparency Offset="0">
+        <Point Period="2.6" Value="35" Ease="-1"/>
+        <Point Period="2.9" Value="100" Ease="1"/>
+        <Point Period="3.1" Value="35" Ease="-1"/>
+        <Point Period="2.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <ParticleEffect X="530" Y="130" ClassName="village_garbage"/>
+    <ParticleEffect X="530" Y="130" ClassName="village_foliage"/>
+    <SimpleEffect X="1299.609" Y="150.195" Type="Picture" PictureLocation="local" ClassName="tumbleweed" Width="97.656" Height="98.828">
+      <ReappearX Min="-2152" Max="2152"/>
+      <Speed X="-6" Y="0"/>
+      <Rotation Offset="0">
+        <Point Period="0.65" Value="359" Ease="0"/>
+        <Point Period="0.000001" Value="0" Ease="0"/>
+      </Rotation>
+      <OscillationY Offset="0">
+        <Point Period="1" Value="0" Ease="-5"/>
+        <Point Period="0.4" Value="40" Ease="5"/>
+        <Point Period="1" Value="0" Ease="-5"/>
+        <Point Period="0.2" Value="20" Ease="5"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-896" Y="176.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="162.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-384" Y="176.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="162.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="128" Y="162.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="176.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="640" Y="162.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="176.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="1152" Y="162.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="-2" Y="0"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="720" PlayerPositionY="-94" EnemyPositionX="920" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="village_atlas_layer4" Scaling="1">
+    <Image X="-900" Y="-20" ClassName="left" Width="320" Height="512"/>
+    <Image X="862" Y="-20" ClassName="right" Width="320" Height="512"/>
+    <Image X="-640" Y="176" ClassName="floor1" Width="256" Height="58"/>
+    <Image X="-384" Y="176" ClassName="floor2" Width="256" Height="58"/>
+    <Image X="-128" Y="176" ClassName="floor2" Width="256" Height="58"/>
+    <Image X="128" Y="176" ClassName="floor2" Width="256" Height="58"/>
+    <Image X="384" Y="176" ClassName="floor2" Width="256" Height="58"/>
+    <Image X="640" Y="176" ClassName="floor1" Width="256" Height="58"/>
+    <Image X="0" Y="440" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

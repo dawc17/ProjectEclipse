@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x00000B" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="skyport_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1024" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="skyport_atlas_layer1">
+    <Image X="0" Y="-15" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="skyport_atlas_layer2">
+    <Image X="0" Y="-15" ClassName="layer_2_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.30" Atlas="skyport_atlas_layer3">
+    <Image X="0" Y="-15" ClassName="layer_3_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.30" Atlas="skyport_atlas_layer5">
+    <SimpleEffect X="-374.8" Y="-16.2" Type="Picture" PictureLocation="local" ClassName="skyport_cell_left" Width="204" Height="285.6">
+      <Transparency Offset="0">
+        <Point Period="1.3" Value="45" Ease="-1"/>
+        <Point Period="1.4" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="365.2" Y="-13.8" Type="Picture" PictureLocation="local" ClassName="skyport_cell_right" Width="204" Height="285.6">
+      <Transparency Offset="0">
+        <Point Period="1.2" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="skyport_atlas_layer4" Scaling="1">
+    <Image X="-896" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="-640" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="-384" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="-128" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="128" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="384" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="640" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="896" Y="201" ClassName="floor" Width="256" Height="52"/>
+    <Image X="-800" Y="0" ClassName="left" Width="400" Height="680"/>
+    <Image X="800" Y="0" ClassName="right" Width="400" Height="680"/>
+    <Image X="0" Y="390" ClassName="pixel_1" Width="2000" Height="360" Color="0x00000B" IsOpaque="1"/>
+  </Layer>
+</Root>

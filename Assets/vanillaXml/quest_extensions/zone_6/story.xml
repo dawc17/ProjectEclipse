@@ -1,0 +1,1070 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="Zone6ShowCurrencyNotification">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|Tournament|1"/>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="ShowCurrencyNotification"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6ChallengeUnlock" Priority="2000">
+    <Events>
+      <FightEnd/>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_6|Tournament|6].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_6|Challenge].Locked" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_6|Challenge].Available" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowBattle Name="ZONE_6|Challenge" Locked="0"/>
+      <SetMapFocus Battle="ZONE_6|Challenge|"/>
+      <Dialog Type="Notification" Image="_Avatar_Notification" WaitNotificationClose="?SysInfo[].Steam Or ?SysInfo[].Switch">
+        <Line Text="common_challenge_unlock"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6DuelUnlock" Priority="998">
+    <Events>
+      <FightEnd/>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_6|BOSS_SAMURAI|2].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_6|Duel].Locked" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_6|Duel].Available" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowBattle Name="ZONE_6|Duel" Locked="0"/>
+      <SetMapFocus Battle="ZONE_6|Duel|"/>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_6|Duel|1"/>
+      <ResetDuelTimer/>
+      <Dialog Type="Notification" Image="_Avatar_Notification" WaitNotificationClose="?SysInfo[].Steam Or ?SysInfo[].Switch">
+        <Line Text="common_duel_unlock"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6StartDialog">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6StartDialog"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone6StartDialog" Value="1"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3">
+        <Line Text="zone6_start_dialog_may_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="zone6_start_dialog_sensei_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_6">
+        <Line Text="zone6_start_dialog_may_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="zone6_start_dialog_sensei_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="zone6_begin_5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard1Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|1"/>
+      <Equal Value1="_Zone6Guard1Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_CORPORAL" Image="man_magari_yari" Mirrored="1">
+        <Line Text="zone6_guard1_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone6Guard1Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard1Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_CORPORAL" Image="man_magari_yari" Mirrored="1">
+        <Line Text="zone6_guard1_defeated_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief">
+        <Line Text="zone6_guard1_defeated_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard2Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|2"/>
+      <Equal Value1="_Zone6Guard2Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_CORPORAL" Image="man_magari_yari" Mirrored="1">
+        <Line Text="zone6_guard2_greetings_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_CAPTAIN" Image="man_long_katana" Mirrored="1">
+        <Line Text="zone6_guard2_greetings_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone6Guard2Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard2Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|2"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_CAPTAIN" Image="man_long_katana" Mirrored="1">
+        <Line Text="zone6_guard2_defeated_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_1">
+        <Line Text="zone6_guard2_defeated_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="zone6_guard2_defeated_3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard3Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|3"/>
+      <Equal Value1="_Zone6Guard3Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_MAJOR" Image="man_wakidzashi" Mirrored="1">
+        <Line Text="zone6_guard3_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone6Guard3Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard3Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|3"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_MAJOR" Image="man_wakidzashi" Mirrored="1">
+        <Line Text="zone6_guard3_defeated_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="zone6_guard3_defeated_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_MAJOR" Image="man_wakidzashi" Mirrored="1">
+        <Line Text="zone6_guard3_defeated_3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_MAJOR" Image="man_wakidzashi" Mirrored="1">
+        <Line Text="zone6_guard3_defeated_4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard4Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|4"/>
+      <Equal Value1="_Zone6Guard4Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_COLONEL" Image="man_naginata">
+        <Line Text="zone6_guard4_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_COLONEL" Image="man_naginata">
+        <Line Text="zone6_guard4_greetings2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone6Guard4Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard4Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|4"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_COLONEL" Image="man_naginata">
+        <Line Text="zone6_guard4_defeated"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6FightBefore5Guardian" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|5"/>
+      <Greater Value1="?Fight[ZONE_6|QuestBattle|1].WinCount" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="Zone6Guard5Greetings"/>
+      <Fight Name="ZONE_6|QuestBattle|1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6FightBefore5GuardianDialog" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|QuestBattle|1"/>
+      <Greater Value1="?Fight[ZONE_6|QuestBattle|1].LossCount" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun" Mirrored="1">
+        <Line Text="zone_6_quest_fight_greetings_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_GENERAL" Image="man_glaive_3" Mirrored="1">
+        <Line Text="zone_6_quest_fight_greetings_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="ZONE_6|QuestBattle|1"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6FightBefore5GuardianWon" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|QuestBattle|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_5">
+        <Line Text="zone_6_quest_fight_won"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Guard5Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|5"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_GENERAL" Image="man_glaive_3" Mirrored="1">
+        <Line Text="zone6_guard5_defeated" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_GENERAL" Image="man_glaive_3" Mirrored="1">
+        <Line Text="zone6_guard5_defeated2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ShogunGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|6"/>
+      <Equal Value1="_ShogunGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="zone6_shogun_greetings_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="zone6_shogun_greetings_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ShogunGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShogunWon" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|6"/>
+      <Equal Value1="_$FightResult" Value2="Loss"/>
+      <Equal Value1="_ShogunWon" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="ShogunWon" Value="1"/>
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="zone6_shogun_won" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Shogun_beaten" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI|6"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="Zone6_FinalBattleExeption"/>
+      <Run Name="Shogun_Beaten_Dialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Shogun_Beaten_Dialog" Priority="9999">
+    <Actions>
+      <ShowBattle Name="ZONE_6|FINAL_BATTLE|"/>
+      <SetMapFocus Battle="ZONE_6|FINAL_BATTLE|"/>
+      <ToggleItems Label="ZONE_6_1" Toggle="on"/>
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="zone6_shogun_defeated_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="zone6_shogun_defeated_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="drop_name_jadeseal" Image="img_drop_jade_seal">
+        <Line Text="zone6_seal_drop" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStorySeal">
+          <GiveItem Name="drop_name_jadeseal" PutOn="0" Quantity="1"/>
+        </Button>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="zone6_shogun_defeated_3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <If>
+        <Conditions>
+          <Equal Value1="?UnlockedCharacters[].NAME_SHOGUN" Value2="0"/>
+          <Operator Type="Or">
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+          </Operator>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun" IgnoreBack="1">
+            <Line Text="PvP_char_unlocked"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+          <UnlockCharacter Name="NAME_SHOGUN"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="FinalBattleGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|FINAL_BATTLE|1"/>
+      <Equal Value1="_FinalBattleGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_LYNX" Image="boss_lynx">
+        <Line Text="shadow_gates_greetings_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_WASP" Image="boss_wasp">
+        <Line Text="shadow_gates_greetings_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_BUTCHER" Image="boss_butcher">
+        <Line Text="shadow_gates_greetings_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="FinalBattleGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Final_Battle_beaten" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$Fight" Value2="ZONE_6|FINAL_BATTLE|1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="Zone6_IntermissionStartExeption"/>
+      <Run Name="Final_Battle_beaten_Dialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Final_Battle_beaten_Dialog" Priority="999">
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="shadow_gates_defeated_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_HERMIT" Image="boss_hermit">
+        <Line Text="shadow_gates_defeated_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_WIDOW" Image="boss_huntress">
+        <Line Text="shadow_gates_defeated_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="shadow_gates_defeated_4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="shadow_gates_defeated_5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2">
+        <Line Text="shadow_gates_defeated_6" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_6">
+        <Line Text="shadow_gates_defeated_7" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_6">
+        <Line Text="shadow_gates_defeated_8" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerTriggerLevel" Value="?UniformIntRandom[40,42]"/>
+      <Activate ActionID="FinetuneStrangerTriggerLevel"/>
+      <SetMapFocus Battle="ZONE_6|BOSS_SAMURAI|"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <ShowVideo Name="shadow_gate.mp4" Audio="shadow_gate.mp3" Lock="Silent"/>
+      <SetVariable Scope="Users" Name="Avatar_Notification" Value="character_thief_small"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_1" Value="character_thief"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_2" Value="character_thief"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_3" Value="character_thief"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_4" Value="character_thief"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_5" Value="character_thief"/>
+      <SetVariable Scope="Users" Name="Title_Assistant" Value="characterThief"/>
+      <GiveItem Name="drop_name_blueseal" Quantity="-1 * ?Item[drop_name_blueseal].Quantity"/>
+      <GiveItem Name="drop_name_redseal" Quantity="-1 * ?Item[drop_name_redseal].Quantity"/>
+      <GiveItem Name="drop_name_greenseal" Quantity="-1 * ?Item[drop_name_greenseal].Quantity"/>
+      <GiveItem Name="drop_name_purpleseal" Quantity="-1 * ?Item[drop_name_purpleseal].Quantity"/>
+      <GiveItem Name="drop_name_orangeseal" Quantity="-1 * ?Item[drop_name_orangeseal].Quantity"/>
+      <GiveItem Name="drop_name_jadeseal" Quantity="-1 * ?Item[drop_name_jadeseal].Quantity"/>
+      <ShowBattle Name="ZONE_7|BOSS_TITAN_LOCKED|"/>
+      <SetCurrentZone Name="ZONE_IM"/>
+      <SetVariable Scope="Users" Name="CurrentZone" Value="ZONE_IM"/>
+      <SetMapFocus Battle="ZONE_7|BOSS_TITAN_LOCKED|" Frames="100" Lock="Silent"/>
+      <Wait Frames="200" Lock="Silent" ControlsLock="1"/>
+      <AttachQuestFile File="quest_extensions/intermission/story.xml"/>
+      <Activate ActionID="ImStartDialog"/>
+      <Activate ActionID="IntermissionStart"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_ZoneIM_Toggle_For_Steam_and_Switch" Priority="1999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$Fight" Value2="ZONE_6|FINAL_BATTLE|1"/>
+      <Operator Type="Or">
+        <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+        <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_IM" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Replay_Final_Video" Unresumable="1">
+    <Events>
+      <VideoButtonPress/>
+    </Events>
+    <Conditions>
+      <Equal Value1="ZONE_6|FINAL_BATTLE" Value2="?Player[].MapFocus"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowVideo Name="shadow_gate.mp4" Audio="shadow_gate.mp3"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1DifficultyAlert">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1Alert"/>
+      <Greater Value1="?Fight[?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]].Difficulty" Value2="2"/>
+      <Equal Value1="_Zone6Stranger1DifficultyAlert" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone6Stranger1DifficultyAlert" Value="1"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="stranger_sensei_difficulty_1" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="stranger_sensei_difficulty_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnShopLeave" Value="0"/>
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnHold" Value="1"/>
+          <OpenShop Tab="Weapon"/>
+        </Button>
+        <Button Type="Left" Color="Beige" Text="dlgStoryBtnFight">
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnHold" Value="0"/>
+          <SetVariable Scope="Users" Name="StrangerResult" Value="1"/>
+          <Fight Name="?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1Fight">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1Alert"/>
+      <Operator Type="Or">
+        <LessEqual Value1="?Fight[?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]].Difficulty" Value2="2"/>
+        <Equal Value1="_Zone6Stranger1DifficultyAlert" Value2="1"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone6Stranger1OnHold" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerResult" Value="1"/>
+      <Fight Name="?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1GreetingsTrigger1" Priority="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="_StrangerTriggerLevel"/>
+      <Equal Value1="_Zone6Stranger1Greetings" Value2="1" Not="1"/>
+      <Equal Value1="?Fight[ZONE_6|BOSS_SAMURAI|6].WinCount" Value2="1" Not="1"/>
+      <Equal Value1="_$ActionID" Value2="LevelUpPostpone"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="Zone6Stranger1Greetings"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1GreetingsTrigger2" Priority="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Player[].Level" Value2="_StrangerTriggerLevel"/>
+      <Equal Value1="_Zone6Stranger1Greetings" Value2="1" Not="1"/>
+      <Equal Value1="?Fight[ZONE_6|BOSS_SAMURAI|6].WinCount" Value2="1" Not="1"/>
+      <Operator Type="Or">
+        <Equal Value1="_$SceneTo" Value2="Map"/>
+        <Equal Value1="_$SceneTo" Value2="Shop"/>
+      </Operator>
+      <Equal Value1="_LevelUpProfileFlag" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ChangeScene Destination="_$SceneTo"/>
+      <Activate ActionID="Zone6Stranger1Greetings"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1Greetings" Priority="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1Greetings"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="StrangerStore" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerDifficulty" Value="?Fight[?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]].Difficulty"/>
+      <SetVariable Scope="Users" Name="StrangerRematchAttempt" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice1" Value="3"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice2" Value="5"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice3" Value="8"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice4" Value="12"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice5" Value="17"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice6" Value="23"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice7" Value="30"/>
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="0"/>
+      <Dialog Type="Regular" Title="NAME_RONIN" Image="man_dadao_janissary" Mirrored="1">
+        <Line Text="zone_6_stranger_1_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <ClearQuestQueue/>
+      <SetVariable Scope="Users" Name="Zone6Stranger1Greetings" Value="1"/>
+      <Activate ActionID="Zone6Stranger1Challenge"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1OnShopLeave">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <Equal Value1="_Zone6Stranger1OnHold" Value2="1"/>
+      <Equal Value1="_Zone6Stranger1OnShopLeave" Value2="1" Not="1"/>
+      <Equal Value1="_Zone6Stranger1Challenge" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone6Stranger1OnShopLeave" Value="1"/>
+      <ChangeScene Destination="_$SceneTo"/>
+      <Activate ActionID="Zone6Stranger1Challenge"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1Wrapper" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1SelfCall"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="Zone6Stranger1Challenge"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1Challenge">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1Challenge"/>
+      <Equal Value1="_Zone6Stranger1Challenge" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone6Stranger1OnShopLeave" Value="0"/>
+      <SetVariable Scope="Users" Name="Zone6Stranger1Challenge" Value="1"/>
+      <Dialog Type="Stranger" Title="NAME_RONIN" Image="man_dadao_janissary" Mirrored="1">
+        <Line Text="zone_6_stranger_1_challenge" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnReject">
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnHold" Value="0"/>
+          <Dialog Type="Regular" Title="NAME_RONIN" Image="man_dadao_janissary" Mirrored="1" MinContentHeight="680">
+            <Line Text="zone_6_stranger_1_reject" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+              <SetVariable Scope="Users" Name="Zone6Stranger1OnHold" Value="0"/>
+              <SetVariable Scope="Users" Name="StrangerResult" Value="0"/>
+              <Activate ActionID="SendStrangerInfo"/>
+            </Button>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnWait">
+              <SetVariable Scope="Users" Name="Zone6Stranger1Challenge" Value="0"/>
+              <Activate ActionID="Zone6Stranger1SelfCall"/>
+            </Button>
+          </Dialog>
+        </Button>
+        <Button Type="Middle" Color="Beige" Text="dlgStoryBtnFight">
+          <Activate ActionID="Zone6Stranger1Alert"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <SetVariable Scope="Users" Name="StrangerStore" Value="1"/>
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnHold" Value="1"/>
+          <OpenShop Tab="Weapon"/>
+          <SetVariable Scope="Users" Name="Zone6Stranger1Challenge" Value="0"/>
+        </Button>
+        <DifficultyOf Fight="?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone6Stranger1Challenge" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1OnLoss" Priority="-25">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_6"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger"/>
+      <Equal Value1="_$FightResult" Value2="Win" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="Zone6Stranger1OnRestart"/>
+      <SetVariable Scope="Users" Name="StrangerStore" Value="0"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1" IgnoreBack="1">
+        <Line Text="zone_6_stranger_1_rematch_offer" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Activate ActionID="Zone6Stranger1ChallengeLossRematchAttemptNumberSet"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1OnRestartMap" Priority="-25">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_Zone6Stranger1OnRestart" Value2="1"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ChangeScene Destination="_$SceneTo"/>
+      <SetVariable Scope="Users" Name="Zone6Stranger1OnRestart" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerStore" Value="0"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3">
+        <Line Text="zone_6_stranger_1_rematch_offer" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Activate ActionID="Zone6Stranger1ChallengeLossRematchAttemptNumberSet"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1OnShopLeaveLoss">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <Equal Value1="_Zone6Stranger1OnHoldLoss" Value2="1"/>
+      <Equal Value1="_Zone6Stranger1OnShopLeaveLoss" Value2="1" Not="1"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone6Stranger1OnShopLeaveLoss" Value="1"/>
+      <ChangeScene Destination="_$SceneTo"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchAttemptNumberSet">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchAttemptNumberSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="StrangerRematchAttempt" Value="_StrangerRematchAttempt + 1"/>
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="1"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchPriceSet1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="3"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchPriceSet2">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="2"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="5"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchPriceSet3">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="3"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="8"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchPriceSet4">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="4"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="12"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchPriceSet5">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="5"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="17"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchPriceSet6">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="6"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="23"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLossRematchPriceSet7">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+      <GreaterEqual Value1="_StrangerRematchAttempt" Value2="7"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="30"/>
+      <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1ChallengeLoss">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1ChallengeLoss"/>
+      <Equal Value1="_Zone6Stranger1ChallengeLoss" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone6Stranger1OnShopLeaveLoss" Value="0"/>
+      <SetVariable Scope="Users" Name="Zone6Stranger1ChallengeLoss" Value="1"/>
+      <ClearQuestQueue Name="Zone6Stranger1OnRestartDojo"/>
+      <Dialog Type="Stranger" Title="NAME_RONIN" Image="man_dadao_janissary" Mirrored="1">
+        <Line Text="zone_6_stranger_1_challenge_again" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnHoldLoss" Value="0"/>
+          <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+            <Line Text="zone_6_stranger_1_rematch_warning" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+              <SetVariable Scope="Users" Name="Zone6Stranger1OnHoldLoss" Value="0"/>
+              <SetVariable Scope="Users" Name="StrangerResult" Value="0"/>
+              <Activate ActionID="SendStrangerInfo"/>
+            </Button>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnWait">
+              <SetVariable Scope="Users" Name="Zone6Stranger1ChallengeLoss" Value="0"/>
+              <ForceExecution Name="Zone6Stranger1ChallengeLoss"/>
+            </Button>
+          </Dialog>
+        </Button>
+        <Button Type="Middle" Color="Beige" Text="dlgStoryBtnRematch{img::MiscSprites.ruby}{_CurrentRematchPrice}">
+          <Activate ActionID="Zone6Stranger1PayNFight"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <SetVariable Scope="Users" Name="StrangerStore" Value="1"/>
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnHoldLoss" Value="1"/>
+          <OpenShop Tab="Weapon"/>
+          <SetVariable Scope="Users" Name="Zone6Stranger1ChallengeLoss" Value="0"/>
+        </Button>
+        <DifficultyOf Fight="?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone6Stranger1ChallengeLoss" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1InsufficientBonus" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1PayNFight"/>
+      <Less Value1="?Player[].Bonus" Value2="_CurrentRematchPrice"/>
+    </Conditions>
+    <Actions Place="Map">
+      <If>
+        <Conditions>
+          <Operator Type="And">
+            <Equal Value1="?SysInfo[].Paid" Value2="1"/>
+            <Equal Value1="?SysInfo[].NBO" Value2="1"/>
+          </Operator>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="characterMay" Image="character_may_1">
+            <Line Text="dlgNotEnoughRubyMessage_GPP" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Green" Text="OK">
+              <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+            </Button>
+          </Dialog>
+        </Then>
+        <Else>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].ChinaF2P" Value2="1"/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Regular" Title="characterMay" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughRubyMessageAdv_CN_F2P" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+                  <SetVariable Scope="Users" Name="Zone6Stranger1OnHoldLoss" Value="1"/>
+                  <OpenShop Tab="Free" Item="Video"/>
+                </Button>
+                <Button Type="Left" Color="Red" Text="CANCEL">
+                  <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+                </Button>
+              </Dialog>
+            </Then>
+            <Else>
+              <Dialog Type="Regular" Title="characterMay" Image="character_may_1">
+                <Line Text="dlgNotEnoughRubyMessage" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+                  <SetVariable Scope="Users" Name="Zone6Stranger1OnHoldLoss" Value="1"/>
+                  <OpenShop Tab="Ruby" Item="Pile_Gems"/>
+                </Button>
+                <Button Type="Left" Color="Red" Text="CANCEL">
+                  <Activate ActionID="Zone6Stranger1ChallengeLoss"/>
+                </Button>
+              </Dialog>
+            </Else>
+          </If>
+        </Else>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1SufficientBonus" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone6Stranger1PayNFight"/>
+      <Less Value1="?Player[].Bonus" Value2="_CurrentRematchPrice" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <TakeCurrency Type="Bonus" Value="_CurrentRematchPrice">
+        <Error/>
+        <Success>
+          <SetVariable Scope="Users" Name="Zone6Stranger1OnHoldLoss" Value="0"/>
+          <SetVariable Scope="Users" Name="StrangerResult" Value="1"/>
+          <Fight Name="?Concat[ZONE_6|Stranger|lvl,_StrangerTriggerLevel]"/>
+        </Success>
+      </TakeCurrency>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6Stranger1Drop" Priority="20">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_6"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_RONIN" Image="man_dadao_janissary" Mirrored="1">
+        <Line Text="zone_6_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <OpenShop Tab="Weapon" Item="WEAPON_DADAO_JANISSARY" CallEvents="0"/>
+        </Button>
+      </Dialog>
+      <ClearQuestQueue Name="ForgeTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_6_BOSS_weapon_drop" Priority="99">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|BOSS_SAMURAI_ECLIPSEMODE|6].WinCount" Value2="1"/>
+      <Equal Not="1" Value1="_ZONE_6_BOSS_weapon_drop" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ZONE_6_BOSS_weapon_drop" Value="1"/>
+      <OpenShop Tab="Weapon" Item="WEAPON_SHOGUN_KATANA" CallEvents="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6_FinalBattleExeption" Priority="-100">
+    <Events>
+      <SceneLoaded/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|BOSS_SAMURAI|6].WinCount" Value2="1"/>
+      <Equal Value1="_$InEclipseMode" Value2="0"/>
+      <Equal Value1="?Battle[ZONE_6|FINAL_BATTLE].IsOpened" Value2="0"/>
+      <Equal Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Run Name="Shogun_Beaten_Dialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone6_IntermissionStartExeption" Priority="-100">
+    <Events>
+      <SceneLoaded/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1"/>
+      <Equal Value1="_$InEclipseMode" Value2="0"/>
+      <Equal Value1="?Battle[ZONE_1|BOSS_LYNX_INTERMISSION].IsOpened" Value2="0"/>
+      <Equal Value1="?Fight[ZONE_1|BOSS_LYNX_INTERMISSION|1].WinCount" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Run Name="Final_Battle_beaten_Dialog"/>
+    </Actions>
+  </Quest>
+</Quests>

@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="AscensionStartEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StartBPEvent"/>
+    </Conditions>
+    <Actions>
+      <Run Name="AscensionEventVars"/>
+      <ToggleItems Label="RAID_ASCENSION" Toggle="off"/>
+      <Run Name="AscensionEventStory"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionEndEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EndBPEvent"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_ASCENSION" Toggle="off"/>
+      <Run Name="AscensionUpdateEventBossTime"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionProlongEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ProlongBPEvent"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_ASCENSION" Toggle="on"/>
+      <Run Name="AscensionUpdateEventBossTime"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionEventVars">
+    <Actions>
+      <SetVariable Scope="Users" Name="AscensionBossFight" Value="ZONE_RAID|Ascension_1|"/>
+      <SetVariable Scope="Users" Name="AscensionBossFight1" Value="ZONE_RAID|Ascension_2|"/>
+      <SetVariable Scope="Users" Name="AscensionBossFight2" Value="ZONE_RAID|Ascension_3|"/>
+      <SetVariable Scope="Users" Name="AscensionBossFight3" Value="ZONE_RAID|Ascension_4|"/>
+      <SetVariable Scope="Users" Name="AscensionBossFight4" Value="ZONE_RAID|Ascension_5|"/>
+      <SetVariable Scope="Users" Name="AscensionBossName" Value="Ascension_1"/>
+      <SetVariable Scope="Users" Name="AscensionBossName1" Value="Ascension_2"/>
+      <SetVariable Scope="Users" Name="AscensionBossName2" Value="Ascension_3"/>
+      <SetVariable Scope="Users" Name="AscensionBossName3" Value="Ascension_4"/>
+      <SetVariable Scope="Users" Name="AscensionBossName4" Value="Ascension_5"/>
+      <SetVariable Scope="Users" Name="AscensionKeyTitle" Value="KeyFall_24"/>
+      <SetVariable Scope="Users" Name="AscensionKeyIcon" Value="RaidCurrency_Event.Berstuuk24Key"/>
+      <SetVariable Scope="Users" Name="AscensionSphereHintOff" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionUpdateEventBossTime" Priority="900" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_BPEventActive" Value2="1"/>
+      <Equal Value1="_BPEventStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Local" Name="Time" Value="?BattlePass[].CurrentBPEndTime"/>
+      <ShowBattleForPeriod BattleName="_AscensionBossFight" EndTime="_Time"/>
+      <ShowBattleForPeriod BattleName="_AscensionBossFight1" EndTime="_Time"/>
+      <ShowBattleForPeriod BattleName="_AscensionBossFight2" EndTime="_Time"/>
+      <ShowBattleForPeriod BattleName="_AscensionBossFight3" EndTime="_Time"/>
+      <ShowBattleForPeriod BattleName="_AscensionBossFight4" EndTime="_Time"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionSwitchEventBossesGag" Priority="905" Unresumable="0">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_BPEventActive" Value2="1"/>
+      <Equal Value1="_BPEventStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Local" Name="PostFix" Value="?Slice[?BattlePass[].CurrentBPName,16,20]"/>
+      <If>
+        <Conditions>
+          <Equal Value1="?RaidCurrencies[?Concat[KeyAscension2,_PostFix]].Count" Value2="0"/>
+          <Equal Value1="?RaidCurrencies[?Concat[KeyAscension3,_PostFix]].Count" Value2="0"/>
+          <Equal Value1="?RaidCurrencies[?Concat[KeyAscension4,_PostFix]].Count" Value2="0"/>
+          <Equal Value1="?RaidCurrencies[?Concat[KeyAscension5,_PostFix]].Count" Value2="0"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="1"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionSwitchEventBosses" Priority="900" Unresumable="0">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_BPEventActive" Value2="1"/>
+      <Equal Value1="_BPEventStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Run Name="AscensionHideAllEventBosses"/>
+      <Switch Value="_AscensionBossEventIndex">
+        <Case Value="0">
+          <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+        </Case>
+        <Case Value="1">
+          <SetBattleVisibility Name="_AscensionBossFight" IsVisible="1"/>
+          <SetMapFocus Battle="_AscensionBossFight"/>
+        </Case>
+        <Case Value="2">
+          <SetBattleVisibility Name="_AscensionBossFight1" IsVisible="1"/>
+          <SetMapFocus Battle="_AscensionBossFight1"/>
+        </Case>
+        <Case Value="3">
+          <SetBattleVisibility Name="_AscensionBossFight2" IsVisible="1"/>
+          <SetMapFocus Battle="_AscensionBossFight2"/>
+        </Case>
+        <Case Value="4">
+          <SetBattleVisibility Name="_AscensionBossFight3" IsVisible="1"/>
+          <SetMapFocus Battle="_AscensionBossFight3"/>
+        </Case>
+        <Case Value="5">
+          <SetBattleVisibility Name="_AscensionBossFight4" IsVisible="1"/>
+          <SetMapFocus Battle="_AscensionBossFight4"/>
+        </Case>
+        <Default>
+          <Run Name="AscensionHideAllEventBosses"/>
+        </Default>
+      </Switch>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionHideAllEventBosses">
+    <Actions>
+      <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+      <SetBattleVisibility Name="_AscensionBossFight" IsVisible="0"/>
+      <SetBattleVisibility Name="_AscensionBossFight1" IsVisible="0"/>
+      <SetBattleVisibility Name="_AscensionBossFight2" IsVisible="0"/>
+      <SetBattleVisibility Name="_AscensionBossFight3" IsVisible="0"/>
+      <SetBattleVisibility Name="_AscensionBossFight4" IsVisible="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionEventStory" Priority="9999" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?SysInfo[].Time" Value2="?BattlePass[].CurrentBPStartTime"/>
+      <Less Value1="?SysInfo[].Time" Value2="?BattlePass[].CurrentBPEndTime"/>
+      <Equal Value1="_BPEventStory" Value2="0"/>
+      <Equal Value1="_BP_AnnounceShown" Value2="1"/>
+      <Equal Value1="_BPEventActive" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_ASCENSION" Toggle="on"/>
+      <ChangeTab Tab="RaidMapStage"/>
+      <OpenRaidZone Index="0"/>
+      <If>
+        <Conditions>
+          <Equal Value1="_AscensionInto" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Run Name="AscensionInto"/>
+        </Then>
+      </If>
+      <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+        <Line Text="ascension_story1_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+        <Line Text="ascension_story1_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+        <Line Text="ascension_story1_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="BPEventStory" Value="1"/>
+      <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="1"/>
+      <Run Name="AscensionSwitchEventBosses"/>
+      <Run Name="AscensionRaidBossKeyInfo"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionInto" Priority="9999" Unresumable="1">
+    <Actions>
+      <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+        <Line Text="tutorial_ascension_into_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+        <Line Text="tutorial_ascension_into_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+        <Line Text="tutorial_ascension_into_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="AscensionInto" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionEventFightLose">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Operator Type="Or">
+        <Equal Value1="_$Raid" Value2="_AscensionBossName"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName1"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName2"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName3"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName4"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="1"/>
+      <ChangeTab Tab="RaidMapStage"/>
+      <Run Name="AscensionSwitchEventBosses"/>
+      <Run Name="AscensionDefeatDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionEventFightWin">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Operator Type="Or">
+        <Equal Value1="_$Raid" Value2="_AscensionBossName"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName1"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName2"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName3"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName4"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Switch Value="_$Raid">
+        <Case Value="_AscensionBossName">
+          <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="2"/>
+        </Case>
+        <Case Value="_AscensionBossName1">
+          <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="3"/>
+        </Case>
+        <Case Value="_AscensionBossName2">
+          <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="4"/>
+        </Case>
+        <Case Value="_AscensionBossName3">
+          <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="5"/>
+        </Case>
+        <Case Value="_AscensionBossName4">
+          <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="1"/>
+        </Case>
+        <Default>
+          <SetVariable Scope="Users" Name="AscensionBossEventIndex" Value="1"/>
+        </Default>
+      </Switch>
+      <ChangeTab Tab="RaidMapStage"/>
+      <OpenRaidZone Index="0"/>
+      <Run Name="AscensionSwitchEventBosses"/>
+      <Run Name="AscensionWinDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionRaidBossKeyInfo" Priority="1" Unresumable="1">
+    <Conditions>
+      <Equal Value1="_BPEventBossKeyInfo" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Image="RaidCurrency_Ascension.Key_Bronse" Title="Pack_Tickets" ImageScale="0.8" ImageOffsetX="-50">
+        <Line Text="dlgMiniEventKeys"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="EventBossKeyInfo" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionDefeatDialog">
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="_AscensionBossName"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="_BPEventFightLose" Value2="1"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Local" Name="AscDefeatPrase" Value="?UniformIntRandom[1,5]"/>
+          <Dialog Type="Regular" Title="RAIDBOSS_PUPPETEER_TITLE" Image="character_puppeteer">
+            <Line Text="?Concat[AscDefeatPrase_,_AscDefeatPrase]"/>
+            <Button Type="Right" Text="OK" Color="Beige"/>
+          </Dialog>
+        </Then>
+        <Else>
+          <SetVariable Scope="Users" Name="BPEventFightLose" Value="1"/>
+          <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+            <Line Text="ascension_loss1_1"/>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+          </Dialog>
+        </Else>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionWinDialog">
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="_AscensionBossName4"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="_BPEventFightWin" Value2="1"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Local" Name="AscWinPrase" Value="?UniformIntRandom[1,5]"/>
+          <SetVariable Scope="Local" Name="asc_test" Value="?Fight[_$Fight].Fight"/>
+          <Dialog Type="Regular" Title="RAIDBOSS_PUPPETEER_TITLE" Image="character_puppeteer">
+            <Line Text="?Concat[AscWinPrase_,_AscWinPrase]"/>
+            <Button Type="Right" Text="OK" Color="Beige"/>
+          </Dialog>
+        </Then>
+        <Else>
+          <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+            <Line Text="ascension_win1_1"/>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+          </Dialog>
+          <Dialog Type="Multiline" Image="character_puppeteer" Title="RAIDBOSS_PUPPETEER_TITLE" ContentOffsetX="130">
+            <Line Text="ascension_win1_2"/>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+          </Dialog>
+          <SetVariable Scope="Users" Name="BPEventFightWin" Value="1"/>
+        </Else>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="AscensionSphereHint" Priority="100" Unresumable="0">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$Raid" Value2="_AscensionBossName"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName1"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName2"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName3"/>
+        <Equal Value1="_$Raid" Value2="_AscensionBossName4"/>
+      </Operator>
+      <Equal Value1="_AscensionSphereHintOff" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="characterSensei" Image="character_sensei">
+        <Line Text="SPHERES_BALANCER"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+        <CheckBox Text="dlgDontShowAgain" InitialValue="_AscensionSphereHintOff">
+          <On>
+            <SetVariable Scope="Users" Name="AscensionSphereHintOff" Value="1"/>
+          </On>
+          <Off>
+            <SetVariable Scope="Users" Name="AscensionSphereHintOff" Value="0"/>
+          </Off>
+        </CheckBox>
+      </Dialog>
+    </Actions>
+  </Quest>
+</Quests>

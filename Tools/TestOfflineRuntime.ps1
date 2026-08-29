@@ -30,7 +30,7 @@ function New-TestArchive($entries) {
     return ,$result
 }
 
-$source = Join-Path $projectPath 'Assets/xml'
+$source = Join-Path $projectPath 'Assets/vanillaXml'
 $archive = [GameplayContentArchive]::CreateArchive($source)
 $cache = Join-Path $testRoot 'content'
 $extracted = [GameplayContentArchive]::ExtractArchive($archive, $cache)

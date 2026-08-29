@@ -1,0 +1,2039 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root>
+  <Include File="quest_extensions/utils.xml"/>
+  <Include File="quest_extensions/update_quests_start.xml"/>
+  <Include File="quest_extensions/gdpr.xml"/>
+  <Include File="quest_extensions/energy.xml"/>
+  <Include File="quest_extensions/login_notify.xml"/>
+  <Include File="quest_extensions/packs.xml"/>
+  <Include File="quest_extensions/battles.xml"/>
+  <Include File="quest_extensions/tutorial_quests.xml">
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="END" Not="1"/>
+    </Conditions>
+  </Include>
+  <Include File="quest_extensions/sensei_arc.xml|quest_extensions/hardmode.xml">
+    <Conditions>
+      <Equal Value1="?SysInfo[].Paid" Value2="1"/>
+    </Conditions>
+  </Include>
+  <Include File="quest_extensions/switch_quests.xml|quest_extensions/sensei_arc.xml|quest_extensions/eclipse.xml">
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+        <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+      </Operator>
+    </Conditions>
+  </Include>
+  <Include File="quest_extensions/f2p_quests.xml">
+    <Conditions>
+      <Equal Value1="?SysInfo[].AnyF2P" Value2="1"/>
+    </Conditions>
+  </Include>
+  <Include File="quest_extensions/facebook.xml">
+    <Conditions>
+      <Equal Value1="?SysInfo[].FacebookLoginSupport" Value2="1"/>
+    </Conditions>
+  </Include>
+  <Include File="quest_extensions/test_quests.xml">
+    <Conditions>
+      <Equal Value1="?SysInfo[].IsDebug" Value2="1"/>
+    </Conditions>
+  </Include>
+  <Include File="quest_extensions/offers.xml"/>
+  <Include File="quest_extensions/local_daily.xml">
+    <Conditions>
+      <Equal Value1="?SysInfo[].AdvertisingSupport" Value2="1"/>
+    </Conditions>
+  </Include>
+  <Quest Name="SetBackVersionCheck" Priority="99998" Unresumable="1">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <GreaterEqual Not="1" Value1="?VersionController[].Production" Value2="?DataVersion[].Production"/>
+        <Operator Type="And">
+          <Equal Value1="?VersionController[].Production" Value2="?DataVersion[].Production"/>
+          <Operator Type="Or">
+            <GreaterEqual Not="1" Value1="?VersionController[].Major" Value2="?DataVersion[].Major"/>
+            <Operator Type="And">
+              <Equal Value1="?VersionController[].Major" Value2="?DataVersion[].Major"/>
+              <GreaterEqual Not="1" Value1="?VersionController[].Minor" Value2="?DataVersion[].Minor"/>
+            </Operator>
+          </Operator>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="dlgAlertTitle">
+        <Line Text="versionCheckDialog"/>
+        <Button Type="Right" Color="Beige" Text="OK">
+          <OpenUrl URL="?SysInfo[].RatingUrl"/>
+          <ApplicationRestart/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ScriptsResumeOnStart" Priority="-9999">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Actions>
+      <ResumeQuests>
+        <Error>
+          <Fight/>
+        </Error>
+      </ResumeQuests>
+      <SetVariable Scope="Users" Name="ScriptsResumed" Value="1"/>
+      <Activate ActionID="PseudoSessionStart" Lock="Visible"/>
+    </Actions>
+  </Quest>
+  <Quest Name="VariablesReset" Priority="9998">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Actions>
+      <SetVariable Scope="Users" Name="FreeReminderShown" Value="0"/>
+      <SetVariable Scope="Users" Name="UpgradeToLevelReminderShown" Value="0"/>
+      <SetVariable Scope="Users" Name="LowFpsWarningShown" Value="0"/>
+      <SetVariable Scope="Users" Name="ScriptsResumed" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_Zone1" Priority="9998">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?Fight[ZONE_1|BOSS_LYNX|1].WinCount" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/zone_1/core.xml"/>
+      <AttachQuestFile File="quest_extensions/zone_1/story.xml"/>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].AnyF2P" Value2="1"/>
+        </Conditions>
+        <Then>
+          <AttachQuestFile File="quest_extensions/dynamic_discounts.xml"/>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].ChinaF2P" Value2="0"/>
+            </Conditions>
+            <Then>
+              <AttachQuestFile File="quest_extensions/promotions.xml"/>
+              <AttachQuestFile File="quest_extensions/promotions_from_first_session.xml"/>
+              <AttachQuestFile File="quest_extensions/offers_quests.xml"/>
+              <AttachQuestFile File="quest_extensions/premium_packs.xml"/>
+            </Then>
+            <Else>
+              <AttachQuestFile File="quest_extensions/china_quests.xml"/>
+            </Else>
+          </If>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_Zone2" Priority="9999">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_1|BOSS_LYNX|6].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/zone_2/core.xml"/>
+      <AttachQuestFile File="quest_extensions/zone_2/story.xml"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_Zone3" Priority="9999">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_2|BOSS_HERMIT|6].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/zone_3/story.xml"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_Zone4" Priority="9999">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_3|BOSS_BUTCHER|6].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/zone_4/story.xml"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_Zone5" Priority="9999">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_4|BOSS_WASP|6].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/zone_5/story.xml"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_Zone6" Priority="9999">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_5|BOSS_HUNTRESS|6].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/zone_6/story.xml"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_intermission" Priority="9999">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/intermission/story.xml"/>
+    </Actions>
+  </Quest>
+  <Quest Name="AttachScripts_Zone7" Priority="9999">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_6|BOSS_SAMURAI_INTERMISSION|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/zone_7/story.xml"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SendStrangerInfoAndFight" Group="FightEnter" Priority="9999" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].UserObserved" Value2="1"/>
+      <Operator Type="Or">
+        <Equal Value1="_$Fight" Value2="ZONE_1|Stranger|lvl4"/>
+        <Equal Value1="_$Fight" Value2="ZONE_1|Stranger|lvl6"/>
+        <Operator Type="And">
+          <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="ZONE_1"/>
+          <Operator Type="Or">
+            <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger"/>
+            <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger_INTERMISSION"/>
+          </Operator>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SendStrangerStats Difficulty="_StrangerDifficulty" Result="_StrangerResult" Store="_StrangerStore"/>
+      <Fight Name="_$Fight"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SendStrangerInfo" Priority="9999" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="SendStrangerInfo"/>
+      <Equal Value1="?SysInfo[].UserObserved" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SendStrangerStats Difficulty="_StrangerDifficulty" Result="_StrangerResult" Store="_StrangerStore"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FirstGuardBeaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_1|BOSS_LYNX|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetStoryTutorialStep Value="LEARN_PERK"/>
+      <ClearQuestQueue Name="StoryTutorialBossFight"/>
+      <SetVariable Scope="Users" Name="globZoneToCheck" Value="ZONE_1"/>
+      <SetVariable Scope="Users" Name="CurrentZone" Value="ZONE_1"/>
+      <SetVariable Scope="Users" Name="Avatar_Notification" Value="character_may_1_small"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_1" Value="character_may_1"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_2" Value="character_may_2"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_3" Value="character_may_3"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_4" Value="character_may_4"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_5" Value="character_may_5"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_6" Value="character_sensei"/>
+      <SetVariable Scope="Users" Name="Title_Assistant" Value="characterMay"/>
+      <SetVariable Scope="Users" Name="Title_Assistant_2" Value="characterSensei"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Image" Value="Payment2.img_pile_coins"/>
+      <SetVariable Scope="Users" Name="promo_Multiplier" Value="1.3"/>
+      <AttachQuestFile File="quest_extensions/zone_1/core.xml"/>
+      <AttachQuestFile File="quest_extensions/zone_1/story.xml"/>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].AnyF2P" Value2="1"/>
+        </Conditions>
+        <Then>
+          <AttachQuestFile File="quest_extensions/dynamic_discounts.xml"/>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].ChinaF2P" Value2="0"/>
+            </Conditions>
+            <Then>
+              <AttachQuestFile File="quest_extensions/promotions_from_first_session.xml"/>
+            </Then>
+          </If>
+        </Then>
+      </If>
+      <SetVariable Scope="Users" Name="NoDiscountsControlGroupRoll" Value="?UniformIntRandom[1,100]"/>
+      <Activate ActionID="AttachScripts_DiscountsTest"/>
+      <SetVariable Scope="Users" Name="ChallengeUnlockCount" Value="0"/>
+      <SetVariable Scope="Users" Name="DuelUnlockCount" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerTriggerLevel" Value="5"/>
+      <Dialog Type="Regular" Title="NAME_LYNX" Image="boss_lynx">
+        <Line Text="tutorial_bodyguard_win_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnSeeYou"/>
+      </Dialog>
+      <ActScreen Text="Act_1" Lock="Silent"/>
+      <Checkpoint/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="tutorial_girl_hello" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryNegative">
+          <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_4">
+            <Line Text="tutorial_girl_please" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Button>
+        <Button Type="Right" Color="Beige" Text="dlgStoryPositive"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="tutorial_girl_end" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="tutorial_girl_tournament_1" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="tutorial_girl_tournament_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ShowPostTutorDialog" Value="1"/>
+      <ToggleItems Label="ZONE_1_DONATE" Toggle="on"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE" Toggle="on"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE_CASKET" Toggle="on"/>
+      <ShowBattle Name="ZONE_1|Tournament"/>
+      <SetMapFocus Battle="ZONE_1|Tournament|"/>
+      <Activate ActionID="TapjoyTutorialCompleted"/>
+      <ValidatePacks/>
+    </Actions>
+  </Quest>
+  <Quest Name="PostTutorDialogBadInternet">
+    <Events>
+      <SceneLoaded/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].Language" Value2="rus"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <Equal Value1="_ShowPostTutorDialog" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="post_tutorial_network_help"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ShowPostTutorDialog" Value="2"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FirstZoneBundle" Priority="9999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_1|Tournament|1"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_2|BOSS_HERMIT_LOCKED|" Locked="1"/>
+      <ShowBattle Name="ZONE_3|BOSS_BUTCHER_LOCKED|" Locked="1"/>
+      <ShowBattle Name="ZONE_4|BOSS_WASP_LOCKED|" Locked="1"/>
+      <ShowBattle Name="ZONE_5|BOSS_HUNTRESS_LOCKED|" Locked="1"/>
+      <ShowBattle Name="ZONE_6|BOSS_SAMURAI_LOCKED|" Locked="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FinetuneStrangerTriggerLevel" Priority="900">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="FinetuneStrangerTriggerLevel"/>
+      <Equal Value1="?Player[].Level % 6" Value2="5"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="StrangerTriggerLevel" Value="_StrangerTriggerLevel + 1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SetTime0" Priority="998" Unresumable="1">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_TimeSet" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="TimeSet" Value="1"/>
+      <SetVariable Scope="Users" Name="LastRatingOfferTime" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RatingOffer" Unresumable="1" Priority="-10" Group="Advertising">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].Switch" Value2="0"/>
+      <Equal Value1="?SysInfo[].Steam" Value2="0"/>
+      <Equal Value1="?SysInfo[].ChinaF2P" Value2="0"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag" Not="1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$Fight" Value2="ZONE_1|BOSS_LYNX|1" Not="1"/>
+      <Equal Value1="_$Fight" Value2="ZONE_1|BOSS_LYNX|2" Not="1"/>
+      <Equal Value1="_$Fight" Value2="ZONE_1|Tournament|1" Not="1"/>
+      <Equal Value1="_RatingTurnedOff" Value2="1" Not="1"/>
+      <Greater Value1="?SysInfo[].Time - _LastRatingOfferTime" Value2="8 * 60 * 60"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_4">
+        <Line Text="rateDlgMessage1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryNegative">
+          <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+            <Line Text="rateDlgMessage3" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="rateDlgBtn3Text">
+              <SetVariable Scope="Users" Name="RatingTurnedOff" Value="1"/>
+            </Button>
+            <Button Type="Middle" Color="Beige" Text="rateDlgBtn2Text">
+              <SetVariable Scope="Users" Name="LastRatingOfferTime" Value="?SysInfo[].Time"/>
+            </Button>
+            <Button Type="Right" Color="Green" Text="OK">
+              <SetVariable Scope="Users" Name="RatingTurnedOff" Value="1"/>
+              <OpenUrl URL="?SysInfo[].FBLikeUrl" ALT_URL="?SysInfo[].FBLikeAltUrl"/>
+            </Button>
+          </Dialog>
+        </Button>
+        <Button Type="Right" Color="Green" Text="rateDlgBtn1Text">
+          <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_4">
+            <Line Text="rateDlgMessage2" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="rateDlgBtn3Text">
+              <SetVariable Scope="Users" Name="RatingTurnedOff" Value="1"/>
+            </Button>
+            <Button Type="Middle" Color="Beige" Text="rateDlgBtn2Text">
+              <SetVariable Scope="Users" Name="LastRatingOfferTime" Value="?SysInfo[].Time"/>
+            </Button>
+            <Button Type="Right" Color="Green" Text="rateDlgBtn1Text">
+              <SetVariable Scope="Users" Name="RatingTurnedOff" Value="1"/>
+              <OpenRateUrl URL="?SysInfo[].RatingUrl"/>
+            </Button>
+          </Dialog>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ResetDownloadFlag" Priority="998" Unresumable="1">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ShopDownloadOffer" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ShopDownloadOffer" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowNews" Priority="-20" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="PseudoSessionStart"/>
+      <Equal Value1="_Zone1Discount1Offer" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_1|Tournament|2].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowNews/>
+    </Actions>
+  </Quest>
+  <Quest Name="DuelUnlockNotifyBase" Unresumable="1" Priority="15">
+    <Events>
+      <DuelUnlocked/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$SceneTo" Value2="Shop"/>
+        <Equal Value1="_$SceneTo" Value2="Map"/>
+        <Equal Value1="_$SceneTo" Value2="Profile"/>
+        <Equal Value1="_$SceneTo" Value2="Dojo"/>
+      </Operator>
+      <Equal Value1="_DoNotShowDuelNotify" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Notification" Image="_Avatar_Assistant_6">
+        <Line Text="duel_invite"/>
+        <Button Type="Left" Color="Green"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="DuelUnlockNotifyDoNotShow" Unresumable="1" Priority="14">
+    <Events>
+      <DuelUnlocked/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_DoNotShowDuelNotify" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="NotificationGeneral" Priority="899">
+    <Events>
+      <Delivery/>
+    </Events>
+    <Conditions/>
+    <Actions Place="Map">
+      <Wait Frames="1"/>
+      <Foreach Type="DeliveryItems" Name="DeliveryNotification"/>
+      <Wait Frames="1"/>
+      <Foreach Type="DeliveryUpgrades" Name="UpgradeNotification"/>
+      <Wait Frames="1"/>
+      <Foreach Type="DeliveryEnchantments" Name="EnchantmentNotification"/>
+      <Wait Frames="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DeliveryNotification" Priority="899" Unresumable="1" AllowDoubles="1">
+    <Conditions/>
+    <Actions Place="Map">
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="delivery_notification{_$Iterator}"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="btnShopEquip">
+          <OpenShop Tab="?Purchase[_$Iterator].Type" Item="_$Iterator"/>
+          <GiveItem Name="_$Iterator" PutOn="1" Quantity="0"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="UpgradeNotification" Priority="895" Unresumable="1" AllowDoubles="1">
+    <Actions Place="Map">
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="upgrade_notification{_$Iterator}"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <OpenShop Tab="?Purchase[_$Iterator].Type" Item="_$Iterator"/>
+          <GiveItem Name="_$Iterator" PutOn="1" Quantity="0"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="EnchantmentNotification" Priority="894" Unresumable="1" AllowDoubles="1">
+    <Conditions/>
+    <Actions Place="Map">
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="enchantment_notification{?Purchase[_$Iterator].Name}"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <OpenShop Tab="?Purchase[_$Iterator].Type" Item="?Enchantment[_$Iterator].Item"/>
+          <GiveItem Name="_$Iterator" PutOn="1" Quantity="0"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Delivery" Unresumable="1">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?Purchase[_$Purchase].Timeout" Value2="0"/>
+      <Equal Value1="?Item[_$Purchase].Quantity" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgInstantBuyMessage1" ButtonText="dlgStoryBtnMore"/>
+        <DeliveryDelay Item="?Purchase[_$Purchase].Name" ButtonText="dlgStoryBtnMore">
+          <GiveItem Name="?Purchase[_$Purchase].Name" PutOn="1" Quantity="0"/>
+        </DeliveryDelay>
+        <Line Text="dlgInstantBuyMessage2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Beige" Text="dlgStoryBtnWait_2"/>
+        <Button Type="Right" Color="Green" Text="dlgButtonFinish{img::MiscSprites.ruby}{?Item[?Purchase[_$Purchase].Name].BonusDeliveryPrice}">
+          <Deliver Item="?Purchase[_$Purchase].Name"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="DeliveryUpgrade" Unresumable="1">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?Purchase[_$Purchase].Timeout" Value2="0"/>
+      <GreaterEqual Value1="?Item[_$Purchase].Quantity" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgInstantBuyMessage1" ButtonText="dlgStoryBtnMore"/>
+        <DeliveryDelay Item="?Purchase[_$Purchase].Name" ButtonText="dlgStoryBtnMore">
+          <GiveItem Name="?Purchase[_$Purchase].Name" PutOn="1" Quantity="0"/>
+        </DeliveryDelay>
+        <Line Text="dlgInstantUpgradeMessage2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Beige" Text="dlgStoryBtnWait_2"/>
+        <Button Type="Right" Color="Green" Text="dlgButtonUpgrade{img::MiscSprites.ruby}{?Item[?Purchase[_$Purchase].Name].NextUpgradeDeliveryPrice}">
+          <Deliver Item="?Purchase[_$Purchase].Name"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="DeliveryEnchantment" Unresumable="1">
+    <Events>
+      <Enchantment/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?Enchantment[_$Enchantment].Timeout" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgInstantBuyMessage1" ButtonText="dlgStoryBtnMore"/>
+        <DeliveryDelay Enchantment="_$Enchantment" ButtonText="dlgStoryBtnMore">
+          <GiveItem Name="?Enchantment[_$Enchantment].Item" PutOn="1" Quantity="0"/>
+        </DeliveryDelay>
+        <Line Text="dlgInstantEnchantmentMessage2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Beige" Text="dlgStoryBtnWait_2"/>
+        <Button Type="Right" Color="Green" Text="dlgEnchantButton{img::MiscSprites.ruby}{?Enchantment[_$Enchantment].BonusDeliveryPrice}">
+          <Deliver Enchantment="_$Enchantment"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowUpgrades" Priority="-10">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_$FightResult" Value2="Surrender"/>
+      <Operator Type="Or">
+        <Greater Value1="?Item[WEAPON_SAI].Quantity" Value2="0"/>
+        <Greater Value1="?Item[ARMOR_OLD_LEATHER].Quantity" Value2="0"/>
+        <Greater Value1="?Item[HELM_KENDO_MASK].Quantity" Value2="0"/>
+        <Less Value1="?Player[].Level" Value2="4" Not="1"/>
+      </Operator>
+      <Equal Value1="_ShowUpgrades" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowUpgrades/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="upgrades_unlocked" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgLaterBtn"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <Activate ActionID="ShowUpgrades"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ShowUpgrades" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowUpgradesSai" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShowUpgrades"/>
+      <Greater Value1="?Item[WEAPON_SAI].Quantity" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <OpenShop Tab="Weapon" Item="WEAPON_SAI"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowUpgradesOldLeather" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShowUpgrades"/>
+      <Equal Value1="?Item[WEAPON_SAI].Quantity" Value2="0"/>
+      <Greater Value1="?Item[ARMOR_OLD_LEATHER].Quantity" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <OpenShop Tab="Armor" Item="ARMOR_OLD_LEATHER"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowUpgradesKendoMask" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShowUpgrades"/>
+      <Equal Value1="?Item[WEAPON_SAI].Quantity" Value2="0"/>
+      <Equal Value1="?Item[ARMOR_OLD_LEATHER].Quantity" Value2="0"/>
+      <Greater Value1="?Item[HELM_KENDO_MASK].Quantity" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <OpenShop Tab="Helm" Item="HELM_KENDO_MASK"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowUpgradesKnives" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShowUpgrades"/>
+      <Equal Value1="?Item[WEAPON_SAI].Quantity" Value2="0"/>
+      <Equal Value1="?Item[ARMOR_OLD_LEATHER].Quantity" Value2="0"/>
+      <Equal Value1="?Item[HELM_KENDO_MASK].Quantity" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <OpenShop Tab="Weapon" Item="WEAPON_KNIVES"/>
+    </Actions>
+  </Quest>
+  <Quest Name="WorseArmorEquipped" Group="FightEnter" Priority="11" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_WorseArmorEquippedCheckBox" Value2="1"/>
+      <Equal Value1="_WorseArmorEquippedReminderFlag" Value2="0"/>
+      <Greater Value1="_$BestAcquiredArmorLevel" Value2="0"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Type" Value2="HIDDEN" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Type" Value2="PERIODIC" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="SENSEI_MEMORIES" Not="1"/>
+      <Less Not="1" Value1="_$BestAcquiredArmorLevel - ?Purchase[?Player[].Armor].UpgradeLevel" Value2="50"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="WorseArmorEquippedReminderFlag" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgWorseArmorEquipped" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <ClearQuestQueue Name="FightEnter"/>
+          <OpenShop Tab="Armor"/>
+        </Button>
+        <CheckBox Text="dlgDontShowAgain" InitialValue="_WorseArmorEquippedCheckBox">
+          <On>
+            <SetVariable Scope="Users" Name="WorseArmorEquippedCheckBox" Value="1"/>
+          </On>
+          <Off>
+            <SetVariable Scope="Users" Name="WorseArmorEquippedCheckBox" Value="0"/>
+          </Off>
+        </CheckBox>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="WorseWeaponEquipped" Group="FightEnter" Priority="10" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_WorseWeaponEquippedCheckBox" Value2="1"/>
+      <Equal Value1="_WorseWeaponEquippedReminderFlag" Value2="0"/>
+      <Greater Value1="_$BestAcquiredWeaponLevel" Value2="0"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Type" Value2="HIDDEN" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Type" Value2="PERIODIC" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="SENSEI_MEMORIES" Not="1"/>
+      <Less Not="1" Value1="_$BestAcquiredWeaponLevel - ?Purchase[?Player[].Weapon].UpgradeLevel" Value2="50"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="WorseWeaponEquippedReminderFlag" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgWorseWeaponEquipped" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <ClearQuestQueue Name="FightEnter"/>
+          <OpenShop Tab="Weapon"/>
+        </Button>
+        <CheckBox Text="dlgDontShowAgain" InitialValue="_WorseWeaponEquippedCheckBox">
+          <On>
+            <SetVariable Scope="Users" Name="WorseWeaponEquippedCheckBox" Value="1"/>
+          </On>
+          <Off>
+            <SetVariable Scope="Users" Name="WorseWeaponEquippedCheckBox" Value="0"/>
+          </Off>
+        </CheckBox>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="WorseHelmEquipped" Group="FightEnter" Priority="9" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_WorseHelmEquippedCheckBox" Value2="1"/>
+      <Equal Value1="_WorseHelmEquippedReminderFlag" Value2="0"/>
+      <Greater Value1="_$BestAcquiredHelmLevel" Value2="0"/>
+      <Equal Value1="?Fight[_$Fight].Type" Value2="PERIODIC" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Type" Value2="HIDDEN" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="SENSEI_MEMORIES" Not="1"/>
+      <Less Not="1" Value1="_$BestAcquiredHelmLevel - ?Purchase[?Player[].Helm].UpgradeLevel" Value2="50"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="WorseHelmEquippedReminderFlag" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgWorseHelmEquipped" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <ClearQuestQueue Name="FightEnter"/>
+          <OpenShop Tab="Helm"/>
+        </Button>
+        <CheckBox Text="dlgDontShowAgain" InitialValue="_WorseHelmEquippedCheckBox">
+          <On>
+            <SetVariable Scope="Users" Name="WorseHelmEquippedCheckBox" Value="1"/>
+          </On>
+          <Off>
+            <SetVariable Scope="Users" Name="WorseHelmEquippedCheckBox" Value="0"/>
+          </Off>
+        </CheckBox>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="PaymentSuccessDialog" Priority="9999" Unresumable="1">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$Purchase].Type" Value2="RealMoneyItem"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="paySuccessTitle">
+        <Line Text="paySuccessMessage" ButtonText="OK"/>
+        <Button Type="Left" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ShopRefresh" Unresumable="1">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="?Purchase[_$Purchase].Name" Value2="Unlimited_Energy"/>
+        <Equal Value1="_$Purchase" Value2="_sale_Item"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <UpdateShopItems/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShopPerkResetNotification">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Item[_$Purchase].SubType" Value2="PerkReset"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="FreeReminderShown" Value="1"/>
+      <ForceExecution Name="PerksWipe"/>
+      <Dialog Type="NoAvatar" Title="dlgSenseiProfile">
+        <Line Text="update_1300_wipe"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="SetShareFlag">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$LevelUp" Value2="1"/>
+      <Equal Value1="_ShareFlag" Value2="1" Not="1"/>
+      <Equal Value1="_ShareFlag" Value2="0" Not="1"/>
+      <Equal Not="1" Value1="_$FightResult" Value2="Surrender"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="ShareFlag" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="LevelUpFirstTime" Priority="-9">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].Level" Value2="2"/>
+      <Equal Not="1" Value1="_$FightResult" Value2="Surrender"/>
+      <Equal Value1="_$LevelUp" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="rnd100" Value="?UniformIntRandom[1,100]"/>
+      <Activate ActionID="DiscountRoll" Sound="snd_learn"/>
+      <Dialog Type="Multiline" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgSenseiCongratulation" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="dlgSenseiLevelIndicator{img::MiscSprites.level}{?Player[].Level}" FontSize="220" FontName="carterOneLevel" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="dlgSenseiText" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgSenseiProfile">
+          <ClearQuestQueue Name="ShowUpgrades"/>
+          <ChangeScene Destination="Profile"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="WorseWeaponEquippedReminderFlag" Value="0"/>
+      <SetVariable Scope="Users" Name="ShopAdviceOnCurrentLevel" Value="0"/>
+      <SetVariable Scope="Users" Name="WorseArmorEquippedReminderFlag" Value="0"/>
+      <SetVariable Scope="Users" Name="WorseHelmEquippedReminderFlag" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SetLevelUpProfileFlag" Priority="10">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_LevelUpProfileFlag" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="LevelUpProfileFlag" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="LevelUp" Priority="-9">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="?Player[].Level" Value2="2"/>
+      <Equal Not="1" Value1="_$FightResult" Value2="Surrender"/>
+      <Equal Value1="_$LevelUp" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="rnd100" Value="?UniformIntRandom[1,100]"/>
+      <Activate ActionID="DiscountRoll" Sound="snd_learn"/>
+      <Dialog Type="Multiline" Title="_Title_Assistant_2" Image="_Avatar_Assistant_6">
+        <Line Text="dlgSenseiCongratulation" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="dlgSenseiLevelIndicator{img::MiscSprites.level}{?Player[].Level}" FontSize="220" FontName="carterOneLevel" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="dlgSenseiText" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgServiceBtnLater">
+          <SetVariable Scope="Users" Name="LevelUpProfileFlag" Value="0"/>
+          <Activate ActionID="LevelUpPostpone"/>
+        </Button>
+        <Button Type="Right" Color="Beige" Text="dlgSenseiProfile">
+          <ClearQuestQueue Name="ShowUpgrades"/>
+          <SetVariable Scope="Users" Name="LevelUpProfileFlag" Value="1"/>
+          <ChangeScene Destination="Profile"/>
+        </Button>
+      </Dialog>
+      <Activate ActionID="Share"/>
+      <SetVariable Scope="Users" Name="WorseWeaponEquippedReminderFlag" Value="0"/>
+      <SetVariable Scope="Users" Name="ShopAdviceOnCurrentLevel" Value="0"/>
+      <SetVariable Scope="Users" Name="WorseArmorEquippedReminderFlag" Value="0"/>
+      <SetVariable Scope="Users" Name="WorseHelmEquippedReminderFlag" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RangedAvailable" Priority="-1" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_TournamentsLeftReminderFlag" Value2="1" Not="1"/>
+      <Equal Value1="_ChallengesLeftReminderFlag" Value2="1" Not="1"/>
+      <Equal Value1="?Battle[ZONE_2|BOSS_HERMIT].Available" Value2="1"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Value1="_RangedAvailableTag" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Player[].Level" Value2="8"/>
+      <GreaterEqual Not="1" Value1="_ForgeEnabled" Value2="1"/>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Item[WEAPON_SUPER_KUSARIGAMA].Quantity" Value2="0"/>
+        <Equal Value1="?Player[].Level" Value2="_KusarigamaDiscountLevel"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="Ranged" Item="RANGED_THROWING_DAGGERS"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgRangedAvailable"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RangedAvailableTag" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="MagicAvailable" Priority="-1" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_TournamentsLeftReminderFlag" Value2="1" Not="1"/>
+      <Equal Value1="_ChallengesLeftReminderFlag" Value2="1" Not="1"/>
+      <Equal Value1="?Battle[ZONE_3|BOSS_BUTCHER].Available" Value2="1"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Value1="_RangedAvailableTag" Value2="1"/>
+      <Equal Value1="_MagicAvailableTag" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Player[].Level" Value2="14"/>
+      <GreaterEqual Not="1" Value1="_ForgeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="Magic" Item="MAGIC_FIRE_BALL"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgMagicAvailable" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="MagicAvailableTag" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="LowFPSWarning">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].LowGraphicsSupport" Value2="1"/>
+      <LessEqual Value1="_$FightAvgFPS" Value2="50"/>
+      <Greater Value1="_$FightAvgFPS" Value2="0"/>
+      <Equal Value1="?SysInfo[].QualityCondition" Value2="LOW" Not="1"/>
+      <Equal Value1="_LowFpsWarningShown" Value2="0"/>
+      <Equal Not="1" Value1="_LowFPSWarningCheckBox" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="dlgAlertTitle">
+        <Line Text="dlgLowFPSWarning" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+        <CheckBox Text="dlgDontShowAgain" InitialValue="_LowFPSWarningCheckBox">
+          <On>
+            <SetVariable Scope="Users" Name="LowFPSWarningCheckBox" Value="1"/>
+          </On>
+          <Off>
+            <SetVariable Scope="Users" Name="LowFPSWarningCheckBox" Value="0"/>
+          </Off>
+        </CheckBox>
+      </Dialog>
+      <SetVariable Scope="Users" Name="LowFpsWarningShown" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DifficultyAlert" Group="FightEnter">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[_$Fight].Difficulty" Value2="4"/>
+      <Equal Value1="_DifficultyAlert" Value2="1" Not="1"/>
+      <Equal Value1="_$Fight" Value2="ZONE_1|BOSS_LYNX|6" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Survival" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="BOSS_LYNX_INTERMISSION" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="BOSS_HERMIT_INTERMISSION" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="BOSS_BUTCHER_INTERMISSION" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="BOSS_WASP_INTERMISSION" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="BOSS_HUNTRESS_INTERMISSION" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="BOSS_SAMURAI_INTERMISSION" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="FINAL_BATTLE" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Survival_INTERMISSION" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger_INTERMISSION" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="tutorial_difficulty_notice" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Beige" Text="dlgLaterBtn">
+          <ClearQuestQueue Name="FightEnter"/>
+        </Button>
+        <Button Type="Right" Color="Red" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="DifficultyAlert" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SetDojoDiscipleFlag" Unresumable="1" Priority="10000">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].AnyF2P" Value2="1"/>
+      <Equal Value1="_$StoryTutorialStep" Value2="END"/>
+      <Equal Value1="?Purchase[_$Purchase].Type" Value2="RealMoneyItem"/>
+      <Operator Type="And">
+        <Equal Value1="_DiscipleFlag" Value2="1" Not="1"/>
+        <Equal Value1="_DiscipleFlag" Value2="2" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscipleFlag" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SetDojoDiscipleFlagPaid" Unresumable="1" Priority="-110">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="?SysInfo[].Paid" Value2="1"/>
+        <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+        <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+      </Operator>
+      <Equal Value1="_$Fight" Value2="ZONE_1|BOSS_LYNX|6"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Operator Type="And">
+        <Equal Value1="_DiscipleFlag" Value2="1" Not="1"/>
+        <Equal Value1="_DiscipleFlag" Value2="2" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscipleFlag" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DojoDiscipleGreetings" Priority="-110">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <Operator Type="Or">
+        <Equal Not="1" Value1="_$SceneFrom" Value2="Fight"/>
+        <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+      </Operator>
+      <Equal Value1="_DiscipleFlag" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Map"/>
+      <SetSessionSettings Name="ShowDojoDisciple" Value="1"/>
+      <SetVariable Scope="Users" Name="DiscipleFlag" Value="2"/>
+      <Dialog Type="Regular" Title="characterDisciple" Image="character_disciple">
+        <Line Text="dlgDiscipleGreetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="OK">
+          <Dialog Type="Regular" Title="characterDisciple" Image="character_disciple">
+            <Line Text="dlgDiscipleAccept{img::MiscSprites.btn_disciple_small}" ButtonText="OK"/>
+            <Button Type="Right" Text="OK"/>
+          </Dialog>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnReject">
+          <Dialog Type="Regular" Title="characterDisciple" Image="character_disciple">
+            <Line Text="dlgDiscipleReject{img::MiscSprites.btn_disciple_small}" ButtonText="OK"/>
+            <Button Type="Right" Text="OK"/>
+          </Dialog>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="AvatarFinalChange" Priority="9999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|6" Not="1"/>
+      <Equal Value1="_HumanAvatarSet" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|C3_BOSS_TITAN|6].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="HumanAvatar"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HumanAvatar" Priority="9999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_7|C3_BOSS_TITAN|6].WinCount" Value2="1"/>
+      <Equal Value1="_HumanAvatarSet" Value2="1" Not="1"/>
+      <Equal Value1="_$ActionID" Value2="HumanAvatar"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ChangePlayerAvatar Avatar="avatar_human"/>
+      <SetVariable Scope="Users" Name="HumanAvatarSet" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="PurchaseUnsuccessful_Verification" Priority="9999" Unresumable="1">
+    <Events>
+      <PurchaseUnsuccessful/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$PurchaseUnsuccessful].Failure" Value2="Verification"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="payFailedTitle">
+        <Line Text="payFailedMessage" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="PurchaseUnsuccessful_TryAgain" Priority="9999" Unresumable="1">
+    <Events>
+      <PurchaseUnsuccessful/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$PurchaseUnsuccessful].Failure" Value2="TryAgain"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="payTryAgainTitle">
+        <Line Text="payTryAgainMessage" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="PurchaseUnsuccessful_Connection" Priority="9999" Unresumable="1">
+    <Events>
+      <PurchaseUnsuccessful/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$PurchaseUnsuccessful].Failure" Value2="Connection"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="dlgNotNetworkTitle">
+        <Line Text="dlgNotNetworkMessage" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="PurchaseUnsuccessful_Coins" Priority="9999" Unresumable="1">
+    <Events>
+      <PurchaseUnsuccessful/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$PurchaseUnsuccessful].Failure" Value2="Coins"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].AnyF2P" Value2="1"/>
+        </Conditions>
+        <Then>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].ChinaF2P" Value2="1"/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughGoldMessage_CN_F2P" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Right" Color="Beige" Text="OK"/>
+              </Dialog>
+            </Then>
+            <Else>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughGoldMessage" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Left" Color="Red" Text="CANCEL"/>
+                <Button Type="Right" Color="Green" Text="dlgBuyButton">
+                  <OpenShop Tab="Ruby" Item="Chest_Coins"/>
+                </Button>
+              </Dialog>
+            </Else>
+          </If>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].Paid" Value2="1"/>
+        </Conditions>
+        <Then>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].NBO" Value2="1"/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughGoldMessage_GPP" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Right" Color="Green" Text="OK"/>
+              </Dialog>
+            </Then>
+            <Else>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughGoldMessage" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Left" Color="Red" Text="CANCEL"/>
+                <Button Type="Right" Color="Green" Text="dlgBuyButton">
+                  <OpenShop Tab="Ruby" Item="Chest_Coins"/>
+                </Button>
+              </Dialog>
+            </Else>
+          </If>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Operator Type="Or">
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+          </Operator>
+        </Conditions>
+        <Then>
+          <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+            <Line Text="dlgNotEnoughRubyMessage_Switch" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="PurchaseUnsuccessful_Ruby" Priority="9999" Unresumable="1">
+    <Events>
+      <PurchaseUnsuccessful/>
+      <EnchantmentUnsuccessful/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="?Purchase[_$PurchaseUnsuccessful].Failure" Value2="Ruby"/>
+        <Greater Value1="?Enchantment[_$Enchantment].Timeout" Value2="0"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].AnyF2P" Value2="1"/>
+        </Conditions>
+        <Then>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].ChinaF2P" Value2="1"/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughRubyMessage_CN_F2P" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Left" Color="Red" Text="CANCEL"/>
+                <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+                  <OpenShop Tab="Free" Item="Video"/>
+                </Button>
+              </Dialog>
+            </Then>
+            <Else>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughRubyMessage" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Left" Color="Red" Text="CANCEL">
+                  <Activate ActionID="FreeRubyReminder"/>
+                </Button>
+                <Button Type="Right" Color="Green" Text="dlgBuyButton">
+                  <OpenShop Tab="Ruby" Item="Chest_Gems"/>
+                </Button>
+              </Dialog>
+            </Else>
+          </If>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].Paid" Value2="1"/>
+        </Conditions>
+        <Then>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].NBO" Value2="1"/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughRubyMessage_GPP" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Right" Color="Green" Text="OK">
+                  <Activate ActionID="FreeRubyReminder"/>
+                </Button>
+              </Dialog>
+            </Then>
+            <Else>
+              <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughRubyMessage" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Left" Color="Red" Text="CANCEL">
+                  <Activate ActionID="FreeRubyReminder"/>
+                </Button>
+                <Button Type="Right" Color="Green" Text="dlgBuyButton">
+                  <OpenShop Tab="Ruby" Item="Chest_Gems"/>
+                </Button>
+              </Dialog>
+            </Else>
+          </If>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Operator Type="Or">
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+          </Operator>
+        </Conditions>
+        <Then>
+          <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+            <Line Text="dlgNotEnoughRubyMessage_Switch" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="PurchaseUnsuccessful_RaidCurrency" Priority="9999" Unresumable="1">
+    <Events>
+      <PurchaseUnsuccessful/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$PurchaseUnsuccessful].Failure" Value2="RaidCurr"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgNotEnoughRaidCurrMessage"/>
+        <Button Type="Left" Color="Beige" Text="OK"/>
+        <Button Type="Right" Color="Green" Text="ClanRaidButton">
+          <ConnectToRaids>
+            <Success>
+              <ChangeScene Destination="Map"/>
+              <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="PurchaseUnsuccessful_ServerNoResponse" Priority="9999" Unresumable="1">
+    <Events>
+      <PurchaseUnsuccessful/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$PurchaseUnsuccessful].Failure" Value2="ServerNoResponse"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="dlgAlertTitle">
+        <Line Text="SERVER_RESPONSE_ERROR"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="FreeReminderOnTabLeave" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].AdvertisingSupport" Value2="1"/>
+      <Greater Not="1" Value1="_DiscipleFlag" Value2="0"/>
+      <Equal Value1="_$TabFrom" Value2="Ruby"/>
+      <Equal Not="1" Value1="_$TabTo" Value2="Free"/>
+      <Equal Not="1" Value1="_$TabTo" Value2="Ruby"/>
+      <Equal Not="1" Value1="_FreeReminderShown" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="FreeReminderShown" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgFreeRubyReminder" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnNothanks">
+          <ChangeScene Destination="_$SceneTo"/>
+          <ChangeTab Tab="_$TabTo"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="OK">
+          <OpenShop Tab="Free"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="FreeReminder" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].AdvertisingSupport" Value2="1"/>
+      <Equal Not="1" Value1="_AdvertRate" Value2="0"/>
+      <Greater Not="1" Value1="_DiscipleFlag" Value2="0"/>
+      <Equal Value1="_$ActionID" Value2="FreeRubyReminder"/>
+      <Equal Not="1" Value1="_FreeReminderShown" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="FreeReminderShown" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgFreeRubyReminder" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnNothanks"/>
+        <Button Type="Right" Color="Green" Text="OK">
+          <OpenShop Tab="Free"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="GetGift" Unresumable="1">
+    <Events>
+      <ServerCurrencyMessage/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Gift[].Exist" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="GetGift"/>
+    </Actions>
+  </Quest>
+  <Quest Name="GetGiftMoney" Priority="100" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="GetGift"/>
+      <Greater Value1="?Gift[].Money" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="dlgAlertTitle" Sound="snd_buy">
+        <Line Text="dlgGotGift{img::MiscSprites.gold}{?Gift[].Money}" ButtonText="OK"/>
+        <Button Type="Right" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="GetGiftBonus" Priority="99" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="GetGift"/>
+      <Greater Value1="?Gift[].Bonus" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="dlgAlertTitle" Sound="snd_buy">
+        <Line Text="dlgGotGift{img::MiscSprites.ruby}{?Gift[].Bonus}" ButtonText="OK"/>
+        <Button Type="Right" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="GetGiftItem" Priority="98" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="GetGift"/>
+      <Greater Value1="?Gift[].Items" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="dlgAlertTitle">
+        <Line Text="dlgGotItems{?Gift[].Items}" ButtonText="OK"/>
+        <Button Type="Right" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="SurvivalCounter">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Survival"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Survival2"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Survival_INTERMISSION"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="C3_Survival"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="_SurvivalsInARowCount + 1"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="_SurvivalsInAZoneCount + 1"/>
+      <Activate ActionID="SurvivalReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SurvivalCounterReset" Priority="9999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Survival"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Survival2"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="C3_Survival"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Duel"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="C3_Duel"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Survival_INTERMISSION"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Duel_INTERMISSION"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SurvivalPayReminder" Priority="-1" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="SurvivalReminder"/>
+      <Equal Value1="?SysInfo[].Switch" Value2="0"/>
+      <Equal Value1="?SysInfo[].Steam" Value2="0"/>
+      <Equal Value1="?SysInfo[].ChinaF2P" Value2="0"/>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <Equal Value1="_SurvivalsInARowCount" Value2="6"/>
+          <Less Not="1" Value1="?Fight[ZONE_1|BOSS_LYNX|6].WinCount" Value2="1"/>
+        </Operator>
+        <Equal Value1="_SurvivalsInARowCount" Value2="10"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgSurvivalPayReminder" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgLaterBtn"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <OpenShop Tab="Ruby" Item="_$ActualCoinPackItem"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="TournamentsLeftReminderWrapper" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="FightsLeftReminder"/>
+      <GreaterEqual Not="1" Value1="?Fight[?Concat[ZONE_,(?Slice[_globZoneToCheck,5,5] - 1),|Tournament|24]].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ChallengesLeftReminderWrapper"/>
+      <SetVariable Scope="Users" Name="TournamentsLeftReminderFlag" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengesLeftReminderWrapper" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="FightsLeftReminder"/>
+      <GreaterEqual Value1="?Fight[ZONE_2|BOSS_HERMIT|6].WinCount" Value2="1"/>
+      <GreaterEqual Not="1" Value1="?Fight[?Concat[ZONE_,(?Slice[_globZoneToCheck,5,5] - 1),|Challenge|24]].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ChallengesLeftReminderFlag" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FightsLeftReminder" Unresumable="1" Group="FightsLeft">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneFrom" Value2="Map"/>
+      <Operator Type="Or">
+        <Equal Value1="_$SceneTo" Value2="Shop"/>
+        <Equal Value1="_$SceneTo" Value2="Profile"/>
+      </Operator>
+      <Operator Type="Or">
+        <Equal Value1="_TournamentsLeftReminderFlag" Value2="1"/>
+        <Equal Value1="_ChallengesLeftReminderFlag" Value2="1"/>
+      </Operator>
+      <Operator Type="Or">
+        <GreaterEqual Not="1" Value1="?Fight[?Concat[ZONE_,(?Slice[_globZoneToCheck,5,5] - 1),|Tournament|24]].WinCount" Value2="1"/>
+        <GreaterEqual Not="1" Value1="?Fight[?Concat[ZONE_,(?Slice[_globZoneToCheck,5,5] - 1),|Challenge|24]].WinCount" Value2="1"/>
+      </Operator>
+      <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="ZONE_1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="TournamentsLeftReminderFlag" Value="0"/>
+      <SetVariable Scope="Users" Name="ChallengesLeftReminderFlag" Value="0"/>
+      <ClearQuestQueue Name="ChallengesLeftReminder"/>
+      <If>
+        <Conditions>
+          <GreaterEqual Not="1" Value1="?Fight[?Concat[ZONE_,(?Slice[_globZoneToCheck,5,5] - 1),|Tournament|24]].WinCount" Value2="1"/>
+        </Conditions>
+        <Then>
+          <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+            <Line Text="dlgFightsLeftReminder" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="dlgLaterBtn">
+              <ChangeScene Destination="_$SceneTo"/>
+            </Button>
+            <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme">
+              <SetMapFocus Battle="?Concat[ZONE_,(?Slice[_globZoneToCheck,5,5] - 1),|Tournament|]" Frames="100"/>
+              <Wait Frames="100" Lock="Silent" ControlsLock="1"/>
+            </Button>
+          </Dialog>
+        </Then>
+        <Else>
+          <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+            <Line Text="dlgFightsLeftReminder" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="dlgLaterBtn">
+              <ChangeScene Destination="_$SceneTo"/>
+            </Button>
+            <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme">
+              <SetMapFocus Battle="?Concat[ZONE_,(?Slice[_globZoneToCheck,5,5] - 1),|Challenge|]" Frames="100"/>
+              <Wait Frames="100" Lock="Silent" ControlsLock="1"/>
+            </Button>
+          </Dialog>
+        </Else>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="UpgradeToLevelReminder" Unresumable="1">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="(100 * ?Player[].Level) - ?Purchase[_$Purchase].UpgradeLevel" Value2="100"/>
+      <Operator Type="Or">
+        <Equal Value1="?Purchase[_$Purchase].Type" Value2="Armor"/>
+        <Equal Value1="?Purchase[_$Purchase].Type" Value2="Weapon"/>
+        <Equal Value1="?Purchase[_$Purchase].Type" Value2="Helm"/>
+        <Equal Value1="?Purchase[_$Purchase].Type" Value2="Ranged"/>
+        <Equal Value1="?Purchase[_$Purchase].Type" Value2="Magic"/>
+      </Operator>
+      <Equal Not="1" Value1="_UpgradeToLevelReminderShown" Value2="1"/>
+      <Equal Not="1" Value1="_UpgradeToLevelReminderCheckBox" Value2="1"/>
+      <Equal Value1="?Purchase[_$Purchase].PaidItem" Value2="Paid" Not="1"/>
+      <Equal Value1="?Purchase[_$Purchase].PaidItem" Value2="SuperPaid" Not="1"/>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Purchase].Name" Value2="WEAPON_SUPER_KUSARIGAMA"/>
+        <Greater Value1="_KusarigamaDiscountLevel" Value2="0"/>
+        <Equal Value1="?Player[].Level" Value2="_KusarigamaDiscountLevel"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgUpgradeToLevelReminder" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryThanks" Color="Green"/>
+        <CheckBox Text="dlgDontShowAgain" InitialValue="_UpgradeToLevelReminderCheckBox">
+          <On>
+            <SetVariable Scope="Users" Name="UpgradeToLevelReminderCheckBox" Value="1"/>
+          </On>
+          <Off>
+            <SetVariable Scope="Users" Name="UpgradeToLevelReminderCheckBox" Value="0"/>
+          </Off>
+        </CheckBox>
+      </Dialog>
+      <SetVariable Scope="Users" Name="UpgradeToLevelReminderShown" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="LastBattleLost">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="LastBattleLost" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShopAdviceArmor" Priority="-1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <LessEqual Value1="?Purchase[?Player[].Armor].UpgradeLevel" Value2="(?Player[].Level * 100) - 100"/>
+      <LessEqual Value1="?Purchase[?Player[].Armor].UpgradeLevel" Value2="?Purchase[?Player[].Weapon].UpgradeLevel"/>
+      <LessEqual Value1="?Purchase[?Player[].Armor].UpgradeLevel" Value2="?Purchase[?Player[].Helm].UpgradeLevel"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Value1="_ShopAdviceOnCurrentLevel" Value2="1" Not="1"/>
+      <Equal Value1="_LastBattleLost" Value2="1"/>
+      <Greater Value1="?Fight[ZONE_1|BOSS_LYNX|1].WinCount" Value2="0"/>
+      <GreaterEqual Not="1" Value1="_ForgeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="Armor"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgMayShop_Armor" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme"/>
+      </Dialog>
+      <ClearQuestQueue Name="ShopAdviceWeapon|ShopAdviceHelm"/>
+      <SetVariable Scope="Users" Name="ShopAdviceOnCurrentLevel" Value="1"/>
+      <SetVariable Scope="Users" Name="LastBattleLost" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShopAdviceWeapon" Priority="-1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <LessEqual Value1="?Purchase[?Player[].Weapon].UpgradeLevel" Value2="(?Player[].Level * 100) - 100"/>
+      <LessEqual Value1="?Purchase[?Player[].Weapon].UpgradeLevel" Value2="?Purchase[?Player[].Armor].UpgradeLevel"/>
+      <LessEqual Value1="?Purchase[?Player[].Weapon].UpgradeLevel" Value2="?Purchase[?Player[].Helm].UpgradeLevel"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Value1="_ShopAdviceOnCurrentLevel" Value2="1" Not="1"/>
+      <Equal Value1="_LastBattleLost" Value2="1"/>
+      <Greater Value1="?Fight[ZONE_1|BOSS_LYNX|1].WinCount" Value2="0"/>
+      <GreaterEqual Not="1" Value1="_ForgeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="Weapon"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgMayShop_Weapon" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme"/>
+      </Dialog>
+      <ClearQuestQueue Name="ShopAdviceHelm|ShopAdviceArmor"/>
+      <SetVariable Scope="Users" Name="ShopAdviceOnCurrentLevel" Value="1"/>
+      <SetVariable Scope="Users" Name="LastBattleLost" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShopAdviceHelm" Priority="-1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <LessEqual Value1="?Purchase[?Player[].Helm].UpgradeLevel" Value2="(?Player[].Level * 100) - 100"/>
+      <LessEqual Value1="?Purchase[?Player[].Helm].UpgradeLevel" Value2="?Purchase[?Player[].Weapon].UpgradeLevel"/>
+      <LessEqual Value1="?Purchase[?Player[].Helm].UpgradeLevel" Value2="?Purchase[?Player[].Armor].UpgradeLevel"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Value1="_ShopAdviceOnCurrentLevel" Value2="1" Not="1"/>
+      <Equal Value1="_LastBattleLost" Value2="1"/>
+      <Greater Value1="?Fight[ZONE_1|BOSS_LYNX|1].WinCount" Value2="0"/>
+      <GreaterEqual Not="1" Value1="_ForgeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="Helm"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_3">
+        <Line Text="dlgMayShop_Helm" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme"/>
+      </Dialog>
+      <ClearQuestQueue Name="ShopAdviceWeapon|ShopAdviceArmor"/>
+      <SetVariable Scope="Users" Name="ShopAdviceOnCurrentLevel" Value="1"/>
+      <SetVariable Scope="Users" Name="LastBattleLost" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_2_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_2|Survival].Available" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_1|BOSS_LYNX|6].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <AttachQuestFile File="quest_extensions/zone_2/core.xml"/>
+      <AttachQuestFile File="quest_extensions/zone_2/story.xml"/>
+      <ToggleItems Label="ZONE_1_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_2_DONATE" Toggle="on"/>
+      <GiveItem Name="drop_name_blueseal" PutOn="0" Quantity="1"/>
+      <HideBattle Name="ZONE_2|BOSS_HERMIT_LOCKED|"/>
+      <ShowBattle Name="ZONE_2|BOSS_HERMIT|"/>
+      <ShowBattle Name="ZONE_2|Tournament|"/>
+      <ShowBattle Name="ZONE_2|Duel|" Locked="1"/>
+      <ShowBattle Name="ZONE_2|Survival|"/>
+      <ShowBattle Name="ZONE_2|Challenge|" Locked="1"/>
+      <SetMapFocus Battle="ZONE_2|BOSS_HERMIT|"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_3_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_3|Survival].Available" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_2|BOSS_HERMIT|6].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <AttachQuestFile File="quest_extensions/zone_3/core.xml"/>
+      <AttachQuestFile File="quest_extensions/zone_3/story.xml"/>
+      <ToggleItems Label="ZONE_2_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_3_DONATE" Toggle="on"/>
+      <GiveItem Name="drop_name_greenseal" PutOn="0" Quantity="1"/>
+      <HideBattle Name="ZONE_3|BOSS_BUTCHER_LOCKED|"/>
+      <ShowBattle Name="ZONE_3|BOSS_BUTCHER|"/>
+      <ShowBattle Name="ZONE_3|Tournament|"/>
+      <ShowBattle Name="ZONE_3|Duel|" Locked="1"/>
+      <ShowBattle Name="ZONE_3|Survival|"/>
+      <ShowBattle Name="ZONE_3|Challenge|" Locked="1"/>
+      <SetMapFocus Battle="ZONE_3|BOSS_BUTCHER|"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_4_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_4|Survival].Available" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_3|BOSS_BUTCHER|6].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <AttachQuestFile File="quest_extensions/zone_4/core.xml"/>
+      <AttachQuestFile File="quest_extensions/zone_4/story.xml"/>
+      <ToggleItems Label="ZONE_3_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_4_DONATE" Toggle="on"/>
+      <GiveItem Name="drop_name_redseal" PutOn="0" Quantity="1"/>
+      <HideBattle Name="ZONE_4|BOSS_WASP_LOCKED|"/>
+      <ShowBattle Name="ZONE_4|BOSS_WASP|"/>
+      <ShowBattle Name="ZONE_4|Tournament|"/>
+      <ShowBattle Name="ZONE_4|Duel|" Locked="1"/>
+      <ShowBattle Name="ZONE_4|Survival|"/>
+      <ShowBattle Name="ZONE_4|Challenge|" Locked="1"/>
+      <SetMapFocus Battle="ZONE_4|BOSS_WASP|"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_5_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_5|Survival].Available" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_4|BOSS_WASP|6].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <AttachQuestFile File="quest_extensions/zone_5/core.xml"/>
+      <AttachQuestFile File="quest_extensions/zone_5/story.xml"/>
+      <ToggleItems Label="ZONE_4_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_5_DONATE" Toggle="on"/>
+      <GiveItem Name="drop_name_purpleseal" PutOn="0" Quantity="1"/>
+      <HideBattle Name="ZONE_5|BOSS_HUNTRESS_LOCKED|"/>
+      <ShowBattle Name="ZONE_5|BOSS_HUNTRESS|"/>
+      <ShowBattle Name="ZONE_5|Tournament|"/>
+      <ShowBattle Name="ZONE_5|Duel|" Locked="1"/>
+      <ShowBattle Name="ZONE_5|Survival|"/>
+      <ShowBattle Name="ZONE_5|Challenge|" Locked="1"/>
+      <SetMapFocus Battle="ZONE_5|BOSS_HUNTRESS|"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_6_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_6|Survival].Available" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_5|BOSS_HUNTRESS|6].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1" Not="1"/>
+      <Operator Type="Or">
+        <GreaterEqual Value1="?DataVersion[].Version" Value2="1.6.0" CompareType="Versions"/>
+        <GreaterEqual Value1="?DataVersion[].Version" Value2="2.0.0" CompareType="Versions"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <AttachQuestFile File="quest_extensions/zone_6/story.xml"/>
+      <ToggleItems Label="ZONE_5_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_6_DONATE" Toggle="on"/>
+      <GiveItem Name="drop_name_orangeseal" PutOn="0" Quantity="1"/>
+      <HideBattle Name="ZONE_6|BOSS_SAMURAI_LOCKED|"/>
+      <ShowBattle Name="ZONE_6|BOSS_SAMURAI|"/>
+      <ShowBattle Name="ZONE_6|Tournament|"/>
+      <ShowBattle Name="ZONE_6|Duel|" Locked="1"/>
+      <ShowBattle Name="ZONE_6|Survival|"/>
+      <ShowBattle Name="ZONE_6|Challenge|" Locked="1"/>
+      <SetMapFocus Battle="ZONE_6|BOSS_SAMURAI|"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_7_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_7|Survival].Available" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_6|BOSS_SAMURAI_INTERMISSION|1].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Not="1" Value1="_Zone7_Shroud_Ambush" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowBattle Name="ZONE_7|Survival" Locked="0"/>
+      <ToggleItems Label="IM_DONATE_1" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_2" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_3" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_4" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_5" Toggle="off"/>
+      <ShowBattle Name="ZONE_7|BOSS_TITAN|" Instant="1"/>
+      <HideBattle Name="ZONE_7|BOSS_TITAN_LOCKED|"/>
+      <ShowBattle Name="ZONE_7|Tournament" Locked="0"/>
+      <ToggleBattle Name="ZONE_7|Tournament" Toggle="on"/>
+      <SetMapFocus Battle="ZONE_7|Tournament|"/>
+      <AttachQuestFile File="quest_extensions/zone_7/story.xml"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_7_2_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_7|Survival2].Available" Value2="1" Not="1"/>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <GreaterEqual Value1="_Zone7_Shroud_Ambush" Value2="1"/>
+          <Operator Type="Or">
+            <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1" Not="1"/>
+            <GreaterEqual Value1="?Fight[ZONE_7|Tournament|24].WinCount" Value2="1" Not="1"/>
+          </Operator>
+        </Operator>
+        <Operator Type="And">
+          <GreaterEqual Value1="?Fight[ZONE_7|CLIFFHANGER_STONE_FOREST|1].WinCount" Value2="1"/>
+          <Equal Value1="_Zone7_Shroud_Ambush" Value2="1" Not="1"/>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <HideBattle Name="ZONE_7|CLIFFHANGER_STONE_FOREST|"/>
+      <HideBattle Name="ZONE_7|Survival|"/>
+      <ShowBattle Name="ZONE_7|Challenge|" Locked="0" Instant="1"/>
+      <ShowBattle Name="ZONE_7|Survival2|" Locked="0" Instant="1"/>
+      <SetMapFocus Battle="ZONE_7|Challenge|"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <SetVariable Scope="Users" Name="Zone7_Shroud_Ambush" Value="1"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZONE_7_3_unlock_exception" Priority="980">
+    <Events>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Battle[ZONE_7|C3_Survival].Available" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <HideBattle Name="ZONE_7|Duel"/>
+      <HideBattle Name="ZONE_7|BOSS_TITAN"/>
+      <HideBattle Name="ZONE_7|BOSS_TITAN_LOCKED"/>
+      <HideBattle Name="ZONE_7|Survival2"/>
+      <HideBattle Name="ZONE_7|Tournament2"/>
+      <ShowBattle Name="ZONE_7|C3_Survival" Instant="1"/>
+      <ShowBattle Name="ZONE_7|C3_Duel" Instant="1"/>
+      <ShowBattle Name="ZONE_7|C3_BOSS_TITAN" Locked="1" Instant="1"/>
+      <ShowBattle Name="ZONE_7|C3_Challenge" Instant="1"/>
+      <SetMapFocus Battle="ZONE_7|C3_Challenge"/>
+      <Activate ActionID="zone7_3_unlocktournament"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <Activate ActionID="FightsLeftReminder"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShopAfterBattleButtonPress" Priority="10" Unresumable="1">
+    <Events>
+      <ShopButtonPress/>
+    </Events>
+    <Actions>
+      <OpenShop Tab="Weapon"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FixShopOpen" Priority="2500" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Shop"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowCurrencyNotification" Group="Packs" Priority="899" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShowCurrencyNotification"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="dlgNewCurrencyPack"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowRaidLoot" Priority="10" Unresumable="1">
+    <Events>
+      <ShowRaidLoot/>
+    </Events>
+    <Actions>
+      <ShowRaidLoot/>
+    </Actions>
+  </Quest>
+</Root>

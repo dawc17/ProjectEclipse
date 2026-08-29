@@ -1,0 +1,1310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Forge>
+  <AspectScale>
+    <Aspect MaxLevel="1" Value="55"/>
+    <Aspect Level="2" Value="60"/>
+    <Aspect Level="3" Value="90"/>
+    <Aspect Level="4" Value="115"/>
+    <Aspect Level="5" Value="150"/>
+    <Aspect Level="6" Value="185"/>
+    <Aspect Level="7" Value="226"/>
+    <Aspect Level="8" Value="261"/>
+    <Aspect Level="9" Value="296"/>
+    <Aspect Level="10" Value="331"/>
+    <Aspect Level="11" Value="366"/>
+    <Aspect Level="12" Value="401"/>
+    <Aspect Level="13" Value="442"/>
+    <Aspect Level="14" Value="477"/>
+    <Aspect Level="15" Value="512"/>
+    <Aspect Level="16" Value="547"/>
+    <Aspect Level="17" Value="582"/>
+    <Aspect Level="18" Value="617"/>
+    <Aspect Level="19" Value="658"/>
+    <Aspect Level="20" Value="693"/>
+    <Aspect Level="21" Value="728"/>
+    <Aspect Level="22" Value="763"/>
+    <Aspect Level="23" Value="798"/>
+    <Aspect Level="24" Value="833"/>
+    <Aspect Level="25" Value="874"/>
+    <Aspect Level="26" Value="909"/>
+    <Aspect Level="27" Value="944"/>
+    <Aspect Level="28" Value="979"/>
+    <Aspect Level="29" Value="1014"/>
+    <Aspect Level="30" Value="1049"/>
+    <Aspect Level="31" Value="1090"/>
+    <Aspect Level="32" Value="1125"/>
+    <Aspect Level="33" Value="1160"/>
+    <Aspect Level="34" Value="1195"/>
+    <Aspect Level="35" Value="1230"/>
+    <Aspect Level="36" Value="1265"/>
+    <Aspect Level="37" Value="1306"/>
+    <Aspect Level="38" Value="1347"/>
+    <Aspect Level="39" Value="1388"/>
+    <Aspect Level="40" Value="1429"/>
+    <Aspect Level="41" Value="1470"/>
+    <Aspect Level="42" Value="1511"/>
+    <Aspect Level="43" Value="1552"/>
+    <Aspect Level="44" Value="1587"/>
+    <Aspect Level="45" Value="1622"/>
+    <Aspect Level="46" Value="1657"/>
+    <Aspect Level="47" Value="1692"/>
+    <Aspect Level="48" Value="1727"/>
+    <Aspect Level="49" Value="1762"/>
+    <Aspect Level="50" Value="1797"/>
+    <Aspect Level="51" Value="1832"/>
+    <Aspect MinLevel="52" Value="1867"/>
+  </AspectScale>
+  <Recipes>
+    <Recipe Name="Simple" Alias="forgeRecipeSimple">
+      <Items>
+        <Item Type="Weapon" Enchantments="1" Prices="Prices_Weapon" BarScale="Enchantment" MinDeviation="-30" MaxDeviation="30"/>
+        <Item Type="Armor" Enchantments="1" Prices="Prices_Armor" BarScale="Enchantment" MinDeviation="-30" MaxDeviation="30"/>
+        <Item Type="Helm" Enchantments="1" Prices="Prices_Helm" BarScale="Enchantment" MinDeviation="-30" MaxDeviation="30"/>
+        <Item Type="Ranged" Enchantments="1" Prices="Prices_Ranged" BarScale="Enchantment" MinDeviation="-30" MaxDeviation="30"/>
+        <Item Type="Magic" Enchantments="1" Prices="Prices_Magic" BarScale="Enchantment" MinDeviation="-30" MaxDeviation="30"/>
+      </Items>
+      <Variations>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_PRECISION_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_MAGIC_DAMAGE_RECHARGE_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Ranged"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_PRECISION_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Ranged"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Ranged"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Magic"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_INTOXICATION_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Magic"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_WEAKNESS_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Magic"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_BLOODRAGE_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Armor"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_DEFENSE_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_REJUVENATION_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_BODY_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Armor"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Helm"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_OVERHEAT_DEFENSE_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_REJUVENATION_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_HEAD_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Helm"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_MAGIC_PAIN_RECHARGE_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+      </Variations>
+      <Prices>
+        <PriceBlock Name="Prices_Ranged">
+          <Price MaxLevel="2" ForgeMaterial1="17" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="3" ForgeMaterial1="20" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="4" ForgeMaterial1="24" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="5" ForgeMaterial1="28" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="6" ForgeMaterial1="34" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="7" ForgeMaterial1="41" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="8" ForgeMaterial1="50" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="9" ForgeMaterial1="59" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="10" ForgeMaterial1="71" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="11" ForgeMaterial1="86" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="12" ForgeMaterial1="103" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="13" ForgeMaterial1="123" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="14" ForgeMaterial1="148" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="15" ForgeMaterial1="177" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="16" ForgeMaterial1="223" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="17" ForgeMaterial1="268" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="18" ForgeMaterial1="322" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="19" ForgeMaterial1="386" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="20" ForgeMaterial1="463" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="21" ForgeMaterial1="556" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="22" ForgeMaterial1="667" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="23" ForgeMaterial1="800" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="24" ForgeMaterial1="960" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="25" ForgeMaterial1="1152" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="26" ForgeMaterial1="1383" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="27" ForgeMaterial1="1659" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="28" ForgeMaterial1="1991" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="29" ForgeMaterial1="2389" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="30" ForgeMaterial1="2867" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="31" ForgeMaterial1="3441" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="32" ForgeMaterial1="4128" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="33" ForgeMaterial1="4954" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="34" ForgeMaterial1="5945" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="35" ForgeMaterial1="7133" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="36" ForgeMaterial1="8560" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="37" ForgeMaterial1="10272" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="38" ForgeMaterial1="12327" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="39" ForgeMaterial1="14792" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="40" ForgeMaterial1="17751" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="41" ForgeMaterial1="21301" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="42" ForgeMaterial1="25562" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="43" ForgeMaterial1="30673" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="44" ForgeMaterial1="36232" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="45" ForgeMaterial1="43478" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="46" ForgeMaterial1="52174" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="47" ForgeMaterial1="62609" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="48" ForgeMaterial1="75130" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="49" ForgeMaterial1="90157" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="50" ForgeMaterial1="108188" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="51" ForgeMaterial1="129825" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price MinLevel="52" ForgeMaterial1="155791" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Magic">
+          <Price MaxLevel="2" ForgeMaterial1="19" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="3" ForgeMaterial1="23" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="4" ForgeMaterial1="28" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="5" ForgeMaterial1="33" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="6" ForgeMaterial1="40" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="7" ForgeMaterial1="48" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="8" ForgeMaterial1="57" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="9" ForgeMaterial1="69" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="10" ForgeMaterial1="82" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="11" ForgeMaterial1="99" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="12" ForgeMaterial1="119" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="13" ForgeMaterial1="142" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="14" ForgeMaterial1="171" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="15" ForgeMaterial1="205" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="16" ForgeMaterial1="246" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="17" ForgeMaterial1="295" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="18" ForgeMaterial1="354" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="19" ForgeMaterial1="424" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="20" ForgeMaterial1="509" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="21" ForgeMaterial1="611" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="22" ForgeMaterial1="733" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="23" ForgeMaterial1="880" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="24" ForgeMaterial1="1056" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="25" ForgeMaterial1="1267" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="26" ForgeMaterial1="1521" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="27" ForgeMaterial1="1825" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="28" ForgeMaterial1="2190" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="29" ForgeMaterial1="2628" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="30" ForgeMaterial1="3153" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="31" ForgeMaterial1="3785" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="32" ForgeMaterial1="4541" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="33" ForgeMaterial1="5449" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="34" ForgeMaterial1="6539" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="35" ForgeMaterial1="7847" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="36" ForgeMaterial1="9416" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="37" ForgeMaterial1="11300" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="38" ForgeMaterial1="13559" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="39" ForgeMaterial1="16271" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="40" ForgeMaterial1="19526" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="41" ForgeMaterial1="23431" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="42" ForgeMaterial1="28118" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="43" ForgeMaterial1="33741" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="44" ForgeMaterial1="39855" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="45" ForgeMaterial1="47826" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="46" ForgeMaterial1="57391" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="47" ForgeMaterial1="68870" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="48" ForgeMaterial1="82643" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="49" ForgeMaterial1="99172" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="50" ForgeMaterial1="119006" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="51" ForgeMaterial1="142808" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price MinLevel="52" ForgeMaterial1="171370" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Weapon">
+          <Price MaxLevel="2" ForgeMaterial1="24" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="3" ForgeMaterial1="29" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="4" ForgeMaterial1="35" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="5" ForgeMaterial1="41" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="6" ForgeMaterial1="50" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="7" ForgeMaterial1="60" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="8" ForgeMaterial1="72" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="9" ForgeMaterial1="86" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="10" ForgeMaterial1="114" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="11" ForgeMaterial1="137" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="12" ForgeMaterial1="164" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="13" ForgeMaterial1="196" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="14" ForgeMaterial1="236" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="15" ForgeMaterial1="284" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="16" ForgeMaterial1="357" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="17" ForgeMaterial1="429" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="18" ForgeMaterial1="515" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="19" ForgeMaterial1="617" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="20" ForgeMaterial1="741" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="21" ForgeMaterial1="889" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="22" ForgeMaterial1="1067" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="23" ForgeMaterial1="1280" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="24" ForgeMaterial1="1536" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="25" ForgeMaterial1="1843" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="26" ForgeMaterial1="2212" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="27" ForgeMaterial1="2655" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="28" ForgeMaterial1="3185" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="29" ForgeMaterial1="3823" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="30" ForgeMaterial1="4587" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="31" ForgeMaterial1="5505" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="32" ForgeMaterial1="6605" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="33" ForgeMaterial1="7926" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="34" ForgeMaterial1="9512" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="35" ForgeMaterial1="11413" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="36" ForgeMaterial1="13696" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="37" ForgeMaterial1="16436" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="38" ForgeMaterial1="19723" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="39" ForgeMaterial1="23667" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="40" ForgeMaterial1="28401" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="41" ForgeMaterial1="34081" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="42" ForgeMaterial1="40899" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="43" ForgeMaterial1="49077" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="44" ForgeMaterial1="57971" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="45" ForgeMaterial1="69565" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="46" ForgeMaterial1="83478" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="47" ForgeMaterial1="100174" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="48" ForgeMaterial1="120209" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="49" ForgeMaterial1="144250" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="50" ForgeMaterial1="173100" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="51" ForgeMaterial1="207721" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price MinLevel="52" ForgeMaterial1="249265" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Armor">
+          <Price MaxLevel="2" ForgeMaterial1="30" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="3" ForgeMaterial1="36" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="4" ForgeMaterial1="44" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="5" ForgeMaterial1="51" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="6" ForgeMaterial1="63" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="7" ForgeMaterial1="75" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="8" ForgeMaterial1="90" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="9" ForgeMaterial1="108" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="10" ForgeMaterial1="142" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="11" ForgeMaterial1="171" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="12" ForgeMaterial1="206" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="13" ForgeMaterial1="246" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="14" ForgeMaterial1="295" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="15" ForgeMaterial1="354" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="16" ForgeMaterial1="446" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="17" ForgeMaterial1="536" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="18" ForgeMaterial1="643" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="19" ForgeMaterial1="771" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="20" ForgeMaterial1="926" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="21" ForgeMaterial1="1112" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="22" ForgeMaterial1="1333" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="23" ForgeMaterial1="1600" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="24" ForgeMaterial1="1920" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="25" ForgeMaterial1="2304" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="26" ForgeMaterial1="2765" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="27" ForgeMaterial1="3319" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="28" ForgeMaterial1="3981" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="29" ForgeMaterial1="4778" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="30" ForgeMaterial1="5733" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="31" ForgeMaterial1="6881" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="32" ForgeMaterial1="8257" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="33" ForgeMaterial1="9907" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="34" ForgeMaterial1="11890" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="35" ForgeMaterial1="14267" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="36" ForgeMaterial1="17120" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="37" ForgeMaterial1="20545" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="38" ForgeMaterial1="24654" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="39" ForgeMaterial1="29584" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="40" ForgeMaterial1="35501" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="41" ForgeMaterial1="42601" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="42" ForgeMaterial1="51123" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="43" ForgeMaterial1="61346" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="44" ForgeMaterial1="72464" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="45" ForgeMaterial1="86957" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="46" ForgeMaterial1="104348" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="47" ForgeMaterial1="125217" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="48" ForgeMaterial1="150261" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="49" ForgeMaterial1="180313" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="50" ForgeMaterial1="216375" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="51" ForgeMaterial1="259651" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price MinLevel="52" ForgeMaterial1="311581" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Helm">
+          <Price MaxLevel="2" ForgeMaterial1="18" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="3" ForgeMaterial1="22" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="4" ForgeMaterial1="26" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="5" ForgeMaterial1="31" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="6" ForgeMaterial1="38" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="7" ForgeMaterial1="45" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="8" ForgeMaterial1="54" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="9" ForgeMaterial1="65" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="10" ForgeMaterial1="85" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="11" ForgeMaterial1="103" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="12" ForgeMaterial1="123" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="13" ForgeMaterial1="147" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="14" ForgeMaterial1="177" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="15" ForgeMaterial1="213" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="16" ForgeMaterial1="268" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="17" ForgeMaterial1="322" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="18" ForgeMaterial1="386" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="19" ForgeMaterial1="463" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="20" ForgeMaterial1="556" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="21" ForgeMaterial1="667" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="22" ForgeMaterial1="800" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="23" ForgeMaterial1="960" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="24" ForgeMaterial1="1152" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="25" ForgeMaterial1="1383" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="26" ForgeMaterial1="1659" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="27" ForgeMaterial1="1991" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="28" ForgeMaterial1="2389" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="29" ForgeMaterial1="2867" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="30" ForgeMaterial1="3440" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="31" ForgeMaterial1="4129" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="32" ForgeMaterial1="4954" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="33" ForgeMaterial1="5944" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="34" ForgeMaterial1="7134" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="35" ForgeMaterial1="8560" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="36" ForgeMaterial1="10272" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="37" ForgeMaterial1="12327" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="38" ForgeMaterial1="14792" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="39" ForgeMaterial1="17750" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="40" ForgeMaterial1="21301" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="41" ForgeMaterial1="25561" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="42" ForgeMaterial1="30674" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="43" ForgeMaterial1="36808" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="44" ForgeMaterial1="43478" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="45" ForgeMaterial1="52174" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="46" ForgeMaterial1="62609" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="47" ForgeMaterial1="75130" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="48" ForgeMaterial1="90157" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="49" ForgeMaterial1="108188" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="50" ForgeMaterial1="129825" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price Level="51" ForgeMaterial1="155790" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+          <Price MinLevel="52" ForgeMaterial1="186949" DeliveryTime="1200" BonusDeliveryPrice="2"/>
+        </PriceBlock>
+      </Prices>
+    </Recipe>
+    <Recipe Name="Medium" Alias="forgeRecipeMedium">
+      <Items>
+        <Item Type="Weapon" Enchantments="1" Prices="Prices_Weapon" BarScale="Enchantment" MinDeviation="15" MaxDeviation="75"/>
+        <Item Type="Armor" Enchantments="1" Prices="Prices_Armor" BarScale="Enchantment" MinDeviation="15" MaxDeviation="75"/>
+        <Item Type="Helm" Enchantments="1" Prices="Prices_Helm" BarScale="Enchantment" MinDeviation="15" MaxDeviation="75"/>
+        <Item Type="Ranged" Enchantments="1" Prices="Prices_Ranged" BarScale="Enchantment" MinDeviation="15" MaxDeviation="75"/>
+        <Item Type="Magic" Enchantments="1" Prices="Prices_Magic" BarScale="Enchantment" MinDeviation="15" MaxDeviation="75"/>
+      </Items>
+      <Variations>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_FRENZY_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_STUN_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Weapon"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_WEAPON">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Armor"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_RETURN_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_SHIELDING_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Armor"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_ARMOR">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Helm"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_REGENERATION_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_DAMAGE_RETURN_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_SHIELDING_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Helm"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_FRENZY_DEFENSE_HELM">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Ranged"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Ranged"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_FRENZY_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Ranged"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_STUN_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Ranged"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_RANGED">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Magic"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_LIFESTEAL_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_BLEEDING_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+            <Perk Name="PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Magic"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_FRENZY_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Magic"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_STUN_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Conditions>
+            <Item Type="Magic"/>
+          </Conditions>
+          <Enchantments>
+            <Perk Name="PERK_ITEM_SPECIAL_TIME_BOMB_MAGIC">
+              <Set Aspect="?RandomAspect[-30,30]"/>
+            </Perk>
+          </Enchantments>
+        </Variation>
+      </Variations>
+      <Prices>
+        <PriceBlock Name="Prices_Ranged">
+          <Price MaxLevel="2" ForgeMaterial1="25" ForgeMaterial2="7" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="3" ForgeMaterial1="25" ForgeMaterial2="9" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="4" ForgeMaterial1="30" ForgeMaterial2="10" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="5" ForgeMaterial1="36" ForgeMaterial2="12" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="6" ForgeMaterial1="43" ForgeMaterial2="14" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="7" ForgeMaterial1="52" ForgeMaterial2="17" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="8" ForgeMaterial1="62" ForgeMaterial2="21" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="9" ForgeMaterial1="74" ForgeMaterial2="25" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="10" ForgeMaterial1="107" ForgeMaterial2="30" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="11" ForgeMaterial1="128" ForgeMaterial2="36" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="12" ForgeMaterial1="154" ForgeMaterial2="43" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="13" ForgeMaterial1="184" ForgeMaterial2="51" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="14" ForgeMaterial1="221" ForgeMaterial2="62" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="15" ForgeMaterial1="266" ForgeMaterial2="75" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="16" ForgeMaterial1="335" ForgeMaterial2="89" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="17" ForgeMaterial1="402" ForgeMaterial2="107" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="18" ForgeMaterial1="483" ForgeMaterial2="128" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="19" ForgeMaterial1="579" ForgeMaterial2="154" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="20" ForgeMaterial1="694" ForgeMaterial2="186" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="21" ForgeMaterial1="833" ForgeMaterial2="222" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="22" ForgeMaterial1="1000" ForgeMaterial2="267" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="23" ForgeMaterial1="1200" ForgeMaterial2="320" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="24" ForgeMaterial1="1440" ForgeMaterial2="384" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="25" ForgeMaterial1="1728" ForgeMaterial2="461" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="26" ForgeMaterial1="2074" ForgeMaterial2="553" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="27" ForgeMaterial1="2488" ForgeMaterial2="664" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="28" ForgeMaterial1="2986" ForgeMaterial2="796" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="29" ForgeMaterial1="3583" ForgeMaterial2="956" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="30" ForgeMaterial1="4300" ForgeMaterial2="1147" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="31" ForgeMaterial1="5160" ForgeMaterial2="1376" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="32" ForgeMaterial1="6193" ForgeMaterial2="1651" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="33" ForgeMaterial1="7431" ForgeMaterial2="1982" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="34" ForgeMaterial1="8917" ForgeMaterial2="2378" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="35" ForgeMaterial1="10701" ForgeMaterial2="2854" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="36" ForgeMaterial1="12841" ForgeMaterial2="3424" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="37" ForgeMaterial1="15409" ForgeMaterial2="4109" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="38" ForgeMaterial1="18491" ForgeMaterial2="4930" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="39" ForgeMaterial1="22188" ForgeMaterial2="5917" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="40" ForgeMaterial1="26626" ForgeMaterial2="7100" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="41" ForgeMaterial1="31951" ForgeMaterial2="8520" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="42" ForgeMaterial1="38342" ForgeMaterial2="10225" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="43" ForgeMaterial1="46010" ForgeMaterial2="12270" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="44" ForgeMaterial1="54348" ForgeMaterial2="14493" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="45" ForgeMaterial1="65217" ForgeMaterial2="17391" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="46" ForgeMaterial1="78261" ForgeMaterial2="20870" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="47" ForgeMaterial1="93913" ForgeMaterial2="25043" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="48" ForgeMaterial1="112696" ForgeMaterial2="30052" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="49" ForgeMaterial1="135235" ForgeMaterial2="36062" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="50" ForgeMaterial1="162282" ForgeMaterial2="43275" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="51" ForgeMaterial1="194738" ForgeMaterial2="51930" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price MinLevel="52" ForgeMaterial1="233686" ForgeMaterial2="62316" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Magic">
+          <Price MaxLevel="2" ForgeMaterial1="29" ForgeMaterial2="8" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="3" ForgeMaterial1="34" ForgeMaterial2="10" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="4" ForgeMaterial1="41" ForgeMaterial2="11" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="5" ForgeMaterial1="49" ForgeMaterial2="14" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="6" ForgeMaterial1="60" ForgeMaterial2="16" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="7" ForgeMaterial1="72" ForgeMaterial2="19" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="8" ForgeMaterial1="85" ForgeMaterial2="23" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="9" ForgeMaterial1="103" ForgeMaterial2="27" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="10" ForgeMaterial1="124" ForgeMaterial2="33" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="11" ForgeMaterial1="148" ForgeMaterial2="40" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="12" ForgeMaterial1="178" ForgeMaterial2="47" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="13" ForgeMaterial1="213" ForgeMaterial2="57" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="14" ForgeMaterial1="256" ForgeMaterial2="69" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="15" ForgeMaterial1="307" ForgeMaterial2="82" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="16" ForgeMaterial1="368" ForgeMaterial2="98" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="17" ForgeMaterial1="442" ForgeMaterial2="118" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="18" ForgeMaterial1="531" ForgeMaterial2="141" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="19" ForgeMaterial1="637" ForgeMaterial2="170" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="20" ForgeMaterial1="764" ForgeMaterial2="204" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="21" ForgeMaterial1="917" ForgeMaterial2="245" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="22" ForgeMaterial1="1100" ForgeMaterial2="293" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="23" ForgeMaterial1="1320" ForgeMaterial2="352" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="24" ForgeMaterial1="1584" ForgeMaterial2="422" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="25" ForgeMaterial1="1901" ForgeMaterial2="507" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="26" ForgeMaterial1="2281" ForgeMaterial2="608" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="27" ForgeMaterial1="2737" ForgeMaterial2="730" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="28" ForgeMaterial1="3285" ForgeMaterial2="876" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="29" ForgeMaterial1="3942" ForgeMaterial2="1051" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="30" ForgeMaterial1="4730" ForgeMaterial2="1262" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="31" ForgeMaterial1="5676" ForgeMaterial2="1514" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="32" ForgeMaterial1="6812" ForgeMaterial2="1817" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="33" ForgeMaterial1="8174" ForgeMaterial2="2180" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="34" ForgeMaterial1="9809" ForgeMaterial2="2615" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="35" ForgeMaterial1="11771" ForgeMaterial2="3139" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="36" ForgeMaterial1="14125" ForgeMaterial2="3766" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="37" ForgeMaterial1="16950" ForgeMaterial2="4520" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="38" ForgeMaterial1="20340" ForgeMaterial2="5423" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="39" ForgeMaterial1="24407" ForgeMaterial2="6508" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="40" ForgeMaterial1="29289" ForgeMaterial2="7810" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="41" ForgeMaterial1="35147" ForgeMaterial2="9372" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="42" ForgeMaterial1="42176" ForgeMaterial2="11247" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="43" ForgeMaterial1="50611" ForgeMaterial2="13497" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="44" ForgeMaterial1="59783" ForgeMaterial2="15942" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="45" ForgeMaterial1="71739" ForgeMaterial2="19130" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="46" ForgeMaterial1="86087" ForgeMaterial2="22957" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="47" ForgeMaterial1="103304" ForgeMaterial2="27548" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="48" ForgeMaterial1="123965" ForgeMaterial2="33057" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="49" ForgeMaterial1="148758" ForgeMaterial2="39669" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="50" ForgeMaterial1="178510" ForgeMaterial2="47603" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="51" ForgeMaterial1="214212" ForgeMaterial2="57123" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price MinLevel="52" ForgeMaterial1="257054" ForgeMaterial2="68548" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Weapon">
+          <Price MaxLevel="2" ForgeMaterial1="36" ForgeMaterial2="11" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="3" ForgeMaterial1="43" ForgeMaterial2="13" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="4" ForgeMaterial1="52" ForgeMaterial2="15" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="5" ForgeMaterial1="62" ForgeMaterial2="19" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="6" ForgeMaterial1="75" ForgeMaterial2="22" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="7" ForgeMaterial1="90" ForgeMaterial2="26" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="8" ForgeMaterial1="107" ForgeMaterial2="32" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="9" ForgeMaterial1="129" ForgeMaterial2="38" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="10" ForgeMaterial1="171" ForgeMaterial2="45" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="11" ForgeMaterial1="205" ForgeMaterial2="55" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="12" ForgeMaterial1="246" ForgeMaterial2="65" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="13" ForgeMaterial1="295" ForgeMaterial2="78" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="14" ForgeMaterial1="354" ForgeMaterial2="95" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="15" ForgeMaterial1="425" ForgeMaterial2="114" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="16" ForgeMaterial1="536" ForgeMaterial2="143" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="17" ForgeMaterial1="643" ForgeMaterial2="172" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="18" ForgeMaterial1="772" ForgeMaterial2="205" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="19" ForgeMaterial1="926" ForgeMaterial2="247" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="20" ForgeMaterial1="1111" ForgeMaterial2="297" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="21" ForgeMaterial1="1333" ForgeMaterial2="356" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="22" ForgeMaterial1="1600" ForgeMaterial2="427" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="23" ForgeMaterial1="1920" ForgeMaterial2="512" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="24" ForgeMaterial1="2304" ForgeMaterial2="614" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="25" ForgeMaterial1="2765" ForgeMaterial2="737" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="26" ForgeMaterial1="3318" ForgeMaterial2="885" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="27" ForgeMaterial1="3981" ForgeMaterial2="1062" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="28" ForgeMaterial1="4778" ForgeMaterial2="1274" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="29" ForgeMaterial1="5733" ForgeMaterial2="1529" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="30" ForgeMaterial1="6880" ForgeMaterial2="1835" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="31" ForgeMaterial1="8256" ForgeMaterial2="2202" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="32" ForgeMaterial1="9908" ForgeMaterial2="2642" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="33" ForgeMaterial1="11890" ForgeMaterial2="3171" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="34" ForgeMaterial1="14268" ForgeMaterial2="3804" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="35" ForgeMaterial1="17121" ForgeMaterial2="4566" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="36" ForgeMaterial1="20545" ForgeMaterial2="5478" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="37" ForgeMaterial1="24654" ForgeMaterial2="6574" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="38" ForgeMaterial1="29585" ForgeMaterial2="7889" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="39" ForgeMaterial1="35501" ForgeMaterial2="9467" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="40" ForgeMaterial1="42602" ForgeMaterial2="11360" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="41" ForgeMaterial1="51122" ForgeMaterial2="13632" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="42" ForgeMaterial1="61347" ForgeMaterial2="16359" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="43" ForgeMaterial1="73616" ForgeMaterial2="19631" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="44" ForgeMaterial1="86957" ForgeMaterial2="23188" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="45" ForgeMaterial1="104348" ForgeMaterial2="27826" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="46" ForgeMaterial1="125217" ForgeMaterial2="33391" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="47" ForgeMaterial1="150261" ForgeMaterial2="40070" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="48" ForgeMaterial1="180313" ForgeMaterial2="48083" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="49" ForgeMaterial1="216376" ForgeMaterial2="57700" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="50" ForgeMaterial1="259651" ForgeMaterial2="69241" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="51" ForgeMaterial1="311581" ForgeMaterial2="83089" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price MinLevel="52" ForgeMaterial1="373897" ForgeMaterial2="99706" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Armor">
+          <Price MaxLevel="2" ForgeMaterial1="45" ForgeMaterial2="14" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="3" ForgeMaterial1="54" ForgeMaterial2="17" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="4" ForgeMaterial1="65" ForgeMaterial2="20" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="5" ForgeMaterial1="78" ForgeMaterial2="25" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="6" ForgeMaterial1="94" ForgeMaterial2="29" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="7" ForgeMaterial1="113" ForgeMaterial2="35" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="8" ForgeMaterial1="134" ForgeMaterial2="42" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="9" ForgeMaterial1="161" ForgeMaterial2="49" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="10" ForgeMaterial1="214" ForgeMaterial2="59" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="11" ForgeMaterial1="257" ForgeMaterial2="72" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="12" ForgeMaterial1="308" ForgeMaterial2="86" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="13" ForgeMaterial1="368" ForgeMaterial2="103" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="14" ForgeMaterial1="443" ForgeMaterial2="125" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="15" ForgeMaterial1="531" ForgeMaterial2="149" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="16" ForgeMaterial1="670" ForgeMaterial2="178" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="17" ForgeMaterial1="804" ForgeMaterial2="214" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="18" ForgeMaterial1="965" ForgeMaterial2="257" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="19" ForgeMaterial1="1158" ForgeMaterial2="309" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="20" ForgeMaterial1="1388" ForgeMaterial2="371" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="21" ForgeMaterial1="1667" ForgeMaterial2="445" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="22" ForgeMaterial1="2000" ForgeMaterial2="533" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="23" ForgeMaterial1="2400" ForgeMaterial2="641" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="24" ForgeMaterial1="2880" ForgeMaterial2="768" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="25" ForgeMaterial1="3457" ForgeMaterial2="922" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="26" ForgeMaterial1="4148" ForgeMaterial2="1106" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="27" ForgeMaterial1="4977" ForgeMaterial2="1328" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="28" ForgeMaterial1="5972" ForgeMaterial2="1593" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="29" ForgeMaterial1="7167" ForgeMaterial2="1912" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="30" ForgeMaterial1="8600" ForgeMaterial2="2294" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="31" ForgeMaterial1="10320" ForgeMaterial2="2752" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="32" ForgeMaterial1="12386" ForgeMaterial2="3303" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="33" ForgeMaterial1="14862" ForgeMaterial2="3964" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="34" ForgeMaterial1="17835" ForgeMaterial2="4755" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="35" ForgeMaterial1="21401" ForgeMaterial2="5707" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="36" ForgeMaterial1="25681" ForgeMaterial2="6848" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="37" ForgeMaterial1="30817" ForgeMaterial2="8217" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="38" ForgeMaterial1="36981" ForgeMaterial2="9861" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="39" ForgeMaterial1="44377" ForgeMaterial2="11833" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="40" ForgeMaterial1="53252" ForgeMaterial2="14200" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="41" ForgeMaterial1="63903" ForgeMaterial2="17041" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="42" ForgeMaterial1="76684" ForgeMaterial2="20449" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="43" ForgeMaterial1="92020" ForgeMaterial2="24539" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="44" ForgeMaterial1="108696" ForgeMaterial2="28986" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="45" ForgeMaterial1="130435" ForgeMaterial2="34783" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="46" ForgeMaterial1="156522" ForgeMaterial2="41739" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="47" ForgeMaterial1="187826" ForgeMaterial2="50087" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="48" ForgeMaterial1="225391" ForgeMaterial2="60104" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="49" ForgeMaterial1="270470" ForgeMaterial2="72125" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="50" ForgeMaterial1="324564" ForgeMaterial2="86551" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price Level="51" ForgeMaterial1="389477" ForgeMaterial2="103861" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+          <Price MinLevel="52" ForgeMaterial1="467371" ForgeMaterial2="124632" DeliveryTime="4800" BonusDeliveryPrice="2"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Helm">
+          <Price MaxLevel="2" ForgeMaterial1="27" ForgeMaterial2="8" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="3" ForgeMaterial1="32" ForgeMaterial2="9" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="4" ForgeMaterial1="39" ForgeMaterial2="11" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="5" ForgeMaterial1="47" ForgeMaterial2="13" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="6" ForgeMaterial1="56" ForgeMaterial2="15" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="7" ForgeMaterial1="68" ForgeMaterial2="18" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="8" ForgeMaterial1="80" ForgeMaterial2="22" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="9" ForgeMaterial1="97" ForgeMaterial2="26" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="10" ForgeMaterial1="128" ForgeMaterial2="41" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="11" ForgeMaterial1="128" ForgeMaterial2="50" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="12" ForgeMaterial1="154" ForgeMaterial2="59" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="13" ForgeMaterial1="185" ForgeMaterial2="62" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="14" ForgeMaterial1="221" ForgeMaterial2="75" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="15" ForgeMaterial1="266" ForgeMaterial2="90" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="16" ForgeMaterial1="335" ForgeMaterial2="107" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="17" ForgeMaterial1="402" ForgeMaterial2="129" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="18" ForgeMaterial1="483" ForgeMaterial2="154" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="19" ForgeMaterial1="579" ForgeMaterial2="185" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="20" ForgeMaterial1="695" ForgeMaterial2="223" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="21" ForgeMaterial1="833" ForgeMaterial2="267" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="22" ForgeMaterial1="1000" ForgeMaterial2="320" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="23" ForgeMaterial1="1200" ForgeMaterial2="384" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="24" ForgeMaterial1="1440" ForgeMaterial2="461" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="25" ForgeMaterial1="1728" ForgeMaterial2="553" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="26" ForgeMaterial1="2074" ForgeMaterial2="663" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="27" ForgeMaterial1="2489" ForgeMaterial2="797" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="28" ForgeMaterial1="2986" ForgeMaterial2="956" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="29" ForgeMaterial1="3583" ForgeMaterial2="1147" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="30" ForgeMaterial1="4300" ForgeMaterial2="1377" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="31" ForgeMaterial1="5160" ForgeMaterial2="1651" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="32" ForgeMaterial1="6192" ForgeMaterial2="1982" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="33" ForgeMaterial1="7431" ForgeMaterial2="2378" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="34" ForgeMaterial1="8917" ForgeMaterial2="2853" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="35" ForgeMaterial1="10701" ForgeMaterial2="3424" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="36" ForgeMaterial1="12841" ForgeMaterial2="4109" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="37" ForgeMaterial1="15409" ForgeMaterial2="4930" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="38" ForgeMaterial1="18490" ForgeMaterial2="5917" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="39" ForgeMaterial1="22189" ForgeMaterial2="7100" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="40" ForgeMaterial1="26626" ForgeMaterial2="8520" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="41" ForgeMaterial1="31951" ForgeMaterial2="10224" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="42" ForgeMaterial1="38342" ForgeMaterial2="12270" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="43" ForgeMaterial1="46010" ForgeMaterial2="14723" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="44" ForgeMaterial1="55212" ForgeMaterial2="17391" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="45" ForgeMaterial1="65217" ForgeMaterial2="20870" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="46" ForgeMaterial1="78261" ForgeMaterial2="25043" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="47" ForgeMaterial1="93913" ForgeMaterial2="30052" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="48" ForgeMaterial1="112696" ForgeMaterial2="36063" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="49" ForgeMaterial1="135235" ForgeMaterial2="43275" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="50" ForgeMaterial1="162282" ForgeMaterial2="51930" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price Level="51" ForgeMaterial1="194738" ForgeMaterial2="62317" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+          <Price MinLevel="52" ForgeMaterial1="233686" ForgeMaterial2="74779" DeliveryTime="4800" BonusDeliveryPrice="5"/>
+        </PriceBlock>
+      </Prices>
+    </Recipe>
+    <Recipe Name="Complex" Alias="forgeRecipeComplex">
+      <Items>
+        <Item Type="Weapon" Enchantments="1" Prices="Prices_Weapon" BarScale="Enchantment"/>
+        <Item Type="Armor" Enchantments="1" Prices="Prices_Armor" BarScale="Enchantment"/>
+        <Item Type="Helm" Enchantments="1" Prices="Prices_Helm" BarScale="Enchantment"/>
+        <Item Type="Ranged" Enchantments="1" Prices="Prices_Ranged" BarScale="Enchantment"/>
+        <Item Type="Magic" Enchantments="1" Prices="Prices_Magic" BarScale="Enchantment"/>
+      </Items>
+      <Variations>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_MONK_SET_WHIRL"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_SENTINEL_SET_SUPER_RETURN"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_WARLOCK_SET_CURSE"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_GUARDIAN_SET_PROTECTION"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_SKANDA_SET_KARMA"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_GUST_SET_WIND_MAKER"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_DIRECTOR_SET_PLOT_TWIST"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_TIME_SHIFT_SET_TIME_SHIFTER"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_ARCANE_MARTIAL_ART_SET_NEO_WANDERER"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_CORDYCEPS_FUNGUS_SET"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_MAGMA_VOLCANO_SET"/>
+          </Enchantments>
+        </Variation>
+        <Variation>
+          <Enchantments>
+            <Perk Name="PERK_KARCER_HUNGER_SET"/>
+          </Enchantments>
+        </Variation>
+      </Variations>
+      <Prices>
+        <PriceBlock Name="Prices_Ranged">
+          <Price MaxLevel="2" ForgeMaterial1="17" ForgeMaterial2="5" ForgeMaterial3="2" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="3" ForgeMaterial1="21" ForgeMaterial2="7" ForgeMaterial3="3" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="4" ForgeMaterial1="25" ForgeMaterial2="7" ForgeMaterial3="3" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="5" ForgeMaterial1="30" ForgeMaterial2="9" ForgeMaterial3="4" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="6" ForgeMaterial1="36" ForgeMaterial2="11" ForgeMaterial3="5" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="7" ForgeMaterial1="43" ForgeMaterial2="13" ForgeMaterial3="6" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="8" ForgeMaterial1="52" ForgeMaterial2="15" ForgeMaterial3="7" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="9" ForgeMaterial1="62" ForgeMaterial2="19" ForgeMaterial3="9" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="10" ForgeMaterial1="75" ForgeMaterial2="22" ForgeMaterial3="10" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="11" ForgeMaterial1="90" ForgeMaterial2="27" ForgeMaterial3="12" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="12" ForgeMaterial1="108" ForgeMaterial2="33" ForgeMaterial3="15" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="13" ForgeMaterial1="129" ForgeMaterial2="38" ForgeMaterial3="18" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="14" ForgeMaterial1="155" ForgeMaterial2="46" ForgeMaterial3="21" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="15" ForgeMaterial1="186" ForgeMaterial2="56" ForgeMaterial3="26" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="16" ForgeMaterial1="223" ForgeMaterial2="67" ForgeMaterial3="31" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="17" ForgeMaterial1="268" ForgeMaterial2="80" ForgeMaterial3="37" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="18" ForgeMaterial1="322" ForgeMaterial2="96" ForgeMaterial3="44" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="19" ForgeMaterial1="386" ForgeMaterial2="116" ForgeMaterial3="53" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="20" ForgeMaterial1="463" ForgeMaterial2="139" ForgeMaterial3="64" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="21" ForgeMaterial1="556" ForgeMaterial2="167" ForgeMaterial3="76" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="22" ForgeMaterial1="667" ForgeMaterial2="200" ForgeMaterial3="91" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="23" ForgeMaterial1="800" ForgeMaterial2="240" ForgeMaterial3="109" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="24" ForgeMaterial1="960" ForgeMaterial2="288" ForgeMaterial3="131" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="25" ForgeMaterial1="1152" ForgeMaterial2="346" ForgeMaterial3="158" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="26" ForgeMaterial1="1383" ForgeMaterial2="414" ForgeMaterial3="190" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="27" ForgeMaterial1="1659" ForgeMaterial2="498" ForgeMaterial3="227" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="28" ForgeMaterial1="1991" ForgeMaterial2="597" ForgeMaterial3="273" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="29" ForgeMaterial1="2389" ForgeMaterial2="717" ForgeMaterial3="328" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="30" ForgeMaterial1="2867" ForgeMaterial2="860" ForgeMaterial3="393" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="31" ForgeMaterial1="3441" ForgeMaterial2="1032" ForgeMaterial3="472" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="32" ForgeMaterial1="4128" ForgeMaterial2="1238" ForgeMaterial3="566" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="33" ForgeMaterial1="4954" ForgeMaterial2="1486" ForgeMaterial3="679" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="34" ForgeMaterial1="5945" ForgeMaterial2="1783" ForgeMaterial3="814" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="35" ForgeMaterial1="7133" ForgeMaterial2="2140" ForgeMaterial3="977" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="36" ForgeMaterial1="8560" ForgeMaterial2="2568" ForgeMaterial3="1172" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="37" ForgeMaterial1="10272" ForgeMaterial2="3082" ForgeMaterial3="1408" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="38" ForgeMaterial1="12327" ForgeMaterial2="3698" ForgeMaterial3="1689" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="39" ForgeMaterial1="14792" ForgeMaterial2="4438" ForgeMaterial3="2026" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="40" ForgeMaterial1="17751" ForgeMaterial2="5325" ForgeMaterial3="2432" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="41" ForgeMaterial1="21301" ForgeMaterial2="6391" ForgeMaterial3="2919" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="42" ForgeMaterial1="25562" ForgeMaterial2="7668" ForgeMaterial3="3501" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="43" ForgeMaterial1="30673" ForgeMaterial2="9202" ForgeMaterial3="4202" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="44" ForgeMaterial1="36232" ForgeMaterial2="10870" ForgeMaterial3="4964" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="45" ForgeMaterial1="43478" ForgeMaterial2="13043" ForgeMaterial3="5957" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="46" ForgeMaterial1="52174" ForgeMaterial2="15652" ForgeMaterial3="7148" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="47" ForgeMaterial1="62609" ForgeMaterial2="18783" ForgeMaterial3="8577" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="48" ForgeMaterial1="75130" ForgeMaterial2="22539" ForgeMaterial3="10293" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="49" ForgeMaterial1="90157" ForgeMaterial2="27047" ForgeMaterial3="12352" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="50" ForgeMaterial1="108188" ForgeMaterial2="32457" ForgeMaterial3="14822" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="51" ForgeMaterial1="129825" ForgeMaterial2="38948" ForgeMaterial3="17786" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price MinLevel="52" ForgeMaterial1="155791" ForgeMaterial2="46737" ForgeMaterial3="21343" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Magic">
+          <Price MaxLevel="2" ForgeMaterial1="19" ForgeMaterial2="6" ForgeMaterial3="2" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="3" ForgeMaterial1="23" ForgeMaterial2="7" ForgeMaterial3="3" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="4" ForgeMaterial1="28" ForgeMaterial2="8" ForgeMaterial3="3" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="5" ForgeMaterial1="33" ForgeMaterial2="10" ForgeMaterial3="4" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="6" ForgeMaterial1="40" ForgeMaterial2="12" ForgeMaterial3="5" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="7" ForgeMaterial1="48" ForgeMaterial2="14" ForgeMaterial3="7" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="8" ForgeMaterial1="57" ForgeMaterial2="17" ForgeMaterial3="8" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="9" ForgeMaterial1="69" ForgeMaterial2="21" ForgeMaterial3="10" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="10" ForgeMaterial1="82" ForgeMaterial2="25" ForgeMaterial3="11" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="11" ForgeMaterial1="99" ForgeMaterial2="29" ForgeMaterial3="13" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="12" ForgeMaterial1="119" ForgeMaterial2="36" ForgeMaterial3="16" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="13" ForgeMaterial1="142" ForgeMaterial2="42" ForgeMaterial3="20" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="14" ForgeMaterial1="171" ForgeMaterial2="51" ForgeMaterial3="23" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="15" ForgeMaterial1="205" ForgeMaterial2="61" ForgeMaterial3="28" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="16" ForgeMaterial1="246" ForgeMaterial2="73" ForgeMaterial3="34" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="17" ForgeMaterial1="295" ForgeMaterial2="88" ForgeMaterial3="40" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="18" ForgeMaterial1="354" ForgeMaterial2="106" ForgeMaterial3="48" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="19" ForgeMaterial1="424" ForgeMaterial2="128" ForgeMaterial3="58" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="20" ForgeMaterial1="509" ForgeMaterial2="153" ForgeMaterial3="70" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="21" ForgeMaterial1="611" ForgeMaterial2="183" ForgeMaterial3="84" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="22" ForgeMaterial1="733" ForgeMaterial2="220" ForgeMaterial3="100" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="23" ForgeMaterial1="880" ForgeMaterial2="264" ForgeMaterial3="120" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="24" ForgeMaterial1="1056" ForgeMaterial2="316" ForgeMaterial3="144" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="25" ForgeMaterial1="1267" ForgeMaterial2="380" ForgeMaterial3="174" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="26" ForgeMaterial1="1521" ForgeMaterial2="456" ForgeMaterial3="209" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="27" ForgeMaterial1="1825" ForgeMaterial2="548" ForgeMaterial3="250" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="28" ForgeMaterial1="2190" ForgeMaterial2="657" ForgeMaterial3="300" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="29" ForgeMaterial1="2628" ForgeMaterial2="788" ForgeMaterial3="360" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="30" ForgeMaterial1="3153" ForgeMaterial2="946" ForgeMaterial3="432" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="31" ForgeMaterial1="3785" ForgeMaterial2="1135" ForgeMaterial3="519" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="32" ForgeMaterial1="4541" ForgeMaterial2="1362" ForgeMaterial3="622" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="33" ForgeMaterial1="5449" ForgeMaterial2="1635" ForgeMaterial3="747" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="34" ForgeMaterial1="6539" ForgeMaterial2="1962" ForgeMaterial3="895" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="35" ForgeMaterial1="7847" ForgeMaterial2="2354" ForgeMaterial3="1075" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="36" ForgeMaterial1="9416" ForgeMaterial2="2825" ForgeMaterial3="1290" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="37" ForgeMaterial1="11300" ForgeMaterial2="3390" ForgeMaterial3="1548" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="38" ForgeMaterial1="13559" ForgeMaterial2="4068" ForgeMaterial3="1858" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="39" ForgeMaterial1="16271" ForgeMaterial2="4881" ForgeMaterial3="2229" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="40" ForgeMaterial1="19526" ForgeMaterial2="5858" ForgeMaterial3="2675" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="41" ForgeMaterial1="23431" ForgeMaterial2="7030" ForgeMaterial3="3211" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="42" ForgeMaterial1="28118" ForgeMaterial2="8435" ForgeMaterial3="3852" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="43" ForgeMaterial1="33741" ForgeMaterial2="10122" ForgeMaterial3="4623" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="44" ForgeMaterial1="39855" ForgeMaterial2="11957" ForgeMaterial3="5460" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="45" ForgeMaterial1="47826" ForgeMaterial2="14348" ForgeMaterial3="6552" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="46" ForgeMaterial1="57391" ForgeMaterial2="17217" ForgeMaterial3="7863" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="47" ForgeMaterial1="68870" ForgeMaterial2="20661" ForgeMaterial3="9435" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="48" ForgeMaterial1="82643" ForgeMaterial2="24793" ForgeMaterial3="11322" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="49" ForgeMaterial1="99172" ForgeMaterial2="29752" ForgeMaterial3="13587" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="50" ForgeMaterial1="119006" ForgeMaterial2="35702" ForgeMaterial3="16304" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="51" ForgeMaterial1="142808" ForgeMaterial2="42843" ForgeMaterial3="19565" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price MinLevel="52" ForgeMaterial1="171370" ForgeMaterial2="51411" ForgeMaterial3="23478" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Weapon">
+          <Price MaxLevel="2" ForgeMaterial1="42" ForgeMaterial2="12" ForgeMaterial3="6" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="3" ForgeMaterial1="50" ForgeMaterial2="16" ForgeMaterial3="9" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="4" ForgeMaterial1="61" ForgeMaterial2="17" ForgeMaterial3="9" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="5" ForgeMaterial1="71" ForgeMaterial2="21" ForgeMaterial3="13" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="6" ForgeMaterial1="87" ForgeMaterial2="26" ForgeMaterial3="16" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="7" ForgeMaterial1="104" ForgeMaterial2="31" ForgeMaterial3="19" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="8" ForgeMaterial1="125" ForgeMaterial2="37" ForgeMaterial3="22" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="9" ForgeMaterial1="150" ForgeMaterial2="45" ForgeMaterial3="28" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="10" ForgeMaterial1="179" ForgeMaterial2="54" ForgeMaterial3="31" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="11" ForgeMaterial1="216" ForgeMaterial2="64" ForgeMaterial3="38" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="12" ForgeMaterial1="259" ForgeMaterial2="78" ForgeMaterial3="47" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="13" ForgeMaterial1="310" ForgeMaterial2="92" ForgeMaterial3="56" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="14" ForgeMaterial1="372" ForgeMaterial2="111" ForgeMaterial3="66" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="15" ForgeMaterial1="447" ForgeMaterial2="134" ForgeMaterial3="81" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="16" ForgeMaterial1="536" ForgeMaterial2="160" ForgeMaterial3="97" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="17" ForgeMaterial1="643" ForgeMaterial2="193" ForgeMaterial3="116" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="18" ForgeMaterial1="772" ForgeMaterial2="231" ForgeMaterial3="138" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="19" ForgeMaterial1="925" ForgeMaterial2="278" ForgeMaterial3="166" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="20" ForgeMaterial1="1111" ForgeMaterial2="334" ForgeMaterial3="200" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="21" ForgeMaterial1="1334" ForgeMaterial2="400" ForgeMaterial3="241" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="22" ForgeMaterial1="1600" ForgeMaterial2="480" ForgeMaterial3="288" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="23" ForgeMaterial1="1920" ForgeMaterial2="576" ForgeMaterial3="344" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="24" ForgeMaterial1="2304" ForgeMaterial2="690" ForgeMaterial3="413" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="25" ForgeMaterial1="2765" ForgeMaterial2="830" ForgeMaterial3="498" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="26" ForgeMaterial1="3318" ForgeMaterial2="995" ForgeMaterial3="598" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="27" ForgeMaterial1="3983" ForgeMaterial2="1195" ForgeMaterial3="717" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="28" ForgeMaterial1="4777" ForgeMaterial2="1433" ForgeMaterial3="861" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="29" ForgeMaterial1="5734" ForgeMaterial2="1720" ForgeMaterial3="1033" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="30" ForgeMaterial1="6880" ForgeMaterial2="2064" ForgeMaterial3="1240" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="31" ForgeMaterial1="8257" ForgeMaterial2="2477" ForgeMaterial3="1487" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="32" ForgeMaterial1="9908" ForgeMaterial2="2972" ForgeMaterial3="1784" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="33" ForgeMaterial1="11889" ForgeMaterial2="3567" ForgeMaterial3="2141" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="34" ForgeMaterial1="14268" ForgeMaterial2="4280" ForgeMaterial3="2567" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="35" ForgeMaterial1="17120" ForgeMaterial2="5136" ForgeMaterial3="3080" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="36" ForgeMaterial1="20544" ForgeMaterial2="6163" ForgeMaterial3="3697" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="37" ForgeMaterial1="24654" ForgeMaterial2="7397" ForgeMaterial3="4439" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="38" ForgeMaterial1="29584" ForgeMaterial2="8875" ForgeMaterial3="5325" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="39" ForgeMaterial1="35501" ForgeMaterial2="10650" ForgeMaterial3="6389" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="40" ForgeMaterial1="42602" ForgeMaterial2="12781" ForgeMaterial3="7670" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="41" ForgeMaterial1="51122" ForgeMaterial2="15337" ForgeMaterial3="9203" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="42" ForgeMaterial1="61348" ForgeMaterial2="18403" ForgeMaterial3="11041" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="43" ForgeMaterial1="73616" ForgeMaterial2="22085" ForgeMaterial3="13251" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="44" ForgeMaterial1="86957" ForgeMaterial2="26087" ForgeMaterial3="15652" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="45" ForgeMaterial1="104348" ForgeMaterial2="31304" ForgeMaterial3="18783" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="46" ForgeMaterial1="125217" ForgeMaterial2="37565" ForgeMaterial3="22539" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="47" ForgeMaterial1="150261" ForgeMaterial2="45078" ForgeMaterial3="27047" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="48" ForgeMaterial1="180313" ForgeMaterial2="54094" ForgeMaterial3="32456" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="49" ForgeMaterial1="216376" ForgeMaterial2="64913" ForgeMaterial3="38949" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="50" ForgeMaterial1="259650" ForgeMaterial2="77896" ForgeMaterial3="46737" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="51" ForgeMaterial1="311581" ForgeMaterial2="93475" ForgeMaterial3="56085" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price MinLevel="52" ForgeMaterial1="373897" ForgeMaterial2="112169" ForgeMaterial3="67301" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Armor">
+          <Price MaxLevel="2" ForgeMaterial1="35" ForgeMaterial2="10" ForgeMaterial3="4" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="3" ForgeMaterial1="42" ForgeMaterial2="13" ForgeMaterial3="6" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="4" ForgeMaterial1="51" ForgeMaterial2="14" ForgeMaterial3="6" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="5" ForgeMaterial1="59" ForgeMaterial2="17" ForgeMaterial3="8" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="6" ForgeMaterial1="72" ForgeMaterial2="22" ForgeMaterial3="10" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="7" ForgeMaterial1="87" ForgeMaterial2="26" ForgeMaterial3="12" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="8" ForgeMaterial1="104" ForgeMaterial2="30" ForgeMaterial3="14" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="9" ForgeMaterial1="125" ForgeMaterial2="38" ForgeMaterial3="18" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="10" ForgeMaterial1="149" ForgeMaterial2="45" ForgeMaterial3="20" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="11" ForgeMaterial1="180" ForgeMaterial2="54" ForgeMaterial3="24" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="12" ForgeMaterial1="216" ForgeMaterial2="65" ForgeMaterial3="30" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="13" ForgeMaterial1="258" ForgeMaterial2="77" ForgeMaterial3="36" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="14" ForgeMaterial1="310" ForgeMaterial2="93" ForgeMaterial3="42" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="15" ForgeMaterial1="372" ForgeMaterial2="112" ForgeMaterial3="52" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="16" ForgeMaterial1="446" ForgeMaterial2="133" ForgeMaterial3="62" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="17" ForgeMaterial1="536" ForgeMaterial2="161" ForgeMaterial3="73" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="18" ForgeMaterial1="643" ForgeMaterial2="193" ForgeMaterial3="87" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="19" ForgeMaterial1="771" ForgeMaterial2="232" ForgeMaterial3="105" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="20" ForgeMaterial1="926" ForgeMaterial2="278" ForgeMaterial3="127" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="21" ForgeMaterial1="1112" ForgeMaterial2="333" ForgeMaterial3="153" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="22" ForgeMaterial1="1333" ForgeMaterial2="400" ForgeMaterial3="183" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="23" ForgeMaterial1="1600" ForgeMaterial2="480" ForgeMaterial3="218" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="24" ForgeMaterial1="1920" ForgeMaterial2="575" ForgeMaterial3="262" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="25" ForgeMaterial1="2304" ForgeMaterial2="691" ForgeMaterial3="316" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="26" ForgeMaterial1="2765" ForgeMaterial2="829" ForgeMaterial3="379" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="27" ForgeMaterial1="3319" ForgeMaterial2="996" ForgeMaterial3="455" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="28" ForgeMaterial1="3981" ForgeMaterial2="1194" ForgeMaterial3="546" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="29" ForgeMaterial1="4778" ForgeMaterial2="1433" ForgeMaterial3="655" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="30" ForgeMaterial1="5733" ForgeMaterial2="1720" ForgeMaterial3="786" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="31" ForgeMaterial1="6881" ForgeMaterial2="2064" ForgeMaterial3="943" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="32" ForgeMaterial1="8257" ForgeMaterial2="2477" ForgeMaterial3="1132" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="33" ForgeMaterial1="9907" ForgeMaterial2="2972" ForgeMaterial3="1358" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="34" ForgeMaterial1="11890" ForgeMaterial2="3567" ForgeMaterial3="1628" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="35" ForgeMaterial1="14267" ForgeMaterial2="4280" ForgeMaterial3="1954" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="36" ForgeMaterial1="17120" ForgeMaterial2="5136" ForgeMaterial3="2345" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="37" ForgeMaterial1="20545" ForgeMaterial2="6164" ForgeMaterial3="2815" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="38" ForgeMaterial1="24654" ForgeMaterial2="7396" ForgeMaterial3="3377" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="39" ForgeMaterial1="29584" ForgeMaterial2="8875" ForgeMaterial3="4052" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="40" ForgeMaterial1="35501" ForgeMaterial2="10651" ForgeMaterial3="4864" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="41" ForgeMaterial1="42601" ForgeMaterial2="12781" ForgeMaterial3="5837" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="42" ForgeMaterial1="51123" ForgeMaterial2="15336" ForgeMaterial3="7003" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="43" ForgeMaterial1="61346" ForgeMaterial2="18404" ForgeMaterial3="8405" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="44" ForgeMaterial1="72464" ForgeMaterial2="21739" ForgeMaterial3="9928" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="45" ForgeMaterial1="86957" ForgeMaterial2="26087" ForgeMaterial3="11913" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="46" ForgeMaterial1="104348" ForgeMaterial2="31304" ForgeMaterial3="14296" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="47" ForgeMaterial1="125217" ForgeMaterial2="37565" ForgeMaterial3="17155" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="48" ForgeMaterial1="150261" ForgeMaterial2="45078" ForgeMaterial3="20586" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="49" ForgeMaterial1="180313" ForgeMaterial2="54094" ForgeMaterial3="24704" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="50" ForgeMaterial1="216375" ForgeMaterial2="64913" ForgeMaterial3="29644" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="51" ForgeMaterial1="259651" ForgeMaterial2="77896" ForgeMaterial3="35572" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price MinLevel="52" ForgeMaterial1="311581" ForgeMaterial2="93474" ForgeMaterial3="42686" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+        </PriceBlock>
+        <PriceBlock Name="Prices_Helm">
+          <Price MaxLevel="2" ForgeMaterial1="21" ForgeMaterial2="6" ForgeMaterial3="2" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="3" ForgeMaterial1="25" ForgeMaterial2="8" ForgeMaterial3="4" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="4" ForgeMaterial1="30" ForgeMaterial2="9" ForgeMaterial3="4" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="5" ForgeMaterial1="36" ForgeMaterial2="10" ForgeMaterial3="5" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="6" ForgeMaterial1="43" ForgeMaterial2="13" ForgeMaterial3="6" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="7" ForgeMaterial1="52" ForgeMaterial2="16" ForgeMaterial3="7" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="8" ForgeMaterial1="63" ForgeMaterial2="18" ForgeMaterial3="8" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="9" ForgeMaterial1="75" ForgeMaterial2="23" ForgeMaterial3="11" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="10" ForgeMaterial1="90" ForgeMaterial2="27" ForgeMaterial3="12" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="11" ForgeMaterial1="108" ForgeMaterial2="32" ForgeMaterial3="14" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="12" ForgeMaterial1="130" ForgeMaterial2="39" ForgeMaterial3="18" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="13" ForgeMaterial1="155" ForgeMaterial2="46" ForgeMaterial3="21" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="14" ForgeMaterial1="186" ForgeMaterial2="56" ForgeMaterial3="25" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="15" ForgeMaterial1="223" ForgeMaterial2="67" ForgeMaterial3="31" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="16" ForgeMaterial1="268" ForgeMaterial2="80" ForgeMaterial3="37" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="17" ForgeMaterial1="322" ForgeMaterial2="97" ForgeMaterial3="44" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="18" ForgeMaterial1="386" ForgeMaterial2="116" ForgeMaterial3="52" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="19" ForgeMaterial1="463" ForgeMaterial2="139" ForgeMaterial3="63" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="20" ForgeMaterial1="556" ForgeMaterial2="167" ForgeMaterial3="76" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="21" ForgeMaterial1="667" ForgeMaterial2="200" ForgeMaterial3="92" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="22" ForgeMaterial1="800" ForgeMaterial2="240" ForgeMaterial3="110" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="23" ForgeMaterial1="960" ForgeMaterial2="288" ForgeMaterial3="131" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="24" ForgeMaterial1="1152" ForgeMaterial2="345" ForgeMaterial3="157" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="25" ForgeMaterial1="1383" ForgeMaterial2="415" ForgeMaterial3="189" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="26" ForgeMaterial1="1659" ForgeMaterial2="497" ForgeMaterial3="228" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="27" ForgeMaterial1="1991" ForgeMaterial2="597" ForgeMaterial3="273" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="28" ForgeMaterial1="2389" ForgeMaterial2="717" ForgeMaterial3="328" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="29" ForgeMaterial1="2867" ForgeMaterial2="860" ForgeMaterial3="393" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="30" ForgeMaterial1="3440" ForgeMaterial2="1032" ForgeMaterial3="472" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="31" ForgeMaterial1="4129" ForgeMaterial2="1238" ForgeMaterial3="566" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="32" ForgeMaterial1="4954" ForgeMaterial2="1486" ForgeMaterial3="679" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="33" ForgeMaterial1="5944" ForgeMaterial2="1783" ForgeMaterial3="815" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="34" ForgeMaterial1="7134" ForgeMaterial2="2140" ForgeMaterial3="977" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="35" ForgeMaterial1="8560" ForgeMaterial2="2568" ForgeMaterial3="1172" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="36" ForgeMaterial1="10272" ForgeMaterial2="3082" ForgeMaterial3="1407" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="37" ForgeMaterial1="12327" ForgeMaterial2="3698" ForgeMaterial3="1689" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="38" ForgeMaterial1="14792" ForgeMaterial2="4437" ForgeMaterial3="2026" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="39" ForgeMaterial1="17750" ForgeMaterial2="5325" ForgeMaterial3="2431" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="40" ForgeMaterial1="21301" ForgeMaterial2="6390" ForgeMaterial3="2919" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="41" ForgeMaterial1="25561" ForgeMaterial2="7669" ForgeMaterial3="3502" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="42" ForgeMaterial1="30674" ForgeMaterial2="9202" ForgeMaterial3="4202" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="43" ForgeMaterial1="36808" ForgeMaterial2="11043" ForgeMaterial3="5043" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="44" ForgeMaterial1="43478" ForgeMaterial2="13043" ForgeMaterial3="5957" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="45" ForgeMaterial1="52174" ForgeMaterial2="15652" ForgeMaterial3="7148" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="46" ForgeMaterial1="62609" ForgeMaterial2="18783" ForgeMaterial3="8577" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="47" ForgeMaterial1="75130" ForgeMaterial2="22539" ForgeMaterial3="10293" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="48" ForgeMaterial1="90157" ForgeMaterial2="27047" ForgeMaterial3="12351" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="49" ForgeMaterial1="108188" ForgeMaterial2="32457" ForgeMaterial3="14822" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="50" ForgeMaterial1="129825" ForgeMaterial2="38948" ForgeMaterial3="17786" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price Level="51" ForgeMaterial1="155790" ForgeMaterial2="46737" ForgeMaterial3="21343" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+          <Price MinLevel="52" ForgeMaterial1="186949" ForgeMaterial2="56084" ForgeMaterial3="25612" DeliveryTime="7200" BonusDeliveryPrice="10"/>
+        </PriceBlock>
+      </Prices>
+    </Recipe>
+  </Recipes>
+</Forge>

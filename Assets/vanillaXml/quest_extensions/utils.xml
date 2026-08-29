@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="FindBestArmor" Unresumable="1">
+    <Conditions>
+      <Equal Value1="?Purchase[_$Iterator].Type" Value2="Armor"/>
+      <GreaterEqual Value1="?Purchase[_$Iterator].UpgradeLevel" Value2="_$BestAcquiredArmorLevel"/>
+      <GreaterEqual Value1="?Item[_$Iterator].Quantity" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="BestAcquiredArmorLevel" Value="?Purchase[_$Iterator].UpgradeLevel"/>
+      <SetVariable Scope="Users" Name="BestArmor" Value="?Purchase[_$Iterator].Name"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FindBestWeapon" Unresumable="1">
+    <Conditions>
+      <Equal Value1="?Purchase[_$Iterator].Type" Value2="Weapon"/>
+      <GreaterEqual Value1="?Purchase[_$Iterator].UpgradeLevel" Value2="_$BestAcquiredWeaponLevel"/>
+      <GreaterEqual Value1="?Item[_$Iterator].Quantity" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="BestAcquiredWeaponLevel" Value="?Purchase[_$Iterator].UpgradeLevel"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FindBestHelm" Unresumable="1">
+    <Conditions>
+      <Equal Value1="?Purchase[_$Iterator].Type" Value2="Helm"/>
+      <GreaterEqual Value1="?Purchase[_$Iterator].UpgradeLevel" Value2="_$BestAcquiredHelmLevel"/>
+      <GreaterEqual Value1="?Item[_$Iterator].Quantity" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="BestAcquiredHelmLevel" Value="?Purchase[_$Iterator].UpgradeLevel"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FindBestRanged" Unresumable="1">
+    <Conditions>
+      <Equal Value1="?Purchase[_$Iterator].Type" Value2="Ranged"/>
+      <GreaterEqual Value1="?Purchase[_$Iterator].UpgradeLevel" Value2="_$BestAcquiredRangedLevel"/>
+      <GreaterEqual Value1="?Item[_$Iterator].Quantity" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="BestAcquiredRangedLevel" Value="?Purchase[_$Iterator].UpgradeLevel"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FindBestMagic" Unresumable="1">
+    <Conditions>
+      <Equal Value1="?Purchase[_$Iterator].Type" Value2="Magic"/>
+      <GreaterEqual Value1="?Purchase[_$Iterator].UpgradeLevel" Value2="_$BestAcquiredMagicLevel"/>
+      <GreaterEqual Value1="?Item[_$Iterator].Quantity" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="BestAcquiredMagicLevel" Value="?Purchase[_$Iterator].UpgradeLevel"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FindLastPurchase">
+    <Conditions>
+      <Equal Value1="?Item[_$Iterator].SubType" Value2="Bonus"/>
+      <Equal Value1="?Item[_$Iterator].Availability" Value2="1"/>
+      <GreaterEqual Value1="?Item[_$Iterator].Quantity" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="LastRealPurchase" Value="_$Iterator"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FindCurrentZoneFirstTime">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="FindCurrentZoneFirstTime"/>
+      <Greater Value1="_CountFreeMediumRecipe" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="CurrentZone" Value="Zone_1"/>
+      <Foreach Type="Battles" Name="FindLastAvailableFight" OnlyActiveBattles="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FindLastAvailableFight">
+    <Conditions>
+      <Equal Value1="?Battle[_$Iterator].Available" Value2="1"/>
+      <Equal Not="1" Value1="?Battle[_$Iterator].Name" Value2="Duel"/>
+      <Equal Not="1" Value1="?Battle[_$Iterator].Name" Value2="Challenge"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="CurrentZone" Value="?Battle[_$Iterator].Zone"/>
+    </Actions>
+  </Quest>
+</Quests>

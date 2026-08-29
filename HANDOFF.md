@@ -3,6 +3,32 @@
 Date: 2026-08-29
 Branch: `refactor/sf2de-architecture`
 
+## Vanilla pivot checkpoint
+
+The active gameplay/configuration source is now `Assets/vanillaXml/`, containing
+the imported vanilla 2.41.9 data. The previous DE-era XML/model tree is archived
+at `Assets/DExml/` and must not be treated as base-game authority.
+
+`GameplayContentArchive` and `GameplayContentBuildProcessor` now use
+`vanillaXml`. A generated standalone `gameplay.bytes` archive was verified
+byte-for-byte against all 167 non-meta source files.
+
+Vanilla 2.41.9 `internalSettings.xml` omits seven top-level sections that the
+older recovered runtime still expects. Eclipse imports only those missing runtime
+contract sections from the bundled baseline. Existing vanilla values are not
+recursively overwritten; for example, vanilla `VideoAdCounterReset=86400` remains
+unchanged.
+
+A reusable local `VanillaMax` profile is also established. It stays level 52 and
+keeps the max currencies/progression while removing saved content references not
+defined by the imported vanilla data. Rebuild it with
+`Tools/PrepareVanillaMaxSave.ps1` and restore it with
+`Tools/SwitchSaveProfile.ps1 -Action UseVanillaMax`.
+
+The current vanilla Underworld audit is 3 canonical raid battles with zero
+issues. The historical 76-battle result later in this handoff belongs to the old
+DE content set and should not be used as the vanilla expectation.
+
 ## Current state
 
 The architecture/refactor pass is in a very good state and has been runtime-smoke-tested in Unity/gameplay. The latest batch was confirmed working by the user after importing and playing it.

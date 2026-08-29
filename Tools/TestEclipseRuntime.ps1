@@ -55,7 +55,7 @@ function New-BattleFixture([System.Xml.XmlElement]$definition, [int]$wins = 0, [
     return $battle
 }
 
-[xml]$stages = Get-Content -Raw (Join-Path $projectPath 'Assets/xml/stages.xml')
+[xml]$stages = Get-Content -Raw (Join-Path $projectPath 'Assets/vanillaXml/stages.xml')
 $definitions = $stages.SelectNodes('//Battle[contains(@Name,"ECLIPSEMODE") and (@Type="REPLAYABLE" or @Type="BOSSES_REPLAYABLE" or @Type="FINAL_BATTLE_REPLAYABLE")]')
 foreach ($definition in $definitions) {
     $battle = New-BattleFixture $definition

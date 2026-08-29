@@ -1,0 +1,1997 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="DiscountTick" Priority="2000" Group="FightEnter|DiscountService">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ActiveDiscount" Value2="1"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Stranger"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Type" Value2="FINAL_BATTLE_TITAN"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Type" Value2="BOSSES"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Type" Value2="BOSSES_INTERMISSION"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Stranger_INTERMISSION"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="QuestBattle"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="CLIFFHANGER_STONE_FOREST"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="MINIBOSS_SHROUD"/>
+      <Equal Not="1" Value1="?Slice[?Fight[_$Fight].Battle,0,3]" Value2="BOSS"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="QuestBattle"/>
+      <Equal Not="1" Value1="_FightsRemained" Value2="0"/>
+      <Equal Not="1" Value1="_DuelRunning" Value2="1"/>
+      <Operator Type="And" Not="1">
+        <Greater Value1="_KusarigamaDiscountRoll" Value2="90"/>
+        <Equal Value1="?Item[WEAPON_SUPER_KUSARIGAMA].Quantity" Value2="0"/>
+        <Equal Value1="?Player[].Level" Value2="6"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue/>
+      <ClearQuestQueue Name="ChallengeService"/>
+      <ClearQuestQueue Name="DuelService"/>
+      <SetVariable Scope="Users" Name="FightsRemained" Value="_FightsRemained - 1"/>
+      <Fight Name="_$Fight"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DiscountReact" Priority="2000" Group="FightEnter|DiscountService">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ActiveDiscount" Value2="1"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Stranger"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="HW15_Stranger"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Stranger_INTERMISSION"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="QuestBattle"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="CLIFFHANGER_STONE_FOREST"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="MINIBOSS_SHROUD"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+      <Equal Not="1" Value1="?Slice[?Fight[_$Fight].Battle,0,3]" Value2="BOSS"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="QuestBattle"/>
+      <Equal Value1="_FightsRemained" Value2="0"/>
+      <Operator Type="And" Not="1">
+        <Greater Value1="_KusarigamaDiscountRoll" Value2="90"/>
+        <Equal Value1="?Item[WEAPON_SUPER_KUSARIGAMA].Quantity" Value="0"/>
+        <Equal Value1="?Player[].Level" Value2="6"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue/>
+      <SetVariable Scope="Users" Name="ActiveDiscount" Value="0"/>
+      <SetVariable Scope="Users" Name="BackupFight" Value="_$Fight"/>
+      <Activate ActionID="DiscountRun"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DiscountRollSuccess">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRoll"/>
+      <Greater Value1="?Player[].Level" Value2="4"/>
+      <Less Value1="_rnd100" Value2="50"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="FightsRemained" Value="?UniformIntRandom[1,5]"/>
+      <SetVariable Scope="Users" Name="ActiveDiscount" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DiscountRollSuccessLvl5">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRoll"/>
+      <Equal Value1="?Player[].Level" Value2="4"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="FightsRemained" Value="2"/>
+      <SetVariable Scope="Users" Name="ActiveDiscount" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DiscountRollFailure">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRoll"/>
+      <Equal Not="1" Value1="?Player[].Level" Value2="4"/>
+      <Operator Type="Or">
+        <Less Not="1" Value1="_rnd100" Value2="50"/>
+        <Less Value1="?Player[].Level" Value2="4"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ActiveDiscount" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="UpgradeDiscountRun" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountableQuantity" Value="0" Lock="Visible"/>
+      <Wait Frames="1"/>
+      <Foreach Type="Items" Name="CountDiscountableItems" Lock="Visible"/>
+      <Wait Frames="1"/>
+      <SetVariable Scope="Users" Name="DiscountItemNumber" Value="?UniformIntRandom[1,_DiscountableQuantity]"/>
+      <Wait Frames="1"/>
+      <Foreach Type="Items" Name="SelectDiscountableItem" Lock="Visible"/>
+      <Wait Frames="1"/>
+      <Activate ActionID="UpgradeDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="CountDiscountableItems" Unresumable="1">
+    <Conditions>
+      <Less Not="1" Value1="(100 * ?Player[].Level) - ?Purchase[_$Iterator].UpgradeLevel" Value2="200"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="Head"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="Fists"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="Body"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="NoRanged"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="NoMagic"/>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Armor"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Armor].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Ranged"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Ranged].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Magic"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Magic].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Weapon"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Weapon].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Helm"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Helm].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="Or">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Armor"/>
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Ranged"/>
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Magic"/>
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Weapon"/>
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Helm"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountableQuantity" Value="_DiscountableQuantity + 1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SelectDiscountableItem" Unresumable="1">
+    <Conditions>
+      <Equal Not="1" Value1="_DiscountItemNumber" Value2="0"/>
+      <Less Not="1" Value1="(100 * ?Player[].Level) - ?Purchase[_$Iterator].UpgradeLevel" Value2="200"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="Head"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="Fists"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="Body"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="NoRanged"/>
+      <Equal Not="1" Value1="_$Iterator" Value2="NoMagic"/>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Armor"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Armor].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Ranged"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Ranged].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Magic"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Magic].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Weapon"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Weapon].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="And" Not="1">
+        <Equal Value1="?Purchase[_$Iterator].Type" Value2="Helm"/>
+        <Less Not="1" Value1="?Purchase[?Player[].Helm].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <Equal Value1="?Purchase[_$Iterator].Type" Value2="Armor"/>
+          <Less Value1="?NDiv[_$BestAcquiredArmorLevel,100]" Value2="?Player[].Level"/>
+        </Operator>
+        <Operator Type="And">
+          <Equal Value1="?Purchase[_$Iterator].Type" Value2="Ranged"/>
+          <Less Value1="?NDiv[_$BestAcquiredRangedLevel,100]" Value2="?Player[].Level"/>
+        </Operator>
+        <Operator Type="And">
+          <Equal Value1="?Purchase[_$Iterator].Type" Value2="Magic"/>
+          <Less Value1="?NDiv[_$BestAcquiredMagicLevel,100]" Value2="?Player[].Level"/>
+        </Operator>
+        <Operator Type="And">
+          <Equal Value1="?Purchase[_$Iterator].Type" Value2="Weapon"/>
+          <Less Value1="?NDiv[_$BestAcquiredWeaponLevel,100]" Value2="?Player[].Level"/>
+        </Operator>
+        <Operator Type="And">
+          <Equal Value1="?Purchase[_$Iterator].Type" Value2="Helm"/>
+          <Less Value1="?NDiv[_$BestAcquiredHelmLevel,100]" Value2="?Player[].Level"/>
+        </Operator>
+        <GreaterEqual Value1="?Item[?Purchase[_$Iterator].Name].BonusPrice" Value2="95"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItemNumber" Value="_DiscountItemNumber - 1"/>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="_$Iterator"/>
+    </Actions>
+  </Quest>
+  <Quest Name="UpgradeDiscountWrapperNotValid">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="UpgradeDiscountWrapper"/>
+      <Operator Type="Or">
+        <Equal Value1="_DiscountableQuantity" Value2="0"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <Fight Name="_BackupFight"/>
+    </Actions>
+  </Quest>
+  <Quest Name="UpgradeDiscountWrapper">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="UpgradeDiscountWrapper"/>
+      <Equal Value1="_DiscountableQuantity" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="FightEnter"/>
+      <SetVariable Scope="Users" Name="DiscountType" Value="Upgrade"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Purchase[_DiscountItem].Type"/>
+      <SetVariable Scope="Users" Name="DiscountItemFinal" Value="?Concat[_DiscountItem,|,((100 * ?Player[].Level))]"/>
+      <Activate ActionID="RandomDiscountOffer"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SendDiscountInfo" Unresumable="1" Priority="9999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="SendDiscountInfo"/>
+      <Equal Value1="?SysInfo[].UserObserved" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SendDiscountStats Item="_DiscountItem" Result="_DiscountResult" Store="_DiscountStore" DiscountPercent="_DiscountValue" Bonus="_DiscountBonus" Money="_DiscountMoney"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SimpleDiscountWrapper">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="SimpleDiscountWrapper"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="FightEnter"/>
+      <SetVariable Scope="Users" Name="DiscountType" Value="Regular"/>
+      <SetVariable Scope="Users" Name="DiscountItemFinal" Value="_DiscountItem"/>
+      <Activate ActionID="RandomDiscountOffer"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RandomDiscount1Offer" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="RandomDiscountOffer"/>
+      <Equal Not="1" Value1="_RandomDiscount1Offer" Value2="1"/>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_BackupFight].Zone" Value2="ZONE_1"/>
+        <Equal Value1="?Fight[_BackupFight].Zone" Value2="ZONE_2"/>
+        <Equal Value1="?Fight[_BackupFight].Zone" Value2="ZONE_3"/>
+        <Equal Value1="?Fight[_BackupFight].Zone" Value2="ZONE_4"/>
+        <Equal Value1="?Fight[_BackupFight].Zone" Value2="ZONE_5"/>
+        <Equal Value1="?Fight[_BackupFight].Zone" Value2="ZONE_6"/>
+        <Equal Value1="?Fight[_BackupFight].Zone" Value2="ZONE_7"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="RandomDiscount1Offer" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="blank{?Concat[discount1,_DiscountType,_DiscountItemType,Offer]}" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnShowme">
+          <SetVariable Scope="Users" Name="DiscountMoney" Value="?Player[].Money"/>
+          <SetVariable Scope="Users" Name="DiscountBonus" Value="?Player[].Bonus"/>
+          <Discount Item="_DiscountItemFinal" Percent="_DiscountValue" Toggle="1"/>
+          <OpenShop Tab="_DiscountItemType" Item="_DiscountItem"/>
+          <ClearQuestQueue Name="FightsLeft"/>
+        </Button>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnNothanks">
+          <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+            <Line Text="blank{?Concat[discount1,_DiscountType,_DiscountItemType,Confirm]}" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnShowme">
+              <Discount Item="_DiscountItemFinal" Percent="_DiscountValue" Toggle="1"/>
+              <OpenShop Tab="_DiscountItemType" Item="_DiscountItem"/>
+              <ClearQuestQueue Name="FightsLeft"/>
+              <SetVariable Scope="Users" Name="DiscountMoney" Value="?Player[].Money"/>
+              <SetVariable Scope="Users" Name="DiscountBonus" Value="?Player[].Bonus"/>
+            </Button>
+            <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+              <SetVariable Scope="Users" Name="RandomDiscount1Offer" Value="2"/>
+              <SetVariable Scope="Users" Name="DiscountResult" Value="0"/>
+              <SetVariable Scope="Users" Name="DiscountStore" Value="0"/>
+              <SetVariable Scope="Users" Name="DiscountMoney" Value="?Player[].Money"/>
+              <SetVariable Scope="Users" Name="DiscountBonus" Value="?Player[].Bonus"/>
+              <Activate ActionID="SendDiscountInfo"/>
+            </Button>
+          </Dialog>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RandomDiscount1Confirm" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Shop" Not="1"/>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <Equal Value1="_$SceneFrom" Value2="Shop"/>
+          <Equal Value1="_$SceneTo" Value2="Profile" Not="1"/>
+        </Operator>
+        <Equal Value1="_$SceneFrom" Value2="Profile"/>
+      </Operator>
+      <Equal Value1="_RandomDiscount1Offer" Value2="1"/>
+      <Operator Type="Or">
+        <Equal Value1="?Item[_DiscountItem].Quantity" Value2="0"/>
+        <Less Value1="?Purchase[_DiscountItem].UpgradeLevel" Value2="100 * ?Player[].Level"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Shop">
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="blank{?Concat[discount1,_DiscountType,_DiscountItemType,Confirm]}" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="CANCEL">
+          <OpenShop Tab="_DiscountItemType" Item="_DiscountItem"/>
+        </Button>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+          <Discount Item="_DiscountItemFinal" Toggle="0"/>
+          <SetVariable Scope="Users" Name="RandomDiscount1Offer" Value="2"/>
+          <SetVariable Scope="Users" Name="DiscountResult" Value="0"/>
+          <SetVariable Scope="Users" Name="DiscountStore" Value="1"/>
+          <Activate ActionID="SendDiscountInfo"/>
+          <ChangeScene Destination="_$SceneTo"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RandomDiscount1OnGameEnter" Priority="-25">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="PseudoSessionStart"/>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_RandomDiscount1Offer" Value2="1"/>
+    </Conditions>
+    <Actions Place="Shop">
+      <Dialog Type="Multiline" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="discount1OnGameEnter" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnShowme">
+          <Discount Item="_DiscountItemFinal" Percent="_DiscountValue" Toggle="1"/>
+          <OpenShop Tab="_DiscountItemType" Item="_DiscountItem"/>
+          <ClearQuestQueue Name="FightsLeft"/>
+          <ClearQuestQueue Name="ScriptsResumeOnStart"/>
+        </Button>
+        <Button Type="Left" Color="Red" Text="CANCEL">
+          <SetVariable Scope="Users" Name="DiscountResult" Value="0"/>
+          <SetVariable Scope="Users" Name="DiscountStore" Value="1"/>
+          <Activate ActionID="SendDiscountInfo"/>
+          <Discount Item="_DiscountItemFinal" Toggle="0"/>
+          <SetVariable Scope="Users" Name="RandomDiscount1Offer" Value="2"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RandomDiscount1OnPurchase" Priority="-25" Unresumable="1">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Purchase[_$Purchase].Name" Value2="_DiscountItem"/>
+    </Conditions>
+    <Actions Place="Shop">
+      <SetVariable Scope="Users" Name="DiscountResult" Value="1"/>
+      <SetVariable Scope="Users" Name="DiscountStore" Value="1"/>
+      <Activate ActionID="SendDiscountInfo"/>
+      <Discount Item="_DiscountItemFinal" Toggle="0"/>
+      <SetVariable Scope="Users" Name="RandomDiscount1Offer" Value="2"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount1" Priority="105" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_NINJA_SWORD].Level"/>
+      <Equal Value1="?Item[WEAPON_NINJA_SWORD].Quantity" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_NINJA_SWORD"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="40"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount2" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_CONICAL_HAT].Level"/>
+      <Equal Value1="?Item[HELM_CONICAL_HAT].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_CONICAL_HAT"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount3" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_QUILTED].Level"/>
+      <Equal Value1="?Item[ARMOR_QUILTED].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_QUILTED"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount4" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_MASK].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_MASK].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_MASK"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount5" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_SPEAR].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_SPEAR].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_SPEAR"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount6" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_SPIKED].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_SPIKED].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_SPIKED"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount7" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_GREEN_MASK].Level"/>
+      <Equal Value1="?Item[HELM_GREEN_MASK].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_GREEN_MASK"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount8" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_KUSARIGAMA].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_KUSARIGAMA].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_KUSARIGAMA"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount9" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_GREEN].Level"/>
+      <Equal Value1="?Item[ARMOR_GREEN].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_GREEN"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount10" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_STRIPS].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_STRIPS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_STRIPS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount11" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_CROW].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_CROW].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_CROW"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount12" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_TAIL].Level"/>
+      <Equal Value1="?Item[HELM_TAIL].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_TAIL"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount13" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_THROWING_DAGGERS].Level"/>
+      <Equal Value1="?Item[RANGED_THROWING_DAGGERS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_THROWING_DAGGERS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount14" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_HAMMERS].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_HAMMERS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_HAMMERS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount15" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_AXES].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_AXES].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_AXES"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount16" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_BRONZE].Level"/>
+      <Equal Value1="?Item[ARMOR_BRONZE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_BRONZE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount17" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SHUANG_GOU].Level"/>
+      <Equal Value1="?Item[WEAPON_SHUANG_GOU].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SHUANG_GOU"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount18" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_SUPER_CHAKRAM_BLADES].Level"/>
+      <Equal Value1="?Item[RANGED_SUPER_CHAKRAM_BLADES].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_SUPER_CHAKRAM_BLADES"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount19" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_BLOOD_MASTER].Level"/>
+      <Equal Value1="?Item[ARMOR_BLOOD_MASTER].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_BLOOD_MASTER"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount20" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_VIKING].Level"/>
+      <Equal Value1="?Item[HELM_VIKING].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_VIKING"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount21" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_ASSASSIN_KUNAI].Level"/>
+      <Equal Value1="?Item[RANGED_ASSASSIN_KUNAI].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_ASSASSIN_KUNAI"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount22" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_FEATHERED].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_FEATHERED].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_FEATHERED"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount23" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_HORNED].Level"/>
+      <Equal Value1="?Item[HELM_HORNED].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_HORNED"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount24" Priority="102" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[MAGIC_FIRE_BALL].Level"/>
+      <Equal Value1="?Item[MAGIC_FIRE_BALL].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="MAGIC_FIRE_BALL"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount25" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_BIG_SWORD].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_BIG_SWORD].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_BIG_SWORD"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount26" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SPIKE].Level"/>
+      <Equal Value1="?Item[ARMOR_SPIKE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SPIKE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount27" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_JOKER].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_JOKER].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_JOKER"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount28" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_BIG_SWORDS].Level"/>
+      <Equal Value1="?Item[WEAPON_BIG_SWORDS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_BIG_SWORDS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount29" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_SUPER_SHURIKEN].Level"/>
+      <Equal Value1="?Item[RANGED_SUPER_SHURIKEN].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_SUPER_SHURIKEN"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount30" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_GLAIVE].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_GLAIVE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_GLAIVE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount31" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_IMHOTEP].Level"/>
+      <Equal Value1="?Item[ARMOR_IMHOTEP].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_IMHOTEP"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount32" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SPIKE].Level"/>
+      <Equal Value1="?Item[HELM_SPIKE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SPIKE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount33" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_SCARAB].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_SCARAB].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_SCARAB"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount34" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_CHAKRAM].Level"/>
+      <Equal Value1="?Item[RANGED_CHAKRAM].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_CHAKRAM"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount35" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUN].Level"/>
+      <Equal Value1="?Item[HELM_SUN].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUN"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount36" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_SUPER_AXES].Level"/>
+      <Equal Value1="?Item[RANGED_SUPER_AXES].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_SUPER_AXES"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount37" Priority="102" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[MAGIC_MASS_BOMB].Level"/>
+      <Equal Value1="?Item[MAGIC_MASS_BOMB].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="MAGIC_MASS_BOMB"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount38" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_KHOPESH].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_KHOPESH].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_KHOPESH"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount39" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_DRAGON].Level"/>
+      <Equal Value1="?Item[ARMOR_DRAGON].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_DRAGON"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount40" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_TWO_HANDED_CUDGEL].Level"/>
+      <Equal Value1="?Item[WEAPON_TWO_HANDED_CUDGEL].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_TWO_HANDED_CUDGEL"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount41" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_CLOAK].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_CLOAK].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_CLOAK"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount42" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_KNUCKLES].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_KNUCKLES].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_KNUCKLES"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount43" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_ASSASSIN].Level"/>
+      <Equal Value1="?Item[ARMOR_ASSASSIN].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_ASSASSIN"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount44" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_ASSASSIN].Level"/>
+      <Equal Value1="?Item[HELM_ASSASSIN].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_ASSASSIN"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount45" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_SHURIKEN_OF_DARKNESS].Level"/>
+      <Equal Value1="?Item[RANGED_SHURIKEN_OF_DARKNESS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_SHURIKEN_OF_DARKNESS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount46" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_HALO].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_HALO].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_HALO"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount47" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_DARK].Level"/>
+      <Equal Value1="?Item[HELM_DARK].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_DARK"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount48" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_SUPER_KUNAI].Level"/>
+      <Equal Value1="?Item[RANGED_SUPER_KUNAI].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_SUPER_KUNAI"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount49" Priority="102" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[MAGIC_FIRE_PILLAR].Level"/>
+      <Equal Value1="?Item[MAGIC_FIRE_PILLAR].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="MAGIC_FIRE_PILLAR"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount50" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_STAFF].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_STAFF].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_STAFF"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount51" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_DARK].Level"/>
+      <Equal Value1="?Item[ARMOR_DARK].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_DARK"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount52" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SILVER_GLAIVE].Level"/>
+      <Equal Value1="?Item[WEAPON_SILVER_GLAIVE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SILVER_GLAIVE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount53" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_HORNED].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_HORNED].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_HORNED"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount54" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_SAI].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_SAI].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_SAI"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount55" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_BEAST_SHELL].Level"/>
+      <Equal Value1="?Item[ARMOR_BEAST_SHELL].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_BEAST_SHELL"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount56" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_BEAST].Level"/>
+      <Equal Value1="?Item[HELM_BEAST].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_BEAST"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount57" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_BEAST_AXES].Level"/>
+      <Equal Value1="?Item[RANGED_BEAST_AXES].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_BEAST_AXES"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount58" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_SABERS].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_SABERS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_SABERS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount59" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_ICARUS].Level"/>
+      <Equal Value1="?Item[HELM_ICARUS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_ICARUS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount60" Priority="102" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[MAGIC_ASTEROID].Level"/>
+      <Equal Value1="?Item[MAGIC_ASTEROID].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="MAGIC_ASTEROID"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount61" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_CELESTIAL].Level"/>
+      <Equal Value1="?Item[ARMOR_CELESTIAL].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_CELESTIAL"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount62" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_PLUMED].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_PLUMED].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_PLUMED"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount63" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_INDIAN_KATAR].Level"/>
+      <Equal Value1="?Item[WEAPON_INDIAN_KATAR].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_INDIAN_KATAR"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount64" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_BANSHEE].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_BANSHEE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_BANSHEE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount65" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_SUPER_DAGGERS].Level"/>
+      <Equal Value1="?Item[RANGED_SUPER_DAGGERS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_SUPER_DAGGERS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount66" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_FANS].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_FANS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_FANS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount67" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_BLACK_BUFFALO].Level"/>
+      <Equal Value1="?Item[ARMOR_BLACK_BUFFALO].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_BLACK_BUFFALO"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount68" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_RITUAL].Level"/>
+      <Equal Value1="?Item[HELM_RITUAL].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_RITUAL"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount69" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_LEECHES].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_LEECHES].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_LEECHES"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount70" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_PIT_MASTER].Level"/>
+      <Equal Value1="?Item[ARMOR_PIT_MASTER].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_PIT_MASTER"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount71" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_FLAYER_CLAWS].Level"/>
+      <Equal Value1="?Item[WEAPON_FLAYER_CLAWS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_FLAYER_CLAWS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount72" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_SECOND_WIND].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_SECOND_WIND].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_SECOND_WIND"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount73" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_DRAGON_TEETH].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_DRAGON_TEETH].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_DRAGON_TEETH"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount74" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_HEXAPOD].Level"/>
+      <Equal Value1="?Item[HELM_HEXAPOD].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_HEXAPOD"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount75" Priority="102" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[MAGIC_FIRE_SPLASH].Level"/>
+      <Equal Value1="?Item[MAGIC_FIRE_SPLASH].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="MAGIC_FIRE_SPLASH"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount76" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_BRUTE_BREASTPLATE].Level"/>
+      <Equal Value1="?Item[ARMOR_BRUTE_BREASTPLATE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_BRUTE_BREASTPLATE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount77" Priority="103" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[RANGED_SUPER_BOOMERANG].Level"/>
+      <Equal Value1="?Item[RANGED_SUPER_BOOMERANG].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="RANGED_SUPER_BOOMERANG"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount78" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_NIGHTFALL].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_NIGHTFALL].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_NIGHTFALL"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount79" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_MASK_OF_HORROR].Level"/>
+      <Equal Value1="?Item[HELM_MASK_OF_HORROR].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_MASK_OF_HORROR"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount80" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SUPER_DAISHO].Level"/>
+      <Equal Value1="?Item[WEAPON_SUPER_DAISHO].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SUPER_DAISHO"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount81" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_SAMURAI].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_SAMURAI].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_SAMURAI"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount82" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_SAMURAI].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_SAMURAI].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_SAMURAI"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount83" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_SECTIONAL_SCYTHE].Level"/>
+      <Equal Value1="?Item[WEAPON_SECTIONAL_SCYTHE].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_SECTIONAL_SCYTHE"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount84" Priority="100" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[WEAPON_TONFA_GUNS].Level"/>
+      <Equal Value1="?Item[WEAPON_TONFA_GUNS].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="WEAPON_TONFA_GUNS"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount85" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_REDSHIFT].Level"/>
+      <Equal Value1="?Item[ARMOR_REDSHIFT].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_REDSHIFT"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount86" Priority="104" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[ARMOR_SUPER_FUSION].Level"/>
+      <Equal Value1="?Item[ARMOR_SUPER_FUSION].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="ARMOR_SUPER_FUSION"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount87" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_SUPER_PREDATOR].Level"/>
+      <Equal Value1="?Item[HELM_SUPER_PREDATOR].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_SUPER_PREDATOR"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HardDiscount87" Priority="101" Unresumable="1" Group="DiscountSelection">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DiscountRun"/>
+      <Equal Value1="?Player[].Level" Value2="?Item[HELM_ANGER].Level"/>
+      <Equal Value1="?Item[HELM_ANGER].Quantity" Value2="0"/>
+      <Less Value1="?UniformIntRandom[1,100]" Value2="80"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DiscountItem" Value="HELM_ANGER"/>
+      <SetVariable Scope="Users" Name="DiscountValue" Value="5 * ?UniformIntRandom[3,10]"/>
+      <SetVariable Scope="Users" Name="DiscountItemType" Value="?Item[_DiscountItem].Type"/>
+      <ClearQuestQueue Name="DiscountSelection"/>
+      <Activate ActionID="SimpleDiscountWrapper"/>
+    </Actions>
+  </Quest>
+</Quests>

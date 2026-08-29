@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="62" Width="1936" Height="546">
+  <Layer Type="1" Factor="0" Atlas="fungus_raid_layer3" Path="Locations/fungus_raid/">
+    <Image X="0" Y="-15" ClassName="pixel_1" Width="1936" Height="512" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="fungus_raid_background" Path="Locations/fungus_raid/">
+    <Image X="0" Y="0" ClassName="background_1" Width="1024" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="fungus_raid_layer1" Path="Locations/fungus_raid/">
+    <Image X="-364" Y="193" ClassName="layer_1_1" Width="512" Height="246"/>
+    <Image X="141.5" Y="194.5" ClassName="layer_1_2" Width="499" Height="243"/>
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="fungus_raid_layer2" Path="Locations/fungus_raid/">
+    <Image X="-487" Y="120.5" ClassName="Layer_0_1" Width="242" Height="255"/>
+    <Image X="480.5" Y="147" ClassName="Layer_0_2" Width="255" Height="202"/>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="fungus_raid_layer3" Path="Locations/fungus_raid/">
+    <Image X="-512" Y="-102" ClassName="layer3_1" Width="512" Height="388"/>
+    <Image X="0" Y="-98" ClassName="layer3_2" Width="512" Height="396"/>
+    <Image X="512" Y="-115.5" ClassName="layer3_3" Width="512" Height="361"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="RitualBattle22_Fungus" Scaling="1">
+    <Image X="-482" Y="80" ClassName="layer1_flag_left" Width="141" Height="344"/>
+    <Image X="-412" Y="172" ClassName="layer1_heads_left" Width="78" Height="100"/>
+    <Image X="482" Y="80" ClassName="layer1_flag_right" Width="141" Height="345"/>
+    <Image X="412" Y="172" ClassName="layer1_head_right" Width="-52" Height="99"/>
+    <Image X="0" Y="180" ClassName="layer1_statue" Width="499" Height="198"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="fungus_raid_layer1" Scaling="1" Path="Locations/fungus_raid/">
+    <Image X="-532" Y="142" ClassName="layer2_1" Width="512" Height="288"/>
+    <Image X="-66" Y="190" ClassName="layer2_2" Width="420" Height="192"/>
+    <Image X="570.5" Y="152.5" ClassName="layer2_3" Width="455" Height="207"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="fungus_raid_layer3" Path="Locations/fungus_raid/">
+    <Image X="-261.937" Y="103.25" ClassName="smoke" Width="1484.375" Height="225.5"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="fungus_raid_layer3" Scaling="1" Path="Locations/fungus_raid/">
+    <Image X="-865" Y="-69.5" ClassName="left" Width="400" Height="649"/>
+    <Image X="865" Y="-49.5" ClassName="right" Width="400" Height="649"/>
+    <Image X="-671" Y="228.5" ClassName="floor" Width="256" Height="47"/>
+    <Image X="-416" Y="228.5" ClassName="floor" Width="256" Height="47"/>
+    <Image X="-161" Y="228.5" ClassName="floor" Width="256" Height="47"/>
+    <Image X="94" Y="228.5" ClassName="floor" Width="256" Height="47"/>
+    <Image X="349" Y="228.5" ClassName="floor" Width="256" Height="47"/>
+    <Image X="604" Y="228.5" ClassName="floor" Width="256" Height="47"/>
+    <Image X="0" Y="470" ClassName="pixel_1" Width="2000" Height="512" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

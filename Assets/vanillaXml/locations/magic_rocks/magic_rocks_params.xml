@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.01" Atlas="magic_rocks_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.05" Atlas="magic_rocks_atlas_layer1">
+    <Image X="0" Y="0" ClassName="layer0_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.13" Atlas="magic_rocks_atlas_layer3">
+    <Image X="0" Y="-10" ClassName="layer2_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.13" Atlas="magic_rocks_atlas_layer2">
+    <SimpleEffect X="-187" Y="-50" Type="Picture" PictureLocation="local" ClassName="blue_glow" Width="190" Height="285">
+      <Transparency>
+        <Point Period="1.0" Value="45" Ease="-1"/>
+        <Point Period="0.9" Value="60" Ease="1"/>
+        <Point Period="1.2" Value="45" Ease="-1"/>
+        <Point Period="1.1" Value="60" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="223" Y="-170" Type="Picture" PictureLocation="local" ClassName="blue_glow" Width="240" Height="285">
+      <Transparency>
+        <Point Period="3.0" Value="45" Ease="-1"/>
+        <Point Period="2.9" Value="60" Ease="1"/>
+        <Point Period="3.2" Value="45" Ease="-1"/>
+        <Point Period="2.1" Value="60" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="376" Y="-170" Type="Picture" PictureLocation="local" ClassName="blue_glow" Width="240" Height="285">
+      <Transparency>
+        <Point Period="2.0" Value="45" Ease="-1"/>
+        <Point Period="2.9" Value="60" Ease="1"/>
+        <Point Period="2.2" Value="45" Ease="-1"/>
+        <Point Period="2.1" Value="60" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <Image X="-181" Y="-35" ClassName="reflex_3" Width="52" Height="79"/>
+    <Image X="230" Y="-139" ClassName="reflex_1" Width="71" Height="108"/>
+    <Image X="383" Y="-136" ClassName="reflex_2" Width="69" Height="102"/>
+    <Image X="-180" Y="56" ClassName="reflex_red" Width="60" Height="67"/>
+    <Image X="231" Y="-14" ClassName="reflex_red1" Width="83" Height="92"/>
+    <Image X="383" Y="-14" ClassName="reflex_red2" Width="82" Height="92"/>
+    <SimpleEffect X="-206" Y="118" Type="Picture" PictureLocation="local" ClassName="glow_red" Width="217" Height="253">
+      <Transparency>
+        <Point Period="2.9" Value="45" Ease="-1"/>
+        <Point Period="3.1" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="318" Y="110" Type="Picture" PictureLocation="local" ClassName="glow_red2" Width="339" Height="270">
+      <Transparency>
+        <Point Period="3.4" Value="65" Ease="-1"/>
+        <Point Period="3.6" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-183" Y="-102" Type="Sequention" ClassName="magic_rocks_fire" PictureLocation="global" Speed="2" Offset="48" Width="138" Height="138"/>
+    <SimpleEffect X="227" Y="-224" Type="Sequention" ClassName="magic_rocks_fire" PictureLocation="global" Speed="2" Offset="48" Width="178" Height="178"/>
+    <SimpleEffect X="379" Y="-234" Type="Sequention" ClassName="magic_rocks_fire" PictureLocation="global" Speed="2.1" Offset="0" Width="188" Height="188"/>
+  </Layer>
+  <Layer Type="1" Factor="0.23" Atlas="magic_rocks_atlas_layer3">
+    <Image X="40" Y="136" ClassName="layer3_1" Width="1536" Height="220"/>
+    <SimpleEffect X="0" Y="70" Type="Picture" PictureLocation="smoke" ClassName="smoke" Width="1538" Height="258">
+      <Transparency>
+        <Point Period="6.4" Value="35" Ease="-1"/>
+        <Point Period="7.6" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1" Atlas="magic_rocks_atlas_layer4">
+    <Image X="-512" Y="194.5" ClassName="floor" Width="256" Height="49"/>
+    <Image X="-256" Y="194.5" ClassName="floor" Width="256" Height="49"/>
+    <Image X="0" Y="194.5" ClassName="floor" Width="256" Height="49"/>
+    <Image X="256" Y="194.5" ClassName="floor" Width="256" Height="49"/>
+    <Image X="512" Y="194.5" ClassName="floor" Width="256" Height="49"/>
+    <Image X="-774" Y="-135" ClassName="left" Width="400" Height="680"/>
+    <Image X="773" Y="-135" ClassName="right" Width="400" Height="680"/>
+    <Image X="0" Y="376" ClassName="pixel_1" Width="2000" Height="400" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

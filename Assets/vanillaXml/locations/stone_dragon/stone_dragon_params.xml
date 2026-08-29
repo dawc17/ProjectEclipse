@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="stone_dragon_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1536" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.12" Atlas="stone_dragon_atlas_layer1">
+    <Image X="0" Y="0" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="stone_dragon_atlas_layer2">
+    <Image X="0" Y="-15" ClassName="layer2_1" Width="1536" Height="512"/>
+    <ParticleEffect X="-100" Y="-150" ClassName="stone_dragon_ash1"/>
+    <ParticleEffect X="-100" Y="-150" ClassName="stone_dragon_ash2"/>
+  </Layer>
+  <Layer Type="1" Factor="0.45" Atlas="stone_dragon_atlas_layer3">
+    <Image X="0" Y="-20" ClassName="layer3_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1" Atlas="stone_dragon_atlas_layer4">
+    <Image X="-834.5" Y="-98" ClassName="left" Width="443" Height="656"/>
+    <Image X="834.5" Y="-98" ClassName="right" Width="443" Height="656"/>
+    <Image X="-896" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="-640" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="-384" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="-128" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="128" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="384" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="640" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="896" Y="189.5" ClassName="floor" Width="256" Height="57"/>
+    <Image X="0" Y="470" ClassName="pixel_1" Width="2000" Height="540" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

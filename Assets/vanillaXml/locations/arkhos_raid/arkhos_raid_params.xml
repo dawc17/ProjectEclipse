@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="100" Floor="40" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="arkhos_raid_bg">
+    <Image X="0" Y="-20" ClassName="bg_1" Width="1024" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="arkhos_raid_layer1">
+    <Image X="0" Y="-20" ClassName="layer1_1" Width="795" Height="469"/>
+    <Image X="9" Y="-156" ClassName="fire" Width="100" Height="80"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15">
+    <SimpleEffect X="8" Y="-166" Type="Sequention" ClassName="temple_fire" PictureLocation="global" Speed="6" Offset="0.1" Width="128" Height="106"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="arkhos_raid_layer1">
+    <SimpleEffect X="-97.5" Y="8" ClassName="layer5_7" Type="Picture" PictureLocation="local" Width="39" Height="40">
+      <Transparency Offset="1">
+        <Point Period="0.8" Value="30" Ease="-1"/>
+        <Point Period="0.8" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="100.5" Y="8" ClassName="layer5_7" Type="Picture" PictureLocation="local" Width="39" Height="40">
+      <Transparency Offset="1">
+        <Point Period="0.8" Value="30" Ease="-1"/>
+        <Point Period="0.8" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.20" Atlas="arkhos_raid_layer1">
+    <Image X="64" Y="100" ClassName="layer2_1" Width="1024" Height="135"/>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="arkhos_raid_layer1">
+    <Image X="64" Y="100" ClassName="layer3_1" Width="1024" Height="154"/>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="arkhos_raid_layer1">
+    <Image X="0" Y="120" ClassName="layer4_1" Width="1280" Height="240"/>
+    <Image X="0" Y="-200" ClassName="layer4_3" Width="1280" Height="151"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="arkhos_raid_layer1" Scaling="1">
+    <Image X="-868" Y="55.5" ClassName="left" Width="153" Height="403"/>
+    <Image X="-250" Y="225" ClassName="layer5_5" Width="1800" Height="60"/>
+    <Image X="868" Y="55.5" ClassName="right" Width="160" Height="403"/>
+    <Image X="0" Y="465" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

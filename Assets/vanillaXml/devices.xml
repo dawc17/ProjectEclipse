@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root>
+  <Config>
+    <RamLimit Value="1300"/>
+    <TabletDiagonal Value="6.5"/>
+  </Config>
+  <Devices>
+    <Device Name="iPad2,1" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad2,2" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad2,3" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad2,4" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad2,5" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad2,6" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad2,7" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad3,1" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad3,2" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad3,3" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad3,4" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad3,5" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad3,6" Tablet="1" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPad4,1" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad4,2" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad5,3" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad5,4" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad4,4" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad4,5" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad4,8" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad4,9" Tablet="1" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad5,1" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad5,2" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad6,3" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad6,4" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad6,8" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad6,7" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad7,1" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad7,2" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad7,3" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPad7,4" Tablet="1" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone1,2" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="LOW"/>
+    <Device Name="iPhone1,2*" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="LOW"/>
+    <Device Name="iPhone2,1" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="LOW"/>
+    <Device Name="iPhone2,1*" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="LOW"/>
+    <Device Name="iPhone3,1" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="LOW"/>
+    <Device Name="iPhone3,3" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="LOW"/>
+    <Device Name="iPhone4,1" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPhone4,1*" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPhone5,1" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPhone5,2" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPhone5,3" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPhone5,4" Tablet="0" Resolution="LOW" LocationResolution="LOW" QualityCondition="HIGH"/>
+    <Device Name="iPhone6,1" Tablet="0" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone6,2" Tablet="0" Resolution="LOW" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone7,2" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone7,1" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone8,1" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone8,2" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone9,1" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone9,3" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone9,2" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPhone9,4" Tablet="0" Resolution="HIGH" LocationResolution="HIGH" QualityCondition="HIGH"/>
+    <Device Name="iPod5,1" Tablet="0" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="iPod4,1" Tablet="0" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="GT-N7000" Tablet="0" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="samsung GT-N7000" Tablet="0" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="GT-I9500" Tablet="0"/>
+    <Device Name="samsung GT-I9500" Tablet="0"/>
+    <Device Name="i9500" Tablet="0"/>
+    <Device Name="samsung i9500" Tablet="0"/>
+    <Device Name="SM-G900F" Tablet="0"/>
+    <Device Name="samsung SM-G900F" Tablet="0"/>
+    <Device Name="SM-G900H" Tablet="0"/>
+    <Device Name="samsung SM-G900H" Tablet="0"/>
+    <Device Name="SM-G900FD" Tablet="0"/>
+    <Device Name="samsung SM-G900FD" Tablet="0"/>
+    <Device Name="GT-I9505" Tablet="0"/>
+    <Device Name="samsung GT-I9505" Tablet="0"/>
+    <Device Name="GT-I9505G" Tablet="0"/>
+    <Device Name="samsung GT-I9505G" Tablet="0"/>
+    <Device Name="GT-P7500" Tablet="1" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="samsung GT-P7500" Tablet="1" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="GT-P7500R" Tablet="1" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="samsung GT-P7500R" Tablet="1" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="SM-N900" Tablet="0"/>
+    <Device Name="samsung SM-N900" Tablet="0"/>
+    <Device Name="SM-N9005" Tablet="0"/>
+    <Device Name="samsung SM-N9005" Tablet="0"/>
+    <Device Name="SM-N9002" Tablet="0"/>
+    <Device Name="samsung SM-N9002" Tablet="0"/>
+    <Device Name="L36h" Tablet="0"/>
+    <Device Name="sony L36h" Tablet="0"/>
+    <Device Name="C6502" Tablet="0"/>
+    <Device Name="sony C6502" Tablet="0"/>
+    <Device Name="C6503" Tablet="0"/>
+    <Device Name="sony C6503" Tablet="0"/>
+    <Device Name="C6506" Tablet="0"/>
+    <Device Name="sony C6506" Tablet="0"/>
+    <Device Name="C6802" Tablet="0"/>
+    <Device Name="sony C6802" Tablet="0"/>
+    <Device Name="C6902" Tablet="0"/>
+    <Device Name="sony C6902" Tablet="0"/>
+    <Device Name="C6903" Tablet="0"/>
+    <Device Name="sony C6903" Tablet="0"/>
+    <Device Name="L39h" Tablet="0"/>
+    <Device Name="sony L39h" Tablet="0"/>
+    <Device Name="HTC Butterfly" Tablet="0"/>
+    <Device Name="HTC Butterfly s" Tablet="0"/>
+    <Device Name="PadFone Infinity" Tablet="0"/>
+    <Device Name="Nexus 4" LocationResolution="HIGH"/>
+    <Device Name="Nexus 5" Tablet="0"/>
+    <Device Name="lg Nexus 5" Tablet="0"/>
+    <Device Name="KFTT" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="KFSOWI" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="KFJWI" Resolution="LOW" LocationResolution="LOW"/>
+    <Device Name="Windows Simulator" Tablet="1" QualityCondition="HIGH"/>
+    <Device Name="Windows" Tablet="1" QualityCondition="HIGH"/>
+    <Device Name="RM-820" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-821" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-822" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-824" Tablet="0" QualityCondition="HIGH"/>
+    <Device Name="RM-825" Tablet="0" QualityCondition="HIGH"/>
+    <Device Name="RM-826" Tablet="0" QualityCondition="HIGH"/>
+    <Device Name="RM-845" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-860" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-867" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-875" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-876" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-877" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-878" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-892" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-893" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-910" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-927" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-937" Tablet="1" QualityCondition="HIGH"/>
+    <Device Name="RM-938" Tablet="1" QualityCondition="HIGH"/>
+    <Device Name="RM-939" Tablet="1" QualityCondition="HIGH"/>
+    <Device Name="RM-940" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-984" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-985" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-994" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-995" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-996" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-998" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-1027" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-1038" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-1039" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-1040" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="RM-1045" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="C625a" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="GT-I8750" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="HTC6990LVW" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="MICROMAX-W121" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="SGH-T899M" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="Windows Phone 8S by HTC" Tablet="0" QualityCondition="LOW"/>
+    <Device Name="Windows Phone 8X by HTC" Tablet="0" QualityCondition="LOW"/>
+  </Devices>
+  <QualityConditions>
+    <Condition Name="HIGH">
+      <Less Value="_DeviceTotalMem" Than="1024" Not="1"/>
+      <Less Value="_DeviceCoresNum" Than="4" Not="1"/>
+    </Condition>
+    <Condition Name="MEDIUM">
+      <Less Value="_DeviceTotalMem" Than="768" Not="1"/>
+      <Less Value="_DeviceCoresNum" Than="2" Not="1"/>
+    </Condition>
+    <Condition Name="LOW">
+      <Less Value="_DeviceTotalMem" Than="1024"/>
+      <Less Value="_DeviceCoresNum" Than="4"/>
+    </Condition>
+  </QualityConditions>
+  <ForcedLowTextureQualityDevices ResetItemImageCacheValue="20">
+    <Device Name="iPhone4,"/>
+    <Device Name="iPhone5,"/>
+    <Device Name="iPhone6,"/>
+    <Device Name="iPad3,"/>
+    <Device Name="iPad4,"/>
+  </ForcedLowTextureQualityDevices>
+</Root>

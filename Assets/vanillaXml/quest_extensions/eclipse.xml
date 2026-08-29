@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="ShowEclipseMode">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Less Value1="_EclipseModeEnabled" Value2="1"/>
+      <GreaterEqual Value1="_ForgeEnabled" Value2="2"/>
+      <GreaterEqual Value1="?Fight[ZONE_2|Tournament|4].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="EclipseModeTutorialFight" Value="?Concat[_CurrentZone,|Survival|]"/>
+      <Activate ActionID="ChooseBattleEclipseMode"/>
+      <Activate ActionID="EclipseModeTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChooseBattleEclipseModeTournament">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChooseBattleEclipseMode"/>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1"/>
+          <Less Value1="?Fight[_CurrentZone|Tournament_INTERMISSION|8].WinCount" Value2="1"/>
+        </Operator>
+        <Operator Type="And">
+          <Less Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1"/>
+          <Less Value1="?Fight[_CurrentZone|Tournament|24].WinCount" Value2="1"/>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="EclipseModeTutorialFight" Value="?Concat[_CurrentZone,|Tournament|]"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseModeReplayTutorialLauncher">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <GreaterEqual Value1="?Fight[ZONE_2|Tournament|11].WinCount" Value2="1"/>
+      <GreaterEqual Value1="_EclipseModeTutorialPart2" Value2="1"/>
+      <Less Value1="_EclipseModeReplayTutorial" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="EclipseModeReplayTutorialBattle" Value="ZONE_1|BOSS_LYNX_ECLIPSEMODE"/>
+      <Activate ActionID="EclipseModeReplayTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Locate_EclipseModeOn_Button" Priority="-101">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InEclipseMode" Value2="0"/>
+      <GreaterEqual Value1="_EclipseModeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideMapButton Name="EclipseModeOn"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Locate_EclipseModeOff_Button" Priority="-101">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InEclipseMode" Value2="1"/>
+      <GreaterEqual Value1="_EclipseModeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideMapButton Name="EclipseModeOff"/>
+      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.eclipse" ShowType="Story" Control="Y"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseMode_ButtonOn" Priority="1">
+    <Events>
+      <MapButtonPress/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ButtonName" Value2="EclipseModeOn"/>
+    </Conditions>
+    <Actions>
+      <ToggleEclipseMode Toggle="On"/>
+      <HideMapButton Name="EclipseModeOn"/>
+      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.eclipse" ShowType="Story" Control="Y"/>
+      <SetMapMask Color="#83624BFF" Sound="snd_eclipse"/>
+      <Activate ActionID="EcpliseModeToggleBattlesOn"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EcpliseModeReplayTutorialOnButtonPress">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EcpliseModeToggleBattlesOn"/>
+      <Less Value1="_EclipseModeReplayTutorial" Value2="1"/>
+      <GreaterEqual Value1="_EclipseModeTutorialPart2" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="EclipseModeReplayTutorialBattle" Value="ZONE_1|BOSS_LYNX_ECLIPSEMODE"/>
+      <Activate ActionID="EclipseModeReplayTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EcpliseModeToggleBattlesOn">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EcpliseModeToggleBattlesOn"/>
+      <GreaterEqual Value1="_EclipseModeReplayTutorial" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <UpdateEclipseBattles Trigger="TOGGLE"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseMode_ButtonOff">
+    <Events>
+      <MapButtonPress/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ButtonName" Value2="EclipseModeOff"/>
+    </Conditions>
+    <Actions>
+      <ToggleEclipseMode Toggle="Off"/>
+      <HideMapButton Name="EclipseModeOff"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+      <SetMapMask Color="#FFFFFFFF" Sound="snd_eclipse"/>
+      <Activate ActionID="EcpliseModeToggleBattlesOff"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EcpliseModeToggleBattlesOff">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EcpliseModeToggleBattlesOff"/>
+      <GreaterEqual Value1="_EclipseModeReplayTutorial" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <UpdateEclipseBattles Trigger="TOGGLE"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseMode_ButtonOff_for_IntermissionStart" Priority="9999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+      <Equal Value1="_$InEclipseMode" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ToggleEclipseMode Toggle="Off"/>
+      <HideMapButton Name="EclipseModeOff"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+      <SetMapMask Color="#FFFFFFFF" Sound="snd_eclipse"/>
+      <UpdateEclipseBattles Trigger="TOGGLE"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FightUnlockEclipseBattles_NotInEclipseMode" Priority="99999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_$InEclipseMode" Value2="1"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+      <GreaterEqual Value1="_EclipseModeReplayTutorial" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <UpdateEclipseBattles Trigger="FIGHT" Zone="?Fight[_$Fight].Zone"/>
+    </Actions>
+  </Quest>
+  <Quest Name="FightUnlockEclipseBattles_InEclipseMode" Priority="99999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InEclipseMode" Value2="1"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+      <Operator Type="Or">
+        <GreaterEqual Value1="_EclipseModeReplayTutorial" Value2="1"/>
+        <GreaterEqual Value1="_EclipseModeTutorialPart2" Value2="1"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <UpdateEclipseBattles Trigger="FIGHT" Zone="?Fight[_$Fight].Zone"/>
+      <Activate ActionID="EclipseModeReplayTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseBattlesChecker" Priority="1" Unresumable="1">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <GreaterEqual Value1="?DataVersion[].Version" Value2="1.9.18.0" CompareType="Versions"/>
+        <GreaterEqual Value1="?DataVersion[].Version" Value2="2.0.0.0" CompareType="Versions"/>
+      </Operator>
+      <GreaterEqual Value1="_EclipseModeTutorialPart2" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="_EclipseModeReplayTutorial" Value2="1"/>
+        </Conditions>
+        <Then>
+          <UpdateEclipseBattles Trigger="INIT"/>
+        </Then>
+        <Else>
+          <If>
+            <Conditions>
+              <Equal Value1="_$InEclipseMode" Value2="1"/>
+            </Conditions>
+            <Then>
+              <SetVariable Scope="Users" Name="EclipseModeReplayTutorialBattle" Value=""/>
+              <Activate ActionID="EclipseModeReplayTutorial"/>
+            </Then>
+          </If>
+        </Else>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseModeTutorial" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EclipseModeTutorial"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ToggleEclipseMode Toggle="Off"/>
+      <HideMapButton Name="EclipseModeOff"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+      <SetMapMask Color="#FFFFFFFF"/>
+      <ChangeScene Destination="Map"/>
+      <SetMapFocus Battle="_EclipseModeTutorialFight"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_eclipsemode_beginning1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_eclipsemode_beginning2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_eclipsemode_switch"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ClickButton Target="MapButtons.EclipseModeOn" UseArrow="1" ArrowOffsetX="-100" ArrowOffsetY="0" ArrowRotation="270"/>
+      <SetVariable Scope="Users" Name="EclipseModeEnabled" Value="1"/>
+      <Activate ActionID="EclipseModeTutorialFinish"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseModeTutorialFinish">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EclipseModeTutorialFinish"/>
+    </Conditions>
+    <Actions>
+      <ShowArrow Target="InfoBattle.BattleReward" OffsetX="-380" OffsetY="0" Rotation="270"/>
+      <If>
+        <Conditions>
+          <Greater Value1="_ForgeEnabled" Value2="1"/>
+        </Conditions>
+        <Then>
+          <Dialog Type="Notification" Image="character_sensei_small" WaitNotificationClose="1">
+            <Line Text="tutorial_eclipsemode_reward"/>
+            <Button Type="Right" Color="White" Text="dlgStoryBtnMore"/>
+          </Dialog>
+          <HideArrow/>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+            <Line Text="tutorial_eclipsemode_switch_back"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Then>
+        <Else>
+          <Dialog Type="Notification" Image="character_sensei_small" WaitNotificationClose="1">
+            <Line Text="tutorial_eclipsemode_reward_ver2"/>
+            <Button Type="Right" Color="White" Text="dlgStoryBtnMore"/>
+          </Dialog>
+          <HideArrow/>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+            <Line Text="tutorial_eclipsemode_switch_back_ver2"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Else>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseModeTutorialPart2" Unresumable="1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InEclipseMode" Value2="1"/>
+      <Less Value1="_EclipseModeTutorialPart2" Value2="1"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Type" Value2="BOSSES"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Type" Value2="BOSSES_INTERMISSION"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Type" Value2="DUMMY"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_eclipsemode_switch_back_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ClickButton Target="MapButtons.EclipseModeOff" UseArrow="1" ArrowOffsetX="-100" ArrowOffsetY="0" ArrowRotation="270"/>
+      <SetVariable Scope="Users" Name="EclipseModeTutorialPart2" Value="1"/>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Users" Name="EclipseModeReplayTutorialBattle" Value=""/>
+          <Activate ActionID="EclipseModeReplayTutorial"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="EclipseModeReplayTutorial" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EclipseModeReplayTutorial"/>
+      <GreaterEqual Value1="_EclipseModeTutorialPart2" Value2="1"/>
+      <Less Value1="_EclipseModeReplayTutorial" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ToggleEclipseMode Toggle="On"/>
+      <HideMapButton Name="EclipseModeOn"/>
+      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.eclipse" ShowType="Story" Control="Y"/>
+      <SetMapMask Color="#83624BFF"/>
+      <UpdateEclipseBattles Trigger="INIT" RefreshTutorialBattle="0"/>
+      <ChangeScene Destination="Map"/>
+      <SetMapFocus Battle="_EclipseModeReplayTutorialBattle" Frames="100"/>
+      <SetVariable Scope="Local" Name="TempFrames" Value="?SysInfo[].FramesCount"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_eclipsemode_replay_beginning"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Wait Frames="100 -  (?SysInfo[].FramesCount -  _TempFrames)"/>
+      <ShowArrow Target="?Concat[StoryMapBattles.,_EclipseModeReplayTutorialBattle,|]" OffsetX="-95" OffsetY="0" Rotation="270"/>
+      <Dialog Type="Notification" Image="character_sensei_small" WaitNotificationClose="1">
+        <Line Text="tutorial_eclipsemode_replay_icon"/>
+        <Button Type="Right" Color="White" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <HideArrow/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_eclipsemode_replay_boss_reward"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="EclipseModeReplayTutorial" Value="1"/>
+      <SetVariable Scope="Users" Name="EasyFightCount" Value="8"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7FightWithMay_EclipseMode" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|6"/>
+      <Greater Value1="?Fight[ZONE_7|C3_FightWithMay_ECLIPSEMODE|1].WinCount" Value2="?Fight[ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|6].WinCount" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Fight Name="ZONE_7|C3_FightWithMay_ECLIPSEMODE|1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7TitanDefeated_InEclipseMode" Priority="9999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|6"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$InEclipseMode" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowVideo Name="Shadow_fight_ending.mp4" Audio="Shadow_fight_ending.mp3" Lock="Silent"/>
+      <ShowCredits/>
+      <ChangeScene Destination="Map"/>
+      <ToggleBattle Name="ZONE_7|C3_BOSS_TITAN|" Toggle="off"/>
+      <ShowBattle Name="ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|" Instant="1" ReplayCount="0"/>
+      <SetMapFocus Battle="ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|"/>
+      <Dialog Type="Regular" Title="drop_name_sphere" Image="img_drop_titan_sphere">
+        <Line Text="SPHERE_GAIN"/>
+        <Button Type="Right" Color="Beige" Text="OK">
+          <GiveItem Name="drop_name_sphere" PutOn="0" Quantity="1"/>
+        </Button>
+      </Dialog>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].RaidsSupport" Value2="1"/>
+          <Equal Value1="?SysInfo[].SamsungF2P" Value2="1" Not="1"/>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="characterMay" Image="character_may_5">
+            <Line Text="MAY_RAID_UNLOCK"/>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+          </Dialog>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+            <Line Text="SENSEI_RAID_UNLOCK"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+          <BlockTouches/>
+          <RaidIndicateRaidBtn ArrowOffsetX="100" ArrowOffsetY="0" ArrowRotation="90"/>
+          <UnblockTouches/>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+            <Line Text="SENSEI_RAID_UNLOCK2"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="FinishEclipseTutorial_OnSessionStart_IfIntermission" Priority="-101">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="1"/>
+      <Operator Type="Or">
+        <Less Value1="_EclipseModeTutorialPart2" Value2="1"/>
+        <Less Value1="_EclipseModeReplayTutorial" Value2="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="EclipseModeEnabled" Value="1"/>
+      <SetVariable Scope="Users" Name="EclipseModeTutorialPart2" Value="1"/>
+      <SetVariable Scope="Users" Name="EclipseModeReplayTutorialBattle" Value=""/>
+      <Activate ActionID="EclipseModeReplayTutorial"/>
+    </Actions>
+  </Quest>
+</Quests>

@@ -12,6 +12,8 @@ of this base through data/mod APIs rather than define the base game's behavior.
 
 - `Assets/` - recovered game code, assets, resources, and editor tools.
 - `Assets/Scripts/Eclipse/` - Eclipse-owned reconstruction and platform code.
+- `Assets/vanillaXml/` - canonical vanilla 2.41.9 gameplay/configuration XML.
+- `Assets/DExml/` - archived pre-pivot Definitive Edition XML/model data; not the active base.
 - `Deobfuscation/` - reviewed identifier-recovery workflow.
 - `Tools/` - validation, repair, and audit utilities.
 - `BuildScripts/` - project build and reference scripts.

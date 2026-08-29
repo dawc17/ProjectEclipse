@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x281409" Wall="305" Floor="77" Width="1960" Height="560">
+  <Layer Type="1" Factor="0" Atlas="dojo_outside" Scaling="1">
+    <Image X="0" Y="-70" ClassName="background_1" Width="1280" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.5" Atlas="dojo_outside">
+    <Image X="-30" Y="0" ClassName="layer_1_1" Width="1024" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.5" Atlas="dojo_outside" Scaling="1">
+    <Image X="0" Y="0" ClassName="layer_2_1" Width="1024" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dojo_inside" Scaling="1">
+    <Image X="0" Y="20" ClassName="layer_summer_3_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="690" PlayerPositionY="-93" EnemyPositionX="973" EnemyPositionY="-105"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dojo_inside" Scaling="1">
+    <Image X="-640" Y="226.5" ClassName="layer_3_1" Width="256" Height="59"/>
+    <Image X="-384" Y="226.5" ClassName="layer_3_2" Width="256" Height="59"/>
+    <Image X="-128" Y="226.5" ClassName="layer_3_1" Width="256" Height="59"/>
+    <Image X="128" Y="226.5" ClassName="layer_3_2" Width="256" Height="59"/>
+    <Image X="384" Y="226.5" ClassName="layer_3_1" Width="256" Height="59"/>
+    <Image X="640" Y="226.5" ClassName="layer_3_2" Width="256" Height="59"/>
+    <Image X="-10" Y="-193.5" ClassName="layer_5" Width="310" Height="145"/>
+    <Image X="-685.912" Y="0" ClassName="left" Width="74.175" Height="560"/>
+    <Image X="683.810" Y="0" ClassName="right" Width="78.379" Height="560"/>
+    <Image X="-890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x281409" IsOpaque="1"/>
+    <Image X="890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x281409" IsOpaque="1"/>
+    <Image X="0" Y="-426" ClassName="pixel_1" Width="1960" Height="400" Color="0x281409" IsOpaque="1"/>
+    <Image X="0" Y="450" ClassName="pixel_1" Width="1960" Height="500" Color="0x281409" IsOpaque="1"/>
+  </Layer>
+</Root>

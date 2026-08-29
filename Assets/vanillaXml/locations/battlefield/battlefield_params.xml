@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="battlefield_bg1">
+    <Image X="0" Y="-15" ClassName="back_1" Width="1512" Height="504" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="battlefield_atlas_layer5">
+    <Image X="-187" Y="-123" ClassName="top_cas" Width="182" Height="100"/>
+  </Layer>
+  <Layer Type="1" Factor="0.1">
+    <ParticleEffect X="-10" Y="20" ClassName="smoke_battlefield"/>
+    <SimpleEffect X="-10" Y="10" Type="Sequention" ClassName="fire_town" PictureLocation="global" Speed="3" Offset="1" Width="46" Height="66"/>
+    <ParticleEffect X="-295" Y="-80" ClassName="smoke_battlefield2"/>
+    <SimpleEffect X="-300" Y="-90" Type="Sequention" ClassName="fire_town" PictureLocation="global" Speed="3" Offset="0" Width="86" Height="76"/>
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="battlefield_bg2">
+    <Image X="0" Y="0" ClassName="background_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.125" Atlas="battlefield_atlas_layer1">
+    <Image X="0" Y="25" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="battlefield_atlas_layer2">
+    <Image X="0" Y="25" ClassName="layer2_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.175" Atlas="battlefield_atlas_layer3">
+    <Image X="0" Y="0" ClassName="layer3_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.175" Atlas="battlefield_atlas_layer5">
+    <SimpleEffect X="-896" Y="121.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="107.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-384" Y="121.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="107.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="128" Y="107.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="121.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="640" Y="107.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="121.5" Type="Picture" PictureLocation="local" ClassName="layer_4_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="1152" Y="107.5" Type="Picture" PictureLocation="local" ClassName="layer_4_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="1.3" Y="0"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="battlefield_atlas_layer4" Scaling="1">
+    <Image X="-960" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-832" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-704" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-576" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-448" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-320" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-192" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-64" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="64" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="192" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="320" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="448" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="576" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="704" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="832" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="960" Y="193" ClassName="floor" Width="128" Height="48"/>
+    <Image X="-911.5" Y="-130" ClassName="left" Width="477" Height="680"/>
+    <Image X="911.5" Y="-130" ClassName="right" Width="477" Height="680"/>
+    <Image X="0" Y="390" ClassName="pixel_1" Width="2000" Height="360" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

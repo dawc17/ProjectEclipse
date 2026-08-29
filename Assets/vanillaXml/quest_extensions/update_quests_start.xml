@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="UpdateStart" Priority="100000" Unresumable="1">
+    <Events>
+      <CheckUserUpdate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_UpdateTo2'41'9'0Mark" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <AttachQuestFile File="quest_extensions/update_quests.xml"/>
+      <Activate ActionID="Update"/>
+    </Actions>
+  </Quest>
+</Quests>

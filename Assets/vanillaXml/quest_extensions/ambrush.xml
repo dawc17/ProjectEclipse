@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="Ambush1400" Group="Ambush|FightEnter" Priority="801">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Duel"/>
+      <Equal Value1="_Ambush1400" Value2="1" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger" Not="1"/>
+      <Operator Type="Or">
+        <Equal Value1="_PreUpdateLevel" Value2="9"/>
+        <Equal Value1="_PreUpdateLevel" Value2="10"/>
+        <Equal Value1="_PreUpdateLevel" Value2="14"/>
+        <Equal Value1="_PreUpdateLevel" Value2="15"/>
+        <Equal Value1="_PreUpdateLevel" Value2="16"/>
+        <Equal Value1="_PreUpdateLevel" Value2="17"/>
+        <Equal Value1="_PreUpdateLevel" Value2="18"/>
+        <Equal Value1="_PreUpdateLevel" Value2="19"/>
+        <Equal Value1="_PreUpdateLevel" Value2="20"/>
+        <Equal Value1="_PreUpdateLevel" Value2="21"/>
+        <Equal Value1="_PreUpdateLevel" Value2="22"/>
+        <Equal Value1="_PreUpdateLevel" Value2="23"/>
+        <Equal Value1="_PreUpdateLevel" Value2="24"/>
+        <Equal Value1="_PreUpdateLevel" Value2="26"/>
+        <Equal Value1="_PreUpdateLevel" Value2="27"/>
+        <Equal Value1="_PreUpdateLevel" Value2="28"/>
+        <Equal Value1="_PreUpdateLevel" Value2="29"/>
+        <Equal Value1="_PreUpdateLevel" Value2="30"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="CrutchKenji"/>
+      <Dialog Type="Regular" Title="Ambush1400_title" Image="ninja_man_knives">
+        <Line Text="Ambush1400_announce" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="?Concat[ZONE_1|Ambush1400|,_PreUpdateLevel]"/>
+          <ClearQuestQueue/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush1400Alt" Group="Ambush|FightEnter" Priority="1500">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+      <Equal Not="1" Value1="?Fight[_$Fight].Battle" Value2="Duel"/>
+      <Equal Value1="_Ambush1400" Value2="1" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger" Not="1"/>
+      <Operator Type="Or" Not="1">
+        <Equal Value1="_PreUpdateLevel" Value2="9"/>
+        <Equal Value1="_PreUpdateLevel" Value2="10"/>
+        <Equal Value1="_PreUpdateLevel" Value2="14"/>
+        <Equal Value1="_PreUpdateLevel" Value2="15"/>
+        <Equal Value1="_PreUpdateLevel" Value2="16"/>
+        <Equal Value1="_PreUpdateLevel" Value2="17"/>
+        <Equal Value1="_PreUpdateLevel" Value2="18"/>
+        <Equal Value1="_PreUpdateLevel" Value2="19"/>
+        <Equal Value1="_PreUpdateLevel" Value2="20"/>
+        <Equal Value1="_PreUpdateLevel" Value2="21"/>
+        <Equal Value1="_PreUpdateLevel" Value2="22"/>
+        <Equal Value1="_PreUpdateLevel" Value2="23"/>
+        <Equal Value1="_PreUpdateLevel" Value2="24"/>
+        <Equal Value1="_PreUpdateLevel" Value2="26"/>
+        <Equal Value1="_PreUpdateLevel" Value2="27"/>
+        <Equal Value1="_PreUpdateLevel" Value2="28"/>
+        <Equal Value1="_PreUpdateLevel" Value2="29"/>
+        <Equal Value1="_PreUpdateLevel" Value2="30"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Ambush1400" Value="1"/>
+      <ClearQuestQueue/>
+      <Fight Name="_$Fight"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush1400CleanUp" Group="Ambush" Priority="1500">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Ambush1400"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Ambush1400" Value="1"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="Ambush1400_over" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush1950" Group="Ambush" Priority="801">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Fight"/>
+      <Equal Value1="_Ambush1950Launch" Value2="1"/>
+      <Equal Value1="_Ambush1950" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="Ambush1400_title" Image="looter_man_staff">
+        <Line Text="Ambush1400_announce" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="ZONE_7|Ambush1950|1"/>
+          <ClearQuestQueue/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush1950CleanUp" Group="Ambush" Priority="1500">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Ambush1950"/>
+      <Equal Not="1" Value1="_$FightResult" Value2="Surrender"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Ambush1950" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush19130" Group="Ambush" Priority="999">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Ambush19110" Not="1"/>
+      <GreaterEqual Value1="_Ambush19130Launch" Value2="1"/>
+      <Equal Value1="_Ambush19130" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="Ambush1400_title" Image="man_katar" Mirrored="1">
+        <Line Text="Ambush1400_announce" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="?Concat[ZONE_1|Ambush19110|,_Ambush19130Launch]"/>
+          <ClearQuestQueue/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush19130CleanUp" Group="Ambush" Priority="1500">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Ambush19110"/>
+      <Equal Not="1" Value1="_$FightResult" Value2="Surrender"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Ambush19130" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush19142" Group="Ambush" Priority="999">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Ambush19110" Not="1"/>
+      <GreaterEqual Value1="_Ambush19142Launch" Value2="1"/>
+      <Equal Value1="_Ambush19142" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="Ambush1400_title" Image="man_katar" Mirrored="1">
+        <Line Text="Ambush1400_announce" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="ZONE_1|Ambush19110|1"/>
+          <ClearQuestQueue/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Ambush19142CleanUp" Group="Ambush" Priority="1500">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Ambush19110"/>
+      <Equal Not="1" Value1="_$FightResult" Value2="Surrender"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Ambush19142" Value="1"/>
+    </Actions>
+  </Quest>
+</Quests>

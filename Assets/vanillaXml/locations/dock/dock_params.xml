@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Color="0x000000" Wall="250" Floor="80" Width="1581" Height="512">
+  <Layer Type="1" Factor="0" Atlas="dock_2">
+    <Image X="0" Y="-8" ClassName="_0020_background" Width="1581" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.025" Atlas="dock_1">
+    <Image X="-96.5" Y="-12" ClassName="_0019_far_cloud" Width="458" Height="50"/>
+  </Layer>
+  <Layer Type="1" Factor="0.05" Atlas="dock_2">
+    <Image X="0" Y="31" ClassName="_0018_far_mountain" Width="1581" Height="254"/>
+  </Layer>
+  <Layer Type="1" Factor="0.06" Atlas="dock_1">
+    <Image X="-26.5" Y="-165" ClassName="_0017_cloud_2" Width="1358" Height="118"/>
+  </Layer>
+  <Layer Type="1" Factor="0.07" Atlas="dock_1">
+    <Image X="-154" Y="-114" ClassName="_0015_left_mountain_cloud" Width="533" Height="62"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="dock_1">
+    <Image X="110" Y="66.5" ClassName="_0012_far_haze" Width="463" Height="217"/>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="dock_1">
+    <Image X="0" Y="172.5" ClassName="_0011_water" Width="1581" Height="91"/>
+  </Layer>
+  <Layer Type="1" Factor="0.19" Atlas="dock_1">
+    <Image X="-428" Y="-49.5" ClassName="_0010_left_mountain" Width="725" Height="381"/>
+  </Layer>
+  <Layer Type="1" Factor="0.22" Atlas="dock_1">
+    <Image X="503.5" Y="-50.5" ClassName="_0009_right_mountain" Width="574" Height="395"/>
+  </Layer>
+  <Layer Type="1" Factor="0.23" Atlas="dock_1">
+    <Image X="-413" Y="112" ClassName="_0008_left_mountain_haze" Width="755" Height="190"/>
+  </Layer>
+  <Layer Type="1" Factor="0.27" Atlas="dock_1">
+    <Image X="477.5" Y="74.5" ClassName="_0007_right_mountaian_haze" Width="530" Height="279"/>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="dock_1">
+    <Image X="276" Y="77.5" ClassName="_0005_island" Width="445" Height="181"/>
+  </Layer>
+  <Layer Type="1" Factor="0.85" Atlas="dock_1">
+    <Image X="-758" Y="-74" ClassName="_0004_sunrays" Width="740" Height="411"/>
+  </Layer>
+  <Layer Type="1" Factor="0.9" Atlas="dock_1">
+    <Image X="25" Y="116" ClassName="_0003_haze_1" Width="1531" Height="280"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="690" PlayerPositionY="-94" EnemyPositionX="890" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dock_2" Scaling="1">
+    <Image X="0" Y="26" ClassName="_0001_arena" Width="1581" Height="420"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dock_1" Scaling="1">
+    <Image X="0" Y="326" ClassName="pixel_1" Width="2000" Height="200" Color="0x000000"/>
+  </Layer>
+  <Layer Type="1" Factor="1.5" Atlas="dock_1">
+    <Image X="-352" Y="-32" ClassName="_0000_foreground_shine" Width="1262" Height="516"/>
+  </Layer>
+</Root>

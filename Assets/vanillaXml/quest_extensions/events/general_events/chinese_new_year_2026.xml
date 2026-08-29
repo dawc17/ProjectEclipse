@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="StartEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StartEvent"/>
+    </Conditions>
+    <Actions>
+      <Run Name="EventVars"/>
+      <ToggleItems Label="RAID_EVENT" Toggle="off"/>
+      <ClearQuestQueue Name="EventAnnounce"/>
+      <Run Name="EventAnnounce"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EndEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EndEvent"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="EventDojoIndex" Value="0"/>
+      <SetVariable Scope="Users" Name="EventBossIndex" Value="0"/>
+      <ToggleItems Label="RAID_EVENT" Toggle="off"/>
+      <Run Name="SelectEventDojo"/>
+      <Run Name="UpdateEventBossTime"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ProlongEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ProlongEvent"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="EventDojoIndex" Value="1"/>
+      <SetVariable Scope="Users" Name="EventBossIndex" Value="1"/>
+      <ToggleItems Label="RAID_EVENT" Toggle="on"/>
+      <Run Name="SelectEventDojo"/>
+      <Run Name="UpdateEventBossTime"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EventVars" Priority="9999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="OnEventFileAttached"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="EventGift" Value="CHNY26Gift"/>
+      <SetVariable Scope="Users" Name="EventFirstPurchaseGift" Value="CHNY26GiftFirstPurchase"/>
+      <SetVariable Scope="Users" Name="EventClanCreationGift" Value="CHNY26ClanCreationGift"/>
+      <SetVariable Scope="Users" Name="EventBossFight" Value="ZONE_RAID|BOSS_SON_OF_THE_SUN|"/>
+      <SetVariable Scope="Users" Name="EventBossName" Value="RAIDBOSS_CNY24"/>
+      <SetVariable Scope="Users" Name="EventKeyTitle" Value="CNY26_Key_Single"/>
+      <SetVariable Scope="Users" Name="EventKeyIcon" Value="ChineseNewYear26Key.Big"/>
+    </Actions>
+  </Quest>
+  <Quest Name="UpdateEventBossTime" Priority="900">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_EventActive" Value2="1"/>
+      <Equal Value1="_EventStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Switch Value="_EventBossIndex">
+        <Case Value="0">
+          <Run Name="HideAllEventBosses"/>
+          <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+        </Case>
+        <Case Value="1">
+          <Run Name="HideAllEventBosses"/>
+          <SetBattleVisibility Name="_EventBossFight" IsVisible="1"/>
+          <ShowBattleForPeriod BattleName="_EventBossFight" EndTime="_EventEnd"/>
+          <SetMapFocus Battle="_EventBossFight"/>
+        </Case>
+        <Default>
+          <Run Name="HideAllEventBosses"/>
+        </Default>
+      </Switch>
+    </Actions>
+  </Quest>
+  <Quest Name="EventBossManager" Unresumable="1" Priority="99999">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="_EventStory" Value2="0"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Users" Name="EventBossIndex" Value="0"/>
+          <Run Name="CheckEventBosses"/>
+          <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Greater Value1="_EventStory" Value2="0"/>
+          <Greater Value1="?SysInfo[].Time" Value2="_EventStart"/>
+          <Less Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+        </Conditions>
+        <Then>
+          <Run Name="CheckEventBosses"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Greater Value1="_EventStory" Value2="0"/>
+          <Greater Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+        </Conditions>
+        <Then>
+          <Run Name="HideAllEventBosses"/>
+          <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="CheckEventBosses" Priority="9000">
+    <Actions>
+      <Switch Value="_EventBossIndex">
+        <Case Value="0">
+          <Run Name="HideAllEventBosses"/>
+        </Case>
+        <Case Value="1">
+          <Run Name="HideAllEventBosses"/>
+          <SetBattleVisibility Name="ZONE_RAID|BOSS_SON_OF_THE_SUN|" IsVisible="1"/>
+          <SetMapFocus Battle="ZONE_RAID|BOSS_SON_OF_THE_SUN|"/>
+        </Case>
+        <Default>
+          <Run Name="HideAllEventBosses"/>
+        </Default>
+      </Switch>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowAllEventBosses" Priority="9000">
+    <Actions>
+      <SetBattleVisibility Name="ZONE_RAID|BOSS_SON_OF_THE_SUN|" IsVisible="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HideAllEventBosses" Priority="9000">
+    <Actions>
+      <SetBattleVisibility Name="ZONE_RAID|BOSS_SON_OF_THE_SUN|" IsVisible="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChangeToEventDojoEveryTime" Priority="9999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="OnEventFileAttached"/>
+      <Equal Value1="_ChangeToEventDojo" Value2="1"/>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+    </Conditions>
+    <Actions>
+      <Run Name="SelectEventDojo"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SelectEventDojo" Priority="-200">
+    <Actions>
+      <Switch Value="_EventDojoIndex">
+        <Case Value="1">
+          <ChangeDojoLocation Name="new_year_china_dojo"/>
+        </Case>
+        <Default>
+          <ChangeDojoLocation Name="dojo"/>
+        </Default>
+      </Switch>
+    </Actions>
+  </Quest>
+  <Quest Name="EventAnnounce" Priority="9999">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?SysInfo[].Time" Value2="_EventStart"/>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Equal Value1="_EventAnnounce" Value2="0"/>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <Equal Value1="_$SceneFrom" Value2="Dojo"/>
+          <Operator Type="Or">
+            <Equal Value1="_$SceneTo" Value2="Shop"/>
+            <Equal Value1="_$SceneTo" Value2="Map"/>
+          </Operator>
+        </Operator>
+        <Operator Type="And">
+          <Equal Value1="_$SceneFrom" Value2="Map"/>
+          <Operator Type="Or">
+            <Equal Value1="_$SceneTo" Value2="Shop"/>
+            <Equal Value1="_$SceneTo" Value2="Dojo"/>
+          </Operator>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_EVENT" Toggle="on"/>
+      <Dialog Type="Multiline" Title="CNY20AnnounceTitle" Image="img::UI/Items/AnnounceCNY21" ImageScale="0.91">
+        <Line Text="EventAnnounceStart"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="_EventKeyIcon" Title="_EventKeyTitle" ImageScale="0.5" ImageOffsetX="-50">
+        <Line Text="dlgMiniEventKeys"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="CNY20AnnounceTitle">
+        <Line Text="CNY20Announce2{img::ChineseNewYear26Coin.Small}"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="EventAnnounce" Value="1"/>
+      <SetVariable Scope="Users" Name="EventBossIndex" Value="1"/>
+      <SetVariable Scope="Users" Name="EventDojoIndex" Value="1"/>
+      <SetVariable Scope="Users" Name="ChangeToEventDojo" Value="1"/>
+      <Run Name="SelectEventDojo"/>
+      <Run Name="CheckEventBosses"/>
+      <Dialog Type="Multiline" Title="CNY20AnnounceTitle" Image="img::UI/Items/gift_box_red_n_gold" ImageScale="0.85">
+        <Line Text="EventAnnounceGift_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore">
+          <ConnectToRaids>
+            <Success>
+              <GiveGift Name="_EventGift" Value="1" Recurring="0" Sound="snd_buy"/>
+              <ChangeScene Destination="Map" CallEvents="false"/>
+              <ChangeTab Tab="RaidMapStage"/>
+              <ChangeTab Tab="RaidMapStage"/>
+              <Run Name="EventStory"/>
+              <ClearQuestQueue Name="EventStory"/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="EventStory" Priority="9998" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?SysInfo[].Time" Value2="_EventStart"/>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+      <Equal Value1="_EventStory" Value2="0"/>
+      <Equal Value1="_EventAnnounce" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ChangeTab Tab="RaidMapStage"/>
+      <OpenRaidZone Index="0"/>
+      <Dialog Type="Regular" Image="new_man_shuang_gou" Title="RAIDBOSS_CNY24">
+        <Line Text="dlgCNY20AnnounceBoss_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="_Avatar_Assistant_1" Title="_Title_Assistant">
+        <Line Text="dlgCNY20AnnounceAssistant_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="character_sensei" Title="characterSensei">
+        <Line Text="dlgCNY20AnnounceSensei_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="new_man_shuang_gou" Title="RAIDBOSS_CNY24">
+        <Line Text="dlgCNY20AnnounceBoss_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="new_man_shuang_gou" Title="RAIDBOSS_CNY24">
+        <Line Text="dlgCNY20AnnounceBoss_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="_Avatar_Assistant_1" Title="_Title_Assistant">
+        <Line Text="dlgCNY20AnnounceAssistant_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="new_man_shuang_gou" Title="RAIDBOSS_CNY24">
+        <Line Text="dlgCNY20AnnounceBoss_4"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="EventStory" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EventFightLose">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_EventBossFightLose" Value2="0"/>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_SON_OF_THE_SUN"/>
+    </Conditions>
+    <Actions>
+      <ChangeTab Tab="RaidMapStage"/>
+      <Dialog Type="Regular" Image="new_man_shuang_gou" Title="RAIDBOSS_CNY24">
+        <Line Text="dlgCNY20Boss_Win"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="character_sensei" Title="characterSensei">
+        <Line Text="dlgNY20Sensei_Loose"/>
+        <Button Type="Left" Color="Green" Text="dlgStoryBtnStore">
+          <ConnectToRaids>
+            <Success>
+              <OpenShop Tab="RaidConsumable" Item="CHNY26Chest"/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+        <Button Type="Right" Color="Beige" Text="rateDlgBtn2Text"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="EventBossFightLose" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EventFightWin">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_EventBossFightWin" Value2="0"/>
+      <Equal Value1="_$Raid" Value2="BOSS_SON_OF_THE_SUN"/>
+    </Conditions>
+    <Actions>
+      <ChangeTab Tab="RaidMapStage"/>
+      <OpenRaidZone Index="0"/>
+      <Dialog Type="Regular" Image="new_man_shuang_gou" Title="RAIDBOSS_CNY24">
+        <Line Text="dlgCNY20Boss_Loose"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Image="_Avatar_Assistant_1" Title="_Title_Assistant">
+        <Line Text="dlgCNY20Assistant_Loose"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryPositive"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="EventBossFightWin" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="CHNY26ShopAdvNYChest" Priority="0">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+      <Equal Value1="?RaidInfo[].TutorialStep" Value2="TutorialComplete"/>
+      <Equal Value1="_EventAnnounce" Value2="1"/>
+      <Equal Value1="_CHNY26ShopAdvNYChest" Not="1" Value2="1"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+    </Conditions>
+    <Actions>
+      <ConnectToRaids>
+        <Success>
+          <OpenShop Tab="RaidConsumable" Item="CHNY26Chest"/>
+          <SetVariable Scope="Users" Name="CHNY26ShopAdvNYChest" Value="1"/>
+          <Dialog Type="Regular" Title="Val18Chest" Image="CHNY26Chest" ImageScale="0.85" ImageOffsetY="-65">
+            <Line Text="AdvFirstEventChestBuy"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Success>
+        <Error>
+          <Activate ActionID="CheckOnline"/>
+        </Error>
+      </ConnectToRaids>
+    </Actions>
+  </Quest>
+  <Quest Name="GiftAfterFirstChestPurchase" Priority="0">
+    <Events>
+      <RaidPurchase/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Slice[_$RaidPurchase,0,8]" Value2="NY26Chest"/>
+      <Equal Value1="_GiftAfterFirstChestPurchase" Not="1" Value2="1"/>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="GiftAfterFirstChestPurchase" Value="1"/>
+      <Dialog Type="Multiline" Title="Val18Chest" Image="gift_box_red_n_gold" ImageScale="0.85" ImageOffsetX="-50" ContentOffsetX="100">
+        <Line Text="XMAS16_GiftReceived"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore">
+          <ConnectToRaids>
+            <Success>
+              <GiveGift Name="_EventFirstPurchaseGift" Value="1" Recurring="0" Sound="snd_buy"/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ClanCreationGiftAnounce" Priority="-100" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Equal Value1="_ClanCreationGiftAnounce" Value2="1" Not="1"/>
+      <Equal Value1="_ClanCreationGiftRecieved" Value2="1" Not="1"/>
+      <Equal Value1="?Clan[].PlayerRole" Value2="0"/>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd "/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="ClanCreationGiftTitle" Image="_Avatar_Assistant_1">
+        <Line Text="ClanCreationGiftAnnounce"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryThanks"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ClanCreationGiftAnounce" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ClanCreationGift" Priority="-9999" Unresumable="1">
+    <Events>
+      <CreateClan/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Equal Value1="_ClanCreationGiftRecieved" Value2="1" Not="1"/>
+      <Equal Value1="?RaidGift[_EventClanCreationGift].Received" Value2="1" Not="1"/>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd "/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ClanCreationGiftRecieved" Value="1"/>
+      <Dialog Type="Regular" Title="SuccessTitle" Image="_Avatar_Assistant_1">
+        <Line Text="dlgClanCreationGift"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryThanks"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="SuccessTitle" Image="img::UI/Items/gift_box_red_n_gold" ImageScale="0.85" ImageOffsetX="-50" ContentOffsetX="100">
+        <Line Text="XMAS16_GiftReceived"/>
+        <Button Type="Right" Color="Beige" Text="OK">
+          <GiveGift Name="_EventClanCreationGift" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="EventGiftChecker" Priority="100" Unresumable="0">
+    <Events>
+      <RaidLogin/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Less Value1="?SysInfo[].Time" Value2="_EventEnd"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="_EventAnnounce" Value2="1"/>
+          <Equal Value1="?RaidGift[_EventGift].Received" Value2="0"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="_EventGift" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_GiftAfterFirstChestPurchase" Value2="1"/>
+          <Equal Value1="?RaidGift[_EventFirstPurchaseGift].Received" Value2="0"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="_EventFirstPurchaseGift" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_ClanCreationGiftRecieved" Value2="1"/>
+          <Equal Value1="?RaidGift[_EventClanCreationGift].Received" Value2="0"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="_EventClanCreationGift" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+</Quests>

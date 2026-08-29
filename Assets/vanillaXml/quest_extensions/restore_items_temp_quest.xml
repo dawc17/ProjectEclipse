@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="EventExtraGift2Checker" Priority="-900">
+    <Events>
+      <RaidLogin/>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Operator Type="Or" Not="1">
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_1].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_2].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_3].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_4].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_5].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_6].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_7].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_7_1].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_7_2].Received" Value2="1"/>
+        <Equal Value1="?RaidGift[Restore_Enchant_Gift_7_3].Received" Value2="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <GiveGift Name="Restore_Gift_Gems_25" Value="1" Recurring="0" Sound="snd_buy"/>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="1"/>
+          <Less Value1="?Player[].Level" Value2="7"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_1" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="7"/>
+          <Less Value1="?Player[].Level" Value2="13"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_2" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="13"/>
+          <Less Value1="?Player[].Level" Value2="19"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_3" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="19"/>
+          <Less Value1="?Player[].Level" Value2="25"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_4" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="25"/>
+          <Less Value1="?Player[].Level" Value2="31"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_5" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="31"/>
+          <Less Value1="?Player[].Level" Value2="37"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_6" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="37"/>
+          <Less Value1="?Player[].Level" Value2="44"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_7" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="44"/>
+          <Less Value1="?Player[].Level" Value2="47"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_7_1" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="47"/>
+          <Less Value1="?Player[].Level" Value2="50"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_7_2" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Player[].Level" Value2="50"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="Restore_Enchant_Gift_7_3" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+</Quests>

@@ -1,0 +1,1555 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="Zone7_Shroud_Loss">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Name" Value2="ZONE_7|MINIBOSS_SHROUD|1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="ZONE_7_unlock_exception"/>
+      <ShowBattle Name="ZONE_7|Survival" Locked="0"/>
+      <ToggleItems Label="IM_DONATE_1" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_2" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_3" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_4" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_5" Toggle="off"/>
+      <SetVariable Scope="Users" Name="Avatar_Notification" Value="character_kali"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_1" Value="character_kali"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_2" Value="character_kali"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_3" Value="character_kali"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_4" Value="character_kali"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_5" Value="character_kali"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_6" Value="character_cypher"/>
+      <SetVariable Scope="Users" Name="Title_Assistant" Value="characterKali"/>
+      <SetVariable Scope="Users" Name="Title_Assistant_2" Value="characterCypher"/>
+      <SetVariable Scope="Users" Name="Shroud_Loss" Value="1"/>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_shroud_fightend1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_shroud_fightend2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_7|Tournament" Locked="0"/>
+      <ToggleBattle Name="ZONE_7|Tournament" Toggle="on"/>
+      <SetMapFocus Battle="ZONE_7|Tournament|"/>
+      <Wait Frames="120" Locked="1" ControlsLock="1"/>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_shroud_fightend3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_shroud_fightend4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_shroud_fightend5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_shroud_fightend6" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_shroud_fightend7" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Shroud_OnSessionStart">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="PseudoSessionStart"/>
+      <Equal Not="1" Value1="_Shroud_Loss" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud" IgnoreBack="1">
+        <Line Text="zone7_c1_arrival1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Red" Text="dlgStoryBtnFight">
+          <Fight Name="ZONE_7|MINIBOSS_SHROUD|1"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Shroud_Start" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShroudStart"/>
+      <Equal Not="1" Value1="_Shroud_Loss" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud" IgnoreBack="1">
+        <Line Text="zone7_c1_arrival1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Red" Text="dlgStoryBtnFight">
+          <Fight Name="ZONE_7|MINIBOSS_SHROUD|1"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Denomination_Shop">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Value1="_Shroud_Loss" Value2="1"/>
+      <Equal Not="1" Value1="_Zone7_Denomination" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Denomination DenominationDigits="7" CoinIcon="MiscSprites.credit"/>
+      <ToggleItems Label="IM_DONATE_6" Toggle="off"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE" Toggle="off"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE_CASKET" Toggle="off"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE_CASKET_SALE" Toggle="off"/>
+      <ToggleItems Label="ZONE_7_DONATE" Toggle="on"/>
+      <Activate ActionID="Donate7Switch"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Image" Value="pile_coins_platinum"/>
+      <SetVariable Scope="Users" Name="Zone7_Denomination" Value="1"/>
+      <Activate ActionID="ZoneSwitch"/>
+      <ChangeScene Destination="Shop"/>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_denomination1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <ClearQuestQueue Name="ForgeTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Denomination_FightEnter" Group="FightEnter" Priority="999">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_Shroud_Loss" Value2="1"/>
+      <Equal Not="1" Value1="_Zone7_Denomination" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Denomination DenominationDigits="7" CoinIcon="MiscSprites.credit"/>
+      <ToggleItems Label="IM_DONATE_6" Toggle="off"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE" Toggle="off"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE_CASKET" Toggle="off"/>
+      <ToggleItems Label="COMMON_RUBY_DONATE_CASKET_SALE" Toggle="off"/>
+      <ToggleItems Label="?Item[_preSale_Item].PackLabel" Toggle="off"/>
+      <ToggleItems Label="?Item[_sale_Item].PackLabel" Toggle="off"/>
+      <ToggleItems Label="ZONE_7_DONATE" Toggle="on"/>
+      <Activate ActionID="Donate7Switch"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Image" Value="pile_coins_platinum"/>
+      <SetVariable Scope="Users" Name="Zone7_Denomination" Value="1"/>
+      <Activate ActionID="ZoneSwitch"/>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_denomination1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Donate7Switch">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Donate7Switch"/>
+      <Greater Not="1" Value1="?Timer[sale_Timer].Value" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_7_DONATE_CASKET" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Donate7Switch_SALE">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Donate7Switch"/>
+      <Greater Value1="?Timer[sale_Timer].Value" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="preSale_Item" Value="?Concat[_preSale_Item,_Zone7]"/>
+      <SetVariable Scope="Users" Name="sale_Item" Value="?Concat[_preSale_Item,_gp]"/>
+      <ToggleItems Label="?Item[_sale_Item].PackLabel" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Tournament_Enter" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Tournament|1"/>
+      <Equal Value1="_Zone7_Tournament_Enter" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_tournament_begin1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_tournament_begin2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7_Tournament_Enter" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Survival_Enter" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Survival|1"/>
+      <Equal Value1="_Zone7_Survival_Enter" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_survival_begin1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7_Survival_Enter" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Cypher_Lecture1">
+    <Events>
+      <FightEnd/>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_7|Tournament|7].WinCount" Value2="1" Not="1"/>
+      <Equal Value1="_Zone7_Cypher_Lecture1" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_tournament_lecture1_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_tournament_lecture1_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7_Cypher_Lecture1" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Cypher_challenges">
+    <Events>
+      <FightEnd/>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_7|Tournament|15].WinCount" Value2="1" Not="1"/>
+      <Equal Not="1" Value1="?Battle[ZONE_7|MINIBOSS_CYPHER].Available" Value2="1"/>
+      <Equal Value1="_Zone7CypherChallenges" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_tournament_lecture2_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_tournament_lecture2_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_7|MINIBOSS_CYPHER|" Locked="0" Instant="1"/>
+      <ToggleBattle Name="ZONE_7|Tournament" Toggle="off"/>
+      <SetMapFocus Battle="ZONE_7|MINIBOSS_CYPHER|"/>
+      <SetVariable Scope="Users" Name="Zone7CypherChallenges" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Cypher_greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|MINIBOSS_CYPHER|1"/>
+      <Equal Value1="_Zone7CypherGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_cypher_fightenter1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7CypherGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Cypher_beaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Name" Value2="ZONE_7|MINIBOSS_CYPHER|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_cypher_fightend1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_cypher_fightend2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_cypher_fightend3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_cypher_fightend4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c1_cypher_fightend5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_cypher_fightend6" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ToggleBattle Name="ZONE_7|Tournament" Toggle="on"/>
+      <HideBattle Name="ZONE_7|MINIBOSS_CYPHER|"/>
+      <ShowBattle Name="ZONE_7|MINIBOSS_HYPERION|" Locked="0" Instant="1"/>
+      <ToggleBattle Name="ZONE_7|Survival" Toggle="off"/>
+      <SetMapFocus Battle="ZONE_7|MINIBOSS_HYPERION|"/>
+      <SetVariable Scope="Users" Name="Zone7_Cypher_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Hyperion_greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|MINIBOSS_HYPERION|1"/>
+      <Equal Value1="_Zone7HyperionGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterHyperion" Image="character_hyperion">
+        <Line Text="zone7_c1_cronos_fightenter1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7HyperionGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Hyperion_beaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_$Fight].Name" Value2="ZONE_7|MINIBOSS_HYPERION|1"/>
+        <Equal Value1="?Fight[_$Fight].Name" Value2="ZONE_7|Tournament|24"/>
+      </Operator>
+      <Less Value1="?Fight[ZONE_7|Tournament|24].WinCount" Value2="1" Not="1"/>
+      <Less Value1="?Fight[ZONE_7|MINIBOSS_HYPERION|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_cronos_fightend1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ToggleBattle Name="ZONE_7|Survival" Toggle="on"/>
+      <HideBattle Name="ZONE_7|MINIBOSS_HYPERION|"/>
+      <ShowBattle Name="ZONE_7|CLIFFHANGER_STONE_FOREST" Locked="0"/>
+      <ToggleBattle Name="ZONE_7|CLIFFHANGER_STONE_FOREST" Toggle="on"/>
+      <SetMapFocus Battle="ZONE_7|CLIFFHANGER_STONE_FOREST"/>
+      <SetVariable Scope="Users" Name="Zone7_Hyperion_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Shroud_Ambush" Group="FightEnter" Unresumable="0">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|CLIFFHANGER_STONE_FOREST|1"/>
+      <Equal Value1="_Zone7_Shroud_Ambush" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone7_Shroud_Ambush" Value="1"/>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c1_shroud_ambush1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud">
+        <Line Text="zone7_c1_shroud_ambush2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Activate ActionID="zone7_c2_greetengs"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Chapter2_greetengs" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="zone7_c2_greetengs"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ZONE_7_2_unlock_exception"/>
+      <ActScreen Text="Act_7_Chapter_2" Lock="Silent"/>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_begin1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c2_challenge_begin1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_challenge_begin2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_challenge_begin3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c2_challenge_begin4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_challenge_begin5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <HideBattle Name="ZONE_7|CLIFFHANGER_STONE_FOREST|"/>
+      <HideBattle Name="ZONE_7|Survival|"/>
+      <ShowBattle Name="ZONE_7|Challenge|" Locked="0" Instant="1"/>
+      <ShowBattle Name="ZONE_7|Survival2|" Locked="0" Instant="1"/>
+      <SetMapFocus Battle="ZONE_7|Challenge|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Chapter2_Challenge_Enter" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Challenge|1"/>
+      <Equal Value1="_Zone7_Chapter2_Challenge_Enter" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_challenge_enter1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_challenge_enter2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7_Chapter2_Challenge_Enter" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Chapter2_Duel_Unlock">
+    <Events>
+      <FightEnd/>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_7|Tournament|24].WinCount" Value2="1"/>
+      <Less Value1="?Fight[ZONE_7|Challenge|1].WinCount" Value2="1" Not="1"/>
+      <Equal Not="1" Value1="?Battle[ZONE_7|Duel].Available" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_duel_begin1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnShowme"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_7|Duel|1"/>
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="1"/>
+      <ResetDuelTimer/>
+      <HideBattle Name="ZONE_7|Tournament|"/>
+      <ShowBattle Name="ZONE_7|Duel|" Locked="0"/>
+      <SetMapFocus Battle="ZONE_7|Duel|"/>
+      <Dialog Type="Notification" Image="_Avatar_Notification" WaitNotificationClose="?SysInfo[].Steam Or ?SysInfo[].Switch">
+        <Line Text="common_duel_unlock"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Ancient_greetings">
+    <Events>
+      <FightEnd/>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_7|Challenge|16].WinCount" Value2="1" Not="1"/>
+      <Equal Not="1" Value1="?Battle[ZONE_7|MINIBOSS_ANCIENT].Available" Value2="1"/>
+      <Equal Value1="_Zone7AncientChallenges" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_ancient_fightenter1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_ancient_fightenter2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <ChangePlayerAvatar Avatar="avatar_masked"/>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c2_ancient_fightenter3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_ancient_fightenter4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_7|MINIBOSS_ANCIENT|" Locked="0" Instant="1"/>
+      <HideBattle Name="ZONE_7|Challenge"/>
+      <SetMapFocus Battle="ZONE_7|MINIBOSS_ANCIENT|"/>
+      <SetVariable Scope="Users" Name="Zone7AncientChallenges" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Ancient_beaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$Fight" Value2="ZONE_7|MINIBOSS_ANCIENT|1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ToggleBattle Name="ZONE_7|Challenge" Toggle="on"/>
+      <HideBattle Name="ZONE_7|MINIBOSS_ANCIENT|"/>
+      <SetMapFocus Battle="ZONE_7|Challenge"/>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_ancient_fightend1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c2_ancient_fightend2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_ancient_fightend3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c2_ancient_fightend4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c2_ancient_fightend5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Wait Frames="120" Lock="Silent" ControlsLock="1"/>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_tournament_begin1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c2_tournament_begin2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_tournament_begin3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_tournament_begin4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnShowme"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_7|Tournament2|"/>
+      <SetMapFocus Battle="ZONE_7|Tournament2"/>
+      <ShowBattle Name="ZONE_7|Challenge1_1"/>
+      <HideBattle Name="ZONE_7|MINIBOSS_ANCIENT|"/>
+      <SetVariable Scope="Users" Name="Zone7_Ancient_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Tournament3_beaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Tournament2|3"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_tournament_battleend1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_tournament_battleend2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterJustice" Image="character_justice">
+        <Line Text="zone7_c2_tournament_battleend3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud">
+        <Line Text="zone7_c2_tournament_battleend4" ButtonText="OK"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7_Tournament3_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Tournament6_beaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Tournament2|6"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_shroud_wins1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterJustice" Image="character_justice">
+        <Line Text="zone7_c2_shroud_wins2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud">
+        <Line Text="zone7_c2_shroud_wins3" ButtonText="OK"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7_Tournament6_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Tournament_beaten" Unresumable="1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Tournament2|8"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c2_shroud_wins4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud">
+        <Line Text="zone7_c2_shroud_wins5" ButtonText="OK"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_7|MINIBOSS_SHROUD2|" Locked="0" Instant="1"/>
+      <ToggleBattle Name="ZONE_7|Duel" Toggle="off"/>
+      <SetMapFocus Battle="ZONE_7|MINIBOSS_SHROUD2|"/>
+      <SetVariable Scope="Users" Name="Zone7_Tournament_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Shroud_wins">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Loss"/>
+      <Equal Value1="_$Fight" Value2="ZONE_7|MINIBOSS_SHROUD2|1"/>
+      <Equal Value1="_Zone7_Shroud_wins" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterJustice" Image="character_justice">
+        <Line Text="zone7_c2_shroud_beaten1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterJustice" Image="character_justice">
+        <Line Text="zone7_c2_shroud_beaten2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7_Shroud_wins" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Shroud_beaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$Fight" Value2="ZONE_7|MINIBOSS_SHROUD2|1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud">
+        <Line Text="zone7_c2_shroud_beaten3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterShroud" Image="character_shroud">
+        <Line Text="zone7_c2_shroud_beaten4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterJustice" Image="character_justice">
+        <Line Text="zone7_c2_shroud_beaten5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterJustice" Image="character_justice">
+        <Line Text="zone7_c2_shroud_beaten6" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <HideBattle Name="ZONE_7|MINIBOSS_SHROUD2|"/>
+      <ToggleBattle Name="ZONE_7|Duel" Toggle="on"/>
+      <SetMapFocus Battle="ZONE_7|Duel|"/>
+      <Activate ActionID="zone7_c3_greetings"/>
+      <SetVariable Scope="Users" Name="Zone7_Shroud2_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Chapter3_greetings" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="zone7_c3_greetings"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ZONE_7_3_unlock_exception"/>
+      <ActScreen Text="Act_7_Chapter_3" Lock="Silent"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_begin1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_begin2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_begin3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_begin4"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c3_begin5"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_begin6"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c3_begin7"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_begin8"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <HideBattle Name="ZONE_7|Duel"/>
+      <HideBattle Name="ZONE_7|BOSS_TITAN"/>
+      <HideBattle Name="ZONE_7|BOSS_TITAN_LOCKED"/>
+      <HideBattle Name="ZONE_7|Survival2"/>
+      <HideBattle Name="ZONE_7|Tournament2"/>
+      <ShowBattle Name="ZONE_7|C3_Survival" Instant="1"/>
+      <ShowBattle Name="ZONE_7|C3_Duel" Instant="1"/>
+      <ShowBattle Name="ZONE_7|C3_BOSS_TITAN" Locked="1" Instant="1"/>
+      <ShowBattle Name="ZONE_7|C3_Challenge" Instant="1"/>
+      <SetMapFocus Battle="ZONE_7|C3_Challenge"/>
+      <Activate ActionID="zone7_3_unlocktournament"/>
+      <SetVariable Scope="Users" Name="Zone7_Chapter3_greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_Chapter3_greetings_from_Tournament7.1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Tournament|24"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="zone7_c3_greetings"/>
+      <HideBattle Name="ZONE_7|Tournament"/>
+      <SetVariable Scope="Users" Name="Zone7_Shroud_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_UnlockTournamentActivate">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="zone7_3_unlocktournament"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|Challenge1_1|8].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <HideBattle Name="ZONE_7|Challenge1_1"/>
+      <ShowBattle Name="ZONE_7|C3_Tournament" Instant="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_UnlockTournamentFightEnd">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|Challenge1_1|8"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <HideBattle Name="ZONE_7|Challenge1_1"/>
+      <ShowBattle Name="ZONE_7|C3_Tournament" Instant="1"/>
+      <SetMapFocus Battle="ZONE_7|C3_Tournament"/>
+      <SetVariable Scope="Users" Name="Zone7_C3_UnlockTournamentFightEnd" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_ChallengeGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_Challenge|1"/>
+      <GreaterEqual Value1="?Fight[_$Fight].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[_$Fight].LossCount" Value2="1" Not="1"/>
+      <Equal Value1="_Zone7C3LastChallenge" Value2="?Fight[_$Fight].Fight" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone7C3LastChallenge" Value="?Fight[_$Fight].Fight"/>
+      <Dialog Type="Regular" Title="characterScavenger" Image="scavenger_1">
+        <Line Text="zone7_c3_spaceship1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterScavenger" Image="scavenger_2">
+        <Line Text="zone7_c3_spaceship2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_spaceship3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_spaceship4"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_c3_challenge_randomphrases" Priority="99" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="C3_Challenge"/>
+      <Equal Value1="?Fight[_$Fight].Fight % 6" Value2="0"/>
+      <GreaterEqual Value1="?Fight[_$Fight].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[_$Fight].LossCount" Value2="1" Not="1"/>
+      <Equal Value1="_Zone7C3LastChallenge" Value2="?Fight[_$Fight].Fight" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="C3ChallengePhrase" Value="?UniformIntRandom[1,2]"/>
+      <SetVariable Scope="Users" Name="Zone7C3LastChallenge" Value="?Fight[_$Fight].Fight"/>
+      <Dialog Type="Regular" Title="characterScavenger" Image="?Concat[scavenger_,(((_Zone7C3LastChallenge - 1) % 4) + 1)]">
+        <Line Text="?Concat[zone7_c3_challenge_phrase,_C3ChallengePhrase]"/>
+        <Button Type="Right" Text="OK" Color="Beige"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_Challenge_beaten">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_Challenge|8"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_Zone7_C3_Challenge_beaten" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_spaceship_done1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c3_spaceship_done2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c3_spaceship_done3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_spaceship_done4"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_7|C3_BOSS_TITAN" Locked="0" Instant="1"/>
+      <SetMapFocus Battle="ZONE_7|C3_BOSS_TITAN|"/>
+      <SetVariable Scope="Users" Name="Zone7_C3_Challenge_beaten" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard1Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|1"/>
+      <Equal Value1="_Zone7Guard1Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_citadel1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_citadel2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_citadel3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_citadel4"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAssasin" Image="character_assasin">
+        <Line Text="zone7_c3_guard1_greetings1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAssasin" Image="character_assasin">
+        <Line Text="zone7_c3_guard1_greetings2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7Guard1Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard1Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterAssasin" Image="character_assasin">
+        <Line Text="zone7_c3_guard1_defeated"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard2Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|2"/>
+      <Equal Value1="_Zone7Guard2Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterMaster" Image="character_master" Mirrored="1">
+        <Line Text="zone7_c3_guard2_greetings1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMaster" Image="character_master" Mirrored="1">
+        <Line Text="zone7_c3_guard2_greetings2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7Guard2Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard2Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|2"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterMaster" Image="character_master" Mirrored="1">
+        <Line Text="zone7_c3_guard2_defeated"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard3Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|3"/>
+      <Equal Value1="_Zone7Guard3Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterGuru" Image="character_guru">
+        <Line Text="zone7_c3_guard3_greetings1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterGuru" Image="character_guru">
+        <Line Text="zone7_c3_guard3_greetings2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7Guard1Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard3Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|3"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterGuru" Image="character_guru">
+        <Line Text="zone7_c3_guard3_defeated"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard4Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|4"/>
+      <Equal Value1="_Zone7Guard4Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCorsair" Image="character_corsair">
+        <Line Text="zone7_c3_guard4_greetings1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCorsair" Image="character_corsair">
+        <Line Text="zone7_c3_guard4_greetings2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7Guard4Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard4Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|4"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterCorsair" Image="character_corsair">
+        <Line Text="zone7_c3_guard4_defeated"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard5Greetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|5"/>
+      <Equal Value1="_Zone7Guard5Greetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterEmperor" Image="character_emperor" Mirrored="1">
+        <Line Text="zone7_c3_guard5_greetings1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterEmperor" Image="character_emperor" Mirrored="1">
+        <Line Text="zone7_c3_guard5_greetings2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7Guard5Greetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7Guard5Defeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|5"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterEmperor" Image="character_emperor" Mirrored="1">
+        <Line Text="zone7_c3_guard5_defeated"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_allguardsdefeated1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_allguardsdefeated2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_allguardsdefeated3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_allguardsdefeated4"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_allguardsdefeated5"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_allguardsdefeated6"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_allguardsdefeated7"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_allguardsdefeated8"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_allguardsdefeated9"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7FightWithMay" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|6"/>
+      <Greater Value1="?Fight[ZONE_7|C3_FightWithMay|1].WinCount" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Fight Name="ZONE_7|C3_FightWithMay|1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7FightWithMayDialog" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_FightWithMay|1"/>
+      <Greater Value1="?Fight[ZONE_7|C3_FightWithMay|1].LossCount" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterMay" Image="character_justice_2">
+        <Line Text="zone7_c3_may_greetings"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="ZONE_7|C3_FightWithMay|1"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7FightWithMayDefeated" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_FightWithMay|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_sad">
+        <Line Text="zone7_c3_may_defeated1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_may_defeated2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_sad">
+        <Line Text="zone7_c3_may_defeated3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterCypher" Image="character_cypher">
+        <Line Text="zone7_c3_may_defeated4"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_sad">
+        <Line Text="zone7_c3_may_defeated5"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_may_defeated6"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_may_defeated7"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BOSS_TITAN" Image="boss_titan">
+        <Line Text="zone7_c3_may_defeated8"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <If>
+        <Conditions>
+          <Equal Value1="?UnlockedCharacters[].characterMay" Value2="0"/>
+          <Operator Type="Or">
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+          </Operator>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="characterMay" Image="character_justice_2" IgnoreBack="1">
+            <Line Text="PvP_char_unlocked"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+          <UnlockCharacter Name="characterMay"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7TitanWon" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|6"/>
+      <Equal Value1="_$FightResult" Value2="Loss"/>
+      <Equal Value1="_AncientSaveFromLoss" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c3_losstoboss1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterAncient" Image="character_ancient">
+        <Line Text="zone7_c3_losstoboss2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="AncientSaveFromLoss" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7TitanDefeated_NotInEclipseMode" Priority="9999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_BOSS_TITAN|6"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Not="1" Value1="_$InEclipseMode" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="Zone7TitanDefeated_NotInEclipseMode_Activate"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7TitanDefeated_NotInEclipseMode_ReActivate" Priority="950" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneFrom" Value2="Dojo"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <GreaterEqual Value1="?Fight[ZONE_7|C3_BOSS_TITAN|6].WinCount" Value2="1"/>
+      <Less Value1="_Zone7TitanDefeated_NotInEclipseMode_State" Value2="1"/>
+      <Less Value1="_Zone7TitanDefeated_NotInEclipseMode_StateReActivate" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Zone7TitanDefeated_NotInEclipseMode_StateReActivate" Value="1"/>
+      <ChangeScene Destination="Map" CallEvents="false"/>
+      <ChangeTab Tab="StoryMapStage"/>
+      <Activate ActionID="Zone7TitanDefeated_NotInEclipseMode_Activate"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7TitanDefeated_NotInEclipseMode_Activate" Priority="900" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Zone7TitanDefeated_NotInEclipseMode_Activate"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowVideo Name="Shadow_fight_ending.mp4" Audio="Shadow_fight_ending.mp3" Lock="Silent"/>
+      <ShowCredits/>
+      <SetVariable Scope="Users" Name="Avatar_Notification" Value="character_may_1_small"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_1" Value="character_may_1"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_2" Value="character_may_2"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_3" Value="character_may_3"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_4" Value="character_may_4"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_5" Value="character_may_5"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_6" Value="character_sensei"/>
+      <SetVariable Scope="Users" Name="Title_Assistant" Value="characterMay"/>
+      <SetVariable Scope="Users" Name="Title_Assistant_2" Value="characterSensei"/>
+      <ChangeScene Destination="Map"/>
+      <SetMapFocus Battle="ZONE_7|C3_BOSS_TITAN|"/>
+      <ShowBattle Name="ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|" Instant="1" Hidden="1" ReplayCount="0"/>
+      <Dialog Type="Regular" Title="drop_name_sphere" Image="img_drop_titan_sphere">
+        <Line Text="SPHERE_GAIN"/>
+        <Button Type="Right" Color="Beige" Text="OK">
+          <GiveItem Name="drop_name_sphere" PutOn="0" Quantity="1"/>
+        </Button>
+      </Dialog>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].RaidsSupport" Value2="1"/>
+          <Equal Value1="?SysInfo[].SamsungF2P" Value2="1" Not="1"/>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="characterMay" Image="character_may_5">
+            <Line Text="MAY_RAID_UNLOCK"/>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+          </Dialog>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+            <Line Text="SENSEI_RAID_UNLOCK"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+          <BlockTouches/>
+          <RaidIndicateRaidBtn ArrowOffsetX="100" ArrowOffsetY="0" ArrowRotation="90"/>
+          <UnblockTouches/>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+            <Line Text="SENSEI_RAID_UNLOCK2"/>
+            <Button Type="Right" Color="Beige" Text="OK"/>
+          </Dialog>
+        </Then>
+      </If>
+      <SetVariable Scope="Users" Name="Zone7TitanDefeated_NotInEclipseMode_State" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7TitanDefeated_assistant">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="PseudoSessionStart"/>
+      <Greater Value1="?Fight[ZONE_7|C3_BOSS_TITAN|6].WinCount" Value2="0"/>
+      <Equal Not="1" Value1="_Avatar_Assistant_1" Value2="character_may_1"/>
+      <Equal Value1="_Zone7TitanDefeated_assistant" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="Avatar_Notification" Value="character_may_1_small"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_1" Value="character_may_1"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_2" Value="character_may_2"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_3" Value="character_may_3"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_4" Value="character_may_4"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_5" Value="character_may_5"/>
+      <SetVariable Scope="Users" Name="Avatar_Assistant_6" Value="character_sensei"/>
+      <SetVariable Scope="Users" Name="Title_Assistant" Value="characterMay"/>
+      <SetVariable Scope="Users" Name="Title_Assistant_2" Value="characterSensei"/>
+      <SetVariable Scope="Users" Name="Zone7TitanDefeated_assistant" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Replay_Titan_Beaten_Video" Unresumable="1">
+    <Events>
+      <VideoButtonPress/>
+    </Events>
+    <Conditions>
+      <Equal Value1="ZONE_7|C3_BOSS_TITAN" Value2="?Player[].MapFocus"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowVideo Name="Shadow_fight_ending.mp4" Audio="Shadow_fight_ending.mp3"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_TournamentGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_Tournament|1"/>
+      <Equal Value1="_Zone7TournamentGreetings" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[_$Fight].WinCount" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[_$Fight].LossCount" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_WRAITH" Image="man_z7_tournament_firebatons">
+        <Line Text="zone7_c3_tournament_begins"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="Zone7TournamentGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_TournamentAfter6Wins" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_Tournament|6"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <GreaterEqual Value1="?Fight[_$Fight].WinCount" Value2="2" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_PANDEMIA" Image="woman_z7_tournament_scythes">
+        <Line Text="zone7_c3_tournament_after6wins1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterKali" Image="character_kali">
+        <Line Text="zone7_c3_tournament_after6wins2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_TournamentAfter12Wins" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_Tournament|12"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <GreaterEqual Value1="?Fight[_$Fight].WinCount" Value2="2" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_SMOTHER" Image="man_z7_tournament_knobsticks">
+        <Line Text="zone7_c3_tournament_after12wins"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_C3_TournamentAfter18Wins" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_7|C3_Tournament|18"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <GreaterEqual Value1="?Fight[_$Fight].WinCount" Value2="2" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_WHIPLASH" Image="man_z7_tournament_sword" Mirrored="1">
+        <Line Text="zone7_c3_tournament_after18wins"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="Zone7_ProgressChecker" Priority="999">
+    <Events>
+      <SessionStart/>
+    </Events>
+    <Conditions>
+      <Less Value1="?Fight[ZONE_7|C3_BOSS_TITAN|6].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_Cypher_beaten" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_CYPHER|1].WinCount" Value2="1"/>
+          <Equal Value1="?Fight[ZONE_7|MINIBOSS_HYPERION|1].WinCount" Value2="0"/>
+          <Equal Value1="?Battle[ZONE_7|Tournament].Hidden" Value2="1"/>
+        </Conditions>
+        <Then>
+          <ToggleBattle Name="ZONE_7|Tournament" Toggle="on"/>
+          <HideBattle Name="ZONE_7|MINIBOSS_CYPHER|"/>
+          <ShowBattle Name="ZONE_7|MINIBOSS_HYPERION|" Locked="0" Instant="1"/>
+          <ToggleBattle Name="ZONE_7|Survival" Toggle="off"/>
+          <SetMapFocus Battle="ZONE_7|MINIBOSS_HYPERION|"/>
+          <SetVariable Scope="Users" Name="Zone7_Cypher_beaten" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_Hyperion_beaten" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_HYPERION|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_7|CLIFFHANGER_STONE_FOREST].Available" Value2="0"/>
+          <Equal Value1="_Zone7_Shroud_Ambush" Value2="0"/>
+        </Conditions>
+        <Then>
+          <ToggleBattle Name="ZONE_7|Survival" Toggle="on"/>
+          <HideBattle Name="ZONE_7|MINIBOSS_HYPERION|"/>
+          <ShowBattle Name="ZONE_7|CLIFFHANGER_STONE_FOREST" Locked="0"/>
+          <ToggleBattle Name="ZONE_7|CLIFFHANGER_STONE_FOREST" Toggle="on"/>
+          <SetMapFocus Battle="ZONE_7|CLIFFHANGER_STONE_FOREST"/>
+          <SetVariable Scope="Users" Name="Zone7_Hyperion_beaten" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_Ancient_beaten" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_ANCIENT|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_7|Challenge1_1].Available" Value2="0"/>
+          <Equal Value1="?Fight[ZONE_7|Challenge1_1|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <ToggleBattle Name="ZONE_7|Challenge" Toggle="on"/>
+          <HideBattle Name="ZONE_7|MINIBOSS_ANCIENT|"/>
+          <SetMapFocus Battle="ZONE_7|Challenge"/>
+          <ShowBattle Name="ZONE_7|Tournament2|"/>
+          <SetMapFocus Battle="ZONE_7|Tournament2"/>
+          <ShowBattle Name="ZONE_7|Challenge1_1"/>
+          <SetVariable Scope="Users" Name="Zone7_Ancient_beaten" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Fight[ZONE_7|C3_BOSS_TITAN|6].WinCount" Value2="1"/>
+          <Equal Value1="?Item[drop_name_sphere].Quantity" Value2="0"/>
+        </Conditions>
+        <Then>
+          <GiveItem Name="drop_name_sphere" PutOn="0" Quantity="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_Tournament_beaten" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|Tournament2|8].WinCount" Value2="1"/>
+          <Equal Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="0"/>
+          <Equal Value1="?Battle[ZONE_7|Duel].Hidden" Value2="0"/>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_7|MINIBOSS_SHROUD2|" Locked="0" Instant="1"/>
+          <ToggleBattle Name="ZONE_7|Duel" Toggle="off"/>
+          <SetMapFocus Battle="ZONE_7|MINIBOSS_SHROUD2|"/>
+          <SetVariable Scope="Users" Name="Zone7_Tournament_beaten" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_Shroud2_beaten" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_7|Duel].Hidden" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_7|MINIBOSS_SHROUD2].Available" Value2="1"/>
+          <Equal Value1="?Fight[ZONE_7|C3_Challenge|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <HideBattle Name="ZONE_7|MINIBOSS_SHROUD2|"/>
+          <ToggleBattle Name="ZONE_7|Duel" Toggle="on"/>
+          <SetMapFocus Battle="ZONE_7|Duel|"/>
+          <Activate ActionID="zone7_c3_greetings"/>
+          <SetVariable Scope="Users" Name="Zone7_Shroud2_beaten" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_Chapter3_greetings" Value2="0"/>
+          <Equal Value1="_Zone7_Shroud_beaten" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|Tournament|24].WinCount" Value2="1"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1"/>
+          <Equal Value1="?Fight[ZONE_7|C3_Challenge|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Activate ActionID="zone7_c3_greetings"/>
+          <HideBattle Name="ZONE_7|Tournament"/>
+          <SetVariable Scope="Users" Name="Zone7_Shroud_beaten" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_C3_UnlockTournamentFightEnd" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|Challenge1_1|8].WinCount" Value2="1"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|MINIBOSS_SHROUD2|1].WinCount" Value2="1"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|C3_Tournament|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <HideBattle Name="ZONE_7|Challenge1_1"/>
+          <ShowBattle Name="ZONE_7|C3_Tournament" Instant="1"/>
+          <SetMapFocus Battle="ZONE_7|C3_Tournament"/>
+          <SetVariable Scope="Users" Name="Zone7_C3_UnlockTournamentFightEnd" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_Zone7_C3_Challenge_beaten" Value2="0"/>
+          <GreaterEqual Value1="?Fight[ZONE_7|C3_Challenge|8].WinCount" Value2="1"/>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_7|C3_BOSS_TITAN" Locked="0" Instant="1"/>
+          <SetMapFocus Battle="ZONE_7|C3_BOSS_TITAN|"/>
+          <SetVariable Scope="Users" Name="Zone7_C3_Challenge_beaten" Value="1"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+</Quests>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="ShowCashbackTutorialNotification" Priority="-50" Unresumable="1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[ZONE_1|Tournament|13].WinCount" Value2="1"/>
+      <Greater Value1="?Player[].Level" Value2="3"/>
+      <GreaterEqual Not="1" Value1="_CashbackNotification" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Name="CashbackNotification" Scope="Users" Value="1"/>
+      <Dialog Image="_Avatar_Assistant_1" Title="_Title_Assistant" Type="Regular">
+        <Line ButtonText="dlgStoryBtnMore" Text="dlgCashbackTutor1"/>
+        <Button Color="Beige" Text="OK" Type="Right"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowCashbackTutorialReminder" Priority="-5" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Not="1" Value1="_$InLottery" Value2="1"/>
+      <Equal Value1="_CashbackNotification" Value2="1"/>
+      <Equal Not="1" Value1="_NotifyAboutCashback" Value2="1"/>
+      <Equal Not="1" Value1="_CashbackTutorialCompleted" Value2="1"/>
+      <Equal Value1="?Player[].CanBuySomethingForGold" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Image="_Avatar_Assistant_1" Title="_Title_Assistant" Type="Regular">
+        <Line Text="dlgCashbackTutor2"/>
+        <Button Color="Beige" Text="dlgStoryThanks" Type="Right"/>
+      </Dialog>
+      <SetVariable Name="NotifyAboutCashback" Scope="Global" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowCashbackTutorialStart" Priority="200" Unresumable="1">
+    <Events>
+      <ItemBought/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_CashbackNotification" Value2="1"/>
+      <Equal Not="1" Value1="_CashbackTutorialCompleted" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Name="CashbackSelectedItem" Scope="Users" Value="?Purchase[_$Purchase].Name"/>
+      <Dialog Image="_Avatar_Assistant_3" Title="dlgBuyTitle" Type="Multiline">
+        <Line Text="dlgCashbackMessage{?Item[?Purchase[_$Purchase].Name].Price}{?Concat[img::,?Player[].CoinIcon]}"/>
+        <Line Text="dlgCashbackAmount{?Item[?Purchase[_$Purchase].Name].Price * 0.3}{?Concat[img::,?Player[].CoinIcon]}"/>
+        <Button Color="Red" Text="CANCEL" Type="Left"/>
+        <Button Color="Green" Flashing="true" Text="dlgCashbackButton" Type="Middle">
+          <ShowAd Lock="Visible" Type="Cashback">
+            <Error>
+              <Activate ActionID="ShowCashbackTutorialFinishID"/>
+            </Error>
+            <Success>
+              <Activate ActionID="ShowCashbackTutorialFinishID"/>
+            </Success>
+          </ShowAd>
+        </Button>
+        <Button Color="Beige" Text="dlgBuyButton" Type="Right">
+          <BuyItem Currency="Coins" Name="?Purchase[_$Purchase].Name"/>
+          <SetVariable Name="CashbackTutorialStarted" Scope="Users" Value="0"/>
+          <UpdateShop/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowCashbackTutorialFinish" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShowCashbackTutorialFinishID"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Name="CashbackTutorialCompleted" Scope="Users" Value="1"/>
+      <BuyItem Currency="Coins" Name="_CashbackSelectedItem"/>
+      <GiveCurrency Type="Gold" Value="?Item[_CashbackSelectedItem].Price * 0.3"/>
+      <UpdateShop/>
+      <Dialog Image="_Avatar_Assistant_1" Title="dlgCashbackTitle" Type="Regular">
+        <Line Text="dlgCashbackGive{?Item[_CashbackSelectedItem].Price * 0.3}{?Concat[img::,?Player[].CoinIcon]}"/>
+        <Button Color="Green" Text="OK" Type="Right"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="CashbackCheck" Priority="9999" Unresumable="1">
+    <Events>
+      <ItemBought/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?Player[].Level" Value2="3"/>
+      <GreaterEqual Value1="_CashbackTutorialCompleted" Value2="1"/>
+      <Equal Value1="?AdAvailable[].Cashback" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Global" Name="CashbackStoredItem" Value="?Purchase[_$Purchase].Name"/>
+      <Dialog Image="_Avatar_Assistant_3" Title="dlgBuyTitle" Type="Multiline">
+        <Line Text="dlgCashbackMessage{?Item[_CashbackStoredItem].Price}{?Concat[img::,?Player[].CoinIcon]}"/>
+        <Line Text="dlgCashbackAmount{?Item[_CashbackStoredItem].Price * 0.3}{?Concat[img::,?Player[].CoinIcon]}"/>
+        <Button Color="Red" Text="CANCEL" Type="Left"/>
+        <Button Color="Green" Text="dlgCashbackButton" Type="Middle">
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].Connection" Value2="1"/>
+            </Conditions>
+            <Then>
+              <ShowAd Lock="Visible" Type="Cashback">
+                <Error>
+                  <Dialog Title="dlgNotAvaliableTitle" Type="NoAvatar">
+                    <Line Text="dlgNotAvaliableMessage"/>
+                    <Button Color="Beige" Text="OK" Type="Right"/>
+                  </Dialog>
+                  <SetVariable Name="ShowVideoError" Scope="Users" Value="1"/>
+                </Error>
+                <Success>
+                  <Activate ActionID="CashBackGiveID"/>
+                </Success>
+              </ShowAd>
+            </Then>
+            <Else>
+              <Dialog Title="dlgNotNetworkTitle" Type="NoAvatar">
+                <Line ButtonText="compareCloseBtn" Text="dlgNoCashbackErrorMessage"/>
+                <Button Color="Red" Text="compareCloseBtn" Type="Left"/>
+                <Button Color="Green" Text="dlgBuyButton" Type="Right">
+                  <BuyItem Currency="Coins" Name="_CashbackStoredItem"/>
+                  <UpdateShop/>
+                </Button>
+              </Dialog>
+              <SetVariable Name="ShowVideoError" Scope="Users" Value="1"/>
+            </Else>
+          </If>
+        </Button>
+        <Button Color="Beige" Text="dlgBuyButton" Type="Right">
+          <BuyItem Currency="Coins" Name="_CashbackStoredItem"/>
+          <UpdateShop/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="CashBackGive" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="CashBackGiveID"/>
+    </Conditions>
+    <Actions>
+      <BuyItem Currency="Coins" Name="_CashbackStoredItem"/>
+      <GiveCurrency Type="Gold" Value="?Item[_CashbackStoredItem].Price * 0.3"/>
+      <UpdateShop/>
+      <Dialog Image="_Avatar_Assistant_1" Title="dlgCashbackTitle" Type="Multiline">
+        <Line Text="dlgCashbackGive{?Item[_CashbackStoredItem].Price * 0.3}{?Concat[img::,?Player[].CoinIcon]}"/>
+        <Button Color="Green" Text="OK" Type="Right"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+</Quests>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1336" Height="512">
+  <Layer Type="1" Factor="0.01" Atlas="flying_rocks_bg" Path="Locations/flying_rocks/">
+    <Image X="0" Y="-20" ClassName="background_1" Width="1024" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.01" Atlas="flying_rocks_atlas_layer4" Path="Locations/flying_rocks/">
+    <SimpleEffect X="-270" Y="-70" Type="Picture" PictureLocation="local" ClassName="stone_2" Width="100" Height="37">
+      <OscillationY Offset="50">
+        <Point Period="1" Value="0" Ease="1"/>
+        <Point Period="1" Value="0" Ease="-1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-280" Y="-70" Type="Picture" PictureLocation="local" ClassName="stone_3" Width="350" Height="115">
+      <OscillationY Offset="0">
+        <Point Period="2" Value="0" Ease="-1"/>
+        <Point Period="2" Value="0" Ease="1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-50" Y="-210" Type="Picture" PictureLocation="local" ClassName="stone_6" Width="396" Height="88">
+      <OscillationY Offset="30">
+        <Point Period="3" Value="0" Ease="2"/>
+        <Point Period="3" Value="0" Ease="-2"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-130" Y="-190" Type="Picture" PictureLocation="local" ClassName="stone_4" Width="250" Height="60">
+      <OscillationY Offset="20">
+        <Point Period="4" Value="0" Ease="2"/>
+        <Point Period="4" Value="0" Ease="-2"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-160" Y="-30" Type="Picture" PictureLocation="local" ClassName="stone_5" Width="115" Height="60">
+      <OscillationY Offset="30">
+        <Point Period="3" Value="0" Ease="-1"/>
+        <Point Period="3" Value="0" Ease="1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-10" Y="-65" Type="Picture" PictureLocation="local" ClassName="stone_7" Width="265" Height="86">
+      <OscillationY Offset="50">
+        <Point Period="2" Value="0" Ease="2"/>
+        <Point Period="2" Value="0" Ease="-2"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="50" Y="-100" Type="Picture" PictureLocation="local" ClassName="stone_8" Width="314" Height="110">
+      <OscillationY Offset="10">
+        <Point Period="2" Value="0" Ease="1"/>
+        <Point Period="2" Value="0" Ease="-1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="160" Y="-40" Type="Picture" PictureLocation="local" ClassName="stone_9" Width="288" Height="388">
+      <OscillationY Offset="10">
+        <Point Period="3" Value="0" Ease="1"/>
+        <Point Period="3" Value="0" Ease="-1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-480" Y="-160" Type="Picture" PictureLocation="local" ClassName="stone_1" Width="440" Height="136">
+      <OscillationY Offset="50">
+        <Point Period="4" Value="0" Ease="1"/>
+        <Point Period="4" Value="0" Ease="-1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="290" Y="-30" Type="Picture" PictureLocation="local" ClassName="stone_10" Width="150" Height="402">
+      <OscillationY Offset="50">
+        <Point Period="3" Value="0" Ease="2"/>
+        <Point Period="3" Value="0" Ease="-2"/>
+      </OscillationY>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.05" Atlas="flying_rocks_atlas_layer1" Path="Locations/flying_rocks/">
+    <Image X="0" Y="-25" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="flying_rocks_atlas_layer2" Path="Locations/flying_rocks/"><Image X="0" Y="-50" ClassName="layer2_1" Width="1536" Height="512"/>&gt;  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="568" PlayerPositionY="-94" EnemyPositionX="768" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="flying_rocks_atlas_layer3" Path="Locations/flying_rocks/" Scaling="1">
+    <Image X="-896" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="-640" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="-384" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="-128" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="128" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="384" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="640" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="896" Y="185" ClassName="floor" Width="256" Height="64"/>
+    <Image X="-638" Y="-130" ClassName="left" Width="500" Height="680"/>
+    <Image X="623" Y="-130" ClassName="right" Width="500" Height="680"/>
+    <Image X="0" Y="390" ClassName="pixel_1" Width="2000" Height="360" Color="0x000000"/>
+  </Layer>
+  <Layer Type="1" Factor="0.01" Atlas="flying_rocks_atlas_layer4" Path="Locations/flying_rocks/">
+    <SimpleEffect X="300" Y="-50" Type="Picture" PictureLocation="local" ClassName="layer3" Width="537" Height="458">
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="65" Ease="-1"/>
+        <Point Period="3.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+</Root>

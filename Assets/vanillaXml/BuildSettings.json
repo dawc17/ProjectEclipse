@@ -1,0 +1,135 @@
+{
+  "AiEnabled": true,
+  "CheckNetworkLoginTimeoutSec": 30,
+  "ConfigResponseTimeout": 10000,
+  "ControllerGripRelativeRadius": 0.5,
+  "ControllerPrimaryAngle": 55,
+  "ControllerTouchZoneExtensionFactor": 1.5,
+  "DebugStatistics": true,
+  "GPG": {
+    "CloudSavesCount": 3,
+    "TokenUpdatePeriodInSeconds": 3300
+  },
+  "HideLanguageFlags": {
+    "Android": true,
+    "Default": false
+  },
+  "IgnoreShopHide": false,
+  "Internet": {
+    "ConfigUrl": "https://assets.nekki.com/shadowfight/data/config_SF2_unity.xml",
+    "EULAUrl": {
+      "chn": "https://nekki.com/cn/legal/",
+      "eng": "https://nekki.com/en/legal/",
+      "rus": "https://nekki.com/ru/legal/"
+    },
+    "FBLikeAltUrl": {
+      "Android": "https://www.facebook.com/ShadowFightGames/",
+      "Default": "https://www.facebook.com/ShadowFightGames/",
+      "iOS": "https://www.facebook.com/ShadowFightGames/"
+    },
+    "FBLikeUrl": {
+      "Android": "fb://page/274642345927716?referrer=app_link",
+      "Default": "fb://page/?id=274642345927716",
+      "iOS": "fb://page/?id=274642345927716"
+    },
+    "FBPostLinkUrl": {
+      "Android": "https://play.google.com/store/apps/details?id=com.nekki.shadowfight",
+      "Default": "http://itunes.apple.com/app/id696565994?mt=8",
+      "iOS": "http://itunes.apple.com/app/id696565994?mt=8"
+    },
+    "FBPostPicture": "http://assets.nekki.com/shadowfight/fb_new_logo.png",
+    "MusicStoreUrl": {
+      "Android": "https://open.spotify.com/album/3P8u0ifLNK7mWFOSN24X5r",
+      "Default": "https://itunes.apple.com/album/shadow-fight-2-ost/id820406430",
+      "iOS": "https://itunes.apple.com/album/shadow-fight-2-ost/id820406430"
+    },
+    "PostAchievements": {
+      "Android": true,
+      "Default": false,
+      "iOS": true
+    },
+    "RateUrl": {
+      "Android": "https://play.google.com/store/apps/details?id=com.nekki.shadowfight",
+      "China": "http://zhushou.360.cn/detail/index/soft_id/1516048",
+      "Default": "http://nekki.com",
+      "Huawei": "https://appgallery.cloud.huawei.com/ag/n/app/C103013187",
+      "Samsung": "samsungapps://ProductDetail/com.nekki.shadowfight2.samsung",
+      "iOS": "https://itunes.apple.com/app/id696565994?mt=8"
+    },
+    "Server": {
+      "GetUrl": "https://shadowfight.nekkimobile.ru/get.php",
+      "PutUrl": "https://shadowfight.nekkimobile.ru/put.php"
+    },
+    "SupportUrl": {
+      "eng": "http://support.nekki.com",
+      "rus": "http://support.nekki.ru"
+    }
+  },
+  "ItemInfo": {
+    "ReplaceAnyDeliveryTime": -1
+  },
+  "LoadTactics": true,
+  "LogRules": {
+    "All": true,
+    "Animations": {
+      "All": true
+    },
+    "Hits": {
+      "All": true,
+      "Damage": true,
+      "Style": true
+    },
+    "ModelAI": {
+      "All": false
+    },
+    "Perks": {
+      "All": true
+    },
+    "Quests": {
+      "Actions": true,
+      "All": true
+    },
+    "Tactics": {
+      "All": true,
+      "Archiver": true,
+      "Reactions": true,
+      "TacticsValues": true
+    }
+  },
+  "MainMenuCanShowRaidModeInShopScene": false,
+  "NotificationsGame": {
+    "EscapeClickHidesNotification": true
+  },
+  "OpenAltUrlTimeout": 1000,
+  "ServerResponseTimeout": 5000,
+  "ShakeScreenParams": {
+    "AmplFactor": {
+      "x": 0.75,
+      "y": 0.3
+    },
+    "Diagonal": {
+      "x": 10,
+      "y": 30
+    },
+    "FreqFactor": {
+      "x": 1,
+      "y": 0.75
+    }
+  },
+  "ShowChatInShopScene": "Never",
+  "ShowController": true,
+  "ShowIntro": true,
+  "ShowPVP": true,
+  "SkipContentDownload": true,
+  "SkipReloadTacticsInSurvivalMode": true,
+  "SocialAuthorizeTimeout": 15000,
+  "StartLockScreenDelay": 500,
+  "TacticsCaching": {
+    "Android": 2400,
+    "Default": 3000,
+    "Switch": 2400,
+    "iOS": 1900
+  },
+  "UseGamepad": false,
+  "UseLocalRaidConfig": false
+}

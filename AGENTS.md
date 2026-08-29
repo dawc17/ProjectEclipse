@@ -23,8 +23,12 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
   `Eclipse.Runtime.asmdef`; keep this assembly independent of recovered
   `Assembly-CSharp` types to avoid circular assembly dependencies.
 - `Assets/Editor/` - Unity editor validation/import tools.
-- `Assets/xml/` and `Assets/Resources/` - game configuration and recovered
-  resources; XML and resource paths are often runtime contracts.
+- `Assets/vanillaXml/` - canonical vanilla 2.41.9 gameplay/configuration XML.
+- `Assets/DExml/` - archived Definitive Edition-era XML/model data. Do not use it
+  as the base-game authority; it is provenance/reference material until DE becomes
+  a downstream mod.
+- `Assets/Resources/` - recovered resources and bundled legacy runtime data; XML
+  and resource paths are often runtime contracts.
 - `Deobfuscation/` - audited, repeatable identifier-recovery workflow. Read
   `Deobfuscation/README.md` before changing mappings or running its scripts.
 - `Tools/` - focused repair, extraction, audit, and runtime-check utilities.

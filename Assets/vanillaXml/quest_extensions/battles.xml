@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="FindTopItems" Priority="-9" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ChallengeRunning" Value2="1" Not="1"/>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge1_1"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge_INTERMISSION"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge_ECLIPSEMODE"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="C3_Challenge"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentChallenge" Value="_$Fight"/>
+      <SetVariable Scope="Users" Name="ChallengeDenied" Value="0"/>
+      <Activate ActionID="ChallengeDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeRun" Priority="-9" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ChallengeRunning" Value2="1"/>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge1_1"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge_INTERMISSION"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Challenge_ECLIPSEMODE"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="C3_Challenge"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Fight Name="_CurrentChallenge"/>
+      <ClearQuestQueue Name="DiscountService"/>
+      <SetVariable Scope="Users" Name="ChallengeRunning" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeEnterMainGame">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Greater Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Title_Announcer" Value="characterSensei"/>
+      <SetVariable Scope="Users" Name="Avatar_Announcer" Value="character_sensei"/>
+      <SetVariable Scope="Users" Name="AnnouncerPrefix" Value="FULL_DESCRIPTION_"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeEnterIntermission">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Greater Value1="?Fight[ZONE_6|FINAL_BATTLE|1].WinCount" Value2="0"/>
+      <Equal Value1="?Fight[_CurrentChallenge].Zone" Value2="ZONE_7" Not="1"/>
+      <Greater Value1="_Shroud_Loss" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Title_Announcer" Value="characterThief"/>
+      <SetVariable Scope="Users" Name="Avatar_Announcer" Value="character_thief_2"/>
+      <SetVariable Scope="Users" Name="AnnouncerPrefix" Value="FULL_DESCRIPTION_"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeEnterZone7">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Greater Value1="_Shroud_Loss" Value2="0"/>
+      <Equal Value1="?Fight[_CurrentChallenge].Zone" Value2="ZONE_7" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Title_Announcer" Value="characterCypher"/>
+      <SetVariable Scope="Users" Name="Avatar_Announcer" Value="character_cypher"/>
+      <SetVariable Scope="Users" Name="AnnouncerPrefix" Value="FULL_DESCRIPTION_"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeEnterZone7Chapter2">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Greater Value1="_Shroud_Loss" Value2="0"/>
+      <Equal Value1="?Fight[_CurrentChallenge].Zone" Value2="ZONE_7"/>
+      <Equal Value1="?Fight[_CurrentChallenge].Battle" Value2="C3_Challenge" Not="1"/>
+      <Equal Value1="?Fight[_CurrentChallenge].Battle" Value2="Challenge_ECLIPSEMODE" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Title_Announcer" Value="characterAncient"/>
+      <SetVariable Scope="Users" Name="Avatar_Announcer" Value="character_ancient"/>
+      <SetVariable Scope="Users" Name="AnnouncerPrefix" Value="ANCIENT_"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeEnterZone7Chapter3">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Greater Value1="_Shroud_Loss" Value2="0"/>
+      <Equal Value1="?Fight[_CurrentChallenge].Zone" Value2="ZONE_7"/>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_CurrentChallenge].Battle" Value2="C3_Challenge"/>
+        <Equal Value1="?Fight[_CurrentChallenge].Battle" Value2="Challenge_ECLIPSEMODE"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="Title_Announcer" Value="characterKali"/>
+      <SetVariable Scope="Users" Name="Avatar_Announcer" Value="character_kali"/>
+      <SetVariable Scope="Users" Name="AnnouncerPrefix" Value="FULL_DESCRIPTION_"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeEnter" Priority="-9" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Operator Type="Or">
+        <Greater Value1="?Item[?Fight[_CurrentChallenge].Helm].Quantity" Value2="0"/>
+        <Equal Value1="?Fight[_CurrentChallenge].Helm" Value2=""/>
+      </Operator>
+      <Operator Type="Or">
+        <Greater Value1="?Item[?Fight[_CurrentChallenge].Armor].Quantity" Value2="0"/>
+        <Equal Value1="?Fight[_CurrentChallenge].Armor" Value2=""/>
+      </Operator>
+      <Operator Type="Or">
+        <Greater Value1="?Item[?Fight[_CurrentChallenge].Weapon].Quantity" Value2="0"/>
+        <Equal Value1="?Fight[_CurrentChallenge].Weapon" Value2=""/>
+      </Operator>
+      <Operator Type="Or">
+        <Greater Value1="?Item[?Fight[_CurrentChallenge].Ranged].Quantity" Value2="0"/>
+        <Equal Value1="?Fight[_CurrentChallenge].Ranged" Value2=""/>
+      </Operator>
+      <Operator Type="Or">
+        <Greater Value1="?Item[?Fight[_CurrentChallenge].Magic].Quantity" Value2="0"/>
+        <Equal Value1="?Fight[_CurrentChallenge].Magic" Value2=""/>
+      </Operator>
+      <Less Value1="?Purchase[?Player[].Helm].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].HelmLevel" Not="1"/>
+      <Less Value1="?Purchase[?Player[].Armor].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].ArmorLevel" Not="1"/>
+      <Less Value1="?Purchase[?Player[].Weapon].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].WeaponLevel" Not="1"/>
+      <Less Value1="?Purchase[?Player[].Ranged].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].RangedLevel" Not="1"/>
+      <Less Value1="?Purchase[?Player[].Magic].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].MagicLevel" Not="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Announcer" Image="_Avatar_Announcer">
+        <Line Text="?Concat[_AnnouncerPrefix,?Fight[_CurrentChallenge].Description]" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryBtnFight" Color="Beige">
+          <SetVariable Scope="Users" Name="ChallengeRunning" Value="1"/>
+          <Fight Name="_CurrentChallenge"/>
+          <ClearQuestQueue Name="DiscountService"/>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnLeave" Color="Red"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeDenied1" Priority="-9" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Equal Value1="_ChallengeDenied" Value2="0"/>
+      <Operator Type="And" Not="1">
+        <Operator Type="Or">
+          <Greater Value1="?Item[?Fight[_CurrentChallenge].Weapon].Quantity" Value2="0"/>
+          <Equal Value1="?Fight[_CurrentChallenge].Weapon" Value2=""/>
+        </Operator>
+        <Less Value1="?Purchase[?Player[].Weapon].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].WeaponLevel" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ChallengeService|FightEnter"/>
+      <SetVariable Scope="Users" Name="ChallengeDenied" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Announcer" Image="_Avatar_Announcer">
+        <Line Text="?Concat[_AnnouncerPrefix,?Fight[_CurrentChallenge].Description]" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryBtnStore" Color="Green">
+          <OpenShop Tab="Weapon" Item="?Fight[_CurrentChallenge].Weapon"/>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnLeave" Color="Red"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeDenied2" Priority="-19" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Equal Value1="_ChallengeDenied" Value2="0"/>
+      <Operator Type="And" Not="1">
+        <Operator Type="Or">
+          <Greater Value1="?Item[?Fight[_CurrentChallenge].Helm].Quantity" Value2="0"/>
+          <Equal Value1="?Fight[_CurrentChallenge].Helm" Value2=""/>
+        </Operator>
+        <Less Value1="?Purchase[?Player[].Helm].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].HelmLevel" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ChallengeService|FightEnter"/>
+      <SetVariable Scope="Users" Name="ChallengeDenied" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Announcer" Image="_Avatar_Announcer">
+        <Line Text="?Concat[_AnnouncerPrefix,?Fight[_CurrentChallenge].Description]" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryBtnStore" Color="Green">
+          <OpenShop Tab="Helm" Item="?Fight[_CurrentChallenge].Helm"/>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnLeave" Color="Red"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeDenied3" Priority="-29" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Equal Value1="_ChallengeDenied" Value2="0"/>
+      <Operator Type="And" Not="1">
+        <Operator Type="Or">
+          <Greater Value1="?Item[?Fight[_CurrentChallenge].Armor].Quantity" Value2="0"/>
+          <Equal Value1="?Fight[_CurrentChallenge].Armor" Value2=""/>
+        </Operator>
+        <Less Value1="?Purchase[?Player[].Armor].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].ArmorLevel" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ChallengeService|FightEnter"/>
+      <SetVariable Scope="Users" Name="ChallengeDenied" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Announcer" Image="_Avatar_Announcer">
+        <Line Text="?Concat[_AnnouncerPrefix,?Fight[_CurrentChallenge].Description]" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryBtnStore" Color="Green">
+          <OpenShop Tab="Armor" Item="?Fight[_CurrentChallenge].Armor"/>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnLeave" Color="Red"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeDenied4" Priority="-39" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Equal Value1="_ChallengeDenied" Value2="0"/>
+      <Operator Type="And" Not="1">
+        <Operator Type="Or">
+          <Greater Value1="?Item[?Fight[_CurrentChallenge].Ranged].Quantity" Value2="0"/>
+          <Equal Value1="?Fight[_CurrentChallenge].Ranged" Value2=""/>
+        </Operator>
+        <Less Value1="?Purchase[?Player[].Ranged].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].RangedLevel" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ChallengeService|FightEnter"/>
+      <SetVariable Scope="Users" Name="ChallengeDenied" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Announcer" Image="_Avatar_Announcer">
+        <Line Text="?Concat[_AnnouncerPrefix,?Fight[_CurrentChallenge].Description]" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryBtnStore" Color="Green">
+          <OpenShop Tab="Ranged" Item="?Fight[_CurrentChallenge].Ranged"/>
+          <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+            <Line Text="dlgChallengeUpgradeReminder" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Text="dlgStoryThanks" Color="Green"/>
+          </Dialog>
+          <SetVariable Scope="Users" Name="UpgradeToLevelReminderShown" Value="1"/>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnLeave" Color="Red"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ChallengeDenied5" Priority="-39" Group="ChallengeService|FightEnter" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ChallengeDialog"/>
+      <Equal Value1="_ChallengeDenied" Value2="0"/>
+      <Operator Type="And" Not="1">
+        <Operator Type="Or">
+          <Greater Value1="?Item[?Fight[_CurrentChallenge].Magic].Quantity" Value2="0"/>
+          <Equal Value1="?Fight[_CurrentChallenge].Magic" Value2=""/>
+        </Operator>
+        <Less Value1="?Purchase[?Player[].Magic].UpgradeLevel" Value2="100 * ?Fight[_CurrentChallenge].MagicLevel" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ChallengeService|FightEnter"/>
+      <SetVariable Scope="Users" Name="ChallengeDenied" Value="1"/>
+      <Dialog Type="Multiline" Title="_Title_Announcer" Image="_Avatar_Announcer">
+        <Line Text="?Concat[_AnnouncerPrefix,?Fight[_CurrentChallenge].Description]" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryBtnStore" Color="Green">
+          <OpenShop Tab="Magic" Item="?Fight[_CurrentChallenge].Magic"/>
+          <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+            <Line Text="dlgChallengeUpgradeReminder" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Text="dlgStoryThanks" Color="Green"/>
+          </Dialog>
+          <SetVariable Scope="Users" Name="UpgradeToLevelReminderShown" Value="1"/>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnLeave" Color="Red"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="LaunchDuel" Priority="-9" Group="DuelService|FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_DuelRunning" Value2="1" Not="1"/>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Duel"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Duel_INTERMISSION"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="C3_Duel"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="_$Fight"/>
+      <Activate ActionID="DuelDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DuelRun" Priority="-9" Group="DuelService|FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_DuelRunning" Value2="1"/>
+      <Operator Type="Or">
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Duel"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="Duel_INTERMISSION"/>
+        <Equal Value1="?Fight[_$Fight].Battle" Value2="C3_Duel"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Fight Name="_CurrentDuel"/>
+      <ClearQuestQueue Name="DiscountService"/>
+      <SetVariable Scope="Users" Name="DuelRunning" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="DuelEnter" Priority="-9" Group="DuelService|FightEnter" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_1|Duel|1" Not="1"/>
+      <Equal Value1="_$ActionID" Value2="DuelDialog"/>
+      <Equal Value1="?Fight[_CurrentDuel].Description" Value2="0" Not="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="_Title_Assistant_2" Image="_Avatar_Assistant_6">
+        <Line Text="?Concat[FULL_DESCRIPTION_,?Fight[_CurrentDuel].Description]" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Text="dlgStoryBtnFight" Color="Beige">
+          <SetVariable Scope="Users" Name="DuelRunning" Value="1"/>
+          <Fight Name="_CurrentDuel"/>
+          <ClearQuestQueue Name="DiscountService"/>
+        </Button>
+        <Button Type="Left" Text="dlgStoryBtnLeave" Color="Red"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="DuelEnterNoDescription" Group="DuelService|FightEnter" Priority="-9" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="DuelDialog"/>
+      <Operator Type="Or">
+        <Equal Value1="_$Fight" Value2="ZONE_1|Duel|1"/>
+        <Equal Value1="?Fight[_CurrentDuel].Description" Value2="0"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="DuelRunning" Value="1"/>
+      <Fight Name="_CurrentDuel"/>
+    </Actions>
+  </Quest>
+</Quests>

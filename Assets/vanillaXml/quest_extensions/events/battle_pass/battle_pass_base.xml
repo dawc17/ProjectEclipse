@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="BP_Tutorial_Announce" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StartBPEvent"/>
+      <Equal Value1="_BP_TutorialStart" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="BP_AnnounceShown" Value="1"/>
+      <SetVariable Scope="Users" Name="BP_TutorialStart" Value="1"/>
+      <ChangeScene Destination="Dojo" CallEvents="false"/>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_dlgAnounce{img::UI/Atlases/ProfileButtons.Active_BattlePass usedsize=170}"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnShowme">
+          <ClearQuestQueue Name="EventAnnounce|BP_DojoRewardTutorial"/>
+          <MenuBtnFlashing BtnName="Profile"/>
+          <OpenProfile Tab="BattlePass"/>
+        </Button>
+        <Button Type="Left" Color="Beige" Text="dlgLaterBtn"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="BP_Tutorial_Full" Priority="15">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Equal Value1="_BP_TutorialStart" Value2="1"/>
+      <Equal Value1="_BP_TutorialEnd" Value2="1" Not="1"/>
+      <Equal Value1="_$TabTo" Value2="BattlePass"/>
+      <Equal Value1="?BattlePass[].HasActiveBattlePass" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_dlgTutorial_01"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_dlgTutorial_02"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_dlgTutorial_03{?Concat[img::UI/Textures/BP/,?BattlePass[].Atlas,.VIP_locked]  usedsize=150}"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_dlgTutorial_04"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_PointsTut{?Concat[img::,?RaidCurrencies[?BattlePass[].Currency].Icon] usedsize=120}"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_PointsTut2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_KeyTut{?Concat[img::,?RaidCurrencies[?BattlePass[].Key].Icon] usedsize=120}"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_GiftTut"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryThanks">
+          <ConnectToRaids>
+            <Success>
+              <GiveGift Name="?BattlePass[].Gift" Value="1" Recurring="0" Sound="snd_buy"/>
+              <UpdateScene/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="BP_TutorialEnd" Value="1"/>
+      <Activate ActionID="BP_EnchantmentAnnounce"/>
+    </Actions>
+  </Quest>
+  <Quest Name="BP_EnchantmentAnnounce" Priority="0" Unresumable="0">
+    <Events>
+      <Activate/>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Equal Value1="_BP_TutorialEnd" Value2="1"/>
+      <Equal Value1="_BP_EnchantmentAnnounce" Value2="0"/>
+      <Equal Value1="_BP_EnchantmentEnabled" Value2="1"/>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="BP_EnchantmentAnnounce"/>
+        <Equal Value1="_$TabTo" Value2="BattlePass"/>
+      </Operator>
+      <Equal Value1="?BattlePass[].HasActiveBattlePass" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="ItemSetDialog" ItemSetName="WIND_MAKER_SET"/>
+      <SetVariable Scope="Users" Name="BP_EnchantmentAnnounce" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="BP_InfoQuests" Priority="0" Unresumable="0">
+    <Events>
+      <BattlePassInfo/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Scroll" Title="BP_AnnounceTitle">
+        <Line Text="BP_Info"/>
+        <Button Text="OK" Type="Right" Color="Beige"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="BP_AvailableRewardsNotify" Priority="0">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Greater Value1="?BattlePass[].AvailableRewards" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="BP_dlgCanClaimRewardsNotify{?BattlePass[].AvailableRewards}"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="dlgBtnRedirect">
+          <OpenProfile Tab="BattlePass"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="BP_DojoRewardTutorial" Priority="10" Unresumable="0">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Equal Value1="_$SceneFrom" Value2="Dojo"/>
+      <Equal Value1="_BP_DojoRewardTutorial" Value2="1" Not="1"/>
+      <Greater Value1="?BattlePass[].AvailableRewards" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_DojoRewardCollection"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="BP_DojoRewardTutorial" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="BP_GiftChecker" Priority="100" Unresumable="0">
+    <Events>
+      <RaidLogin/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Equal Value1="?BattlePass[].HasActiveBattlePass" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="?RaidGift[?BattlePass[].Gift].Received" Value2="1" Not="1"/>
+          <Equal Value1="_BP_TutorialEnd" Value2="1"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="?BattlePass[].Gift" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="BP_NewBPAnnounce" Priority="15">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StartBPEvent"/>
+      <Equal Value1="_BP_TutorialEnd" Value2="1"/>
+      <Equal Value1="_BP_AnnounceShown" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="BP_dlgNewBPAnounce"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="NoAvatar" Title="BP_AnnounceTitle">
+        <Line Text="EventAnnounceGift_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgLaterBtn">
+          <ConnectToRaids>
+            <Success>
+              <GiveGift Name="?BattlePass[].Gift" Value="1" Recurring="0" Sound="snd_buy"/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="BP_AnnounceShown" Value="1"/>
+    </Actions>
+  </Quest>
+</Quests>

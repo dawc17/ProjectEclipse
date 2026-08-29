@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Color="0x000000" Wall="105" Floor="21" Width="1555" Height="512">
+  <Layer Type="1" Factor="0.3" Atlas="saturn_raid_main">
+    <Image X="0" Y="-38" ClassName="bg" Width="1936" Height="639" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="saturn_raid_decorations" Scaling="0">
+    <Image X="-161" Y="53" ClassName="furthest statue_left" Width="212" Height="264"/>
+  </Layer>
+  <Layer Type="1" Factor="0.45" Atlas="saturn_raid_decorations" Scaling="0">
+    <Image X="555" Y="-28" ClassName="rock" Width="712" Height="639"/>
+  </Layer>
+  <Layer Type="1" Factor="0.5" Atlas="saturn_raid_decorations" Scaling="0">
+    <Image X="346" Y="0" ClassName="furthest statue_right" Width="302" Height="376"/>
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="saturn_raid_decorations" Scaling="0">
+    <Image X="-420" Y="-21" ClassName="middle_statue" Width="643" Height="632"/>
+  </Layer>
+  <Layer Type="1" Factor="0.8" Atlas="saturn_raid_decorations" Scaling="0">
+    <Image X="504" Y="-26" ClassName="close_statue" Width="543" Height="639"/>
+  </Layer>
+  <Layer Type="1" Factor="0.8">
+    <SimpleEffect X="-550" Y="-170" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="16" Height="16">
+      <ReappearX Min="-550" Max="860"/>
+      <ReappearY Min="50" Max="170"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-540" Y="-160" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="15" Height="15">
+      <ReappearX Min="-540" Max="870"/>
+      <ReappearY Min="40" Max="160"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-530" Y="-150" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="13" Height="13">
+      <ReappearX Min="-530" Max="880"/>
+      <ReappearY Min="30" Max="150"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-520" Y="-140" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="14" Height="14">
+      <ReappearX Min="-520" Max="890"/>
+      <ReappearY Min="20" Max="140"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-510" Y="-130" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="17" Height="17">
+      <ReappearX Min="-510" Max="900"/>
+      <ReappearY Min="10" Max="130"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-520" Y="-120" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="18" Height="18">
+      <ReappearX Min="-520" Max="890"/>
+      <ReappearY Min="0" Max="120"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-530" Y="-110" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="15" Height="15">
+      <ReappearX Min="-530" Max="880"/>
+      <ReappearY Min="-10" Max="110"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-540" Y="-100" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="16" Height="16">
+      <ReappearX Min="-540" Max="870"/>
+      <ReappearY Min="-20" Max="100"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+    <SimpleEffect X="-550" Y="-90" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="16" Height="16">
+      <ReappearX Min="-550" Max="860"/>
+      <ReappearY Min="-30" Max="90"/>
+      <Speed X="0.47" Y="-0.04"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.8" Atlas="saturn_raid_decorations" Scaling="0">
+    <Image X="-554" Y="-79" ClassName="temple" Width="480" Height="467"/>
+  </Layer>
+  <Layer Type="1" Factor="0.95" Atlas="saturn_raid_decorations" Scaling="1">
+    <Image X="0" Y="-25" ClassName="throne" Width="370" Height="282"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="saturn_raid_main" Scaling="1">
+    <Image X="0" Y="63" ClassName="throne_walls" Width="1843" Height="431"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="627" PlayerPositionY="-94" EnemyPositionX="957" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="saturn_raid_main" Scaling="1">
+    <Image X="-744" Y="90" ClassName="wall_left" Width="228" Height="404" Color="0x0d111b"/>
+    <Image X="776" Y="99" ClassName="wall_right" Width="344" Height="393" Color="0x0d111b"/>
+    <Image X="0" Y="247" ClassName="floor" Width="1936" Height="101" Color="0x0d111b" IsOpaque="0"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dojo_atlas_layer3" Path="Locations/dojo/" Scaling="1">
+    <Image X="0" Y="502" ClassName="pixel_1" Width="2000" Height="512" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

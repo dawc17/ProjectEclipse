@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x0B0505" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="stone_forest_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1536" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="stone_forest_atlas_layer2">
+    <SimpleEffect X="-514" Y="-96.5" Type="Picture" PictureLocation="local" ClassName="up_smoke" Width="508" Height="23">
+      <ReappearX Min="-1152" Max="1408"/>
+      <Speed X="0.45" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-814" Y="-56.5" Type="Picture" PictureLocation="local" ClassName="up_smoke" Width="508" Height="23">
+      <ReappearX Min="-1152" Max="1408"/>
+      <Speed X="0.45" Y="0"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="stone_forest_atlas_layer1">
+    <Image X="0" Y="-15" ClassName="layer3_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="stone_forest_atlas_layer2">
+    <Image X="0" Y="95" ClassName="water_1" Width="1536" Height="256"/>
+    <SimpleEffect X="-262" Y="109.5" Type="Picture" PictureLocation="local" ClassName="smoke_column" Width="476" Height="153">
+      <ReappearX Min="-1152" Max="1408"/>
+      <Speed X="0.3" Y="0"/>
+      <OscillationY Offset="2">
+        <Point Period="3.5" Value="0" Ease="-1"/>
+        <Point Period="4.1" Value="5" Ease="1"/>
+      </OscillationY>
+      <Transparency Offset="0">
+        <Point Period="1.6" Value="65" Ease="-1"/>
+        <Point Period="3.9" Value="70" Ease="1"/>
+        <Point Period="3.1" Value="45" Ease="-1"/>
+        <Point Period="2.5" Value="80" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="268" Y="109.5" Type="Picture" PictureLocation="local" ClassName="smoke_column" Width="476" Height="153">
+      <ReappearX Min="-1152" Max="1408"/>
+      <Speed X="0.3" Y="0"/>
+      <OscillationY Offset="2">
+        <Point Period="3.5" Value="0" Ease="-1"/>
+        <Point Period="4.1" Value="5" Ease="1"/>
+      </OscillationY>
+      <Transparency Offset="0">
+        <Point Period="1.6" Value="65" Ease="-1"/>
+        <Point Period="3.9" Value="70" Ease="1"/>
+        <Point Period="3.1" Value="45" Ease="-1"/>
+        <Point Period="2.5" Value="80" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="stone_forest_atlas_layer2">
+    <Image X="0" Y="155" ClassName="layer4_1" Width="1536" Height="244"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="stone_forest_atlas_layer3" Scaling="1">
+    <Image X="-896" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="-640" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="-384" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="-128" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="128" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="384" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="640" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="896" Y="189" ClassName="floor" Width="256" Height="50"/>
+    <Image X="-857.5" Y="20" ClassName="left" Width="315" Height="600"/>
+    <Image X="857.5" Y="20" ClassName="right" Width="315" Height="600"/>
+    <Image X="0" Y="440" ClassName="pixel_1" Width="2000" Height="512" Color="0x0B0505" IsOpaque="1"/>
+  </Layer>
+</Root>

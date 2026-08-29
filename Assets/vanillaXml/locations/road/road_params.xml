@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="road_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1024" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="road_atlas_layer0">
+    <Image X="0" Y="0" ClassName="layer0_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="road_atlas_layer1">
+    <Image X="1" Y="19" ClassName="layer1_1" Width="1536" Height="512"/>
+    <SimpleEffect X="-600" Y="-380" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="14" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.1" Y="0.1"/>
+    </SimpleEffect>
+    <SimpleEffect X="-550" Y="-400" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="2" Offset="33" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.2" Y="0.15"/>
+    </SimpleEffect>
+    <SimpleEffect X="-450" Y="-340" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="3" Offset="47" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="0.8" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="-500" Y="-320" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="2" Offset="21" Width="14" Height="30">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="0.7" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="-400" Y="-360" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="4" Offset="80" Width="28" Height="60">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="0.8" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="-600" Y="-380" Type="Sequention" ClassName="bird_white" PictureLocation="global" Speed="4" Offset="70" Width="28" Height="60">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="0.7" Y="0.2"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.24" Atlas="road_atlas_layer2">
+    <Image X="0" Y="20" ClassName="layer2_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.6">
+    <ParticleEffect X="-900" Y="130" ClassName="road_green_leaves"/>
+    <ParticleEffect X="-900" Y="130" ClassName="road_pink_leaves"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="road_light">
+    <SimpleEffect X="11.328" Y="-15" Type="Picture" PictureLocation="local" ClassName="light" Width="1137.344" Height="512">
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="35" Ease="-1"/>
+        <Point Period="3.5" Value="70" Ease="1"/>
+        <Point Period="1.1" Value="55" Ease="-1"/>
+        <Point Period="3.5" Value="80" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Scaling="1" Atlas="road_atlas_layer3">
+    <Image X="-854" Y="-110" ClassName="left" Width="400" Height="680"/>
+    <Image X="836" Y="-110" ClassName="right" Width="400" Height="680"/>
+    <Image X="-896" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="-640" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="-384" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="-128" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="128" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="384" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="640" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="896" Y="192" ClassName="floor" Width="256" Height="56"/>
+    <Image X="0" Y="470" ClassName="pixel_1" Width="2000" Height="540" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

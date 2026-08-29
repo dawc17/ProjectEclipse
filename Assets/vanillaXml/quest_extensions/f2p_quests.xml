@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<Quests>
+  <Include File="quest_extensions/ambrush.xml"/>
+  <Include File="quest_extensions/eclipse.xml"/>
+  <Include File="quest_extensions/forge_quests.xml"/>
+  <Include File="quest_extensions/raid_quests.xml"/>
+</Quests>

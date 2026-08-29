@@ -1,0 +1,1647 @@
+<?xml version="1.0"?>
+<Quests>
+  <Quest Name="RaidTutorialLauncherFightEnd" Priority="-10" Unresumable="1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="END"/>
+      <GreaterEqual Value1="?Fight[ZONE_1|BOSS_LYNX|2].WinCount" Value2="1"/>
+      <Operator Type="Or">
+        <Equal Value1="?RaidInfo[].TutorialStep" Value2="NotStarted"/>
+        <Equal Value1="_RaidTutorPart1Done" Value2="0"/>
+      </Operator>
+      <Equal Value1="?RaidInfo[].TutorialStep" Value2="RaidFinalFightTutorial" Not="1"/>
+      <Equal Value1="?RaidInfo[].TutorialStep" Value2="LeagueWindowTutorial" Not="1"/>
+      <Equal Value1="?RaidInfo[].TutorialStep" Value2="TutorialComplete" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="LaunchRaidTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StartRaidTutorialAndDownloadBundles" Priority="-10" Unresumable="0">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="LaunchRaidTutorial"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Map"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_FIRE" Image="boss_fire">
+        <Line Text="dlgRaidIntro1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_FIRE" Image="boss_fire">
+        <Line Text="dlgRaidIntro2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Activate ActionID="ShowRaidButtonTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowRaidButtonTutorial" Priority="-9" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ShowRaidButtonTutorial"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ShowRaidsGag Value="1"/>
+      <Dialog Type="NoAvatar" Title="dlgAlertTitle">
+        <Line Text="dlgRaidMap"/>
+        <Button Type="Right" Color="Beige" Text="OK">
+          <ClickButton Target="RaidMapUIModule.RaidToggleButton.RaidButton" UseArrow="1" ArrowOffsetX="100" ArrowOffsetY="0" ArrowRotation="90"/>
+          <SetRaidInfoTutorialStep Value="TutorialComplete"/>
+          <SetVariable Scope="Users" Name="RaidTutorialCompleted" Value="1"/>
+          <ToggleItems Label="CLANS" Toggle="on"/>
+          <ToggleItems Label="ZONE_RAID" Toggle="on"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterCheckTutorialCompletion" Priority="9999">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_RaidTutorialCompleted" Value2="0"/>
+        <Equal Value1="?RaidInfo[].TutorialStep" Value2="TutorialComplete" Not="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="_RaidTutorialCompleted" Value2="0"/>
+          <Equal Value1="?RaidInfo[].TutorialStep" Value2="TutorialComplete"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Users" Name="RaidTutorialCompleted" Value="1"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+          <Equal Value1="?RaidInfo[].TutorialStep" Value2="TutorialComplete" Not="1"/>
+        </Conditions>
+        <Then>
+          <SetRaidInfoTutorialStep Value="TutorialComplete"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterVolcano" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_1"/>
+      <Equal Not="1" Value1="_RaidEnterVolcano" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterVolcano" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_FIRE" Image="boss_fire">
+        <Line Text="dlgVolcanoGreetings"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterVolcano" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_1"/>
+      <Equal Not="1" Value1="_RaidLoseAfterVolcano" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterVolcano" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_FIRE" Image="boss_fire">
+        <Line Text="dlgVolcanoWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterVolcano" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_1"/>
+      <Equal Not="1" Value1="_RaidWinAfterVolcano" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterVolcano" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_FIRE" Image="boss_fire">
+        <Line Text="dlgVolcanoLost"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterMegalith" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_2"/>
+      <Equal Not="1" Value1="_RaidEnterMegalith" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterMegalith" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Stone" Image="boss_crystal">
+        <Line Text="dlgMegalithGreetings"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterMegalith" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_2"/>
+      <Equal Not="1" Value1="_RaidLoseAfterMegalith" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterMegalith" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Stone" Image="boss_crystal">
+        <Line Text="dlgMegalithWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterMegalith" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_2"/>
+      <Equal Not="1" Value1="_RaidWinAfterMegalith" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterMegalith" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Stone" Image="boss_crystal">
+        <Line Text="dlgMegalithLost"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterFungus" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_3"/>
+      <Equal Not="1" Value1="_RaidEnterFungus" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterFungus" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Mushroom" Image="boss_mushroom">
+        <Line Text="dlgFungusGreetings"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterFungus" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_3"/>
+      <Equal Not="1" Value1="_RaidLoseAfterFungus" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterFungus" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Mushroom" Image="boss_mushroom">
+        <Line Text="dlgFungusWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterFungus" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_3"/>
+      <Equal Not="1" Value1="_RaidWinAfterFungus" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterFungus" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Mushroom" Image="boss_mushroom">
+        <Line Text="dlgFungusLost"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterVortex" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_4"/>
+      <Equal Not="1" Value1="_RaidEnterVortex" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterVortex" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Vortex" Image="boss_vortex" ImageOffsetX="-50">
+        <Line Text="dlgVortexGreetings"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterVortex" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_4"/>
+      <Equal Not="1" Value1="_RaidLoseAfterVortex" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterVortex" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Vortex" Image="boss_vortex" ImageOffsetX="-50">
+        <Line Text="dlgVortexWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterVortex" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_4"/>
+      <Equal Not="1" Value1="_RaidWinAfterVortex" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterVortex" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Vortex" Image="boss_vortex" ImageOffsetX="-50">
+        <Line Text="dlgVortexLost"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterFatum" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_5"/>
+      <Equal Not="1" Value1="_RaidEnterFatum" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterFatum" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Fatum" Image="boss_fatum">
+        <Line Text="dlgFatumGreetings"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgFatumStory1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Fatum" Image="boss_fatum">
+        <Line Text="dlgFatumStory2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterFatum" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_5"/>
+      <Equal Not="1" Value1="_RaidLoseAfterFatum" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterFatum" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Fatum" Image="boss_fatum">
+        <Line Text="dlgFatumWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterFatum" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_5"/>
+      <Equal Not="1" Value1="_RaidWinAfterFatum" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterFatum" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Fatum" Image="boss_fatum">
+        <Line Text="dlgFatumLost"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterArkhos" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_6"/>
+      <Equal Not="1" Value1="_RaidEnterArkhos" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterArkhos" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Arkhos" Image="boss_arkhos">
+        <Line Text="dlgArkhosGreetings"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgArkhosStory1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Arkhos" Image="boss_arkhos">
+        <Line Text="dlgArkhosStory2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterArkhos" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_6"/>
+      <Equal Not="1" Value1="_RaidLoseAfterArkhos" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterArkhos" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Arkhos" Image="boss_arkhos">
+        <Line Text="dlgArkhosWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterArkhos" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_6"/>
+      <Equal Not="1" Value1="_RaidWinAfterArkhos" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterArkhos" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Arkhos" Image="boss_arkhos">
+        <Line Text="dlgArkhosLost"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterHoaxen" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_7"/>
+      <Equal Not="1" Value1="_RaidEnterHoaxen" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterHoaxen" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hoaxen" Image="boss_hoaxen">
+        <Line Text="dlgHoaxenGreetings"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgHoaxenStory1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hoaxen" Image="boss_hoaxen">
+        <Line Text="dlgHoaxenStory2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterHoaxen" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_7"/>
+      <Equal Not="1" Value1="_RaidLoseAfterHoaxen" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterHoaxen" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hoaxen" Image="boss_hoaxen">
+        <Line Text="dlgHoaxenWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterHoaxen" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_7"/>
+      <Equal Not="1" Value1="_RaidWinAfterHoaxen" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterHoaxen" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hoaxen" Image="boss_hoaxen">
+        <Line Text="dlgHoaxenLost"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterHunger" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_8"/>
+      <Equal Not="1" Value1="_RaidEnterHunger" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hunger" Image="boss_hunger">
+        <Line Text="Hunger_Greetings1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="Hunger_Greetings2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hunger" Image="boss_hunger">
+        <Line Text="Hunger_Greetings3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidEnterHunger" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterHunger" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_8"/>
+      <Equal Not="1" Value1="_RaidLoseAfterHunger" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterHunger" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hunger" Image="boss_hunger">
+        <Line Text="Hunger_AfterLoss"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterHunger" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_8"/>
+      <Equal Not="1" Value1="_RaidWinAfterHunger" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterHunger" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Hunger" Image="boss_hunger">
+        <Line Text="Hunger_AfterWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterWar" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_9"/>
+      <Equal Not="1" Value1="_RaidEnterWar" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="RAIDBOSS_War" Image="boss_war">
+        <Line Text="War_Greetings1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="War_Greetings2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_War" Image="boss_war">
+        <Line Text="War_Greetings3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidEnterWar" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterWar" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_9"/>
+      <Equal Not="1" Value1="_RaidLoseAfterWar" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterWar" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_War" Image="boss_war">
+        <Line Text="War_AfterLoss"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterWar" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_9"/>
+      <Equal Not="1" Value1="_RaidWinAfterWar" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterWar" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_War" Image="boss_war">
+        <Line Text="War_AfterWin"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterFear" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_10"/>
+      <Equal Not="1" Value1="_RaidEnterFear" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterFear" Value="0"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Tenebris" Image="boss_tenebris" IgnoreBack="1">
+        <Line Text="Tenebris_greetings_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="Tenebris_greetings_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Tenebris" Image="boss_tenebris" IgnoreBack="1">
+        <Line Text="Tenebris_greetings_3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="Tenebris_greetings_4"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidEnterFear" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterFear" Priority="1" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_10"/>
+      <Equal Not="1" Value1="_RaidLoseAfterFear" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterFear" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Tenebris" Image="boss_tenebris" IgnoreBack="1">
+        <Line Text="Tenebris_wins"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterFear" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_10"/>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <LessEqual Value1="_RaidWinAfterFear" Value2="1"/>
+          <Equal Value1="_PortalRetreat_Passed" Value2="1" Not="1"/>
+        </Operator>
+        <Operator Type="And">
+          <LessEqual Value1="_RaidWinAfterFear" Value2="1"/>
+          <Equal Value1="_PortalEnter_Passed" Value2="1" Not="1"/>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="RAIDBOSS_Tenebris" Image="boss_tenebris" IgnoreBack="1">
+        <Line Text="Tenebris_loses"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <If>
+        <Conditions>
+          <Equal Value1="_PortalEnter_Passed" Value2="0"/>
+          <Equal Value1="_PortalRetreat_Passed" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+            <Line Text="Tenebris_final_decision"/>
+            <Button Type="Right" Color="Beige" Text="enterRaid">
+              <Activate ActionID="StoryEnterPortal"/>
+            </Button>
+            <Button Type="Left" Color="Beige" Text="FinalDecision_Retreat">
+              <Activate ActionID="StoryDoNotEnterPortal"/>
+            </Button>
+          </Dialog>
+        </Then>
+        <Else>
+          <If>
+            <Conditions>
+              <Equal Value1="_PortalEnter_Passed" Value2="1"/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+                <Line Text="Tenebris_final_decision"/>
+                <Button Type="Right" Color="Beige" Text="FinalDecision_Retreat">
+                  <Activate ActionID="StoryDoNotEnterPortal"/>
+                </Button>
+              </Dialog>
+            </Then>
+            <Else>
+              <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+                <Line Text="Tenebris_final_decision"/>
+                <Button Type="Right" Color="Beige" Text="enterRaid">
+                  <Activate ActionID="StoryEnterPortal"/>
+                </Button>
+              </Dialog>
+            </Else>
+          </If>
+        </Else>
+      </If>
+      <SetVariable Scope="Users" Name="RaidWinAfterFear" Value="_RaidWinAfterFear + 1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ReturnAfterEnterPortal" Priority="1" Unresumable="1">
+    <Events>
+      <RaidFloorChanged/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ReturnAfterEnterPortal" Value2="0"/>
+      <Equal Value1="_PortalEnter_Passed" Value2="1"/>
+      <Equal Value1="_GatekeeperGreetings" Value2="1"/>
+      <Equal Value1="_$CurRaidFloor" Value2="2"/>
+    </Conditions>
+    <Actions>
+      <ActScreen Lock="Silent" Text="EnterPortal_ActScreen"/>
+      <Wait Frames="60" Lock="Silent" ControlsLock="1"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_8|"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_9|"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_10|"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_4"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="NAME_DISCIPLE" Image="character_disciple" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_5"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_6"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <ActScreen Lock="Silent" Frames="120" Text="EnterPortal_ActScreen"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_6" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_9"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_6" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_10"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_11"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_12"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Activate ActionID="RestoringBosses"/>
+      <SetVariable Scope="Users" Name="ReturnAfterEnterPortal" Value="1"/>
+      <Activate ActionID="RaidZone4OfferLaunch"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RestoringBosses" Priority="1" Unresumable="0">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="RestoringBosses"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterVolcano" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterVolcano" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterVolcano" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterMegalith" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterMegalith" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterMegalith" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterFungus" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterFungus" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterFungus" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterVortex" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterVortex" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterVortex" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterFatum" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterFatum" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterFatum" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterArkhos" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterArkhos" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterArkhos" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterHoaxen" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterHoaxen" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterHoaxen" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterHunger" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterHunger" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterHunger" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidEnterWar" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidLoseAfterWar" Value="0"/>
+      <SetVariable Scope="Users" Name="RaidWinAfterWar" Value="0"/>
+      <Wait Frames="180" Lock="Silent" ControlsLock="1"/>
+      <ShowBattle Name="ZONE_RAID2|BOSS_8|"/>
+      <ShowBattle Name="ZONE_RAID2|BOSS_9|"/>
+      <ShowBattle Name="ZONE_RAID2|BOSS_10|"/>
+      <Wait Frames="40" Lock="Silent" ControlsLock="1"/>
+      <If>
+        <Conditions>
+          <Equal Value1="?RaidGift[RaidsFinalChaos].Received" Value2="1" Not="1"/>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="RAIDBOSS_Tenebris" Image="boss_tenebris" IgnoreBack="1">
+            <Line Text="EnterPortal_Story_13"/>
+            <Button Type="Right" Color="Beige" Text="OK">
+              <ConnectToRaids>
+                <Success>
+                  <GiveGift Name="RaidsFinalChaos" Value="1" Recurring="0" Sound="snd_buy"/>
+                </Success>
+                <Error>
+                  <Activate ActionID="CheckOnline"/>
+                </Error>
+              </ConnectToRaids>
+            </Button>
+          </Dialog>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="DoNotEnterPortal" Priority="1" Unresumable="0">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StoryDoNotEnterPortal"/>
+    </Conditions>
+    <Actions>
+      <ActScreen Text="StepBack_ActScreen" Lock="Silent"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_1" IgnoreBack="1">
+        <Line Text="StepBack_Story_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="StepBack_Story_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Tenebris" Image="boss_tenebris" IgnoreBack="1">
+        <Line Text="StepBack_Story_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Tenebris" Image="boss_tenebris" IgnoreBack="1">
+        <Line Text="StepBack_Story_4"/>
+        <Button Type="Right" Color="Beige" Text="OK">
+          <ConnectToRaids>
+            <Success>
+              <GiveGift Name="RaidsFinalHarmony" Value="1" Recurring="0" Sound="snd_buy"/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="PortalRetreat_Passed" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnterPortal" Priority="1" Unresumable="0">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StoryEnterPortal"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_ZONE_4" Toggle="on"/>
+      <ActScreen Lock="Silent" Text="EnterPortal_ActScreen"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_8|"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_9|"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_10|"/>
+      <ShowBattle Name="ZONE_RAID3|BOSS_12|" Hidden="1" Instant="1"/>
+      <SetMapFocus Battle="ZONE_RAID3|BOSS_11|"/>
+      <ShowBattle Name="ZONE_RAID3|BOSS_12|" Hidden="1" Instant="1"/>
+      <ShowBattle Name="ZONE_RAID3|BOSS_13|" Hidden="1" Instant="1"/>
+      <ShowBattle Name="ZONE_RAID3|BOSS_14|" Hidden="1" Instant="1"/>
+      <Wait Frames="40" Lock="Silent" ControlsLock="1"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_7"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_6" IgnoreBack="1">
+        <Line Text="EnterPortal_Story_8"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <ActScreen Lock="Silent" Frames="120" Text="EnterPortal_ActScreen"/>
+      <OpenRaidZone Index="3"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_4" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_Assistant_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_4" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_Assistant_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_GATEKEEPER_TITLE" Image="boss_gatekeeper" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_Sensei"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_GATEKEEPER_TITLE" Image="boss_gatekeeper" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_Sensei_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_Assistant_3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnContinue"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="Gatekeeper_greetings_Sensei_3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_RAID3|BOSS_11|" Hidden="0"/>
+      <SetMapFocus Battle="ZONE_RAID3|BOSS_11|"/>
+      <SetVariable Scope="Users" Name="GatekeeperGreetings" Value="1"/>
+      <SetVariable Scope="Users" Name="PortalEnter_Passed" Value="1"/>
+      <Activate ActionID="RaidZone4OfferLaunch"/>
+    </Actions>
+  </Quest>
+  <Quest Name="LockRaidZone4" Priority="101" Unresumable="1">
+    <Events>
+      <RaidFloorChanged/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_PortalEnter_Passed" Value2="0"/>
+      <Equal Value1="_$CurRaidFloor" Value2="2"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ChangeButtonState Target="RaidMapUIModule.RaidMapScrollButton" Interactable="false"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidFloorChangedHelper" Priority="9997" Unresumable="1">
+    <Events>
+      <RaidFloorChanged/>
+    </Events>
+    <Actions>
+      <SetVariable Scope="Users" Name="LastRaidFloor" Value="_$CurRaidFloor"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidFloorOpenLast" Priority="9998" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Actions>
+      <OpenRaidZone Index="_LastRaidFloor"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidFloorHideBeforeReturnFromPortal" Priority="500" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_GatekeeperGreetings" Value2="1"/>
+      <Equal Value1="_PortalEnter_Passed" Value2="1"/>
+      <Equal Value1="_ReturnAfterEnterPortal" Value2="0"/>
+      <Equal Value1="_$CurRaidFloor" Value2="2"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_RAID2|BOSS_8|"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_9|"/>
+      <HideBattle Name="ZONE_RAID2|BOSS_10|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnterPortalStoryNew" Priority="110" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Greater Value1="_RaidWinAfterFear" Value2="1"/>
+        <Equal Value1="_PortalEnter_Passed" Value2="1"/>
+      </Operator>
+      <Equal Value1="_GatekeeperGreetings" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="StoryEnterPortal"/>
+      <GiveGift Name="RaidFirstPortalEnter" Value="1" Recurring="0" Sound="snd_buy"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HideUnreachedBattles" Priority="110" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Actions>
+      <SetBattleVisibility Name="ZONE_RAID3|BOSS_11|" IsVisible="_GatekeeperGreetings"/>
+      <SetBattleVisibility Name="ZONE_RAID3|BOSS_12|" IsVisible="_RaidWinAfterGatekeeper"/>
+      <SetBattleVisibility Name="ZONE_RAID3|BOSS_13|" IsVisible="_RaidWinAfterSaturn"/>
+      <SetBattleVisibility Name="ZONE_RAID3|BOSS_14|" IsVisible="_RaidWinAfterBlackness"/>
+    </Actions>
+  </Quest>
+  <Quest Name="PortalGiftChecker" Priority="100" Unresumable="0">
+    <Events>
+      <RaidLogin/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?Fight[ZONE_RAID2|BOSS_10|1].WinCount" Value2="0"/>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <Equal Value1="_ReturnAfterEnterPortal" Value2="1"/>
+          <Equal Value1="?RaidGift[RaidsFinalChaos].Received" Value2="1" Not="1"/>
+          <Equal Value1="?Item[HELM_FINAL_HARMONY].Quantity" Value2="0"/>
+        </Operator>
+        <Operator Type="And">
+          <Equal Value1="_PortalRetreat_Passed" Value2="1"/>
+          <Equal Value1="?RaidGift[RaidsFinalHarmony].Received" Value2="1" Not="1"/>
+          <Equal Value1="?Item[HELM_FINAL_CHAOS].Quantity" Value2="0"/>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="_PortalRetreat_Passed" Value2="1"/>
+          <Equal Value1="?RaidGift[RaidsFinalHarmony].Received" Value2="1" Not="1"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="RaidsFinalHarmony" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <Equal Value1="_ReturnAfterEnterPortal" Value2="1"/>
+          <Equal Value1="?RaidGift[RaidsFinalChaos].Received" Value2="1" Not="1"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="RaidsFinalChaos" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterGatekeeper" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_11"/>
+      <Equal Value1="_RaidLoseAfterGatekeeper" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterGatekeeper" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="Gatekeeper_lost_Saimon"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterGatekeeper" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_11"/>
+      <Equal Value1="_RaidWinAfterGatekeeper" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterGatekeeper" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="Gatekeeper_win_Saimon"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="Gatekeeper_win_Sensei"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="Gatekeeper_win_Saimon2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="Gatekeeper_win_Saimon3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_2">
+        <Line Text="Gatekeeper_win_Assistant"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="Gatekeeper_win_Saimon4"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <ShowBattle Name="ZONE_RAID3|BOSS_12|" Hidden="0" Instant="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SaturnGreetings" Priority="100" Unresumable="0">
+    <Events>
+      <BeforeQueue/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_12"/>
+      <Equal Not="1" Value1="_RaidGreetingsSaturn" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="saturn_greeting_saimon_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3">
+        <Line Text="saturn_greetingn_May_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="saturn_greeting_saimon_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SATURN_TITLE" Image="boss_saturn">
+        <Line Text="saturn_greeting_saturn_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="saturn_greeting_saimon_3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidGreetingsSaturn" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterSaturn" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_12"/>
+      <Equal Value1="_RaidEnterSaturn" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterSaturn" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_SATURN_TITLE" Image="boss_saturn">
+        <Line Text="saturn_enter_saturn_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterSaturn" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_12"/>
+      <Equal Value1="_RaidLoseAfterSaturn" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterSaturn" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_SATURN_TITLE" Image="boss_saturn">
+        <Line Text="saturn_lose_saturn_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterSaturn" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_12"/>
+      <Equal Value1="_RaidWinAfterSaturn" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="RAIDBOSS_SATURN_TITLE" Image="boss_saturn">
+        <Line Text="saturn_win_saturn_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="saturn_win_saimon_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3">
+        <Line Text="saturn_win_May_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SATURN_TITLE" Image="boss_saturn">
+        <Line Text="saturn_win_saturn_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="saturn_win_sensei"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidWinAfterSaturn" Value="1"/>
+      <ShowBattle Name="ZONE_RAID3|BOSS_13|" Hidden="0" Instant="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="BlacknessGreetings" Priority="100" Unresumable="0">
+    <Events>
+      <BeforeQueue/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_13"/>
+      <Equal Not="1" Value1="_RaidGreetingsBlackness" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_4">
+        <Line Text="blackness_greeting_may_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="blackness_greetingn_saimon_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_LAZARUS_TITLE" Image="character_lazarus">
+        <Line Text="blackness_greeting_lazarus_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="blackness_greeting_saimon_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="BLACKNESS_TITLE" Image="boss_blackness">
+        <Line Text="blackness_greeting_blackness_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidGreetingsBlackness" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterBlackness" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_13"/>
+      <Equal Value1="_RaidEnterBlackness" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterBlackness" Value="1"/>
+      <Dialog Type="Regular" Title="BLACKNESS_TITLE" Image="boss_blackness">
+        <Line Text="blackness_enter_blackness_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterBlackness" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_13"/>
+      <Equal Value1="_RaidLoseAfterBlackness" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterBlackness" Value="1"/>
+      <Dialog Type="Regular" Title="BLACKNESS_TITLE" Image="boss_blackness">
+        <Line Text="blackness_lose_blackness_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="blackness_lose_saimon_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterBlackness" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_13"/>
+      <Equal Value1="_RaidWinAfterBlackness" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_4">
+        <Line Text="blackness_win_may_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_LAZARUS_TITLE" Image="character_lazarus">
+        <Line Text="blackness_win_lazarus_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="blackness_win_saimon_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="blackness_win_sensei"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="blackness_win_saimon_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidWinAfterBlackness" Value="1"/>
+      <ShowBattle Name="ZONE_RAID3|BOSS_14|" Hidden="0" Instant="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HunterGreetings" Priority="100" Unresumable="0">
+    <Events>
+      <BeforeQueue/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_14"/>
+      <Equal Not="1" Value1="_RaidGreetingsHunter" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="dlgHunter_greeting_saimon_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgHunter_greeting_sensei_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="dlgHunter_greeting_saimon_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_4">
+        <Line Text="dlgHunter_greeting_may_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="dlgHunter_greeting_sensei_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidGreetingsHunter" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidEnterHunter" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="BOSS_14"/>
+      <Equal Value1="_RaidEnterHunter" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidEnterHunter" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_HUNTER_TITLE" Image="hunter_raid">
+        <Line Text="dlgHunter_enter_hunter_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidLoseAfterHunter" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="BOSS_14"/>
+      <Equal Value1="_RaidLoseAfterHunter" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidLoseAfterHunter" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_HUNTER_TITLE" Image="hunter_raid">
+        <Line Text="dlgHunter_loose_hunter_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgHunter_sensei_loose_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterHunter" Priority="1" Unresumable="0">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_14"/>
+      <Equal Value1="_RaidWinAfterHunter" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="RAIDBOSS_HUNTER_TITLE" Image="hunter_raid">
+        <Line Text="dlgHunter_win_hunter_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="dlgHunter_win_saimon_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_4">
+        <Line Text="dlgHunter_win_may_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_SAIMON_TITLE" Image="character_simon_raid">
+        <Line Text="dlgHunter_win_saimon_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="CHARACTER_VOICE" Image="man_invisible">
+        <Line Text="dlgHunter_win_voice_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="RaidWinAfterHunter" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidAfterLoginStory" Priority="-5" Unresumable="1">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].SamsungF2P" Value2="1" Not="1"/>
+      <Equal Not="1" Value1="_RaidAfterLoginStory" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="RaidAfterLoginStory" Value="1"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_1">
+        <Line Text="dlgRaidStory1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgRaidStory2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_1">
+        <Line Text="dlgRaidStory3"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgRaidStory4"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterVolcanoStory" Priority="-5" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_1"/>
+      <Equal Not="1" Value1="_RaidWinAfterVolcanoStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterVolcanoStory" Value="1"/>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_3">
+        <Line Text="dlgVolcanoStory1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgVolcanoStory2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterMegalithStory" Priority="-5" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_2"/>
+      <Equal Not="1" Value1="_RaidWinAfterMegalithStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterMegalithStory" Value="1"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgMegalithStory1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterFungusStory" Priority="-5" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_3"/>
+      <Equal Not="1" Value1="_RaidWinAfterFungusStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterFungusStory" Value="1"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgFungusStory1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterMay" Image="character_may_5">
+        <Line Text="dlgFungusStory2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterVortexStory" Priority="-5" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_4"/>
+      <Equal Not="1" Value1="_RaidWinAfterVortexStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterVortexStory" Value="1"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="dlgVortexStory1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Vortex" Image="boss_vortex">
+        <Line Text="dlgVortexStory2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="RAIDBOSS_Vortex" Image="boss_vortex">
+        <Line Text="dlgVortexStory3"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RaidWinAfterFatumStory" Priority="-5" Unresumable="1">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_$Raid" Value2="BOSS_5"/>
+      <Equal Not="1" Value1="_RaidWinAfterFatumStory" Value2="1"/>
+      <Greater Value1="?Fight[ZONE_1|BOSS_LYNX|6].WinCount" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="RaidWinAfterFatumStory" Value="1"/>
+      <Dialog Type="Regular" Title="RAIDBOSS_Fatum" Image="boss_fatum">
+        <Line Text="dlgFatumWin2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="GoToRaidsNotify" Unresumable="1" Priority="-100">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_1|BOSS_LYNX|5].WinCount" Value2="1"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_RAID" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_RAID1" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_RAID2" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="GoToRaidsNotify" Value="?Sum[_GoToRaidsNotify,1]"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SkipGoToRaidNotify" Unresumable="1" Priority="-100">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Actions>
+      <SetVariable Scope="Users" Name="GoToRaidsNotify" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="GoToRaidsDialog" Unresumable="1" Priority="-100">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="_GoToRaidsNotify" Value2="10"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="titleGoToRaidsNotify" Image="_Avatar_Assistant_1">
+        <Line Text="?Concat[dlgGoToRaidsNotify, ?UniformIntRandom[1,6]]"/>
+        <Button Type="Right" Color="Green" Text="dlgBtnRedirect">
+          <SwitchToRaidsMap/>
+          <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+          <ClearQuestQueue/>
+        </Button>
+        <Button Type="Left" Color="Beige" Text="OK">
+          <SetVariable Scope="Users" Name="GoToRaidsNotify" Value="0"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="GoToRaidsNotify" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="LevelupSystemCheck" Unresumable="1" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Greater Value1="?Player[].Level" Value2="4"/>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="LevelupSystemCheck"/>
+    </Actions>
+  </Quest>
+  <Quest Name="CheckGC_for_IOS11" Unresumable="1" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].OsName" Value2="IOS"/>
+      <Equal Value1="_$ActionID" Value2="LevelupSystemCheck"/>
+      <Equal Value1="_$LevelUp" Value2="1"/>
+      <Greater Value1="?Player[].Level" Value2="5"/>
+      <Equal Value1="_CheckGC_for_IOS11" Value2="1" Not="1"/>
+      <Equal Value1="?Slice[?SysInfo[].OsVersion,0,1]" Value2="11"/>
+      <Equal Value1="?SysInfo[].IsSocialAuthorized" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="SysTxt">
+        <Line Text="NotifyGCOn"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+        <CheckBox Text="dlgDontShowAgain" InitialValue="_LowFPSWarningCheckBox">
+          <On>
+            <SetVariable Scope="Users" Name="CheckGC_for_IOS11" Value="1"/>
+          </On>
+          <Off>
+            <SetVariable Scope="Users" Name="CheckGC_for_IOS11" Value="0"/>
+          </Off>
+        </CheckBox>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="CheckGC_for_IOS11_UnderLVL6" Unresumable="1" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].OsName" Value2="IOS"/>
+      <Equal Value1="_$ActionID" Value2="LevelupSystemCheck"/>
+      <Equal Value1="_$LevelUp" Value2="1"/>
+      <Equal Value1="?Player[].Level" Value2="5"/>
+      <Equal Value1="_CheckGC_for_IOS11" Value2="1" Not="1"/>
+      <Equal Value1="?Slice[?SysInfo[].OsVersion,0,1]" Value2="11"/>
+      <Equal Value1="?SysInfo[].IsSocialAuthorized" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="NoAvatar" Title="SysTxt">
+        <Line Text="NotifyGCOn"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RefreshEventVariables" Priority="999">
+    <Actions>
+      <SetVariable Scope="Users" Name="EventActive" Value="0"/>
+      <SetVariable Scope="Users" Name="EventFightWin" Value="0"/>
+      <SetVariable Scope="Users" Name="EventFightLose" Value="0"/>
+      <SetVariable Scope="Users" Name="EventBossIndex" Value="0"/>
+      <SetVariable Scope="Users" Name="EventDojoIndex" Value="0"/>
+      <SetVariable Scope="Users" Name="EventBoss" Value="0"/>
+      <SetVariable Scope="Users" Name="EventAnnounce" Value="0"/>
+      <SetVariable Scope="Users" Name="EventGift" Value="0"/>
+      <SetVariable Scope="Users" Name="EventStory" Value="0"/>
+      <SetVariable Scope="Users" Name="EventFightEnter" Value="0"/>
+      <SetVariable Scope="Users" Name="ChangeToEventDojo" Value="0"/>
+      <SetVariable Scope="Users" Name="ShopAdvChest" Value="0"/>
+      <SetVariable Scope="Users" Name="GiftAfterFirstPurchase" Value="0"/>
+      <SetVariable Scope="Users" Name="EventBossKeyInfo" Value="0"/>
+      <SetVariable Scope="Users" Name="CurrentMiniEventIndex" Value="0"/>
+    </Actions>
+  </Quest>
+</Quests>

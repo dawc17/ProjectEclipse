@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="100" Floor="70" Width="1936" Height="517">
+  <Layer Type="1" Factor="0.3" Atlas="war_raid_background">
+    <Image X="0" Y="0" ClassName="background_1" Width="1536" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.45" Atlas="war_raid_layer1">
+    <Image X="0" Y="-96" ClassName="layer1_1" Width="1536" Height="319"/>
+  </Layer>
+  <Layer Type="1" Factor="0.45" Atlas="war_raid_layer1">
+    <SimpleEffect X="26.481" Y="-66.208" ClassName="skull_eye_effect" Type="Picture" PictureLocation="local" Width="51.337" Height="50.416">
+      <Transparency Offset="0.5">
+        <Point Period="0.6" Value="42" Ease="-1"/>
+        <Point Period="1" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-33.598" Y="-68.006" ClassName="skull_eye_effect" Type="Picture" PictureLocation="local" Width="42.781" Height="42.013">
+      <Transparency Offset="0.5">
+        <Point Period="0.6" Value="0" Ease="-1"/>
+        <Point Period="1" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="5.91" Y="-190" ClassName="sky_effect" Type="Picture" PictureLocation="local" Width="188.18" Height="56.865">
+      <Transparency Offset="0.5">
+        <Point Period="0.4" Value="2" Ease="-1"/>
+        <Point Period="0.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-473.908" Y="-114.956" ClassName="lightning1" Type="Picture" PictureLocation="local" Width="79.183" Height="173.913">
+      <Transparency Offset="0.5">
+        <Point Period="0.05" Value="0" Ease="-1"/>
+        <Point Period="0.09" Value="100" Ease="1"/>
+        <Point Period="0.14" Value="0" Ease="1"/>
+        <Point Period="0.19" Value="100" Ease="-1"/>
+        <Point Period="2.1" Value="0" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-216.030" Y="-81.561" ClassName="lightning2" Type="Picture" PictureLocation="local" Width="245.245" Height="197.122">
+      <Transparency Offset="0.5">
+        <Point Period="0.05" Value="0" Ease="-1"/>
+        <Point Period="0.09" Value="100" Ease="1"/>
+        <Point Period="0.14" Value="0" Ease="1"/>
+        <Point Period="0.19" Value="100" Ease="-1"/>
+        <Point Period="0.9" Value="0" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-18.949" Y="-164" ClassName="lightning4" Type="Picture" PictureLocation="local" Width="143.402" Height="87.934">
+      <Transparency Offset="0.5">
+        <Point Period="0.1" Value="0" Ease="-1"/>
+        <Point Period="0.12" Value="100" Ease="1"/>
+        <Point Period="0.17" Value="0" Ease="1"/>
+        <Point Period="0.22" Value="100" Ease="-1"/>
+        <Point Period="2.7" Value="0" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="195" Y="-113.215" ClassName="lightning5" Type="Picture" PictureLocation="local" Width="220" Height="193.569">
+      <Transparency Offset="0.5">
+        <Point Period="0.05" Value="0" Ease="-1"/>
+        <Point Period="0.09" Value="100" Ease="1"/>
+        <Point Period="0.14" Value="0" Ease="1"/>
+        <Point Period="0.19" Value="100" Ease="-1"/>
+        <Point Period="3" Value="0" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="441.850" Y="-90.367" ClassName="lightning6" Type="Picture" PictureLocation="local" Width="91.598" Height="204.734">
+      <Transparency Offset="0.5">
+        <Point Period="0.1" Value="0" Ease="-1"/>
+        <Point Period="0.13" Value="100" Ease="1"/>
+        <Point Period="0.16" Value="0" Ease="1"/>
+        <Point Period="0.19" Value="100" Ease="-1"/>
+        <Point Period="1.1" Value="0" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.45" Atlas="war_raid_layer1">
+    <Image X="0" Y="-80" ClassName="layer1_lights1" Width="1150" Height="336"/>
+  </Layer>
+  <Layer Type="1" Factor="0.5" Atlas="war_raid_layer1">
+    <Image X="0" Y="32" ClassName="layer2_plain" Width="1536" Height="275"/>
+  </Layer>
+  <Layer Type="1" Factor="0.6" Atlas="war_raid_layer1">
+    <Image X="0" Y="54" ClassName="layer2_battlefield1_1" Width="1536" Height="410"/>
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="war_raid_layer1">
+    <Image X="0" Y="145" ClassName="layer2_fog1" Width="1536" Height="150"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="war_raid_layer1" Scaling="1">
+    <Image X="-944" Y="52.994" ClassName="left" Width="337" Height="358.011"/>
+    <Image X="944" Y="57.977" ClassName="right" Width="337" Height="348.045"/>
+    <Image X="-861" Y="207.255" ClassName="floor" Width="287" Height="50.019"/>
+    <Image X="-574" Y="207.255" ClassName="floor" Width="287" Height="50.019"/>
+    <Image X="-287" Y="207.255" ClassName="floor" Width="287" Height="50.019"/>
+    <Image X="0" Y="207.255" ClassName="floor" Width="287" Height="50.019"/>
+    <Image X="287" Y="207.255" ClassName="floor" Width="287" Height="50.019"/>
+    <Image X="574" Y="207.255" ClassName="floor" Width="287" Height="50.019"/>
+    <Image X="861" Y="207.255" ClassName="floor" Width="287" Height="50.019"/>
+    <Image X="0" Y="440" ClassName="pixel_1" Width="3000" Height="490" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

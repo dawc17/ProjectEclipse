@@ -71,6 +71,34 @@ namespace Eclipse.Content
 			return imported;
 		}
 
+		public static int ImportMissingTopLevelSections(
+			XmlDocument document,
+			XmlDocument fallback,
+			IEnumerable<string> sectionNames)
+		{
+			if (document == null || fallback == null || document.DocumentElement == null || fallback.DocumentElement == null)
+			{
+				return 0;
+			}
+
+			int imported = 0;
+			foreach (string sectionName in sectionNames)
+			{
+				if (string.IsNullOrEmpty(sectionName) || document.DocumentElement[sectionName] != null)
+				{
+					continue;
+				}
+				XmlElement fallbackSection = fallback.DocumentElement[sectionName];
+				if (fallbackSection == null)
+				{
+					continue;
+				}
+				document.DocumentElement.AppendChild(document.ImportNode(fallbackSection, true));
+				imported++;
+			}
+			return imported;
+		}
+
 		public static int RemoveUnsupportedQualityOptions(XmlDocument document)
 		{
 			int removed = 0;

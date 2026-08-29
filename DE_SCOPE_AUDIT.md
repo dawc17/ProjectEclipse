@@ -9,6 +9,12 @@ This note records which current changes are general reconstruction/platform work
 and which ones overlap with the original Definitive Edition feature set. It is a
 scope guide, not a request to revert currently working behavior.
 
+As of the vanilla pivot, `Assets/vanillaXml/` is the active/canonical vanilla
+2.41.9 data set. The former active Definitive Edition tree is archived under
+`Assets/DExml/` and is not read by the base loader. Eclipse may bridge missing
+schema required by the older recovered runtime, but that bridge must not merge DE
+content or DE policy back into vanilla.
+
 ## Clearly base-project work
 
 These are useful regardless of whether Definitive Edition exists and should stay

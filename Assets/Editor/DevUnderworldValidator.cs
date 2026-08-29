@@ -19,14 +19,14 @@ internal static class DevUnderworldValidator
 		}
 		List<string> errors = new List<string>();
 		HashSet<string> locations = new HashSet<string>(StringComparer.Ordinal);
-		XmlDocument stages = Load("Assets/xml/raid_stages_default.xml");
+		XmlDocument stages = Load("Assets/vanillaXml/raid_stages_default.xml");
 		int battles = stages.SelectNodes("//Battle").Count;
 		foreach (XmlNode node in stages.SelectNodes("//Battle[@Location] | //Fight[@Location]"))
 			locations.Add(node.Attributes["Location"].Value);
 		int checkedImages = 0;
 		foreach (string location in locations)
 		{
-			string directory = "Assets/xml/locations/" + location;
+			string directory = "Assets/vanillaXml/locations/" + location;
 			string[] files = Directory.Exists(directory) ? Directory.GetFiles(directory, "*params.xml") : new string[0];
 			if (files.Length != 1)
 			{

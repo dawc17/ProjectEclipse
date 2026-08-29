@@ -48,8 +48,8 @@ public sealed class GameplayContentBuildProcessor : IPreprocessBuildWithReport
     public static void Package()
     {
         const string assetPath = "Assets/Resources/SF2Content/gameplay.bytes";
-        string source = Path.Combine(Application.dataPath, "xml");
-        foreach (string required in new[] { "stages.xml", "raid_stages_default.xml", "internalSettings.xml", "compat/stages.xml", "compat/internalSettings.xml" })
+        string source = Path.Combine(Application.dataPath, GameplayContentArchive.EditorSourceDirectoryName);
+        foreach (string required in new[] { "stages.xml", "raid_stages_default.xml", "internalSettings.xml", "list.xml", "quests.xml" })
             if (!File.Exists(Path.Combine(source, required)))
                 throw new BuildFailedException("Missing gameplay XML: " + required);
         try

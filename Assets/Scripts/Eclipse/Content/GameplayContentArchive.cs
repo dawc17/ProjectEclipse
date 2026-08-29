@@ -14,6 +14,7 @@ namespace Eclipse.Content
     public static class GameplayContentArchive
     {
         public const string ResourcePath = "SF2Content/gameplay";
+        public const string EditorSourceDirectoryName = "vanillaXml";
         private const string Magic = "SF2XML1";
         private const int MaxFiles = 10000;
         private const int MaxFileBytes = 64 * 1024 * 1024;
@@ -22,7 +23,7 @@ namespace Eclipse.Content
         public static string GetXmlRoot()
         {
             if (Application.isEditor)
-                return Path.Combine(Application.dataPath, "xml");
+                return Path.Combine(Application.dataPath, EditorSourceDirectoryName);
 
             TextAsset asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)

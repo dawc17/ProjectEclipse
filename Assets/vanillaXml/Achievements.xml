@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Achievements>
+  <Counter Name="PerfectRound">
+    <Achievement Name="achievement_name_perfect_1" Description="Achievement_Desc_Perfect_Rounds_1{1}" Priority="355" CounterValue="1" Icon="Achievements02.ach_perfect_bronze" GameCenterID="com.nekki.shadowfight.perfect1" GooglePlayID="CgkIj_6xn7wfEAIQAA" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_perfect_2" Description="Achievement_Desc_Perfect_Rounds{5}" Priority="350" CounterValue="5" Icon="Achievements02.ach_perfect_silver" GameCenterID="com.nekki.shadowfight.perfect2" GooglePlayID="CgkIj_6xn7wfEAIQBw" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_perfect_3" Description="Achievement_Desc_Perfect_Rounds{20}" Priority="345" CounterValue="20" Icon="Achievements02.ach_perfect_gold" GameCenterID="com.nekki.shadowfight.perfect3" GooglePlayID="CgkIj_6xn7wfEAIQCA" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="PerfectRoundEclipse">
+    <Achievement Name="achievement_name_perfect_eclipse_1" Description="Achievement_Desc_Perfect_Eclipse_Rounds{5}" Priority="370" CounterValue="5" Icon="Achievements02.ach_perfect_eclipse" GameCenterID="" GooglePlayID="CgkIj_6xn7wfEAIQXA" Points="30" BonusPrize="3"/>
+  </Counter>
+  <Counter Name="FirstHits">
+    <Achievement Name="achievement_name_firsthits_1" Description="Achievement_Desc_Firsthits{20}" Priority="340" CounterValue="20" Icon="Achievements01.ach_firsthit_bronze" GameCenterID="com.nekki.shadowfight.firsthits1" GooglePlayID="CgkIj_6xn7wfEAIQAg" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_firsthits_2" Description="Achievement_Desc_Firsthits{100}" Priority="335" CounterValue="100" Icon="Achievements01.ach_firsthit_silver" GameCenterID="com.nekki.shadowfight.firsthits2" GooglePlayID="CgkIj_6xn7wfEAIQCQ" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_firsthits_3" Description="Achievement_Desc_Firsthits{500}" Priority="330" CounterValue="500" Icon="Achievements01.ach_firsthit_gold" GameCenterID="com.nekki.shadowfight.firsthits3" GooglePlayID="CgkIj_6xn7wfEAIQCg" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="Combo3">
+    <Achievement Name="achievement_name_maxcombo_1" Description="Achievement_Desc_Max_Combo{5}" Priority="325" CounterValue="1" Icon="Achievements01.ach_combo_bronze" GameCenterID="com.nekki.shadowfight.maxcombo1" GooglePlayID="CgkIj_6xn7wfEAIQCw" Points="5" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="Combo6">
+    <Achievement Name="achievement_name_maxcombo_2" Description="Achievement_Desc_Max_Combo{7}" Priority="320" CounterValue="1" Icon="Achievements01.ach_combo_silver" GameCenterID="com.nekki.shadowfight.maxcombo2" GooglePlayID="CgkIj_6xn7wfEAIQDA" Points="10" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="Combo10">
+    <Achievement Name="achievement_name_maxcombo_3" Description="Achievement_Desc_Max_Combo{10}" Priority="315" CounterValue="1" Icon="Achievements01.ach_combo_gold" GameCenterID="com.nekki.shadowfight.maxcombo3" GooglePlayID="CgkIj_6xn7wfEAIQDQ" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="StyleAggressive">
+    <Achievement Name="achievement_name_aggresive_1" Description="Achievement_Desc_Style{Aggressive}" Priority="310" CounterValue="1" Icon="Achievements02.ach_style_bronze" GameCenterID="com.nekki.shadowfight.aggresive1" GooglePlayID="CgkIj_6xn7wfEAIQDg" Points="5" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="StyleCrazy">
+    <Achievement Name="achievement_name_crazy_1" Description="Achievement_Desc_Style{Crazy}" Priority="305" CounterValue="1" Icon="Achievements02.ach_style_silver" GameCenterID="com.nekki.shadowfight.crazy1" GooglePlayID="CgkIj_6xn7wfEAIQDw" Points="10" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="StyleFantastic">
+    <Achievement Name="achievement_name_fantastic_1" Description="Achievement_Desc_Style{Fantastic}" Priority="300" CounterValue="1" Icon="Achievements02.ach_style_gold" GameCenterID="com.nekki.shadowfight.fantastic1" GooglePlayID="CgkIj_6xn7wfEAIQEA" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="HeadHitRound">
+    <Achievement Name="achievement_name_headhitrounds_1" Description="Achievement_Desc_HeadHitRounds{10}" Priority="295" CounterValue="10" Icon="Achievements01.ach_headhitround_bronze" GameCenterID="com.nekki.shadowfight.headhitrounds1" GooglePlayID="CgkIj_6xn7wfEAIQAw" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_headhitrounds_2" Description="Achievement_Desc_HeadHitRounds{50}" Priority="290" CounterValue="50" Icon="Achievements01.ach_headhitround_silver" GameCenterID="com.nekki.shadowfight.headhitrounds2" GooglePlayID="CgkIj_6xn7wfEAIQEQ" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_headhitrounds_3" Description="Achievement_Desc_HeadHitRounds{300}" Priority="285" CounterValue="300" Icon="Achievements01.ach_headhitround_gold" GameCenterID="com.nekki.shadowfight.headhitrounds3" GooglePlayID="CgkIj_6xn7wfEAIQEg" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="Disarm">
+    <Achievement Name="achievement_name_disarm_1" Description="Achievement_Desc_Disarm{10}" Priority="280" CounterValue="10" Icon="Achievements01.ach_disarm_bronze" GameCenterID="com.nekki.shadowfight.disarm1" GooglePlayID="CgkIj_6xn7wfEAIQBA" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_disarm_2" Description="Achievement_Desc_Disarm{50}" Priority="275" CounterValue="50" Icon="Achievements01.ach_disarm_silver" GameCenterID="com.nekki.shadowfight.disarm2" GooglePlayID="CgkIj_6xn7wfEAIQEw" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_disarm_3" Description="Achievement_Desc_Disarm{200}" Priority="270" CounterValue="200" Icon="Achievements01.ach_disarm_gold" GameCenterID="com.nekki.shadowfight.disarm3" GooglePlayID="CgkIj_6xn7wfEAIQFA" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="DisarmEclipse">
+    <Achievement Name="achievement_name_disarm_eclipse_1" Description="Achievement_Desc_Disarm_eclipse{50}" Priority="267" CounterValue="50" Icon="Achievements01.ach_disarm_eclipse" GameCenterID="com.nekki.shadowfight.disarm4" GooglePlayID="CgkIj_6xn7wfEAIQZw" Points="30" BonusPrize="3"/>
+  </Counter>
+  <Counter Name="KickFights">
+    <Achievement Name="achievement_name_kickfights_1" Description="Achievement_Desc_KickFights_1" Priority="265" CounterValue="1" Icon="Achievements01.ach_kickfights_bronze" GameCenterID="com.nekki.shadowfight.kickfights1" GooglePlayID="CgkIj_6xn7wfEAIQFQ" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_kickfights_2" Description="Achievement_Desc_KickFights_2{5}" Priority="260" CounterValue="5" Icon="Achievements01.ach_kickfights_silver" GameCenterID="com.nekki.shadowfight.kickfights2" GooglePlayID="CgkIj_6xn7wfEAIQFg" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_kickfights_3" Description="Achievement_Desc_KickFights_2{20}" Priority="255" CounterValue="20" Icon="Achievements01.ach_kickfights_gold" GameCenterID="com.nekki.shadowfight.kickfights3" GooglePlayID="CgkIj_6xn7wfEAIQFw" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="Unarmed">
+    <Achievement Name="achievement_name_unarmed_1" Description="Achievement_Desc_Unarmed_1{3}" Priority="250" CounterValue="3" Icon="Achievements02.ach_unarmed_bronze" GameCenterID="com.nekki.shadowfight.unarmed1" GooglePlayID="CgkIj_6xn7wfEAIQGA" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_unarmed_2" Description="Achievement_Desc_Unarmed_2{10}" Priority="245" CounterValue="10" Icon="Achievements02.ach_unarmed_silver" GameCenterID="com.nekki.shadowfight.unarmed2" GooglePlayID="CgkIj_6xn7wfEAIQGQ" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_unarmed_3" Description="Achievement_Desc_Unarmed_2{50}" Priority="240" CounterValue="50" Icon="Achievements02.ach_unarmed_gold" GameCenterID="com.nekki.shadowfight.unarmed3" GooglePlayID="CgkIj_6xn7wfEAIQGg" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="BlockedRound">
+    <Achievement Name="achievement_name_blockedrounds_1" Description="Achievement_Desc_BlockedRounds{5}" Priority="235" CounterValue="5" Icon="Achievements01.ach_block_bronze" GameCenterID="com.nekki.shadowfight.blockedrounds1" GooglePlayID="CgkIj_6xn7wfEAIQGw" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_blockedrounds_2" Description="Achievement_Desc_BlockedRounds{25}" Priority="230" CounterValue="25" Icon="Achievements01.ach_block_silver" GameCenterID="com.nekki.shadowfight.blockedrounds2" GooglePlayID="CgkIj_6xn7wfEAIQHA" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_blockedrounds_3" Description="Achievement_Desc_BlockedRounds{100}" Priority="225" CounterValue="100" Icon="Achievements01.ach_block_gold" GameCenterID="com.nekki.shadowfight.blockedrounds3" GooglePlayID="CgkIj_6xn7wfEAIQHQ" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="Losses">
+    <Achievement Name="achievement_name_losses_1" Description="Achievement_Desc_Losses_1" Priority="220" CounterValue="1" Icon="Achievements01.ach_losses_bronze" GameCenterID="com.nekki.shadowfight.losses1" GooglePlayID="CgkIj_6xn7wfEAIQHg" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_losses_2" Description="Achievement_Desc_Losses_2{50}" Priority="215" CounterValue="50" Icon="Achievements01.ach_losses_silver" GameCenterID="com.nekki.shadowfight.losses2" GooglePlayID="CgkIj_6xn7wfEAIQHw" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_losses_3" Description="Achievement_Desc_Losses_2{200}" Priority="210" CounterValue="200" Icon="Achievements01.ach_losses_gold" GameCenterID="com.nekki.shadowfight.losses3" GooglePlayID="CgkIj_6xn7wfEAIQIA" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="LossesEclipse">
+    <Achievement Name="achievement_name_losses_eclipse_1" Description="Achievement_Desc_Losses_eclipse{50}" Priority="207" CounterValue="50" Icon="Achievements01.ach_losses_eclipse" GameCenterID="com.nekki.shadowfight.losses4" GooglePlayID="CgkIj_6xn7wfEAIQaA" Points="30" BonusPrize="3"/>
+  </Counter>
+  <Counter Name="BarelyAliveRounds">
+    <Achievement Name="achievement_name_barelyalive_1" Description="Achievement_Desc_BarelyAlive_1" Priority="205" CounterValue="1" Icon="Achievements01.ach_health_remained_bronze" GameCenterID="com.nekki.shadowfight.barelyalive1" GooglePlayID="CgkIj_6xn7wfEAIQIQ" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_barelyalive_2" Description="Achievement_Desc_BarelyAlive_2{5}" Priority="200" CounterValue="5" Icon="Achievements01.ach_health_remained_silver" GameCenterID="com.nekki.shadowfight.barelyalive2" GooglePlayID="CgkIj_6xn7wfEAIQIg" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_barelyalive_3" Description="Achievement_Desc_BarelyAlive_2{50}" Priority="195" CounterValue="50" Icon="Achievements01.ach_health_remained_gold" GameCenterID="com.nekki.shadowfight.barelyalive3" GooglePlayID="CgkIj_6xn7wfEAIQIw" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="BarelyAliveRoundsEclipse">
+    <Achievement Name="achievement_name_barelyalive_eclipse_1" Description="Achievement_Desc_BarelyAlive_eclipse{20}" Priority="208" CounterValue="20" Icon="Achievements01.ach_health_remained_eclipse" GameCenterID="" GooglePlayID="CgkIj_6xn7wfEAIQXQ" Points="30" BonusPrize="3"/>
+  </Counter>
+  <Counter Name="PunchFights">
+    <Achievement Name="achievement_name_punchfights_1" Description="Achievement_Desc_Punchfights_1" Priority="190" CounterValue="1" Icon="Achievements02.ach_punchfights_bronze" GameCenterID="com.nekki.shadowfight.punchfights1" GooglePlayID="CgkIj_6xn7wfEAIQJA" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_punchfights_2" Description="Achievement_Desc_Punchfights_2{5}" Priority="185" CounterValue="5" Icon="Achievements02.ach_punchfights_silver" GameCenterID="com.nekki.shadowfight.punchfights2" GooglePlayID="CgkIj_6xn7wfEAIQJQ" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_punchfights_3" Description="Achievement_Desc_Punchfights_2{20}" Priority="180" CounterValue="20" Icon="Achievements02.ach_punchfights_gold" GameCenterID="com.nekki.shadowfight.punchfights3" GooglePlayID="CgkIj_6xn7wfEAIQJg" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="FastRounds">
+    <Achievement Name="achievement_name_fastrounds_1" Description="Achievement_Desc_FastRounds{5}{10}" Priority="175" CounterValue="5" Icon="Achievements02.ach_quickround_bronze" GameCenterID="com.nekki.shadowfight.fastrounds1" GooglePlayID="CgkIj_6xn7wfEAIQKg" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_fastrounds_2" Description="Achievement_Desc_FastRounds{20}{10}" Priority="170" CounterValue="20" Icon="Achievements02.ach_quickround_silver" GameCenterID="com.nekki.shadowfight.fastrounds2" GooglePlayID="CgkIj_6xn7wfEAIQKw" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_fastrounds_3" Description="Achievement_Desc_FastRounds{100}{10}" Priority="165" CounterValue="100" Icon="Achievements02.ach_quickround_gold" GameCenterID="com.nekki.shadowfight.fastrounds3" GooglePlayID="CgkIj_6xn7wfEAIQLA" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="LongRounds">
+    <Achievement Name="achievement_name_longrounds_1" Description="Achievement_Desc_LongRounds_1{1}{90}" Priority="160" CounterValue="1" Icon="Achievements01.ach_longround_bronze" GameCenterID="com.nekki.shadowfight.longrounds1" GooglePlayID="CgkIj_6xn7wfEAIQLQ" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_longrounds_2" Description="Achievement_Desc_LongRounds{5}{90}" Priority="155" CounterValue="5" Icon="Achievements01.ach_longround_silver" GameCenterID="com.nekki.shadowfight.longrounds2" GooglePlayID="CgkIj_6xn7wfEAIQLg" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_longrounds_3" Description="Achievement_Desc_LongRounds{20}{90}" Priority="150" CounterValue="20" Icon="Achievements01.ach_longround_gold" GameCenterID="com.nekki.shadowfight.longrounds3" GooglePlayID="CgkIj_6xn7wfEAIQLw" Points="25" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="LongRoundsEclipse">
+    <Achievement Name="achievement_name_longrounds_eclipse_1" Description="Achievement_Desc_LongRounds_Eclipse{5}{90}" Priority="149" CounterValue="5" Icon="Achievements01.ach_longround_eclipse" GameCenterID="com.nekki.shadowfight.longrounds4" GooglePlayID="CgkIj_6xn7wfEAIQaQ" Points="30" BonusPrize="3"/>
+  </Counter>
+  <Counter Name="BossNoLose">
+    <Achievement Name="achievement_name_BossNoLose_1" Description="Achievement_Desc_BossNoLose" Priority="148" CounterValue="1" Icon="Achievements01.ach_BossNoLose_bronze" GameCenterID="com.nekki.shadowfight.bossnolose1" GooglePlayID="CgkIj_6xn7wfEAIQdg" Points="5" BonusPrize="1"/>
+    <Achievement Name="achievement_name_BossNoLose_2" Description="Achievement_Desc_BossNoLose_1{3}" Priority="147" CounterValue="3" Icon="Achievements01.ach_BossNoLose_silver" GameCenterID="com.nekki.shadowfight.bossnolose2" GooglePlayID="CgkIj_6xn7wfEAIQdw" Points="10" BonusPrize="1"/>
+    <Achievement Name="achievement_name_BossNoLose_3" Description="Achievement_Desc_BossNoLose_1{6}" Priority="146" CounterValue="6" Icon="Achievements01.ach_BossNoLose_gold" GameCenterID="com.nekki.shadowfight.bossnolose3" GooglePlayID="CgkIj_6xn7wfEAIQeA" Points="15" BonusPrize="1"/>
+  </Counter>
+  <Counter Name="BodyGuardsWin1" Type="FightBeaten" Fight="ZONE_1|BOSS_LYNX|5">
+    <Achievement Name="Achievement_Name_Bodyguards_1" Description="Achievement_Desc_Bodyguards{%BOSS_LYNX_TITLE}" Priority="145" CounterValue="1" Icon="Achievements01.ach_bodyguards_1" GameCenterID="com.nekki.shadowfight.bodyguards1" GooglePlayID="CgkIj_6xn7wfEAIQJw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BodyGuardsWin2" Type="FightBeaten" Fight="ZONE_2|BOSS_HERMIT|5">
+    <Achievement Name="Achievement_Name_Bodyguards_2" Description="Achievement_Desc_Bodyguards{%BOSS_HERMIT_TITLE}" Priority="140" CounterValue="1" Icon="Achievements01.ach_bodyguards_2" GameCenterID="com.nekki.shadowfight.bodyguards2" GooglePlayID="CgkIj_6xn7wfEAIQKA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BodyGuardsWin3" Type="FightBeaten" Fight="ZONE_3|BOSS_BUTCHER|5">
+    <Achievement Name="Achievement_Name_Bodyguards_3" Description="Achievement_Desc_Bodyguards{%BOSS_BUTCHER_TITLE}" Priority="135" CounterValue="1" Icon="Achievements01.ach_bodyguards_3" GameCenterID="com.nekki.shadowfight.bodyguards3" GooglePlayID="CgkIj_6xn7wfEAIQKQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BodyGuardsWin4" Type="FightBeaten" Fight="ZONE_4|BOSS_WASP|5">
+    <Achievement Name="Achievement_Name_Bodyguards_4" Description="Achievement_Desc_Bodyguards{%BOSS_WASP_TITLE}" Priority="130" CounterValue="1" Icon="Achievements01.ach_bodyguards_4" GameCenterID="com.nekki.shadowfight.headkicks1" GooglePlayID="CgkIj_6xn7wfEAIQMA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BodyGuardsWin5" Type="FightBeaten" Fight="ZONE_5|BOSS_HUNTRESS|5">
+    <Achievement Name="Achievement_Name_Bodyguards_5" Description="Achievement_Desc_Bodyguards{%BOSS_HUNTRESS_TITLE}" Priority="125" CounterValue="1" Icon="Achievements01.ach_bodyguards_5" GameCenterID="com.nekki.shadowfight.headkicks2" GooglePlayID="CgkIj_6xn7wfEAIQMQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BodyGuardsWin6" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI|5">
+    <Achievement Name="Achievement_Name_Bodyguards_6" Description="Achievement_Desc_Bodyguards{%BOSS_SAMURAI_TITLE}" Priority="124" CounterValue="1" Icon="Achievements01.ach_bodyguards_6" GameCenterID="com.nekki.shadowfight.headkicks3" GooglePlayID="CgkIj_6xn7wfEAIQRg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossWin1" Type="FightBeaten" Fight="ZONE_1|BOSS_LYNX|6">
+    <Achievement Name="Achievement_Name_Boss_1" Description="Achievement_Desc_Boss{%BOSS_LYNX_TITLE}" Priority="120" CounterValue="1" Icon="Achievements01.ach_boss_lynx" GameCenterID="com.nekki.shadowfight.bosses1" GooglePlayID="CgkIj_6xn7wfEAIQMg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossWin2" Type="FightBeaten" Fight="ZONE_2|BOSS_HERMIT|6">
+    <Achievement Name="Achievement_Name_Boss_2" Description="Achievement_Desc_Boss{%BOSS_HERMIT_TITLE}" Priority="119" CounterValue="1" Icon="Achievements01.ach_boss_hermit" GameCenterID="com.nekki.shadowfight.bosses2" GooglePlayID="CgkIj_6xn7wfEAIQMw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossWin3" Type="FightBeaten" Fight="ZONE_3|BOSS_BUTCHER|6">
+    <Achievement Name="Achievement_Name_Boss_3" Description="Achievement_Desc_Boss{%BOSS_BUTCHER_TITLE}" Priority="118" CounterValue="1" Icon="Achievements01.ach_boss_butcher" GameCenterID="com.nekki.shadowfight.bosses3" GooglePlayID="CgkIj_6xn7wfEAIQNg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossWin4" Type="FightBeaten" Fight="ZONE_4|BOSS_WASP|6">
+    <Achievement Name="Achievement_Name_Boss_4" Description="Achievement_Desc_Boss{%BOSS_WASP_TITLE}" Priority="117" CounterValue="1" Icon="Achievements01.ach_boss_wasp" GameCenterID="com.nekki.shadowfight.bosses4" GooglePlayID="CgkIj_6xn7wfEAIQOQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossWin5" Type="FightBeaten" Fight="ZONE_5|BOSS_HUNTRESS|6">
+    <Achievement Name="Achievement_Name_Boss_5" Description="Achievement_Desc_Boss{%BOSS_HUNTRESS_TITLE}" Priority="116" CounterValue="1" Icon="Achievements01.ach_boss_widow" GameCenterID="com.nekki.shadowfight.bosses5" GooglePlayID="CgkIj_6xn7wfEAIQPA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossWin6" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI|6">
+    <Achievement Name="Achievement_Name_Boss_6" Description="Achievement_Desc_Boss{%BOSS_SAMURAI_TITLE}" Priority="115" CounterValue="1" Icon="Achievements01.ach_boss_shogun" GameCenterID="com.nekki.shadowfight.bosses6" GooglePlayID="CgkIj_6xn7wfEAIQRw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossRematch1" Type="FightBeaten" Fight="ZONE_1|BOSS_LYNX_ECLIPSEMODE|6">
+    <Achievement Name="Achievement_Name_Boss_Rematch_1" Description="Achievement_Desc_Boss_Rematch{%BOSS_LYNX_TITLE}" Priority="114" CounterValue="1" Icon="Achievements01.ach_LynxRematch" GameCenterID="com.nekki.shadowfight.bosseseclipse1" GooglePlayID="CgkIj_6xn7wfEAIQag" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossRematch2" Type="FightBeaten" Fight="ZONE_2|BOSS_HERMIT_ECLIPSEMODE|6">
+    <Achievement Name="Achievement_Name_Boss_Rematch_2" Description="Achievement_Desc_Boss_Rematch{%BOSS_HERMIT_TITLE}" Priority="113" CounterValue="1" Icon="Achievements01.ach_HermitRematch" GameCenterID="com.nekki.shadowfight.bosseseclipse2" GooglePlayID="CgkIj_6xn7wfEAIQaw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossRematch3" Type="FightBeaten" Fight="ZONE_3|BOSS_BUTCHER_ECLIPSEMODE|6">
+    <Achievement Name="Achievement_Name_Boss_Rematch_3" Description="Achievement_Desc_Boss_Rematch{%BOSS_BUTCHER_TITLE}" Priority="112" CounterValue="1" Icon="Achievements01.ach_ButcherRematch" GameCenterID="com.nekki.shadowfight.bosseseclipse3" GooglePlayID="CgkIj_6xn7wfEAIQbA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossRematch4" Type="FightBeaten" Fight="ZONE_4|BOSS_WASP_ECLIPSEMODE|6">
+    <Achievement Name="Achievement_Name_Boss_Rematch_4" Description="Achievement_Desc_Boss_Rematch{%BOSS_WASP_TITLE}" Priority="111" CounterValue="1" Icon="Achievements02.ach_WaspRematch" GameCenterID="com.nekki.shadowfight.bosseseclipse4" GooglePlayID="CgkIj_6xn7wfEAIQbQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossRematch5" Type="FightBeaten" Fight="ZONE_5|BOSS_HUNTRESS_ECLIPSEMODE|6">
+    <Achievement Name="Achievement_Name_Boss_Rematch_5" Description="Achievement_Desc_Boss_Rematch{%BOSS_HUNTRESS_TITLE}" Priority="110" CounterValue="1" Icon="Achievements02.ach_WidowRematch" GameCenterID="com.nekki.shadowfight.bosseseclipse5" GooglePlayID="CgkIj_6xn7wfEAIQbg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="BossRematch6" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI_ECLIPSEMODE|6">
+    <Achievement Name="Achievement_Name_Boss_Rematch_6" Description="Achievement_Desc_Boss_Rematch{%BOSS_SAMURAI_TITLE}" Priority="109" CounterValue="1" Icon="Achievements02.ach_ShogunRematch" GameCenterID="com.nekki.shadowfight.bosseseclipse6" GooglePlayID="CgkIj_6xn7wfEAIQbw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="TournamentsBeaten">
+    <Achievement Name="Achievement_Name_Tournaments_1" Description="Achievement_Desc_Tournaments" Priority="95" CounterValue="1" Icon="Achievements01.ach_tournaments_1" GameCenterID="com.nekki.shadowfight.tournaments1" GooglePlayID="CgkIj_6xn7wfEAIQNA" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Tournaments_2" Description="Achievement_Desc_Tournaments_2{2}" Priority="90" CounterValue="2" Icon="Achievements01.ach_tournaments_2" GameCenterID="com.nekki.shadowfight.tournaments2" GooglePlayID="CgkIj_6xn7wfEAIQNQ" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Tournaments_3" Description="Achievement_Desc_Tournaments_2{3}" Priority="85" CounterValue="3" Icon="Achievements01.ach_tournaments_3" GameCenterID="com.nekki.shadowfight.tournaments3" GooglePlayID="CgkIj_6xn7wfEAIQNw" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Tournaments_4" Description="Achievement_Desc_Tournaments_2{4}" Priority="80" CounterValue="4" Icon="Achievements01.ach_tournaments_4" GameCenterID="com.nekki.shadowfight.tournaments4" GooglePlayID="CgkIj_6xn7wfEAIQOA" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Tournaments_5" Description="Achievement_Desc_Tournaments_2{5}" Priority="75" CounterValue="5" Icon="Achievements01.ach_tournaments_5" GameCenterID="com.nekki.shadowfight.tournaments5" GooglePlayID="CgkIj_6xn7wfEAIQOg" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Tournaments_6" Description="Achievement_Desc_Tournaments_2{6}" Priority="74" CounterValue="6" Icon="Achievements01.ach_tournaments_6" GameCenterID="com.nekki.shadowfight.daily1" GooglePlayID="CgkIj_6xn7wfEAIQSA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="ChallangesBeaten">
+    <Achievement Name="Achievement_Name_Challenges_1" Description="Achievement_Desc_Challenges" Priority="70" CounterValue="1" Icon="Achievements01.ach_challenges_1" GameCenterID="com.nekki.shadowfight.challenges1" GooglePlayID="CgkIj_6xn7wfEAIQPQ" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Challenges_2" Description="Achievement_Desc_Challenges_2{2}" Priority="65" CounterValue="2" Icon="Achievements01.ach_challenges_2" GameCenterID="com.nekki.shadowfight.challenges2" GooglePlayID="CgkIj_6xn7wfEAIQPg" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Challenges_3" Description="Achievement_Desc_Challenges_2{3}" Priority="60" CounterValue="3" Icon="Achievements01.ach_challenges_3" GameCenterID="com.nekki.shadowfight.challenges3" GooglePlayID="CgkIj_6xn7wfEAIQPw" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Challenges_4" Description="Achievement_Desc_Challenges_2{4}" Priority="55" CounterValue="4" Icon="Achievements01.ach_challenges_4" GameCenterID="com.nekki.shadowfight.challenges4" GooglePlayID="CgkIj_6xn7wfEAIQQA" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Challenges_5" Description="Achievement_Desc_Challenges_2{5}" Priority="54" CounterValue="5" Icon="Achievements01.ach_challenges_5" GameCenterID="com.nekki.shadowfight.challenges5" GooglePlayID="CgkIj_6xn7wfEAIQQQ" Points="5" BonusPrize="1" Hidden="1"/>
+    <Achievement Name="Achievement_Name_Challenges_6" Description="Achievement_Desc_Challenges_2{6}" Priority="53" CounterValue="6" Icon="Achievements01.ach_challenges_6" GameCenterID="com.nekki.shadowfight.challenges6" GooglePlayID="CgkIj_6xn7wfEAIQSQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Zone1Rematch">
+    <Achievement Name="Achievement_Name_Zone_1_Rematch" Description="Achievement_Desc_Zone_1_Rematch{%Act_1_head}" Priority="51" CounterValue="1" Icon="Achievements03.ach_Zone1Rematch" GameCenterID="com.nekki.shadowfight.rematch1" GooglePlayID="CgkIj_6xn7wfEAIQcA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Zone2Rematch">
+    <Achievement Name="Achievement_Name_Zone_2_Rematch" Description="Achievement_Desc_Zone_Rematch{%Act_2_head}" Priority="50" CounterValue="1" Icon="Achievements03.ach_Zone2Rematch" GameCenterID="com.nekki.shadowfight.rematch2" GooglePlayID="CgkIj_6xn7wfEAIQcQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Zone3Rematch">
+    <Achievement Name="Achievement_Name_Zone_3_Rematch" Description="Achievement_Desc_Zone_Rematch{%Act_3_head}" Priority="49" CounterValue="1" Icon="Achievements03.ach_Zone3Rematch" GameCenterID="com.nekki.shadowfight.rematch3" GooglePlayID="CgkIj_6xn7wfEAIQcg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Zone4Rematch">
+    <Achievement Name="Achievement_Name_Zone_4_Rematch" Description="Achievement_Desc_Zone_Rematch{%Act_4_head}" Priority="48" CounterValue="1" Icon="Achievements03.ach_Zone4Rematch" GameCenterID="com.nekki.shadowfight.rematch4" GooglePlayID="CgkIj_6xn7wfEAIQcw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Zone5Rematch">
+    <Achievement Name="Achievement_Name_Zone_5_Rematch" Description="Achievement_Desc_Zone_Rematch{%Act_5_head}" Priority="47" CounterValue="1" Icon="Achievements03.ach_Zone5Rematch" GameCenterID="com.nekki.shadowfight.rematch5" GooglePlayID="CgkIj_6xn7wfEAIQdA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Zone6Rematch">
+    <Achievement Name="Achievement_Name_Zone_6_Rematch" Description="Achievement_Desc_Zone_Rematch{%Act_6_head}" Priority="46" CounterValue="1" Icon="Achievements03.ach_Zone6Rematch" GameCenterID="com.nekki.shadowfight.rematch6" GooglePlayID="CgkIj_6xn7wfEAIQdQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Survival1" Type="FightBeaten" Fight="ZONE_1|Survival|1" Fight2="ZONE_1|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_1" Description="Achievement_Desc_Survivals{%Act_1_head}" Priority="45" CounterValue="1" Icon="Achievements01.ach_survivals_1" GameCenterID="com.nekki.shadowfight.survivalmax1" GooglePlayID="CgkIj_6xn7wfEAIQOw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Survival2" Type="FightBeaten" Fight="ZONE_2|Survival|1" Fight2="ZONE_2|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_2" Description="Achievement_Desc_Survivals{%Act_2_head}" Priority="40" CounterValue="1" Icon="Achievements01.ach_survivals_2" GameCenterID="com.nekki.shadowfight.survivalmax2" GooglePlayID="CgkIj_6xn7wfEAIQQg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Survival3" Type="FightBeaten" Fight="ZONE_3|Survival|1" Fight2="ZONE_3|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_3" Description="Achievement_Desc_Survivals{%Act_3_head}" Priority="35" CounterValue="1" Icon="Achievements01.ach_survivals_3" GameCenterID="com.nekki.shadowfight.survivalmax3" GooglePlayID="CgkIj_6xn7wfEAIQQw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Survival4" Type="FightBeaten" Fight="ZONE_4|Survival|1" Fight2="ZONE_4|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_4" Description="Achievement_Desc_Survivals{%Act_4_head}" Priority="30" CounterValue="1" Icon="Achievements01.ach_survivals_4" GameCenterID="com.nekki.shadowfight.survivalmax4" GooglePlayID="CgkIj_6xn7wfEAIQRA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Survival5" Type="FightBeaten" Fight="ZONE_5|Survival|1" Fight2="ZONE_5|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_5" Description="Achievement_Desc_Survivals{%Act_5_head}" Priority="25" CounterValue="1" Icon="Achievements01.ach_survivals_5" GameCenterID="com.nekki.shadowfight.survivalmax5" GooglePlayID="CgkIj_6xn7wfEAIQRQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Survival6" Type="FightBeaten" Fight="ZONE_6|Survival|1" Fight2="ZONE_6|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_6" Description="Achievement_Desc_Survivals{%Act_6_head}" Priority="20" CounterValue="1" Icon="Achievements01.ach_survivals_6" GameCenterID="com.nekki.shadowfight.survivalmax6" GooglePlayID="CgkIj_6xn7wfEAIQSg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="SurvivalEclipse1" Type="FightBeaten" Fight="ZONE_1|Survival|1" Fight2="ZONE_1|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_Eclipse_1" Description="Achievement_Desc_Survivals_Eclipse{%Act_1_head}" Priority="10" CounterValue="1" Icon="Achievements01.ach_survivals_eclipse_1" GameCenterID="com.nekki.shadowfight.survivaleclipse1" GooglePlayID="CgkIj_6xn7wfEAIQYQ" Points="5" BonusPrize="3" Hidden="1"/>
+  </Counter>
+  <Counter Name="SurvivalEclipse2" Type="FightBeaten" Fight="ZONE_2|Survival|1" Fight2="ZONE_2|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_Eclipse_2" Description="Achievement_Desc_Survivals_Eclipse{%Act_2_head}" Priority="9" CounterValue="1" Icon="Achievements01.ach_survivals_eclipse_2" GameCenterID="com.nekki.shadowfight.survivaleclipse2" GooglePlayID="CgkIj_6xn7wfEAIQYg" Points="5" BonusPrize="3" Hidden="1"/>
+  </Counter>
+  <Counter Name="SurvivalEclipse3" Type="FightBeaten" Fight="ZONE_3|Survival|1" Fight2="ZONE_3|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_Eclipse_3" Description="Achievement_Desc_Survivals_Eclipse{%Act_3_head}" Priority="8" CounterValue="1" Icon="Achievements01.ach_survivals_eclipse_3" GameCenterID="com.nekki.shadowfight.survivaleclipse3" GooglePlayID="CgkIj_6xn7wfEAIQYw" Points="5" BonusPrize="3" Hidden="1"/>
+  </Counter>
+  <Counter Name="SurvivalEclipse4" Type="FightBeaten" Fight="ZONE_4|Survival|1" Fight2="ZONE_4|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_Eclipse_4" Description="Achievement_Desc_Survivals_Eclipse{%Act_4_head}" Priority="7" CounterValue="1" Icon="Achievements01.ach_survivals_eclipse_4" GameCenterID="com.nekki.shadowfight.survivaleclipse4" GooglePlayID="CgkIj_6xn7wfEAIQZA" Points="5" BonusPrize="3" Hidden="1"/>
+  </Counter>
+  <Counter Name="SurvivalEclipse5" Type="FightBeaten" Fight="ZONE_5|Survival|1" Fight2="ZONE_5|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_Eclipse_5" Description="Achievement_Desc_Survivals_Eclipse{%Act_5_head}" Priority="6" CounterValue="1" Icon="Achievements01.ach_survivals_eclipse_5" GameCenterID="com.nekki.shadowfight.survivaleclipse5" GooglePlayID="CgkIj_6xn7wfEAIQZg" Points="5" BonusPrize="3" Hidden="1"/>
+  </Counter>
+  <Counter Name="SurvivalEclipse6" Type="FightBeaten" Fight="ZONE_6|Survival|1" Fight2="ZONE_6|Survival_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_Survivals_Eclipse_6" Description="Achievement_Desc_Survivals_Eclipse{%Act_6_head}" Priority="5" CounterValue="1" Icon="Achievements01.ach_survivals_eclipse_6" GameCenterID="com.nekki.shadowfight.survivaleclipse6" GooglePlayID="CgkIj_6xn7wfEAIQZQ" Points="5" BonusPrize="3" Hidden="1"/>
+  </Counter>
+  <Counter Name="GatesOfShadowsClose" Type="FightBeaten" Fight="ZONE_6|FINAL_BATTLE|1">
+    <Achievement Name="Achievement_Name_CloseGatesOfShadows" Description="Achievement_Desc_CloseGatesOfShadows" Priority="4" CounterValue="1" Icon="Achievements01.ach_close_gates_of_shadows" GameCenterID="com.nekki.shadowfight.gatesofshadowsclosed" GooglePlayID="CgkIj_6xn7wfEAIQWw" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="TournamentIntermission" Type="FightBeaten" Fight="ZONE_6|Tournament_INTERMISSION|8">
+    <Achievement Name="Achievement_Name_Tournament_IM" Description="Achievement_Desc_Tournament_IM" Priority="3" CounterValue="1" Icon="Achievements01.ach_tournaments_im" GameCenterID="com.nekki.shadowfight.tournamentsIM" GooglePlayID="CgkIj_6xn7wfEAIQWQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="ChallengesIntermission" Type="FightBeaten" Fight="ZONE_6|Challenge_INTERMISSION|8">
+    <Achievement Name="Achievement_Name_Challenges_IM" Description="Achievement_Desc_Challenges_IM" Priority="2" CounterValue="1" Icon="Achievements01.ach_challenges_im" GameCenterID="com.nekki.shadowfight.challengesIM" GooglePlayID="CgkIj_6xn7wfEAIQWg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="GatesOfShadows" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI_INTERMISSION|1">
+    <Achievement Name="Achievement_Name_GatesOfShadows" Description="Achievement_Desc_GatesOfShadows" Priority="1" CounterValue="1" Icon="Achievements01.ach_gates_of_shadows" GameCenterID="com.nekki.shadowfight.gatesofshadows" GooglePlayID="CgkIj_6xn7wfEAIQWA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="CypherWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_CYPHER|1">
+    <Achievement Name="Achievement_Name_Cypher" Description="Achievement_Desc_Cypher" Priority="1" CounterValue="1" Icon="Achievements01.ach_boss_cypher" GameCenterID="com.nekki.shadowfight.cypher" GooglePlayID="CgkIj_6xn7wfEAIQggE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="HyperionWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_HYPERION|1">
+    <Achievement Name="Achievement_Name_Hyperion" Description="Achievement_Desc_Hyperion" Priority="1" CounterValue="1" Icon="Achievements01.ach_boss_hyperion" GameCenterID="com.nekki.shadowfight.robopocalypse" GooglePlayID="CgkIj_6xn7wfEAIQgwE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Survival7" Type="FightBeaten" Fight="ZONE_7|Survival|1">
+    <Achievement Name="Achievement_Name_Surv_Factory" Description="Achievement_Desc_Surv_Factory" Priority="1" CounterValue="1" Icon="Achievements01.ach_survivals_factory" GameCenterID="com.nekki.shadowfight.factory" GooglePlayID="CgkIj_6xn7wfEAIQhAE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="HideoutWin" Type="FightBeaten" Fight="ZONE_7|Tournament|1">
+    <Achievement Name="Achievement_Name_Tourn_Hideout" Description="Achievement_Desc_Tourn_Hideout" Priority="1" CounterValue="1" Icon="Achievements01.ach_hideout" GameCenterID="com.nekki.shadowfight.hideout" GooglePlayID="CgkIj_6xn7wfEAIQhQE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="AncientWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_ANCIENT|1">
+    <Achievement Name="Achievement_Name_Ancient" Description="Achievement_Desc_Ancient" Priority="1" CounterValue="1" Icon="Achievements01.ach_boss_ancient" GameCenterID="com.nekki.shadowfight.ancient" GooglePlayID="CgkIj_6xn7wfEAIQhgE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="StoneGroveWin" Type="FightBeaten" Fight="ZONE_7|Challenge1_1|1">
+    <Achievement Name="Achievement_Name_Chlng_Forest" Description="Achievement_Desc_Chlng_Forest" Priority="1" CounterValue="1" Icon="Achievements01.ach_challenges_forest" GameCenterID="com.nekki.shadowfight.chlforest" GooglePlayID="CgkIj_6xn7wfEAIQhwE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="IncubatorWin" Type="FightBeaten" Fight="ZONE_7|Tournament2|1">
+    <Achievement Name="Achievement_Name_Tourn_Eggs" Description="Achievement_Desc_Tourn_Eggs" Priority="1" CounterValue="1" Icon="Achievements01.ach_tournaments_7" GameCenterID="com.nekki.shadowfight.toureggs" GooglePlayID="CgkIj_6xn7wfEAIQiAE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="ShroudWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_SHROUD2|1">
+    <Achievement Name="Achievement_Name_Shroud" Description="Achievement_Desc_Shroud" Priority="1" CounterValue="1" Icon="Achievements01.ach_boss_shroud" GameCenterID="com.nekki.shadowfight.shroud" GooglePlayID="CgkIj_6xn7wfEAIQiQE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="SurvivalIncubatorWin" Type="FightBeaten" Fight="ZONE_7|C3_Survival|1">
+    <Achievement Name="Achievement_Name_Surv_Eggs" Description="Achievement_Desc_Surv_Eggs" Priority="1" CounterValue="1" Icon="Achievements01.ach_survivals_7" GameCenterID="com.nekki.shadowfight.surveggs" GooglePlayID="CgkIj_6xn7wfEAIQigE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="SpaceshipWin" Type="FightBeaten" Fight="ZONE_7|C3_Challenge|1">
+    <Achievement Name="Achievement_Name_Chlng_Ship" Description="Achievement_Desc_Chlng_Ship" Priority="1" CounterValue="1" Icon="Achievements01.ach_challenges_7" GameCenterID="com.nekki.shadowfight.chlship" GooglePlayID="CgkIj_6xn7wfEAIQiwE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="StoneGroveTournamentWin" Type="FightBeaten" Fight="ZONE_7|C3_Tournament|1">
+    <Achievement Name="Achievement_Name_Tourn_Forest" Description="Achievement_Desc_Tourn_Forest" Priority="1" CounterValue="1" Icon="Achievements01.ach_tournaments_forest" GameCenterID="com.nekki.shadowfight.tourforest" GooglePlayID="CgkIj_6xn7wfEAIQjAE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Zone7Rematch">
+    <Achievement Name="Achievement_Name_Profi" Description="Achievement_Desc_Profi" Priority="46" CounterValue="1" Icon="Achievements03.ach_Zone7Rematch" GameCenterID="com.nekki.shadowfight.profi" GooglePlayID="CgkIj_6xn7wfEAIQjQE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="HardWin">
+    <Achievement Name="Achievement_Name_Hard" Description="Achievement_Desc_Hard" Priority="51" CounterValue="1" Icon="Achievements03.ach_win_hard" GameCenterID="com.nekki.shadowfight.hard" GooglePlayID="CgkIj_6xn7wfEAIQjgE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="InsaneWin">
+    <Achievement Name="Achievement_Name_Insane" Description="Achievement_Desc_Insane" Priority="51" CounterValue="1" Icon="Achievements03.ach_win_insane" GameCenterID="com.nekki.shadowfight.insane" GooglePlayID="CgkIj_6xn7wfEAIQjwE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="ImpossibleWin">
+    <Achievement Name="Achievement_Name_Impossible" Description="Achievement_Desc_Impossible" Priority="51" CounterValue="1" Icon="Achievements03.ach_win_imposs" GameCenterID="com.nekki.shadowfight.impossible" GooglePlayID="CgkIj_6xn7wfEAIQkAE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="MayWin" Type="FightBeaten" Fight="ZONE_7|C3_FightWithMay|1">
+    <Achievement Name="Achievement_Name_Justice" Description="Achievement_Desc_Justice" Priority="1" CounterValue="1" Icon="Achievements01.ach_boss_may" GameCenterID="com.nekki.shadowfight.may" GooglePlayID="CgkIj_6xn7wfEAIQeg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="TitanWin" Type="FightBeaten" Fight="ZONE_7|C3_BOSS_TITAN|6">
+    <Achievement Name="Achievement_Name_Titan" Description="Achievement_Desc_Titan" Priority="1" CounterValue="1" Icon="Achievements01.ach_boss_titan" GameCenterID="com.nekki.shadowfight.titan" GooglePlayID="CgkIj_6xn7wfEAIQfA" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="MayRematch" Type="FightBeaten" Fight="ZONE_7|C3_FightWithMay_ECLIPSEMODE|1">
+    <Achievement Name="Achievement_Name_Justice_Eclipse" Description="Achievement_Desc_Justice_Eclipse" Priority="1" CounterValue="1" Icon="Achievements01.ach_MayRematch" GameCenterID="com.nekki.shadowfight.mayrematch" GooglePlayID="CgkIj_6xn7wfEAIQew" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="TitanRematch" Type="FightBeaten" Fight="ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|6">
+    <Achievement Name="Achievement_Name_Titan_Eclipse" Description="Achievement_Desc_Titan_Eclipse" Priority="1" CounterValue="1" Icon="Achievements02.ach_TitanRematch" GameCenterID="com.nekki.shadowfight.titanrematch" GooglePlayID="CgkIj_6xn7wfEAIQfQ" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="MaximumLevel" Type="MaximumLevel">
+    <Achievement Name="Achievement_Name_Level_Cap" Description="Achievement_Desc_Level_Cap" Priority="1" CounterValue="1" Icon="Achievements01.ach_levelcap" GameCenterID="com.nekki.shadowfight.maxlevel" GooglePlayID="CgkIj_6xn7wfEAIQgQE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="ShockWin" Type="ShockWin">
+    <Achievement Name="Achievement_Name_Win_After_Shock" Description="Achievement_Desc_Win_After_Shock" Priority="1" CounterValue="1" Icon="Achievements02.ach_shockwin" GameCenterID="com.nekki.shadowfight.shockwin" GooglePlayID="CgkIj_6xn7wfEAIQfg" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="ShockWinEclipse" Type="ShockWin">
+    <Achievement Name="Achievement_Name_Win_After_Shock_Eclipse" Description="Achievement_Desc_Win_After_Shock_Eclipse" Priority="1" CounterValue="1" Icon="Achievements02.ach_shockwin_eclipse" GameCenterID="com.nekki.shadowfight.shockeclipse" GooglePlayID="CgkIj_6xn7wfEAIQgAE" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+  <Counter Name="Anniversary10th">
+    <Achievement Name="Achievement_Name_Anniversary10th" Description="Achievement_Desc_Anniversary10th" Priority="1" CounterValue="1" Icon="Achievements01.ach_anniversary_10th" GameCenterID="com.nekki.shadowfight.anniversary10th" GooglePlayID="CgkIj_6xn7wfEAIQgAN" Points="5" BonusPrize="1" Hidden="1"/>
+  </Counter>
+</Achievements>

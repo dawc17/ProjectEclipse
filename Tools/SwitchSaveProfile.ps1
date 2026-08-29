@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('Status', 'CaptureComplete', 'UseComplete', 'NewGame')]
+    [ValidateSet('Status', 'CaptureComplete', 'UseComplete', 'UseVanillaMax', 'NewGame')]
     [string]$Action = 'Status',
 
     [switch]$Force
@@ -14,6 +14,7 @@ Set-StrictMode -Version Latest
 $saveDirectory = Join-Path $env:USERPROFILE 'AppData\LocalLow\Nekki\Shadow Fight 2\userdata'
 $profileDirectory = Join-Path $saveDirectory 'SaveProfiles'
 $completeDirectory = Join-Path $profileDirectory 'Complete'
+$vanillaMaxDirectory = Join-Path $profileDirectory 'VanillaMax'
 $safetyDirectory = Join-Path $profileDirectory 'Safety'
 
 # These are the files ListSF.CELGPFFHLIM clears when the game resets a user.
@@ -105,6 +106,7 @@ function Save-SafetyCopy {
 if ($Action -eq 'Status') {
     Write-Host "Active save:   $(Get-ProfileSummary -Directory $saveDirectory)"
     Write-Host "Complete save: $(Get-ProfileSummary -Directory $completeDirectory)"
+    Write-Host "Vanilla max:   $(Get-ProfileSummary -Directory $vanillaMaxDirectory)"
     Write-Host "Profile folder: $profileDirectory"
     exit 0
 }
@@ -144,6 +146,17 @@ switch ($Action) {
         Clear-SaveFiles -Directory $saveDirectory
         Copy-SF2SaveFiles -FromDirectory $completeDirectory -ToDirectory $saveDirectory
         Write-Host "Complete profile restored: $(Get-ProfileSummary -Directory $saveDirectory)"
+    }
+
+    'UseVanillaMax' {
+        if (-not (Test-Path -LiteralPath (Join-Path $vanillaMaxDirectory 'users.xml') -PathType Leaf)) {
+            throw "The vanilla max profile is missing. Build it with: .\Tools\PrepareVanillaMaxSave.ps1"
+        }
+
+        Save-SafetyCopy
+        Clear-SaveFiles -Directory $saveDirectory
+        Copy-SF2SaveFiles -FromDirectory $vanillaMaxDirectory -ToDirectory $saveDirectory
+        Write-Host "Vanilla max profile restored: $(Get-ProfileSummary -Directory $saveDirectory)"
     }
 
     'NewGame' {

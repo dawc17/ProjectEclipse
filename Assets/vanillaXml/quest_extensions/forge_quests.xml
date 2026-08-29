@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="GIVE_RECIPE_MEDIUM" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="GIVE_RECIPE"/>
+      <Greater Value1="_CountFreeMediumRecipe" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <GiveFreeRecipe Name="Medium"/>
+      <UpdateScene/>
+      <OpenForge Recipe="Medium"/>
+    </Actions>
+  </Quest>
+  <Quest Name="GIVE_RECIPE_SIMPLE" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="GIVE_RECIPE"/>
+      <Greater Value1="_CountFreeSimpleRecipe" Value2="0"/>
+    </Conditions>
+    <Actions Place="Map">
+      <GiveFreeRecipe Name="Simple"/>
+      <UpdateScene/>
+      <OpenForge Recipe="Simple"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowForgeOnTournamentEnd">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_2|Tournament|3].WinCount" Value2="1"/>
+      <GreaterEqual Not="1" Value1="_ForgeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ShowForge/>
+      <SetVariable Scope="Users" Name="ForgeEnabled" Value="1"/>
+      <Foreach Type="Items" Name="FindBestArmor"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ShowForgeOnPurchase">
+    <Events>
+      <Purchase/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Fight[ZONE_2|Tournament|1].WinCount" Value2="1"/>
+      <GreaterEqual Not="1" Value1="_ForgeEnabled" Value2="1"/>
+      <GreaterEqual Value1="?Purchase[_$Purchase].UpgradeLevel" Value2="700"/>
+      <Equal Value1="?Purchase[_$Purchase].Type" Value2="Armor"/>
+    </Conditions>
+    <Actions>
+      <ShowForge/>
+      <Foreach Type="Items" Name="FindBestArmor"/>
+      <SetVariable Scope="Users" Name="ForgeEnabled" Value="1"/>
+      <If>
+        <Conditions>
+          <Equal Value1="_$SceneTo" Value2="Shop"/>
+        </Conditions>
+        <Then>
+          <ForceExecution Name="ForgeTutorial"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="ForgeTutorial" Unresumable="1" Priority="9998">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Value1="_ForgeEnabled" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="Armor"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_forge_beginning1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryThanks"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_forge_beginning2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryThanks"/>
+      </Dialog>
+      <Wait Frames="1" Lock="Silent"/>
+      <ShowForge/>
+      <ForgeTutorialRevealPropertiesPanel/>
+      <Wait Frames="1" Lock="Silent"/>
+      <ForgeTutorialOpenForge/>
+      <BlockTouches/>
+      <ShowHint Sender="RecipeEnchantments" Index="0" KeepVisible="1"/>
+      <ShowArrow Target="?Concat[ForgePanel.,?ShopInfo[].CurrentRecipe,.RecipeProperty]" OffsetX="235" OffsetY="-101" Rotation="90"/>
+      <Dialog Type="Notification" Image="character_sensei_small" WaitNotificationClose="1">
+        <Line Text="tutorial_forge_random_enchantment"/>
+        <Button Type="Right" Color="White" Text="OK"/>
+      </Dialog>
+      <HideHint/>
+      <HideArrow/>
+      <ShowArrow Target="?Concat[ForgePanel.,?ShopInfo[].CurrentRecipe,.RecipePrice]" OffsetX="70" OffsetY="26" Rotation="90"/>
+      <Dialog Type="Notification" Image="character_sensei_small" WaitNotificationClose="1">
+        <Line Text="tutorial_forge_materials"/>
+        <Button Type="Right" Color="White" Text="OK"/>
+      </Dialog>
+      <HideArrow/>
+      <ForgeTutorialGiveRequiredMaterials/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="tutorial_forge_select_item"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <UnblockTouches/>
+      <ForgeTutorialEnchantItem/>
+      <SetVariable Scope="Users" Name="ForgeEnabled" Value="2"/>
+      <ShowHint Sender="ItemPerk" Index="0" KeepVisible="1"/>
+      <ShowArrow Target="?Concat[ItemScroller.,?ShopInfo[].CurrentItem,.Perk]" OffsetX="73" OffsetY="0" Rotation="90"/>
+      <Dialog Type="Notification" Image="character_sensei_small" WaitNotificationClose="1">
+        <Line Text="tutorial_forge_show_enchantment"/>
+        <Button Type="Right" Color="White" Text="OK"/>
+      </Dialog>
+      <HideHint/>
+      <HideArrow/>
+    </Actions>
+  </Quest>
+  <Quest Name="ForgeNotificationSimple" Unresumable="1" Priority="-100">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_ForgeNotifiedSimple" Value2="1"/>
+      <Greater Value1="_ForgeEnabled" Value2="1"/>
+      <Equal Value1="?Enchantment[_$BestArmor|Simple|0].Available" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ForgeNotifiedSimple" Value="1"/>
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="ForgeNotificationSimple"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <OpenShop Tab="?Purchase[_$BestArmor].Type" Item="_$BestArmor"/>
+          <OpenForge Tab="Armor" Recipe="Simple"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RefreshForgeNotificationSimple" Unresumable="1" Priority="0">
+    <Events>
+      <Enchantment/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ForgeNotifiedSimple" Value2="1"/>
+      <Greater Value1="_ForgeEnabled" Value2="1"/>
+      <Equal Value1="?Enchantment[_$Enchantment].Recipe" Value2="Simple"/>
+      <Equal Not="1" Value1="?Enchantment[_$BestArmor|Simple|0].Available" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ForgeNotifiedSimple" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ForgeNotificationMedium" Unresumable="1" Priority="-101">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_ForgeNotifiedMedium" Value2="1"/>
+      <Greater Value1="_ForgeEnabled" Value2="1"/>
+      <Equal Value1="?Enchantment[_$BestArmor|Medium|0].Available" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ForgeNotifiedMedium" Value="1"/>
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="ForgeNotificationMedium"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <OpenShop Tab="?Purchase[_$BestArmor].Type" Item="_$BestArmor"/>
+          <OpenForge Tab="Armor" Recipe="Medium"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RefreshForgeNotificationMedium" Unresumable="1" Priority="0">
+    <Events>
+      <Enchantment/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ForgeNotifiedMedium" Value2="1"/>
+      <Greater Value1="_ForgeEnabled" Value2="1"/>
+      <Equal Not="1" Value1="?Enchantment[_$BestArmor|Medium|0].Available" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ForgeNotifiedMedium" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ForgeNotificationComplex" Unresumable="1" Priority="-101">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Not="1" Value1="_ForgeNotifiedComplex" Value2="1"/>
+      <Greater Value1="_ForgeEnabled" Value2="1"/>
+      <Equal Value1="?Enchantment[_$BestArmor|Complex|0].Available" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ForgeNotifiedComplex" Value="1"/>
+      <Dialog Type="Notification" Image="_Avatar_Notification">
+        <Line Text="ForgeNotificationComplex"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <OpenShop Tab="?Purchase[_$BestArmor].Type" Item="_$BestArmor"/>
+          <OpenForge Tab="Armor" Recipe="Complex"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="RefreshForgeNotificationComplex" Unresumable="1" Priority="0">
+    <Events>
+      <Enchantment/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_ForgeNotifiedComplex" Value2="1"/>
+      <Greater Value1="_ForgeEnabled" Value2="1"/>
+      <Equal Not="1" Value1="?Enchantment[_$BestArmor|Complex|0].Available" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="ForgeNotifiedComplex" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="SuperEnchantmentActivation" Unresumable="1" Priority="99998">
+    <Events>
+      <ActivatePerk/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_SuperEnchantmentActive" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Local" Name="PerkImage" Value="?Concat[img::,?PerkInfo[_$PerkName].Icon]"/>
+      <SetVariable Scope="Users" Name="SuperEnchantmentActive" Value="1"/>
+      <Dialog Type="Notification" Image="character_puppeteer">
+        <Line Text="super_enchantment_activate{_PerkImage}"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="SuperEnchantmentDeactivation" Unresumable="1" Priority="99999">
+    <Events>
+      <DeactivatePerk/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_SuperEnchantmentActive" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Local" Name="PerkImage" Value="?Concat[img::,?PerkInfo[_$PerkName].Icon]"/>
+      <SetVariable Scope="Users" Name="SuperEnchantmentActive" Value="0"/>
+      <Dialog Type="Notification" Image="character_puppeteer">
+        <Line Text="super_enchantment_deactive{_PerkImage}"/>
+        <Button Type="Left" Color="Green"/>
+        <Button Type="Right" Color="Green" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+</Quests>

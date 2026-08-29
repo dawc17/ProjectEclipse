@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="mountain_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1024" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15">
+    <SimpleEffect X="-650" Y="130" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="3" Offset="11" Width="14" Height="26">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.2" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="-650" Y="110" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="12" Width="14" Height="26">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.2" Y="0.1"/>
+    </SimpleEffect>
+    <SimpleEffect X="-650" Y="120" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="3" Offset="35" Width="14" Height="26">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.1" Y="0.15"/>
+    </SimpleEffect>
+    <SimpleEffect X="-650" Y="80" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="44" Width="14" Height="26">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.3" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="-600" Y="60" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="47" Width="14" Height="26">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.25" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="-600" Y="70" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="3" Offset="21" Width="14" Height="26">
+      <ReappearX Min="-1152" Max="1152"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="1.1" Y="0.2"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="mountain_atlas_layer1">
+    <Image X="0" Y="0" ClassName="layer_1_1" Width="1088" Height="544"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="mountain_atlas_layer3">
+    <SimpleEffect X="-896" Y="147.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="161.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-384" Y="147.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="161.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="128" Y="147.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="161.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="640" Y="147.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="161.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_2" Width="256" Height="183">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="1152" Y="147.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_1" Width="256" Height="211">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.4" Y="0"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="mountain_atlas_layer2" Scaling="1">
+    <Image X="-673" Y="-199" ClassName="left" Width="717" Height="853"/>
+    <Image X="678.5" Y="-192" ClassName="right" Width="698" Height="839"/>
+    <Image X="-896" Y="179.5" ClassName="layer_2_1" Width="256" Height="55"/>
+    <Image X="-768" Y="179.5" ClassName="layer_2_2" Width="256" Height="64"/>
+    <Image X="-640" Y="179.5" ClassName="layer_2_1" Width="256" Height="55"/>
+    <Image X="-384" Y="175" ClassName="layer_2_2" Width="256" Height="64"/>
+    <Image X="-128" Y="179.5" ClassName="layer_2_1" Width="256" Height="55"/>
+    <Image X="128" Y="175" ClassName="layer_2_2" Width="256" Height="64"/>
+    <Image X="384" Y="179.5" ClassName="layer_2_1" Width="256" Height="55"/>
+    <Image X="640" Y="175" ClassName="layer_2_2" Width="256" Height="64"/>
+    <Image X="768" Y="179.5" ClassName="layer_2_1" Width="256" Height="55"/>
+    <Image X="896" Y="175" ClassName="layer_2_2" Width="256" Height="64"/>
+    <Image X="0" Y="459" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="mountain_atlas_layer3">
+    <SimpleEffect X="-5" Y="-55.659" Type="Picture" PictureLocation="local" ClassName="layer_3" Width="1024" Height="313.681">
+      <Transparency Offset="0">
+        <Point Period="2.6" Value="25" Ease="-1"/>
+        <Point Period="2.9" Value="100" Ease="1"/>
+        <Point Period="3.1" Value="25" Ease="-1"/>
+        <Point Period="4.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+</Root>

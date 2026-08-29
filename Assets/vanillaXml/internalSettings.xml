@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Settings>
+  <GUI>
+    <Basic>
+      <ShowMenuTime Value="0"/>
+      <ArrowFlashingFrames Value="120"/>
+      <ButtonWidth Min="242" Max="342"/>
+      <DefaultButtonCenterWidth Value="189"/>
+      <HintWidth Min="242" Max="342"/>
+      <HintTimeout Value="10"/>
+      <CreditsScrollSpeed Value="2.0"/>
+      <CurrencyCounterRollTime>
+        <DefaultRollTime Value="120"/>
+        <CounterRollTime Gems="1" Value="0"/>
+        <CounterRollTime Gems="2" Value="15"/>
+        <CounterRollTime Gems="3" Value="25"/>
+        <CounterRollTime Gems="4" Value="40"/>
+        <CounterRollTime Gems="5" Value="60"/>
+      </CurrencyCounterRollTime>
+      <NotificationDlgDefaultReadTime Value="1.0"/>
+    </Basic>
+    <Profile>
+      <AnimationSpeed Value="50"/>
+      <PerkOpacity Min="127" Max="255"/>
+      <SelectOpacity Min="127" Max="255"/>
+      <SpeedScrollAchievements Value="30"/>
+    </Profile>
+    <Fight>
+      <PerkIcons>
+        <FadeFrames In="60" Out="30"/>
+        <PulseAmp Value="1.75"/>
+        <PulseAccel In="1" Out="0"/>
+        <PulseFrames In="15" Out="30"/>
+        <RowCapacity Value="5"/>
+        <Spacing X="60" Y="60"/>
+        <ExpirationOpacity Value="0.5"/>
+        <StackShiftX Value="-6"/>
+        <StackShiftY Value="6"/>
+        <FontScale Value="50"/>
+      </PerkIcons>
+      <LifeBarMin Value="0.01"/>
+    </Fight>
+    <Map>
+      <Challenge>
+        <FadeDelay Value="3"/>
+        <TransitionDuration Value="1.5"/>
+        <DifficultyIsFirstFrame Value="1"/>
+      </Challenge>
+      <ZoneSwitch>
+        <BattleTypes>
+          <BattleType Name="Tournament"/>
+          <BattleType Name="Challenge"/>
+          <BattleType Name="Tournament_INTERMISSION"/>
+          <BattleType Name="Challenge_INTERMISSION"/>
+        </BattleTypes>
+        <MinOpacity Value="122"/>
+        <FadeSpeed Value="30"/>
+        <DelayBeforeFade Value="30"/>
+      </ZoneSwitch>
+      <RewardLine>
+        <OscillationPeriod Value="28"/>
+        <OscillationFactor Value="0.022"/>
+      </RewardLine>
+    </Map>
+    <Lottery>
+      <Shake Time="2" PosInfluenceX="10" PosInfluenceY="10" Magnitude="8" Roughness="4"/>
+      <PrizeEffect ScaleTo="1.3" ScaleTime="1.5" FadeOutTime="1.5"/>
+    </Lottery>
+  </GUI>
+  <FrameRate Value="60"/>
+  <Power Max="5" TimeMax="600"/>
+  <Physics>
+    <FrictionForce Value="0.2"/>
+    <Gravitation Value="0.4"/>
+    <IterativeProcess Value="2"/>
+  </Physics>
+  <CrazyPerHit Value="50"/>
+  <CrazyLossPerSecond Value="8"/>
+  <SlowMode Value="7" MaxTime="3" RestoreWeapon="4" RestoreNonWeapon="2"/>
+  <TryItemTime Value="60"/>
+  <DefaultServerResponseTimeout Value="5000"/>
+  <VideoAdCounterReset Value="86400"/>
+  <PushRetantionTime Value="172800"/>
+  <Subtitles Value="0"/>
+  <RatioOfMagicHitOnPlayer Value="0.5"/>
+  <RatioOfMagicHitOnEnemy Value="1.5"/>
+  <AlwaysMagicMode Value="0"/>
+  <DailyDebugMode Value="0"/>
+  <DailyDebugTime Value="60"/>
+  <Avatar Name="avatar_hero"/>
+  <Skeleton Player="Skeleton"/>
+  <Location Name="dojo"/>
+  <DefaultItems>
+    <Item Type="Armor" Name="Body"/>
+    <Item Type="Helm" Name="Head"/>
+    <Item Type="Weapon" Name="Fists"/>
+    <Item Type="Ranged" Name="NoRanged"/>
+    <Item Type="Magic" Name="NoMagic"/>
+  </DefaultItems>
+  <AntiCheatSettings>
+    <EnchantmentsCountExclusion>
+      <Item Name="WEAPON_SUPER_DAISHO" EnchantmentsCount="3"/>
+      <Item Name="WEAPON_SHADOW_DAISHO" EnchantmentsCount="3"/>
+    </EnchantmentsCountExclusion>
+  </AntiCheatSettings>
+  <Armor Name="Body"/>
+  <Helmet Name="Head"/>
+  <Weapon Name="Fists"/>
+  <Tutorial>
+    <TutorialWeapon Name="WEAPON_KNIVES"/>
+    <TutorialBoss Name="ZONE_1|BOSS_LYNX|1"/>
+    <TutorialTournament Name="ZONE_1|Tournament|1"/>
+    <TutorialStepTimeout Value="15"/>
+    <StepsNames>
+      <Step Name="NotStarted"/>
+      <Step Name="FIGHT"/>
+      <Step Name="STEP_BUY_ITEM"/>
+      <Step Name="STEP_BUY_ITEM_FINISH"/>
+      <Step Name="MAP"/>
+      <Step Name="LEARN_PERK"/>
+      <Step Name="SHOW_DOUBLE_SWEEP"/>
+      <Step Name="SHOW_BLOCK"/>
+      <Step Name="END"/>
+    </StepsNames>
+  </Tutorial>
+  <PivotNode Name="NPivot"/>
+  <SellItems Value="0.1"/>
+  <EnergyRefillItem Value="Energy_Refill"/>
+  <ParamBarsVersion Value="1"/>
+  <BarScales>
+    <BarScale Name="WeaponDamage" Type="Exp" Power="0.5" Min="0.03">
+      <AttributeLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="10"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-7"/>
+        <Limit Level="3|4|5" LevelMultiplier="35" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="41" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="35" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="41" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="35" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="41" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="35" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="41" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="35" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="41" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="35" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="35" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="41" Shift="-244"/>
+        <Limit LevelMultiplier="41" Shift="-244"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit Level="1" LevelMultiplier="25" Shift="-20"/>
+        <Limit Level="2" LevelMultiplier="25" Shift="-30"/>
+        <Limit Level="3|4|5" LevelMultiplier="25" Shift="-21"/>
+        <Limit Level="6" LevelMultiplier="31" Shift="-51"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="25" Shift="-15"/>
+        <Limit Level="12" LevelMultiplier="31" Shift="-81"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="25" Shift="-9"/>
+        <Limit Level="18" LevelMultiplier="31" Shift="-111"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="25" Shift="-3"/>
+        <Limit Level="24" LevelMultiplier="31" Shift="-141"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="25" Shift="3"/>
+        <Limit Level="30" LevelMultiplier="31" Shift="-171"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="25" Shift="9"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="31" Shift="-201"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="25" Shift="57"/>
+        <Limit Level="52" LevelMultiplier="31" Shift="-249"/>
+        <Limit LevelMultiplier="31" Shift="-249"/>
+      </ItemLimits>
+    </BarScale>
+    <BarScale Name="UnarmedDamage" Type="Exp" Power="0.5" Min="0.03">
+      <AttributeLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="10"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-7"/>
+        <Limit Level="3|4|5" LevelMultiplier="35" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="41" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="35" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="41" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="35" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="41" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="35" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="41" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="35" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="41" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="35" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="35" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="41" Shift="-244"/>
+        <Limit LevelMultiplier="41" Shift="-244"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit Level="1" LevelMultiplier="25" Shift="-20"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-32"/>
+        <Limit Level="3|4|5" LevelMultiplier="25" Shift="-21"/>
+        <Limit Level="6" LevelMultiplier="31" Shift="-51"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="25" Shift="-15"/>
+        <Limit Level="12" LevelMultiplier="31" Shift="-81"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="25" Shift="-9"/>
+        <Limit Level="18" LevelMultiplier="31" Shift="-111"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="25" Shift="-3"/>
+        <Limit Level="24" LevelMultiplier="31" Shift="-141"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="25" Shift="3"/>
+        <Limit Level="30" LevelMultiplier="31" Shift="-171"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="25" Shift="9"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="31" Shift="-201"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="25" Shift="57"/>
+        <Limit Level="52" LevelMultiplier="31" Shift="-249"/>
+        <Limit LevelMultiplier="31" Shift="-249"/>
+      </ItemLimits>
+    </BarScale>
+    <BarScale Name="BodyDefense" Type="Exp" Power="0.5" Min="0.03">
+      <AttributeLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="10"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-7"/>
+        <Limit Level="3|4|5" LevelMultiplier="35" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="41" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="35" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="41" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="35" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="41" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="35" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="41" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="35" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="41" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="35" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="35" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="41" Shift="-244"/>
+        <Limit LevelMultiplier="41" Shift="-244"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit Level="1" LevelMultiplier="25" Shift="-20"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-32"/>
+        <Limit Level="3|4|5" LevelMultiplier="25" Shift="-21"/>
+        <Limit Level="6" LevelMultiplier="31" Shift="-51"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="25" Shift="-15"/>
+        <Limit Level="12" LevelMultiplier="31" Shift="-81"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="25" Shift="-9"/>
+        <Limit Level="18" LevelMultiplier="31" Shift="-111"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="25" Shift="-3"/>
+        <Limit Level="24" LevelMultiplier="31" Shift="-141"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="25" Shift="3"/>
+        <Limit Level="30" LevelMultiplier="31" Shift="-171"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="25" Shift="9"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="31" Shift="-201"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="25" Shift="57"/>
+        <Limit Level="52" LevelMultiplier="31" Shift="-249"/>
+        <Limit LevelMultiplier="31" Shift="-249"/>
+      </ItemLimits>
+    </BarScale>
+    <BarScale Name="HeadDefense" Type="Exp" Power="0.5" Min="0.03">
+      <AttributeLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="10"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-7"/>
+        <Limit Level="3|4|5" LevelMultiplier="35" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="41" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="35" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="41" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="35" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="41" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="35" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="41" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="35" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="41" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="35" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="35" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="41" Shift="-244"/>
+        <Limit LevelMultiplier="41" Shift="-244"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit Level="1" LevelMultiplier="25" Shift="-15"/>
+        <Limit Level="2" LevelMultiplier="13" Shift="-13"/>
+        <Limit Level="3|4|5" LevelMultiplier="25" Shift="-23"/>
+        <Limit Level="6" LevelMultiplier="31" Shift="-53"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="25" Shift="-17"/>
+        <Limit Level="12" LevelMultiplier="31" Shift="-83"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="25" Shift="-11"/>
+        <Limit Level="18" LevelMultiplier="31" Shift="-113"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="25" Shift="-5"/>
+        <Limit Level="24" LevelMultiplier="31" Shift="-143"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="25" Shift="1"/>
+        <Limit Level="30" LevelMultiplier="31" Shift="-173"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="25" Shift="7"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="31" Shift="-203"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="25" Shift="55"/>
+        <Limit Level="52" LevelMultiplier="31" Shift="-251"/>
+        <Limit LevelMultiplier="31" Shift="-251"/>
+      </ItemLimits>
+    </BarScale>
+    <BarScale Name="RangedDamage" Type="Exp" Power="0.5" Min="0.03">
+      <AttributeLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="10"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-7"/>
+        <Limit Level="3|4|5" LevelMultiplier="35" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="41" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="35" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="41" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="35" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="41" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="35" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="41" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="35" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="41" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="35" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="35" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="41" Shift="-244"/>
+        <Limit LevelMultiplier="41" Shift="-244"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit Level="1" LevelMultiplier="25" Shift="-15"/>
+        <Limit Level="2" LevelMultiplier="25" Shift="-25"/>
+        <Limit Level="3|4|5" LevelMultiplier="25" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="31" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="25" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="31" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="25" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="31" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="25" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="31" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="25" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="31" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="25" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="31" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="25" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="31" Shift="-244"/>
+        <Limit LevelMultiplier="31" Shift="-244"/>
+      </ItemLimits>
+    </BarScale>
+    <BarScale Name="MagicDamage" Type="Exp" Power="0.5" Min="0.03">
+      <AttributeLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="10"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="-7"/>
+        <Limit Level="3|4|5" LevelMultiplier="35" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="41" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="35" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="41" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="35" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="41" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="35" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="41" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="35" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="41" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="35" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="35" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="41" Shift="-244"/>
+        <Limit LevelMultiplier="41" Shift="-244"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit Level="1" LevelMultiplier="25" Shift="-15"/>
+        <Limit Level="2" LevelMultiplier="25" Shift="-25"/>
+        <Limit Level="3|4|5" LevelMultiplier="25" Shift="-16"/>
+        <Limit Level="6" LevelMultiplier="31" Shift="-46"/>
+        <Limit Level="7|8|9|10|11" LevelMultiplier="25" Shift="-10"/>
+        <Limit Level="12" LevelMultiplier="31" Shift="-76"/>
+        <Limit Level="13|14|15|16|17" LevelMultiplier="25" Shift="-4"/>
+        <Limit Level="18" LevelMultiplier="31" Shift="-106"/>
+        <Limit Level="19|20|21|22|23" LevelMultiplier="25" Shift="2"/>
+        <Limit Level="24" LevelMultiplier="31" Shift="-136"/>
+        <Limit Level="25|26|27|28|29" LevelMultiplier="25" Shift="8"/>
+        <Limit Level="30" LevelMultiplier="31" Shift="-166"/>
+        <Limit Level="31|32|33|34|35" LevelMultiplier="25" Shift="14"/>
+        <Limit Level="36|37|38|39|40|41|42|43" LevelMultiplier="31" Shift="-196"/>
+        <Limit Level="44|45|46|47|48|49|50|51" LevelMultiplier="25" Shift="62"/>
+        <Limit Level="52" LevelMultiplier="31" Shift="-244"/>
+        <Limit LevelMultiplier="31" Shift="-244"/>
+      </ItemLimits>
+    </BarScale>
+    <BarScale Name="Chance" Type="Linear" Power="1">
+      <AttributeLimits>
+        <Limit LeftLimit="0" RightLimit="10000"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit LeftLimit="0" RightLimit="10000"/>
+      </ItemLimits>
+    </BarScale>
+    <BarScale Name="Enchantment" Type="Exp" Power="0.128" Min="0.03">
+      <AttributeLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="50"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="31"/>
+        <Limit Level="3|4|5|6" LevelMultiplier="35" Shift="0"/>
+        <Limit Level="7|8|9|10|11|12" LevelMultiplier="35" Shift="6"/>
+        <Limit Level="13|14|15|16|17|18" LevelMultiplier="35" Shift="12"/>
+        <Limit Level="19|20|21|22|23|24" LevelMultiplier="35" Shift="18"/>
+        <Limit Level="25|26|27|28|29|30" LevelMultiplier="35" Shift="24"/>
+        <Limit Level="31|32|33|34|35|36" LevelMultiplier="35" Shift="30"/>
+        <Limit Level="37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-186"/>
+        <Limit Level="44|45|46|47|48|49|50|51|52" LevelMultiplier="35" Shift="72"/>
+        <Limit LevelMultiplier="35" Shift="0"/>
+      </AttributeLimits>
+      <ItemLimits>
+        <Limit Level="1" LevelMultiplier="10" Shift="50"/>
+        <Limit Level="2" LevelMultiplier="27" Shift="31"/>
+        <Limit Level="3|4|5|6" LevelMultiplier="35" Shift="0"/>
+        <Limit Level="7|8|9|10|11|12" LevelMultiplier="35" Shift="6"/>
+        <Limit Level="13|14|15|16|17|18" LevelMultiplier="35" Shift="12"/>
+        <Limit Level="19|20|21|22|23|24" LevelMultiplier="35" Shift="18"/>
+        <Limit Level="25|26|27|28|29|30" LevelMultiplier="35" Shift="24"/>
+        <Limit Level="31|32|33|34|35|36" LevelMultiplier="35" Shift="30"/>
+        <Limit Level="37|38|39|40|41|42|43" LevelMultiplier="41" Shift="-186"/>
+        <Limit Level="44|45|46|47|48|49|50|51|52" LevelMultiplier="35" Shift="72"/>
+        <Limit LevelMultiplier="35" Shift="0"/>
+      </ItemLimits>
+    </BarScale>
+  </BarScales>
+  <StyleLevels StylePerHit="0.5" DecreaseSpeed="0.08" Penalty="2">
+    <Style Name="Start" StyleMultiplier="1" TextImage="" BarImage="FightUI.CrazyBar_0_Start"/>
+    <Style Name="Hard" StyleMultiplier="1" TextImage="FightUI.Hard" BarImage="FightUI.CrazyBar_1_Hard"/>
+    <Style Name="Brutal" StyleMultiplier="1" TextImage="FightUI.Brutal" BarImage="FightUI.CrazyBar_2_Brutal"/>
+    <Style Name="Aggressive" StyleMultiplier="1" TextImage="FightUI.Aggressive" BarImage="FightUI.CrazyBar_3_Aggressive"/>
+    <Style Name="Crazy" StyleMultiplier="1" TextImage="FightUI.Crazy" BarImage="FightUI.CrazyBar_4_Crazy"/>
+    <Style Name="Fantastic" StyleMultiplier="1" TextImage="FightUI.Fantastic" BarImage="FightUI.CrazyBar_5_Fantastic"/>
+  </StyleLevels>
+  <Attributes>
+    <Attribute Name="HeadDefense" Alias="ATTRIBUTE_HEADDEFENSE" Icon="head_armor" BarScale="HeadDefense"/>
+    <Attribute Name="BodyDefense" Alias="ATTRIBUTE_BODYDEFENSE" Icon="body_armor" BarScale="BodyDefense"/>
+    <Attribute Name="UnarmedDamage" Alias="ATTRIBUTE_UNARMEDDAMAGE" Icon="unarmed_attack" BarScale="BodyDefense"/>
+    <Attribute Name="WeaponDamage" Alias="ATTRIBUTE_WEAPONDAMAGE" Icon="weapon_attack" BarScale="WeaponDamage"/>
+    <Attribute Name="RangedDamage" Alias="ATTRIBUTE_RANGEDDAMAGE" Icon="ranged_attack" BarScale="RangedDamage"/>
+    <Attribute Name="MagicDamage" Alias="ATTRIBUTE_MAGICDAMAGE" Icon="magic_attack" BarScale="MagicDamage"/>
+    <Attribute Name="CriticalChance" Hidden="1" Alias="ATTRIBUTE_CRITICALCHANCE" Icon="critical_chance" Point="2" Format="Percent" BarScale="Chance"/>
+    <Attribute Name="CriticalRating" ShopHidden="1" ProfileHidden="1" Alias="ATTRIBUTE_CRITICALCHANCE" Icon="critical_chance" BarScale="Enchantment"/>
+    <Attribute Name="BlockDamageFactor" Hidden="1"/>
+    <Attribute Name="DamageFactor" Hidden="1"/>
+    <Attribute Name="RangedQuantity" Hidden="1" Icon="ranged_quantity" BarScale="RangedQuantity"/>
+    <Attribute Name="CriticalDamage" Hidden="1"/>
+    <Attribute Name="MagicInitialCharge" Hidden="1" Point="2" Format="Percent"/>
+    <Attribute Name="MagicPainRecharge" Hidden="1"/>
+    <Attribute Name="MagicDamageRecharge" Hidden="1"/>
+    <Attribute Name="RegenerationRate" Hidden="1"/>
+    <Attribute Name="Lifesteal" Hidden="1"/>
+    <Attribute Name="ShockCriticalHitChance" Hidden="1"/>
+    <Attribute Name="ShockHeadHitChance" Hidden="1"/>
+    <Attribute Name="EnchantmentResistance" Hidden="1"/>
+  </Attributes>
+  <Currencies>
+    <Currency Name="ForgeMaterial1" Group="Forge" Icon="MiscSprites.forge_green"/>
+    <Currency Name="ForgeMaterial2" Group="Forge" Icon="MiscSprites.forge_red"/>
+    <Currency Name="ForgeMaterial3" Group="Forge" Icon="MiscSprites.forge_purple"/>
+    <Currency Name="AscensionTicket" Icon="MiscSprites.ticket"/>
+  </Currencies>
+  <Resistances>
+    <Resistance Name="Resistance_2" MaxValue="1000" Icon="" Color="yellow"/>
+  </Resistances>
+  <DamageDoublingRange Value="10"/>
+  <ResistanceDoublingRange Value="500"/>
+  <Aspect DoublingRange="108" Limit="1.2" Antilimit="0"/>
+  <StartingBullets Attribute="RangedQuantity"/>
+  <Magic>
+    <InitialCharge Base="0.0001" Attribute="MagicInitialCharge"/>
+    <PainRecharge Base="0.0001" Attribute="MagicPainRecharge"/>
+    <DamageRecharge Base="0.0001" Attribute="MagicDamageRecharge"/>
+  </Magic>
+  <DamageFactor Base="0.0001" Attribute="DamageFactor"/>
+  <BlockDefense Attribute="BodyDefense"/>
+  <BlockDamageFactor Base="0.0001" Attribute="BlockDamageFactor"/>
+  <CriticalHit>
+    <Probability Base="0.0001" Attribute="CriticalChance"/>
+    <Damage Base="0.0001" Attribute="CriticalDamage"/>
+  </CriticalHit>
+  <Regeneration Base="0.000001" Attribute="RegenerationRate"/>
+  <Lifesteal Base="0.0001" Attribute="Lifesteal"/>
+  <LotteryRerollPrices>
+    <RerollPrice Value="5"/>
+    <RerollPrice Value="10"/>
+    <RerollPrice Value="15"/>
+    <RerollPrice Value="20"/>
+    <RerollPrice Value="25"/>
+    <RerollPrice Value="30"/>
+    <RerollPrice Value="35"/>
+    <RerollPrice Value="40"/>
+    <RerollPrice Value="45"/>
+    <RerollPrice Value="50"/>
+    <RerollPrice Value="55"/>
+  </LotteryRerollPrices>
+  <Shock>
+    <Treshold Value="999"/>
+    <FrameReduction Value="0.001"/>
+    <Weapon Name="Fists"/>
+    <SetAttribute Name="WeaponDamage" Value="0"/>
+    <LooseningDelay Frames="12"/>
+    <Impulse Y="-0.5"/>
+    <CriticalHitChance Base="0.0001" Attribute="ShockCriticalHitChance"/>
+    <HeadHitChance Base="0.0001" Attribute="ShockHeadHitChance"/>
+  </Shock>
+  <RatingEvaluation PerkAspectParameter="Aspect">
+    <Damage Name="Weapon" AverageBaseDamage="0.1">
+      <Attribute Name="WeaponDamage"/>
+      <Attribute Name="UnarmedDamage" Shift="-10"/>
+      <Defense Name="BodyDefense" Weight="0.24">
+        <Attribute Name="BodyDefense"/>
+      </Defense>
+      <Defense Name="HeadDefense" Weight="0.15">
+        <Attribute Name="HeadDefense"/>
+      </Defense>
+    </Damage>
+    <Damage Name="Unarmed" AverageBaseDamage="0.1">
+      <Attribute Name="UnarmedDamage"/>
+      <Defense Name="BodyDefense" Weight="0.47">
+        <Attribute Name="BodyDefense"/>
+      </Defense>
+      <Defense Name="HeadDefense" Weight="0.14">
+        <Attribute Name="HeadDefense"/>
+      </Defense>
+    </Damage>
+    <Damage Name="Ranged" AverageBaseDamage="0.1" CancellingItem="NoRanged">
+      <Attribute Name="RangedDamage"/>
+      <Attribute Name="UnarmedDamage" Shift="-10"/>
+      <Defense Name="BodyDefense" Weight="0.15">
+        <Attribute Name="BodyDefense"/>
+      </Defense>
+      <Defense Name="HeadDefense" Weight="0.05">
+        <Attribute Name="HeadDefense"/>
+      </Defense>
+    </Damage>
+    <Damage Name="Magic" AverageBaseDamage="0.45" CancellingItem="NoMagic">
+      <Attribute Name="MagicDamage"/>
+      <Attribute Name="UnarmedDamage" Shift="-25"/>
+      <Defense Name="BodyDefense" Weight="0.15">
+        <Attribute Name="BodyDefense"/>
+      </Defense>
+    </Damage>
+  </RatingEvaluation>
+  <AverageBaseDamage Value="0.1"/>
+  <OutdateLevels>
+    <OutdateLevel Value="1"/>
+    <OutdateLevel Value="1" Type="Ranged|Magic"/>
+  </OutdateLevels>
+  <AlignTargetAttributes>
+    <Attribute Name="WeaponDamage" Value="12"/>
+    <Attribute Name="UnarmedDamage" Value="0"/>
+    <Attribute Name="BodyDefense" Value="12"/>
+    <Attribute Name="HeadDefense" Value="5"/>
+    <Attribute Name="RangedDamage" Value="12"/>
+    <Attribute Name="MagicDamage" Value="12"/>
+    <Attribute Name="EnchantmentResistance" Value="12"/>
+  </AlignTargetAttributes>
+  <ModifiedAlignFormula>
+    <DamageAttribute Name="RangedDamage" DamageMultiplier="1.4" NetDamage="0.3" MinAttributeDifference="0" ApplyTo="Player"/>
+  </ModifiedAlignFormula>
+  <DifficultyEvaluation>
+    <DifficultyLevel Name="diff0" RatingRatioTreshold="0"/>
+    <DifficultyLevel Name="diff1" RatingRatioTreshold="0.82"/>
+    <DifficultyLevel Name="diff2" RatingRatioTreshold="1.3"/>
+    <DifficultyLevel Name="diff3" RatingRatioTreshold="2.6"/>
+    <DifficultyLevel Name="diff4" RatingRatioTreshold="5.2"/>
+  </DifficultyEvaluation>
+  <SlowMotion Defense="BodyDefense"/>
+  <Combo MinHits="3" Time="90"/>
+  <Announcements Time="60"/>
+  <HotGroundTimer Time="200"/>
+  <Great MaxHealth="0.1"/>
+  <CounterPunches Value="50"/>
+  <HitEffects>
+    <HitEffect Type="CriticalHit" PauseTime="60" EffectTime="90" AmplitudeX="5" FrequencyX="1.1" AmplitudeY="15" FrequencyY="1"/>
+    <HitEffect Type="HeadHit" PauseTime="0" EffectTime="60" AmplitudeX="3" FrequencyX="1.1" AmplitudeY="9" FrequencyY="1"/>
+    <HitEffect Type="Shock" PauseTime="30" EffectTime="60" AmplitudeX="4" FrequencyX="1.1" AmplitudeY="9" FrequencyY="1"/>
+  </HitEffects>
+  <RewardsPrize>
+    <DefaultPrizeBaseFactor Value="0.003"/>
+    <Perfect Value="5"/>
+    <FirstStrike Value="2"/>
+    <ComboCount Value="1"/>
+    <HeadShot Value="0"/>
+    <Shock Value="3"/>
+    <Styles>
+      <Turtle Value="0"/>
+      <Hard Value="3"/>
+      <Brutal Value="6"/>
+      <Agressive Value="9"/>
+      <Crazy Value="12"/>
+      <Fantastic Value="15"/>
+    </Styles>
+  </RewardsPrize>
+  <Lottery>
+    <HitGauge Height="500" MaxSpeed="6.0" LowerHitZone="20" UpperHitZone="80" DeltaPerDeck="5"/>
+  </Lottery>
+  <Camera>
+    <CameraSettings CameraNode="COM" BindingNode="NPivot" MaxWidth="1100" BindingLength="100" MaxWidthDelta="50"/>
+  </Camera>
+  <AchievementCounter>
+    <Counter Name="PerfectRound" Type="PerfectRound">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="PerfectRoundEclipse" Type="PerfectRound" EclipseMode="1">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="Enchantments" Type="Enchantments"/>
+    <Counter Name="FirstHits" Type="FirstHits"/>
+    <Counter Name="Combo3" Type="ComboCount" Value="5"/>
+    <Counter Name="Combo6" Type="ComboCount" Value="7"/>
+    <Counter Name="Combo10" Type="ComboCount" Value="10"/>
+    <Counter Name="StyleCrazy" Type="Style" Value="4"/>
+    <Counter Name="StyleAggressive" Type="Style" Value="3"/>
+    <Counter Name="StyleFantastic" Type="Style" Value="5"/>
+    <Counter Name="HeadHitRound" Type="HeadHitRound"/>
+    <Counter Name="Disarm" Type="Disarm">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="DisarmEclipse" Type="Disarm" EclipseMode="1">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="BlockedRound" CounterSpan="Round">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="Losses" Type="Losses"/>
+    <Counter Name="LossesEclipse" Type="Losses" EclipseMode="1"/>
+    <Counter Name="BarelyAliveRounds" Type="HealthRemained" Value="0.1"/>
+    <Counter Name="BarelyAliveRoundsEclipse" Type="HealthRemained" Value="0.1" EclipseMode="1"/>
+    <Counter Name="FastRounds" Type="RoundQuicker" Value="10">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="LongRounds" Type="RoundLonger" Value="90">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="LongRoundsEclipse" Type="RoundLonger" Value="90" EclipseMode="1">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="BodyguardsWin" Type="BodyguardsWin" OnFightEnd="1"/>
+    <Counter Name="BossWin" Type="BossWin" OnFightEnd="1"/>
+    <Counter Name="BossNoLose" Type="BossNoLose"/>
+    <Counter Name="TournamentsBeaten" Type="TournamentsBeaten" OnFightEnd="1"/>
+    <Counter Name="ChallangesBeaten" Type="ChallangesBeaten" OnFightEnd="1"/>
+    <Counter Name="DailyBeaten" Type="DailyBeaten"/>
+    <Counter Name="Survived3" Type="SurvivalRounds" Value="5"/>
+    <Counter Name="Survived5" Type="SurvivalRounds" Value="7"/>
+    <Counter Name="Survived15" Type="SurvivalRounds" Value="10"/>
+    <Counter Name="KickFights" Type="RestrictedAnimation" Animation="Kick" CounterSpan="Round">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="HeadKick" Type="HeadHit" Animation="Kick"/>
+    <Counter Name="PunchFights" Type="RestrictedAnimation" Animation="Arms" CounterSpan="Fight" Weapon="Fists">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="Unarmed" Type="RestrictedAnimation" Animation="Unarmed" CounterSpan="Fight" Weapon="Fists">
+      <Battle Type="SURVIVAL" Not="1"/>
+    </Counter>
+    <Counter Name="Survival1" Type="FightBeaten" Fight="ZONE_1|Survival|1" Fight2="ZONE_1|Survival_INTERMISSION|1" EclipseMode="0"/>
+    <Counter Name="Survival2" Type="FightBeaten" Fight="ZONE_2|Survival|1" Fight2="ZONE_2|Survival_INTERMISSION|1" EclipseMode="0"/>
+    <Counter Name="Survival3" Type="FightBeaten" Fight="ZONE_3|Survival|1" Fight2="ZONE_3|Survival_INTERMISSION|1" EclipseMode="0"/>
+    <Counter Name="Survival4" Type="FightBeaten" Fight="ZONE_4|Survival|1" Fight2="ZONE_4|Survival_INTERMISSION|1" EclipseMode="0"/>
+    <Counter Name="Survival5" Type="FightBeaten" Fight="ZONE_5|Survival|1" Fight2="ZONE_5|Survival_INTERMISSION|1" EclipseMode="0"/>
+    <Counter Name="Survival6" Type="FightBeaten" Fight="ZONE_6|Survival|1" Fight2="ZONE_6|Survival_INTERMISSION|1" EclipseMode="0"/>
+    <Counter Name="SurvivalEclipse1" Type="FightBeaten" Fight="ZONE_1|Survival|1" Fight2="ZONE_1|Survival_INTERMISSION|1" EclipseMode="1"/>
+    <Counter Name="SurvivalEclipse2" Type="FightBeaten" Fight="ZONE_2|Survival|1" Fight2="ZONE_2|Survival_INTERMISSION|1" EclipseMode="1"/>
+    <Counter Name="SurvivalEclipse3" Type="FightBeaten" Fight="ZONE_3|Survival|1" Fight2="ZONE_3|Survival_INTERMISSION|1" EclipseMode="1"/>
+    <Counter Name="SurvivalEclipse4" Type="FightBeaten" Fight="ZONE_4|Survival|1" Fight2="ZONE_4|Survival_INTERMISSION|1" EclipseMode="1"/>
+    <Counter Name="SurvivalEclipse5" Type="FightBeaten" Fight="ZONE_5|Survival|1" Fight2="ZONE_5|Survival_INTERMISSION|1" EclipseMode="1"/>
+    <Counter Name="SurvivalEclipse6" Type="FightBeaten" Fight="ZONE_6|Survival|1" Fight2="ZONE_6|Survival_INTERMISSION|1" EclipseMode="1"/>
+    <Counter Name="BodyGuardsWin1" Type="FightBeaten" Fight="ZONE_1|BOSS_LYNX|5"/>
+    <Counter Name="BodyGuardsWin2" Type="FightBeaten" Fight="ZONE_2|BOSS_HERMIT|5"/>
+    <Counter Name="BodyGuardsWin3" Type="FightBeaten" Fight="ZONE_3|BOSS_BUTCHER|5"/>
+    <Counter Name="BodyGuardsWin4" Type="FightBeaten" Fight="ZONE_4|BOSS_WASP|5"/>
+    <Counter Name="BodyGuardsWin5" Type="FightBeaten" Fight="ZONE_5|BOSS_HUNTRESS|5"/>
+    <Counter Name="BodyGuardsWin6" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI|5"/>
+    <Counter Name="BossWin1" Type="FightBeaten" Fight="ZONE_1|BOSS_LYNX|6"/>
+    <Counter Name="BossWin2" Type="FightBeaten" Fight="ZONE_2|BOSS_HERMIT|6"/>
+    <Counter Name="BossWin3" Type="FightBeaten" Fight="ZONE_3|BOSS_BUTCHER|6"/>
+    <Counter Name="BossWin4" Type="FightBeaten" Fight="ZONE_4|BOSS_WASP|6"/>
+    <Counter Name="BossWin5" Type="FightBeaten" Fight="ZONE_5|BOSS_HUNTRESS|6"/>
+    <Counter Name="BossWin6" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI|6"/>
+    <Counter Name="BossRematch1" Type="FightBeaten" Fight="ZONE_1|BOSS_LYNX_ECLIPSEMODE|6"/>
+    <Counter Name="BossRematch2" Type="FightBeaten" Fight="ZONE_2|BOSS_HERMIT_ECLIPSEMODE|6"/>
+    <Counter Name="BossRematch3" Type="FightBeaten" Fight="ZONE_3|BOSS_BUTCHER_ECLIPSEMODE|6"/>
+    <Counter Name="BossRematch4" Type="FightBeaten" Fight="ZONE_4|BOSS_WASP_ECLIPSEMODE|6"/>
+    <Counter Name="BossRematch5" Type="FightBeaten" Fight="ZONE_5|BOSS_HUNTRESS_ECLIPSEMODE|6"/>
+    <Counter Name="BossRematch6" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI_ECLIPSEMODE|6"/>
+    <Counter Name="TournamentIntermission" Type="FightBeaten" Fight="ZONE_6|Tournament_INTERMISSION|8"/>
+    <Counter Name="ChallengesIntermission" Type="FightBeaten" Fight="ZONE_6|Challenge_INTERMISSION|8"/>
+    <Counter Name="GatesOfShadows" Type="FightBeaten" Fight="ZONE_6|BOSS_SAMURAI_INTERMISSION|1"/>
+    <Counter Name="GatesOfShadowsClose" Type="FightBeaten" Fight="ZONE_6|FINAL_BATTLE|1"/>
+    <Counter Name="Zone1Rematch" Type="WinBattle">
+      <WinBattle Name="ZONE_1|Tournament_ECLIPSEMODE|8"/>
+    </Counter>
+    <Counter Name="Zone2Rematch" Type="WinBattle">
+      <WinBattle Name="ZONE_2|Tournament_ECLIPSEMODE|8"/>
+      <WinBattle Name="ZONE_2|Challenge_ECLIPSEMODE|8"/>
+    </Counter>
+    <Counter Name="Zone3Rematch" Type="WinBattle">
+      <WinBattle Name="ZONE_3|Tournament_ECLIPSEMODE|8"/>
+      <WinBattle Name="ZONE_3|Challenge_ECLIPSEMODE|8"/>
+    </Counter>
+    <Counter Name="Zone4Rematch" Type="WinBattle">
+      <WinBattle Name="ZONE_4|Tournament_ECLIPSEMODE|8"/>
+      <WinBattle Name="ZONE_4|Challenge_ECLIPSEMODE|8"/>
+    </Counter>
+    <Counter Name="Zone5Rematch" Type="WinBattle">
+      <WinBattle Name="ZONE_5|Tournament_ECLIPSEMODE|8"/>
+      <WinBattle Name="ZONE_5|Challenge_ECLIPSEMODE|8"/>
+    </Counter>
+    <Counter Name="Zone6Rematch" Type="WinBattle">
+      <WinBattle Name="ZONE_6|Tournament_ECLIPSEMODE|8"/>
+      <WinBattle Name="ZONE_6|Challenge_ECLIPSEMODE|8"/>
+    </Counter>
+    <Counter Name="CypherWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_CYPHER|1"/>
+    <Counter Name="HyperionWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_HYPERION|1"/>
+    <Counter Name="Survival7" Type="FightBeaten" Fight="ZONE_7|Survival|1"/>
+    <Counter Name="HideoutWin" Type="FightBeaten" Fight="ZONE_7|Tournament|24"/>
+    <Counter Name="AncientWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_ANCIENT|1"/>
+    <Counter Name="StoneGroveWin" Type="FightBeaten" Fight="ZONE_7|Challenge1_1|8"/>
+    <Counter Name="IncubatorWin" Type="FightBeaten" Fight="ZONE_7|Tournament2|8"/>
+    <Counter Name="ShroudWin" Type="FightBeaten" Fight="ZONE_7|MINIBOSS_SHROUD2|1"/>
+    <Counter Name="SurvivalIncubatorWin" Type="FightBeaten" Fight="ZONE_7|C3_Survival|1"/>
+    <Counter Name="SpaceshipWin" Type="FightBeaten" Fight="ZONE_7|C3_Challenge|24"/>
+    <Counter Name="StoneGroveTournamentWin" Type="FightBeaten" Fight="ZONE_7|C3_Tournament|24"/>
+    <Counter Name="Zone7Rematch" Type="WinBattle">
+      <WinBattle Name="ZONE_7|Tournament_ECLIPSEMODE|8"/>
+      <WinBattle Name="ZONE_7|Challenge_ECLIPSEMODE|8"/>
+    </Counter>
+    <Counter Name="HardWin" Type="DifficultyWin" MinDifficulty="1.3" MaxDifficulty="2.6"/>
+    <Counter Name="InsaneWin" Type="DifficultyWin" MinDifficulty="2.6" MaxDifficulty="5.2"/>
+    <Counter Name="ImpossibleWin" Type="DifficultyWin" MinDifficulty="5.2"/>
+    <Counter Name="MayWin" Type="FightBeaten" Fight="ZONE_7|C3_FightWithMay|1"/>
+    <Counter Name="TitanWin" Type="FightBeaten" Fight="ZONE_7|C3_BOSS_TITAN|6"/>
+    <Counter Name="MayRematch" Type="FightBeaten" Fight="ZONE_7|C3_FightWithMay_ECLIPSEMODE|1"/>
+    <Counter Name="TitanRematch" Type="FightBeaten" Fight="ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|6"/>
+    <Counter Name="MaximumLevel" Type="MaximumLevel"/>
+    <Counter Name="ShockWin" Type="ShockWin" EclipseMode="0"/>
+    <Counter Name="ShockWinEclipse" Type="ShockWin" EclipseMode="1"/>
+    <Counter Name="SenseiStoryFinished" Type="FightBeaten" Fight="ZONE_6|SENSEI_MEMORIES|2"/>
+    <Counter Name="Anniversary10th" Type="Quest" EclipseMode="0"/>
+  </AchievementCounter>
+  <Shop>
+    <Override Screen="Armor" Type="Weapon" Name="Fists"/>
+    <Override Screen="Helm" Type="Weapon" Name="Fists"/>
+    <Override Screen="Ranged" Type="Weapon" Name="Fists"/>
+    <Override Screen="Magic" Type="Weapon" Name="Fists"/>
+    <Override Screen="RealMoneyItem" Type="Weapon" Name="Fists"/>
+    <Override Screen="Free" Type="Weapon" Name="Fists"/>
+  </Shop>
+  <QualityOptions>
+    <Option Name="ReduceFPS">
+      <Condition Name="LOW"/>
+    </Option>
+    <Option Name="ParticlesOff">
+      <Condition Name="LOW"/>
+      <Condition Name="MEDIUM"/>
+    </Option>
+    <Option Name="SequencesOff">
+      <Condition Name="LOW"/>
+      <Condition Name="MEDIUM"/>
+    </Option>
+  </QualityOptions>
+  <Benchmark>
+    <Cycles Value="1000"/>
+  </Benchmark>
+  <Hints>
+    <Item Name="RaidRoundAdvice1" Weight="10" Label=""/>
+    <Item Name="RaidRoundAdvice2" Weight="10" Label=""/>
+    <Item Name="RaidRoundAdvice3" Weight="10" Label=""/>
+    <Item Name="RaidRoundAdvice4" Weight="10" Label=""/>
+    <Item Name="RaidRoundAdvice6" Weight="10" Label=""/>
+    <Item Name="RaidRoundAdvice7" Weight="10" Label=""/>
+    <Item Name="RaidRoundAdvice8" Weight="10" Label=""/>
+  </Hints>
+  <MaximumExperience Value="30000000"/>
+</Settings>

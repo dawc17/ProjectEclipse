@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="FirstSuperItemAvailable" Priority="-1" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+      <Equal Not="1" Value1="_FirstSuperItemFlag" Value2="1"/>
+      <GreaterEqual Value1="?Player[].Level" Value2="?Item[HELM_CONICAL_HAT].Level"/>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="Helm" Item="HELM_CONICAL_HAT"/>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].Steam Or ?SysInfo[].Switch" Value2="1"/>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="characterMay" Image="character_may_3">
+            <Line Text="dlgSuperItemAvailableSwitch" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Green" Text="OK"/>
+          </Dialog>
+        </Then>
+        <Else>
+          <Dialog Type="Regular" Title="characterMay" Image="character_may_3">
+            <Line Text="dlgSuperItemAvailable" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Green" Text="OK"/>
+          </Dialog>
+        </Else>
+      </If>
+      <SetVariable Scope="Users" Name="FirstSuperItemFlag" Value="1"/>
+    </Actions>
+  </Quest>
+</Quests>

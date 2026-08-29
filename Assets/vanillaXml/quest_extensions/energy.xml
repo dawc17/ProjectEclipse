@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="EnergyChecker" Group="FightEnter" Unresumable="1" Priority="50000">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].Power" Value2="0"/>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="MINIBOSS_SHROUD" Not="1"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger_INTERMISSION" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="FightEnter"/>
+      <Activate ActionID="EnergyRefillTutorialChecker"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyBarFullEnergy" Group="EnergyBar" Unresumable="1" Priority="20">
+    <Events>
+      <EnergyBarPress/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].Power" Value2="5"/>
+      <GreaterEqual Value1="?Fight[ZONE_1|BOSS_LYNX|1].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgBuyEnergyMessage1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyBarSomeEnergy" Group="EnergyBar" Unresumable="1" Priority="20">
+    <Events>
+      <EnergyBarPress/>
+    </Events>
+    <Conditions>
+      <Operator Type="And">
+        <Less Value1="?Player[].Power" Value2="5"/>
+        <Greater Value1="?Player[].Power" Value2="0"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="EnergyRefillDialogue"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyBarZeroEnergy" Group="EnergyBar" Unresumable="1" Priority="20">
+    <Events>
+      <EnergyBarPress/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].Power" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="EnergyRefillTutorialChecker"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyRefillTutorialNeverRun" Unresumable="1" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EnergyRefillTutorialChecker"/>
+      <Equal Value1="_EnergyTutor" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="EnergyRefillTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyRefillTutorialDone" Unresumable="1" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EnergyRefillTutorialChecker"/>
+      <Equal Value1="_EnergyTutor" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="EnergyRefillDialogue"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyRefillTutorial" Unresumable="1" Priority="-20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EnergyRefillTutorial"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="tutorial_energy_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryPositive">
+          <Activate ActionID="EnergyRefillShowAdVideo"/>
+        </Button>
+        <Button Type="Left" Color="Beige" Text="dlgStoryBtnReject"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="EnergyTutor" Value="1"/>
+      <Wait Frames="110" Lock="Silent"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyRefillAdvertisingSupport" Group="FightEnter" Unresumable="1" Priority="49998" AllowDoubles="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].AdvertisingSupport" Value2="1"/>
+      <Equal Value1="_$ActionID" Value2="EnergyRefillDialogue"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Multiline" Title="dlgBuyEnergyMessage1" Image="UI/Items/img_unlimited_energy" ImageScale="0.6" ImageOffsetX="-130">
+        <Line Text="EnergyRefildlg{1}{img::MiscSprites.energy}"/>
+        <Line Text="dlgBuyEnergyMessage5{img::MiscSprites.energy}">
+          <Timer Name="EnergyRefillTimer"/>
+        </Line>
+        <Button Type="Left" Color="Green" Text="dlgGetFreeBtn" Icon="UI/Atlases/MiscSprites.video_large">
+          <Activate ActionID="EnergyRefillShowAdVideo"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="Empty1Param{?Item[Unlimited_Energy].RealPrice}">
+          <BuyItem Name="Unlimited_Energy" Currency="Real" Lock="Visible"/>
+        </Button>
+        <Button Type="Close"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="EnergyRefill" Group="FightEnter" Unresumable="1" Priority="49998" AllowDoubles="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?SysInfo[].AdvertisingSupport" Value2="0"/>
+      <Equal Value1="_$ActionID" Value2="EnergyRefillDialogue"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Multiline" Title="Unlimited_Energy" Image="UI/Items/img_unlimited_energy" ImageScale="0.6" ImageOffsetX="-130">
+        <Line Text="dlgBuyEnergyMessage1"/>
+        <Line Text="dlgBuyEnergyMessage4_samsung"/>
+        <Line Text="dlgBuyEnergyMessage5{img::MiscSprites.energy}">
+          <Timer Name="EnergyRefillTimer"/>
+        </Line>
+        <Button Type="Left" Color="Red" Text="CANCEL"/>
+        <Button Type="Middle" Color="Green" Text="dlgStoryBtnBuyEnergyForGems{img::MiscSprites.ruby}{5}">
+          <BuyItem Name="Energy_Refill" Currency="Ruby" Lock="Visible"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="Empty1Param{?Item[Unlimited_Energy].RealPrice}">
+          <BuyItem Name="Unlimited_Energy" Currency="Real" Lock="Visible"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ReplayButtonPress" Priority="9999" Unresumable="1">
+    <Events>
+      <ReplayButtonPress/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Player[].Power" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="EnergyRefillDialogue"/>
+    </Actions>
+  </Quest>
+</Quests>

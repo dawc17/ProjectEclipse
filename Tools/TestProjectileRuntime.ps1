@@ -45,8 +45,8 @@ namespace ProjectileNormalizationTest {
     }
 }
 '@
-Add-Type -TypeDefinition $fixture.Replace('/* NORMALIZE */', $normalize.Value)
-[xml]$modern = Get-Content -Raw (Join-Path $projectPath 'Assets/xml/animations/moves.xml')
+Add-Type -TypeDefinition $fixture.Replace('/* NORMALIZE */', $normalize.Value) -ReferencedAssemblies System.dll,System.Core.dll,System.Xml.dll
+[xml]$modern = Get-Content -Raw (Join-Path $projectPath 'Assets/vanillaXml/animations/moves.xml')
 $baselineText = Get-Content -Raw (Join-Path $projectPath 'Assets/Resources/gamedata/animations/moves.txt')
 [xml]$baseline = $baselineText
 $adapted = [xml]$modern.OuterXml

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="castle_and_bridge_bg">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1024" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.175">
+    <SimpleEffect X="250" Y="50" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="21" Width="16" Height="22">
+      <ReappearX Min="-1152" Max="752"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="-1.5" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="450" Y="80" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="33" Width="17" Height="23">
+      <ReappearX Min="-1152" Max="652"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="-2" Y="0.1"/>
+    </SimpleEffect>
+    <SimpleEffect X="350" Y="90" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="41" Width="14" Height="14">
+      <ReappearX Min="-1152" Max="452"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="-1.7" Y="0.15"/>
+    </SimpleEffect>
+    <SimpleEffect X="450" Y="50" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="12" Width="18" Height="22">
+      <ReappearX Min="-1152" Max="452"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="-1.2" Y="0.2"/>
+    </SimpleEffect>
+    <SimpleEffect X="950" Y="50" Type="Sequention" ClassName="bird_black" PictureLocation="global" Speed="2" Offset="17" Width="22" Height="22">
+      <ReappearX Min="-1152" Max="652"/>
+      <ReappearY Min="0" Max="300"/>
+      <Speed X="-1.2" Y="0.2"/>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.175" Atlas="castle_and_bridge_atlas_layer1">
+    <Image X="100" Y="0" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.175" Atlas="castle_and_bridge_atlas_layer4">
+    <SimpleEffect X="-185.113" Y="-36.5" Type="Picture" PictureLocation="local" ClassName="light" Width="664.726" Height="439">
+      <Transparency Offset="0">
+        <Point Period="2.6" Value="65" Ease="-1"/>
+        <Point Period="2.9" Value="100" Ease="1"/>
+        <Point Period="3.1" Value="55" Ease="-1"/>
+        <Point Period="2.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-896" Y="216" Type="Picture" PictureLocation="local" ClassName="fog_1" Width="256" Height="214">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-640" Y="227.5" Type="Picture" PictureLocation="local" ClassName="fog_2" Width="256" Height="191">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-384" Y="216" Type="Picture" PictureLocation="local" ClassName="fog_1" Width="256" Height="214">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-128" Y="227.5" Type="Picture" PictureLocation="local" ClassName="fog_2" Width="256" Height="191">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="128" Y="216" Type="Picture" PictureLocation="local" ClassName="fog_1" Width="256" Height="214">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="384" Y="227.5" Type="Picture" PictureLocation="local" ClassName="fog_2" Width="256" Height="191">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="640" Y="216" Type="Picture" PictureLocation="local" ClassName="fog_1" Width="256" Height="214">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="896" Y="227.5" Type="Picture" PictureLocation="local" ClassName="fog_2" Width="256" Height="191">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="1152" Y="216" Type="Picture" PictureLocation="local" ClassName="fog_1" Width="256" Height="214">
+      <ReappearX Min="-1152" Max="1152"/>
+      <Speed X="0.25" Y="0"/>
+    </SimpleEffect>
+    <SimpleEffect X="-124" Y="143" Type="Sequention" ClassName="colone_reflection" PictureLocation="global" Speed="4" Offset="25" Width="42" Height="108"/>
+    <SimpleEffect X="-37" Y="143" Type="Sequention" ClassName="colone_reflection" PictureLocation="global" Speed="4" Offset="45" Width="42" Height="108"/>
+    <SimpleEffect X="48" Y="143" Type="Sequention" ClassName="colone_reflection" PictureLocation="global" Speed="4" Offset="65" Width="42" Height="108"/>
+    <SimpleEffect X="135" Y="143" Type="Sequention" ClassName="colone_reflection" PictureLocation="global" Speed="4" Offset="65" Width="42" Height="108"/>
+    <SimpleEffect X="308" Y="143" Type="Sequention" ClassName="bridge_reflection" PictureLocation="global" Speed="4" Offset="85" Width="338" Height="90"/>
+    <ParticleEffect X="50" Y="190" ClassName="water_sparkles"/>
+  </Layer>
+  <Layer Type="1" Factor="0.175" Atlas="castle_and_bridge_atlas_layer4">
+    <Image X="-149" Y="108.5" ClassName="tuman" Width="138" Height="97"/>
+    <Image X="-159" Y="143.5" ClassName="tuman" Width="138" Height="97"/>
+    <Image X="488" Y="123" ClassName="r_2" Width="762" Height="109"/>
+  </Layer>
+  <Layer Type="1" Factor="0.30" Atlas="castle_and_bridge_atlas_layer2">
+    <Image X="-426" Y="0" ClassName="layer2_1" Width="484" Height="512"/>
+    <Image X="549.5" Y="0" ClassName="layer2_2" Width="437" Height="512"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="castle_and_bridge_atlas_layer3" Scaling="1">
+    <Image X="-957" Y="-160" ClassName="left" Width="420" Height="680"/>
+    <Image X="957" Y="-160" ClassName="right" Width="420" Height="680"/>
+    <Image X="-896" Y="193" ClassName="floor1" Width="256" Height="54"/>
+    <Image X="-640" Y="193" ClassName="floor1" Width="256" Height="54"/>
+    <Image X="-384" Y="189" ClassName="floor2" Width="256" Height="62"/>
+    <Image X="-128" Y="193" ClassName="floor1" Width="256" Height="54"/>
+    <Image X="128" Y="189" ClassName="floor2" Width="256" Height="62"/>
+    <Image X="384" Y="193" ClassName="floor1" Width="256" Height="54"/>
+    <Image X="640" Y="189" ClassName="floor2" Width="256" Height="62"/>
+    <Image X="896" Y="189" ClassName="floor2" Width="256" Height="62"/>
+    <Image X="0" Y="460" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

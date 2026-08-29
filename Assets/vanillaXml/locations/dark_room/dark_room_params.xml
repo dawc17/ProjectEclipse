@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="200" Floor="80" Width="1500" Height="512">
+  <Layer Type="1" Factor="0.6" Atlas="dark_room_bg">
+    <Image X="0" Y="-37" ClassName="background_1" Width="1024" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="dark_room_atlas_layer1">
+    <Image X="0" Y="-40" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dark_room_atlas_layer2" Scaling="1">
+    <ParticleEffect X="410" Y="-100" ClassName="dust2"/>
+    <Image X="0" Y="-15" ClassName="layer2_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ParticleEffect X="410" Y="100" ClassName="dust2"/>
+    <ModelsViewer PlayerPositionX="620" PlayerPositionY="-94" EnemyPositionX="820" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dark_room_atlas_layer3" Scaling="1">
+    <Image X="-646.2" Y="-80" ClassName="left" Width="285.6" Height="680"/>
+    <Image X="646.2" Y="-80" ClassName="right" Width="285.6" Height="680"/>
+    <Image X="-640" Y="205.5" ClassName="floor" Width="256" Height="63"/>
+    <Image X="-384" Y="205.5" ClassName="floor" Width="256" Height="63"/>
+    <Image X="-128" Y="205.5" ClassName="floor" Width="256" Height="63"/>
+    <Image X="128" Y="205.5" ClassName="floor" Width="256" Height="63"/>
+    <Image X="384" Y="205.5" ClassName="floor" Width="256" Height="63"/>
+    <Image X="640" Y="205.5" ClassName="floor" Width="256" Height="63"/>
+    <Image X="0" Y="440" ClassName="pixel_1" Width="2000" Height="510" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

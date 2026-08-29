@@ -145,7 +145,7 @@ public static class ResourceManager
 		private static void NormalizeMoves(XmlDocument document)
 		{
 			// The newer table is additive and still omits definitions required by
-			// this Special Edition runtime. ResourceManager owns access to the
+			// this recovered runtime. ResourceManager owns access to the
 			// bundled baseline; the schema transformations live in Eclipse.Content.
 			try
 			{
@@ -196,10 +196,18 @@ public static class ResourceManager
 			}
 
 			string modelsRoot = Path.Combine(GetDevXmlRoot(), "models");
+			bool hasExternalModels = Directory.Exists(modelsRoot);
 			int hidden;
 			List<ModelFallbackMapping> fallbacks = ItemListCompatibility.HideUnavailableModelItems(
 				document,
-				model => File.Exists(Path.Combine(modelsRoot, model + ".xml")),
+				model =>
+				{
+					if (hasExternalModels && File.Exists(Path.Combine(modelsRoot, model + ".xml")))
+					{
+						return true;
+					}
+					return ResourcesAndBundles.Load<TextAsset>("gamedata/models/" + model) != null;
+				},
 				out hidden);
 			foreach (ModelFallbackMapping fallback in fallbacks)
 			{
@@ -287,6 +295,27 @@ public static class ResourceManager
 						Debug.Log("[DevXml] restored " + imported +
 							" missing legacy settings nodes/attributes");
 					}
+				}
+			}
+
+			// The 2.41.9 data no longer carries several top-level sections that this
+			// older recovered runtime still reads directly. Import only those missing
+			// runtime contract sections from the bundled baseline. Do not merge the
+			// rest of the old settings over the vanilla document.
+			TextAsset bundledSettings = ResourcesAndBundles.Load<TextAsset>("gamedata/internalSettings");
+			if (bundledSettings != null && !string.IsNullOrEmpty(bundledSettings.text))
+			{
+				XmlDocument runtimeBaseline = new XmlDocument();
+				runtimeBaseline.XmlResolver = null;
+				runtimeBaseline.LoadXml(bundledSettings.text);
+				int importedRuntimeSections = InternalSettingsCompatibility.ImportMissingTopLevelSections(
+					custom,
+					runtimeBaseline,
+					new[] { "AssemblySettings", "Internet", "Supports", "EULA", "Log", "ForcedLogConditions", "StarterPackTimer" });
+				if (importedRuntimeSections != 0 && _devXmlLogged.Add("settings-runtime-sections"))
+				{
+					Debug.Log("[DevXml] restored " + importedRuntimeSections +
+						" legacy runtime settings section(s) without replacing vanilla settings");
 				}
 			}
 
@@ -522,14 +551,23 @@ public static class ResourceManager
 					if (File.Exists(fallbackFile))
 					{
 						text = AdaptDevXml(ONEIGMLOGDC, fallbackFile, File.ReadAllText(fallbackFile));
-						string logKey = "model-fallback:" + requestedModel;
-						if (_devXmlLogged.Add(logKey))
-						{
-							Debug.LogWarning("[DevXml] unavailable model '" + requestedModel +
-								"' uses compatibility fallback '" + fallbackModel + "'");
-						}
-						return true;
 					}
+					else
+					{
+						TextAsset bundledFallback = ResourcesAndBundles.Load<TextAsset>("gamedata/models/" + fallbackModel);
+						if (bundledFallback == null)
+						{
+							return false;
+						}
+						text = bundledFallback.text;
+					}
+					string logKey = "model-fallback:" + requestedModel;
+					if (_devXmlLogged.Add(logKey))
+					{
+						Debug.LogWarning("[DevXml] unavailable model '" + requestedModel +
+							"' uses compatibility fallback '" + fallbackModel + "'");
+					}
+					return true;
 				}
 			}
 			return false;

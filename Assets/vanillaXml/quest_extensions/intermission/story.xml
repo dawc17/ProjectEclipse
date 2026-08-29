@@ -1,0 +1,1459 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="Intermission_Tournament1Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMTournamentHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_1|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_1|Tournament|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Tournament2Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMTournamentHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_2|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_2|Tournament|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Tournament3Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMTournamentHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_3|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_3|Tournament|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Tournament4Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMTournamentHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_4|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_4|Tournament|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Tournament5Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMTournamentHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_5|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_5|Tournament|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Tournament6Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMTournamentHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_6|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_6|Tournament|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Challenge2Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMChallengeHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_2|Challenge|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_2|Challenge|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Challenge3Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMChallengeHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_3|Challenge|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_3|Challenge|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Challenge4Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMChallengeHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_4|Challenge|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_4|Challenge|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Challenge5Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMChallengeHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_5|Challenge|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_5|Challenge|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Challenge6Hide">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="IMChallengeHide"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_6|Challenge|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <HideBattle Name="ZONE_6|Challenge|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Beginning" Priority="997">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <ToggleItems Label="ZONE_1_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_2_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_3_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_4_DONATE" Toggle="off"/>
+      <ToggleItems Label="ZONE_5_DONATE" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE" Toggle="on"/>
+      <HideBattle Name="ZONE_1|Duel|"/>
+      <HideBattle Name="ZONE_1|Survival|"/>
+      <HideBattle Name="ZONE_2|BOSS_HERMIT|"/>
+      <HideBattle Name="ZONE_2|Duel|"/>
+      <HideBattle Name="ZONE_2|Survival|"/>
+      <ShowBattle Name="ZONE_2|BOSS_HERMIT_LOCKED|"/>
+      <HideBattle Name="ZONE_3|BOSS_BUTCHER|"/>
+      <HideBattle Name="ZONE_3|Duel|"/>
+      <HideBattle Name="ZONE_3|Survival|"/>
+      <ShowBattle Name="ZONE_3|BOSS_BUTCHER_LOCKED|"/>
+      <HideBattle Name="ZONE_4|BOSS_WASP|"/>
+      <HideBattle Name="ZONE_4|Duel|"/>
+      <HideBattle Name="ZONE_4|Survival|"/>
+      <ShowBattle Name="ZONE_4|BOSS_WASP_LOCKED|"/>
+      <HideBattle Name="ZONE_5|BOSS_HUNTRESS|"/>
+      <HideBattle Name="ZONE_5|Duel|"/>
+      <HideBattle Name="ZONE_5|Survival|"/>
+      <ShowBattle Name="ZONE_5|BOSS_HUNTRESS_LOCKED|"/>
+      <HideBattle Name="ZONE_6|BOSS_SAMURAI|"/>
+      <HideBattle Name="ZONE_6|Duel|"/>
+      <HideBattle Name="ZONE_6|Survival|"/>
+      <ShowBattle Name="ZONE_6|BOSS_SAMURAI_LOCKED|"/>
+      <If>
+        <Conditions>
+          <Greater Value1="_ForgeEnabled" Value2="1" Not="1"/>
+          <Equal Value1="?SysInfo[].Steam" Value2="1" Not="1"/>
+          <Equal Value1="?SysInfo[].Switch" Value2="1" Not="1"/>
+        </Conditions>
+        <Then>
+          <HideBattle Name="ZONE_1|BOSS_HARDMODE|"/>
+          <HideBattle Name="ZONE_2|BOSS_HARDMODE|"/>
+          <HideBattle Name="ZONE_3|BOSS_HARDMODE|"/>
+          <HideBattle Name="ZONE_4|BOSS_HARDMODE|"/>
+          <HideBattle Name="ZONE_5|BOSS_HARDMODE|"/>
+          <HideBattle Name="ZONE_6|BOSS_HARDMODE|"/>
+        </Then>
+      </If>
+      <SetMapFocus Battle="ZONE_1|BOSS_LYNX|" Frames="100"/>
+      <Wait Frames="100" Lock="Silent" ControlsLock="1"/>
+      <ActScreen Text="Interlude" Lock="Silent"/>
+      <HideBattle Name="ZONE_1|BOSS_LYNX|"/>
+      <ShowBattle Name="ZONE_1|BOSS_LYNX_INTERMISSION|"/>
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="1"/>
+      <ResetDuelTimer/>
+      <ShowBattle Name="ZONE_1|Duel_INTERMISSION|"/>
+      <ShowBattle Name="ZONE_1|Survival_INTERMISSION|"/>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_1|Duel_INTERMISSION|1"/>
+      <Activate ActionID="Intermission_Denomination"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Tournament1Show">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="IntermissionStart"/>
+        <Equal Value1="_$ActionID" Value2="ImTournamentShow"/>
+      </Operator>
+      <GreaterEqual Value1="?Fight[ZONE_1|Tournament|24].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_1|Tournament_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_Denomination" Priority="996">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="Intermission_Denomination"/>
+    </Conditions>
+    <Actions>
+      <Wait Frames="80" Lock="Silent" ControlsLock="1"/>
+      <Denomination DenominationDigits="4" CoinIcon="MiscSprites.platinum"/>
+      <ToggleItems Label="ZONE_6_DONATE" Toggle="off"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Image" Value="pile_coins_platinum"/>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgDenomination1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="_Title_Assistant" Image="_Avatar_Assistant_1">
+        <Line Text="dlgDenomination2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetMapFocus Battle="ZONE_1|BOSS_LYNX_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_HermitUnlock" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_1|BOSS_LYNX_INTERMISSION|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ZoneIM_Exeptions"/>
+      <Run Name="Intermission_HermitUnlockDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_HermitUnlockDialog" Priority="9999">
+    <Actions>
+      <ToggleItems Label="IM_DONATE" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_2" Toggle="on"/>
+      <ShowBattle Name="ZONE_2|BOSS_HERMIT_INTERMISSION|"/>
+      <HideBattle Name="ZONE_2|BOSS_HERMIT_LOCKED|"/>
+      <Dialog Type="Regular" Title="NAME_LYNX" Image="boss_lynx">
+        <Line Text="im_lynx_defeated" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetMapFocus Battle="ZONE_2|BOSS_HERMIT_INTERMISSION|" Frames="100"/>
+      <Wait Frames="95" Lock="Silent" ControlsLock="1"/>
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="1"/>
+      <ResetDuelTimer/>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_2|Duel_INTERMISSION|1"/>
+      <If>
+        <Conditions>
+          <Or>
+            <Greater Value1="_EclipseModeReplayTutorial" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+          </Or>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_1|BOSS_LYNX_ECLIPSEMODE|" Instant="1" Hidden="1 - _$InEclipseMode" ReplayCount="?Fight[ZONE_1|BOSS_LYNX_ECLIPSEMODE|6].WinCount"/>
+        </Then>
+      </If>
+      <ShowBattle Name="ZONE_2|Duel_INTERMISSION|"/>
+      <ShowBattle Name="ZONE_2|Survival_INTERMISSION|"/>
+      <Activate ActionID="ImChallengeShow"/>
+      <Activate ActionID="ImTournamentShow"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_ButcherUnlock" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_2|BOSS_HERMIT_INTERMISSION|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ZoneIM_Exeptions"/>
+      <Run Name="Intermission_ButcherUnlockDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_ButcherUnlockDialog" Priority="9999">
+    <Actions>
+      <ToggleItems Label="IM_DONATE_2" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_3" Toggle="on"/>
+      <ShowBattle Name="ZONE_3|BOSS_BUTCHER_INTERMISSION|"/>
+      <HideBattle Name="ZONE_3|BOSS_BUTCHER_LOCKED|"/>
+      <Dialog Type="Regular" Title="NAME_HERMIT" Image="boss_hermit">
+        <Line Text="im_hermit_defeated" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetMapFocus Battle="ZONE_3|BOSS_BUTCHER_INTERMISSION|" Frames="100"/>
+      <Wait Frames="95" Lock="Silent" ControlsLock="1"/>
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="1"/>
+      <ResetDuelTimer/>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_3|Duel_INTERMISSION|1"/>
+      <If>
+        <Conditions>
+          <Or>
+            <Greater Value1="_EclipseModeReplayTutorial" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+          </Or>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_2|BOSS_HERMIT_ECLIPSEMODE|" Instant="1" Hidden="1 - _$InEclipseMode" ReplayCount="?Fight[ZONE_2|BOSS_HERMIT_ECLIPSEMODE|6].WinCount"/>
+        </Then>
+      </If>
+      <ShowBattle Name="ZONE_3|Duel_INTERMISSION|"/>
+      <ShowBattle Name="ZONE_3|Survival_INTERMISSION|"/>
+      <Activate ActionID="ImChallengeShow"/>
+      <Activate ActionID="ImTournamentShow"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_WaspUnlock" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_3|BOSS_BUTCHER_INTERMISSION|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ZoneIM_Exeptions"/>
+      <Run Name="Intermission_WaspUnlockDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_WaspUnlockDialog" Priority="9999">
+    <Actions>
+      <ToggleItems Label="IM_DONATE_3" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_4" Toggle="on"/>
+      <ShowBattle Name="ZONE_4|BOSS_WASP_INTERMISSION|"/>
+      <HideBattle Name="ZONE_4|BOSS_WASP_LOCKED|"/>
+      <Dialog Type="Regular" Title="NAME_BUTCHER" Image="boss_butcher">
+        <Line Text="im_butcher_defeated" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="1"/>
+      <SetMapFocus Battle="ZONE_4|BOSS_WASP_INTERMISSION|" Frames="100"/>
+      <Wait Frames="95" Lock="Silent" ControlsLock="1"/>
+      <ResetDuelTimer/>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_4|Duel_INTERMISSION|1"/>
+      <If>
+        <Conditions>
+          <Or>
+            <Greater Value1="_EclipseModeReplayTutorial" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+          </Or>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_3|BOSS_BUTCHER_ECLIPSEMODE|" Instant="1" Hidden="1 - _$InEclipseMode" ReplayCount="?Fight[ZONE_3|BOSS_BUTCHER_ECLIPSEMODE|6].WinCount"/>
+        </Then>
+      </If>
+      <ShowBattle Name="ZONE_4|Duel_INTERMISSION|"/>
+      <ShowBattle Name="ZONE_4|Survival_INTERMISSION|"/>
+      <Activate ActionID="ImChallengeShow"/>
+      <Activate ActionID="ImTournamentShow"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_HuntressUnlock" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_4|BOSS_WASP_INTERMISSION|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ZoneIM_Exeptions"/>
+      <Run Name="Intermission_HuntressUnlockDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_HuntressUnlockDialog" Priority="9999">
+    <Actions>
+      <ToggleItems Label="IM_DONATE_4" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_5" Toggle="on"/>
+      <ShowBattle Name="ZONE_5|BOSS_HUNTRESS_INTERMISSION|"/>
+      <HideBattle Name="ZONE_5|BOSS_HUNTRESS_LOCKED|"/>
+      <Dialog Type="Regular" Title="NAME_WASP" Image="boss_wasp">
+        <Line Text="im_wasp_defeated" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetMapFocus Battle="ZONE_5|BOSS_HUNTRESS_INTERMISSION|" Frames="100"/>
+      <Wait Frames="95" Lock="Silent" ControlsLock="1"/>
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="1"/>
+      <ResetDuelTimer/>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_5|Duel_INTERMISSION|1"/>
+      <If>
+        <Conditions>
+          <Or>
+            <Greater Value1="_EclipseModeReplayTutorial" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+          </Or>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_4|BOSS_WASP_ECLIPSEMODE|" Instant="1" Hidden="1 - _$InEclipseMode" ReplayCount="?Fight[ZONE_4|BOSS_WASP_ECLIPSEMODE|6].WinCount"/>
+        </Then>
+      </If>
+      <ShowBattle Name="ZONE_5|Duel_INTERMISSION|"/>
+      <ShowBattle Name="ZONE_5|Survival_INTERMISSION|"/>
+      <Activate ActionID="ImChallengeShow"/>
+      <Activate ActionID="ImTournamentShow"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_ShogunUnlock" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_5|BOSS_HUNTRESS_INTERMISSION|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions>
+      <ClearQuestQueue Name="ZoneIM_Exeptions"/>
+      <Run Name="Intermission_ShogunUnlockDialog"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Intermission_ShogunUnlockDialog" Priority="9999">
+    <Actions>
+      <ToggleItems Label="IM_DONATE_5" Toggle="off"/>
+      <ToggleItems Label="IM_DONATE_6" Toggle="on"/>
+      <ShowBattle Name="ZONE_6|BOSS_SAMURAI_INTERMISSION|"/>
+      <HideBattle Name="ZONE_6|BOSS_SAMURAI_LOCKED|"/>
+      <Dialog Type="Regular" Title="NAME_WIDOW" Image="boss_huntress">
+        <Line Text="im_widow_defeated" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetMapFocus Battle="ZONE_6|BOSS_SAMURAI_INTERMISSION|" Frames="100"/>
+      <Wait Frames="95" Lock="Silent" ControlsLock="1"/>
+      <SetVariable Scope="Users" Name="DoNotShowDuelNotify" Value="1"/>
+      <ResetDuelTimer/>
+      <SetVariable Scope="Users" Name="CurrentDuel" Value="ZONE_6|Duel_INTERMISSION|1"/>
+      <If>
+        <Conditions>
+          <Or>
+            <Greater Value1="_EclipseModeReplayTutorial" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+          </Or>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_5|BOSS_HUNTRESS_ECLIPSEMODE|" Instant="1" Hidden="1 - _$InEclipseMode" ReplayCount="?Fight[ZONE_5|BOSS_HUNTRESS_ECLIPSEMODE|6].WinCount"/>
+        </Then>
+      </If>
+      <ShowBattle Name="ZONE_6|Duel_INTERMISSION|"/>
+      <ShowBattle Name="ZONE_6|Survival_INTERMISSION|"/>
+      <Activate ActionID="ImChallengeShow"/>
+      <Activate ActionID="ImTournamentShow"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMChallengeUnlock_Main">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Operator Type="Or">
+        <Equal Value1="_$Fight" Value2="ZONE_2|Challenge|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_3|Challenge|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_4|Challenge|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_5|Challenge|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_6|Challenge|24"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="IMChallengeHide"/>
+      <Activate ActionID="ImChallengeShow"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMChallengeUnlock_Z2">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImChallengeShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_2|Challenge|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_1|BOSS_LYNX_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_2|Challenge_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_2|Challenge_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMChallengeUnlock_Z3">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImChallengeShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_3|Challenge|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_2|BOSS_HERMIT_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_3|Challenge_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_3|Challenge_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMChallengeUnlock_Z4">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImChallengeShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_4|Challenge|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_3|BOSS_BUTCHER_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_4|Challenge_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_4|Challenge_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMChallengeUnlock_Z5">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImChallengeShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_5|Challenge|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_4|BOSS_WASP_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_5|Challenge_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_5|Challenge_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMChallengeUnlock_Z6">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImChallengeShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|Challenge|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_5|BOSS_HUNTRESS_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_6|Challenge_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_6|Challenge_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMTournamentUnlock_Main">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Operator Type="Or">
+        <Equal Value1="_$Fight" Value2="ZONE_1|Tournament|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_2|Tournament|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_3|Tournament|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_4|Tournament|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_5|Tournament|24"/>
+        <Equal Value1="_$Fight" Value2="ZONE_6|Tournament|24"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <Activate ActionID="IMTournamentHide"/>
+      <Activate ActionID="ImTournamentShow"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMTournamentUnlock_Z2">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImTournamentShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_2|Tournament|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_1|BOSS_LYNX_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_2|Tournament_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_2|Tournament_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMTournamentUnlock_Z3">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImTournamentShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_3|Tournament|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_2|BOSS_HERMIT_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_3|Tournament_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_3|Tournament_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMTournamentUnlock_Z4">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImTournamentShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_4|Tournament|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_3|BOSS_BUTCHER_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_4|Tournament_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_4|Tournament_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMTournamentUnlock_Z5">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImTournamentShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_5|Tournament|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_4|BOSS_WASP_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_5|Tournament_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_5|Tournament_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMTournamentUnlock_Z6">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImTournamentShow"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|Tournament|24].WinCount" Value2="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_5|BOSS_HUNTRESS_INTERMISSION|1].WinCount" Value2="1"/>
+      <Equal Value1="?Battle[ZONE_6|Tournament_INTERMISSION|].Available" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ShowBattle Name="ZONE_6|Tournament_INTERMISSION|"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1DifficultyAlert">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1Alert"/>
+      <Greater Value1="?Fight[?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]].Difficulty" Value2="2"/>
+      <Equal Value1="_IMStranger1DifficultyAlert" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="IMStranger1DifficultyAlert" Value="1"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="stranger_sensei_difficulty_1" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="stranger_sensei_difficulty_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <SetVariable Scope="Users" Name="IMStranger1OnShopLeave" Value="0"/>
+          <SetVariable Scope="Users" Name="IMStranger1OnHold" Value="1"/>
+          <OpenShop Tab="Weapon"/>
+        </Button>
+        <Button Type="Left" Color="Beige" Text="dlgStoryBtnFight">
+          <SetVariable Scope="Users" Name="IMStranger1OnHold" Value="0"/>
+          <SetVariable Scope="Users" Name="StrangerResult" Value="1"/>
+          <Fight Name="?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1Fight">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1Alert"/>
+      <Operator Type="Or">
+        <LessEqual Value1="?Fight[?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]].Difficulty" Value2="2"/>
+        <Equal Value1="_IMStranger1DifficultyAlert" Value2="1"/>
+      </Operator>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="IMStranger1OnHold" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerResult" Value="1"/>
+      <Fight Name="?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1GreetingsTrigger1" Priority="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="_StrangerTriggerLevel"/>
+      <Equal Value1="_IMStranger1Greetings" Value2="1" Not="1"/>
+      <Equal Value1="_$ActionID" Value2="LevelUpPostpone"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="IMStranger1Greetings"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1GreetingsTrigger2" Priority="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Player[].Level" Value2="_StrangerTriggerLevel"/>
+      <Equal Value1="_IMStranger1Greetings" Value2="1" Not="1"/>
+      <Operator Type="Or">
+        <Equal Value1="_$SceneTo" Value2="Map"/>
+        <Equal Value1="_$SceneTo" Value2="Shop"/>
+      </Operator>
+      <Equal Value1="_LevelUpProfileFlag" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ChangeScene Destination="_$SceneTo"/>
+      <Activate ActionID="IMStranger1Greetings"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1Greetings" Priority="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1Greetings"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="StrangerStore" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerDifficulty" Value="?Fight[?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]].Difficulty"/>
+      <SetVariable Scope="Users" Name="StrangerRematchAttempt" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice1" Value="3"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice2" Value="5"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice3" Value="8"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice4" Value="12"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice5" Value="17"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice6" Value="23"/>
+      <SetVariable Scope="Users" Name="StrangerRematchPrice7" Value="30"/>
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="0"/>
+      <Dialog Type="Regular" Title="NAME_IM_STRANGER" Image="girl_im_knuckles" Mirrored="1">
+        <Line Text="intermission_stranger_1_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <ClearQuestQueue/>
+      <SetVariable Scope="Users" Name="IMStranger1Greetings" Value="1"/>
+      <Activate ActionID="IMStranger1Challenge"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1OnShopLeave">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <Equal Value1="_IMStranger1OnHold" Value2="1"/>
+      <Equal Value1="_IMStranger1OnShopLeave" Value2="1" Not="1"/>
+      <Equal Value1="_IMStranger1Challenge" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="IMStranger1OnShopLeave" Value="1"/>
+      <ChangeScene Destination="_$SceneTo"/>
+      <Activate ActionID="IMStranger1Challenge"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1Wrapper" Unresumable="1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1SelfCall"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Activate ActionID="IMStranger1Challenge"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1Challenge">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1Challenge"/>
+      <Equal Value1="_IMStranger1Challenge" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="IMStranger1OnShopLeave" Value="0"/>
+      <SetVariable Scope="Users" Name="IMStranger1Challenge" Value="1"/>
+      <Dialog Type="Stranger" Title="NAME_IM_STRANGER" Image="girl_im_knuckles" Mirrored="1">
+        <Line Text="intermission_stranger_1_challenge" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnReject">
+          <SetVariable Scope="Users" Name="IMStranger1OnHold" Value="0"/>
+          <Dialog Type="Regular" Title="NAME_IM_STRANGER" Image="girl_im_knuckles" Mirrored="1" MinContentHeight="680">
+            <Line Text="intermission_stranger_1_reject" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+              <SetVariable Scope="Users" Name="IMStranger1OnHold" Value="0"/>
+              <SetVariable Scope="Users" Name="StrangerResult" Value="0"/>
+              <Activate ActionID="SendStrangerInfo"/>
+            </Button>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnWait">
+              <SetVariable Scope="Users" Name="IMStranger1Challenge" Value="0"/>
+              <Activate ActionID="IMStranger1SelfCall"/>
+            </Button>
+          </Dialog>
+        </Button>
+        <Button Type="Middle" Color="Beige" Text="dlgStoryBtnFight">
+          <Activate ActionID="IMStranger1Alert"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <SetVariable Scope="Users" Name="StrangerStore" Value="1"/>
+          <SetVariable Scope="Users" Name="IMStranger1OnHold" Value="1"/>
+          <OpenShop Tab="Weapon"/>
+          <SetVariable Scope="Users" Name="IMStranger1Challenge" Value="0"/>
+        </Button>
+        <DifficultyOf Fight="?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="IMStranger1Challenge" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1OnLoss" Priority="-25">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_6"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger_INTERMISSION"/>
+      <Equal Value1="_$FightResult" Value2="Win" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ClearQuestQueue Name="IMStranger1OnRestart"/>
+      <SetVariable Scope="Users" Name="StrangerStore" Value="0"/>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2">
+        <Line Text="intermission_stranger_1_rematch_offer" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Activate ActionID="IMStranger1ChallengeLossRematchAttemptNumberSet"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1OnRestartMap" Priority="-25">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_IMStranger1OnRestart" Value2="1"/>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+    </Conditions>
+    <Actions Place="Map">
+      <ChangeScene Destination="_$SceneTo"/>
+      <SetVariable Scope="Users" Name="IMStranger1OnRestart" Value="0"/>
+      <SetVariable Scope="Users" Name="StrangerStore" Value="0"/>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2">
+        <Line Text="intermission_stranger_1_rematch_offer" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Activate ActionID="IMStranger1ChallengeLossRematchAttemptNumberSet"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1OnShopLeaveLoss">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <Equal Value1="_IMStranger1OnHoldLoss" Value2="1"/>
+      <Equal Value1="_IMStranger1OnShopLeaveLoss" Value2="1" Not="1"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_$InLottery" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="IMStranger1OnShopLeaveLoss" Value="1"/>
+      <ChangeScene Destination="_$SceneTo"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchAttemptNumberSet">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchAttemptNumberSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="StrangerRematchAttempt" Value="_StrangerRematchAttempt + 1"/>
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="1"/>
+      <Activate ActionID="IMStranger1ChallengeLossRematchPriceSet"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchPriceSet1">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="3"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchPriceSet2">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="2"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="5"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchPriceSet3">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="3"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="8"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchPriceSet4">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="4"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="12"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchPriceSet5">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="5"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="17"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchPriceSet6">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <Equal Value1="_StrangerRematchAttempt" Value2="6"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="23"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLossRematchPriceSet7">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLossRematchPriceSet"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+      <GreaterEqual Value1="_StrangerRematchAttempt" Value2="7"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="CurrentRematchPrice" Value="30"/>
+      <Activate ActionID="IMStranger1ChallengeLoss"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1ChallengeLoss">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1ChallengeLoss"/>
+      <Equal Value1="_IMStranger1ChallengeLoss" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <SetVariable Scope="Users" Name="IMStranger1OnShopLeaveLoss" Value="0"/>
+      <SetVariable Scope="Users" Name="IMStranger1ChallengeLoss" Value="1"/>
+      <ClearQuestQueue Name="IMStranger1OnRestartDojo"/>
+      <Dialog Type="Stranger" Title="NAME_IM_STRANGER" Image="girl_im_knuckles" Mirrored="1">
+        <Line Text="intermission_stranger_1_challenge_again" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+          <SetVariable Scope="Users" Name="IMStranger1OnHoldLoss" Value="0"/>
+          <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+            <Line Text="intermission_stranger_1_rematch_warning" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Left" Color="Red" Text="dlgStoryBtnLeave">
+              <SetVariable Scope="Users" Name="IMStranger1OnHoldLoss" Value="0"/>
+              <SetVariable Scope="Users" Name="StrangerResult" Value="0"/>
+              <Activate ActionID="SendStrangerInfo"/>
+            </Button>
+            <Button Type="Right" Color="Beige" Text="dlgStoryBtnWait">
+              <SetVariable Scope="Users" Name="IMStranger1ChallengeLoss" Value="0"/>
+              <ForceExecution Name="IMStranger1ChallengeLoss"/>
+            </Button>
+          </Dialog>
+        </Button>
+        <Button Type="Middle" Color="Beige" Text="dlgStoryBtnRematch{img::MiscSprites.ruby}{_CurrentRematchPrice}">
+          <Activate ActionID="IMStranger1PayNFight"/>
+        </Button>
+        <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+          <SetVariable Scope="Users" Name="StrangerStore" Value="1"/>
+          <SetVariable Scope="Users" Name="IMStranger1OnHoldLoss" Value="1"/>
+          <OpenShop Tab="Weapon"/>
+          <SetVariable Scope="Users" Name="IMStranger1ChallengeLoss" Value="0"/>
+        </Button>
+        <DifficultyOf Fight="?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="IMStranger1ChallengeLoss" Value="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1InsufficientBonus" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1PayNFight"/>
+      <Less Value1="?Player[].Bonus" Value2="_CurrentRematchPrice"/>
+    </Conditions>
+    <Actions Place="Map">
+      <If>
+        <Conditions>
+          <Operator Type="And">
+            <Equal Value1="?SysInfo[].Paid" Value2="1"/>
+            <Equal Value1="?SysInfo[].NBO" Value2="1"/>
+          </Operator>
+        </Conditions>
+        <Then>
+          <Dialog Type="Regular" Title="characterMay" Image="_Avatar_Assistant_1">
+            <Line Text="dlgNotEnoughRubyMessage_GPP" ButtonText="dlgStoryBtnMore"/>
+            <Button Type="Right" Color="Green" Text="OK">
+              <Activate ActionID="IMStranger1ChallengeLoss"/>
+            </Button>
+          </Dialog>
+        </Then>
+        <Else>
+          <If>
+            <Conditions>
+              <Equal Value1="?SysInfo[].ChinaF2P" Value2="1"/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Regular" Title="characterMay" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughRubyMessageAdv_CN_F2P" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+                  <SetVariable Scope="Users" Name="IMStranger1OnHoldLoss" Value="1"/>
+                  <OpenShop Tab="Free" Item="Video"/>
+                </Button>
+                <Button Type="Left" Color="Red" Text="CANCEL">
+                  <Activate ActionID="IMStranger1ChallengeLoss"/>
+                </Button>
+              </Dialog>
+            </Then>
+            <Else>
+              <Dialog Type="Regular" Title="characterMay" Image="_Avatar_Assistant_1">
+                <Line Text="dlgNotEnoughRubyMessage" ButtonText="dlgStoryBtnMore"/>
+                <Button Type="Right" Color="Green" Text="dlgStoryBtnStore">
+                  <SetVariable Scope="Users" Name="IMStranger1OnHoldLoss" Value="1"/>
+                  <OpenShop Tab="Ruby" Item="Pile_Gems"/>
+                </Button>
+                <Button Type="Left" Color="Red" Text="CANCEL">
+                  <Activate ActionID="IMStranger1ChallengeLoss"/>
+                </Button>
+              </Dialog>
+            </Else>
+          </If>
+        </Else>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1SufficientBonus" Priority="20">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="IMStranger1PayNFight"/>
+      <Less Value1="?Player[].Bonus" Value2="_CurrentRematchPrice" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <TakeCurrency Type="Bonus" Value="_CurrentRematchPrice">
+        <Error/>
+        <Success>
+          <SetVariable Scope="Users" Name="IMStranger1OnHoldLoss" Value="0"/>
+          <SetVariable Scope="Users" Name="StrangerResult" Value="1"/>
+          <Fight Name="?Concat[ZONE_6|Stranger_INTERMISSION|lvl,_StrangerTriggerLevel]"/>
+        </Success>
+      </TakeCurrency>
+    </Actions>
+  </Quest>
+  <Quest Name="IMStranger1Drop" Priority="20">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="?Fight[_$Fight].Zone" Value2="ZONE_6"/>
+      <Equal Value1="?Fight[_$Fight].Battle" Value2="Stranger_INTERMISSION"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="WEAPON_STRANGER_KNUCKLES" Image="img_drop_im_knuckles">
+        <Line Text="intermission_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <OpenShop Tab="Weapon" Item="WEAPON_STRANGER_KNUCKLES" CallEvents="0"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ImStartDialog" Priority="998">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ImStartDialog"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="im_begin_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2">
+        <Line Text="im_begin_2" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="im_begin_3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="im_begin_4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief">
+        <Line Text="im_begin_5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="ImLynxGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_1|BOSS_LYNX_INTERMISSION|1"/>
+      <Equal Value1="_ImLynxGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_LYNX" Image="boss_lynx">
+        <Line Text="im_lynx_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ImLynxGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ImHermitGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_2|BOSS_HERMIT_INTERMISSION|1"/>
+      <Equal Value1="_ImHermitGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_HERMIT" Image="boss_hermit">
+        <Line Text="im_hermit_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ImHermitGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ImButcherGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_3|BOSS_BUTCHER_INTERMISSION|1"/>
+      <Equal Value1="_ImButcherGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_BUTCHER" Image="boss_butcher">
+        <Line Text="im_butcher_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ImButcherGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ImWaspGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_4|BOSS_WASP_INTERMISSION|1"/>
+      <Equal Value1="_ImWaspGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_WASP" Image="boss_wasp">
+        <Line Text="im_wasp_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ImWaspGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ImWidowGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_5|BOSS_HUNTRESS_INTERMISSION|1"/>
+      <Equal Value1="_ImWidowGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_WIDOW" Image="boss_huntress">
+        <Line Text="im_widow_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ImWidowGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ImShogunGreetings" Group="FightEnter" Unresumable="1">
+    <Events>
+      <FightEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI_INTERMISSION|1"/>
+      <Equal Value1="_ImShogunGreetings" Value2="1" Not="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="im_shogun_greetings" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnFight">
+          <Fight Name="_$Fight"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="ImShogunGreetings" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ImShogunDefeated" Priority="996" Unresumable="1">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI_INTERMISSION|1"/>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+    </Conditions>
+    <Actions Place="Map">
+      <Dialog Type="Regular" Title="NAME_SHOGUN" Image="boss_shogun">
+        <Line Text="im_shogun_defeated" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief">
+        <Line Text="im_ending_1" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="im_ending_2" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2">
+        <Line Text="im_ending_3" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="im_ending_4" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterThief" Image="character_thief_2">
+        <Line Text="im_ending_5" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+        <Line Text="im_ending_6" ButtonText="dlgStoryBtnMore"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <If>
+        <Conditions>
+          <Or>
+            <Greater Value1="_EclipseModeReplayTutorial" Value2="1"/>
+            <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+            <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+          </Or>
+        </Conditions>
+        <Then>
+          <ShowBattle Name="ZONE_6|BOSS_SAMURAI_ECLIPSEMODE|" Instant="1" Hidden="1 - _$InEclipseMode" ReplayCount="?Fight[ZONE_6|BOSS_SAMURAI_ECLIPSEMODE|6].WinCount"/>
+        </Then>
+      </If>
+      <ClearQuestQueue Name="ZONE_7_unlock_exception"/>
+      <SetVariable Scope="Users" Name="promo_FirstPayment_Flag" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInARowCount" Value="0"/>
+      <SetVariable Scope="Users" Name="SurvivalsInAZoneCount" Value="0"/>
+      <SetVariable Scope="Users" Name="ShopDownloadOffer" Value="0"/>
+      <AttachQuestFile File="quest_extensions/zone_7/story.xml"/>
+      <SetVariable Scope="Users" Name="globZoneToCheck" Value="ZONE_7"/>
+      <SetVariable Scope="Users" Name="CurrentZone" Value="ZONE_7"/>
+      <SetCurrentZone Name="ZONE_7"/>
+      <SetMapFocus Battle="ZONE_7|BOSS_TITAN_LOCKED|" Frames="100"/>
+      <Wait Frames="95" Lock="Silent" ControlsLock="1"/>
+      <Checkpoint/>
+      <Wait Frames="60" Lock="Silent" ControlsLock="1"/>
+      <ActScreen Text="Act_7_Chapter_1" Lock="Silent"/>
+      <ShowBattle Name="ZONE_7|BOSS_TITAN|" Instant="1"/>
+      <HideBattle Name="ZONE_7|BOSS_TITAN_LOCKED|"/>
+      <Activate ActionID="ShroudStart"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone7_1_Toggle_For_Steam_and_Switch" Priority="1999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$FightResult" Value2="Win"/>
+      <Equal Value1="_$Fight" Value2="ZONE_6|BOSS_SAMURAI_INTERMISSION|1"/>
+      <Operator Type="Or">
+        <Equal Value1="?SysInfo[].Switch" Value2="1"/>
+        <Equal Value1="?SysInfo[].Steam" Value2="1"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_7" Toggle="on"/>
+      <ToggleItems Label="ZONE_7_2" Toggle="on"/>
+      <ToggleItems Label="ZONE_7_3" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HideTitan" Priority="999">
+    <Events>
+      <FightEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_TitanLockedHidden" Value2="1" Not="1"/>
+      <GreaterEqual Value1="?Fight[ZONE_6|BOSS_SAMURAI_INTERMISSION|1].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ToggleBattle Name="ZONE_7|BOSS_TITAN_LOCKED|" Toggle="off"/>
+      <HideBattle Name="ZONE_7|BOSS_TITAN_LOCKED|"/>
+      <SetVariable Scope="Users" Name="TitanLockedHidden" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ZoneIM_Exeptions" Priority="-100">
+    <Events>
+      <SceneLoaded/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+      <Equal Value1="_$InEclipseMode" Value2="0"/>
+      <GreaterEqual Value1="?Fight[ZONE_1|BOSS_LYNX_INTERMISSION|1].WinCount" Value2="1"/>
+      <Less Value1="?Fight[ZONE_6|BOSS_SAMURAI_INTERMISSION|1].WinCount" Value2="1"/>
+    </Conditions>
+    <Actions Place="Map">
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Fight[ZONE_1|BOSS_LYNX_INTERMISSION|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_2|BOSS_HERMIT_INTERMISSION].IsOpened" Value2="0"/>
+          <Equal Value1="?Fight[ZONE_2|BOSS_HERMIT_INTERMISSION|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Run Name="Intermission_HermitUnlockDialog"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Fight[ZONE_2|BOSS_HERMIT_INTERMISSION|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_3|BOSS_BUTCHER_INTERMISSION].IsOpened" Value2="0"/>
+          <Equal Value1="?Fight[ZONE_3|BOSS_BUTCHER_INTERMISSION|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Run Name="Intermission_ButcherUnlockDialog"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Fight[ZONE_3|BOSS_BUTCHER_INTERMISSION|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_4|BOSS_WASP_INTERMISSION].IsOpened" Value2="0"/>
+          <Equal Value1="?Fight[ZONE_4|BOSS_WASP_INTERMISSION|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Run Name="Intermission_WaspUnlockDialog"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Fight[ZONE_4|BOSS_WASP_INTERMISSION|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_5|BOSS_HUNTRESS_INTERMISSION].IsOpened" Value2="0"/>
+          <Equal Value1="?Fight[ZONE_5|BOSS_HUNTRESS_INTERMISSION|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Run Name="Intermission_HuntressUnlockDialog"/>
+        </Then>
+      </If>
+      <If>
+        <Conditions>
+          <GreaterEqual Value1="?Fight[ZONE_5|BOSS_HUNTRESS_INTERMISSION|1].WinCount" Value2="1"/>
+          <Equal Value1="?Battle[ZONE_6|BOSS_SAMURAI_INTERMISSION].IsOpened" Value2="0"/>
+          <Equal Value1="?Fight[ZONE_6|BOSS_SAMURAI_INTERMISSION|1].WinCount" Value2="0"/>
+        </Conditions>
+        <Then>
+          <Run Name="Intermission_ShogunUnlockDialog"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+</Quests>

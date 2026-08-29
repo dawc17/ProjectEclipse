@@ -10,6 +10,10 @@ function Import-SF2ManagedRuntime([string]$ProjectPath) {
             [Reflection.Assembly]::LoadFrom($path) | Out-Null
         }
     }
+    $runtime = Join-Path $ProjectPath 'Temp/Bin/Debug/Eclipse.Runtime.dll'
+    if (Test-Path -LiteralPath $runtime -PathType Leaf) {
+        [Reflection.Assembly]::LoadFrom($runtime) | Out-Null
+    }
     $firstpass = Join-Path $ProjectPath 'Temp/Bin/Debug/Assembly-CSharp-firstpass.dll'
     if (Test-Path -LiteralPath $firstpass -PathType Leaf) {
         [Reflection.Assembly]::LoadFrom($firstpass) | Out-Null

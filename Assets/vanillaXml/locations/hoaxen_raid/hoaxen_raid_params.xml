@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x000000" Wall="80" Floor="40" Width="1736" Height="472">
+  <Layer Type="1" Factor="0.05" Atlas="hoaxen_raid_bg">
+    <Image X="-128" Y="15" ClassName="bg_1" Width="1536" Height="542"/>
+  </Layer>
+  <Layer Type="1" Factor="0.1" Atlas="hoaxen_raid_layer2">
+    <Image X="-300" Y="100" ClassName="Layer7-left" Width="650" Height="311"/>
+    <Image X="270" Y="135" ClassName="Layer7-right" Width="482" Height="376"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="hoaxen_raid_layer2">
+    <Image X="-130" Y="170" ClassName="Layer6-left" Width="401" Height="126"/>
+    <Image X="280" Y="150" ClassName="Layer6-right" Width="388" Height="183"/>
+  </Layer>
+  <Layer Type="1" Factor="0.18" Atlas="hoaxen_raid_layer2">
+    <Image X="-250" Y="0" ClassName="Layer3-rock-left" Width="41" Height="101"/>
+    <Image X="270" Y="0" ClassName="Layer3-rock-right" Width="227" Height="146"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="hoaxen_raid_layer1">
+    <Image X="-384" Y="15" ClassName="Layer3-column-left" Width="723" Height="540"/>
+    <Image X="309" Y="15" ClassName="Layer3-column-right" Width="904" Height="540"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="hoaxen_raid_layer1">
+    <Image X="-183" Y="-33" ClassName="Layer4-triangle3" Width="278" Height="304"/>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="hoaxen_raid_layer1">
+    <Image X="12" Y="4" ClassName="Layer4-triangle2" Width="264" Height="464"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="hoaxen_raid_layer1">
+    <Image X="-100" Y="-145" ClassName="Layer4-triangle1" Width="296" Height="142"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="hoaxen_raid_layer1">
+    <Image X="-386.178" Y="150.789" ClassName="Layer2-mist-left" Width="724.643" Height="88.421"/>
+    <Image X="348.787" Y="156.65" ClassName="Layer2-mist-center" Width="479.275" Height="157.7"/>
+    <Image X="850" Y="159" ClassName="Layer2-mist-right" Width="332" Height="172"/>
+  </Layer>
+  <Layer Type="1" Factor="0.35" Atlas="hoaxen_raid_layer2">
+    <Image X="-230" Y="-120" ClassName="Layer5-left" Width="780" Height="271"/>
+    <Image X="358" Y="-200" ClassName="Layer5-right" Width="776" Height="130"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-93" EnemyPositionX="1068" EnemyPositionY="-105"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="hoaxen_raid_layer2" Scaling="1">
+    <Image X="-870" Y="258" ClassName="pixel_1" Width="216" Height="176" Color="0x000000" IsOpaque="1"/>
+    <Image X="-820" Y="12" ClassName="left" Width="170" Height="484"/>
+    <Image X="-628" Y="258" ClassName="floor" Width="272" Height="137"/>
+    <Image X="-376" Y="258" ClassName="floor" Width="272" Height="137"/>
+    <Image X="-124" Y="258" ClassName="floor" Width="272" Height="137"/>
+    <Image X="128" Y="258" ClassName="floor" Width="272" Height="137"/>
+    <Image X="380" Y="258" ClassName="floor" Width="272" Height="137"/>
+    <Image X="632" Y="258" ClassName="floor" Width="272" Height="137"/>
+    <Image X="810" Y="18" ClassName="right" Width="175" Height="474"/>
+    <Image X="860" Y="266" ClassName="pixel_1" Width="200" Height="154" Color="0x000000" IsOpaque="1"/>
+    <Image X="0" Y="400" ClassName="pixel_1" Width="2000" Height="200" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Color="0x000000" Wall="135" Floor="80" Width="1544" Height="512">
+  <Layer Type="1" Factor="0.0" Atlas="chinese_new_year_2" Scaling="1">
+    <Image X="0" Y="0" ClassName="_0009_background" Width="1936" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.05" Atlas="chinese_new_year_2" Scaling="1">
+    <Image X="0" Y="0" ClassName="_0008_far_mountains" Width="1936" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.15" Atlas="chinese_new_year_2" Scaling="1">
+    <Image X="0" Y="-7" ClassName="_0007_far_houses" Width="1936" Height="382"/>
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="chinese_new_year_1" Scaling="1">
+    <Image X="2" Y="20" ClassName="_0006_foliage" Width="1936" Height="335"/>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="chinese_new_year_1" Scaling="1">
+    <Image X="0" Y="69" ClassName="_0005_traditional_house" Width="1936" Height="374"/>
+  </Layer>
+  <Layer Type="1" Factor="0.5" Atlas="chinese_new_year_1" Scaling="1">
+    <Image X="0" Y="0" ClassName="_0004_close_house" Width="1936" Height="512"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="672" PlayerPositionY="-94" EnemyPositionX="872" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="chinese_new_year_1" Scaling="1">
+    <Image X="0" Y="75" ClassName="_0003_ground" Width="1935" Height="357"/>
+    <Image X="700" Y="71" ClassName="_0002_right_wall" Width="198" Height="231"/>
+    <Image X="-678" Y="42" ClassName="_0001_left_wall" Width="216" Height="261"/>
+    <Image X="0" Y="400" ClassName="black_pixel" Width="2500" Height="300"/>
+    <Image X="0" Y="-405" ClassName="black_pixel" Width="2500" Height="300"/>
+  </Layer>
+  <Layer Type="1" Factor="1.5" Atlas="chinese_new_year_1">
+    <Image X="0" Y="222" ClassName="_0000_blur" Width="2561" Height="152"/>
+  </Layer>
+</Root>

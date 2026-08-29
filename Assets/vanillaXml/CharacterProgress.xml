@@ -1,0 +1,1068 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Progress>
+  <Thresholds>
+    <Threshold Level="1" Exp="150"/>
+    <Threshold Level="2" Exp="190"/>
+    <Threshold Level="3" Exp="350"/>
+    <Threshold Level="4" Exp="355"/>
+    <Threshold Level="5" Exp="365"/>
+    <Threshold Level="6" Exp="780"/>
+    <Threshold Level="7" Exp="2000"/>
+    <Threshold Level="8" Exp="4000"/>
+    <Threshold Level="9" Exp="5300"/>
+    <Threshold Level="10" Exp="5700"/>
+    <Threshold Level="11" Exp="6000"/>
+    <Threshold Level="12" Exp="10000"/>
+    <Threshold Level="13" Exp="11000"/>
+    <Threshold Level="14" Exp="20000"/>
+    <Threshold Level="15" Exp="27200"/>
+    <Threshold Level="16" Exp="27800"/>
+    <Threshold Level="17" Exp="30000"/>
+    <Threshold Level="18" Exp="52200"/>
+    <Threshold Level="19" Exp="52800"/>
+    <Threshold Level="20" Exp="100000"/>
+    <Threshold Level="21" Exp="137000"/>
+    <Threshold Level="22" Exp="138000"/>
+    <Threshold Level="23" Exp="150000"/>
+    <Threshold Level="24" Exp="275000"/>
+    <Threshold Level="25" Exp="300000"/>
+    <Threshold Level="26" Exp="600000"/>
+    <Threshold Level="27" Exp="820000"/>
+    <Threshold Level="28" Exp="830000"/>
+    <Threshold Level="29" Exp="900000"/>
+    <Threshold Level="30" Exp="1650000"/>
+    <Threshold Level="31" Exp="1600000"/>
+    <Threshold Level="32" Exp="3200000"/>
+    <Threshold Level="33" Exp="4300000"/>
+    <Threshold Level="34" Exp="4500000"/>
+    <Threshold Level="35" Exp="4800000"/>
+    <Threshold Level="36" Exp="8800000"/>
+    <Threshold Level="37" Exp="17600000"/>
+    <Threshold Level="38" Exp="20000000"/>
+    <Threshold Level="39" Exp="36000000"/>
+    <Threshold Level="40" Exp="36000000"/>
+    <Threshold Level="41" Exp="36000000"/>
+    <Threshold Level="42" Exp="36000000"/>
+    <Threshold Level="43" Exp="36000000"/>
+    <Threshold Level="44" Exp="36000000"/>
+    <Threshold Level="45" Exp="39500000"/>
+    <Threshold Level="46" Exp="48500000"/>
+    <Threshold Level="47" Exp="36000000"/>
+    <Threshold Level="48" Exp="44000000"/>
+    <Threshold Level="49" Exp="80000000"/>
+    <Threshold Level="50" Exp="75500000"/>
+    <Threshold Level="51" Exp="88000000"/>
+    <Threshold Level="52" Exp="92500000"/>
+  </Thresholds>
+  <StartingAttributes WeaponDamage="5" UnarmedDamage="5" BodyDefense="5" HeadDefense="0" RangedDamage="0" MagicDamage="0" MagicPainRecharge="-10000" MagicDamageRecharge="0" CriticalChance="1000" CriticalDamage="5850" BlockDamageFactor="-23219" InitialMagicCharge="10000" ShockCriticalHitChance="0" ShockHeadHitChance="2500" EnchantmentResistance="0"/>
+  <LevelAttributeGain WeaponDamage="10" UnarmedDamage="10" BodyDefense="10" HeadDefense="10" RangedDamage="10" MagicDamage="10"/>
+  <PerkTree>
+    <Level Value="2">
+      <Perk Name="PERK_DOUBLE_SWEEP"/>
+    </Level>
+    <Level Value="3">
+      <Perk Name="PERK_COBRA"/>
+      <Perk Name="PERK_DESPERATE"/>
+    </Level>
+    <Level Value="4">
+      <Perk Name="PERK_DOUBLE_JUMP_KICK"/>
+    </Level>
+    <Level Value="5">
+      <Perk Name="PERK_AVENGER"/>
+      <Perk Name="PERK_ROCK"/>
+    </Level>
+    <Level Value="6">
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+      <Upgrade Name="PERK_COBRA"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+    </Level>
+    <Level Value="7">
+      <Perk Name="PERK_HELM_BREAKER"/>
+      <Perk Name="PERK_FURIOUS"/>
+    </Level>
+    <Level Value="8">
+      <Perk Name="PERK_ELBOW_STRIKE"/>
+    </Level>
+    <Level Value="9">
+      <Upgrade Name="PERK_COBRA"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+    </Level>
+    <Level Value="10">
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+    </Level>
+    <Level Value="11">
+      <Perk Name="PERK_TWO_FOOT_JUMP_KICK"/>
+    </Level>
+    <Level Value="12">
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+      <Upgrade Name="PERK_COBRA"/>
+    </Level>
+    <Level Value="13">
+      <Perk Name="PERK_PAIN_RAGE"/>
+      <Perk Name="PERK_CONCUSSION"/>
+    </Level>
+    <Level Value="14">
+      <Perk Name="PERK_BACK_FLIP_KICK"/>
+    </Level>
+    <Level Value="15">
+      <Upgrade Name="PERK_COBRA"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+    </Level>
+    <Level Value="16">
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+    </Level>
+    <Level Value="17">
+      <Perk Name="PERK_SUPLEX"/>
+    </Level>
+    <Level Value="18">
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+    </Level>
+    <Level Value="19">
+      <Upgrade Name="PERK_COBRA"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+    </Level>
+    <Level Value="20">
+      <Perk Name="PERK_FULL_POWER"/>
+      <Perk Name="PERK_EAGLE_EYE"/>
+    </Level>
+    <Level Value="21">
+      <Upgrade Name="PERK_COBRA"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+    </Level>
+    <Level Value="22">
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+    </Level>
+    <Level Value="23">
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+    </Level>
+    <Level Value="24">
+      <Upgrade Name="PERK_COBRA"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+    </Level>
+    <Level Value="25">
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+    </Level>
+    <Level Value="26">
+      <Perk Name="PERK_STEEL_FOOT"/>
+      <Perk Name="PERK_BLOCK_BREAKER"/>
+    </Level>
+    <Level Value="27">
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+    </Level>
+    <Level Value="28">
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+    </Level>
+    <Level Value="29">
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+    </Level>
+    <Level Value="30">
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+    </Level>
+    <Level Value="31">
+      <Upgrade Name="PERK_HELM_BREAKER"/>
+      <Upgrade Name="PERK_FURIOUS"/>
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+    </Level>
+    <Level Value="32">
+      <Perk Name="PERK_MARTIAL_SPIRIT"/>
+      <Perk Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="33">
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="34">
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+    </Level>
+    <Level Value="35">
+      <Upgrade Name="PERK_AVENGER"/>
+      <Upgrade Name="PERK_ROCK"/>
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="36">
+      <Upgrade Name="PERK_COBRA"/>
+      <Upgrade Name="PERK_DESPERATE"/>
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+    </Level>
+    <Level Value="37">
+      <Upgrade Name="PERK_PAIN_RAGE"/>
+      <Upgrade Name="PERK_CONCUSSION"/>
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="38">
+      <Perk Name="PERK_ENLIGHTENMENT"/>
+      <Perk Name="PERK_MIRROR"/>
+    </Level>
+    <Level Value="39">
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+    </Level>
+    <Level Value="40">
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="41">
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+    </Level>
+    <Level Value="42">
+      <Upgrade Name="PERK_FULL_POWER"/>
+      <Upgrade Name="PERK_EAGLE_EYE"/>
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="43">
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+    </Level>
+    <Level Value="44">
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+      <Upgrade Name="PERK_STEEL_FOOT"/>
+      <Upgrade Name="PERK_BLOCK_BREAKER"/>
+    </Level>
+    <Level Value="45">
+      <Perk Name="PERK_DISORIENTATION"/>
+      <Perk Name="PERK_RICOCHET"/>
+    </Level>
+    <Level Value="46">
+      <Upgrade Name="PERK_DISORIENTATION"/>
+      <Upgrade Name="PERK_RICOCHET"/>
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+    </Level>
+    <Level Value="47">
+      <Upgrade Name="PERK_DISORIENTATION"/>
+      <Upgrade Name="PERK_RICOCHET"/>
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="48">
+      <Upgrade Name="PERK_DISORIENTATION"/>
+      <Upgrade Name="PERK_RICOCHET"/>
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+    </Level>
+    <Level Value="49">
+      <Upgrade Name="PERK_DISORIENTATION"/>
+      <Upgrade Name="PERK_RICOCHET"/>
+      <Upgrade Name="PERK_MARTIAL_SPIRIT"/>
+      <Upgrade Name="PERK_OVERCHARGE"/>
+    </Level>
+    <Level Value="50">
+      <Upgrade Name="PERK_DISORIENTATION"/>
+      <Upgrade Name="PERK_RICOCHET"/>
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+    </Level>
+    <Level Value="51">
+      <Upgrade Name="PERK_DISORIENTATION"/>
+      <Upgrade Name="PERK_RICOCHET"/>
+    </Level>
+    <Level Value="52">
+      <Upgrade Name="PERK_DISORIENTATION"/>
+      <Upgrade Name="PERK_RICOCHET"/>
+      <Upgrade Name="PERK_ENLIGHTENMENT"/>
+      <Upgrade Name="PERK_MIRROR"/>
+    </Level>
+  </PerkTree>
+  <Perks>
+    <Perk Name="PERK_DOUBLE_SWEEP" Move="DoubleSweep"/>
+    <Perk Name="PERK_HELM_BREAKER">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_HELM_BREAKER{15}{35}{5}">
+        <Set DamageFactor="4330" Chance="0.15"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_HELM_BREAKER{17.5}{37}{5}">
+        <Set DamageFactor="4542" Chance="0.175"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_HELM_BREAKER{20}{39}{5}">
+        <Set DamageFactor="4751" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_HELM_BREAKER{22.5}{41}{5}">
+        <Set DamageFactor="4957" Chance="0.225"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_HELM_BREAKER{25}{43}{5}">
+        <Set DamageFactor="5160" Chance="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_HELM_BREAKER{27.5}{45}{5}">
+        <Set DamageFactor="5361" Chance="0.275"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_HELM_BREAKER{30}{47}{5}">
+        <Set DamageFactor="5558" Chance="0.3"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_HELM_BREAKER{32.5}{49}{5}">
+        <Set DamageFactor="5753" Chance="0.325"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_HELM_BREAKER{35}{51}{5}">
+        <Set DamageFactor="5945" Chance="0.35"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_DOUBLE_JUMP_KICK" Move="DoubleJumpKick"/>
+    <Perk Name="PERK_AVENGER">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_AVENGER{20}{5}{160}">
+        <Set Chance="0.2" DamageFactor="931"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_AVENGER{24}{5}{165}">
+        <Set Chance="0.24" DamageFactor="1375"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_AVENGER{28}{5}{170}">
+        <Set Chance="0.28" DamageFactor="1806"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_AVENGER{32}{5}{175}">
+        <Set Chance="0.32" DamageFactor="2224"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_AVENGER{36}{5}{180}">
+        <Set Chance="0.36" DamageFactor="2630"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_AVENGER{40}{5}{185}">
+        <Set Chance="0.4" DamageFactor="3026"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_AVENGER{44}{5}{190}">
+        <Set Chance="0.44" DamageFactor="3410"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_AVENGER{48}{5}{195}">
+        <Set Chance="0.48" DamageFactor="3785"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_AVENGER{52}{5}{200}">
+        <Set Chance="0.52" DamageFactor="4150"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_DESPERATE">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_DESPERATE{20}{15}">
+        <Set DamageFactor="2106" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_DESPERATE{20}{19}">
+        <Set DamageFactor="2510" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_DESPERATE{20}{23}">
+        <Set DamageFactor="2987" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_DESPERATE{20}{27}">
+        <Set DamageFactor="3448" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_DESPERATE{20}{31}">
+        <Set DamageFactor="3896" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_DESPERATE{20}{35}">
+        <Set DamageFactor="4330" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_DESPERATE{20}{39}">
+        <Set DamageFactor="4751" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_DESPERATE{20}{43}">
+        <Set DamageFactor="5160" HealthLimit="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_DESPERATE{20}{47}">
+        <Set DamageFactor="5558" HealthLimit="0.2"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_ELBOW_STRIKE" Move="ElbowStrike"/>
+    <Perk Name="PERK_MIRROR">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_MIRROR{30}{50}{2}">
+        <Set DamageFactor="5850" Chance="0.3"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_MIRROR{32.5}{55}{2}">
+        <Set DamageFactor="6323" Chance="0.325"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_MIRROR{35}{60}{2}">
+        <Set DamageFactor="6781" Chance="0.35"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_MIRROR{37.5}{65}{2}">
+        <Set DamageFactor="7225" Chance="0.375"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_MIRROR{40}{70}{2}">
+        <Set DamageFactor="7655" Chance="0.40"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_MIRROR{42.5}{75}{2}">
+        <Set DamageFactor="8074" Chance="0.425"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_MIRROR{45}{80}{2}">
+        <Set DamageFactor="8480" Chance="0.45"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_MIRROR{47.5}{85}{2}">
+        <Set DamageFactor="8875" Chance="0.475"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_MIRROR{50}{90}{2}">
+        <Set DamageFactor="9260" Chance="0.5"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_TWO_FOOT_JUMP_KICK" Move="TwoFootJumpKick"/>
+    <Perk Name="PERK_BLOCK_BREAKER">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_BLOCK_BREAKER{10}">
+        <Set Chance="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_BLOCK_BREAKER{12.5}">
+        <Set Chance="0.125"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_BLOCK_BREAKER{15}">
+        <Set Chance="0.15"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_BLOCK_BREAKER{17.5}">
+        <Set Chance="0.175"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_BLOCK_BREAKER{20}">
+        <Set Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_BLOCK_BREAKER{22.5}">
+        <Set Chance="0.225"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_BLOCK_BREAKER{25}">
+        <Set Chance="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_BLOCK_BREAKER{27.5}">
+        <Set Chance="0.275"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_BLOCK_BREAKER{30}">
+        <Set Chance="0.3"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_FURIOUS">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_FURIOUS{20}{10}{8}">
+        <Set DamageFactor="1375" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_FURIOUS{20}{12.5}{8}">
+        <Set DamageFactor="1699" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_FURIOUS{20}{15}{8}">
+        <Set DamageFactor="2016" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_FURIOUS{20}{17.5}{8}">
+        <Set DamageFactor="2327" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_FURIOUS{20}{20}{8}">
+        <Set DamageFactor="2630" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_FURIOUS{20}{22.5}{8}">
+        <Set DamageFactor="2928" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_FURIOUS{20}{25}{8}">
+        <Set DamageFactor="3219" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_FURIOUS{20}{27.5}{8}">
+        <Set DamageFactor="3505" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_FURIOUS{20}{30}{8}">
+        <Set DamageFactor="3785" Chance="0.2"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_BACK_FLIP_KICK" Move="BackFlipKick"/>
+    <Perk Name="PERK_PAIN_RAGE">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_PAIN_RAGE{15}{20}{8}">
+        <Set DamageFactor="2015" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_PAIN_RAGE{18}{20}{8}">
+        <Set DamageFactor="2390" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_PAIN_RAGE{21}{20}{8}">
+        <Set DamageFactor="2750" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_PAIN_RAGE{24}{20}{8}">
+        <Set DamageFactor="3105" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_PAIN_RAGE{27}{20}{8}">
+        <Set DamageFactor="3450" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_PAIN_RAGE{30}{20}{8}">
+        <Set DamageFactor="3785" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_PAIN_RAGE{33}{20}{8}">
+        <Set DamageFactor="4115" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_PAIN_RAGE{36}{20}{8}">
+        <Set DamageFactor="4435" Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_PAIN_RAGE{40}{20}{8}">
+        <Set DamageFactor="4855" Chance="0.2"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_CONCUSSION">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_CONCUSSION{5}{8}">
+        <Set Chance="0.05"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_CONCUSSION{7.5}{8}">
+        <Set Chance="0.075"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_CONCUSSION{10}{8}">
+        <Set Chance="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_CONCUSSION{12.5}{8}">
+        <Set Chance="0.125"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_CONCUSSION{15}{8}">
+        <Set Chance="0.15"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_CONCUSSION{17.5}{8}">
+        <Set Chance="0.175"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_CONCUSSION{20}{8}">
+        <Set Chance="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_CONCUSSION{22.5}{8}">
+        <Set Chance="0.225"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_CONCUSSION{25}{8}">
+        <Set Chance="0.25"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_SUPLEX" Move="ThrowSuplexProfile"/>
+    <Perk Name="PERK_MARTIAL_SPIRIT">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{10}{100}">
+        <Set Chance="0.1" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{12.5}{100}">
+        <Set Chance="0.125" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{15}{100}">
+        <Set Chance="0.15" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{17.5}{100}">
+        <Set Chance="0.175" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{20}{100}">
+        <Set Chance="0.2" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{22.5}{100}">
+        <Set Chance="0.225" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{25}{100}">
+        <Set Chance="0.25" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{27.5}{100}">
+        <Set Chance="0.275" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_MARTIAL_SPIRIT{30}{100}">
+        <Set Chance="0.3" MagicDamageRecharge="10000"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_STEEL_FOOT">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_STEEL_FOOT{7}">
+        <Set Chance="0.07" Chance2="0.14"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_STEEL_FOOT{8.5}">
+        <Set Chance="0.085" Chance2="0.17"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_STEEL_FOOT{10}">
+        <Set Chance="0.1" Chance2="0.2"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_STEEL_FOOT{11.5}">
+        <Set Chance="0.115" Chance2="0.23"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_STEEL_FOOT{13}">
+        <Set Chance="0.13" Chance2="0.26"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_STEEL_FOOT{14.5}">
+        <Set Chance="0.145" Chance2="0.29"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_STEEL_FOOT{16}">
+        <Set Chance="0.16" Chance2="0.32"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_STEEL_FOOT{17.5}">
+        <Set Chance="0.175" Chance2="0.35"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_STEEL_FOOT{19}">
+        <Set Chance="0.19" Chance2="0.38"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_EAGLE_EYE">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_EAGLE_EYE{5}{35}{3}">
+        <Set DamageFactor="4330"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_EAGLE_EYE{5}{45}{3}">
+        <Set DamageFactor="5361"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_EAGLE_EYE{5}{55}{3}">
+        <Set DamageFactor="6323"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_EAGLE_EYE{5}{65}{3}">
+        <Set DamageFactor="7225"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_EAGLE_EYE{5}{75}{3}">
+        <Set DamageFactor="8074"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_EAGLE_EYE{5}{85}{3}">
+        <Set DamageFactor="8875"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_EAGLE_EYE{5}{95}{3}">
+        <Set DamageFactor="9635"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_EAGLE_EYE{5}{105}{3}">
+        <Set DamageFactor="10356"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_EAGLE_EYE{5}{115}{3}">
+        <Set DamageFactor="11043"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_ENLIGHTENMENT">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_ENLIGHTENMENT{10}{25}">
+        <Set Chance="0.1" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_ENLIGHTENMENT{12.5}{25}">
+        <Set Chance="0.125" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_ENLIGHTENMENT{15}{25}">
+        <Set Chance="0.15" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_ENLIGHTENMENT{17.5}{25}">
+        <Set Chance="0.175" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_ENLIGHTENMENT{20}{25}">
+        <Set Chance="0.2" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_ENLIGHTENMENT{22.5}{25}">
+        <Set Chance="0.225" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_ENLIGHTENMENT{25}{25}">
+        <Set Chance="0.25" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_ENLIGHTENMENT{27.5}{25}">
+        <Set Chance="0.275" Health="0.25"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_ENLIGHTENMENT{30}{25}">
+        <Set Chance="0.3" Health="0.25"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_ROCK">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_ROCK{40}{40}">
+        <Set Chance="0.4" Lifesteal="-4000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_ROCK{45}{42.5}">
+        <Set Chance="0.45" Lifesteal="-4250"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_ROCK{50}{45}">
+        <Set Chance="0.50" Lifesteal="-4500"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_ROCK{55}{47.5}">
+        <Set Chance="0.55" Lifesteal="-4750"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_ROCK{60}{50}">
+        <Set Chance="0.60" Lifesteal="-5000"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_ROCK{65}{52.5}">
+        <Set Chance="0.65" Lifesteal="-5250"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_ROCK{70}{55}">
+        <Set Chance="0.70" Lifesteal="-5500"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_ROCK{75}{57.5}">
+        <Set Chance="0.75" Lifesteal="-5750"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_ROCK{80}{60}">
+        <Set Chance="0.80" Lifesteal="-6000"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_COBRA">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_COBRA{40}{3}{10}">
+        <Set Chance="0.4" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_COBRA{47.5}{3}{10}">
+        <Set Chance="0.475" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_COBRA{55}{3}{10}">
+        <Set Chance="0.55" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_COBRA{62.5}{3}{10}">
+        <Set Chance="0.625" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_COBRA{70}{3}{10}">
+        <Set Chance="0.7" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_COBRA{77.5}{3}{10}">
+        <Set Chance="0.775" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_COBRA{85}{3}{10}">
+        <Set Chance="0.85" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_COBRA{92.5}{3}{10}">
+        <Set Chance="0.925" Health="0.1"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_COBRA{100}{3}{10}">
+        <Set Chance="1" Health="0.1"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_FULL_POWER">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_FULL_POWER{20}{30}{4}">
+        <Set Chance="0.2" DamageFactor="3785"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_FULL_POWER{22.5}{32.5}{4}">
+        <Set Chance="0.225" DamageFactor="4060"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_FULL_POWER{25}{35}{4}">
+        <Set Chance="0.25" DamageFactor="4330"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_FULL_POWER{27.5}{37.5}{4}">
+        <Set Chance="0.275" DamageFactor="4595"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_FULL_POWER{30}{40}{4}">
+        <Set Chance="0.30" DamageFactor="4855"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_FULL_POWER{32.5}{42.5}{4}">
+        <Set Chance="0.325" DamageFactor="5110"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_FULL_POWER{35}{45}{4}">
+        <Set Chance="0.35" DamageFactor="5360"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_FULL_POWER{37.5}{47.5}{4}">
+        <Set Chance="0.375" DamageFactor="5600"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_FULL_POWER{40}{50}{4}">
+        <Set Chance="0.40" DamageFactor="5850"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_OVERCHARGE">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_OVERCHARGE{30}{5}{5}">
+        <Set DamageFactor="3785"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_OVERCHARGE{32.5}{5}{5}">
+        <Set DamageFactor="4060"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_OVERCHARGE{35}{5}{5}">
+        <Set DamageFactor="4330"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_OVERCHARGE{37.5}{5}{5}">
+        <Set DamageFactor="4595"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_OVERCHARGE{40}{5}{5}">
+        <Set DamageFactor="4855"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_OVERCHARGE{42.5}{5}{5}">
+        <Set DamageFactor="5110"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_OVERCHARGE{45}{5}{5}">
+        <Set DamageFactor="5360"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_OVERCHARGE{47.5}{5}{5}">
+        <Set DamageFactor="5600"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="9" Description="PERKDESCRIPTION_OVERCHARGE{50}{5}{5}">
+        <Set DamageFactor="5850"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_RICOCHET">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_RICOCHET{15}">
+        <Set Chance="0.15" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_RICOCHET{20}">
+        <Set Chance="0.2" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_RICOCHET{25}">
+        <Set Chance="0.25" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_RICOCHET{30}">
+        <Set Chance="0.3" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_RICOCHET{35}">
+        <Set Chance="0.35" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_RICOCHET{40}">
+        <Set Chance="0.4" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_RICOCHET{45}">
+        <Set Chance="0.45" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_RICOCHET{50}">
+        <Set Chance="0.50" DamageFactor="-100000" Frames="180"/>
+      </UpgradeLevel>
+    </Perk>
+    <Perk Name="PERK_DISORIENTATION">
+      <UpgradeLevel Value="1" Description="PERKDESCRIPTION_DISORIENTATION{30}{30}">
+        <Set Chance="0.3" DamageFactor="3785"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="2" Description="PERKDESCRIPTION_DISORIENTATION{35}{35}">
+        <Set Chance="0.35" DamageFactor="4330"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="3" Description="PERKDESCRIPTION_DISORIENTATION{40}{40}">
+        <Set Chance="0.4" DamageFactor="4855"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="4" Description="PERKDESCRIPTION_DISORIENTATION{45}{45}">
+        <Set Chance="0.45" DamageFactor="5360"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="5" Description="PERKDESCRIPTION_DISORIENTATION{50}{50}">
+        <Set Chance="0.5" DamageFactor="5850"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="6" Description="PERKDESCRIPTION_DISORIENTATION{55}{55}">
+        <Set Chance="0.55" DamageFactor="6325"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="7" Description="PERKDESCRIPTION_DISORIENTATION{60}{60}">
+        <Set Chance="0.60" DamageFactor="6781"/>
+      </UpgradeLevel>
+      <UpgradeLevel Value="8" Description="PERKDESCRIPTION_DISORIENTATION{65}{65}">
+        <Set Chance="0.65" DamageFactor="7225"/>
+      </UpgradeLevel>
+    </Perk>
+  </Perks>
+  <MoneyBaseValues>
+    <Level Max="2" Value="160"/>
+    <Level Min="3" Max="3" Value="240"/>
+    <Level Min="4" Max="4" Value="340"/>
+    <Level Min="5" Max="5" Value="460"/>
+    <Level Min="6" Max="6" Value="600"/>
+    <Level Min="7" Max="7" Value="600"/>
+    <Level Min="8" Max="8" Value="800"/>
+    <Level Min="9" Max="9" Value="1200"/>
+    <Level Min="10" Max="10" Value="1700"/>
+    <Level Min="11" Max="11" Value="2300"/>
+    <Level Min="12" Max="12" Value="3000"/>
+    <Level Min="13" Max="13" Value="3000"/>
+    <Level Min="14" Max="14" Value="4000"/>
+    <Level Min="15" Max="15" Value="6000"/>
+    <Level Min="16" Max="16" Value="8500"/>
+    <Level Min="17" Max="17" Value="11500"/>
+    <Level Min="18" Max="18" Value="15000"/>
+    <Level Min="19" Max="19" Value="15000"/>
+    <Level Min="20" Max="20" Value="20000"/>
+    <Level Min="21" Max="21" Value="30000"/>
+    <Level Min="22" Max="22" Value="42500"/>
+    <Level Min="23" Max="23" Value="57500"/>
+    <Level Min="24" Max="24" Value="75000"/>
+    <Level Min="25" Max="25" Value="75000"/>
+    <Level Min="26" Max="26" Value="100000"/>
+    <Level Min="27" Max="27" Value="150000"/>
+    <Level Min="28" Max="28" Value="212500"/>
+    <Level Min="29" Max="29" Value="287500"/>
+    <Level Min="30" Max="30" Value="375000"/>
+    <Level Min="31" Max="31" Value="375000"/>
+    <Level Min="32" Max="32" Value="500000"/>
+    <Level Min="33" Max="33" Value="750000"/>
+    <Level Min="34" Max="34" Value="1062500"/>
+    <Level Min="35" Max="35" Value="1437500"/>
+    <Level Min="36" Max="36" Value="1875000"/>
+    <Level Min="37" Max="37" Value="1875000"/>
+    <Level Min="38" Max="38" Value="10000000"/>
+    <Level Min="39" Max="39" Value="55000000"/>
+    <Level Min="40" Max="40" Value="302500000"/>
+    <Level Min="41" Max="41" Value="1663800000"/>
+    <Level Min="42" Max="42" Value="9150600000"/>
+    <Level Min="43" Max="43" Value="50328400000"/>
+    <Level Min="44" Max="44" Value="151526478467"/>
+    <Level Min="45" Max="45" Value="242442365547"/>
+    <Level Min="46" Max="46" Value="363663548320"/>
+    <Level Min="47" Max="47" Value="454579435400"/>
+    <Level Min="48" Max="48" Value="727327096640"/>
+    <Level Min="49" Max="49" Value="1090990644960"/>
+    <Level Min="50" Max="50" Value="1363738306200"/>
+    <Level Min="51" Max="51" Value="2181981289920"/>
+    <Level Min="52" Max="52" Value="3272971934880"/>
+    <Level Min="53" Value="3272971934880"/>
+  </MoneyBaseValues>
+  <CurrencyBaseValues>
+    <Currency Name="ForgeMaterial1">
+      <Level Max="2" Value="36"/>
+      <Level Min="3" Max="3" Value="43"/>
+      <Level Min="4" Max="4" Value="52"/>
+      <Level Min="5" Max="5" Value="62"/>
+      <Level Min="6" Max="6" Value="75"/>
+      <Level Min="7" Max="7" Value="90"/>
+      <Level Min="8" Max="8" Value="107"/>
+      <Level Min="9" Max="9" Value="129"/>
+      <Level Min="10" Max="10" Value="155"/>
+      <Level Min="11" Max="11" Value="186"/>
+      <Level Min="12" Max="12" Value="223"/>
+      <Level Min="13" Max="13" Value="267"/>
+      <Level Min="14" Max="14" Value="321"/>
+      <Level Min="15" Max="15" Value="385"/>
+      <Level Min="16" Max="16" Value="462"/>
+      <Level Min="17" Max="17" Value="555"/>
+      <Level Min="18" Max="18" Value="666"/>
+      <Level Min="19" Max="19" Value="799"/>
+      <Level Min="20" Max="20" Value="958"/>
+      <Level Min="21" Max="21" Value="1150"/>
+      <Level Min="22" Max="22" Value="1380"/>
+      <Level Min="23" Max="23" Value="1656"/>
+      <Level Min="24" Max="24" Value="1987"/>
+      <Level Min="25" Max="25" Value="2385"/>
+      <Level Min="26" Max="26" Value="2862"/>
+      <Level Min="27" Max="27" Value="3434"/>
+      <Level Min="28" Max="28" Value="4121"/>
+      <Level Min="29" Max="29" Value="4945"/>
+      <Level Min="30" Max="30" Value="5934"/>
+      <Level Min="31" Max="31" Value="7121"/>
+      <Level Min="32" Max="32" Value="8546"/>
+      <Level Min="33" Max="33" Value="10255"/>
+      <Level Min="34" Max="34" Value="12306"/>
+      <Level Min="35" Max="35" Value="14767"/>
+      <Level Min="36" Max="36" Value="17720"/>
+      <Level Min="37" Max="37" Value="21264"/>
+      <Level Min="38" Max="38" Value="25517"/>
+      <Level Min="39" Max="39" Value="30620"/>
+      <Level Min="40" Max="40" Value="36744"/>
+      <Level Min="41" Max="41" Value="44093"/>
+      <Level Min="42" Max="42" Value="52912"/>
+      <Level Min="43" Max="43" Value="63494"/>
+      <Level Min="44" Max="44" Value="75000"/>
+      <Level Min="45" Max="45" Value="90000"/>
+      <Level Min="46" Max="46" Value="108000"/>
+      <Level Min="47" Max="47" Value="129600"/>
+      <Level Min="48" Max="48" Value="155520"/>
+      <Level Min="49" Max="49" Value="186624"/>
+      <Level Min="50" Max="50" Value="223949"/>
+      <Level Min="51" Max="51" Value="268739"/>
+      <Level Min="52" Value="322486"/>
+    </Currency>
+    <Currency Name="ForgeMaterial2">
+      <Level Max="2" Value="10"/>
+      <Level Min="3" Max="3" Value="12"/>
+      <Level Min="4" Max="4" Value="14"/>
+      <Level Min="5" Max="5" Value="17"/>
+      <Level Min="6" Max="6" Value="20"/>
+      <Level Min="7" Max="7" Value="24"/>
+      <Level Min="8" Max="8" Value="29"/>
+      <Level Min="9" Max="9" Value="34"/>
+      <Level Min="10" Max="10" Value="41"/>
+      <Level Min="11" Max="11" Value="50"/>
+      <Level Min="12" Max="12" Value="59"/>
+      <Level Min="13" Max="13" Value="71"/>
+      <Level Min="14" Max="14" Value="86"/>
+      <Level Min="15" Max="15" Value="103"/>
+      <Level Min="16" Max="16" Value="123"/>
+      <Level Min="17" Max="17" Value="148"/>
+      <Level Min="18" Max="18" Value="177"/>
+      <Level Min="19" Max="19" Value="213"/>
+      <Level Min="20" Max="20" Value="256"/>
+      <Level Min="21" Max="21" Value="307"/>
+      <Level Min="22" Max="22" Value="368"/>
+      <Level Min="23" Max="23" Value="442"/>
+      <Level Min="24" Max="24" Value="530"/>
+      <Level Min="25" Max="25" Value="636"/>
+      <Level Min="26" Max="26" Value="763"/>
+      <Level Min="27" Max="27" Value="916"/>
+      <Level Min="28" Max="28" Value="1099"/>
+      <Level Min="29" Max="29" Value="1319"/>
+      <Level Min="30" Max="30" Value="1583"/>
+      <Level Min="31" Max="31" Value="1899"/>
+      <Level Min="32" Max="32" Value="2279"/>
+      <Level Min="33" Max="33" Value="2735"/>
+      <Level Min="34" Max="34" Value="3281"/>
+      <Level Min="35" Max="35" Value="3938"/>
+      <Level Min="36" Max="36" Value="4725"/>
+      <Level Min="37" Max="37" Value="5670"/>
+      <Level Min="38" Max="38" Value="6804"/>
+      <Level Min="39" Max="39" Value="8165"/>
+      <Level Min="40" Max="40" Value="9798"/>
+      <Level Min="41" Max="41" Value="11758"/>
+      <Level Min="42" Max="42" Value="14110"/>
+      <Level Min="43" Max="43" Value="16932"/>
+      <Level Min="44" Max="44" Value="20000"/>
+      <Level Min="45" Max="45" Value="24000"/>
+      <Level Min="46" Max="46" Value="28800"/>
+      <Level Min="47" Max="47" Value="34560"/>
+      <Level Min="48" Max="48" Value="41472"/>
+      <Level Min="49" Max="49" Value="49766"/>
+      <Level Min="50" Max="50" Value="59720"/>
+      <Level Min="51" Max="51" Value="71664"/>
+      <Level Min="52" Value="85996"/>
+    </Currency>
+    <Currency Name="ForgeMaterial3">
+      <Level Max="2" Value="5"/>
+      <Level Min="3" Max="3" Value="6"/>
+      <Level Min="4" Max="4" Value="7"/>
+      <Level Min="5" Max="5" Value="8"/>
+      <Level Min="6" Max="6" Value="10"/>
+      <Level Min="7" Max="7" Value="12"/>
+      <Level Min="8" Max="8" Value="14"/>
+      <Level Min="9" Max="9" Value="17"/>
+      <Level Min="10" Max="10" Value="21"/>
+      <Level Min="11" Max="11" Value="25"/>
+      <Level Min="12" Max="12" Value="30"/>
+      <Level Min="13" Max="13" Value="36"/>
+      <Level Min="14" Max="14" Value="43"/>
+      <Level Min="15" Max="15" Value="51"/>
+      <Level Min="16" Max="16" Value="62"/>
+      <Level Min="17" Max="17" Value="74"/>
+      <Level Min="18" Max="18" Value="89"/>
+      <Level Min="19" Max="19" Value="106"/>
+      <Level Min="20" Max="20" Value="128"/>
+      <Level Min="21" Max="21" Value="153"/>
+      <Level Min="22" Max="22" Value="184"/>
+      <Level Min="23" Max="23" Value="221"/>
+      <Level Min="24" Max="24" Value="265"/>
+      <Level Min="25" Max="25" Value="318"/>
+      <Level Min="26" Max="26" Value="382"/>
+      <Level Min="27" Max="27" Value="458"/>
+      <Level Min="28" Max="28" Value="549"/>
+      <Level Min="29" Max="29" Value="659"/>
+      <Level Min="30" Max="30" Value="791"/>
+      <Level Min="31" Max="31" Value="950"/>
+      <Level Min="32" Max="32" Value="1139"/>
+      <Level Min="33" Max="33" Value="1367"/>
+      <Level Min="34" Max="34" Value="1641"/>
+      <Level Min="35" Max="35" Value="1969"/>
+      <Level Min="36" Max="36" Value="2363"/>
+      <Level Min="37" Max="37" Value="2835"/>
+      <Level Min="38" Max="38" Value="3402"/>
+      <Level Min="39" Max="39" Value="4083"/>
+      <Level Min="40" Max="40" Value="4899"/>
+      <Level Min="41" Max="41" Value="5879"/>
+      <Level Min="42" Max="42" Value="7055"/>
+      <Level Min="43" Max="43" Value="8466"/>
+      <Level Min="44" Max="44" Value="10000"/>
+      <Level Min="45" Max="45" Value="12000"/>
+      <Level Min="46" Max="46" Value="14400"/>
+      <Level Min="47" Max="47" Value="17280"/>
+      <Level Min="48" Max="48" Value="20736"/>
+      <Level Min="49" Max="49" Value="24883"/>
+      <Level Min="50" Max="50" Value="29860"/>
+      <Level Min="51" Max="51" Value="35832"/>
+      <Level Min="52" Value="42998"/>
+    </Currency>
+  </CurrencyBaseValues>
+</Progress>

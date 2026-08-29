@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="StartMiniEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StartMiniEvent"/>
+    </Conditions>
+    <Actions>
+      <Run Name="MiniEventVars"/>
+      <ToggleItems Label="RAID_EVENT" Toggle="off"/>
+      <ClearQuestQueue Name="MiniEventAnnounce"/>
+      <Run Name="MiniEventAnnounce"/>
+    </Actions>
+  </Quest>
+  <Quest Name="EndMiniEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="EndMiniEvent"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_EVENT" Toggle="off"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ProlongMiniEvent" Priority="999">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="ProlongMiniEvent"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_EVENT" Toggle="on"/>
+      <Run Name="UpdateMiniEventBossTime"/>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniEventVars">
+    <Actions>
+      <SetVariable Scope="Users" Name="EraseMeAsWell" Value="1"/>
+      <SetVariable Scope="Users" Name="MiniEventKeyIcon" Value="RitualVulcanKey.big"/>
+      <SetVariable Scope="Users" Name="MiniEventBossBattleName" Value="ZONE_RAID|RAIDBOSS_LAMB|"/>
+      <SetVariable Scope="Users" Name="MiniEventBossName" Value="RAIDBOSS_LAMB"/>
+    </Actions>
+  </Quest>
+  <Quest Name="UpdateMiniEventBossTime" Priority="9000">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_MiniEventActive" Value2="1"/>
+      <Equal Value1="_MiniEventStory" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <Run Name="HideAllMiniEventBosses"/>
+      <SetBattleVisibility Name="_MiniEventBossBattleName" IsVisible="1"/>
+      <ShowBattleForPeriod BattleName="_MiniEventBossBattleName" EndTime="_MiniEventEnd"/>
+      <SetMapFocus Battle="_MiniEventBossBattleName"/>
+    </Actions>
+  </Quest>
+  <Quest Name="HideAllMiniEventBosses">
+    <Actions>
+      <SetMapFocus Battle="ZONE_RAID|BOSS_1|"/>
+      <SetBattleVisibility Name="_MiniEventBossBattleName" IsVisible="0"/>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniEventAnnounce" Priority="900">
+    <Events>
+      <Activate/>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Equal Value1="_$ActionID" Value2="StartMiniEvent"/>
+        <Operator Type="Or">
+          <Operator Type="And">
+            <Equal Value1="_$SceneFrom" Value2="Dojo"/>
+            <Operator Type="Or">
+              <Equal Value1="_$SceneTo" Value2="Shop"/>
+              <Equal Value1="_$SceneTo" Value2="Map"/>
+            </Operator>
+          </Operator>
+          <Operator Type="And">
+            <Equal Value1="_$SceneFrom" Value2="Map"/>
+            <Operator Type="Or">
+              <Equal Value1="_$SceneTo" Value2="Shop"/>
+              <Equal Value1="_$SceneTo" Value2="Dojo"/>
+            </Operator>
+          </Operator>
+        </Operator>
+      </Operator>
+      <Less Value1="?SysInfo[].Time" Value2="_MiniEventEnd"/>
+      <Equal Value1="_MiniEventAnnounce" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="RAID_EVENT" Toggle="on"/>
+      <Dialog Type="NoAvatar" Title="MiniEventAnnounceTitle">
+        <Line Text="MiniEventAnnounce"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore">
+          <SetVariable Scope="Users" Name="MiniEventAnnounce" Value="1"/>
+          <ConnectToRaids>
+            <Success>
+              <ChangeScene Destination="Map" CallEvents="false"/>
+              <ChangeTab Tab="RaidMapStage"/>
+              <GiveGift Name="_MiniEventGift" Value="1" Recurring="0" Sound="snd_buy"/>
+              <Run Name="MiniEventStory"/>
+              <ClearQuestQueue Name="MiniEventStory"/>
+            </Success>
+            <Error>
+              <Activate ActionID="CheckOnline"/>
+            </Error>
+          </ConnectToRaids>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniEventStory" Priority="9999">
+    <Events>
+      <RaidMapEnter/>
+    </Events>
+    <Conditions>
+      <Less Value1="?SysInfo[].Time" Value2="_MiniEventEnd"/>
+      <Equal Value1="_MiniEventStory" Value2="0"/>
+      <Equal Value1="_MiniEventAnnounce" Value2="1"/>
+    </Conditions>
+    <Actions>
+      <ChangeTab Tab="RaidMapStage"/>
+      <OpenRaidZone Index="0"/>
+      <Dialog Type="Multiline" Image="character_pristess_vulcan" Title="characterMiniEventPriestess" ContentOffsetX="130">
+        <Line Text="MiniEventVulkanStory_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Multiline" Image="character_pristess_vulcan" Title="characterMiniEventPriestess" ContentOffsetX="130">
+        <Line Text="MiniEventVulkanStory_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <ToggleItems Label="RAID_EVENT" Toggle="on"/>
+      <SetBattleVisibility Name="_MiniEventBossBattleName" IsVisible="1"/>
+      <SetVariable Scope="Users" Name="MiniEventStory" Value="1"/>
+      <Run Name="MiniRaidBossKeyInfo"/>
+      <Run Name="UpdateMiniEventBossTime"/>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniEventFightEnter" Priority="1">
+    <Events>
+      <BeforeQueue/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$Raid" Value2="_MiniEventBossName"/>
+      <Equal Value1="_MiniEventFightEnter" Value2="0"/>
+    </Conditions>
+    <Actions>
+      <Dialog Type="Multiline" Title="RAIDBOSS_LAMB_Title" ContentOffsetX="120" Image="boss_lamb_vulcan">
+        <Line Text="MiniEventVulkanFight_Enter_1"/>
+        <Button Type="Right" Color="Beige" Text="OK">
+          <JoinRaidBattle Name="_MiniEventBossBattleName"/>
+        </Button>
+      </Dialog>
+      <SetVariable Scope="Users" Name="MiniEventFightEnter" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniEventFightWin">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$RaidResult" Value2="Win"/>
+      <Equal Value1="_EventFightWin" Value2="0"/>
+      <Equal Value1="_$Raid" Value2="_MiniEventBossName "/>
+    </Conditions>
+    <Actions>
+      <ChangeTab Tab="RaidMapStage"/>
+      <OpenRaidZone Index="0"/>
+      <Dialog Type="Multiline" Image="boss_lamb_vulcan" Title="RAIDBOSS_LAMB_Title" ContentOffsetX="100">
+        <Line Text="MiniEventVulkan_Win_1"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <Dialog Type="Multiline" Image="character_pristess_vulcan" Title="characterMiniEventPriestess" ContentOffsetX="100">
+        <Line Text="MiniEventVulkan_Win_2"/>
+        <Button Type="Right" Color="Beige" Text="dlgStoryBtnMore"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="MiniEventFightWin" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniEventFightLose">
+    <Events>
+      <RaidEnd/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_MiniEventFightLose" Value2="0"/>
+      <Equal Value1="_$RaidResult" Value2="Loss"/>
+      <Equal Value1="_$Raid" Value2="_MiniEventBossName"/>
+    </Conditions>
+    <Actions>
+      <ChangeTab Tab="RaidMapStage"/>
+      <Dialog Type="Multiline" Image="boss_lamb_vulcan" ContentOffsetX="100" Title="RAIDBOSS_LAMB_Title">
+        <Line Text="MiniEventVulkan_Loss_1"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <Dialog Type="Multiline" Image="character_pristess_vulcan" ContentOffsetX="100" Title="characterMiniEventPriestess">
+        <Line Text="MiniEventVulkan_Loss_2"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+      <SetVariable Scope="Users" Name="MiniEventFightLose" Value="1"/>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniEventGiftChecker" Priority="100" Unresumable="0">
+    <Events>
+      <RaidLogin/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_RaidTutorialCompleted" Value2="1"/>
+      <Equal Value1="?Player[].IsLoggedInRaids" Value2="1"/>
+      <Less Value1="?SysInfo[].Time" Value2="_MiniEventEnd"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="_MiniEventAnnounce" Value2="1"/>
+          <Equal Value1="?RaidGift[_MiniEventGift].Received" Value2="0"/>
+        </Conditions>
+        <Then>
+          <GiveGift Name="_MiniEventGift" Value="1" Recurring="0" Sound="snd_buy"/>
+        </Then>
+      </If>
+    </Actions>
+  </Quest>
+  <Quest Name="MiniRaidBossKeyInfo" Priority="1">
+    <Actions>
+      <Dialog Type="Regular" Image="_MiniEventKeyIcon" Title="Pile_KeyRitualEvent" ImageScale="0.8" ImageOffsetX="-50">
+        <Line Text="dlgMiniEventKeys"/>
+        <Button Type="Right" Color="Beige" Text="OK"/>
+      </Dialog>
+    </Actions>
+  </Quest>
+</Quests>

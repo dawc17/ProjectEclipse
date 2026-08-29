@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x020101" Wall="200" Floor="80" Width="1936" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="spaceship_bg" Path="Locations/spaceship/">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1536" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.20" Atlas="spaceship_atlas_layer1" Path="Locations/spaceship/">
+    <Image X="0" Y="-20" ClassName="layer1_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="spaceship_atlas_layer2" Path="Locations/spaceship/">
+    <Image X="0" Y="-20" ClassName="layer2_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="spaceship_atlas_layer4" Path="Locations/spaceship/">
+    <SimpleEffect X="19" Y="-8.5" Type="Picture" PictureLocation="local" ClassName="green-light" Width="229" Height="209">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="127" Y="-159" Type="Picture" PictureLocation="local" ClassName="blue_light" Width="282" Height="90">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <Image X="0" Y="-129" ClassName="clouds_light" Width="1536" Height="213"/>
+    <SimpleEffect X="-249" Y="-54" Type="Picture" PictureLocation="local" ClassName="spot_2" Width="28" Height="28">
+      <Transparency Offset="0">
+        <Point Period="2" Value="15" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-239" Y="-69" Type="Picture" PictureLocation="local" ClassName="spot_2" Width="28" Height="28">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-229" Y="-64" Type="Picture" PictureLocation="local" ClassName="spot_2" Width="28" Height="28">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-449.5" Y="31" Type="Picture" PictureLocation="local" ClassName="spot" Width="49" Height="48">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="2.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="230.5" Y="-90.25" Type="Picture" PictureLocation="local" ClassName="spot_1" Width="23" Height="25.5">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-234.5" Y="26.75" Type="Picture" PictureLocation="local" ClassName="spot_1" Width="23" Height="25.5">
+      <Transparency Offset="0">
+        <Point Period="1" Value="45" Ease="-1"/>
+        <Point Period="0.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="248" Y="-14" Type="Picture" PictureLocation="local" ClassName="spot_2" Width="28" Height="28">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="143" Y="-69" Type="Picture" PictureLocation="local" ClassName="spot_2" Width="28" Height="28">
+      <Transparency Offset="0">
+        <Point Period="3" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="231" Y="-64" Type="Picture" PictureLocation="local" ClassName="spot_2" Width="28" Height="28">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-24.5" Y="-130.25" Type="Picture" PictureLocation="local" ClassName="spot_1" Width="23" Height="25.5">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <SimpleEffect X="-34.5" Y="-120.25" Type="Picture" PictureLocation="local" ClassName="spot_1" Width="23" Height="25.5">
+      <Transparency Offset="0">
+        <Point Period="1.4" Value="45" Ease="-1"/>
+        <Point Period="1.5" Value="100" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.25" Atlas="spaceship_atlas_layer4_smoke" Path="Locations/spaceship/">
+    <Image X="0" Y="-50" ClassName="smoke2" Width="500" Height="175"/>
+    <Image X="0" Y="-190" ClassName="smoke_1" Width="1536" Height="240"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="spaceship_thorny_wall" Path="Locations/spaceship/" Scaling="1">
+    <Image X="-838" Y="10" ClassName="left_thorny" Width="225" Height="340" Color="0x020101"/>
+    <Image X="834" Y="10" ClassName="right_thorny" Width="225" Height="340" Color="0x020101"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="spaceship_atlas_layer4" Scaling="1" Path="Locations/spaceship/">
+    <Image X="-896" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="-640" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="-384" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="-128" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="128" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="384" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="640" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="896" Y="195" ClassName="floor" Width="256" Height="58" Color="0x020101"/>
+    <Image X="0" Y="440" ClassName="pixel_1" Width="2000" Height="510" Color="0x020101"/>
+  </Layer>
+</Root>

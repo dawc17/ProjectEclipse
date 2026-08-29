@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Color="0x000000" Wall="38" Floor="38" Width="1555" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="blackness_raid_bg">
+    <Image X="0" Y="-14" ClassName="bg" Width="1555" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.7" Atlas="blackness_raid_mid">
+    <Image X="0" Y="-14" ClassName="water" Width="1555" Height="512"/>
+  </Layer>
+  <Layer Type="1" Factor="0.3" Atlas="blackness_raid_bg">
+    <Image X="0" Y="-88" ClassName="farest_frees" Width="1555" Height="364"/>
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="blackness_raid_bg">
+    <Image X="0" Y="-88" ClassName="mid_trees" Width="1555" Height="366"/>
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="blackness_raid_bg">
+    <Image X="0" Y="-101" ClassName="trees_close_back" Width="1418" Height="338"/>
+  </Layer>
+  <Layer Type="1" Factor="0.5" Atlas="blackness_raid_bg">
+    <Image X="0" Y="-82" ClassName="trees_close_front" Width="1555" Height="376"/>
+  </Layer>
+  <Layer Type="1" Factor="0.65" Atlas="blackness_raid_mid">
+    <Image X="0" Y="-19" ClassName="rock" Width="1555" Height="505"/>
+  </Layer>
+  <Layer Type="1" Factor="0.8" Atlas="blackness_raid_mid">
+    <Image X="127" Y="-14" ClassName="gate" Width="816" Height="512"/>
+    <SimpleEffect X="-23" Y="-70" Type="Picture" ClassName="gate_part_1" PictureLocation="local" Width="65" Height="66">
+      <OscillationY Offset="0">
+        <Point Period="4" Value="0" Ease="-1"/>
+        <Point Period="4" Value="16" Ease="1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="-6" Y="-142" Type="Picture" ClassName="gate_part_2" PictureLocation="local" Width="29" Height="54">
+      <OscillationY Offset="0">
+        <Point Period="3" Value="0" Ease="-1"/>
+        <Point Period="3" Value="24" Ease="1"/>
+      </OscillationY>
+    </SimpleEffect>
+    <SimpleEffect X="369" Y="-118" Type="Picture" ClassName="gate_part_3" PictureLocation="local" Width="75" Height="99">
+      <OscillationY Offset="0">
+        <Point Period="5" Value="0" Ease="-1"/>
+        <Point Period="5" Value="30" Ease="1"/>
+      </OscillationY>
+    </SimpleEffect>
+  </Layer>
+  <Layer Type="1" Factor="0.9" Atlas="blackness_raid_main">
+    <Image X="0" Y="-18" ClassName="roots" Width="1555" Height="512"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="627" PlayerPositionY="-94" EnemyPositionX="957" EnemyPositionY="-94"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="blackness_raid_main" Scaling="1">
+    <Image X="0" Y="154" ClassName="game_zone_ground" Width="1556" Height="166"/>
+    <Image X="-546" Y="-21" ClassName="game_zone_wall_left" Width="512" Height="665"/>
+    <Image X="536" Y="-21" ClassName="game_zone_wall_right" Width="532" Height="665"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dojo_atlas_layer3" Path="Locations/dojo/" Scaling="1">
+    <Image X="0" Y="490" ClassName="pixel_1" Width="2000" Height="512" Color="0x000000" IsOpaque="1"/>
+    <Image X="-1036" Y="0" ClassName="pixel_1" Width="512" Height="2000" Color="0x000000" IsOpaque="1"/>
+    <Image X="1040" Y="0" ClassName="pixel_1" Width="512" Height="2000" Color="0x000000" IsOpaque="1"/>
+  </Layer>
+</Root>

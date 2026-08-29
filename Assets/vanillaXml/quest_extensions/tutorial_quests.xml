@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Quests>
+  <Quest Name="StoryTutorialWelcome" Priority="-10" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="NotStarted"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Dojo"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="tutorial_begin_1" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="tutorial_begin_2" ButtonText="dlgStoryBtnContinue"/>
+        <Button Type="Right" Color="White"/>
+      </Dialog>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].Switch Or ?SysInfo[].Steam" Value2="1"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Local" Name="NotificationTextMove" Value="?Concat[ tutorial_move_switch@{prefabid@:@:, ?FightControlHintIndex[].LeftStick, @} ]"/>
+          <SetVariable Scope="Local" Name="NotificationTextPunchBag" Value="?Concat[ tutorial_punchbag_switch@{prefabid@:@:, ?FightControlHintIndex[].B, @}@{prefabid@:@:, ?FightControlHintIndex[].A, @} ]"/>
+        </Then>
+        <Else>
+          <SetVariable Scope="Local" Name="NotificationTextMove" Value="tutorial_move"/>
+          <SetVariable Scope="Local" Name="NotificationTextPunchBag" Value="tutorial_punchbag"/>
+        </Else>
+      </If>
+      <Dialog Type="Notification" BlockRaycast="0" Image="character_sensei_small" IgnoreBack="1" ReadTime="5.0">
+        <Line Text="_NotificationTextMove"/>
+        <Button Type="Right" Color="White" Text="OK"/>
+      </Dialog>
+      <StoryTutorialMove/>
+      <Dialog Type="Notification" BlockRaycast="0" Image="character_sensei_small" IgnoreBack="1" ReadTime="5.0">
+        <Line Text="_NotificationTextPunchBag"/>
+        <Button Type="Right" Color="White" Text="OK"/>
+      </Dialog>
+      <StoryTutorialPunchbag/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="tutorial_training_fight" ButtonText="dlgStoryBtnFight"/>
+        <Button Type="Right" Color="White">
+          <SetStoryTutorialStep Value="FIGHT"/>
+          <Fight Name="Punchbag|Bosses|1"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialReturnToFight" Priority="-10" Unresumable="1">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="FIGHT"/>
+      <Operator Type="And" Not="1">
+        <Equal Value1="_$SceneFrom" Value2="Fight"/>
+        <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+        <Equal Value1="_$FightResult" Value2="Win"/>
+      </Operator>
+      <Equal Value1="_$SceneTo" Value2="Fight" Not="1"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="_$SceneTo"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="tutorial_training_fight" ButtonText="dlgStoryBtnFight"/>
+        <Button Type="Right" Color="White">
+          <Fight Name="Punchbag|Bosses|1"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialShop" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Operator Type="Or">
+        <Operator Type="And">
+          <Equal Value1="_$StoryTutorialStep" Value2="FIGHT"/>
+          <Equal Value1="_$SceneFrom" Value2="Fight"/>
+          <Equal Value1="?Fight[_$Fight].Zone" Value2="Punchbag"/>
+          <Equal Value1="_$FightResult" Value2="Win"/>
+        </Operator>
+        <Operator Type="And">
+          <Equal Value1="_$StoryTutorialStep" Value2="STEP_BUY_ITEM"/>
+          <Equal Value1="_$SceneTo" Value2="Fight" Not="1"/>
+          <Equal Value1="_$SceneTo" Value2="Shop" Not="1"/>
+        </Operator>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="_$SceneTo"/>
+      <SetStoryTutorialStep Value="STEP_BUY_ITEM"/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_shop"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Shop"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialBuyItem" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="STEP_BUY_ITEM"/>
+      <Equal Value1="_$SceneTo" Value2="Shop"/>
+    </Conditions>
+    <Actions>
+      <OpenShop Tab="?Purchase[WEAPON_KNIVES].Type" Item="WEAPON_KNIVES"/>
+      <StoryTutorialBuyItem/>
+      <SetStoryTutorialStep Value="MAP"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="tutorial_buy_knives" ButtonText="OK"/>
+        <Button Type="Right" Color="White"/>
+      </Dialog>
+      <SetVariable Scope="Global" Name="DelayBeforeOpenScene" Value="30"/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_map"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Map"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialRetryGoToMap" Unresumable="1" Priority="-100">
+    <Events>
+      <SceneLoaded/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="MAP"/>
+      <Equal Value1="_$SceneTo" Value2="Map" Not="1"/>
+      <Equal Value1="_$SceneTo" Value2="Fight" Not="1"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="_$SceneTo"/>
+      <Dialog Type="Regular" Title="characterSensei" Image="character_sensei" IgnoreBack="1">
+        <Line Text="tutorial_buy_knives" ButtonText="OK"/>
+        <Button Type="Right" Color="White"/>
+      </Dialog>
+      <SetVariable Scope="Global" Name="DelayBeforeOpenScene" Value="30"/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_map"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Map"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialBossFight" Unresumable="1" Priority="-100">
+    <Events>
+      <SceneLoaded/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="MAP"/>
+      <Equal Value1="_$SceneTo" Value2="Map"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Map"/>
+      <Wait Frames="1"/>
+      <SetMapFocus Battle="ZONE_1|BOSS_LYNX|1"/>
+      <ClickButton Target="InfoBattle.FightButton" UseFlashing="1" IgnoreCallback="1"/>
+      <ClearQuestQueue Name="StoryTutorialRetryGoToMap"/>
+      <Dialog Type="Regular" Title="characterLynx" Image="boss_lynx" IgnoreBack="1">
+        <Line Text="tutorial_boss_hello" ButtonText="dlgStoryBtnMore"/>
+        <Line Text="tutorial_boss_hello2" ButtonText="dlgStoryBtnFight"/>
+        <Button Type="Right" Color="White">
+          <Fight Name="ZONE_1|BOSS_LYNX|1"/>
+        </Button>
+      </Dialog>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialLearnPerk" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="LEARN_PERK"/>
+      <Equal Value1="_$SceneTo" Value2="Profile"/>
+      <GreaterEqual Value1="?Player[].Level" Value2="2"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Profile"/>
+      <StoryTutorialLearnPerk/>
+      <SetStoryTutorialStep Value="SHOW_DOUBLE_SWEEP"/>
+      <SetVariable Scope="Global" Name="DelayBeforeOpenScene" Value="30"/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_dojo_new_move"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Dojo"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialGoToDojo" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="SHOW_DOUBLE_SWEEP"/>
+      <Equal Value1="_$SceneTo" Value2="Dojo" Not="1"/>
+      <Equal Value1="_$SceneFrom" Value2="None" Not="1"/>
+      <Equal Value1="_$SceneFrom" Value2="Loader" Not="1"/>
+    </Conditions>
+    <Actions>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_dojo_new_move"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Dojo"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialGoToDojoFromLoader" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="SHOW_DOUBLE_SWEEP"/>
+      <Equal Value1="_$SceneTo" Value2="Dojo" Not="1"/>
+      <Operator Type="Or">
+        <Equal Value1="_$SceneFrom" Value2="None"/>
+        <Equal Value1="_$SceneFrom" Value2="Loader"/>
+      </Operator>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Dojo"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialDoubleSweep" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="SHOW_DOUBLE_SWEEP"/>
+      <Equal Value1="_$SceneTo" Value2="Dojo"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Dojo"/>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].Switch Or ?SysInfo[].Steam" Value2="1"/>
+        </Conditions>
+        <Then>
+          <SetVariable Scope="Local" Name="NotificationText" Value="?Concat[ tutorial_try_move_switch@{img@:@:ComboButtons.icon_down@}@{img::ComboButtons.icon_plus@}@{prefabid@:@:, ?FightControlHintIndex[].A, @}@{prefabid@:@:, ?FightControlHintIndex[].A, @} ]"/>
+        </Then>
+        <Else>
+          <SetVariable Scope="Local" Name="NotificationText" Value="tutorial_try_move{img::ComboButtons.icon_down}{img::ComboButtons.icon_plus}{img::ComboButtons.icon_kick}{img::ComboButtons.icon_kick}"/>
+        </Else>
+      </If>
+      <Dialog Type="Notification" BlockRaycast="0" Image="character_sensei_small" IgnoreBack="1" ReadTime="5.0">
+        <Line Text="_NotificationText"/>
+        <Button Type="Right" Color="White" Text="OK"/>
+      </Dialog>
+      <StoryTutorialDoubleSweep/>
+      <SetStoryTutorialStep Value="SHOW_BLOCK"/>
+      <SetVariable Scope="Global" Name="DelayBeforeOpenScene" Value="30"/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_profile_moves"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Profile"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialGoToProfile" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="SHOW_BLOCK"/>
+      <Equal Value1="_$SceneTo" Value2="Profile" Not="1"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="_$SceneTo"/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_profile_moves"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Profile"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialShowBlock" Unresumable="1" Priority="-100">
+    <Events>
+      <ChangeTab/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$StoryTutorialStep" Value2="SHOW_BLOCK"/>
+      <Equal Value1="_$SceneTo" Value2="Profile"/>
+    </Conditions>
+    <Actions>
+      <ChangeScene Destination="Profile"/>
+      <Dialog Type="Notification" BlockRaycast="0" Image="character_sensei_small" IgnoreBack="1">
+        <Line Text="tutorial_block"/>
+        <Button Type="Right" Color="White" Text="OK"/>
+      </Dialog>
+      <StoryTutorialShowBlock/>
+      <SetStoryTutorialStep Value="END"/>
+      <SetVariable Scope="Global" Name="DelayBeforeOpenScene" Value="30"/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value="tutorial_return_map"/>
+      <SetVariable Scope="Global" Name="NextScene" Value="Map"/>
+      <Activate ActionID="StoryTutorialOpenScene"/>
+      <Run Name="LocalDaily_Locate_Button"/>
+    </Actions>
+  </Quest>
+  <Quest Name="StoryTutorialOpenScene" Unresumable="1" Priority="-1000">
+    <Events>
+      <Activate/>
+    </Events>
+    <Conditions>
+      <Equal Value1="_$ActionID" Value2="StoryTutorialOpenScene"/>
+    </Conditions>
+    <Actions>
+      <If>
+        <Conditions>
+          <Equal Value1="?SysInfo[].Steam Or ?SysInfo[].Switch" Value2="1"/>
+        </Conditions>
+        <Then>
+          <If>
+            <Conditions>
+              <Equal Not="1" Value1="_DelayBeforeOpenScene" Value2=""/>
+            </Conditions>
+            <Then>
+              <Wait Frames="_DelayBeforeOpenScene"/>
+            </Then>
+          </If>
+          <If>
+            <Conditions>
+              <Equal Not="1" Value1="_SenseiDialogText" Value2=""/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Regular" Title="characterSensei" Image="character_sensei">
+                <Line Text="_SenseiDialogText"/>
+                <Button Type="Right" Color="Beige" Text="OK"/>
+              </Dialog>
+            </Then>
+          </If>
+          <If>
+            <Conditions>
+              <Equal Not="1" Value1="_NextScene" Value2=""/>
+            </Conditions>
+            <Then>
+              <ClickHint Target="HintList.Common_Menu" UseArrow="1" ArrowOffsetX="0" ArrowOffsetY="60" ArrowRotation="180" SkipClickDelay="8"/>
+              <SceneMenuScroll Action="Open"/>
+              <ClickButton Target="?Concat[SceneMenuScroll.,_NextScene]" UseFlashing="1"/>
+            </Then>
+          </If>
+        </Then>
+        <Else>
+          <If>
+            <Conditions>
+              <Equal Not="1" Value1="_SenseiDialogText" Value2=""/>
+            </Conditions>
+            <Then>
+              <Dialog Type="Notification" BlockRaycast="0" Image="character_sensei_small" IgnoreBack="1" ReadTime="5.0">
+                <Line Text="_SenseiDialogText"/>
+                <Button Type="Right" Color="White" Text="OK"/>
+              </Dialog>
+            </Then>
+          </If>
+          <If>
+            <Conditions>
+              <Equal Not="1" Value1="_NextScene" Value2=""/>
+            </Conditions>
+            <Then>
+              <MenuBtnFlashing BtnName="_NextScene"/>
+            </Then>
+          </If>
+        </Else>
+      </If>
+      <SetVariable Scope="Global" Name="DelayBeforeOpenScene" Value=""/>
+      <SetVariable Scope="Global" Name="SenseiDialogText" Value=""/>
+      <SetVariable Scope="Global" Name="NextScene" Value=""/>
+    </Actions>
+  </Quest>
+</Quests>
