@@ -110,16 +110,16 @@ namespace Nekki.SF2.GUI.Dialogs
 			Init("Settings_Advanced_Title", "Settings_Advanced", "Settings_Back", KBDHPMOMJLL.FOOTER_CANCEL);
 		}
 
-			protected override void HLJBLAPMDCB()
-			{
-				BBDGOPHHDBJ();
-				EBNPPFKKPLD();
-					GetDesktopRenderSettings().Setup();
-				AABKDFHHFOF();
-				GPLBHPLJNAE();
-				LMAAIDIDNEF();
-				ALBPEOFFDKK();
-			}
+		protected override void HLJBLAPMDCB()
+		{
+			BBDGOPHHDBJ();
+			EBNPPFKKPLD();
+			GetDesktopRenderSettings().Setup();
+			AABKDFHHFOF();
+			GPLBHPLJNAE();
+			LMAAIDIDNEF();
+			ALBPEOFFDKK();
+		}
 
 		protected override void FLOHKIBCOKG()
 		{
@@ -171,12 +171,12 @@ namespace Nekki.SF2.GUI.Dialogs
 					NPMFPLFMFMI();
 				}
 				break;
-				case AHDEAELNGBD.BTN_LOCATION_RESOLUTION:
-					GraphicsController.FELIOKHNIKI();
-					GDPCOKJGAJO();
-					break;
-					}
+			case AHDEAELNGBD.BTN_LOCATION_RESOLUTION:
+				GraphicsController.FELIOKHNIKI();
+				GDPCOKJGAJO();
+				break;
 			}
+		}
 
 		public override void OnClose(object data)
 		{
