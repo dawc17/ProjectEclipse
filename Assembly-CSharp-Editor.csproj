@@ -1074,6 +1074,10 @@
       <Project>{5BB7E9B2-DAAC-E6A6-6D4C-F52FF86D00FA}</Project>
       <Name>Assembly-CSharp</Name>
     </ProjectReference>
+    <ProjectReference Include="SF2DE.Runtime.csproj">
+      <Project>{DC90723D-EECD-372A-D545-A7F5B4923F53}</Project>
+      <Name>SF2DE.Runtime</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
