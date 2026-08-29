@@ -10,7 +10,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{DC90723D-EECD-372A-D545-A7F5B4923F53}</ProjectGuid>
+    <ProjectGuid>{9DA2A941-775F-E6E2-69B7-F33DBC0347A9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Eclipse.Runtime</AssemblyName>
@@ -60,10 +60,10 @@
     <Analyzer Include="F:\UnityInstalls\2022.3.62f3\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineServices.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineStoreData.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\MotionBlur\SF2MotionBlur.cs" />
-    <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineStoreData.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineServices.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Scripts\Eclipse\Runtime\Eclipse.Runtime.asmdef" />
