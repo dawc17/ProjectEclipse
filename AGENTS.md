@@ -10,6 +10,12 @@ make narrow, evidence-based changes and preserve serialized Unity identity.
 
 - `Assets/Scripts/Assembly-CSharp/` — main recovered game C# source.
 - `Assets/Plugins/Assembly-CSharp-firstpass/` — recovered firstpass C# source.
+- `Assets/Scripts/SF2DE/` — project-owned reconstruction, desktop, compatibility,
+  and presentation code. Keep SF2DE-owned source here, not under `Assets/Plugins/`.
+- `Assets/Scripts/SF2DE/Runtime/` — project-owned code that must be visible to
+  both recovered predefined assemblies. It is compiled by `SF2DE.Runtime.asmdef`;
+  keep this assembly independent of recovered `Assembly-CSharp` types to avoid
+  circular assembly dependencies.
 - `Assets/Editor/` — Unity editor validation/import tools.
 - `Assets/xml/` and `Assets/Resources/` — game configuration and recovered
   resources; XML and resource paths are often runtime contracts.
@@ -22,6 +28,8 @@ make narrow, evidence-based changes and preserve serialized Unity identity.
 
 - Keep changes scoped to the requested issue. Do not reformat, rename, or
   "clean up" unrelated recovered/decompiled code.
+- Treat `Assets/Plugins/` as recovered/legacy plugin territory. Do not add new
+  SF2DE-owned runtime source there.
 - Preserve every Unity `.meta` file and its GUID. When moving or renaming an
   asset or script, move its `.meta` file with it; never regenerate GUIDs unless
   the task explicitly requires a new asset.
