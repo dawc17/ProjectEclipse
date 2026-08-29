@@ -9,7 +9,7 @@ using Nekki.SF2.GUI;
 using Nekki.SF2.GUI.Fight;
 using Nekki.SF2.GUI.Map;
 using Nekki.SF2.GUI.Shop;
-using SF2DE.Underworld;
+using SF2DE.Underworld.Diagnostics;
 using UnityEngine;
 
 public static class GameUtils
@@ -1852,32 +1852,8 @@ public static class GameUtils
 			UnityEngine.Debug.LogError("[Fight] '" + jDIPBIHBGPF.Name +
 				"' contained no usable enemies; using a player-equipment compatibility opponent.");
 		}
-		LogUnderworldRaidEnemies(jDIPBIHBGPF, kIKOGDEPGHB, list);
+		UnderworldRaidDiagnostics.LogEnemies(jDIPBIHBGPF, kIKOGDEPGHB, list);
 		return new Fight(jDIPBIHBGPF, kIKOGDEPGHB, list, preFight, LPGANKOAPJL);
-	}
-
-	// Keep the reference XML's WarriorPower, equipment and AttributesAlign.
-	// Replacing them with arbitrary player-relative offsets erased boss tiers
-	// and made equipment upgrades ineffective. Alignment is evaluated at hit time.
-	private static void LogUnderworldRaidEnemies(FightList fight, ModelParameters player, List<ModelParameters> enemies)
-	{
-		Battle battle = fight.CNAOMDMIGLJ;
-		Zone zone = battle == null ? null : battle.OAEIILGHJMG;
-		if (!UnderworldZonePolicy.IsRaidZone(zone))
-			return;
-		foreach (ModelParameters enemy in enemies)
-		{
-			int weapon = 0, defense = 0, playerWeapon = 0, playerDefense = 0;
-			enemy.IBLHIAHECLK.Get("WeaponDamage", ref weapon);
-			enemy.IBLHIAHECLK.Get("BodyDefense", ref defense);
-			player.IBLHIAHECLK.Get("WeaponDamage", ref playerWeapon);
-			player.IBLHIAHECLK.Get("BodyDefense", ref playerDefense);
-			UnityEngine.Debug.Log("[Underworld] battle=" + battle.get_Name() +
-				" warriorPower=" + enemy.FPIMGHKNHMO + " healthBars=" + enemy.HealthBarCount +
-				" bossWeapon=" + weapon + " bossDefense=" + defense +
-				" playerWeapon=" + playerWeapon + " playerDefense=" + playerDefense +
-				" alignmentRules=" + enemy.FKJBBIMPCBB.Count);
-		}
 	}
 
 	public static void MHMGONPIPKG(Battle DPOOIONCEOA)
