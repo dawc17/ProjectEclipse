@@ -382,6 +382,7 @@
     <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidShieldBar.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarTransition.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarStyle.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldMapBattlePresentation.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Underworld\Diagnostics\UnderworldRaidDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSet.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NKOOJDKHHBD.cs" />

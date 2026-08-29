@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SF2DE.Underworld;
+using SF2DE.Underworld.UI;
 using UnityEngine;
 
 namespace Nekki.SF2.GUI.Map
@@ -117,7 +117,7 @@ namespace Nekki.SF2.GUI.Map
 			int num = 0;
 			foreach (Battle item in lGIIBNJFADA)
 			{
-				if (item.DCHJDPCEODD && IsBattleVisibleForRaidMode(item))
+				if (item.DCHJDPCEODD && UnderworldMapBattlePresentation.IsBattleVisible(item, CODCAENBFHK, _raidPowerMode))
 				{
 					flag = true;
 					break;
@@ -129,7 +129,7 @@ namespace Nekki.SF2.GUI.Map
 
 		public void SelectBattle()
 		{
-			if (MMDKAHMBPHH == null || !MMDKAHMBPHH.DCHJDPCEODD || !IsBattleVisibleForRaidMode(MMDKAHMBPHH))
+			if (MMDKAHMBPHH == null || !MMDKAHMBPHH.DCHJDPCEODD || !UnderworldMapBattlePresentation.IsBattleVisible(MMDKAHMBPHH, CODCAENBFHK, _raidPowerMode))
 			{
 				SelectFirstBattle();
 			}
@@ -181,7 +181,7 @@ namespace Nekki.SF2.GUI.Map
 			for (int count = _buttons.Count; i < count; i++)
 			{
 				Battle battle = _buttons[i].get_Battle();
-				bool flag = value && !battle.KBPNDJPMCCG() && IsBattleVisibleForRaidMode(battle);
+				bool flag = value && !battle.KBPNDJPMCCG() && UnderworldMapBattlePresentation.IsBattleVisible(battle, CODCAENBFHK, _raidPowerMode);
 				_buttons[i].enabled = flag;
 			}
 		}
@@ -193,22 +193,12 @@ namespace Nekki.SF2.GUI.Map
 			{
 				Battle battle = button.get_Battle();
 				button.gameObject.SetActive(battle.DCHJDPCEODD && !battle.KBPNDJPMCCG() &&
-					IsBattleVisibleForRaidMode(battle));
+					UnderworldMapBattlePresentation.IsBattleVisible(battle, CODCAENBFHK, _raidPowerMode));
 			}
-			if (MMDKAHMBPHH == null || !IsBattleVisibleForRaidMode(MMDKAHMBPHH))
+			if (MMDKAHMBPHH == null || !UnderworldMapBattlePresentation.IsBattleVisible(MMDKAHMBPHH, CODCAENBFHK, _raidPowerMode))
 			{
 				SelectFirstBattle();
 			}
-		}
-
-		private bool IsBattleVisibleForRaidMode(Battle battle)
-		{
-			if (battle == null || !UnderworldZonePolicy.IsRaidZone(CODCAENBFHK))
-			{
-				return true;
-			}
-			bool hardMode = battle.get_Name().EndsWith("_HARDMODE", StringComparison.OrdinalIgnoreCase);
-			return hardMode == _raidPowerMode;
 		}
 
 		public void ActiveBattle(string GGNFBODEOMM, bool PEJELKNFEKJ, bool HCNBLJBAOHK = true, bool DPFMIACNGLL = false)
@@ -359,7 +349,7 @@ namespace Nekki.SF2.GUI.Map
 					item.set_Hidden(flag);
 				}
 				item.gameObject.SetActive(item.get_Battle().DCHJDPCEODD && !flag &&
-					IsBattleVisibleForRaidMode(item.get_Battle()));
+					UnderworldMapBattlePresentation.IsBattleVisible(item.get_Battle(), CODCAENBFHK, _raidPowerMode));
 				bool activeBattle = item.get_Battle() == MMDKAHMBPHH;
 				item.SetActiveBattle(activeBattle);
 			}
@@ -378,13 +368,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				text = "7";
 			}
-			else if (text == "Raid1.1" || text == "Raid1.2" ||
-				text == "Raid1.3" || text == "Raid2.1")
-			{
-				// The reference export suffixes the full-resolution raid crop with
-				// _0; the unsuffixed duplicate points at the half-size low atlas.
-				text += "_0";
-			}
+			text = UnderworldMapBattlePresentation.ResolveZoneSpriteName(text);
 			component.set_SpriteName(text);
 			component.color = _maskColor;
 		}
@@ -409,11 +393,8 @@ namespace Nekki.SF2.GUI.Map
 			RosterBattle dDNLCGOPAGC = DPOOIONCEOA.NNPNEABKHPP();
 			bool flag = dDNLCGOPAGC != null && dDNLCGOPAGC.NLIJBCHAEBK();
 			bool hidden = dDNLCGOPAGC != null && dDNLCGOPAGC.KAPIELMDIIK();
-			string iconAtlas = DPOOIONCEOA.GetIconAtlas();
-			if (string.IsNullOrEmpty(iconAtlas) && UnderworldZonePolicy.IsRaidZone(CODCAENBFHK))
-			{
-				iconAtlas = "BattleBtn_raid";
-			}
+			string iconAtlas = UnderworldMapBattlePresentation.ResolveBattleIconAtlas(
+				CODCAENBFHK, DPOOIONCEOA.GetIconAtlas());
 			BattleButton battleButton = OHDFPIADEIG(DPOOIONCEOA.MIDPFGENBCF(), DPOOIONCEOA.CCALOKFBLMC(), DPOOIONCEOA.OAIJONICMKL(), DPOOIONCEOA.JCBOGEGKLKB(), DPOOIONCEOA.GMBFCAIINAD(), flag, iconAtlas);
 			battleButton.onClick.AddListener(() =>
 			{
