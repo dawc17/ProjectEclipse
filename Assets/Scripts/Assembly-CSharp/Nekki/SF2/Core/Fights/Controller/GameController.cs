@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Nekki.SF2.GUI;
+using SF2DE.Input;
 using UnityEngine;
 
 namespace Nekki.SF2.Core.Fights.Controller
@@ -53,17 +54,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		private bool JKDKBHNKCPH;
 
-		private const float GamepadDeadZone = 0.35f;
-
-		private FightCID _gamepadDirection = FightCID.QuadrantZero;
-
-		private bool _gamepadPunchPressed;
-
-		private bool _gamepadKickPressed;
-
-		private bool _gamepadRangedPressed;
-
-		private bool _gamepadMagicPressed;
+		private FightGamepadInput _gamepadInput;
 
 		public static GameController BLOOLFFMKFI
 		{
@@ -95,7 +86,10 @@ namespace Nekki.SF2.Core.Fights.Controller
 		private void Update()
 		{
 			NBMONJPAMHI.Render();
-			RenderGamepad();
+			if (JKDKBHNKCPH)
+			{
+				GetGamepadInput().Poll();
+			}
 		}
 
 		public void Init(bool DFDCOMCCEEP = true, bool GJHOPBBMHDA = true, bool BIMHGOMADEJ = true)
@@ -347,135 +341,26 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		private void HMGCHHIOPEP()
 		{
-			_gamepadDirection = FightCID.QuadrantZero;
-			_gamepadPunchPressed = false;
-			_gamepadKickPressed = false;
-			_gamepadRangedPressed = false;
-			_gamepadMagicPressed = false;
+			GetGamepadInput().Reset();
 		}
 
 		private void BFMNHIPMDMG(bool value)
 		{
 			if (!value && JKDKBHNKCPH)
 			{
-				ReleaseGamepadControls();
+				GetGamepadInput().ReleaseAll();
 			}
 			JKDKBHNKCPH = value;
 			NBMONJPAMHI.DCHJDPCEODD = value;
 		}
 
-		private void RenderGamepad()
+		private FightGamepadInput GetGamepadInput()
 		{
-			if (!JKDKBHNKCPH)
+			if (_gamepadInput == null)
 			{
-				return;
+				_gamepadInput = new FightGamepadInput(IsQuadrantEnabled, SendGamepadControlEvent);
 			}
-
-			Vector2 dpad = GamePad.CNNMBBLLGNE(GamePad.LCNPGEANNDP.Dpad, GamePad.GGAKHLLMPMM.One, true);
-			Vector2 leftStick = GamePad.CNNMBBLLGNE(GamePad.LCNPGEANNDP.LeftStick, GamePad.GGAKHLLMPMM.One, true);
-			Vector2 movement = dpad.sqrMagnitude >= GamepadDeadZone * GamepadDeadZone ? dpad : leftStick;
-			SetGamepadDirection(GetGamepadDirection(movement));
-
-			SetGamepadButton(ref _gamepadPunchPressed, GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.X, GamePad.GGAKHLLMPMM.One), FightCID.Punch);
-			SetGamepadButton(ref _gamepadKickPressed, GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.A, GamePad.GGAKHLLMPMM.One), FightCID.Kick);
-			SetGamepadButton(ref _gamepadRangedPressed, GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.B, GamePad.GGAKHLLMPMM.One), FightCID.MissileButton);
-			SetGamepadButton(ref _gamepadMagicPressed, GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.Y, GamePad.GGAKHLLMPMM.One), FightCID.MagicButton);
-		}
-
-		private static FightCID GetGamepadDirection(Vector2 direction)
-		{
-			if (direction.sqrMagnitude < GamepadDeadZone * GamepadDeadZone)
-			{
-				return FightCID.QuadrantZero;
-			}
-
-			float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-			if (angle < 0f)
-			{
-				angle += 360f;
-			}
-
-			if (angle < 27.5f || angle >= 332.5f)
-			{
-				return FightCID.QuadrantForward;
-			}
-			if (angle < 62.5f)
-			{
-				return FightCID.QuadrantUpForward;
-			}
-			if (angle < 117.5f)
-			{
-				return FightCID.QuadrantUp;
-			}
-			if (angle < 152.5f)
-			{
-				return FightCID.QuadrantUpBack;
-			}
-			if (angle < 207.5f)
-			{
-				return FightCID.QuadrantBack;
-			}
-			if (angle < 242.5f)
-			{
-				return FightCID.QuadrantDownBack;
-			}
-			if (angle < 297.5f)
-			{
-				return FightCID.QuadrantDown;
-			}
-			return FightCID.QuadrantDownForward;
-		}
-
-		private void SetGamepadDirection(FightCID direction)
-		{
-			if (!DGEIJHIPFIG)
-			{
-				direction = FightCID.QuadrantZero;
-			}
-			if (_gamepadDirection == direction)
-			{
-				return;
-			}
-
-			if (_gamepadDirection != FightCID.QuadrantZero)
-			{
-				SendGamepadControlEvent(1, _gamepadDirection);
-			}
-			_gamepadDirection = direction;
-			if (_gamepadDirection != FightCID.QuadrantZero)
-			{
-				SendGamepadControlEvent(0, _gamepadDirection);
-			}
-		}
-
-		private void SetGamepadButton(ref bool state, bool pressed, FightCID control)
-		{
-			bool value = pressed && IsQuadrantEnabled(control);
-			if (state == value)
-			{
-				return;
-			}
-			state = value;
-			SendGamepadControlEvent(value ? 0 : 1, control);
-		}
-
-		private void ReleaseGamepadControls()
-		{
-			SetGamepadDirection(FightCID.QuadrantZero);
-			ReleaseGamepadButton(ref _gamepadPunchPressed, FightCID.Punch);
-			ReleaseGamepadButton(ref _gamepadKickPressed, FightCID.Kick);
-			ReleaseGamepadButton(ref _gamepadRangedPressed, FightCID.MissileButton);
-			ReleaseGamepadButton(ref _gamepadMagicPressed, FightCID.MagicButton);
-		}
-
-		private void ReleaseGamepadButton(ref bool state, FightCID control)
-		{
-			if (!state)
-			{
-				return;
-			}
-			state = false;
-			SendGamepadControlEvent(1, control);
+			return _gamepadInput;
 		}
 
 		private void SendGamepadControlEvent(int eventType, FightCID control)
