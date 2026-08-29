@@ -278,6 +278,7 @@
     <Compile Include="Assets\Scripts\SF2DE\Underworld\Content\UnderworldStageCompatibility.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Content\StageCompatibility.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Content\InternalSettingsCompatibility.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Content\QuestCompatibility.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\OJOJKODMOCB.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DamageFactorRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDownload.cs" />
