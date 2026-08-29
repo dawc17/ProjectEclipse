@@ -244,11 +244,15 @@ public sealed class SF2MotionBlur : MonoBehaviour
 		// display rate changes.
 		float shutterSeconds = Mathf.Lerp(1f / 480f, 1f / 60f, SF2DisplayFrameRate.MotionBlurStrength);
 		float historyWeight = Mathf.Exp(-deltaTime / shutterSeconds);
-		_material.SetTexture("_HistoryTex", _history);
-		_material.SetFloat("_HistoryWeight", Mathf.Clamp01(historyWeight));
-		Graphics.Blit(source, destination, _material);
-		Graphics.Blit(destination, _history);
-	}
+			_material.SetTexture("_HistoryTex", _history);
+			_material.SetFloat("_HistoryWeight", Mathf.Clamp01(historyWeight));
+			Graphics.Blit(source, destination, _material);
+
+			// Keep an unblurred previous camera frame. Besides avoiding recursive
+			// trails, using the image-effect source keeps history orientation
+			// consistent across render-target/back-buffer transitions.
+			Graphics.Blit(source, _history);
+		}
 
 	private bool EnsureResources(RenderTexture source)
 	{

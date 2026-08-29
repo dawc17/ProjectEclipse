@@ -79,6 +79,53 @@ namespace Nekki.SF2.GUI.Menu
 			KPKHFKNGAMJ();
 		}
 
+		public void ConfigureCompactTopBar()
+		{
+			if (_btnRuby != null)
+			{
+				_btnRuby.gameObject.SetActive(false);
+			}
+			if (_btnGoToShop != null)
+			{
+				_btnGoToShop.gameObject.SetActive(false);
+			}
+			if (_picRubySale != null)
+			{
+				_picRubySale.gameObject.SetActive(false);
+			}
+
+			RectTransform[] array = new RectTransform[4]
+			{
+				_iconCoins.rectTransform,
+				_infoCoins.rectTransform,
+				_iconBonus.rectTransform,
+				_infoBonus.rectTransform
+			};
+			float num = float.MaxValue;
+			float num2 = float.MinValue;
+			foreach (RectTransform rectTransform in array)
+			{
+				float x = rectTransform.anchoredPosition.x;
+				float num3 = rectTransform.rect.width / 2f;
+				num = Mathf.Min(num, x - num3);
+				num2 = Mathf.Max(num2, x + num3);
+			}
+			float num4 = (0f - (num + num2)) / 2f;
+			foreach (RectTransform rectTransform2 in array)
+			{
+				Vector2 anchoredPosition = rectTransform2.anchoredPosition;
+				anchoredPosition.x += num4;
+				rectTransform2.anchoredPosition = anchoredPosition;
+			}
+			LayoutElement component = GetComponent<LayoutElement>();
+			if (component != null)
+			{
+				float num5 = num2 - num + 60f;
+				component.minWidth = num5;
+				component.preferredWidth = num5;
+			}
+		}
+
 		private void CHILAIJNEHG()
 		{
 			_btnServerValues.onClick.RemoveListener(() =>

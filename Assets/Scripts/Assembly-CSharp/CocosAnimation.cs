@@ -187,13 +187,12 @@ public class CocosAnimation : MonoBehaviour
 			CocosAnimationData.SpriteFrameCocos pBAHNJDFMBO = _Animation.BFJEFNHKPJI()[DCHCFFFFLLK];
 			_SpriteRender.sprite = pBAHNJDFMBO.HJADPLOLOBH();
 			CHDIDLJNAHI.transform.localEulerAngles = new Vector3(0f, 0f, pBAHNJDFMBO.KGFGOFBMCCG() ? 90 : 0);
-			// Bundle extraction converted atlas frames to standalone sprites and
-			// reconstructed their plist offsets with the opposite sign. Comparison
-			// against the original 1536 metadata confirms this across the recovered
-			// effect library. Convert back to the Cocos convention before applying
-			// the frame offset; otherwise differently trimmed frames visibly shuffle.
-			Vector2 recoveredOffset = pBAHNJDFMBO.LMJCBAFGAFL();
-			CHDIDLJNAHI.transform.localPosition = new Vector3(-recoveredOffset.x, -recoveredOffset.y, 0f);
+			// Preserve the Cocos/TexturePacker frame offset exactly. The recovered
+			// XML matches the original plist metadata, and the original Mono build
+			// applies this offset without inverting it. Negating it makes trim
+			// compensation run in the wrong direction and visibly shakes sequences.
+			Vector2 frameOffset = pBAHNJDFMBO.LMJCBAFGAFL();
+			CHDIDLJNAHI.transform.localPosition = new Vector3(frameOffset.x, frameOffset.y, 0f);
 		}
 	}
 }

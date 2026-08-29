@@ -157,6 +157,7 @@ namespace Nekki.SF2.GUI.Menu
 			_experience.Init();
 			_energy.Init();
 			_materials.Init();
+			ConfigureCompactTopBar();
 			LGGBLFOKHAO();
 			GBKFLJIEHBH();
 			HIPEIJPLBJJ();
@@ -172,6 +173,20 @@ namespace Nekki.SF2.GUI.Menu
 			SetNormalViewMode(false);
 			UpdateMenu();
 			_menuBlocker.gameObject.SetActive(false);
+		}
+
+		private void ConfigureCompactTopBar()
+		{
+			_energy.gameObject.SetActive(false);
+			_money.ConfigureCompactTopBar();
+			HorizontalLayoutGroup component = _experience.transform.parent.GetComponent<HorizontalLayoutGroup>();
+			if (component != null)
+			{
+				component.childForceExpandWidth = false;
+				component.childControlWidth = true;
+				component.childAlignment = TextAnchor.MiddleCenter;
+				component.spacing = 30f;
+			}
 		}
 
 		private void OnDestroy()
@@ -437,7 +452,7 @@ namespace Nekki.SF2.GUI.Menu
 			if (0 == 0)
 			{
 				_experience.gameObject.SetActive(true);
-				_energy.gameObject.SetActive(true);
+				_energy.gameObject.SetActive(false);
 				if ((bool)_raidRating)
 				{
 					_raidRating.gameObject.SetActive(false);
@@ -800,7 +815,7 @@ namespace Nekki.SF2.GUI.Menu
 
 		public void SetNormalViewMode(bool DGNLFEPIANN)
 		{
-			_energy.gameObject.SetActive(true);
+			_energy.gameObject.SetActive(false);
 			_money.SetNormalViewMode();
 			BHBADDAEICJ(DGNLFEPIANN);
 		}

@@ -506,7 +506,7 @@ namespace Nekki.SF2.GUI.Map
 			GameObject toggleObject = new GameObject("UnderworldToggle", typeof(RectTransform),
 				typeof(CanvasRenderer), typeof(Image), typeof(Button));
 			RectTransform rect = toggleObject.GetComponent<RectTransform>();
-			RaidMapControlsLayout.AnchorNavigationButton(rect, GetRaidControlsRoot(), -205f);
+			RaidMapControlsLayout.AnchorUnderworldToggle(rect, GetRaidControlsRoot());
 
 			_raidToggleImage = toggleObject.GetComponent<Image>();
 			_raidToggleImage.preserveAspect = true;
@@ -530,7 +530,7 @@ namespace Nekki.SF2.GUI.Map
 			GameObject scrollObject = new GameObject("RaidMapScrollButton", typeof(RectTransform),
 				typeof(CanvasRenderer), typeof(Image), typeof(Button));
 			RectTransform scrollRect = scrollObject.GetComponent<RectTransform>();
-			RaidMapControlsLayout.AnchorNavigationButton(scrollRect, GetRaidControlsRoot(), -292f);
+			RaidMapControlsLayout.AnchorRaidScrollButton(scrollRect, GetRaidControlsRoot());
 			Image scrollImage = scrollObject.GetComponent<Image>();
 			scrollImage.preserveAspect = true;
 			scrollImage.sprite = ResolutionImage.GetSprite("UI/Atlases/", "RaidMap.raid_down_arrow");
