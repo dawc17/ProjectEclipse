@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace Nekki.SF2.GUI.Map
+namespace SF2DE.Underworld
 {
-	public static class RaidMapControlsLayout
+	public static class UnderworldMapControlsLayout
 	{
 		public static RectTransform CreateRoot(Transform parent)
 		{
@@ -18,16 +18,6 @@ namespace Nekki.SF2.GUI.Map
 			rect.offsetMin = rect.offsetMax = Vector2.zero;
 			rect.SetAsLastSibling();
 			return rect;
-		}
-
-		public static void AnchorNavigationButton(RectTransform rect, RectTransform root, float y)
-		{
-			rect.SetParent(root, false);
-			rect.gameObject.layer = root.gameObject.layer;
-			rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
-			rect.pivot = new Vector2(0.5f, 0.5f);
-			rect.anchoredPosition = new Vector2(-445f, y);
-			rect.sizeDelta = new Vector2(102f, 98f);
 		}
 
 		public static void AnchorUnderworldToggle(RectTransform rect, RectTransform root)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Nekki.SF2.GUI.Menu;
+using SF2DE.Underworld;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -109,25 +110,18 @@ namespace Nekki.SF2.GUI.Map
 
 		private NMFLNANKNOJ LDOJANLOFHI;
 
-		private Button _raidToggleButton;
-
-		private Image _raidToggleImage;
-
-		private Button _raidScrollButton;
-
-		private GameObject _raidPowerToggleObject;
-
-		private Image _raidPowerToggleImage;
-
 		private bool _raidPowerMode;
 
-		private RectTransform _raidControlsRoot;
+		private UnderworldMapControls _underworldControls;
 
-		private RectTransform GetRaidControlsRoot()
+		private UnderworldMapControls GetUnderworldControls()
 		{
-			if (_raidControlsRoot == null)
-				_raidControlsRoot = RaidMapControlsLayout.CreateRoot(_storyContainer.transform.parent);
-			return _raidControlsRoot;
+			if (_underworldControls == null)
+			{
+				_underworldControls = new UnderworldMapControls(_storyContainer.transform.parent, _infoBattle,
+					ToggleRaidMap, ScrollRaidMapDown, ToggleRaidPowerMode);
+			}
+			return _underworldControls;
 		}
 
 		public override ScreenType PNAJHDBDDLP
@@ -168,8 +162,7 @@ namespace Nekki.SF2.GUI.Map
 			}
 			UpdateCurrentZone();
 			IOHMLGLJELB();
-			CreateRaidToggleButton();
-			CreateRaidModeControls();
+			GetUnderworldControls().Initialize(LDOJANLOFHI == NMFLNANKNOJ.RaidMode);
 			UpdateRaidControls();
 			PLJBFIGOFPJ();
 		}
@@ -246,7 +239,7 @@ namespace Nekki.SF2.GUI.Map
 			KBGJMMPBDGG((LDOJANLOFHI == NMFLNANKNOJ.RaidMode) ? JBAPLBALJII : JOBMMLPAKBF);
 			UpdateCurrentZone();
 			IOHMLGLJELB();
-			UpdateRaidToggleSprite();
+			GetUnderworldControls().UpdateToggleSprite(LDOJANLOFHI == NMFLNANKNOJ.RaidMode);
 		}
 
 		public InfoBattle GetInfoBattle()
@@ -488,102 +481,6 @@ namespace Nekki.SF2.GUI.Map
 		{
 		}
 
-		private void CreateRaidToggleButton()
-		{
-			if (_raidToggleButton != null)
-			{
-				return;
-			}
-			bool hasRaidZones = ListSF.FHAIJEAPFEA().Exists(zone =>
-				zone != null && zone.get_Name().StartsWith("ZONE_RAID",
-					System.StringComparison.OrdinalIgnoreCase));
-			if (!hasRaidZones)
-			{
-				Debug.LogWarning("[Underworld] raid toggle hidden because no raid zones were loaded");
-				return;
-			}
-
-			GameObject toggleObject = new GameObject("UnderworldToggle", typeof(RectTransform),
-				typeof(CanvasRenderer), typeof(Image), typeof(Button));
-			RectTransform rect = toggleObject.GetComponent<RectTransform>();
-			RaidMapControlsLayout.AnchorUnderworldToggle(rect, GetRaidControlsRoot());
-
-			_raidToggleImage = toggleObject.GetComponent<Image>();
-			_raidToggleImage.preserveAspect = true;
-			_raidToggleButton = toggleObject.GetComponent<Button>();
-			_raidToggleButton.targetGraphic = _raidToggleImage;
-			_raidToggleButton.onClick.AddListener(ToggleRaidMap);
-			UpdateRaidToggleSprite();
-			Debug.Log("[Underworld] map toggle created with " +
-				ListSF.FHAIJEAPFEA().FindAll(zone => zone != null &&
-					zone.get_Name().StartsWith("ZONE_RAID", System.StringComparison.OrdinalIgnoreCase)).Count +
-				" raid zone(s)");
-		}
-
-		private void CreateRaidModeControls()
-		{
-			if (_raidScrollButton != null)
-			{
-				return;
-			}
-
-			GameObject scrollObject = new GameObject("RaidMapScrollButton", typeof(RectTransform),
-				typeof(CanvasRenderer), typeof(Image), typeof(Button));
-			RectTransform scrollRect = scrollObject.GetComponent<RectTransform>();
-			RaidMapControlsLayout.AnchorRaidScrollButton(scrollRect, GetRaidControlsRoot());
-			Image scrollImage = scrollObject.GetComponent<Image>();
-			scrollImage.preserveAspect = true;
-			scrollImage.sprite = ResolutionImage.GetSprite("UI/Atlases/", "RaidMap.raid_down_arrow");
-			_raidScrollButton = scrollObject.GetComponent<Button>();
-			_raidScrollButton.targetGraphic = scrollImage;
-			_raidScrollButton.onClick.AddListener(ScrollRaidMapDown);
-
-			_raidPowerToggleObject = new GameObject("RaidPowerModeToggle", typeof(RectTransform),
-				typeof(CanvasRenderer), typeof(Image), typeof(Button));
-			_raidPowerToggleObject.transform.SetParent(GetRaidControlsRoot(), false);
-			_raidPowerToggleObject.layer = _raidControlsRoot.gameObject.layer;
-			_raidPowerToggleObject.transform.SetAsLastSibling();
-			RectTransform powerRect = _raidPowerToggleObject.GetComponent<RectTransform>();
-			powerRect.anchorMin = new Vector2(0f, 1f);
-			powerRect.anchorMax = new Vector2(0f, 1f);
-			powerRect.pivot = new Vector2(0f, 1f);
-			powerRect.anchoredPosition = new Vector2(300f, -108f);
-			powerRect.sizeDelta = new Vector2(235f, 54f);
-			_raidPowerToggleObject.GetComponent<Image>().color = Color.clear;
-			GameObject checkObject = new GameObject("Checkbox", typeof(RectTransform), typeof(Image));
-			checkObject.transform.SetParent(_raidPowerToggleObject.transform, false);
-			_raidPowerToggleImage = checkObject.GetComponent<Image>();
-			_raidPowerToggleImage.rectTransform.anchorMin = _raidPowerToggleImage.rectTransform.anchorMax = new Vector2(0f, 0.5f);
-			_raidPowerToggleImage.rectTransform.anchoredPosition = new Vector2(27f, 0f);
-			_raidPowerToggleImage.rectTransform.sizeDelta = new Vector2(54f, 54f);
-			_raidPowerToggleImage.raycastTarget = false;
-			_raidPowerToggleImage.preserveAspect = true;
-			Button powerButton = _raidPowerToggleObject.GetComponent<Button>();
-			powerButton.targetGraphic = _raidPowerToggleImage;
-			powerButton.onClick.AddListener(ToggleRaidPowerMode);
-
-			GameObject labelObject = new GameObject("Label", typeof(RectTransform),
-				typeof(CanvasRenderer), typeof(Text));
-			labelObject.transform.SetParent(_raidPowerToggleObject.transform, false);
-			RectTransform labelRect = labelObject.GetComponent<RectTransform>();
-			labelRect.anchorMin = new Vector2(0f, 0f);
-			labelRect.anchorMax = new Vector2(1f, 1f);
-			labelRect.offsetMin = new Vector2(58f, 0f);
-			labelRect.offsetMax = Vector2.zero;
-			Text label = labelObject.GetComponent<Text>();
-			Text sample = _infoBattle.GetComponentInChildren<Text>(true);
-			if (sample != null)
-			{
-				label.font = sample.font;
-				label.material = sample.material;
-			}
-			label.text = "POWER MODE";
-			label.fontSize = 24;
-			label.alignment = TextAnchor.MiddleLeft;
-			label.color = new Color(0.28f, 0.12f, 0.06f, 1f);
-			label.raycastTarget = false;
-		}
-
 		private void ScrollRaidMapDown()
 		{
 			int count = _storyContainer.GetZonesCount();
@@ -608,19 +505,7 @@ namespace Nekki.SF2.GUI.Map
 		private void UpdateRaidControls()
 		{
 			bool raid = LDOJANLOFHI == NMFLNANKNOJ.RaidMode;
-			if (_raidScrollButton != null)
-			{
-				_raidScrollButton.gameObject.SetActive(raid);
-			}
-			if (_raidPowerToggleObject != null)
-			{
-				_raidPowerToggleObject.SetActive(raid);
-			}
-			if (_raidPowerToggleImage != null)
-			{
-				string sprite = _raidPowerMode ? "RaidHardmodeUI.checkboxOn" : "RaidHardmodeUI.checkboxGray";
-				_raidPowerToggleImage.sprite = ResolutionImage.GetSprite("UI/Atlases/", sprite);
-			}
+			GetUnderworldControls().UpdateState(raid, _raidPowerMode);
 			if (_mapButtonsPanel != null)
 			{
 				_mapButtonsPanel.SetStoryButtonsVisible(!raid);
@@ -629,14 +514,7 @@ namespace Nekki.SF2.GUI.Map
 
 		public void SetRaidToggleVisible(bool visible)
 		{
-			if (_raidToggleButton == null && visible)
-			{
-				CreateRaidToggleButton();
-			}
-			if (_raidToggleButton != null)
-			{
-				_raidToggleButton.gameObject.SetActive(visible);
-			}
+			GetUnderworldControls().SetToggleVisible(visible, LDOJANLOFHI == NMFLNANKNOJ.RaidMode);
 		}
 
 		public void ToggleRaidMap()
@@ -707,17 +585,7 @@ namespace Nekki.SF2.GUI.Map
 
 		private void UpdateRaidToggleSprite()
 		{
-			if (_raidToggleImage == null)
-			{
-				return;
-			}
-			string spriteName = (LDOJANLOFHI == NMFLNANKNOJ.RaidMode) ?
-				"RaidMap.raid_up" : "RaidMap.raid_down";
-			_raidToggleImage.sprite = ResolutionImage.GetSprite("UI/Atlases/", spriteName);
-			if (_raidToggleImage.sprite == null)
-			{
-				Debug.LogWarning("[Underworld] missing toggle sprite " + spriteName);
-			}
+			GetUnderworldControls().UpdateToggleSprite(LDOJANLOFHI == NMFLNANKNOJ.RaidMode);
 		}
 
 		private void AOGHKADFFAK(object data)
