@@ -94,6 +94,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\SimpleDialogInfo.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\CommandTree.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionBattle.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Content\MoveCompatibility.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\News.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MenuMaterSprite.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Tactic.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\InFightRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EEFBHOOPEMK.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DialogsOpener.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Content\ContentOverrideCompatibility.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionSwitchToRaidsMap.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QualityOption.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestUtils.cs" />
@@ -152,7 +154,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionFight.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ComboStatistic.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\FightInterpolation.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Rendering\Diagnostics\EffectFollowDiagnostics.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Content\ItemListCompatibility.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionImageAvatar.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\BaseScrollContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\QueuedCommand.cs" />
@@ -380,11 +382,8 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionSound.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PurchaseController.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidShieldBar.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarTransition.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarStyle.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldMapBattlePresentation.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Underworld\Diagnostics\UnderworldRaidDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSet.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\Diagnostics\UnderworldRaidDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NKOOJDKHHBD.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionStoryTutorialDoubleSweep.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\IntervalAnimation.cs" />
@@ -405,6 +404,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightResult.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionChangeImpulse.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AttributesRule.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Interpolation\FightCameraInterpolation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionCurrentVersion.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PointsTableType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\ContentTourChallBoss.cs" />
@@ -517,6 +517,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PhysicsController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDialogCheckTickets.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\WideController.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldMapBattlePresentation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionCreateModel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionBirth.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowMapButton.cs" />
@@ -526,6 +527,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\TacticsCompiler.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Reward.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BattleRaid.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarTransition.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableViewScroll.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PermissionDialog.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionMapMask.cs" />
@@ -596,6 +598,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionRoundStage.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkEventModExpires.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionFight.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\UI\UnderworldRaidLifeBarStyle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BundleManager.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RangeExtension.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RaidShowLootDialogInfo.cs" />
@@ -611,9 +614,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\GameOverTypes.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionButton.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Content\QuestCompatibility.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Content\MoveCompatibility.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Content\ItemListCompatibility.cs" />
-    <Compile Include="Assets\Scripts\SF2DE\Content\ContentOverrideCompatibility.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConsoleDatabase.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionFlag.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\RightInfoSprite.cs" />
@@ -852,6 +852,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\EventParser.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\Renders\Model\MeshRender.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AspectConstants.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Rendering\Diagnostics\EffectFollowDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CharProgLevel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ComboTypes.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionAttachFile.cs" />

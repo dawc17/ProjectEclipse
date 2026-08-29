@@ -72,15 +72,7 @@ public class Camera : global::EventDispatcher<object>
 
 	private GameObject _UnityObject;
 
-	private readonly Vector3f _InterpolatedCameraPosition = new Vector3f();
-
-	private readonly Vector3f _InterpolatedCameraTarget = new Vector3f();
-
-	private readonly Vector3f _InterpolatedFocusPosition = new Vector3f();
-
-	private float _PreviousZoomScale;
-
-	private float _CurrentZoomScale;
+	private readonly FightCameraInterpolation _RenderInterpolation = new FightCameraInterpolation();
 
 	public Render DAAACGKPJAL
 	{
@@ -263,17 +255,24 @@ public class Camera : global::EventDispatcher<object>
 		{
 			return;
 		}
-		FightInterpolation.SamplePosition(JNBAHPMBLOL, alpha, _InterpolatedCameraPosition);
-		FightInterpolation.SamplePosition(NGOEHKEKBIL, alpha, _InterpolatedCameraTarget);
-		FightInterpolation.SamplePosition(CIJJBMDDAFL, alpha, _InterpolatedFocusPosition);
+		_RenderInterpolation.SamplePositions(JNBAHPMBLOL, NGOEHKEKBIL, CIJJBMDDAFL, alpha);
 		if (NOLKMEPOJIE)
 		{
-			float zoomScale = Mathf.Lerp(_PreviousZoomScale, _CurrentZoomScale, alpha);
-			BMBGCIEFJGB.UpdatePosition(_InterpolatedCameraPosition, _InterpolatedCameraTarget, _InterpolatedFocusPosition.GILCBJJPKBK(), _InterpolatedFocusPosition.OBIMBNIBEFG(), zoomScale);
+			float zoomScale = _RenderInterpolation.SampleZoomScale(alpha);
+			BMBGCIEFJGB.UpdatePosition(
+				_RenderInterpolation.CameraPosition,
+				_RenderInterpolation.CameraTarget,
+				_RenderInterpolation.FocusPosition.GILCBJJPKBK(),
+				_RenderInterpolation.FocusPosition.OBIMBNIBEFG(),
+				zoomScale);
 		}
 		else
 		{
-			BMBGCIEFJGB.UpdatePosition(_InterpolatedCameraPosition, _InterpolatedCameraTarget, _InterpolatedFocusPosition.GILCBJJPKBK(), _InterpolatedFocusPosition.OBIMBNIBEFG());
+			BMBGCIEFJGB.UpdatePosition(
+				_RenderInterpolation.CameraPosition,
+				_RenderInterpolation.CameraTarget,
+				_RenderInterpolation.FocusPosition.GILCBJJPKBK(),
+				_RenderInterpolation.FocusPosition.OBIMBNIBEFG());
 		}
 	}
 
@@ -313,7 +312,6 @@ public class Camera : global::EventDispatcher<object>
 		{
 			return;
 		}
-		_PreviousZoomScale = _CurrentZoomScale;
 		float num = Mathf.Abs(OOFFFLEFKFA.JCNPAOMNJCL - OOFFFLEFKFA.AFBPPNDBMEC) / ((float)OOFFFLEFKFA.OFJCKMNLAEP / 2f);
 		if (OOFFFLEFKFA.BJDFMKOCNBN <= OOFFFLEFKFA.OFJCKMNLAEP / 2)
 		{
@@ -332,7 +330,7 @@ public class Camera : global::EventDispatcher<object>
 			}
 		}
 		OOFFFLEFKFA.BJDFMKOCNBN++;
-		_CurrentZoomScale = OOFFFLEFKFA.ALOKJEILMLK;
+		_RenderInterpolation.PushZoomScale(OOFFFLEFKFA.ALOKJEILMLK);
 	}
 
 	private void RenderEffect()
@@ -413,8 +411,7 @@ public class Camera : global::EventDispatcher<object>
 		HLDMKKKKAMI = false;
 		showZoomEffectCount = 0;
 		NOLKMEPOJIE = false;
-		_PreviousZoomScale = 0f;
-		_CurrentZoomScale = 0f;
+		_RenderInterpolation.ResetZoomScale(0f);
 	}
 
 	public void Render()
@@ -555,8 +552,7 @@ public class Camera : global::EventDispatcher<object>
 			}
 			OOFFFLEFKFA.AFBPPNDBMEC = BMBGCIEFJGB.KMMOLDBJBIG();
 			OOFFFLEFKFA.ALOKJEILMLK = OOFFFLEFKFA.AFBPPNDBMEC;
-			_PreviousZoomScale = OOFFFLEFKFA.ALOKJEILMLK;
-			_CurrentZoomScale = OOFFFLEFKFA.ALOKJEILMLK;
+			_RenderInterpolation.ResetZoomScale(OOFFFLEFKFA.ALOKJEILMLK);
 			OOFFFLEFKFA.BJDFMKOCNBN = 0;
 			showZoomEffectCount = OOFFFLEFKFA.OFJCKMNLAEP;
 		}
