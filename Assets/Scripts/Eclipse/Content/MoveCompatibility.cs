@@ -130,4 +130,26 @@ namespace Eclipse.Content
 			return issues;
 		}
 	}
+	public sealed class BattleTypeMoveCondition : global::ConditionAnimation
+	{
+		private global::BattleType _expectedType;
+		private readonly bool _hasExpectedType;
+
+		public BattleTypeMoveCondition(XmlNode node)
+			: base(DGAGKLODADD.BATTLE_TYPE)
+		{
+			string value = node == null || node.Attributes == null
+				? string.Empty
+				: XmlUtils.ParseString(node.Attributes["Value"], string.Empty);
+			_hasExpectedType = Enum.TryParse(value, false, out _expectedType);
+		}
+
+		public override bool IsEqual(global::Model model, global::InfoAnimation animation)
+		{
+			global::Fight fight = global::Fight.OHNKFOHIAKG();
+			global::FightList fightList = fight == null ? null : fight.OGNINOBBHIG();
+			bool matches = _hasExpectedType && fightList != null && fightList.get_Type() == _expectedType;
+			return IsNot ? !matches : matches;
+		}
+	}
 }

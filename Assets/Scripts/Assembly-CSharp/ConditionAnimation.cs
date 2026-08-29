@@ -27,7 +27,8 @@ public class ConditionAnimation
 		MIRROR = 19,
 		MOD_EXISTS = 20,
 		EVENT = 21,
-		DIRECTION = 22
+		DIRECTION = 22,
+		BATTLE_TYPE = 23
 	}
 
 	protected ModelType.KEIDBIOIFGA OOFFOILONLO;
