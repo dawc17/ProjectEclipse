@@ -119,6 +119,53 @@ namespace Eclipse.Content
 			return quests.Count;
 		}
 
+		public static int PromoteLocalQuestExtension(XmlDocument document, XmlDocument extension)
+		{
+			if (document == null || document.DocumentElement == null || extension == null ||
+				extension.DocumentElement == null)
+			{
+				return 0;
+			}
+
+			List<XmlElement> sourceQuests = new List<XmlElement>();
+			HashSet<string> names = new HashSet<string>(StringComparer.Ordinal);
+			foreach (XmlNode node in extension.DocumentElement.ChildNodes)
+			{
+				XmlElement quest = node as XmlElement;
+				if (quest == null || quest.Name != "Quest")
+				{
+					continue;
+				}
+				string name = quest.GetAttribute("Name");
+				if (string.IsNullOrEmpty(name))
+				{
+					continue;
+				}
+				sourceQuests.Add(quest);
+				names.Add(name);
+			}
+
+			List<XmlNode> existing = new List<XmlNode>();
+			foreach (XmlNode node in document.DocumentElement.ChildNodes)
+			{
+				XmlElement quest = node as XmlElement;
+				if (quest != null && quest.Name == "Quest" && names.Contains(quest.GetAttribute("Name")))
+				{
+					existing.Add(quest);
+				}
+			}
+			foreach (XmlNode quest in existing)
+			{
+				document.DocumentElement.RemoveChild(quest);
+			}
+
+			foreach (XmlElement quest in sourceQuests)
+			{
+				document.DocumentElement.AppendChild(document.ImportNode(quest, true));
+			}
+			return sourceQuests.Count;
+		}
+
 		public static global::QuestAction CreateRuntimeAction(string name)
 		{
 			switch (name)

@@ -297,6 +297,20 @@ public static class ResourceManager
 			{
 				output = source;
 			}
+			// Modern vanilla gates Eclipse Mode behind its mobile/Steam/Switch build
+			// channels. Eclipse local PC mode intentionally exposes that gameplay
+			// system without pretending to be one of those service platforms.
+			string eclipseFile = Path.Combine(GetDevXmlRoot(), "quest_extensions", "eclipse.xml");
+			if (output.DocumentElement != null && File.Exists(eclipseFile))
+			{
+				int promotedEclipseQuests = QuestCompatibility.PromoteLocalQuestExtension(
+					output, LoadPlainXml(eclipseFile));
+				if (promotedEclipseQuests != 0 && _devXmlLogged.Add("local-eclipse-quests"))
+				{
+					Debug.Log("[DevXml] enabled " + promotedEclipseQuests +
+						" vanilla Eclipse Mode quest(s) for local PC content mode");
+				}
+			}
 			int removedUpdateQuests = QuestCompatibility.RemoveObsoleteClientUpdateQuests(output);
 			if (removedUpdateQuests != 0 && _devXmlLogged.Add("obsolete-client-update-quests"))
 			{
