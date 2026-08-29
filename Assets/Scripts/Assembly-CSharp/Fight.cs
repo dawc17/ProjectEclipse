@@ -4,6 +4,7 @@ using System.Diagnostics;
 using CodeStage.AntiCheat.ObscuredTypes;
 using Nekki.SF2.Core.Fights.Controller;
 using Nekki.SF2.GUI.Fight;
+using SF2DE.Underworld;
 using UnityEngine;
 
 public class Fight
@@ -506,11 +507,11 @@ public class Fight
 		{
 			item2.ABNCNNHMLII();
 		}
-		AKBNKDBHCEO = IDAAONBIBJM[ADJAMFGBOAP];
-		GINNOLEJDFM = AKBNKDBHCEO.HBFMBOHLKPJ;
-		MIEPNNMDNBO();
-		Zone locationZone = KGKDKENMAOA.CNAOMDMIGLJ == null ? null : KGKDKENMAOA.CNAOMDMIGLJ.OAEIILGHJMG;
-		bool raidLayout = locationZone != null && locationZone.get_Name().StartsWith("ZONE_RAID", System.StringComparison.OrdinalIgnoreCase);
+			AKBNKDBHCEO = IDAAONBIBJM[ADJAMFGBOAP];
+			GINNOLEJDFM = AKBNKDBHCEO.HBFMBOHLKPJ;
+			MIEPNNMDNBO();
+			Zone locationZone = KGKDKENMAOA.CNAOMDMIGLJ == null ? null : KGKDKENMAOA.CNAOMDMIGLJ.OAEIILGHJMG;
+			bool raidLayout = UnderworldZonePolicy.IsRaidZone(locationZone);
 		_location = new Location(KGKDKENMAOA.JKMJHIIMHPG, KGKDKENMAOA.NPPIFKKLNCN, raidLayout);
 		_location.init();
 		NMNCKBPFCCP.JJCKADKCDIF.Set(_location.JJNMOJLLDEC);
@@ -2253,15 +2254,7 @@ public class Fight
 			flag = false;
 			flag2 = false;
 		}
-		bool eNCAKAAMEPN = true;
-		// Offline DE Underworld fights can have ordinary battle types. Their
-		// one-round adaptation is an implementation detail, not a HUD round pip.
-		Zone hudZone = cNAOMDMIGLJ.OAEIILGHJMG;
-		if (cNAOMDMIGLJ.get_Type() == BattleType.FightRaid ||
-			(hudZone != null && hudZone.get_Name().StartsWith("ZONE_RAID", System.StringComparison.OrdinalIgnoreCase)))
-		{
-			eNCAKAAMEPN = false;
-		}
+			bool eNCAKAAMEPN = UnderworldZonePolicy.ShouldShowRoundPips(cNAOMDMIGLJ);
 		if (preFight != null)
 		{
 			preFight.CreateVS(NMNCKBPFCCP, list, num, bBBNBKIMHJC, flag2, flag);

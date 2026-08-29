@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SF2DE.Underworld;
 using UnityEngine;
 
 namespace Nekki.SF2.GUI.Map
@@ -202,8 +203,7 @@ namespace Nekki.SF2.GUI.Map
 
 		private bool IsBattleVisibleForRaidMode(Battle battle)
 		{
-			if (battle == null || CODCAENBFHK == null ||
-				!CODCAENBFHK.get_Name().StartsWith("ZONE_RAID", StringComparison.OrdinalIgnoreCase))
+			if (battle == null || !UnderworldZonePolicy.IsRaidZone(CODCAENBFHK))
 			{
 				return true;
 			}
@@ -410,8 +410,7 @@ namespace Nekki.SF2.GUI.Map
 			bool flag = dDNLCGOPAGC != null && dDNLCGOPAGC.NLIJBCHAEBK();
 			bool hidden = dDNLCGOPAGC != null && dDNLCGOPAGC.KAPIELMDIIK();
 			string iconAtlas = DPOOIONCEOA.GetIconAtlas();
-			if (string.IsNullOrEmpty(iconAtlas) && CODCAENBFHK != null &&
-				CODCAENBFHK.get_Name().StartsWith("ZONE_RAID", StringComparison.OrdinalIgnoreCase))
+			if (string.IsNullOrEmpty(iconAtlas) && UnderworldZonePolicy.IsRaidZone(CODCAENBFHK))
 			{
 				iconAtlas = "BattleBtn_raid";
 			}

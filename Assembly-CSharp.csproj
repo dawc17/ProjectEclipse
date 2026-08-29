@@ -274,6 +274,8 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Pair.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EdgeType.cs" />
     <Compile Include="Assets\Scripts\SF2DE\Underworld\UnderworldMapControls.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\UnderworldZonePolicy.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\Underworld\Content\UnderworldStageCompatibility.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\OJOJKODMOCB.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DamageFactorRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDownload.cs" />

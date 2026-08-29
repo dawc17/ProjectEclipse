@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Nekki.SF2.GUI.Shop;
+using SF2DE.Underworld;
 using UnityEngine;
 
 namespace Nekki.SF2.GUI.Map
@@ -79,23 +80,17 @@ namespace Nekki.SF2.GUI.Map
 		public void AddStoryZones()
 		{
 			List<Zone> hFPCBJLOJEM = ListSF.FHAIJEAPFEA().FindAll(
-				zone => !IsRaidZone(zone));
+				zone => !UnderworldZonePolicy.IsRaidZone(zone));
 			GHCJGLHOFHO(hFPCBJLOJEM);
 		}
 
 		public void AddRaidZones()
 		{
-			List<Zone> raidZones = ListSF.FHAIJEAPFEA().FindAll(IsRaidZone);
+			List<Zone> raidZones = ListSF.FHAIJEAPFEA().FindAll(UnderworldZonePolicy.IsRaidZone);
 			// The legacy roster format never created availability records for the
 			// newer Underworld bosses. Treat entries in the dedicated raid document
 			// as locally playable; otherwise MapPanel discards every raid page.
-			foreach (Zone zone in raidZones)
-			{
-				foreach (Battle battle in zone.LGIIBNJFADA)
-				{
-					battle.DCHJDPCEODD = true;
-				}
-			}
+			UnderworldZonePolicy.MarkLocallyPlayable(raidZones);
 			GHCJGLHOFHO(raidZones);
 		}
 
@@ -105,12 +100,6 @@ namespace Nekki.SF2.GUI.Map
 			{
 				zone.SetRaidPowerMode(enabled);
 			}
-		}
-
-		private static bool IsRaidZone(Zone zone)
-		{
-			return zone != null && zone.get_Name().StartsWith("ZONE_RAID",
-				System.StringComparison.OrdinalIgnoreCase);
 		}
 
 		public bool HasBattle(Battle DPOOIONCEOA)

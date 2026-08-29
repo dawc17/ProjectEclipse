@@ -98,9 +98,7 @@ namespace SF2DE.Underworld
 			{
 				return;
 			}
-			bool hasRaidZones = ListSF.FHAIJEAPFEA().Exists(zone =>
-				zone != null && zone.get_Name().StartsWith("ZONE_RAID",
-					StringComparison.OrdinalIgnoreCase));
+			bool hasRaidZones = ListSF.FHAIJEAPFEA().Exists(UnderworldZonePolicy.IsRaidZone);
 			if (!hasRaidZones)
 			{
 				Debug.LogWarning("[Underworld] raid toggle hidden because no raid zones were loaded");
@@ -118,8 +116,7 @@ namespace SF2DE.Underworld
 			_toggleButton.targetGraphic = _toggleImage;
 			_toggleButton.onClick.AddListener(() => _toggleMap());
 			Debug.Log("[Underworld] map toggle created with " +
-				ListSF.FHAIJEAPFEA().FindAll(zone => zone != null &&
-					zone.get_Name().StartsWith("ZONE_RAID", StringComparison.OrdinalIgnoreCase)).Count +
+				ListSF.FHAIJEAPFEA().FindAll(UnderworldZonePolicy.IsRaidZone).Count +
 				" raid zone(s)");
 		}
 

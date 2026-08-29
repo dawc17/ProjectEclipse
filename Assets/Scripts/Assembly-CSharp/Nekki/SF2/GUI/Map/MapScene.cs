@@ -361,7 +361,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				return false;
 			}
-			if (HLJKOKMKMLM.get_Name().StartsWith("ZONE_RAID", System.StringComparison.OrdinalIgnoreCase))
+			if (UnderworldZonePolicy.IsRaidZone(HLJKOKMKMLM))
 				return HLJKOKMKMLM.LGIIBNJFADA.Exists(battle => battle.DCHJDPCEODD);
 			List<Battle> list = HLJKOKMKMLM.LGIIBNJFADA.FindAll(battle =>
 				battle.get_Type() == BattleType.FightBosses || battle.get_Type() == BattleType.FightFinalTitan ||

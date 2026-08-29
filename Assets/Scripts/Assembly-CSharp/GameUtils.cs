@@ -9,6 +9,7 @@ using Nekki.SF2.GUI;
 using Nekki.SF2.GUI.Fight;
 using Nekki.SF2.GUI.Map;
 using Nekki.SF2.GUI.Shop;
+using SF2DE.Underworld;
 using UnityEngine;
 
 public static class GameUtils
@@ -1862,7 +1863,7 @@ public static class GameUtils
 	{
 		Battle battle = fight.CNAOMDMIGLJ;
 		Zone zone = battle == null ? null : battle.OAEIILGHJMG;
-		if (zone == null || !zone.get_Name().StartsWith("ZONE_RAID", System.StringComparison.OrdinalIgnoreCase))
+		if (!UnderworldZonePolicy.IsRaidZone(zone))
 			return;
 		foreach (ModelParameters enemy in enemies)
 		{

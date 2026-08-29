@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using SF2DE.Underworld.Content;
 using UnityEngine;
 using UnityEngine.Video;
 
@@ -824,26 +825,12 @@ public static class ResourceManager
 			// this legacy runtime only opens stages.xml. Merge the raid zones into
 			// the document before applying the normal compatibility transforms so
 			// their fights use the same parser and local FightScene as story fights.
-			string raidsFile = Path.Combine(GetDevXmlRoot(), "raid_stages_default.xml");
-			int importedRaidZones = 0;
-			if (custom.DocumentElement != null && File.Exists(raidsFile))
-			{
-				XmlDocument raids = LoadPlainXml(raidsFile);
-				XmlElement customZones = custom.SelectSingleNode("/Stages/Zones") as XmlElement;
-				if (customZones != null)
+				string raidsFile = Path.Combine(GetDevXmlRoot(), "raid_stages_default.xml");
+				int importedRaidZones = 0;
+				if (custom.DocumentElement != null && File.Exists(raidsFile))
 				{
-					foreach (XmlElement raidZone in raids.SelectNodes("/Stages/Zones/Zone[@Name]"))
-					{
-						string zoneName = raidZone.GetAttribute("Name");
-						if (custom.SelectSingleNode("/Stages/Zones/Zone[@Name='" + zoneName + "']") != null)
-						{
-							continue;
-						}
-						customZones.AppendChild(custom.ImportNode(raidZone, true));
-						importedRaidZones++;
-					}
+					importedRaidZones = UnderworldStageCompatibility.ImportRaidZones(custom, LoadPlainXml(raidsFile));
 				}
-			}
 			if (importedRaidZones != 0 && _devXmlLogged.Add("underworld-stage-zones"))
 			{
 				Debug.Log("[Underworld] loaded " + importedRaidZones +
@@ -932,25 +919,13 @@ public static class ResourceManager
 			// values the legacy presentation cannot display. Underworld raid
 			// encounters keep their original long timers: their multi-bar fights
 			// routinely outlast the HUD limit and a timeout would count as a loss.
-			int clampedRoundTimes = 0;
-			foreach (XmlElement timedNode in custom.SelectNodes("//*[@RoundTime]"))
-			{
-				bool insideRaidZone = false;
-				for (XmlNode zone = timedNode.ParentNode; zone != null; zone = zone.ParentNode)
+				int clampedRoundTimes = 0;
+				foreach (XmlElement timedNode in custom.SelectNodes("//*[@RoundTime]"))
 				{
-					XmlElement zoneElement = zone as XmlElement;
-					if (zoneElement != null && zoneElement.Name == "Zone" &&
-						zoneElement.GetAttribute("Name").StartsWith("ZONE_RAID",
-							System.StringComparison.OrdinalIgnoreCase))
+					if (UnderworldStageCompatibility.IsInsideRaidZone(timedNode))
 					{
-						insideRaidZone = true;
-						break;
+						continue;
 					}
-				}
-				if (insideRaidZone)
-				{
-					continue;
-				}
 				int roundTime;
 				if (int.TryParse(timedNode.GetAttribute("RoundTime"), out roundTime) && roundTime > 99)
 				{
@@ -967,13 +942,7 @@ public static class ResourceManager
 			// the encounter. The restored offline path has no raid server, so make
 			// each boss a conventional one-round fight instead of an immediate
 			// zero-round completion.
-			int localizedRaidRounds = 0;
-			foreach (XmlElement raidFight in custom.SelectNodes(
-				"/Stages/Zones/Zone[starts-with(@Name,'ZONE_RAID')]/Battle/Fight[@Rounds='0']"))
-			{
-				raidFight.SetAttribute("Rounds", "1");
-				localizedRaidRounds++;
-			}
+				int localizedRaidRounds = UnderworldStageCompatibility.AdaptOfflineRaidRounds(custom);
 			if (localizedRaidRounds != 0 && _devXmlLogged.Add("underworld-local-rounds"))
 			{
 				Debug.Log("[Underworld] adapted " + localizedRaidRounds +
