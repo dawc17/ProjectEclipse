@@ -239,22 +239,47 @@ public static class ResourceManager
 					continue;
 				}
 
+				XmlNode includeConditions = child["Conditions"] ?? inheritedConditions;
 				string root = Path.GetFullPath(GetDevXmlRoot()).TrimEnd(
 					Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-				string includeFile = Path.GetFullPath(Path.Combine(root,
-					child.Attributes["File"].Value.Replace('/', Path.DirectorySeparatorChar)));
-				if (!includeFile.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
-					!File.Exists(includeFile) || !includeStack.Add(includeFile))
+				string includeFile = null;
+				foreach (string includePath in child.Attributes["File"].Value.Split('|'))
 				{
-					Debug.LogWarning("[DevXml] missing or recursive quest include: " + includeFile);
+					string relativePath = includePath.Trim();
+					if (relativePath.Length == 0)
+					{
+						continue;
+					}
+					string candidate = Path.GetFullPath(Path.Combine(root,
+						relativePath.Replace('/', Path.DirectorySeparatorChar)));
+					if (candidate.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) &&
+						File.Exists(candidate))
+					{
+						includeFile = candidate;
+						break;
+					}
+				}
+				if (includeFile == null)
+				{
+					Debug.LogWarning("[DevXml] missing quest include: " + child.Attributes["File"].Value);
 					continue;
 				}
-				XmlDocument included = LoadPlainXml(includeFile);
-				XmlNode includeConditions = child["Conditions"] ?? inheritedConditions;
-				ExpandQuestContainer(output, outputRoot, included.DocumentElement, includeConditions, includeStack);
-				includeStack.Remove(includeFile);
+				if (!includeStack.Add(includeFile))
+				{
+					Debug.LogWarning("[DevXml] recursive quest include: " + includeFile);
+					continue;
+				}
+				try
+				{
+					XmlDocument included = LoadPlainXml(includeFile);
+					ExpandQuestContainer(output, outputRoot, included.DocumentElement, includeConditions, includeStack);
+				}
+				finally
+				{
+					includeStack.Remove(includeFile);
+				}
+				}
 			}
-		}
 
 		private static string AdaptQuests(string file)
 		{
@@ -271,6 +296,12 @@ public static class ResourceManager
 			else
 			{
 				output = source;
+			}
+			int removedUpdateQuests = QuestCompatibility.RemoveObsoleteClientUpdateQuests(output);
+			if (removedUpdateQuests != 0 && _devXmlLogged.Add("obsolete-client-update-quests"))
+			{
+				Debug.Log("[DevXml] disabled " + removedUpdateQuests +
+					" obsolete mobile client update quest(s) in local content mode");
 			}
 			QuestCompatibility.NormalizeFunctionSyntax(output);
 			QuestCompatibility.NormalizeActions(output);

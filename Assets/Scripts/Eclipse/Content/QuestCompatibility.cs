@@ -6,6 +6,18 @@ namespace Eclipse.Content
 {
 	public static class QuestCompatibility
 	{
+		private static readonly HashSet<string> DeferredQuestEvents = new HashSet<string>(StringComparer.Ordinal)
+		{
+			"BeforeQueue",
+			"CheckUserUpdate",
+			"RaidFloorChanged",
+			"RaidMapEnter",
+			"ReplayButtonPress",
+			"ShowRaidLoot"
+		};
+
+		private static readonly HashSet<string> LoggedDeferredActions = new HashSet<string>(StringComparer.Ordinal);
+
 		private static XmlElement RenameElement(XmlDocument document, XmlElement source, string newName)
 		{
 			XmlElement replacement = document.CreateElement(newName);
@@ -89,6 +101,60 @@ namespace Eclipse.Content
 			}
 		}
 
+		public static int RemoveObsoleteClientUpdateQuests(XmlDocument document)
+		{
+			XmlNodeList found = document.SelectNodes("//Quest[@Name='SetBackVersionCheck']");
+			List<XmlNode> quests = new List<XmlNode>();
+			foreach (XmlNode node in found)
+			{
+				quests.Add(node);
+			}
+			foreach (XmlNode quest in quests)
+			{
+				if (quest.ParentNode != null)
+				{
+					quest.ParentNode.RemoveChild(quest);
+				}
+			}
+			return quests.Count;
+		}
+
+		public static global::QuestAction CreateRuntimeAction(string name)
+		{
+			switch (name)
+			{
+			case "OpenRateUrl":
+				return new global::QuestActionOpenUrl();
+			case "SwitchToRaidsMap":
+				return new global::QuestActionSwitchToRaidsMap();
+			case "ChangeButtonState":
+			case "ClickHint":
+			case "ConnectToRaids":
+			case "GiveGift":
+			case "OpenRaidZone":
+			case "RaidIndicateRaidBtn":
+			case "SceneMenuScroll":
+			case "ShowRaidLoot":
+				return new DeferredQuestAction();
+			default:
+				return null;
+			}
+		}
+
+		public static bool IsDeferredQuestEvent(string name)
+		{
+			return DeferredQuestEvents.Contains(name);
+		}
+
+		internal static void LogDeferredAction(string name)
+		{
+			if (LoggedDeferredActions.Add(name))
+			{
+				UnityEngine.Debug.LogWarning("[DevXml] quest action '" + name +
+					"' belongs to a newer runtime subsystem and is skipped when reached");
+			}
+		}
+
 		public static void AddQuestWithConditions(
 			XmlDocument output,
 			XmlElement outputRoot,
@@ -118,6 +184,16 @@ namespace Eclipse.Content
 				}
 			}
 			outputRoot.AppendChild(importedQuest);
+		}
+	}
+
+	public sealed class DeferredQuestAction : global::QuestAction
+	{
+		public override void DEJMHFMLKIC(global::QuestParameters parameters)
+		{
+			base.DEJMHFMLKIC(parameters);
+			QuestCompatibility.LogDeferredAction(EFJMDEMAGIM);
+			OGIJONMKABB();
 		}
 	}
 }

@@ -168,6 +168,10 @@ public class QuestEvent
 		case "ShopButtonPress":
 			return PMDPDMFLCIJ.QUEST_EVENT_SHOP_BUTTON_PRESS;
 		default:
+			if (Eclipse.Content.QuestCompatibility.IsDeferredQuestEvent(LFLGCDNKNJI))
+			{
+				return PMDPDMFLCIJ.QUEST_EVENT_NONE;
+			}
 			LLLOJBFMONN.Error(string.Format("{0} {1}", "Unknown event type: ", LFLGCDNKNJI));
 			return PMDPDMFLCIJ.QUEST_EVENT_NONE;
 		}

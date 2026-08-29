@@ -360,6 +360,11 @@ public class QuestAction : global::EventDispatcher<object>
 
 	public static QuestAction GetClassActionByName(string CNKBLODAFDO)
 	{
+		QuestAction compatibilityAction = Eclipse.Content.QuestCompatibility.CreateRuntimeAction(CNKBLODAFDO);
+		if (compatibilityAction != null)
+		{
+			return compatibilityAction;
+		}
 		PODELEEIBMP lFLGCDNKNJI = HJCIPCKMANH(CNKBLODAFDO);
 		return CAHMAJAIHFI(lFLGCDNKNJI);
 	}
