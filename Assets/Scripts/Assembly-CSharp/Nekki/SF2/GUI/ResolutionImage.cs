@@ -7,8 +7,6 @@ namespace Nekki.SF2.GUI
 	[AddComponentMenu("UI_Nekki/ResolutionImage")]
 	public class ResolutionImage : Image
 	{
-		private const float MenuButtonArtworkScale = 0.78f;
-
 		private static readonly Dictionary<Sprite, Sprite> RepairedSprites = new Dictionary<Sprite, Sprite>();
 
 
@@ -131,15 +129,28 @@ namespace Nekki.SF2.GUI
 				}
 			}
 
-			if (!_SpriteName.StartsWith("MenuButtons."))
+			if (_SpriteName.StartsWith("MenuButtons.") && displayedSprite != null)
 			{
-				return;
+				// Menu atlas exports have the same stripped-padding problem as the map
+				// battle buttons, but their icons use different trimmed aspect ratios.
+				// Render the currently displayed state at its native trimmed footprint,
+				// centered inside the authored button rect, instead of stretching every
+				// icon to a square and then applying one arbitrary global shrink factor.
+				Rect targetRect = rectTransform.rect;
+				if (targetRect.width > 0f && targetRect.height > 0f &&
+					displayedSprite.rect.width > 0f && displayedSprite.rect.height > 0f)
+				{
+					Vector2 desiredSize = displayedSprite.rect.size;
+					if (desiredSize.x > targetRect.width || desiredSize.y > targetRect.height)
+					{
+						float fit = Mathf.Min(targetRect.width / desiredSize.x, targetRect.height / desiredSize.y);
+						desiredSize *= fit;
+					}
+					TransformMesh(toFill,
+						new Vector2(desiredSize.x / targetRect.width, desiredSize.y / targetRect.height),
+						Vector2.zero);
+				}
 			}
-			// The exported atlas members lost the transparent source padding that
-			// surrounded the navigation artwork. UGUI consequently stretches the
-			// trimmed pixels across the full button rect. Restore that padding in
-			// the generated mesh so the original hit area and child badges stay put.
-			TransformMesh(toFill, new Vector2(MenuButtonArtworkScale, MenuButtonArtworkScale), Vector2.zero);
 		}
 
 		private void TransformMesh(VertexHelper toFill, Vector2 scale, Vector2 offset)

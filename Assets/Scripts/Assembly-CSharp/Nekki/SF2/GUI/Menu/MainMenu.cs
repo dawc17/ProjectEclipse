@@ -159,6 +159,7 @@ namespace Nekki.SF2.GUI.Menu
 			_energy.Init();
 			_materials.Init();
 			DesktopTopBarLayout.Configure(_experience, _energy, _money);
+			ConfigureMenuScrollLayout();
 			LGGBLFOKHAO();
 			GBKFLJIEHBH();
 			HIPEIJPLBJJ();
@@ -198,6 +199,93 @@ namespace Nekki.SF2.GUI.Menu
 			{
 				SkipTutorial();
 			});
+		}
+
+		private void ConfigureMenuScrollLayout()
+		{
+			// AssetRipper unpacked the main menu into each GUI scene, so editor-side
+			// tweaks can silently make Map/Dojo/Shop/Profile disagree. Normalize the
+			// recovered layout before MenuScroll.Init() records its expanded size.
+			ConfigureRect(Scroll != null ? Scroll.GetComponent<RectTransform>() : null,
+				new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0.5f, 1f),
+				new Vector2(319.8999f, -148f), new Vector2(640f, 1240f));
+
+			ConfigureMenuButton(btnDojo, new Vector2(0f, 473.7f));
+			ConfigureMenuButton(btnMap, new Vector2(0f, 226f));
+			ConfigureMenuButton(btnShop, new Vector2(0f, -24f));
+			ConfigureMenuButton(btnProfile, new Vector2(0f, -271.1f));
+			ConfigureMenuButton(btnSettings, new Vector2(0f, -520.2f));
+
+			Button wheelButton = (Scroll != null) ? Scroll.GetButton() : null;
+			ConfigureRect(wheelButton != null ? wheelButton.GetComponent<RectTransform>() : null,
+				new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 1f),
+				new Vector2(0f, 60f), new Vector2(600f, 300f));
+
+			if (Scroll != null)
+			{
+				ConfigureNamedRect(Scroll.transform, "ScrollPaper",
+					new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f),
+					new Vector2(-0.89990234f, -620f), new Vector2(640f, 1240f));
+				ConfigureNamedRect(Scroll.transform, "ScrollBack",
+					Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+				ConfigureNamedRect(Scroll.transform, "MenuWheel",
+					new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f),
+					new Vector2(0.049987793f, -57f), new Vector2(640f, 114f));
+				ConfigureNamedRect(Scroll.transform, "MenuWheelCenter",
+					new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+					Vector2.zero, new Vector2(328f, 114f));
+				ConfigureNamedRect(Scroll.transform, "MenuWheelText",
+					new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+					Vector2.zero, new Vector2(328f, 114f));
+			}
+		}
+
+		private static void ConfigureMenuButton(SectionButton button, Vector2 position)
+		{
+			if (button == null)
+			{
+				return;
+			}
+			ConfigureRect(button.GetComponent<RectTransform>(),
+				new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+				position, new Vector2(278f, 278f));
+			ResolutionImage image = button.targetGraphic as ResolutionImage;
+			if (image != null)
+			{
+				image.preserveAspect = false;
+				image.type = Image.Type.Simple;
+				image.useSpriteMesh = false;
+			}
+		}
+
+		private static void ConfigureNamedRect(Transform root, string name, Vector2 anchorMin,
+			Vector2 anchorMax, Vector2 pivot, Vector2 position, Vector2 size)
+		{
+			RectTransform[] rects = root.GetComponentsInChildren<RectTransform>(true);
+			foreach (RectTransform rect in rects)
+			{
+				if (rect.name == name)
+				{
+					ConfigureRect(rect, anchorMin, anchorMax, pivot, position, size);
+					return;
+				}
+			}
+		}
+
+		private static void ConfigureRect(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax,
+			Vector2 pivot, Vector2 position, Vector2 size)
+		{
+			if (rect == null)
+			{
+				return;
+			}
+			rect.anchorMin = anchorMin;
+			rect.anchorMax = anchorMax;
+			rect.pivot = pivot;
+			rect.sizeDelta = size;
+			rect.anchoredPosition3D = new Vector3(position.x, position.y, 0f);
+			rect.localScale = Vector3.one;
+			rect.localRotation = Quaternion.identity;
 		}
 
 		private void LGGBLFOKHAO()
