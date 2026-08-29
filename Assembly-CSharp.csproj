@@ -240,6 +240,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableViewCellDidHighlightEvent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LogRules.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\SettingsAdvancedDialog.cs" />
+    <Compile Include="Assets\Scripts\SF2DE\UI\Settings\DesktopRenderSettingsControls.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DistancePointFollow.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionImageSkew.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CocosAnimationData.cs" />

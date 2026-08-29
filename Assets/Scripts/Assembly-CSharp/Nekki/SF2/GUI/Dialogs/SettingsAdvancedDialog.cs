@@ -1,5 +1,6 @@
 using System;
 using Nekki.SF2.GUI.Scenes;
+using SF2DE.UI.Settings;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -100,15 +101,7 @@ namespace Nekki.SF2.GUI.Dialogs
 		[SerializeField]
 		private LabelAlias lblMusicAdv;
 
-		private static readonly int[] FrameRateOptions = { 0, 60, 120, 144, 165, 240, 360 };
-
-		private ResolutionButton _btnFrameRate;
-
-		private LabelAlias _lblFrameRate;
-
-		private ResolutionButton _btnMotionBlur;
-
-		private LabelAlias _lblMotionBlur;
+		private DesktopRenderSettingsControls _desktopRenderSettings;
 
 		public override void Init(object data)
 		{
@@ -121,7 +114,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			{
 				BBDGOPHHDBJ();
 				EBNPPFKKPLD();
-				SetupDesktopRenderSettings();
+					GetDesktopRenderSettings().Setup();
 				AABKDFHHFOF();
 				GPLBHPLJNAE();
 				LMAAIDIDNEF();
@@ -136,7 +129,12 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected override void OnClickButton(object data)
 		{
-			switch ((AHDEAELNGBD)data)
+			AHDEAELNGBD buttonId = (AHDEAELNGBD)data;
+			if (GetDesktopRenderSettings().HandleClick(buttonId))
+			{
+				return;
+			}
+			switch (buttonId)
 			{
 			case AHDEAELNGBD.BTN_SOUND_ADV:
 				SoundController.FLOFHMBDHNM(!SoundController.AAFLCDKJEPL());
@@ -177,19 +175,7 @@ namespace Nekki.SF2.GUI.Dialogs
 					GraphicsController.FELIOKHNIKI();
 					GDPCOKJGAJO();
 					break;
-				case AHDEAELNGBD.BTN_RENDER_INTERPOLATION:
-					SF2DisplayFrameRate.ToggleInterpolation();
-					UpdateDesktopRenderLabels();
-					break;
-				case AHDEAELNGBD.BTN_MAX_FRAME_RATE:
-					CycleMaxFrameRate();
-					UpdateDesktopRenderLabels();
-					break;
-				case AHDEAELNGBD.BTN_MOTION_BLUR:
-					SF2DisplayFrameRate.ToggleMotionBlur();
-					UpdateDesktopRenderLabels();
-					break;
-				}
+					}
 			}
 
 		public override void OnClose(object data)
@@ -322,85 +308,26 @@ namespace Nekki.SF2.GUI.Dialogs
 		{
 		}
 
-			protected void ALBPEOFFDKK()
+		protected void ALBPEOFFDKK()
+		{
+			float jMLAKAKDBBL = 1500f;
+			ChangeButtonTouchZone(btnGraphics, jMLAKAKDBBL);
+			ChangeButtonTouchZone(GetDesktopRenderSettings().FrameRateButton, jMLAKAKDBBL);
+			ChangeButtonTouchZone(GetDesktopRenderSettings().MotionBlurButton, jMLAKAKDBBL);
+			ChangeButtonTouchZone(btnController, jMLAKAKDBBL);
+		}
+
+		private DesktopRenderSettingsControls GetDesktopRenderSettings()
+		{
+			if (_desktopRenderSettings == null)
 			{
-				float jMLAKAKDBBL = 1500f;
-				ChangeButtonTouchZone(btnGraphics, jMLAKAKDBBL);
-				ChangeButtonTouchZone(_btnFrameRate, jMLAKAKDBBL);
-				ChangeButtonTouchZone(_btnMotionBlur, jMLAKAKDBBL);
-				ChangeButtonTouchZone(btnController, jMLAKAKDBBL);
+				_desktopRenderSettings = new DesktopRenderSettingsControls(
+					(_content == null) ? null : _content.transform,
+					btnGraphics, lblGraphics, btnController, btnMusicAdv, btnSoundAdv,
+					OHDFPIADEIG, IHPJIBKOPDL, AOFFEDGGNMN);
 			}
-
-			private void SetupDesktopRenderSettings()
-			{
-				if (btnGraphics == null || _content == null)
-				{
-					return;
-				}
-
-				Transform frameRateRow = _content.transform.Find("btnLocationRes");
-				if (frameRateRow != null)
-				{
-					_btnFrameRate = frameRateRow.GetComponent<ResolutionButton>();
-					_lblFrameRate = frameRateRow.GetComponentInChildren<LabelAlias>(true);
-				}
-
-				if (_btnMotionBlur == null)
-				{
-					GameObject motionBlurRow = UnityEngine.Object.Instantiate(btnGraphics.gameObject, _content.transform, false);
-					motionBlurRow.name = "btnMotionBlur";
-					_btnMotionBlur = motionBlurRow.GetComponent<ResolutionButton>();
-					_lblMotionBlur = motionBlurRow.GetComponentInChildren<LabelAlias>(true);
-				}
-
-				OHDFPIADEIG(btnGraphics, "SettingsButtons.graphics", "SettingsButtons.graphics_selected", -620f, 325f, AHDEAELNGBD.BTN_RENDER_INTERPOLATION);
-				OHDFPIADEIG(_btnFrameRate, "SettingsButtons.graphics", "SettingsButtons.graphics_selected", -620f, 185f, AHDEAELNGBD.BTN_MAX_FRAME_RATE);
-				OHDFPIADEIG(_btnMotionBlur, "SettingsButtons.graphics", "SettingsButtons.graphics_selected", -620f, 45f, AHDEAELNGBD.BTN_MOTION_BLUR);
-				OHDFPIADEIG(btnController, "SettingsButtons.controller", "SettingsButtons.controller_selected", -620f, -95f, AHDEAELNGBD.BTN_CONTROLLER);
-				IHPJIBKOPDL();
-				AOFFEDGGNMN();
-
-				btnMusicAdv.transform.BGNJGIACJBG(-235f);
-				btnSoundAdv.transform.BGNJGIACJBG(-375f);
-				UpdateDesktopRenderLabels();
-			}
-
-			private void UpdateDesktopRenderLabels()
-			{
-				SetDesktopRenderLabel(lblGraphics, "Frame interpolation: " + (SF2DisplayFrameRate.InterpolationEnabled ? "On" : "Off"));
-				string frameRate = SF2DisplayFrameRate.MaxFrameRate <= 0 ? "Display / VSync" : SF2DisplayFrameRate.MaxFrameRate + " FPS";
-				SetDesktopRenderLabel(_lblFrameRate, "Max frame rate: " + frameRate);
-				SetDesktopRenderLabel(_lblMotionBlur, "Motion blur: " + (SF2DisplayFrameRate.MotionBlurEnabled ? "On" : "Off"));
-			}
-
-			private void SetDesktopRenderLabel(LabelAlias label, string text)
-			{
-				if (label == null)
-				{
-					return;
-				}
-				label.gameObject.SetActive(true);
-				label.set_Alias(string.Empty);
-				label.alignment = TextAnchor.MiddleLeft;
-				label.set_LabelFontSize(101);
-				label.color = Constants.PJJIMHMJPAL;
-				label.set_text(text);
-			}
-
-			private void CycleMaxFrameRate()
-			{
-				int current = SF2DisplayFrameRate.MaxFrameRate;
-				for (int i = 0; i < FrameRateOptions.Length; i++)
-				{
-					if (FrameRateOptions[i] == current)
-					{
-						int nextIndex = (i + 1) % FrameRateOptions.Length;
-						SF2DisplayFrameRate.SetMaxFrameRate(FrameRateOptions[nextIndex]);
-						return;
-					}
-				}
-				SF2DisplayFrameRate.SetMaxFrameRate(0);
-			}
+			return _desktopRenderSettings;
+		}
 
 		protected void DFLOLCIKPEM()
 		{
