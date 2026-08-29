@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using SF2DE.Content;
 using SF2DE.Underworld.Content;
 using UnityEngine;
 using UnityEngine.Video;
@@ -780,44 +781,6 @@ public static class ResourceManager
 			return custom.OuterXml;
 		}
 
-		private static int EnsureSurvivalRewardRows(XmlDocument document)
-		{
-			int addedRows = 0;
-			foreach (XmlElement battle in document.SelectNodes("//Battle[@Type='SURVIVAL']"))
-			{
-				foreach (XmlElement fight in battle.SelectNodes("./Fight"))
-				{
-					XmlElement warrior = fight.SelectSingleNode("./Warriors/Warrior[@Number]") as XmlElement;
-					XmlElement rewards = fight["Rewards"];
-					if (warrior == null || rewards == null)
-					{
-						continue;
-					}
-					int waves;
-					if (!int.TryParse(warrior.GetAttribute("Number"), out waves) || waves <= 0)
-					{
-						continue;
-					}
-					XmlNodeList rewardNodes = rewards.SelectNodes("./Reward");
-					XmlElement terminalReward = rewards.SelectSingleNode("./Reward[last()]") as XmlElement;
-					if (terminalReward == null)
-					{
-						continue;
-					}
-					// Survival reward index 0 is the initial state; the legacy result
-					// flow selects the reward at the completed-wave index. Recovered
-					// late-game tables have no authored payouts beyond wave six, so keep
-					// their terminal payout rather than producing a null reward.
-					for (int rewardCount = rewardNodes.Count; rewardCount <= waves; rewardCount++)
-					{
-						rewards.AppendChild(document.ImportNode(terminalReward, true));
-						addedRows++;
-					}
-				}
-			}
-			return addedRows;
-		}
-
 		private static string AdaptStages(string file)
 		{
 			XmlDocument custom = LoadPlainXml(file);
@@ -825,38 +788,23 @@ public static class ResourceManager
 			// this legacy runtime only opens stages.xml. Merge the raid zones into
 			// the document before applying the normal compatibility transforms so
 			// their fights use the same parser and local FightScene as story fights.
-				string raidsFile = Path.Combine(GetDevXmlRoot(), "raid_stages_default.xml");
-				int importedRaidZones = 0;
-				if (custom.DocumentElement != null && File.Exists(raidsFile))
-				{
-					importedRaidZones = UnderworldStageCompatibility.ImportRaidZones(custom, LoadPlainXml(raidsFile));
-				}
+			string raidsFile = Path.Combine(GetDevXmlRoot(), "raid_stages_default.xml");
+			int importedRaidZones = 0;
+			if (custom.DocumentElement != null && File.Exists(raidsFile))
+			{
+				importedRaidZones = UnderworldStageCompatibility.ImportRaidZones(custom, LoadPlainXml(raidsFile));
+			}
 			if (importedRaidZones != 0 && _devXmlLogged.Add("underworld-stage-zones"))
 			{
 				Debug.Log("[Underworld] loaded " + importedRaidZones +
 					" raid map zone(s) from raid_stages_default.xml");
 			}
+
 			string compatFile = Path.Combine(GetDevXmlRoot(), "compat", "stages.xml");
 			int imported = 0;
 			if (custom.DocumentElement != null && File.Exists(compatFile))
 			{
-				XmlDocument compat = LoadPlainXml(compatFile);
-				foreach (XmlElement compatZone in compat.SelectNodes("/Stages/Zones/Zone[@Name]"))
-				{
-					string zoneName = compatZone.GetAttribute("Name");
-					XmlElement customZone = custom.SelectSingleNode(
-						"/Stages/Zones/Zone[@Name='" + zoneName + "']") as XmlElement;
-					if (customZone == null)
-						continue;
-					foreach (XmlElement compatBattle in compatZone.SelectNodes("./Battle[@Name]"))
-					{
-						string battleName = compatBattle.GetAttribute("Name");
-						if (customZone.SelectSingleNode("./Battle[@Name='" + battleName + "']") != null)
-							continue;
-						customZone.AppendChild(custom.ImportNode(compatBattle, true));
-						imported++;
-					}
-				}
+				imported = StageCompatibility.MergeMissingBattles(custom, LoadPlainXml(compatFile));
 			}
 			if (imported != 0 && _devXmlLogged.Add("compat-stage-battles"))
 			{
@@ -865,37 +813,11 @@ public static class ResourceManager
 			}
 
 			// Newer stage data can put a common enemy pool and common rules on the
-			// Battle.  This legacy runtime only parses those nodes from each Fight.
+			// Battle. This legacy runtime only parses those nodes from each Fight.
 			// Materialize the inheritance before handing the document to ListSF.
-			int inheritedWarriors = 0;
-			int inheritedRuleSets = 0;
-			foreach (XmlElement battle in custom.SelectNodes("//Battle"))
-			{
-				XmlElement commonWarriors = battle["Warriors"];
-				XmlElement commonRules = battle["Rules"];
-				foreach (XmlElement fight in battle.SelectNodes("./Fight"))
-				{
-					if (fight["Warriors"] == null && commonWarriors != null)
-					{
-						fight.AppendChild(custom.ImportNode(commonWarriors, true));
-						inheritedWarriors++;
-					}
-					if (commonRules != null)
-					{
-						XmlElement fightRules = fight["Rules"];
-						if (fightRules == null)
-						{
-							fightRules = custom.CreateElement("Rules");
-							fight.AppendChild(fightRules);
-						}
-						foreach (XmlNode commonRule in commonRules.ChildNodes)
-						{
-							fightRules.AppendChild(custom.ImportNode(commonRule, true));
-						}
-						inheritedRuleSets++;
-					}
-				}
-			}
+			int inheritedWarriors;
+			int inheritedRuleSets;
+			StageCompatibility.MaterializeBattleInheritance(custom, out inheritedWarriors, out inheritedRuleSets);
 			if (inheritedWarriors != 0 && _devXmlLogged.Add("stages-battle-warriors"))
 			{
 				Debug.Log("[DevXml] inherited newer battle-level warrior pools into " +
@@ -906,43 +828,34 @@ public static class ResourceManager
 				Debug.Log("[DevXml] inherited newer battle-level rules into " +
 					inheritedRuleSets + " legacy fight definitions");
 			}
-			int addedSurvivalRewardRows = EnsureSurvivalRewardRows(custom);
+
+			int addedSurvivalRewardRows = StageCompatibility.EnsureSurvivalRewardRows(custom);
 			if (addedSurvivalRewardRows != 0 && _devXmlLogged.Add("survival-reward-rows"))
 			{
 				Debug.Log("[Survival] supplied " + addedSurvivalRewardRows +
 					" missing terminal reward row(s) for full-length survival battles");
 			}
 
-			// The old fight HUD has room for two timer digits.  New data commonly
+			// The old fight HUD has room for two timer digits. New data commonly
 			// requests 150 seconds, which appeared as 15 and then 14 as the clipped
-			// third digit changed.  Preserve shorter challenge timers and clamp only
+			// third digit changed. Preserve shorter challenge timers and clamp only
 			// values the legacy presentation cannot display. Underworld raid
 			// encounters keep their original long timers: their multi-bar fights
 			// routinely outlast the HUD limit and a timeout would count as a loss.
-				int clampedRoundTimes = 0;
-				foreach (XmlElement timedNode in custom.SelectNodes("//*[@RoundTime]"))
-				{
-					if (UnderworldStageCompatibility.IsInsideRaidZone(timedNode))
-					{
-						continue;
-					}
-				int roundTime;
-				if (int.TryParse(timedNode.GetAttribute("RoundTime"), out roundTime) && roundTime > 99)
-				{
-					timedNode.SetAttribute("RoundTime", "99");
-					clampedRoundTimes++;
-				}
-			}
+			int clampedRoundTimes = StageCompatibility.ClampLegacyRoundTimes(
+				custom,
+				UnderworldStageCompatibility.IsInsideRaidZone);
 			if (clampedRoundTimes != 0 && _devXmlLogged.Add("stages-round-time"))
 			{
 				Debug.Log("[DevXml] clamped " + clampedRoundTimes +
 					" newer round timers to the legacy HUD maximum (99 seconds)");
 			}
+
 			// Server-driven raids use Rounds=0 because their shield/session ends
 			// the encounter. The restored offline path has no raid server, so make
 			// each boss a conventional one-round fight instead of an immediate
 			// zero-round completion.
-				int localizedRaidRounds = UnderworldStageCompatibility.AdaptOfflineRaidRounds(custom);
+			int localizedRaidRounds = UnderworldStageCompatibility.AdaptOfflineRaidRounds(custom);
 			if (localizedRaidRounds != 0 && _devXmlLogged.Add("underworld-local-rounds"))
 			{
 				Debug.Log("[Underworld] adapted " + localizedRaidRounds +
