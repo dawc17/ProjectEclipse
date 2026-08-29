@@ -665,80 +665,6 @@ public static class ResourceManager
 			return output.OuterXml;
 		}
 
-		private static XmlElement FindMatchingSettingsChild(XmlElement target, XmlElement fallbackChild)
-		{
-			string[] identityAttributes = { "Name", "Type", "ID", "Gems", "PlatformID" };
-			foreach (XmlNode childNode in target.ChildNodes)
-			{
-				XmlElement child = childNode as XmlElement;
-				if (child == null || child.Name != fallbackChild.Name)
-					continue;
-				bool keyed = false;
-				bool matches = true;
-				foreach (string identityAttribute in identityAttributes)
-				{
-					if (!fallbackChild.HasAttribute(identityAttribute))
-						continue;
-					keyed = true;
-					if (child.GetAttribute(identityAttribute) != fallbackChild.GetAttribute(identityAttribute))
-					{
-						matches = false;
-						break;
-					}
-				}
-				if (!keyed || matches)
-					return child;
-			}
-			return null;
-		}
-
-		private static int MergeMissingSettings(XmlDocument document, XmlElement target, XmlElement fallback)
-		{
-			int imported = 0;
-			foreach (XmlAttribute attribute in fallback.Attributes)
-			{
-				if (!target.HasAttribute(attribute.Name))
-				{
-					target.SetAttribute(attribute.Name, attribute.Value);
-					imported++;
-				}
-			}
-			foreach (XmlNode fallbackNode in fallback.ChildNodes)
-			{
-				XmlElement fallbackChild = fallbackNode as XmlElement;
-				if (fallbackChild == null)
-					continue;
-				XmlElement targetChild = FindMatchingSettingsChild(target, fallbackChild);
-				if (targetChild == null)
-				{
-					target.AppendChild(document.ImportNode(fallbackChild, true));
-					imported++;
-					continue;
-				}
-				imported += MergeMissingSettings(document, targetChild, fallbackChild);
-			}
-			return imported;
-		}
-
-		private static int RemoveUnsupportedQualityOptions(XmlDocument document)
-		{
-			int removed = 0;
-			XmlNodeList options = document.SelectNodes("/Settings/QualityOptions/Option[@Name]");
-			var unsupported = new List<XmlNode>();
-			foreach (XmlNode option in options)
-			{
-				string name = option.Attributes["Name"].Value;
-				if (name != "ReduceFPS" && name != "ParticlesOff" && name != "SequencesOff")
-					unsupported.Add(option);
-			}
-			foreach (XmlNode option in unsupported)
-			{
-				option.ParentNode.RemoveChild(option);
-				removed++;
-			}
-			return removed;
-		}
-
 		private static string AdaptInternalSettings(string file)
 		{
 			XmlDocument custom = LoadPlainXml(file);
@@ -748,7 +674,9 @@ public static class ResourceManager
 				XmlDocument compat = LoadPlainXml(compatFile);
 				if (compat.DocumentElement != null)
 				{
-					int imported = MergeMissingSettings(custom, custom.DocumentElement,
+					int imported = InternalSettingsCompatibility.MergeMissingSettings(
+						custom,
+						custom.DocumentElement,
 						compat.DocumentElement);
 					if (imported != 0 && _devXmlLogged.Add("settings-schema-bridge"))
 					{
@@ -757,25 +685,23 @@ public static class ResourceManager
 					}
 				}
 			}
-			int removedQualityOptions = RemoveUnsupportedQualityOptions(custom);
+
+			int removedQualityOptions = InternalSettingsCompatibility.RemoveUnsupportedQualityOptions(custom);
 			if (removedQualityOptions != 0 && _devXmlLogged.Add("settings-quality-bridge"))
 			{
 				Debug.Log("[DevXml] ignored " + removedQualityOptions +
 					" newer quality profile marker(s) unsupported by this runtime");
 			}
+
 			// The newer development settings ship with this cheat enabled. In a
 			// Unity Editor build Debug.isDebugBuild is always true, so honoring it
 			// makes magic conditions accept zero bullets and rewrites the cast's
 			// -1 consumption action to zero. Keep migrated gameplay data active,
 			// but never import this development-only unlimited-magic switch.
-			XmlElement alwaysMagic = custom.SelectSingleNode("/Settings/AlwaysMagicMode") as XmlElement;
-			if (alwaysMagic != null && alwaysMagic.GetAttribute("Value") != "0")
+			if (InternalSettingsCompatibility.DisableAlwaysMagicMode(custom) &&
+				_devXmlLogged.Add("settings-disable-always-magic"))
 			{
-				alwaysMagic.SetAttribute("Value", "0");
-				if (_devXmlLogged.Add("settings-disable-always-magic"))
-				{
-					Debug.Log("[DevXml] disabled newer AlwaysMagicMode developer cheat");
-				}
+				Debug.Log("[DevXml] disabled newer AlwaysMagicMode developer cheat");
 			}
 			NormalizeFunctionSyntax(custom);
 			return custom.OuterXml;
