@@ -118,7 +118,13 @@ public class Roster : MELBIBHDPCE
 
 	private long HBPJBBJFHME = -1L;
 
-	public bool ADKHNLAMDJP;
+	// Energy is disabled for every profile, including existing depleted saves.
+	// Keep the legacy member writable for recovered item/quest callers.
+	public bool ADKHNLAMDJP
+	{
+		get { return true; }
+		set { }
+	}
 
 	private long GKLJJHLFACI;
 
@@ -695,13 +701,8 @@ public class Roster : MELBIBHDPCE
 		_experience = (ObscuredUInt)(node.Attributes["Experience"].ParseUint());
 		OGLHGFJKMCO = GameUtils.NAMEDMHAFKA();
 		DIJOCFEFHAK = GameUtils.DIJOCFEFHAK;
-		_power = (ObscuredInt)(node.Attributes["Power"].ParseInt());
-		if ((ObscuredInt)(_power) > OGLHGFJKMCO)
-		{
-			_power = (ObscuredInt)(OGLHGFJKMCO);
-		}
-		ADKHNLAMDJP = false;
-		CHJNGJLCICH = node.Attributes["PowerSyncTime"].ParseInt();
+		_power = (ObscuredInt)OGLHGFJKMCO;
+		CHJNGJLCICH = -1L;
 		BHOEHPFBIJE = node.Attributes["LastDailyTimeOffset"].ParseInt();
 		JOLENHJGDLH = node.Attributes["LastEnergyTimeOffset"].ParseInt();
 		GKLJJHLFACI = node.Attributes["LastDumpTime"].ParseInt();
@@ -719,8 +720,6 @@ public class Roster : MELBIBHDPCE
 		JHJLHNHCPMP = node.Attributes["EclipseMode"].CIPOICEEIBK("Off") == "On";
 		FPCJCIIBLND = node["Items"];
 		JEMDPOAHOAP.Parse(FPCJCIIBLND);
-		UserItem dKCHDHMLKHN = JEMDPOAHOAP.CMGOCLGHNLH("Unlimited_Energy");
-		ADKHNLAMDJP = dKCHDHMLKHN != null;
 		IOFKIODDAMJ = node["Battles"];
 		foreach (XmlNode childNode in IOFKIODDAMJ.ChildNodes)
 		{
@@ -1039,7 +1038,7 @@ public class Roster : MELBIBHDPCE
 
 	public int NHKMGNPADKI()
 	{
-		return (ObscuredInt)(_power);
+		return OGLHGFJKMCO;
 	}
 
 	public long FNDAKFILBOE()
@@ -1055,7 +1054,7 @@ public class Roster : MELBIBHDPCE
 
 	public long NHFHDFIJEJG()
 	{
-		return HBPJBBJFHME;
+		return -1L;
 	}
 
 	public long NBDICCLKEAC()
@@ -1822,62 +1821,19 @@ public class Roster : MELBIBHDPCE
 
 	public bool ChangePower(int value)
 	{
-		if (value == 0)
-		{
-			return true;
-		}
-		int num = Mathf.Min((ObscuredInt)(_power) + value, OGLHGFJKMCO);
-		if (num < 0)
-		{
-			return false;
-		}
-		DKAAELKJJOP(num);
+		// Spending/refilling energy is a successful no-op, never a fight gate.
 		return true;
 	}
 
 	public void DKAAELKJJOP(int value)
 	{
-		int num = Mathf.Min(value, OGLHGFJKMCO);
-		int num2 = (ObscuredInt)(_power);
-		if (num != num2)
-		{
-			_power = (ObscuredInt)(num);
-			num2 = (ObscuredInt)(_power);
-			EMDLLIGKONG("Power", num2);
-			if (num2 == OGLHGFJKMCO && OGLHGFJKMCO != 0)
-			{
-				PABEFKBJNEF(-1L);
-				DHKODKHPGGN(-1L);
-			}
-		}
+		// Legacy SetEnergy quest actions must not reintroduce depletion.
+		_power = (ObscuredInt)OGLHGFJKMCO;
 	}
 
 	public void ALJEKDDKPJJ(long LBIGLJLMIDG)
 	{
-		int num = (ObscuredInt)(_power);
-		if (num == OGLHGFJKMCO)
-		{
-			return;
-		}
-		if (FNDAKFILBOE() == -1)
-		{
-			PABEFKBJNEF(LBIGLJLMIDG);
-			DHKODKHPGGN(LBIGLJLMIDG);
-			return;
-		}
-		long num2 = LBIGLJLMIDG - FNDAKFILBOE();
-		int num3 = (int)(num2 / DIJOCFEFHAK);
-		if (FNDAKFILBOE() > LBIGLJLMIDG)
-		{
-			PABEFKBJNEF(LBIGLJLMIDG);
-		}
-		if (num3 > 0)
-		{
-			long bAINMLLIKOL = LBIGLJLMIDG - num2 % DIJOCFEFHAK;
-			PABEFKBJNEF(bAINMLLIKOL);
-			DKAAELKJJOP(num + num3);
-		}
-		DHKODKHPGGN(LBIGLJLMIDG);
+		// No regeneration clock or save writes are needed without energy.
 	}
 
 	public bool BMADIJMPENJ(UserItem item, bool JBCMFEPAKLK = true)
@@ -2443,11 +2399,6 @@ public class Roster : MELBIBHDPCE
 		}
 		COKACMKOIGD(pPNFBAFOOAH.name);
 		LocalizationManager.BJPNKAGDKFL(pPNFBAFOOAH);
-	}
-
-	private void DHKODKHPGGN(long LBIGLJLMIDG)
-	{
-		HBPJBBJFHME = (((ObscuredInt)(_power) != OGLHGFJKMCO) ? (DIJOCFEFHAK - (LBIGLJLMIDG - CHJNGJLCICH)) : (-1));
 	}
 
 	private void PLELELJIKEL()

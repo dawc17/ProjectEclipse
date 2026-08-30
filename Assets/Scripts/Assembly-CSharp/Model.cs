@@ -2569,6 +2569,12 @@ public class Model : global::EventDispatcher<object>
 			Debug.LogWarning("Animation '" + name + "' is unavailable on model '" + get_Name() + "'");
 			return false;
 		}
+		if (AOJJBKLCHJO == 0)
+		{
+			// Named actions bypass SelectAnimation, which normally resolves SetDirection.
+			// Paired throws must use the same facing before sharing an animation origin.
+			AOJJBKLCHJO = cMGIPKIPIPA.CEDEDCLGJDE(_ModelConditions, KFCNPADAMHA());
+		}
 		return PlayAnimation(cMGIPKIPIPA, AOJJBKLCHJO);
 	}
 

@@ -67,4 +67,6 @@ desktop.ini
 
 # Crashlytics (Unity default)
 crashlytics-build.properties
-/Tools/LegacyServices
+/Tools/LegacyServices/*
+!/Tools/LegacyServices/README.md
+!/Tools/LegacyServices/AssemblyCleanup/

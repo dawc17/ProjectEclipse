@@ -181,6 +181,7 @@ public class ProfileScene : Scene<ProfileScene>
 
 	protected override void Init(object data)
 	{
+		Eclipse.UI.ProfileBottomBarLayout.Configure(_btnPerks, _btnTricks, _btnAchievements, _btnSeals);
 		KMIJDCPHHML = GameCenterController.OBDJPKOJADA();
 		mainMenu.Init();
 		KIHHCIHBNLB();

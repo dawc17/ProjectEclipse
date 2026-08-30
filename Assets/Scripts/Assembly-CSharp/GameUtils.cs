@@ -2292,10 +2292,6 @@ public static class GameUtils
 				return true;
 			}
 		}
-		if (!ListSF.CCDKHLAMKKO().ADKHNLAMDJP && !ChangeEnergy(KGKDKENMAOA.BFMMAFJFABG()))
-		{
-			return false;
-		}
 		if (KGKDKENMAOA.get_Type() != BattleType.FightPeriodic)
 		{
 			KGKDKENMAOA.FLKFFDLLBKA().CKJFJFPBIFF(ListSF.BLBNJKJKMBM());
@@ -2345,25 +2341,6 @@ public static class GameUtils
 		}
 		FightHolder.fightList = KGKDKENMAOA;
 		return true;
-	}
-
-	private static bool ChangeEnergy(int GPKIOJKBCAG)
-	{
-		bool result = ListSF.ChangeEnergy(-GPKIOJKBCAG);
-		LocalNotificationManager.ELEBLBJKDBI().OHMBBMKPAHD();
-		LocalNotificationManager.ELEBLBJKDBI().GONAFNDNGHK();
-		int num = ListSF.CCDKHLAMKKO().NHKMGNPADKI();
-		int oGLHGFJKMCO = ListSF.CCDKHLAMKKO().OGLHGFJKMCO;
-		if (oGLHGFJKMCO > num)
-		{
-			int num2 = (oGLHGFJKMCO - num) * ListSF.CCDKHLAMKKO().DIJOCFEFHAK;
-			LocalNotificationManager.ELEBLBJKDBI().HOHFHDMEDLI(num2);
-			if (num == 0)
-			{
-				LocalNotificationManager.ELEBLBJKDBI().DODOMBCHMDN(ListSF.CCDKHLAMKKO().NHFHDFIJEJG());
-			}
-		}
-		return result;
 	}
 
 	public static void MGBPBNNNLLO()

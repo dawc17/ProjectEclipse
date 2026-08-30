@@ -129,9 +129,9 @@ namespace Nekki.SF2.GUI
 				}
 			}
 
-			if (_SpriteName.StartsWith("MenuButtons.") && displayedSprite != null)
+			if ((_SpriteName.StartsWith("MenuButtons.") || _SpriteName.StartsWith("ProfileButtons.")) && displayedSprite != null)
 			{
-				// Menu atlas exports have the same stripped-padding problem as the map
+				// Menu/profile atlas exports have the same stripped-padding problem as the map
 				// battle buttons, but their icons use different trimmed aspect ratios.
 				// Render the currently displayed state at its native trimmed footprint,
 				// centered inside the authored button rect, instead of stretching every

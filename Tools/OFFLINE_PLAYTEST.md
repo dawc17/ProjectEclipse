@@ -40,10 +40,11 @@ and release builds. Missing or stale hashes are accepted. Existing saves and
 sidecars are not deleted by this change. The application/save identity is
 unchanged: back up profiles before installing over an earlier build.
 
-Debugging code remains. The optional CUDLR debug listener runs only in Development
-Builds on supported mobile platforms and binds only to `127.0.0.1`, not the LAN.
-It no longer decrypts the original device whitelist or queries DNS. Ordinary
-Unity/Logcat logging remains available in release builds.
+Local debugging code remains, but the CUDLR HTTP console has been archived and
+no longer starts a listener. Fight debug controls use Unity's development-build
+flag without requiring a server. Ordinary Unity/Logcat logging remains available
+in release builds. Obsolete UID/licensing console commands have been removed;
+local gameplay commands remain.
 Remote gameplay clients reject requests locally;
 filesystem and Android `jar:file:` resource loading remain allowed. This is an
 offline application configuration, not an OS firewall rule. The editor/package

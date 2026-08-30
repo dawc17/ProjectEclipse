@@ -18,7 +18,6 @@ public class PreInitializationModule : LoadingModule
 		if (!NDHHFHHBFEC)
 		{
 			NDHHFHHBFEC = true;
-			CUDLRConsole.Init();
 			ApplicationController.Init();
 			RaidCheatManager.Init();
 			SF2Paths.Init();

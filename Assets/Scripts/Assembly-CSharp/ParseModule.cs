@@ -9,7 +9,6 @@ public class ParseModule : LoadingModule
 			GameLoader.BJLLJHDFMOO();
 			GameLoader.POLKDKOOACO();
 			ListSF.ELEBLBJKDBI().IIKDNMBIHCM();
-			PurchaseController.Init();
 			PerkTree.GBPBIPFIOJH().LJHPGKAOIAE();
 			GameSettings.LNNLDPLDABI();
 			GameLoader.SetSound();

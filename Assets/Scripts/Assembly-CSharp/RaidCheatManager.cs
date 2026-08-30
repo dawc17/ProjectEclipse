@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Nekki.SF2.Core;
 using Nekki.SF2.Core.Fights.Controller;
-using Nekki.SF2.Core.Security;
 using Nekki.SF2.GUI;
 using Nekki.SF2.GUI.Common;
 using Nekki.SF2.GUI.Menu;
@@ -40,12 +39,6 @@ public static class RaidCheatManager
 
 	public const string PKIAHHJBCAK = "bundles [reset] - some test commands for bundles ('reset' - reset bundles cache)";
 
-	public const string GKBJBBOOALM = "uid - get uid for cudlr";
-
-	public const string BJAJLMILIGJ = "security [full/honeypot/binary_enc/user_id/code_signature/file_man/jb/license/signature/installer/debug/emulator/uapps] - license check";
-
-	public const string NOMFEMNHGII = "license - get Apple AppReceipt on iOS and GooglePlayLicenseServerResponse on Android";
-
 	public const string MKPMOMMOIHN = "cheat [win round|win fight|lose round|lose fight|reset round|reset fight]\ncheat [pause|next|min scale|magic|combo|style|crit]\ncheat [player godmode|bot godmode|debug|perks|slow]\ncheat (you can pass any kind of ControlQuadrant enum)";
 
 	public const string DOJLNEANBAE = "notif t1 (int) - run simple Test-notification-1\nnotif [Fa0|Faf | Fa1|Fat] - force show all notifications (Paid/non-Paid SF2) off/on\nnotif ra (int) - run all notifs\nnotif info - print to console notif. infos\nnotif kill - cancel all notifications\nnotif en (t|1 | f|0) - enable or disable all notifications\nlook SFIIU-48 or Wiki for details";
@@ -70,9 +63,6 @@ public static class RaidCheatManager
 			ConsoleDatabase.IMEAIJNKBOP("obfuscator", BKJDKEAFFNF);
 			ConsoleDatabase.IMEAIJNKBOP("of", BKJDKEAFFNF);
 			ConsoleDatabase.IMEAIJNKBOP("bundles", GPFCEPPIECF);
-			ConsoleDatabase.IMEAIJNKBOP("uid", EKGIBBMKNGJ);
-			ConsoleDatabase.IMEAIJNKBOP("security", PHOGKIPMJFI);
-			ConsoleDatabase.IMEAIJNKBOP("license", FIFCCIDNJPJ);
 			ConsoleDatabase.IMEAIJNKBOP("cheat", MMDKNJAIPLJ);
 			ConsoleDatabase.IMEAIJNKBOP("notif", PEJJDCECHPC);
 		}
@@ -107,9 +97,6 @@ public static class RaidCheatManager
 		stringBuilder.AppendLine("s - skip tutorial");
 		stringBuilder.AppendLine("payment [unlock/restore/products/receipt/satb/verify/log/logu/purchase] - some test commands for payment");
 		stringBuilder.AppendLine("obfuscator/of [logi/logw/loge/logexp] - some test commands for obfuscator");
-		stringBuilder.AppendLine("uid - get uid for cudlr");
-		stringBuilder.AppendLine("security [full/honeypot/binary_enc/user_id/code_signature/file_man/jb/license/signature/installer/debug/emulator/uapps] - license check");
-		stringBuilder.AppendLine("license - get Apple AppReceipt on iOS and GooglePlayLicenseServerResponse on Android");
 		stringBuilder.AppendLine("cheat [win round|win fight|lose round|lose fight|reset round|reset fight]\ncheat [pause|next|min scale|magic|combo|style|crit]\ncheat [player godmode|bot godmode|debug|perks|slow]\ncheat (you can pass any kind of ControlQuadrant enum)");
 		stringBuilder.AppendLine("notif t1 (int) - run simple Test-notification-1\nnotif [Fa0|Faf | Fa1|Fat] - force show all notifications (Paid/non-Paid SF2) off/on\nnotif ra (int) - run all notifs\nnotif info - print to console notif. infos\nnotif kill - cancel all notifications\nnotif en (t|1 | f|0) - enable or disable all notifications\nlook SFIIU-48 or Wiki for details");
 		return stringBuilder.ToString().TrimEnd('\r', '\n');
@@ -409,62 +396,6 @@ public static class RaidCheatManager
 			return "Ok";
 		}
 		return "Unknown bundles action!";
-	}
-
-	public static string EKGIBBMKNGJ(params string[] PCJAKPJMKGN)
-	{
-		return string.Format("DeviceUID: {0}", SystemProperties.IJOILMDCIMI());
-	}
-
-	public static string PHOGKIPMJFI(params string[] PCJAKPJMKGN)
-	{
-		if (PCJAKPJMKGN.Length == 0)
-		{
-			return "No Arguments! Try: security [full/honeypot/binary_enc/user_id/code_signature/file_man/jb/license/signature/installer/debug/emulator/uapps]!";
-		}
-		bool flag = PCJAKPJMKGN.Contains("full");
-		SecurityManager.AFDFFNCKPHM aFDFFNCKPHM = new SecurityManager.AFDFFNCKPHM();
-		aFDFFNCKPHM.LNEFNLLOGGH().GJOHIPDEMOB = flag || PCJAKPJMKGN.Contains("honeypot");
-		aFDFFNCKPHM.LNEFNLLOGGH().JHNMCGGGGGO = flag || PCJAKPJMKGN.Contains("binary_enc");
-		aFDFFNCKPHM.LNEFNLLOGGH().AIPAICPCNBE = flag || PCJAKPJMKGN.Contains("user_id");
-		aFDFFNCKPHM.LNEFNLLOGGH().AJKBKHIGBJN = flag || PCJAKPJMKGN.Contains("code_signature");
-		aFDFFNCKPHM.LNEFNLLOGGH().OCGDKIOJGLP = flag || PCJAKPJMKGN.Contains("file_man");
-		aFDFFNCKPHM.LNEFNLLOGGH().GBLMPEGLJLF = flag || PCJAKPJMKGN.Contains("jb");
-		aFDFFNCKPHM.HLNECMJHMCP().OGKBLPIJPBK = ((!flag && !PCJAKPJMKGN.Contains("license")) ? null : Constants.DPMDLBCBJJD());
-		aFDFFNCKPHM.HLNECMJHMCP().FBFKEJEOELM = ((!flag && !PCJAKPJMKGN.Contains("signature")) ? null : Constants.JFCAJKAOPLL());
-		aFDFFNCKPHM.HLNECMJHMCP().ENNGMHNJDKH = flag || PCJAKPJMKGN.Contains("installer");
-		aFDFFNCKPHM.HLNECMJHMCP().GIIGLIJLPPB = flag || PCJAKPJMKGN.Contains("debug");
-		aFDFFNCKPHM.HLNECMJHMCP().IJPBIJAIHIO = flag || PCJAKPJMKGN.Contains("emulator");
-		aFDFFNCKPHM.HLNECMJHMCP().FKINJGAKICM = flag || PCJAKPJMKGN.Contains("emulator");
-		aFDFFNCKPHM.HLNECMJHMCP().ONJIELDFHMP = flag || PCJAKPJMKGN.Contains("uapps");
-		SecurityManager.get_Current().CheckLicense(KHLDJJLIOLI, aFDFFNCKPHM);
-		return "Ok";
-	}
-
-	private static void KHLDJJLIOLI(LicenseRequestResult AMKKLMOONEP)
-	{
-		switch (AMKKLMOONEP)
-		{
-		case LicenseRequestResult.Success:
-			ConsoleUI.Log("CheckLicense - SUCCESS");
-			break;
-		case LicenseRequestResult.Error:
-			ConsoleUI.Log(string.Concat("CheckLicense - ERROR (", SecurityManager.get_Error(), ")"));
-			break;
-		default:
-			ConsoleUI.Log(string.Concat("CheckLicense - FAILED (", SecurityManager.get_FailReason(), ")"));
-			break;
-		}
-	}
-
-	public static string FIFCCIDNJPJ(params string[] PCJAKPJMKGN)
-	{
-		GooglePlayLicenseServerResponse googlePlayLicenseServerResponse = SecurityManager.GetGooglePlayLicenseServerResponse();
-		if (googlePlayLicenseServerResponse == null)
-		{
-			return "GooglePlayLicenseServerResponse is null!";
-		}
-		return googlePlayLicenseServerResponse.ToString();
 	}
 
 	public static string MMDKNJAIPLJ(params string[] LKIOKGCNKHE)

@@ -801,7 +801,7 @@ public class Fight
 
 	public void ReleaseAnyKey(FightCID PBFPKFPMFCI)
 	{
-		if ((stageType != StageType.FDBBPEGEGMK.STAGE_FIGHT && PBFPKFPMFCI != FightCID.NextFrameButton && PBFPKFPMFCI != FightCID.PauseButton) || (!Application.isEditor && !SystemProperties.DBBOCENKMGD() && !CUDLRConsole.EHGELAGEGDL()))
+		if ((stageType != StageType.FDBBPEGEGMK.STAGE_FIGHT && PBFPKFPMFCI != FightCID.NextFrameButton && PBFPKFPMFCI != FightCID.PauseButton) || (!Application.isEditor && !SystemProperties.DBBOCENKMGD() && !UnityEngine.Debug.isDebugBuild))
 		{
 			return;
 		}

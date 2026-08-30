@@ -1,3 +1,11 @@
+using namespace Eclipse.Content
+
+param(
+    # Source-only checks may run before Unity regenerates the gameplay resource.
+    # The default still requires byte-for-byte packaged-content validation.
+    [switch]$SkipPackagedContent
+)
+
 # Build Assembly-CSharp.csproj first. Uses only Temp fixtures, never live saves.
 $ErrorActionPreference = 'Stop'
 $projectPath = Split-Path $PSScriptRoot -Parent
@@ -47,12 +55,16 @@ Assert-SameBytes $archive ([GameplayContentArchive]::CreateArchive($source)) 'Co
 
 # Verify the actual resource produced by Unity's build processor as well; its
 # Mono gzip output need not match the desktop .NET compressor byte for byte.
-$resource = Join-Path $projectPath 'Assets/Resources/SF2Content/gameplay.bytes'
-Assert-True (Test-Path -LiteralPath $resource) 'Run SF2 > Package Offline Gameplay XML in Unity before this test'
-$packaged = [GameplayContentArchive]::ExtractArchive([IO.File]::ReadAllBytes($resource), $cache)
-foreach ($file in $files) {
-    $relative = $file.FullName.Substring($source.Length + 1)
-    Assert-SameBytes ([IO.File]::ReadAllBytes($file.FullName)) ([IO.File]::ReadAllBytes((Join-Path $packaged $relative))) ('Unity resource differs: ' + $relative)
+if ($SkipPackagedContent) {
+    Write-Warning 'SKIPPED: generated Unity gameplay resource comparison; source archive and runtime checks remain enabled.'
+} else {
+    $resource = Join-Path $projectPath 'Assets/Resources/SF2Content/gameplay.bytes'
+    Assert-True (Test-Path -LiteralPath $resource) 'Run SF2 > Package Offline Gameplay XML in Unity before this test'
+    $packaged = [GameplayContentArchive]::ExtractArchive([IO.File]::ReadAllBytes($resource), $cache)
+    foreach ($file in $files) {
+        $relative = $file.FullName.Substring($source.Length + 1)
+        Assert-SameBytes ([IO.File]::ReadAllBytes($file.FullName)) ([IO.File]::ReadAllBytes((Join-Path $packaged $relative))) ('Unity resource differs: ' + $relative)
+    }
 }
 foreach ($assembly in @([GameplayContentArchive].Assembly, [OfflineServices].Assembly)) {
     $removed = @($assembly.GetReferencedAssemblies() | Where-Object { $_.Name -match 'Facebook|GooglePlay|Purchasing|SmartFox|P31RestKit|Analytics|Advertisements|MobileNativePopups' })
@@ -108,16 +120,13 @@ foreach ($case in @(
     Assert-True (($locale[4].Length -gt 0) -eq ($case[5].Length -gt 0)) 'Currency symbol fallback disagrees with region availability'
 }
 
-# The debug gate no longer decrypts a malformed, obsolete device whitelist.
-$consoleSource = Get-Content -Raw (Join-Path $projectPath 'Assets/Scripts/Assembly-CSharp/CUDLRConsole.cs')
-$debugGate = [regex]::Match($consoleSource, '(?ms)^\tprivate static bool APCADECIHHC\(\)\r?\n\t\{.*?^\t\}').Value
-Assert-True ($debugGate.Length -gt 0) 'Debug-build gate not found'
-$debugGate = $debugGate.Replace('private static', 'public static').Replace('UnityEngine.Debug.isDebugBuild', 'IsDebugBuild')
-Add-Type -TypeDefinition ('public static class OfflineDebugGateFixture { public static bool IsDebugBuild; ' + $debugGate + ' }')
-[OfflineDebugGateFixture]::IsDebugBuild = $false
-Assert-True (![OfflineDebugGateFixture]::APCADECIHHC()) 'Release build starts optional debug server'
-[OfflineDebugGateFixture]::IsDebugBuild = $true
-Assert-True ([OfflineDebugGateFixture]::APCADECIHHC()) 'Development build still depends on device whitelist'
+# The HTTP debug listener and unused mobile/cloud adapters no longer ship.
+$gameAssembly = [NetworkController].Assembly
+foreach ($removed in @('CUDLR.Server', 'CUDLRConsole', 'InternetUtils', 'DumpController',
+    'PurchaseController', 'RemoteLicenseChecker', 'RemoteLicenseCache',
+    'Nekki.SF2.Core.Permissions.PermissionsManager', 'Nekki.SF2.Core.Security.SecurityManager')) {
+    Assert-True ($null -eq $gameAssembly.GetType($removed)) ('Archived service still compiled: ' + $removed)
+}
 
 # Compile the real local-alert adapter against a dialog fake. The callback must
 # wait for selection, distinguish cancel, and never run twice. No Unity UI here.
@@ -162,7 +171,7 @@ $settingsMethods = foreach ($name in @('OHDFPIADEIG', 'PGMBIJFAEHP', 'BOPCBJJIHN
     Assert-True $method.Success ('Settings helper not found: ' + $name)
     $method.Value.Replace('protected void', 'public void')
 }
-$settingsEnum = [regex]::Match($settingsSource, '(?ms)^\t\tpublic enum AHDEAELNGBD\r?\n\t\t\{.*?^\t\t\}')
+$settingsEnum = [regex]::Match($settingsSource, '(?m)^\t\tpublic enum AHDEAELNGBD\s*\{[^{}]*\}')
 Assert-True $settingsEnum.Success 'Settings button IDs not found'
 $settingsFixture = @'
 using System;
@@ -284,10 +293,6 @@ foreach ($url in @('https://example.com', 'http://127.0.0.1/service', '//server/
 foreach ($url in @('file:///C:/game/data.xml', 'file:///data/user/0/game/files/data.xml', 'jar:file:///data/app/base.apk!/assets/data.xml')) {
     Assert-True ([OfflineServices]::IsLocalContent($url)) ('Local content rejected: ' + $url)
 }
-Assert-True (![InternetUtils]::JLBPKAFHNNN()) 'Game reports Internet availability'
-$result = [InternetUtils]::EMANDFAOCNO('https://example.com')
-Assert-True ($result.ANGCJOIMCCB() -and $result.FCJBMLGHAME() -eq [OfflineServices]::Unavailable) 'Remote download was not rejected locally'
-Assert-True ([InternetUtils]::GetContentLength('https://example.com') -eq 0) 'Remote size query was not rejected'
 Assert-True ([Nekki.SF2.Core.Network.ServerProvider]::OFFLINE) 'Backend is not permanently offline'
 
 # Reproduces the PC dojo startup crash: no remote ledger config is loaded.

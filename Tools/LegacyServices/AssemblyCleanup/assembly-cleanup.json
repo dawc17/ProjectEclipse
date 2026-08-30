@@ -1,0 +1,504 @@
+[
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLR/CommandAttribute.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "CommandAttribute"
+    ],
+    "guid": "99a98e66a8dc3e94daa65e2d5cc50e04",
+    "sha256": "fbd763c0043e015d929415f92ddd5483291e7e634a7e25cd543a281aeab74e9f",
+    "meta_sha256": "7844469d47aa09c7b196f0a5bb8c3e92bec60ea45f059dda3a36eda38b83b9c5",
+    "lines": 27
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLR/CommandTree.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [],
+    "guid": "83f09d8d6f7d0ae4cb082b39ec8e89bc",
+    "sha256": "21311acebbc6cb3a9d979a7247197b51b53038e20a1a6525eb9b69d493158153",
+    "meta_sha256": "1db79fa598eb1464bfecad76170fa993617bf17fe752ed5e903642ce4e3d07b0",
+    "lines": 145
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLR/Console.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "Console"
+    ],
+    "guid": "0406f06d6236955eb36409e5c1af806e",
+    "sha256": "e1f24328a6b95ba707113fc2eae31f4389ff19a42824d12d2647d273c664bad8",
+    "meta_sha256": "37a74db901e3bc6f3b55686823abc3a0d89060cd357f868a5d7a5e1647d90e80",
+    "lines": 338
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLR/QueuedCommand.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [],
+    "guid": "a7df3ca6c1ed7b344bcdfa31b888426e",
+    "sha256": "5455cf8de0629d130fa354d20e42cfbb98904c64c956a16b023aa39ddc4eb4f0",
+    "meta_sha256": "fc96abd3636958bf3b574c6ba5feb1965b9ba352b6ee8b9e4d375b90316e9023",
+    "lines": 9
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLR/RequestContext.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "RequestContext"
+    ],
+    "guid": "a0644a86b3dc2374187cf7862a9c20d1",
+    "sha256": "7857e2f5ee290bbb8cb3d2e0613d594d3669dabecc836d8442dc795db92de3ba",
+    "meta_sha256": "951322115119ac0c7ace18fb5a395371f9ceccb524e67c63893cc5d3640c8c71",
+    "lines": 48
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLR/RouteAttribute.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "RouteAttribute"
+    ],
+    "guid": "cb6e90302bba152489ff75c4e6996050",
+    "sha256": "281fc592820e5e1227073523509a06bd9995c0533567b6527c5a182be9b3697b",
+    "meta_sha256": "24e3ecf9593323bc45cf264716f90eca4e0e012cc25dae3b8878885f56466d51",
+    "lines": 26
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLR/Server.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "Server"
+    ],
+    "guid": "a631e650309b916b46450396976361b6",
+    "sha256": "4fbe12690ea16f27449cc2e1b23637c9aec46ad781d70b812eae0e48a3cee9a8",
+    "meta_sha256": "1739ef20b46827f5fd7b24e7b5d1d6f2921534a5facd2fdb308cacf32a8579d0",
+    "lines": 355
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLRConsole.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "CUDLRConsole"
+    ],
+    "guid": "85367b718f834b24db773084ac346656",
+    "sha256": "7f6ca541a7a78b7bf21780d62f98ed74ee44107a45c68ac436ef3cbe22d65959",
+    "meta_sha256": "9dda2d98caef1464c0de5be0f1cb9426e8ed1f5646f23b66606d08f49a7242a2",
+    "lines": 231
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/CUDLRCommands.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "CUDLRCommands"
+    ],
+    "guid": "cdcc28d9ac643bb4794ce2e2ed216831",
+    "sha256": "96da69f93cb8405ceb191805819f52c8ad722756dbf24a3730f3858e2249d17a",
+    "meta_sha256": "a9e8f5e0af91a3369a8bbb0b2c78edfa4a9dcfe09bf49c2bc6374b1052c57bc8",
+    "lines": 138
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/ResponseExtension.cs",
+    "reason": "Unused HTTP debug console and its adapters",
+    "types": [
+      "ResponseExtension"
+    ],
+    "guid": "ac811676f13619e4bb4433df7b4f1a4a",
+    "sha256": "b6666b89b3a829657415d6e12601c3e296b337630002f9107b933a6f959b162a",
+    "meta_sha256": "b360cbaa8031fb7a4b3b9fed310b4643b1f15f34dbf3bb57c3856bbabd6d399a",
+    "lines": 50
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/DumpController.cs",
+    "reason": "Unreachable cloud login, save synchronization and remote licensing",
+    "types": [
+      "DumpController"
+    ],
+    "guid": "db9f0968e44d7f144b88c9fad91ab676",
+    "sha256": "a4a8aac0271b20db4ab9cf2c68bd158427bbd229e96eedf051c253c5f46b48b6",
+    "meta_sha256": "6a377fe24eab99deb36e11a5392e525b5759822d9eafae58eb83a50db6a4e630",
+    "lines": 334
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/RemoteLicenseChecker.cs",
+    "reason": "Unreachable cloud login, save synchronization and remote licensing",
+    "types": [
+      "RemoteLicenseChecker"
+    ],
+    "guid": "3b62f15bc1b87ef4db8f79e04ba71e02",
+    "sha256": "3220f23270fd5d093786faaa34ae84abc15084e5945f96cd50b631f8431d39ac",
+    "meta_sha256": "f12e4fbad1afe8d62998136cc1b96d5b68375a81395c4693fdec0b2cb68a843e",
+    "lines": 206
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/RemoteLicenseCache.cs",
+    "reason": "Unreachable cloud login, save synchronization and remote licensing",
+    "types": [
+      "RemoteLicenseCache"
+    ],
+    "guid": "a8c9e99896a1f0f488c06973ad2ee2ff",
+    "sha256": "ff2cf470f3b1248a8f2db03992fe9c653e51f14349a96705bd0a8e68b8883106",
+    "meta_sha256": "c32ed354c24eb887c912c0fbfcbdf97a6778cdb5837547076421ce89f3184986",
+    "lines": 240
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/ILicenseVerificationSender.cs",
+    "reason": "Unreachable cloud login, save synchronization and remote licensing",
+    "types": [
+      "ILicenseVerificationSender"
+    ],
+    "guid": "4e59a62b42f1863488a09fa6b8203054",
+    "sha256": "b931f02d2c37b03e57d74d26abbd4930a6cbe7af26a7a2df13a135027cf62c7e",
+    "meta_sha256": "8162391864e392b3e08f46d56897486449d284839558956b9e985234d63599f4",
+    "lines": 6
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/InternetUtils.cs",
+    "reason": "Unreachable cloud login, save synchronization and remote licensing",
+    "types": [
+      "InternetUtils"
+    ],
+    "guid": "5bb40b9c93c043e41af48933569ebec4",
+    "sha256": "b15cba05619846ae2faf4fdffd7de9ff5ceb4363f7fffc69eeffea1377ec2f1e",
+    "meta_sha256": "71d106c0d0c1b273512d98cd8fa863348e17e883ac32b7db790c7907618d7317",
+    "lines": 177
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/PurchaseController.cs",
+    "reason": "Unsubscribed purchase callbacks and unused Facebook adapter",
+    "types": [
+      "PurchaseController"
+    ],
+    "guid": "ff36c31df8828204da05cac218e7bf63",
+    "sha256": "7997f33c4494ae28f7f014bd2be686bdbbd1c87bd7d32e9cba5fcd12b03e6f29",
+    "meta_sha256": "6b3d12fdced4740f14d6e7f988511002c2cb74603f798d003e69fa10d549420c",
+    "lines": 127
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/FBController.cs",
+    "reason": "Unsubscribed purchase callbacks and unused Facebook adapter",
+    "types": [
+      "FBController"
+    ],
+    "guid": "97b997b2b83fd1a4594c1d9bd3b005a9",
+    "sha256": "fab044c38705efb68812108be1b811275e9c560c9408766844d0aefc730f7a12",
+    "meta_sha256": "c5dbf1ea3ad867e346948d3ac654bf200f748a7e37f3ea6f2d451f1cf5240fea",
+    "lines": 11
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/PermissionsModule.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "PermissionsModule"
+    ],
+    "guid": "7940b8b9c4cba914f8edca4779b476d1",
+    "sha256": "6da2ddc94afa5e7682da1e41bbac63d594538c287a4b237b7c2a68dc1a9d8872",
+    "meta_sha256": "73bec1470e7ff465a322cd9144b67d7e349eba33da710afff94fcb83d6490331",
+    "lines": 38
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/PermissionsChecker.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "PermissionsChecker"
+    ],
+    "guid": "f47ac295d6e911f4dbd3ab616558fffb",
+    "sha256": "1ad8eaf036e80484e2be86be9a7eba690ad092e2ae645984565cb312469c0dfd",
+    "meta_sha256": "cc5e8549fccc0f98f526183bae9790988e4e05113dbc7d49b4f4a730afa959a1",
+    "lines": 25
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/PermissionDialog.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "PermissionDialog"
+    ],
+    "guid": "63e1064e679dcd44caccde9a30a4e219",
+    "sha256": "25700b356448c2727ceff70b45418d4188086b3b22cf1081eb078678aa40b523",
+    "meta_sha256": "9b952e37c9b616d6a30e63a8b562436887d77170f14e8dc0d5343ea0069ca4ff",
+    "lines": 95
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/PermissionRequestResult.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "PermissionRequestResult"
+    ],
+    "guid": "ec8ad4046a5e15047a8ad938e7f662aa",
+    "sha256": "f3cf3089bf9bc3a2a6332a23d8596bb109a26e893b72d44ca1ada98aa9c0db98",
+    "meta_sha256": "568cb4c9ccc9c674c5888ea57e3346b601425f1f84afadcfe7febaec8980e22f",
+    "lines": 6
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/Permission.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "Permission"
+    ],
+    "guid": "0037d48912b8ce84685aa0d297c8dcc6",
+    "sha256": "2273a2cbca3f7e285a857dae1dcb3dde0bf77c4158b548caf9a94d72f7d1c63c",
+    "meta_sha256": "38e93b19c9034fcc92e9447f3f1921d4a5ce837199d6c644d7ac11b0bf9e2919",
+    "lines": 6
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/Nekki/SF2/Core/Permissions/PermissionsManager.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "PermissionsManager"
+    ],
+    "guid": "8cb6766b835147dca5a73cc14f029330",
+    "sha256": "071e7afecaadc9c6e3a36513ccbcfef42c5423b930edbbdc7e8059dd4a9d6767",
+    "meta_sha256": "5a2e7705d3ff9c295aef1b126d20b202e62d96c6b4d350d79be5d4b6f56d3db4",
+    "lines": 115
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/SecurityModule.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "SecurityModule"
+    ],
+    "guid": "6072527753cff0346b182c4e3d67f828",
+    "sha256": "2c2d3ecc3d47d2f0331412d0dec66884fe57775649f25dbd5e65c8f97f1cb4f5",
+    "meta_sha256": "e32b3eb6a59d8c6eb99fe7765fd2f20386e8ddeb182ab1de0d7e9639eea6c111",
+    "lines": 167
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/Nekki/SF2/Core/Security/SecurityManager.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "SecurityManager"
+    ],
+    "guid": "38bc22a1d29f74d60f70b23016db460e",
+    "sha256": "02f087acf0946d002d4082b4704a787f56951b10cc09083d1326acc19a0cb0ab",
+    "meta_sha256": "798d19fdb5aac0afdc4b3d8ac091ce0b55fb90015c4aa0f2d09d28500f90bbed",
+    "lines": 261
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/GooglePlayLicenseCheckError.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "GooglePlayLicenseCheckError"
+    ],
+    "guid": "c1aace3be6e4faa47959e725020ee7c1",
+    "sha256": "a9f570c54a55bd5386925fdb0ed5321501d8f3f986463aa0f4e3b10884ea3dcc",
+    "meta_sha256": "6dc3c32e60309d4171f77a4c21b8ffa54c769b9156631d78e7e162d1dce50dce",
+    "lines": 11
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/GooglePlayLicenseServerResponse.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "GooglePlayLicenseServerResponse"
+    ],
+    "guid": "d3c338d7c7dd99b43af5a98a377c924b",
+    "sha256": "a527c58f7936fa6ffef3503bf6899b171f8f833b12d9550ec53d330490e2efa6",
+    "meta_sha256": "8a145512c823589eafa2c42b13254970545ff0ce0fb21c5fdab8ca3ed85731df",
+    "lines": 104
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/LicenseFailReason.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "LicenseFailReason"
+    ],
+    "guid": "424c2f517e066554ab1e356c6d959cd5",
+    "sha256": "177bfcc15bd146411af21dd021782ecbde57855434865211540783676a27ba29",
+    "meta_sha256": "095874de4863dff35c8a2738cef63e1fe16ff53c2f8668da669e1e757ee5ffeb",
+    "lines": 18
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/LicenseRequestResult.cs",
+    "reason": "Unused mobile permissions and licensing modules, including diagnostic commands",
+    "types": [
+      "LicenseRequestResult"
+    ],
+    "guid": "6c508661e0ce48e4fb84ba748c92c2a9",
+    "sha256": "2cdae6a21d34d42a4560cb40ab7da7a69e646a54f876bd13ad70652b15fd9eb6",
+    "meta_sha256": "28548ac5e61fdcd590cd452b31e70715ea0ef76928d7d35f7cbe69237bd09bd8",
+    "lines": 6
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/AttackTableHolder.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "AttackTableHolder"
+    ],
+    "guid": "b407f00098c05724da9ec9fef0fa5746",
+    "sha256": "914afd453dd055e4d51f5df53a725266a6d6dba02ad4fb63d834042f48cc27ff",
+    "meta_sha256": "a8c8e846be216b78758f4a9bb7bdcea16b0c21dd581b613dcb2a5d76291d3f63",
+    "lines": 45
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/BLMNNEADAGC.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "BLMNNEADAGC"
+    ],
+    "guid": "3ef8c008d04302142a9821990fa182ab",
+    "sha256": "bf04f590940462f2f0bae92915e3119f4dff53312cec8d93d99cfd8f88cf2973",
+    "meta_sha256": "44f184d0d0633295147f38dbbaa50cf6fe585ede065a5d92c9d286241342ac99",
+    "lines": 9
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/BOBHMFOINCO.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "BOBHMFOINCO"
+    ],
+    "guid": "8015dc27f929ac74ba9a6fdb0edb2465",
+    "sha256": "7a474dff14aaa9994993154ca6d02786a90948a851eb77d9dbf2ef62806c40f9",
+    "meta_sha256": "05aa9c1eb04890220f383a48794c20cb66ff5618507f751f07935f29f43fd224",
+    "lines": 31
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/DebugUtils.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "DebugUtils"
+    ],
+    "guid": "2118550a4be1a4c41b593ca418576e9b",
+    "sha256": "4a0ef64cadba755b655e4a7eff4cf4257e5b2e723b7bf988fbc9b26b193b7259",
+    "meta_sha256": "d30b00851fad149168e7f4f3f8ce4475d639810d7eaa03252ab91a604f69c5a4",
+    "lines": 92
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/DelayedAnimation.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "DelayedAnimation"
+    ],
+    "guid": "1fda572727b365e45b6284b48e0d523c",
+    "sha256": "8e1571cfe2ea86e6e68a318b1c634483ea4d322ad3427e6f2eaa66aa6a8c3fd9",
+    "meta_sha256": "9e628a66b9cffa1f09f2b152fba2e0179cbfe1a38e9c05e2f75d75e7db1958a0",
+    "lines": 39
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/EEFBHOOPEMK.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "EEFBHOOPEMK"
+    ],
+    "guid": "4e812e75be72b8d49a6b47a124a40c01",
+    "sha256": "1670143bd48f9145fe34d2957932aafe7495f6696676f095566e1d705f12cc35",
+    "meta_sha256": "035d1efdf2e4f03a88ae6f130b9dfc46ad9fb06e0c6bb55d4335c4e00f85a496",
+    "lines": 3
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/EventTriggers.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "EventTriggers"
+    ],
+    "guid": "78812c741d9ac9746badf0710aebfbc8",
+    "sha256": "6d072c4612999748e2620319e1396d02f147c650fd5d6dd66a844ba80c677cd1",
+    "meta_sha256": "61bbbe596076243c0f552caa7df3acbfc53660c7a84b7bb1164d07845b1a7e42",
+    "lines": 98
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/FileLogHelper.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "FileLogHelper"
+    ],
+    "guid": "f6bba8716af50ad48887c657dcddc442",
+    "sha256": "47364d91af36e27ceb153f00bb0b9fa52c145012d952cabf90642fec1ec7250a",
+    "meta_sha256": "fe8d72caf88a47d818030a702b38ce8257ce9c6b64b77d83efbf993f760dfc5f",
+    "lines": 18
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/LFJMJPGHOPE.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "LFJMJPGHOPE"
+    ],
+    "guid": "e6e79302503e23f408b278d072928f7a",
+    "sha256": "79a539fc0e2d950508b1c1ec38be1b1715a62c1030eedbe89eccad74579f3547",
+    "meta_sha256": "5b4f3400a0a3d0a98b4b4a81fa2f57daa45b74fd3f90a2d11d2694fbd1212265",
+    "lines": 24
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/ModuleFpsStatistic.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "ModuleFpsStatistic"
+    ],
+    "guid": "79534edeedc25b14eb513553b3eaceaa",
+    "sha256": "5e395e874f1ca55e460afe9afb8e72575a8b10aba53ad701903c92455c72b4b9",
+    "meta_sha256": "fca2808c3a8b609da86e482a3fd4471d2b0ba81cfd10d57b63f7a0f5e1ccb590",
+    "lines": 19
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/MovesCompiler.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "MovesCompiler"
+    ],
+    "guid": "835189b557afe8145857f336e10a4295",
+    "sha256": "802b7cdd818e1090034c67d4d3be554c02e37527c6522b24518a51a91e679c07",
+    "meta_sha256": "6cbe8960cd416a72f3f13e7f78485ff7c23b1c1c8530933a57bfe789e3ea9335",
+    "lines": 203
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/NKOOJDKHHBD.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "NKOOJDKHHBD"
+    ],
+    "guid": "dedd76434c9492e42ac9c9a30676cf22",
+    "sha256": "2924c57f0dce92e305faa729f875fede914e61bb50d7484a526f0a13989fa972",
+    "meta_sha256": "a66e529bc8b5370b9bafe4666b3b4985e012b95ef359f2dc96d22c30a170be99",
+    "lines": 3
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/OJOJKODMOCB.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "OJOJKODMOCB"
+    ],
+    "guid": "dbe6309847d4e40408fcc867db5e01ce",
+    "sha256": "9b257fa5190c281de0111f569dfaaa7ba4e2c97f4163f459739fb313a012fdf3",
+    "meta_sha256": "2016761abaf188e0bb0d68a40c841c6cebde83ebfc7fd4f20d19693e50abdb9f",
+    "lines": 3
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/PGIOELKLGGA.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "PGIOELKLGGA"
+    ],
+    "guid": "d9c3c9401ec8fa44aa9199223b65dd98",
+    "sha256": "4d474aa5a2f3111e47f55e1211771bc01f00c0a573f8573ad99874472189af83",
+    "meta_sha256": "3cde9267569bcb625951f07cfe0d2cb5730a5838383412fc3bf4c6949a4507b9",
+    "lines": 3
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/RaidShowLootDialogInfo.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "RaidShowLootDialogInfo"
+    ],
+    "guid": "cd7970fa704b4d14f87052b117c1a2f4",
+    "sha256": "cbde17f3b0599e623c42a3edea92feb04dfa8d393bcdd9629b51ab414588ba68",
+    "meta_sha256": "becd91285a0c3c17a13e99d72ce740d1343b114f5d80fd6bd311219322fdcc52",
+    "lines": 14
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/StringCompressor.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "StringCompressor"
+    ],
+    "guid": "4f4e8806ba221cb4b9d7ff96a79a9fa1",
+    "sha256": "e0b114aa562b0061e9524de697bab3568413943fd4ea934f797b5e225917e16e",
+    "meta_sha256": "701349022a7a25ea43fac74fde7988a2b145b7233d9f3bc26c50b9030aedd3ca",
+    "lines": 27
+  },
+  {
+    "source": "Assets/Scripts/Assembly-CSharp/VersionManager.cs",
+    "reason": "Unreferenced plain managed helpers; no Unity component or extension methods",
+    "types": [
+      "VersionManager"
+    ],
+    "guid": "9719285473ae5554bb9bab7f9c197fd5",
+    "sha256": "3fd35545f49825c297b4077ec115acab8e7bf304ec27e8388eaa33f4cb1d0d41",
+    "meta_sha256": "07161557de6619aa1683986cbd7659e6e6af4bd189b8e8d4a99e1cd104eb2ad3",
+    "lines": 4
+  }
+]

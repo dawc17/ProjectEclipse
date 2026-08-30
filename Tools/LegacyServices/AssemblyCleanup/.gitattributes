@@ -1,0 +1,2 @@
+# Preserve archival hashes and original line endings on every checkout.
+Assets/** -text

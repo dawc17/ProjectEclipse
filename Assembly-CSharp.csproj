@@ -72,7 +72,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\PlayerLifeBar.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShop.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\InternetController.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\StringCompressor.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SoundController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSetItem.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AssemblyController.cs" />
@@ -89,17 +88,14 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionPerkStart.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionGiveAchievement.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ItemRewardHardmode.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\BLMNNEADAGC.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ActivePerkModel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SimpleDialogInfo.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\CommandTree.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionBattle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\News.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MenuMaterSprite.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Tactic.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MANJCIGJPMK.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\InFightRule.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\EEFBHOOPEMK.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DialogsOpener.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionSwitchToRaidsMap.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QualityOption.cs" />
@@ -129,7 +125,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\TransitionAnimation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowAd.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\KAHIFHMHDAF.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Permissions\PermissionsManager.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RandomAreaRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EdgeSubType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\DialogCanvasController.cs" />
@@ -138,7 +133,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\TimeoutWinRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Vector2f.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionHealth.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\Console.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Underworld\UnderworldZonePolicy.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkStruct.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightList.cs" />
@@ -154,7 +148,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ComboStatistic.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionImageAvatar.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\BaseScrollContent.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\QueuedCommand.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Rating.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DMMJEFCLAJF.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FAEJIAODPEA.cs" />
@@ -184,7 +177,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\Scroll.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\StoryDialog.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionModExists.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\RemoteLicenseChecker.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RatingEvaluationRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MenuMoneyPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionStopSound.cs" />
@@ -221,17 +213,12 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerksStage.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\GiveItemLogin.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\VideoClickHandler.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\PermissionsModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ColorUtils.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Trigger.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Attributes.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Scene.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\Server.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PricesData.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\FileLogHelper.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\PermissionRequestResult.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\ContentBossesFinal.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\EventTriggers.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionSetModEffect.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ViewerFight.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionName.cs" />
@@ -247,7 +234,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableViewCellDidSelectEvent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionGotoZone.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Scenes\LoaderScene.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\BOBHMFOINCO.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Exceptions\HackDetectedException.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RecipeItemInfo.cs" />
@@ -256,22 +242,18 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\Controller\Stick.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\SettingsDialog.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\InternetUtils.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\JsonUtils.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BloodEffect.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AiData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ActivePerkItem.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\DelayedAnimation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\KeyData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ModuleHolder.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RosterFight.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\ResponseExtension.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Common\ModelDebugUI.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\OELAEEHOGPE.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CBBEIGACPPD.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Pair.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EdgeType.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\OJOJKODMOCB.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DamageFactorRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDownload.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\VisualObjectType.cs" />
@@ -317,7 +299,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\UserPerks.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionBuyPack.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Underworld\UnderworldMapControlsLayout.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\PermissionsChecker.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionSetLowGraphics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DrawFunctions.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Rule.cs" />
@@ -359,7 +340,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestStage.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CurrencyCostRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\WinComboRule.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLRCommands.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\UserPerksSprite.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\TableViewOrientation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CreditsScreenElement.cs" />
@@ -377,9 +357,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Zone.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ComboItem.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionSound.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\PurchaseController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSet.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\NKOOJDKHHBD.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionStoryTutorialDoubleSweep.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\IntervalAnimation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Scripts\Primitive\Sprite.cs" />
@@ -423,7 +401,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\MagicSettings.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionDistance.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\RoundsPanel.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\VersionManager.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EventKeyPressed.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RecipePrice.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NoPerksRule.cs" />
@@ -465,7 +442,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\CrazyRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Triangle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\IntervalAttack.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\GooglePlayLicenseCheckError.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Style.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionMapFocus.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ProfileGUI.cs" />
@@ -473,7 +449,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\RosterPerk.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\IntroModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\MoveableMapPanel.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLRConsole.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RosterQuest.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionChangeAdditionalDamageValue.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ComboCounter.cs" />
@@ -483,7 +458,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ResistanceRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AnimationListRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionHideStarterPackTimer.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\GooglePlayLicenseServerResponse.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ChanceAndFlag.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MenuController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionEvent.cs" />
@@ -504,7 +478,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableViewCell.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\InfoBattle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionResetDuelTimer.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\DumpController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SliderType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\InitializationModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\HintBox.cs" />
@@ -523,7 +496,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Reward.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BattleRaid.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableViewScroll.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\PermissionDialog.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionMapMask.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\TransformExtensions.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionVariable.cs" />
@@ -595,7 +567,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionFight.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BundleManager.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RangeExtension.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\RaidShowLootDialogInfo.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionStatus.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RewardStruct.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UIExtensions.cs" />
@@ -624,8 +595,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Quests\QuestsManager.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ResourcesAndBundles.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Line.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\ModuleFpsStatistic.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\ILicenseVerificationSender.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RaidTutorialStepCode.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FMGDPLEEKEM.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EventModExpires.cs" />
@@ -637,7 +606,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionForeach.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionToggleGroup.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\StrangerDialogInfo.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\LicenseRequestResult.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\BattlePrizeElement.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionOfCompletionBattle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\TacticalTable.cs" />
@@ -655,7 +623,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\StageType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RuleInitData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MenuMaterialsPanel.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\RouteAttribute.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RegenerationRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionAddMagicCharge.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDiscount.cs" />
@@ -675,7 +642,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\ButtonPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MenuScroll.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NoBulletsReplenishmentRule.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\RemoteLicenseCache.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\TutorialToggle.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Underworld\Diagnostics\UnderworldRaidDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionAnimation.cs" />
@@ -714,7 +680,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\StoryDialogContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UserDataValidator.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DistancePoint.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\Permission.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerksController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ModelEdge.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NoButtonRule.cs" />
@@ -757,6 +722,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PressButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSets.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ProfileScene.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\ProfileBottomBarLayout.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LoginModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\DisplayModel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionNews.cs" />
@@ -767,7 +733,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionClearAction.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UIFigures\UIArcBorder.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\XmlUtils.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Security\SecurityManager.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ForgeManager.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerksCompiler.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionComparison.cs" />
@@ -781,7 +746,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\TacticValue.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DistanceVector.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionStoryTutorialLearnPerk.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\DebugUtils.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionPhysics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SF2Paths.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionStopEffect.cs" />
@@ -791,12 +755,9 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Tutorials\TutorialCanvas.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionTakeCurrency.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RewardsPrize.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\AttackTableHolder.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AtlasCache.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\MovesCompiler.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\AchievementCell.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionRecount.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\PGIOELKLGGA.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\StrangerDialog.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ProgressButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionOpenLeagueDialog.cs" />
@@ -834,9 +795,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionRestartApplication.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\ContentClosed.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\TutorialComponent.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\SecurityModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\PerkSubItem.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\CommandAttribute.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LocationSelector.cs" />
     <Compile Include="Assets\Scripts\Eclipse\UI\TopBar\DesktopTopBarLayout.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\GFKEHPOBLFJ.cs" />
@@ -864,7 +823,6 @@
     <Compile Include="Assets\Scripts\Eclipse\Underworld\UnderworldMapControls.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionStoryTutorialMove.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\GeneralConfig.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\FBController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PricesDataContainer.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\StoryTutorialStepCode.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\InvertJoystickRule.cs" />
@@ -893,7 +851,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\IconLabelButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionBullets.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkItems.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\CUDLR\RequestContext.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionTryOnEnd.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ComboRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CustomBinaryWriter.cs" />
@@ -919,7 +876,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowForgeTutorial.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\WeaponModel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkEventRoundStage.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\LicenseFailReason.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RosterTimer.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AttachFileModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RandomTactic.cs" />
@@ -928,7 +884,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionGiveCurrency.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\OutdateLevelItem.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionShowIcon.cs" />
-    <Compile Include="Assets\Scripts\Assembly-CSharp\LFJMJPGHOPE.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MatchMinMax.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\HotGroundRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionCurrentInterval.cs" />

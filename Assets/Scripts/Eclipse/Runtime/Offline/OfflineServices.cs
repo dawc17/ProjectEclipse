@@ -5,7 +5,6 @@ public static class OfflineServices
     public const string Unavailable = "Service unavailable in this offline build.";
 
     // Only filesystem content is allowed through legacy download helpers.
-    // The local debug console uses its own loopback listener, not these clients.
     public static bool IsLocalContent(string path)
     {
         if (string.IsNullOrEmpty(path)) return false;

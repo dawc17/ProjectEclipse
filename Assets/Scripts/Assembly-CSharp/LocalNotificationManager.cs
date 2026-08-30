@@ -101,18 +101,12 @@ public class LocalNotificationManager
 
 	public void DODOMBCHMDN(long IHDMLLNEGIK)
 	{
-		if (FIMGFNEAFDH())
-		{
-			GAMLNBGMCHB(3, IDLDKFEPJLI(), LocalizationManager.GetString("push_energy_to_fight"), IHDMLLNEGIK);
-		}
+		// Energy is disabled; never schedule refill reminders.
 	}
 
 	public void HOHFHDMEDLI(long IHDMLLNEGIK)
 	{
-		if (FIMGFNEAFDH())
-		{
-			GAMLNBGMCHB(4, IDLDKFEPJLI(), LocalizationManager.GetString("push_full_energy"), IHDMLLNEGIK);
-		}
+		// Energy is disabled; never schedule refill reminders.
 	}
 
 	public void EGOMGODAMFF(string LIOGIBJBHAH, long IHDMLLNEGIK)
