@@ -5,7 +5,11 @@ namespace Eclipse.Modding
 {
     public enum ModShopSection
     {
-        Weapons = 0
+        Weapons = 0,
+        Armor = 1,
+        Helmets = 2,
+        Ranged = 3,
+        Magic = 4
     }
 
     public enum ModPriceCurrency
@@ -85,39 +89,49 @@ namespace Eclipse.Modding
         }
     }
 
+    public enum ItemProgressionKind
+    {
+        LegacySnapshot = 0,
+        Vanilla = 1
+    }
+
     public abstract class ItemDefinition
     {
         public DefinitionId Id { get; }
         public DefinitionId DisplayName { get; }
+        public AssetId Icon { get; }
         public AssetId Model { get; }
+        public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
         public bool HasModel => !string.IsNullOrEmpty(Model.Path);
         public string LegacyName { get; }
         public string LegacyItemXml { get; }
         public bool IsCore => Id.Namespace.Value == "core";
+        public ItemProgressionKind Progression { get; }
 
-        protected ItemDefinition(DefinitionId id, DefinitionId displayName, AssetId model,
-            string legacyName = null, string legacyItemXml = null)
+        protected ItemDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
+            string legacyName = null, string legacyItemXml = null,
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
         {
             Id = id;
             DisplayName = displayName;
+            Icon = icon;
             Model = model;
             LegacyName = legacyName;
             LegacyItemXml = legacyItemXml;
+            Progression = progression;
         }
     }
 
     public sealed class WeaponDefinition : ItemDefinition
     {
-        public AssetId Icon { get; }
         public string SubType { get; }
         public int Damage { get; }
-        public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
 
         internal WeaponDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
-            string subType, int damage, string legacyName = null, string legacyItemXml = null)
-            : base(id, displayName, model, legacyName, legacyItemXml)
+            string subType, int damage, string legacyName = null, string legacyItemXml = null,
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
         {
-            Icon = icon;
             SubType = subType;
             Damage = damage;
         }
@@ -129,9 +143,10 @@ namespace Eclipse.Modding
         public int HeadDefense { get; }
         public int UnarmedDamage { get; }
 
-        internal ArmorDefinition(DefinitionId id, DefinitionId displayName, AssetId model,
+        internal ArmorDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
             int bodyDefense, int headDefense, int unarmedDamage, string legacyName = null,
-            string legacyItemXml = null) : base(id, displayName, model, legacyName, legacyItemXml)
+            string legacyItemXml = null, ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
         {
             BodyDefense = bodyDefense;
             HeadDefense = headDefense;
@@ -143,9 +158,10 @@ namespace Eclipse.Modding
     {
         public int HeadDefense { get; }
 
-        internal HelmDefinition(DefinitionId id, DefinitionId displayName, AssetId model, int headDefense,
-            string legacyName = null, string legacyItemXml = null)
-            : base(id, displayName, model, legacyName, legacyItemXml)
+        internal HelmDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model, int headDefense,
+            string legacyName = null, string legacyItemXml = null,
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
         {
             HeadDefense = headDefense;
         }
@@ -157,9 +173,10 @@ namespace Eclipse.Modding
         public int RangedDamage { get; }
         public int WeaponDamage { get; }
 
-        internal RangedDefinition(DefinitionId id, DefinitionId displayName, AssetId model, string subType,
-            int rangedDamage, int weaponDamage, string legacyName = null, string legacyItemXml = null)
-            : base(id, displayName, model, legacyName, legacyItemXml)
+        internal RangedDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model, string subType,
+            int rangedDamage, int weaponDamage, string legacyName = null, string legacyItemXml = null,
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
         {
             SubType = subType;
             RangedDamage = rangedDamage;
@@ -172,12 +189,27 @@ namespace Eclipse.Modding
         public string SubType { get; }
         public int MagicDamage { get; }
 
-        internal MagicDefinition(DefinitionId id, DefinitionId displayName, AssetId model, string subType,
-            int magicDamage, string legacyName = null, string legacyItemXml = null)
-            : base(id, displayName, model, legacyName, legacyItemXml)
+        internal MagicDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model, string subType,
+            int magicDamage, string legacyName = null, string legacyItemXml = null,
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
         {
             SubType = subType;
             MagicDamage = magicDamage;
+        }
+    }
+
+    public sealed class ItemRedirectDefinition
+    {
+        public DefinitionId Id { get; }
+        public DefinitionId Target { get; }
+        public bool IsTombstone { get; }
+
+        internal ItemRedirectDefinition(DefinitionId id, DefinitionId target, bool isTombstone)
+        {
+            Id = id;
+            Target = target;
+            IsTombstone = isTombstone;
         }
     }
 
@@ -214,6 +246,8 @@ namespace Eclipse.Modding
             new DefinitionRegistry<RangedDefinition>(value => value.Id);
         private readonly DefinitionRegistry<MagicDefinition> _magic =
             new DefinitionRegistry<MagicDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<ItemRedirectDefinition> _itemRedirects =
+            new DefinitionRegistry<ItemRedirectDefinition>(value => value.Id);
         private readonly DefinitionRegistry<ShopListingDefinition> _shopListings =
             new DefinitionRegistry<ShopListingDefinition>(value => value.Id);
 
@@ -224,6 +258,7 @@ namespace Eclipse.Modding
         public IReadOnlyList<HelmDefinition> Helms => _helms.Values;
         public IReadOnlyList<RangedDefinition> Ranged => _ranged.Values;
         public IReadOnlyList<MagicDefinition> Magic => _magic.Values;
+        public IReadOnlyList<ItemRedirectDefinition> ItemRedirects => _itemRedirects.Values;
         public IReadOnlyList<ShopListingDefinition> ShopListings => _shopListings.Values;
 
         public ModRegistrationTransaction BeginRegistration(ModDescriptor mod)
@@ -280,6 +315,27 @@ namespace Eclipse.Modding
             return false;
         }
 
+        public bool TryGetItemRedirect(DefinitionId id, out ItemRedirectDefinition value)
+        {
+            return _itemRedirects.TryGet(id, out value);
+        }
+
+        public bool TryResolveItem(DefinitionId id, out ItemDefinition value)
+        {
+            value = null;
+            if (id.Category != "items") return false;
+            DefinitionId current = id;
+            var visited = new HashSet<DefinitionId>();
+            while (visited.Add(current))
+            {
+                if (TryGetItem(current, out value)) return true;
+                ItemRedirectDefinition redirect;
+                if (!_itemRedirects.TryGet(current, out redirect) || redirect.IsTombstone) return false;
+                current = redirect.Target;
+            }
+            return false;
+        }
+
         public bool TryGetShopListing(DefinitionId id, out ShopListingDefinition value)
         {
             return _shopListings.TryGet(id, out value);
@@ -292,6 +348,8 @@ namespace Eclipse.Modding
 
         internal void Commit(ModRegistrationTransaction transaction,
             LocalizationDefinition[] localizations, WeaponDefinition[] weapons,
+            ArmorDefinition[] armors, HelmDefinition[] helms, RangedDefinition[] ranged,
+            MagicDefinition[] magic, ItemRedirectDefinition[] itemRedirects,
             ShopListingDefinition[] shopListings)
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
@@ -299,29 +357,75 @@ namespace Eclipse.Modding
 
             _localizations.ValidateCanAdd(localizations);
             _weapons.ValidateCanAdd(weapons);
+            _armors.ValidateCanAdd(armors);
+            _helms.ValidateCanAdd(helms);
+            _ranged.ValidateCanAdd(ranged);
+            _magic.ValidateCanAdd(magic);
+            _itemRedirects.ValidateCanAdd(itemRedirects);
             _shopListings.ValidateCanAdd(shopListings);
 
-            for (int i = 0; i < weapons.Length; i++)
-            {
-                LocalizationDefinition ignored;
-                if (!ContainsLocalization(localizations, weapons[i].DisplayName) &&
-                    !_localizations.TryGet(weapons[i].DisplayName, out ignored))
-                    throw new ModContentException("Weapon '" + weapons[i].Id +
-                        "' references missing localization '" + weapons[i].DisplayName + "'.");
-            }
+            ValidateRegisteredItems(localizations, weapons, "Weapon");
+            ValidateRegisteredItems(localizations, armors, "Armor");
+            ValidateRegisteredItems(localizations, helms, "Helm");
+            ValidateRegisteredItems(localizations, ranged, "Ranged item");
+            ValidateRegisteredItems(localizations, magic, "Magic item");
 
             for (int i = 0; i < shopListings.Length; i++)
             {
-                WeaponDefinition ignored;
-                if (!ContainsWeapon(weapons, shopListings[i].Item) &&
-                    !_weapons.TryGet(shopListings[i].Item, out ignored))
+                ItemDefinition item;
+                if (!TryGetPendingItem(shopListings[i].Item, weapons, armors, helms, ranged, magic, out item) &&
+                    !TryGetItem(shopListings[i].Item, out item))
                     throw new ModContentException("Shop listing '" + shopListings[i].Id +
-                        "' references missing weapon '" + shopListings[i].Item + "'.");
+                        "' references missing item '" + shopListings[i].Item + "'.");
+                if (!SectionMatchesItem(shopListings[i].Section, item))
+                    throw new ModContentException("Shop listing '" + shopListings[i].Id +
+                        "' uses the wrong section for item '" + shopListings[i].Item + "'.");
             }
 
             _localizations.AddRange(localizations);
             _weapons.AddRange(weapons);
+            _armors.AddRange(armors);
+            _helms.AddRange(helms);
+            _ranged.AddRange(ranged);
+            _magic.AddRange(magic);
+            _itemRedirects.AddRange(itemRedirects);
             _shopListings.AddRange(shopListings);
+        }
+
+        private void ValidateRegisteredItems<T>(LocalizationDefinition[] localizations, T[] items, string type)
+            where T : ItemDefinition
+        {
+            for (int i = 0; i < items.Length; i++)
+            {
+                LocalizationDefinition ignored;
+                if (!ContainsLocalization(localizations, items[i].DisplayName) &&
+                    !_localizations.TryGet(items[i].DisplayName, out ignored))
+                    throw new ModContentException(type + " '" + items[i].Id +
+                        "' references missing localization '" + items[i].DisplayName + "'.");
+            }
+        }
+
+        private static bool TryGetPendingItem(DefinitionId id, WeaponDefinition[] weapons,
+            ArmorDefinition[] armors, HelmDefinition[] helms, RangedDefinition[] ranged,
+            MagicDefinition[] magic, out ItemDefinition value)
+        {
+            value = null;
+            for (int i = 0; i < weapons.Length; i++) if (weapons[i].Id == id) { value = weapons[i]; return true; }
+            for (int i = 0; i < armors.Length; i++) if (armors[i].Id == id) { value = armors[i]; return true; }
+            for (int i = 0; i < helms.Length; i++) if (helms[i].Id == id) { value = helms[i]; return true; }
+            for (int i = 0; i < ranged.Length; i++) if (ranged[i].Id == id) { value = ranged[i]; return true; }
+            for (int i = 0; i < magic.Length; i++) if (magic[i].Id == id) { value = magic[i]; return true; }
+            return false;
+        }
+
+        internal static bool SectionMatchesItem(ModShopSection section, ItemDefinition item)
+        {
+            if (item is WeaponDefinition) return section == ModShopSection.Weapons;
+            if (item is ArmorDefinition) return section == ModShopSection.Armor;
+            if (item is HelmDefinition) return section == ModShopSection.Helmets;
+            if (item is RangedDefinition) return section == ModShopSection.Ranged;
+            if (item is MagicDefinition) return section == ModShopSection.Magic;
+            return false;
         }
 
         internal void ImportCore(LocalizationDefinition[] localizations, WeaponDefinition[] weapons,
@@ -430,19 +534,31 @@ namespace Eclipse.Modding
     public sealed class ModRegistrationTransaction : IDisposable
     {
         public const int MaxRegistrations = 4096;
+        public const int MaxEquipmentLevel = 52;
 
         private readonly ModContentCatalog _catalog;
         private readonly Dictionary<DefinitionId, Dictionary<string, string>> _localizations =
             new Dictionary<DefinitionId, Dictionary<string, string>>();
         private readonly Dictionary<DefinitionId, WeaponDefinition> _weapons =
             new Dictionary<DefinitionId, WeaponDefinition>();
+        private readonly Dictionary<DefinitionId, ArmorDefinition> _armors =
+            new Dictionary<DefinitionId, ArmorDefinition>();
+        private readonly Dictionary<DefinitionId, HelmDefinition> _helms =
+            new Dictionary<DefinitionId, HelmDefinition>();
+        private readonly Dictionary<DefinitionId, RangedDefinition> _ranged =
+            new Dictionary<DefinitionId, RangedDefinition>();
+        private readonly Dictionary<DefinitionId, MagicDefinition> _magic =
+            new Dictionary<DefinitionId, MagicDefinition>();
+        private readonly Dictionary<DefinitionId, ItemRedirectDefinition> _itemRedirects =
+            new Dictionary<DefinitionId, ItemRedirectDefinition>();
         private readonly Dictionary<DefinitionId, ShopListingDefinition> _shopListings =
             new Dictionary<DefinitionId, ShopListingDefinition>();
         private readonly HashSet<DefinitionId> _listedItems = new HashSet<DefinitionId>();
         private bool _completed;
 
         public ModDescriptor Mod { get; }
-        public int RegistrationCount => _localizations.Count + _weapons.Count + _shopListings.Count;
+        public int RegistrationCount => _localizations.Count + _weapons.Count + _armors.Count + _helms.Count +
+            _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count;
 
         internal ModRegistrationTransaction(ModContentCatalog catalog, ModDescriptor mod)
         {
@@ -482,44 +598,143 @@ namespace Eclipse.Modding
         }
 
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType, int damage)
+            AssetId model, string subType)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("items", "weapon/" + localId);
+            EnsureItemIdAvailable(id);
             if (displayName.Namespace != Mod.Id)
                 throw new ModContentException("Weapon display_name must belong to mod namespace '" + Mod.Id + "'.");
             if (displayName.Category != "localization")
                 throw new ModContentException("Weapon display_name must be a localization handle.");
             if (string.IsNullOrWhiteSpace(subType))
                 throw new ModContentException("Weapon subtype must not be empty.");
-            if (damage <= 0 || damage > 1000000)
-                throw new ModContentException("Weapon damage must be within 1..1000000.");
             if (_weapons.ContainsKey(id))
                 throw new ModContentException("Duplicate weapon definition: '" + id + "'.");
 
             EnsureCapacityForNewRegistration();
-            var definition = new WeaponDefinition(id, displayName, icon, model, subType.Trim(), damage);
+            var definition = new WeaponDefinition(id, displayName, icon, model, subType.Trim(), 0,
+                progression: ItemProgressionKind.Vanilla);
             _weapons.Add(id, definition);
             return definition;
+        }
+
+        public ArmorDefinition RegisterArmor(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("items", "armor/" + localId);
+            EnsureItemIdAvailable(id);
+            ValidateExternalItem(id, displayName, "Armor");
+            if (_armors.ContainsKey(id)) throw new ModContentException("Duplicate armor definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new ArmorDefinition(id, displayName, icon, model, 0, 0, 0,
+                progression: ItemProgressionKind.Vanilla);
+            _armors.Add(id, definition);
+            return definition;
+        }
+
+        public HelmDefinition RegisterHelm(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("items", "helm/" + localId);
+            EnsureItemIdAvailable(id);
+            ValidateExternalItem(id, displayName, "Helm");
+            if (_helms.ContainsKey(id)) throw new ModContentException("Duplicate helm definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new HelmDefinition(id, displayName, icon, model, 0,
+                progression: ItemProgressionKind.Vanilla);
+            _helms.Add(id, definition);
+            return definition;
+        }
+
+        public RangedDefinition RegisterRanged(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model, string subType)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("items", "ranged/" + localId);
+            EnsureItemIdAvailable(id);
+            ValidateExternalItem(id, displayName, "Ranged item");
+            if (string.IsNullOrWhiteSpace(subType)) throw new ModContentException("Ranged subtype must not be empty.");
+            if (_ranged.ContainsKey(id)) throw new ModContentException("Duplicate ranged definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new RangedDefinition(id, displayName, icon, model, subType.Trim(), 0, 0,
+                progression: ItemProgressionKind.Vanilla);
+            _ranged.Add(id, definition);
+            return definition;
+        }
+
+        public MagicDefinition RegisterMagic(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model, string subType)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("items", "magic/" + localId);
+            EnsureItemIdAvailable(id);
+            ValidateExternalItem(id, displayName, "Magic item");
+            if (string.IsNullOrWhiteSpace(subType)) throw new ModContentException("Magic subtype must not be empty.");
+            if (_magic.ContainsKey(id)) throw new ModContentException("Duplicate magic definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new MagicDefinition(id, displayName, icon, model, subType.Trim(), 0,
+                progression: ItemProgressionKind.Vanilla);
+            _magic.Add(id, definition);
+            return definition;
+        }
+
+        public ItemRedirectDefinition RegisterItemAlias(string oldLocalPath, DefinitionId target)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("items", oldLocalPath);
+            ValidateRedirectSource(id);
+            if (target.Category != "items" || target.Namespace != Mod.Id)
+                throw new ModContentException("Item alias target must be an item owned by mod namespace '" + Mod.Id + "'.");
+            ItemDefinition targetDefinition;
+            if (!TryGetPendingItem(target, out targetDefinition) && !_catalog.TryResolveItem(target, out targetDefinition))
+                throw new ModContentException("Item alias target is not registered: '" + target + "'.");
+            if (!SameItemKind(id, targetDefinition.Id))
+                throw new ModContentException("Item alias must preserve its equipment category: '" + id + "' -> '" +
+                    targetDefinition.Id + "'.");
+            if (id == targetDefinition.Id)
+                throw new ModContentException("Item alias cannot target itself: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var redirect = new ItemRedirectDefinition(id, targetDefinition.Id, false);
+            _itemRedirects.Add(id, redirect);
+            return redirect;
+        }
+
+        public ItemRedirectDefinition RegisterItemTombstone(string oldLocalPath)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("items", oldLocalPath);
+            ValidateRedirectSource(id);
+            EnsureCapacityForNewRegistration();
+            var redirect = new ItemRedirectDefinition(id, default(DefinitionId), true);
+            _itemRedirects.Add(id, redirect);
+            return redirect;
         }
 
         public ShopListingDefinition RegisterShopListing(DefinitionId item, ModShopSection section,
             int level, ModPrice price)
         {
             ThrowIfCompleted();
-            if (item.Category != "items" || !item.LocalId.StartsWith("weapon/", StringComparison.Ordinal))
-                throw new ModContentException("Shop item must be a weapon definition.");
+            if (item.Category != "items") throw new ModContentException("Shop item must be an item definition.");
             if (item.Namespace != Mod.Id)
                 throw new ModContentException("Mod API v1 shop listings may only expose items owned by the registering mod.");
-            if (section != ModShopSection.Weapons)
-                throw new ModContentException("Only the weapon shop section is supported by the first content slice.");
-            if (level < 1 || level > 10000)
-                throw new ModContentException("Shop level must be within 1..10000.");
+            ItemDefinition definition;
+            if (!TryGetPendingItem(item, out definition))
+                throw new ModContentException("Shop item must be registered by the same transaction: '" + item + "'.");
+            if (!ModContentCatalog.SectionMatchesItem(section, definition))
+                throw new ModContentException("Shop section does not match item type: '" + item + "'.");
+            int minimumLevel = MinimumVanillaProgressionLevel(definition);
+            if (level < minimumLevel || level > MaxEquipmentLevel)
+                throw new ModContentException("Shop level for '" + item + "' must be within " + minimumLevel +
+                    ".." + MaxEquipmentLevel + " for the vanilla progression profile.");
             if (!_listedItems.Add(item))
-                throw new ModContentException("Weapon already has a shop listing: '" + item + "'.");
+                throw new ModContentException("Item already has a shop listing: '" + item + "'.");
 
-            string local = item.LocalId.Substring("weapon/".Length);
-            DefinitionId id = Qualify("shop", "weapons/" + local);
+            int slash = item.LocalId.IndexOf('/');
+            string local = slash < 0 ? item.LocalId : item.LocalId.Substring(slash + 1);
+            DefinitionId id = Qualify("shop", ShopSectionPath(section) + "/" + local);
             if (_shopListings.ContainsKey(id))
                 throw new ModContentException("Duplicate shop listing: '" + id + "'.");
 
@@ -544,10 +759,20 @@ namespace Eclipse.Modding
 
             var weapons = new WeaponDefinition[_weapons.Count];
             _weapons.Values.CopyTo(weapons, 0);
+            var armors = new ArmorDefinition[_armors.Count];
+            _armors.Values.CopyTo(armors, 0);
+            var helms = new HelmDefinition[_helms.Count];
+            _helms.Values.CopyTo(helms, 0);
+            var ranged = new RangedDefinition[_ranged.Count];
+            _ranged.Values.CopyTo(ranged, 0);
+            var magic = new MagicDefinition[_magic.Count];
+            _magic.Values.CopyTo(magic, 0);
+            var itemRedirects = new ItemRedirectDefinition[_itemRedirects.Count];
+            _itemRedirects.Values.CopyTo(itemRedirects, 0);
             var listings = new ShopListingDefinition[_shopListings.Count];
             _shopListings.Values.CopyTo(listings, 0);
 
-            _catalog.Commit(this, localizations, weapons, listings);
+            _catalog.Commit(this, localizations, weapons, armors, helms, ranged, magic, itemRedirects, listings);
             _completed = true;
             ClearPending();
         }
@@ -573,6 +798,87 @@ namespace Eclipse.Modding
                 throw new ModContentException("Registration limit exceeded (" + MaxRegistrations + ").");
         }
 
+        private void ValidateExternalItem(DefinitionId id, DefinitionId displayName, string type)
+        {
+            if (displayName.Namespace != Mod.Id)
+                throw new ModContentException(type + " display_name must belong to mod namespace '" + Mod.Id + "'.");
+            if (displayName.Category != "localization")
+                throw new ModContentException(type + " display_name must be a localization handle.");
+            if (id.Namespace != Mod.Id) throw new ModContentException(type + " definition namespace mismatch.");
+        }
+
+        private void EnsureItemIdAvailable(DefinitionId id)
+        {
+            if (_itemRedirects.ContainsKey(id))
+                throw new ModContentException("Item definition collides with a pending alias/tombstone: '" + id + "'.");
+            ItemRedirectDefinition existing;
+            if (_catalog.TryGetItemRedirect(id, out existing))
+                throw new ModContentException("Item definition collides with an existing alias/tombstone: '" + id + "'.");
+        }
+
+        private void ValidateRedirectSource(DefinitionId id)
+        {
+            if (_itemRedirects.ContainsKey(id))
+                throw new ModContentException("Duplicate item alias/tombstone: '" + id + "'.");
+            ItemDefinition pending;
+            if (TryGetPendingItem(id, out pending))
+                throw new ModContentException("Item alias/tombstone collides with an item definition: '" + id + "'.");
+            ItemDefinition existingItem;
+            if (_catalog.TryGetItem(id, out existingItem))
+                throw new ModContentException("Item alias/tombstone collides with an existing item definition: '" + id + "'.");
+            ItemRedirectDefinition existingRedirect;
+            if (_catalog.TryGetItemRedirect(id, out existingRedirect))
+                throw new ModContentException("Item alias/tombstone already exists: '" + id + "'.");
+        }
+
+        private static bool SameItemKind(DefinitionId left, DefinitionId right)
+        {
+            return ItemKind(left) == ItemKind(right);
+        }
+
+        private static string ItemKind(DefinitionId id)
+        {
+            int slash = id.LocalId.IndexOf('/');
+            return slash < 0 ? id.LocalId : id.LocalId.Substring(0, slash);
+        }
+
+        private static int MinimumVanillaProgressionLevel(ItemDefinition item)
+        {
+            if (item is WeaponDefinition) return 1;
+            if (item is ArmorDefinition || item is HelmDefinition) return 2;
+            if (item is RangedDefinition || item is MagicDefinition) return 6;
+            throw new ModContentException("Unsupported equipment progression for '" + item.Id + "'.");
+        }
+
+        private bool TryGetPendingItem(DefinitionId id, out ItemDefinition value)
+        {
+            value = null;
+            WeaponDefinition weapon;
+            if (_weapons.TryGetValue(id, out weapon)) { value = weapon; return true; }
+            ArmorDefinition armor;
+            if (_armors.TryGetValue(id, out armor)) { value = armor; return true; }
+            HelmDefinition helm;
+            if (_helms.TryGetValue(id, out helm)) { value = helm; return true; }
+            RangedDefinition ranged;
+            if (_ranged.TryGetValue(id, out ranged)) { value = ranged; return true; }
+            MagicDefinition magic;
+            if (_magic.TryGetValue(id, out magic)) { value = magic; return true; }
+            return false;
+        }
+
+        private static string ShopSectionPath(ModShopSection section)
+        {
+            switch (section)
+            {
+                case ModShopSection.Weapons: return "weapons";
+                case ModShopSection.Armor: return "armor";
+                case ModShopSection.Helmets: return "helmets";
+                case ModShopSection.Ranged: return "ranged";
+                case ModShopSection.Magic: return "magic";
+                default: throw new ModContentException("Unsupported shop section: " + section);
+            }
+        }
+
         private static string NormalizeLanguage(string language)
         {
             if (string.IsNullOrWhiteSpace(language))
@@ -596,6 +902,11 @@ namespace Eclipse.Modding
         {
             _localizations.Clear();
             _weapons.Clear();
+            _armors.Clear();
+            _helms.Clear();
+            _ranged.Clear();
+            _magic.Clear();
+            _itemRedirects.Clear();
             _shopListings.Clear();
             _listedItems.Clear();
         }

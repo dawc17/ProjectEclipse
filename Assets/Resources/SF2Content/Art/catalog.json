@@ -3973,9 +3973,9 @@
       "name": "AMERICAN_25",
       "namespaceId": "core",
       "file": "AMERICAN_25.tar.lz4",
-      "sha256": "b75bb4011ff2cdc2d4ba4ea26105d43cded186da4267a6563de0cae270ad9959",
-      "size": 16341698,
-      "unpackedSize": 16465920,
+      "sha256": "2fa435d640e1818d378de899e1f73caa125768bcf9d3e84ee14be73b91b4ee00",
+      "size": 17503276,
+      "unpackedSize": 17629696,
       "assets": [
         {
           "address": "Textures/Locations/dojo_american_event/StaticImage/BG",
@@ -4137,9 +4137,9 @@
       "name": "AMERICAN_26",
       "namespaceId": "core",
       "file": "AMERICAN_26.tar.lz4",
-      "sha256": "8174eee2f63839dd0d405abd0aa1c14cd9b64a912dd9223854d7d23a28ca3d64",
-      "size": 2853389,
-      "unpackedSize": 2908160,
+      "sha256": "55e441b253129e6d68e556b402d0534b4f10d1e3c793d5309f077faae309b9e5",
+      "size": 4153841,
+      "unpackedSize": 4204544,
       "assets": [
         {
           "address": "Textures/Locations/dojo_american_26/StaticImage/BG",
@@ -4217,9 +4217,9 @@
       "name": "ASCENSION",
       "namespaceId": "core",
       "file": "ASCENSION.tar.lz4",
-      "sha256": "35bd9a33a0c2d38c53aad37e36bfc91a9668d4c262189517021c7be949001b1e",
-      "size": 17447395,
-      "unpackedSize": 17623040,
+      "sha256": "c1823a8e62affdf267d885a22a451b5618a901b057004175f6309214c25fc210",
+      "size": 20079500,
+      "unpackedSize": 20252672,
       "assets": [
         {
           "address": "Textures/Locations/statue/statue_atlas_layer1",
@@ -4789,9 +4789,9 @@
       "name": "BERSTUUK",
       "namespaceId": "core",
       "file": "BERSTUUK.tar.lz4",
-      "sha256": "05d596c59a76a52a1e19fe2cbaf20891116a1261e5deaa07044fa65c89077c8f",
-      "size": 17716474,
-      "unpackedSize": 17899520,
+      "sha256": "f24e62d000c2c83ec45d325a1c8310e9942a579023296f6537140cba1e7f92e9",
+      "size": 18149544,
+      "unpackedSize": 18326528,
       "assets": [
         {
           "address": "Textures/Effects/Magic/effect_heal_end",
@@ -4925,9 +4925,9 @@
       "name": "CLANS",
       "namespaceId": "core",
       "file": "CLANS.tar.lz4",
-      "sha256": "315b228295626b95f6b3c8891bf70b5263f528ab8cf9c96e4866848d268c1d4d",
-      "size": 149079012,
-      "unpackedSize": 153692160,
+      "sha256": "cc6dff91d16ed5b512d8be28621c85cec95e46153f134b9cfe291818f782ed28",
+      "size": 158904683,
+      "unpackedSize": 163621888,
       "assets": [
         {
           "address": "Textures/Effects/Magic/effect_bullet_fly",
@@ -7497,9 +7497,9 @@
       "name": "CNY25",
       "namespaceId": "core",
       "file": "CNY25.tar.lz4",
-      "sha256": "3e908bb5cd2b57aea48f9b62940c42e84dc704a708bf46885a4b70818274cfde",
-      "size": 7174633,
-      "unpackedSize": 7311360,
+      "sha256": "0ec27b6054fdf34cacc25b9c25b53df25e6ce48a50c38534031b0393327269f7",
+      "size": 7545343,
+      "unpackedSize": 7677440,
       "assets": [
         {
           "address": "Textures/Locations/dojo_cny25/StaticImage/BG",
@@ -7703,9 +7703,9 @@
       "name": "CNY26",
       "namespaceId": "core",
       "file": "CNY26.tar.lz4",
-      "sha256": "4dcc5d271778d4a6bf4375cf773f46319e4b372645660055ad6c825eac56e9d8",
-      "size": 1707481,
-      "unpackedSize": 1771520,
+      "sha256": "14b503580df9373072c31e888c03bfe968838683aef65df50a52a9fa03fcb1c7",
+      "size": 2413866,
+      "unpackedSize": 2473984,
       "assets": [
         {
           "address": "UI/Atlases/BattleBtnCHNY26Active",
@@ -8221,9 +8221,9 @@
       "name": "HALLOWEEN_25",
       "namespaceId": "core",
       "file": "HALLOWEEN_25.tar.lz4",
-      "sha256": "9ed587c7c1f1b8a5990093bfc1cdb00ed0c7d915cc04127493e90a63948dc275",
-      "size": 34124720,
-      "unpackedSize": 34447360,
+      "sha256": "4a0ecd27be3e53bd84feb54f874536890d8417e13c11a4ba3202842f97b2b5b4",
+      "size": 36533114,
+      "unpackedSize": 36877312,
       "assets": [
         {
           "address": "Textures/Locations/dojo_hw24/HW24_Halloween24_Dojo_BG",
@@ -9516,9 +9516,9 @@
       "name": "NEW_YEAR_26",
       "namespaceId": "core",
       "file": "NEW_YEAR_26.tar.lz4",
-      "sha256": "eb804f922a09e584985fd33b1f4fea32b8714c606ca52560ff50957751a1015b",
-      "size": 15040340,
-      "unpackedSize": 15144960,
+      "sha256": "4f26348b6b71017b3dfadce08416a49ea5aa1cd8694f24604996c954cc1091fd",
+      "size": 15945285,
+      "unpackedSize": 16054272,
       "assets": [
         {
           "address": "Textures/Locations/new_year_dojo/StaticImage/BG",
@@ -11572,9 +11572,9 @@
       "name": "RITUAL_FUNGUS",
       "namespaceId": "core",
       "file": "RITUAL_FUNGUS.tar.lz4",
-      "sha256": "f676734abb56d5f1cd8deeeb50ab58c9e22eafae03b1e3a34f4d6ffbbd9406b2",
-      "size": 1352952,
-      "unpackedSize": 1402880,
+      "sha256": "7eae5a30e165a5b661b3171a4368ead5a630f0d4a0da9e17df32dbe60d48178b",
+      "size": 2520080,
+      "unpackedSize": 2571776,
       "assets": [
         {
           "address": "Textures/Locations/ritual_fungus_raid/RitualBattle22_Fungus",
@@ -11694,9 +11694,9 @@
       "name": "RITUAL_HUNGER",
       "namespaceId": "core",
       "file": "RITUAL_HUNGER.tar.lz4",
-      "sha256": "62f8ed85b2239738e0dbb0e5272511a0f36c13b2a12ea499bb16cc3d8ba21fe2",
-      "size": 1766685,
-      "unpackedSize": 1832960,
+      "sha256": "9eb31985f5acce4e1c2c55e11bb7b6cb76a164c0694a9eb55841c3c021be451e",
+      "size": 3433480,
+      "unpackedSize": 3495424,
       "assets": [
         {
           "address": "Textures/Locations/ritual_hunger_raid/RitualBattle22_Hunger",
@@ -11844,9 +11844,9 @@
       "name": "RITUAL_VULCAN",
       "namespaceId": "core",
       "file": "RITUAL_VULCAN.tar.lz4",
-      "sha256": "8dabcd7a4a57dd105e0457be31677af25915b92d4d905516e617cd469bbc5cda",
-      "size": 1326260,
-      "unpackedSize": 1382400,
+      "sha256": "57822fb0f0e91127c3cf2ed2463a7a7a5b886e6626f85b13b5fc799deface0af",
+      "size": 2448406,
+      "unpackedSize": 2500608,
       "assets": [
         {
           "address": "Textures/Locations/ritual_vulcan_raid/ritual_vulcan_raid",
@@ -12004,9 +12004,9 @@
       "name": "SUMMER_FEST_25",
       "namespaceId": "core",
       "file": "SUMMER_FEST_25.tar.lz4",
-      "sha256": "d25fad255bd6f9600dc0f17c6f59cea3db6c0a6e32e619915c9df0c513616e4e",
-      "size": 20701816,
-      "unpackedSize": 20981760,
+      "sha256": "39d0f8b5f93cd41683dfdd2d63581c8ea3cd1c604910c5885a95c4f7502667df",
+      "size": 23092812,
+      "unpackedSize": 23386624,
       "assets": [
         {
           "address": "Textures/Locations/dock/dock_1",
@@ -12346,9 +12346,9 @@
       "name": "USERS",
       "namespaceId": "core",
       "file": "USERS.tar.lz4",
-      "sha256": "f383e655e79b31f67493dda06d7ae74136c2d73b36546d6cf2d599f17a638dac",
-      "size": 15351754,
-      "unpackedSize": 15636480,
+      "sha256": "15865d9b4ea950a44b120bc5b28abe844c20540013d59c6c79586f8a3dc6362f",
+      "size": 58368940,
+      "unpackedSize": 58764800,
       "assets": [
         {
           "address": "UI/Users/boss_arkhos_halloween",
@@ -13035,9 +13035,9 @@
       "name": "VAISAKHI_25",
       "namespaceId": "core",
       "file": "VAISAKHI_25.tar.lz4",
-      "sha256": "aa8ca942519e54e7593e1f7dfc04c7ca7ebdcf5c7a6f8e98d835f0a1bbc5a6e9",
-      "size": 16734160,
-      "unpackedSize": 17018880,
+      "sha256": "4d4a79c7e2f4d70e3f881da8ec4c829d2b8a4b48c3cab26018365246f648aa3e",
+      "size": 18953187,
+      "unpackedSize": 19244032,
       "assets": [
         {
           "address": "Textures/Effects/Magic/mgc_effect_electric_discharge_red",
@@ -13283,9 +13283,9 @@
       "name": "VERSIONAL_ASSETS_AMERICAN_24",
       "namespaceId": "core",
       "file": "VERSIONAL_ASSETS_AMERICAN_24.tar.lz4",
-      "sha256": "be1b9bc02671419f763a662289f1e080a62872240eb0324b9d4803f4dcaa76e4",
-      "size": 23741725,
-      "unpackedSize": 24053760,
+      "sha256": "0a8ed8cf7380e3eb12d2b23b0e97d938872a01662e5d0963fa79d0d2933b45aa",
+      "size": 25119731,
+      "unpackedSize": 25443328,
       "assets": [
         {
           "address": "Textures/Effects/Magic/mgc_small_mushroom_end",
@@ -13566,9 +13566,9 @@
       "name": "VERSIONAL_ASSETS_CNY",
       "namespaceId": "core",
       "file": "VERSIONAL_ASSETS_CNY.tar.lz4",
-      "sha256": "f68ee6fb30961c0e9d2f3a163196b8bc11efcc29f974f88e2ddc47f548672a10",
-      "size": 6534935,
-      "unpackedSize": 6656000,
+      "sha256": "5916fd7e0b08ac658481fadcdfeef6e33c7e54335e6fcd0b682005a097354e2a",
+      "size": 6905276,
+      "unpackedSize": 7025152,
       "assets": [
         {
           "address": "Textures/Locations/dojo_cny25/StaticImage/BG",
@@ -13765,9 +13765,9 @@
       "name": "VERSIONAL_ASSETS_FALL_24",
       "namespaceId": "core",
       "file": "VERSIONAL_ASSETS_FALL_24.tar.lz4",
-      "sha256": "dc90bdc881346255ada1837afdb74ddb7b982b861112a6e85d03ec13fe44754e",
-      "size": 29280812,
-      "unpackedSize": 29839360,
+      "sha256": "6f849b90bf82409bf12e2c75205586f6fcba89ff7fe75933cbc4ebf497889873",
+      "size": 29709021,
+      "unpackedSize": 30279680,
       "assets": [
         {
           "address": "Textures/Effects/Magic/effect_heal_end",
@@ -14104,9 +14104,9 @@
       "name": "VERSIONAL_ASSETS_HALLOWEEN_24",
       "namespaceId": "core",
       "file": "VERSIONAL_ASSETS_HALLOWEEN_24.tar.lz4",
-      "sha256": "51de4c80cb4b97a0f6718441730d34f346804436dff53cb7d2c14a02a886156e",
-      "size": 63629235,
-      "unpackedSize": 64491520,
+      "sha256": "03182a39aeceb58781b97e0d8d5e70f1bdaec09cda3bb3f49702490cfd57e821",
+      "size": 66388272,
+      "unpackedSize": 67282944,
       "assets": [
         {
           "address": "Textures/Effects/Magic/effect_heal_end",
@@ -14730,9 +14730,9 @@
       "name": "VERSIONAL_ASSETS_NY25",
       "namespaceId": "core",
       "file": "VERSIONAL_ASSETS_NY25.tar.lz4",
-      "sha256": "49bbf3ac5d9a296ae1ad3312eed749555cf161249c0a3ecc174c539765feef96",
-      "size": 21531914,
-      "unpackedSize": 21719040,
+      "sha256": "79ae51f1e6118251a7b5aaef7cf2e708ee339477ff9ba748001b154721124bcf",
+      "size": 22043324,
+      "unpackedSize": 22228992,
       "assets": [
         {
           "address": "Textures/Locations/dojo_ny25/StaticImage/BG",
@@ -14950,9 +14950,9 @@
       "name": "VERSIONAL_ASSETS_RITUAL",
       "namespaceId": "core",
       "file": "VERSIONAL_ASSETS_RITUAL.tar.lz4",
-      "sha256": "a792f6c3ae8a11df67b712e49c654825a777bcf9fde87abba1488e59123e4950",
-      "size": 15134521,
-      "unpackedSize": 15237120,
+      "sha256": "1a5d73ebe0bb26e153d4bb067713112bb29343b60419d8630d65575a8b3a8d5d",
+      "size": 15832077,
+      "unpackedSize": 15937024,
       "assets": [
         {
           "address": "Textures/Locations/ritual_fungus_raid/RitualBattle22_Fungus",
@@ -15093,9 +15093,9 @@
       "name": "VERSIONAL_ASSETS_RITUAL_VULCAN",
       "namespaceId": "core",
       "file": "VERSIONAL_ASSETS_RITUAL_VULCAN.tar.lz4",
-      "sha256": "70c81e8520284c008f47a805f3ebfad53045e4a58fde9f109f31c465c93f5609",
-      "size": 14649954,
-      "unpackedSize": 14735360,
+      "sha256": "8e8aab778f94c0b16a258e6ff92e17bd2f8dcbc89e8a2ddb6923c54ad89e784e",
+      "size": 15769403,
+      "unpackedSize": 15854592,
       "assets": [
         {
           "address": "Textures/Locations/ritual_vulcan_raid/ritual_vulcan_raid",
@@ -16705,9 +16705,9 @@
       "name": "ZONE_1",
       "namespaceId": "core",
       "file": "ZONE_1.tar.lz4",
-      "sha256": "f44815bfb395a7299d90981225c73355394ca2d41c69f7bba497769369f8913d",
-      "size": 57228814,
-      "unpackedSize": 58869760,
+      "sha256": "402efa1bb3ca8a07caccc650904e2de2ce46672bc8c5608e187b90e7cd758587",
+      "size": 68729632,
+      "unpackedSize": 70513664,
       "assets": [
         {
           "address": "Textures/Effects/Magic/mgc_effect_time_bomb",
@@ -17982,9 +17982,9 @@
       "name": "ZONE_2",
       "namespaceId": "core",
       "file": "ZONE_2.tar.lz4",
-      "sha256": "47303db4d5aab3dd2e48fa247d2e630cbde4dcbc9f0680873ae19af74a2cc063",
-      "size": 58146619,
-      "unpackedSize": 58746880,
+      "sha256": "31eacf255d4afe71b208b402b27d3a9372d07367d14f9783b60e2f305384eb90",
+      "size": 68868342,
+      "unpackedSize": 69617664,
       "assets": [
         {
           "address": "Textures/Effects/Magic/mgc_magic_lightning_arrow_end",
@@ -18909,9 +18909,9 @@
       "name": "ZONE_3",
       "namespaceId": "core",
       "file": "ZONE_3.tar.lz4",
-      "sha256": "91808502dbd3fa2216bc73e0df24c2bafd9670fcbd5c97fa0c57988338b293cd",
-      "size": 59879216,
-      "unpackedSize": 60682240,
+      "sha256": "37fd9342a1401ad5cf1224bfe61b79592aa3b5c72419fbe1de5926ff0886e22e",
+      "size": 69773472,
+      "unpackedSize": 70673408,
       "assets": [
         {
           "address": "Textures/Effects/Magic/mgc_magic_fireball_middle",
@@ -19829,9 +19829,9 @@
       "name": "ZONE_4",
       "namespaceId": "core",
       "file": "ZONE_4.tar.lz4",
-      "sha256": "0aea31d297658363c38f444cfc49492c16f76a20e43c0d6204793e7ca7e9a963",
-      "size": 67710613,
-      "unpackedSize": 68157440,
+      "sha256": "d0bf967ddffbe3648ba594edab67ead35754b53fbe1447466ce946c0698fe6c8",
+      "size": 78515571,
+      "unpackedSize": 79050752,
       "assets": [
         {
           "address": "Textures/Location_effects/Atlases/bird_white",
@@ -20581,9 +20581,9 @@
       "name": "ZONE_5",
       "namespaceId": "core",
       "file": "ZONE_5.tar.lz4",
-      "sha256": "f51bfdc8e96c3c7cc55a5c3bc155e9ce7e0c3e26aa8913a03386dfb82644e233",
-      "size": 65911741,
-      "unpackedSize": 66426880,
+      "sha256": "3053f6f94e04d3a73dc25c7038a81c6b47066ab864ae68e1d8838f3a14ea7af0",
+      "size": 76471789,
+      "unpackedSize": 77071360,
       "assets": [
         {
           "address": "Textures/Location_effects/Atlases/fire_town",
@@ -21424,9 +21424,9 @@
       "name": "ZONE_6",
       "namespaceId": "core",
       "file": "ZONE_6.tar.lz4",
-      "sha256": "d6a3a6e0617fa59547b932c03d41ee9175b0895be3fdfa22c5b8996721742eba",
-      "size": 94333669,
-      "unpackedSize": 95283200,
+      "sha256": "6417c8dfd4ee32369966f51636f2bb112ed060f362365fa82e903e6a38da163e",
+      "size": 110674757,
+      "unpackedSize": 111828992,
       "assets": [
         {
           "address": "Textures/Effects/Magic/mgc_magic_wave_end",
@@ -22540,9 +22540,9 @@
       "name": "ZONE_7",
       "namespaceId": "core",
       "file": "ZONE_7.tar.lz4",
-      "sha256": "64c705591aad7d9d9ac049d81ebf435ec96e9354ed22f12bde92111e8d1931e9",
-      "size": 57999904,
-      "unpackedSize": 58685440,
+      "sha256": "b20fa4053aba39136d6ae00d685a1490061cbf4ce3e9f2d29f44c87071933632",
+      "size": 65135250,
+      "unpackedSize": 65858048,
       "assets": [
         {
           "address": "Textures/Effects/Magic/mgc_effect_mine",
@@ -23306,9 +23306,9 @@
       "name": "ZONE_7_2",
       "namespaceId": "core",
       "file": "ZONE_7_2.tar.lz4",
-      "sha256": "91d48f4fc13fc9a8ee84cd57f09b6f51172993ce5e5a0f8250b18edfbec97d0e",
-      "size": 5937017,
-      "unpackedSize": 6041600,
+      "sha256": "9ffe8ba5c59ecae3251a94f3104f4d0eef1c96d609520327041f8bfd3d44399c",
+      "size": 10862782,
+      "unpackedSize": 10977792,
       "assets": [
         {
           "address": "Textures/Locations/eggs/eggs_atlas_layer1",
@@ -23533,9 +23533,9 @@
       "name": "ZONE_7_3",
       "namespaceId": "core",
       "file": "ZONE_7_3.tar.lz4",
-      "sha256": "261204624809b0d8eb40a0a7fcc0109cbd073f96385746ed60d8a0b84a232741",
-      "size": 63500608,
-      "unpackedSize": 64358400,
+      "sha256": "4ba069606a13af3c72246d8d7f532b988e07c184e7be2545873a952c5e0901e3",
+      "size": 70699626,
+      "unpackedSize": 71576064,
       "assets": [
         {
           "address": "Textures/Effects/Fight/effect_shield_hex_hit",
@@ -24271,9 +24271,9 @@
       "name": "ZONE_IM",
       "namespaceId": "core",
       "file": "ZONE_IM.tar.lz4",
-      "sha256": "be6b9e7a0b8145de0b1406537d16c239ee7f10442b25d1010fb4a02184211ca2",
-      "size": 7928462,
-      "unpackedSize": 8069120,
+      "sha256": "c45c9eb157a877a1e0be7ee64d0c3ed38b1d1f896ef4b44095ea47f366d19e2d",
+      "size": 9304148,
+      "unpackedSize": 9455104,
       "assets": [
         {
           "address": "Textures/buttons/map/Bag_Coins_Platinum_sale",
@@ -24498,9 +24498,9 @@
       "name": "ZONE_RAID",
       "namespaceId": "core",
       "file": "ZONE_RAID.tar.lz4",
-      "sha256": "b5218f4d5e17b9499ff2a14ff20ecf4c7f5b5ee0be6976725b8563034ee0d87f",
-      "size": 324115515,
-      "unpackedSize": 330117120,
+      "sha256": "b8aa99434ea0b79b694268c317ee20ce8428a62ea22e575261c0b50667a92a77",
+      "size": 331772531,
+      "unpackedSize": 337930752,
       "assets": [
         {
           "address": "Textures/Effects/Fight/effect_tornado_hit",

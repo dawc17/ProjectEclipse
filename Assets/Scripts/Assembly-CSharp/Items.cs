@@ -238,14 +238,18 @@ public class Items
 		ItemInfo item = DEEGAJNPJCI.Find((ItemInfo DHDMNHCIPEH) => DHDMNHCIPEH.Name.Equals(name));
 		if (item != null) return item;
 		Eclipse.Modding.DefinitionId id;
-		Eclipse.Modding.ItemDefinition core;
+		Eclipse.Modding.ItemDefinition definition;
 		Eclipse.Modding.ModScriptSession scripts = Eclipse.Modding.ModRuntime.Scripts;
-		if (scripts != null && Eclipse.Modding.DefinitionId.TryParse(name, out id) && id.Namespace.Value == "core" &&
-			scripts.Content.TryGetItem(id, out core) && core.LegacyName != null)
+		if (scripts != null && Eclipse.Modding.DefinitionId.TryParse(name, out id) &&
+			scripts.Content.TryResolveItem(id, out definition))
 		{
-			ItemInfo legacy = DEEGAJNPJCI.Find(value => value.Name == core.LegacyName && value.NodeXML != null &&
-				core.LegacyItemXml != null && value.NodeXML.OuterXml == core.LegacyItemXml);
-			return legacy ?? DEEGAJNPJCI.Find(value => value.Name == core.LegacyName);
+			if (definition.IsCore && definition.LegacyName != null)
+			{
+				ItemInfo legacy = DEEGAJNPJCI.Find(value => value.Name == definition.LegacyName && value.NodeXML != null &&
+					definition.LegacyItemXml != null && value.NodeXML.OuterXml == definition.LegacyItemXml);
+				return legacy ?? DEEGAJNPJCI.Find(value => value.Name == definition.LegacyName);
+			}
+			return DEEGAJNPJCI.Find(value => value.Name == definition.Id.ToString());
 		}
 		return null;
 	}
@@ -313,7 +317,7 @@ public class Items
 	// Eclipse-owned mod content is validated before reaching this recovered container.
 	// Keep the integration seam here deliberately tiny so the original item parser remains
 	// authoritative for ItemInfo defaults, attributes and upgrade-template semantics.
-	public ItemInfo AddExternalWeapon(XmlNode node)
+	public ItemInfo AddExternalItem(XmlNode node)
 	{
 		if (node == null)
 		{
@@ -323,7 +327,7 @@ public class Items
 		string name = (nameAttribute == null) ? string.Empty : nameAttribute.Value;
 		if (string.IsNullOrEmpty(name))
 		{
-			throw new System.InvalidOperationException("External weapon requires a Name attribute.");
+			throw new System.InvalidOperationException("External item requires a Name attribute.");
 		}
 		if (KCCDBEEKBCG(name) != null)
 		{
@@ -331,29 +335,46 @@ public class Items
 		}
 
 		ItemInfo item = HOBNJMONDKB(node, HCDLKHKBEPF().Count);
-		if (item.Type != "Weapon")
+		List<ItemInfo> category = ONFMAJEAACM(item.Type);
+		if (category == null || (item.Type != "Weapon" && item.Type != "Armor" && item.Type != "Helm" &&
+			item.Type != "Ranged" && item.Type != "Magic"))
 		{
-			throw new System.InvalidOperationException("External item seam currently accepts Weapon only: " + name);
+			throw new System.InvalidOperationException("Unsupported external item type '" + item.Type + "': " + name);
 		}
 		HCDLKHKBEPF().Add(item);
-		MJKFCBMNNGJ().Add(item);
+		category.Add(item);
 		return item;
 	}
 
-	public bool RemoveExternalWeapon(string name)
+	public bool RemoveExternalItem(string name)
 	{
 		if (string.IsNullOrEmpty(name))
 		{
 			return false;
 		}
 		ItemInfo item = KCCDBEEKBCG(name);
-		if (item == null || item.Type != "Weapon")
+		if (item == null)
 		{
 			return false;
 		}
-		MJKFCBMNNGJ().Remove(item);
+		List<ItemInfo> category = ONFMAJEAACM(item.Type);
+		if (category == null) return false;
+		category.Remove(item);
 		HCDLKHKBEPF().Remove(item);
 		return true;
+	}
+
+	public ItemInfo AddExternalWeapon(XmlNode node)
+	{
+		if (node == null || node.Attributes?["Type"]?.Value != "Weapon")
+			throw new System.InvalidOperationException("External weapon seam requires Type=Weapon.");
+		return AddExternalItem(node);
+	}
+
+	public bool RemoveExternalWeapon(string name)
+	{
+		ItemInfo item = KCCDBEEKBCG(name);
+		return item != null && item.Type == "Weapon" && RemoveExternalItem(name);
 	}
 
 	private void ParseUpgradeList(XmlNode node)

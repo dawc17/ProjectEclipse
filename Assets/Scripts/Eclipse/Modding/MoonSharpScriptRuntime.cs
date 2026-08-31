@@ -191,6 +191,12 @@ namespace Eclipse.Modding
 
                 var items = new Table(_script);
                 items.Set("register_weapon", DynValue.NewCallback(RegisterWeapon));
+                items.Set("register_armor", DynValue.NewCallback(RegisterArmor));
+                items.Set("register_helm", DynValue.NewCallback(RegisterHelm));
+                items.Set("register_ranged", DynValue.NewCallback(RegisterRanged));
+                items.Set("register_magic", DynValue.NewCallback(RegisterMagic));
+                items.Set("alias", DynValue.NewCallback(RegisterItemAlias));
+                items.Set("tombstone", DynValue.NewCallback(RegisterItemTombstone));
                 root.Set("items", DynValue.NewTable(items));
 
                 var price = new Table(_script);
@@ -202,6 +208,10 @@ namespace Eclipse.Modding
 
                 var shop = new Table(_script);
                 shop.Set("WEAPONS", DynValue.NewString("weapons"));
+                shop.Set("ARMOR", DynValue.NewString("armor"));
+                shop.Set("HELMETS", DynValue.NewString("helmets"));
+                shop.Set("RANGED", DynValue.NewString("ranged"));
+                shop.Set("MAGIC", DynValue.NewString("magic"));
                 shop.Set("addItem", DynValue.NewCallback(ShopAddItem));
                 shop.Set("add", shop.Get("addItem"));
                 root.Set("shop", DynValue.NewTable(shop));
@@ -265,7 +275,7 @@ namespace Eclipse.Modding
                 return ApiCall("sf2.items.register_weapon", () =>
                 {
                     ValidateFields(table, "sf2.items.register_weapon", "id", "display_name", "icon", "model",
-                        "subtype", "damage");
+                        "subtype");
                     string id = RequiredString(table, "id", "sf2.items.register_weapon");
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", "sf2.items.register_weapon");
@@ -274,9 +284,104 @@ namespace Eclipse.Modding
                     AssetId model = RequiredHandle(table, "model", _modelHandles, "model",
                         "sf2.items.register_weapon");
                     string subType = OptionalString(table, "subtype", "Katana", "sf2.items.register_weapon");
-                    int damage = RequiredInt(table, "damage", "sf2.items.register_weapon");
-                    WeaponDefinition definition = _api.RegisterWeapon(id, displayName, icon, model, subType, damage);
+                    WeaponDefinition definition = _api.RegisterWeapon(id, displayName, icon, model, subType);
                     return NewHandle(_itemHandles, definition.Id);
+                });
+            }
+
+            private DynValue RegisterArmor(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.register_armor";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "display_name", "icon", "model");
+                    string id = RequiredString(table, "id", function);
+                    DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
+                        "localization", function);
+                    AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
+                    AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
+                    ArmorDefinition definition = _api.RegisterArmor(id, displayName, icon, model);
+                    return NewHandle(_itemHandles, definition.Id);
+                });
+            }
+
+            private DynValue RegisterHelm(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.register_helm";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "display_name", "icon", "model");
+                    string id = RequiredString(table, "id", function);
+                    DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
+                        "localization", function);
+                    AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
+                    AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
+                    HelmDefinition definition = _api.RegisterHelm(id, displayName, icon, model);
+                    return NewHandle(_itemHandles, definition.Id);
+                });
+            }
+
+            private DynValue RegisterRanged(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.register_ranged";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "display_name", "icon", "model", "subtype");
+                    string id = RequiredString(table, "id", function);
+                    DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
+                        "localization", function);
+                    AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
+                    AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
+                    string subType = RequiredString(table, "subtype", function);
+                    RangedDefinition definition = _api.RegisterRanged(id, displayName, icon, model, subType);
+                    return NewHandle(_itemHandles, definition.Id);
+                });
+            }
+
+            private DynValue RegisterMagic(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.register_magic";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "display_name", "icon", "model", "subtype");
+                    string id = RequiredString(table, "id", function);
+                    DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
+                        "localization", function);
+                    AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
+                    AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
+                    string subType = RequiredString(table, "subtype", function);
+                    MagicDefinition definition = _api.RegisterMagic(id, displayName, icon, model, subType);
+                    return NewHandle(_itemHandles, definition.Id);
+                });
+            }
+
+            private DynValue RegisterItemAlias(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.alias";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "from", "to");
+                    string from = RequiredString(table, "from", function);
+                    DefinitionId target = RequiredHandle(table, "to", _itemHandles, "item", function);
+                    _api.RegisterItemAlias(from, target);
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue RegisterItemTombstone(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.tombstone";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id");
+                    _api.RegisterItemTombstone(RequiredString(table, "id", function));
+                    return DynValue.Nil;
                 });
             }
 
@@ -298,12 +403,20 @@ namespace Eclipse.Modding
                 {
                     ValidateFields(table, function, "section", "item", "level", "price");
                     string sectionText = RequiredString(table, "section", function);
-                    if (!string.Equals(sectionText, "weapons", StringComparison.Ordinal))
-                        throw new ModContentException(function + " field 'section' only supports sf2.shop.WEAPONS.");
+                    ModShopSection section;
+                    switch (sectionText)
+                    {
+                        case "weapons": section = ModShopSection.Weapons; break;
+                        case "armor": section = ModShopSection.Armor; break;
+                        case "helmets": section = ModShopSection.Helmets; break;
+                        case "ranged": section = ModShopSection.Ranged; break;
+                        case "magic": section = ModShopSection.Magic; break;
+                        default: throw new ModContentException(function + " field 'section' is not a supported shop section.");
+                    }
                     DefinitionId item = RequiredHandle(table, "item", _itemHandles, "item", function);
                     int level = RequiredInt(table, "level", function);
                     ModPrice price = RequiredHandle(table, "price", _priceHandles, "price", function);
-                    ShopListingDefinition listing = _api.RegisterShopListing(item, ModShopSection.Weapons, level, price);
+                    ShopListingDefinition listing = _api.RegisterShopListing(item, section, level, price);
                     return DynValue.NewString(listing.Id.ToString());
                 });
             }

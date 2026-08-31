@@ -41,8 +41,10 @@ namespace Eclipse.Modding
                 ModScriptSession scripts = StartScripts();
                 _legacyContent = new LegacyContentAdapter(scripts.Content);
                 _legacyContent.ApplyItems(ListSF.DJBOFEEKJMP());
-                Debug.Log("[ModContent] Catalog contains " + scripts.Content.Weapons.Count +
-                    " core/mod weapon definition(s); applied " + scripts.Content.ShopListings.Count + " external shop listing(s).");
+                Debug.Log("[ModContent] Catalog equipment: " + scripts.Content.Weapons.Count + " weapons, " +
+                    scripts.Content.Armors.Count + " armor, " + scripts.Content.Helms.Count + " helms, " +
+                    scripts.Content.Ranged.Count + " ranged, " + scripts.Content.Magic.Count + " magic; applied " +
+                    scripts.Content.ShopListings.Count + " external shop listing(s).");
             }
             catch (Exception exception)
             {
@@ -106,6 +108,31 @@ namespace Eclipse.Modding
             return true;
         }
 
+        public static bool TryLoadCore<T>(string reference, out T asset) where T : UnityEngine.Object
+        {
+            asset = null;
+            AssetId id;
+            if (!TryQualifyCore(reference, out id)) return false;
+            IAssetProvider provider;
+            IRuntimeAssetProvider runtimeProvider;
+            if (!Host.Assets.TryGetProvider(id.Namespace, out provider) ||
+                (runtimeProvider = provider as IRuntimeAssetProvider) == null) return false;
+            return runtimeProvider.TryLoadUnityAsset(id, out asset);
+        }
+
+        public static bool TryLoadCoreWithSubAssets<T>(string reference, out T[] assets)
+            where T : UnityEngine.Object
+        {
+            assets = null;
+            AssetId id;
+            if (!TryQualifyCore(reference, out id)) return false;
+            IAssetProvider provider;
+            IRuntimeAssetProvider runtimeProvider;
+            if (!Host.Assets.TryGetProvider(id.Namespace, out provider) ||
+                (runtimeProvider = provider as IRuntimeAssetProvider) == null) return false;
+            return runtimeProvider.TryLoadUnityAssets(id, out assets);
+        }
+
         public static string LoadQualifiedModelText(string reference)
         {
             if (!string.IsNullOrEmpty(reference) && reference.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
@@ -159,6 +186,21 @@ namespace Eclipse.Modding
             ModId namespaceId;
             if (!ModId.TryParse(reference.Substring(0, colon), out namespaceId)) return false;
             return AssetId.TryParse(reference, out id);
+        }
+
+        private static bool TryQualifyCore(string reference, out AssetId id)
+        {
+            id = default;
+            if (string.IsNullOrEmpty(reference) || reference.IndexOf(':') >= 0) return false;
+            try
+            {
+                id = AssetId.Parse("core:" + reference);
+                return true;
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
         }
     }
 }

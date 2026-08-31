@@ -2,15 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Eclipse.Content;
 using Eclipse.Content.TarAssets;
 using UnityEngine;
 
 namespace Eclipse.Modding
 {
+    public interface IRuntimeAssetProvider
+    {
+        bool TryLoadUnityAsset<T>(AssetId id, out T asset) where T : UnityEngine.Object;
+        bool TryLoadUnityAssets<T>(AssetId id, out T[] assets) where T : UnityEngine.Object;
+        bool TryLoadModelText(AssetId id, out string text);
+    }
+
     public sealed class ModAssetLoader : IDisposable
     {
-        private static readonly ModId Core = ModId.Parse("core");
         private static readonly UTF8Encoding StrictUtf8 = new UTF8Encoding(false, true);
         private const int MaxTextBytes = 64 * 1024 * 1024;
 
@@ -31,7 +36,12 @@ namespace Eclipse.Modding
         {
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
-            if (id.Namespace == Core) return PackagedArtCatalog.Load<T>(id.Path);
+            IRuntimeAssetProvider runtimeProvider;
+            if (TryGetRuntimeProvider(id, out runtimeProvider))
+            {
+                T runtimeAsset;
+                return runtimeProvider.TryLoadUnityAsset(id, out runtimeAsset) ? runtimeAsset : null;
+            }
             if (typeof(T) == typeof(Sprite)) return LoadSprite(id) as T;
             if (typeof(T) == typeof(Texture2D))
                 return LoadTexture(id) as T;
@@ -43,7 +53,12 @@ namespace Eclipse.Modding
         {
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
-            if (id.Namespace == Core) return PackagedArtCatalog.LoadWithSubAssets<T>(id.Path);
+            IRuntimeAssetProvider runtimeProvider;
+            if (TryGetRuntimeProvider(id, out runtimeProvider))
+            {
+                T[] runtimeAssets;
+                return runtimeProvider.TryLoadUnityAssets(id, out runtimeAssets) ? runtimeAssets : null;
+            }
             T asset = LoadUnityAsset<T>(id);
             return asset == null ? null : new[] { asset };
         }
@@ -52,7 +67,12 @@ namespace Eclipse.Modding
         {
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
-            if (id.Namespace == Core) return PackagedArtCatalog.Load<Sprite>(id.Path);
+            IRuntimeAssetProvider runtimeProvider;
+            if (TryGetRuntimeProvider(id, out runtimeProvider))
+            {
+                Sprite runtimeAsset;
+                return runtimeProvider.TryLoadUnityAsset(id, out runtimeAsset) ? runtimeAsset : null;
+            }
 
             Sprite cached;
             if (_sprites.TryGetValue(id, out cached) && cached != null) return cached;
@@ -97,7 +117,12 @@ namespace Eclipse.Modding
         {
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
-            if (id.Namespace == Core) return PackagedArtCatalog.Load<Texture2D>(id.Path);
+            IRuntimeAssetProvider runtimeProvider;
+            if (TryGetRuntimeProvider(id, out runtimeProvider))
+            {
+                Texture2D runtimeAsset;
+                return runtimeProvider.TryLoadUnityAsset(id, out runtimeAsset) ? runtimeAsset : null;
+            }
             // Preserve early mods and legacy callers that request a sprite's backing texture.
             if (metadata.Kind == AssetKind.Sprite)
             {
@@ -133,7 +158,12 @@ namespace Eclipse.Modding
         {
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
-            if (id.Namespace == Core) return PackagedArtCatalog.LoadModelText(id.Path);
+            IRuntimeAssetProvider runtimeProvider;
+            if (TryGetRuntimeProvider(id, out runtimeProvider))
+            {
+                string text;
+                return runtimeProvider.TryLoadModelText(id, out text) ? text : null;
+            }
             AssetBytes bytes;
             if (!_resolver.TryRead(id, out bytes)) return null;
             if (bytes.Metadata.Kind != AssetKind.Model)
@@ -143,7 +173,6 @@ namespace Eclipse.Modding
 
         public string LoadText(AssetId id)
         {
-            if (id.Namespace == Core) return null;
             AssetBytes bytes;
             if (!_resolver.TryRead(id, out bytes)) return null;
             if (bytes.Metadata.Kind != AssetKind.Text && bytes.Metadata.Kind != AssetKind.Model)
@@ -155,7 +184,12 @@ namespace Eclipse.Modding
         {
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
-            if (id.Namespace == Core) return PackagedArtCatalog.Load<AudioClip>(id.Path);
+            IRuntimeAssetProvider runtimeProvider;
+            if (TryGetRuntimeProvider(id, out runtimeProvider))
+            {
+                AudioClip runtimeAsset;
+                return runtimeProvider.TryLoadUnityAsset(id, out runtimeAsset) ? runtimeAsset : null;
+            }
             AudioClip cached;
             if (_audio.TryGetValue(id, out cached) && cached != null) return cached;
 
@@ -223,6 +257,15 @@ namespace Eclipse.Modding
         {
             int slash = path.LastIndexOf('/');
             return slash < 0 ? path : path.Substring(slash + 1);
+        }
+
+        private bool TryGetRuntimeProvider(AssetId id, out IRuntimeAssetProvider provider)
+        {
+            provider = null;
+            IAssetProvider raw;
+            if (!_resolver.TryGetProvider(id.Namespace, out raw)) return false;
+            provider = raw as IRuntimeAssetProvider;
+            return provider != null;
         }
 
         private static void Destroy(UnityEngine.Object value)

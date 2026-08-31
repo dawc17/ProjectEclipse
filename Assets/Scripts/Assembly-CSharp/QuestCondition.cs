@@ -403,8 +403,9 @@ public class QuestCondition : ConditionExtension
 			result.resultNumber = 0.0;
 			return;
 		}
-		int level = ListSF.CCDKHLAMKKO().PINDEKDNCNL();
-		int baseAspect = ForgeManager.ELEBLBJKDBI().GetAspectValueByLevel(level);
+		ForgeManager forge = ForgeManager.ELEBLBJKDBI();
+		int level = forge.ResolveAspectLevel(ListSF.CCDKHLAMKKO().PINDEKDNCNL());
+		int baseAspect = forge.GetAspectValueByLevel(level);
 		result.resultNumber = baseAspect + NekkiMath.randomInt(minimum, maximum + 1);
 	}
 

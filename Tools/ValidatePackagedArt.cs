@@ -50,6 +50,22 @@ public static class ValidatePackagedArt
         Require(agnis.vertices.Length >= 3 && agnis.uv.Length == agnis.vertices.Length,
             "AgnisSeal sprite geometry invalid");
 
+        string[] avatarSamples =
+        {
+            "UI/Users/avatar_human",
+            "UI/Users/boss_wind_wolf",
+            "UI/Users/boss_shurale_ny22",
+            "UI/Users/man_glaive_3"
+        };
+        foreach (string address in avatarSamples)
+        {
+            Sprite avatar = PackagedArtCatalog.Load<Sprite>(address);
+            Require(avatar != null && avatar.texture != null && avatar.pixelsPerUnit >= 200f &&
+                avatar.vertices.Length >= 3 && avatar.uv.Length == avatar.vertices.Length &&
+                avatar.uv.All(value => value.x >= 0f && value.x <= 1f && value.y >= 0f && value.y <= 1f),
+                "Upscaled TAR avatar geometry invalid: " + address);
+        }
+
         Texture2D texture = PackagedArtCatalog.Load<Texture2D>("UI/Items/AgnisSeal");
         Require(texture != null && texture.width > 0 && texture.height > 0,
             "AgnisSeal texture lookup failed");
@@ -207,8 +223,9 @@ public static class ValidatePackagedArt
                 "  display_name = title,\n" +
                 "  icon = sf2.assets.sprite(\"sprites/weapon\"),\n" +
                 "  model = sf2.assets.model(\"models/mdl_weapon_example\"),\n" +
-                "  damage = 18,\n" +
                 "}\n" +
+                "sf2.items.alias { from = \"weapon/example_blade_legacy\", to = weapon }\n" +
+                "sf2.items.tombstone { id = \"weapon/example_blade_retired\" }\n" +
                 "assert(sf2.shop.add == sf2.shop.addItem)\n" +
                 "assert(sf2.mod.log == sf2.log.info and sf2.mod.warn == sf2.log.warn and sf2.mod.error == sf2.log.error)\n" +
                 "sf2.shop.addItem {\n" +
@@ -226,6 +243,38 @@ public static class ValidatePackagedArt
                 "schema = 1\n" +
                 "id = \"example.weapon\"\n" +
                 "name = \"Example Weapon\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.1 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.register\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
+            string loadout = Path.Combine(modsRoot, "example.loadout");
+            Directory.CreateDirectory(Path.Combine(loadout, "localizations"));
+            Directory.CreateDirectory(Path.Combine(loadout, "scripts"));
+            File.WriteAllText(Path.Combine(loadout, "localizations", "eng.toml"),
+                "armor.eclipse_mantle = \"Eclipse Mantle\"\n" +
+                "helm.eclipse_pumpkin = \"Eclipse Pumpkin\"\n" +
+                "ranged.eclipse_skull = \"Eclipse Skull\"\n" +
+                "magic.eclipse_asteroid = \"Eclipse Asteroid\"\n");
+            File.WriteAllText(Path.Combine(loadout, "scripts", "main.lua"),
+                "local sf2 = require(\"sf2\")\n" +
+                "local armor = sf2.items.register_armor { id=\"eclipse_mantle\", display_name=sf2.localization.key(\"armor.eclipse_mantle\"), icon=sf2.assets.sprite(\"core:UI/Items/Armor12.img_armor_mantle_of_night\"), model=sf2.assets.model(\"core:gamedata/models/mdl_armor_mantle_of_night\") }\n" +
+                "local helm = sf2.items.register_helm { id=\"eclipse_pumpkin\", display_name=sf2.localization.key(\"helm.eclipse_pumpkin\"), icon=sf2.assets.sprite(\"core:UI/Items/Helm31.img_helm_hw14_pumpkin\"), model=sf2.assets.model(\"core:gamedata/models/mdl_helm_hw14_pumpkin\") }\n" +
+                "local ranged = sf2.items.register_ranged { id=\"eclipse_skull\", display_name=sf2.localization.key(\"ranged.eclipse_skull\"), icon=sf2.assets.sprite(\"core:UI/Items/Ranged12.img_ranged_hw15_skull\"), model=sf2.assets.model(\"core:gamedata/models/mdl_ranged_hw15_skull\"), subtype=\"Skull\" }\n" +
+                "local magic = sf2.items.register_magic { id=\"eclipse_asteroid\", display_name=sf2.localization.key(\"magic.eclipse_asteroid\"), icon=sf2.assets.sprite(\"core:UI/Items/Magic4.img_magic_asteroid\"), model=sf2.assets.model(\"core:gamedata/models/mdl_magic_asteroid\"), subtype=\"MagicAsteroid\" }\n" +
+                "sf2.shop.addItem { section=sf2.shop.ARMOR, item=armor, level=2, price=sf2.price.coins(1) }\n" +
+                "sf2.shop.addItem { section=sf2.shop.HELMETS, item=helm, level=2, price=sf2.price.coins(1) }\n" +
+                "sf2.shop.addItem { section=sf2.shop.RANGED, item=ranged, level=6, price=sf2.price.coins(1) }\n" +
+                "sf2.shop.addItem { section=sf2.shop.MAGIC, item=magic, level=6, price=sf2.price.coins(1) }\n" +
+                "sf2.log.info(\"loadout-entry-ok\")\n");
+            File.WriteAllText(Path.Combine(loadout, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"example.loadout\"\n" +
+                "name = \"Example Loadout\"\n" +
                 "version = \"1.0.0\"\n" +
                 "api = \">=0.1 <1.0\"\n" +
                 "authors = [\"Test\"]\n" +
@@ -301,7 +350,6 @@ public static class ValidatePackagedArt
                 "  display_name = sf2.localization.key(\"weapon.rollback\"),\n" +
                 "  icon = sf2.assets.sprite(\"sprites/weapon\"),\n" +
                 "  model = sf2.assets.model(\"models/weapon\"),\n" +
-                "  damage = 5,\n" +
                 "}\n" +
                 "error(\"rollback-after-registration\")\n");
             File.WriteAllText(Path.Combine(registrationFailure, "mod.toml"),
@@ -319,8 +367,9 @@ public static class ValidatePackagedArt
 
             ModHost host = ModHost.Build(modsRoot);
             Require(host.HasErrors, "Broken loose mod did not surface diagnostics");
-            Require(host.EnabledMods.Count == 4 &&
+            Require(host.EnabledMods.Count == 5 &&
                 host.EnabledMods.Any(x => x.Id.Value == "example.weapon") &&
+                host.EnabledMods.Any(x => x.Id.Value == "example.loadout") &&
                 host.EnabledMods.Any(x => x.Id.Value == "registration.failure") &&
                 host.EnabledMods.Any(x => x.Id.Value == "script.failure") &&
                 host.EnabledMods.Any(x => x.Id.Value == "script.runaway"),
@@ -333,6 +382,13 @@ public static class ValidatePackagedArt
                 bytes.Data.Length > 4, "ModHost did not read loose sprite bytes");
             Require(host.Assets.TryDescribe(AssetId.Parse("core:UI/Items/AgnisSeal"), out metadata),
                 "ModHost did not mount core provider");
+            Require(host.Assets.TryDescribe(
+                    AssetId.Parse("core:UI/Items/Armor12.img_armor_mantle_of_night"), out metadata) &&
+                metadata.Kind == AssetKind.Sprite,
+                "Core provider did not expose a real atlas member as a typed sprite identity");
+            Require(!host.Assets.TryDescribe(
+                    AssetId.Parse("core:UI/Items/Armor12.this_member_does_not_exist"), out metadata),
+                "Core provider accepted a nonexistent atlas member");
             Require(host.FormatReport().Contains("DEP005"), "ModHost report omitted dependency diagnostic");
 
             ModDescriptor exampleMod = host.EnabledMods.First(x => x.Id.Value == "example.weapon");
@@ -355,6 +411,18 @@ public static class ValidatePackagedArt
             Require(looseSprite.name == "weapon" &&
                 host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/weapon")) == looseSprite,
                 "Sprite filename-derived name or instance cache is wrong");
+            Sprite mantleIcon = host.TypedAssets.LoadSprite(
+                AssetId.Parse("core:UI/Items/Armor12.img_armor_mantle_of_night"));
+            Sprite pumpkinIcon = host.TypedAssets.LoadSprite(
+                AssetId.Parse("core:UI/Items/Helm31.img_helm_hw14_pumpkin"));
+            Sprite skullIcon = host.TypedAssets.LoadSprite(
+                AssetId.Parse("core:UI/Items/Ranged12.img_ranged_hw15_skull"));
+            Sprite asteroidIcon = host.TypedAssets.LoadSprite(
+                AssetId.Parse("core:UI/Items/Magic4.img_magic_asteroid"));
+            Require(mantleIcon != null && pumpkinIcon != null && skullIcon != null && asteroidIcon != null &&
+                mantleIcon != pumpkinIcon && mantleIcon != skullIcon && mantleIcon != asteroidIcon &&
+                pumpkinIcon != skullIcon && pumpkinIcon != asteroidIcon && skullIcon != asteroidIcon,
+                "Typed core atlas-member icons did not resolve to four distinct sprites");
             Sprite cropped = host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/crop"));
             Require(cropped != looseSprite && cropped.texture == looseSprite.texture &&
                 cropped.rect == new Rect(1, 0, 1, 2) && cropped.pivot == new Vector2(0, 2) &&
@@ -417,7 +485,8 @@ public static class ValidatePackagedArt
             using (ModScriptSession scripts = host.StartScripts(scriptRuntime, entry => scriptLogs.Add(entry)))
             {
                 Require(scripts.HasErrors, "Failing Lua mod did not produce script diagnostics");
-                Require(scripts.ActiveMods.Count == 1 && scripts.ActiveMods[0].Id.Value == "example.weapon",
+                Require(scripts.ActiveMods.Count == 2 && scripts.ActiveMods.Any(x => x.Id.Value == "example.weapon") &&
+                    scripts.ActiveMods.Any(x => x.Id.Value == "example.loadout"),
                     "Failing Lua mod disabled the independent working script mod");
                 Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure" &&
                     x.Message.Contains("Unsafe module name")),
@@ -431,6 +500,8 @@ public static class ValidatePackagedArt
                 Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
                     x.Message == "lua-entry-ok"),
                     "Sandboxed Lua entrypoint did not execute/log through sf2.log.info");
+                Require(scriptLogs.Any(x => x.ModId.Value == "example.loadout" && x.Level == ModLogLevel.Info &&
+                    x.Message == "loadout-entry-ok"), "Multi-category Lua example did not execute");
                 Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Debug &&
                     x.Message == "lua-debug-ok") &&
                     scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Warning &&
@@ -439,9 +510,12 @@ public static class ValidatePackagedArt
                     x.Message == "lua-error-ok") &&
                     scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
                     x.Message == "lua-legacy-ok"), "Lua log levels/compatibility alias lost severity or mod attribution");
-                Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 1 &&
-                    scripts.Content.Weapons.Count == 1 && scripts.Content.ShopListings.Count == 1,
-                    "Successful Lua registration did not commit exactly one complete weapon transaction");
+                Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 5 &&
+                    scripts.Content.Weapons.Count == 1 && scripts.Content.Armors.Count == 1 &&
+                    scripts.Content.Helms.Count == 1 && scripts.Content.Ranged.Count == 1 &&
+                    scripts.Content.Magic.Count == 1 && scripts.Content.ItemRedirects.Count == 2 &&
+                    scripts.Content.ShopListings.Count == 5,
+                    "Successful Lua registration did not commit the complete equipment transactions");
                 LocalizationDefinition title;
                 Require(scripts.Content.TryGetLocalization(
                     DefinitionId.Parse("example.weapon:localization/weapon.example_blade"), out title) &&
@@ -450,7 +524,8 @@ public static class ValidatePackagedArt
                 WeaponDefinition weapon;
                 Require(scripts.Content.TryGetWeapon(
                     DefinitionId.Parse("example.weapon:items/weapon/example_blade"), out weapon) &&
-                    weapon.Damage == 18 && weapon.SubType == "Katana" &&
+                    weapon.Damage == 0 && weapon.SubType == "Katana" &&
+                    weapon.Progression == ItemProgressionKind.Vanilla &&
                     weapon.Icon == AssetId.Parse("example.weapon:sprites/weapon") &&
                     weapon.Model == AssetId.Parse("example.weapon:models/mdl_weapon_example"),
                     "Lua weapon definition did not preserve typed values");
@@ -460,6 +535,34 @@ public static class ValidatePackagedArt
                     listing.Item == weapon.Id && listing.Level == 12 &&
                     listing.Price == new ModPrice(ModPriceCurrency.Coins, 1000),
                     "Lua shop listing did not preserve item/level/price values");
+                ArmorDefinition armor;
+                HelmDefinition helm;
+                RangedDefinition ranged;
+                MagicDefinition magic;
+                Require(scripts.Content.TryGetArmor(DefinitionId.Parse("example.loadout:items/armor/eclipse_mantle"), out armor) &&
+                    armor.BodyDefense == 0 && armor.UnarmedDamage == 0 && armor.Progression == ItemProgressionKind.Vanilla &&
+                    armor.Icon == AssetId.Parse("core:UI/Items/Armor12.img_armor_mantle_of_night") && armor.HasModel,
+                    "Lua armor definition did not preserve typed values");
+                Require(scripts.Content.TryGetHelm(DefinitionId.Parse("example.loadout:items/helm/eclipse_pumpkin"), out helm) &&
+                    helm.HeadDefense == 0 && helm.Progression == ItemProgressionKind.Vanilla &&
+                    helm.Icon == AssetId.Parse("core:UI/Items/Helm31.img_helm_hw14_pumpkin") && helm.HasModel,
+                    "Lua helm definition did not preserve typed values");
+                Require(scripts.Content.TryGetRanged(DefinitionId.Parse("example.loadout:items/ranged/eclipse_skull"), out ranged) &&
+                    ranged.RangedDamage == 0 && ranged.SubType == "Skull" && ranged.Progression == ItemProgressionKind.Vanilla &&
+                    ranged.Icon == AssetId.Parse("core:UI/Items/Ranged12.img_ranged_hw15_skull") && ranged.HasModel,
+                    "Lua ranged definition did not preserve typed values");
+                Require(scripts.Content.TryGetMagic(DefinitionId.Parse("example.loadout:items/magic/eclipse_asteroid"), out magic) &&
+                    magic.MagicDamage == 0 && magic.SubType == "MagicAsteroid" && magic.Progression == ItemProgressionKind.Vanilla &&
+                    magic.Icon == AssetId.Parse("core:UI/Items/Magic4.img_magic_asteroid") && magic.HasModel,
+                    "Lua magic definition did not preserve typed values");
+                ItemDefinition aliasedItem;
+                Require(scripts.Content.TryResolveItem(
+                        DefinitionId.Parse("example.weapon:items/weapon/example_blade_legacy"), out aliasedItem) &&
+                    aliasedItem.Id == weapon.Id,
+                    "Lua item alias did not resolve to its current item handle");
+                Require(!scripts.Content.TryResolveItem(
+                        DefinitionId.Parse("example.weapon:items/weapon/example_blade_retired"), out aliasedItem),
+                    "Lua item tombstone incorrectly resolved as live content");
                 WeaponDefinition rolledBack;
                 Require(!scripts.Content.TryGetWeapon(
                     DefinitionId.Parse("registration.failure:items/weapon/rollback"), out rolledBack),
@@ -488,16 +591,17 @@ public static class ValidatePackagedArt
             ModRuntime.StartGameContent(modsRoot);
             ModScriptSession runtimeScripts = ModRuntime.Scripts;
             Require(runtimeScripts != null, "ModRuntime startup failed while importing core content");
-            Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
-                runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.Armors.Count == 179 &&
-                runtimeScripts.Content.Helms.Count == 193 && runtimeScripts.Content.Ranged.Count == 85 &&
-                runtimeScripts.Content.Magic.Count == 73 &&
-                runtimeScripts.Content.ShopListings.Count == 1 &&
+            Require(runtimeScripts.ActiveMods.Count == 2 && runtimeScripts.ActiveMods.Any(x => x.Id.Value == "example.weapon") &&
+                runtimeScripts.ActiveMods.Any(x => x.Id.Value == "example.loadout") &&
+                runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.Armors.Count == 180 &&
+                runtimeScripts.Content.Helms.Count == 194 &&
+                runtimeScripts.Content.Ranged.Count == 86 && runtimeScripts.Content.Magic.Count == 74 &&
+                runtimeScripts.Content.ShopListings.Count == 5 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
-            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 741 &&
+            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 745 &&
                 ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/weapon/weapon_katana") == vanillaKatana &&
                 vanillaKatana.Name == "WEAPON_KATANA", "Core registry import duplicated or renamed a legacy weapon");
             Require(ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/armor/body") == vanillaBody &&
@@ -545,10 +649,39 @@ public static class ValidatePackagedArt
                 legacyWeapon.FileName == "example.weapon:sprites/weapon" &&
                 legacyWeapon.Model == "example.weapon:models/mdl_weapon_example" &&
                 legacyWeapon.Text == legacyLocalizationId && legacyWeapon.Level == 12 &&
-                legacyWeapon.UpgradeLevel == 1200 && legacyWeapon.WeaponDamage == 18 &&
+                legacyWeapon.UpgradeLevel == 1200 && legacyWeapon.WeaponDamage == 261 &&
                 legacyWeapon.Price == 1000 && legacyWeapon.BonusPrice == 0 &&
                 legacyWeapon.UpgradeTemplate == "Weapon_Bonus",
                 "Committed weapon was not adapted to the expected legacy ItemInfo fields");
+            Require(ListSF.DJBOFEEKJMP().KCCDBEEKBCG("example.weapon:items/weapon/example_blade_legacy") == legacyWeapon,
+                "Legacy item lookup did not resolve an old namespaced save ID through the item alias");
+            Require(ListSF.DJBOFEEKJMP().KCCDBEEKBCG("example.weapon:items/weapon/example_blade_retired") == null,
+                "Tombstoned item ID unexpectedly resolved to a live legacy item");
+            ItemInfo legacyArmor = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("example.loadout:items/armor/eclipse_mantle");
+            ItemInfo legacyHelm = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("example.loadout:items/helm/eclipse_pumpkin");
+            ItemInfo legacyRanged = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("example.loadout:items/ranged/eclipse_skull");
+            ItemInfo legacyMagic = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("example.loadout:items/magic/eclipse_asteroid");
+            Require(legacyArmor != null && legacyArmor.Type == "Armor" && legacyArmor.Level == 2 &&
+                legacyArmor.UpgradeLevel == 200 && legacyArmor.BodyDefense == 22 && legacyArmor.UnarmedDamage == 8 &&
+                legacyArmor.FileName == "core:ui/items/armor12.img_armor_mantle_of_night" &&
+                legacyArmor.UpgradeTemplate == "Armor_Bonus",
+                "External armor was not adapted through the legacy runtime");
+            Require(legacyHelm != null && legacyHelm.Type == "Helm" && legacyHelm.Level == 2 &&
+                legacyHelm.UpgradeLevel == 200 && legacyHelm.HeadDefense == 18 &&
+                legacyHelm.FileName == "core:ui/items/helm31.img_helm_hw14_pumpkin" &&
+                legacyHelm.UpgradeTemplate == "Helm_Bonus", "External helm was not adapted through the legacy runtime");
+            Require(legacyRanged != null && legacyRanged.Type == "Ranged" && legacyRanged.Level == 6 &&
+                legacyRanged.UpgradeLevel == 600 && legacyRanged.RangedDamage == 105 &&
+                legacyRanged.SubType == "Skull" &&
+                legacyRanged.FileName == "core:ui/items/ranged12.img_ranged_hw15_skull" &&
+                legacyRanged.UpgradeTemplate == "Ranged_Bonus",
+                "External ranged item was not adapted through the legacy runtime");
+            Require(legacyMagic != null && legacyMagic.Type == "Magic" && legacyMagic.Level == 6 &&
+                legacyMagic.UpgradeLevel == 600 && legacyMagic.MagicDamage == 105 &&
+                legacyMagic.SubType == "MagicAsteroid" &&
+                legacyMagic.FileName == "core:ui/items/magic4.img_magic_asteroid" &&
+                legacyMagic.UpgradeTemplate == "Magic_Bonus",
+                "External magic item was not adapted through the legacy runtime");
 
             ModRuntime.ApplyLegacyLocalization();
             Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == "Example Blade",
@@ -574,6 +707,9 @@ public static class ValidatePackagedArt
             Sprite legacyCore = ResourcesAndBundles.Load<Sprite>("Textures/Locations/moon/background_1");
             Require(legacyCore != null && legacyCore.texture != null,
                 "Namespaced bridge regressed unqualified legacy resource loading");
+            Sprite legacyCoreByName = ResourcesAndBundles.Load<Sprite>("AgnisSeal.helm");
+            Require(legacyCoreByName != null && legacyCoreByName.texture != null,
+                "Implicit core routing lost PackagedArtCatalog legacy atlas-member compatibility");
             ModRuntime.Shutdown();
             Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 740 &&
                 ListSF.DJBOFEEKJMP().KCCDBEEKBCG("WEAPON_KATANA") == vanillaKatana,

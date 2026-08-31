@@ -92,10 +92,50 @@ namespace Eclipse.Modding
         }
 
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType, int damage)
+            AssetId model, string subType)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterWeapon(localId, displayName, icon, model, subType, damage);
+            return RequireRegistration().RegisterWeapon(localId, displayName, icon, model, subType);
+        }
+
+        public ArmorDefinition RegisterArmor(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterArmor(localId, displayName, icon, model);
+        }
+
+        public HelmDefinition RegisterHelm(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterHelm(localId, displayName, icon, model);
+        }
+
+        public RangedDefinition RegisterRanged(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model, string subType)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterRanged(localId, displayName, icon, model, subType);
+        }
+
+        public MagicDefinition RegisterMagic(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model, string subType)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterMagic(localId, displayName, icon, model, subType);
+        }
+
+        public ItemRedirectDefinition RegisterItemAlias(string oldLocalPath, DefinitionId target)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterItemAlias(oldLocalPath, target);
+        }
+
+        public ItemRedirectDefinition RegisterItemTombstone(string oldLocalPath)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterItemTombstone(oldLocalPath);
         }
 
         public ShopListingDefinition RegisterShopListing(DefinitionId item, ModShopSection section,

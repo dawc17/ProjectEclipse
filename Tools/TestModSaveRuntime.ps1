@@ -5,13 +5,14 @@ $userItemSource = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts
 # Execute the recovered inventory parse/add methods, with unrelated Unity/timer services stubbed.
 $parse = [regex]::Match($source, '(?ms)^\tpublic void Parse\(XmlNode.*?^\t\}').Value
 $add = [regex]::Match($source, '(?ms)^\tpublic UserItem GEFDJDIINND\(.*?^\t\}').Value
+$find = [regex]::Match($source, '(?ms)^\tpublic UserItem CMGOCLGHNLH\(string name\).*?^\t\}').Value
 $setEquipped = [regex]::Match($userItemSource, '(?ms)^\tpublic void JBLKCIBKMKB\(bool value\).*?^\t\}').Value
 $setCount = [regex]::Match($userItemSource, '(?ms)^\tpublic void CHILOKHFALD\(int value\).*?^\t\}').Value
 $setDelivery = [regex]::Match($userItemSource, '(?ms)^\tpublic void set_DeliveryTime\(long value\).*?^\t\}').Value
 $setDeliveryUpgrade = [regex]::Match($userItemSource, '(?ms)^\tpublic void BAMLNLIDEBG\(int value\).*?^\t\}').Value
 $setUpgrade = [regex]::Match($userItemSource, '(?ms)^\tpublic void FMMDLMGHPIB\(int value\).*?^\t\}').Value
 $setAcquire = [regex]::Match($userItemSource, '(?ms)^\tpublic void HJONIDFKNJH\(string value\).*?^\t\}').Value
-if (!$parse -or !$add -or !$setEquipped -or !$setCount -or !$setDelivery -or !$setDeliveryUpgrade -or !$setUpgrade -or !$setAcquire) {
+if (!$parse -or !$add -or !$find -or !$setEquipped -or !$setCount -or !$setDelivery -or !$setDeliveryUpgrade -or !$setUpgrade -or !$setAcquire) {
     throw 'Could not extract recovered inventory/item serialization methods.'
 }
 $testRoot = Join-Path $root 'Temp/ModSaveRuntime'
@@ -36,7 +37,14 @@ public sealed class ItemInfo { public string Type = "Weapon"; public void BEBDMO
 public sealed class Items
 {
     public readonly Dictionary<string, ItemInfo> Definitions = new Dictionary<string, ItemInfo>();
-    public ItemInfo KCCDBEEKBCG(string name) { ItemInfo item; return Definitions.TryGetValue(name, out item) ? item : null; }
+    public readonly Dictionary<string, string> Aliases = new Dictionary<string, string>();
+    public ItemInfo KCCDBEEKBCG(string name)
+    {
+        ItemInfo item;
+        if (Definitions.TryGetValue(name, out item)) return item;
+        string target;
+        return Aliases.TryGetValue(name, out target) && Definitions.TryGetValue(target, out item) ? item : null;
+    }
 }
 public static class ListSF { public static readonly Items Items = new Items(); public static Items DJBOFEEKJMP() { return Items; } }
 public sealed class UserItem
@@ -83,7 +91,7 @@ public sealed class UserItems
     public int Visible => _items.Count;
     public int Deliveries => HBLLBGLBDGI.Count;
     public int Missing => _missingModItemIds.Count;
-    public UserItem CMGOCLGHNLH(string name) { return _items.Find(value => value.get_Name() == name); }
+    __FIND__
     __PARSE__
     __ADD__
 }
@@ -149,12 +157,27 @@ public static class Program
         Assert(item.GetAttribute("Equipped") == "0" && item.GetAttribute("Count") == "2" &&
             item.GetAttribute("UpgradeLevel") == "1300" && item["Enchantments"].FirstChild.Name == "Unrecognized",
             "Restoration overwrote a newer equipment choice or lost ownership state.");
+
+        const string oldId = "example.weapon:items/weapon/example_blade_legacy";
+        ListSF.Items.Aliases.Add(oldId, id);
+        var aliasSave = new XmlDocument();
+        aliasSave.LoadXml("<Warrior Weapon='" + oldId + "'><Items><Item Name='" + oldId +
+            "' Count='1' UpgradeLevel='1200' Equipped='1'/></Items></Warrior>");
+        var aliased = new UserItems();
+        aliased.Parse(aliasSave.DocumentElement["Items"]);
+        UserItem historical = aliased.CMGOCLGHNLH(id);
+        Assert(aliased.Visible == 1 && aliased.Missing == 0 && historical != null && historical.get_Name() == oldId,
+            "Historical item alias did not restore ownership under the current definition.");
+        historical.CHILOKHFALD(2);
+        Assert(aliasSave.DocumentElement["Items"].FirstChild.Attributes["Name"].Value == oldId &&
+            aliasSave.DocumentElement["Items"].FirstChild.Attributes["Count"].Value == "2",
+            "Alias resolution rewrote the historical save ID instead of preserving it non-destructively.");
         Console.WriteLine("Recovered inventory lifecycle: PASS (missing, restore, purchase/upgrade/equip serialization, delivery exclusion, equipment choice).");
         return 0;
     }
 }
 '@
-$code = $code.Replace('__PARSE__', $parse).Replace('__ADD__', $add)
+$code = $code.Replace('__PARSE__', $parse).Replace('__ADD__', $add).Replace('__FIND__', $find)
 $code = $code.Replace('__SET_EQUIPPED__', $setEquipped).Replace('__SET_COUNT__', $setCount)
 $code = $code.Replace('__SET_DELIVERY__', $setDelivery).Replace('__SET_DELIVERY_UPGRADE__', $setDeliveryUpgrade)
 $code = $code.Replace('__SET_UPGRADE__', $setUpgrade).Replace('__SET_ACQUIRE__', $setAcquire)

@@ -227,7 +227,10 @@ internal static class Program
             registration.AddLocalization("weapon.example_blade", "pol", "Przykladowe Ostrze");
             WeaponDefinition registeredWeapon = registration.RegisterWeapon("example_blade", title,
                 AssetId.Parse("content.weapon:sprites/weapon"),
-                AssetId.Parse("content.weapon:models/mdl_weapon_example"), "Katana", 18);
+                AssetId.Parse("content.weapon:models/mdl_weapon_example"), "Katana");
+            RejectContent(() => registration.RegisterShopListing(registeredWeapon.Id,
+                ModShopSection.Weapons, 53, new ModPrice(ModPriceCurrency.Coins, 1000)),
+                "Equipment shop listing above the vanilla level cap was accepted.");
             ShopListingDefinition listing = registration.RegisterShopListing(registeredWeapon.Id,
                 ModShopSection.Weapons, 12, new ModPrice(ModPriceCurrency.Coins, 1000));
             Assert(content.Weapons.Count == 0 && content.ShopListings.Count == 0 && content.Localizations.Count == 0,
@@ -245,8 +248,53 @@ internal static class Program
             "Committed localization lookup/fallback is wrong.");
         WeaponDefinition committedWeapon;
         Assert(content.TryGetWeapon(DefinitionId.Parse("content.weapon:items/weapon/example_blade"), out committedWeapon) &&
-            committedWeapon.Damage == 18 && committedWeapon.SubType == "Katana",
+            committedWeapon.Damage == 0 && committedWeapon.SubType == "Katana" &&
+            committedWeapon.Progression == ItemProgressionKind.Vanilla,
             "Committed weapon lookup is wrong.");
+
+        var levelRules = new ModContentCatalog();
+        using (ModRegistrationTransaction registration = levelRules.BeginRegistration(contentMod))
+        {
+            DefinitionId armorTitle = registration.AddLocalization("armor.level_test", "eng", "Level Armor");
+            ArmorDefinition armor = registration.RegisterArmor("level_test", armorTitle,
+                AssetId.Parse("content.weapon:sprites/armor"), AssetId.Parse("content.weapon:models/armor"));
+            RejectContent(() => registration.RegisterShopListing(armor.Id, ModShopSection.Armor, 1,
+                new ModPrice(ModPriceCurrency.Coins, 1)), "Armor below the vanilla progression minimum was accepted.");
+            registration.RegisterShopListing(armor.Id, ModShopSection.Armor, 2,
+                new ModPrice(ModPriceCurrency.Coins, 1));
+
+            DefinitionId rangedTitle = registration.AddLocalization("ranged.level_test", "eng", "Level Ranged");
+            RangedDefinition ranged = registration.RegisterRanged("level_test", rangedTitle,
+                AssetId.Parse("content.weapon:sprites/ranged"), AssetId.Parse("content.weapon:models/ranged"), "Shuriken");
+            RejectContent(() => registration.RegisterShopListing(ranged.Id, ModShopSection.Ranged, 5,
+                new ModPrice(ModPriceCurrency.Coins, 1)), "Ranged below the vanilla progression minimum was accepted.");
+            registration.RegisterShopListing(ranged.Id, ModShopSection.Ranged, 6,
+                new ModPrice(ModPriceCurrency.Coins, 1));
+            registration.Commit();
+        }
+
+        var redirectsCatalog = new ModContentCatalog();
+        using (ModRegistrationTransaction registration = redirectsCatalog.BeginRegistration(contentMod))
+        {
+            DefinitionId title = registration.AddLocalization("weapon.renamed", "eng", "Renamed Blade");
+            WeaponDefinition renamed = registration.RegisterWeapon("renamed_blade", title,
+                AssetId.Parse("content.weapon:sprites/weapon"),
+                AssetId.Parse("content.weapon:models/mdl_weapon_example"), "Katana");
+            registration.RegisterItemAlias("weapon/old_blade", renamed.Id);
+            registration.RegisterItemTombstone("weapon/retired_blade");
+            RejectContent(() => registration.RegisterItemAlias("armor/old_blade", renamed.Id),
+                "Cross-category item alias was accepted.");
+            registration.Commit();
+        }
+        ItemDefinition redirected;
+        Assert(redirectsCatalog.TryResolveItem(DefinitionId.Parse("content.weapon:items/weapon/old_blade"), out redirected) &&
+            redirected.Id == DefinitionId.Parse("content.weapon:items/weapon/renamed_blade"),
+            "Item alias did not resolve to the current definition.");
+        Assert(!redirectsCatalog.TryResolveItem(DefinitionId.Parse("content.weapon:items/weapon/retired_blade"), out redirected),
+            "Item tombstone resolved as live content.");
+        ItemRedirectDefinition tombstone;
+        Assert(redirectsCatalog.TryGetItemRedirect(DefinitionId.Parse("content.weapon:items/weapon/retired_blade"), out tombstone) &&
+            tombstone.IsTombstone, "Item tombstone was not retained in the registry.");
 
         var rollbackCatalog = new ModContentCatalog();
         using (ModRegistrationTransaction rollback = rollbackCatalog.BeginRegistration(contentMod))
@@ -266,7 +314,7 @@ internal static class Program
             DefinitionId duplicateTitle = conflicting.AddLocalization("weapon.shared", "eng", "Duplicate");
             conflicting.RegisterWeapon("must_not_commit", duplicateTitle,
                 AssetId.Parse("content.weapon:sprites/weapon"),
-                AssetId.Parse("content.weapon:models/mdl_weapon_example"), "Katana", 10);
+                AssetId.Parse("content.weapon:models/mdl_weapon_example"), "Katana");
             RejectContent(() => conflicting.Commit(), "Registry collision was not rejected transactionally.");
         }
         Assert(atomicCatalog.Localizations.Count == 1 && atomicCatalog.Weapons.Count == 0,
@@ -506,7 +554,7 @@ internal static class Program
         {
             DefinitionId title = registration.AddLocalization("blade", "eng", "Example Blade");
             registration.RegisterWeapon("example_blade", title, AssetId.Parse("example.weapon:sprites/weapon"),
-                AssetId.Parse("core:gamedata/models/mdl_weapon_katana_ritual"), "Katana", 9999);
+                AssetId.Parse("core:gamedata/models/mdl_weapon_katana_ritual"), "Katana");
             registration.Commit();
         }
         Assert(catalog.Weapons.Count == 211, "Core and external weapons did not coexist in the same registry.");

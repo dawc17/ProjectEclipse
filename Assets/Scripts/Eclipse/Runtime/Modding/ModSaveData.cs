@@ -129,6 +129,17 @@ namespace Eclipse.Modding
             Append(canonical, items.Count);
             foreach (ItemDefinition item in items) AppendItem(canonical, item);
 
+            var redirects = new List<ItemRedirectDefinition>(content.ItemRedirects);
+            redirects.Sort((left, right) => CompareIds(left.Id, right.Id));
+            Append(canonical, "item-redirects");
+            Append(canonical, redirects.Count);
+            foreach (ItemRedirectDefinition redirect in redirects)
+            {
+                Append(canonical, redirect.Id.ToString());
+                Append(canonical, redirect.IsTombstone ? "tombstone" : "alias");
+                Append(canonical, redirect.IsTombstone ? string.Empty : redirect.Target.ToString());
+            }
+
             var listings = new List<ShopListingDefinition>(content.ShopListings);
             listings.Sort((left, right) => CompareIds(left.Id, right.Id));
             Append(canonical, "shop");
@@ -162,13 +173,14 @@ namespace Eclipse.Modding
             Append(canonical, item.GetType().Name);
             Append(canonical, item.Id.ToString());
             Append(canonical, item.DisplayName.ToString());
+            Append(canonical, item.Icon.ToString());
             Append(canonical, item.Model.ToString());
             Append(canonical, item.LegacyName ?? string.Empty);
             Append(canonical, item.LegacyItemXml ?? string.Empty);
+            Append(canonical, ((int)item.Progression).ToString(CultureInfo.InvariantCulture));
 
             if (item is WeaponDefinition weapon)
             {
-                Append(canonical, weapon.Icon.ToString());
                 Append(canonical, weapon.SubType);
                 Append(canonical, weapon.Damage);
             }

@@ -79,7 +79,7 @@ namespace Eclipse.Modding
                 if (string.IsNullOrEmpty(name) || name.IndexOf(':') >= 0)
                     throw new ModContentException("Core armor requires an unqualified legacy Name.");
                 DefinitionId displayName = ResolveLocalization(catalog, localizations, name, translations);
-                armors.Add(new ArmorDefinition(ArmorId(name), displayName, ParseModel(node),
+                armors.Add(new ArmorDefinition(ArmorId(name), displayName, default, ParseModel(node),
                     ParseIntAttribute(node, "BodyDefense", name),
                     ParseIntAttribute(node, "HeadDefense", name),
                     ParseIntAttribute(node, "UnarmedDamage", name), name, node.OuterXml));
@@ -101,7 +101,7 @@ namespace Eclipse.Modding
                 if (node?.Attributes?["Type"]?.Value != "Helm") continue;
                 string name = RequireLegacyName(node, "helm");
                 DefinitionId displayName = ResolveLocalization(catalog, localizations, name, translations);
-                helms.Add(new HelmDefinition(HelmId(name), displayName, ParseModel(node),
+                helms.Add(new HelmDefinition(HelmId(name), displayName, default, ParseModel(node),
                     ParseIntAttribute(node, "HeadDefense", name), name, node.OuterXml));
             }
             catalog.ImportCore(localizations.ToArray(), Array.Empty<WeaponDefinition>(),
@@ -128,7 +128,7 @@ namespace Eclipse.Modding
                 DefinitionId displayName = ResolveLocalization(catalog, localizations, name, translations);
                 string subType = node.Attributes["SubType"]?.Value ?? string.Empty;
                 DefinitionId id = ordinal == 0 ? RangedId(name) : DuplicateRangedId(name, subType, ordinal + 1);
-                ranged.Add(new RangedDefinition(id, displayName, ParseModel(node), subType,
+                ranged.Add(new RangedDefinition(id, displayName, default, ParseModel(node), subType,
                     ParseIntAttribute(node, "RangedDamage", name),
                     ParseIntAttribute(node, "WeaponDamage", name), name, node.OuterXml));
             }
@@ -150,7 +150,7 @@ namespace Eclipse.Modding
                 if (node?.Attributes?["Type"]?.Value != "Magic") continue;
                 string name = RequireLegacyName(node, "magic item");
                 DefinitionId displayName = ResolveLocalization(catalog, localizations, name, translations);
-                magic.Add(new MagicDefinition(MagicId(name), displayName, ParseModel(node),
+                magic.Add(new MagicDefinition(MagicId(name), displayName, default, ParseModel(node),
                     node.Attributes["SubType"]?.Value ?? string.Empty,
                     ParseIntAttribute(node, "MagicDamage", name), name, node.OuterXml));
             }

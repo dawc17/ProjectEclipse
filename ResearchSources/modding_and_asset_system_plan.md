@@ -29,7 +29,9 @@ migration layers:
 
 - The project is on Unity 2022.3.62f3.
 - `ResourcesAndBundles` remains the recovered loading seam while Eclipse-owned content
-  behavior lives under `Assets/Scripts/Eclipse/`.
+  behavior lives under `Assets/Scripts/Eclipse/`. Unqualified vanilla runtime-art requests
+  are now implicitly qualified into `core:*` at that seam before falling back to Unity
+  `Resources`, so recovered callers do not need thousands of mechanical namespace edits.
 - `PackagedArtCatalog` routes core sprites, textures, audio, models, location art and
   immutable location-atlas data through `.tar.lz4` archives.
 - TAR descriptors and catalog groups carry a `namespace`/`namespaceId`, currently `core`.
@@ -39,7 +41,9 @@ migration layers:
   unrelated valid mods.
 - `AssetResolver` enforces one provider per namespace. `LooseModProvider` indexes safe
   files below `<mod>/assets` and `<mod>/scripts`, while `CoreAssetProvider` exposes exact
-  `PackagedArtCatalog` addresses as `core:*` without duplicating TAR decoding.
+  `PackagedArtCatalog` addresses as `core:*`. Typed runtime loading now delegates through
+  the owning provider, so `ModAssetLoader` no longer contains a hard-coded
+  `core -> PackagedArtCatalog` storage special case.
 - `ModHost` composes discovery, dependency resolution and providers, and the Unity editor
   has `SF2/Modding/Validate Loose Mods` for a consolidated report.
 - The automated Unity packaged-art fixture proves one valid loose mod can stay mounted
@@ -49,45 +53,55 @@ migration layers:
   `.asset` sprite descriptors (with legacy PNG/`.sprite.toml` compatibility), strict UTF-8
   model/text payloads, and PCM16 WAV audio. Core requests delegate to the existing packaged
   catalog instead of duplicating decoders.
-- Explicit qualified paths are routed through `ModRuntime` before the recovered
-  `ResourcesAndBundles` providers. Ordinary unqualified recovered resource paths remain on
-  the existing path. Editor and standalone fixtures verify both paths side by side.
+- Explicit qualified paths are routed through `ModRuntime`. Ordinary unqualified recovered
+  runtime-art paths enter the same resolver as implicit `core:*` requests, then retain
+  `Resources` as compatibility fallback for content not owned by the core art provider.
 - MoonSharp 3.0.0-beta.1 is pinned from the official repository at commit
   `0fb8ba9106c44b140b8f56cb44cb1b50b358897c` using its `/interpreter` UPM package.
 - `IModScriptRuntime`, `IModScriptContext` and `ModApiFacade` keep MoonSharp types out of the
   public runtime contracts. `MoonSharpScriptRuntime` uses `Preset_HardSandbox` and supplies a
   project-owned `require` instead of enabling MoonSharp filesystem load methods.
 - Loose `scripts/*.lua` and `localizations/*.toml` are mounted through the same namespaced
-  provider. `require("sf2")` exposes the first content-facing surface: `sf2.mod`, `sf2.log`,
-  typed `sf2.assets.sprite/model`, `sf2.localization.key`, `sf2.items.register_weapon`,
-  `sf2.price.coins/gems` and `sf2.shop.addItem`; the earlier `sf2.mod.log/warn/error` and
-  `sf2.shop.add` names remain compatibility aliases. Local module `require` is restricted to
-  the calling mod script namespace.
+  provider. `require("sf2")` exposes `sf2.mod`, `sf2.log`, typed
+  `sf2.assets.sprite/model`, `sf2.localization.key`, transactional registration for weapon,
+  armor, helm, ranged and magic, `sf2.price.coins/gems`, and `sf2.shop.addItem` with all five
+  matching shop sections. The earlier `sf2.mod.log/warn/error` and `sf2.shop.add` names remain
+  compatibility aliases. Local module `require` is restricted to the calling mod namespace.
 - `ModScriptSession` executes entrypoints in resolved dependency order, retains successful
   contexts for future callbacks, and isolates a failing script without disabling independent
   mods. An attempted `require("../escape")` is rejected as `SCRIPT001`.
-- `ModContentCatalog` and per-mod `ModRegistrationTransaction` stage localization, weapon and
-  shop definitions until an entrypoint finishes successfully. Registry collisions, invalid
+- `ModContentCatalog` and per-mod `ModRegistrationTransaction` stage localization, all five
+  primary equipment categories, and shop definitions until an entrypoint finishes successfully. Registry collisions, invalid
   references, missing English localization fallbacks and post-registration Lua failures roll
   back without leaking partial definitions. Successful registries are frozen after startup.
-- `LegacyContentAdapter` adapts committed external weapon/shop definitions into the recovered
-  `ItemInfo`/`Items` runtime without exposing recovered types to Lua. The tracked example
-  weapon has been rendered through the real shop/dojo model path, and compatibility aliases
-  keep legacy item-name localization working across language changes.
+- `LegacyContentAdapter` adapts committed external equipment/shop definitions into the recovered
+  `ItemInfo`/`Items` runtime without exposing recovered types to Lua. Its one narrow item seam
+  now serves weapon, armor, helm, ranged, and magic and preserves the recovered parser as the
+  authority for defaults and upgrade-template semantics. Normal external equipment no longer
+  accepts arbitrary raw attack/defense values: the shop listing's starting level selects the
+  canonical vanilla category milestone and the existing `*_Bonus` table drives later upgrades.
+  The tracked `example.weapon` remains the minimal vertical slice, while `example.loadout`
+  registers visible armor, helm, ranged, and magic examples using matching core-owned TAR-backed
+  atlas sprites and models.
 - Mod-aware save loading now preserves unavailable external item XML as opaque orphan data,
   excludes missing items from active inventory/delivery processing, uses default equipment only
   in a temporary model view, and restores ownership when the mod returns. The save also records
   additive `EclipseMods` mod/version activity metadata plus a deterministic SHA-256 content-set
-  fingerprint over active mod IDs/versions and committed registry content. Aliases/tombstones
-  and versioned migrations remain future work.
+  fingerprint over active mod IDs/versions and committed registry content. Item aliases and
+  tombstones now provide a non-destructive ID-evolution layer: historical save IDs may resolve to
+  a current same-mod/same-category item without rewriting the XML, while retired IDs remain
+  unavailable and reserved. Versioned migrations remain future work.
 - `CoreContentImporter` now projects all five primary vanilla equipment categories into the same
   registries used by external content while keeping `Assets/vanillaXml/list.xml` authoritative:
   210 weapons, 179 armor, 193 helms, 85 ranged items and 73 magic items (740 source rows total).
   Qualified `core:items/...` lookups resolve back to the exact existing legacy `ItemInfo`,
   including deterministic disambiguation of the duplicate vanilla `GlaivebowArrow` ranged rows.
-- The clean Unity fixture now passes 55 editor checks and 62 Windows standalone checks with
-  MoonSharp, TAR/core assets, loose assets, transactional Lua weapon registration, script
-  isolation and legacy loading together.
+- The expanded Unity editor fixture now passes 124 checks with MoonSharp, implicit and explicit
+  core routing, TAR-backed core models, loose assets, transactional registration for all five
+  equipment categories, vanilla-derived starting power, item aliases/tombstones, script isolation
+  and legacy loading together. The earlier standalone
+  fixture remains useful evidence, but the latest multi-category expansion has not yet been
+  rerun as a standalone player and should not be claimed at the editor's 124-check count.
 - Runtime decoders already exist for PNG-backed sprites (including custom geometry),
   PCM16 WAV audio, model XML and location atlas/plist data.
 - Generic gameplay/config XML deliberately remains outside the TAR provider and stays
@@ -98,15 +112,16 @@ migration layers:
   cache on first use. That is acceptable for the current migration, but it does not meet
   the eventual on-demand/chunked performance goals in this document.
 
-Phase 2 still needs proper asset handles/scopes and preload/lifetime policy, but the first
-typed formats and legacy seam are functional. Phase 3 has a working editor/player MoonSharp
-path, hard sandbox, virtual local `require`, bounded entrypoint execution and per-mod failure
-isolation. Phase 4's first weapon vertical slice is implemented through the recovered runtime,
-and Phase 5 has its first orphan-safe save/load implementation. Core gameplay migration has
-also begun in earnest: all primary vanilla equipment now has stable registry identity while the
-legacy XML/parser remains authoritative. The immediate priorities are to finish a real
-purchase/upgrade/equip/fight/restart regression, complete save metadata/migration semantics,
-then expose the remaining equipment categories through transactional external-mod APIs.
+Phase 2 still needs proper asset handles/scopes and preload/lifetime policy, but provider-owned
+runtime loading and the main legacy seam are functional. Phase 3 has a working editor/player
+MoonSharp path, hard sandbox, virtual local `require`, bounded entrypoint execution and per-mod
+failure isolation. Phase 4 now spans all five primary equipment categories through the recovered
+runtime, and Phase 5 has its first orphan-safe save/load implementation plus content-set hashes.
+Core gameplay migration has also begun in earnest: all primary vanilla equipment has stable
+registry identity while the legacy XML/parser remains authoritative. The immediate priorities
+are finishing real upgrade/equip/fight parity across the equipment examples, versioned save
+migrations, then perks/enchantments and deeper combat content. A real player build has
+already been manually started with save data containing modded equipment without breaking startup.
 
 ## 2. Goals
 
@@ -123,6 +138,29 @@ then expose the remaining equipment categories through transactional external-mo
   off-thread.
 - Support old saves when mods are removed or upgraded.
 - Make the base game representable as the reserved `core` mod eventually.
+
+### 2.1 What "core as a mod" means
+
+Treat three concerns as separate contracts:
+
+1. **Ownership/identity**: every runtime asset or gameplay definition belongs to a namespace.
+   Vanilla content belongs to reserved namespace `core`; external content belongs to its manifest ID.
+2. **Storage/provider**: ownership does not prescribe a filesystem layout. Today `core` runtime art is
+   read by `CoreAssetProvider` through `PackagedArtCatalog` and TAR/LZ4, while a loose external mod is
+   read from `Mods/<id>`. A future packaged provider may use a different physical format without
+   changing callers or IDs.
+3. **Public replacement policy**: being addressable as `core:*` does not automatically make an asset a
+   stable or replaceable Mod API surface. External mods cannot mount the `core` namespace. Any future
+   replacement of core content must be explicit, dependency-gated, and validated rather than relying
+   on load order or filesystem shadowing.
+
+Therefore a physical `Mods/core` directory is not the definition of core-as-a-mod. The desired runtime
+property is semantic equivalence at the resolver and definition-registry layers. A literal `core.sfmod`
+remains an optional later packaging decision.
+
+Recovered call sites also do not need bulk edits merely to spell `core:`. The central compatibility
+seam interprets an unqualified vanilla runtime-art request as an implicit `core:*` request first. New
+Eclipse-owned code and mod-facing APIs should use explicit qualified IDs.
 
 ## 3. Non-goals for version 1
 
@@ -147,8 +185,8 @@ private container specification.
 Mods/example.weapon/
 ├── mod.toml
 ├── assets/
-│   ├── sprites/weapon.png
-│   ├── sprites/weapon.sprite.toml
+│   ├── sprites/weapon.asset
+│   ├── textures/weapon.png
 │   └── models/mdl_weapon_example.xml
 ├── localizations/
 │   ├── eng.toml
@@ -230,8 +268,9 @@ Rules:
 - Mod IDs are lowercase ASCII identifiers containing letters, digits, dots, `_` and `-`.
 - An unqualified reference resolves inside the calling mod's namespace.
 - Cross-mod references must be qualified and the target must be a declared dependency.
-- `core` and `sf2de` are reserved. `core` contains moddable base content; `sf2de` contains
-  non-moddable bootstrap resources.
+- `core` and `sf2de` are reserved. `core` owns base-game content addressable through the content
+  system; `sf2de` contains bootstrap resources required to diagnose or recover from content failure.
+  Core addressability alone does not grant external replacement permission.
 - Definitions cannot silently overwrite one another. Replacement requires an explicit
   `replaces` declaration and a dependency on the replaced namespace.
 - Load order only breaks ties after dependency ordering; it must not be the primary
@@ -294,6 +333,13 @@ public interface IAssetByteProvider : IAssetProvider
     bool TryRead(AssetId id, out AssetBytes bytes);
 }
 
+public interface IRuntimeAssetProvider
+{
+    bool TryLoadUnityAsset<T>(AssetId id, out T asset) where T : UnityEngine.Object;
+    bool TryLoadUnityAssets<T>(AssetId id, out T[] assets) where T : UnityEngine.Object;
+    bool TryLoadModelText(AssetId id, out string text);
+}
+
 public interface IModScriptRuntime
 {
     IModScriptContext CreateContext(ModDescriptor mod, ModApiFacade api);
@@ -302,11 +348,35 @@ public interface IModScriptRuntime
 
 `AssetResolver` owns namespace routing and eventually dependency checks, typed decoding,
 caching, reference counts, fallbacks and diagnostics. There is no implicit "last provider
-wins" rule: one mounted provider owns one namespace. The first `CoreAssetProvider` wraps
-the existing `PackagedArtCatalog` instead of reimplementing TAR loading, and therefore does
-not need to expose fake raw bytes for atlas-backed logical assets. Lua receives
+wins" rule: one mounted provider owns one namespace. `CoreAssetProvider` implements the
+typed runtime-provider contract and wraps the existing `PackagedArtCatalog` instead of
+reimplementing TAR loading, so `ModAssetLoader` no longer needs to know that core storage is
+TAR-backed or expose fake raw bytes for atlas-backed logical assets. Lua receives
 typed asset handles, never `Texture2D`, `GameObject`, file paths, streams, or arbitrary
 CLR objects.
+
+Core sprite identity includes real atlas members. A member such as
+`core:ui/items/armor12.img_armor_mantle_of_night` is describable as a typed sprite only if
+`ui/items/armor12` is an exact core atlas address and that named sprite exists inside it. This
+promotes the legacy `Atlas.member` convention into the strict namespace model without allowing
+arbitrary basename/fuzzy matches for explicit public IDs.
+
+The current compatibility flow is:
+
+```text
+unqualified recovered request                    explicit external/core request
+"Textures/..."                                   "core:ui/items/armor12.member"
+       |                                                       |
+       +-- implicit core qualification                         |
+                           \                                   /
+                            +------ AssetResolver -------------+
+                                      /       \
+                             core provider     mod provider
+                                  |                 |
+                         PackagedArtCatalog     loose files
+                                  |
+                                TAR/LZ4
+```
 
 The recovered game is heavily synchronous. Do not spread `Task<T>` through recovered
 callers merely to satisfy the provider abstraction. Keep raw IO/decompression capable of
@@ -370,16 +440,24 @@ local weapon = sf2.items.register_weapon {
     display_name = sf2.localization.key("weapon.example_blade"),
     icon = sf2.assets.sprite("sprites/weapon"),
     model = sf2.assets.model("models/mdl_weapon_example"),
-    damage = 18,
 }
 
-sf2.shop.add {
+sf2.shop.addItem {
     section = sf2.shop.WEAPONS,
     item = weapon,
     level = 12,
     price = sf2.price.coins(1000),
 }
 ```
+
+The normal equipment API deliberately separates identity from balance. Item registration owns
+the definition's ID, visuals, model and combat subtype; the shop listing owns its starting level.
+Eclipse derives the corresponding current attack/defense attributes from SF2's canonical normal
+progression and then attaches the existing category upgrade template. Current normal ranges are
+weapon 1..52, armor/helm 2..52 and ranged/magic 6..52. A level-12 weapon therefore enters the
+legacy runtime at the `Weapon_Bonus` level-12 milestone (`WeaponDamage=261`) instead of accepting
+an unrelated raw number from Lua. Future custom balance must use an explicit multiplier/profile
+or custom progression contract rather than silently bypassing the game's upgrade semantics.
 
 ### 9.1 API design rules
 
@@ -466,13 +544,15 @@ interpreter is optional future work and is not a delivery dependency.
 
 The project already has useful boundaries:
 
-- Route `ResourcesAndBundles.Load<T>` through `AssetResolver` before legacy providers.
+- `ResourcesAndBundles.Load<T>` now routes explicit qualified requests and implicit `core:*`
+  vanilla runtime-art requests through `AssetResolver` before the `Resources` compatibility fallback.
 - Route plaintext reads in `ResourceManager` through the virtual filesystem instead of
   binding mod logic directly to the canonical `Assets/vanillaXml`/packaged gameplay root.
-- Wrap the existing `PackagedArtCatalog` as the `core` asset provider rather than replacing
-  its TAR/LZ4 implementation.
+- `CoreAssetProvider` owns the `PackagedArtCatalog` typed runtime backend through
+  `IRuntimeAssetProvider`; upper loaders no longer special-case TAR/LZ4 storage.
 - Preserve `BundleManager`, `Resources.Load` and packaged vanilla XML as fallback providers.
-- Adapt mod item definitions into the existing `ItemInfo`/`Items`/`ListSF` structures.
+- `LegacyContentAdapter` now adapts weapon, armor, helm, ranged and magic definitions into the
+  existing `ItemInfo`/`Items`/`ListSF` structures through one narrow recovered item seam.
 - Adapt model assets through `ModelLoader` and the existing schema compatibility layer.
 - Gradually replace remaining direct `Resources.Load` calls with the resolver.
 - Give adapters readable names and tests; do not spread new behavior through obfuscated
@@ -481,16 +561,20 @@ The project already has useful boundaries:
 Base-game migration sequence:
 
 1. Expose the current packaged asset catalog as namespace `core` through
-   `CoreAssetProvider` without changing storage or gameplay behavior.
-2. Expose existing built-in gameplay definitions through qualified `core` IDs while
-   keeping `Assets/vanillaXml` as the canonical source of truth.
-3. Generate/author core registry snapshots and manifests from the vanilla source.
-4. Move one definition category at a time behind registries: localization, items, shop,
+   `CoreAssetProvider` without changing storage or gameplay behavior. **Implemented.**
+2. Make recovered unqualified runtime-art requests resolve as implicit `core:*` at central seams
+   so vanilla itself uses the namespace abstraction without bulk call-site rewrites. **Implemented
+   for `ResourcesAndBundles`; continue auditing remaining direct bypasses.**
+3. Expose existing built-in gameplay definitions through qualified `core` IDs while keeping
+   `Assets/vanillaXml` as canonical source of truth. **Implemented for all five primary equipment
+   categories.**
+4. Generate/author core registry snapshots and manifests from the vanilla source.
+5. Move one definition category at a time behind registries: localization, items, shop,
    fights and quests.
-5. Compare generated registries and full playthrough checkpoints against the legacy path.
-6. Only consider a physical `core.sfmod` after external mods and parity tests are mature;
+6. Compare generated registries and full playthrough checkpoints against the legacy path.
+7. Only consider a physical `core.sfmod` after external mods and parity tests are mature;
    it is not required for Mod API v1.
-7. Retain a safe-mode bootstrap that disables external mods and can diagnose broken core
+8. Retain a safe-mode bootstrap that disables external mods and can diagnose broken core
    content without depending on external packs.
 
 ## 13. Save-game integration
@@ -512,7 +596,6 @@ Current implementation:
 
 Still required:
 
-- Keep aliases/tombstones for renamed definitions.
 - Let mods register constrained versioned data migrations.
 - Back up and transactionally replace saves while applying migrations.
 - Prove the complete behavior in a real game restart/removal/reinstall cycle, not only the
@@ -616,12 +699,16 @@ access and runaway behavior are contained.
 - Add typed Lua table validation and registration rollback.
 - Adapt committed definitions into legacy runtime data.
 
-Exit: a MoonSharp-defined weapon appears correctly in shop, profile, dojo and battle;
-buying, upgrading and equipping work.
+Exit: MoonSharp-defined primary equipment appears in the correct recovered shop/profile/runtime
+paths; representative buying, upgrading, equipping, preview and fight behavior is proven.
 
-Status: the weapon registration/legacy bridge and real rendering path are implemented. Automated
-tests cover its registry/adapter path, but the full buy/upgrade/equip/fight sequence still needs
-one explicit real-game regression before treating the exit criterion as closed.
+Status: weapon, armor, helm, ranged and magic registration now share the transactional registry and
+generic legacy item seam. `example.weapon` has real rendering proof; `example.loadout` demonstrates
+all four additional categories with matching core-owned atlas sprites and model assets. Normal mod
+equipment now derives its starting attributes from the vanilla progression tables instead of taking
+arbitrary raw power values, and the expanded Unity fixture verifies the resulting exact recovered
+`ItemInfo` milestones. A full real-game buy/upgrade/equip/fight sequence still needs explicit
+regression before treating the exit criterion as closed.
 
 ### Phase 5 — Mod-aware save integration
 
@@ -632,13 +719,16 @@ one explicit real-game regression before treating the exit criterion as closed.
 Exit: the weapon vertical slice survives save/reload, removal and reinstall without
 destroying orphaned mod data.
 
-Status: orphan preservation, temporary equipment fallback, restoration and mod/version metadata
-are implemented and regression-tested. Content fingerprints, aliases/tombstones, migrations and
-a real process-restart removal/reinstall playtest remain open.
+Status: orphan preservation, temporary equipment fallback, restoration, mod/version metadata and a
+deterministic content-set fingerprint are implemented and regression-tested. A real player build has
+also been manually started successfully with modded equipment already present in its save. Item
+aliases/tombstones are implemented as non-destructive registry redirects and are covered by pure,
+recovered-save, and Unity integration tests. Versioned migrations and a real remove/reinstall
+process-cycle playtest remain open.
 
-### Phase 6 — Combat content
+### Phase 6 — Deeper combat content
 
-- Register ranged weapons, magic, perks and enchantments.
+- Ranged and magic item registration is implemented; next add perks and enchantments.
 - Prefer declarative triggers/actions; add narrow events only where necessary.
 - Connect models, moves, VFX and SFX through qualified asset references.
 
@@ -677,20 +767,22 @@ recovered implementation details.
 The original foundation milestone is complete enough to stop treating weapon registration as a
 prototype. The next milestone is **equipment parity plus save closure**:
 
-1. Run one explicit real-game lifecycle with `example.weapon`: buy, own, upgrade, equip, dojo,
-   fight, save, restart and verify ownership/equipment.
-2. Repeat with the mod removed, verify safe default equipment and preserved orphan ownership,
+1. Use the corrected vanilla progression profile to verify an actual upgrade of `example.weapon`
+   and representative `example.loadout` equipment, including the level/stat change in shop/profile/fight.
+2. Repeat a real process cycle with the mod removed, verify safe default equipment and preserved orphan ownership,
    save again, reinstall and verify restoration.
-3. Add content-set fingerprints and the first alias/tombstone contract so published IDs can be
-   evolved without deleting ownership.
+3. Design constrained versioned mod migrations on top of the now-implemented alias/tombstone and
+   content-fingerprint contracts, with backup + transactional save replacement before any mutation.
 4. Keep the current vanilla registry projection authoritative only as a read-only view. All five
    primary equipment categories now have stable `core:items/...` identity; add parity snapshots
    for their important legacy fields before changing runtime authority.
-5. Extend transactional external registration from weapons to armor, helms, ranged and magic,
-   using the existing common item-definition boundary instead of exposing recovered `ItemInfo`.
-6. Add representative external content for each equipment category and prove real preview/fight
-   behavior before moving deeper into perks/enchantments.
-7. Keep `.sfmod` packaging deferred until these loose-mod semantics are stable.
+5. Keep the now-implemented weapon/armor/helm/ranged/magic registration surface narrow and add
+   parity tests for any new fields before exposing more recovered item state.
+6. Use `example.loadout` to finish real armor/helm try-on and a representative ranged/magic fight,
+   then move into perks/enchantments.
+7. Continue auditing direct runtime-art loading bypasses and route them through explicit or implicit
+   `core:*` ownership at narrow seams rather than bulk-editing recovered callers.
+8. Keep `.sfmod` packaging deferred until these loose-mod semantics are stable.
 
 This preserves the current direction: `core` behaves like a built-in content provider using the
 same identities/registries as external mods, while TAR/LZ4 and canonical vanilla XML remain the

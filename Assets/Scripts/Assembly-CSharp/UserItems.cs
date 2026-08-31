@@ -149,6 +149,18 @@ public class UserItems
 				return item;
 			}
 		}
+		if (Eclipse.Modding.ModSaveData.IsExternalItem(name))
+		{
+			ItemInfo requested = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(name);
+			if (requested != null)
+			{
+				foreach (UserItem item in _items)
+				{
+					if (!Eclipse.Modding.ModSaveData.IsExternalItem(item.get_Name())) continue;
+					if (ListSF.DJBOFEEKJMP().KCCDBEEKBCG(item.get_Name()) == requested) return item;
+				}
+			}
+		}
 		return null;
 	}
 

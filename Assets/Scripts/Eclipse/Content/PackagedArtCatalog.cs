@@ -153,6 +153,45 @@ namespace Eclipse.Content
             return ExactAddresses.Contains(Normalize(resourcePath));
         }
 
+        // Public core IDs are normally exact catalog addresses. Sprites are the one
+        // intentional extension: legacy item XML addresses atlas members as
+        // "Atlas.member", so expose a member as a first-class sprite identity only
+        // when both the exact atlas address and the named member really exist.
+        public static bool ContainsSprite(string resourcePath)
+        {
+            if (string.IsNullOrEmpty(resourcePath)) return false;
+            EnsureIndex();
+            string normalized = Normalize(resourcePath);
+            if (ContainsSpriteAtExactAddress(normalized, null, null)) return true;
+
+            int slash = normalized.LastIndexOf('/');
+            string requestedName = slash < 0 ? normalized : normalized.Substring(slash + 1);
+            int dot = requestedName.IndexOf('.');
+            if (dot <= 0 || dot == requestedName.Length - 1) return false;
+
+            string atlasName = requestedName.Substring(0, dot);
+            string memberName = requestedName.Substring(dot + 1);
+            string atlasPath = (slash < 0 ? string.Empty : normalized.Substring(0, slash + 1)) + atlasName;
+            return ContainsSpriteAtExactAddress(atlasPath, requestedName, memberName);
+        }
+
+        private static bool ContainsSpriteAtExactAddress(string normalizedAddress,
+            string requestedName, string memberName)
+        {
+            List<BundleAsset> entries;
+            if (!AssetsByPath.TryGetValue(normalizedAddress, out entries)) return false;
+            foreach (BundleAsset entry in entries)
+            {
+                if (!string.Equals(Normalize(entry.AssetPath), normalizedAddress,
+                        StringComparison.OrdinalIgnoreCase))
+                    continue;
+                NativeAssetGroup bundle = OpenBundle(entry.BundleName);
+                if (bundle != null && bundle.ContainsSprite(entry.AssetPath, requestedName, memberName))
+                    return true;
+            }
+            return false;
+        }
+
         public static string LoadLocationDataText(string resourcePath)
         {
             if (string.IsNullOrEmpty(resourcePath))
@@ -616,6 +655,27 @@ namespace Eclipse.Content
                     return null;
                 if (tarBundle == null) tarBundle = new TarAssetBundle(record);
                 return tarBundle.LoadText(address, type);
+            }
+
+            public bool ContainsSprite(string address, string requestedName, string memberName)
+            {
+                ArtRecord asset;
+                if (!assets.TryGetValue(address, out asset)) return false;
+                if (!string.IsNullOrEmpty(record.file))
+                {
+                    if (tarBundle == null) tarBundle = new TarAssetBundle(record);
+                    if (tarBundle.ContainsSprite(address, requestedName, memberName)) return true;
+                }
+                if (string.IsNullOrEmpty(asset.sprites)) return false;
+                Sprite[] sprites = Resources.LoadAll<Sprite>(asset.sprites);
+                if (sprites == null || sprites.Length == 0) return false;
+                if (string.IsNullOrEmpty(requestedName)) return true;
+                foreach (Sprite sprite in sprites)
+                    if (sprite != null &&
+                        (string.Equals(sprite.name, requestedName, StringComparison.OrdinalIgnoreCase) ||
+                         string.Equals(sprite.name, memberName, StringComparison.OrdinalIgnoreCase)))
+                        return true;
+                return false;
             }
         }
 

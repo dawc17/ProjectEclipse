@@ -1,104 +1,71 @@
+using System;
 using System.Xml;
 using CodeStage.AntiCheat.ObscuredTypes;
 
 public class RecipeItemInfo : ItemInfo
 {
 	private Recipe KFAHMNKAMKC;
-
 	private RecipePrice HKBJMPIJOOA;
-
 	private UserItem NKBIOFJMONB;
-
 	private uint MDKBMLJNAGK;
-
 	private uint FKPHJOEDCDJ;
-
 	private long _RecipeDeliveryTime;
 
-	public Recipe BOKDNFECGMI
-	{
-		get
-		{
-			return OIMGNCLBPHD();
-		}
-	}
+	public Recipe BOKDNFECGMI => OIMGNCLBPHD();
+	public RecipePrice NJFPKIIBFOP => ADAJKDEOAAG();
+	public UserItem FGBNJDPGOFN => MFEAIEJFDAM();
+	public long KCJOBLHNFEG => HGDELDFDFNH();
 
-	public RecipePrice NJFPKIIBFOP
-	{
-		get
-		{
-			return ADAJKDEOAAG();
-		}
-	}
+	public int ItemLevel => (int)MDKBMLJNAGK;
+	public int PlayerLevel => (int)FKPHJOEDCDJ;
+	public long RecipeDeliveryTime => _RecipeDeliveryTime;
+	public long TimeLeft => Math.Max(0L, _RecipeDeliveryTime - ListSF.BLBNJKJKMBM());
+	public bool IsStillInOrder => _RecipeDeliveryTime > 0L && TimeLeft > 0L;
+	public string ItemAndRecipeInfo => Name;
 
-	public UserItem FGBNJDPGOFN
+	public RecipeItemInfo(Recipe recipe, UserItem userItem, RecipePrice price)
 	{
-		get
-		{
-			return MFEAIEJFDAM();
-		}
-	}
-
-	public long KCJOBLHNFEG
-	{
-		get
-		{
-			return HGDELDFDFNH();
-		}
-	}
-
-	public RecipeItemInfo(Recipe LKJDNEFANOB, UserItem NDMCFNGEPOA, RecipePrice LMNMPHGIFAF)
-	{
-		KFAHMNKAMKC = LKJDNEFANOB;
-		NKBIOFJMONB = NDMCFNGEPOA;
-		HKBJMPIJOOA = LMNMPHGIFAF;
+		KFAHMNKAMKC = recipe;
+		NKBIOFJMONB = userItem;
+		HKBJMPIJOOA = price;
 		Type = "Recipe";
-		if (LMNMPHGIFAF != null && LMNMPHGIFAF.EHKNIKHPGDN > 0)
+		if (price != null && price.DeliveryTime > 0)
 		{
-			_RecipeDeliveryTime = ListSF.BLBNJKJKMBM() + LMNMPHGIFAF.EHKNIKHPGDN;
-			KLHOKKPALOK = LMNMPHGIFAF.KLHOKKPALOK;
+			_RecipeDeliveryTime = ListSF.BLBNJKJKMBM() + price.DeliveryTime;
+			KLHOKKPALOK = price.BonusDeliveryPrice;
 		}
 		else
 		{
 			_RecipeDeliveryTime = 0L;
-			KLHOKKPALOK = (ObscuredLong)(0L);
+			KLHOKKPALOK = (ObscuredLong)0L;
 		}
-		if (NDMCFNGEPOA != null)
+		if (userItem != null)
 		{
-			MDKBMLJNAGK = (uint)NDMCFNGEPOA.DBLCMCEGJGI(false).MHGODOLNDLE;
+			ItemInfo info = userItem.DBLCMCEGJGI(false) ?? userItem.BHKHOJPANHE();
+			if (info != null) MDKBMLJNAGK = (uint)Math.Max(0, info.MHGODOLNDLE);
 		}
-		FKPHJOEDCDJ = (uint)ListSF.CCDKHLAMKKO().PINDEKDNCNL();
-		Name = NDMCFNGEPOA.get_Name();
-		Name = Name + "|" + LKJDNEFANOB.get_Name();
+		Roster roster = ListSF.CCDKHLAMKKO();
+		FKPHJOEDCDJ = (uint)Math.Max(0, roster == null ? 0 : roster.PINDEKDNCNL());
+		Name = (userItem == null ? string.Empty : userItem.get_Name()) + "|" +
+			(recipe == null ? string.Empty : recipe.get_Name());
 	}
 
-	public RecipeItemInfo(XmlNode node, UserItem NDMCFNGEPOA)
+	public RecipeItemInfo(XmlNode node, UserItem userItem)
 	{
-		string gOHIIMFFFJI = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
-		KFAHMNKAMKC = ForgeManager.ELEBLBJKDBI().GetRecipeByName(gOHIIMFFFJI);
-		NKBIOFJMONB = NDMCFNGEPOA;
-		MDKBMLJNAGK = node.Attributes["ItemLevel"].ParseUint();
-		_RecipeDeliveryTime = node.Attributes["DeliveryTime"].ParseInt();
-		FKPHJOEDCDJ = node.Attributes["PlayerLevel"].ParseUint();
+		NKBIOFJMONB = userItem;
+		string recipeName = node?.Attributes?["Name"].CIPOICEEIBK(string.Empty) ?? string.Empty;
+		KFAHMNKAMKC = ForgeManager.ELEBLBJKDBI().GetRecipeByName(recipeName);
+		MDKBMLJNAGK = node?.Attributes?["ItemLevel"].ParseUint() ?? 0u;
+		_RecipeDeliveryTime = node?.Attributes?["DeliveryTime"].ParseLong(0L) ?? 0L;
+		FKPHJOEDCDJ = node?.Attributes?["PlayerLevel"].ParseUint() ?? 0u;
+		HKBJMPIJOOA = KFAHMNKAMKC?.GetPriceByItemLevel(userItem, (int)MDKBMLJNAGK);
+		Type = "Recipe";
+		if (HKBJMPIJOOA != null) KLHOKKPALOK = HKBJMPIJOOA.BonusDeliveryPrice;
+		Name = (userItem == null ? string.Empty : userItem.get_Name()) + "|" + recipeName;
 	}
 
-	public Recipe OIMGNCLBPHD()
-	{
-		return KFAHMNKAMKC;
-	}
-
-	public RecipePrice ADAJKDEOAAG()
-	{
-		return HKBJMPIJOOA;
-	}
-
-	public UserItem MFEAIEJFDAM()
-	{
-		return NKBIOFJMONB;
-	}
-
-	public long HGDELDFDFNH()
-	{
-		return _RecipeDeliveryTime;
-	}
+	public Recipe OIMGNCLBPHD() => KFAHMNKAMKC;
+	public RecipePrice ADAJKDEOAAG() => HKBJMPIJOOA;
+	public UserItem MFEAIEJFDAM() => NKBIOFJMONB;
+	public long HGDELDFDFNH() => _RecipeDeliveryTime;
 }

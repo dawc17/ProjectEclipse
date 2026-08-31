@@ -398,6 +398,37 @@ public class UserItem
 		return LIONCGGHKLO;
 	}
 
+	public bool SetRecipeDelivery(RecipeItemInfo recipeItem)
+	{
+		if (recipeItem == null || recipeItem.MFEAIEJFDAM() != this || LIONCGGHKLO != null || !JGPEOEDJMHH)
+			return false;
+		Recipe recipe = recipeItem.OIMGNCLBPHD();
+		if (recipe == null) return false;
+		XmlNode node = _Node["RecipeDelivery"] ?? _Node.ACBPMPMPKJJ("RecipeDelivery");
+		SetNodeAttribute(node, "Name", recipe.get_Name());
+		SetNodeAttribute(node, "ItemLevel", recipeItem.ItemLevel.ToString());
+		SetNodeAttribute(node, "PlayerLevel", recipeItem.PlayerLevel.ToString());
+		SetNodeAttribute(node, "DeliveryTime", recipeItem.RecipeDeliveryTime.ToString());
+		LIONCGGHKLO = recipeItem;
+		return true;
+	}
+
+	public void ClearRecipeDelivery()
+	{
+		if (JGPEOEDJMHH && _Node != null)
+		{
+			XmlNode node = _Node["RecipeDelivery"];
+			if (node != null) _Node.RemoveChild(node);
+		}
+		LIONCGGHKLO = null;
+	}
+
+	private static void SetNodeAttribute(XmlNode node, string name, string value)
+	{
+		XmlAttribute attribute = node.Attributes[name] ?? node.LLIKNHNLGJJ(name);
+		attribute.Value = value ?? string.Empty;
+	}
+
 	public ItemInfo AKKBIFEFDCI()
 	{
 		if (ONNGDDFPBCA == null)

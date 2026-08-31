@@ -99,6 +99,21 @@ namespace Eclipse.Content.TarAssets
             return meta == null ? null : _archive.ReadText(meta.File);
         }
 
+        public bool ContainsSprite(string address, string requestedName, string memberName)
+        {
+            List<TarAssetMeta> metas;
+            if (!_assets.TryGetValue(TarAssetMeta.NormalizeAddress(address), out metas)) return false;
+            foreach (TarAssetMeta meta in metas)
+            {
+                if (meta.Type != "sprite") continue;
+                if (string.IsNullOrEmpty(requestedName) ||
+                    string.Equals(meta.Name, requestedName, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(meta.Name, memberName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
+        }
+
         private Sprite LoadSprite(TarAssetMeta meta)
         {
             Sprite cached;
@@ -114,7 +129,6 @@ namespace Eclipse.Content.TarAssets
             if (NeedsGeometryOverride(meta))
             {
                 sprite.OverrideGeometry(ToRectSpace(meta), meta.Triangles);
-                ValidateOverriddenGeometry(sprite, meta);
             }
             _sprites.Add(meta.MetaPath, sprite);
             return sprite;
@@ -127,7 +141,10 @@ namespace Eclipse.Content.TarAssets
             Vector2[] uv = sprite.uv;
             if (vertices.Length != meta.Vertices.Length || triangles.Length != meta.Triangles.Length ||
                 uv.Length != meta.Uv.Length)
-                throw new InvalidDataException("Unity changed TAR sprite geometry counts: " + meta.MetaPath);
+                throw new InvalidDataException("Unity changed TAR sprite geometry counts: " + meta.MetaPath +
+                    "; vertices=" + vertices.Length + "/" + meta.Vertices.Length +
+                    ", triangles=" + triangles.Length + "/" + meta.Triangles.Length +
+                    ", uv=" + uv.Length + "/" + meta.Uv.Length);
 
             int[] actualToExpected = MatchVertices(vertices, uv, meta.Vertices, meta.Uv, meta.MetaPath);
             ushort[] remappedTriangles = RemapTriangles(triangles, actualToExpected, meta.MetaPath);
