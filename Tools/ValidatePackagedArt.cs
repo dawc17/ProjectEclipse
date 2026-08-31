@@ -399,9 +399,13 @@ public static class ValidatePackagedArt
             ModRuntime.ApplyLegacyLocalization();
             Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == "Example Blade",
                 "English mod localization did not enter the legacy localization table");
+            Require(LocalizationManager.GetExternalStringForTest(legacyItemId) == "Example Blade",
+                "Legacy item-name localization alias was not published for the mod weapon");
             LocalizationManager.ChangeModdingTestLanguage("pol");
             Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == "Przykladowe Ostrze",
                 "Mod localization was not reapplied after a legacy language change");
+            Require(LocalizationManager.GetExternalStringForTest(legacyItemId) == "Przykladowe Ostrze",
+                "Legacy item-name localization alias was not reapplied after a language change");
 
             string bridgeModel = ModRuntime.LoadQualifiedModelText(
                 "example.weapon:models/mdl_weapon_example.xml");

@@ -73,6 +73,20 @@ namespace Eclipse.Modding
                 _localizationKeys.Add(key);
             }
 
+            // Recovered shop/item UI usually localizes an ItemInfo by ItemInfo.Name rather than
+            // by its optional Text/TextButton fields. Keep the canonical namespaced localization
+            // definition available, but also publish the display string under the legacy item id.
+            foreach (WeaponDefinition weapon in _content.Weapons)
+            {
+                LocalizationDefinition displayName;
+                if (!_content.TryGetLocalization(weapon.DisplayName, out displayName)) continue;
+                string value = displayName.GetOrEnglish(language);
+                if (string.IsNullOrEmpty(value)) continue;
+                string key = weapon.Id.ToString();
+                LocalizationManager.SetExternalString(key, value);
+                _localizationKeys.Add(key);
+            }
+
             if (!_languageSubscribed)
             {
                 LocalizationManager.OCLBJLPOKLB += OnLanguageChanged;
