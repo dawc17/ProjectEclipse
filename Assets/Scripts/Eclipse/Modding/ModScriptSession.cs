@@ -34,7 +34,7 @@ namespace Eclipse.Modding
         }
 
         internal static ModScriptSession Start(ModHost host, IModScriptRuntime runtime,
-            Action<ModLogEntry> logger)
+            Action<ModLogEntry> logger, Action<ModContentCatalog> importCore)
         {
             if (host == null) throw new ArgumentNullException(nameof(host));
             if (runtime == null) throw new ArgumentNullException(nameof(runtime));
@@ -44,6 +44,7 @@ namespace Eclipse.Modding
             var activeIds = new HashSet<ModId>();
             var diagnostics = new List<ModDiagnostic>();
             var content = new ModContentCatalog();
+            importCore?.Invoke(content);
 
             foreach (ModDescriptor mod in host.EnabledMods)
             {

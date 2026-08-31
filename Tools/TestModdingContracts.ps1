@@ -16,6 +16,8 @@ $sources = @(
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetResolver.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModScripting.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModSaveData.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\CoreContentImporter.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContent.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModLocalizationLoader.cs')
 )
@@ -43,6 +45,7 @@ $exe = Join-Path $testRoot 'ModdingContractsTest.exe'
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Xml;
 using Eclipse.Modding;
 
 internal static class Program
@@ -126,8 +129,9 @@ internal static class Program
         return false;
     }
 
-    public static int Main()
+    public static int Main(string[] args)
     {
+        CheckCoreAndSaveContracts(args[0]);
         ModId mod = ModId.Parse("example.weapon");
         Assert(mod.Value == "example.weapon", "ModId changed a valid ID.");
         Reject(() => ModId.Parse("Example.Weapon"), "Uppercase mod ID was accepted.");
@@ -382,11 +386,90 @@ internal static class Program
         Console.WriteLine("Modding foundation contracts: PASS");
         return 0;
     }
+
+    private static void CheckCoreAndSaveContracts(string projectRoot)
+    {
+        var vanilla = new XmlDocument();
+        vanilla.Load(Path.Combine(projectRoot, "Assets", "vanillaXml", "list.xml"));
+        var nodes = new List<XmlNode>();
+        foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Weapon']")) nodes.Add(node);
+        var languages = CoreContentImporter.ReadLocalizations(Path.Combine(projectRoot, "Assets", "vanillaXml", "localizations"));
+        var catalog = new ModContentCatalog();
+        Assert(CoreContentImporter.ImportWeapons(catalog, nodes, languages) == 210 && catalog.Weapons.Count == 210,
+            "Canonical vanilla weapon coverage changed.");
+        foreach (XmlNode node in nodes)
+        {
+            WeaponDefinition weapon;
+            string name = node.Attributes["Name"].Value;
+            Assert(catalog.TryGetWeapon(CoreContentImporter.WeaponId(name), out weapon) &&
+                weapon.LegacyName == name && weapon.LegacyItemXml == node.OuterXml,
+                "Core import lost legacy identity or source fields: " + name);
+        }
+        WeaponDefinition fists;
+        WeaponDefinition kunai;
+        Assert(catalog.TryGetWeapon(DefinitionId.Parse("core:items/weapon/fists"), out fists) &&
+            fists.Damage == 0 && !fists.HasIcon && !fists.HasModel, "Core Fists was coerced into a normal mod weapon.");
+        Assert(catalog.TryGetWeapon(DefinitionId.Parse("core:items/weapon/weapon_kunai"), out kunai) &&
+            kunai.Damage == -4 && kunai.HasModel, "Core negative damage sentinel was lost.");
+        Assert(catalog.ShopListings.Count == 0, "Core import invented shop availability/pricing for vanilla weapons.");
+        RejectContent(() => CoreContentImporter.ImportWeapons(catalog, nodes, languages), "Duplicate core import was accepted.");
+        Assert(catalog.Weapons.Count == 210 && catalog.Localizations.Count == 210, "Failed core import was not atomic.");
+        ModDescriptor mod = Descriptor("example.weapon", "1.0.0", "core", ">=1.0 <2.0");
+        using (ModRegistrationTransaction registration = catalog.BeginRegistration(mod))
+        {
+            DefinitionId title = registration.AddLocalization("blade", "eng", "Example Blade");
+            registration.RegisterWeapon("example_blade", title, AssetId.Parse("example.weapon:sprites/weapon"),
+                AssetId.Parse("core:gamedata/models/mdl_weapon_katana_ritual"), "Katana", 9999);
+            registration.Commit();
+        }
+        Assert(catalog.Weapons.Count == 211, "Core and external weapons did not coexist in the same registry.");
+        catalog.Freeze();
+        bool frozen = false;
+        try { CoreContentImporter.ImportWeapons(catalog, new XmlNode[0], languages); }
+        catch (InvalidOperationException) { frozen = true; }
+        Assert(frozen, "Core importer bypassed registry freezing.");
+
+        const string itemId = "example.weapon:items/weapon/example_blade";
+        var save = new XmlDocument();
+        save.LoadXml("<Warrior Weapon='" + itemId + "'><Items>" +
+            "<Item Name='" + itemId + "' Count='1' UpgradeLevel='1201' Equipped='1' DeliveryTime='1234' " +
+            "FutureAttribute='opaque'><Enchantments><FuturePerk value='preserve'/></Enchantments></Item>" +
+            "</Items></Warrior>");
+        XmlNode record = save.DocumentElement["Items"].FirstChild;
+        string originalRecord = record.OuterXml;
+        var installed = new HashSet<string>(StringComparer.Ordinal) { "Fists" };
+        Assert(ModSaveData.IsMissingItem(record, installed.Contains), "Missing mod item was treated as available.");
+        XmlNode view = ModSaveData.CreateEquipmentView(save.DocumentElement, installed.Contains, slot => "Fists");
+        Assert(view.Attributes["Weapon"].Value == "Fists" && save.DocumentElement.GetAttribute("Weapon") == itemId &&
+            record.OuterXml == originalRecord, "Missing equipment fallback mutated persistent ownership or equipped ID.");
+        Assert(ModSaveData.RecordContext(save.DocumentElement, new[] { mod }), "Mod save context was not written.");
+        Assert(ModSaveData.RecordContext(save.DocumentElement, new ModDescriptor[0]), "Missing mod context was not recorded.");
+        XmlElement lastSeen = (XmlElement)save.SelectSingleNode("/Warrior/EclipseMods/Mod");
+        Assert(lastSeen.GetAttribute("version") == "1.0.0" && lastSeen.GetAttribute("active") == "false",
+            "Removing a mod erased its last-seen version.");
+        var reloaded = new XmlDocument();
+        reloaded.LoadXml(save.OuterXml);
+        record = reloaded.DocumentElement["Items"].FirstChild;
+        Assert(record.OuterXml == originalRecord && ModSaveData.IsMissingItem(record, installed.Contains),
+            "An absent mod item did not survive save/reload unchanged.");
+        installed.Add(itemId);
+        Assert(!ModSaveData.IsMissingItem(record, installed.Contains) &&
+            ReferenceEquals(ModSaveData.CreateEquipmentView(reloaded.DocumentElement, installed.Contains, slot => "Fists"),
+                reloaded.DocumentElement), "Restored mod did not recover its original saved item/equipment reference.");
+        Assert(record.Attributes["Count"].Value == "1" && record.Attributes["UpgradeLevel"].Value == "1201" &&
+            record.OuterXml == originalRecord, "Restored item lost ownership, upgrade, or opaque enchantment data.");
+        XmlElement state = reloaded.DocumentElement["EclipseMods"];
+        state.SetAttribute("schema", "99");
+        string futureState = state.OuterXml;
+        Assert(!ModSaveData.RecordContext(reloaded.DocumentElement, new[] { mod }) && state.OuterXml == futureState,
+            "Unknown future mod-save schema was overwritten.");
+        Console.WriteLine("Core/save contracts: PASS (210 vanilla weapons + external mod; orphan save/reload/restore).");
+    }
 }
 '@ | Set-Content -LiteralPath $harness -Encoding UTF8
 
 & $csc /nologo /langversion:9.0 /target:exe "/out:$exe" @sources $harness
 if ($LASTEXITCODE -ne 0) { throw "Contract compilation failed with exit code $LASTEXITCODE." }
 
-& $exe
+& $exe $root
 if ($LASTEXITCODE -ne 0) { throw "Contract tests failed with exit code $LASTEXITCODE." }

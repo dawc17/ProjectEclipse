@@ -474,15 +474,25 @@ public static class ValidatePackagedArt
 #endif
 
             ListSF.ResetModdingTestItems();
+            ListSF.SeedModdingTestCoreItems();
+            ItemInfo vanillaKatana = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("WEAPON_KATANA");
+            Require(vanillaKatana != null, "Vanilla weapon fixture was not seeded");
             LocalizationManager.ResetModdingTestLanguage("eng");
             ModRuntime.StartGameContent(modsRoot);
             ModScriptSession runtimeScripts = ModRuntime.Scripts;
             Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
-                runtimeScripts.Content.Weapons.Count == 1 && runtimeScripts.Content.ShopListings.Count == 1 &&
+                runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.ShopListings.Count == 1 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
+            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 211 &&
+                ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/weapon/weapon_katana") == vanillaKatana &&
+                vanillaKatana.Name == "WEAPON_KATANA", "Core registry import duplicated or renamed a legacy weapon");
+            WeaponDefinition coreKatana;
+            Require(runtimeScripts.Content.TryGetWeapon(DefinitionId.Parse("core:items/weapon/weapon_katana"), out coreKatana) &&
+                coreKatana.LegacyItemXml == vanillaKatana.NodeXML.OuterXml,
+                "Core registry did not preserve the loaded vanilla source definition");
             const string legacyItemId = "example.weapon:items/weapon/example_blade";
             const string legacyLocalizationId = "example.weapon:localization/weapon.example_blade";
             ItemInfo legacyWeapon = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId);
@@ -520,6 +530,9 @@ public static class ValidatePackagedArt
             Require(legacyCore != null && legacyCore.texture != null,
                 "Namespaced bridge regressed unqualified legacy resource loading");
             ModRuntime.Shutdown();
+            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 210 &&
+                ListSF.DJBOFEEKJMP().KCCDBEEKBCG("WEAPON_KATANA") == vanillaKatana,
+                "ModRuntime shutdown removed a vanilla weapon");
             Require(ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId) == null,
                 "ModRuntime shutdown did not remove the injected legacy weapon");
             Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == null,

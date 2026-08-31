@@ -93,9 +93,14 @@ namespace Eclipse.Modding
         public AssetId Model { get; }
         public string SubType { get; }
         public int Damage { get; }
+        public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
+        public bool HasModel => !string.IsNullOrEmpty(Model.Path);
+        public string LegacyName { get; }
+        public string LegacyItemXml { get; }
+        public bool IsCore => Id.Namespace.Value == "core";
 
         internal WeaponDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
-            string subType, int damage)
+            string subType, int damage, string legacyName = null, string legacyItemXml = null)
         {
             Id = id;
             DisplayName = displayName;
@@ -103,6 +108,8 @@ namespace Eclipse.Modding
             Model = model;
             SubType = subType;
             Damage = damage;
+            LegacyName = legacyName;
+            LegacyItemXml = legacyItemXml;
         }
     }
 
@@ -198,6 +205,18 @@ namespace Eclipse.Modding
             _localizations.AddRange(localizations);
             _weapons.AddRange(weapons);
             _shopListings.AddRange(shopListings);
+        }
+
+        internal void ImportCore(LocalizationDefinition[] localizations, WeaponDefinition[] weapons)
+        {
+            if (IsFrozen) throw new InvalidOperationException("Definition registries are frozen.");
+            _localizations.ValidateCanAdd(localizations);
+            _weapons.ValidateCanAdd(weapons);
+            foreach (WeaponDefinition weapon in weapons)
+                if (!weapon.IsCore || !ContainsLocalization(localizations, weapon.DisplayName))
+                    throw new ModContentException("Invalid core weapon import: " + weapon.Id);
+            _localizations.AddRange(localizations);
+            _weapons.AddRange(weapons);
         }
 
         private static bool ContainsLocalization(LocalizationDefinition[] values, DefinitionId id)

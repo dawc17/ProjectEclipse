@@ -103,3 +103,52 @@ same logical ID.
 
 Core TAR bundles retain their existing `.meta` descriptors and legacy addresses.
 This loose-mod format does not modify Unity `.meta` files or core asset identity.
+
+## Save compatibility
+
+Ownership continues to live in the existing `users.xml` item nodes, using the
+qualified definition ID as `Name`. If a mod item definition is unavailable,
+Eclipse leaves that entire XML node untouched and excludes it from active
+inventory, equipment, and delivery processing. Counts, upgrade levels, pending
+deliveries, enchantments, and unrecognized fields remain in the save. Reinstalling
+the mod restores access on the next load; live mod unloading is not supported.
+
+A missing equipped weapon uses the normal default item for the runtime model.
+This fallback does not overwrite the saved equipment reference. If the player
+explicitly equips another weapon while the mod is absent, restoring the mod
+restores ownership without overriding that newer equipment choice.
+
+`UserItems.MissingModItemIds` exposes unavailable item IDs for diagnostics. The
+warrior's additive `EclipseMods` node records schema/API/core versions and each
+successfully initialized mod's version and active status. Last-seen records for
+absent mods are retained; unsupported future metadata schemas are left unchanged.
+This metadata is diagnostic, not a reason to reject or reset a save. Content
+fingerprints, renamed-definition aliases, and automatic mod migrations remain
+future work; keep published definition IDs stable.
+
+## Built-in core weapon registry
+
+Game startup imports vanilla weapon definitions and their localized names into
+the same `ModContentCatalog` used by external mods, before Lua registration.
+For example, legacy `WEAPON_KATANA` is exposed as
+`core:items/weapon/weapon_katana`. Qualified lookups resolve to the existing
+legacy `ItemInfo`; its name, save ID, prices, upgrade templates, and availability
+are not rewritten, and the importer does not invent core shop listings.
+
+`WeaponDefinition.LegacyName` and `LegacyItemXml` preserve the original identity
+and complete source for core entries. This first import is a registry projection:
+vanilla XML remains authoritative, including negative damage sentinels, hidden
+weapons, and fields the mod schema cannot yet represent. Missing model/icon data
+does not become fabricated assets. Core atlas-member image references remain in
+`LegacyItemXml`; `HasIcon` is false until richer core asset metadata can resolve
+them accurately. English labels fall back to the legacy name for definitions
+without an English translation.
+
+No `Mods/core` package or bulk Lua conversion is required. Armor, helmets,
+ranged items, magic, perks, fights, and quests have not been imported yet.
+
+Validation: `Tools/TestModdingContracts.ps1` checks canonical coverage, atomic
+registration, and save XML round trips; `Tools/TestModSaveRuntime.ps1` executes
+the recovered inventory parse/add methods with surrounding services stubbed;
+`Tools/TestPackagedArt.ps1` checks the registry/legacy bridge in isolated Unity.
+These do not replace a full purchase/upgrade/equip/fight/restart game playtest.

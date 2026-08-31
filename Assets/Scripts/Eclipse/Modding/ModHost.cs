@@ -94,9 +94,10 @@ namespace Eclipse.Modding
 #endif
         }
 
-        public ModScriptSession StartScripts(IModScriptRuntime runtime, Action<ModLogEntry> logger = null)
+        public ModScriptSession StartScripts(IModScriptRuntime runtime, Action<ModLogEntry> logger = null,
+            Action<ModContentCatalog> importCore = null)
         {
-            return ModScriptSession.Start(this, runtime, logger);
+            return ModScriptSession.Start(this, runtime, logger, importCore);
         }
 
         public string FormatReport()

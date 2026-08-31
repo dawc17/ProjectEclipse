@@ -19,6 +19,10 @@ public class UserItems
 
 	private List<UserItem> _items = new List<UserItem>();
 
+	private readonly List<string> _missingModItemIds = new List<string>();
+
+	public IReadOnlyList<string> MissingModItemIds => _missingModItemIds.AsReadOnly();
+
 	private List<UserItem> HBLLBGLBDGI = new List<UserItem>();
 
 	public List<UserItem> CGJGNEADJBH = new List<UserItem>();
@@ -73,14 +77,31 @@ public class UserItems
 
 	public void Parse(XmlNode EPGOOPEHFMO)
 	{
+		_missingModItemIds.Clear();
 		if (EPGOOPEHFMO == null)
 		{
 			return;
 		}
 		foreach (XmlNode childNode in EPGOOPEHFMO.ChildNodes)
 		{
-			GEFDJDIINND(new UserItem(childNode));
+			if (childNode.NodeType != XmlNodeType.Element) continue;
+			if (Eclipse.Modding.ModSaveData.IsMissingItem(childNode, name => ListSF.DJBOFEEKJMP().KCCDBEEKBCG(name) != null))
+			{
+				_missingModItemIds.Add(childNode.Attributes["Name"].Value);
+				continue; // Preserve the entire save node, but do not run delivery/equipment logic on it.
+			}
+			UserItem item = new UserItem(childNode);
+			if (Eclipse.Modding.ModSaveData.IsExternalItem(item.get_Name()))
+			{
+				ItemInfo definition = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(item.get_Name());
+				XmlAttribute equipped = EPGOOPEHFMO.ParentNode?.Attributes?[definition.Type];
+				if (equipped != null) item.JBLKCIBKMKB(equipped.Value == item.get_Name());
+			}
+			GEFDJDIINND(item);
 		}
+		if (_missingModItemIds.Count > 0)
+			UnityEngine.Debug.LogWarning("[ModSave] Preserved " + _missingModItemIds.Count +
+				" unavailable mod item(s) in the save: " + string.Join(", ", _missingModItemIds));
 	}
 
 	public UserItem GEFDJDIINND(UserItem value, bool HPCLCADMKCG = false)

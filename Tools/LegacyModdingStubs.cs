@@ -19,6 +19,7 @@ public sealed class ItemInfo
     public int UpgradeLevel;
     public int WeaponDamage;
     public string UpgradeTemplate;
+    public XmlNode NodeXML;
 }
 
 public sealed class Items
@@ -31,7 +32,14 @@ public sealed class Items
 
     public ItemInfo KCCDBEEKBCG(string name)
     {
-        return _all.Find(item => item.Name == name);
+        ItemInfo item = _all.Find(value => value.Name == name);
+        if (item != null) return item;
+        Eclipse.Modding.DefinitionId id;
+        Eclipse.Modding.WeaponDefinition core;
+        var scripts = Eclipse.Modding.ModRuntime.Scripts;
+        if (scripts != null && Eclipse.Modding.DefinitionId.TryParse(name, out id) && id.Namespace.Value == "core" &&
+            scripts.Content.TryGetWeapon(id, out core)) return _all.Find(value => value.Name == core.LegacyName);
+        return null;
     }
 
     public ItemInfo AddExternalWeapon(XmlNode node)
@@ -41,6 +49,7 @@ public sealed class Items
         var item = new ItemInfo
         {
             Index = _all.Count,
+            NodeXML = node.CloneNode(true),
             Name = name,
             FileName = Attr(node, "Image"),
             Model = Attr(node, "Model"),
@@ -93,6 +102,21 @@ public static class ListSF
     private static Items _items = new Items();
     public static Items DJBOFEEKJMP() { return _items; }
     public static void ResetModdingTestItems() { _items = new Items(); }
+
+    public static void SeedModdingTestCoreItems()
+    {
+        var document = new XmlDocument();
+        document.Load(System.IO.Path.Combine(SF2Paths.KKIDGPBOBNI(), "list.xml"));
+        foreach (XmlNode node in document.SelectNodes("/List/Items/Item[@Type='Weapon']")) _items.AddExternalWeapon(node);
+    }
+}
+
+public static class SF2Paths
+{
+    public static string KKIDGPBOBNI()
+    {
+        return System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "CoreDefinitionFixture");
+    }
 }
 
 public sealed class Language

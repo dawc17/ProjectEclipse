@@ -235,7 +235,15 @@ public class Items
 
 	public ItemInfo KCCDBEEKBCG(string name)
 	{
-		return DEEGAJNPJCI.Find((ItemInfo DHDMNHCIPEH) => DHDMNHCIPEH.Name.Equals(name));
+		ItemInfo item = DEEGAJNPJCI.Find((ItemInfo DHDMNHCIPEH) => DHDMNHCIPEH.Name.Equals(name));
+		if (item != null) return item;
+		Eclipse.Modding.DefinitionId id;
+		Eclipse.Modding.WeaponDefinition core;
+		Eclipse.Modding.ModScriptSession scripts = Eclipse.Modding.ModRuntime.Scripts;
+		if (scripts != null && Eclipse.Modding.DefinitionId.TryParse(name, out id) && id.Namespace.Value == "core" &&
+			scripts.Content.TryGetWeapon(id, out core) && core.LegacyName != null)
+			return DEEGAJNPJCI.Find(value => value.Name == core.LegacyName);
+		return null;
 	}
 
 	public List<ItemInfo> ONFMAJEAACM(string LFLGCDNKNJI)
@@ -282,6 +290,7 @@ public class Items
 	private ItemInfo HOBNJMONDKB(XmlNode node, int JDEHLOMDDOH)
 	{
 		ItemInfo dJKEECEOCJB = new ItemInfo(node);
+		dJKEECEOCJB.NodeXML = node.CloneNode(true);
 		XmlNode xmlNode = node["Upgrades"];
 		if (xmlNode != null)
 		{

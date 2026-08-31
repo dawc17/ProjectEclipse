@@ -2602,7 +2602,12 @@ public class ListSF
 
 	private Roster NHAMDLEDOHM(XmlNode node)
 	{
-		Roster nKGLHEGIKKP = new Roster(node, IAOBIMJFBMH(node, null, false));
+		XmlNode equipmentView = Eclipse.Modding.ModSaveData.CreateEquipmentView(node,
+			name => DJBOFEEKJMP().KCCDBEEKBCG(name) != null, GameUtils.GetDefaultItem);
+		ModelParameters parameters = IAOBIMJFBMH(equipmentView, null, false);
+		parameters.Node = node;
+		Roster nKGLHEGIKKP = new Roster(node, parameters);
+		Eclipse.Modding.ModRuntime.RecordSaveContext(node);
 		nKGLHEGIKKP.AddEventListener(0, EJANJEEGOOE);
 		return nKGLHEGIKKP;
 	}

@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
 using UnityEngine;
 
 namespace Eclipse.Modding
@@ -18,7 +21,7 @@ namespace Eclipse.Modding
             _legacyContent?.Dispose();
             _legacyContent = null;
             _scripts?.Dispose();
-            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript);
+            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript, ImportCoreWeapons);
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
             return _scripts;
@@ -37,8 +40,8 @@ namespace Eclipse.Modding
                 ModScriptSession scripts = StartScripts();
                 _legacyContent = new LegacyContentAdapter(scripts.Content);
                 _legacyContent.ApplyItems(ListSF.DJBOFEEKJMP());
-                Debug.Log("[ModContent] Applied " + scripts.Content.Weapons.Count +
-                    " weapon definition(s) to the legacy item runtime.");
+                Debug.Log("[ModContent] Catalog contains " + scripts.Content.Weapons.Count +
+                    " core/mod weapon definition(s); applied " + scripts.Content.ShopListings.Count + " external shop listing(s).");
             }
             catch (Exception exception)
             {
@@ -59,6 +62,14 @@ namespace Eclipse.Modding
                 Debug.LogError("[ModContent] Failed to apply mod localization; vanilla localization remains active. " +
                     exception);
             }
+        }
+
+        public static void RecordSaveContext(System.Xml.XmlNode warrior)
+        {
+            // Do not overwrite provenance if mod initialization itself was unavailable.
+            if (_scripts == null) return;
+            if (!ModSaveData.RecordContext(warrior, _scripts.ActiveMods))
+                Debug.LogWarning("[ModSave] Unrecognized save metadata schema; leaving it unchanged.");
         }
 
         public static ModHost InitializeDefault()
@@ -119,6 +130,17 @@ namespace Eclipse.Modding
             if (entry.Level == ModLogLevel.Error) Debug.LogError(message);
             else if (entry.Level == ModLogLevel.Warning) Debug.LogWarning(message);
             else Debug.Log(message);
+        }
+
+        private static void ImportCoreWeapons(ModContentCatalog content)
+        {
+            var nodes = new List<XmlNode>();
+            foreach (ItemInfo item in ListSF.DJBOFEEKJMP().MJKFCBMNNGJ())
+                if (item.Name.IndexOf(':') < 0 && item.NodeXML != null) nodes.Add(item.NodeXML);
+            if (nodes.Count == 0) return;
+            var languages = CoreContentImporter.ReadLocalizations(Path.Combine(SF2Paths.KKIDGPBOBNI(), "localizations"));
+            int imported = CoreContentImporter.ImportWeapons(content, nodes, languages);
+            Debug.Log("[ModContent] Imported " + imported + " vanilla weapon definitions into core.");
         }
 
         private static bool TryParseQualified(string reference, out AssetId id)
