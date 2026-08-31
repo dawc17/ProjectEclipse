@@ -34,8 +34,8 @@ foreach ($directory in @(
 [IO.File]::WriteAllText((Join-Path $fixture 'ProjectSettings/ProjectVersion.txt'), "m_EditorVersion: 2022.3.62f3`n")
 
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Content/PackagedArtCatalog.cs') -Destination (Join-Path $fixture 'Assets/PackagedArtCatalog.cs')
-Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/CoreAssetProvider.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Modding/CoreAssetProvider.cs')
-Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/ModHost.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Modding/ModHost.cs')
+Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ResourcesAndBundles.cs') -Destination (Join-Path $fixture 'Assets/ResourcesAndBundles.cs')
+Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Modding') -Force
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Runtime/Modding') -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidatePackagedArt.cs') -Destination (Join-Path $fixture 'Assets/ValidatePackagedArt.cs')
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Content/TarAssets/*') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Content/TarAssets') -Recurse -Force

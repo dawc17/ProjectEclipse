@@ -88,8 +88,6 @@ namespace Eclipse.Modding
             string relative = fullPath.Substring(AssetsRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length + 1)
                 .Replace('\\', '/');
 
-            if (relative.EndsWith(".sprite.toml", StringComparison.OrdinalIgnoreCase)) return;
-
             string extension = Path.GetExtension(relative);
             if (string.IsNullOrEmpty(extension))
                 throw new InvalidDataException("Loose mod asset has no file extension: " + relative);

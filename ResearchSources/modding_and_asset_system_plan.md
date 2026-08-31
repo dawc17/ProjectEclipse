@@ -45,6 +45,12 @@ migration layers:
 - The automated Unity packaged-art fixture proves one valid loose mod can stay mounted
   alongside `core:*` while a deliberately broken independent mod is disabled. This meets
   the Phase 1 diagnostic-resolution exit criterion.
+- `ModAssetLoader` now provides the first typed external pipeline: PNG sprites with strict
+  `.sprite.toml` metadata, strict UTF-8 model/text payloads, and PCM16 WAV audio. Core
+  requests delegate to the existing packaged catalog instead of duplicating decoders.
+- Explicit qualified paths are routed through `ModRuntime` before the recovered
+  `ResourcesAndBundles` providers. Ordinary unqualified recovered resource paths remain on
+  the existing path. Editor and standalone fixtures verify both paths side by side.
 - Runtime decoders already exist for PNG-backed sprites (including custom geometry),
   PCM16 WAV audio, model XML and location atlas/plist data.
 - Generic gameplay/config XML deliberately remains outside the TAR provider and stays
@@ -55,9 +61,10 @@ migration layers:
   cache on first use. That is acceptable for the current migration, but it does not meet
   the eventual on-demand/chunked performance goals in this document.
 
-The next missing layer is the typed external-asset lifecycle and integration before the
-legacy `ResourcesAndBundles` providers, followed by MoonSharp contexts, definition
-registries and transactional registration.
+Phase 2 still needs proper asset handles/scopes and preload/lifetime policy, but the first
+typed formats and legacy seam are functional. The next major subsystem is MoonSharp
+contexts and the script-facing facade, followed by definition registries and transactional
+registration.
 
 ## 2. Goals
 

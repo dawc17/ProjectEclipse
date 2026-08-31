@@ -133,8 +133,17 @@ public static class ValidatePackagedArt
         {
             string example = Path.Combine(modsRoot, "example.weapon");
             Directory.CreateDirectory(Path.Combine(example, "assets", "sprites"));
-            File.WriteAllBytes(Path.Combine(example, "assets", "sprites", "weapon.png"),
-                new byte[] { 1, 2, 3, 4 });
+            Directory.CreateDirectory(Path.Combine(example, "assets", "models"));
+            Directory.CreateDirectory(Path.Combine(example, "assets", "audio"));
+            File.WriteAllBytes(Path.Combine(example, "assets", "sprites", "weapon.png"), CreateTestPng());
+            File.WriteAllText(Path.Combine(example, "assets", "sprites", "weapon.sprite.toml"),
+                "pivot = [0.25, 0.75]\n" +
+                "pixels_per_unit = 50\n" +
+                "filter = \"point\"\n" +
+                "wrap = \"clamp\"\n");
+            File.WriteAllText(Path.Combine(example, "assets", "models", "mdl_weapon_example.xml"),
+                "<Scene><Figures /></Scene>");
+            File.WriteAllBytes(Path.Combine(example, "assets", "audio", "test.wav"), CreateTestWav());
             File.WriteAllText(Path.Combine(example, "mod.toml"),
                 "schema = 1\n" +
                 "id = \"example.weapon\"\n" +
@@ -172,14 +181,92 @@ public static class ValidatePackagedArt
                 metadata.Kind == AssetKind.Sprite, "ModHost did not mount loose sprite");
             AssetBytes bytes;
             Require(host.Assets.TryRead(AssetId.Parse("example.weapon:sprites/weapon"), out bytes) &&
-                bytes.Data.Length == 4, "ModHost did not read loose sprite bytes");
+                bytes.Data.Length > 4, "ModHost did not read loose sprite bytes");
             Require(host.Assets.TryDescribe(AssetId.Parse("core:UI/Items/AgnisSeal"), out metadata),
                 "ModHost did not mount core provider");
             Require(host.FormatReport().Contains("DEP005"), "ModHost report omitted dependency diagnostic");
+
+            Sprite looseSprite = host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/weapon"));
+            Require(looseSprite != null && looseSprite.texture != null && looseSprite.texture.width == 2 &&
+                looseSprite.texture.height == 2 && looseSprite.texture.filterMode == FilterMode.Point,
+                "Typed loose sprite decode failed");
+            Require(Mathf.Abs(looseSprite.pixelsPerUnit - 50f) < 0.001f &&
+                (looseSprite.pivot - new Vector2(0.5f, 1.5f)).sqrMagnitude < 0.0001f,
+                "Loose sprite sidecar metadata was not applied");
+
+            string looseModel = host.TypedAssets.LoadModelText(
+                AssetId.Parse("example.weapon:models/mdl_weapon_example"));
+            Require(looseModel != null && looseModel.Contains("<Scene") && looseModel.Contains("<Figures"),
+                "Typed loose model XML decode failed");
+            AudioClip looseAudio = host.TypedAssets.LoadAudio(AssetId.Parse("example.weapon:audio/test"));
+            Require(looseAudio != null && looseAudio.samples == 4 && looseAudio.channels == 1 &&
+                looseAudio.frequency == 8000, "Typed loose WAV decode failed");
+
+            string coreModel = host.TypedAssets.LoadModelText(AssetId.Parse("core:gamedata/models/mdl_skeleton"));
+            Require(!string.IsNullOrEmpty(coreModel) && coreModel.Contains("<Scene"),
+                "Typed core model did not delegate to PackagedArtCatalog");
+            host.Dispose();
+
+            ModRuntime.Initialize(modsRoot);
+            Sprite bridgeLoose = ResourcesAndBundles.Load<Sprite>("example.weapon:sprites/weapon");
+            Require(bridgeLoose != null && bridgeLoose.texture != null,
+                "ResourcesAndBundles did not route qualified loose sprite through ModRuntime");
+            Sprite bridgeCore = ResourcesAndBundles.Load<Sprite>("core:Textures/Locations/moon/background_1");
+            Require(bridgeCore != null && bridgeCore.texture != null,
+                "ResourcesAndBundles did not route qualified core sprite through ModRuntime");
+            Sprite legacyCore = ResourcesAndBundles.Load<Sprite>("Textures/Locations/moon/background_1");
+            Require(legacyCore != null && legacyCore.texture != null,
+                "Namespaced bridge regressed unqualified legacy resource loading");
+            ModRuntime.Shutdown();
         }
         finally
         {
+            ModRuntime.Shutdown();
             if (Directory.Exists(modsRoot)) Directory.Delete(modsRoot, true);
+        }
+    }
+
+    private static byte[] CreateTestPng()
+    {
+        var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+        try
+        {
+            texture.SetPixels(new[] { Color.red, Color.green, Color.blue, Color.white });
+            texture.Apply();
+            return texture.EncodeToPNG();
+        }
+        finally
+        {
+#if UNITY_EDITOR
+            if (!Application.isPlaying) UnityEngine.Object.DestroyImmediate(texture);
+            else UnityEngine.Object.Destroy(texture);
+#else
+            UnityEngine.Object.Destroy(texture);
+#endif
+        }
+    }
+
+    private static byte[] CreateTestWav()
+    {
+        short[] samples = { 0, 1000, -1000, 0 };
+        using (var output = new MemoryStream())
+        using (var writer = new BinaryWriter(output))
+        {
+            writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF"));
+            writer.Write(36 + samples.Length * 2);
+            writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVE"));
+            writer.Write(System.Text.Encoding.ASCII.GetBytes("fmt "));
+            writer.Write(16);
+            writer.Write((short)1);
+            writer.Write((short)1);
+            writer.Write(8000);
+            writer.Write(16000);
+            writer.Write((short)2);
+            writer.Write((short)16);
+            writer.Write(System.Text.Encoding.ASCII.GetBytes("data"));
+            writer.Write(samples.Length * 2);
+            foreach (short sample in samples) writer.Write(sample);
+            return output.ToArray();
         }
     }
 

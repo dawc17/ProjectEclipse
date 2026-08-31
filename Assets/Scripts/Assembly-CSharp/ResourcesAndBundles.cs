@@ -4,6 +4,12 @@ public static class ResourcesAndBundles
 {
 	public static T Load<T>(string ONEIGMLOGDC) where T : Object
 	{
+		T modAsset;
+		if (Eclipse.Modding.ModRuntime.TryLoadQualified(ONEIGMLOGDC, out modAsset))
+		{
+			return modAsset;
+		}
+
 		if (IsLooseLocationAsset(ONEIGMLOGDC))
 		{
 			return Resources.Load<T>(ONEIGMLOGDC);
@@ -20,6 +26,12 @@ public static class ResourcesAndBundles
 
 	public static T[] BNCMBJOICHI<T>(string ONEIGMLOGDC) where T : Object
 	{
+		T[] modAssets;
+		if (Eclipse.Modding.ModRuntime.TryLoadQualifiedWithSubAssets(ONEIGMLOGDC, out modAssets))
+		{
+			return modAssets;
+		}
+
 		if (IsLooseLocationAsset(ONEIGMLOGDC))
 		{
 			return Resources.LoadAll<T>(ONEIGMLOGDC);

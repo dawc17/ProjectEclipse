@@ -6,12 +6,13 @@ using UnityEngine;
 
 namespace Eclipse.Modding
 {
-    public sealed class ModHost
+    public sealed class ModHost : IDisposable
     {
         public string ModsRoot { get; }
         public IReadOnlyList<ModDescriptor> EnabledMods { get; }
         public IReadOnlyList<ModDiagnostic> Diagnostics { get; }
         public AssetResolver Assets { get; }
+        public ModAssetLoader TypedAssets { get; }
 
         public bool HasErrors
         {
@@ -30,6 +31,7 @@ namespace Eclipse.Modding
             EnabledMods = Array.AsReadOnly(enabledMods ?? Array.Empty<ModDescriptor>());
             Diagnostics = Array.AsReadOnly(diagnostics ?? Array.Empty<ModDiagnostic>());
             Assets = assets ?? throw new ArgumentNullException(nameof(assets));
+            TypedAssets = new ModAssetLoader(Assets);
         }
 
         public static ModHost Build(string modsRoot)
@@ -106,6 +108,11 @@ namespace Eclipse.Modding
             foreach (ModDiagnostic diagnostic in Diagnostics)
                 builder.Append("! ").AppendLine(diagnostic.ToString());
             return builder.ToString().TrimEnd();
+        }
+
+        public void Dispose()
+        {
+            TypedAssets.Dispose();
         }
 
         private static bool TryFindUnavailableDependency(ModDescriptor mod, HashSet<ModId> mounted,
