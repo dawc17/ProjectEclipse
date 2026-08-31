@@ -16,7 +16,39 @@ public sealed class GameplayContentBuildProcessor : IPreprocessBuildWithReport
             (PlayerSettings.GetScriptingBackend(BuildTargetGroup.Android) != ScriptingImplementation.IL2CPP ||
              PlayerSettings.Android.targetArchitectures != AndroidArchitecture.ARM64))
             throw new BuildFailedException("Android playtests require IL2CPP and ARM64 only. Run SF2 > Configure Android ARM64 before building.");
+        ValidatePackagedArt();
         Package();
+    }
+
+    [MenuItem("SF2/Validate Packaged Runtime Content")]
+    public static void ValidatePackagedArt()
+    {
+        try
+        {
+            var catalog = PackagedArtCatalog.ValidateProjectFiles(Application.dataPath);
+            if (catalog.version == 2 && catalog.files != null)
+                foreach (var file in catalog.files)
+                    if (AssetDatabase.LoadMainAssetAtPath("Assets/Resources/" +
+                        PackagedArtCatalog.ResourceRoot + "/" + file.path) == null)
+                        throw new InvalidDataException("Unity could not import native art " + file.path);
+            if (AssetDatabase.LoadAssetAtPath<TextAsset>("Assets/Resources/" +
+                PackagedArtCatalog.CatalogResourcePath + ".json") == null)
+                throw new InvalidDataException("Unity could not import the art catalog.");
+            if (catalog.version == 3)
+            {
+                int archives = 0;
+                foreach (var bundle in catalog.bundles)
+                    if (!string.IsNullOrEmpty(bundle.file)) archives++;
+                Debug.Log("[PackagedContent] PASS: " + archives + " TAR/LZ4 archives verified for build.");
+            }
+            else
+                Debug.Log("[PackagedArt] PASS: " + (catalog.files == null ? 0 : catalog.files.Length) +
+                    " native art files verified for build.");
+        }
+        catch (Exception exception)
+        {
+            throw new BuildFailedException("Packaged art validation failed: " + exception.Message);
+        }
     }
 
     [MenuItem("SF2/Configure Android ARM64")]

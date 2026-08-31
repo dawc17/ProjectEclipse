@@ -45,7 +45,7 @@ Tools/python-packages/
 BuildScripts/out/
 *.log
 
-# Rebuilt automatically from Assets/xml before every player build.
+# Rebuilt automatically from Assets/vanillaXml before every player build.
 /Assets/Resources/SF2Content/gameplay.bytes
 /Assets/Resources/SF2Content/gameplay.bytes.meta
 
@@ -70,3 +70,6 @@ crashlytics-build.properties
 /Tools/LegacyServices/*
 !/Tools/LegacyServices/README.md
 !/Tools/LegacyServices/AssemblyCleanup/
+
+# AssetPacker build output
+/Tools/AssetPacker/bin/

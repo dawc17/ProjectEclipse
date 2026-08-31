@@ -11,6 +11,7 @@ of this base through data/mod APIs rather than define the base game's behavior.
 ## Layout
 
 - `Assets/` - recovered game code, assets, resources, and editor tools.
+- `Assets/Resources/SF2Content/Art/` - native runtime art and its catalog; no research folder is required to run a build.
 - `Assets/Scripts/Eclipse/` - Eclipse-owned reconstruction and platform code.
 - `Assets/vanillaXml/` - canonical vanilla 2.41.9 gameplay/configuration XML.
 - `Assets/DExml/` - archived pre-pivot Definitive Edition XML/model data; not the active base.
@@ -28,5 +29,6 @@ msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 ```
 
 See `AGENTS.md` for project conventions and validation guidance.
+See `CONTENT.md` for the content layout and validation. Use **SF2 > Content Browser** to search assets across the project from one window.
 See `DE_SCOPE_AUDIT.md` for the current separation between reusable Eclipse work
 and behavior that overlaps with the Definitive Edition feature set.

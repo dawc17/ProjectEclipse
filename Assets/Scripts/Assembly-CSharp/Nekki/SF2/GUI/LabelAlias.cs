@@ -240,6 +240,16 @@ namespace Nekki.SF2.GUI
 		protected override void Awake()
 		{
 			base.Awake();
+			// Counters have no alias and are often updated through Text.text, which
+			// bypasses set_text. Apply their configured font independently of text.
+			if (UseLocalizationFont)
+			{
+				Font localizedFont = PIBHLLOJEKK();
+				if (localizedFont != null)
+				{
+					base.font = localizedFont;
+				}
+			}
 			UpdateLabelFontSize();
 			UpdateLabelLineSpacing();
 			UpdateVerticalOverflow();

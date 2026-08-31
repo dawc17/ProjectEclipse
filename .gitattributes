@@ -1,0 +1,1 @@
+Assets/StreamingAssets/SF2Content/ArtBundles/*.tar.lz4 filter=lfs diff=lfs merge=lfs -text

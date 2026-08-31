@@ -9,16 +9,12 @@ public static class ResourcesAndBundles
 			return Resources.Load<T>(ONEIGMLOGDC);
 		}
 
-		T val = Eclipse.Content.ResearchArtBundleOverride.Load<T>(ONEIGMLOGDC);
+		T val = Eclipse.Content.PackagedArtCatalog.Load<T>(ONEIGMLOGDC);
 		if (val != null)
 		{
 			return val;
 		}
-		val = BundleManager.LoadAsset<T>(ONEIGMLOGDC);
-		if (val != null)
-		{
-			return val;
-		}
+		// Old downloaded bundles must not override the project-owned content set.
 		return Resources.Load<T>(ONEIGMLOGDC);
 	}
 
@@ -29,12 +25,7 @@ public static class ResourcesAndBundles
 			return Resources.LoadAll<T>(ONEIGMLOGDC);
 		}
 
-		T[] array = Eclipse.Content.ResearchArtBundleOverride.LoadWithSubAssets<T>(ONEIGMLOGDC);
-		if (array != null)
-		{
-			return array;
-		}
-		array = BundleManager.LoadAssetWithSubAssets<T>(ONEIGMLOGDC);
+		T[] array = Eclipse.Content.PackagedArtCatalog.LoadWithSubAssets<T>(ONEIGMLOGDC);
 		if (array != null)
 		{
 			return array;
@@ -50,8 +41,8 @@ public static class ResourcesAndBundles
 		}
 
 		string path = resourcePath.Replace((char)92, '/').TrimStart('/');
-		return path.StartsWith("Textures/Locations/", System.StringComparison.OrdinalIgnoreCase) ||
-			path.StartsWith("Textures/Location_effects/", System.StringComparison.OrdinalIgnoreCase) ||
-			path.StartsWith("gamedata/locations/", System.StringComparison.OrdinalIgnoreCase);
+		// Location art is packaged like every other runtime visual. Location params stay
+		// loose because stage layout/collision/music is part of the moddable config layer.
+		return path.StartsWith("gamedata/locations/", System.StringComparison.OrdinalIgnoreCase);
 	}
 }

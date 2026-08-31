@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <List>
   <Items>
-    <Item Name="Unlimited_Energy" Type="Consumable" SubType="UnlimitedEnergy" Image="img_unlimited_energy" Text="Unlimited_Energy_Text" BonusPrice="650" SingleTimeBuy="1" Labels="CHINAF2P"/>
-    <Item Name="Perk_Reset" Type="Consumable" SubType="PerkReset" Image="Payment2.img_perk_reset" Text="Perk_Reset_Text" BonusPrice="35"/>
+    <!--<Item Name="Unlimited_Energy" Type="Consumable" SubType="UnlimitedEnergy" Image="img_unlimited_energy" Text="Unlimited_Energy_Text" BonusPrice="650" SingleTimeBuy="1" Labels="CHINAF2P"/>-->
+    <Item Name="Perk_Reset" Type="Consumable" SubType="PerkReset" Image="Payment2.img_perk_reset" Text="Perk_Reset_Text" BonusPrice="1"/>
     <Item Name="PotionMagic" Type="RaidConsumable" SubType="RaidPotion" Image="RaidItems3.potion_magic" Text="Potion_magic_desc" BonusPrice="20" ShopHide="1"/>
     <Item Name="PotionSpikes" Type="RaidConsumable" SubType="RaidPotion" Image="RaidItems3.potion_spikes" Text="Potion_spikes_desc" BonusPrice="20" ShopHide="1"/>
     <Item Name="PotionRock" Type="RaidConsumable" SubType="RaidPotion" Image="RaidItems3.potion_rock" Text="Potion_rock_desc" BonusPrice="20" ShopHide="1"/>

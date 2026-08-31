@@ -206,7 +206,8 @@ public static class ResourceManager
 					{
 						return true;
 					}
-					return ResourcesAndBundles.Load<TextAsset>("gamedata/models/" + model) != null;
+					return Eclipse.Content.PackagedArtCatalog.HasModel(model) ||
+						ResourcesAndBundles.Load<TextAsset>("gamedata/models/" + model) != null;
 				},
 				out hidden);
 			foreach (ModelFallbackMapping fallback in fallbacks)
@@ -604,12 +605,16 @@ public static class ResourceManager
 					}
 					else
 					{
-						TextAsset bundledFallback = ResourcesAndBundles.Load<TextAsset>("gamedata/models/" + fallbackModel);
-						if (bundledFallback == null)
+						text = Eclipse.Content.PackagedArtCatalog.LoadModelText("gamedata/models/" + fallbackModel);
+						if (string.IsNullOrEmpty(text))
 						{
-							return false;
+							TextAsset bundledFallback = ResourcesAndBundles.Load<TextAsset>("gamedata/models/" + fallbackModel);
+							if (bundledFallback == null)
+							{
+								return false;
+							}
+							text = bundledFallback.text;
 						}
-						text = bundledFallback.text;
 					}
 					string logKey = "model-fallback:" + requestedModel;
 					if (_devXmlLogged.Add(logKey))
@@ -663,6 +668,16 @@ public static class ResourceManager
 		if (File.Exists(text))
 		{
 			return KIHHJGJKMIC(text);
+		}
+		string packagedModel = Eclipse.Content.PackagedArtCatalog.LoadModelText(ONEIGMLOGDC);
+		if (!string.IsNullOrEmpty(packagedModel))
+		{
+			return packagedModel;
+		}
+		string packagedLocationData = Eclipse.Content.PackagedArtCatalog.LoadLocationDataText(ONEIGMLOGDC);
+		if (!string.IsNullOrEmpty(packagedLocationData))
+		{
+			return packagedLocationData;
 		}
 		ONEIGMLOGDC = NNBCLAEKMIO(ONEIGMLOGDC);
 		TextAsset textAsset = ResourcesAndBundles.Load<TextAsset>(ONEIGMLOGDC);

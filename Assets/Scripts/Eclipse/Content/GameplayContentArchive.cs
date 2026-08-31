@@ -44,6 +44,7 @@ namespace Eclipse.Content
                 + Path.DirectorySeparatorChar;
             string[] files = Directory.GetFiles(root, "*", SearchOption.AllDirectories)
                 .Where(path => !path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase))
+                .Where(path => !path.Substring(root.Length).Replace('\\', '/').StartsWith("models/", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(path => path, StringComparer.Ordinal).ToArray();
             if (files.Length == 0 || files.Length > MaxFiles)
                 throw new InvalidDataException("Invalid gameplay XML file count.");

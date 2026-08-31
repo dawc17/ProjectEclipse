@@ -204,6 +204,20 @@ namespace Nekki.SF2.GUI
 					JGIGOMLGLPN = normalizedName.Substring(num + 1);
 				}
 			}
+			// Shop panels prepend Enchantments. to XML names such as
+			// SkillsEnch02.EnchantmentBleeding. Resolve the transparent shop glyph
+			// before generic atlas/member lookups: the recovered art also contains
+			// framed skill cards with the same member name. Load the exact local
+			// resource here because ResourcesAndBundles permits basename matches.
+			if (JGIGOMLGLPN.StartsWith("Enchantments.", System.StringComparison.OrdinalIgnoreCase))
+			{
+				string member = JGIGOMLGLPN.Substring(JGIGOMLGLPN.LastIndexOf('.') + 1);
+				Sprite enchantment = Resources.Load<Sprite>("UI/Enchantments/" + member);
+				if (enchantment != null)
+				{
+					return enchantment;
+				}
+			}
 			// AssetStudio exported both atlas members and ordinary sprites as
 			// individual .asset files.  Their resource names often contain dots
 			// (VS_Fon_left.img, Map1.1, Weapon1.img_weapon_...), so a dot alone is
@@ -230,19 +244,10 @@ namespace Nekki.SF2.GUI
 				{
 					return sprite;
 				}
-
-				// The shop asks for the small, transparent members of the legacy
-				// Enchantments atlas.  Modern perk-card sprites use the same member
-				// names but include a large framed background, so keep the recovered
-				// shop variants in a separate resource directory.  UI/Skills remains
-				// a last-resort fallback for names absent from the legacy atlas.
+				// Preserve compatibility for newer perks without a recovered shop glyph.
 				if (array[0].Equals("Enchantments", System.StringComparison.OrdinalIgnoreCase))
 				{
-					sprite = OPHFAHOKBOK("UI/Enchantments/", array[array.Length - 1]);
-					if (sprite == null)
-					{
-						sprite = OPHFAHOKBOK("UI/Skills/", array[array.Length - 1]);
-					}
+					sprite = OPHFAHOKBOK("UI/Skills/", array[array.Length - 1]);
 					if (sprite != null)
 					{
 						return sprite;
