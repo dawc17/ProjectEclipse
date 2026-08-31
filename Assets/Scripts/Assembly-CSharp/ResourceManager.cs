@@ -663,6 +663,11 @@ public static class ResourceManager
 		{
 			return t1;
 		}
+		string modModel = Eclipse.Modding.ModRuntime.LoadQualifiedModelText(ONEIGMLOGDC);
+		if (!string.IsNullOrEmpty(modModel))
+		{
+			return modModel;
+		}
 		ONEIGMLOGDC = ONEIGMLOGDC.TrimStart('\\', '/');
 		string text = SF2Paths.COGELDOPEJG(ONEIGMLOGDC);
 		if (File.Exists(text))

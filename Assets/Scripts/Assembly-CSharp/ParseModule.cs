@@ -13,6 +13,7 @@ public class ParseModule : LoadingModule
 			GameSettings.LNNLDPLDABI();
 			GameLoader.SetSound();
 			LocalizationManager.Init();
+			Eclipse.Modding.ModRuntime.ApplyLegacyLocalization();
 			ListSF.CCDKHLAMKKO().AFAKCAMAACM();
 			GameUtils.OEKOKKCILAG();
 			CHIHBINEGFL = true;

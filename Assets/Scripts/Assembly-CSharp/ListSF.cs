@@ -320,6 +320,7 @@ public class ListSF
 		EAFEBFMIDLF();
 		GameUtils.OJNHPHEPFLI.AEPHNNABOEK();
 		NMMBHENGDJO();
+		Eclipse.Modding.ModRuntime.StartGameContent();
 		PBNNPBEDOOJ();
 		ItemInfo.DenominateItems();
 		OFIPOGGCKIN();

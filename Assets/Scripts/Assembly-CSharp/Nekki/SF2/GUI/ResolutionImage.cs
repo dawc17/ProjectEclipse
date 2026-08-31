@@ -183,11 +183,21 @@ namespace Nekki.SF2.GUI
 		}
 
 		public static Sprite GetSprite(string texturePath, string JGIGOMLGLPN)
-		{
-			if (string.IsNullOrEmpty(JGIGOMLGLPN))
 			{
-				return null;
-			}
+				if (string.IsNullOrEmpty(JGIGOMLGLPN))
+				{
+					return null;
+				}
+				// Qualified mod sprites already contain their complete namespace/path. A shop
+				// prefab's recovered _TexturePath must not be prepended to that logical ID.
+				if (JGIGOMLGLPN.IndexOf(':') > 0)
+				{
+					Sprite qualified = ResourcesAndBundles.Load<Sprite>(JGIGOMLGLPN);
+					if (qualified != null)
+					{
+						return qualified;
+					}
+				}
 			// A few reconstructed prefabs (notably the in-fight perk widgets) put
 			// the complete Resources path in _SpriteName and leave _TexturePath
 			// empty. Treat the final path component as the sprite name. Without

@@ -7,6 +7,7 @@ namespace Eclipse.Modding
     {
         private static ModHost _host;
         private static ModScriptSession _scripts;
+        private static LegacyContentAdapter _legacyContent;
 
         public static bool IsInitialized => _host != null;
         public static ModHost Host => _host ?? InitializeDefault();
@@ -14,11 +15,50 @@ namespace Eclipse.Modding
 
         public static ModScriptSession StartScripts()
         {
+            _legacyContent?.Dispose();
+            _legacyContent = null;
             _scripts?.Dispose();
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript);
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
             return _scripts;
+        }
+
+        public static void StartGameContent()
+        {
+            StartGameContent(ModHost.GetDefaultModsRoot());
+        }
+
+        public static void StartGameContent(string modsRoot)
+        {
+            try
+            {
+                Initialize(modsRoot);
+                ModScriptSession scripts = StartScripts();
+                _legacyContent = new LegacyContentAdapter(scripts.Content);
+                _legacyContent.ApplyItems(ListSF.DJBOFEEKJMP());
+                Debug.Log("[ModContent] Applied " + scripts.Content.Weapons.Count +
+                    " weapon definition(s) to the legacy item runtime.");
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("[ModContent] Failed to apply mod items; continuing without external mods. " + exception);
+                Shutdown();
+            }
+        }
+
+        public static void ApplyLegacyLocalization()
+        {
+            if (_legacyContent == null) return;
+            try
+            {
+                _legacyContent.ApplyLocalization();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("[ModContent] Failed to apply mod localization; vanilla localization remains active. " +
+                    exception);
+            }
         }
 
         public static ModHost InitializeDefault()
@@ -56,12 +96,16 @@ namespace Eclipse.Modding
 
         public static string LoadQualifiedModelText(string reference)
         {
+            if (!string.IsNullOrEmpty(reference) && reference.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+                reference = reference.Substring(0, reference.Length - 4);
             AssetId id;
             return TryParseQualified(reference, out id) ? Host.TypedAssets.LoadModelText(id) : null;
         }
 
         public static void Shutdown()
         {
+            _legacyContent?.Dispose();
+            _legacyContent = null;
             _scripts?.Dispose();
             _scripts = null;
             if (_host == null) return;
@@ -85,8 +129,7 @@ namespace Eclipse.Modding
             if (colon <= 0) return false;
             ModId namespaceId;
             if (!ModId.TryParse(reference.Substring(0, colon), out namespaceId)) return false;
-            id = AssetId.Parse(reference);
-            return true;
+            return AssetId.TryParse(reference, out id);
         }
     }
 }

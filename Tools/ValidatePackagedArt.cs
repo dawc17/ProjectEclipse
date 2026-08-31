@@ -148,6 +148,8 @@ public static class ValidatePackagedArt
             Directory.CreateDirectory(Path.Combine(example, "localizations"));
             File.WriteAllText(Path.Combine(example, "localizations", "eng.toml"),
                 "weapon.example_blade = \"Example Blade\"\n");
+            File.WriteAllText(Path.Combine(example, "localizations", "pol.toml"),
+                "weapon.example_blade = \"Przykladowe Ostrze\"\n");
             Directory.CreateDirectory(Path.Combine(example, "scripts"));
             File.WriteAllText(Path.Combine(example, "scripts", "helper.lua"),
                 "return { value = \"helper-ok\" }\n");
@@ -372,14 +374,39 @@ public static class ValidatePackagedArt
             }
             host.Dispose();
 
-            ModRuntime.Initialize(modsRoot);
-            ModScriptSession runtimeScripts = ModRuntime.StartScripts();
+            ListSF.ResetModdingTestItems();
+            LocalizationManager.ResetModdingTestLanguage("eng");
+            ModRuntime.StartGameContent(modsRoot);
+            ModScriptSession runtimeScripts = ModRuntime.Scripts;
             Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
                 runtimeScripts.Content.Weapons.Count == 1 && runtimeScripts.Content.ShopListings.Count == 1 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
+            const string legacyItemId = "example.weapon:items/weapon/example_blade";
+            const string legacyLocalizationId = "example.weapon:localization/weapon.example_blade";
+            ItemInfo legacyWeapon = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId);
+            Require(legacyWeapon != null && legacyWeapon.Type == "Weapon" && legacyWeapon.SubType == "Katana" &&
+                legacyWeapon.FileName == "example.weapon:sprites/weapon" &&
+                legacyWeapon.Model == "example.weapon:models/mdl_weapon_example" &&
+                legacyWeapon.Text == legacyLocalizationId && legacyWeapon.Level == 12 &&
+                legacyWeapon.UpgradeLevel == 1200 && legacyWeapon.WeaponDamage == 18 &&
+                legacyWeapon.Price == 1000 && legacyWeapon.BonusPrice == 0 &&
+                legacyWeapon.UpgradeTemplate == "Weapon_Bonus",
+                "Committed weapon was not adapted to the expected legacy ItemInfo fields");
+
+            ModRuntime.ApplyLegacyLocalization();
+            Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == "Example Blade",
+                "English mod localization did not enter the legacy localization table");
+            LocalizationManager.ChangeModdingTestLanguage("pol");
+            Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == "Przykladowe Ostrze",
+                "Mod localization was not reapplied after a legacy language change");
+
+            string bridgeModel = ModRuntime.LoadQualifiedModelText(
+                "example.weapon:models/mdl_weapon_example.xml");
+            Require(!string.IsNullOrEmpty(bridgeModel) && bridgeModel.Contains("<Scene"),
+                "Qualified mod model lookup with recovered .xml suffix failed");
             Sprite bridgeLoose = ResourcesAndBundles.Load<Sprite>("example.weapon:sprites/weapon");
             Require(bridgeLoose != null && bridgeLoose.texture != null,
                 "ResourcesAndBundles did not route qualified loose sprite through ModRuntime");
@@ -390,6 +417,10 @@ public static class ValidatePackagedArt
             Require(legacyCore != null && legacyCore.texture != null,
                 "Namespaced bridge regressed unqualified legacy resource loading");
             ModRuntime.Shutdown();
+            Require(ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId) == null,
+                "ModRuntime shutdown did not remove the injected legacy weapon");
+            Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == null,
+                "ModRuntime shutdown did not remove injected localization aliases");
         }
         finally
         {

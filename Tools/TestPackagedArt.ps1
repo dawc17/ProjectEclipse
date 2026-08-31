@@ -38,6 +38,7 @@ Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/Resource
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Modding') -Force
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Runtime/Modding') -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidatePackagedArt.cs') -Destination (Join-Path $fixture 'Assets/ValidatePackagedArt.cs')
+Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'LegacyModdingStubs.cs') -Destination (Join-Path $fixture 'Assets/LegacyModdingStubs.cs')
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Content/TarAssets/*') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Content/TarAssets') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/Resources/SF2Content/Art/*') -Destination (Join-Path $fixture 'Assets/Resources/SF2Content/Art') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/Resources/SF2Content/Fonts/*') -Destination (Join-Path $fixture 'Assets/Resources/SF2Content/Fonts') -Recurse -Force

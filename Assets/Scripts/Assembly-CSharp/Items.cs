@@ -297,6 +297,52 @@ public class Items
 		return dJKEECEOCJB;
 	}
 
+	// Eclipse-owned mod content is validated before reaching this recovered container.
+	// Keep the integration seam here deliberately tiny so the original item parser remains
+	// authoritative for ItemInfo defaults, attributes and upgrade-template semantics.
+	public ItemInfo AddExternalWeapon(XmlNode node)
+	{
+		if (node == null)
+		{
+			throw new System.ArgumentNullException("node");
+		}
+		XmlAttribute nameAttribute = node.Attributes["Name"];
+		string name = (nameAttribute == null) ? string.Empty : nameAttribute.Value;
+		if (string.IsNullOrEmpty(name))
+		{
+			throw new System.InvalidOperationException("External weapon requires a Name attribute.");
+		}
+		if (KCCDBEEKBCG(name) != null)
+		{
+			throw new System.InvalidOperationException("Item already exists: " + name);
+		}
+
+		ItemInfo item = HOBNJMONDKB(node, HCDLKHKBEPF().Count);
+		if (item.Type != "Weapon")
+		{
+			throw new System.InvalidOperationException("External item seam currently accepts Weapon only: " + name);
+		}
+		HCDLKHKBEPF().Add(item);
+		MJKFCBMNNGJ().Add(item);
+		return item;
+	}
+
+	public bool RemoveExternalWeapon(string name)
+	{
+		if (string.IsNullOrEmpty(name))
+		{
+			return false;
+		}
+		ItemInfo item = KCCDBEEKBCG(name);
+		if (item == null || item.Type != "Weapon")
+		{
+			return false;
+		}
+		MJKFCBMNNGJ().Remove(item);
+		HCDLKHKBEPF().Remove(item);
+		return true;
+	}
+
 	private void ParseUpgradeList(XmlNode node)
 	{
 		foreach (XmlNode childNode in node.ChildNodes)

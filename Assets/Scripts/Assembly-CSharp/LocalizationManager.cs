@@ -222,6 +222,29 @@ public class Language
 		return KEAMIDNCCNN;
 	}
 
+	// Thin Eclipse modding seam. External aliases are namespaced and are reapplied after the
+	// recovered language loader clears/rebuilds this dictionary.
+	public static void SetExternalString(string key, string value)
+	{
+		if (KCAMAIIHKKH == null)
+		{
+			throw new InvalidOperationException("LocalizationManager is not initialized.");
+		}
+		if (string.IsNullOrEmpty(key))
+		{
+			throw new ArgumentException("External localization key must not be empty.", "key");
+		}
+		KCAMAIIHKKH[key] = value ?? string.Empty;
+	}
+
+	public static void RemoveExternalString(string key)
+	{
+		if (KCAMAIIHKKH != null && !string.IsNullOrEmpty(key))
+		{
+			KCAMAIIHKKH.Remove(key);
+		}
+	}
+
 	public static Font GNIENOIHLNO()
 	{
 		if (ILAJKOBCHFH != null)
