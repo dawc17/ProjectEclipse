@@ -77,8 +77,9 @@ migration layers:
 - Mod-aware save loading now preserves unavailable external item XML as opaque orphan data,
   excludes missing items from active inventory/delivery processing, uses default equipment only
   in a temporary model view, and restores ownership when the mod returns. The save also records
-  additive `EclipseMods` mod/version activity metadata. Content hashes, aliases/tombstones and
-  versioned migrations remain future work.
+  additive `EclipseMods` mod/version activity metadata plus a deterministic SHA-256 content-set
+  fingerprint over active mod IDs/versions and committed registry content. Aliases/tombstones
+  and versioned migrations remain future work.
 - `CoreContentImporter` now projects all five primary vanilla equipment categories into the same
   registries used by external content while keeping `Assets/vanillaXml/list.xml` authoritative:
   210 weapons, 179 armor, 193 helms, 85 ranged items and 73 magic items (740 source rows total).
@@ -499,6 +500,9 @@ Current implementation:
 - New external item records already use qualified definition IDs as their legacy `Name`.
 - Enabled mod IDs/versions are recorded in additive `EclipseMods` metadata; absent mods retain
   their last-seen record with `active=false`.
+- A deterministic `contentHash` fingerprints active mod IDs/versions plus the actual committed
+  localization/item/shop registry. It changes on content edits even when a mod version is not
+  bumped, but remains diagnostic rather than making old saves unloadable.
 - Missing external item nodes are preserved byte-for-XML-structure in the existing save DOM and
   skipped by active inventory/delivery processing.
 - Missing equipped content falls back only in a temporary model input. The saved equipped ID is
@@ -508,7 +512,6 @@ Current implementation:
 
 Still required:
 
-- Add a deterministic content-set fingerprint.
 - Keep aliases/tombstones for renamed definitions.
 - Let mods register constrained versioned data migrations.
 - Back up and transactionally replace saves while applying migrations.

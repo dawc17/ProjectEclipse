@@ -122,9 +122,12 @@ restores ownership without overriding that newer equipment choice.
 warrior's additive `EclipseMods` node records schema/API/core versions and each
 successfully initialized mod's version and active status. Last-seen records for
 absent mods are retained; unsupported future metadata schemas are left unchanged.
-This metadata is diagnostic, not a reason to reject or reset a save. Content
-fingerprints, renamed-definition aliases, and automatic mod migrations remain
-future work; keep published definition IDs stable.
+It also records a deterministic `contentHash` over active mod IDs/versions and the
+actual committed localization/item/shop definitions. The hash therefore changes
+when registered content changes even if a mod author forgets to bump their version.
+This metadata is diagnostic, not a reason to reject or reset a save. Renamed-
+definition aliases, tombstones, and automatic mod migrations remain future work;
+keep published definition IDs stable.
 
 ## Built-in core equipment registry
 

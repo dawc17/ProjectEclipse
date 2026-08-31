@@ -69,7 +69,7 @@ namespace Eclipse.Modding
         {
             // Do not overwrite provenance if mod initialization itself was unavailable.
             if (_scripts == null) return;
-            if (!ModSaveData.RecordContext(warrior, _scripts.ActiveMods))
+            if (!ModSaveData.RecordContext(warrior, _scripts.ActiveMods, _scripts.Content))
                 Debug.LogWarning("[ModSave] Unrecognized save metadata schema; leaving it unchanged.");
         }
 

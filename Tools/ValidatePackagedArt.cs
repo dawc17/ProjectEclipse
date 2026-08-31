@@ -531,6 +531,13 @@ public static class ValidatePackagedArt
             Require(runtimeScripts.Content.TryGetMagic(DefinitionId.Parse("core:items/magic/nomagic"), out coreNoMagic) &&
                 coreNoMagic.LegacyName == "NoMagic" && !coreNoMagic.HasModel,
                 "Core magic registry projection did not preserve the vanilla NoMagic definition");
+            var saveMetadata = new XmlDocument();
+            saveMetadata.LoadXml("<Warrior />");
+            ModRuntime.RecordSaveContext(saveMetadata.DocumentElement);
+            string expectedContentHash = ModSaveData.ComputeContentSetFingerprint(runtimeScripts.ActiveMods, runtimeScripts.Content);
+            Require(saveMetadata.DocumentElement["EclipseMods"]?.GetAttribute("contentHash") == expectedContentHash &&
+                expectedContentHash.StartsWith("sha256:", StringComparison.Ordinal) && expectedContentHash.Length == 71,
+                "ModRuntime did not persist the current deterministic content-set fingerprint");
             const string legacyItemId = "example.weapon:items/weapon/example_blade";
             const string legacyLocalizationId = "example.weapon:localization/weapon.example_blade";
             ItemInfo legacyWeapon = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId);

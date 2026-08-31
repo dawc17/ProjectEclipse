@@ -499,6 +499,9 @@ internal static class Program
             catalog.Ranged.Count == 85 && catalog.Magic.Count == 73 && catalog.Localizations.Count == 739,
             "Failed core import was not atomic.");
         ModDescriptor mod = Descriptor("example.weapon", "1.0.0", "core", ">=1.0 <2.0");
+        string coreOnlyFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
+        Assert(coreOnlyFingerprint.StartsWith("sha256:", StringComparison.Ordinal) && coreOnlyFingerprint.Length == 71,
+            "Content-set fingerprint did not use the stable SHA-256 wire format.");
         using (ModRegistrationTransaction registration = catalog.BeginRegistration(mod))
         {
             DefinitionId title = registration.AddLocalization("blade", "eng", "Example Blade");
@@ -507,6 +510,17 @@ internal static class Program
             registration.Commit();
         }
         Assert(catalog.Weapons.Count == 211, "Core and external weapons did not coexist in the same registry.");
+        string contentFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
+        Assert(contentFingerprint != coreOnlyFingerprint,
+            "Content-set fingerprint ignored registered content changes without a version bump.");
+        ModDescriptor helper = Descriptor("helper.mod", "2.0.0", "core", ">=1.0 <2.0");
+        string orderedFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod, helper }, catalog);
+        string reversedFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { helper, mod }, catalog);
+        Assert(orderedFingerprint == reversedFingerprint,
+            "Content-set fingerprint depends on active mod discovery order.");
+        ModDescriptor changedVersion = Descriptor("example.weapon", "1.0.1", "core", ">=1.0 <2.0");
+        Assert(ModSaveData.ComputeContentSetFingerprint(new[] { changedVersion }, catalog) != contentFingerprint,
+            "Content-set fingerprint ignored an active mod version change.");
         catalog.Freeze();
         bool frozen = false;
         try { CoreContentImporter.ImportMagic(catalog, new XmlNode[0], languages); }
@@ -526,7 +540,9 @@ internal static class Program
         XmlNode view = ModSaveData.CreateEquipmentView(save.DocumentElement, installed.Contains, slot => "Fists");
         Assert(view.Attributes["Weapon"].Value == "Fists" && save.DocumentElement.GetAttribute("Weapon") == itemId &&
             record.OuterXml == originalRecord, "Missing equipment fallback mutated persistent ownership or equipped ID.");
-        Assert(ModSaveData.RecordContext(save.DocumentElement, new[] { mod }), "Mod save context was not written.");
+        Assert(ModSaveData.RecordContext(save.DocumentElement, new[] { mod }, catalog), "Mod save context was not written.");
+        Assert(save.DocumentElement["EclipseMods"].Attributes["contentHash"]?.Value == contentFingerprint,
+            "Mod save context did not persist the current content-set fingerprint.");
         Assert(ModSaveData.RecordContext(save.DocumentElement, new ModDescriptor[0]), "Missing mod context was not recorded.");
         XmlElement lastSeen = (XmlElement)save.SelectSingleNode("/Warrior/EclipseMods/Mod");
         Assert(lastSeen.GetAttribute("version") == "1.0.0" && lastSeen.GetAttribute("active") == "false",
