@@ -391,13 +391,29 @@ internal static class Program
     {
         var vanilla = new XmlDocument();
         vanilla.Load(Path.Combine(projectRoot, "Assets", "vanillaXml", "list.xml"));
-        var nodes = new List<XmlNode>();
-        foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Weapon']")) nodes.Add(node);
+        var weaponNodes = new List<XmlNode>();
+        foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Weapon']")) weaponNodes.Add(node);
+        var armorNodes = new List<XmlNode>();
+        foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Armor']")) armorNodes.Add(node);
+        var helmNodes = new List<XmlNode>();
+        foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Helm']")) helmNodes.Add(node);
+        var rangedNodes = new List<XmlNode>();
+        foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Ranged']")) rangedNodes.Add(node);
+        var magicNodes = new List<XmlNode>();
+        foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Magic']")) magicNodes.Add(node);
         var languages = CoreContentImporter.ReadLocalizations(Path.Combine(projectRoot, "Assets", "vanillaXml", "localizations"));
         var catalog = new ModContentCatalog();
-        Assert(CoreContentImporter.ImportWeapons(catalog, nodes, languages) == 210 && catalog.Weapons.Count == 210,
+        Assert(CoreContentImporter.ImportWeapons(catalog, weaponNodes, languages) == 210 && catalog.Weapons.Count == 210,
             "Canonical vanilla weapon coverage changed.");
-        foreach (XmlNode node in nodes)
+        Assert(CoreContentImporter.ImportArmors(catalog, armorNodes, languages) == 179 && catalog.Armors.Count == 179,
+            "Canonical vanilla armor coverage changed.");
+        Assert(CoreContentImporter.ImportHelms(catalog, helmNodes, languages) == 193 && catalog.Helms.Count == 193,
+            "Canonical vanilla helm coverage changed.");
+        Assert(CoreContentImporter.ImportRanged(catalog, rangedNodes, languages) == 85 && catalog.Ranged.Count == 85,
+            "Canonical vanilla ranged coverage changed.");
+        Assert(CoreContentImporter.ImportMagic(catalog, magicNodes, languages) == 73 && catalog.Magic.Count == 73,
+            "Canonical vanilla magic coverage changed.");
+        foreach (XmlNode node in weaponNodes)
         {
             WeaponDefinition weapon;
             string name = node.Attributes["Name"].Value;
@@ -405,15 +421,83 @@ internal static class Program
                 weapon.LegacyName == name && weapon.LegacyItemXml == node.OuterXml,
                 "Core import lost legacy identity or source fields: " + name);
         }
+        foreach (XmlNode node in armorNodes)
+        {
+            ArmorDefinition armor;
+            string name = node.Attributes["Name"].Value;
+            Assert(catalog.TryGetArmor(CoreContentImporter.ArmorId(name), out armor) &&
+                armor.LegacyName == name && armor.LegacyItemXml == node.OuterXml,
+                "Core armor import lost legacy identity or source fields: " + name);
+        }
+        foreach (XmlNode node in helmNodes)
+        {
+            HelmDefinition helm;
+            string name = node.Attributes["Name"].Value;
+            Assert(catalog.TryGetHelm(CoreContentImporter.HelmId(name), out helm) &&
+                helm.LegacyName == name && helm.LegacyItemXml == node.OuterXml,
+                "Core helm import lost legacy identity or source fields: " + name);
+        }
+        foreach (XmlNode node in rangedNodes)
+        {
+            string name = node.Attributes["Name"].Value;
+            if (name == "GlaivebowArrow") continue; // Legacy list.xml contains two distinct rows with this same Name.
+            RangedDefinition ranged;
+            Assert(catalog.TryGetRanged(CoreContentImporter.RangedId(name), out ranged) &&
+                ranged.LegacyName == name && ranged.LegacyItemXml == node.OuterXml,
+                "Core ranged import lost legacy identity or source fields: " + name);
+        }
+        XmlNodeList duplicateRanged = vanilla.SelectNodes("/List/Items/Item[@Type='Ranged' and @Name='GlaivebowArrow']");
+        RangedDefinition glaiveArrow;
+        RangedDefinition rifleBullet;
+        Assert(duplicateRanged.Count == 2 &&
+            catalog.TryGetRanged(DefinitionId.Parse("core:items/ranged/glaivebowarrow"), out glaiveArrow) &&
+            catalog.TryGetRanged(DefinitionId.Parse("core:items/ranged/glaivebowarrow/riflebullet"), out rifleBullet) &&
+            glaiveArrow.LegacyItemXml == duplicateRanged[0].OuterXml && rifleBullet.LegacyItemXml == duplicateRanged[1].OuterXml,
+            "Duplicate vanilla ranged names were not deterministically disambiguated.");
+        foreach (XmlNode node in magicNodes)
+        {
+            MagicDefinition magic;
+            string name = node.Attributes["Name"].Value;
+            Assert(catalog.TryGetMagic(CoreContentImporter.MagicId(name), out magic) &&
+                magic.LegacyName == name && magic.LegacyItemXml == node.OuterXml,
+                "Core magic import lost legacy identity or source fields: " + name);
+        }
         WeaponDefinition fists;
         WeaponDefinition kunai;
         Assert(catalog.TryGetWeapon(DefinitionId.Parse("core:items/weapon/fists"), out fists) &&
             fists.Damage == 0 && !fists.HasIcon && !fists.HasModel, "Core Fists was coerced into a normal mod weapon.");
         Assert(catalog.TryGetWeapon(DefinitionId.Parse("core:items/weapon/weapon_kunai"), out kunai) &&
             kunai.Damage == -4 && kunai.HasModel, "Core negative damage sentinel was lost.");
+        ArmorDefinition body;
+        ArmorDefinition kenji;
+        Assert(catalog.TryGetArmor(DefinitionId.Parse("core:items/armor/body"), out body) &&
+            body.BodyDefense == 0 && body.UnarmedDamage == 0 && body.HasModel,
+            "Core Body armor projection lost default defense/model fields.");
+        Assert(catalog.TryGetArmor(DefinitionId.Parse("core:items/armor/body_kenji"), out kenji) &&
+            kenji.BodyDefense == -5 && kenji.UnarmedDamage == -5 && kenji.HasModel,
+            "Core armor negative sentinel values were lost.");
+        HelmDefinition head;
+        Assert(catalog.TryGetHelm(DefinitionId.Parse("core:items/helm/head"), out head) &&
+            head.HeadDefense == 0 && head.HasModel, "Core default helm projection changed.");
+        RangedDefinition noRanged;
+        RangedDefinition kunaiRanged;
+        Assert(catalog.TryGetRanged(DefinitionId.Parse("core:items/ranged/noranged"), out noRanged) &&
+            !noRanged.HasModel && noRanged.RangedDamage == 0 && noRanged.WeaponDamage == 0,
+            "Core NoRanged sentinel was coerced into a normal ranged item.");
+        Assert(catalog.TryGetRanged(DefinitionId.Parse("core:items/ranged/ranged_fish"), out kunaiRanged) &&
+            kunaiRanged.WeaponDamage == -4, "Core ranged WeaponDamage sentinel was lost.");
+        MagicDefinition noMagic;
+        Assert(catalog.TryGetMagic(DefinitionId.Parse("core:items/magic/nomagic"), out noMagic) &&
+            !noMagic.HasModel && noMagic.MagicDamage == 0, "Core NoMagic sentinel was coerced into a normal magic item.");
         Assert(catalog.ShopListings.Count == 0, "Core import invented shop availability/pricing for vanilla weapons.");
-        RejectContent(() => CoreContentImporter.ImportWeapons(catalog, nodes, languages), "Duplicate core import was accepted.");
-        Assert(catalog.Weapons.Count == 210 && catalog.Localizations.Count == 210, "Failed core import was not atomic.");
+        RejectContent(() => CoreContentImporter.ImportWeapons(catalog, weaponNodes, languages), "Duplicate core weapon import was accepted.");
+        RejectContent(() => CoreContentImporter.ImportArmors(catalog, armorNodes, languages), "Duplicate core armor import was accepted.");
+        RejectContent(() => CoreContentImporter.ImportHelms(catalog, helmNodes, languages), "Duplicate core helm import was accepted.");
+        RejectContent(() => CoreContentImporter.ImportRanged(catalog, rangedNodes, languages), "Duplicate core ranged import was accepted.");
+        RejectContent(() => CoreContentImporter.ImportMagic(catalog, magicNodes, languages), "Duplicate core magic import was accepted.");
+        Assert(catalog.Weapons.Count == 210 && catalog.Armors.Count == 179 && catalog.Helms.Count == 193 &&
+            catalog.Ranged.Count == 85 && catalog.Magic.Count == 73 && catalog.Localizations.Count == 739,
+            "Failed core import was not atomic.");
         ModDescriptor mod = Descriptor("example.weapon", "1.0.0", "core", ">=1.0 <2.0");
         using (ModRegistrationTransaction registration = catalog.BeginRegistration(mod))
         {
@@ -425,7 +509,7 @@ internal static class Program
         Assert(catalog.Weapons.Count == 211, "Core and external weapons did not coexist in the same registry.");
         catalog.Freeze();
         bool frozen = false;
-        try { CoreContentImporter.ImportWeapons(catalog, new XmlNode[0], languages); }
+        try { CoreContentImporter.ImportMagic(catalog, new XmlNode[0], languages); }
         catch (InvalidOperationException) { frozen = true; }
         Assert(frozen, "Core importer bypassed registry freezing.");
 
@@ -463,7 +547,7 @@ internal static class Program
         string futureState = state.OuterXml;
         Assert(!ModSaveData.RecordContext(reloaded.DocumentElement, new[] { mod }) && state.OuterXml == futureState,
             "Unknown future mod-save schema was overwritten.");
-        Console.WriteLine("Core/save contracts: PASS (210 vanilla weapons + external mod; orphan save/reload/restore).");
+        Console.WriteLine("Core/save contracts: PASS (740 vanilla equipment definitions + external mod; orphan save/reload/restore).");
     }
 }
 '@ | Set-Content -LiteralPath $harness -Encoding UTF8

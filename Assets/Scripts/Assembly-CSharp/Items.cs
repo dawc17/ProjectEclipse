@@ -238,11 +238,15 @@ public class Items
 		ItemInfo item = DEEGAJNPJCI.Find((ItemInfo DHDMNHCIPEH) => DHDMNHCIPEH.Name.Equals(name));
 		if (item != null) return item;
 		Eclipse.Modding.DefinitionId id;
-		Eclipse.Modding.WeaponDefinition core;
+		Eclipse.Modding.ItemDefinition core;
 		Eclipse.Modding.ModScriptSession scripts = Eclipse.Modding.ModRuntime.Scripts;
 		if (scripts != null && Eclipse.Modding.DefinitionId.TryParse(name, out id) && id.Namespace.Value == "core" &&
-			scripts.Content.TryGetWeapon(id, out core) && core.LegacyName != null)
-			return DEEGAJNPJCI.Find(value => value.Name == core.LegacyName);
+			scripts.Content.TryGetItem(id, out core) && core.LegacyName != null)
+		{
+			ItemInfo legacy = DEEGAJNPJCI.Find(value => value.Name == core.LegacyName && value.NodeXML != null &&
+				core.LegacyItemXml != null && value.NodeXML.OuterXml == core.LegacyItemXml);
+			return legacy ?? DEEGAJNPJCI.Find(value => value.Name == core.LegacyName);
+		}
 		return null;
 	}
 

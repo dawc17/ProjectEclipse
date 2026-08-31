@@ -85,31 +85,99 @@ namespace Eclipse.Modding
         }
     }
 
-    public sealed class WeaponDefinition
+    public abstract class ItemDefinition
     {
         public DefinitionId Id { get; }
         public DefinitionId DisplayName { get; }
-        public AssetId Icon { get; }
         public AssetId Model { get; }
-        public string SubType { get; }
-        public int Damage { get; }
-        public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
         public bool HasModel => !string.IsNullOrEmpty(Model.Path);
         public string LegacyName { get; }
         public string LegacyItemXml { get; }
         public bool IsCore => Id.Namespace.Value == "core";
 
-        internal WeaponDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
-            string subType, int damage, string legacyName = null, string legacyItemXml = null)
+        protected ItemDefinition(DefinitionId id, DefinitionId displayName, AssetId model,
+            string legacyName = null, string legacyItemXml = null)
         {
             Id = id;
             DisplayName = displayName;
-            Icon = icon;
             Model = model;
-            SubType = subType;
-            Damage = damage;
             LegacyName = legacyName;
             LegacyItemXml = legacyItemXml;
+        }
+    }
+
+    public sealed class WeaponDefinition : ItemDefinition
+    {
+        public AssetId Icon { get; }
+        public string SubType { get; }
+        public int Damage { get; }
+        public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
+
+        internal WeaponDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
+            string subType, int damage, string legacyName = null, string legacyItemXml = null)
+            : base(id, displayName, model, legacyName, legacyItemXml)
+        {
+            Icon = icon;
+            SubType = subType;
+            Damage = damage;
+        }
+    }
+
+    public sealed class ArmorDefinition : ItemDefinition
+    {
+        public int BodyDefense { get; }
+        public int HeadDefense { get; }
+        public int UnarmedDamage { get; }
+
+        internal ArmorDefinition(DefinitionId id, DefinitionId displayName, AssetId model,
+            int bodyDefense, int headDefense, int unarmedDamage, string legacyName = null,
+            string legacyItemXml = null) : base(id, displayName, model, legacyName, legacyItemXml)
+        {
+            BodyDefense = bodyDefense;
+            HeadDefense = headDefense;
+            UnarmedDamage = unarmedDamage;
+        }
+    }
+
+    public sealed class HelmDefinition : ItemDefinition
+    {
+        public int HeadDefense { get; }
+
+        internal HelmDefinition(DefinitionId id, DefinitionId displayName, AssetId model, int headDefense,
+            string legacyName = null, string legacyItemXml = null)
+            : base(id, displayName, model, legacyName, legacyItemXml)
+        {
+            HeadDefense = headDefense;
+        }
+    }
+
+    public sealed class RangedDefinition : ItemDefinition
+    {
+        public string SubType { get; }
+        public int RangedDamage { get; }
+        public int WeaponDamage { get; }
+
+        internal RangedDefinition(DefinitionId id, DefinitionId displayName, AssetId model, string subType,
+            int rangedDamage, int weaponDamage, string legacyName = null, string legacyItemXml = null)
+            : base(id, displayName, model, legacyName, legacyItemXml)
+        {
+            SubType = subType;
+            RangedDamage = rangedDamage;
+            WeaponDamage = weaponDamage;
+        }
+    }
+
+    public sealed class MagicDefinition : ItemDefinition
+    {
+        public string SubType { get; }
+        public int MagicDamage { get; }
+
+        internal MagicDefinition(DefinitionId id, DefinitionId displayName, AssetId model, string subType,
+            int magicDamage, string legacyName = null, string legacyItemXml = null)
+            : base(id, displayName, model, legacyName, legacyItemXml)
+        {
+            SubType = subType;
+            MagicDamage = magicDamage;
         }
     }
 
@@ -138,12 +206,24 @@ namespace Eclipse.Modding
             new DefinitionRegistry<LocalizationDefinition>(value => value.Id);
         private readonly DefinitionRegistry<WeaponDefinition> _weapons =
             new DefinitionRegistry<WeaponDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<ArmorDefinition> _armors =
+            new DefinitionRegistry<ArmorDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<HelmDefinition> _helms =
+            new DefinitionRegistry<HelmDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<RangedDefinition> _ranged =
+            new DefinitionRegistry<RangedDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<MagicDefinition> _magic =
+            new DefinitionRegistry<MagicDefinition>(value => value.Id);
         private readonly DefinitionRegistry<ShopListingDefinition> _shopListings =
             new DefinitionRegistry<ShopListingDefinition>(value => value.Id);
 
         public bool IsFrozen { get; private set; }
         public IReadOnlyList<LocalizationDefinition> Localizations => _localizations.Values;
         public IReadOnlyList<WeaponDefinition> Weapons => _weapons.Values;
+        public IReadOnlyList<ArmorDefinition> Armors => _armors.Values;
+        public IReadOnlyList<HelmDefinition> Helms => _helms.Values;
+        public IReadOnlyList<RangedDefinition> Ranged => _ranged.Values;
+        public IReadOnlyList<MagicDefinition> Magic => _magic.Values;
         public IReadOnlyList<ShopListingDefinition> ShopListings => _shopListings.Values;
 
         public ModRegistrationTransaction BeginRegistration(ModDescriptor mod)
@@ -161,6 +241,43 @@ namespace Eclipse.Modding
         public bool TryGetWeapon(DefinitionId id, out WeaponDefinition value)
         {
             return _weapons.TryGet(id, out value);
+        }
+
+        public bool TryGetArmor(DefinitionId id, out ArmorDefinition value)
+        {
+            return _armors.TryGet(id, out value);
+        }
+
+        public bool TryGetHelm(DefinitionId id, out HelmDefinition value)
+        {
+            return _helms.TryGet(id, out value);
+        }
+
+        public bool TryGetRanged(DefinitionId id, out RangedDefinition value)
+        {
+            return _ranged.TryGet(id, out value);
+        }
+
+        public bool TryGetMagic(DefinitionId id, out MagicDefinition value)
+        {
+            return _magic.TryGet(id, out value);
+        }
+
+        public bool TryGetItem(DefinitionId id, out ItemDefinition value)
+        {
+            value = null;
+            if (id.Category != "items") return false;
+            WeaponDefinition weapon;
+            if (_weapons.TryGet(id, out weapon)) { value = weapon; return true; }
+            ArmorDefinition armor;
+            if (_armors.TryGet(id, out armor)) { value = armor; return true; }
+            HelmDefinition helm;
+            if (_helms.TryGet(id, out helm)) { value = helm; return true; }
+            RangedDefinition ranged;
+            if (_ranged.TryGet(id, out ranged)) { value = ranged; return true; }
+            MagicDefinition magic;
+            if (_magic.TryGet(id, out magic)) { value = magic; return true; }
+            return false;
         }
 
         public bool TryGetShopListing(DefinitionId id, out ShopListingDefinition value)
@@ -207,16 +324,50 @@ namespace Eclipse.Modding
             _shopListings.AddRange(shopListings);
         }
 
-        internal void ImportCore(LocalizationDefinition[] localizations, WeaponDefinition[] weapons)
+        internal void ImportCore(LocalizationDefinition[] localizations, WeaponDefinition[] weapons,
+            ArmorDefinition[] armors = null, HelmDefinition[] helms = null,
+            RangedDefinition[] ranged = null, MagicDefinition[] magic = null)
         {
             if (IsFrozen) throw new InvalidOperationException("Definition registries are frozen.");
+            armors = armors ?? Array.Empty<ArmorDefinition>();
+            helms = helms ?? Array.Empty<HelmDefinition>();
+            ranged = ranged ?? Array.Empty<RangedDefinition>();
+            magic = magic ?? Array.Empty<MagicDefinition>();
             _localizations.ValidateCanAdd(localizations);
             _weapons.ValidateCanAdd(weapons);
+            _armors.ValidateCanAdd(armors);
+            _helms.ValidateCanAdd(helms);
+            _ranged.ValidateCanAdd(ranged);
+            _magic.ValidateCanAdd(magic);
             foreach (WeaponDefinition weapon in weapons)
-                if (!weapon.IsCore || !ContainsLocalization(localizations, weapon.DisplayName))
+                if (!weapon.IsCore || !HasCoreLocalization(localizations, weapon.DisplayName))
                     throw new ModContentException("Invalid core weapon import: " + weapon.Id);
+            foreach (ArmorDefinition armor in armors)
+                if (!armor.IsCore || !HasCoreLocalization(localizations, armor.DisplayName))
+                    throw new ModContentException("Invalid core armor import: " + armor.Id);
+            ValidateCoreItems(localizations, helms, "helm");
+            ValidateCoreItems(localizations, ranged, "ranged");
+            ValidateCoreItems(localizations, magic, "magic");
             _localizations.AddRange(localizations);
             _weapons.AddRange(weapons);
+            _armors.AddRange(armors);
+            _helms.AddRange(helms);
+            _ranged.AddRange(ranged);
+            _magic.AddRange(magic);
+        }
+
+        private void ValidateCoreItems<T>(LocalizationDefinition[] localizations, T[] items, string type)
+            where T : ItemDefinition
+        {
+            foreach (T item in items)
+                if (!item.IsCore || !HasCoreLocalization(localizations, item.DisplayName))
+                    throw new ModContentException("Invalid core " + type + " import: " + item.Id);
+        }
+
+        private bool HasCoreLocalization(LocalizationDefinition[] pending, DefinitionId id)
+        {
+            LocalizationDefinition ignored;
+            return ContainsLocalization(pending, id) || _localizations.TryGet(id, out ignored);
         }
 
         private static bool ContainsLocalization(LocalizationDefinition[] values, DefinitionId id)

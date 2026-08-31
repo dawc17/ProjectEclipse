@@ -126,29 +126,38 @@ This metadata is diagnostic, not a reason to reject or reset a save. Content
 fingerprints, renamed-definition aliases, and automatic mod migrations remain
 future work; keep published definition IDs stable.
 
-## Built-in core weapon registry
+## Built-in core equipment registry
 
-Game startup imports vanilla weapon definitions and their localized names into
-the same `ModContentCatalog` used by external mods, before Lua registration.
-For example, legacy `WEAPON_KATANA` is exposed as
-`core:items/weapon/weapon_katana`. Qualified lookups resolve to the existing
-legacy `ItemInfo`; its name, save ID, prices, upgrade templates, and availability
-are not rewritten, and the importer does not invent core shop listings.
+Game startup projects all five primary vanilla equipment categories and their
+localized names into the same `ModContentCatalog` used by external mods, before
+Lua registration: 210 weapons, 179 armor definitions, 193 helms, 85 ranged
+definitions, and 73 magic definitions. For example, legacy `WEAPON_KATANA` is
+exposed as `core:items/weapon/weapon_katana`, while `Body`, `Head`, `NoRanged`,
+and `NoMagic` are exposed under their corresponding equipment categories.
 
-`WeaponDefinition.LegacyName` and `LegacyItemXml` preserve the original identity
-and complete source for core entries. This first import is a registry projection:
-vanilla XML remains authoritative, including negative damage sentinels, hidden
-weapons, and fields the mod schema cannot yet represent. Missing model/icon data
-does not become fabricated assets. Core atlas-member image references remain in
-`LegacyItemXml`; `HasIcon` is false until richer core asset metadata can resolve
-them accurately. English labels fall back to the legacy name for definitions
-without an English translation.
+Qualified lookups resolve back to the existing legacy `ItemInfo`; names, save
+IDs, prices, upgrade templates, availability, and source XML are not rewritten.
+`ItemDefinition.LegacyName` and `LegacyItemXml` retain the original identity and
+complete source. This remains a read-only registry projection: vanilla XML and
+the recovered item parser stay authoritative, including hidden definitions,
+negative sentinel values, and fields not yet modeled by the public Mod API.
 
-No `Mods/core` package or bulk Lua conversion is required. Armor, helmets,
-ranged items, magic, perks, fights, and quests have not been imported yet.
+The vanilla data contains two distinct ranged rows named `GlaivebowArrow`.
+Eclipse preserves both instead of applying a last-wins rule: the first is
+`core:items/ranged/glaivebowarrow`, and the rifle-bullet variant is exposed as
+`core:items/ranged/glaivebowarrow/riflebullet`. Shared localization identities
+are reused only when their values match exactly.
 
-Validation: `Tools/TestModdingContracts.ps1` checks canonical coverage, atomic
-registration, and save XML round trips; `Tools/TestModSaveRuntime.ps1` executes
-the recovered inventory parse/add methods with surrounding services stubbed;
-`Tools/TestPackagedArt.ps1` checks the registry/legacy bridge in isolated Unity.
-These do not replace a full purchase/upgrade/equip/fight/restart game playtest.
+No `Mods/core` package or bulk Lua conversion is required. Core assets remain in
+the TAR/LZ4 provider. External Lua registration is still weapon-only for now;
+armor, helms, ranged, and magic have core registry identity but their public
+registration/shop APIs are the next content-API expansion. Perks, fights, and
+quests have not been imported yet.
+
+Validation: `Tools/TestModdingContracts.ps1` checks all 740 vanilla equipment
+rows, atomic registration, duplicate-name disambiguation, and save XML round
+trips. `Tools/TestModSaveRuntime.ps1` executes the recovered inventory parse and
+actual `UserItem` XML mutation methods for ownership, upgrade, delivery, and
+equipment state. `Tools/TestPackagedArt.ps1` checks the registry/legacy bridge in
+isolated Unity. These do not replace a full purchase/upgrade/equip/fight/restart
+game playtest.

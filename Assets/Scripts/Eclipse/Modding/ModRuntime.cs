@@ -22,7 +22,7 @@ namespace Eclipse.Modding
             _legacyContent?.Dispose();
             _legacyContent = null;
             _scripts?.Dispose();
-            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript, ImportCoreWeapons);
+            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript, ImportCoreItems);
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
             return _scripts;
@@ -133,16 +133,21 @@ namespace Eclipse.Modding
             else Debug.Log(message);
         }
 
-        private static void ImportCoreWeapons(ModContentCatalog content)
+        private static void ImportCoreItems(ModContentCatalog content)
         {
             var nodes = new List<XmlNode>();
-            foreach (ItemInfo item in ListSF.DJBOFEEKJMP().MJKFCBMNNGJ())
+            foreach (ItemInfo item in ListSF.DJBOFEEKJMP().HCDLKHKBEPF())
                 if (item.Name.IndexOf(':') < 0 && item.NodeXML != null) nodes.Add(item.NodeXML);
             if (nodes.Count == 0) return;
             var languages = CoreContentImporter.ReadLocalizations(
                 Path.Combine(GameplayContentArchive.GetXmlRoot(), "localizations"));
-            int imported = CoreContentImporter.ImportWeapons(content, nodes, languages);
-            Debug.Log("[ModContent] Imported " + imported + " vanilla weapon definitions into core.");
+            int weapons = CoreContentImporter.ImportWeapons(content, nodes, languages);
+            int armors = CoreContentImporter.ImportArmors(content, nodes, languages);
+            int helms = CoreContentImporter.ImportHelms(content, nodes, languages);
+            int ranged = CoreContentImporter.ImportRanged(content, nodes, languages);
+            int magic = CoreContentImporter.ImportMagic(content, nodes, languages);
+            Debug.Log("[ModContent] Imported core equipment: " + weapons + " weapons, " + armors +
+                " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic.");
         }
 
         private static bool TryParseQualified(string reference, out AssetId id)

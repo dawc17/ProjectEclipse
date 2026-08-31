@@ -35,10 +35,15 @@ public sealed class Items
         ItemInfo item = _all.Find(value => value.Name == name);
         if (item != null) return item;
         Eclipse.Modding.DefinitionId id;
-        Eclipse.Modding.WeaponDefinition core;
+        Eclipse.Modding.ItemDefinition core;
         var scripts = Eclipse.Modding.ModRuntime.Scripts;
         if (scripts != null && Eclipse.Modding.DefinitionId.TryParse(name, out id) && id.Namespace.Value == "core" &&
-            scripts.Content.TryGetWeapon(id, out core)) return _all.Find(value => value.Name == core.LegacyName);
+            scripts.Content.TryGetItem(id, out core))
+        {
+            ItemInfo exact = _all.Find(value => value.Name == core.LegacyName && value.NodeXML != null &&
+                core.LegacyItemXml != null && value.NodeXML.OuterXml == core.LegacyItemXml);
+            return exact ?? _all.Find(value => value.Name == core.LegacyName);
+        }
         return null;
     }
 
@@ -46,26 +51,22 @@ public sealed class Items
     {
         string name = node.Attributes["Name"].Value;
         if (KCCDBEEKBCG(name) != null) throw new InvalidOperationException("Item already exists: " + name);
-        var item = new ItemInfo
-        {
-            Index = _all.Count,
-            NodeXML = node.CloneNode(true),
-            Name = name,
-            FileName = Attr(node, "Image"),
-            Model = Attr(node, "Model"),
-            Type = Attr(node, "Type"),
-            SubType = Attr(node, "SubType"),
-            Text = Attr(node, "Text"),
-            Price = LongAttr(node, "Price"),
-            BonusPrice = LongAttr(node, "BonusPrice"),
-            Level = IntAttr(node, "Level"),
-            UpgradeLevel = IntAttr(node, "UpgradeLevel"),
-            WeaponDamage = IntAttr(node, "WeaponDamage"),
-            UpgradeTemplate = node["Upgrades"] == null ? string.Empty : Attr(node["Upgrades"], "Template")
-        };
+        ItemInfo item = CreateItem(node);
         if (item.Type != "Weapon") throw new InvalidOperationException("Expected Weapon.");
         _all.Add(item);
         _weapons.Add(item);
+        return item;
+    }
+
+    public ItemInfo AddCoreItem(XmlNode node)
+    {
+        string name = Attr(node, "Name");
+        // The recovered vanilla parser preserves duplicate legacy Names in list.xml
+        // (currently GlaivebowArrow). Qualified core identity disambiguates them later.
+        if (string.IsNullOrEmpty(name)) throw new InvalidOperationException("Invalid core item name.");
+        ItemInfo item = CreateItem(node);
+        _all.Add(item);
+        if (item.Type == "Weapon") _weapons.Add(item);
         return item;
     }
 
@@ -82,6 +83,27 @@ public sealed class Items
     {
         XmlAttribute attribute = node.Attributes[name];
         return attribute == null ? string.Empty : attribute.Value;
+    }
+
+    private ItemInfo CreateItem(XmlNode node)
+    {
+        return new ItemInfo
+        {
+            Index = _all.Count,
+            NodeXML = node.CloneNode(true),
+            Name = Attr(node, "Name"),
+            FileName = Attr(node, "Image"),
+            Model = Attr(node, "Model"),
+            Type = Attr(node, "Type"),
+            SubType = Attr(node, "SubType"),
+            Text = Attr(node, "Text"),
+            Price = LongAttr(node, "Price"),
+            BonusPrice = LongAttr(node, "BonusPrice"),
+            Level = IntAttr(node, "Level"),
+            UpgradeLevel = IntAttr(node, "UpgradeLevel"),
+            WeaponDamage = IntAttr(node, "WeaponDamage"),
+            UpgradeTemplate = node["Upgrades"] == null ? string.Empty : Attr(node["Upgrades"], "Template")
+        };
     }
 
     private static int IntAttr(XmlNode node, string name)
@@ -107,7 +129,9 @@ public static class ListSF
     {
         var document = new XmlDocument();
         document.Load(System.IO.Path.Combine(Eclipse.Content.GameplayContentArchive.GetXmlRoot(), "list.xml"));
-        foreach (XmlNode node in document.SelectNodes("/List/Items/Item[@Type='Weapon']")) _items.AddExternalWeapon(node);
+        foreach (XmlNode node in document.SelectNodes(
+            "/List/Items/Item[@Type='Weapon' or @Type='Armor' or @Type='Helm' or @Type='Ranged' or @Type='Magic']"))
+            _items.AddCoreItem(node);
     }
 }
 

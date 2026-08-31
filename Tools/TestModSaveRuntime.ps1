@@ -1,10 +1,19 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $source = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/UserItems.cs')
+$userItemSource = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/UserItem.cs')
 # Execute the recovered inventory parse/add methods, with unrelated Unity/timer services stubbed.
 $parse = [regex]::Match($source, '(?ms)^\tpublic void Parse\(XmlNode.*?^\t\}').Value
 $add = [regex]::Match($source, '(?ms)^\tpublic UserItem GEFDJDIINND\(.*?^\t\}').Value
-if (!$parse -or !$add) { throw 'Could not extract recovered inventory methods.' }
+$setEquipped = [regex]::Match($userItemSource, '(?ms)^\tpublic void JBLKCIBKMKB\(bool value\).*?^\t\}').Value
+$setCount = [regex]::Match($userItemSource, '(?ms)^\tpublic void CHILOKHFALD\(int value\).*?^\t\}').Value
+$setDelivery = [regex]::Match($userItemSource, '(?ms)^\tpublic void set_DeliveryTime\(long value\).*?^\t\}').Value
+$setDeliveryUpgrade = [regex]::Match($userItemSource, '(?ms)^\tpublic void BAMLNLIDEBG\(int value\).*?^\t\}').Value
+$setUpgrade = [regex]::Match($userItemSource, '(?ms)^\tpublic void FMMDLMGHPIB\(int value\).*?^\t\}').Value
+$setAcquire = [regex]::Match($userItemSource, '(?ms)^\tpublic void HJONIDFKNJH\(string value\).*?^\t\}').Value
+if (!$parse -or !$add -or !$setEquipped -or !$setCount -or !$setDelivery -or !$setDeliveryUpgrade -or !$setUpgrade -or !$setAcquire) {
+    throw 'Could not extract recovered inventory/item serialization methods.'
+}
 $testRoot = Join-Path $root 'Temp/ModSaveRuntime'
 New-Item -ItemType Directory -Force -Path $testRoot | Out-Null
 $code = @'
@@ -14,6 +23,15 @@ using System.Xml;
 using Eclipse.Modding;
 
 namespace UnityEngine { public static class Debug { public static void LogWarning(object value) {} } }
+public static class XmlCompat
+{
+    public static XmlAttribute LLIKNHNLGJJ(this XmlNode node, string name)
+    {
+        XmlAttribute attribute = node.OwnerDocument.CreateAttribute(name);
+        node.Attributes.Append(attribute);
+        return attribute;
+    }
+}
 public sealed class ItemInfo { public string Type = "Weapon"; public void BEBDMOEIEJN(bool value) {} }
 public sealed class Items
 {
@@ -24,12 +42,38 @@ public static class ListSF { public static readonly Items Items = new Items(); p
 public sealed class UserItem
 {
     public static int Constructions;
-    private readonly XmlElement _node;
-    public UserItem(XmlNode node) { Constructions++; _node = (XmlElement)node; }
-    public string get_Name() { return _node.GetAttribute("Name"); }
+    private readonly XmlElement _Node;
+    private bool JGPEOEDJMHH = true;
+    private bool NCDLPMFEEHG;
+    private int DNIAOMIFPGD;
+    private long _DeliveryTime;
+    private int MLKADDDOCGH;
+    private int IKNDJDEODFD;
+    private string BIOPPMKLLME;
+    public UserItem(XmlNode node)
+    {
+        Constructions++;
+        _Node = (XmlElement)node;
+        NCDLPMFEEHG = _Node.GetAttribute("Equipped") == "1";
+        int.TryParse(_Node.GetAttribute("Count"), out DNIAOMIFPGD);
+        long.TryParse(_Node.GetAttribute("DeliveryTime"), out _DeliveryTime);
+        if (!int.TryParse(_Node.GetAttribute("DeliveryUpgradeLevel"), out MLKADDDOCGH)) MLKADDDOCGH = -1;
+        if (!int.TryParse(_Node.GetAttribute("UpgradeLevel"), out IKNDJDEODFD)) IKNDJDEODFD = -1;
+        BIOPPMKLLME = _Node.GetAttribute("AcquireType");
+    }
+    public string get_Name() { return _Node.GetAttribute("Name"); }
     public ItemInfo BHKHOJPANHE() { return null; } // Binding occurs later in HOMCPNCGPDB.
-    public long IJGAOHJNLAH() { long value; return long.TryParse(_node.GetAttribute("DeliveryTime"), out value) ? value : 0; }
-    public void JBLKCIBKMKB(bool value) { _node.SetAttribute("Equipped", value ? "1" : "0"); }
+    public long IJGAOHJNLAH() { return _DeliveryTime; }
+    public int OFOPFCJNEBL() { return DNIAOMIFPGD; }
+    public int EIMMBNNMBCN() { return MLKADDDOCGH; }
+    public int DHNNCAEEMLL() { return IKNDJDEODFD; }
+    public string GAMAMIKGDKI() { return BIOPPMKLLME; }
+    __SET_EQUIPPED__
+    __SET_COUNT__
+    __SET_DELIVERY__
+    __SET_DELIVERY_UPGRADE__
+    __SET_UPGRADE__
+    __SET_ACQUIRE__
 }
 public sealed class UserItems
 {
@@ -39,6 +83,7 @@ public sealed class UserItems
     public int Visible => _items.Count;
     public int Deliveries => HBLLBGLBDGI.Count;
     public int Missing => _missingModItemIds.Count;
+    public UserItem CMGOCLGHNLH(string name) { return _items.Find(value => value.get_Name() == name); }
     __PARSE__
     __ADD__
 }
@@ -73,19 +118,46 @@ public static class Program
             "Restored mod item did not return to inventory and pending deliveries.");
         Assert(reloaded.DocumentElement["Items"].LastChild.OuterXml == original,
             "Restoring the original equipped mod changed saved ownership or upgrades.");
+
+        // Exercise the real recovered UserItem XML mutation methods. These are the exact
+        // methods used by purchase, upgrade, equip and delivery code in the game runtime.
+        UserItem live = restored.CMGOCLGHNLH(id);
+        Assert(live != null, "Restored mod item was not addressable through active inventory.");
+        live.CHILOKHFALD(2);
+        live.FMMDLMGHPIB(1300);
+        live.set_DeliveryTime(7777);
+        live.BAMLNLIDEBG(1400);
+        live.HJONIDFKNJH("Upgrade");
+        live.JBLKCIBKMKB(true);
+        item = (XmlElement)reloaded.DocumentElement["Items"].LastChild;
+        Assert(item.GetAttribute("Count") == "2" && item.GetAttribute("UpgradeLevel") == "1300" &&
+            item.GetAttribute("DeliveryTime") == "7777" && item.GetAttribute("DeliveryUpgradeLevel") == "1400" &&
+            item.GetAttribute("AcquireType") == "Upgrade" && item.GetAttribute("Equipped") == "1",
+            "Recovered purchase/upgrade/equip state did not serialize to the owned save node.");
+        var lifecycleReload = new UserItems();
+        lifecycleReload.Parse(reloaded.DocumentElement["Items"]);
+        UserItem lifecycleItem = lifecycleReload.CMGOCLGHNLH(id);
+        Assert(lifecycleItem != null && lifecycleItem.OFOPFCJNEBL() == 2 && lifecycleItem.DHNNCAEEMLL() == 1300 &&
+            lifecycleItem.IJGAOHJNLAH() == 7777 && lifecycleItem.EIMMBNNMBCN() == 1400 &&
+            lifecycleItem.GAMAMIKGDKI() == "Upgrade",
+            "Recovered purchase/upgrade/equip state did not survive a save DOM reload.");
+
         // The player chose a different weapon while this mod was absent. Do not re-equip it.
         reloaded.DocumentElement.SetAttribute("Weapon", "Fists");
         new UserItems().Parse(reloaded.DocumentElement["Items"]);
         item = (XmlElement)reloaded.DocumentElement["Items"].LastChild;
-        Assert(item.GetAttribute("Equipped") == "0" && item.GetAttribute("Count") == "1" &&
-            item.GetAttribute("UpgradeLevel") == "1201" && item["Enchantments"].FirstChild.Name == "Unrecognized",
+        Assert(item.GetAttribute("Equipped") == "0" && item.GetAttribute("Count") == "2" &&
+            item.GetAttribute("UpgradeLevel") == "1300" && item["Enchantments"].FirstChild.Name == "Unrecognized",
             "Restoration overwrote a newer equipment choice or lost ownership state.");
-        Console.WriteLine("Recovered inventory dispatch: PASS (missing, reload, restore, delivery exclusion, equipment choice).");
+        Console.WriteLine("Recovered inventory lifecycle: PASS (missing, restore, purchase/upgrade/equip serialization, delivery exclusion, equipment choice).");
         return 0;
     }
 }
 '@
 $code = $code.Replace('__PARSE__', $parse).Replace('__ADD__', $add)
+$code = $code.Replace('__SET_EQUIPPED__', $setEquipped).Replace('__SET_COUNT__', $setCount)
+$code = $code.Replace('__SET_DELIVERY__', $setDelivery).Replace('__SET_DELIVERY_UPGRADE__', $setDeliveryUpgrade)
+$code = $code.Replace('__SET_UPGRADE__', $setUpgrade).Replace('__SET_ACQUIRE__', $setAcquire)
 $harness = Join-Path $testRoot 'Program.cs'
 [IO.File]::WriteAllText($harness, $code, [Text.UTF8Encoding]::new($false))
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'

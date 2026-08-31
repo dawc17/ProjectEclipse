@@ -476,20 +476,36 @@ public static class ValidatePackagedArt
             ListSF.ResetModdingTestItems();
             ListSF.SeedModdingTestCoreItems();
             ItemInfo vanillaKatana = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("WEAPON_KATANA");
+            ItemInfo vanillaBody = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("Body");
+            ItemInfo vanillaHead = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("Head");
+            ItemInfo vanillaNoRanged = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("NoRanged");
+            ItemInfo vanillaNoMagic = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("NoMagic");
+            ItemInfo[] duplicateRanged = ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Where(x => x.Name == "GlaivebowArrow").ToArray();
             Require(vanillaKatana != null, "Vanilla weapon fixture was not seeded");
+            Require(vanillaBody != null && vanillaHead != null && vanillaNoRanged != null && vanillaNoMagic != null &&
+                duplicateRanged.Length == 2, "Vanilla equipment fixture was not seeded completely");
             LocalizationManager.ResetModdingTestLanguage("eng");
             ModRuntime.StartGameContent(modsRoot);
             ModScriptSession runtimeScripts = ModRuntime.Scripts;
             Require(runtimeScripts != null, "ModRuntime startup failed while importing core content");
             Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
-                runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.ShopListings.Count == 1 &&
+                runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.Armors.Count == 179 &&
+                runtimeScripts.Content.Helms.Count == 193 && runtimeScripts.Content.Ranged.Count == 85 &&
+                runtimeScripts.Content.Magic.Count == 73 &&
+                runtimeScripts.Content.ShopListings.Count == 1 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
-            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 211 &&
+            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 741 &&
                 ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/weapon/weapon_katana") == vanillaKatana &&
                 vanillaKatana.Name == "WEAPON_KATANA", "Core registry import duplicated or renamed a legacy weapon");
+            Require(ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/armor/body") == vanillaBody &&
+                ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/helm/head") == vanillaHead &&
+                ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/ranged/noranged") == vanillaNoRanged &&
+                ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/magic/nomagic") == vanillaNoMagic &&
+                ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/ranged/glaivebowarrow/riflebullet") == duplicateRanged[1],
+                "Qualified core equipment lookup did not resolve to the exact legacy ItemInfo source");
             WeaponDefinition coreKatana;
             Require(runtimeScripts.Content.TryGetWeapon(DefinitionId.Parse("core:items/weapon/weapon_katana"), out coreKatana) &&
                 coreKatana.LegacyItemXml == vanillaKatana.NodeXML.OuterXml,
@@ -498,6 +514,23 @@ public static class ValidatePackagedArt
             Require(runtimeScripts.Content.TryGetLocalization(coreKatana.DisplayName, out coreKatanaName) &&
                 coreKatanaName.GetOrEnglish("eng") == "Katana",
                 "Core localization was not read from the gameplay XML root");
+            ArmorDefinition coreBody;
+            Require(runtimeScripts.Content.TryGetArmor(DefinitionId.Parse("core:items/armor/body"), out coreBody) &&
+                coreBody.LegacyName == "Body" && coreBody.HasModel && coreBody.BodyDefense == 0 &&
+                coreBody.UnarmedDamage == 0,
+                "Core armor registry projection did not preserve the vanilla Body definition");
+            HelmDefinition coreHead;
+            Require(runtimeScripts.Content.TryGetHelm(DefinitionId.Parse("core:items/helm/head"), out coreHead) &&
+                coreHead.LegacyName == "Head" && coreHead.HasModel && coreHead.HeadDefense == 0,
+                "Core helm registry projection did not preserve the vanilla Head definition");
+            RangedDefinition coreNoRanged;
+            Require(runtimeScripts.Content.TryGetRanged(DefinitionId.Parse("core:items/ranged/noranged"), out coreNoRanged) &&
+                coreNoRanged.LegacyName == "NoRanged" && !coreNoRanged.HasModel,
+                "Core ranged registry projection did not preserve the vanilla NoRanged definition");
+            MagicDefinition coreNoMagic;
+            Require(runtimeScripts.Content.TryGetMagic(DefinitionId.Parse("core:items/magic/nomagic"), out coreNoMagic) &&
+                coreNoMagic.LegacyName == "NoMagic" && !coreNoMagic.HasModel,
+                "Core magic registry projection did not preserve the vanilla NoMagic definition");
             const string legacyItemId = "example.weapon:items/weapon/example_blade";
             const string legacyLocalizationId = "example.weapon:localization/weapon.example_blade";
             ItemInfo legacyWeapon = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId);
@@ -535,7 +568,7 @@ public static class ValidatePackagedArt
             Require(legacyCore != null && legacyCore.texture != null,
                 "Namespaced bridge regressed unqualified legacy resource loading");
             ModRuntime.Shutdown();
-            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 210 &&
+            Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 740 &&
                 ListSF.DJBOFEEKJMP().KCCDBEEKBCG("WEAPON_KATANA") == vanillaKatana,
                 "ModRuntime shutdown removed a vanilla weapon");
             Require(ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId) == null,
