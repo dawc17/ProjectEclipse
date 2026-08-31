@@ -218,20 +218,20 @@ AssetResolver
     └── LegacyResourcesProvider
 ```
 
-Core interfaces:
+Core interfaces separate logical asset resolution from providers that can expose a single
+canonical byte payload. This matters for `core`, where one logical sprite address may be
+backed by TAR metadata plus a shared atlas texture rather than one standalone file:
 
 ```csharp
 public interface IAssetProvider
 {
-    bool Contains(AssetId id);
-    AssetMetadata Describe(AssetId id);
-    Task<AssetBytes> ReadAsync(AssetId id, CancellationToken token);
+    ModId Namespace { get; }
+    bool TryDescribe(AssetId id, out AssetMetadata metadata);
 }
 
-public interface IAssetDecoder<T>
+public interface IAssetByteProvider : IAssetProvider
 {
-    Task<T> DecodeAsync(AssetBytes bytes, AssetMetadata metadata,
-        CancellationToken token);
+    bool TryRead(AssetId id, out AssetBytes bytes);
 }
 
 public interface IModScriptRuntime
@@ -240,9 +240,11 @@ public interface IModScriptRuntime
 }
 ```
 
-`AssetResolver` owns provider precedence, namespace/dependency checks, typed decoding,
-caching, reference counts, fallbacks and diagnostics. The first `CoreAssetProvider` should
-wrap the existing `PackagedArtCatalog` instead of reimplementing TAR loading. Lua receives
+`AssetResolver` owns namespace routing and eventually dependency checks, typed decoding,
+caching, reference counts, fallbacks and diagnostics. There is no implicit "last provider
+wins" rule: one mounted provider owns one namespace. The first `CoreAssetProvider` wraps
+the existing `PackagedArtCatalog` instead of reimplementing TAR loading, and therefore does
+not need to expose fake raw bytes for atlas-backed logical assets. Lua receives
 typed asset handles, never `Texture2D`, `GameObject`, file paths, streams, or arbitrary
 CLR objects.
 

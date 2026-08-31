@@ -72,6 +72,8 @@ namespace Eclipse.Content
             new Dictionary<string, List<BundleAsset>>(StringComparer.OrdinalIgnoreCase);
         private static readonly Dictionary<string, List<BundleAsset>> AssetsByName =
             new Dictionary<string, List<BundleAsset>>(StringComparer.OrdinalIgnoreCase);
+        private static readonly HashSet<string> ExactAddresses =
+            new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         private static readonly Dictionary<string, Sprite> SpriteCache =
             new Dictionary<string, Sprite>(StringComparer.OrdinalIgnoreCase);
         private static readonly Dictionary<string, string> SpriteAliases =
@@ -142,6 +144,13 @@ namespace Eclipse.Content
             string path = modelName.Replace('\\', '/').Trim();
             path = GetLastSegment(StripXmlExtension(path));
             return !string.IsNullOrEmpty(LoadModelText("gamedata/models/" + path));
+        }
+
+        public static bool ContainsExactAddress(string resourcePath)
+        {
+            if (string.IsNullOrEmpty(resourcePath)) return false;
+            EnsureIndex();
+            return ExactAddresses.Contains(Normalize(resourcePath));
         }
 
         public static string LoadLocationDataText(string resourcePath)
@@ -416,6 +425,7 @@ namespace Eclipse.Content
         {
             BundleAsset entry = new BundleAsset(bundleName, assetPath);
             string normalized = Normalize(assetPath);
+            ExactAddresses.Add(normalized);
             AddIndex(AssetsByPath, normalized, entry);
             if (normalized.StartsWith("gamedata/", StringComparison.OrdinalIgnoreCase))
                 AddIndex(AssetsByPath, normalized.Substring("gamedata/".Length), entry);

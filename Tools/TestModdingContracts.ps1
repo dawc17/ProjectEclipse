@@ -11,7 +11,10 @@ $sources = @(
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModManifestReader.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModDiagnostics.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModDiscovery.cs'),
-    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\DependencyResolver.cs')
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\DependencyResolver.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetProvider.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetResolver.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs')
 )
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -41,6 +44,20 @@ using Eclipse.Modding;
 
 internal static class Program
 {
+    private sealed class FakeCoreProvider : IAssetProvider
+    {
+        public ModId Namespace => ModId.Parse("core");
+
+        public bool TryDescribe(AssetId id, out AssetMetadata metadata)
+        {
+            metadata = null;
+            if (id.Namespace != Namespace || id.Path != "ui/test") return false;
+            metadata = new AssetMetadata(id, AssetKind.Unknown, AssetSourceKind.Core,
+                string.Empty, -1, "fake-core");
+            return true;
+        }
+    }
+
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new Exception(message);
@@ -174,12 +191,49 @@ internal static class Program
             Directory.CreateDirectory(validRoot);
             File.WriteAllText(Path.Combine(validRoot, "mod.toml"),
                 Manifest("example.weapon", "1.0.0", ">=0.1 <1.0", "core", ">=1.0 <2.0"));
+            string spriteRoot = Path.Combine(validRoot, "assets", "sprites");
+            string modelRoot = Path.Combine(validRoot, "assets", "models");
+            Directory.CreateDirectory(spriteRoot);
+            Directory.CreateDirectory(modelRoot);
+            File.WriteAllBytes(Path.Combine(spriteRoot, "weapon.png"), new byte[] { 1, 2, 3, 4 });
+            File.WriteAllText(Path.Combine(spriteRoot, "weapon.sprite.toml"), "pivot = [0.5, 0.5]");
+            File.WriteAllText(Path.Combine(modelRoot, "mdl_weapon_example.xml"), "<Scene><Figures /></Scene>");
             Directory.CreateDirectory(Path.Combine(modsRoot, "notes"));
             ModDiscoveryResult discovery = ModDiscovery.DiscoverLoose(modsRoot);
             Assert(!discovery.HasErrors, "Valid loose discovery produced an error.");
             Assert(discovery.Mods.Count == 1 && discovery.Mods[0].Id.Value == "example.weapon",
                 "Loose mod discovery did not return the expected mod.");
             Assert(HasCode(discovery.Diagnostics, "MOD001"), "Directory-without-manifest warning was not produced.");
+
+            LooseModProvider loose = new LooseModProvider(discovery.Mods[0]);
+            AssetResolver resolver = new AssetResolver(new IAssetProvider[] { new FakeCoreProvider(), loose });
+            AssetId weapon = resolver.Qualify(discovery.Mods[0].Id, "Sprites/Weapon");
+            Assert(weapon.ToString() == "example.weapon:sprites/weapon", "Unqualified asset reference was not canonicalized.");
+            AssetMetadata weaponMeta;
+            Assert(resolver.TryDescribe(weapon, out weaponMeta), "Loose sprite was not described.");
+            Assert(weaponMeta.Kind == AssetKind.Sprite && weaponMeta.Format == ".png" && weaponMeta.Size == 4,
+                "Loose sprite metadata is wrong.");
+            AssetBytes weaponBytes;
+            Assert(resolver.TryRead(weapon, out weaponBytes), "Loose sprite bytes were not readable.");
+            Assert(weaponBytes.Data.Length == 4 && weaponBytes.Data[0] == 1 && weaponBytes.Data[3] == 4,
+                "Loose sprite bytes changed.");
+
+            AssetId modelId = AssetId.Parse("example.weapon:models/mdl_weapon_example");
+            AssetMetadata modelMeta;
+            Assert(resolver.TryDescribe(modelId, out modelMeta) && modelMeta.Kind == AssetKind.Model,
+                "Loose model was not indexed as a model.");
+            Assert(!resolver.TryDescribe(AssetId.Parse("other.mod:sprites/weapon"), out weaponMeta),
+                "Resolver crossed namespace ownership.");
+            AssetMetadata coreMeta;
+            Assert(resolver.TryDescribe(AssetId.Parse("core:ui/test"), out coreMeta) &&
+                coreMeta.SourceKind == AssetSourceKind.Core, "Core logical provider was not routed.");
+            Assert(!resolver.TryRead(AssetId.Parse("core:ui/test"), out weaponBytes),
+                "Logical-only core provider unexpectedly exposed raw bytes.");
+
+            bool duplicateNamespaceRejected = false;
+            try { new AssetResolver(new IAssetProvider[] { new FakeCoreProvider(), new FakeCoreProvider() }); }
+            catch (InvalidOperationException) { duplicateNamespaceRejected = true; }
+            Assert(duplicateNamespaceRejected, "Duplicate provider namespace was accepted.");
         }
         finally
         {

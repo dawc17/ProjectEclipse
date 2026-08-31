@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Eclipse.Content;
+using Eclipse.Modding;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -54,6 +55,18 @@ public static class ValidatePackagedArt
 
         Require(PackagedArtCatalog.Load<TextAsset>("gamedata/list") == null,
             "Art catalog overrides gameplay XML");
+
+        Require(PackagedArtCatalog.ContainsExactAddress("UI/Items/AgnisSeal"),
+            "Exact packaged address is not indexed");
+        Require(!PackagedArtCatalog.ContainsExactAddress("UI/Items/AgnisSeal.helm"),
+            "Exact-address API accepted a sprite-member compatibility alias");
+        var coreProvider = new CoreAssetProvider();
+        AssetMetadata coreAsset;
+        Require(coreProvider.TryDescribe(AssetId.Parse("core:UI/Items/AgnisSeal"), out coreAsset) &&
+            coreAsset.SourceKind == AssetSourceKind.Core,
+            "CoreAssetProvider did not expose packaged logical address");
+        Require(!coreProvider.TryDescribe(AssetId.Parse("core:UI/Items/does_not_exist"), out coreAsset),
+            "CoreAssetProvider resolved an unknown packaged address");
 
         string model = PackagedArtCatalog.LoadModelText("gamedata/models/mdl_skeleton");
         Require(!string.IsNullOrEmpty(model) && model.Contains("<Scene") && model.Contains("<Figures>"),
