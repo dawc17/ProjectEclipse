@@ -94,6 +94,11 @@ namespace Eclipse.Modding
 #endif
         }
 
+        public ModScriptSession StartScripts(IModScriptRuntime runtime, Action<ModLogEntry> logger = null)
+        {
+            return ModScriptSession.Start(this, runtime, logger);
+        }
+
         public string FormatReport()
         {
             var builder = new StringBuilder();

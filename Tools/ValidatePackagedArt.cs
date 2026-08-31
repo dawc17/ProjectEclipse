@@ -1,6 +1,7 @@
 // Isolated smoke fixture for the project-owned TAR/LZ4 art path. It has no ResearchSources,
 // recovered Android AssetBundles, or loose decoded sprite/audio payload tree.
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -144,6 +145,18 @@ public static class ValidatePackagedArt
             File.WriteAllText(Path.Combine(example, "assets", "models", "mdl_weapon_example.xml"),
                 "<Scene><Figures /></Scene>");
             File.WriteAllBytes(Path.Combine(example, "assets", "audio", "test.wav"), CreateTestWav());
+            Directory.CreateDirectory(Path.Combine(example, "scripts"));
+            File.WriteAllText(Path.Combine(example, "scripts", "helper.lua"),
+                "return { value = \"helper-ok\" }\n");
+            File.WriteAllText(Path.Combine(example, "scripts", "main.lua"),
+                "local sf2 = require(\"sf2\")\n" +
+                "assert(io == nil and os == nil and debug == nil and loadfile == nil and dofile == nil)\n" +
+                "assert(sf2.mod.id == \"example.weapon\")\n" +
+                "assert(sf2.assets.qualify(\"sprites/weapon\") == \"example.weapon:sprites/weapon\")\n" +
+                "assert(sf2.assets.exists(\"sprites/weapon\"))\n" +
+                "local helper = require(\"helper\")\n" +
+                "assert(helper.value == \"helper-ok\")\n" +
+                "sf2.mod.log(\"lua-entry-ok\")\n");
             File.WriteAllText(Path.Combine(example, "mod.toml"),
                 "schema = 1\n" +
                 "id = \"example.weapon\"\n" +
@@ -172,10 +185,29 @@ public static class ValidatePackagedArt
                 "id = \"missing.mod\"\n" +
                 "version = \">=1.0 <2.0\"\n");
 
+            string scriptFailure = Path.Combine(modsRoot, "script.failure");
+            Directory.CreateDirectory(Path.Combine(scriptFailure, "scripts"));
+            File.WriteAllText(Path.Combine(scriptFailure, "scripts", "main.lua"),
+                "require(\"../escape\")\n");
+            File.WriteAllText(Path.Combine(scriptFailure, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"script.failure\"\n" +
+                "name = \"Script Failure\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.1 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.register\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
             ModHost host = ModHost.Build(modsRoot);
             Require(host.HasErrors, "Broken loose mod did not surface diagnostics");
-            Require(host.EnabledMods.Count == 1 && host.EnabledMods[0].Id.Value == "example.weapon",
-                "Broken loose mod disabled the independent valid mod");
+            Require(host.EnabledMods.Count == 2 &&
+                host.EnabledMods.Any(x => x.Id.Value == "example.weapon") &&
+                host.EnabledMods.Any(x => x.Id.Value == "script.failure"),
+                "Dependency-invalid mod affected independently mountable mods");
             AssetMetadata metadata;
             Require(host.Assets.TryDescribe(AssetId.Parse("example.weapon:sprites/weapon"), out metadata) &&
                 metadata.Kind == AssetKind.Sprite, "ModHost did not mount loose sprite");
@@ -185,6 +217,16 @@ public static class ValidatePackagedArt
             Require(host.Assets.TryDescribe(AssetId.Parse("core:UI/Items/AgnisSeal"), out metadata),
                 "ModHost did not mount core provider");
             Require(host.FormatReport().Contains("DEP005"), "ModHost report omitted dependency diagnostic");
+
+            ModDescriptor exampleMod = host.EnabledMods.First(x => x.Id.Value == "example.weapon");
+            var policyApi = new ModApiFacade(exampleMod, host.Assets, null);
+            Require(policyApi.QualifyAsset("core:UI/Items/AgnisSeal").Namespace.Value == "core",
+                "Declared core dependency was rejected by cross-namespace asset policy");
+            bool undeclaredNamespaceRejected = false;
+            try { policyApi.QualifyAsset("script.failure:scripts/main"); }
+            catch (InvalidOperationException) { undeclaredNamespaceRejected = true; }
+            Require(undeclaredNamespaceRejected,
+                "Mod API allowed a cross-namespace asset reference without a declared dependency");
 
             Sprite looseSprite = host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/weapon"));
             Require(looseSprite != null && looseSprite.texture != null && looseSprite.texture.width == 2 &&
@@ -205,9 +247,33 @@ public static class ValidatePackagedArt
             string coreModel = host.TypedAssets.LoadModelText(AssetId.Parse("core:gamedata/models/mdl_skeleton"));
             Require(!string.IsNullOrEmpty(coreModel) && coreModel.Contains("<Scene"),
                 "Typed core model did not delegate to PackagedArtCatalog");
+
+            Require(host.Assets.TryDescribe(AssetId.Parse("example.weapon:scripts/main"), out metadata) &&
+                metadata.Kind == AssetKind.Text && metadata.Format == ".lua",
+                "Loose script source was not mounted in the virtual filesystem");
+            var scriptLogs = new List<ModLogEntry>();
+            var scriptRuntime = new MoonSharpScriptRuntime();
+            Require(scriptRuntime.Name.StartsWith("MoonSharp ", StringComparison.Ordinal),
+                "MoonSharp runtime did not report its interpreter identity");
+            using (ModScriptSession scripts = host.StartScripts(scriptRuntime, entry => scriptLogs.Add(entry)))
+            {
+                Require(scripts.HasErrors, "Failing Lua mod did not produce script diagnostics");
+                Require(scripts.ActiveMods.Count == 1 && scripts.ActiveMods[0].Id.Value == "example.weapon",
+                    "Failing Lua mod disabled the independent working script mod");
+                Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure" &&
+                    x.Message.Contains("Unsafe module name")),
+                    "Lua runtime failure was not attributed to the offending mod/source");
+                Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
+                    x.Message == "lua-entry-ok"),
+                    "Sandboxed Lua entrypoint did not execute/log through sf2.mod");
+            }
             host.Dispose();
 
             ModRuntime.Initialize(modsRoot);
+            ModScriptSession runtimeScripts = ModRuntime.StartScripts();
+            Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
+                runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure"),
+                "ModRuntime did not isolate the failing Lua mod during startup");
             Sprite bridgeLoose = ResourcesAndBundles.Load<Sprite>("example.weapon:sprites/weapon");
             Require(bridgeLoose != null && bridgeLoose.texture != null,
                 "ResourcesAndBundles did not route qualified loose sprite through ModRuntime");

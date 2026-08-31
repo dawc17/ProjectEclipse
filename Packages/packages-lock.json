@@ -340,6 +340,13 @@
         "com.unity.modules.jsonserialize": "1.0.0",
         "com.unity.modules.subsystems": "1.0.0"
       }
+    },
+    "org.moonsharp.moonsharp": {
+      "version": "https://github.com/moonsharp-devs/moonsharp.git?path=/interpreter#0fb8ba9106c44b140b8f56cb44cb1b50b358897c",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "0fb8ba9106c44b140b8f56cb44cb1b50b358897c"
     }
   }
 }

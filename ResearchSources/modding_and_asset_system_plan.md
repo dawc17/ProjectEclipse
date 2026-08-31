@@ -38,7 +38,7 @@ migration layers:
   ordering and consolidated diagnostics are implemented. Invalid mods no longer disable
   unrelated valid mods.
 - `AssetResolver` enforces one provider per namespace. `LooseModProvider` indexes safe
-  files below `<mod>/assets`, while `CoreAssetProvider` exposes exact
+  files below `<mod>/assets` and `<mod>/scripts`, while `CoreAssetProvider` exposes exact
   `PackagedArtCatalog` addresses as `core:*` without duplicating TAR decoding.
 - `ModHost` composes discovery, dependency resolution and providers, and the Unity editor
   has `SF2/Modding/Validate Loose Mods` for a consolidated report.
@@ -51,6 +51,19 @@ migration layers:
 - Explicit qualified paths are routed through `ModRuntime` before the recovered
   `ResourcesAndBundles` providers. Ordinary unqualified recovered resource paths remain on
   the existing path. Editor and standalone fixtures verify both paths side by side.
+- MoonSharp 3.0.0-beta.1 is pinned from the official repository at commit
+  `0fb8ba9106c44b140b8f56cb44cb1b50b358897c` using its `/interpreter` UPM package.
+- `IModScriptRuntime`, `IModScriptContext` and `ModApiFacade` keep MoonSharp types out of the
+  public runtime contracts. `MoonSharpScriptRuntime` uses `Preset_HardSandbox` and supplies a
+  project-owned `require` instead of enabling MoonSharp filesystem load methods.
+- Loose `scripts/*.lua` are mounted through the same namespaced provider. `require("sf2")`
+  currently exposes only `sf2.mod` metadata/logging and `sf2.assets.qualify/exists`; local
+  module `require` is restricted to the calling mod script namespace.
+- `ModScriptSession` executes entrypoints in resolved dependency order, retains successful
+  contexts for future callbacks, and isolates a failing script without disabling independent
+  mods. An attempted `require("../escape")` is rejected as `SCRIPT001`.
+- The clean Unity fixture now passes 45 editor checks and 52 Windows standalone checks with
+  MoonSharp, TAR/core assets, loose assets, script isolation and legacy loading together.
 - Runtime decoders already exist for PNG-backed sprites (including custom geometry),
   PCM16 WAV audio, model XML and location atlas/plist data.
 - Generic gameplay/config XML deliberately remains outside the TAR provider and stays
@@ -62,9 +75,11 @@ migration layers:
   the eventual on-demand/chunked performance goals in this document.
 
 Phase 2 still needs proper asset handles/scopes and preload/lifetime policy, but the first
-typed formats and legacy seam are functional. The next major subsystem is MoonSharp
-contexts and the script-facing facade, followed by definition registries and transactional
-registration.
+typed formats and legacy seam are functional. Phase 3 now has a working editor/player
+MoonSharp path, hard sandbox, virtual local `require`, minimal `sf2` facade and per-mod failure
+isolation. Before Phase 3 is closed, add runaway/instruction containment and finish the
+remaining conformance checks. Definition registries and transactional registration remain
+the next content-facing subsystem.
 
 ## 2. Goals
 

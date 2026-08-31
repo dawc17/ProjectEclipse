@@ -14,7 +14,8 @@ $sources = @(
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\DependencyResolver.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetProvider.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetResolver.cs'),
-    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs')
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModScripting.cs')
 )
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -153,6 +154,10 @@ internal static class Program
         Assert(manifest.Dependencies.Count == 1 && manifest.Dependencies[0].Id.Value == "core",
             "Manifest dependency was parsed incorrectly.");
         Assert(manifest.Entrypoint == "scripts/main.lua", "Entrypoint normalization is wrong.");
+        Reject(() => ModManifestReader.ParseExternal(
+            Manifest("bad.entrypoint", "1.0.0", ">=0.1 <1.0").Replace(
+                "entrypoint = \"scripts/main.lua\"", "entrypoint = \"main.lua\"")),
+            "Manifest entrypoint outside scripts/ was accepted.");
         Reject(() => ModManifestReader.ParseExternal(Manifest("core", "1.0.0", ">=0.1 <1.0")),
             "Reserved core manifest ID was accepted externally.");
         Reject(() => ModManifestReader.ParseExternal(

@@ -17,6 +17,7 @@ namespace Eclipse.Modding
         public ModDescriptor Mod { get; }
         public ModId Namespace => Mod.Id;
         public string AssetsRoot { get; }
+        public string ScriptsRoot { get; }
 
         public LooseModProvider(ModDescriptor mod)
         {
@@ -26,8 +27,11 @@ namespace Eclipse.Modding
 
             string modRoot = Path.GetFullPath(mod.RootPath);
             AssetsRoot = Path.GetFullPath(Path.Combine(modRoot, "assets"));
+            ScriptsRoot = Path.GetFullPath(Path.Combine(modRoot, "scripts"));
             EnsureContained(modRoot, AssetsRoot, "Loose assets root escapes the mod root.");
-            if (Directory.Exists(AssetsRoot)) IndexDirectory(AssetsRoot);
+            EnsureContained(modRoot, ScriptsRoot, "Loose scripts root escapes the mod root.");
+            if (Directory.Exists(AssetsRoot)) IndexDirectory(AssetsRoot, string.Empty);
+            if (Directory.Exists(ScriptsRoot)) IndexDirectory(ScriptsRoot, "scripts/");
         }
 
         public bool TryDescribe(AssetId id, out AssetMetadata metadata)
@@ -54,7 +58,7 @@ namespace Eclipse.Modding
             return true;
         }
 
-        private void IndexDirectory(string root)
+        private void IndexDirectory(string root, string logicalPrefix)
         {
             var pending = new Stack<string>();
             pending.Push(root);
@@ -76,22 +80,22 @@ namespace Eclipse.Modding
                 foreach (string file in files)
                 {
                     RejectReparsePoint(file);
-                    IndexFile(file);
+                    IndexFile(root, logicalPrefix, file);
                 }
             }
         }
 
-        private void IndexFile(string file)
+        private void IndexFile(string root, string logicalPrefix, string file)
         {
             string fullPath = Path.GetFullPath(file);
-            EnsureContained(AssetsRoot, fullPath, "Loose asset escapes assets root: " + file);
-            string relative = fullPath.Substring(AssetsRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length + 1)
+            EnsureContained(root, fullPath, "Loose file escapes its mod content root: " + file);
+            string relative = fullPath.Substring(root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length + 1)
                 .Replace('\\', '/');
 
             string extension = Path.GetExtension(relative);
             if (string.IsNullOrEmpty(extension))
                 throw new InvalidDataException("Loose mod asset has no file extension: " + relative);
-            string logicalPath = relative.Substring(0, relative.Length - extension.Length);
+            string logicalPath = logicalPrefix + relative.Substring(0, relative.Length - extension.Length);
             AssetId id = AssetId.Parse(Namespace.Value + ":" + logicalPath);
             AssetKind kind = GetKind(id.Path, extension);
 

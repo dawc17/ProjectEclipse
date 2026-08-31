@@ -6,9 +6,20 @@ namespace Eclipse.Modding
     public static class ModRuntime
     {
         private static ModHost _host;
+        private static ModScriptSession _scripts;
 
         public static bool IsInitialized => _host != null;
         public static ModHost Host => _host ?? InitializeDefault();
+        public static ModScriptSession Scripts => _scripts;
+
+        public static ModScriptSession StartScripts()
+        {
+            _scripts?.Dispose();
+            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript);
+            Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
+                " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
+            return _scripts;
+        }
 
         public static ModHost InitializeDefault()
         {
@@ -51,9 +62,19 @@ namespace Eclipse.Modding
 
         public static void Shutdown()
         {
+            _scripts?.Dispose();
+            _scripts = null;
             if (_host == null) return;
             _host.Dispose();
             _host = null;
+        }
+
+        private static void LogScript(ModLogEntry entry)
+        {
+            string message = "[Mod:" + entry.ModId + "] " + entry.Message;
+            if (entry.Level == ModLogLevel.Error) Debug.LogError(message);
+            else if (entry.Level == ModLogLevel.Warning) Debug.LogWarning(message);
+            else Debug.Log(message);
         }
 
         private static bool TryParseQualified(string reference, out AssetId id)

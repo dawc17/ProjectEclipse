@@ -30,7 +30,7 @@ foreach ($directory in @(
 }
 
 [IO.File]::WriteAllText((Join-Path $fixture 'Packages/manifest.json'),
-    '{"dependencies":{"com.unity.modules.audio":"1.0.0","com.unity.modules.imageconversion":"1.0.0","com.unity.modules.jsonserialize":"1.0.0","com.unity.modules.unitywebrequest":"1.0.0","com.unity.modules.ui":"1.0.0"}}')
+    '{"dependencies":{"com.unity.modules.audio":"1.0.0","com.unity.modules.imageconversion":"1.0.0","com.unity.modules.jsonserialize":"1.0.0","com.unity.modules.unitywebrequest":"1.0.0","com.unity.modules.ui":"1.0.0","org.moonsharp.moonsharp":"https://github.com/moonsharp-devs/moonsharp.git?path=/interpreter#0fb8ba9106c44b140b8f56cb44cb1b50b358897c"}}')
 [IO.File]::WriteAllText((Join-Path $fixture 'ProjectSettings/ProjectVersion.txt'), "m_EditorVersion: 2022.3.62f3`n")
 
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Content/PackagedArtCatalog.cs') -Destination (Join-Path $fixture 'Assets/PackagedArtCatalog.cs')

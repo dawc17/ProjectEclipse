@@ -105,8 +105,9 @@ namespace Eclipse.Modding
             string normalizedEntrypoint;
             string pathError;
             if (!ModIdentityRules.TryNormalizePath(entrypoint, out normalizedEntrypoint, out pathError) ||
+                !normalizedEntrypoint.StartsWith("scripts/", StringComparison.Ordinal) ||
                 !normalizedEntrypoint.EndsWith(".lua", StringComparison.Ordinal))
-                Fail(sourceName, 0, "Entrypoint must be a safe .lua path: '" + entrypoint + "'.");
+                Fail(sourceName, 0, "Entrypoint must be a safe scripts/*.lua path: '" + entrypoint + "'.");
 
             NormalizeSimpleList(authors, "author", sourceName, false);
             NormalizeSimpleList(capabilities, "capability", sourceName, true);
