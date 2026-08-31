@@ -77,9 +77,11 @@ migration layers:
 Phase 2 still needs proper asset handles/scopes and preload/lifetime policy, but the first
 typed formats and legacy seam are functional. Phase 3 now has a working editor/player
 MoonSharp path, hard sandbox, virtual local `require`, minimal `sf2` facade and per-mod failure
-isolation. Before Phase 3 is closed, add runaway/instruction containment and finish the
-remaining conformance checks. Definition registries and transactional registration remain
-the next content-facing subsystem.
+isolation. Entry points execute through MoonSharp's forced-yield coroutine support with a
+bounded bytecode-instruction budget; an infinite `while true do end` fixture is terminated as
+`SCRIPT001` while unrelated mods continue. Required Lua modules execute as VM tail calls inside
+the same bounded coroutine, so `require` cannot bypass the entrypoint budget. Definition
+registries and transactional registration are the next content-facing subsystem.
 
 ## 2. Goals
 

@@ -202,11 +202,29 @@ public static class ValidatePackagedArt
                 "id = \"core\"\n" +
                 "version = \">=1.0 <2.0\"\n");
 
+            string scriptRunaway = Path.Combine(modsRoot, "script.runaway");
+            Directory.CreateDirectory(Path.Combine(scriptRunaway, "scripts"));
+            File.WriteAllText(Path.Combine(scriptRunaway, "scripts", "main.lua"),
+                "while true do end\n");
+            File.WriteAllText(Path.Combine(scriptRunaway, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"script.runaway\"\n" +
+                "name = \"Script Runaway\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.1 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.register\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
             ModHost host = ModHost.Build(modsRoot);
             Require(host.HasErrors, "Broken loose mod did not surface diagnostics");
-            Require(host.EnabledMods.Count == 2 &&
+            Require(host.EnabledMods.Count == 3 &&
                 host.EnabledMods.Any(x => x.Id.Value == "example.weapon") &&
-                host.EnabledMods.Any(x => x.Id.Value == "script.failure"),
+                host.EnabledMods.Any(x => x.Id.Value == "script.failure") &&
+                host.EnabledMods.Any(x => x.Id.Value == "script.runaway"),
                 "Dependency-invalid mod affected independently mountable mods");
             AssetMetadata metadata;
             Require(host.Assets.TryDescribe(AssetId.Parse("example.weapon:sprites/weapon"), out metadata) &&
@@ -263,6 +281,9 @@ public static class ValidatePackagedArt
                 Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure" &&
                     x.Message.Contains("Unsafe module name")),
                     "Lua runtime failure was not attributed to the offending mod/source");
+                Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway" &&
+                    x.Message.Contains("instruction budget exceeded")),
+                    "Runaway Lua entrypoint was not stopped by the instruction budget");
                 Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
                     x.Message == "lua-entry-ok"),
                     "Sandboxed Lua entrypoint did not execute/log through sf2.mod");
@@ -272,7 +293,8 @@ public static class ValidatePackagedArt
             ModRuntime.Initialize(modsRoot);
             ModScriptSession runtimeScripts = ModRuntime.StartScripts();
             Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
-                runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure"),
+                runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
+                runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
             Sprite bridgeLoose = ResourcesAndBundles.Load<Sprite>("example.weapon:sprites/weapon");
             Require(bridgeLoose != null && bridgeLoose.texture != null,

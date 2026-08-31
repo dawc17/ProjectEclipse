@@ -10,6 +10,9 @@ namespace Eclipse.Modding
     {
         public const int MaxSourceBytes = 1024 * 1024;
         public const int MaxModules = 128;
+        public const long InstructionSlice = 50000;
+        public const int MaxInstructionSlices = 100;
+        public const long MaxEntrypointInstructions = InstructionSlice * MaxInstructionSlices;
 
         public string Name => "MoonSharp " + Script.VERSION;
 
@@ -51,7 +54,7 @@ namespace Eclipse.Modding
                 try
                 {
                     DynValue function = LoadChunk(EntrypointId(), sourceName);
-                    _script.Call(function);
+                    RunBounded(function, sourceName);
                 }
                 catch (InterpreterException exception)
                 {
@@ -92,14 +95,48 @@ namespace Eclipse.Modding
                     AssetId id = AssetId.Parse(Mod.Id.Value + ":scripts/" + canonical.Replace('.', '/'));
                     string sourceName = "scripts/" + canonical.Replace('.', '/') + ".lua";
                     DynValue function = LoadChunk(id, sourceName);
-                    DynValue value = _script.Call(function, DynValue.NewString(canonical));
-                    if (value == null || value.IsNil()) value = DynValue.True;
-                    _modules.Add(canonical, value);
-                    return value;
+                    return DynValue.NewTailCallReq(new TailCallData
+                    {
+                        Function = function,
+                        Args = new[] { DynValue.NewString(canonical) },
+                        Continuation = new CallbackFunction((ctx, returned) =>
+                        {
+                            DynValue value = returned.Count == 0 ? DynValue.True : returned[0].ToScalar();
+                            if (value == null || value.IsNil()) value = DynValue.True;
+                            _modules[canonical] = value;
+                            _loading.Remove(canonical);
+                            return value;
+                        }, "require:" + canonical)
+                    });
                 }
-                finally
+                catch
                 {
                     _loading.Remove(canonical);
+                    throw;
+                }
+            }
+
+            private DynValue RunBounded(DynValue function, string sourceName)
+            {
+                DynValue coroutineValue = _script.CreateCoroutine(function);
+                Coroutine coroutine = coroutineValue.Coroutine;
+                coroutine.AutoYieldCounter = InstructionSlice;
+
+                int forcedYields = 0;
+                while (true)
+                {
+                    DynValue result = coroutine.Resume();
+                    if (coroutine.State == CoroutineState.Dead) return result;
+                    if (coroutine.State == CoroutineState.ForceSuspended)
+                    {
+                        forcedYields++;
+                        if (forcedYields >= MaxInstructionSlices)
+                            throw new ScriptRuntimeException("Execution instruction budget exceeded in '" +
+                                sourceName + "' (limit " + MaxEntrypointInstructions + ").");
+                        continue;
+                    }
+
+                    throw new ScriptRuntimeException("Unexpected Lua yield in '" + sourceName + "'.");
                 }
             }
 
