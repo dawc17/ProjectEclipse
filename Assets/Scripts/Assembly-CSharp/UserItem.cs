@@ -405,7 +405,7 @@ public class UserItem
 		Recipe recipe = recipeItem.OIMGNCLBPHD();
 		if (recipe == null) return false;
 		XmlNode node = _Node["RecipeDelivery"] ?? _Node.ACBPMPMPKJJ("RecipeDelivery");
-		SetNodeAttribute(node, "Name", recipe.get_Name());
+		SetNodeAttribute(node, "Name", recipe.Name);
 		SetNodeAttribute(node, "ItemLevel", recipeItem.ItemLevel.ToString());
 		SetNodeAttribute(node, "PlayerLevel", recipeItem.PlayerLevel.ToString());
 		SetNodeAttribute(node, "DeliveryTime", recipeItem.RecipeDeliveryTime.ToString());

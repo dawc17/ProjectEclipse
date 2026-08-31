@@ -45,7 +45,6 @@ public class Recipe
 				if (variation.NodeType == XmlNodeType.Element && variation.Name == "Variation") _variations.Add(new Variation(variation));
 	}
 
-	public string get_Name() => _name;
 
 	public RecipePrice GetPriceByItem(UserItem userItem)
 	{

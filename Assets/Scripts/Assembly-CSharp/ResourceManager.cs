@@ -24,6 +24,11 @@ public static class ResourceManager
 
 	public static byte[] GetBinary(string DCOPLCIFCFL)
 	{
+#if UNITY_EDITOR
+		byte[] previewAnimation;
+		if (Eclipse.Content.LocalAnimationPreview.TryGetBinary(DCOPLCIFCFL, out previewAnimation))
+			return previewAnimation;
+#endif
 		if (SF2Paths.CGOHPKEBECD)
 		{
 			DCOPLCIFCFL = DCOPLCIFCFL.TrimStart('\\', '/');

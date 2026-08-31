@@ -713,6 +713,7 @@ public class Roster : MELBIBHDPCE
 		EOPPBJKPKGD(node.Attributes["RaidMapFocus"].CIPOICEEIBK(string.Empty));
 		COKACMKOIGD(node.Attributes["Language"].CIPOICEEIBK(string.Empty));
 		AJGEKAADGEJ = node.Attributes["ShowUpgrades"].ParseBool();
+		NPEENBBIFFB = node.Attributes["ShowForge"].ParseBool();
 		NDIEOONABLA = node.Attributes["TrySocialLogin"].ParseBool(true);
 		GKIONOFPEGB = node.Attributes["PeriodicPlayTime"].ParseLong(0L);
 		OFKGMKADHBD = node.Attributes["CurrentZone"].CIPOICEEIBK(string.Empty);

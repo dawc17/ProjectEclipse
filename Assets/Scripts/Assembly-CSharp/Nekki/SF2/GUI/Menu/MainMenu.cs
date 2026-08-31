@@ -902,6 +902,10 @@ namespace Nekki.SF2.GUI.Menu
 
 		private void BHBADDAEICJ(bool DGNLFEPIANN)
 		{
+			if (_materials != null)
+			{
+				_materials.gameObject.SetActive(false);
+			}
 		}
 
 		private void DMNJFBBNOOO()
@@ -911,6 +915,12 @@ namespace Nekki.SF2.GUI.Menu
 
 		private void PDBCNNFEMJA(bool DGNLFEPIANN)
 		{
+			GAAPKDHPJNB();
+			if (_materials != null)
+			{
+				_materials.gameObject.SetActive(true);
+				_materials.UpdateView();
+			}
 		}
 
 		private void GAAPKDHPJNB()

@@ -14,6 +14,9 @@ public static class MovesParser
 	{
 		MovesMaps.Init();
 		XmlDocument xmlDocument = XmlUtils.OpenXMLDocument(path + "/moves.xml", string.Empty);
+#if UNITY_EDITOR
+		Eclipse.Content.LocalAnimationPreview.Apply(xmlDocument);
+#endif
 		XmlNode aFHNINCKJEE = xmlDocument["Movesxml"]["Templates"];
 		XmlNode iLCCDINCICK = xmlDocument["Movesxml"]["Moves"];
 		XmlNode hKPPBKPJOEO = xmlDocument["Movesxml"]["Triggers"];

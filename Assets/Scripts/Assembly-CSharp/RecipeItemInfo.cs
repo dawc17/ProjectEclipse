@@ -1,6 +1,7 @@
 using System;
 using System.Xml;
 using CodeStage.AntiCheat.ObscuredTypes;
+using Nekki.Utils;
 
 public class RecipeItemInfo : ItemInfo
 {
@@ -19,7 +20,7 @@ public class RecipeItemInfo : ItemInfo
 	public int ItemLevel => (int)MDKBMLJNAGK;
 	public int PlayerLevel => (int)FKPHJOEDCDJ;
 	public long RecipeDeliveryTime => _RecipeDeliveryTime;
-	public long TimeLeft => Math.Max(0L, _RecipeDeliveryTime - ListSF.BLBNJKJKMBM());
+	public long TimeLeft => Math.Max(0L, _RecipeDeliveryTime - CurrentTimeSeconds());
 	public bool IsStillInOrder => _RecipeDeliveryTime > 0L && TimeLeft > 0L;
 	public string ItemAndRecipeInfo => Name;
 
@@ -31,7 +32,7 @@ public class RecipeItemInfo : ItemInfo
 		Type = "Recipe";
 		if (price != null && price.DeliveryTime > 0)
 		{
-			_RecipeDeliveryTime = ListSF.BLBNJKJKMBM() + price.DeliveryTime;
+			_RecipeDeliveryTime = CurrentTimeSeconds() + price.DeliveryTime;
 			KLHOKKPALOK = price.BonusDeliveryPrice;
 		}
 		else
@@ -47,7 +48,7 @@ public class RecipeItemInfo : ItemInfo
 		Roster roster = ListSF.CCDKHLAMKKO();
 		FKPHJOEDCDJ = (uint)Math.Max(0, roster == null ? 0 : roster.PINDEKDNCNL());
 		Name = (userItem == null ? string.Empty : userItem.get_Name()) + "|" +
-			(recipe == null ? string.Empty : recipe.get_Name());
+			(recipe == null ? string.Empty : recipe.Name);
 	}
 
 	public RecipeItemInfo(XmlNode node, UserItem userItem)
@@ -62,6 +63,12 @@ public class RecipeItemInfo : ItemInfo
 		Type = "Recipe";
 		if (HKBJMPIJOOA != null) KLHOKKPALOK = HKBJMPIJOOA.BonusDeliveryPrice;
 		Name = (userItem == null ? string.Empty : userItem.get_Name()) + "|" + recipeName;
+	}
+
+	private static long CurrentTimeSeconds()
+	{
+		long currentTime = ListSF.IDMJOMOMDOJ();
+		return currentTime > 0L ? currentTime : GlobalTimer.get_GetTime();
 	}
 
 	public Recipe OIMGNCLBPHD() => KFAHMNKAMKC;

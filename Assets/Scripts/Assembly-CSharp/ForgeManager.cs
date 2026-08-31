@@ -262,7 +262,7 @@ public class ForgeManager : global::EventDispatcher<object>
 		if (list == null) return;
 		QuestParameters parameters = list.BNMLDPNCMLB();
 		parameters.DPLEGFCHOCE.OHCGEEEKEJH = userItem.get_Name();
-		parameters.DPLEGFCHOCE.FHELNNCGCGC = recipe.get_Name();
+		parameters.DPLEGFCHOCE.FHELNNCGCGC = recipe.Name;
 		parameters.DPLEGFCHOCE.BMNFPNBAMAF = 0L;
 		parameters.DPLEGFCHOCE.MECEADEKGJB = string.Empty;
 		if (list.FFBAJNGHGGD(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_ENCHANTMENT)) list.MHHNIPBJNAD();

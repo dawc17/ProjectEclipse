@@ -395,6 +395,26 @@ public class UserItems
 		return list;
 	}
 
+	public bool FinishDeliveryRecipe(RecipeItemInfo recipeItem, bool runEvent = true)
+	{
+		if (recipeItem == null || recipeItem.MFEAIEJFDAM() == null) return false;
+		RecipeItemInfo pending = recipeItem.MFEAIEJFDAM().PHDBCIHJKON();
+		if (pending == null || pending.ItemAndRecipeInfo != recipeItem.ItemAndRecipeInfo) return false;
+		if (!ForgeManager.ELEBLBJKDBI().FinishEnchant(pending)) return false;
+		if (!LFADKPKKFMP.Contains(pending)) LFADKPKKFMP.Add(pending);
+		if (runEvent)
+		{
+			Roster roster = ListSF.CCDKHLAMKKO();
+			if (roster != null) roster.CallEvent(1, pending);
+		}
+		return true;
+	}
+
+	public List<RecipeItemInfo> GetRecipesDelivered()
+	{
+		return LFADKPKKFMP;
+	}
+
 	public void UpdateLockItems(int OMHDLKNHNMJ)
 	{
 		List<ItemInfo> list = ListSF.DJBOFEEKJMP().HCDLKHKBEPF();

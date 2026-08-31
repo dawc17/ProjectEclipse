@@ -712,7 +712,21 @@ public class ListSF
 
 	public static bool PIFPAMKOPFK(RecipeItemInfo AJBJAPPEAFH, ItemAction LFLGCDNKNJI, long FLCBMGGIDDA, long BMNFPNBAMAF, int count = 1)
 	{
-		return true;
+		if (AJBJAPPEAFH == null || LFLGCDNKNJI != ItemAction.Item_Recipe_Delivery_Ruby) return false;
+		return ApplyRecipeToItem(AJBJAPPEAFH);
+	}
+
+	public static bool TryEnchantItem(UserItem userItem, Recipe recipe)
+	{
+		if (userItem == null || recipe == null) return false;
+		RecipeItemInfo recipeItem;
+		return ForgeManager.ELEBLBJKDBI().StartEnchant(userItem, recipe, out recipeItem);
+	}
+
+	public static bool ApplyRecipeToItem(RecipeItemInfo recipeItem)
+	{
+		Roster roster = CCDKHLAMKKO();
+		return roster != null && roster.KHCNHPCPFII().FinishDeliveryRecipe(recipeItem);
 	}
 
 	public static bool AFGHCIDFAHB(UserItem NDMCFNGEPOA, bool JBCMFEPAKLK, bool CMDMHFKJBHB = true)
@@ -2888,6 +2902,10 @@ public class ListSF
 		List<RecipeItemInfo> list = ANEHEDFAPCH.KHCNHPCPFII().PHKEAPFEOLP();
 		foreach (RecipeItemInfo item in list)
 		{
+			if (item != null && item.HGDELDFDFNH() > 0L && item.HGDELDFDFNH() <= time)
+			{
+				ApplyRecipeToItem(item);
+			}
 		}
 	}
 

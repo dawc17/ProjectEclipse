@@ -63,6 +63,8 @@ namespace Nekki.SF2.GUI.Shop
 		[SerializeField]
 		private CanvasGroup _shopUIGroup;
 
+		private Eclipse.Forge.ShopForgeController _forgeController;
+
 		[SerializeField]
 		private GameObject _infoPanelContentPrefab;
 
@@ -281,6 +283,11 @@ namespace Nekki.SF2.GUI.Shop
 			_shopTableView.onSelectCell.AddListener(KPFEGEHJMOH);
 			_shopTableView.set_MinScrollVelocity(100f);
 			_shopTableView.get_Scroll().onDragBegin.AddListener(_hintPanel.HideHintAndStopCorutine);
+			if (_tryItemButton != null)
+			{
+				Transform forgeParent = _shopUIGroup != null ? _shopUIGroup.transform : transform;
+				_forgeController = new Eclipse.Forge.ShopForgeController(this, _mainMenu, _tryItemButton, forgeParent, KDFADLAANLM, _shopTableView != null ? _shopTableView.transform.parent as RectTransform : null, _itemParam != null ? _itemParam.transform as RectTransform : null, _itemProperties != null ? _itemProperties.transform as RectTransform : null);
+			}
 			if (_modelContainer != null)
 			{
 				_modelContainer.Init();
@@ -301,6 +308,8 @@ namespace Nekki.SF2.GUI.Shop
 
 		protected override void PJNFHNFLNNO()
 		{
+			_forgeController?.Shutdown();
+			_forgeController = null;
 			RememberFocus();
 			UpdateNewItemsCounters();
 			ODCDHJGNPEM.get_OnProductsUpdateEvent().RemoveListener(LCHCKOKGFHK);
@@ -331,6 +340,7 @@ namespace Nekki.SF2.GUI.Shop
 				{
 					FMJNALPHGGF(shopTableViewCell.get_ItemInfo());
 				}
+				_forgeController?.OnItemSelected(shopTableViewCell.get_ItemInfo());
 			}
 		}
 
@@ -856,6 +866,46 @@ namespace Nekki.SF2.GUI.Shop
 			{
 				AIEKLCMEKMI.UpdateContent();
 			}
+			_forgeController?.Tick();
+		}
+
+		public bool IsForgeCanBeOpened()
+		{
+			return _forgeController != null && _forgeController.CanOpen();
+		}
+
+		public bool OpenForgeAndSetRecipe(string recipeName)
+		{
+			return _forgeController != null && _forgeController.Open(recipeName);
+		}
+
+		public void RestoreForgeClosedState()
+		{
+			bool hasSelection = NNACFMKLHIB != null && NNACFMKLHIB.get_ItemInfo() != null;
+			ShowSidePanels(hasSelection);
+			if (_tryItemButton != null)
+			{
+				if (hasSelection) FMJNALPHGGF(NNACFMKLHIB.get_ItemInfo());
+				else _tryItemButton.gameObject.SetActive(false);
+			}
+		}
+
+		public void RefreshAfterForgeMutation()
+		{
+			ItemInfo selectedInfo = NNACFMKLHIB != null ? NNACFMKLHIB.get_ItemInfo() : null;
+			PHKKGEMDCNG();
+			if (selectedInfo == null) return;
+
+			if (AIEKLCMEKMI != null) AIEKLCMEKMI.SetItemInfo(selectedInfo);
+			if (JMJOHONKDDO != null) JMJOHONKDDO.UpdateParameters(selectedInfo);
+			if (KDFADLAANLM != null) KDFADLAANLM.SetItemInfo(selectedInfo);
+			if (_itemProperties != null)
+			{
+				bool hasEnchantments = ListSF.EIMKEJNJMEJ(selectedInfo).Count > 0;
+				_itemProperties.set_OpenImage(hasEnchantments ? NGNPGDAKHJJ : AGPCJDDILHK);
+				_itemProperties.set_CloseImage(hasEnchantments ? GHHDJJEMHAN : PIDAKCDGJFH);
+			}
+			if (_tryItemButton != null) FMJNALPHGGF(selectedInfo);
 		}
 
 		private void HCONMLFJGII(ItemInfo DDCFPIDHLGJ = null)
