@@ -32,12 +32,18 @@ namespace Eclipse.Forge
 		private readonly RectTransform _itemsRoot;
 		private readonly RectTransform _parametersRoot;
 		private readonly RectTransform _propertiesRoot;
+		private readonly RectTransform _sidePanelsRoot;
+		private readonly Vector2 _itemsNormalPosition;
+		private readonly Vector2 _sidePanelsNormalPosition;
 		private readonly List<Recipe> _displayedRecipes = new List<Recipe>();
 		private readonly List<RecipeCard> _recipeCards = new List<RecipeCard>();
 
 		private GameObject _drawer;
 		private ScrollRect _recipeScroll;
 		private RectTransform _recipeContent;
+		private GameObject _shopButtonsContainer;
+		private Transform _tryOriginalParent;
+		private int _tryOriginalSiblingIndex;
 		private GameObject _propertyControls;
 		private GameObject _deliveryPanel;
 		private Text _deliveryText;
@@ -75,6 +81,9 @@ namespace Eclipse.Forge
 			_itemsRoot = itemsRoot;
 			_parametersRoot = parametersRoot;
 			_propertiesRoot = propertiesRoot;
+			_sidePanelsRoot = (_parametersRoot != null ? _parametersRoot.parent : _propertiesRoot?.parent) as RectTransform;
+			_itemsNormalPosition = _itemsRoot != null ? _itemsRoot.anchoredPosition : Vector2.zero;
+			_sidePanelsNormalPosition = _sidePanelsRoot != null ? _sidePanelsRoot.anchoredPosition : Vector2.zero;
 			CreateUi();
 		}
 
@@ -164,6 +173,16 @@ namespace Eclipse.Forge
 			SetShopForgeOffset(false);
 			if (_isOpen) _mainMenu?.SetNormalViewMode(false);
 			if (_driver != null) UnityEngine.Object.Destroy(_driver);
+			if (_shopButtonsContainer != null)
+			{
+				if (_buttonTemplate != null && _tryOriginalParent != null)
+				{
+					_buttonTemplate.transform.SetParent(_tryOriginalParent, false);
+					_buttonTemplate.transform.SetSiblingIndex(_tryOriginalSiblingIndex);
+				}
+				UnityEngine.Object.Destroy(_shopButtonsContainer);
+			}
+			else if (_forgeOpenButton != null) UnityEngine.Object.Destroy(_forgeOpenButton.gameObject);
 			if (_drawer != null) UnityEngine.Object.Destroy(_drawer);
 			if (_propertyControls != null) UnityEngine.Object.Destroy(_propertyControls);
 			_recipeCards.Clear();
@@ -174,6 +193,7 @@ namespace Eclipse.Forge
 		private void CreateUi()
 		{
 			if (_shop == null || _buttonTemplate == null || _uiParent == null) return;
+			CreateShopForgeButton();
 			CreatePropertyControls();
 			CreateRecipeDrawer();
 
@@ -183,9 +203,57 @@ namespace Eclipse.Forge
 			RefreshPropertyControls();
 		}
 
+		private void CreateShopForgeButton()
+		{
+			// 1.0.6 Shop.unity: TryItemButton and ForgeButton are siblings under a
+			// 600x265 ButtonsContainer with a VerticalLayoutGroup (12px spacing,
+			// middle-center alignment). The recovered older scene predates that
+			// container and leaves TryItemButton directly under ShopUIGroup.
+			_tryOriginalParent = _buttonTemplate.transform.parent != null ? _buttonTemplate.transform.parent : _uiParent;
+			_tryOriginalSiblingIndex = _buttonTemplate.transform.GetSiblingIndex();
+			RectTransform sourceRect = _buttonTemplate.GetComponent<RectTransform>();
+
+			_shopButtonsContainer = new GameObject("ButtonsContainer", typeof(RectTransform), typeof(VerticalLayoutGroup));
+			_shopButtonsContainer.layer = _tryOriginalParent.gameObject.layer;
+			_shopButtonsContainer.transform.SetParent(_tryOriginalParent, false);
+			_shopButtonsContainer.transform.SetSiblingIndex(_tryOriginalSiblingIndex);
+			RectTransform containerRect = _shopButtonsContainer.GetComponent<RectTransform>();
+			containerRect.anchorMin = containerRect.anchorMax = new Vector2(0.5f, 0.5f);
+			containerRect.pivot = new Vector2(0.5f, 0.5f);
+			containerRect.anchoredPosition = sourceRect != null ? sourceRect.anchoredPosition : new Vector2(-710f, 325f);
+			containerRect.sizeDelta = new Vector2(600f, 265f);
+
+			VerticalLayoutGroup layout = _shopButtonsContainer.GetComponent<VerticalLayoutGroup>();
+			layout.padding = new RectOffset(0, 0, 0, 0);
+			layout.childAlignment = TextAnchor.MiddleCenter;
+			layout.spacing = 12f;
+			layout.childForceExpandWidth = true;
+			layout.childForceExpandHeight = true;
+			layout.childControlWidth = false;
+			layout.childControlHeight = false;
+
+			_buttonTemplate.transform.SetParent(_shopButtonsContainer.transform, false);
+			RectTransform tryRect = _buttonTemplate.GetComponent<RectTransform>();
+			if (tryRect != null) tryRect.sizeDelta = new Vector2(486f, 112f);
+
+			_forgeOpenButton = UnityEngine.Object.Instantiate(_buttonTemplate, _shopButtonsContainer.transform, false);
+			_forgeOpenButton.name = "ForgeButton";
+			_forgeOpenButton.gameObject.layer = _shopButtonsContainer.layer;
+			_forgeOpenButton.onClick.RemoveAllListeners();
+			_forgeOpenButton.SetColor(LabelButton.FBMGEHJPPIK.BUTTON_GREEN);
+			_forgeOpenButton.SetAlias("btnEnchantment");
+			_forgeOpenButton.onClick.AddListener(() => Open());
+			RectTransform forgeRect = _forgeOpenButton.GetComponent<RectTransform>();
+			if (forgeRect != null) forgeRect.sizeDelta = new Vector2(486f, 112f);
+		}
+
 		private void CreatePropertyControls()
 		{
-			Transform parent = _propertiesContent != null ? _propertiesContent.transform : _uiParent;
+			// 1.0.6 PropertiesPanelContent.prefab owns its forge action controls.
+			// They live in a final 242px layout block with 15px side/bottom padding,
+			// 15px vertical spacing and lower-center alignment.
+			Transform parent = _propertiesContent != null ? _propertiesContent.transform : _propertiesRoot;
+			if (parent == null) parent = _uiParent;
 			_propertyControls = new GameObject("ForgeButtonsPanel", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(LayoutElement));
 			_propertyControls.layer = parent.gameObject.layer;
 			_propertyControls.transform.SetParent(parent, false);
@@ -203,13 +271,9 @@ namespace Eclipse.Forge
 			layout.childForceExpandHeight = false;
 
 			_deliveryPanel = CreateDeliveryPanel(_propertyControls.transform);
-
 			_skipButton = CloneLayoutButton("SkipDeliveryButton", _propertyControls.transform, LabelButton.FBMGEHJPPIK.BUTTON_GREEN, string.Empty);
 			_skipButton.onClick.AddListener(SkipDelivery);
 			CreateButtonIcon(_skipButton.transform, "MiscSprites.ruby");
-
-			_forgeOpenButton = CloneLayoutButton("ForgeOpenButton", _propertyControls.transform, LabelButton.FBMGEHJPPIK.BUTTON_GREEN, "btnEnchantment");
-			_forgeOpenButton.onClick.AddListener(() => Open());
 
 			_applyButton = CloneLayoutButton("EnchantApplyButton", _propertyControls.transform, LabelButton.FBMGEHJPPIK.BUTTON_WHITE, "btnApply");
 			_applyButton.onClick.AddListener(StartEnchant);
@@ -247,7 +311,7 @@ namespace Eclipse.Forge
 
 		private void CreateRecipeDrawer()
 		{
-			_drawer = new GameObject("EclipseForgePanel", typeof(RectTransform));
+			_drawer = new GameObject("EclipseForgePanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(ResolutionImage));
 			_drawer.layer = _uiParent.gameObject.layer;
 			_drawer.transform.SetParent(_uiParent, false);
 			_drawer.transform.SetAsLastSibling();
@@ -256,6 +320,11 @@ namespace Eclipse.Forge
 			drawerRect.pivot = new Vector2(0f, 0.5f);
 			drawerRect.anchoredPosition = new Vector2(0f, 42f);
 			drawerRect.sizeDelta = new Vector2(670f, 902f);
+			ResolutionImage drawerBackground = _drawer.GetComponent<ResolutionImage>();
+			drawerBackground.raycastTarget = true;
+			drawerBackground.set_TexturePath("UI/Atlases/");
+			drawerBackground.set_SpriteName("ShopPieces.Info_Panel");
+			drawerBackground.type = Image.Type.Sliced;
 
 			GameObject viewport = new GameObject("TableView", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
 			viewport.layer = _drawer.layer;
@@ -268,31 +337,31 @@ namespace Eclipse.Forge
 			Image hitSurface = viewport.GetComponent<Image>();
 			hitSurface.color = new Color(0f, 0f, 0f, 0.001f);
 
-			GameObject content = new GameObject("Content", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(ContentSizeFitter));
+			GameObject content = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
 			content.layer = _drawer.layer;
 			content.transform.SetParent(viewport.transform, false);
 			_recipeContent = content.GetComponent<RectTransform>();
-			_recipeContent.anchorMin = new Vector2(0f, 0.5f);
-			_recipeContent.anchorMax = new Vector2(0f, 0.5f);
-			_recipeContent.pivot = new Vector2(0f, 0.5f);
+			_recipeContent.anchorMin = new Vector2(0.5f, 1f);
+			_recipeContent.anchorMax = new Vector2(0.5f, 1f);
+			_recipeContent.pivot = new Vector2(0.5f, 1f);
 			_recipeContent.anchoredPosition = Vector2.zero;
 			_recipeContent.sizeDelta = new Vector2(RecipeCellWidth, RecipeCellHeight);
-			HorizontalLayoutGroup horizontal = content.GetComponent<HorizontalLayoutGroup>();
-			horizontal.spacing = 0f;
-			horizontal.childAlignment = TextAnchor.MiddleLeft;
-			horizontal.childControlWidth = true;
-			horizontal.childControlHeight = true;
-			horizontal.childForceExpandWidth = false;
-			horizontal.childForceExpandHeight = false;
+			VerticalLayoutGroup vertical = content.GetComponent<VerticalLayoutGroup>();
+			vertical.spacing = 0f;
+			vertical.childAlignment = TextAnchor.UpperCenter;
+			vertical.childControlWidth = true;
+			vertical.childControlHeight = true;
+			vertical.childForceExpandWidth = false;
+			vertical.childForceExpandHeight = false;
 			ContentSizeFitter fitter = content.GetComponent<ContentSizeFitter>();
-			fitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
-			fitter.verticalFit = ContentSizeFitter.FitMode.Unconstrained;
+			fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+			fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
 			_recipeScroll = viewport.GetComponent<ScrollRect>();
 			_recipeScroll.viewport = viewportRect;
 			_recipeScroll.content = _recipeContent;
-			_recipeScroll.horizontal = true;
-			_recipeScroll.vertical = false;
+			_recipeScroll.horizontal = false;
+			_recipeScroll.vertical = true;
 			_recipeScroll.movementType = ScrollRect.MovementType.Elastic;
 			_recipeScroll.inertia = true;
 			_recipeScroll.decelerationRate = 0.135f;
@@ -403,7 +472,7 @@ namespace Eclipse.Forge
 			areaRect.anchoredPosition = new Vector2(0f, 66f);
 			areaRect.sizeDelta = new Vector2(515f, 290f);
 
-			ResolutionImage icon = CreateSprite("Icon", area.transform, "MiscSprites.random", new Vector2(74f, 67f));
+			ResolutionImage icon = CreateSprite("Icon", area.transform, "RaidMisc.random", new Vector2(74f, 67f));
 			RectTransform iconRect = icon.rectTransform;
 			iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, 0.5f);
 			iconRect.pivot = new Vector2(0f, 0.5f);
@@ -497,7 +566,7 @@ namespace Eclipse.Forge
 			if (scrollIntoView && _displayedRecipes.Count > 1)
 			{
 				_ignoreScrollSelection = true;
-				_recipeScroll.horizontalNormalizedPosition = index / (float)(_displayedRecipes.Count - 1);
+				_recipeScroll.verticalNormalizedPosition = 1f - index / (float)(_displayedRecipes.Count - 1);
 				_ignoreScrollSelection = false;
 			}
 			RefreshPropertyControls();
@@ -506,7 +575,7 @@ namespace Eclipse.Forge
 		private void OnRecipeScrollChanged(Vector2 position)
 		{
 			if (_ignoreScrollSelection || _displayedRecipes.Count <= 1) return;
-			int index = Mathf.Clamp(Mathf.RoundToInt(position.x * (_displayedRecipes.Count - 1)), 0, _displayedRecipes.Count - 1);
+			int index = Mathf.Clamp(Mathf.RoundToInt((1f - position.y) * (_displayedRecipes.Count - 1)), 0, _displayedRecipes.Count - 1);
 			if (_selectedRecipe != _displayedRecipes[index]) SelectRecipe(index, false);
 		}
 
@@ -530,9 +599,12 @@ namespace Eclipse.Forge
 			RecipeItemInfo pending = _selectedItem?.PHDBCIHJKON();
 			bool canOpen = CanOpen();
 
+			_propertyControls.SetActive(_isOpen || pending != null);
 			_deliveryPanel.SetActive(pending != null);
 			_skipButton.gameObject.SetActive(pending != null);
-			_forgeOpenButton.gameObject.SetActive(!_isOpen && pending == null && canOpen);
+			bool showForgeButton = ShouldShowForgeButton();
+			_forgeOpenButton.gameObject.SetActive(!_isOpen && showForgeButton);
+			_forgeOpenButton.interactable = pending == null && canOpen;
 			_applyButton.gameObject.SetActive(_isOpen && pending == null);
 			_closeButton.gameObject.SetActive(_isOpen);
 
@@ -589,11 +661,25 @@ namespace Eclipse.Forge
 		private void SetShopForgeOffset(bool forgeMode)
 		{
 			if (_layoutOffsetApplied == forgeMode) return;
-			float offset = forgeMode ? ForgeModeOffset : -ForgeModeOffset;
-			if (_itemsRoot != null) _itemsRoot.anchoredPosition += new Vector2(offset, 0f);
-			if (_parametersRoot != null) _parametersRoot.anchoredPosition += new Vector2(offset, 0f);
-			if (_propertiesRoot != null) _propertiesRoot.anchoredPosition += new Vector2(offset, 0f);
+			Vector2 forgeOffset = forgeMode ? new Vector2(ForgeModeOffset, 0f) : Vector2.zero;
+
+			// The intact ShopScene moves one _PanelsContainer by _ForgeModeX.  This
+			// recovered scene split that container into two top-level groups: the item
+			// scroller and the side panels. Move each group once; never move the
+			// Parameters/Properties children independently or the shop tears apart.
+			if (_itemsRoot != null) _itemsRoot.anchoredPosition = _itemsNormalPosition + forgeOffset;
+			if (_sidePanelsRoot != null && _sidePanelsRoot != _itemsRoot)
+				_sidePanelsRoot.anchoredPosition = _sidePanelsNormalPosition + forgeOffset;
 			_layoutOffsetApplied = forgeMode;
+		}
+
+		private bool ShouldShowForgeButton()
+		{
+			Roster roster = ListSF.CCDKHLAMKKO();
+			if (roster == null || !roster.IIEHAMOGEHM || _selectedItem == null || _selectedItem.OFOPFCJNEBL() <= 0)
+				return false;
+			ItemInfo info = CurrentInfo(_selectedItem);
+			return info != null && ForgeManager.ELEBLBJKDBI().IsAvailableRecipesForItemType(info.Type);
 		}
 
 		private void ResolveSelectedItem()

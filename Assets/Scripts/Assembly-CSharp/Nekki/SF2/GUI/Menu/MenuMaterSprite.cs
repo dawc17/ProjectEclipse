@@ -28,7 +28,14 @@ namespace Nekki.SF2.GUI.Menu
 			JJPFBOKGIEF = MDDNHLBDJBN;
 			_value = ListSF.CCDKHLAMKKO().GetCurrencyCount(JJPFBOKGIEF);
 			string mJBPMLCLMFN = JJPFBOKGIEF.MJBPMLCLMFN;
-			_icon.sprite = Resources.Load(mJBPMLCLMFN, typeof(Sprite)) as Sprite;
+			if (_icon != null)
+			{
+				_icon.sprite = Nekki.SF2.GUI.ResolutionImage.GetSprite("UI/Atlases/", mJBPMLCLMFN);
+			}
+			if (_valueLbl != null)
+			{
+				_valueLbl.text = _value.ToString();
+			}
 		}
 
 		public void UpdateView()

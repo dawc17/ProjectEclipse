@@ -834,8 +834,8 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SysDlg.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonPropertyCollection.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ServerSentEventsTransport.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Serializer.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElement.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Serializer.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GUIMessageList.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BHJHIPILHJB.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DocumentLoadingState.cs" />
