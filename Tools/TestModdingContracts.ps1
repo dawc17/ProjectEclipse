@@ -4,7 +4,14 @@ $root = Split-Path -Parent $PSScriptRoot
 $sources = @(
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModId.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetId.cs'),
-    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\DefinitionId.cs')
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\DefinitionId.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\SemanticVersion.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\VersionRange.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModManifest.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModManifestReader.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModDiagnostics.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModDiscovery.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\DependencyResolver.cs')
 )
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -28,6 +35,8 @@ $exe = Join-Path $testRoot 'ModdingContractsTest.exe'
 
 @'
 using System;
+using System.Collections.Generic;
+using System.IO;
 using Eclipse.Modding;
 
 internal static class Program
@@ -48,6 +57,40 @@ internal static class Program
             return;
         }
         throw new Exception(message);
+    }
+
+    private static string Manifest(string id, string version, string api, params string[] dependencies)
+    {
+        string text =
+            "schema = 1\n" +
+            "id = \"" + id + "\"\n" +
+            "name = \"" + id + "\"\n" +
+            "version = \"" + version + "\"\n" +
+            "api = \"" + api + "\"\n" +
+            "authors = [\"Tester\"]\n" +
+            "entrypoint = \"scripts/main.lua\"\n" +
+            "capabilities = [\"content.register\"]\n";
+        for (int i = 0; i < dependencies.Length; i += 2)
+        {
+            text += "\n[[dependencies]]\n" +
+                "id = \"" + dependencies[i] + "\"\n" +
+                "version = \"" + dependencies[i + 1] + "\"\n";
+        }
+        return text;
+    }
+
+    private static ModDescriptor Descriptor(string id, string version, params string[] dependencies)
+    {
+        ModManifest manifest = ModManifestReader.ParseExternal(
+            Manifest(id, version, ">=0.1 <1.0", dependencies), id + "/mod.toml");
+        return new ModDescriptor(manifest, Path.GetFullPath(id), ModSourceKind.Loose);
+    }
+
+    private static bool HasCode(IReadOnlyList<ModDiagnostic> diagnostics, string code)
+    {
+        for (int i = 0; i < diagnostics.Count; i++)
+            if (diagnostics[i].Code == code) return true;
+        return false;
     }
 
     public static int Main()
@@ -74,7 +117,76 @@ internal static class Program
         Reject(() => DefinitionId.Parse("example.weapon:weapon"), "Definition without category/id split was accepted.");
         Reject(() => DefinitionId.Parse("example.weapon:items/../weapon"), "Traversal DefinitionId was accepted.");
 
-        Console.WriteLine("Modding identity contracts: PASS");
+        SemanticVersion stable = SemanticVersion.Parse("1.2.3");
+        SemanticVersion prerelease = SemanticVersion.Parse("1.2.3-beta.2");
+        Assert(stable > prerelease, "Stable SemVer must sort after prerelease.");
+        Assert(SemanticVersion.Parse("1.2.3+build.7") == stable, "Build metadata affected SemVer precedence.");
+        Reject(() => SemanticVersion.Parse("1.2"), "Incomplete manifest SemVer was accepted.");
+        Reject(() => SemanticVersion.Parse("01.2.3"), "Leading-zero SemVer was accepted.");
+
+        VersionRange range = VersionRange.Parse(">=0.1 <1.0");
+        Assert(range.Contains(SemanticVersion.Parse("0.1.0")), "Range rejected its lower boundary.");
+        Assert(range.Contains(SemanticVersion.Parse("0.9.9")), "Range rejected an interior version.");
+        Assert(!range.Contains(SemanticVersion.Parse("1.0.0")), "Range accepted its exclusive upper boundary.");
+
+        ModManifest manifest = ModManifestReader.ParseExternal(
+            Manifest("example.weapon", "1.0.0", ">=0.1 <1.0", "core", ">=1.0 <2.0"));
+        Assert(manifest.Id.Value == "example.weapon", "Manifest ID was parsed incorrectly.");
+        Assert(manifest.Version == SemanticVersion.Parse("1.0.0"), "Manifest version was parsed incorrectly.");
+        Assert(manifest.Dependencies.Count == 1 && manifest.Dependencies[0].Id.Value == "core",
+            "Manifest dependency was parsed incorrectly.");
+        Assert(manifest.Entrypoint == "scripts/main.lua", "Entrypoint normalization is wrong.");
+        Reject(() => ModManifestReader.ParseExternal(Manifest("core", "1.0.0", ">=0.1 <1.0")),
+            "Reserved core manifest ID was accepted externally.");
+        Reject(() => ModManifestReader.ParseExternal(
+            Manifest("bad.fields", "1.0.0", ">=0.1 <1.0", "core", ">=1.0 <2.0") +
+            "capabilities = [\"events.combat\"]\n"),
+            "Root field after dependency table was accepted as valid TOML schema.");
+
+        ModDescriptor baseMod = Descriptor("a.base", "1.2.0", "core", ">=1.0 <2.0");
+        ModDescriptor addon = Descriptor("b.addon", "1.0.0", "a.base", ">=1.0 <2.0");
+        DependencyResolutionResult ordered = DependencyResolver.Resolve(
+            new[] { addon, baseMod }, ModPlatformVersions.Api, ModPlatformVersions.Core);
+        Assert(!ordered.HasErrors, "Valid dependency graph produced errors.");
+        Assert(ordered.OrderedMods.Count == 2 && ordered.OrderedMods[0].Id.Value == "a.base" &&
+            ordered.OrderedMods[1].Id.Value == "b.addon", "Dependency order is not deterministic/topological.");
+
+        DependencyResolutionResult missing = DependencyResolver.Resolve(
+            new[] { Descriptor("missing.user", "1.0.0", "missing.target", ">=1.0 <2.0") },
+            ModPlatformVersions.Api, ModPlatformVersions.Core);
+        Assert(missing.HasErrors && HasCode(missing.Diagnostics, "DEP005"), "Missing dependency was not diagnosed.");
+
+        DependencyResolutionResult mismatch = DependencyResolver.Resolve(
+            new[] { Descriptor("old.base", "1.0.0"), Descriptor("new.user", "1.0.0", "old.base", ">=2.0 <3.0") },
+            ModPlatformVersions.Api, ModPlatformVersions.Core);
+        Assert(mismatch.HasErrors && HasCode(mismatch.Diagnostics, "DEP006"), "Dependency version mismatch was not diagnosed.");
+
+        DependencyResolutionResult cycle = DependencyResolver.Resolve(
+            new[] { Descriptor("cycle.a", "1.0.0", "cycle.b", ">=1.0 <2.0"),
+                    Descriptor("cycle.b", "1.0.0", "cycle.a", ">=1.0 <2.0") },
+            ModPlatformVersions.Api, ModPlatformVersions.Core);
+        Assert(cycle.HasErrors && HasCode(cycle.Diagnostics, "DEP007"), "Dependency cycle was not diagnosed.");
+
+        string modsRoot = Path.Combine(Path.GetTempPath(), "sf2de-modding-contracts-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            string validRoot = Path.Combine(modsRoot, "example.weapon");
+            Directory.CreateDirectory(validRoot);
+            File.WriteAllText(Path.Combine(validRoot, "mod.toml"),
+                Manifest("example.weapon", "1.0.0", ">=0.1 <1.0", "core", ">=1.0 <2.0"));
+            Directory.CreateDirectory(Path.Combine(modsRoot, "notes"));
+            ModDiscoveryResult discovery = ModDiscovery.DiscoverLoose(modsRoot);
+            Assert(!discovery.HasErrors, "Valid loose discovery produced an error.");
+            Assert(discovery.Mods.Count == 1 && discovery.Mods[0].Id.Value == "example.weapon",
+                "Loose mod discovery did not return the expected mod.");
+            Assert(HasCode(discovery.Diagnostics, "MOD001"), "Directory-without-manifest warning was not produced.");
+        }
+        finally
+        {
+            if (Directory.Exists(modsRoot)) Directory.Delete(modsRoot, true);
+        }
+
+        Console.WriteLine("Modding foundation contracts: PASS");
         return 0;
     }
 }
