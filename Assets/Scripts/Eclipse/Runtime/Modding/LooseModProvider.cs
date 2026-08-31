@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Eclipse.Modding
 {
-    public sealed class LooseModProvider : IAssetByteProvider
+    public sealed class LooseModProvider : IAssetByteProvider, IAssetEnumerableProvider
     {
         private sealed class LooseAsset
         {
@@ -13,14 +13,19 @@ namespace Eclipse.Modding
         }
 
         private readonly Dictionary<AssetId, LooseAsset> _assets = new Dictionary<AssetId, LooseAsset>();
+        private readonly List<AssetMetadata> _metadata = new List<AssetMetadata>();
+        private readonly IReadOnlyList<AssetMetadata> _readOnlyMetadata;
 
         public ModDescriptor Mod { get; }
         public ModId Namespace => Mod.Id;
         public string AssetsRoot { get; }
         public string ScriptsRoot { get; }
+        public string LocalizationsRoot { get; }
+        public IReadOnlyList<AssetMetadata> Assets => _readOnlyMetadata;
 
         public LooseModProvider(ModDescriptor mod)
         {
+            _readOnlyMetadata = _metadata.AsReadOnly();
             Mod = mod ?? throw new ArgumentNullException(nameof(mod));
             if (mod.SourceKind != ModSourceKind.Loose)
                 throw new ArgumentException("LooseModProvider requires a loose mod descriptor.", nameof(mod));
@@ -28,10 +33,13 @@ namespace Eclipse.Modding
             string modRoot = Path.GetFullPath(mod.RootPath);
             AssetsRoot = Path.GetFullPath(Path.Combine(modRoot, "assets"));
             ScriptsRoot = Path.GetFullPath(Path.Combine(modRoot, "scripts"));
+            LocalizationsRoot = Path.GetFullPath(Path.Combine(modRoot, "localizations"));
             EnsureContained(modRoot, AssetsRoot, "Loose assets root escapes the mod root.");
             EnsureContained(modRoot, ScriptsRoot, "Loose scripts root escapes the mod root.");
+            EnsureContained(modRoot, LocalizationsRoot, "Loose localizations root escapes the mod root.");
             if (Directory.Exists(AssetsRoot)) IndexDirectory(AssetsRoot, string.Empty);
             if (Directory.Exists(ScriptsRoot)) IndexDirectory(ScriptsRoot, "scripts/");
+            if (Directory.Exists(LocalizationsRoot)) IndexDirectory(LocalizationsRoot, "localizations/");
         }
 
         public bool TryDescribe(AssetId id, out AssetMetadata metadata)
@@ -104,6 +112,7 @@ namespace Eclipse.Modding
             if (_assets.ContainsKey(id))
                 throw new InvalidDataException("Loose mod assets collide at logical ID '" + id + "'.");
             _assets.Add(id, new LooseAsset { Metadata = metadata, FilePath = fullPath });
+            _metadata.Add(metadata);
         }
 
         private static AssetKind GetKind(string logicalPath, string extension)

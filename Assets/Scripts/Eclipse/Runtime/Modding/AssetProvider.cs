@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Eclipse.Modding
 {
@@ -60,5 +61,10 @@ namespace Eclipse.Modding
     public interface IAssetByteProvider : IAssetProvider
     {
         bool TryRead(AssetId id, out AssetBytes bytes);
+    }
+
+    public interface IAssetEnumerableProvider : IAssetProvider
+    {
+        IReadOnlyList<AssetMetadata> Assets { get; }
     }
 }

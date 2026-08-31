@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -11,6 +11,7 @@ namespace Eclipse.Modding
         public string RuntimeName { get; }
         public IReadOnlyList<ModDescriptor> ActiveMods { get; }
         public IReadOnlyList<ModDiagnostic> Diagnostics { get; }
+        public ModContentCatalog Content { get; }
 
         public bool HasErrors
         {
@@ -23,12 +24,13 @@ namespace Eclipse.Modding
         }
 
         private ModScriptSession(string runtimeName, List<IModScriptContext> contexts,
-            ModDescriptor[] activeMods, ModDiagnostic[] diagnostics)
+            ModDescriptor[] activeMods, ModDiagnostic[] diagnostics, ModContentCatalog content)
         {
             RuntimeName = runtimeName ?? string.Empty;
             _contexts = contexts;
             ActiveMods = Array.AsReadOnly(activeMods ?? Array.Empty<ModDescriptor>());
             Diagnostics = Array.AsReadOnly(diagnostics ?? Array.Empty<ModDiagnostic>());
+            Content = content ?? throw new ArgumentNullException(nameof(content));
         }
 
         internal static ModScriptSession Start(ModHost host, IModScriptRuntime runtime,
@@ -41,6 +43,7 @@ namespace Eclipse.Modding
             var active = new List<ModDescriptor>();
             var activeIds = new HashSet<ModId>();
             var diagnostics = new List<ModDiagnostic>();
+            var content = new ModContentCatalog();
 
             foreach (ModDescriptor mod in host.EnabledMods)
             {
@@ -53,12 +56,16 @@ namespace Eclipse.Modding
                 }
 
                 IModScriptContext context = null;
+                ModRegistrationTransaction registration = null;
                 try
                 {
-                    var api = new ModApiFacade(mod, host.Assets, logger);
+                    registration = content.BeginRegistration(mod);
+                    ModLocalizationLoader.Load(mod, host.Assets, registration);
+                    var api = new ModApiFacade(mod, host.Assets, registration, logger);
                     context = runtime.CreateContext(mod, api);
                     if (context == null) throw new InvalidOperationException("Script runtime returned a null context.");
                     context.ExecuteEntrypoint();
+                    registration.Commit();
                     contexts.Add(context);
                     active.Add(mod);
                     activeIds.Add(mod.Id);
@@ -75,11 +82,13 @@ namespace Eclipse.Modding
                 }
                 finally
                 {
+                    registration?.Dispose();
                     context?.Dispose();
                 }
             }
 
-            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray());
+            content.Freeze();
+            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content);
         }
 
         public string FormatReport()

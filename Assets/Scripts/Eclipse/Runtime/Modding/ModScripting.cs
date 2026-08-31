@@ -34,11 +34,21 @@ namespace Eclipse.Modding
 
         public ModDescriptor Mod { get; }
         public AssetResolver Assets { get; }
+        public ModRegistrationTransaction Registration { get; }
 
         public ModApiFacade(ModDescriptor mod, AssetResolver assets, Action<ModLogEntry> logger)
+            : this(mod, assets, null, logger)
+        {
+        }
+
+        public ModApiFacade(ModDescriptor mod, AssetResolver assets, ModRegistrationTransaction registration,
+            Action<ModLogEntry> logger)
         {
             Mod = mod ?? throw new ArgumentNullException(nameof(mod));
             Assets = assets ?? throw new ArgumentNullException(nameof(assets));
+            if (registration != null && registration.Mod.Id != mod.Id)
+                throw new ArgumentException("Registration transaction belongs to another mod.", nameof(registration));
+            Registration = registration;
             _logger = logger;
         }
 
@@ -62,9 +72,63 @@ namespace Eclipse.Modding
             return Assets.TryDescribe(QualifyAsset(reference), out metadata);
         }
 
+        public AssetId RequireAsset(string reference, AssetKind kind)
+        {
+            AssetId id = QualifyAsset(reference);
+            AssetMetadata metadata;
+            if (!Assets.TryDescribe(id, out metadata))
+                throw new ModContentException("Asset does not exist: '" + id + "'.");
+            if (metadata.Kind != kind)
+                throw new ModContentException("Asset '" + id + "' is " + metadata.Kind +
+                    ", expected " + kind + ".");
+            return id;
+        }
+
+        public DefinitionId GetLocalization(string key)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().GetLocalization(key);
+        }
+
+        public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
+            AssetId model, string subType, int damage)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterWeapon(localId, displayName, icon, model, subType, damage);
+        }
+
+        public ShopListingDefinition RegisterShopListing(DefinitionId item, ModShopSection section,
+            int level, ModPrice price)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterShopListing(item, section, level, price);
+        }
+
+        public bool HasCapability(string capability)
+        {
+            if (string.IsNullOrEmpty(capability)) return false;
+            foreach (string value in Mod.Manifest.Capabilities)
+                if (string.Equals(value, capability, StringComparison.Ordinal)) return true;
+            return false;
+        }
+
+        public void RequireCapability(string capability)
+        {
+            if (!HasCapability(capability))
+                throw new ModContentException("Mod '" + Mod.Id + "' did not declare required capability '" +
+                    capability + "'.");
+        }
+
         public void Log(ModLogLevel level, string message)
         {
             _logger?.Invoke(new ModLogEntry(Mod.Id, level, message));
+        }
+
+        private ModRegistrationTransaction RequireRegistration()
+        {
+            if (Registration == null)
+                throw new InvalidOperationException("This script context has no content registration transaction.");
+            return Registration;
         }
     }
 

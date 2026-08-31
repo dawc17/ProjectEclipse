@@ -56,14 +56,21 @@ migration layers:
 - `IModScriptRuntime`, `IModScriptContext` and `ModApiFacade` keep MoonSharp types out of the
   public runtime contracts. `MoonSharpScriptRuntime` uses `Preset_HardSandbox` and supplies a
   project-owned `require` instead of enabling MoonSharp filesystem load methods.
-- Loose `scripts/*.lua` are mounted through the same namespaced provider. `require("sf2")`
-  currently exposes only `sf2.mod` metadata/logging and `sf2.assets.qualify/exists`; local
-  module `require` is restricted to the calling mod script namespace.
+- Loose `scripts/*.lua` and `localizations/*.toml` are mounted through the same namespaced
+  provider. `require("sf2")` exposes the first content-facing surface: `sf2.mod`, typed
+  `sf2.assets.sprite/model`, `sf2.localization.key`, `sf2.items.register_weapon`,
+  `sf2.price.coins/gems` and `sf2.shop.add`; local module `require` is restricted to the
+  calling mod script namespace.
 - `ModScriptSession` executes entrypoints in resolved dependency order, retains successful
   contexts for future callbacks, and isolates a failing script without disabling independent
   mods. An attempted `require("../escape")` is rejected as `SCRIPT001`.
-- The clean Unity fixture now passes 45 editor checks and 52 Windows standalone checks with
-  MoonSharp, TAR/core assets, loose assets, script isolation and legacy loading together.
+- `ModContentCatalog` and per-mod `ModRegistrationTransaction` stage localization, weapon and
+  shop definitions until an entrypoint finishes successfully. Registry collisions, invalid
+  references, missing English localization fallbacks and post-registration Lua failures roll
+  back without leaking partial definitions. Successful registries are frozen after startup.
+- The clean Unity fixture now passes 55 editor checks and 62 Windows standalone checks with
+  MoonSharp, TAR/core assets, loose assets, transactional Lua weapon registration, script
+  isolation and legacy loading together.
 - Runtime decoders already exist for PNG-backed sprites (including custom geometry),
   PCM16 WAV audio, model XML and location atlas/plist data.
 - Generic gameplay/config XML deliberately remains outside the TAR provider and stays
@@ -80,8 +87,10 @@ MoonSharp path, hard sandbox, virtual local `require`, minimal `sf2` facade and 
 isolation. Entry points execute through MoonSharp's forced-yield coroutine support with a
 bounded bytecode-instruction budget; an infinite `while true do end` fixture is terminated as
 `SCRIPT001` while unrelated mods continue. Required Lua modules execute as VM tail calls inside
-the same bounded coroutine, so `require` cannot bypass the entrypoint budget. Definition
-registries and transactional registration are the next content-facing subsystem.
+the same bounded coroutine, so `require` cannot bypass the entrypoint budget. Phase 4 now has
+transactional localization/weapon/shop registries and the first plan-shaped Lua registration
+surface. The next step is adapting committed definitions into the recovered item/localization
+runtime without exposing recovered types to mods.
 
 ## 2. Goals
 

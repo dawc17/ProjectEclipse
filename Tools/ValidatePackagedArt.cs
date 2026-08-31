@@ -145,6 +145,9 @@ public static class ValidatePackagedArt
             File.WriteAllText(Path.Combine(example, "assets", "models", "mdl_weapon_example.xml"),
                 "<Scene><Figures /></Scene>");
             File.WriteAllBytes(Path.Combine(example, "assets", "audio", "test.wav"), CreateTestWav());
+            Directory.CreateDirectory(Path.Combine(example, "localizations"));
+            File.WriteAllText(Path.Combine(example, "localizations", "eng.toml"),
+                "weapon.example_blade = \"Example Blade\"\n");
             Directory.CreateDirectory(Path.Combine(example, "scripts"));
             File.WriteAllText(Path.Combine(example, "scripts", "helper.lua"),
                 "return { value = \"helper-ok\" }\n");
@@ -156,6 +159,20 @@ public static class ValidatePackagedArt
                 "assert(sf2.assets.exists(\"sprites/weapon\"))\n" +
                 "local helper = require(\"helper\")\n" +
                 "assert(helper.value == \"helper-ok\")\n" +
+                "local title = sf2.localization.key(\"weapon.example_blade\")\n" +
+                "local weapon = sf2.items.register_weapon {\n" +
+                "  id = \"example_blade\",\n" +
+                "  display_name = title,\n" +
+                "  icon = sf2.assets.sprite(\"sprites/weapon\"),\n" +
+                "  model = sf2.assets.model(\"models/mdl_weapon_example\"),\n" +
+                "  damage = 18,\n" +
+                "}\n" +
+                "sf2.shop.add {\n" +
+                "  section = sf2.shop.WEAPONS,\n" +
+                "  item = weapon,\n" +
+                "  level = 12,\n" +
+                "  price = sf2.price.coins(1000),\n" +
+                "}\n" +
                 "sf2.mod.log(\"lua-entry-ok\")\n");
             File.WriteAllText(Path.Combine(example, "mod.toml"),
                 "schema = 1\n" +
@@ -219,10 +236,44 @@ public static class ValidatePackagedArt
                 "id = \"core\"\n" +
                 "version = \">=1.0 <2.0\"\n");
 
+            string registrationFailure = Path.Combine(modsRoot, "registration.failure");
+            Directory.CreateDirectory(Path.Combine(registrationFailure, "assets", "sprites"));
+            Directory.CreateDirectory(Path.Combine(registrationFailure, "assets", "models"));
+            Directory.CreateDirectory(Path.Combine(registrationFailure, "localizations"));
+            Directory.CreateDirectory(Path.Combine(registrationFailure, "scripts"));
+            File.WriteAllBytes(Path.Combine(registrationFailure, "assets", "sprites", "weapon.png"), CreateTestPng());
+            File.WriteAllText(Path.Combine(registrationFailure, "assets", "models", "weapon.xml"),
+                "<Scene><Figures /></Scene>");
+            File.WriteAllText(Path.Combine(registrationFailure, "localizations", "eng.toml"),
+                "weapon.rollback = \"Must Roll Back\"\n");
+            File.WriteAllText(Path.Combine(registrationFailure, "scripts", "main.lua"),
+                "local sf2 = require(\"sf2\")\n" +
+                "sf2.items.register_weapon {\n" +
+                "  id = \"rollback\",\n" +
+                "  display_name = sf2.localization.key(\"weapon.rollback\"),\n" +
+                "  icon = sf2.assets.sprite(\"sprites/weapon\"),\n" +
+                "  model = sf2.assets.model(\"models/weapon\"),\n" +
+                "  damage = 5,\n" +
+                "}\n" +
+                "error(\"rollback-after-registration\")\n");
+            File.WriteAllText(Path.Combine(registrationFailure, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"registration.failure\"\n" +
+                "name = \"Registration Failure\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.1 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.register\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
             ModHost host = ModHost.Build(modsRoot);
             Require(host.HasErrors, "Broken loose mod did not surface diagnostics");
-            Require(host.EnabledMods.Count == 3 &&
+            Require(host.EnabledMods.Count == 4 &&
                 host.EnabledMods.Any(x => x.Id.Value == "example.weapon") &&
+                host.EnabledMods.Any(x => x.Id.Value == "registration.failure") &&
                 host.EnabledMods.Any(x => x.Id.Value == "script.failure") &&
                 host.EnabledMods.Any(x => x.Id.Value == "script.runaway"),
                 "Dependency-invalid mod affected independently mountable mods");
@@ -269,6 +320,9 @@ public static class ValidatePackagedArt
             Require(host.Assets.TryDescribe(AssetId.Parse("example.weapon:scripts/main"), out metadata) &&
                 metadata.Kind == AssetKind.Text && metadata.Format == ".lua",
                 "Loose script source was not mounted in the virtual filesystem");
+            Require(host.Assets.TryDescribe(AssetId.Parse("example.weapon:localizations/eng"), out metadata) &&
+                metadata.Kind == AssetKind.Text && metadata.Format == ".toml",
+                "Loose localization source was not mounted in the virtual filesystem");
             var scriptLogs = new List<ModLogEntry>();
             var scriptRuntime = new MoonSharpScriptRuntime();
             Require(scriptRuntime.Name.StartsWith("MoonSharp ", StringComparison.Ordinal),
@@ -284,16 +338,46 @@ public static class ValidatePackagedArt
                 Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway" &&
                     x.Message.Contains("instruction budget exceeded")),
                     "Runaway Lua entrypoint was not stopped by the instruction budget");
+                Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure" &&
+                    x.Message.Contains("rollback-after-registration")),
+                    "Post-registration Lua failure was not attributed to its mod");
                 Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
                     x.Message == "lua-entry-ok"),
                     "Sandboxed Lua entrypoint did not execute/log through sf2.mod");
+                Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 1 &&
+                    scripts.Content.Weapons.Count == 1 && scripts.Content.ShopListings.Count == 1,
+                    "Successful Lua registration did not commit exactly one complete weapon transaction");
+                LocalizationDefinition title;
+                Require(scripts.Content.TryGetLocalization(
+                    DefinitionId.Parse("example.weapon:localization/weapon.example_blade"), out title) &&
+                    title.GetOrEnglish("eng") == "Example Blade",
+                    "Loose English localization did not commit through the transaction");
+                WeaponDefinition weapon;
+                Require(scripts.Content.TryGetWeapon(
+                    DefinitionId.Parse("example.weapon:items/weapon/example_blade"), out weapon) &&
+                    weapon.Damage == 18 && weapon.SubType == "Katana" &&
+                    weapon.Icon == AssetId.Parse("example.weapon:sprites/weapon") &&
+                    weapon.Model == AssetId.Parse("example.weapon:models/mdl_weapon_example"),
+                    "Lua weapon definition did not preserve typed values");
+                ShopListingDefinition listing;
+                Require(scripts.Content.TryGetShopListing(
+                    DefinitionId.Parse("example.weapon:shop/weapons/example_blade"), out listing) &&
+                    listing.Item == weapon.Id && listing.Level == 12 &&
+                    listing.Price == new ModPrice(ModPriceCurrency.Coins, 1000),
+                    "Lua shop listing did not preserve item/level/price values");
+                WeaponDefinition rolledBack;
+                Require(!scripts.Content.TryGetWeapon(
+                    DefinitionId.Parse("registration.failure:items/weapon/rollback"), out rolledBack),
+                    "Failing Lua mod leaked a staged weapon into the committed registry");
             }
             host.Dispose();
 
             ModRuntime.Initialize(modsRoot);
             ModScriptSession runtimeScripts = ModRuntime.StartScripts();
             Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
+                runtimeScripts.Content.Weapons.Count == 1 && runtimeScripts.Content.ShopListings.Count == 1 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
+                runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
             Sprite bridgeLoose = ResourcesAndBundles.Load<Sprite>("example.weapon:sprites/weapon");

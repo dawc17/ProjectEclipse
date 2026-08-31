@@ -15,7 +15,9 @@ $sources = @(
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetProvider.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetResolver.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs'),
-    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModScripting.cs')
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModScripting.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContent.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModLocalizationLoader.cs')
 )
 
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -71,6 +73,19 @@ internal static class Program
             action();
         }
         catch (FormatException)
+        {
+            return;
+        }
+        throw new Exception(message);
+    }
+
+    private static void RejectContent(Action action, string message)
+    {
+        try
+        {
+            action();
+        }
+        catch (ModContentException)
         {
             return;
         }
@@ -199,6 +214,73 @@ internal static class Program
                     Descriptor("cycle.b", "1.0.0", "cycle.a", ">=1.0 <2.0") },
             ModPlatformVersions.Api, ModPlatformVersions.Core);
         Assert(cycle.HasErrors && HasCode(cycle.Diagnostics, "DEP007"), "Dependency cycle was not diagnosed.");
+
+        var content = new ModContentCatalog();
+        ModDescriptor contentMod = Descriptor("content.weapon", "1.0.0", "core", ">=1.0 <2.0");
+        using (ModRegistrationTransaction registration = content.BeginRegistration(contentMod))
+        {
+            DefinitionId title = registration.AddLocalization("weapon.example_blade", "eng", "Example Blade");
+            registration.AddLocalization("weapon.example_blade", "pol", "Przykladowe Ostrze");
+            WeaponDefinition registeredWeapon = registration.RegisterWeapon("example_blade", title,
+                AssetId.Parse("content.weapon:sprites/weapon"),
+                AssetId.Parse("content.weapon:models/mdl_weapon_example"), "Katana", 18);
+            ShopListingDefinition listing = registration.RegisterShopListing(registeredWeapon.Id,
+                ModShopSection.Weapons, 12, new ModPrice(ModPriceCurrency.Coins, 1000));
+            Assert(content.Weapons.Count == 0 && content.ShopListings.Count == 0 && content.Localizations.Count == 0,
+                "Uncommitted transaction leaked into global registries.");
+            Assert(listing.Item == registeredWeapon.Id && listing.Level == 12 && listing.Price.Amount == 1000,
+                "Staged shop listing changed values.");
+            registration.Commit();
+        }
+        Assert(content.Localizations.Count == 1 && content.Weapons.Count == 1 && content.ShopListings.Count == 1,
+            "Committed transaction did not populate all registries.");
+        LocalizationDefinition committedTitle;
+        Assert(content.TryGetLocalization(DefinitionId.Parse("content.weapon:localization/weapon.example_blade"),
+            out committedTitle) && committedTitle.GetOrEnglish("pol") == "Przykladowe Ostrze" &&
+            committedTitle.GetOrEnglish("missing") == "Example Blade",
+            "Committed localization lookup/fallback is wrong.");
+        WeaponDefinition committedWeapon;
+        Assert(content.TryGetWeapon(DefinitionId.Parse("content.weapon:items/weapon/example_blade"), out committedWeapon) &&
+            committedWeapon.Damage == 18 && committedWeapon.SubType == "Katana",
+            "Committed weapon lookup is wrong.");
+
+        var rollbackCatalog = new ModContentCatalog();
+        using (ModRegistrationTransaction rollback = rollbackCatalog.BeginRegistration(contentMod))
+        {
+            rollback.AddLocalization("weapon.rolled_back", "eng", "Rolled Back");
+        }
+        Assert(rollbackCatalog.Localizations.Count == 0, "Disposed transaction did not roll back staged definitions.");
+
+        var atomicCatalog = new ModContentCatalog();
+        using (ModRegistrationTransaction first = atomicCatalog.BeginRegistration(contentMod))
+        {
+            first.AddLocalization("weapon.shared", "eng", "Shared");
+            first.Commit();
+        }
+        using (ModRegistrationTransaction conflicting = atomicCatalog.BeginRegistration(contentMod))
+        {
+            DefinitionId duplicateTitle = conflicting.AddLocalization("weapon.shared", "eng", "Duplicate");
+            conflicting.RegisterWeapon("must_not_commit", duplicateTitle,
+                AssetId.Parse("content.weapon:sprites/weapon"),
+                AssetId.Parse("content.weapon:models/mdl_weapon_example"), "Katana", 10);
+            RejectContent(() => conflicting.Commit(), "Registry collision was not rejected transactionally.");
+        }
+        Assert(atomicCatalog.Localizations.Count == 1 && atomicCatalog.Weapons.Count == 0,
+            "Failed commit partially changed global registries.");
+
+        var fallbackCatalog = new ModContentCatalog();
+        using (ModRegistrationTransaction missingFallback = fallbackCatalog.BeginRegistration(contentMod))
+        {
+            missingFallback.AddLocalization("weapon.no_english", "pol", "Brak English");
+            RejectContent(() => missingFallback.Commit(), "Localization without eng fallback was accepted.");
+        }
+        Assert(fallbackCatalog.Localizations.Count == 0, "Invalid localization partially committed.");
+
+        content.Freeze();
+        bool frozenRejected = false;
+        try { content.BeginRegistration(contentMod); }
+        catch (InvalidOperationException) { frozenRejected = true; }
+        Assert(frozenRejected, "Frozen definition registries accepted a new transaction.");
 
         string modsRoot = Path.Combine(Path.GetTempPath(), "sf2de-modding-contracts-" + Guid.NewGuid().ToString("N"));
         try
