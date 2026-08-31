@@ -12,6 +12,7 @@ namespace Eclipse.Modding
             if (mods == null) throw new ArgumentNullException(nameof(mods));
             var diagnostics = new List<ModDiagnostic>();
             var byId = new Dictionary<ModId, ModDescriptor>();
+            var invalid = new HashSet<ModId>();
 
             foreach (ModDescriptor mod in mods)
             {
@@ -19,21 +20,21 @@ namespace Eclipse.Modding
                 if (byId.ContainsKey(mod.Id))
                 {
                     diagnostics.Add(Error("DEP001", mod.Id, "Duplicate mod id in dependency input."));
+                    invalid.Add(mod.Id);
                     continue;
                 }
                 byId.Add(mod.Id, mod);
             }
 
-            var incoming = new Dictionary<ModId, int>();
-            var dependents = new Dictionary<ModId, List<ModId>>();
+            var dependencies = new Dictionary<ModId, List<ModId>>();
             foreach (ModDescriptor mod in byId.Values)
             {
-                incoming[mod.Id] = 0;
-                dependents[mod.Id] = new List<ModId>();
+                dependencies[mod.Id] = new List<ModId>();
                 if (!mod.Manifest.Api.Contains(apiVersion))
                 {
                     diagnostics.Add(Error("DEP002", mod.Id, "Requires Mod API '" + mod.Manifest.Api +
                         "', current API is " + apiVersion + "."));
+                    invalid.Add(mod.Id);
                 }
             }
 
@@ -44,6 +45,7 @@ namespace Eclipse.Modding
                     if (dependency.Id == mod.Id)
                     {
                         diagnostics.Add(Error("DEP003", mod.Id, "A mod may not depend on itself."));
+                        invalid.Add(mod.Id);
                         continue;
                     }
 
@@ -53,6 +55,7 @@ namespace Eclipse.Modding
                         {
                             diagnostics.Add(Error("DEP004", mod.Id, "Requires core '" + dependency.Version +
                                 "', current core is " + coreVersion + "."));
+                            invalid.Add(mod.Id);
                         }
                         continue;
                     }
@@ -61,17 +64,55 @@ namespace Eclipse.Modding
                     if (!byId.TryGetValue(dependency.Id, out target))
                     {
                         diagnostics.Add(Error("DEP005", mod.Id, "Missing dependency '" + dependency.Id + "'."));
+                        invalid.Add(mod.Id);
                         continue;
                     }
                     if (!dependency.Version.Contains(target.Version))
                     {
                         diagnostics.Add(Error("DEP006", mod.Id, "Dependency '" + dependency.Id + "' requires '" +
                             dependency.Version + "', found " + target.Version + "."));
+                        invalid.Add(mod.Id);
                         continue;
                     }
+                    dependencies[mod.Id].Add(dependency.Id);
+                }
+            }
 
+            bool changed;
+            do
+            {
+                changed = false;
+                foreach (ModDescriptor mod in byId.Values.OrderBy(x => x.Id.Value, StringComparer.Ordinal))
+                {
+                    if (invalid.Contains(mod.Id)) continue;
+                    foreach (ModId dependency in dependencies[mod.Id])
+                    {
+                        if (!invalid.Contains(dependency)) continue;
+                        diagnostics.Add(Error("DEP008", mod.Id,
+                            "Dependency '" + dependency + "' is disabled by an earlier dependency error."));
+                        invalid.Add(mod.Id);
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            while (changed);
+
+            var incoming = new Dictionary<ModId, int>();
+            var dependents = new Dictionary<ModId, List<ModId>>();
+            foreach (ModDescriptor mod in byId.Values)
+            {
+                if (invalid.Contains(mod.Id)) continue;
+                incoming[mod.Id] = 0;
+                dependents[mod.Id] = new List<ModId>();
+            }
+            foreach (ModDescriptor mod in byId.Values)
+            {
+                if (invalid.Contains(mod.Id)) continue;
+                foreach (ModId dependency in dependencies[mod.Id])
+                {
                     incoming[mod.Id] = incoming[mod.Id] + 1;
-                    dependents[dependency.Id].Add(mod.Id);
+                    dependents[dependency].Add(mod.Id);
                 }
             }
 
@@ -96,19 +137,17 @@ namespace Eclipse.Modding
                 }
             }
 
-            if (ordered.Count != byId.Count)
+            if (ordered.Count != incoming.Count)
             {
                 string[] blocked = incoming.Where(pair => pair.Value > 0)
                     .Select(pair => pair.Key.Value)
                     .OrderBy(value => value, StringComparer.Ordinal)
                     .ToArray();
                 diagnostics.Add(new ModDiagnostic(ModDiagnosticSeverity.Error, "DEP007", string.Join(",", blocked),
-                    "Dependency cycle detected among: " + string.Join(", ", blocked) + "."));
+                    "Dependency cycle, or a dependency on one, prevents loading: " + string.Join(", ", blocked) + "."));
             }
 
-            bool hasErrors = diagnostics.Any(x => x.Severity == ModDiagnosticSeverity.Error);
-            return new DependencyResolutionResult(hasErrors ? Array.Empty<ModDescriptor>() : ordered.ToArray(),
-                diagnostics.ToArray());
+            return new DependencyResolutionResult(ordered.ToArray(), diagnostics.ToArray());
         }
 
         private static ModDiagnostic Error(string code, ModId source, string message)

@@ -169,9 +169,20 @@ internal static class Program
             ordered.OrderedMods[1].Id.Value == "b.addon", "Dependency order is not deterministic/topological.");
 
         DependencyResolutionResult missing = DependencyResolver.Resolve(
-            new[] { Descriptor("missing.user", "1.0.0", "missing.target", ">=1.0 <2.0") },
+            new[] { Descriptor("missing.user", "1.0.0", "missing.target", ">=1.0 <2.0"),
+                    Descriptor("independent.mod", "1.0.0") },
             ModPlatformVersions.Api, ModPlatformVersions.Core);
         Assert(missing.HasErrors && HasCode(missing.Diagnostics, "DEP005"), "Missing dependency was not diagnosed.");
+        Assert(missing.OrderedMods.Count == 1 && missing.OrderedMods[0].Id.Value == "independent.mod",
+            "Independent mod was disabled by another mod's missing dependency.");
+
+        DependencyResolutionResult disabledDependency = DependencyResolver.Resolve(
+            new[] { Descriptor("broken.base", "1.0.0", "missing.target", ">=1.0 <2.0"),
+                    Descriptor("broken.user", "1.0.0", "broken.base", ">=1.0 <2.0") },
+            ModPlatformVersions.Api, ModPlatformVersions.Core);
+        Assert(disabledDependency.HasErrors && HasCode(disabledDependency.Diagnostics, "DEP008"),
+            "Dependent of a disabled mod was not diagnosed.");
+        Assert(disabledDependency.OrderedMods.Count == 0, "Dependent of a disabled mod remained enabled.");
 
         DependencyResolutionResult mismatch = DependencyResolver.Resolve(
             new[] { Descriptor("old.base", "1.0.0"), Descriptor("new.user", "1.0.0", "old.base", ">=2.0 <3.0") },

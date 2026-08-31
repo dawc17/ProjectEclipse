@@ -32,8 +32,19 @@ migration layers:
   behavior lives under `Assets/Scripts/Eclipse/`.
 - `PackagedArtCatalog` routes core sprites, textures, audio, models, location art and
   immutable location-atlas data through `.tar.lz4` archives.
-- TAR descriptors and catalog groups already carry a `namespace`/`namespaceId`, currently
-  `core`; this is ownership metadata today and should become real `AssetId` resolution.
+- TAR descriptors and catalog groups carry a `namespace`/`namespaceId`, currently `core`.
+- `ModId`, `AssetId` and `DefinitionId` are implemented as strict immutable contracts.
+- Loose `mod.toml` discovery, semantic-version/API ranges, deterministic dependency
+  ordering and consolidated diagnostics are implemented. Invalid mods no longer disable
+  unrelated valid mods.
+- `AssetResolver` enforces one provider per namespace. `LooseModProvider` indexes safe
+  files below `<mod>/assets`, while `CoreAssetProvider` exposes exact
+  `PackagedArtCatalog` addresses as `core:*` without duplicating TAR decoding.
+- `ModHost` composes discovery, dependency resolution and providers, and the Unity editor
+  has `SF2/Modding/Validate Loose Mods` for a consolidated report.
+- The automated Unity packaged-art fixture proves one valid loose mod can stay mounted
+  alongside `core:*` while a deliberately broken independent mod is disabled. This meets
+  the Phase 1 diagnostic-resolution exit criterion.
 - Runtime decoders already exist for PNG-backed sprites (including custom geometry),
   PCM16 WAV audio, model XML and location atlas/plist data.
 - Generic gameplay/config XML deliberately remains outside the TAR provider and stays
@@ -44,9 +55,9 @@ migration layers:
   cache on first use. That is acceptable for the current migration, but it does not meet
   the eventual on-demand/chunked performance goals in this document.
 
-The major missing layer is now the actual mod host: identities, manifests, discovery,
-dependency resolution, provider composition, definition registries, Lua contexts and
-transactional registration.
+The next missing layer is the typed external-asset lifecycle and integration before the
+legacy `ResourcesAndBundles` providers, followed by MoonSharp contexts, definition
+registries and transactional registration.
 
 ## 2. Goals
 

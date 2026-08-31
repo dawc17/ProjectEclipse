@@ -67,6 +67,7 @@ public static class ValidatePackagedArt
             "CoreAssetProvider did not expose packaged logical address");
         Require(!coreProvider.TryDescribe(AssetId.Parse("core:UI/Items/does_not_exist"), out coreAsset),
             "CoreAssetProvider resolved an unknown packaged address");
+        CheckModHost(coreProvider);
 
         string model = PackagedArtCatalog.LoadModelText("gamedata/models/mdl_skeleton");
         Require(!string.IsNullOrEmpty(model) && model.Contains("<Scene") && model.Contains("<Figures>"),
@@ -122,6 +123,64 @@ public static class ValidatePackagedArt
         Debug.Log("[PackagedArtTest] PASS " + (Application.isEditor ? "editor" : "standalone") +
             ": " + checks + " checks; " + catalog.bundles.Length + " groups; " + archives +
             " TAR/LZ4 archives; " + fonts + " loose fonts.");
+    }
+
+    private static void CheckModHost(CoreAssetProvider coreProvider)
+    {
+        string modsRoot = Path.Combine(Application.temporaryCachePath,
+            "sf2de-modhost-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            string example = Path.Combine(modsRoot, "example.weapon");
+            Directory.CreateDirectory(Path.Combine(example, "assets", "sprites"));
+            File.WriteAllBytes(Path.Combine(example, "assets", "sprites", "weapon.png"),
+                new byte[] { 1, 2, 3, 4 });
+            File.WriteAllText(Path.Combine(example, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"example.weapon\"\n" +
+                "name = \"Example Weapon\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.1 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.register\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
+            string broken = Path.Combine(modsRoot, "broken.mod");
+            Directory.CreateDirectory(broken);
+            File.WriteAllText(Path.Combine(broken, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"broken.mod\"\n" +
+                "name = \"Broken\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.1 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.register\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"missing.mod\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
+            ModHost host = ModHost.Build(modsRoot);
+            Require(host.HasErrors, "Broken loose mod did not surface diagnostics");
+            Require(host.EnabledMods.Count == 1 && host.EnabledMods[0].Id.Value == "example.weapon",
+                "Broken loose mod disabled the independent valid mod");
+            AssetMetadata metadata;
+            Require(host.Assets.TryDescribe(AssetId.Parse("example.weapon:sprites/weapon"), out metadata) &&
+                metadata.Kind == AssetKind.Sprite, "ModHost did not mount loose sprite");
+            AssetBytes bytes;
+            Require(host.Assets.TryRead(AssetId.Parse("example.weapon:sprites/weapon"), out bytes) &&
+                bytes.Data.Length == 4, "ModHost did not read loose sprite bytes");
+            Require(host.Assets.TryDescribe(AssetId.Parse("core:UI/Items/AgnisSeal"), out metadata),
+                "ModHost did not mount core provider");
+            Require(host.FormatReport().Contains("DEP005"), "ModHost report omitted dependency diagnostic");
+        }
+        finally
+        {
+            if (Directory.Exists(modsRoot)) Directory.Delete(modsRoot, true);
+        }
     }
 
     private static int CheckLocationCoverage(PackagedArtCatalog.Catalog catalog)
