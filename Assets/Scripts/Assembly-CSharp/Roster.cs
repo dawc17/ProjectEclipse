@@ -2497,11 +2497,29 @@ public class Roster : MELBIBHDPCE
 		if (xmlNode != null)
 		{
 			XmlNode xmlNode2 = xmlNode["Sound"];
-			Sound.JOFLPDCONNC(xmlNode2.Attributes["Value"].ParseFloat(1f));
-			Sound.FLOFHMBDHNM(xmlNode2.Attributes["Mute"].ParseBool());
+			if (xmlNode2 != null)
+			{
+				Sound.JOFLPDCONNC(xmlNode2.Attributes["Value"].ParseFloat(1f));
+				Sound.FLOFHMBDHNM(xmlNode2.Attributes["Mute"].ParseBool());
+			}
+			else
+			{
+				Debug.LogWarning("[UserData] Warrior Sound settings missing; using default sound volume.");
+				Sound.JOFLPDCONNC(1f);
+				Sound.FLOFHMBDHNM(false);
+			}
 			xmlNode2 = xmlNode["Music"];
-			Sound.OAFCOFNOIJK(xmlNode2.Attributes["Value"].ParseFloat(1f));
-			Sound.FMLHEDIPGAF(xmlNode2.Attributes["Mute"].ParseBool());
+			if (xmlNode2 != null)
+			{
+				Sound.OAFCOFNOIJK(xmlNode2.Attributes["Value"].ParseFloat(1f));
+				Sound.FMLHEDIPGAF(xmlNode2.Attributes["Mute"].ParseBool());
+			}
+			else
+			{
+				Debug.LogWarning("[UserData] Warrior Music settings missing; using default music volume.");
+				Sound.OAFCOFNOIJK(1f);
+				Sound.FMLHEDIPGAF(false);
+			}
 			ListSF.GKAOOOICJAI = Sound.ELHMADOKHHE();
 		}
 		else

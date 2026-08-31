@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\InternetController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SoundController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSetItem.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\CoreAssetProvider.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AssemblyController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LifeStealRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\LampsPanel.cs" />
@@ -138,6 +139,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Underworld\UnderworldZonePolicy.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkStruct.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightList.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\SpriteAssetDescriptor.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ResolutionImage.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Properties\AssemblyInfo.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UserItems.cs" />
@@ -361,6 +363,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Zone.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ComboItem.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionSound.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\ModScriptSession.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemSet.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionStoryTutorialDoubleSweep.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\IntervalAnimation.cs" />
@@ -476,6 +479,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\PerksPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Trick.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\ExitDialog.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\ModRuntime.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionList.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowRaidLeaguesTutorial.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableViewCell.cs" />
@@ -644,6 +648,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\BattlePeriodic.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\ButtonPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MenuScroll.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntime.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NoBulletsReplenishmentRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\TutorialToggle.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Underworld\Diagnostics\UnderworldRaidDiagnostics.cs" />
@@ -656,6 +661,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ArgsDict.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\OCELJLPIHMD.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DeflatedString.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\ModAssetLoader.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\ParametersPanelContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MapButtonController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ResistanceStruct.cs" />
@@ -794,6 +800,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\ShopTableViewCell.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\PerkContent.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Camera.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\ModHost.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\BaseDialog.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ModelPhysics.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BackKeyManager.cs" />
@@ -811,6 +818,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\StatisticsGeter.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Rendering\Interpolation\FightTransformInterpolation.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ModInvisibility.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\LegacyContentAdapter.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Packs.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EventParser.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\Renders\Model\MeshRender.cs" />
@@ -2598,6 +2606,10 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MoonSharp.Interpreter">
+      <HintPath>Library\ScriptAssemblies\MoonSharp.Interpreter.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
