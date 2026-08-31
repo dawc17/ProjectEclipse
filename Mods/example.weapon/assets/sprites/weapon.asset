@@ -1,0 +1,3 @@
+type=sprite
+texture=textures/weapon.png
+pixels_per_unit=100

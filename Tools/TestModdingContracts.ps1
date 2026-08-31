@@ -290,11 +290,18 @@ internal static class Program
             File.WriteAllText(Path.Combine(validRoot, "mod.toml"),
                 Manifest("example.weapon", "1.0.0", ">=0.1 <1.0", "core", ">=1.0 <2.0"));
             string spriteRoot = Path.Combine(validRoot, "assets", "sprites");
+            string textureRoot = Path.Combine(validRoot, "assets", "textures");
             string modelRoot = Path.Combine(validRoot, "assets", "models");
             Directory.CreateDirectory(spriteRoot);
+            Directory.CreateDirectory(textureRoot);
             Directory.CreateDirectory(modelRoot);
-            File.WriteAllBytes(Path.Combine(spriteRoot, "weapon.png"), new byte[] { 1, 2, 3, 4 });
-            File.WriteAllText(Path.Combine(spriteRoot, "weapon.sprite.toml"), "pivot = [0.5, 0.5]");
+            string spriteDescriptor = "type=sprite\ntexture=textures/weapon.png\npivot=[0.5, 0.5]\n";
+            File.WriteAllText(Path.Combine(spriteRoot, "weapon.asset"), spriteDescriptor);
+            File.WriteAllBytes(Path.Combine(textureRoot, "weapon.png"), new byte[] { 1, 2, 3, 4 });
+            File.WriteAllBytes(Path.Combine(spriteRoot, "legacy.png"), new byte[] { 1, 2, 3, 4 });
+            File.WriteAllText(Path.Combine(spriteRoot, "legacy.sprite.toml"), "pivot = [0.5, 0.5]");
+            // Type comes from the descriptor, not its directory.
+            File.WriteAllText(Path.Combine(validRoot, "assets", "outside.asset"), spriteDescriptor);
             File.WriteAllText(Path.Combine(modelRoot, "mdl_weapon_example.xml"), "<Scene><Figures /></Scene>");
             Directory.CreateDirectory(Path.Combine(modsRoot, "notes"));
             ModDiscoveryResult discovery = ModDiscovery.DiscoverLoose(modsRoot);
@@ -309,12 +316,21 @@ internal static class Program
             Assert(weapon.ToString() == "example.weapon:sprites/weapon", "Unqualified asset reference was not canonicalized.");
             AssetMetadata weaponMeta;
             Assert(resolver.TryDescribe(weapon, out weaponMeta), "Loose sprite was not described.");
-            Assert(weaponMeta.Kind == AssetKind.Sprite && weaponMeta.Format == ".png" && weaponMeta.Size == 4,
+            Assert(weaponMeta.Kind == AssetKind.Sprite && weaponMeta.Format == ".asset",
                 "Loose sprite metadata is wrong.");
             AssetBytes weaponBytes;
             Assert(resolver.TryRead(weapon, out weaponBytes), "Loose sprite bytes were not readable.");
-            Assert(weaponBytes.Data.Length == 4 && weaponBytes.Data[0] == 1 && weaponBytes.Data[3] == 4,
-                "Loose sprite bytes changed.");
+            Assert(System.Text.Encoding.UTF8.GetString(weaponBytes.Data) == spriteDescriptor,
+                "Loose sprite descriptor bytes changed.");
+            AssetId texture = AssetId.Parse("example.weapon:textures/weapon");
+            Assert(resolver.TryDescribe(texture, out weaponMeta) && weaponMeta.Kind == AssetKind.Texture &&
+                weaponMeta.Format == ".png", "Texture was not indexed separately from sprite.");
+            Assert(resolver.TryRead(texture, out weaponBytes) && weaponBytes.Data.Length == 4 &&
+                weaponBytes.Data[0] == 1 && weaponBytes.Data[3] == 4, "Texture payload changed.");
+            Assert(resolver.TryDescribe(AssetId.Parse("example.weapon:outside"), out weaponMeta) &&
+                weaponMeta.Kind == AssetKind.Sprite, "Descriptor type depended on its folder.");
+            Assert(resolver.TryDescribe(AssetId.Parse("example.weapon:sprites/legacy"), out weaponMeta) &&
+                weaponMeta.Kind == AssetKind.Sprite && weaponMeta.Format == ".png", "Legacy PNG sprite regressed.");
 
             AssetId modelId = AssetId.Parse("example.weapon:models/mdl_weapon_example");
             AssetMetadata modelMeta;
@@ -332,6 +348,31 @@ internal static class Program
             try { new AssetResolver(new IAssetProvider[] { new FakeCoreProvider(), new FakeCoreProvider() }); }
             catch (InvalidOperationException) { duplicateNamespaceRejected = true; }
             Assert(duplicateNamespaceRejected, "Duplicate provider namespace was accepted.");
+
+            foreach (string invalid in new[] { "texture=textures/weapon.png", "type=unknown",
+                "type=sprite\ntype=sprite", "type=\"sprite", "type=\"sprite\"junk" })
+            {
+                bool rejected = false;
+                try { AssetDescriptor.GetKind(AssetDescriptor.ParseFields(invalid, "invalid.asset"), "invalid.asset"); }
+                catch (InvalidDataException) { rejected = true; }
+                Assert(rejected, "Malformed/unsupported descriptor was accepted: " + invalid);
+            }
+            Assert(AssetDescriptor.GetKind(AssetDescriptor.ParseFields("type=\"sprite\" # comment", "quoted.asset"),
+                "quoted.asset") == AssetKind.Sprite, "Quoted descriptor type/comment was rejected.");
+
+            string invalidUtf8Path = Path.Combine(spriteRoot, "invalid_utf8.asset");
+            File.WriteAllBytes(invalidUtf8Path, new byte[] { 0xFF });
+            bool invalidUtf8Rejected = false;
+            try { new LooseModProvider(discovery.Mods[0]); }
+            catch (InvalidDataException) { invalidUtf8Rejected = true; }
+            Assert(invalidUtf8Rejected, "Invalid descriptor UTF-8 did not produce a mount diagnostic exception.");
+            File.Delete(invalidUtf8Path);
+
+            File.WriteAllBytes(Path.Combine(spriteRoot, "weapon.png"), new byte[] { 1 });
+            bool collisionRejected = false;
+            try { new LooseModProvider(discovery.Mods[0]); }
+            catch (InvalidDataException) { collisionRejected = true; }
+            Assert(collisionRejected, "Descriptor and legacy sprite at the same logical ID were accepted.");
         }
         finally
         {

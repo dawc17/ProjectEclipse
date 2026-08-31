@@ -24,6 +24,13 @@ public static class ValidatePackagedArt
         checks++;
     }
 
+    private static void RejectAsset(Action action, string message)
+    {
+        try { action(); }
+        catch (InvalidDataException) { checks++; return; }
+        throw new InvalidDataException(message);
+    }
+
     private static void CheckPackagedBundles()
     {
         TextAsset manifest = Resources.Load<TextAsset>(PackagedArtCatalog.CatalogResourcePath);
@@ -134,14 +141,47 @@ public static class ValidatePackagedArt
         {
             string example = Path.Combine(modsRoot, "example.weapon");
             Directory.CreateDirectory(Path.Combine(example, "assets", "sprites"));
+            Directory.CreateDirectory(Path.Combine(example, "assets", "textures"));
             Directory.CreateDirectory(Path.Combine(example, "assets", "models"));
             Directory.CreateDirectory(Path.Combine(example, "assets", "audio"));
-            File.WriteAllBytes(Path.Combine(example, "assets", "sprites", "weapon.png"), CreateTestPng());
-            File.WriteAllText(Path.Combine(example, "assets", "sprites", "weapon.sprite.toml"),
+            File.WriteAllBytes(Path.Combine(example, "assets", "textures", "weapon.png"), CreateTestPng());
+            File.WriteAllText(Path.Combine(example, "assets", "sprites", "weapon.asset"),
+                "type=sprite\ntexture=textures/weapon.png\n" +
                 "pivot = [0.25, 0.75]\n" +
                 "pixels_per_unit = 50\n" +
                 "filter = \"point\"\n" +
                 "wrap = \"clamp\"\n");
+            File.WriteAllText(Path.Combine(example, "assets", "sprites", "crop.asset"),
+                "type=\"sprite\"\ntexture=\"textures/weapon.png\"\nrect=[1, 0, 1, 2]\n" +
+                "pivot=[0, 1]\npixels_per_unit=25\nfilter=\"point\"\n");
+            File.WriteAllText(Path.Combine(example, "assets", "sprites", "smooth.asset"),
+                "\uFEFFtype=sprite\ntexture=textures/weapon.png\n");
+            File.WriteAllText(Path.Combine(example, "assets", "sprites", "repeat.asset"),
+                "type=sprite\ntexture=textures/weapon.png\nwrap=\"repeat\"\nmipmaps=true\n");
+            File.WriteAllBytes(Path.Combine(example, "assets", "sprites", "legacy.png"), CreateTestPng());
+            File.WriteAllText(Path.Combine(example, "assets", "sprites", "legacy.sprite.toml"),
+                "pivot=[0.25, 0.75]\npixels_per_unit=50\nfilter=\"point\"\n");
+            string[] invalidSprites = {
+                "type=sprite\n", // Missing texture.
+                "type=sprite\ntexture=../weapon.png\n",
+                "type=sprite\ntexture=/textures/weapon.png\n",
+                "type=sprite\ntexture=other.mod:textures/weapon.png\n",
+                "type=sprite\ntexture=C:/weapon.png\n",
+                "type=sprite\ntexture=textures/missing.png\n",
+                "type=sprite\ntexture=textures/weapon.jpg\n",
+                "type=sprite\ntexture=.png\n",
+                "type=sprite\ntexture=textures/.png\n",
+                "type=sprite\ntexture=sprites/legacy.png\n", // A sprite ID is not a texture ID.
+                "type=sprite\ntexture=textures/weapon.png\nrect=[0,0,3,2]\n",
+                "type=sprite\ntexture=textures/weapon.png\nborder=[2,0,2,0]\n",
+                "type=sprite\ntexture=textures/weapon.png\npixels_per_unit=0\n",
+                "type=sprite\ntexture=textures/weapon.png\npivot=[NaN,0]\n",
+                "type=sprite\ntexture=textures/weapon.png\nnamespace=other.mod\n",
+                "type=sprite\ntexture=textures/weapon.png\naddress=other\n",
+                "type=sprite\ntexture=textures/weapon.png\nname=other\n",
+            };
+            for (int i = 0; i < invalidSprites.Length; i++)
+                File.WriteAllText(Path.Combine(example, "assets", "sprites", "invalid_" + i + ".asset"), invalidSprites[i]);
             File.WriteAllText(Path.Combine(example, "assets", "models", "mdl_weapon_example.xml"),
                 "<Scene><Figures /></Scene>");
             File.WriteAllBytes(Path.Combine(example, "assets", "audio", "test.wav"), CreateTestWav());
@@ -169,13 +209,19 @@ public static class ValidatePackagedArt
                 "  model = sf2.assets.model(\"models/mdl_weapon_example\"),\n" +
                 "  damage = 18,\n" +
                 "}\n" +
-                "sf2.shop.add {\n" +
+                "assert(sf2.shop.add == sf2.shop.addItem)\n" +
+                "assert(sf2.mod.log == sf2.log.info and sf2.mod.warn == sf2.log.warn and sf2.mod.error == sf2.log.error)\n" +
+                "sf2.shop.addItem {\n" +
                 "  section = sf2.shop.WEAPONS,\n" +
                 "  item = weapon,\n" +
                 "  level = 12,\n" +
                 "  price = sf2.price.coins(1000),\n" +
                 "}\n" +
-                "sf2.mod.log(\"lua-entry-ok\")\n");
+                "sf2.log.info(\"lua-entry-ok\")\n" +
+                "sf2.log.debug(\"lua-debug-ok\")\n" +
+                "sf2.log.warn(\"lua-warn-ok\")\n" +
+                "sf2.log.error(\"lua-error-ok\")\n" +
+                "sf2.mod.log(\"lua-legacy-ok\")\n");
             File.WriteAllText(Path.Combine(example, "mod.toml"),
                 "schema = 1\n" +
                 "id = \"example.weapon\"\n" +
@@ -305,7 +351,46 @@ public static class ValidatePackagedArt
                 "Typed loose sprite decode failed");
             Require(Mathf.Abs(looseSprite.pixelsPerUnit - 50f) < 0.001f &&
                 (looseSprite.pivot - new Vector2(0.5f, 1.5f)).sqrMagnitude < 0.0001f,
-                "Loose sprite sidecar metadata was not applied");
+                "Loose sprite descriptor metadata was not applied");
+            Require(looseSprite.name == "weapon" &&
+                host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/weapon")) == looseSprite,
+                "Sprite filename-derived name or instance cache is wrong");
+            Sprite cropped = host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/crop"));
+            Require(cropped != looseSprite && cropped.texture == looseSprite.texture &&
+                cropped.rect == new Rect(1, 0, 1, 2) && cropped.pivot == new Vector2(0, 2) &&
+                cropped.pixelsPerUnit == 25,
+                "Two descriptors did not share their texture while preserving independent sprite settings");
+            Texture2D directTexture = host.TypedAssets.LoadUnityAsset<Texture2D>(AssetId.Parse("example.weapon:textures/weapon"));
+            Sprite smooth = host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/smooth"));
+            Require(directTexture != null && smooth.texture == directTexture && directTexture != looseSprite.texture &&
+                directTexture.filterMode == FilterMode.Bilinear && looseSprite.texture.filterMode == FilterMode.Point,
+                "Direct texture loading or independent texture settings depended on sprite load order");
+            Sprite repeating = host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/repeat"));
+            Require(repeating.texture != directTexture && repeating.texture.wrapMode == TextureWrapMode.Repeat &&
+                repeating.texture.mipmapCount > 1 && directTexture.wrapMode == TextureWrapMode.Clamp &&
+                directTexture.mipmapCount == 1, "Wrap/mipmap cache variants changed an existing texture");
+            Sprite legacy = host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:sprites/legacy"));
+            Require(legacy != null && legacy.pixelsPerUnit == 50 && legacy.texture.filterMode == FilterMode.Point &&
+                host.TypedAssets.LoadTexture(AssetId.Parse("example.weapon:sprites/legacy")) == legacy.texture,
+                "Legacy PNG/sidecar or sprite-to-texture compatibility regressed");
+            for (int i = 0; i < invalidSprites.Length; i++)
+            {
+                AssetId invalidId = AssetId.Parse("example.weapon:sprites/invalid_" + i);
+                RejectAsset(() => host.TypedAssets.LoadSprite(invalidId), "Invalid sprite was accepted: " + invalidId);
+            }
+            RejectAsset(() => host.TypedAssets.LoadSprite(AssetId.Parse("example.weapon:textures/weapon")),
+                "Raw texture was accepted as a sprite");
+            Require(cropped.texture == looseSprite.texture && looseSprite.texture.filterMode == FilterMode.Point,
+                "A failed sprite load invalidated an existing shared texture");
+            using (var reversed = new ModAssetLoader(host.Assets))
+            {
+                Texture2D firstTexture = reversed.LoadTexture(AssetId.Parse("example.weapon:textures/weapon"));
+                Sprite firstSmooth = reversed.LoadSprite(AssetId.Parse("example.weapon:sprites/smooth"));
+                Sprite laterPoint = reversed.LoadSprite(AssetId.Parse("example.weapon:sprites/weapon"));
+                Require(firstSmooth.texture == firstTexture && laterPoint.texture != firstTexture &&
+                    firstTexture.filterMode == FilterMode.Bilinear && laterPoint.texture.filterMode == FilterMode.Point,
+                    "Loading texture settings in reverse order changed sharing or filtering");
+            }
 
             string looseModel = host.TypedAssets.LoadModelText(
                 AssetId.Parse("example.weapon:models/mdl_weapon_example"));
@@ -345,7 +430,15 @@ public static class ValidatePackagedArt
                     "Post-registration Lua failure was not attributed to its mod");
                 Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
                     x.Message == "lua-entry-ok"),
-                    "Sandboxed Lua entrypoint did not execute/log through sf2.mod");
+                    "Sandboxed Lua entrypoint did not execute/log through sf2.log.info");
+                Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Debug &&
+                    x.Message == "lua-debug-ok") &&
+                    scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Warning &&
+                    x.Message == "lua-warn-ok") &&
+                    scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Error &&
+                    x.Message == "lua-error-ok") &&
+                    scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
+                    x.Message == "lua-legacy-ok"), "Lua log levels/compatibility alias lost severity or mod attribution");
                 Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 1 &&
                     scripts.Content.Weapons.Count == 1 && scripts.Content.ShopListings.Count == 1,
                     "Successful Lua registration did not commit exactly one complete weapon transaction");
@@ -373,6 +466,12 @@ public static class ValidatePackagedArt
                     "Failing Lua mod leaked a staged weapon into the committed registry");
             }
             host.Dispose();
+            host.Dispose(); // Shared textures must have a single owner and disposal must be repeatable.
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+                Require(looseSprite == null && cropped == null && smooth == null && directTexture == null && legacy == null,
+                    "Disposing the mod host leaked sprite or texture instances");
+#endif
 
             ListSF.ResetModdingTestItems();
             LocalizationManager.ResetModdingTestLanguage("eng");

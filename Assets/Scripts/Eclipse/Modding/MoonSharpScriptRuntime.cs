@@ -166,9 +166,16 @@ namespace Eclipse.Modding
                 mod.Set("id", DynValue.NewString(Mod.Id.Value));
                 mod.Set("name", DynValue.NewString(Mod.Manifest.Name));
                 mod.Set("version", DynValue.NewString(Mod.Version.ToString()));
-                mod.Set("log", DynValue.NewCallback((ctx, args) => LogCallback(ModLogLevel.Info, "sf2.mod.log", args)));
-                mod.Set("warn", DynValue.NewCallback((ctx, args) => LogCallback(ModLogLevel.Warning, "sf2.mod.warn", args)));
-                mod.Set("error", DynValue.NewCallback((ctx, args) => LogCallback(ModLogLevel.Error, "sf2.mod.error", args)));
+                var log = new Table(_script);
+                log.Set("debug", DynValue.NewCallback((ctx, args) => LogCallback(ModLogLevel.Debug, "sf2.log.debug", args)));
+                log.Set("info", DynValue.NewCallback((ctx, args) => LogCallback(ModLogLevel.Info, "sf2.log.info", args)));
+                log.Set("warn", DynValue.NewCallback((ctx, args) => LogCallback(ModLogLevel.Warning, "sf2.log.warn", args)));
+                log.Set("error", DynValue.NewCallback((ctx, args) => LogCallback(ModLogLevel.Error, "sf2.log.error", args)));
+                root.Set("log", DynValue.NewTable(log));
+                // Compatibility aliases for early mods; new scripts should use sf2.log.
+                mod.Set("log", log.Get("info"));
+                mod.Set("warn", log.Get("warn"));
+                mod.Set("error", log.Get("error"));
                 root.Set("mod", DynValue.NewTable(mod));
 
                 var assets = new Table(_script);
@@ -195,7 +202,8 @@ namespace Eclipse.Modding
 
                 var shop = new Table(_script);
                 shop.Set("WEAPONS", DynValue.NewString("weapons"));
-                shop.Set("add", DynValue.NewCallback(ShopAdd));
+                shop.Set("addItem", DynValue.NewCallback(ShopAddItem));
+                shop.Set("add", shop.Get("addItem"));
                 root.Set("shop", DynValue.NewTable(shop));
 
                 DynValue value = DynValue.NewTable(root);
@@ -282,18 +290,19 @@ namespace Eclipse.Modding
                 });
             }
 
-            private DynValue ShopAdd(ScriptExecutionContext context, CallbackArguments args)
+            private DynValue ShopAddItem(ScriptExecutionContext context, CallbackArguments args)
             {
-                Table table = args.AsType(0, "sf2.shop.add", DataType.Table, false).Table;
-                return ApiCall("sf2.shop.add", () =>
+                const string function = "sf2.shop.addItem";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
                 {
-                    ValidateFields(table, "sf2.shop.add", "section", "item", "level", "price");
-                    string sectionText = RequiredString(table, "section", "sf2.shop.add");
+                    ValidateFields(table, function, "section", "item", "level", "price");
+                    string sectionText = RequiredString(table, "section", function);
                     if (!string.Equals(sectionText, "weapons", StringComparison.Ordinal))
-                        throw new ModContentException("sf2.shop.add field 'section' only supports sf2.shop.WEAPONS.");
-                    DefinitionId item = RequiredHandle(table, "item", _itemHandles, "item", "sf2.shop.add");
-                    int level = RequiredInt(table, "level", "sf2.shop.add");
-                    ModPrice price = RequiredHandle(table, "price", _priceHandles, "price", "sf2.shop.add");
+                        throw new ModContentException(function + " field 'section' only supports sf2.shop.WEAPONS.");
+                    DefinitionId item = RequiredHandle(table, "item", _itemHandles, "item", function);
+                    int level = RequiredInt(table, "level", function);
+                    ModPrice price = RequiredHandle(table, "price", _priceHandles, "price", function);
                     ShopListingDefinition listing = _api.RegisterShopListing(item, ModShopSection.Weapons, level, price);
                     return DynValue.NewString(listing.Id.ToString());
                 });

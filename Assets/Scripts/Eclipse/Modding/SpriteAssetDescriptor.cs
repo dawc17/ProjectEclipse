@@ -10,6 +10,7 @@ namespace Eclipse.Modding
     {
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
 
+        public string Texture { get; private set; }
         public bool HasRect { get; private set; }
         public Rect Rect { get; private set; }
         public Vector2 Pivot { get; private set; } = new Vector2(0.5f, 0.5f);
@@ -19,11 +20,13 @@ namespace Eclipse.Modding
         public TextureWrapMode Wrap { get; private set; } = TextureWrapMode.Clamp;
         public bool Mipmaps { get; private set; }
 
-        public static SpriteAssetDescriptor Parse(string text, string source)
+        public static SpriteAssetDescriptor Parse(string text, string source, bool standalone = false)
         {
+            if (standalone)
+                AssetDescriptor.GetKind(AssetDescriptor.ParseFields(text, source), source);
             var result = new SpriteAssetDescriptor();
             var seen = new HashSet<string>(StringComparer.Ordinal);
-            string[] lines = (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+            string[] lines = (text ?? string.Empty).TrimStart('\uFEFF').Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = StripComment(lines[i]).Trim();
@@ -36,6 +39,12 @@ namespace Eclipse.Modding
 
                 switch (key)
                 {
+                    case "type" when standalone:
+                        // Type was checked by the shared discovery parser above.
+                        break;
+                    case "texture" when standalone:
+                        result.Texture = AssetDescriptor.ReadString(value, source);
+                        break;
                     case "rect":
                         float[] rect = ParseArray(value, 4, source, i + 1);
                         result.Rect = new Rect(rect[0], rect[1], rect[2], rect[3]);
@@ -66,11 +75,27 @@ namespace Eclipse.Modding
                 }
             }
 
+            if (standalone && string.IsNullOrEmpty(result.Texture))
+                throw Error(source, 0, "Required field 'texture' is missing.");
             if (result.PixelsPerUnit <= 0f || float.IsNaN(result.PixelsPerUnit) || float.IsInfinity(result.PixelsPerUnit))
                 throw Error(source, 0, "pixels_per_unit must be finite and greater than zero.");
             if (result.Pivot.x < 0f || result.Pivot.x > 1f || result.Pivot.y < 0f || result.Pivot.y > 1f)
                 throw Error(source, 0, "pivot components must be within 0..1.");
             return result;
+        }
+
+        public AssetId GetTextureId(AssetId spriteId)
+        {
+            // File paths are relative to this mod's assets root, never the descriptor's folder
+            // or another namespace. Validate before removing the payload extension.
+            AssetId fileId;
+            if (!AssetId.TryParse(spriteId.Namespace.Value + ":" + Texture, out fileId) ||
+                !fileId.Path.EndsWith(".png", StringComparison.Ordinal))
+                throw Error(spriteId.ToString(), 0, "texture must be a safe, mod-local PNG path relative to assets/.");
+            AssetId textureId;
+            if (!AssetId.TryParse(fileId.Namespace.Value + ":" + fileId.Path.Substring(0, fileId.Path.Length - 4), out textureId))
+                throw Error(spriteId.ToString(), 0, "texture must name a PNG file, not just an extension.");
+            return textureId;
         }
 
         private static string StripComment(string value)

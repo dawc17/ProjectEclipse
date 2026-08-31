@@ -30,5 +30,6 @@ msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 
 See `AGENTS.md` for project conventions and validation guidance.
 See `CONTENT.md` for the content layout and validation. Use **SF2 > Content Browser** to search assets across the project from one window.
+See [Mods/README.md](Mods/README.md) for loose mod assets, sprite descriptors, and the Lua API.
 See `DE_SCOPE_AUDIT.md` for the current separation between reusable Eclipse work
 and behavior that overlaps with the Definitive Edition feature set.

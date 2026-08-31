@@ -10,18 +10,16 @@ namespace Eclipse.Modding
 {
     public sealed class ModAssetLoader : IDisposable
     {
-        private sealed class LooseSprite
-        {
-            public Texture2D Texture;
-            public Sprite Sprite;
-        }
-
         private static readonly ModId Core = ModId.Parse("core");
         private static readonly UTF8Encoding StrictUtf8 = new UTF8Encoding(false, true);
         private const int MaxTextBytes = 64 * 1024 * 1024;
 
         private readonly AssetResolver _resolver;
-        private readonly Dictionary<AssetId, LooseSprite> _sprites = new Dictionary<AssetId, LooseSprite>();
+        private readonly Dictionary<AssetId, Sprite> _sprites = new Dictionary<AssetId, Sprite>();
+        // Import settings belong to the texture instance. Cache variants so descriptors with
+        // different settings cannot mutate each other's textures or depend on load order.
+        private readonly Dictionary<(AssetId, FilterMode, TextureWrapMode, bool), Texture2D> _textures =
+            new Dictionary<(AssetId, FilterMode, TextureWrapMode, bool), Texture2D>();
         private readonly Dictionary<AssetId, AudioClip> _audio = new Dictionary<AssetId, AudioClip>();
 
         public ModAssetLoader(AssetResolver resolver)
@@ -36,10 +34,7 @@ namespace Eclipse.Modding
             if (id.Namespace == Core) return PackagedArtCatalog.Load<T>(id.Path);
             if (typeof(T) == typeof(Sprite)) return LoadSprite(id) as T;
             if (typeof(T) == typeof(Texture2D))
-            {
-                Sprite sprite = LoadSprite(id);
-                return sprite == null ? null : sprite.texture as T;
-            }
+                return LoadTexture(id) as T;
             if (typeof(T) == typeof(AudioClip)) return LoadAudio(id) as T;
             return null;
         }
@@ -59,42 +54,79 @@ namespace Eclipse.Modding
             if (!_resolver.TryDescribe(id, out metadata)) return null;
             if (id.Namespace == Core) return PackagedArtCatalog.Load<Sprite>(id.Path);
 
-            LooseSprite cached;
-            if (_sprites.TryGetValue(id, out cached) && cached.Sprite != null) return cached.Sprite;
+            Sprite cached;
+            if (_sprites.TryGetValue(id, out cached) && cached != null) return cached;
 
             AssetBytes bytes;
             if (!_resolver.TryRead(id, out bytes)) return null;
-            if (bytes.Metadata.Kind != AssetKind.Sprite || bytes.Metadata.Format != ".png")
-                throw new InvalidDataException("Asset is not a PNG sprite: " + id);
+            if (bytes.Metadata.Kind != AssetKind.Sprite)
+                throw new InvalidDataException("Asset is not a sprite: " + id);
 
-            SpriteAssetDescriptor descriptor = LoadSpriteDescriptor(id);
-            Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, descriptor.Mipmaps);
-            if (!ImageConversion.LoadImage(texture, bytes.Data, false))
+            SpriteAssetDescriptor descriptor;
+            Texture2D texture;
+            if (bytes.Metadata.Format == ".asset")
             {
-                Destroy(texture);
-                throw new InvalidDataException("Unity cannot decode loose mod PNG: " + id);
+                descriptor = SpriteAssetDescriptor.Parse(DecodeText(bytes, id), id.ToString(), standalone: true);
+                AssetId textureId = descriptor.GetTextureId(id);
+                AssetMetadata textureMetadata;
+                if (!_resolver.TryDescribe(textureId, out textureMetadata) ||
+                    textureMetadata.Kind != AssetKind.Texture || textureMetadata.Format != ".png")
+                    throw new InvalidDataException("Sprite '" + id + "' requires a PNG texture: " + textureId);
+                texture = LoadTextureData(textureId, descriptor);
+                if (texture == null) throw new InvalidDataException("Sprite texture is missing: " + textureId);
             }
+            else if (bytes.Metadata.Format == ".png")
+            {
+                descriptor = LoadSpriteDescriptor(id);
+                texture = LoadTextureData(id, descriptor, bytes);
+            }
+            else throw new InvalidDataException("Unsupported sprite format: " + id);
 
+            Rect rect = descriptor.HasRect ? descriptor.Rect : new Rect(0f, 0f, texture.width, texture.height);
+            ValidateSpriteRect(rect, texture, id);
+            ValidateBorder(descriptor.Border, rect, id);
+            Sprite sprite = Sprite.Create(texture, rect, descriptor.Pivot, descriptor.PixelsPerUnit, 0,
+                SpriteMeshType.FullRect, descriptor.Border);
+            if (sprite == null) throw new InvalidDataException("Unity cannot create loose mod sprite: " + id);
+            sprite.name = GetLastSegment(id.Path);
+            _sprites[id] = sprite;
+            return sprite;
+        }
+
+        public Texture2D LoadTexture(AssetId id)
+        {
+            AssetMetadata metadata;
+            if (!_resolver.TryDescribe(id, out metadata)) return null;
+            if (id.Namespace == Core) return PackagedArtCatalog.Load<Texture2D>(id.Path);
+            // Preserve early mods and legacy callers that request a sprite's backing texture.
+            if (metadata.Kind == AssetKind.Sprite)
+            {
+                Sprite sprite = LoadSprite(id);
+                return sprite == null ? null : sprite.texture;
+            }
+            if (metadata.Kind != AssetKind.Texture || metadata.Format != ".png")
+                throw new InvalidDataException("Asset is not a PNG texture: " + id);
+            return LoadTextureData(id, SpriteAssetDescriptor.Parse(string.Empty, id.ToString()));
+        }
+
+        private Texture2D LoadTextureData(AssetId id, SpriteAssetDescriptor descriptor, AssetBytes bytes = null)
+        {
+            var key = (id, descriptor.Filter, descriptor.Wrap, descriptor.Mipmaps);
+            Texture2D cached;
+            if (_textures.TryGetValue(key, out cached) && cached != null) return cached;
+            if (bytes == null && !_resolver.TryRead(id, out bytes)) return null;
+            Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, descriptor.Mipmaps);
             try
             {
+                if (!ImageConversion.LoadImage(texture, bytes.Data, false))
+                    throw new InvalidDataException("Unity cannot decode loose mod PNG: " + id);
                 texture.name = GetLastSegment(id.Path);
                 texture.filterMode = descriptor.Filter;
                 texture.wrapMode = descriptor.Wrap;
-                Rect rect = descriptor.HasRect ? descriptor.Rect : new Rect(0f, 0f, texture.width, texture.height);
-                ValidateSpriteRect(rect, texture, id);
-                ValidateBorder(descriptor.Border, rect, id);
-                Sprite sprite = Sprite.Create(texture, rect, descriptor.Pivot, descriptor.PixelsPerUnit, 0,
-                    SpriteMeshType.FullRect, descriptor.Border);
-                if (sprite == null) throw new InvalidDataException("Unity cannot create loose mod sprite: " + id);
-                sprite.name = GetLastSegment(id.Path);
-                _sprites.Add(id, new LooseSprite { Texture = texture, Sprite = sprite });
-                return sprite;
+                _textures[key] = texture;
+                return texture;
             }
-            catch
-            {
-                Destroy(texture);
-                throw;
-            }
+            catch { Destroy(texture); throw; }
         }
 
         public string LoadModelText(AssetId id)
@@ -141,14 +173,14 @@ namespace Eclipse.Modding
 
         public void Dispose()
         {
-            foreach (LooseSprite entry in _sprites.Values)
-            {
-                if (entry.Sprite != null) Destroy(entry.Sprite);
-                if (entry.Texture != null) Destroy(entry.Texture);
-            }
+            foreach (Sprite sprite in _sprites.Values)
+                if (sprite != null) Destroy(sprite);
+            foreach (Texture2D texture in _textures.Values)
+                if (texture != null) Destroy(texture);
             foreach (AudioClip clip in _audio.Values)
                 if (clip != null) Destroy(clip);
             _sprites.Clear();
+            _textures.Clear();
             _audio.Clear();
         }
 

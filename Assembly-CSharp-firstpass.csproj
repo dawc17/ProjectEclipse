@@ -187,8 +187,8 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\CollectionWrapper.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\IServerMessage.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\TagDirectiveCollection.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DemoHubSample.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Socket.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DemoHubSample.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FDDLCAEBEHB.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonSerializerInternalReader.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Hub.cs" />
@@ -582,9 +582,9 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnBeforeRedirectionDelegate.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GCEHGHHBNOA.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElementDict.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\DefaultValueHandling.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\CodeStage\AntiCheat\Examples\ActRotatorExample.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Compressor.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\DefaultValueHandling.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\EGGHFJMOPCE.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\QiHe\Yaml\Grammar\Tag.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlDotNet\Core\Tokens\FlowEntry.cs" />
@@ -690,9 +690,9 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\FakeList.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\YamlUtils.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Utilities\Base64Encoder.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiExtentions.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JTokenReader.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ITypeInspector.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Linq\JTokenReader.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\NekkiExtentions.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GeneralStatistics.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\OnUploadProgressDelegate.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\AFJHGKAEJPG.cs" />
@@ -834,8 +834,8 @@
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\SysDlg.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Newtonsoft\Json\Serialization\JsonPropertyCollection.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\ServerSentEventsTransport.cs" />
-    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElement.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\Serializer.cs" />
+    <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\PlistElement.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\GUIMessageList.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\BHJHIPILHJB.cs" />
     <Compile Include="Assets\Plugins\Assembly-CSharp-firstpass\DocumentLoadingState.cs" />
@@ -1838,8 +1838,8 @@
       <HintPath>Library\ScriptAssemblies\Unity.2D.Tilemap.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Unity.2D.Sprite.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
+    <Reference Include="MoonSharp.Interpreter">
+      <HintPath>Library\ScriptAssemblies\MoonSharp.Interpreter.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VSCode.Editor">
@@ -1848,6 +1848,10 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.2D.Sprite.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

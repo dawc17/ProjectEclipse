@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Eclipse.Modding
 {
@@ -106,6 +107,16 @@ namespace Eclipse.Modding
             string logicalPath = logicalPrefix + relative.Substring(0, relative.Length - extension.Length);
             AssetId id = AssetId.Parse(Namespace.Value + ":" + logicalPath);
             AssetKind kind = GetKind(id.Path, extension);
+            if (extension.Equals(".asset", StringComparison.OrdinalIgnoreCase))
+            {
+                string descriptor;
+                try { descriptor = new UTF8Encoding(false, true).GetString(File.ReadAllBytes(fullPath)); }
+                catch (DecoderFallbackException exception)
+                {
+                    throw new InvalidDataException("Asset descriptor is not valid UTF-8: " + relative, exception);
+                }
+                kind = AssetDescriptor.GetKind(AssetDescriptor.ParseFields(descriptor, relative), relative);
+            }
 
             var metadata = new AssetMetadata(id, kind, AssetSourceKind.LooseMod,
                 extension.ToLowerInvariant(), new FileInfo(fullPath).Length, relative);
@@ -119,6 +130,7 @@ namespace Eclipse.Modding
         {
             string ext = extension.ToLowerInvariant();
             if (ext == ".png" && logicalPath.StartsWith("sprites/", StringComparison.Ordinal)) return AssetKind.Sprite;
+            if (ext == ".png") return AssetKind.Texture;
             if (ext == ".xml" && logicalPath.StartsWith("models/", StringComparison.Ordinal)) return AssetKind.Model;
             if (ext == ".wav" || ext == ".ogg" || ext == ".mp3") return AssetKind.Audio;
             if (ext == ".xml" || ext == ".toml" || ext == ".json" || ext == ".txt" || ext == ".lua")

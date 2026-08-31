@@ -9,12 +9,12 @@ local weapon = sf2.items.register_weapon {
     damage = 9999,
 }
 
-sf2.shop.add {
+sf2.shop.addItem {
     section = sf2.shop.WEAPONS,
     item = weapon,
     level = 1,
     price = sf2.price.coins(1),
 }
 
-sf2.mod.log("registered Example Blade")
+sf2.log.info("registered Example Blade")
 
