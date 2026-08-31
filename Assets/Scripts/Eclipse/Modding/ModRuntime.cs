@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using Eclipse.Content;
 using UnityEngine;
 
 namespace Eclipse.Modding
@@ -138,7 +139,8 @@ namespace Eclipse.Modding
             foreach (ItemInfo item in ListSF.DJBOFEEKJMP().MJKFCBMNNGJ())
                 if (item.Name.IndexOf(':') < 0 && item.NodeXML != null) nodes.Add(item.NodeXML);
             if (nodes.Count == 0) return;
-            var languages = CoreContentImporter.ReadLocalizations(Path.Combine(SF2Paths.KKIDGPBOBNI(), "localizations"));
+            var languages = CoreContentImporter.ReadLocalizations(
+                Path.Combine(GameplayContentArchive.GetXmlRoot(), "localizations"));
             int imported = CoreContentImporter.ImportWeapons(content, nodes, languages);
             Debug.Log("[ModContent] Imported " + imported + " vanilla weapon definitions into core.");
         }

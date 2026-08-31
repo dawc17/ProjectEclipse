@@ -480,6 +480,7 @@ public static class ValidatePackagedArt
             LocalizationManager.ResetModdingTestLanguage("eng");
             ModRuntime.StartGameContent(modsRoot);
             ModScriptSession runtimeScripts = ModRuntime.Scripts;
+            Require(runtimeScripts != null, "ModRuntime startup failed while importing core content");
             Require(runtimeScripts.ActiveMods.Count == 1 && runtimeScripts.ActiveMods[0].Id.Value == "example.weapon" &&
                 runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.ShopListings.Count == 1 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
@@ -493,6 +494,10 @@ public static class ValidatePackagedArt
             Require(runtimeScripts.Content.TryGetWeapon(DefinitionId.Parse("core:items/weapon/weapon_katana"), out coreKatana) &&
                 coreKatana.LegacyItemXml == vanillaKatana.NodeXML.OuterXml,
                 "Core registry did not preserve the loaded vanilla source definition");
+            LocalizationDefinition coreKatanaName;
+            Require(runtimeScripts.Content.TryGetLocalization(coreKatana.DisplayName, out coreKatanaName) &&
+                coreKatanaName.GetOrEnglish("eng") == "Katana",
+                "Core localization was not read from the gameplay XML root");
             const string legacyItemId = "example.weapon:items/weapon/example_blade";
             const string legacyLocalizationId = "example.weapon:localization/weapon.example_blade";
             ItemInfo legacyWeapon = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(legacyItemId);
@@ -651,6 +656,13 @@ public static class ValidatePackagedArt
     {
         try
         {
+            // Exercise the production resolver: loose canonical XML in the editor,
+            // and the packaged Resources archive (not StreamingAssets) in the player.
+            const string gameplayResource = "Assets/Resources/SF2Content/gameplay.bytes";
+            File.WriteAllBytes(gameplayResource, GameplayContentArchive.CreateArchive(GameplayContentArchive.GetXmlRoot()));
+            AssetDatabase.ImportAsset(gameplayResource, ImportAssetOptions.ForceSynchronousImport);
+            PlayerSettings.companyName = "EclipseTests";
+            PlayerSettings.productName = "PackagedContentSmoke";
             PackagedArtCatalog.ValidateProjectFiles(Application.dataPath);
             CheckPackagedBundles();
             TextAsset manifest = Resources.Load<TextAsset>(PackagedArtCatalog.CatalogResourcePath);

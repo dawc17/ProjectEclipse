@@ -106,16 +106,8 @@ public static class ListSF
     public static void SeedModdingTestCoreItems()
     {
         var document = new XmlDocument();
-        document.Load(System.IO.Path.Combine(SF2Paths.KKIDGPBOBNI(), "list.xml"));
+        document.Load(System.IO.Path.Combine(Eclipse.Content.GameplayContentArchive.GetXmlRoot(), "list.xml"));
         foreach (XmlNode node in document.SelectNodes("/List/Items/Item[@Type='Weapon']")) _items.AddExternalWeapon(node);
-    }
-}
-
-public static class SF2Paths
-{
-    public static string KKIDGPBOBNI()
-    {
-        return System.IO.Path.Combine(UnityEngine.Application.streamingAssetsPath, "CoreDefinitionFixture");
     }
 }
 

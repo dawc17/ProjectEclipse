@@ -34,6 +34,7 @@ foreach ($directory in @(
 [IO.File]::WriteAllText((Join-Path $fixture 'ProjectSettings/ProjectVersion.txt'), "m_EditorVersion: 2022.3.62f3`n")
 
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Content/PackagedArtCatalog.cs') -Destination (Join-Path $fixture 'Assets/PackagedArtCatalog.cs')
+Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Content/GameplayContentArchive.cs') -Destination (Join-Path $fixture 'Assets/GameplayContentArchive.cs')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ResourcesAndBundles.cs') -Destination (Join-Path $fixture 'Assets/ResourcesAndBundles.cs')
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Modding') -Force
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Runtime/Modding') -Force
@@ -44,7 +45,7 @@ Copy-Item -Path (Join-Path $root 'Assets/Resources/SF2Content/Art/*') -Destinati
 Copy-Item -Path (Join-Path $root 'Assets/Resources/SF2Content/Fonts/*') -Destination (Join-Path $fixture 'Assets/Resources/SF2Content/Fonts') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/StreamingAssets/SF2Content/ArtBundles/*') -Destination (Join-Path $fixture 'Assets/StreamingAssets/SF2Content/ArtBundles') -Recurse -Force
 
-$coreFixture = Join-Path $fixture 'Assets/StreamingAssets/CoreDefinitionFixture'
+$coreFixture = Join-Path $fixture 'Assets/vanillaXml'
 New-Item -ItemType Directory -Force -Path (Join-Path $coreFixture 'localizations') | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'Assets/vanillaXml/list.xml') -Destination (Join-Path $coreFixture 'list.xml')
 Copy-Item -Path (Join-Path $root 'Assets/vanillaXml/localizations/*.xml') -Destination (Join-Path $coreFixture 'localizations')
