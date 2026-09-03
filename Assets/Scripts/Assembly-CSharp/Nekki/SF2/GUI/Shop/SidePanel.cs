@@ -124,11 +124,13 @@ namespace Nekki.SF2.GUI.Shop
 
 		public void OnClick()
 		{
+			if (!MMEDJKEFDJC) return;
 			SetOpen(!EABBPDKDKJE);
 		}
 
 		public void OnValueChanged(Vector2 LCCLEFMKLPB)
 		{
+			if (!MMEDJKEFDJC) return;
 			if (EGKGKFBGFNN.x > LCCLEFMKLPB.x || LCCLEFMKLPB.x == 0f)
 			{
 				EOPFNNGEJOL = true;
@@ -142,12 +144,14 @@ namespace Nekki.SF2.GUI.Shop
 
 		public void OnScrollDragBegin(PointerEventData data)
 		{
+			if (!MMEDJKEFDJC) return;
 			KillTween();
 			base.gameObject.transform.SetSiblingIndex(1);
 		}
 
 		public void OnScrollDragEnd(PointerEventData data)
 		{
+			if (!MMEDJKEFDJC) return;
 			SetOpen(EOPFNNGEJOL);
 		}
 

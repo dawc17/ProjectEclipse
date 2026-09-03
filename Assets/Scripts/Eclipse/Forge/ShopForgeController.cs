@@ -9,20 +9,46 @@ using UnityEngine.UI;
 namespace Eclipse.Forge
 {
 	/// <summary>
-	/// Projects the recovered forge lifecycle into the recovered shop using the layout
-	/// and state model from the intact 1.0.6 ForgePanel/PropertiesPanelContent assets.
-	/// Gameplay remains owned by ForgeManager/ListSF/UserItem.
+	/// Projects the recovered forge lifecycle into the recovered shop.
+	///
+	/// Every rect, sprite name, font size and layout constant below is taken from the
+	/// intact 1.0.6 assets archived under
+	/// ResearchSources/ReferenceSF2DE106/ExportedProject:
+	///
+	///   src/GUI/Scenes/Shop/Shop.unity            -> ForgePanel (670x902, paper scroll art)
+	///   Resources/prefabs/shop/forge/RecipeUI      -> 566x758 recipe cell
+	///   Resources/prefabs/shop/forge/RecipePropertyUI
+	///   Resources/prefabs/shop/forge/MaterialUI
+	///   Resources/prefabs/shop/PropertiesPanelContent -> forge ButtonsPanel
+	///
+	/// Both projects author their shop canvas at the same 800x1536 reference
+	/// resolution, so the reference metrics are used unscaled.
+	/// Gameplay stays owned by ForgeManager/ListSF/UserItem.
 	/// </summary>
 	public sealed class ShopForgeController
 	{
 		private const float RefreshInterval = 0.25f;
+
+		// SidePanel drives its open/close state through a DOTween; a non-zero
+		// duration keeps its completion callback (which restores BlocksRaycasts and
+		// the move-button state) on the normal code path.
+		private const float SidePanelMoveDuration = 0.2f;
+
+		// Shop.unity: ShopScene._ForgeModeX moves the panels container in forge mode.
 		private const float ForgeModeOffset = 605f;
+
+		// Shop.unity: ForgePanel rect, anchored to the left edge of ShopUIGroup.
+		private const float PanelWidth = 670f;
+		private const float PanelHeight = 902f;
+		private const float PanelY = 42f;
+
+		// RecipeUI.prefab root rect.
 		private const float RecipeCellWidth = 566f;
 		private const float RecipeCellHeight = 758f;
 
 		private static readonly Color DarkText = new Color(0.18431373f, 0.14509805f, 0.105882354f, 1f);
 		private static readonly Color MissingMaterialText = new Color(0.60f, 0.13f, 0.08f, 1f);
-		private static readonly Color FreeText = new Color(1f, 0.79f, 0.17f, 1f);
+		private static readonly Color FreeText = new Color(0.99607843f, 0.99607843f, 0.37254903f, 1f);
 
 		private readonly ShopScene _shop;
 		private readonly MainMenu _mainMenu;
@@ -32,9 +58,11 @@ namespace Eclipse.Forge
 		private readonly RectTransform _itemsRoot;
 		private readonly RectTransform _parametersRoot;
 		private readonly RectTransform _propertiesRoot;
-		private readonly RectTransform _sidePanelsRoot;
+		private readonly SidePanel _parametersPanel;
+		private readonly SidePanel _propertiesPanel;
 		private readonly Vector2 _itemsNormalPosition;
-		private readonly Vector2 _sidePanelsNormalPosition;
+		private readonly Vector2 _parametersNormalPosition;
+		private readonly Vector2 _propertiesNormalPosition;
 		private readonly List<Recipe> _displayedRecipes = new List<Recipe>();
 		private readonly List<RecipeCard> _recipeCards = new List<RecipeCard>();
 
@@ -45,17 +73,13 @@ namespace Eclipse.Forge
 		private Transform _tryOriginalParent;
 		private int _tryOriginalSiblingIndex;
 		private GameObject _propertyControls;
-		private GameObject _deliveryPanel;
-		private Text _deliveryText;
 		private LabelButton _forgeOpenButton;
 		private LabelButton _applyButton;
-		private LabelButton _skipButton;
 		private LabelButton _closeButton;
 		private ItemInfo _selectedInfo;
 		private UserItem _selectedItem;
 		private Recipe _selectedRecipe;
 		private bool _isOpen;
-		private bool _hadPendingDelivery;
 		private bool _ignoreScrollSelection;
 		private float _nextRefresh;
 		private bool _layoutOffsetApplied;
@@ -81,9 +105,11 @@ namespace Eclipse.Forge
 			_itemsRoot = itemsRoot;
 			_parametersRoot = parametersRoot;
 			_propertiesRoot = propertiesRoot;
-			_sidePanelsRoot = (_parametersRoot != null ? _parametersRoot.parent : _propertiesRoot?.parent) as RectTransform;
+			_parametersPanel = _parametersRoot != null ? _parametersRoot.GetComponent<SidePanel>() : null;
+			_propertiesPanel = _propertiesRoot != null ? _propertiesRoot.GetComponent<SidePanel>() : null;
 			_itemsNormalPosition = _itemsRoot != null ? _itemsRoot.anchoredPosition : Vector2.zero;
-			_sidePanelsNormalPosition = _sidePanelsRoot != null ? _sidePanelsRoot.anchoredPosition : Vector2.zero;
+			_parametersNormalPosition = _parametersRoot != null ? _parametersRoot.anchoredPosition : Vector2.zero;
+			_propertiesNormalPosition = _propertiesRoot != null ? _propertiesRoot.anchoredPosition : Vector2.zero;
 			CreateUi();
 		}
 
@@ -91,7 +117,7 @@ namespace Eclipse.Forge
 		{
 			_selectedInfo = itemInfo;
 			ResolveSelectedItem();
-			_hadPendingDelivery = _selectedItem != null && _selectedItem.PHDBCIHJKON() != null;
+			FinishPendingEnchantment();
 			RefreshPropertyControls();
 
 			if (_isOpen)
@@ -118,6 +144,7 @@ namespace Eclipse.Forge
 		public bool Open(string recipeName = null)
 		{
 			ResolveSelectedItem();
+			FinishPendingEnchantment();
 			if (!CanOpen())
 			{
 				if (!string.IsNullOrEmpty(recipeName)) ForgeOpenRequest.Queue(recipeName);
@@ -128,6 +155,11 @@ namespace Eclipse.Forge
 			SetShopForgeOffset(true);
 			_drawer.SetActive(true);
 			_buttonTemplate.gameObject.SetActive(false);
+			// The forge action buttons live in the properties side panel, so forge mode
+			// slides that panel open and the parameters panel away, exactly like the
+			// 1.0.6 shop does when ShopMode switches to Forge.
+			_parametersPanel?.SetOpen(false, SidePanelMoveDuration);
+			_propertiesPanel?.SetOpen(true, SidePanelMoveDuration);
 			_mainMenu?.SetForgeViewMode(true);
 			RefreshRecipes(true, recipeName);
 			RefreshPropertyControls();
@@ -140,6 +172,7 @@ namespace Eclipse.Forge
 			_isOpen = false;
 			if (_drawer != null) _drawer.SetActive(false);
 			SetShopForgeOffset(false);
+			_propertiesPanel?.SetOpen(false, SidePanelMoveDuration);
 			_mainMenu?.SetNormalViewMode(false);
 			_shop.RestoreForgeClosedState();
 			RefreshPropertyControls();
@@ -151,19 +184,7 @@ namespace Eclipse.Forge
 			_nextRefresh = Time.unscaledTime + RefreshInterval;
 
 			ResolveSelectedItem();
-			bool pendingNow = _selectedItem != null && _selectedItem.PHDBCIHJKON() != null;
-			if (_hadPendingDelivery && !pendingNow)
-			{
-				_hadPendingDelivery = false;
-				_shop.RefreshAfterForgeMutation();
-				if (_isOpen) Close();
-				ResolveSelectedItem();
-			}
-			else
-			{
-				_hadPendingDelivery = pendingNow;
-			}
-
+			FinishPendingEnchantment();
 			RefreshPropertyControls();
 			if (_isOpen) RefreshRecipeCardState();
 		}
@@ -249,15 +270,36 @@ namespace Eclipse.Forge
 
 		private void CreatePropertyControls()
 		{
-			// 1.0.6 PropertiesPanelContent.prefab owns its forge action controls.
-			// They live in a final 242px layout block with 15px side/bottom padding,
-			// 15px vertical spacing and lower-center alignment.
+			// 1.0.6 PropertiesPanelContent.prefab owns its forge action controls in a
+			// final ButtonsPanel: LayoutElement.minHeight 242, VerticalLayoutGroup with
+			// 15px side/bottom padding, 15px spacing and lower-center alignment.
 			Transform parent = _propertiesContent != null ? _propertiesContent.transform : _propertiesRoot;
 			if (parent == null) parent = _uiParent;
-			_propertyControls = new GameObject("ForgeButtonsPanel", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(LayoutElement));
+			ConfigurePropertyContentLayout(parent);
+			_propertyControls = new GameObject("ForgeButtonsPanel", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(LayoutElement), typeof(CanvasGroup), typeof(Canvas), typeof(GraphicRaycaster));
 			_propertyControls.layer = parent.gameObject.layer;
 			_propertyControls.transform.SetParent(parent, false);
 			_propertyControls.transform.SetAsLastSibling();
+
+			// Keep an explicit group for the actions while still respecting the shop and
+			// side-panel CanvasGroups (modal/closed panels must continue to block input).
+			CanvasGroup controlsGroup = _propertyControls.GetComponent<CanvasGroup>();
+			controlsGroup.alpha = 1f;
+			controlsGroup.interactable = true;
+			controlsGroup.blocksRaycasts = true;
+
+			// The shop item scroller is a later sibling of SidePanels and otherwise wins
+			// both drawing and raycast priority where their rects overlap. Give only the
+			// forge actions a nested canvas/raycaster; raising the whole SidePanels group
+			// also raises ItemInfoPanel and changes the authored panel stacking.
+			Canvas controlsCanvas = _propertyControls.GetComponent<Canvas>();
+			Canvas parentCanvas = parent.GetComponentInParent<Canvas>();
+			controlsCanvas.overrideSorting = true;
+			if (parentCanvas != null)
+			{
+				controlsCanvas.sortingLayerID = parentCanvas.sortingLayerID;
+				controlsCanvas.sortingOrder = parentCanvas.sortingOrder + 1;
+			}
 
 			LayoutElement panelLayout = _propertyControls.GetComponent<LayoutElement>();
 			panelLayout.minHeight = 242f;
@@ -270,11 +312,6 @@ namespace Eclipse.Forge
 			layout.childForceExpandWidth = true;
 			layout.childForceExpandHeight = false;
 
-			_deliveryPanel = CreateDeliveryPanel(_propertyControls.transform);
-			_skipButton = CloneLayoutButton("SkipDeliveryButton", _propertyControls.transform, LabelButton.FBMGEHJPPIK.BUTTON_GREEN, string.Empty);
-			_skipButton.onClick.AddListener(SkipDelivery);
-			CreateButtonIcon(_skipButton.transform, "MiscSprites.ruby");
-
 			_applyButton = CloneLayoutButton("EnchantApplyButton", _propertyControls.transform, LabelButton.FBMGEHJPPIK.BUTTON_WHITE, "btnApply");
 			_applyButton.onClick.AddListener(StartEnchant);
 
@@ -282,58 +319,83 @@ namespace Eclipse.Forge
 			_closeButton.onClick.AddListener(Close);
 		}
 
-		private GameObject CreateDeliveryPanel(Transform parent)
+		private void ConfigurePropertyContentLayout(Transform parent)
 		{
-			GameObject row = new GameObject("DeliveryTimePanel", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
-			row.layer = parent.gameObject.layer;
-			row.transform.SetParent(parent, false);
-			LayoutElement element = row.GetComponent<LayoutElement>();
-			element.minHeight = 61f;
-			element.preferredHeight = 61f;
-			HorizontalLayoutGroup layout = row.GetComponent<HorizontalLayoutGroup>();
-			layout.childAlignment = TextAnchor.MiddleCenter;
-			layout.spacing = 10f;
-			layout.childControlWidth = false;
-			layout.childControlHeight = false;
-			layout.childForceExpandWidth = false;
-			layout.childForceExpandHeight = false;
+			// The recovered prefab is older than forge support: its three rows use
+			// 120/400/600px minimums plus 50px top padding. The intact 1.0.6 prefab
+			// uses 100/200/200px with no padding, leaving room for ButtonsPanel as a
+			// normal final row instead of making it overlap the perks or panel edge.
+			VerticalLayoutGroup contentLayout = parent.GetComponent<VerticalLayoutGroup>();
+			if (contentLayout == null) return;
 
-			ResolutionImage hourglass = CreateSprite("Hourglass", row.transform, "MiscSprites.hourglass", new Vector2(58f, 58f));
-			LayoutElement iconLayout = hourglass.gameObject.AddComponent<LayoutElement>();
-			iconLayout.preferredWidth = 58f;
-			iconLayout.preferredHeight = 58f;
-			_deliveryText = CreateText("DeliveryTimeText", row.transform, Vector2.zero, new Vector2(300f, 61f), 42, TextAnchor.MiddleLeft, DarkText);
-			LayoutElement textLayout = _deliveryText.gameObject.AddComponent<LayoutElement>();
-			textLayout.preferredWidth = 300f;
-			textLayout.preferredHeight = 61f;
-			return row;
+			contentLayout.padding = new RectOffset(0, 0, 0, 0);
+			contentLayout.childAlignment = TextAnchor.UpperCenter;
+			contentLayout.spacing = 0f;
+			contentLayout.childControlWidth = true;
+			contentLayout.childControlHeight = true;
+			contentLayout.childForceExpandWidth = true;
+			contentLayout.childForceExpandHeight = true;
+
+			SetLayoutMinHeight(parent.Find("Header"), 100f);
+			SetLayoutMinHeight(parent.Find("NotExistText"), 200f);
+			Transform properties = parent.Find("PropertiesPanel");
+			SetLayoutMinHeight(properties, 200f);
+
+			VerticalLayoutGroup perksLayout = properties != null ? properties.GetComponent<VerticalLayoutGroup>() : null;
+			if (perksLayout != null)
+				perksLayout.padding = new RectOffset(-50, 0, 0, 0);
+		}
+
+		private static void SetLayoutMinHeight(Transform target, float height)
+		{
+			if (target == null) return;
+			LayoutElement element = target.GetComponent<LayoutElement>();
+			if (element != null) element.minHeight = height;
 		}
 
 		private void CreateRecipeDrawer()
 		{
-			_drawer = new GameObject("EclipseForgePanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(ResolutionImage));
+			// Shop.unity > ShopUIGroup > ForgePanel: 670x902, anchored to the left edge,
+			// pivot (0, 0.5), y +42. The panel art is the standard paper scroll used by
+			// the recovered shop item list, not a flat info-panel sprite.
+			_drawer = new GameObject("ForgePanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
 			_drawer.layer = _uiParent.gameObject.layer;
 			_drawer.transform.SetParent(_uiParent, false);
 			_drawer.transform.SetAsLastSibling();
 			RectTransform drawerRect = _drawer.GetComponent<RectTransform>();
 			drawerRect.anchorMin = drawerRect.anchorMax = new Vector2(0f, 0.5f);
 			drawerRect.pivot = new Vector2(0f, 0.5f);
-			drawerRect.anchoredPosition = new Vector2(0f, 42f);
-			drawerRect.sizeDelta = new Vector2(670f, 902f);
-			ResolutionImage drawerBackground = _drawer.GetComponent<ResolutionImage>();
-			drawerBackground.raycastTarget = true;
-			drawerBackground.set_TexturePath("UI/Atlases/");
-			drawerBackground.set_SpriteName("ShopPieces.Info_Panel");
-			drawerBackground.type = Image.Type.Sliced;
+			drawerRect.anchoredPosition = new Vector2(0f, PanelY);
+			drawerRect.sizeDelta = new Vector2(PanelWidth, PanelHeight);
+			Image blocker = _drawer.GetComponent<Image>();
+			blocker.color = new Color(0f, 0f, 0f, 0.001f);
+			blocker.raycastTarget = true;
 
+			GameObject renderRoot = CreateStretched("RenderRoot", _drawer.transform, Vector2.zero, Vector2.zero);
+
+			// Scroll (paper body): panel rect inset by 18x94.
+			GameObject scroll = CreateStretched("Scroll", renderRoot.transform, Vector2.zero, new Vector2(-18f, -94f));
+			ResolutionImage scrollCenter = CreateSprite("ScrollCenter", scroll.transform, "CommonScrolls.Roll_MAP", Vector2.zero, false);
+			Stretch(scrollCenter.rectTransform, Vector2.zero, new Vector2(-40f, 0f));
+			ResolutionImage scrollLeft = CreateSprite("ScrollLeft", scroll.transform, "CommonScrolls.Paper_left", Vector2.zero, false);
+			scrollLeft.rectTransform.anchorMin = new Vector2(0f, 0f);
+			scrollLeft.rectTransform.anchorMax = new Vector2(0f, 1f);
+			scrollLeft.rectTransform.pivot = new Vector2(0f, 0.5f);
+			scrollLeft.rectTransform.anchoredPosition = Vector2.zero;
+			scrollLeft.rectTransform.sizeDelta = new Vector2(40f, 0f);
+			ResolutionImage scrollRight = CreateSprite("ScrollRight", scroll.transform, "CommonScrolls.Paper_right", Vector2.zero, false);
+			scrollRight.rectTransform.anchorMin = new Vector2(1f, 0f);
+			scrollRight.rectTransform.anchorMax = new Vector2(1f, 1f);
+			scrollRight.rectTransform.pivot = new Vector2(1f, 0.5f);
+			scrollRight.rectTransform.anchoredPosition = new Vector2(17f, 0f);
+			scrollRight.rectTransform.sizeDelta = new Vector2(57f, 0f);
+
+			// TableView: panel rect inset by 104x144 -> exactly one 566x758 recipe cell.
 			GameObject viewport = new GameObject("TableView", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
 			viewport.layer = _drawer.layer;
-			viewport.transform.SetParent(_drawer.transform, false);
+			viewport.transform.SetParent(renderRoot.transform, false);
 			RectTransform viewportRect = viewport.GetComponent<RectTransform>();
-			viewportRect.anchorMin = Vector2.zero;
-			viewportRect.anchorMax = Vector2.one;
-			viewportRect.offsetMin = new Vector2(52f, 72f);
-			viewportRect.offsetMax = new Vector2(-52f, -72f);
+			Stretch(viewportRect, Vector2.zero, new Vector2(-104f, -144f));
 			Image hitSurface = viewport.GetComponent<Image>();
 			hitSurface.color = new Color(0f, 0f, 0f, 0.001f);
 
@@ -363,10 +425,52 @@ namespace Eclipse.Forge
 			_recipeScroll.horizontal = false;
 			_recipeScroll.vertical = true;
 			_recipeScroll.movementType = ScrollRect.MovementType.Elastic;
+			_recipeScroll.elasticity = 0.1f;
 			_recipeScroll.inertia = true;
 			_recipeScroll.decelerationRate = 0.135f;
 			_recipeScroll.scrollSensitivity = 35f;
 			_recipeScroll.onValueChanged.AddListener(OnRecipeScrollChanged);
+
+			// Shadow and rolls are drawn over the paper, exactly as in ForgePanel.
+			ResolutionImage rollShadow = CreateSprite("RollShadow", renderRoot.transform, "Roll_Shadow", Vector2.zero, false, "UI/Textures/");
+			Stretch(rollShadow.rectTransform, Vector2.zero, new Vector2(-22f, 0f));
+			rollShadow.raycastTarget = false;
+
+			CreateRoll("RollTop", renderRoot.transform, true);
+			CreateRoll("RollBottom", renderRoot.transform, false);
+		}
+
+		private void CreateRoll(string name, Transform parent, bool top)
+		{
+			GameObject roll = new GameObject(name, typeof(RectTransform));
+			roll.layer = parent.gameObject.layer;
+			roll.transform.SetParent(parent, false);
+			RectTransform rect = roll.GetComponent<RectTransform>();
+			rect.anchorMin = new Vector2(0f, top ? 1f : 0f);
+			rect.anchorMax = new Vector2(1f, top ? 1f : 0f);
+			rect.pivot = new Vector2(0.5f, 1f);
+			rect.anchoredPosition = new Vector2(0f, top ? 0f : 72f);
+			rect.sizeDelta = new Vector2(0f, 72f);
+
+			ResolutionImage center = CreateSprite("RollCenter", roll.transform, "CommonScrolls.Roll_center", Vector2.zero, false);
+			Stretch(center.rectTransform, Vector2.zero, new Vector2(-180f, 0f));
+
+			ResolutionImage left = CreateSprite("RollLeft", roll.transform, "CommonScrolls.Roll_left", Vector2.zero, false);
+			left.rectTransform.anchorMin = new Vector2(0f, 0f);
+			left.rectTransform.anchorMax = new Vector2(0f, 1f);
+			left.rectTransform.pivot = new Vector2(0f, 0.5f);
+			left.rectTransform.anchoredPosition = Vector2.zero;
+			left.rectTransform.sizeDelta = new Vector2(90f, 0f);
+
+			ResolutionImage right = CreateSprite("RollRight", roll.transform, "CommonScrolls.Roll_left", Vector2.zero, false);
+			right.rectTransform.anchorMin = new Vector2(1f, 0f);
+			right.rectTransform.anchorMax = new Vector2(1f, 1f);
+			right.rectTransform.pivot = new Vector2(0f, 0.5f);
+			right.rectTransform.anchoredPosition = Vector2.zero;
+			right.rectTransform.sizeDelta = new Vector2(90f, 0f);
+			// The reference scene mirrors the left roll cap instead of shipping a
+			// separate right-hand sprite.
+			right.rectTransform.localScale = new Vector3(-1f, 1f, 1f);
 		}
 
 		private void RefreshRecipes(bool rebuild, string requestedRecipe = null)
@@ -408,6 +512,7 @@ namespace Eclipse.Forge
 			}
 
 			SelectRecipe(selectedIndex, true);
+			RefreshRecipeCardState();
 		}
 
 		private void BuildRecipeCards()
@@ -432,7 +537,8 @@ namespace Eclipse.Forge
 
 		private RecipeCard CreateRecipeCard(Recipe recipe)
 		{
-			GameObject root = new GameObject("RecipeUI_" + recipe.Name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(CanvasGroup), typeof(LayoutElement));
+			// RecipeUI.prefab
+			GameObject root = new GameObject("RecipeUI", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(Button), typeof(CanvasGroup), typeof(LayoutElement));
 			root.layer = _drawer.layer;
 			root.transform.SetParent(_recipeContent, false);
 			RectTransform rect = root.GetComponent<RectTransform>();
@@ -443,117 +549,205 @@ namespace Eclipse.Forge
 			Image raycast = root.GetComponent<Image>();
 			raycast.color = new Color(0f, 0f, 0f, 0.001f);
 			Button button = root.GetComponent<Button>();
+			button.transition = Selectable.Transition.None;
 			button.targetGraphic = raycast;
 			CanvasGroup canvas = root.GetComponent<CanvasGroup>();
 
-			Text name = CreateText("RecipeNameLabel", root.transform, new Vector2(0f, -115f), new Vector2(566f, 105f), 52, TextAnchor.MiddleCenter, DarkText);
+			RecipeCard card = new RecipeCard(recipe, root, button, canvas);
+
+			// RecipeNameLabel: top stretch, y -115, height 105, font 105.
+			Text name = CreateText("RecipeNameLabel", root.transform, new Vector2(0f, -115f), new Vector2(0f, 105f), 105, TextAnchor.MiddleCenter, DarkText);
+			StretchHorizontally(name.rectTransform, new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, -115f), 105f);
 			name.text = LocalizationManager.GetString(recipe.Alias);
 
-			CreateRecipeProperty(root.transform, recipe);
-			CreateRecipePrice(root.transform, recipe);
-			return new RecipeCard(recipe, root, button, canvas);
+			card.PropertiesRoot = CreateRecipeProperties(root.transform, recipe, card);
+			card.ComplexLockedLabel = CreateCardLabel(root.transform, "RecipeComplexLockedLabel", "forgeRecipeComplexLocked", 66f, 270f, 50);
+			card.WarningLabel = CreateCardLabel(root.transform, "EnchantWarningLabel", "enchantWarning", 0f, 170f, 90);
+			card.PriceRoot = CreateRecipePrice(root.transform, recipe, card);
+			card.FreeRoot = CreateFreePrice(root.transform);
+			return card;
 		}
 
-		private void CreateRecipeProperty(Transform parent, Recipe recipe)
+		private GameObject CreateCardLabel(Transform parent, string name, string alias, float y, float height, int fontSize)
 		{
-			RecipeItem item = recipe.GetRecipeItemByItem(_selectedItem);
-			if (item == null) return;
-			int level = CurrentInfo(_selectedItem)?.MHGODOLNDLE ?? 1;
-			int baseAspect = ForgeManager.ELEBLBJKDBI().GetAspectValueByLevel(level);
-			int min = baseAspect + item.MinDeviation;
-			int max = baseAspect + item.MaxDeviation;
+			Text label = CreateText(name, parent, new Vector2(0f, y), new Vector2(0f, height), fontSize, TextAnchor.MiddleCenter, DarkText);
+			StretchHorizontally(label.rectTransform, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, y), height);
+			label.text = LocalizationManager.GetString(alias);
+			label.gameObject.SetActive(false);
+			return label.gameObject;
+		}
 
-			GameObject area = new GameObject("RecipePropertiesUI", typeof(RectTransform));
+		private GameObject CreateRecipeProperties(Transform parent, Recipe recipe, RecipeCard card)
+		{
+			// RecipeUI.prefab > RecipePropertiesUI: middle stretch band, y +66, height 290,
+			// VerticalLayoutGroup (upper-left, no spacing, controls child size).
+			GameObject area = new GameObject("RecipePropertiesUI", typeof(RectTransform), typeof(VerticalLayoutGroup));
 			area.layer = parent.gameObject.layer;
 			area.transform.SetParent(parent, false);
 			RectTransform areaRect = area.GetComponent<RectTransform>();
-			areaRect.anchorMin = areaRect.anchorMax = new Vector2(0.5f, 0.5f);
-			areaRect.pivot = new Vector2(0.5f, 0.5f);
-			areaRect.anchoredPosition = new Vector2(0f, 66f);
-			areaRect.sizeDelta = new Vector2(515f, 290f);
+			StretchHorizontally(areaRect, new Vector2(0f, 0.5f), new Vector2(1f, 0.5f), new Vector2(0f, 66f), 290f);
+			VerticalLayoutGroup vertical = area.GetComponent<VerticalLayoutGroup>();
+			vertical.childAlignment = TextAnchor.UpperLeft;
+			vertical.spacing = 0f;
+			vertical.childControlWidth = true;
+			vertical.childControlHeight = true;
+			vertical.childForceExpandWidth = true;
+			vertical.childForceExpandHeight = false;
 
-			ResolutionImage icon = CreateSprite("Icon", area.transform, "RaidMisc.random", new Vector2(74f, 67f));
-			RectTransform iconRect = icon.rectTransform;
-			iconRect.anchorMin = iconRect.anchorMax = new Vector2(0f, 0.5f);
-			iconRect.pivot = new Vector2(0f, 0.5f);
-			iconRect.anchoredPosition = new Vector2(34f, 45f);
-
-			Text range = CreateText("Numbers", area.transform, new Vector2(75f, -20f), new Vector2(343f, 80f), 42, TextAnchor.MiddleCenter, DarkText);
-			range.text = min == max ? min.ToString() : min + " - " + max;
-
-			ResolutionImage background = CreateSprite("Background", area.transform, "ParametersBar.bar_0", new Vector2(343f, 35f));
-			RectTransform bgRect = background.rectTransform;
-			bgRect.anchorMin = bgRect.anchorMax = new Vector2(0.5f, 0.5f);
-			bgRect.anchoredPosition = new Vector2(75f, -60f);
-			ResolutionImage stripe = CreateSprite("StripeOrange", area.transform, "ParametersBar.bar_2", new Vector2(343f, 35f));
-			RectTransform stripeRect = stripe.rectTransform;
-			stripeRect.anchorMin = stripeRect.anchorMax = new Vector2(0.5f, 0.5f);
-			stripeRect.anchoredPosition = new Vector2(75f, -60f);
+			int rows = Mathf.Max(1, recipe.GetRequiredEnchantmentsByItem(_selectedItem));
+			for (int i = 0; i < rows; i++) card.Properties.Add(CreateRecipeProperty(area.transform));
+			return area;
 		}
 
-		private void CreateRecipePrice(Transform parent, Recipe recipe)
+		private RecipeProperty CreateRecipeProperty(Transform parent)
 		{
-			RecipePrice price = recipe.GetPriceByItem(_selectedItem);
-			if (price == null) return;
+			// RecipePropertyUI.prefab: 566x135 row, HorizontalLayoutGroup
+			// (padding 9/95, spacing 10, middle-center).
+			GameObject row = new GameObject("RecipePropertyUI", typeof(RectTransform), typeof(HorizontalLayoutGroup), typeof(LayoutElement));
+			row.layer = parent.gameObject.layer;
+			row.transform.SetParent(parent, false);
+			LayoutElement rowLayout = row.GetComponent<LayoutElement>();
+			rowLayout.minWidth = 536f;
+			rowLayout.minHeight = 135f;
+			rowLayout.preferredWidth = RecipeCellWidth;
+			rowLayout.preferredHeight = 135f;
+			HorizontalLayoutGroup horizontal = row.GetComponent<HorizontalLayoutGroup>();
+			horizontal.padding = new RectOffset(9, 95, 0, 0);
+			horizontal.childAlignment = TextAnchor.MiddleCenter;
+			horizontal.spacing = 10f;
+			horizontal.childControlWidth = true;
+			horizontal.childControlHeight = true;
+			horizontal.childForceExpandWidth = false;
+			horizontal.childForceExpandHeight = false;
 
+			ResolutionImage icon = CreateSprite("Icon", row.transform, "MiscSprites.random", new Vector2(109f, 95f), true);
+			LayoutElement iconLayout = icon.gameObject.AddComponent<LayoutElement>();
+			iconLayout.minWidth = 109f;
+			iconLayout.minHeight = 95f;
+
+			GameObject column = new GameObject("VerticalLayout", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(LayoutElement));
+			column.layer = row.layer;
+			column.transform.SetParent(row.transform, false);
+			LayoutElement columnLayout = column.GetComponent<LayoutElement>();
+			columnLayout.preferredHeight = 100f;
+			VerticalLayoutGroup columnGroup = column.GetComponent<VerticalLayoutGroup>();
+			columnGroup.padding = new RectOffset(0, 0, 0, 5);
+			columnGroup.childAlignment = TextAnchor.MiddleCenter;
+			columnGroup.spacing = 3f;
+			columnGroup.childControlWidth = true;
+			columnGroup.childControlHeight = true;
+			columnGroup.childForceExpandWidth = true;
+			columnGroup.childForceExpandHeight = false;
+
+			Text numbers = CreateText("Numbers", column.transform, Vector2.zero, new Vector2(343f, 60f), 42, TextAnchor.MiddleCenter, DarkText);
+			LayoutElement numbersLayout = numbers.gameObject.AddComponent<LayoutElement>();
+			numbersLayout.minWidth = 343f;
+			numbersLayout.minHeight = 60f;
+
+			GameObject bar = new GameObject("ProgressBar", typeof(RectTransform), typeof(LayoutElement));
+			bar.layer = row.layer;
+			bar.transform.SetParent(column.transform, false);
+			LayoutElement barLayout = bar.GetComponent<LayoutElement>();
+			barLayout.minWidth = 343f;
+			barLayout.minHeight = 35f;
+
+			ResolutionImage background = CreateSprite("Background", bar.transform, "ParametersBar.bar_0", Vector2.zero, false);
+			Stretch(background.rectTransform, Vector2.zero, Vector2.zero);
+			background.type = Image.Type.Filled;
+			background.fillMethod = Image.FillMethod.Horizontal;
+			background.fillOrigin = 0;
+			background.fillAmount = 1f;
+
+			ResolutionImage stripe = CreateSprite("StripeOrange", bar.transform, "ParametersBar.bar_2", Vector2.zero, false);
+			Stretch(stripe.rectTransform, Vector2.zero, Vector2.zero);
+			stripe.type = Image.Type.Filled;
+			stripe.fillMethod = Image.FillMethod.Horizontal;
+			stripe.fillOrigin = 0;
+			stripe.fillAmount = 0f;
+
+			return new RecipeProperty(row, numbers, stripe);
+		}
+
+		private GameObject CreateRecipePrice(Transform parent, Recipe recipe, RecipeCard card)
+		{
+			// RecipeUI.prefab > RecipePriceUI: bottom stretch band, y +170, height 262.
 			GameObject priceRoot = new GameObject("RecipePriceUI", typeof(RectTransform));
 			priceRoot.layer = parent.gameObject.layer;
 			priceRoot.transform.SetParent(parent, false);
 			RectTransform rect = priceRoot.GetComponent<RectTransform>();
-			rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0f);
-			rect.pivot = new Vector2(0.5f, 0f);
-			rect.anchoredPosition = new Vector2(0f, 35f);
-			rect.sizeDelta = new Vector2(566f, 262f);
+			StretchHorizontally(rect, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 170f), 262f);
 
-			if (recipe.IsFree)
-			{
-				ResolutionImage stripe = CreateSprite("Stripe", priceRoot.transform, "ShopPieces.Stripe2", new Vector2(412f, 88f));
-				stripe.rectTransform.anchorMin = stripe.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-				stripe.rectTransform.anchoredPosition = new Vector2(0f, -14f);
-				Text free = CreateText("Free", priceRoot.transform, new Vector2(0f, -19f), new Vector2(412f, 88f), 38, TextAnchor.MiddleCenter, FreeText);
-				free.text = LocalizationManager.GetString("free").ToUpperInvariant();
-				return;
-			}
-
-			Text costLabel = CreateText("ReceiptPriceLabel", priceRoot.transform, new Vector2(0f, -5f), new Vector2(326f, 70f), 34, TextAnchor.MiddleCenter, DarkText);
+			Text costLabel = CreateText("ReceiptPriceLabel", priceRoot.transform, new Vector2(0f, 213f), new Vector2(-240f, 95f), 75, TextAnchor.MiddleCenter, DarkText);
+			StretchHorizontally(costLabel.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 213f), 95f);
+			costLabel.rectTransform.sizeDelta = new Vector2(-240f, 95f);
 			costLabel.text = LocalizationManager.GetString("forgeCurrenciesCost");
 
 			GameObject materials = new GameObject("Materials", typeof(RectTransform), typeof(HorizontalLayoutGroup));
 			materials.layer = priceRoot.layer;
 			materials.transform.SetParent(priceRoot.transform, false);
 			RectTransform materialsRect = materials.GetComponent<RectTransform>();
-			materialsRect.anchorMin = materialsRect.anchorMax = new Vector2(0.5f, 0f);
-			materialsRect.pivot = new Vector2(0.5f, 0f);
-			materialsRect.anchoredPosition = new Vector2(0f, 18f);
-			materialsRect.sizeDelta = new Vector2(515f, 145f);
+			StretchHorizontally(materialsRect, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 85f), 170f);
 			HorizontalLayoutGroup row = materials.GetComponent<HorizontalLayoutGroup>();
-			row.childAlignment = TextAnchor.MiddleCenter;
+			row.childAlignment = TextAnchor.UpperCenter;
 			row.spacing = 44f;
-			row.childControlWidth = false;
-			row.childControlHeight = false;
+			row.childControlWidth = true;
+			row.childControlHeight = true;
 			row.childForceExpandWidth = false;
-			row.childForceExpandHeight = false;
+			row.childForceExpandHeight = true;
 
-			Roster roster = ListSF.CCDKHLAMKKO();
+			RecipePrice price = recipe.GetPriceByItem(_selectedItem);
+			if (price == null) return priceRoot;
+
 			for (int i = 0; i < price.Materials.Count; i++)
 			{
 				CurrencyStruct material = price.Materials[i];
 				if (material?.BKDEAGGPNAO == null) continue;
-				GameObject materialUi = new GameObject("MaterialUI", typeof(RectTransform), typeof(LayoutElement));
-				materialUi.layer = materials.layer;
-				materialUi.transform.SetParent(materials.transform, false);
-				LayoutElement materialLayout = materialUi.GetComponent<LayoutElement>();
-				materialLayout.preferredWidth = 110f;
-				materialLayout.preferredHeight = 130f;
-				string iconName = material.BKDEAGGPNAO.MJBPMLCLMFN;
-				ResolutionImage icon = CreateSprite("Icon", materialUi.transform, iconName, new Vector2(70f, 70f));
-				icon.rectTransform.anchorMin = icon.rectTransform.anchorMax = new Vector2(0.5f, 1f);
-				icon.rectTransform.anchoredPosition = new Vector2(0f, -35f);
-				int owned = roster == null ? 0 : roster.GetCurrencyCount(material.BKDEAGGPNAO);
-				Color priceColor = owned >= material.Count ? DarkText : MissingMaterialText;
-				Text value = CreateText("Price", materialUi.transform, new Vector2(0f, -78f), new Vector2(110f, 52f), 34, TextAnchor.MiddleCenter, priceColor);
-				value.text = ((int)material.Count).ToString();
+				card.Materials.Add(CreateMaterial(materials.transform, material));
 			}
+			return priceRoot;
+		}
+
+		private MaterialEntry CreateMaterial(Transform parent, CurrencyStruct material)
+		{
+			// MaterialUI.prefab: 164x170 cell, icon band 94 tall at y -58, price 78.8 tall.
+			GameObject materialUi = new GameObject("MaterialUI", typeof(RectTransform), typeof(LayoutElement));
+			materialUi.layer = parent.gameObject.layer;
+			materialUi.transform.SetParent(parent, false);
+			LayoutElement materialLayout = materialUi.GetComponent<LayoutElement>();
+			materialLayout.preferredWidth = 164f;
+			materialLayout.preferredHeight = 170f;
+
+			ResolutionImage icon = CreateSprite("Icon", materialUi.transform, material.BKDEAGGPNAO.MJBPMLCLMFN, Vector2.zero, true);
+			RectTransform iconRect = icon.rectTransform;
+			iconRect.anchorMin = new Vector2(0f, 1f);
+			iconRect.anchorMax = new Vector2(1f, 1f);
+			iconRect.pivot = new Vector2(0.5f, 0.5f);
+			iconRect.anchoredPosition = new Vector2(-2.5f, -58f);
+			iconRect.sizeDelta = new Vector2(-70f, 94f);
+
+			Text value = CreateText("Price", materialUi.transform, new Vector2(0f, 39.4f), new Vector2(0f, 78.8f), 56, TextAnchor.MiddleCenter, DarkText);
+			StretchHorizontally(value.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 39.4f), 78.8f);
+			value.text = ((int)material.Count).ToString();
+			return new MaterialEntry(material, value);
+		}
+
+		private GameObject CreateFreePrice(Transform parent)
+		{
+			// RecipeUI.prefab > FreeRecipeUI (inactive by default).
+			GameObject freeRoot = new GameObject("FreeRecipeUI", typeof(RectTransform));
+			freeRoot.layer = parent.gameObject.layer;
+			freeRoot.transform.SetParent(parent, false);
+			StretchHorizontally(freeRoot.GetComponent<RectTransform>(), new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0f, 123f), 170f);
+
+			ResolutionImage stripe = CreateSprite("Stripe", freeRoot.transform, "ShopPieces.Stripe2", new Vector2(412f, 88f), false);
+			stripe.rectTransform.anchoredPosition = new Vector2(0f, -14f);
+			Text free = CreateText("Text", freeRoot.transform, new Vector2(0f, -19f), new Vector2(412f, 88f), 47, TextAnchor.MiddleCenter, FreeText);
+			free.rectTransform.anchorMin = free.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+			free.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+			free.rectTransform.anchoredPosition = new Vector2(0f, -19f);
+			free.text = LocalizationManager.GetString("free");
+			freeRoot.SetActive(false);
+			return freeRoot;
 		}
 
 		private void SelectRecipe(int index, bool scrollIntoView)
@@ -581,41 +775,116 @@ namespace Eclipse.Forge
 
 		private void RefreshRecipeCardState()
 		{
+			ItemInfo info = CurrentInfo(_selectedItem);
+			int itemLevel = info != null ? info.MHGODOLNDLE : 1;
+			Roster roster = ListSF.CCDKHLAMKKO();
+
 			for (int i = 0; i < _recipeCards.Count; i++)
 			{
-				bool available = _selectedItem != null && _recipeCards[i].Recipe.IsRecipeAvailableForItem(_selectedItem);
-				_recipeCards[i].Button.interactable = available;
-				if (_recipeCards[i].Recipe != _selectedRecipe)
-					_recipeCards[i].Canvas.alpha = available ? 0.5f : 0.3f;
-				else
-					_recipeCards[i].Canvas.alpha = available ? 1f : 0.45f;
+				RecipeCard card = _recipeCards[i];
+				Recipe recipe = card.Recipe;
+				// Shop.unity: ForgePanel._ActiveTableViewCellOpacity 1 /
+				// _InactiveTableViewCellOpacity 0.5. Availability is communicated by the
+				// locked/warning labels, not by dimming the cell further.
+				card.Button.interactable = _selectedItem != null;
+				card.Canvas.alpha = recipe == _selectedRecipe ? 1f : 0.5f;
+
+				// RecipeUI shows exactly one of: the property rows, the locked-recipe
+				// hint, or the duplicate-enchantment warning.
+				int possible = _selectedItem == null ? 0 : recipe.GetPossibleEnchantments(_selectedItem, itemLevel, false).Count;
+				int ready = _selectedItem == null ? 0 : recipe.GetPossibleEnchantments(_selectedItem, itemLevel, true).Count;
+				int required = _selectedItem == null ? 0 : recipe.GetRequiredEnchantmentsByItem(_selectedItem);
+				bool locked = possible <= 0;
+				bool duplicate = !locked && ready < required;
+
+				card.PropertiesRoot.SetActive(!locked && !duplicate);
+				card.ComplexLockedLabel.SetActive(locked);
+				card.WarningLabel.SetActive(duplicate);
+
+				if (!locked && !duplicate) RefreshRecipeProperties(card, recipe, itemLevel);
+
+				bool free = recipe.IsFree;
+				card.PriceRoot.SetActive(!free);
+				card.FreeRoot.SetActive(free);
+				if (!free)
+				{
+					for (int m = 0; m < card.Materials.Count; m++)
+					{
+						MaterialEntry entry = card.Materials[m];
+						int owned = roster == null ? 0 : roster.GetCurrencyCount(entry.Material.BKDEAGGPNAO);
+						entry.Value.color = owned >= entry.Material.Count ? DarkText : MissingMaterialText;
+					}
+				}
 			}
+		}
+
+		private void RefreshRecipeProperties(RecipeCard card, Recipe recipe, int itemLevel)
+		{
+			RecipeItem item = recipe.GetRecipeItemByItem(_selectedItem);
+			if (item == null) return;
+			int baseAspect = ForgeManager.ELEBLBJKDBI().GetAspectValueByLevel(itemLevel);
+			int min = baseAspect + item.MinDeviation;
+			int max = baseAspect + item.MaxDeviation;
+			float fill = EnchantmentBarFill(item.BarScale, baseAspect, itemLevel);
+
+			for (int i = 0; i < card.Properties.Count; i++)
+			{
+				RecipeProperty property = card.Properties[i];
+				property.Numbers.text = min == max ? min.ToString() : min + " - " + max;
+				property.Stripe.fillAmount = fill;
+			}
+		}
+
+		/// <summary>
+		/// Mirrors ParameterScrollItem.GetPercentFromValue for the forge bar, using the
+		/// item limits of the BarScale named by the recipe item (vanilla: "Enchantment").
+		/// </summary>
+		private static float EnchantmentBarFill(string barScaleName, float value, int itemLevel)
+		{
+			if (string.IsNullOrEmpty(barScaleName)) return 0f;
+			BarScale scale = GameUtils.NPHEOMBNOLK?.HNECOCDPENN(barScaleName);
+			if (scale == null) return 0f;
+
+			Limit limit = scale.EHKJEKAIDFF(itemLevel) ?? scale.NMMHOKHKFEE();
+			if (limit == null) return 0f;
+
+			float rightLimit = limit.OBGGBMDABAD >= 0 && limit.NGPJDHKOEJC >= 0
+				? limit.NGPJDHKOEJC
+				: itemLevel * limit.LevelMultiplier + limit.Shift;
+			if (rightLimit <= 0f) return 0f;
+
+			float power = scale.MFGLDPKEDJB >= 0f ? scale.MFGLDPKEDJB : 0f;
+			float minimum = scale.DPGMCKCDMBC >= 0f ? scale.DPGMCKCDMBC : 0f;
+			float percent;
+			if (!string.IsNullOrEmpty(scale.Type) && scale.Type.Equals("Linear"))
+			{
+				percent = Mathf.Pow(value / rightLimit, power);
+			}
+			else
+			{
+				float doublingRange = GameUtils.BGJPLNFFEOB;
+				if (doublingRange <= 0f) doublingRange = 10f;
+				percent = Mathf.Pow(2f, (value - rightLimit) * power / doublingRange);
+			}
+			return Mathf.Max(Mathf.Clamp01(percent), minimum);
 		}
 
 		private void RefreshPropertyControls()
 		{
 			if (_propertyControls == null) return;
 			ResolveSelectedItem();
-			RecipeItemInfo pending = _selectedItem?.PHDBCIHJKON();
 			bool canOpen = CanOpen();
 
-			_propertyControls.SetActive(_isOpen || pending != null);
-			_deliveryPanel.SetActive(pending != null);
-			_skipButton.gameObject.SetActive(pending != null);
+			bool showControls = _isOpen;
+			_propertyControls.SetActive(showControls);
+			// Content mounted into the side panel at runtime can be added after this
+			// block; keep the forge controls on top of it.
+			if (showControls) _propertyControls.transform.SetAsLastSibling();
 			bool showForgeButton = ShouldShowForgeButton();
 			_forgeOpenButton.gameObject.SetActive(!_isOpen && showForgeButton);
-			_forgeOpenButton.interactable = pending == null && canOpen;
-			_applyButton.gameObject.SetActive(_isOpen && pending == null);
+			_forgeOpenButton.interactable = canOpen;
+			_applyButton.gameObject.SetActive(_isOpen);
 			_closeButton.gameObject.SetActive(_isOpen);
-
-			if (pending != null)
-			{
-				_deliveryText.text = FormatDuration(pending.TimeLeft);
-				long rubyPrice = pending.KLHOKKPALOK;
-				_skipButton.SetText(rubyPrice.ToString());
-				ListSF.CheckItems check = ListSF.CLKECIFEMNB(pending, ItemAction.Item_Recipe_Delivery_Ruby);
-				_skipButton.interactable = check != null && check.Value >= 0;
-			}
 
 			if (_isOpen)
 			{
@@ -634,28 +903,31 @@ namespace Eclipse.Forge
 				return;
 			}
 
-			_hadPendingDelivery = true;
-			_mainMenu?.UpdateMaterials();
+			ResolveSelectedItem();
+			RecipeItemInfo pending = _selectedItem?.PHDBCIHJKON();
+			if (pending != null && !ListSF.ApplyRecipeToItem(pending))
+			{
+				RefreshPropertyControls();
+				return;
+			}
+
+			_mainMenu?.UpdateMainMenu();
 			_shop.RefreshAfterForgeMutation();
 			ResolveSelectedItem();
 			Close();
 			RefreshPropertyControls();
 		}
 
-		private void SkipDelivery()
+		private bool FinishPendingEnchantment()
 		{
-			ResolveSelectedItem();
 			RecipeItemInfo pending = _selectedItem?.PHDBCIHJKON();
-			if (pending == null) return;
-			ListSF.CheckItems check = ListSF.CLKECIFEMNB(pending, ItemAction.Item_Recipe_Delivery_Ruby);
-			if (check == null || check.Value < 0) return;
-			if (!ListSF.KCBCGDFKNME(pending, ItemAction.Item_Recipe_Delivery_Ruby, check.Value)) return;
+			if (pending == null) return false;
+			if (!ListSF.ApplyRecipeToItem(pending)) return false;
 
-			_hadPendingDelivery = false;
 			_mainMenu?.UpdateMainMenu();
 			_shop.RefreshAfterForgeMutation();
 			ResolveSelectedItem();
-			RefreshPropertyControls();
+			return true;
 		}
 
 		private void SetShopForgeOffset(bool forgeMode)
@@ -663,13 +935,14 @@ namespace Eclipse.Forge
 			if (_layoutOffsetApplied == forgeMode) return;
 			Vector2 forgeOffset = forgeMode ? new Vector2(ForgeModeOffset, 0f) : Vector2.zero;
 
-			// The intact ShopScene moves one _PanelsContainer by _ForgeModeX.  This
-			// recovered scene split that container into two top-level groups: the item
-			// scroller and the side panels. Move each group once; never move the
-			// Parameters/Properties children independently or the shop tears apart.
+			// 1.0.6 Shop.unity keeps ItemInfoPanel outside _PanelsContainer and only
+			// shifts the container that holds ItemParametersPanel, ItemPropertiesPanel
+			// and ItemsPanel. The recovered scene nests the info panel next to the two
+			// side panels, so the offset is applied to the three moving rects directly
+			// and the info panel stays where the shop authored it.
 			if (_itemsRoot != null) _itemsRoot.anchoredPosition = _itemsNormalPosition + forgeOffset;
-			if (_sidePanelsRoot != null && _sidePanelsRoot != _itemsRoot)
-				_sidePanelsRoot.anchoredPosition = _sidePanelsNormalPosition + forgeOffset;
+			if (_parametersRoot != null) _parametersRoot.anchoredPosition = _parametersNormalPosition + forgeOffset;
+			if (_propertiesRoot != null) _propertiesRoot.anchoredPosition = _propertiesNormalPosition + forgeOffset;
 			_layoutOffsetApplied = forgeMode;
 		}
 
@@ -704,17 +977,34 @@ namespace Eclipse.Forge
 			return button;
 		}
 
-		private static ResolutionImage CreateButtonIcon(Transform parent, string spriteName)
+		private static GameObject CreateStretched(string name, Transform parent, Vector2 anchoredPosition, Vector2 sizeDelta)
 		{
-			ResolutionImage icon = CreateSprite("Icon", parent, spriteName, new Vector2(58f, 58f));
-			RectTransform rect = icon.rectTransform;
-			rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
-			rect.pivot = new Vector2(1f, 0.5f);
-			rect.anchoredPosition = new Vector2(-45f, 0f);
-			return icon;
+			GameObject node = new GameObject(name, typeof(RectTransform));
+			node.layer = parent.gameObject.layer;
+			node.transform.SetParent(parent, false);
+			Stretch(node.GetComponent<RectTransform>(), anchoredPosition, sizeDelta);
+			return node;
 		}
 
-		private static ResolutionImage CreateSprite(string name, Transform parent, string spriteName, Vector2 size)
+		private static void Stretch(RectTransform rect, Vector2 anchoredPosition, Vector2 sizeDelta)
+		{
+			rect.anchorMin = Vector2.zero;
+			rect.anchorMax = Vector2.one;
+			rect.pivot = new Vector2(0.5f, 0.5f);
+			rect.anchoredPosition = anchoredPosition;
+			rect.sizeDelta = sizeDelta;
+		}
+
+		private static void StretchHorizontally(RectTransform rect, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, float height)
+		{
+			rect.anchorMin = anchorMin;
+			rect.anchorMax = anchorMax;
+			rect.pivot = new Vector2(0.5f, 0.5f);
+			rect.anchoredPosition = anchoredPosition;
+			rect.sizeDelta = new Vector2(0f, height);
+		}
+
+		private static ResolutionImage CreateSprite(string name, Transform parent, string spriteName, Vector2 size, bool preserveAspect, string texturePath = "UI/Atlases/")
 		{
 			GameObject spriteObject = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(ResolutionImage));
 			spriteObject.layer = parent.gameObject.layer;
@@ -725,9 +1015,9 @@ namespace Eclipse.Forge
 			rect.sizeDelta = size;
 			ResolutionImage image = spriteObject.GetComponent<ResolutionImage>();
 			image.raycastTarget = false;
-			image.set_TexturePath("UI/Atlases/");
+			image.set_TexturePath(texturePath);
 			image.set_SpriteName(spriteName);
-			image.preserveAspect = true;
+			image.preserveAspect = preserveAspect;
 			return image;
 		}
 
@@ -737,19 +1027,21 @@ namespace Eclipse.Forge
 			textObject.layer = parent.gameObject.layer;
 			textObject.transform.SetParent(parent, false);
 			RectTransform rect = textObject.GetComponent<RectTransform>();
-			rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
-			rect.pivot = new Vector2(0.5f, 1f);
+			rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+			rect.pivot = new Vector2(0.5f, 0.5f);
 			rect.anchoredPosition = anchoredPosition;
 			rect.sizeDelta = size;
 			Text text = textObject.GetComponent<Text>();
 			text.font = LocalizationManager.MBPJIKFOEBJ();
 			text.fontSize = fontSize;
 			text.resizeTextForBestFit = true;
-			text.resizeTextMinSize = 12;
+			text.resizeTextMinSize = 1;
 			text.resizeTextMaxSize = fontSize;
 			text.alignment = alignment;
 			text.color = color;
 			text.raycastTarget = false;
+			text.horizontalOverflow = HorizontalWrapMode.Wrap;
+			text.verticalOverflow = VerticalWrapMode.Truncate;
 			return text;
 		}
 
@@ -759,21 +1051,20 @@ namespace Eclipse.Forge
 			return userItem.DBLCMCEGJGI(false) ?? userItem.BHKHOJPANHE();
 		}
 
-		private static string FormatDuration(long seconds)
-		{
-			if (seconds < 0L) seconds = 0L;
-			TimeSpan duration = TimeSpan.FromSeconds(seconds);
-			if (duration.TotalDays >= 1d)
-				return string.Format("{0}d {1:00}:{2:00}:{3:00}", (int)duration.TotalDays, duration.Hours, duration.Minutes, duration.Seconds);
-			return string.Format("{0:00}:{1:00}:{2:00}", (int)duration.TotalHours, duration.Minutes, duration.Seconds);
-		}
-
 		private sealed class RecipeCard
 		{
 			public readonly Recipe Recipe;
 			public readonly GameObject Root;
 			public readonly Button Button;
 			public readonly CanvasGroup Canvas;
+			public readonly List<RecipeProperty> Properties = new List<RecipeProperty>();
+			public readonly List<MaterialEntry> Materials = new List<MaterialEntry>();
+
+			public GameObject PropertiesRoot;
+			public GameObject ComplexLockedLabel;
+			public GameObject WarningLabel;
+			public GameObject PriceRoot;
+			public GameObject FreeRoot;
 
 			public RecipeCard(Recipe recipe, GameObject root, Button button, CanvasGroup canvas)
 			{
@@ -781,6 +1072,32 @@ namespace Eclipse.Forge
 				Root = root;
 				Button = button;
 				Canvas = canvas;
+			}
+		}
+
+		private sealed class RecipeProperty
+		{
+			public readonly GameObject Root;
+			public readonly Text Numbers;
+			public readonly Image Stripe;
+
+			public RecipeProperty(GameObject root, Text numbers, Image stripe)
+			{
+				Root = root;
+				Numbers = numbers;
+				Stripe = stripe;
+			}
+		}
+
+		private sealed class MaterialEntry
+		{
+			public readonly CurrencyStruct Material;
+			public readonly Text Value;
+
+			public MaterialEntry(CurrencyStruct material, Text value)
+			{
+				Material = material;
+				Value = value;
 			}
 		}
 	}
