@@ -52,11 +52,6 @@ be expanded further in the base until there is a mod/configuration boundary.
 - recovered networking/browser call sites have been adapted to those offline
   shims.
 
-This strongly aligns with DE's "fully offline", "no ads", and "no real-money
-purchases" direction. It is useful for a self-contained PC build today, but the
-long-term base architecture should make service policy replaceable rather than
-define "offline forever" as a core game rule.
-
 ### Energy and premium/shop UI removal
 
 `Assets/Scripts/Eclipse/UI/TopBar/DesktopTopBarLayout.cs` currently:
@@ -66,11 +61,6 @@ define "offline forever" as a core game rule.
 - hides the shop/add button;
 - hides the ruby-sale presentation;
 - compacts the remaining currency/XP layout.
-
-That is directly aligned with DE's "no energy system" and monetization-removal
-presentation. The layout helper itself is reusable, but the decision to hide
-those systems should eventually be a mod/profile option rather than vanilla
-Eclipse policy.
 
 The recovered energy implementation still exists (`GameUtils`, `ListSF`, dialogs,
 timers, etc.). The current code primarily suppresses its UI; it is not a clean
