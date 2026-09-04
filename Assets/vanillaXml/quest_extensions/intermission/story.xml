@@ -1153,6 +1153,7 @@
       <Dialog Type="Regular" Title="WEAPON_STRANGER_KNUCKLES" Image="img_drop_im_knuckles">
         <Line Text="intermission_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
         <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <GiveItem Name="WEAPON_STRANGER_KNUCKLES" PutOn="0" Quantity="1 - ?Item[WEAPON_STRANGER_KNUCKLES].Quantity"/>
           <OpenShop Tab="Weapon" Item="WEAPON_STRANGER_KNUCKLES" CallEvents="0"/>
         </Button>
       </Dialog>

@@ -1000,6 +1000,7 @@
       <Dialog Type="Regular" Title="NAME_TRICKSTER" Image="man_nunchaku">
         <Line Text="zone_1_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
         <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <GiveItem Name="WEAPON_NUNCHAKU" PutOn="0" Quantity="1 - ?Item[WEAPON_NUNCHAKU].Quantity"/>
           <OpenShop Tab="Weapon" Item="WEAPON_NUNCHAKU" CallEvents="0"/>
         </Button>
       </Dialog>

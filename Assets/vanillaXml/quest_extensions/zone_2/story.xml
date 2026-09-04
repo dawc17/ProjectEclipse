@@ -882,6 +882,7 @@
       <Dialog Type="Regular" Title="NAME_HAWK" Image="man_ninja_naginata" MinContentHeight="790">
         <Line Text="zone_2_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
         <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <GiveItem Name="WEAPON_NAGINATA" PutOn="0" Quantity="1 - ?Item[WEAPON_NAGINATA].Quantity"/>
           <OpenShop Tab="Weapon" Item="WEAPON_NAGINATA" CallEvents="0"/>
         </Button>
       </Dialog>

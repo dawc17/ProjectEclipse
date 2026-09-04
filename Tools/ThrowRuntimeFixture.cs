@@ -137,7 +137,7 @@ public static class ThrowRuntimeFixture
         return fighter.CLDMEJKGLBA().EGHIDHMENEF("NPivot").ICLEOFDKDIF().GILCBJJPKBK();
     }
 
-    public static void Run(string root)
+    public static void Run(string root, string skeletonText)
     {
         ILogHandler previousLog = Debug.unityLogger.logHandler;
         Debug.unityLogger.logHandler = new LogHandler();
@@ -148,7 +148,7 @@ public static class ThrowRuntimeFixture
             var xml = new XmlDocument();
             xml.Load(Path.Combine(root, "Assets/vanillaXml/animations/moves.xml"));
             var skeleton = new XmlDocument();
-            skeleton.Load(Path.Combine(root, "Assets/vanillaXml/models/mdl_skeleton.xml"));
+            skeleton.LoadXml(skeletonText);
             foreach (string name in new[] { "ThrowForward", "ThrowThroughTheBack" })
             foreach (int sign in new[] { -1, 1 })
             foreach (float arenaX in new[] { -900f, 0f, 900f })

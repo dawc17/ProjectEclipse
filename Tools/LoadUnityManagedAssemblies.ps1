@@ -1,4 +1,7 @@
 function Import-SF2ManagedRuntime([string]$ProjectPath) {
+    if ($PSVersionTable.PSVersion.Major -lt 7) {
+        throw 'Unity 2022 managed runtime checks require PowerShell 7 (pwsh), not Windows PowerShell 5.1.'
+    }
     $projectFile = Join-Path $ProjectPath 'Assembly-CSharp.csproj'
     [xml]$project = Get-Content -Raw -LiteralPath $projectFile
     $namespace = New-Object Xml.XmlNamespaceManager($project.NameTable)

@@ -28,6 +28,36 @@ msbuild Assembly-CSharp.csproj /nologo /v:quiet /clp:ErrorsOnly
 msbuild Assembly-CSharp-Editor.csproj /nologo /v:quiet /clp:ErrorsOnly
 ```
 
+Run managed runtime test scripts under **PowerShell 7 (`pwsh`)**, not Windows
+PowerShell 5.1; Unity 2022's managed API is not compatible with the older host.
+
+## Build Windows and Android
+
+Install Unity **2022.3.62f3** with Windows build support and **Android Build
+Support**, including its SDK/NDK tools and OpenJDK. Use Unity's embedded Android
+toolchain rather than an unrelated system Java installation.
+
+In Unity, select the target platform in Build Settings, then use
+**SF2 > Build > Windows x86_64** or **Android ARM64 APK**.
+Outputs go to the ignored `Builds/Windows/Eclipse.exe`
+and `Builds/Android/Eclipse.apk` paths. Android uses IL2CPP, ARM64 only, and
+LZ4 high-compression player data to keep the large content set packageable.
+The configured enabled scenes are checked, packaged art is validated, and the
+offline gameplay archive is regenerated before each player build.
+
+For unattended builds, close the editor for this project first and run:
+
+```powershell
+& .\BuildScripts\BuildPlayers.ps1 -Target All
+```
+
+Use `-Target Windows` or `-Target Android` to build just one target. The script
+starts a separate Unity process with an explicit platform for each build; use
+`-Unity`, `-ProjectPath`, and `-OutputDirectory` to override its paths. Each target
+gets a build log alongside the output directories. The APK uses the
+project's existing signing settings; configure a release keystore separately
+before distributing a production release.
+
 See `AGENTS.md` for project conventions and validation guidance.
 See `CONTENT.md` for the content layout and validation. Use **SF2 > Content Browser** to search assets across the project from one window.
 See [Mods/README.md](Mods/README.md) for loose mod assets, sprite descriptors, and the Lua API.

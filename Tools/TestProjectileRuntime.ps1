@@ -18,6 +18,7 @@ $fixture = @'
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using Eclipse.Content;
 namespace ProjectileNormalizationTest {
     public class TextAsset { public string text; }
     public static class ResourcesAndBundles {
@@ -45,7 +46,15 @@ namespace ProjectileNormalizationTest {
     }
 }
 '@
-Add-Type -TypeDefinition $fixture.Replace('/* NORMALIZE */', $normalize.Value) -ReferencedAssemblies System.dll,System.Core.dll,System.Xml.dll
+$normalizerReferences = @(
+    $assembly.Location,
+    (Join-Path $PSHOME 'ref/mscorlib.dll'),
+    (Join-Path $PSHOME 'ref/netstandard.dll'),
+    (Join-Path $PSHOME 'ref/System.Collections.dll'),
+    (Join-Path $PSHOME 'ref/System.Xml.dll'),
+    (Join-Path $PSHOME 'ref/System.Xml.ReaderWriter.dll')
+)
+Add-Type -TypeDefinition $fixture.Replace('/* NORMALIZE */', $normalize.Value) -ReferencedAssemblies $normalizerReferences
 [xml]$modern = Get-Content -Raw (Join-Path $projectPath 'Assets/vanillaXml/animations/moves.xml')
 $baselineText = Get-Content -Raw (Join-Path $projectPath 'Assets/Resources/gamedata/animations/moves.txt')
 [xml]$baseline = $baselineText

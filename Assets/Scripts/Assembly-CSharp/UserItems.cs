@@ -67,7 +67,7 @@ public class UserItems
 
 	public List<UserItem> EHDCCPKOANN()
 	{
-		return HBLLBGLBDGI;
+		return CGJGNEADJBH;
 	}
 
 	public List<UserItem> MPACCEAFDOH()
@@ -274,7 +274,6 @@ public class UserItems
 
 	public void DINFNDFAJMB()
 	{
-		long localTimeUTC = GlobalTimer.get_LocalTimeUTC();
 		List<UserItem> list = new List<UserItem>();
 		bool flag = false;
 		foreach (UserItem item in HBLLBGLBDGI)
@@ -283,8 +282,10 @@ public class UserItems
 			{
 				list.Add(item);
 			}
-			else if (item.IJGAOHJNLAH() <= localTimeUTC)
+			else
 			{
+				// Migrate any delivery already persisted by an older build on the next
+				// timer tick. New shop purchases no longer enter this queue.
 				GBLHFNGPIOF(item);
 				list.Add(item);
 				flag = true;

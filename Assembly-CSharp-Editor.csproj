@@ -69,6 +69,7 @@
     <Compile Include="Assets\Editor\ModdingDiagnostics.cs" />
     <Compile Include="Assets\Editor\MissingScriptScanner.cs" />
     <Compile Include="Assets\Editor\DevXmlMigrationValidator.cs" />
+    <Compile Include="Assets\Editor\EclipsePlayerBuild.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

@@ -880,6 +880,7 @@
       <Dialog Type="Regular" Title="NAME_FISHER" Image="man_cool_staff">
         <Line Text="zone_4_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
         <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <GiveItem Name="WEAPON_WANDERER_STAFF" PutOn="0" Quantity="1 - ?Item[WEAPON_WANDERER_STAFF].Quantity"/>
           <OpenShop Tab="Weapon" Item="WEAPON_WANDERER_STAFF" CallEvents="0"/>
         </Button>
       </Dialog>

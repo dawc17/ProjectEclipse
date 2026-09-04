@@ -632,7 +632,6 @@ public class ListSF
 		if (item != null)
 		{
 			Roster nKGLHEGIKKP = CCDKHLAMKKO();
-			long num = GameUtils.ECCPJAPIABG();
 			long bMNFPNBAMAF = -1L;
 			if (item.Type == "RaidItemPack")
 			{
@@ -643,7 +642,9 @@ public class ListSF
 			case ItemAction.Item_Upgrade_Gold:
 				MBBMOKFGABP(item);
 				nKGLHEGIKKP.OIOOMAKNIOB(FLCBMGGIDDA);
-				bMNFPNBAMAF = ((item.EHKNIKHPGDN == 0) ? (-1) : (num + item.EHKNIKHPGDN));
+				// The offline runtime completes shop orders immediately; do not create
+				// delivery timestamps that depend on the retired server timer.
+				bMNFPNBAMAF = -1L;
 				break;
 			case ItemAction.Item_Buy_Ruby:
 			case ItemAction.Item_Upgrade_Ruby:

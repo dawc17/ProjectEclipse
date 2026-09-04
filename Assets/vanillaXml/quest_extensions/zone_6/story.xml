@@ -1016,6 +1016,7 @@
       <Dialog Type="Regular" Title="NAME_RONIN" Image="man_dadao_janissary" Mirrored="1">
         <Line Text="zone_6_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
         <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <GiveItem Name="WEAPON_DADAO_JANISSARY" PutOn="0" Quantity="1 - ?Item[WEAPON_DADAO_JANISSARY].Quantity"/>
           <OpenShop Tab="Weapon" Item="WEAPON_DADAO_JANISSARY" CallEvents="0"/>
         </Button>
       </Dialog>

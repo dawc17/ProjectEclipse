@@ -881,6 +881,7 @@
       <Dialog Type="Regular" Title="NAME_OUTCAST" Image="man_heavy_kusarigama">
         <Line Text="zone_5_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
         <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <GiveItem Name="WEAPON_HEAVY_KUSARIGAMA" PutOn="0" Quantity="1 - ?Item[WEAPON_HEAVY_KUSARIGAMA].Quantity"/>
           <OpenShop Tab="Weapon" Item="WEAPON_HEAVY_KUSARIGAMA" CallEvents="0"/>
         </Button>
       </Dialog>

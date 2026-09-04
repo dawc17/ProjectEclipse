@@ -81,7 +81,9 @@ public static class ItemBuyHelper
 		{
 			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().BFBOEGMAMNF() - (ObscuredLong)(item.KJFAOKLILOC);
 			bool flag = false;
-			flag = ((item.EHKNIKHPGDN <= 0) ? KCBCGDFKNME(item) : OBHEMCJGMHE(item));
+			// Desktop/offline builds have no reliable server-backed delivery clock.
+			// Complete coin purchases immediately so an order cannot strand the item.
+			flag = KCBCGDFKNME(item);
 			if (flag)
 			{
 				ListSF.CCDKHLAMKKO().OIOOMAKNIOB(bAINMLLIKOL);
@@ -136,14 +138,9 @@ public static class ItemBuyHelper
 		{
 			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().BFBOEGMAMNF() - (ObscuredLong)(dJKEECEOCJB.KJFAOKLILOC);
 			bool flag = false;
-			if (dJKEECEOCJB.EHKNIKHPGDN > 0)
-			{
-				JHLILCFNLAE(dJKEECEOCJB, dKCHDHMLKHN);
-			}
-			else
-			{
-				flag = LBCJLCDMJLI(dJKEECEOCJB, dKCHDHMLKHN);
-			}
+			// Shop upgrades are immediate in the offline runtime. This also avoids
+			// entering the legacy delivery branch without reporting success.
+			flag = LBCJLCDMJLI(dJKEECEOCJB, dKCHDHMLKHN);
 			if (flag)
 			{
 				ListSF.CCDKHLAMKKO().OIOOMAKNIOB(bAINMLLIKOL);

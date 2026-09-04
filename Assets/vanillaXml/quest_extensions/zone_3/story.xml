@@ -859,6 +859,7 @@
       <Dialog Type="Regular" Title="NAME_ROSE" Image="girl_katana">
         <Line Text="zone_3_stranger_1_drop" ButtonText="dlgStoryBtnMore"/>
         <Button Type="Right" Color="Beige" Text="dlgStoryBtnTake">
+          <GiveItem Name="WEAPON_KATANA" PutOn="0" Quantity="1 - ?Item[WEAPON_KATANA].Quantity"/>
           <OpenShop Tab="Weapon" Item="WEAPON_KATANA" CallEvents="0"/>
         </Button>
       </Dialog>
