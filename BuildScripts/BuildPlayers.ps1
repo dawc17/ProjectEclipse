@@ -54,6 +54,9 @@ try {
             throw ($plan.Name + ' build did not succeed (exit ' + $process.ExitCode + '). See ' + $log)
         }
         (Select-String -LiteralPath $log -Pattern '\[EclipseBuild\] PASS:').Line
+        if ($plan.Name -eq 'Windows') {
+            & (Join-Path $PSScriptRoot 'BuildLauncher.ps1') -OutputDirectory (Join-Path $OutputDirectory 'Windows')
+        }
     }
 } finally {
     $env:ECLIPSE_WINDOWS_OUTPUT = $previousWindowsOutput

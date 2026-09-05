@@ -85,6 +85,10 @@ namespace Eclipse.Modding
         public static string GetDefaultModsRoot()
         {
 #if UNITY_EDITOR || UNITY_STANDALONE
+            // A launcher-managed installation keeps mods outside version directories.
+            string launcherMods = Environment.GetEnvironmentVariable("ECLIPSE_MODS_ROOT");
+            if (!string.IsNullOrWhiteSpace(launcherMods) && Path.IsPathRooted(launcherMods))
+                return Path.GetFullPath(launcherMods);
             string dataPath = Path.GetFullPath(Application.dataPath);
             DirectoryInfo parent = Directory.GetParent(dataPath);
             if (parent == null) throw new InvalidOperationException("Cannot determine game root from Application.dataPath.");
