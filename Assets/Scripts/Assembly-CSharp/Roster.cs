@@ -675,6 +675,15 @@ public class Roster : MELBIBHDPCE
 	public Roster(XmlNode node, ModelParameters JCICKLIMBEF)
 		: base(node)
 	{
+		int restoredBossEntries = Eclipse.Content.QuestCompatibility.RestoreUnsupportedHardmodeBosses(node);
+		if (restoredBossEntries != 0)
+		{
+			UnityEngine.Debug.Log("[DevXml] restored completed boss map entries from unsupported hardmode save data");
+		}
+		if (Eclipse.Content.QuestCompatibility.EnsureEligibleEclipseButton(node))
+		{
+			UnityEngine.Debug.Log("[DevXml] restored the Eclipse Mode map button from completed progression");
+		}
 		MMIMAJCKFKL = 0;
 		CLODDOOGDBB = false;
 		HCMLOIDALKC(node.Attributes["ServerUserID"].CIPOICEEIBK(string.Empty));
@@ -741,12 +750,6 @@ public class Roster : MELBIBHDPCE
 			{
 				AddShopLock(childNode3.Attributes["Name"].CIPOICEEIBK(string.Empty));
 			}
-		}
-		int restoredStoryShopUnlocks = Eclipse.Content.QuestCompatibility.ReconcileCompletedStoryShopUnlocks(this);
-		if (restoredStoryShopUnlocks != 0)
-		{
-			Debug.Log("[Shop] restored " + restoredStoryShopUnlocks +
-				" missing story item pack unlock(s) from completed boss fights");
 		}
 		ABBGMNHDECI = new UserPerks(HEGIABHIPHA);
 		ABBGMNHDECI.Parse(node);

@@ -352,6 +352,8 @@ namespace Nekki.SF2.GUI.Map
 		private void OHNNACAAOKH(Battle DPOOIONCEOA, FightList KOMGFJOCEDN)
 		{
 			_btnFight.gameObject.SetActive(true);
+			_btnFight.interactable = KOMGFJOCEDN == null ||
+				KOMGFJOCEDN.MeetsPlayerItemRequirements(ListSF.CCDKHLAMKKO().get_Parameters());
 			string alias = string.Empty;
 			if (KOMGFJOCEDN != null && KOMGFJOCEDN.get_Type() == BattleType.FightRaid)
 			{
@@ -491,6 +493,11 @@ namespace Nekki.SF2.GUI.Map
 
 		private void StartFight(FightList KGKDKENMAOA)
 		{
+			if (KGKDKENMAOA == null ||
+				!KGKDKENMAOA.MeetsPlayerItemRequirements(ListSF.CCDKHLAMKKO().get_Parameters()))
+			{
+				return;
+			}
 			Battle cNAOMDMIGLJ = KGKDKENMAOA.CNAOMDMIGLJ;
 			if (cNAOMDMIGLJ.get_Type() == BattleType.FightSurvival)
 			{

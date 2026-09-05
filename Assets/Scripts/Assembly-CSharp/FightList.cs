@@ -407,6 +407,29 @@ public class FightList
 		return (!ListSF.CCDKHLAMKKO().JPMPIDFGCJL()) ? _rules : IACOELKGMAA;
 	}
 
+	public bool MeetsPlayerItemRequirements(ModelParameters parameters)
+	{
+		if (_type != BattleType.FightChallenge)
+		{
+			return true;
+		}
+		foreach (Rule rule in BONNMLEJBJH())
+		{
+			ItemRule itemRule = rule as ItemRule;
+			if (itemRule == null || !itemRule.IsEntryRequirement() || !rule.CHDEIEMINPF())
+			{
+				continue;
+			}
+			RuleAppliance appliance = itemRule.EDAKADCHOLE();
+			if ((appliance == RuleAppliance.AppliancePlayer || appliance == RuleAppliance.ApplianceAll) &&
+				!itemRule.IsSatisfiedBy(parameters))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void FGPICFIPAGG()
 	{
 		IACOELKGMAA = _rules;

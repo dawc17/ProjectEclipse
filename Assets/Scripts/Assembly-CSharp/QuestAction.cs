@@ -869,12 +869,27 @@ public class QuestActionUpdateEclipseBattles : QuestAction
 			{
 				continue;
 			}
-			// A mode switch may only exchange an already unlocked pair.  In
-			// particular, never hide a normal battle before its Eclipse replay
-			// counterpart has been introduced by the story progression.
-			if (normalBattle.NNPNEABKHPP() == null || eclipseBattle.NNPNEABKHPP() == null)
+			// A mode switch may only exchange an already unlocked pair. If an old
+			// save retained a hidden flag while the Eclipse counterpart was never
+			// introduced, restore the normal entry instead of leaving no button.
+			if (normalBattle.NNPNEABKHPP() == null)
 			{
 				continue;
+			}
+			if (eclipseBattle.NNPNEABKHPP() == null)
+			{
+				// The newer UpdateEclipseBattles action also introduces the replay
+				// counterpart for every battle that has already been unlocked.  The
+				// recovered stub only toggled pre-existing roster entries, so a normal
+				// playthrough never acquired any Eclipse tournament/challenge entries.
+				roster.KJIMPNEGNAN(eclipseBattle, true, true, false, !eclipseMode, 0);
+				eclipseBattle.DCHJDPCEODD = true;
+				if (eclipseBattle.NNPNEABKHPP() == null)
+				{
+					SetBattleHidden(normalBattle, false, changedBattles);
+					continue;
+				}
+				changedBattles.Add(eclipseBattle);
 			}
 			// Base and intermission entries share an Eclipse replacement.  Normal
 			// progression removes the base roster entry before it adds the

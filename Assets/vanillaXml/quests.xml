@@ -40,6 +40,114 @@
       <Equal Value1="?SysInfo[].IsDebug" Value2="1"/>
     </Conditions>
   </Include>
+  <Quest Name="Items_Zone2_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="7"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_2" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone3_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="13"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_3" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone4_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="19"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_4" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone5_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="25"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_5" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone6_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="31"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_6" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_ZoneIM_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="37"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_IM" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone7_1_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="44"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_7" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone7_2_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="47"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_7_2" Toggle="on"/>
+    </Actions>
+  </Quest>
+  <Quest Name="Items_Zone7_3_Toggle_Local" Priority="1999" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <ApplicationStart/>
+    </Events>
+    <Conditions>
+      <GreaterEqual Value1="?Player[].Level" Value2="50"/>
+    </Conditions>
+    <Actions>
+      <ToggleItems Label="ZONE_7_3" Toggle="on"/>
+    </Actions>
+  </Quest>
   <Include File="quest_extensions/offers.xml"/>
   <Include File="quest_extensions/local_daily.xml">
     <Conditions>

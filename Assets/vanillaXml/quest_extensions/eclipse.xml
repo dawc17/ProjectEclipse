@@ -3,6 +3,8 @@
   <Quest Name="ShowEclipseMode">
     <Events>
       <FightEnd/>
+      <SessionStart/>
+      <SceneLoaded/>
     </Events>
     <Conditions>
       <Less Value1="_EclipseModeEnabled" Value2="1"/>
@@ -13,6 +15,16 @@
       <SetVariable Scope="Users" Name="EclipseModeTutorialFight" Value="?Concat[_CurrentZone,|Survival|]"/>
       <Activate ActionID="ChooseBattleEclipseMode"/>
       <Activate ActionID="EclipseModeTutorial"/>
+    </Actions>
+  </Quest>
+  <Quest Name="ReconcileEclipseBattleVisibility" Priority="100000" Unresumable="1">
+    <Events>
+      <FightEnd/>
+      <SessionStart/>
+      <SceneLoaded/>
+    </Events>
+    <Actions>
+      <UpdateEclipseBattles Trigger="INIT"/>
     </Actions>
   </Quest>
   <Quest Name="ChooseBattleEclipseModeTournament">
@@ -54,6 +66,7 @@
   <Quest Name="Locate_EclipseModeOn_Button" Priority="-101">
     <Events>
       <SessionStart/>
+      <SceneLoaded/>
     </Events>
     <Conditions>
       <Equal Value1="_$InEclipseMode" Value2="0"/>
@@ -61,12 +74,13 @@
     </Conditions>
     <Actions>
       <HideMapButton Name="EclipseModeOn"/>
-      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="sun_icon" ShowType="Story" Control="Y"/>
     </Actions>
   </Quest>
   <Quest Name="Locate_EclipseModeOff_Button" Priority="-101">
     <Events>
       <SessionStart/>
+      <SceneLoaded/>
     </Events>
     <Conditions>
       <Equal Value1="_$InEclipseMode" Value2="1"/>
@@ -74,7 +88,7 @@
     </Conditions>
     <Actions>
       <HideMapButton Name="EclipseModeOff"/>
-      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.eclipse" ShowType="Story" Control="Y"/>
+      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="eclipse" ShowType="Story" Control="Y"/>
     </Actions>
   </Quest>
   <Quest Name="EclipseMode_ButtonOn" Priority="1">
@@ -87,8 +101,9 @@
     <Actions>
       <ToggleEclipseMode Toggle="On"/>
       <HideMapButton Name="EclipseModeOn"/>
-      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.eclipse" ShowType="Story" Control="Y"/>
+      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="eclipse" ShowType="Story" Control="Y"/>
       <SetMapMask Color="#83624BFF" Sound="snd_eclipse"/>
+      <UpdateEclipseBattles Trigger="TOGGLE"/>
       <Activate ActionID="EcpliseModeToggleBattlesOn"/>
     </Actions>
   </Quest>
@@ -128,8 +143,9 @@
     <Actions>
       <ToggleEclipseMode Toggle="Off"/>
       <HideMapButton Name="EclipseModeOff"/>
-      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="sun_icon" ShowType="Story" Control="Y"/>
       <SetMapMask Color="#FFFFFFFF" Sound="snd_eclipse"/>
+      <UpdateEclipseBattles Trigger="TOGGLE"/>
       <Activate ActionID="EcpliseModeToggleBattlesOff"/>
     </Actions>
   </Quest>
@@ -156,7 +172,7 @@
     <Actions>
       <ToggleEclipseMode Toggle="Off"/>
       <HideMapButton Name="EclipseModeOff"/>
-      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="sun_icon" ShowType="Story" Control="Y"/>
       <SetMapMask Color="#FFFFFFFF" Sound="snd_eclipse"/>
       <UpdateEclipseBattles Trigger="TOGGLE"/>
     </Actions>
@@ -234,7 +250,7 @@
     <Actions Place="Map">
       <ToggleEclipseMode Toggle="Off"/>
       <HideMapButton Name="EclipseModeOff"/>
-      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.sun_icon" ShowType="Story" Control="Y"/>
+      <ShowMapButton Name="EclipseModeOn" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="sun_icon" ShowType="Story" Control="Y"/>
       <SetMapMask Color="#FFFFFFFF"/>
       <ChangeScene Destination="Map"/>
       <SetMapFocus Battle="_EclipseModeTutorialFight"/>
@@ -334,7 +350,7 @@
     <Actions>
       <ToggleEclipseMode Toggle="On"/>
       <HideMapButton Name="EclipseModeOn"/>
-      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="UI/Atlases/MiscSprites.eclipse" ShowType="Story" Control="Y"/>
+      <ShowMapButton Name="EclipseModeOff" X="-876" Y="432" AnchorMinX="1" AnchorMaxX="1" Image="eclipse" ShowType="Story" Control="Y"/>
       <SetMapMask Color="#83624BFF"/>
       <UpdateEclipseBattles Trigger="INIT" RefreshTutorialBattle="0"/>
       <ChangeScene Destination="Map"/>

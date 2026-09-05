@@ -98,6 +98,39 @@ public class ItemRule : Rule
 		return BJHBHKKHENM;
 	}
 
+	public bool IsEntryRequirement()
+	{
+		XmlNode node = GIFDJEEGCJI().IOJIGDNFCFL();
+		return node != null && node.Name == "RequireItem";
+	}
+
+	public bool IsSatisfiedBy(ModelParameters parameters)
+	{
+		if (parameters == null || PMKLKLNMEKL == null)
+		{
+			return false;
+		}
+		ItemInfo required = PMKLKLNMEKL.BHKHOJPANHE();
+		if (required == null || string.IsNullOrEmpty(required.Type))
+		{
+			return false;
+		}
+		ItemInfo equipped = parameters.KDABEFBJMOD(required.Type);
+		if (equipped == null)
+		{
+			return false;
+		}
+		if (!string.IsNullOrEmpty(required.Name) && required.Name != equipped.Name)
+		{
+			return false;
+		}
+		if (!string.IsNullOrEmpty(required.MDPPNGIEJGD) && required.MDPPNGIEJGD != equipped.MDPPNGIEJGD)
+		{
+			return false;
+		}
+		return equipped.MHGODOLNDLE >= PMKLKLNMEKL.DHNNCAEEMLL();
+	}
+
 	public void MOEAPHGDNAB(RuleAppliance IGFNCCEHFEK)
 	{
 		BJHBHKKHENM = IGFNCCEHFEK;

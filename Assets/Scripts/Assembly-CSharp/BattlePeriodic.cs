@@ -76,6 +76,10 @@ public class BattlePeriodic : Battle
 				jDIPBIHBGPF.HOCFLEMFFKC(pIGKOIFBOME);
 			}
 			pIGKOIFBOME.CKJFJFPBIFF(time);
+			// The map's availability check reads elapsed runtime state, while the
+			// line above only persists the completion timestamp. Keep both in sync
+			// so a finished duel locks and displays its timer immediately.
+			pIGKOIFBOME.ABIELBGOLCA(time);
 			ListSF.ELEBLBJKDBI().EJANJEEGOOE();
 		}
 	}

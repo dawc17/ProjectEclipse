@@ -56,6 +56,56 @@ function New-BattleFixture([System.Xml.XmlElement]$definition, [int]$wins = 0, [
 }
 
 [xml]$stages = Get-Content -Raw (Join-Path $projectPath 'Assets/vanillaXml/stages.xml')
+[xml]$equipRuleXml = '<EquipItem Type="Ranged" MinLevel="99" />'
+[xml]$requireRuleXml = '<RequireItem Type="Ranged" MinLevel="11" />'
+function New-ItemRuleSourceFixture([System.Xml.XmlElement]$definition) {
+    $rule = [Runtime.Serialization.FormatterServices]::GetUninitializedObject([ItemRule])
+    $data = New-Object DeflatedString
+    $data.Set($definition)
+    [Rule].GetField('HEPAHAKDDGC', $flags).SetValue($rule, $data)
+    return $rule
+}
+$equipRule = New-ItemRuleSourceFixture $equipRuleXml.DocumentElement
+$requireRule = New-ItemRuleSourceFixture $requireRuleXml.DocumentElement
+Assert-True (!$equipRule.IsEntryRequirement()) 'EquipItem was mistaken for an entry requirement'
+Assert-True ($requireRule.IsEntryRequirement()) 'RequireItem was not recognized as an entry requirement'
+$duelFight = New-Object FightList
+$duelFight.set_Type([BattleType]::FightPeriodic)
+Assert-True ($duelFight.MeetsPlayerItemRequirements($null)) 'Duel was blocked by the challenge-only item gate'
+[xml]$legacyBossSave = @'
+<Warrior>
+  <Battles>
+    <Battle Name="ZONE_1|BOSS_HARDMODE|" Locked="0" Hidden="0" ReplayCount="0" />
+    <Battle Name="ZONE_2|BOSS_HARDMODE|" Locked="0" Hidden="0" ReplayCount="0" />
+    <Battle Name="ZONE_2|BOSS_HERMIT|" Locked="0" Hidden="0" ReplayCount="0" />
+    <Battle Name="ZONE_3|BOSS_HARDMODE|" Locked="0" Hidden="0" ReplayCount="0" />
+  </Battles>
+  <Fights>
+    <Fight IDS="ZONE_1|BOSS_LYNX|6" CompletedCount="1" />
+    <Fight IDS="ZONE_2|BOSS_HERMIT|6" CompletedCount="1" />
+    <Fight IDS="ZONE_3|BOSS_BUTCHER|6" CompletedCount="0" />
+  </Fights>
+</Warrior>
+'@
+$repairs = [Eclipse.Content.QuestCompatibility]::RestoreUnsupportedHardmodeBosses($legacyBossSave.DocumentElement)
+Assert-True ($repairs -eq 4) 'Legacy hardmode repair changed an unexpected number of nodes'
+Assert-True ($legacyBossSave.SelectNodes('//Battle[contains(@Name,"BOSS_HARDMODE")]').Count -eq 0) 'Unsupported hardmode entry survived repair'
+Assert-True ($legacyBossSave.SelectNodes('//Battle[@Name="ZONE_1|BOSS_LYNX|"]').Count -eq 1) 'Completed Lynx entry was not restored'
+Assert-True ($legacyBossSave.SelectNodes('//Battle[@Name="ZONE_2|BOSS_HERMIT|"]').Count -eq 1) 'Existing Hermit entry was duplicated'
+Assert-True ($legacyBossSave.SelectNodes('//Battle[@Name="ZONE_3|BOSS_BUTCHER|"]').Count -eq 0) 'Incomplete boss was exposed by repair'
+Assert-True ([Eclipse.Content.QuestCompatibility]::RestoreUnsupportedHardmodeBosses($legacyBossSave.DocumentElement) -eq 0) 'Legacy hardmode repair was not idempotent'
+[xml]$eligibleEclipseSave = @'
+<Warrior EclipseMode="Off">
+  <MapButtons />
+  <Quests><Variables><Variable Name="ForgeEnabled" Value="2" /></Variables></Quests>
+  <Fights><Fight IDS="ZONE_2|Tournament|4" CompletedCount="1" /></Fights>
+</Warrior>
+'@
+Assert-True ([Eclipse.Content.QuestCompatibility]::EnsureEligibleEclipseButton($eligibleEclipseSave.DocumentElement)) 'Eligible save did not recover the Eclipse button'
+$eclipseButton = $eligibleEclipseSave.SelectSingleNode('//MapButtons/Button')
+Assert-True ($eclipseButton.GetAttribute('Name') -eq 'EclipseModeOn') 'Recovered Eclipse button has the wrong mode'
+Assert-True ($eclipseButton.GetAttribute('Image') -eq 'sun_icon') 'Recovered Eclipse button does not use the atlas sprite name'
+Assert-True (![Eclipse.Content.QuestCompatibility]::EnsureEligibleEclipseButton($eligibleEclipseSave.DocumentElement)) 'Eclipse button recovery was not idempotent'
 $definitions = $stages.SelectNodes('//Battle[contains(@Name,"ECLIPSEMODE") and (@Type="REPLAYABLE" or @Type="BOSSES_REPLAYABLE" or @Type="FINAL_BATTLE_REPLAYABLE")]')
 foreach ($definition in $definitions) {
     $battle = New-BattleFixture $definition
@@ -126,7 +176,17 @@ namespace EclipseRuntimeTest {
     }
     public class Roster {
         public bool EclipseMode = true;
+		public int Adds;
         public bool JPMPIDFGCJL() { return EclipseMode; }
+		public void KJIMPNEGNAN(Battle battle, bool unique, bool show, bool locked, bool hidden, int replayCount) {
+			XmlDocument save = new XmlDocument();
+			save.LoadXml("<Battle Name='test' Locked='0' Hidden='0' ReplayCount='0' />");
+			RosterBattle roster = new RosterBattle(save.DocumentElement);
+			roster.HCEOCBOFIGC(hidden);
+			roster.FHCHCHPPMEI(replayCount);
+			battle.FOMHAGJJCLJ(roster);
+			Adds++;
+		}
     }
     public class ListSF {
         public static ListSF Instance = new ListSF();
@@ -166,6 +226,7 @@ if ($PSVersionTable.PSEdition -eq 'Core') {
 Add-Type -TypeDefinition $shim.Replace('/* ACTION */', $action.Value) -ReferencedAssemblies $refs
 $normal = New-BattleFixture $stages.SelectSingleNode('//Zone[@Name="ZONE_2"]/Battle[@Name="BOSS_HERMIT"]') 1
 $eclipse = New-BattleFixture $hermit 1
+$eclipse.FOMHAGJJCLJ($null)
 $zone = New-Object Zone -ArgumentList @('ZONE_2','test')
 foreach ($entry in @($normal, $eclipse)) {
     $entry.EENNGGIMMMI($zone)
@@ -177,6 +238,7 @@ $map = [EclipseRuntimeTest.Scene[EclipseRuntimeTest.MapScene]]::Current
 $map.Zone.Selected = $eclipse
 $update = New-Object EclipseRuntimeTest.QuestActionUpdateEclipseBattles
 $update.DEJMHFMLKIC($null)
+Assert-True ([EclipseRuntimeTest.ListSF]::Roster.Adds -eq 1) 'Missing Eclipse roster entry was not introduced'
 Assert-True ($eclipse.HLBOMMKJAAO() -eq 1) 'Eclipse action did not advance completed Hermit'
 Assert-True ([EclipseRuntimeTest.ListSF]::Instance.Saves -eq 1) 'Progress-only change was not saved'
 Assert-True ($map.Reselections -eq 1) 'Progress-only change did not rebuild selected preview'

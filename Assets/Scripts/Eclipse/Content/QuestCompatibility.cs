@@ -6,18 +6,16 @@ namespace Eclipse.Content
 {
 	public static class QuestCompatibility
 	{
-		private static readonly string[,] StoryShopUnlocks = new string[,]
-		{
-			{ "ZONE_2", "ZONE_1|BOSS_LYNX|6" },
-			{ "ZONE_3", "ZONE_2|BOSS_HERMIT|6" },
-			{ "ZONE_4", "ZONE_3|BOSS_BUTCHER|6" },
-			{ "ZONE_5", "ZONE_4|BOSS_WASP|6" },
-			{ "ZONE_6", "ZONE_5|BOSS_HUNTRESS|6" },
-			{ "ZONE_IM", "ZONE_6|FINAL_BATTLE|1" },
-			{ "ZONE_7", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1" },
-			{ "ZONE_7_2", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1" },
-			{ "ZONE_7_3", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1" }
-		};
+		private static readonly Dictionary<string, string> UnsupportedHardmodeBosses =
+			new Dictionary<string, string>(StringComparer.Ordinal)
+			{
+				{ "ZONE_1|BOSS_HARDMODE|", "ZONE_1|BOSS_LYNX|" },
+				{ "ZONE_2|BOSS_HARDMODE|", "ZONE_2|BOSS_HERMIT|" },
+				{ "ZONE_3|BOSS_HARDMODE|", "ZONE_3|BOSS_BUTCHER|" },
+				{ "ZONE_4|BOSS_HARDMODE|", "ZONE_4|BOSS_WASP|" },
+				{ "ZONE_5|BOSS_HARDMODE|", "ZONE_5|BOSS_HUNTRESS|" },
+				{ "ZONE_6|BOSS_HARDMODE|", "ZONE_6|BOSS_SAMURAI|" }
+			};
 
 		private static readonly HashSet<string> DeferredQuestEvents = new HashSet<string>(StringComparer.Ordinal)
 		{
@@ -44,6 +42,153 @@ namespace Eclipse.Content
 			}
 			source.ParentNode.ReplaceChild(replacement, source);
 			return replacement;
+		}
+
+		public static int RestoreUnsupportedHardmodeBosses(XmlNode user)
+		{
+			if (user == null || user.OwnerDocument == null)
+			{
+				return 0;
+			}
+
+			XmlNode battles = user["Battles"];
+			XmlNode fights = user["Fights"];
+			if (battles == null || fights == null)
+			{
+				return 0;
+			}
+
+			int changes = 0;
+			List<XmlNode> invalid = new List<XmlNode>();
+			foreach (XmlNode battle in battles.ChildNodes)
+			{
+				if (battle.Attributes != null && battle.Attributes["Name"] != null &&
+					UnsupportedHardmodeBosses.ContainsKey(battle.Attributes["Name"].Value))
+				{
+					invalid.Add(battle);
+				}
+			}
+
+			foreach (XmlNode battle in invalid)
+			{
+				string replacement = UnsupportedHardmodeBosses[battle.Attributes["Name"].Value];
+				battles.RemoveChild(battle);
+				changes++;
+
+				if (!HasBattle(battles, replacement) && HasCompletedFight(fights, replacement + "6"))
+				{
+					XmlElement restored = user.OwnerDocument.CreateElement("Battle");
+					restored.SetAttribute("Name", replacement);
+					restored.SetAttribute("Locked", "0");
+					restored.SetAttribute("Hidden", "0");
+					restored.SetAttribute("ReplayCount", "0");
+					battles.AppendChild(restored);
+					changes++;
+				}
+			}
+			return changes;
+		}
+
+		public static bool EnsureEligibleEclipseButton(XmlNode user)
+		{
+			if (user == null || user.OwnerDocument == null || user["Fights"] == null)
+			{
+				return false;
+			}
+
+			bool unlocked = HasQuestVariableAtLeast(user, "EclipseModeEnabled", 1) ||
+				(HasQuestVariableAtLeast(user, "ForgeEnabled", 2) &&
+				HasCompletedFight(user["Fights"], "ZONE_2|Tournament|4"));
+			if (!unlocked)
+			{
+				return false;
+			}
+
+			XmlNode mapButtons = user["MapButtons"];
+			if (mapButtons == null)
+			{
+				mapButtons = user.AppendChild(user.OwnerDocument.CreateElement("MapButtons"));
+			}
+			if (HasMapButton(mapButtons, "EclipseModeOn") || HasMapButton(mapButtons, "EclipseModeOff"))
+			{
+				return false;
+			}
+
+			bool eclipseMode = user.Attributes != null && user.Attributes["EclipseMode"] != null &&
+				string.Equals(user.Attributes["EclipseMode"].Value, "On", StringComparison.OrdinalIgnoreCase);
+			XmlElement button = user.OwnerDocument.CreateElement("Button");
+			button.SetAttribute("Name", eclipseMode ? "EclipseModeOff" : "EclipseModeOn");
+			button.SetAttribute("Image", eclipseMode ? "eclipse" : "sun_icon");
+			button.SetAttribute("Type", "Image");
+			button.SetAttribute("X", "-876");
+			button.SetAttribute("Y", "432");
+			button.SetAttribute("AnchorMinX", "1");
+			button.SetAttribute("AnchorMaxX", "1");
+			button.SetAttribute("ShowType", "Story");
+			mapButtons.AppendChild(button);
+			return true;
+		}
+
+		private static bool HasBattle(XmlNode battles, string name)
+		{
+			foreach (XmlNode battle in battles.ChildNodes)
+			{
+				if (battle.Attributes != null && battle.Attributes["Name"] != null &&
+					battle.Attributes["Name"].Value == name)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private static bool HasMapButton(XmlNode mapButtons, string name)
+		{
+			foreach (XmlNode button in mapButtons.ChildNodes)
+			{
+				if (button.Attributes != null && button.Attributes["Name"] != null &&
+					button.Attributes["Name"].Value == name)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		private static bool HasQuestVariableAtLeast(XmlNode user, string name, int minimum)
+		{
+			XmlNode variables = user["Quests"] == null ? null : user["Quests"]["Variables"];
+			if (variables == null)
+			{
+				return false;
+			}
+			foreach (XmlNode variable in variables.ChildNodes)
+			{
+				if (variable.Attributes == null || variable.Attributes["Name"] == null ||
+					variable.Attributes["Name"].Value != name || variable.Attributes["Value"] == null)
+				{
+					continue;
+				}
+				int value;
+				return int.TryParse(variable.Attributes["Value"].Value, out value) && value >= minimum;
+			}
+			return false;
+		}
+
+		private static bool HasCompletedFight(XmlNode fights, string ids)
+		{
+			foreach (XmlNode fight in fights.ChildNodes)
+			{
+				if (fight.Attributes == null || fight.Attributes["IDS"] == null ||
+					fight.Attributes["IDS"].Value != ids)
+				{
+					continue;
+				}
+				int completed;
+				return fight.Attributes["CompletedCount"] != null &&
+					int.TryParse(fight.Attributes["CompletedCount"].Value, out completed) && completed > 0;
+			}
+			return false;
 		}
 
 		public static void NormalizeFunctionSyntax(XmlDocument document)
@@ -214,31 +359,6 @@ namespace Eclipse.Content
 				}
 			}
 			return enabled;
-		}
-
-		public static int ReconcileCompletedStoryShopUnlocks(global::Roster roster)
-		{
-			if (roster == null)
-			{
-				return 0;
-			}
-
-			int restored = 0;
-			for (int index = 0; index < StoryShopUnlocks.GetLength(0); index++)
-			{
-				string label = StoryShopUnlocks[index, 0];
-				if (roster.FLFKOIPCEPI(label))
-				{
-					continue;
-				}
-				global::RosterFight fight = roster.DBMHOBPNIIA(
-					new global::FightIDS(StoryShopUnlocks[index, 1]));
-				if (fight != null && fight.JAJNIKDMPPO() > 0 && roster.AddShopLock(label, true))
-				{
-					restored++;
-				}
-			}
-			return restored;
 		}
 
 		public static int PromoteLocalQuestExtension(XmlDocument document, XmlDocument extension)
