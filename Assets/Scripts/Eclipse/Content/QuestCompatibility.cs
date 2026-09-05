@@ -6,6 +6,19 @@ namespace Eclipse.Content
 {
 	public static class QuestCompatibility
 	{
+		private static readonly string[,] StoryShopUnlocks = new string[,]
+		{
+			{ "ZONE_2", "ZONE_1|BOSS_LYNX|6" },
+			{ "ZONE_3", "ZONE_2|BOSS_HERMIT|6" },
+			{ "ZONE_4", "ZONE_3|BOSS_BUTCHER|6" },
+			{ "ZONE_5", "ZONE_4|BOSS_WASP|6" },
+			{ "ZONE_6", "ZONE_5|BOSS_HUNTRESS|6" },
+			{ "ZONE_IM", "ZONE_6|FINAL_BATTLE|1" },
+			{ "ZONE_7", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1" },
+			{ "ZONE_7_2", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1" },
+			{ "ZONE_7_3", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1" }
+		};
+
 		private static readonly HashSet<string> DeferredQuestEvents = new HashSet<string>(StringComparer.Ordinal)
 		{
 			"BeforeQueue",
@@ -117,6 +130,115 @@ namespace Eclipse.Content
 				}
 			}
 			return quests.Count;
+		}
+
+		public static int EnableLocalStoryShopUnlockQuests(XmlDocument document)
+		{
+			if (document == null || document.DocumentElement == null)
+			{
+				return 0;
+			}
+
+			int enabled = 0;
+			foreach (XmlNode node in document.SelectNodes("//Quest"))
+			{
+				XmlElement quest = node as XmlElement;
+				if (quest == null || !quest.GetAttribute("Name").EndsWith(
+					"_Toggle_For_Steam_and_Switch", StringComparison.Ordinal))
+				{
+					continue;
+				}
+
+				XmlElement actions = quest["Actions"];
+				bool unlocksStoryItems = false;
+				if (actions != null)
+				{
+					foreach (XmlNode actionNode in actions.ChildNodes)
+					{
+						XmlElement action = actionNode as XmlElement;
+						if (action != null && action.Name == "ToggleItems" &&
+							action.GetAttribute("Label").StartsWith("ZONE_", StringComparison.Ordinal) &&
+							string.Equals(action.GetAttribute("Toggle"), "on", StringComparison.OrdinalIgnoreCase))
+						{
+							unlocksStoryItems = true;
+							break;
+						}
+					}
+				}
+				if (!unlocksStoryItems)
+				{
+					continue;
+				}
+
+				XmlElement conditions = quest["Conditions"];
+				if (conditions == null)
+				{
+					continue;
+				}
+				XmlElement platformGate = null;
+				foreach (XmlNode conditionNode in conditions.ChildNodes)
+				{
+					XmlElement operation = conditionNode as XmlElement;
+					if (operation == null || operation.Name != "Operator" ||
+						!string.Equals(operation.GetAttribute("Type"), "Or", StringComparison.OrdinalIgnoreCase))
+					{
+						continue;
+					}
+
+					bool foundPlatformCheck = false;
+					bool onlyPlatformChecks = true;
+					foreach (XmlNode termNode in operation.ChildNodes)
+					{
+						XmlElement term = termNode as XmlElement;
+						if (term == null)
+						{
+							continue;
+						}
+						string value = term.GetAttribute("Value1");
+						bool isPlatformCheck = term.Name == "Equal" &&
+							(value == "?SysInfo[].Steam" || value == "?SysInfo[].Switch");
+						foundPlatformCheck |= isPlatformCheck;
+						onlyPlatformChecks &= isPlatformCheck;
+					}
+					if (foundPlatformCheck && onlyPlatformChecks)
+					{
+						platformGate = operation;
+						break;
+					}
+				}
+
+				if (platformGate != null)
+				{
+					conditions.RemoveChild(platformGate);
+					enabled++;
+				}
+			}
+			return enabled;
+		}
+
+		public static int ReconcileCompletedStoryShopUnlocks(global::Roster roster)
+		{
+			if (roster == null)
+			{
+				return 0;
+			}
+
+			int restored = 0;
+			for (int index = 0; index < StoryShopUnlocks.GetLength(0); index++)
+			{
+				string label = StoryShopUnlocks[index, 0];
+				if (roster.FLFKOIPCEPI(label))
+				{
+					continue;
+				}
+				global::RosterFight fight = roster.DBMHOBPNIIA(
+					new global::FightIDS(StoryShopUnlocks[index, 1]));
+				if (fight != null && fight.JAJNIKDMPPO() > 0 && roster.AddShopLock(label, true))
+				{
+					restored++;
+				}
+			}
+			return restored;
 		}
 
 		public static int PromoteLocalQuestExtension(XmlDocument document, XmlDocument extension)

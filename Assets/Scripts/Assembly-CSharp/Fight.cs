@@ -1798,6 +1798,14 @@ public class Fight
 		return flag;
 	}
 
+	// Narrow hook for Eclipse-owned developer tooling. This deliberately uses
+	// the established win-fight path so rules, animations and rewards observe
+	// the same state transition as the original debug control.
+	public bool DebugDefeatOpponent()
+	{
+		return KillModel(false, true);
+	}
+
 	private void GCFNBENECFD(bool AMKJEICFNFL)
 	{
 		for (int i = 0; i < LNDLFINJHDB.Count; i++)

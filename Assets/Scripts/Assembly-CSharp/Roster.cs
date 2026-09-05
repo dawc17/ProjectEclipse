@@ -742,6 +742,12 @@ public class Roster : MELBIBHDPCE
 				AddShopLock(childNode3.Attributes["Name"].CIPOICEEIBK(string.Empty));
 			}
 		}
+		int restoredStoryShopUnlocks = Eclipse.Content.QuestCompatibility.ReconcileCompletedStoryShopUnlocks(this);
+		if (restoredStoryShopUnlocks != 0)
+		{
+			Debug.Log("[Shop] restored " + restoredStoryShopUnlocks +
+				" missing story item pack unlock(s) from completed boss fights");
+		}
 		ABBGMNHDECI = new UserPerks(HEGIABHIPHA);
 		ABBGMNHDECI.Parse(node);
 		if (node["Quests"] != null)

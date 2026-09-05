@@ -323,6 +323,12 @@ public static class ResourceManager
 				Debug.Log("[DevXml] disabled " + removedUpdateQuests +
 					" obsolete mobile client update quest(s) in local content mode");
 			}
+			int enabledStoryShopQuests = QuestCompatibility.EnableLocalStoryShopUnlockQuests(output);
+			if (enabledStoryShopQuests != 0 && _devXmlLogged.Add("local-story-shop-quests"))
+			{
+				Debug.Log("[DevXml] enabled " + enabledStoryShopQuests +
+					" story shop unlock quest(s) for local PC content mode");
+			}
 			QuestCompatibility.NormalizeFunctionSyntax(output);
 			QuestCompatibility.NormalizeActions(output);
 			return output.OuterXml;
