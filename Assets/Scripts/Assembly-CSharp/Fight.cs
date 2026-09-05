@@ -1803,6 +1803,15 @@ public class Fight
 	// the same state transition as the original debug control.
 	public bool DebugDefeatOpponent()
 	{
+		// Models can become vulnerable during the start stance, before the FIGHT
+		// inscription finishes and PlayFight advances the round state. Ending the
+		// round there bypasses that transition and leaves the fight state machine
+		// stranded, so debug victories must obey the same live-combat gate as the
+		// recovered cheat buttons.
+		if (stageType != StageType.FDBBPEGEGMK.STAGE_FIGHT)
+		{
+			return false;
+		}
 		return KillModel(false, true);
 	}
 

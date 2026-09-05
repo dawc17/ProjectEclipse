@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Nekki.SF2.GUI.Fight;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -6,11 +7,14 @@ namespace Eclipse.Diagnostics
 {
 	/// <summary>
 	/// Lightweight, scene-independent fight diagnostics. F1 opens the menu and
-	/// F8 invokes the same opponent-defeat path as the menu action.
+	/// F8 invokes the same opponent-defeat path as the menu action. F7 runs
+	/// complete fights quickly while preserving their normal progression path.
 	/// </summary>
 	public sealed class EclipseFightDebugMenu : MonoBehaviour
 	{
 		private const float PanelWidth = 300f;
+		private const float ProgressionSprintTimeScale = 8f;
+		private const float AutoDefeatRetrySeconds = 0.2f;
 		private static readonly Color HitboxColor = new Color(1f, 0.22f, 0.18f, 0.92f);
 		private static readonly Color HurtboxColor = new Color(0.15f, 0.95f, 0.62f, 0.72f);
 
@@ -22,6 +26,11 @@ namespace Eclipse.Diagnostics
 		private bool _menuOpen;
 		private bool _showCollisionShapes;
 		private bool _showHitPoints;
+		private bool _progressionSprint;
+		private bool _ownsTimeScale;
+		private float _timeScaleBeforeSprint = 1f;
+		private float _nextAutoDefeatAt;
+		private EndFightScreen _continuedResultScreen;
 		private Material _lineMaterial;
 		private Fight _renderedFight;
 		private string _actionStatus = string.Empty;
@@ -56,10 +65,18 @@ namespace Eclipse.Diagnostics
 				_menuOpen = false;
 			}
 
-			if (UnityEngine.Input.GetKeyDown(KeyCode.F8) && GetActiveFight() != null)
+			if (UnityEngine.Input.GetKeyDown(KeyCode.F7))
+			{
+				SetProgressionSprint(!_progressionSprint);
+			}
+
+			Fight fight = GetActiveFight();
+			if (UnityEngine.Input.GetKeyDown(KeyCode.F8) && fight != null)
 			{
 				DefeatOpponent();
 			}
+
+			UpdateProgressionSprint(fight);
 		}
 
 		private void LateUpdate()
@@ -114,7 +131,7 @@ namespace Eclipse.Diagnostics
 
 		private void DrawMenu(Fight fight)
 		{
-			Rect panel = new Rect(12f, 12f, PanelWidth, 246f);
+			Rect panel = new Rect(12f, 12f, PanelWidth, 304f);
 			GUI.DrawTexture(panel, Texture2D.whiteTexture, ScaleMode.StretchToFill, true, 0f,
 				new Color(0.035f, 0.045f, 0.06f, 0.96f), 8f, 12f);
 			GUI.Label(new Rect(28f, 24f, 210f, 28f), "FIGHT DEBUG", _titleStyle);
@@ -128,10 +145,16 @@ namespace Eclipse.Diagnostics
 				"Hitboxes + hurtboxes", _showCollisionShapes);
 			_showHitPoints = DrawToggle(new Rect(28f, 124f, 256f, 38f),
 				"Hit point labels", _showHitPoints);
+			bool progressionSprint = DrawToggle(new Rect(28f, 168f, 256f, 38f),
+				"Progression sprint [F7]", _progressionSprint);
+			if (progressionSprint != _progressionSprint)
+			{
+				SetProgressionSprint(progressionSprint);
+			}
 
 			Color oldColor = GUI.backgroundColor;
 			GUI.backgroundColor = new Color(0.95f, 0.28f, 0.22f, 1f);
-			if (GUI.Button(new Rect(28f, 174f, 256f, 42f), "DEFEAT OPPONENT   [F8]"))
+			if (GUI.Button(new Rect(28f, 218f, 256f, 42f), "DEFEAT OPPONENT   [F8]"))
 			{
 				DefeatOpponent();
 			}
@@ -139,8 +162,8 @@ namespace Eclipse.Diagnostics
 
 			string footer = Time.unscaledTime < _actionStatusUntil
 				? _actionStatus
-				: "F1 menu  |  F8 quick defeat  |  Esc close";
-			GUI.Label(new Rect(28f, 220f, 256f, 18f), footer, _smallStyle);
+				: "Sprint: auto-win + 8x + skip results";
+			GUI.Label(new Rect(28f, 268f, 256f, 18f), footer, _smallStyle);
 		}
 
 		private bool DrawToggle(Rect rect, string text, bool value)
@@ -163,6 +186,79 @@ namespace Eclipse.Diagnostics
 			bool defeated = fight != null && fight.DebugDefeatOpponent();
 			_actionStatus = defeated ? "Opponent defeat triggered." : "No vulnerable opponent is active.";
 			_actionStatusUntil = Time.unscaledTime + 2.5f;
+		}
+
+		private void SetProgressionSprint(bool enabled)
+		{
+			_progressionSprint = enabled;
+			_nextAutoDefeatAt = 0f;
+			_continuedResultScreen = null;
+			_actionStatus = enabled
+				? "Sprint enabled; normal progression is preserved."
+				: "Progression sprint disabled.";
+			_actionStatusUntil = Time.unscaledTime + 2.5f;
+			if (!enabled)
+			{
+				RestoreTimeScale();
+			}
+		}
+
+		private void UpdateProgressionSprint(Fight fight)
+		{
+			if (!_progressionSprint)
+			{
+				return;
+			}
+
+			EndFightScreen resultScreen = FindObjectOfType<EndFightScreen>();
+			if (resultScreen != null && resultScreen != _continuedResultScreen)
+			{
+				_continuedResultScreen = resultScreen;
+				resultScreen.OnBackKeyClicked(null);
+				_actionStatus = "Fight recorded; returning to map.";
+				_actionStatusUntil = Time.unscaledTime + 2.5f;
+				return;
+			}
+
+			if (fight == null)
+			{
+				RestoreTimeScale();
+				_continuedResultScreen = null;
+				return;
+			}
+
+			ApplySprintTimeScale();
+			if (Time.unscaledTime < _nextAutoDefeatAt)
+			{
+				return;
+			}
+
+			_nextAutoDefeatAt = Time.unscaledTime + AutoDefeatRetrySeconds;
+			if (fight.DebugDefeatOpponent())
+			{
+				_actionStatus = "Round won automatically.";
+				_actionStatusUntil = Time.unscaledTime + 1f;
+			}
+		}
+
+		private void ApplySprintTimeScale()
+		{
+			if (!_ownsTimeScale)
+			{
+				_timeScaleBeforeSprint = Time.timeScale;
+				_ownsTimeScale = true;
+			}
+			Time.timeScale = ProgressionSprintTimeScale;
+		}
+
+		private void RestoreTimeScale()
+		{
+			if (!_ownsTimeScale)
+			{
+				return;
+			}
+			Time.timeScale = _timeScaleBeforeSprint;
+			_ownsTimeScale = false;
 		}
 
 		private void RefreshCollisionLines(Fight fight)
@@ -386,6 +482,7 @@ namespace Eclipse.Diagnostics
 
 		private void OnDestroy()
 		{
+			RestoreTimeScale();
 			ClearLines();
 			if (_lineMaterial != null)
 			{
