@@ -5,9 +5,9 @@
       "name": "CORE_LOCATIONS",
       "namespaceId": "core",
       "file": "CORE_LOCATIONS.tar.lz4",
-      "sha256": "debc6c0469eca6296d2b73f22b63ffd3442e6c02a542c64da7f597192919b642",
-      "size": 94245256,
-      "unpackedSize": 98727936,
+      "sha256": "fb583516f42e6f01195f09130e6a7f0471cb90b7de83b69eec4a7664e408f6b7",
+      "size": 98777004,
+      "unpackedSize": 103261696,
       "assets": [
         {
           "address": "Textures/Location_effects/atlases/bird_black",

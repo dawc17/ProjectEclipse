@@ -155,14 +155,35 @@ public class Render
 	{
 		_location = LPJNEDFCBOI;
 		NIKDOKGPFOI = 1f;
-		OGPCOIODJKI = (float)SystemProperties.OACFGEDMCOD() / _location.FEIHFIPFNKF;
-		OEAGONAHCCA = (float)SystemProperties.MCGOBLKFGHO() / OGPCOIODJKI;
-		BGKFFAGMIDE = OEAGONAHCCA / _location.JMLAKAKDBBL;
+		RefreshViewportMetrics();
 		KKICFAMLAAK = (_location.FEIHFIPFNKF / 2f - _location.GBNPHCHGKDO) / 2f;
 		MEHIFDPJGDO();
 		PIENHGGANDI();
 		CCEDPHBFFKK();
 		_UnityObject.transform.localScale = new Vector3(1f, -1f, 1f);
+	}
+
+	private void RefreshViewportMetrics()
+	{
+		if (_location == null || _location.FEIHFIPFNKF <= 0f || _location.JMLAKAKDBBL <= 0f)
+		{
+			return;
+		}
+
+		int screenWidth = SystemProperties.MCGOBLKFGHO();
+		int screenHeight = SystemProperties.OACFGEDMCOD();
+		if (screenWidth <= 0 || screenHeight <= 0)
+		{
+			return;
+		}
+
+		// The original mobile runtime could cache these values because its viewport
+		// did not resize during a fight. Desktop windows and the Unity Game view can.
+		// Keep the original camera math, but feed it the current viewport dimensions
+		// so the Root Width clamp cannot expose space beyond the location edge.
+		OGPCOIODJKI = (float)screenHeight / _location.FEIHFIPFNKF;
+		OEAGONAHCCA = (float)screenWidth / OGPCOIODJKI;
+		BGKFFAGMIDE = OEAGONAHCCA / _location.JMLAKAKDBBL;
 	}
 
 	public void GEDDKEKGCBI(Vector3f NAAPALOFBCI, Vector3f IHFFJPLMIAL, int count)
@@ -262,6 +283,7 @@ public class Render
 
 	public void UpdatePosition(Vector3f GJKIKGKCGIA, Vector3f JEBIHODAIKM, float DHDMNHCIPEH, float BGEEALIPKCC, float JPJGNKGEHPI = 0f)
 	{
+		RefreshViewportMetrics();
 		JALEODAIDEO = _location.JMLAKAKDBBL / 2f - GJKIKGKCGIA.GILCBJJPKBK();
 		NIKDOKGPFOI = ((!(JPJGNKGEHPI > 0f)) ? KMMOLDBJBIG() : JPJGNKGEHPI);
 		float num = 1f;
