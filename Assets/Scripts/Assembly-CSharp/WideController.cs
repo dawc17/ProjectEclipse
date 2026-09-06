@@ -11,7 +11,7 @@ public class WideController : MonoBehaviour
 	private void Awake()
 	{
 		float num = 1.7753906f;
-		float num2 = Screen.width / Screen.height;
+		float num2 = (float)Screen.width / Mathf.Max(1, Screen.height);
 		if (num2 < num)
 		{
 			_NotWide.SetActive(true);

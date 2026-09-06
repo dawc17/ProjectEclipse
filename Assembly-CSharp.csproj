@@ -167,6 +167,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\InvulnerabilityRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LogMessage.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionCombo.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\TitleScreen.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Content\ContentOverridePaths.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ModelCollision.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Scripts\OnlyMobileElements.cs" />
@@ -200,6 +201,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowVideo.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\Controller\GameController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RewardLottery.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\TitleRibbon.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\StepBar.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\GroupModel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RewardResistance.cs" />
@@ -248,6 +250,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\SettingsDialog.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\JsonUtils.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Input\FightKeyBindings.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BloodEffect.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AiData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ActivePerkItem.cs" />
@@ -694,6 +697,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\UserDataValidator.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DistancePoint.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerksController.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\BattleTouchControls.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ModelEdge.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NoButtonRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionKeys.cs" />
@@ -1519,6 +1523,7 @@
     <None Include="Assets\vanillaXml\quest_extensions\events\mini_events\mini_event_ritual_hunger.xml" />
     <None Include="Assets\DExml\CharacterProgress.xml" />
     <None Include="Assets\DExml\ComputerSettings.xml" />
+    <None Include="Assets\Resources\shaders\EclipseTitleInk.shader" />
     <None Include="Assets\Resources\gamedata\localizations\fra.txt" />
     <None Include="Assets\vanillaXml\stages.xml" />
     <None Include="Assets\DExml\quest_extensions\events\mini_events\mini_event_ritual_fungus.xml" />

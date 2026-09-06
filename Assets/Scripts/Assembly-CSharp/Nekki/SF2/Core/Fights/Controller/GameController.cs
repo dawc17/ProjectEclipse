@@ -72,6 +72,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 		private void Awake()
 		{
 			_Current = this;
+            Eclipse.UI.BattleTouchControls.ApplyPlatformVisibility(_joystick.gameObject);
+            Eclipse.UI.BattleTouchControls.ApplyPlatformVisibility(_actionButtons.gameObject);
 		}
 
 		private void OnDestroy()
@@ -88,7 +90,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			NBMONJPAMHI.Render();
 			if (JKDKBHNKCPH)
 			{
-				GetGamepadInput().Poll();
+				GetGamepadInput().Poll(!AssemblyController.JONCCPLEIBE().DBJOHGNPDDO());
 			}
 		}
 
@@ -208,30 +210,11 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		public void AddKeysModels()
 		{
-			if (!AssemblyController.JONCCPLEIBE().DBJOHGNPDDO())
-			{
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.W, FightCID.QuadrantUp);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.S, FightCID.QuadrantDown);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.A, FightCID.QuadrantBack);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.D, FightCID.QuadrantForward);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.E, FightCID.QuadrantUpForward);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.C, FightCID.QuadrantDownForward);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Z, FightCID.QuadrantDownBack);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Q, FightCID.QuadrantUpBack);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad8, FightCID.QuadrantUp);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad9, FightCID.QuadrantUpForward);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad6, FightCID.QuadrantForward);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad3, FightCID.QuadrantDownForward);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad2, FightCID.QuadrantDown);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad1, FightCID.QuadrantDownBack);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad4, FightCID.QuadrantBack);
-				NBMONJPAMHI.NGHDGMNEPJB(KeyCode.Keypad7, FightCID.QuadrantUpBack);
-			}
-			NBMONJPAMHI.NGHDGMNEPJB(KeyCode.O, FightCID.Punch);
-			NBMONJPAMHI.NGHDGMNEPJB(KeyCode.P, FightCID.Kick);
-			NBMONJPAMHI.NGHDGMNEPJB(KeyCode.K, FightCID.MissileButton);
-			NBMONJPAMHI.NGHDGMNEPJB(KeyCode.L, FightCID.MagicButton);
-			NBMONJPAMHI.NGHDGMNEPJB(KeyCode.J, FightCID.RaidChargeButton);
+			NBMONJPAMHI.NGHDGMNEPJB(Eclipse.Input.FightKeyBindings.Get(KeyCode.O), FightCID.Punch);
+			NBMONJPAMHI.NGHDGMNEPJB(Eclipse.Input.FightKeyBindings.Get(KeyCode.P), FightCID.Kick);
+			NBMONJPAMHI.NGHDGMNEPJB(Eclipse.Input.FightKeyBindings.Get(KeyCode.K), FightCID.MissileButton);
+			NBMONJPAMHI.NGHDGMNEPJB(Eclipse.Input.FightKeyBindings.Get(KeyCode.L), FightCID.MagicButton);
+			NBMONJPAMHI.NGHDGMNEPJB(Eclipse.Input.FightKeyBindings.Get(KeyCode.J), FightCID.RaidChargeButton);
 		}
 
 		public bool IsQuadrantEnabled(FightCID KGBGENDIMBC)

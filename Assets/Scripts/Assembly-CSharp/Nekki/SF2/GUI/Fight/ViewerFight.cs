@@ -249,6 +249,7 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void PreInit(ComboStatistic AIOMDIAFHGB, ComboStatistic MJOHDCPCCKB)
 		{
+            if (btnPause != null) Eclipse.UI.BattleTouchControls.ApplyPlatformVisibility(btnPause.gameObject);
 			FIPBKELAEKH(AIOMDIAFHGB);
 			AHBGKOHAHFL(MJOHDCPCCKB);
 			set_Round(null);

@@ -74,6 +74,7 @@ namespace Nekki.SF2.GUI.Scenes
 			EOKFGFADIIH = false;
 			PIHEPFHMJHJ = true;
 			get_Logo().SetActive(false);
+			Eclipse.UI.TitleScreen.ShowAtStartup();
 			if (_lockScreenPrefab != null && LockScreen.get_Instance() == null)
 			{
 				Object.Instantiate(_lockScreenPrefab);
@@ -82,6 +83,7 @@ namespace Nekki.SF2.GUI.Scenes
 
 		private void Update()
 		{
+			if (Eclipse.UI.TitleScreen.IsOpen) return;
 			if (EOKFGFADIIH)
 			{
 				Clear();

@@ -12,52 +12,46 @@ public class WideScreenController : MonoBehaviour
 	[SerializeField]
 	private bool _Flag;
 
-	public void Run()
-	{
-		float num = 1920f;
-		float num2 = 1080f;
-		float num3 = num / num2;
-		float num4 = (float)Screen.width / (float)Screen.height;
-		if (num4 <= num3)
-		{
-			_LeftBorder.SetActive(false);
-			_RightBorder.SetActive(false);
-			return;
-		}
-		(base.transform as RectTransform).SetSiblingIndex(1000);
-		RectTransform rectTransform = (RectTransform)base.gameObject.transform.parent;
-		float num5 = 1536f / num2 * num;
-		BEDKFGIICFL(num5);
-		float pPOFNJGPHGP = (float)(int)((rectTransform.sizeDelta.x - num5) / 2f) + 1f;
-		List<RectTransform> list = new List<RectTransform>();
-		for (int i = 0; i < rectTransform.childCount; i++)
-		{
-			Transform child = rectTransform.GetChild(i);
-			if (!(child == base.transform))
-			{
-				RectTransform component = child.GetComponent<RectTransform>();
-				if (component != null)
-				{
-					list.Add(component);
-					Run(component, pPOFNJGPHGP);
-				}
-			}
-		}
-	}
+    private const float MaximumAspect = 21f / 9f;
+    private readonly Dictionary<RectTransform, Vector2[]> _originalOffsets = new Dictionary<RectTransform, Vector2[]>();
+    private Vector2 _lastParentSize;
+    private Vector2Int _lastScreenSize;
 
-	private void Run(RectTransform PIDLNECOJBG, float PPOFNJGPHGP)
-	{
-		Vector2 offsetMax = PIDLNECOJBG.offsetMax;
-		offsetMax.x = 0f - PPOFNJGPHGP;
-		PIDLNECOJBG.offsetMax = offsetMax;
-		Vector2 offsetMin = PIDLNECOJBG.offsetMin;
-		offsetMin.x = PPOFNJGPHGP;
-		PIDLNECOJBG.offsetMin = offsetMin;
-	}
+    public void Run()
+    {
+        var parent = transform.parent as RectTransform;
+        if (parent == null || parent.rect.height <= 0f) return;
+        _lastParentSize = parent.rect.size;
+        _lastScreenSize = new Vector2Int(Screen.width, Screen.height);
+        float contentWidth = Mathf.Min(parent.rect.width, parent.rect.height * MaximumAspect);
+        float inset = Mathf.Max(0f, (parent.rect.width - contentWidth) * .5f);
+        bool capped = inset > .01f;
+        _LeftBorder.SetActive(capped);
+        _RightBorder.SetActive(capped);
+        if (capped)
+        {
+            transform.SetAsLastSibling();
+            BEDKFGIICFL(contentWidth);
+        }
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            var child = parent.GetChild(i) as RectTransform;
+            if (child == null || child == transform) continue;
+            Vector2[] offsets;
+            if (!_originalOffsets.TryGetValue(child, out offsets))
+            {
+                offsets = new[] { child.offsetMin, child.offsetMax };
+                _originalOffsets.Add(child, offsets);
+            }
+            // Restore the authored layout when returning below the cap; never accumulate insets.
+            child.offsetMin = offsets[0] + new Vector2(inset, 0f);
+            child.offsetMax = offsets[1] - new Vector2(inset, 0f);
+        }
+    }
 
 	private void BEDKFGIICFL(float DJFFDCFCNJM)
 	{
-		float num = (int)(DJFFDCFCNJM / 2f) - 1;
+		float num = DJFFDCFCNJM / 2f;
 		Vector3 localPosition = _LeftBorder.transform.localPosition;
 		localPosition.x = 0f - num;
 		_LeftBorder.transform.localPosition = localPosition;
@@ -66,12 +60,14 @@ public class WideScreenController : MonoBehaviour
 		_RightBorder.transform.localPosition = localPosition;
 	}
 
-	private void Update()
-	{
-		if (_Flag)
-		{
-			_Flag = false;
-			Run();
-		}
-	}
+    private void LateUpdate()
+    {
+        var parent = transform.parent as RectTransform;
+        if (_Flag || _lastScreenSize != new Vector2Int(Screen.width, Screen.height)
+            || (parent != null && parent.rect.size != _lastParentSize))
+        {
+            _Flag = false;
+            Run();
+        }
+    }
 }

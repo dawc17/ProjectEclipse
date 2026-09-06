@@ -15,6 +15,7 @@ namespace Eclipse.Input
 		private bool _kickPressed;
 		private bool _rangedPressed;
 		private bool _magicPressed;
+		private bool _chargePressed;
 
 		public FightGamepadInput(Func<FightCID, bool> isControlEnabled, Action<int, FightCID> emitControlEvent)
 		{
@@ -29,23 +30,34 @@ namespace Eclipse.Input
 			_kickPressed = false;
 			_rangedPressed = false;
 			_magicPressed = false;
+			_chargePressed = false;
 		}
 
-		public void Poll()
+		public void Poll(bool keyboardMovement = true)
 		{
 			Vector2 dpad = GamePad.CNNMBBLLGNE(GamePad.LCNPGEANNDP.Dpad, GamePad.GGAKHLLMPMM.One, true);
-			Vector2 leftStick = GamePad.CNNMBBLLGNE(GamePad.LCNPGEANNDP.LeftStick, GamePad.GGAKHLLMPMM.One, true);
+			Vector2 leftStick = GamePad.CNNMBBLLGNE(FightControllerBindings.MovementStick, GamePad.GGAKHLLMPMM.One, true);
 			Vector2 movement = dpad.sqrMagnitude >= DeadZone * DeadZone ? dpad : leftStick;
-			SetDirection(GetDirection(movement));
+			// Resolve both axes together; opposite keys cancel, and releasing one
+            // half of a diagonal immediately restores the remaining direction.
+            if (keyboardMovement)
+            {
+                var keyboard = new Vector2(
+                    (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.D)) ? 1 : 0) - (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.A)) ? 1 : 0),
+                    (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.W)) ? 1 : 0) - (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.S)) ? 1 : 0));
+                if (keyboard != Vector2.zero) movement = keyboard;
+            }
+            SetDirection(GetDirection(movement));
 
 			SetButton(ref _punchPressed,
-				GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.X, GamePad.GGAKHLLMPMM.One), FightCID.Punch);
+				FightControllerBindings.IsPressed(FightControllerBindings.Get(0)), FightCID.Punch);
 			SetButton(ref _kickPressed,
-				GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.A, GamePad.GGAKHLLMPMM.One), FightCID.Kick);
+				FightControllerBindings.IsPressed(FightControllerBindings.Get(1)), FightCID.Kick);
 			SetButton(ref _rangedPressed,
-				GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.B, GamePad.GGAKHLLMPMM.One), FightCID.MissileButton);
+				FightControllerBindings.IsPressed(FightControllerBindings.Get(2)), FightCID.MissileButton);
 			SetButton(ref _magicPressed,
-				GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.Y, GamePad.GGAKHLLMPMM.One), FightCID.MagicButton);
+				FightControllerBindings.IsPressed(FightControllerBindings.Get(3)), FightCID.MagicButton);
+            SetButton(ref _chargePressed, FightControllerBindings.IsPressed(FightControllerBindings.Get(4)), FightCID.RaidChargeButton);
 		}
 
 		public void ReleaseAll()
@@ -55,6 +67,7 @@ namespace Eclipse.Input
 			ReleaseButton(ref _kickPressed, FightCID.Kick);
 			ReleaseButton(ref _rangedPressed, FightCID.MissileButton);
 			ReleaseButton(ref _magicPressed, FightCID.MagicButton);
+            ReleaseButton(ref _chargePressed, FightCID.RaidChargeButton);
 		}
 
 		private static FightCID GetDirection(Vector2 direction)
