@@ -109,6 +109,18 @@ public class ForgeManager : global::EventDispatcher<object>
 		return null;
 	}
 
+	public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
+	{
+		Recipe recipe = GetRecipeByName(recipeName);
+		return recipe != null && recipe.AddExternalEnchantmentCandidate(itemType, perkName);
+	}
+
+	public bool RemoveExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
+	{
+		Recipe recipe = GetRecipeByName(recipeName);
+		return recipe != null && recipe.RemoveExternalEnchantmentCandidate(itemType, perkName);
+	}
+
 	public List<Recipe> GetAvailableRecipesForItem(UserItem userItem)
 	{
 		EnsureParsed();

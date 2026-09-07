@@ -22,7 +22,7 @@ namespace Eclipse.Modding
             _legacyContent?.Dispose();
             _legacyContent = null;
             _scripts?.Dispose();
-            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript, ImportCoreItems);
+            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript, ImportCoreContent);
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
             return _scripts;
@@ -41,14 +41,16 @@ namespace Eclipse.Modding
                 ModScriptSession scripts = StartScripts();
                 _legacyContent = new LegacyContentAdapter(scripts.Content);
                 _legacyContent.ApplyItems(ListSF.DJBOFEEKJMP());
+                _legacyContent.ApplyPerksAndEnchantments(GameUtils.FDEJIIDIPBI, ForgeManager.ELEBLBJKDBI());
                 Debug.Log("[ModContent] Catalog equipment: " + scripts.Content.Weapons.Count + " weapons, " +
                     scripts.Content.Armors.Count + " armor, " + scripts.Content.Helms.Count + " helms, " +
                     scripts.Content.Ranged.Count + " ranged, " + scripts.Content.Magic.Count + " magic; applied " +
-                    scripts.Content.ShopListings.Count + " external shop listing(s).");
+                    scripts.Content.ShopListings.Count + " external shop listing(s), " + scripts.Content.Perks.Count +
+                    " perks, " + scripts.Content.Enchantments.Count + " external enchantment(s).");
             }
             catch (Exception exception)
             {
-                Debug.LogError("[ModContent] Failed to apply mod items; continuing without external mods. " + exception);
+                Debug.LogError("[ModContent] Failed to apply mod content; continuing without external mods. " + exception);
                 Shutdown();
             }
         }
@@ -160,21 +162,32 @@ namespace Eclipse.Modding
             else Debug.Log(message);
         }
 
-        private static void ImportCoreItems(ModContentCatalog content)
+        private static void ImportCoreContent(ModContentCatalog content)
         {
             var nodes = new List<XmlNode>();
             foreach (ItemInfo item in ListSF.DJBOFEEKJMP().HCDLKHKBEPF())
                 if (item.Name.IndexOf(':') < 0 && item.NodeXML != null) nodes.Add(item.NodeXML);
-            if (nodes.Count == 0) return;
             var languages = CoreContentImporter.ReadLocalizations(
                 Path.Combine(GameplayContentArchive.GetXmlRoot(), "localizations"));
-            int weapons = CoreContentImporter.ImportWeapons(content, nodes, languages);
-            int armors = CoreContentImporter.ImportArmors(content, nodes, languages);
-            int helms = CoreContentImporter.ImportHelms(content, nodes, languages);
-            int ranged = CoreContentImporter.ImportRanged(content, nodes, languages);
-            int magic = CoreContentImporter.ImportMagic(content, nodes, languages);
+            int weapons = nodes.Count == 0 ? 0 : CoreContentImporter.ImportWeapons(content, nodes, languages);
+            int armors = nodes.Count == 0 ? 0 : CoreContentImporter.ImportArmors(content, nodes, languages);
+            int helms = nodes.Count == 0 ? 0 : CoreContentImporter.ImportHelms(content, nodes, languages);
+            int ranged = nodes.Count == 0 ? 0 : CoreContentImporter.ImportRanged(content, nodes, languages);
+            int magic = nodes.Count == 0 ? 0 : CoreContentImporter.ImportMagic(content, nodes, languages);
+            int perks = 0;
+            string perksPath = Path.Combine(GameplayContentArchive.GetXmlRoot(), "perks.xml");
+            var perksDocument = new XmlDocument { XmlResolver = null };
+            using (XmlReader reader = XmlReader.Create(perksPath, new XmlReaderSettings
+                { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })) perksDocument.Load(reader);
+            XmlNode perksRoot = perksDocument["Perks"];
+            if (perksRoot != null) perks = CoreContentImporter.ImportPerks(content, EnumerateChildren(perksRoot));
             Debug.Log("[ModContent] Imported core equipment: " + weapons + " weapons, " + armors +
-                " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic.");
+                " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic; " + perks + " perks.");
+        }
+
+        private static IEnumerable<XmlNode> EnumerateChildren(XmlNode parent)
+        {
+            foreach (XmlNode child in parent.ChildNodes) yield return child;
         }
 
         private static bool TryParseQualified(string reference, out AssetId id)

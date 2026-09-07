@@ -236,6 +236,133 @@ public sealed class Items
     }
 }
 
+public sealed class PerkInfoItem
+{
+    public string Name = string.Empty;
+    public XmlNode HAAKMBKCMCO { get; private set; }
+
+    public void Parse(XmlNode node)
+    {
+        if (node == null) throw new ArgumentNullException("node");
+        Name = node.Attributes?["Name"]?.Value ?? string.Empty;
+        var document = new XmlDocument();
+        XmlNode imported = document.ImportNode(node, true);
+        document.AppendChild(imported);
+        HAAKMBKCMCO = imported;
+    }
+}
+
+public sealed class PerkItems
+{
+    private readonly List<PerkInfoItem> _base = new List<PerkInfoItem>();
+    private readonly HashSet<string> _external = new HashSet<string>(StringComparer.Ordinal);
+
+    public List<PerkInfoItem> CJJEPHDFOCJ() { return _base; }
+
+    public PerkInfoItem ABAGJKMKCBA(string name)
+    {
+        return _base.Find(value => value.Name == name);
+    }
+
+    public PerkInfoItem AddExternalBasePerk(XmlNode node)
+    {
+        if (node == null) throw new ArgumentNullException("node");
+        string name = node.Attributes?["Name"]?.Value ?? string.Empty;
+        if (string.IsNullOrEmpty(name)) throw new ArgumentException("External perk requires Name.", "node");
+        if (ABAGJKMKCBA(name) != null) throw new InvalidOperationException("Perk already exists: " + name);
+        var perk = new PerkInfoItem();
+        perk.Parse(node);
+        _base.Add(perk);
+        _external.Add(name);
+        return perk;
+    }
+
+    public bool RemoveExternalBasePerk(string name)
+    {
+        if (!_external.Remove(name)) return false;
+        PerkInfoItem perk = ABAGJKMKCBA(name);
+        return perk != null && _base.Remove(perk);
+    }
+
+    public void SeedCore(string path)
+    {
+        var document = new XmlDocument();
+        document.Load(path);
+        XmlNode root = document.SelectSingleNode("/Perks");
+        var compiled = new HashSet<string>(StringComparer.Ordinal);
+        foreach (XmlNode node in document.SelectNodes("/Perks/Perk"))
+            CompileTemplate(node, root, compiled, new HashSet<string>(StringComparer.Ordinal));
+        foreach (XmlNode node in document.SelectNodes("/Perks/Perk"))
+        {
+            var perk = new PerkInfoItem();
+            perk.Parse(node);
+            _base.Add(perk);
+        }
+    }
+
+    private static void CompileTemplate(XmlNode node, XmlNode root, HashSet<string> compiled, HashSet<string> visiting)
+    {
+        string name = node.Attributes?["Name"]?.Value ?? string.Empty;
+        if (compiled.Contains(name)) return;
+        if (!visiting.Add(name)) throw new InvalidOperationException("Perk template cycle in test fixture: " + name);
+        string templateText = node.Attributes?["Template"]?.Value;
+        if (!string.IsNullOrEmpty(templateText))
+        {
+            foreach (string templateName in templateText.Split('|'))
+            {
+                XmlNode template = root.SelectSingleNode("Perk[@Name='" + templateName.Replace("'", "&apos;") + "']");
+                if (template == null) continue;
+                CompileTemplate(template, root, compiled, visiting);
+                foreach (XmlAttribute attribute in template.Attributes)
+                    if (node.Attributes[attribute.Name] == null)
+                        node.Attributes.Append((XmlAttribute)node.OwnerDocument.ImportNode(attribute, true));
+
+                XmlNode ownSet = node["Set"];
+                XmlNode templateSet = template["Set"];
+                if (templateSet != null)
+                {
+                    if (ownSet == null) node.AppendChild(node.OwnerDocument.ImportNode(templateSet, true));
+                    else foreach (XmlAttribute attribute in templateSet.Attributes)
+                        if (ownSet.Attributes[attribute.Name] == null)
+                            ownSet.Attributes.Append((XmlAttribute)node.OwnerDocument.ImportNode(attribute, true));
+                }
+                foreach (XmlNode trigger in template.SelectNodes("Trigger"))
+                    node.AppendChild(node.OwnerDocument.ImportNode(trigger, true));
+            }
+        }
+        visiting.Remove(name);
+        compiled.Add(name);
+    }
+}
+
+public static class GameUtils
+{
+    public static readonly PerkItems FDEJIIDIPBI = new PerkItems();
+}
+
+public sealed class ForgeManager
+{
+    private static readonly ForgeManager Instance = new ForgeManager();
+    private readonly HashSet<string> _external = new HashSet<string>(StringComparer.Ordinal);
+
+    public static ForgeManager ELEBLBJKDBI() { return Instance; }
+
+    public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
+    {
+        return _external.Add(recipeName + "|" + itemType + "|" + perkName);
+    }
+
+    public bool RemoveExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
+    {
+        return _external.Remove(recipeName + "|" + itemType + "|" + perkName);
+    }
+
+    public bool HasExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
+    {
+        return _external.Contains(recipeName + "|" + itemType + "|" + perkName);
+    }
+}
+
 public static class ListSF
 {
     private static Items _items = new Items();

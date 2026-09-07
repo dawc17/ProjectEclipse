@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using MoonSharp.Interpreter;
@@ -40,6 +41,10 @@ namespace Eclipse.Modding
                 new Dictionary<Table, DefinitionId>();
             private readonly Dictionary<Table, ModPrice> _priceHandles =
                 new Dictionary<Table, ModPrice>();
+            private readonly Dictionary<Table, DefinitionId> _perkHandles =
+                new Dictionary<Table, DefinitionId>();
+            private readonly Dictionary<Table, DefinitionId> _enchantmentHandles =
+                new Dictionary<Table, DefinitionId>();
             private bool _disposed;
 
             public ModDescriptor Mod { get; }
@@ -89,6 +94,8 @@ namespace Eclipse.Modding
                 _modelHandles.Clear();
                 _itemHandles.Clear();
                 _priceHandles.Clear();
+                _perkHandles.Clear();
+                _enchantmentHandles.Clear();
             }
 
             private DynValue Require(ScriptExecutionContext context, CallbackArguments args)
@@ -198,6 +205,23 @@ namespace Eclipse.Modding
                 items.Set("alias", DynValue.NewCallback(RegisterItemAlias));
                 items.Set("tombstone", DynValue.NewCallback(RegisterItemTombstone));
                 root.Set("items", DynValue.NewTable(items));
+
+                var perks = new Table(_script);
+                perks.Set("get", DynValue.NewCallback(GetPerk));
+                perks.Set("register", DynValue.NewCallback(RegisterPerk));
+                root.Set("perks", DynValue.NewTable(perks));
+
+                var enchantments = new Table(_script);
+                enchantments.Set("SIMPLE", DynValue.NewString("simple"));
+                enchantments.Set("MEDIUM", DynValue.NewString("medium"));
+                enchantments.Set("COMPLEX", DynValue.NewString("complex"));
+                enchantments.Set("WEAPON", DynValue.NewString("weapon"));
+                enchantments.Set("ARMOR", DynValue.NewString("armor"));
+                enchantments.Set("HELM", DynValue.NewString("helm"));
+                enchantments.Set("RANGED", DynValue.NewString("ranged"));
+                enchantments.Set("MAGIC", DynValue.NewString("magic"));
+                enchantments.Set("register", DynValue.NewCallback(RegisterEnchantment));
+                root.Set("enchantments", DynValue.NewTable(enchantments));
 
                 var price = new Table(_script);
                 price.Set("coins", DynValue.NewCallback((ctx, args) => Price(ModPriceCurrency.Coins,
@@ -385,6 +409,61 @@ namespace Eclipse.Modding
                 });
             }
 
+            private DynValue GetPerk(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.perks.get";
+                string reference = args.AsType(0, function, DataType.String, false).String;
+                return ApiCall(function, () => NewHandle(_perkHandles, _api.GetPerk(reference).Id));
+            }
+
+            private DynValue RegisterPerk(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.perks.register";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "template", "display_name", "description", "icon",
+                        "parameters");
+                    string id = RequiredString(table, "id", function);
+                    DefinitionId template = RequiredHandle(table, "template", _perkHandles, "perk", function);
+                    DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
+                        "localization", function);
+                    DefinitionId description = RequiredHandle(table, "description", _localizationHandles,
+                        "localization", function);
+                    AssetId icon = default(AssetId);
+                    DynValue iconValue = table.Get("icon");
+                    if (iconValue.Type != DataType.Nil && iconValue.Type != DataType.Void)
+                        icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
+                    Dictionary<string, string> parameters = OptionalScalarMap(table, "parameters", function);
+                    PerkDefinition definition = _api.RegisterPerk(id, template, displayName, description, icon, parameters);
+                    return NewHandle(_perkHandles, definition.Id);
+                });
+            }
+
+            private DynValue RegisterEnchantment(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.enchantments.register";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "perk", "recipe", "item_types");
+                    string id = RequiredString(table, "id", function);
+                    DefinitionId perk = RequiredHandle(table, "perk", _perkHandles, "perk", function);
+                    string recipeText = RequiredString(table, "recipe", function);
+                    ModEnchantmentRecipe recipe;
+                    switch (recipeText)
+                    {
+                        case "simple": recipe = ModEnchantmentRecipe.Simple; break;
+                        case "medium": recipe = ModEnchantmentRecipe.Medium; break;
+                        case "complex": recipe = ModEnchantmentRecipe.Complex; break;
+                        default: throw new ModContentException(function + " field 'recipe' is not supported.");
+                    }
+                    ModEquipmentKind[] itemTypes = RequiredEquipmentKinds(table, "item_types", function);
+                    EnchantmentDefinition definition = _api.RegisterEnchantment(id, perk, recipe, itemTypes);
+                    return NewHandle(_enchantmentHandles, definition.Id);
+                });
+            }
+
             private DynValue Price(ModPriceCurrency currency, string function, CallbackArguments args)
             {
                 return ApiCall(function, () =>
@@ -456,6 +535,81 @@ namespace Eclipse.Modding
                 if (value.Type != DataType.String || string.IsNullOrEmpty(value.String))
                     throw new ModContentException(function + " field '" + field + "' must be a non-empty string.");
                 return value.String;
+            }
+
+            private static Dictionary<string, string> OptionalScalarMap(Table table, string field, string function)
+            {
+                DynValue value = table.Get(field);
+                var result = new Dictionary<string, string>(StringComparer.Ordinal);
+                if (value.IsNil()) return result;
+                if (value.Type != DataType.Table)
+                    throw new ModContentException(function + " field '" + field + "' must be a table.");
+                foreach (TablePair pair in value.Table.Pairs)
+                {
+                    if (pair.Key.Type != DataType.String || string.IsNullOrEmpty(pair.Key.String))
+                        throw new ModContentException(function + " field '" + field + "' contains a non-string key.");
+                    string scalar;
+                    switch (pair.Value.Type)
+                    {
+                        case DataType.String:
+                            scalar = pair.Value.String;
+                            break;
+                        case DataType.Number:
+                            if (double.IsNaN(pair.Value.Number) || double.IsInfinity(pair.Value.Number))
+                                throw new ModContentException(function + " field '" + field + "' contains a non-finite number.");
+                            scalar = pair.Value.Number.ToString("R", CultureInfo.InvariantCulture);
+                            break;
+                        case DataType.Boolean:
+                            scalar = pair.Value.Boolean ? "1" : "0";
+                            break;
+                        default:
+                            throw new ModContentException(function + " field '" + field +
+                                "' values must be strings, numbers, or booleans.");
+                    }
+                    if (string.IsNullOrEmpty(scalar))
+                        throw new ModContentException(function + " field '" + field + "' contains an empty value.");
+                    if (result.ContainsKey(pair.Key.String))
+                        throw new ModContentException(function + " field '" + field + "' contains a duplicate key '" +
+                            pair.Key.String + "'.");
+                    result.Add(pair.Key.String, scalar);
+                }
+                return result;
+            }
+
+            private static ModEquipmentKind[] RequiredEquipmentKinds(Table table, string field, string function)
+            {
+                DynValue value = table.Get(field);
+                if (value.Type != DataType.Table)
+                    throw new ModContentException(function + " field '" + field + "' must be an array table.");
+                var result = new List<ModEquipmentKind>();
+                for (int i = 1; ; i++)
+                {
+                    DynValue item = value.Table.Get(i);
+                    if (item.IsNil()) break;
+                    if (item.Type != DataType.String)
+                        throw new ModContentException(function + " field '" + field + "' entries must be strings.");
+                    ModEquipmentKind kind;
+                    switch (item.String)
+                    {
+                        case "weapon": kind = ModEquipmentKind.Weapon; break;
+                        case "armor": kind = ModEquipmentKind.Armor; break;
+                        case "helm": kind = ModEquipmentKind.Helm; break;
+                        case "ranged": kind = ModEquipmentKind.Ranged; break;
+                        case "magic": kind = ModEquipmentKind.Magic; break;
+                        default: throw new ModContentException(function + " field '" + field +
+                            "' contains unsupported equipment type '" + item.String + "'.");
+                    }
+                    result.Add(kind);
+                }
+                if (result.Count == 0)
+                    throw new ModContentException(function + " field '" + field + "' must not be empty.");
+                int arrayEntries = 0;
+                foreach (TablePair pair in value.Table.Pairs)
+                    if (pair.Key.Type == DataType.Number) arrayEntries++;
+                    else throw new ModContentException(function + " field '" + field + "' must be an array table.");
+                if (arrayEntries != result.Count)
+                    throw new ModContentException(function + " field '" + field + "' must be a dense array table.");
+                return result.ToArray();
             }
 
             private static int RequiredInt(Table table, string field, string function)

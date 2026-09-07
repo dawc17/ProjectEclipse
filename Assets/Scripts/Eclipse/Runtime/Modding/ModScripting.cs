@@ -145,6 +145,26 @@ namespace Eclipse.Modding
             return RequireRegistration().RegisterShopListing(item, section, level, price);
         }
 
+        public PerkDefinition GetPerk(string reference)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().GetPerk(reference);
+        }
+
+        public PerkDefinition RegisterPerk(string localId, DefinitionId template, DefinitionId displayName,
+            DefinitionId description, AssetId icon, System.Collections.Generic.IReadOnlyDictionary<string, string> parameters)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterPerk(localId, template, displayName, description, icon, parameters);
+        }
+
+        public EnchantmentDefinition RegisterEnchantment(string localId, DefinitionId perk,
+            ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterEnchantment(localId, perk, recipe, equipment);
+        }
+
         public bool HasCapability(string capability)
         {
             if (string.IsNullOrEmpty(capability)) return false;

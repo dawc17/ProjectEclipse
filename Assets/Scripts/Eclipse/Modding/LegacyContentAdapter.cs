@@ -10,8 +10,14 @@ namespace Eclipse.Modding
         private readonly ModContentCatalog _content;
         private readonly List<string> _itemNames = new List<string>();
         private readonly List<string> _localizationKeys = new List<string>();
+        private readonly List<string> _perkNames = new List<string>();
+        private readonly List<ExternalEnchantmentBinding> _enchantmentBindings =
+            new List<ExternalEnchantmentBinding>();
         private Items _items;
+        private PerkItems _perks;
+        private ForgeManager _forge;
         private bool _itemsApplied;
+        private bool _perksApplied;
         private bool _languageSubscribed;
         private bool _disposed;
 
@@ -96,6 +102,44 @@ namespace Eclipse.Modding
             }
         }
 
+        public void ApplyPerksAndEnchantments(PerkItems perks, ForgeManager forge)
+        {
+            ThrowIfDisposed();
+            if (_perksApplied) throw new InvalidOperationException("Legacy perks are already applied.");
+            _perks = perks ?? throw new ArgumentNullException(nameof(perks));
+            _forge = forge ?? throw new ArgumentNullException(nameof(forge));
+
+            try
+            {
+                var visiting = new HashSet<DefinitionId>();
+                foreach (PerkDefinition definition in _content.Perks)
+                    if (!definition.IsCore) EnsurePerkApplied(definition, visiting);
+
+                foreach (EnchantmentDefinition enchantment in _content.Enchantments)
+                {
+                    PerkDefinition perk;
+                    if (!_content.TryGetPerk(enchantment.Perk, out perk))
+                        throw new InvalidOperationException("Committed enchantment has no perk: " + enchantment.Id);
+                    string perkName = RuntimePerkName(perk);
+                    string recipeName = RecipeName(enchantment.Recipe);
+                    for (int i = 0; i < enchantment.Equipment.Count; i++)
+                    {
+                        string itemType = EquipmentType(enchantment.Equipment[i]);
+                        if (!_forge.AddExternalEnchantmentCandidate(recipeName, itemType, perkName))
+                            throw new InvalidOperationException("Could not add external enchantment '" + enchantment.Id +
+                                "' to " + recipeName + "/" + itemType + ".");
+                        _enchantmentBindings.Add(new ExternalEnchantmentBinding(recipeName, itemType, perkName));
+                    }
+                }
+                _perksApplied = true;
+            }
+            catch
+            {
+                RemovePerksAndEnchantments();
+                throw;
+            }
+        }
+
         public void Dispose()
         {
             if (_disposed) return;
@@ -105,6 +149,7 @@ namespace Eclipse.Modding
                 _languageSubscribed = false;
             }
             RemoveLocalization();
+            RemovePerksAndEnchantments();
             RemoveItems();
             _disposed = true;
         }
@@ -130,6 +175,142 @@ namespace Eclipse.Modding
             }
             _itemNames.Clear();
             _itemsApplied = false;
+        }
+
+        private PerkInfoItem EnsurePerkApplied(PerkDefinition definition, HashSet<DefinitionId> visiting)
+        {
+            if (definition.IsCore)
+            {
+                PerkInfoItem core = _perks.ABAGJKMKCBA(definition.LegacyName);
+                if (core == null)
+                    throw new InvalidOperationException("Core perk template is unavailable at runtime: " + definition.Id);
+                return core;
+            }
+
+            string runtimeName = RuntimePerkName(definition);
+            PerkInfoItem existing = _perks.ABAGJKMKCBA(runtimeName);
+            if (existing != null)
+            {
+                if (_perkNames.Contains(runtimeName)) return existing;
+                throw new InvalidOperationException("Legacy perk already exists: " + runtimeName);
+            }
+            if (!definition.HasTemplate)
+                throw new InvalidOperationException("External perk has no template: " + definition.Id);
+            if (!visiting.Add(definition.Id))
+                throw new InvalidOperationException("Perk template cycle detected at " + definition.Id);
+
+            try
+            {
+                PerkDefinition templateDefinition;
+                if (!_content.TryGetPerk(definition.Template, out templateDefinition))
+                    throw new InvalidOperationException("Perk template is unavailable: " + definition.Template);
+                PerkInfoItem template = EnsurePerkApplied(templateDefinition, visiting);
+                XmlElement node = BuildPerkNode(definition, template);
+                PerkInfoItem applied = _perks.AddExternalBasePerk(node);
+                _perkNames.Add(applied.Name);
+                return applied;
+            }
+            finally
+            {
+                visiting.Remove(definition.Id);
+            }
+        }
+
+        private XmlElement BuildPerkNode(PerkDefinition definition, PerkInfoItem template)
+        {
+            if (template == null || template.HAAKMBKCMCO == null)
+                throw new InvalidOperationException("Perk template has no canonical runtime XML: " + definition.Template);
+            var document = new XmlDocument();
+            XmlElement node = document.ImportNode(template.HAAKMBKCMCO, true) as XmlElement;
+            if (node == null) throw new InvalidOperationException("Perk template is not a Perk element: " + definition.Template);
+            document.AppendChild(node);
+
+            string templateName = template.Name;
+            string inheritedTemplates = node.GetAttribute("Template");
+            node.SetAttribute("Name", definition.Id.ToString());
+			node.SetAttribute("ID", _perks.CJJEPHDFOCJ().Count.ToString(CultureInfo.InvariantCulture));
+			node.SetAttribute("Alias", definition.DisplayName.ToString());
+			node.SetAttribute("Description", definition.Description.ToString());
+			// Keep the template's logical Image by default. Vanilla intentionally resolves
+			// that one value through different shop and fight sprite paths.
+			if (definition.HasIcon) node.SetAttribute("Image", definition.Icon.ToString());
+			node.SetAttribute("Template", string.IsNullOrEmpty(inheritedTemplates)
+                ? templateName : inheritedTemplates + "|" + templateName);
+
+            XmlElement set = node["Set"];
+            if (set == null && definition.Parameters.Count > 0)
+            {
+                set = document.CreateElement("Set");
+                XmlNode firstTrigger = node.SelectSingleNode("Trigger");
+                if (firstTrigger == null) node.AppendChild(set);
+                else node.InsertBefore(set, firstTrigger);
+            }
+            if (set != null)
+                foreach (KeyValuePair<string, string> parameter in definition.Parameters)
+                    set.SetAttribute(parameter.Key, parameter.Value);
+            return node;
+        }
+
+        private void RemovePerksAndEnchantments()
+        {
+            if (_forge != null)
+            {
+                for (int i = _enchantmentBindings.Count - 1; i >= 0; i--)
+                {
+                    ExternalEnchantmentBinding binding = _enchantmentBindings[i];
+                    _forge.RemoveExternalEnchantmentCandidate(binding.Recipe, binding.ItemType, binding.PerkName);
+                }
+            }
+            _enchantmentBindings.Clear();
+            if (_perks != null)
+                for (int i = _perkNames.Count - 1; i >= 0; i--) _perks.RemoveExternalBasePerk(_perkNames[i]);
+            _perkNames.Clear();
+            _perksApplied = false;
+            _perks = null;
+            _forge = null;
+        }
+
+        private static string RuntimePerkName(PerkDefinition definition)
+        {
+            return definition.IsCore ? definition.LegacyName : definition.Id.ToString();
+        }
+
+        private static string RecipeName(ModEnchantmentRecipe recipe)
+        {
+            switch (recipe)
+            {
+                case ModEnchantmentRecipe.Simple: return "Simple";
+                case ModEnchantmentRecipe.Medium: return "Medium";
+                case ModEnchantmentRecipe.Complex: return "Complex";
+                default: throw new InvalidOperationException("Unsupported enchantment recipe: " + recipe);
+            }
+        }
+
+        private static string EquipmentType(ModEquipmentKind kind)
+        {
+            switch (kind)
+            {
+                case ModEquipmentKind.Weapon: return "Weapon";
+                case ModEquipmentKind.Armor: return "Armor";
+                case ModEquipmentKind.Helm: return "Helm";
+                case ModEquipmentKind.Ranged: return "Ranged";
+                case ModEquipmentKind.Magic: return "Magic";
+                default: throw new InvalidOperationException("Unsupported equipment kind: " + kind);
+            }
+        }
+
+        private sealed class ExternalEnchantmentBinding
+        {
+            public readonly string Recipe;
+            public readonly string ItemType;
+            public readonly string PerkName;
+
+            public ExternalEnchantmentBinding(string recipe, string itemType, string perkName)
+            {
+                Recipe = recipe;
+                ItemType = itemType;
+                PerkName = perkName;
+            }
         }
 
         private XmlElement BuildItemNode(ItemDefinition definition, ShopListingDefinition listing)

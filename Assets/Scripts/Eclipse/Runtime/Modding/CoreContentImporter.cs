@@ -35,6 +35,11 @@ namespace Eclipse.Modding
             return DefinitionId.Parse("core:items/magic/" + legacyName);
         }
 
+        public static DefinitionId PerkId(string legacyName)
+        {
+            return DefinitionId.Parse("core:perks/" + legacyName);
+        }
+
         public static int ImportWeapons(ModContentCatalog catalog, IEnumerable<XmlNode> source,
             IReadOnlyDictionary<string, XmlDocument> languages)
         {
@@ -158,6 +163,25 @@ namespace Eclipse.Modding
                 Array.Empty<ArmorDefinition>(), Array.Empty<HelmDefinition>(),
                 Array.Empty<RangedDefinition>(), magic.ToArray());
             return magic.Count;
+        }
+
+        public static int ImportPerks(ModContentCatalog catalog, IEnumerable<XmlNode> source)
+        {
+            if (catalog == null) throw new ArgumentNullException(nameof(catalog));
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            var perks = new List<PerkDefinition>();
+            foreach (XmlNode node in source)
+            {
+                if (node?.NodeType != XmlNodeType.Element || node.Name != "Perk") continue;
+                string name = RequireLegacyName(node, "perk");
+                ModPerkKind kind = string.Equals(node.Attributes?["PerkType"]?.Value, "Combo",
+                    StringComparison.OrdinalIgnoreCase) ? ModPerkKind.Combo : ModPerkKind.Single;
+                perks.Add(new PerkDefinition(PerkId(name), default(DefinitionId), false,
+                    default(DefinitionId), default(DefinitionId), default(AssetId), kind,
+                    legacyName: name, legacyPerkXml: node.OuterXml));
+            }
+            catalog.ImportCorePerks(perks.ToArray());
+            return perks.Count;
         }
 
         public static Dictionary<string, XmlDocument> ReadLocalizations(string directory)

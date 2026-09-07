@@ -84,7 +84,7 @@ namespace Eclipse.Modding
             if (content == null) throw new ArgumentNullException(nameof(content));
 
             var canonical = new StringBuilder();
-            Append(canonical, "fingerprint-v1");
+            Append(canonical, "fingerprint-v2");
             Append(canonical, ModPlatformVersions.Api.ToString());
             Append(canonical, ModPlatformVersions.Core.ToString());
 
@@ -152,6 +152,44 @@ namespace Eclipse.Modding
                 Append(canonical, listing.Level);
                 Append(canonical, ((int)listing.Price.Currency).ToString(CultureInfo.InvariantCulture));
                 Append(canonical, listing.Price.Amount.ToString(CultureInfo.InvariantCulture));
+            }
+
+            var perks = new List<PerkDefinition>(content.Perks);
+            perks.Sort((left, right) => CompareIds(left.Id, right.Id));
+            Append(canonical, "perks");
+            Append(canonical, perks.Count);
+            foreach (PerkDefinition perk in perks)
+            {
+                Append(canonical, perk.Id.ToString());
+                Append(canonical, perk.HasTemplate ? perk.Template.ToString() : string.Empty);
+                Append(canonical, perk.DisplayName.ToString());
+                Append(canonical, perk.Description.ToString());
+                Append(canonical, perk.Icon.ToString());
+                Append(canonical, ((int)perk.Kind).ToString(CultureInfo.InvariantCulture));
+                Append(canonical, perk.LegacyName ?? string.Empty);
+                Append(canonical, perk.LegacyPerkXml ?? string.Empty);
+                var parameterNames = new List<string>(perk.Parameters.Keys);
+                parameterNames.Sort(StringComparer.Ordinal);
+                Append(canonical, parameterNames.Count);
+                foreach (string parameter in parameterNames)
+                {
+                    Append(canonical, parameter);
+                    Append(canonical, perk.Parameters[parameter]);
+                }
+            }
+
+            var enchantments = new List<EnchantmentDefinition>(content.Enchantments);
+            enchantments.Sort((left, right) => CompareIds(left.Id, right.Id));
+            Append(canonical, "enchantments");
+            Append(canonical, enchantments.Count);
+            foreach (EnchantmentDefinition enchantment in enchantments)
+            {
+                Append(canonical, enchantment.Id.ToString());
+                Append(canonical, enchantment.Perk.ToString());
+                Append(canonical, ((int)enchantment.Recipe).ToString(CultureInfo.InvariantCulture));
+                Append(canonical, enchantment.Equipment.Count);
+                for (int i = 0; i < enchantment.Equipment.Count; i++)
+                    Append(canonical, ((int)enchantment.Equipment[i]).ToString(CultureInfo.InvariantCulture));
             }
 
             byte[] data = Encoding.UTF8.GetBytes(canonical.ToString());

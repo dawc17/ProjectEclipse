@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Xml;
 
@@ -8,6 +9,8 @@ public class PerkItems
 	private List<PerkInfoItem> PAABAIILNEG = new List<PerkInfoItem>();
 
 	private List<PerkInfoItem> NIOMJEOEMDL = new List<PerkInfoItem>();
+
+	private HashSet<string> externalBasePerkNames = new HashSet<string>(StringComparer.Ordinal);
 
 	public List<PerkInfoItem> MHEJPIPKEFP
 	{
@@ -51,6 +54,7 @@ public class PerkItems
 	public void Parse(XmlNode node)
 	{
 		BJHCPMLJOEK.Clear();
+		externalBasePerkNames.Clear();
 		foreach (XmlNode childNode in node.ChildNodes)
 		{
 			PerkInfoItem aCONCDFDNJH = new PerkInfoItem();
@@ -58,6 +62,52 @@ public class PerkItems
 			aCONCDFDNJH.BGFEPJKDHFB = false;
 			BJHCPMLJOEK.Add(aCONCDFDNJH);
 		}
+	}
+
+	public PerkInfoItem AddExternalBasePerk(XmlNode node)
+	{
+		if (node == null)
+		{
+			throw new ArgumentNullException("node");
+		}
+		if (!node.Name.Equals("Perk", StringComparison.Ordinal))
+		{
+			throw new ArgumentException("External base perk node must be a complete Perk element.", "node");
+		}
+		string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+		if (string.IsNullOrEmpty(name))
+		{
+			throw new ArgumentException("External base perk requires a non-empty Name attribute.", "node");
+		}
+		if (ABAGJKMKCBA(name) != null)
+		{
+			throw new InvalidOperationException("Perk already exists: " + name);
+		}
+
+		PerkInfoItem perk = new PerkInfoItem();
+		perk.Parse(node);
+		perk.BGFEPJKDHFB = false;
+		BJHCPMLJOEK.Add(perk);
+		externalBasePerkNames.Add(name);
+		return perk;
+	}
+
+	public bool RemoveExternalBasePerk(string name)
+	{
+		if (string.IsNullOrEmpty(name) || !externalBasePerkNames.Contains(name))
+		{
+			return false;
+		}
+		for (int i = 0; i < BJHCPMLJOEK.Count; i++)
+		{
+			if (BJHCPMLJOEK[i].Name.Equals(name, StringComparison.Ordinal))
+			{
+				BJHCPMLJOEK.RemoveAt(i);
+				externalBasePerkNames.Remove(name);
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void NLLMCPOPFCI(XmlNode node)

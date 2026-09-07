@@ -449,6 +449,10 @@ internal static class Program
         foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Ranged']")) rangedNodes.Add(node);
         var magicNodes = new List<XmlNode>();
         foreach (XmlNode node in vanilla.SelectNodes("/List/Items/Item[@Type='Magic']")) magicNodes.Add(node);
+        var perksXml = new XmlDocument();
+        perksXml.Load(Path.Combine(projectRoot, "Assets", "vanillaXml", "perks.xml"));
+        var perkNodes = new List<XmlNode>();
+        foreach (XmlNode node in perksXml.SelectNodes("/Perks/Perk")) perkNodes.Add(node);
         var languages = CoreContentImporter.ReadLocalizations(Path.Combine(projectRoot, "Assets", "vanillaXml", "localizations"));
         var catalog = new ModContentCatalog();
         Assert(CoreContentImporter.ImportWeapons(catalog, weaponNodes, languages) == 210 && catalog.Weapons.Count == 210,
@@ -461,6 +465,14 @@ internal static class Program
             "Canonical vanilla ranged coverage changed.");
         Assert(CoreContentImporter.ImportMagic(catalog, magicNodes, languages) == 73 && catalog.Magic.Count == 73,
             "Canonical vanilla magic coverage changed.");
+        Assert(CoreContentImporter.ImportPerks(catalog, perkNodes) == 210 && catalog.Perks.Count == 210,
+            "Canonical vanilla perk coverage changed.");
+        PerkDefinition coreLifesteal;
+        Assert(catalog.TryGetPerk(CoreContentImporter.PerkId("PERK_ITEM_SPECIAL_LIFESTEAL"), out coreLifesteal) &&
+            coreLifesteal.IsCore && !coreLifesteal.HasTemplate && coreLifesteal.Kind == ModPerkKind.Single &&
+            coreLifesteal.LegacyName == "PERK_ITEM_SPECIAL_LIFESTEAL" &&
+            coreLifesteal.LegacyPerkXml.Contains("EnchantmentLifeDrain"),
+            "Core lifesteal perk projection lost canonical identity/source fields.");
         foreach (XmlNode node in weaponNodes)
         {
             WeaponDefinition weapon;
@@ -543,8 +555,10 @@ internal static class Program
         RejectContent(() => CoreContentImporter.ImportHelms(catalog, helmNodes, languages), "Duplicate core helm import was accepted.");
         RejectContent(() => CoreContentImporter.ImportRanged(catalog, rangedNodes, languages), "Duplicate core ranged import was accepted.");
         RejectContent(() => CoreContentImporter.ImportMagic(catalog, magicNodes, languages), "Duplicate core magic import was accepted.");
+        RejectContent(() => CoreContentImporter.ImportPerks(catalog, perkNodes), "Duplicate core perk import was accepted.");
         Assert(catalog.Weapons.Count == 210 && catalog.Armors.Count == 179 && catalog.Helms.Count == 193 &&
-            catalog.Ranged.Count == 85 && catalog.Magic.Count == 73 && catalog.Localizations.Count == 739,
+            catalog.Ranged.Count == 85 && catalog.Magic.Count == 73 && catalog.Localizations.Count == 739 &&
+            catalog.Perks.Count == 210 && catalog.Enchantments.Count == 0,
             "Failed core import was not atomic.");
         ModDescriptor mod = Descriptor("example.weapon", "1.0.0", "core", ">=1.0 <2.0");
         string coreOnlyFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
@@ -561,13 +575,74 @@ internal static class Program
         string contentFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
         Assert(contentFingerprint != coreOnlyFingerprint,
             "Content-set fingerprint ignored registered content changes without a version bump.");
+
+        int perkCountBefore = catalog.Perks.Count;
+        int enchantmentCountBefore = catalog.Enchantments.Count;
+        string equipmentOnlyFingerprint = contentFingerprint;
+        using (ModRegistrationTransaction registration = catalog.BeginRegistration(mod))
+        {
+            PerkDefinition template = registration.GetPerk("core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON");
+            DefinitionId perkTitle = registration.AddLocalization("perk.example_lifesteal", "eng", "Example Lifesteal");
+            DefinitionId perkDescription = registration.AddLocalization("perk.example_lifesteal.description", "eng",
+                "A template-derived lifesteal enchantment used by the contract test.");
+            var parameters = new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                { "Aspect", "?RandomAspect[-30,30]" }
+            };
+            PerkDefinition perk = registration.RegisterPerk("example_lifesteal", template.Id, perkTitle,
+                perkDescription, default(AssetId), parameters);
+            EnchantmentDefinition enchantment = registration.RegisterEnchantment("example_lifesteal_weapon", perk.Id,
+                ModEnchantmentRecipe.Medium, new[] { ModEquipmentKind.Weapon });
+            Assert(catalog.Perks.Count == perkCountBefore && catalog.Enchantments.Count == enchantmentCountBefore,
+                "Uncommitted perk/enchantment transaction leaked into global registries.");
+            Assert(perk.HasTemplate && perk.Template == template.Id && perk.Kind == ModPerkKind.Single &&
+                perk.Parameters["Aspect"] == "?RandomAspect[-30,30]" &&
+                enchantment.Perk == perk.Id && enchantment.Recipe == ModEnchantmentRecipe.Medium &&
+                enchantment.Equipment.Count == 1 && enchantment.Equipment[0] == ModEquipmentKind.Weapon,
+                "Staged perk/enchantment definition changed values.");
+            registration.Commit();
+        }
+        PerkDefinition committedPerk;
+        EnchantmentDefinition committedEnchantment;
+        Assert(catalog.TryGetPerk(DefinitionId.Parse("example.weapon:perks/example_lifesteal"), out committedPerk) &&
+            committedPerk.HasTemplate && committedPerk.Template == CoreContentImporter.PerkId("PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON") &&
+            !committedPerk.HasIcon &&
+            catalog.TryGetEnchantment(DefinitionId.Parse("example.weapon:enchantments/example_lifesteal_weapon"),
+                out committedEnchantment) && committedEnchantment.Perk == committedPerk.Id,
+            "Committed perk/enchantment lookup lost typed values.");
+        string perkFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
+        Assert(perkFingerprint != equipmentOnlyFingerprint,
+            "Content-set fingerprint ignored committed perk/enchantment definitions.");
+
+        ModDescriptor rollbackMod = Descriptor("rollback.perk", "1.0.0", "core", ">=1.0 <2.0");
+        int localizationCountBeforeRollback = catalog.Localizations.Count;
+        int perkCountBeforeRollback = catalog.Perks.Count;
+        int enchantmentCountBeforeRollback = catalog.Enchantments.Count;
+        string fingerprintBeforeRollback = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
+        using (ModRegistrationTransaction rollback = catalog.BeginRegistration(rollbackMod))
+        {
+            PerkDefinition template = rollback.GetPerk("core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON");
+            DefinitionId title = rollback.AddLocalization("perk.rollback", "eng", "Rollback Perk");
+            DefinitionId description = rollback.AddLocalization("perk.rollback.description", "eng", "Must not commit.");
+            PerkDefinition perk = rollback.RegisterPerk("rollback", template.Id, title, description,
+                default(AssetId), null);
+            rollback.RegisterEnchantment("rollback", perk.Id, ModEnchantmentRecipe.Medium,
+                new[] { ModEquipmentKind.Weapon });
+        }
+        Assert(catalog.Localizations.Count == localizationCountBeforeRollback &&
+            catalog.Perks.Count == perkCountBeforeRollback && catalog.Enchantments.Count == enchantmentCountBeforeRollback &&
+            !catalog.TryGetPerk(DefinitionId.Parse("rollback.perk:perks/rollback"), out committedPerk) &&
+            !catalog.TryGetEnchantment(DefinitionId.Parse("rollback.perk:enchantments/rollback"), out committedEnchantment) &&
+            ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog) == fingerprintBeforeRollback,
+            "Disposed perk/enchantment transaction did not roll back cleanly or changed the fingerprint.");
+
         ModDescriptor helper = Descriptor("helper.mod", "2.0.0", "core", ">=1.0 <2.0");
         string orderedFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod, helper }, catalog);
         string reversedFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { helper, mod }, catalog);
         Assert(orderedFingerprint == reversedFingerprint,
             "Content-set fingerprint depends on active mod discovery order.");
         ModDescriptor changedVersion = Descriptor("example.weapon", "1.0.1", "core", ">=1.0 <2.0");
-        Assert(ModSaveData.ComputeContentSetFingerprint(new[] { changedVersion }, catalog) != contentFingerprint,
+        Assert(ModSaveData.ComputeContentSetFingerprint(new[] { changedVersion }, catalog) != perkFingerprint,
             "Content-set fingerprint ignored an active mod version change.");
         catalog.Freeze();
         bool frozen = false;
@@ -589,7 +664,7 @@ internal static class Program
         Assert(view.Attributes["Weapon"].Value == "Fists" && save.DocumentElement.GetAttribute("Weapon") == itemId &&
             record.OuterXml == originalRecord, "Missing equipment fallback mutated persistent ownership or equipped ID.");
         Assert(ModSaveData.RecordContext(save.DocumentElement, new[] { mod }, catalog), "Mod save context was not written.");
-        Assert(save.DocumentElement["EclipseMods"].Attributes["contentHash"]?.Value == contentFingerprint,
+        Assert(save.DocumentElement["EclipseMods"].Attributes["contentHash"]?.Value == perkFingerprint,
             "Mod save context did not persist the current content-set fingerprint.");
         Assert(ModSaveData.RecordContext(save.DocumentElement, new ModDescriptor[0]), "Missing mod context was not recorded.");
         XmlElement lastSeen = (XmlElement)save.SelectSingleNode("/Warrior/EclipseMods/Mod");
@@ -611,7 +686,7 @@ internal static class Program
         string futureState = state.OuterXml;
         Assert(!ModSaveData.RecordContext(reloaded.DocumentElement, new[] { mod }) && state.OuterXml == futureState,
             "Unknown future mod-save schema was overwritten.");
-        Console.WriteLine("Core/save contracts: PASS (740 vanilla equipment definitions + external mod; orphan save/reload/restore).");
+        Console.WriteLine("Core/save contracts: PASS (740 vanilla equipment + 210 perks + external perk/enchantment; orphan save/reload/restore).");
     }
 }
 '@ | Set-Content -LiteralPath $harness -Encoding UTF8

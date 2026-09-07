@@ -284,6 +284,41 @@ public static class ValidatePackagedArt
                 "id = \"core\"\n" +
                 "version = \">=1.0 <2.0\"\n");
 
+            string enchantment = Path.Combine(modsRoot, "example.enchantment");
+            Directory.CreateDirectory(Path.Combine(enchantment, "localizations"));
+            Directory.CreateDirectory(Path.Combine(enchantment, "scripts"));
+            File.WriteAllText(Path.Combine(enchantment, "localizations", "eng.toml"),
+                "perk.eclipse_lifesteal = \"Eclipse Lifesteal\"\n" +
+                "perk.eclipse_lifesteal.description = \"Template-derived lifesteal test.\"\n");
+            File.WriteAllText(Path.Combine(enchantment, "scripts", "main.lua"),
+                "local sf2 = require(\"sf2\")\n" +
+                "local perk = sf2.perks.register {\n" +
+                "  id = \"eclipse_lifesteal\",\n" +
+                "  template = sf2.perks.get(\"core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON\"),\n" +
+                "  display_name = sf2.localization.key(\"perk.eclipse_lifesteal\"),\n" +
+                "  description = sf2.localization.key(\"perk.eclipse_lifesteal.description\"),\n" +
+                "  parameters = { Chance = 0.55 },\n" +
+                "}\n" +
+                "sf2.enchantments.register {\n" +
+                "  id = \"eclipse_lifesteal_weapon\",\n" +
+                "  perk = perk,\n" +
+                "  recipe = sf2.enchantments.MEDIUM,\n" +
+                "  item_types = { sf2.enchantments.WEAPON },\n" +
+                "}\n" +
+                "sf2.log.info(\"enchantment-entry-ok\")\n");
+            File.WriteAllText(Path.Combine(enchantment, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"example.enchantment\"\n" +
+                "name = \"Example Enchantment\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.2 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.register\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
             string broken = Path.Combine(modsRoot, "broken.mod");
             Directory.CreateDirectory(broken);
             File.WriteAllText(Path.Combine(broken, "mod.toml"),
@@ -367,9 +402,10 @@ public static class ValidatePackagedArt
 
             ModHost host = ModHost.Build(modsRoot);
             Require(host.HasErrors, "Broken loose mod did not surface diagnostics");
-            Require(host.EnabledMods.Count == 5 &&
+            Require(host.EnabledMods.Count == 6 &&
                 host.EnabledMods.Any(x => x.Id.Value == "example.weapon") &&
                 host.EnabledMods.Any(x => x.Id.Value == "example.loadout") &&
+                host.EnabledMods.Any(x => x.Id.Value == "example.enchantment") &&
                 host.EnabledMods.Any(x => x.Id.Value == "registration.failure") &&
                 host.EnabledMods.Any(x => x.Id.Value == "script.failure") &&
                 host.EnabledMods.Any(x => x.Id.Value == "script.runaway"),
@@ -482,11 +518,19 @@ public static class ValidatePackagedArt
             var scriptRuntime = new MoonSharpScriptRuntime();
             Require(scriptRuntime.Name.StartsWith("MoonSharp ", StringComparison.Ordinal),
                 "MoonSharp runtime did not report its interpreter identity");
-            using (ModScriptSession scripts = host.StartScripts(scriptRuntime, entry => scriptLogs.Add(entry)))
+            using (ModScriptSession scripts = host.StartScripts(scriptRuntime, entry => scriptLogs.Add(entry), content =>
+            {
+                var perksDocument = new XmlDocument();
+                perksDocument.Load(Path.Combine(GameplayContentArchive.GetXmlRoot(), "perks.xml"));
+                var perkNodes = new List<XmlNode>();
+                foreach (XmlNode node in perksDocument.SelectNodes("/Perks/Perk")) perkNodes.Add(node);
+                CoreContentImporter.ImportPerks(content, perkNodes);
+            }))
             {
                 Require(scripts.HasErrors, "Failing Lua mod did not produce script diagnostics");
-                Require(scripts.ActiveMods.Count == 2 && scripts.ActiveMods.Any(x => x.Id.Value == "example.weapon") &&
-                    scripts.ActiveMods.Any(x => x.Id.Value == "example.loadout"),
+                Require(scripts.ActiveMods.Count == 3 && scripts.ActiveMods.Any(x => x.Id.Value == "example.weapon") &&
+                    scripts.ActiveMods.Any(x => x.Id.Value == "example.loadout") &&
+                    scripts.ActiveMods.Any(x => x.Id.Value == "example.enchantment"),
                     "Failing Lua mod disabled the independent working script mod");
                 Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure" &&
                     x.Message.Contains("Unsafe module name")),
@@ -502,6 +546,8 @@ public static class ValidatePackagedArt
                     "Sandboxed Lua entrypoint did not execute/log through sf2.log.info");
                 Require(scriptLogs.Any(x => x.ModId.Value == "example.loadout" && x.Level == ModLogLevel.Info &&
                     x.Message == "loadout-entry-ok"), "Multi-category Lua example did not execute");
+                Require(scriptLogs.Any(x => x.ModId.Value == "example.enchantment" && x.Level == ModLogLevel.Info &&
+                    x.Message == "enchantment-entry-ok"), "Perk/enchantment Lua example did not execute");
                 Require(scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Debug &&
                     x.Message == "lua-debug-ok") &&
                     scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Warning &&
@@ -510,11 +556,12 @@ public static class ValidatePackagedArt
                     x.Message == "lua-error-ok") &&
                     scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
                     x.Message == "lua-legacy-ok"), "Lua log levels/compatibility alias lost severity or mod attribution");
-                Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 5 &&
+                Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 7 &&
                     scripts.Content.Weapons.Count == 1 && scripts.Content.Armors.Count == 1 &&
                     scripts.Content.Helms.Count == 1 && scripts.Content.Ranged.Count == 1 &&
                     scripts.Content.Magic.Count == 1 && scripts.Content.ItemRedirects.Count == 2 &&
-                    scripts.Content.ShopListings.Count == 5,
+                    scripts.Content.ShopListings.Count == 5 && scripts.Content.Perks.Count == 211 &&
+                    scripts.Content.Enchantments.Count == 1,
                     "Successful Lua registration did not commit the complete equipment transactions");
                 LocalizationDefinition title;
                 Require(scripts.Content.TryGetLocalization(
@@ -555,6 +602,21 @@ public static class ValidatePackagedArt
                     magic.MagicDamage == 0 && magic.SubType == "MagicAsteroid" && magic.Progression == ItemProgressionKind.Vanilla &&
                     magic.Icon == AssetId.Parse("core:UI/Items/Magic4.img_magic_asteroid") && magic.HasModel,
                     "Lua magic definition did not preserve typed values");
+                PerkDefinition externalPerk;
+                EnchantmentDefinition externalEnchantment;
+                Require(scripts.Content.TryGetPerk(
+                        DefinitionId.Parse("example.enchantment:perks/eclipse_lifesteal"), out externalPerk) &&
+                    externalPerk.HasTemplate &&
+                    externalPerk.Template == CoreContentImporter.PerkId("PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON") &&
+                    !externalPerk.HasIcon &&
+                    externalPerk.Parameters["Chance"] == "0.55" &&
+                    scripts.Content.TryGetEnchantment(
+                        DefinitionId.Parse("example.enchantment:enchantments/eclipse_lifesteal_weapon"),
+                        out externalEnchantment) && externalEnchantment.Perk == externalPerk.Id &&
+                    externalEnchantment.Recipe == ModEnchantmentRecipe.Medium &&
+                    externalEnchantment.Equipment.Count == 1 &&
+                    externalEnchantment.Equipment[0] == ModEquipmentKind.Weapon,
+                    "Lua perk/enchantment definition did not preserve typed values");
                 ItemDefinition aliasedItem;
                 Require(scripts.Content.TryResolveItem(
                         DefinitionId.Parse("example.weapon:items/weapon/example_blade_legacy"), out aliasedItem) &&
@@ -578,6 +640,7 @@ public static class ValidatePackagedArt
 
             ListSF.ResetModdingTestItems();
             ListSF.SeedModdingTestCoreItems();
+            GameUtils.FDEJIIDIPBI.SeedCore(Path.Combine(GameplayContentArchive.GetXmlRoot(), "perks.xml"));
             ItemInfo vanillaKatana = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("WEAPON_KATANA");
             ItemInfo vanillaBody = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("Body");
             ItemInfo vanillaHead = ListSF.DJBOFEEKJMP().KCCDBEEKBCG("Head");
@@ -591,16 +654,26 @@ public static class ValidatePackagedArt
             ModRuntime.StartGameContent(modsRoot);
             ModScriptSession runtimeScripts = ModRuntime.Scripts;
             Require(runtimeScripts != null, "ModRuntime startup failed while importing core content");
-            Require(runtimeScripts.ActiveMods.Count == 2 && runtimeScripts.ActiveMods.Any(x => x.Id.Value == "example.weapon") &&
+            Require(runtimeScripts.ActiveMods.Count == 3 && runtimeScripts.ActiveMods.Any(x => x.Id.Value == "example.weapon") &&
                 runtimeScripts.ActiveMods.Any(x => x.Id.Value == "example.loadout") &&
+                runtimeScripts.ActiveMods.Any(x => x.Id.Value == "example.enchantment") &&
                 runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.Armors.Count == 180 &&
                 runtimeScripts.Content.Helms.Count == 194 &&
                 runtimeScripts.Content.Ranged.Count == 86 && runtimeScripts.Content.Magic.Count == 74 &&
-                runtimeScripts.Content.ShopListings.Count == 5 &&
+                runtimeScripts.Content.ShopListings.Count == 5 && runtimeScripts.Content.Perks.Count == 211 &&
+                runtimeScripts.Content.Enchantments.Count == 1 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
+            const string externalPerkId = "example.enchantment:perks/eclipse_lifesteal";
+            PerkInfoItem legacyPerk = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalPerkId);
+            Require(legacyPerk != null && legacyPerk.HAAKMBKCMCO.Attributes["Alias"]?.Value ==
+                    "example.enchantment:localization/perk.eclipse_lifesteal" &&
+                legacyPerk.HAAKMBKCMCO.Attributes["Image"]?.Value == "SkillsEnch02.EnchantmentLifeDrain" &&
+                legacyPerk.HAAKMBKCMCO["Set"]?.Attributes["Chance"]?.Value == "0.55" &&
+                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", externalPerkId),
+                "Committed perk/enchantment was not adapted into the recovered runtime");
             Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 745 &&
                 ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/weapon/weapon_katana") == vanillaKatana &&
                 vanillaKatana.Name == "WEAPON_KATANA", "Core registry import duplicated or renamed a legacy weapon");
@@ -718,6 +791,9 @@ public static class ValidatePackagedArt
                 "ModRuntime shutdown did not remove the injected legacy weapon");
             Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == null,
                 "ModRuntime shutdown did not remove injected localization aliases");
+            Require(GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalPerkId) == null &&
+                !ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", externalPerkId),
+                "ModRuntime shutdown did not remove injected perk/enchantment runtime state");
         }
         finally
         {

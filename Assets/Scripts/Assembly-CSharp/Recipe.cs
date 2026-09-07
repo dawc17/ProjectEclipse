@@ -14,6 +14,8 @@ public class Recipe
 	private readonly List<RecipeItem> _items = new List<RecipeItem>();
 	private readonly List<RecipePrices> _prices = new List<RecipePrices>();
 	private readonly List<Variation> _variations = new List<Variation>();
+	private readonly Dictionary<string, List<PerkStruct>> _externalEnchantments =
+		new Dictionary<string, List<PerkStruct>>(StringComparer.Ordinal);
 
 	public string Name => _name;
 	public string Alias => _alias;
@@ -65,9 +67,67 @@ public class Recipe
 	{
 		ItemInfo info = CurrentInfo(userItem);
 		if (info == null) return null;
+		return GetRecipeItemByType(info.Type);
+	}
+
+	public bool AddExternalEnchantmentCandidate(string itemType, string perkName)
+	{
+		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName)) return false;
+		RecipeItem recipeItem = GetRecipeItemByType(itemType);
+		if (recipeItem == null) return false;
+
+		List<PerkStruct> candidates;
+		if (!_externalEnchantments.TryGetValue(itemType, out candidates))
+		{
+			candidates = new List<PerkStruct>();
+			_externalEnchantments.Add(itemType, candidates);
+		}
+		for (int i = 0; i < candidates.Count; i++)
+			if (string.Equals(candidates[i].get_Name(), perkName, StringComparison.Ordinal)) return false;
+
+		var document = new XmlDocument();
+		XmlElement perk = document.CreateElement("Perk");
+		perk.SetAttribute("Name", perkName);
+		perk.SetAttribute("ItemType", itemType);
+		if (UsesRandomAspectForExternalCandidates())
+		{
+			XmlElement set = document.CreateElement("Set");
+			set.SetAttribute("Aspect", "?RandomAspect[" +
+				recipeItem.MinDeviation.ToString(CultureInfo.InvariantCulture) + "," +
+				recipeItem.MaxDeviation.ToString(CultureInfo.InvariantCulture) + "]");
+			perk.AppendChild(set);
+		}
+		document.AppendChild(perk);
+		candidates.Add(new PerkStruct(perk));
+		return true;
+	}
+
+	public bool RemoveExternalEnchantmentCandidate(string itemType, string perkName)
+	{
+		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName)) return false;
+		List<PerkStruct> candidates;
+		if (!_externalEnchantments.TryGetValue(itemType, out candidates)) return false;
+		for (int i = 0; i < candidates.Count; i++)
+		{
+			if (!string.Equals(candidates[i].get_Name(), perkName, StringComparison.Ordinal)) continue;
+			candidates.RemoveAt(i);
+			if (candidates.Count == 0) _externalEnchantments.Remove(itemType);
+			return true;
+		}
+		return false;
+	}
+
+	private RecipeItem GetRecipeItemByType(string itemType)
+	{
 		for (int i = 0; i < _items.Count; i++)
-			if (string.Equals(_items[i].ItemType, info.Type, StringComparison.Ordinal)) return _items[i];
+			if (string.Equals(_items[i].ItemType, itemType, StringComparison.Ordinal)) return _items[i];
 		return null;
+	}
+
+	private bool UsesRandomAspectForExternalCandidates()
+	{
+		return string.Equals(_name, "Simple", StringComparison.OrdinalIgnoreCase) ||
+			string.Equals(_name, "Medium", StringComparison.OrdinalIgnoreCase);
 	}
 
 	private RecipePrices GetRecipePricesByName(string name)
@@ -122,12 +182,25 @@ public class Recipe
 	{
 		var result = new List<PerkStruct>();
 		if (userItem == null) return result;
-		for (int i = 0; i < _variations.Count; i++)
-		{
-			Variation variation = _variations[i];
-			if (!variation.CheckConditions(userItem, itemLevel)) continue;
-			foreach (PerkStruct enchantment in variation.Enchantments)
+			for (int i = 0; i < _variations.Count; i++)
 			{
+				Variation variation = _variations[i];
+				if (!variation.CheckConditions(userItem, itemLevel)) continue;
+				foreach (PerkStruct enchantment in variation.Enchantments)
+				{
+					if (enchantment == null || !IsPerkReadyToEnchant(enchantment)) continue;
+					if (checkRequired && IsEnchantmentAlreadyExists(enchantment, userItem.JAJNJAIJOPA)) continue;
+					result.Add(new PerkStruct(enchantment));
+				}
+			}
+
+			ItemInfo info = CurrentInfo(userItem);
+			List<PerkStruct> external;
+		if (info != null && _externalEnchantments.TryGetValue(info.Type, out external))
+		{
+			for (int i = 0; i < external.Count; i++)
+			{
+				PerkStruct enchantment = external[i];
 				if (enchantment == null || !IsPerkReadyToEnchant(enchantment)) continue;
 				if (checkRequired && IsEnchantmentAlreadyExists(enchantment, userItem.JAJNJAIJOPA)) continue;
 				result.Add(new PerkStruct(enchantment));

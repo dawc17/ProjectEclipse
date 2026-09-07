@@ -259,17 +259,22 @@ public class InfoPerk
 			ACBNLJBJGDF();
 		}
 		PerkActionShowIcon fMJDHMBCMKL = (PerkActionShowIcon)IBODMPMJELJ.AMKJNPOCODK;
-		if (fMJDHMBCMKL.AJAEJNGLKOK() != string.Empty)
-		{
-			IBODMPMJELJ.NHKMCLPOMFK = string.Format("{0}{1}", SF2Paths.KLIDILIHOFF(), fMJDHMBCMKL.AJAEJNGLKOK());
-		}
-		else
-		{
-			IBODMPMJELJ.NHKMCLPOMFK = string.Format("{0}{1}", SF2Paths.KLIDILIHOFF(), DCMHONAFOGI.MBDDKGIOOGD.NHKMCLPOMFK);
-		}
+		string image = (fMJDHMBCMKL.AJAEJNGLKOK() != string.Empty)
+			? fMJDHMBCMKL.AJAEJNGLKOK()
+			: DCMHONAFOGI.MBDDKGIOOGD.NHKMCLPOMFK;
+		IBODMPMJELJ.NHKMCLPOMFK = ResolveIconPath(image);
 		IBODMPMJELJ.FLNCPBKBJBL = fMJDHMBCMKL.ECKEHGCGBBP();
 		IBODMPMJELJ.MGDCIODPHCH = fMJDHMBCMKL.NKHNFHIKGIG();
 		IBODMPMJELJ.KJDFJPBIGJC.CKCCBJKIGIO(IBODMPMJELJ, CCBEDPIHKAD);
+	}
+
+	private static string ResolveIconPath(string image)
+	{
+		// Vanilla images are relative to UI/Skills. Mod API images may already be
+		// fully-qualified asset IDs, which must not receive the legacy prefix.
+		return (image != null && image.IndexOf(':') > 0)
+			? image
+			: string.Format("{0}{1}", SF2Paths.KLIDILIHOFF(), image ?? string.Empty);
 	}
 
 	private void IEDBKHEFKDE(PerksStage.ActionPerk IBODMPMJELJ, bool CCBEDPIHKAD)

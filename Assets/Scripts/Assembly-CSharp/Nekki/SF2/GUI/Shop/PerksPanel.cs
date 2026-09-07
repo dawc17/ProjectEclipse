@@ -71,7 +71,8 @@ namespace Nekki.SF2.GUI.Shop
 					Vector3 position = AOMLCBHAJJH.transform.position;
 					onPerksClick.Invoke(CBINHDDCIEA, position, PDMOLDKOACF, AOMLCBHAJJH);
 				});
-				resolutionImage.set_SpriteName(LMABGLLMHKH + CBINHDDCIEA.NHKMCLPOMFK);
+					string icon = CBINHDDCIEA.NHKMCLPOMFK;
+					resolutionImage.set_SpriteName((icon.IndexOf(':') > 0) ? icon : (LMABGLLMHKH + icon));
 				layoutElement.minHeight = resolutionImage.rectTransform.rect.height;
 				layoutElement.minWidth = resolutionImage.rectTransform.rect.width;
 				AOMLCBHAJJH.transform.SetParent(base.gameObject.transform, false);

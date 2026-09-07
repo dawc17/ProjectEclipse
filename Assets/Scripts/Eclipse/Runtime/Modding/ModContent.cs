@@ -232,6 +232,90 @@ namespace Eclipse.Modding
         }
     }
 
+    public enum ModPerkKind
+    {
+        Single = 0,
+        Combo = 1
+    }
+
+    public enum ModEnchantmentRecipe
+    {
+        Simple = 0,
+        Medium = 1,
+        Complex = 2
+    }
+
+    public enum ModEquipmentKind
+    {
+        Weapon = 0,
+        Armor = 1,
+        Helm = 2,
+        Ranged = 3,
+        Magic = 4
+    }
+
+    // Perks and enchantments deliberately share one combat-effect backend. A PerkDefinition
+    // identifies executable perk behavior; EnchantmentDefinition only exposes that behavior
+    // through a recovered forge recipe. API 0.2 keeps custom behavior conservative by deriving
+    // external perks from an already-registered template instead of exposing recovered XML.
+    public sealed class PerkDefinition
+    {
+        private readonly Dictionary<string, string> _parameters;
+
+        public DefinitionId Id { get; }
+        public DefinitionId Template { get; }
+        public bool HasTemplate { get; }
+        public DefinitionId DisplayName { get; }
+        public DefinitionId Description { get; }
+        public AssetId Icon { get; }
+        public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
+        public ModPerkKind Kind { get; }
+        public IReadOnlyDictionary<string, string> Parameters => _parameters;
+        public string LegacyName { get; }
+        public string LegacyPerkXml { get; }
+        public bool IsCore => Id.Namespace.Value == "core";
+
+        internal PerkDefinition(DefinitionId id, DefinitionId template, bool hasTemplate,
+            DefinitionId displayName, DefinitionId description, AssetId icon, ModPerkKind kind,
+            IReadOnlyDictionary<string, string> parameters = null, string legacyName = null,
+            string legacyPerkXml = null)
+        {
+            Id = id;
+            Template = template;
+            HasTemplate = hasTemplate;
+            DisplayName = displayName;
+            Description = description;
+            Icon = icon;
+            Kind = kind;
+            _parameters = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (parameters != null)
+                foreach (KeyValuePair<string, string> pair in parameters) _parameters.Add(pair.Key, pair.Value);
+            LegacyName = legacyName;
+            LegacyPerkXml = legacyPerkXml;
+        }
+    }
+
+    public sealed class EnchantmentDefinition
+    {
+        private readonly ModEquipmentKind[] _equipment;
+        private readonly IReadOnlyList<ModEquipmentKind> _readOnlyEquipment;
+
+        public DefinitionId Id { get; }
+        public DefinitionId Perk { get; }
+        public ModEnchantmentRecipe Recipe { get; }
+        public IReadOnlyList<ModEquipmentKind> Equipment => _readOnlyEquipment;
+
+        internal EnchantmentDefinition(DefinitionId id, DefinitionId perk, ModEnchantmentRecipe recipe,
+            ModEquipmentKind[] equipment)
+        {
+            Id = id;
+            Perk = perk;
+            Recipe = recipe;
+            _equipment = equipment == null ? Array.Empty<ModEquipmentKind>() : (ModEquipmentKind[])equipment.Clone();
+            _readOnlyEquipment = Array.AsReadOnly(_equipment);
+        }
+    }
+
     public sealed class ModContentCatalog
     {
         private readonly DefinitionRegistry<LocalizationDefinition> _localizations =
@@ -250,6 +334,10 @@ namespace Eclipse.Modding
             new DefinitionRegistry<ItemRedirectDefinition>(value => value.Id);
         private readonly DefinitionRegistry<ShopListingDefinition> _shopListings =
             new DefinitionRegistry<ShopListingDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<PerkDefinition> _perks =
+            new DefinitionRegistry<PerkDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<EnchantmentDefinition> _enchantments =
+            new DefinitionRegistry<EnchantmentDefinition>(value => value.Id);
 
         public bool IsFrozen { get; private set; }
         public IReadOnlyList<LocalizationDefinition> Localizations => _localizations.Values;
@@ -260,6 +348,8 @@ namespace Eclipse.Modding
         public IReadOnlyList<MagicDefinition> Magic => _magic.Values;
         public IReadOnlyList<ItemRedirectDefinition> ItemRedirects => _itemRedirects.Values;
         public IReadOnlyList<ShopListingDefinition> ShopListings => _shopListings.Values;
+        public IReadOnlyList<PerkDefinition> Perks => _perks.Values;
+        public IReadOnlyList<EnchantmentDefinition> Enchantments => _enchantments.Values;
 
         public ModRegistrationTransaction BeginRegistration(ModDescriptor mod)
         {
@@ -341,6 +431,18 @@ namespace Eclipse.Modding
             return _shopListings.TryGet(id, out value);
         }
 
+        public bool TryGetPerk(DefinitionId id, out PerkDefinition value)
+        {
+            value = null;
+            return id.Category == "perks" && _perks.TryGet(id, out value);
+        }
+
+        public bool TryGetEnchantment(DefinitionId id, out EnchantmentDefinition value)
+        {
+            value = null;
+            return id.Category == "enchantments" && _enchantments.TryGet(id, out value);
+        }
+
         public void Freeze()
         {
             IsFrozen = true;
@@ -350,7 +452,8 @@ namespace Eclipse.Modding
             LocalizationDefinition[] localizations, WeaponDefinition[] weapons,
             ArmorDefinition[] armors, HelmDefinition[] helms, RangedDefinition[] ranged,
             MagicDefinition[] magic, ItemRedirectDefinition[] itemRedirects,
-            ShopListingDefinition[] shopListings)
+            ShopListingDefinition[] shopListings, PerkDefinition[] perks,
+            EnchantmentDefinition[] enchantments)
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
             if (IsFrozen) throw new InvalidOperationException("Definition registries are frozen.");
@@ -363,6 +466,8 @@ namespace Eclipse.Modding
             _magic.ValidateCanAdd(magic);
             _itemRedirects.ValidateCanAdd(itemRedirects);
             _shopListings.ValidateCanAdd(shopListings);
+            _perks.ValidateCanAdd(perks);
+            _enchantments.ValidateCanAdd(enchantments);
 
             ValidateRegisteredItems(localizations, weapons, "Weapon");
             ValidateRegisteredItems(localizations, armors, "Armor");
@@ -382,6 +487,43 @@ namespace Eclipse.Modding
                         "' uses the wrong section for item '" + shopListings[i].Item + "'.");
             }
 
+            for (int i = 0; i < perks.Length; i++)
+            {
+                PerkDefinition perk = perks[i];
+                if (!ContainsLocalization(localizations, perk.DisplayName) &&
+                    !_localizations.TryGet(perk.DisplayName, out LocalizationDefinition ignoredName))
+                    throw new ModContentException("Perk '" + perk.Id +
+                        "' references missing display localization '" + perk.DisplayName + "'.");
+                if (!ContainsLocalization(localizations, perk.Description) &&
+                    !_localizations.TryGet(perk.Description, out LocalizationDefinition ignoredDescription))
+                    throw new ModContentException("Perk '" + perk.Id +
+                        "' references missing description localization '" + perk.Description + "'.");
+                if (!perk.HasTemplate)
+                    throw new ModContentException("External perk '" + perk.Id + "' must derive from a registered template.");
+                PerkDefinition template;
+                if (!TryGetPendingPerk(perk.Template, perks, out template) && !_perks.TryGet(perk.Template, out template))
+                    throw new ModContentException("Perk '" + perk.Id + "' references missing template '" +
+                        perk.Template + "'.");
+                if (template.Id == perk.Id)
+                    throw new ModContentException("Perk cannot derive from itself: '" + perk.Id + "'.");
+            }
+
+            for (int i = 0; i < enchantments.Length; i++)
+            {
+                EnchantmentDefinition enchantment = enchantments[i];
+                PerkDefinition perk;
+                if (!TryGetPendingPerk(enchantment.Perk, perks, out perk) && !_perks.TryGet(enchantment.Perk, out perk))
+                    throw new ModContentException("Enchantment '" + enchantment.Id + "' references missing perk '" +
+                        enchantment.Perk + "'.");
+                if (enchantment.Equipment.Count == 0)
+                    throw new ModContentException("Enchantment '" + enchantment.Id + "' has no equipment categories.");
+                if (enchantment.Recipe == ModEnchantmentRecipe.Complex && perk.Kind != ModPerkKind.Combo)
+                    throw new ModContentException("Complex enchantment '" + enchantment.Id + "' requires a combo perk.");
+                if (enchantment.Recipe != ModEnchantmentRecipe.Complex && perk.Kind != ModPerkKind.Single)
+                    throw new ModContentException("Simple/medium enchantment '" + enchantment.Id +
+                        "' requires a single perk.");
+            }
+
             _localizations.AddRange(localizations);
             _weapons.AddRange(weapons);
             _armors.AddRange(armors);
@@ -390,6 +532,16 @@ namespace Eclipse.Modding
             _magic.AddRange(magic);
             _itemRedirects.AddRange(itemRedirects);
             _shopListings.AddRange(shopListings);
+            _perks.AddRange(perks);
+            _enchantments.AddRange(enchantments);
+        }
+
+        private static bool TryGetPendingPerk(DefinitionId id, PerkDefinition[] values, out PerkDefinition value)
+        {
+            for (int i = 0; i < values.Length; i++)
+                if (values[i].Id == id) { value = values[i]; return true; }
+            value = null;
+            return false;
         }
 
         private void ValidateRegisteredItems<T>(LocalizationDefinition[] localizations, T[] items, string type)
@@ -458,6 +610,17 @@ namespace Eclipse.Modding
             _helms.AddRange(helms);
             _ranged.AddRange(ranged);
             _magic.AddRange(magic);
+        }
+
+        internal void ImportCorePerks(PerkDefinition[] perks)
+        {
+            if (IsFrozen) throw new InvalidOperationException("Definition registries are frozen.");
+            if (perks == null) throw new ArgumentNullException(nameof(perks));
+            _perks.ValidateCanAdd(perks);
+            for (int i = 0; i < perks.Length; i++)
+                if (!perks[i].IsCore || perks[i].HasTemplate || string.IsNullOrEmpty(perks[i].LegacyName))
+                    throw new ModContentException("Invalid core perk import: " + perks[i].Id);
+            _perks.AddRange(perks);
         }
 
         private void ValidateCoreItems<T>(LocalizationDefinition[] localizations, T[] items, string type)
@@ -553,12 +716,17 @@ namespace Eclipse.Modding
             new Dictionary<DefinitionId, ItemRedirectDefinition>();
         private readonly Dictionary<DefinitionId, ShopListingDefinition> _shopListings =
             new Dictionary<DefinitionId, ShopListingDefinition>();
+        private readonly Dictionary<DefinitionId, PerkDefinition> _perks =
+            new Dictionary<DefinitionId, PerkDefinition>();
+        private readonly Dictionary<DefinitionId, EnchantmentDefinition> _enchantments =
+            new Dictionary<DefinitionId, EnchantmentDefinition>();
         private readonly HashSet<DefinitionId> _listedItems = new HashSet<DefinitionId>();
         private bool _completed;
 
         public ModDescriptor Mod { get; }
         public int RegistrationCount => _localizations.Count + _weapons.Count + _armors.Count + _helms.Count +
-            _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count;
+            _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
+            _enchantments.Count;
 
         internal ModRegistrationTransaction(ModContentCatalog catalog, ModDescriptor mod)
         {
@@ -744,6 +912,105 @@ namespace Eclipse.Modding
             return listing;
         }
 
+        public PerkDefinition GetPerk(string reference)
+        {
+            ThrowIfCompleted();
+            if (string.IsNullOrWhiteSpace(reference))
+                throw new ModContentException("Perk reference must not be empty.");
+            DefinitionId id;
+            try
+            {
+                id = reference.IndexOf(':') >= 0 ? DefinitionId.Parse(reference) : Qualify("perks", reference);
+            }
+            catch (FormatException exception)
+            {
+                throw new ModContentException(exception.Message, exception);
+            }
+            if (id.Category != "perks")
+                throw new ModContentException("Perk reference must use the 'perks' definition category: '" + id + "'.");
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Mod '" + Mod.Id + "' cannot reference undeclared perk namespace '" +
+                    id.Namespace + "'.");
+            PerkDefinition value;
+            if (_perks.TryGetValue(id, out value) || _catalog.TryGetPerk(id, out value)) return value;
+            throw new ModContentException("Perk is not registered: '" + id + "'.");
+        }
+
+        public PerkDefinition RegisterPerk(string localId, DefinitionId template, DefinitionId displayName,
+            DefinitionId description, AssetId icon, IReadOnlyDictionary<string, string> parameters)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("perks", localId);
+            if (_perks.ContainsKey(id)) throw new ModContentException("Duplicate perk definition: '" + id + "'.");
+            if (displayName.Namespace != Mod.Id || displayName.Category != "localization")
+                throw new ModContentException("Perk display_name must be a localization owned by mod '" + Mod.Id + "'.");
+            if (description.Namespace != Mod.Id || description.Category != "localization")
+                throw new ModContentException("Perk description must be a localization owned by mod '" + Mod.Id + "'.");
+            PerkDefinition templateDefinition;
+            if (!_perks.TryGetValue(template, out templateDefinition) && !_catalog.TryGetPerk(template, out templateDefinition))
+                throw new ModContentException("Perk template is not registered: '" + template + "'.");
+            if (!CanReferenceNamespace(template.Namespace))
+                throw new ModContentException("Perk template belongs to undeclared namespace '" + template.Namespace + "'.");
+            if (!icon.Equals(default(AssetId)) && !CanReferenceNamespace(icon.Namespace))
+                throw new ModContentException("Perk icon belongs to undeclared namespace '" + icon.Namespace + "'.");
+
+            var copiedParameters = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (parameters != null)
+            {
+                if (parameters.Count > 64) throw new ModContentException("Perk parameter limit exceeded (64).");
+                foreach (KeyValuePair<string, string> pair in parameters)
+                {
+                    ValidatePerkParameterName(pair.Key);
+                    if (pair.Value == null || pair.Value.Length == 0 || pair.Value.Length > 2048)
+                        throw new ModContentException("Perk parameter '" + pair.Key + "' must be 1..2048 characters.");
+                    copiedParameters.Add(pair.Key, pair.Value);
+                }
+            }
+
+            EnsureCapacityForNewRegistration();
+            var definition = new PerkDefinition(id, templateDefinition.Id, true, displayName, description, icon,
+                templateDefinition.Kind, copiedParameters);
+            _perks.Add(id, definition);
+            return definition;
+        }
+
+        public EnchantmentDefinition RegisterEnchantment(string localId, DefinitionId perk,
+            ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("enchantments", localId);
+            if (_enchantments.ContainsKey(id))
+                throw new ModContentException("Duplicate enchantment definition: '" + id + "'.");
+            if (perk.Namespace != Mod.Id || perk.Category != "perks")
+                throw new ModContentException("Mod API 0.2 enchantments may only expose perks owned by the registering mod.");
+            PerkDefinition perkDefinition;
+            if (!_perks.TryGetValue(perk, out perkDefinition))
+                throw new ModContentException("Enchantment perk must be registered by the same transaction: '" + perk + "'.");
+            if (!Enum.IsDefined(typeof(ModEnchantmentRecipe), recipe))
+                throw new ModContentException("Unsupported enchantment recipe: " + recipe);
+            if (equipment == null || equipment.Length == 0)
+                throw new ModContentException("Enchantment must support at least one equipment category.");
+            var seen = new HashSet<ModEquipmentKind>();
+            var copied = new ModEquipmentKind[equipment.Length];
+            for (int i = 0; i < equipment.Length; i++)
+            {
+                if (!Enum.IsDefined(typeof(ModEquipmentKind), equipment[i]))
+                    throw new ModContentException("Unsupported enchantment equipment category: " + equipment[i]);
+                if (!seen.Add(equipment[i]))
+                    throw new ModContentException("Duplicate enchantment equipment category: " + equipment[i]);
+                copied[i] = equipment[i];
+            }
+            if (recipe == ModEnchantmentRecipe.Complex && perkDefinition.Kind != ModPerkKind.Combo)
+                throw new ModContentException("Complex enchantments require a combo perk.");
+            if (recipe != ModEnchantmentRecipe.Complex && perkDefinition.Kind != ModPerkKind.Single)
+                throw new ModContentException("Simple/medium enchantments require a single perk.");
+
+            EnsureCapacityForNewRegistration();
+            var definition = new EnchantmentDefinition(id, perkDefinition.Id, recipe, copied);
+            _enchantments.Add(id, definition);
+            return definition;
+        }
+
         public void Commit()
         {
             ThrowIfCompleted();
@@ -771,8 +1038,13 @@ namespace Eclipse.Modding
             _itemRedirects.Values.CopyTo(itemRedirects, 0);
             var listings = new ShopListingDefinition[_shopListings.Count];
             _shopListings.Values.CopyTo(listings, 0);
+            var perks = new PerkDefinition[_perks.Count];
+            _perks.Values.CopyTo(perks, 0);
+            var enchantments = new EnchantmentDefinition[_enchantments.Count];
+            _enchantments.Values.CopyTo(enchantments, 0);
 
-            _catalog.Commit(this, localizations, weapons, armors, helms, ranged, magic, itemRedirects, listings);
+            _catalog.Commit(this, localizations, weapons, armors, helms, ranged, magic, itemRedirects, listings,
+                perks, enchantments);
             _completed = true;
             ClearPending();
         }
@@ -796,6 +1068,26 @@ namespace Eclipse.Modding
         {
             if (RegistrationCount >= MaxRegistrations)
                 throw new ModContentException("Registration limit exceeded (" + MaxRegistrations + ").");
+        }
+
+        private bool CanReferenceNamespace(ModId namespaceId)
+        {
+            if (namespaceId == Mod.Id) return true;
+            foreach (ModDependency dependency in Mod.Manifest.Dependencies)
+                if (dependency.Id == namespaceId) return true;
+            return false;
+        }
+
+        private static void ValidatePerkParameterName(string name)
+        {
+            if (string.IsNullOrEmpty(name) || name.Length > 64)
+                throw new ModContentException("Perk parameter name must be 1..64 characters.");
+            for (int i = 0; i < name.Length; i++)
+            {
+                char c = name[i];
+                if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_'))
+                    throw new ModContentException("Unsafe perk parameter name '" + name + "'.");
+            }
         }
 
         private void ValidateExternalItem(DefinitionId id, DefinitionId displayName, string type)
@@ -908,6 +1200,8 @@ namespace Eclipse.Modding
             _magic.Clear();
             _itemRedirects.Clear();
             _shopListings.Clear();
+            _perks.Clear();
+            _enchantments.Clear();
             _listedItems.Clear();
         }
     }
