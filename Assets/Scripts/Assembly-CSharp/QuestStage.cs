@@ -439,13 +439,16 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 
 	public int CompareTo(QuestStage NOLFMPDGCOC)
 	{
-		if (MHFPGCBLGIP() == HPOLGFKCOOE.QUEST_ACTIONS && NOLFMPDGCOC.MHFPGCBLGIP() == HPOLGFKCOOE.QUEST_ACTIONS)
+		if (NOLFMPDGCOC == null)
 		{
 			return 1;
 		}
-		if (MHFPGCBLGIP() != HPOLGFKCOOE.QUEST_ACTIONS && NOLFMPDGCOC.MHFPGCBLGIP() == HPOLGFKCOOE.QUEST_ACTIONS)
+		// Pending quests precede running actions; equal states use descending priority.
+		bool running = MHFPGCBLGIP() == HPOLGFKCOOE.QUEST_ACTIONS;
+		bool otherRunning = NOLFMPDGCOC.MHFPGCBLGIP() == HPOLGFKCOOE.QUEST_ACTIONS;
+		if (running != otherRunning)
 		{
-			return -1;
+			return running ? 1 : -1;
 		}
 		return NOLFMPDGCOC.DEFHBAPNPHI.CompareTo(DEFHBAPNPHI);
 	}

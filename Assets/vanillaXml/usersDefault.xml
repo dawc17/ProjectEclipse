@@ -7,7 +7,7 @@
     </Sounds>
   </CurrentUser>
   <Warriors>
-    <Warrior ID="1" FirstName="NAME_SHADOW" Avatar="avatar_hero" Voice="Male" Money="0" Bonus="9" Strength="3" Stamina="3" Level="1" Experience="0" Power="5" PowerSyncTime="1378445901" Difficulty="50" LastLotteryEnterTime="0" LastLotteryPlayTime="0" LotteryDaysMax="6" LotteryDays="0" RateTime="0" Skeleton="Skeleton" Armor="Body" Helm="Head" Weapon="Fists" Ranged="NoRanged" Magic="NoMagic" ShowUpgrades="0" ArenaRating="0" ArenaRank="0" Tutorial="MOVE" Tactic="Player" CurrentZone="ZONE_1" PaymentActionsResendRequestCompleted="1">
+    <Warrior ID="1" FirstName="NAME_SHADOW" Avatar="avatar_hero" Voice="Male" Money="0" Bonus="50" Strength="3" Stamina="3" Level="1" Experience="0" Power="5" PowerSyncTime="1378445901" Difficulty="50" LastLotteryEnterTime="0" LastLotteryPlayTime="0" LotteryDaysMax="6" LotteryDays="0" RateTime="0" Skeleton="Skeleton" Armor="Body" Helm="Head" Weapon="Fists" Ranged="NoRanged" Magic="NoMagic" ShowUpgrades="0" ArenaRating="0" ArenaRank="0" Tutorial="MOVE" Tactic="Player" CurrentZone="ZONE_1" PaymentActionsResendRequestCompleted="1">
       <Items>
         <Item Name="Body" Equipped="1" Count="1"/>
         <Item Name="Head" Equipped="1" Count="1"/>

@@ -220,7 +220,7 @@
         <Fight Name="6" Power="1" Rounds="3" RoundTime="99" Replays="1">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="1"/>
-            <Reward Exp="500" Bonus="3">
+            <Reward Exp="500" Bonus="10">
               <Item Name="drop_name_blueseal" ShowReward="1"/>
               <NormalModeReward PrizeBase="1"/>
               <EclipseModeReward PrizeBase="2">
@@ -970,7 +970,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400" EvaluatedRating="10">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="1"/>
-            <Reward Exp="2">
+            <Reward Exp="2" Bonus="9">
               <NormalModeReward>
                 <Level Max="2" Money="160"/>
                 <Level Min="3" Max="3" Money="240"/>
@@ -2121,7 +2121,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400" EvaluatedRating="10">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="10000"/>
-            <Reward Exp="1000" PrizeBase="10000">
+            <Reward Exp="1000" PrizeBase="10000" Bonus="39">
               <NormalModeReward>
                 <Level Min="38" Money="24375000">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="904"/>
@@ -3138,7 +3138,7 @@
         <Fight Name="6" Power="1" Rounds="3" RoundTime="99" Replays="1">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="5"/>
-            <Reward Exp="5000" Bonus="3">
+            <Reward Exp="5000" Bonus="20">
               <NormalModeReward PrizeBase="5">
                 <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="11.408"/>
                 <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="4.448"/>
@@ -4915,7 +4915,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400" EvaluatedRating="10">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="5"/>
-            <Reward Exp="2" PrizeBase="5">
+            <Reward Exp="2" PrizeBase="5" Bonus="11">
               <NormalModeReward>
                 <Level Max="8" Money="800">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="14"/>
@@ -5902,7 +5902,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400" EvaluatedRating="10">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="50000"/>
-            <Reward Exp="1000" PrizeBase="50000">
+            <Reward Exp="1000" PrizeBase="50000" Bonus="41">
               <NormalModeReward>
                 <Level Min="39" Money="134062500">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1082"/>
@@ -7153,7 +7153,7 @@
         <Fight Name="6" Power="1" Rounds="3" RoundTime="99" Replays="1">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="20"/>
-            <Reward Exp="25000" Bonus="3">
+            <Reward Exp="25000" Bonus="30">
               <NormalModeReward PrizeBase="20">
                 <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="23.12"/>
                 <Currency Drop="1" Name="ForgeMaterial2" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="9.53"/>
@@ -8956,7 +8956,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400" EvaluatedRating="10">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="20"/>
-            <Reward Exp="20" PrizeBase="20">
+            <Reward Exp="20" PrizeBase="20" Bonus="15">
               <NormalModeReward>
                 <Level Max="14" Money="4000">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="22"/>
@@ -10001,7 +10001,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400" EvaluatedRating="10">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="250000"/>
-            <Reward Exp="1000" PrizeBase="250000">
+            <Reward Exp="1000" PrizeBase="250000" Bonus="43">
               <NormalModeReward>
                 <Level Min="40" Money="737343750">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1297"/>
@@ -11292,7 +11292,7 @@
         <Fight Name="6" Power="1" Rounds="3" RoundTime="99" Replays="1">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="100"/>
-            <Reward Exp="125000" Bonus="3">
+            <Reward Exp="125000" Bonus="40">
               <Item Name="drop_name_purpleseal" ShowReward="1"/>
               <NormalModeReward PrizeBase="100">
                 <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="87.08"/>
@@ -13099,7 +13099,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="100"/>
-            <Reward Exp="50" PrizeBase="100">
+            <Reward Exp="50" PrizeBase="100" Bonus="19">
               <NormalModeReward>
                 <Level Max="20" Money="20000">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="44"/>
@@ -14246,7 +14246,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="1250000"/>
-            <Reward Exp="1000" PrizeBase="1250000">
+            <Reward Exp="1000" PrizeBase="1250000" Bonus="45">
               <NormalModeReward>
                 <Level Min="41" Money="4055390625">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1554"/>
@@ -15536,7 +15536,7 @@
         <Fight Name="6" Power="1" Rounds="3" RoundTime="99" Replays="1">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="500"/>
-            <Reward Exp="750000" Bonus="3">
+            <Reward Exp="750000" Bonus="50">
               <Item Name="drop_name_orangeseal" ShowReward="1"/>
               <NormalModeReward PrizeBase="500">
                 <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="277.53"/>
@@ -17373,7 +17373,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="500"/>
-            <Reward Exp="150" PrizeBase="500">
+            <Reward Exp="150" PrizeBase="500" Bonus="25">
               <NormalModeReward>
                 <Level Max="26" Money="100000">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="111"/>
@@ -18602,7 +18602,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="5000000"/>
-            <Reward Exp="1000" PrizeBase="5000000">
+            <Reward Exp="1000" PrizeBase="5000000" Bonus="47">
               <NormalModeReward>
                 <Level Min="42" Money="22304648437">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="1862"/>
@@ -19920,7 +19920,7 @@
         <Fight Name="6" Power="1" Rounds="3" RoundTime="99" Replays="1">
           <Rewards>
             <Reward Money="0" Exp="20" PrizeBase="2000"/>
-            <Reward Exp="4000000" Bonus="3">
+            <Reward Exp="4000000" Bonus="60">
               <Item Name="drop_name_jadeseal" ShowReward="1"/>
               <NormalModeReward PrizeBase="2000">
                 <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="601.37"/>
@@ -22049,7 +22049,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="2000"/>
-            <Reward Exp="500" PrizeBase="2000">
+            <Reward Exp="500" PrizeBase="2000" Bonus="32">
               <NormalModeReward>
                 <Level Max="32" Money="500000">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="310"/>
@@ -23368,7 +23368,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="25000000"/>
-            <Reward Exp="1000" PrizeBase="25000000">
+            <Reward Exp="1000" PrizeBase="25000000" Bonus="49">
               <NormalModeReward>
                 <Level Min="43" Money="122675566406">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="2233"/>
@@ -26966,7 +26966,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="125000000"/>
-            <Reward Exp="500" PrizeBase="125000000">
+            <Reward Exp="500" PrizeBase="125000000" Bonus="51">
               <NormalModeReward>
                 <Level Min="47" Money="1042742314451">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="4546"/>
@@ -28812,7 +28812,7 @@
         <Fight Name="6" Power="1" Rounds="3" RoundTime="99" Replays="1" Location="neural_network" Music="fight37_Titan_Epic_Fight">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="500"/>
-            <Reward Exp="4000000" Bonus="3" Money="0">
+            <Reward Exp="4000000" Bonus="70" Money="0">
               <Item Name="drop_name_sphere" ShowReward="1"/>
               <NormalModeReward PrizeBase="500">
                 <Currency Drop="1" Name="ForgeMaterial1" DeviationCoefficient="0.25" DecayCoefficient="0.1" ExpectedValue="16708"/>
@@ -30307,7 +30307,7 @@
         <Fight Name="1" Power="1" Rounds="2" RoundTime="99" Replays="1" ReplayInterval="14400">
           <Rewards>
             <Reward Money="0" Exp="0" PrizeBase="625000000"/>
-            <Reward Exp="500" PrizeBase="625000000">
+            <Reward Exp="500" PrizeBase="625000000" Bonus="60">
               <NormalModeReward>
                 <Level Min="50" Money="2815404249017">
                   <Currency Drop="1" ShowReward="1" Name="ForgeMaterial1" ExpectedValue="7849"/>

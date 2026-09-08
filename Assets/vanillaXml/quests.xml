@@ -475,10 +475,10 @@
     </Events>
     <Conditions>
       <Equal Value1="_$ActionID" Value2="FinetuneStrangerTriggerLevel"/>
-      <Equal Value1="?Player[].Level % 6" Value2="5"/>
+      <Equal Value1="?Mod[?Player[].Level,6]" Value2="5"/>
     </Conditions>
     <Actions>
-      <SetVariable Scope="Users" Name="StrangerTriggerLevel" Value="_StrangerTriggerLevel + 1"/>
+      <SetVariable Scope="Users" Name="StrangerTriggerLevel" Value="?Sum[_StrangerTriggerLevel,1]"/>
     </Actions>
   </Quest>
   <Quest Name="SetTime0" Priority="998" Unresumable="1">

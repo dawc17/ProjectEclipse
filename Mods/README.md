@@ -1,5 +1,11 @@
 # Loose mods
 
+The long-term acceptance target is [complete DE parity through the modding API](DE_PARITY_TARGET.md).
+That target describes required coverage; the documentation below describes current support.
+The dependency-ordered engineering roadmap is
+[DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
+DE parity or Mod API expansion must read both parity documents before editing.
+
 Place each mod in `Mods/<folder>/` with a `mod.toml` manifest. See `example.weapon`
 for the minimal weapon slice, `example.loadout` for armor, helm, ranged, and magic,
 and `example.enchantment` for the API 0.3 reusable behavior + typed perk/enchantment slice.
