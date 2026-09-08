@@ -15,6 +15,11 @@ public class RosterPerk
 
 	private XmlNode _node;
 
+	public XmlNode Node
+	{
+		get { return _node; }
+	}
+
 	public int Level
 	{
 		get

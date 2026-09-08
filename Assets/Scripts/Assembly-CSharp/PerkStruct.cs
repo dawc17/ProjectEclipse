@@ -3,11 +3,22 @@ using System.Xml;
 
 public class PerkStruct
 {
+	public const string EclipseEnchantmentAttribute = "EclipseEnchantment";
+
+	public const string EclipseKindAttribute = "EclipseKind";
+
 	private string _name = string.Empty;
 
 	private List<string> _itemTypes = new List<string>();
 
 	private List<KeyValuePair<string, string>> MAPHFLOPAOD = new List<KeyValuePair<string, string>>();
+
+	private string _eclipseEnchantment = string.Empty;
+
+	private string _eclipseKind = string.Empty;
+
+	private readonly Dictionary<string, string> _eclipseParameters =
+		new Dictionary<string, string>(System.StringComparer.Ordinal);
 
 	public List<string> NMOKPAPJLCN
 	{
@@ -25,9 +36,31 @@ public class PerkStruct
 		}
 	}
 
+	public string EclipseEnchantment
+	{
+		get
+		{
+			return _eclipseEnchantment;
+		}
+	}
+
+	public string EclipseKind
+	{
+		get
+		{
+			return _eclipseKind;
+		}
+	}
+
+	public IReadOnlyDictionary<string, string> EclipseParameters => _eclipseParameters;
+
 	public PerkStruct(PerkStruct NOLFMPDGCOC)
 	{
 		_name = string.Copy(NOLFMPDGCOC.get_Name());
+		_eclipseEnchantment = string.Copy(NOLFMPDGCOC._eclipseEnchantment);
+		_eclipseKind = string.Copy(NOLFMPDGCOC._eclipseKind);
+		foreach (KeyValuePair<string, string> pair in NOLFMPDGCOC._eclipseParameters)
+			_eclipseParameters.Add(string.Copy(pair.Key), string.Copy(pair.Value));
 		_itemTypes = new List<string>();
 		NOLFMPDGCOC._itemTypes.ForEach((string DHDMNHCIPEH) =>
 		{
@@ -45,21 +78,35 @@ public class PerkStruct
 	public PerkStruct(XmlNode node)
 	{
 		_name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+		_eclipseEnchantment = node.Attributes[EclipseEnchantmentAttribute].CIPOICEEIBK(string.Empty);
+		_eclipseKind = node.Attributes[EclipseKindAttribute].CIPOICEEIBK(string.Empty);
 		string text = node.Attributes["ItemType"].CIPOICEEIBK(string.Empty);
 		if (text != null)
 		{
 			string[] collection = text.Split('|');
 			_itemTypes.AddRange(collection);
 		}
-		XmlNode xmlNode = node["Set"];
-		if (xmlNode == null)
+		XmlNode parameters = node[Eclipse.Modding.ModEffectSaveData.NodeName];
+		if (parameters != null && parameters.Attributes?["Format"]?.Value == Eclipse.Modding.ModEffectSaveData.Format)
 		{
-			return;
+			foreach (XmlNode parameter in parameters.ChildNodes)
+			{
+				if (parameter.NodeType != XmlNodeType.Element ||
+					parameter.Name != Eclipse.Modding.ModEffectSaveData.ParameterNodeName) continue;
+				string key = parameter.Attributes?["Name"]?.Value;
+				XmlAttribute value = parameter.Attributes?["Value"];
+				if (string.IsNullOrEmpty(key) || value == null || _eclipseParameters.ContainsKey(key)) continue;
+				_eclipseParameters.Add(key, value.Value);
+			}
 		}
-		foreach (XmlAttribute attribute in xmlNode.Attributes)
+		XmlNode xmlNode = node["Set"];
+		if (xmlNode != null)
 		{
-			KeyValuePair<string, string> item = new KeyValuePair<string, string>(attribute.Name, attribute.CIPOICEEIBK(string.Empty));
-			MAPHFLOPAOD.Add(item);
+			foreach (XmlAttribute attribute in xmlNode.Attributes)
+			{
+				KeyValuePair<string, string> item = new KeyValuePair<string, string>(attribute.Name, attribute.CIPOICEEIBK(string.Empty));
+				MAPHFLOPAOD.Add(item);
+			}
 		}
 	}
 

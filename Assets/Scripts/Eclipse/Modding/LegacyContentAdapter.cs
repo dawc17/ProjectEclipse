@@ -117,15 +117,34 @@ namespace Eclipse.Modding
 
                 foreach (EnchantmentDefinition enchantment in _content.Enchantments)
                 {
-                    PerkDefinition perk;
-                    if (!_content.TryGetPerk(enchantment.Perk, out perk))
-                        throw new InvalidOperationException("Committed enchantment has no perk: " + enchantment.Id);
-                    string perkName = RuntimePerkName(perk);
+                    string perkName;
+                    string perkKind;
+                    IReadOnlyDictionary<string, ModParameterValue> initialParameters = null;
+                    if (enchantment.HasPerk)
+                    {
+                        PerkDefinition perk;
+                        if (!_content.TryGetPerk(enchantment.Perk, out perk))
+                            throw new InvalidOperationException("Committed enchantment has no perk: " + enchantment.Id);
+                        perkName = RuntimePerkName(perk);
+                        perkKind = perk.Kind == ModPerkKind.Combo ? "Combo" : "Single";
+                    }
+                    else if (enchantment.HasBehavior)
+                    {
+                        EnsureScriptedEnchantmentApplied(enchantment);
+                        perkName = enchantment.Id.ToString();
+                        perkKind = enchantment.Kind == ModPerkKind.Combo ? "Combo" : "Single";
+                        initialParameters = enchantment.InitialParameters;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Committed enchantment has no behavior backend: " + enchantment.Id);
+                    }
                     string recipeName = RecipeName(enchantment.Recipe);
                     for (int i = 0; i < enchantment.Equipment.Count; i++)
                     {
                         string itemType = EquipmentType(enchantment.Equipment[i]);
-                        if (!_forge.AddExternalEnchantmentCandidate(recipeName, itemType, perkName))
+                        if (!_forge.AddExternalEnchantmentCandidate(recipeName, itemType, perkName,
+                                enchantment.Id.ToString(), perkKind, ToWireParameters(initialParameters)))
                             throw new InvalidOperationException("Could not add external enchantment '" + enchantment.Id +
                                 "' to " + recipeName + "/" + itemType + ".");
                         _enchantmentBindings.Add(new ExternalEnchantmentBinding(recipeName, itemType, perkName));
@@ -194,6 +213,14 @@ namespace Eclipse.Modding
                 if (_perkNames.Contains(runtimeName)) return existing;
                 throw new InvalidOperationException("Legacy perk already exists: " + runtimeName);
             }
+            if (definition.HasBehavior)
+            {
+                XmlElement scriptedNode = BuildScriptedPerkNode(definition.Id, definition.DisplayName,
+                    definition.Description, definition.Icon, definition.HasIcon, definition.Kind);
+                PerkInfoItem scripted = _perks.AddExternalBasePerk(scriptedNode);
+                _perkNames.Add(scripted.Name);
+                return scripted;
+            }
             if (!definition.HasTemplate)
                 throw new InvalidOperationException("External perk has no template: " + definition.Id);
             if (!visiting.Add(definition.Id))
@@ -249,6 +276,47 @@ namespace Eclipse.Modding
                 foreach (KeyValuePair<string, string> parameter in definition.Parameters)
                     set.SetAttribute(parameter.Key, parameter.Value);
             return node;
+        }
+
+        private PerkInfoItem EnsureScriptedEnchantmentApplied(EnchantmentDefinition definition)
+        {
+            string runtimeName = definition.Id.ToString();
+            PerkInfoItem existing = _perks.ABAGJKMKCBA(runtimeName);
+            if (existing != null)
+            {
+                if (_perkNames.Contains(runtimeName)) return existing;
+                throw new InvalidOperationException("Legacy perk already exists for scripted enchantment: " + runtimeName);
+            }
+            XmlElement node = BuildScriptedPerkNode(definition.Id, definition.DisplayName,
+                definition.Description, definition.Icon, definition.HasIcon, definition.Kind);
+            PerkInfoItem applied = _perks.AddExternalBasePerk(node);
+            _perkNames.Add(applied.Name);
+            return applied;
+        }
+
+        private XmlElement BuildScriptedPerkNode(DefinitionId id, DefinitionId displayName,
+            DefinitionId description, AssetId icon, bool hasIcon, ModPerkKind kind)
+        {
+            var document = new XmlDocument();
+            XmlElement node = document.CreateElement("Perk");
+            document.AppendChild(node);
+            node.SetAttribute("Name", id.ToString());
+            node.SetAttribute("ID", _perks.CJJEPHDFOCJ().Count.ToString(CultureInfo.InvariantCulture));
+            node.SetAttribute("Alias", displayName.ToString());
+            node.SetAttribute("Description", description.ToString());
+            if (hasIcon) node.SetAttribute("Image", icon.ToString());
+            if (kind == ModPerkKind.Combo) node.SetAttribute("PerkType", "Combo");
+            return node;
+        }
+
+        private static IReadOnlyDictionary<string, string> ToWireParameters(
+            IReadOnlyDictionary<string, ModParameterValue> parameters)
+        {
+            if (parameters == null || parameters.Count == 0) return null;
+            var result = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (KeyValuePair<string, ModParameterValue> pair in parameters)
+                result.Add(pair.Key, pair.Value.ToWireString());
+            return result;
         }
 
         private void RemovePerksAndEnchantments()

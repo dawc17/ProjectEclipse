@@ -18,6 +18,26 @@ public static class ValidatePackagedArt
 {
     private static int checks;
 
+    private sealed class TestFighterOperations : IModFighterOperations
+    {
+        public readonly List<double> HealthChanges = new List<double>();
+        public readonly List<double> MagicChanges = new List<double>();
+
+        public bool TryChangeHealth(double amount, out string error)
+        {
+            HealthChanges.Add(amount);
+            error = string.Empty;
+            return true;
+        }
+
+        public bool TryAddMagicCharge(double amount, out string error)
+        {
+            MagicChanges.Add(amount);
+            error = string.Empty;
+            return true;
+        }
+    }
+
     private static void Require(bool value, string message)
     {
         if (!value) throw new InvalidDataException(message);
@@ -92,6 +112,7 @@ public static class ValidatePackagedArt
         Require(!coreProvider.TryDescribe(AssetId.Parse("core:UI/Items/does_not_exist"), out coreAsset),
             "CoreAssetProvider resolved an unknown packaged address");
         CheckModHost(coreProvider);
+        CheckRepositoryEnchantmentSample();
 
         string model = PackagedArtCatalog.LoadModelText("gamedata/models/mdl_skeleton");
         Require(!string.IsNullOrEmpty(model) && model.Contains("<Scene") && model.Contains("<Figures>"),
@@ -147,6 +168,67 @@ public static class ValidatePackagedArt
         Debug.Log("[PackagedArtTest] PASS " + (Application.isEditor ? "editor" : "standalone") +
             ": " + checks + " checks; " + catalog.bundles.Length + " groups; " + archives +
             " TAR/LZ4 archives; " + fonts + " loose fonts.");
+    }
+
+    private static void CheckRepositoryEnchantmentSample()
+    {
+        string modsRoot = Path.Combine(Application.dataPath, "TestMods");
+        using (ModHost host = ModHost.Build(modsRoot))
+        {
+            Require(!host.HasErrors && host.EnabledMods.Count == 1 &&
+                host.EnabledMods[0].Id.Value == "example.enchantment",
+                "Tracked example.enchantment manifest/assets did not load cleanly");
+            var logs = new List<ModLogEntry>();
+            using (ModScriptSession scripts = host.StartScripts(new MoonSharpScriptRuntime(), entry => logs.Add(entry), content =>
+            {
+                var perksDocument = new XmlDocument();
+                perksDocument.Load(Path.Combine(GameplayContentArchive.GetXmlRoot(), "perks.xml"));
+                var perkNodes = new List<XmlNode>();
+                foreach (XmlNode node in perksDocument.SelectNodes("/Perks/Perk")) perkNodes.Add(node);
+                CoreContentImporter.ImportPerks(content, perkNodes);
+            }))
+            {
+                Require(!scripts.HasErrors && scripts.ActiveMods.Count == 1,
+                    "Tracked example.enchantment Lua entrypoint failed");
+                ModBehaviorDefinition behavior = null;
+                PerkDefinition perk = null;
+                EnchantmentDefinition enchantment = null;
+                Require(scripts.Content.TryGetBehavior(
+                        DefinitionId.Parse("example.enchantment:behaviors/battle_charge"), out behavior) &&
+                    scripts.Content.TryGetPerk(
+                        DefinitionId.Parse("example.enchantment:perks/battle_focus"), out perk) &&
+                    perk.HasBehavior && perk.Behavior == behavior.Id &&
+                    perk.Description == DefinitionId.Parse(
+                        "example.enchantment:localization/perk.battle_focus.description") &&
+                    scripts.Content.TryGetEnchantment(
+                        DefinitionId.Parse("example.enchantment:enchantments/battle_charge_weapon"),
+                        out enchantment) && enchantment.HasBehavior && !enchantment.HasPerk &&
+                    enchantment.Behavior == behavior.Id && enchantment.HasIcon &&
+                    enchantment.Description == DefinitionId.Parse(
+                        "example.enchantment:localization/enchantment.battle_charge.description") &&
+                    Math.Abs(enchantment.InitialParameters["magic_charge"].Number - 0.35d) < 0.000001d &&
+                    Math.Abs(enchantment.InitialParameters["health_bonus"].Number - 0.05d) < 0.000001d,
+                    "Tracked example.enchantment did not register its API 0.3 reusable behavior/perk/enchantment");
+
+                var operations = new TestFighterOperations();
+                string error;
+                Require(scripts.TryInvokeBehavior(behavior.Id, ModEffectEvent.FightBegin,
+                        enchantment.InitialParameters,
+                        new Dictionary<string, string>(StringComparer.Ordinal)
+                        {
+                            { "side", "player" },
+                            { "source", "enchantment" },
+                            { "enchantment_id", enchantment.Id.ToString() },
+                        }, operations, out error) && string.IsNullOrEmpty(error) &&
+                    operations.MagicChanges.Count == 1 &&
+                    Math.Abs(operations.MagicChanges[0] - 0.35d) < 0.000001d &&
+                    operations.HealthChanges.Count == 1 &&
+                    Math.Abs(operations.HealthChanges[0] - 0.05d) < 0.000001d &&
+                    logs.Any(x => x.ModId.Value == "example.enchantment" &&
+                        x.Message.Contains("battle_charge activated")),
+                    "Tracked example.enchantment did not execute its custom fighter operations: " + error);
+            }
+        }
     }
 
     private static void CheckModHost(CoreAssetProvider coreProvider)
@@ -288,20 +370,64 @@ public static class ValidatePackagedArt
             Directory.CreateDirectory(Path.Combine(enchantment, "localizations"));
             Directory.CreateDirectory(Path.Combine(enchantment, "scripts"));
             File.WriteAllText(Path.Combine(enchantment, "localizations", "eng.toml"),
-                "perk.eclipse_lifesteal = \"Eclipse Lifesteal\"\n" +
-                "perk.eclipse_lifesteal.description = \"Template-derived lifesteal test.\"\n");
+                "perk.eclipse_lifesteal = \"Eclipse Behavior Perk\"\n" +
+                "perk.eclipse_lifesteal.description = \"Behavior-backed perk with independent typed defaults.\"\n" +
+                "enchantment.eclipse_lifesteal = \"Eclipse Behavior Enchantment\"\n" +
+                "enchantment.eclipse_lifesteal.description = \"Direct behavior-backed enchantment with independent state.\"\n" +
+                "perk.legacy_lifesteal = \"Legacy Lifesteal Perk\"\n" +
+                "perk.legacy_lifesteal.description = \"API 0.2 template compatibility test.\"\n");
             File.WriteAllText(Path.Combine(enchantment, "scripts", "main.lua"),
                 "local sf2 = require(\"sf2\")\n" +
+                "local behavior = sf2.behaviors.register {\n" +
+                "  id = \"lifesteal\",\n" +
+                "  parameters = {\n" +
+                "    chance = sf2.behaviors.NUMBER,\n" +
+                "    stacks = { type = sf2.behaviors.INTEGER, required = false, default = 1 },\n" +
+                "  },\n" +
+                "  on_fight_begin = function(parameters, fighter)\n" +
+                "    if fighter.phase == \"initial\" then\n" +
+                "      if parameters.chance ~= 0.65 or parameters.stacks ~= 1 then error(\"initial typed behavior mismatch\") end\n" +
+                "    elseif fighter.phase == \"saved\" then\n" +
+                "      if parameters.chance ~= 0.8 or parameters.stacks ~= 2 then error(\"saved typed behavior mismatch\") end\n" +
+                "    elseif fighter.phase == \"perk_saved\" then\n" +
+                "      if parameters.chance ~= 0.3 or parameters.stacks ~= 4 then error(\"saved perk typed behavior mismatch\") end\n" +
+                "    elseif fighter.phase == \"interactive\" then\n" +
+                "      if parameters.chance ~= 0.65 or parameters.stacks ~= 1 then error(\"interactive typed behavior mismatch\") end\n" +
+                "      fighter:add_magic_charge(parameters.chance)\n" +
+                "      fighter:change_health(parameters.stacks / 100)\n" +
+                "    else\n" +
+                "      error(\"unknown behavior test phase\")\n" +
+                "    end\n" +
+                "    sf2.log.info(\"behavior-fight-begin-\" .. fighter.phase)\n" +
+                "  end,\n" +
+                "}\n" +
                 "local perk = sf2.perks.register {\n" +
                 "  id = \"eclipse_lifesteal\",\n" +
-                "  template = sf2.perks.get(\"core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON\"),\n" +
+                "  behavior = behavior,\n" +
+                "  kind = sf2.perks.SINGLE,\n" +
                 "  display_name = sf2.localization.key(\"perk.eclipse_lifesteal\"),\n" +
                 "  description = sf2.localization.key(\"perk.eclipse_lifesteal.description\"),\n" +
-                "  parameters = { Chance = 0.55 },\n" +
+                "  parameters = { chance = 0.25 },\n" +
                 "}\n" +
                 "sf2.enchantments.register {\n" +
                 "  id = \"eclipse_lifesteal_weapon\",\n" +
-                "  perk = perk,\n" +
+                "  behavior = behavior,\n" +
+                "  display_name = sf2.localization.key(\"enchantment.eclipse_lifesteal\"),\n" +
+                "  description = sf2.localization.key(\"enchantment.eclipse_lifesteal.description\"),\n" +
+                "  recipe = sf2.enchantments.MEDIUM,\n" +
+                "  item_types = { sf2.enchantments.WEAPON },\n" +
+                "  parameters = { chance = 0.65 },\n" +
+                "}\n" +
+                "local legacy_perk = sf2.perks.register {\n" +
+                "  id = \"legacy_lifesteal\",\n" +
+                "  template = sf2.perks.get(\"core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON\"),\n" +
+                "  display_name = sf2.localization.key(\"perk.legacy_lifesteal\"),\n" +
+                "  description = sf2.localization.key(\"perk.legacy_lifesteal.description\"),\n" +
+                "  parameters = { Chance = 0.2 },\n" +
+                "}\n" +
+                "sf2.enchantments.register {\n" +
+                "  id = \"legacy_lifesteal_weapon\",\n" +
+                "  perk = legacy_perk,\n" +
                 "  recipe = sf2.enchantments.MEDIUM,\n" +
                 "  item_types = { sf2.enchantments.WEAPON },\n" +
                 "}\n" +
@@ -311,10 +437,10 @@ public static class ValidatePackagedArt
                 "id = \"example.enchantment\"\n" +
                 "name = \"Example Enchantment\"\n" +
                 "version = \"1.0.0\"\n" +
-                "api = \">=0.2 <1.0\"\n" +
+                "api = \">=0.3 <1.0\"\n" +
                 "authors = [\"Test\"]\n" +
                 "entrypoint = \"scripts/main.lua\"\n" +
-                "capabilities = [\"content.register\"]\n\n" +
+                "capabilities = [\"content.register\", \"combat.change_life\", \"combat.magic_charge\"]\n\n" +
                 "[[dependencies]]\n" +
                 "id = \"core\"\n" +
                 "version = \">=1.0 <2.0\"\n");
@@ -556,12 +682,12 @@ public static class ValidatePackagedArt
                     x.Message == "lua-error-ok") &&
                     scriptLogs.Any(x => x.ModId.Value == "example.weapon" && x.Level == ModLogLevel.Info &&
                     x.Message == "lua-legacy-ok"), "Lua log levels/compatibility alias lost severity or mod attribution");
-                Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 7 &&
+                Require(scripts.Content.IsFrozen && scripts.Content.Localizations.Count == 11 &&
                     scripts.Content.Weapons.Count == 1 && scripts.Content.Armors.Count == 1 &&
                     scripts.Content.Helms.Count == 1 && scripts.Content.Ranged.Count == 1 &&
                     scripts.Content.Magic.Count == 1 && scripts.Content.ItemRedirects.Count == 2 &&
-                    scripts.Content.ShopListings.Count == 5 && scripts.Content.Perks.Count == 211 &&
-                    scripts.Content.Enchantments.Count == 1,
+                    scripts.Content.ShopListings.Count == 5 && scripts.Content.Perks.Count == 212 &&
+                    scripts.Content.Enchantments.Count == 2 && scripts.Content.Behaviors.Count == 1,
                     "Successful Lua registration did not commit the complete equipment transactions");
                 LocalizationDefinition title;
                 Require(scripts.Content.TryGetLocalization(
@@ -602,21 +728,59 @@ public static class ValidatePackagedArt
                     magic.MagicDamage == 0 && magic.SubType == "MagicAsteroid" && magic.Progression == ItemProgressionKind.Vanilla &&
                     magic.Icon == AssetId.Parse("core:UI/Items/Magic4.img_magic_asteroid") && magic.HasModel,
                     "Lua magic definition did not preserve typed values");
-                PerkDefinition externalPerk;
-                EnchantmentDefinition externalEnchantment;
+                PerkDefinition externalPerk = null;
+                EnchantmentDefinition externalEnchantment = null;
+                ModBehaviorDefinition externalBehavior = null;
+                PerkDefinition legacyCompatibilityPerk = null;
+                EnchantmentDefinition legacyCompatibilityEnchantment = null;
                 Require(scripts.Content.TryGetPerk(
                         DefinitionId.Parse("example.enchantment:perks/eclipse_lifesteal"), out externalPerk) &&
-                    externalPerk.HasTemplate &&
-                    externalPerk.Template == CoreContentImporter.PerkId("PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON") &&
+                    scripts.Content.TryGetBehavior(
+                        DefinitionId.Parse("example.enchantment:behaviors/lifesteal"), out externalBehavior) &&
+                    externalPerk.HasBehavior && !externalPerk.HasTemplate &&
+                    externalPerk.Behavior == externalBehavior.Id &&
+                    externalPerk.DisplayName == DefinitionId.Parse("example.enchantment:localization/perk.eclipse_lifesteal") &&
                     !externalPerk.HasIcon &&
-                    externalPerk.Parameters["Chance"] == "0.55" &&
+                    Math.Abs(externalPerk.InitialParameters["chance"].Number - 0.25d) < 0.000001d &&
+                    externalPerk.InitialParameters["stacks"].Integer == 1 &&
                     scripts.Content.TryGetEnchantment(
                         DefinitionId.Parse("example.enchantment:enchantments/eclipse_lifesteal_weapon"),
-                        out externalEnchantment) && externalEnchantment.Perk == externalPerk.Id &&
+                        out externalEnchantment) && externalEnchantment.HasBehavior && !externalEnchantment.HasPerk &&
+                    externalEnchantment.Behavior == externalBehavior.Id &&
+                    externalEnchantment.DisplayName == DefinitionId.Parse("example.enchantment:localization/enchantment.eclipse_lifesteal") &&
+                    externalEnchantment.DisplayName != externalPerk.DisplayName &&
+                    Math.Abs(externalEnchantment.InitialParameters["chance"].Number - 0.65d) < 0.000001d &&
+                    externalEnchantment.InitialParameters["stacks"].Integer == 1 &&
                     externalEnchantment.Recipe == ModEnchantmentRecipe.Medium &&
                     externalEnchantment.Equipment.Count == 1 &&
-                    externalEnchantment.Equipment[0] == ModEquipmentKind.Weapon,
-                    "Lua perk/enchantment definition did not preserve typed values");
+                    externalEnchantment.Equipment[0] == ModEquipmentKind.Weapon &&
+                    scripts.Content.TryGetPerk(
+                        DefinitionId.Parse("example.enchantment:perks/legacy_lifesteal"), out legacyCompatibilityPerk) &&
+                    legacyCompatibilityPerk.HasTemplate && !legacyCompatibilityPerk.HasBehavior &&
+                    scripts.Content.TryGetEnchantment(
+                        DefinitionId.Parse("example.enchantment:enchantments/legacy_lifesteal_weapon"),
+                        out legacyCompatibilityEnchantment) && legacyCompatibilityEnchantment.HasPerk &&
+                    !legacyCompatibilityEnchantment.HasBehavior &&
+                    legacyCompatibilityEnchantment.Perk == legacyCompatibilityPerk.Id,
+                    "Lua behavior/perk/enchantment definitions did not preserve typed values or decoupling");
+                string behaviorError;
+                Require(scripts.TryInvokeBehavior(externalBehavior.Id, ModEffectEvent.FightBegin,
+                        externalEnchantment.InitialParameters,
+                        new Dictionary<string, string>(StringComparer.Ordinal) { { "phase", "initial" } },
+                        out behaviorError) && string.IsNullOrEmpty(behaviorError) &&
+                    scriptLogs.Any(x => x.ModId.Value == "example.enchantment" && x.Level == ModLogLevel.Info &&
+                        x.Message == "behavior-fight-begin-initial"),
+                    "Bounded behavior callback did not receive typed parameters/context or log successfully: " + behaviorError);
+                var fighterOperations = new TestFighterOperations();
+                Require(scripts.TryInvokeBehavior(externalBehavior.Id, ModEffectEvent.FightBegin,
+                        externalEnchantment.InitialParameters,
+                        new Dictionary<string, string>(StringComparer.Ordinal) { { "phase", "interactive" } },
+                        fighterOperations, out behaviorError) && string.IsNullOrEmpty(behaviorError) &&
+                    fighterOperations.MagicChanges.Count == 1 &&
+                    Math.Abs(fighterOperations.MagicChanges[0] - 0.65d) < 0.000001d &&
+                    fighterOperations.HealthChanges.Count == 1 &&
+                    Math.Abs(fighterOperations.HealthChanges[0] - 0.01d) < 0.000001d,
+                    "Lua fighter capability calls did not reach the bounded host operations: " + behaviorError);
                 ItemDefinition aliasedItem;
                 Require(scripts.Content.TryResolveItem(
                         DefinitionId.Parse("example.weapon:items/weapon/example_blade_legacy"), out aliasedItem) &&
@@ -660,20 +824,74 @@ public static class ValidatePackagedArt
                 runtimeScripts.Content.Weapons.Count == 211 && runtimeScripts.Content.Armors.Count == 180 &&
                 runtimeScripts.Content.Helms.Count == 194 &&
                 runtimeScripts.Content.Ranged.Count == 86 && runtimeScripts.Content.Magic.Count == 74 &&
-                runtimeScripts.Content.ShopListings.Count == 5 && runtimeScripts.Content.Perks.Count == 211 &&
-                runtimeScripts.Content.Enchantments.Count == 1 &&
+                runtimeScripts.Content.ShopListings.Count == 5 && runtimeScripts.Content.Perks.Count == 212 &&
+                runtimeScripts.Content.Enchantments.Count == 2 && runtimeScripts.Content.Behaviors.Count == 1 &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "registration.failure") &&
                 runtimeScripts.Diagnostics.Any(x => x.Code == "SCRIPT001" && x.Source == "script.runaway"),
                 "ModRuntime did not isolate the failing Lua mod during startup");
             const string externalPerkId = "example.enchantment:perks/eclipse_lifesteal";
+            const string externalEnchantmentId = "example.enchantment:enchantments/eclipse_lifesteal_weapon";
+            const string legacyPerkId = "example.enchantment:perks/legacy_lifesteal";
+            const string legacyEnchantmentId = "example.enchantment:enchantments/legacy_lifesteal_weapon";
             PerkInfoItem legacyPerk = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalPerkId);
+            PerkInfoItem legacyEnchantment = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalEnchantmentId);
+            PerkInfoItem compatibilityPerk = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(legacyPerkId);
+            string externalPresentationTitle;
+            string externalPresentationDescription;
             Require(legacyPerk != null && legacyPerk.HAAKMBKCMCO.Attributes["Alias"]?.Value ==
                     "example.enchantment:localization/perk.eclipse_lifesteal" &&
-                legacyPerk.HAAKMBKCMCO.Attributes["Image"]?.Value == "SkillsEnch02.EnchantmentLifeDrain" &&
-                legacyPerk.HAAKMBKCMCO["Set"]?.Attributes["Chance"]?.Value == "0.55" &&
-                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", externalPerkId),
-                "Committed perk/enchantment was not adapted into the recovered runtime");
+                legacyPerk.HAAKMBKCMCO["Set"] == null && legacyEnchantment != null &&
+                legacyEnchantment.HAAKMBKCMCO.Attributes["Alias"]?.Value ==
+                    "example.enchantment:localization/enchantment.eclipse_lifesteal" &&
+                legacyEnchantment.HAAKMBKCMCO.Attributes["Description"]?.Value ==
+                    "example.enchantment:localization/enchantment.eclipse_lifesteal.description" &&
+                ModRuntime.TryGetExternalEffectPresentation(externalEnchantmentId,
+                    out externalPresentationTitle, out externalPresentationDescription) &&
+                externalPresentationTitle == "example.enchantment:localization/enchantment.eclipse_lifesteal" &&
+                externalPresentationDescription ==
+                    "example.enchantment:localization/enchantment.eclipse_lifesteal.description" &&
+                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", externalEnchantmentId) &&
+                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentMetadata("Medium", "Weapon", externalEnchantmentId,
+                    externalEnchantmentId, "Single") &&
+                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentParameter("Medium", "Weapon", externalEnchantmentId,
+                    "chance", "0.65") &&
+                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentParameter("Medium", "Weapon", externalEnchantmentId,
+                    "stacks", "1") && compatibilityPerk != null &&
+                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", legacyPerkId) &&
+                ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentMetadata("Medium", "Weapon", legacyPerkId,
+                    legacyEnchantmentId, "Single"),
+                "Behavior-backed perk/enchantment was not adapted into the recovered runtime");
+
+            var savedBehaviorEffect = new XmlDocument();
+            savedBehaviorEffect.LoadXml("<Perk Name='" + externalEnchantmentId + "' EclipseEnchantment='" +
+                externalEnchantmentId + "' EclipseKind='Single'><Set Aspect='321'/><EclipseParams Format='1'>" +
+                "<Param Name='chance' Value='0.8'/><Param Name='stacks' Value='2'/></EclipseParams></Perk>");
+            Require(ModRuntime.TryReadSavedEnchantment(savedBehaviorEffect.DocumentElement,
+                    out EnchantmentDefinition savedEnchantment, out ModEffectInstance savedInstance,
+                    out string savedReadError) && string.IsNullOrEmpty(savedReadError) &&
+                savedEnchantment.Id == DefinitionId.Parse(externalEnchantmentId) &&
+                Math.Abs(savedInstance.Values["chance"].Number - 0.8d) < 0.000001d &&
+                savedInstance.Values["stacks"].Integer == 2,
+                "Saved EclipseEnchantment/EclipseParams did not resolve to the direct behavior definition: " + savedReadError);
+            Require(ModRuntime.TryInvokeSavedEnchantmentFightBegin(savedBehaviorEffect.DocumentElement,
+                    new Dictionary<string, string>(StringComparer.Ordinal) { { "phase", "saved" } },
+                    out string savedInvokeError) && string.IsNullOrEmpty(savedInvokeError),
+                "Saved typed enchantment did not reach its bounded behavior handler: " + savedInvokeError);
+            var savedBehaviorPerk = new XmlDocument();
+            savedBehaviorPerk.LoadXml("<Perk Name='" + externalPerkId + "' Level='1'><EclipseParams Format='1'>" +
+                "<Param Name='chance' Value='0.3'/><Param Name='stacks' Value='4'/></EclipseParams></Perk>");
+            Require(ModRuntime.TryReadSavedPerk(savedBehaviorPerk.DocumentElement,
+                    out PerkDefinition savedPerk, out ModEffectInstance savedPerkInstance,
+                    out string savedPerkReadError) && string.IsNullOrEmpty(savedPerkReadError) &&
+                savedPerk.Id == DefinitionId.Parse(externalPerkId) &&
+                Math.Abs(savedPerkInstance.Values["chance"].Number - 0.3d) < 0.000001d &&
+                savedPerkInstance.Values["stacks"].Integer == 4,
+                "Saved behavior-backed perk EclipseParams did not resolve as typed instance state: " + savedPerkReadError);
+            Require(ModRuntime.TryInvokeSavedPerkFightBegin(savedBehaviorPerk.DocumentElement,
+                    new Dictionary<string, string>(StringComparer.Ordinal) { { "phase", "perk_saved" } },
+                    new TestFighterOperations(), out string savedPerkInvokeError) && string.IsNullOrEmpty(savedPerkInvokeError),
+                "Saved typed perk did not reach its bounded behavior handler: " + savedPerkInvokeError);
             Require(ListSF.DJBOFEEKJMP().HCDLKHKBEPF().Count == 745 &&
                 ListSF.DJBOFEEKJMP().KCCDBEEKBCG("core:items/weapon/weapon_katana") == vanillaKatana &&
                 vanillaKatana.Name == "WEAPON_KATANA", "Core registry import duplicated or renamed a legacy weapon");
@@ -759,6 +977,9 @@ public static class ValidatePackagedArt
             ModRuntime.ApplyLegacyLocalization();
             Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == "Example Blade",
                 "English mod localization did not enter the legacy localization table");
+            Require(LocalizationManager.GetExternalStringForTest(externalPresentationDescription) ==
+                    "Direct behavior-backed enchantment with independent state.",
+                "Behavior-backed enchantment description localization did not enter the legacy localization table");
             Require(LocalizationManager.GetExternalStringForTest(legacyItemId) == "Example Blade",
                 "Legacy item-name localization alias was not published for the mod weapon");
             LocalizationManager.ChangeModdingTestLanguage("pol");
@@ -792,7 +1013,10 @@ public static class ValidatePackagedArt
             Require(LocalizationManager.GetExternalStringForTest(legacyLocalizationId) == null,
                 "ModRuntime shutdown did not remove injected localization aliases");
             Require(GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalPerkId) == null &&
-                !ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", externalPerkId),
+                GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalEnchantmentId) == null &&
+                GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(legacyPerkId) == null &&
+                !ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", externalEnchantmentId) &&
+                !ForgeManager.ELEBLBJKDBI().HasExternalEnchantmentCandidate("Medium", "Weapon", legacyPerkId),
                 "ModRuntime shutdown did not remove injected perk/enchantment runtime state");
         }
         finally

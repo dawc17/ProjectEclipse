@@ -151,6 +151,12 @@ namespace Eclipse.Modding
             return RequireRegistration().GetPerk(reference);
         }
 
+        public ModBehaviorDefinition RegisterBehavior(string localId, ModParameterSchema parameters)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterBehavior(localId, parameters);
+        }
+
         public PerkDefinition RegisterPerk(string localId, DefinitionId template, DefinitionId displayName,
             DefinitionId description, AssetId icon, System.Collections.Generic.IReadOnlyDictionary<string, string> parameters)
         {
@@ -158,11 +164,30 @@ namespace Eclipse.Modding
             return RequireRegistration().RegisterPerk(localId, template, displayName, description, icon, parameters);
         }
 
+        public PerkDefinition RegisterScriptedPerk(string localId, DefinitionId displayName,
+            DefinitionId description, AssetId icon, ModPerkKind kind, DefinitionId behavior,
+            System.Collections.Generic.IReadOnlyDictionary<string, ModParameterValue> initialParameters)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterScriptedPerk(localId, displayName, description, icon, kind,
+                behavior, initialParameters);
+        }
+
         public EnchantmentDefinition RegisterEnchantment(string localId, DefinitionId perk,
             ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterEnchantment(localId, perk, recipe, equipment);
+        }
+
+        public EnchantmentDefinition RegisterScriptedEnchantment(string localId, DefinitionId displayName,
+            DefinitionId description, AssetId icon, ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment,
+            DefinitionId behavior,
+            System.Collections.Generic.IReadOnlyDictionary<string, ModParameterValue> initialParameters)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterScriptedEnchantment(localId, displayName, description, icon,
+                recipe, equipment, behavior, initialParameters);
         }
 
         public bool HasCapability(string capability)
@@ -199,10 +224,41 @@ namespace Eclipse.Modding
         IModScriptContext CreateContext(ModDescriptor mod, ModApiFacade api);
     }
 
+    public enum ModEffectEvent
+    {
+        FightBegin = 0
+    }
+
     public interface IModScriptContext : IDisposable
     {
         ModDescriptor Mod { get; }
         void ExecuteEntrypoint();
+    }
+
+    public interface IModBehaviorScriptContext
+    {
+        bool HasBehaviorHandler(DefinitionId behaviorId, ModEffectEvent effectEvent);
+        bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,
+            System.Collections.Generic.IReadOnlyDictionary<string, ModParameterValue> parameters,
+            System.Collections.Generic.IReadOnlyDictionary<string, string> context,
+            out string error);
+    }
+
+    // Combat handlers receive only this narrow capability surface. Implementations live in the
+    // recovered fight assembly and may delegate to authoritative engine operations, but scripts
+    // never receive the backing Model/Fight objects themselves.
+    public interface IModFighterOperations
+    {
+        bool TryChangeHealth(double amount, out string error);
+        bool TryAddMagicCharge(double amount, out string error);
+    }
+
+    public interface IModInteractiveBehaviorScriptContext
+    {
+        bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,
+            System.Collections.Generic.IReadOnlyDictionary<string, ModParameterValue> parameters,
+            System.Collections.Generic.IReadOnlyDictionary<string, string> context,
+            IModFighterOperations fighter, out string error);
     }
 
     public sealed class ModScriptException : Exception

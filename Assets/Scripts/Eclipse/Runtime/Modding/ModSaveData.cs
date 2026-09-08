@@ -84,7 +84,7 @@ namespace Eclipse.Modding
             if (content == null) throw new ArgumentNullException(nameof(content));
 
             var canonical = new StringBuilder();
-            Append(canonical, "fingerprint-v2");
+            Append(canonical, "fingerprint-v3");
             Append(canonical, ModPlatformVersions.Api.ToString());
             Append(canonical, ModPlatformVersions.Core.ToString());
 
@@ -162,6 +162,7 @@ namespace Eclipse.Modding
             {
                 Append(canonical, perk.Id.ToString());
                 Append(canonical, perk.HasTemplate ? perk.Template.ToString() : string.Empty);
+                Append(canonical, perk.HasBehavior ? perk.Behavior.ToString() : string.Empty);
                 Append(canonical, perk.DisplayName.ToString());
                 Append(canonical, perk.Description.ToString());
                 Append(canonical, perk.Icon.ToString());
@@ -176,6 +177,7 @@ namespace Eclipse.Modding
                     Append(canonical, parameter);
                     Append(canonical, perk.Parameters[parameter]);
                 }
+                AppendParameterValues(canonical, perk.InitialParameters);
             }
 
             var enchantments = new List<EnchantmentDefinition>(content.Enchantments);
@@ -185,11 +187,36 @@ namespace Eclipse.Modding
             foreach (EnchantmentDefinition enchantment in enchantments)
             {
                 Append(canonical, enchantment.Id.ToString());
-                Append(canonical, enchantment.Perk.ToString());
+                Append(canonical, enchantment.HasPerk ? enchantment.Perk.ToString() : string.Empty);
+                Append(canonical, enchantment.HasBehavior ? enchantment.Behavior.ToString() : string.Empty);
+                Append(canonical, enchantment.DisplayName.ToString());
+                Append(canonical, enchantment.Description.ToString());
+                Append(canonical, enchantment.Icon.ToString());
                 Append(canonical, ((int)enchantment.Recipe).ToString(CultureInfo.InvariantCulture));
                 Append(canonical, enchantment.Equipment.Count);
                 for (int i = 0; i < enchantment.Equipment.Count; i++)
                     Append(canonical, ((int)enchantment.Equipment[i]).ToString(CultureInfo.InvariantCulture));
+                AppendParameterValues(canonical, enchantment.InitialParameters);
+            }
+
+            var behaviors = new List<ModBehaviorDefinition>(content.Behaviors);
+            behaviors.Sort((left, right) => CompareIds(left.Id, right.Id));
+            Append(canonical, "behaviors");
+            Append(canonical, behaviors.Count);
+            foreach (ModBehaviorDefinition behavior in behaviors)
+            {
+                Append(canonical, behavior.Id.ToString());
+                var parameters = new List<ModParameterDefinition>(behavior.Parameters.Parameters);
+                parameters.Sort((left, right) => string.CompareOrdinal(left.Name, right.Name));
+                Append(canonical, parameters.Count);
+                for (int i = 0; i < parameters.Count; i++)
+                {
+                    ModParameterDefinition parameter = parameters[i];
+                    Append(canonical, parameter.Name);
+                    Append(canonical, ((int)parameter.Type).ToString(CultureInfo.InvariantCulture));
+                    Append(canonical, parameter.Required ? "required" : "optional");
+                    Append(canonical, parameter.HasDefault ? parameter.DefaultValue.ToWireString() : string.Empty);
+                }
             }
 
             byte[] data = Encoding.UTF8.GetBytes(canonical.ToString());
@@ -245,6 +272,21 @@ namespace Eclipse.Modding
             }
         }
 
+        private static void AppendParameterValues(StringBuilder canonical,
+            IReadOnlyDictionary<string, ModParameterValue> values)
+        {
+            var names = new List<string>(values.Keys);
+            names.Sort(StringComparer.Ordinal);
+            Append(canonical, names.Count);
+            for (int i = 0; i < names.Count; i++)
+            {
+                string name = names[i];
+                Append(canonical, name);
+                Append(canonical, ((int)values[name].Type).ToString(CultureInfo.InvariantCulture));
+                Append(canonical, values[name].ToWireString());
+            }
+        }
+
         private static int CompareIds(DefinitionId left, DefinitionId right)
         {
             return string.CompareOrdinal(left.ToString(), right.ToString());
@@ -259,6 +301,151 @@ namespace Eclipse.Modding
         {
             value = value ?? string.Empty;
             builder.Append(value.Length.ToString(CultureInfo.InvariantCulture)).Append(':').Append(value).Append(';');
+        }
+    }
+
+    public sealed class ModEffectInstance
+    {
+        private readonly IReadOnlyDictionary<string, ModParameterValue> _values;
+
+        public DefinitionId Owner { get; }
+        public IReadOnlyDictionary<string, ModParameterValue> Values => _values;
+
+        public ModEffectInstance(DefinitionId owner, IDictionary<string, ModParameterValue> values)
+        {
+            Owner = owner;
+            _values = new System.Collections.ObjectModel.ReadOnlyDictionary<string, ModParameterValue>(
+                new Dictionary<string, ModParameterValue>(values, StringComparer.Ordinal));
+        }
+    }
+
+    // Eclipse-owned typed state lives beside the recovered <Set> node, never inside it.
+    // This keeps arbitrary Lua parameter names out of PerkInfoItem/PerkSetAttributes while
+    // allowing missing mods and future fields to round-trip as opaque XML.
+    public static class ModEffectSaveData
+    {
+        public const string NodeName = "EclipseParams";
+        public const string ParameterNodeName = "Param";
+        public const string Format = "1";
+
+        public static bool TryRead(XmlNode effectNode, DefinitionId owner, ModParameterSchema schema,
+            out ModEffectInstance instance, out string error)
+        {
+            instance = null;
+            error = string.Empty;
+            if (effectNode == null) { error = "Effect node is missing."; return false; }
+            if (schema == null) { error = "Parameter schema is missing."; return false; }
+
+            XmlNode paramsNode = effectNode[NodeName];
+            if (paramsNode != null)
+            {
+                string format = paramsNode.Attributes?["Format"]?.Value;
+                if (!string.Equals(format, Format, StringComparison.Ordinal))
+                { error = "Unsupported Eclipse parameter format '" + (format ?? string.Empty) + "'."; return false; }
+            }
+
+            var raw = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (paramsNode != null)
+            {
+                foreach (XmlNode child in paramsNode.ChildNodes)
+                {
+                    if (child.NodeType != XmlNodeType.Element || child.Name != ParameterNodeName) continue;
+                    string name = child.Attributes?["Name"]?.Value;
+                    if (string.IsNullOrEmpty(name)) continue;
+                    ModParameterDefinition known;
+                    if (!schema.TryGet(name, out known)) continue;
+                    if (raw.ContainsKey(name))
+                    { error = "Parameter '" + name + "' is saved more than once."; return false; }
+                    XmlAttribute value = child.Attributes?["Value"];
+                    if (value == null)
+                    { error = "Parameter '" + name + "' has no Value attribute."; return false; }
+                    raw.Add(name, value.Value);
+                }
+            }
+
+            var supplied = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal);
+            foreach (KeyValuePair<string, string> pair in raw)
+            {
+                ModParameterDefinition definition;
+                schema.TryGet(pair.Key, out definition);
+                ModParameterValue value;
+                if (!ModParameterValue.TryParse(definition.Type, pair.Value, out value))
+                { error = "Parameter '" + pair.Key + "' is not a valid " + definition.Type + "."; return false; }
+                supplied.Add(pair.Key, value);
+            }
+
+            Dictionary<string, ModParameterValue> resolved;
+            try { resolved = schema.ResolveValues(supplied); }
+            catch (ModContentException exception) { error = exception.Message; return false; }
+            instance = new ModEffectInstance(owner, resolved);
+            return true;
+        }
+
+        public static void Write(XmlElement effectNode, DefinitionId owner, ModParameterSchema schema,
+            IReadOnlyDictionary<string, ModParameterValue> values)
+        {
+            if (effectNode == null) throw new ArgumentNullException(nameof(effectNode));
+            if (schema == null) throw new ArgumentNullException(nameof(schema));
+            Dictionary<string, ModParameterValue> resolved = schema.ResolveValues(values);
+
+            XmlElement paramsNode = effectNode[NodeName] as XmlElement;
+            if (paramsNode != null)
+            {
+                string format = paramsNode.GetAttribute("Format");
+                if (!string.Equals(format, Format, StringComparison.Ordinal))
+                    throw new ModContentException("Cannot rewrite unsupported Eclipse parameter format '" + format + "'.");
+            }
+            else
+            {
+                paramsNode = effectNode.OwnerDocument.CreateElement(NodeName);
+                paramsNode.SetAttribute("Format", Format);
+                effectNode.AppendChild(paramsNode);
+            }
+
+            var knownNodes = new Dictionary<string, List<XmlElement>>(StringComparer.Ordinal);
+            foreach (XmlNode child in paramsNode.ChildNodes)
+            {
+                XmlElement element = child as XmlElement;
+                if (element == null || element.Name != ParameterNodeName) continue;
+                string name = element.GetAttribute("Name");
+                ModParameterDefinition ignored;
+                if (!schema.TryGet(name, out ignored)) continue;
+                List<XmlElement> nodes;
+                if (!knownNodes.TryGetValue(name, out nodes))
+                {
+                    nodes = new List<XmlElement>();
+                    knownNodes.Add(name, nodes);
+                }
+                nodes.Add(element);
+            }
+
+            for (int i = 0; i < schema.Parameters.Count; i++)
+            {
+                ModParameterDefinition definition = schema.Parameters[i];
+                ModParameterValue value;
+                bool hasValue = resolved.TryGetValue(definition.Name, out value);
+                List<XmlElement> nodes;
+                knownNodes.TryGetValue(definition.Name, out nodes);
+                if (!hasValue)
+                {
+                    if (nodes != null) for (int j = 0; j < nodes.Count; j++) paramsNode.RemoveChild(nodes[j]);
+                    continue;
+                }
+
+                XmlElement parameter;
+                if (nodes == null || nodes.Count == 0)
+                {
+                    parameter = effectNode.OwnerDocument.CreateElement(ParameterNodeName);
+                    paramsNode.AppendChild(parameter);
+                }
+                else
+                {
+                    parameter = nodes[0];
+                    for (int j = 1; j < nodes.Count; j++) paramsNode.RemoveChild(nodes[j]);
+                }
+                parameter.SetAttribute("Name", definition.Name);
+                parameter.SetAttribute("Value", value.ToWireString());
+            }
         }
     }
 }

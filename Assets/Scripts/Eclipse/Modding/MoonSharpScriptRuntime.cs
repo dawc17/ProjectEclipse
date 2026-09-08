@@ -14,6 +14,8 @@ namespace Eclipse.Modding
         public const long InstructionSlice = 50000;
         public const int MaxInstructionSlices = 100;
         public const long MaxEntrypointInstructions = InstructionSlice * MaxInstructionSlices;
+        public const int MaxBehaviorInstructionSlices = 4;
+        public const long MaxBehaviorInstructions = InstructionSlice * MaxBehaviorInstructionSlices;
 
         public string Name => "MoonSharp " + Script.VERSION;
 
@@ -22,7 +24,8 @@ namespace Eclipse.Modding
             return new MoonSharpScriptContext(mod, api);
         }
 
-        private sealed class MoonSharpScriptContext : IModScriptContext
+        private sealed class MoonSharpScriptContext : IModScriptContext, IModBehaviorScriptContext,
+            IModInteractiveBehaviorScriptContext
         {
             private static readonly UTF8Encoding StrictUtf8 = new UTF8Encoding(false, true);
 
@@ -45,6 +48,10 @@ namespace Eclipse.Modding
                 new Dictionary<Table, DefinitionId>();
             private readonly Dictionary<Table, DefinitionId> _enchantmentHandles =
                 new Dictionary<Table, DefinitionId>();
+            private readonly Dictionary<Table, ModBehaviorDefinition> _behaviorHandles =
+                new Dictionary<Table, ModBehaviorDefinition>();
+            private readonly Dictionary<DefinitionId, DynValue> _behaviorHandlers =
+                new Dictionary<DefinitionId, DynValue>();
             private bool _disposed;
 
             public ModDescriptor Mod { get; }
@@ -83,6 +90,109 @@ namespace Eclipse.Modding
                 }
             }
 
+            public bool HasBehaviorHandler(DefinitionId behaviorId, ModEffectEvent effectEvent)
+            {
+                ThrowIfDisposed();
+                return effectEvent == ModEffectEvent.FightBegin && _behaviorHandlers.ContainsKey(behaviorId);
+            }
+
+            public bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,
+                IReadOnlyDictionary<string, ModParameterValue> parameters,
+                IReadOnlyDictionary<string, string> context, out string error)
+            {
+                return TryInvokeBehavior(behaviorId, effectEvent, parameters, context, null, out error);
+            }
+
+            public bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,
+                IReadOnlyDictionary<string, ModParameterValue> parameters,
+                IReadOnlyDictionary<string, string> context, IModFighterOperations fighter, out string error)
+            {
+                ThrowIfDisposed();
+                error = string.Empty;
+                if (effectEvent != ModEffectEvent.FightBegin)
+                {
+                    error = "Unsupported behavior event: " + effectEvent + ".";
+                    return false;
+                }
+                DynValue handler;
+                if (!_behaviorHandlers.TryGetValue(behaviorId, out handler))
+                {
+                    error = "Behavior handler is not registered: '" + behaviorId + "'.";
+                    return false;
+                }
+
+                try
+                {
+                    var parameterTable = new Table(_script);
+                    if (parameters != null)
+                    {
+                        foreach (KeyValuePair<string, ModParameterValue> pair in parameters)
+                            parameterTable.Set(pair.Key, ToDynValue(pair.Value));
+                    }
+                    var fighterTable = new Table(_script);
+                    if (context != null)
+                    {
+                        foreach (KeyValuePair<string, string> pair in context)
+                            fighterTable.Set(pair.Key, DynValue.NewString(pair.Value ?? string.Empty));
+                    }
+                    if (fighter != null)
+                    {
+                        fighterTable.Set("change_health", DynValue.NewCallback((ctx, args) =>
+                            FighterOperation("fighter:change_health", "combat.change_life", args, fighter.TryChangeHealth)));
+                        fighterTable.Set("add_magic_charge", DynValue.NewCallback((ctx, args) =>
+                            FighterOperation("fighter:add_magic_charge", "combat.magic_charge", args, fighter.TryAddMagicCharge)));
+                    }
+                    RunBounded(handler, behaviorId + ":" + effectEvent, MaxBehaviorInstructionSlices,
+                        new[] { DynValue.NewTable(parameterTable), DynValue.NewTable(fighterTable) });
+                    return true;
+                }
+                catch (InterpreterException exception)
+                {
+                    error = exception.DecoratedMessage ?? exception.Message;
+                    return false;
+                }
+                catch (Exception exception)
+                {
+                    error = exception.Message;
+                    return false;
+                }
+            }
+
+            private delegate bool FighterOperationDelegate(double amount, out string error);
+
+            private DynValue FighterOperation(string function, string capability, CallbackArguments args,
+                FighterOperationDelegate operation)
+            {
+                try
+                {
+                    _api.RequireCapability(capability);
+                }
+                catch (ModContentException exception)
+                {
+                    throw new ScriptRuntimeException(exception.Message);
+                }
+                int valueIndex = args.Count > 1 && args[0].Type == DataType.Table ? 1 : 0;
+                double amount = args.AsType(valueIndex, function, DataType.Number, false).Number;
+                if (double.IsNaN(amount) || double.IsInfinity(amount) || amount < -float.MaxValue || amount > float.MaxValue)
+                    throw new ScriptRuntimeException(function + " amount must be a finite single-precision number.");
+                string error;
+                if (!operation(amount, out error))
+                    throw new ScriptRuntimeException(string.IsNullOrEmpty(error) ? function + " failed." : error);
+                return DynValue.Nil;
+            }
+
+            private static DynValue ToDynValue(ModParameterValue value)
+            {
+                switch (value.Type)
+                {
+                    case ModParameterType.Number: return DynValue.NewNumber(value.Number);
+                    case ModParameterType.Integer: return DynValue.NewNumber(value.Integer);
+                    case ModParameterType.Boolean: return DynValue.NewBoolean(value.Boolean);
+                    case ModParameterType.String: return DynValue.NewString(value.String);
+                    default: throw new InvalidOperationException("Unsupported parameter type: " + value.Type);
+                }
+            }
+
             public void Dispose()
             {
                 if (_disposed) return;
@@ -96,6 +206,8 @@ namespace Eclipse.Modding
                 _priceHandles.Clear();
                 _perkHandles.Clear();
                 _enchantmentHandles.Clear();
+                _behaviorHandles.Clear();
+                _behaviorHandlers.Clear();
             }
 
             private DynValue Require(ScriptExecutionContext context, CallbackArguments args)
@@ -140,21 +252,28 @@ namespace Eclipse.Modding
 
             private DynValue RunBounded(DynValue function, string sourceName)
             {
+                return RunBounded(function, sourceName, MaxInstructionSlices, Array.Empty<DynValue>());
+            }
+
+            private DynValue RunBounded(DynValue function, string sourceName, int maxSlices, DynValue[] args)
+            {
                 DynValue coroutineValue = _script.CreateCoroutine(function);
                 Coroutine coroutine = coroutineValue.Coroutine;
                 coroutine.AutoYieldCounter = InstructionSlice;
 
                 int forcedYields = 0;
+                bool firstResume = true;
                 while (true)
                 {
-                    DynValue result = coroutine.Resume();
+                    DynValue result = firstResume ? coroutine.Resume(args) : coroutine.Resume();
+                    firstResume = false;
                     if (coroutine.State == CoroutineState.Dead) return result;
                     if (coroutine.State == CoroutineState.ForceSuspended)
                     {
                         forcedYields++;
-                        if (forcedYields >= MaxInstructionSlices)
+                        if (forcedYields >= maxSlices)
                             throw new ScriptRuntimeException("Execution instruction budget exceeded in '" +
-                                sourceName + "' (limit " + MaxEntrypointInstructions + ").");
+                                sourceName + "' (limit " + (InstructionSlice * maxSlices) + ").");
                         continue;
                     }
 
@@ -207,9 +326,19 @@ namespace Eclipse.Modding
                 root.Set("items", DynValue.NewTable(items));
 
                 var perks = new Table(_script);
+                perks.Set("SINGLE", DynValue.NewString("single"));
+                perks.Set("COMBO", DynValue.NewString("combo"));
                 perks.Set("get", DynValue.NewCallback(GetPerk));
                 perks.Set("register", DynValue.NewCallback(RegisterPerk));
                 root.Set("perks", DynValue.NewTable(perks));
+
+                var behaviors = new Table(_script);
+                behaviors.Set("NUMBER", DynValue.NewString("number"));
+                behaviors.Set("INTEGER", DynValue.NewString("integer"));
+                behaviors.Set("BOOLEAN", DynValue.NewString("boolean"));
+                behaviors.Set("STRING", DynValue.NewString("string"));
+                behaviors.Set("register", DynValue.NewCallback(RegisterBehavior));
+                root.Set("behaviors", DynValue.NewTable(behaviors));
 
                 var enchantments = new Table(_script);
                 enchantments.Set("SIMPLE", DynValue.NewString("simple"));
@@ -416,16 +545,33 @@ namespace Eclipse.Modding
                 return ApiCall(function, () => NewHandle(_perkHandles, _api.GetPerk(reference).Id));
             }
 
+            private DynValue RegisterBehavior(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.behaviors.register";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "parameters", "on_fight_begin");
+                    string id = RequiredString(table, "id", function);
+                    ModParameterSchema parameters = OptionalParameterSchema(table, "parameters", function);
+                    DynValue handler = table.Get("on_fight_begin");
+                    if (handler.Type != DataType.Function)
+                        throw new ModContentException(function + " field 'on_fight_begin' must be a Lua function.");
+                    ModBehaviorDefinition definition = _api.RegisterBehavior(id, parameters);
+                    _behaviorHandlers.Add(definition.Id, handler);
+                    return NewHandle(_behaviorHandles, definition);
+                });
+            }
+
             private DynValue RegisterPerk(ScriptExecutionContext context, CallbackArguments args)
             {
                 const string function = "sf2.perks.register";
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "template", "display_name", "description", "icon",
-                        "parameters");
+                    ValidateFields(table, function, "id", "template", "behavior", "display_name", "description",
+                        "icon", "parameters", "kind");
                     string id = RequiredString(table, "id", function);
-                    DefinitionId template = RequiredHandle(table, "template", _perkHandles, "perk", function);
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", function);
                     DefinitionId description = RequiredHandle(table, "description", _localizationHandles,
@@ -434,8 +580,37 @@ namespace Eclipse.Modding
                     DynValue iconValue = table.Get("icon");
                     if (iconValue.Type != DataType.Nil && iconValue.Type != DataType.Void)
                         icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
-                    Dictionary<string, string> parameters = OptionalScalarMap(table, "parameters", function);
-                    PerkDefinition definition = _api.RegisterPerk(id, template, displayName, description, icon, parameters);
+                    bool hasTemplate = !table.Get("template").IsNil();
+                    bool hasBehavior = !table.Get("behavior").IsNil();
+                    if (hasTemplate == hasBehavior)
+                        throw new ModContentException(function + " requires exactly one of 'template' or 'behavior'.");
+
+                    PerkDefinition definition;
+                    if (hasTemplate)
+                    {
+                        if (!table.Get("kind").IsNil())
+                            throw new ModContentException(function + " legacy template form must not set 'kind'.");
+                        DefinitionId template = RequiredHandle(table, "template", _perkHandles, "perk", function);
+                        Dictionary<string, string> parameters = OptionalScalarMap(table, "parameters", function);
+                        definition = _api.RegisterPerk(id, template, displayName, description, icon, parameters);
+                    }
+                    else
+                    {
+                        ModBehaviorDefinition behavior = RequiredHandle(table, "behavior", _behaviorHandles,
+                            "behavior", function);
+                        string kindText = RequiredString(table, "kind", function);
+                        ModPerkKind kind;
+                        switch (kindText)
+                        {
+                            case "single": kind = ModPerkKind.Single; break;
+                            case "combo": kind = ModPerkKind.Combo; break;
+                            default: throw new ModContentException(function + " field 'kind' is not supported.");
+                        }
+                        Dictionary<string, ModParameterValue> parameters = OptionalTypedParameterMap(table,
+                            "parameters", behavior.Parameters, function);
+                        definition = _api.RegisterScriptedPerk(id, displayName, description, icon, kind,
+                            behavior.Id, parameters);
+                    }
                     return NewHandle(_perkHandles, definition.Id);
                 });
             }
@@ -446,9 +621,9 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "perk", "recipe", "item_types");
+                    ValidateFields(table, function, "id", "perk", "behavior", "display_name", "description",
+                        "icon", "recipe", "item_types", "parameters");
                     string id = RequiredString(table, "id", function);
-                    DefinitionId perk = RequiredHandle(table, "perk", _perkHandles, "perk", function);
                     string recipeText = RequiredString(table, "recipe", function);
                     ModEnchantmentRecipe recipe;
                     switch (recipeText)
@@ -459,7 +634,38 @@ namespace Eclipse.Modding
                         default: throw new ModContentException(function + " field 'recipe' is not supported.");
                     }
                     ModEquipmentKind[] itemTypes = RequiredEquipmentKinds(table, "item_types", function);
-                    EnchantmentDefinition definition = _api.RegisterEnchantment(id, perk, recipe, itemTypes);
+                    bool hasPerk = !table.Get("perk").IsNil();
+                    bool hasBehavior = !table.Get("behavior").IsNil();
+                    if (hasPerk == hasBehavior)
+                        throw new ModContentException(function + " requires exactly one of 'perk' or 'behavior'.");
+
+                    EnchantmentDefinition definition;
+                    if (hasPerk)
+                    {
+                        if (!table.Get("display_name").IsNil() || !table.Get("description").IsNil() ||
+                            !table.Get("icon").IsNil() || !table.Get("parameters").IsNil())
+                            throw new ModContentException(function +
+                                " legacy perk form must not set direct behavior presentation/parameters.");
+                        DefinitionId perk = RequiredHandle(table, "perk", _perkHandles, "perk", function);
+                        definition = _api.RegisterEnchantment(id, perk, recipe, itemTypes);
+                    }
+                    else
+                    {
+                        ModBehaviorDefinition behavior = RequiredHandle(table, "behavior", _behaviorHandles,
+                            "behavior", function);
+                        DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
+                            "localization", function);
+                        DefinitionId description = RequiredHandle(table, "description", _localizationHandles,
+                            "localization", function);
+                        AssetId icon = default;
+                        DynValue iconValue = table.Get("icon");
+                        if (iconValue.Type != DataType.Nil && iconValue.Type != DataType.Void)
+                            icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
+                        Dictionary<string, ModParameterValue> parameters = OptionalTypedParameterMap(table,
+                            "parameters", behavior.Parameters, function);
+                        definition = _api.RegisterScriptedEnchantment(id, displayName, description, icon, recipe,
+                            itemTypes, behavior.Id, parameters);
+                    }
                     return NewHandle(_enchantmentHandles, definition.Id);
                 });
             }
@@ -574,6 +780,121 @@ namespace Eclipse.Modding
                     result.Add(pair.Key.String, scalar);
                 }
                 return result;
+            }
+
+            private static ModParameterSchema OptionalParameterSchema(Table table, string field, string function)
+            {
+                DynValue value = table.Get(field);
+                if (value.IsNil()) return new ModParameterSchema(Array.Empty<ModParameterDefinition>());
+                if (value.Type != DataType.Table)
+                    throw new ModContentException(function + " field '" + field + "' must be a table.");
+                var result = new List<ModParameterDefinition>();
+                foreach (TablePair pair in value.Table.Pairs)
+                {
+                    if (pair.Key.Type != DataType.String || string.IsNullOrEmpty(pair.Key.String))
+                        throw new ModContentException(function + " field '" + field + "' contains a non-string key.");
+                    string name = pair.Key.String;
+                    ModParameterType type;
+                    bool required = true;
+                    bool hasDefault = false;
+                    ModParameterValue defaultValue = default;
+
+                    if (pair.Value.Type == DataType.String)
+                    {
+                        type = ParseParameterType(pair.Value.String, function, name);
+                    }
+                    else if (pair.Value.Type == DataType.Table)
+                    {
+                        Table definition = pair.Value.Table;
+                        ValidateFields(definition, function + ".parameters." + name, "type", "required", "default");
+                        type = ParseParameterType(RequiredString(definition, "type", function + ".parameters." + name),
+                            function, name);
+                        DynValue requiredValue = definition.Get("required");
+                        if (!requiredValue.IsNil())
+                        {
+                            if (requiredValue.Type != DataType.Boolean)
+                                throw new ModContentException(function + " parameter '" + name +
+                                    "' field 'required' must be boolean.");
+                            required = requiredValue.Boolean;
+                        }
+                        DynValue defaultDyn = definition.Get("default");
+                        if (!defaultDyn.IsNil())
+                        {
+                            defaultValue = ParameterValue(type, defaultDyn, function + " parameter '" + name + "' default");
+                            hasDefault = true;
+                        }
+                    }
+                    else
+                    {
+                        throw new ModContentException(function + " parameter '" + name +
+                            "' must be a type token or schema table.");
+                    }
+
+                    result.Add(hasDefault
+                        ? new ModParameterDefinition(name, type, required, defaultValue)
+                        : new ModParameterDefinition(name, type, required));
+                }
+                return new ModParameterSchema(result);
+            }
+
+            private static Dictionary<string, ModParameterValue> OptionalTypedParameterMap(Table table, string field,
+                ModParameterSchema schema, string function)
+            {
+                DynValue value = table.Get(field);
+                var result = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal);
+                if (value.IsNil()) return result;
+                if (value.Type != DataType.Table)
+                    throw new ModContentException(function + " field '" + field + "' must be a table.");
+                foreach (TablePair pair in value.Table.Pairs)
+                {
+                    if (pair.Key.Type != DataType.String || string.IsNullOrEmpty(pair.Key.String))
+                        throw new ModContentException(function + " field '" + field + "' contains a non-string key.");
+                    ModParameterDefinition definition;
+                    if (!schema.TryGet(pair.Key.String, out definition))
+                        throw new ModContentException(function + " field '" + field + "' contains unknown parameter '" +
+                            pair.Key.String + "'.");
+                    result.Add(pair.Key.String, ParameterValue(definition.Type, pair.Value,
+                        function + " parameter '" + pair.Key.String + "'"));
+                }
+                return result;
+            }
+
+            private static ModParameterType ParseParameterType(string value, string function, string name)
+            {
+                switch (value)
+                {
+                    case "number": return ModParameterType.Number;
+                    case "integer": return ModParameterType.Integer;
+                    case "boolean": return ModParameterType.Boolean;
+                    case "string": return ModParameterType.String;
+                    default: throw new ModContentException(function + " parameter '" + name +
+                        "' has unsupported type '" + value + "'.");
+                }
+            }
+
+            private static ModParameterValue ParameterValue(ModParameterType type, DynValue value, string name)
+            {
+                switch (type)
+                {
+                    case ModParameterType.Number:
+                        if (value.Type != DataType.Number || double.IsNaN(value.Number) || double.IsInfinity(value.Number))
+                            throw new ModContentException(name + " must be a finite number.");
+                        return ModParameterValue.FromNumber(value.Number);
+                    case ModParameterType.Integer:
+                        if (value.Type != DataType.Number || double.IsNaN(value.Number) || double.IsInfinity(value.Number) ||
+                            Math.Truncate(value.Number) != value.Number ||
+                            value.Number < ModParameterValue.MinSafeInteger || value.Number > ModParameterValue.MaxSafeInteger)
+                            throw new ModContentException(name + " must be an exact Lua integer.");
+                        return ModParameterValue.FromInteger((long)value.Number);
+                    case ModParameterType.Boolean:
+                        if (value.Type != DataType.Boolean) throw new ModContentException(name + " must be boolean.");
+                        return ModParameterValue.FromBoolean(value.Boolean);
+                    case ModParameterType.String:
+                        if (value.Type != DataType.String) throw new ModContentException(name + " must be a string.");
+                        return ModParameterValue.FromString(value.String);
+                    default:
+                        throw new ModContentException(name + " has unsupported type " + type + ".");
+                }
             }
 
             private static ModEquipmentKind[] RequiredEquipmentKinds(Table table, string field, string function)

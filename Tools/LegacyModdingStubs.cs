@@ -252,6 +252,12 @@ public sealed class PerkInfoItem
     }
 }
 
+public static class PerkStruct
+{
+    public const string EclipseEnchantmentAttribute = "EclipseEnchantment";
+    public const string EclipseKindAttribute = "EclipseKind";
+}
+
 public sealed class PerkItems
 {
     private readonly List<PerkInfoItem> _base = new List<PerkInfoItem>();
@@ -344,22 +350,52 @@ public sealed class ForgeManager
 {
     private static readonly ForgeManager Instance = new ForgeManager();
     private readonly HashSet<string> _external = new HashSet<string>(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _metadata = new Dictionary<string, string>(StringComparer.Ordinal);
 
     public static ForgeManager ELEBLBJKDBI() { return Instance; }
 
-    public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
+    public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName,
+        string enchantmentId, string perkKind, IReadOnlyDictionary<string, string> eclipseParameters = null)
     {
-        return _external.Add(recipeName + "|" + itemType + "|" + perkName);
+        string key = recipeName + "|" + itemType + "|" + perkName;
+        if (!_external.Add(key)) return false;
+        string parameters = string.Empty;
+        if (eclipseParameters != null)
+        {
+            var names = new List<string>(eclipseParameters.Keys);
+            names.Sort(StringComparer.Ordinal);
+            foreach (string name in names) parameters += "|" + name + "=" + eclipseParameters[name];
+        }
+        _metadata[key] = enchantmentId + "|" + perkKind + parameters;
+        return true;
     }
 
     public bool RemoveExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
     {
-        return _external.Remove(recipeName + "|" + itemType + "|" + perkName);
+        string key = recipeName + "|" + itemType + "|" + perkName;
+        _metadata.Remove(key);
+        return _external.Remove(key);
     }
 
     public bool HasExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
     {
         return _external.Contains(recipeName + "|" + itemType + "|" + perkName);
+    }
+
+    public bool HasExternalEnchantmentMetadata(string recipeName, string itemType, string perkName,
+        string enchantmentId, string perkKind)
+    {
+        string value;
+        return _metadata.TryGetValue(recipeName + "|" + itemType + "|" + perkName, out value) &&
+            value.StartsWith(enchantmentId + "|" + perkKind, StringComparison.Ordinal);
+    }
+
+    public bool HasExternalEnchantmentParameter(string recipeName, string itemType, string perkName,
+        string parameterName, string parameterValue)
+    {
+        string value;
+        return _metadata.TryGetValue(recipeName + "|" + itemType + "|" + perkName, out value) &&
+            value.Contains("|" + parameterName + "=" + parameterValue);
     }
 }
 

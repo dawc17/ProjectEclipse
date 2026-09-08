@@ -1,0 +1,367 @@
+$ErrorActionPreference = 'Stop'
+
+$root = Split-Path -Parent $PSScriptRoot
+$fightSource = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/Fight.cs')
+$modIdPath = Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/ModId.cs'
+$definitionIdPath = Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/DefinitionId.cs'
+
+# Compile the actual recovered Fight dispatch method with only unrelated fight/runtime systems
+# stubbed. This keeps the regression tied to the real one-shot integration seam rather than a
+# duplicate implementation in the test.
+$dispatch = [regex]::Match($fightSource,
+    '(?ms)^\tprivate void DispatchEclipseFightBegin\(\).*?^\t\}(?=\r?\n\r?\n\tprivate void StartStance)').Value
+if (!$dispatch) { throw 'Could not extract DispatchEclipseFightBegin from Fight.cs.' }
+
+$testRoot = Join-Path $root 'Temp/ModFightBeginRuntime'
+New-Item -ItemType Directory -Force -Path $testRoot | Out-Null
+
+$code = @'
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
+using Eclipse.Modding;
+
+namespace UnityEngine
+{
+    public static class Debug
+    {
+        public static readonly List<string> Warnings = new List<string>();
+        public static void LogWarning(object value) { Warnings.Add(value == null ? string.Empty : value.ToString()); }
+    }
+}
+
+namespace Eclipse.Modding
+{
+    public interface IModFighterOperations
+    {
+        bool TryChangeHealth(double amount, out string error);
+        bool TryAddMagicCharge(double amount, out string error);
+    }
+
+    public sealed class EnchantmentDefinition
+    {
+        public bool HasBehavior;
+    }
+
+    public sealed class PerkDefinition
+    {
+        public bool HasBehavior;
+    }
+
+    public sealed class ModContentCatalog
+    {
+        private readonly Dictionary<DefinitionId, EnchantmentDefinition> _enchantments =
+            new Dictionary<DefinitionId, EnchantmentDefinition>();
+        private readonly Dictionary<DefinitionId, PerkDefinition> _perks =
+            new Dictionary<DefinitionId, PerkDefinition>();
+
+        public void Add(string id, bool hasBehavior)
+        {
+            _enchantments[DefinitionId.Parse(id)] = new EnchantmentDefinition { HasBehavior = hasBehavior };
+        }
+
+        public bool TryGetEnchantment(DefinitionId id, out EnchantmentDefinition definition)
+        {
+            return _enchantments.TryGetValue(id, out definition);
+        }
+
+        public void AddPerk(string id, bool hasBehavior)
+        {
+            _perks[DefinitionId.Parse(id)] = new PerkDefinition { HasBehavior = hasBehavior };
+        }
+
+        public bool TryGetPerk(DefinitionId id, out PerkDefinition definition)
+        {
+            return _perks.TryGetValue(id, out definition);
+        }
+    }
+
+    public sealed class ModScriptSession
+    {
+        public ModContentCatalog Content { get; } = new ModContentCatalog();
+    }
+
+    public static class ModRuntime
+    {
+        public sealed class Invocation
+        {
+            public string Id;
+            public Dictionary<string, string> Context;
+        }
+
+        public static ModScriptSession Scripts;
+        public static readonly List<Invocation> Invocations = new List<Invocation>();
+        public static readonly HashSet<string> FailIds = new HashSet<string>(StringComparer.Ordinal);
+        public static readonly HashSet<string> ThrowIds = new HashSet<string>(StringComparer.Ordinal);
+
+        public static bool TryInvokeSavedEnchantmentFightBegin(XmlNode perkNode,
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+        {
+            string id = perkNode.Attributes?[PerkStruct.EclipseEnchantmentAttribute]?.Value ?? string.Empty;
+            var context = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (fighterContext != null)
+            {
+                foreach (KeyValuePair<string, string> pair in fighterContext) context[pair.Key] = pair.Value;
+            }
+            Invocations.Add(new Invocation
+            {
+                Id = id,
+                Context = context,
+            });
+            if (ThrowIds.Contains(id)) throw new InvalidOperationException("synthetic host dispatch failure");
+            if (FailIds.Contains(id))
+            {
+                error = "synthetic handler failure";
+                return false;
+            }
+            error = string.Empty;
+            return true;
+        }
+
+        public static bool TryInvokeSavedPerkFightBegin(XmlNode perkNode,
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+        {
+            string id = perkNode.Attributes?["Name"]?.Value ?? string.Empty;
+            var context = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (fighterContext != null)
+            {
+                foreach (KeyValuePair<string, string> pair in fighterContext) context[pair.Key] = pair.Value;
+            }
+            Invocations.Add(new Invocation { Id = id, Context = context });
+            error = string.Empty;
+            return true;
+        }
+    }
+}
+
+public static class PerkStruct
+{
+    public const string EclipseEnchantmentAttribute = "EclipseEnchantment";
+}
+
+public sealed class PerkInfoItem
+{
+    public string Name;
+}
+
+public sealed class ItemInfo
+{
+    public string Name;
+    public string Type;
+    public bool GNDLEFFMJDJ;
+}
+
+public sealed class UserItem
+{
+    public XmlNode Node { get; }
+    public UserItem(XmlNode node) { Node = node; }
+}
+
+public sealed class UserItems
+{
+    private readonly Dictionary<string, UserItem> _items = new Dictionary<string, UserItem>(StringComparer.Ordinal);
+    public void Add(ItemInfo item, UserItem userItem) { _items[item.Name] = userItem; }
+    public UserItem CMGOCLGHNLH(ItemInfo item)
+    {
+        if (item == null) return null;
+        UserItem value;
+        return _items.TryGetValue(item.Name, out value) ? value : null;
+    }
+}
+
+public sealed class RosterStub
+{
+    public UserItems UserItems = new UserItems();
+    public UserPerks UserPerks = new UserPerks();
+    public UserItems KHCNHPCPFII() { return UserItems; }
+    public UserPerks JLBDOBLHHAF() { return UserPerks; }
+}
+
+public sealed class RosterPerk
+{
+    public XmlNode Node { get; }
+    public RosterPerk(XmlNode node) { Node = node; }
+}
+
+public sealed class UserPerks
+{
+    private readonly Dictionary<string, RosterPerk> _perks = new Dictionary<string, RosterPerk>(StringComparer.Ordinal);
+    public void Add(string name, RosterPerk perk) { _perks[name] = perk; }
+    public RosterPerk LKIEAGLHNON(string name)
+    {
+        RosterPerk value;
+        return _perks.TryGetValue(name, out value) ? value : null;
+    }
+}
+
+public static class ListSF
+{
+    public static readonly RosterStub Roster = new RosterStub();
+    public static RosterStub CCDKHLAMKKO() { return Roster; }
+}
+
+public sealed class ModelParameters
+{
+    public bool IsPlayer;
+    public readonly List<PerkInfoItem> NHBIJEEKALC = new List<PerkInfoItem>();
+    public readonly List<PerkInfoItem> JGCNPHDGHAK = new List<PerkInfoItem>();
+    public readonly List<ItemInfo> Items = new List<ItemInfo>();
+    public List<ItemInfo> PJNJIJIODHE() { return Items; }
+}
+
+public sealed class Model { }
+
+public sealed class RoundStub
+{
+    public int round;
+}
+
+public sealed class FightHarness
+{
+    private sealed class EclipseFighterOperations : Eclipse.Modding.IModFighterOperations
+    {
+        public EclipseFighterOperations(FightHarness fight, Model model) { }
+        public bool TryChangeHealth(double amount, out string error) { error = string.Empty; return true; }
+        public bool TryAddMagicCharge(double amount, out string error) { error = string.Empty; return true; }
+    }
+
+    private bool _eclipseFightBeginDispatched;
+    private readonly RoundStub round = new RoundStub();
+    private readonly ModelParameters NMNCKBPFCCP;
+    private readonly Model _playerModel = new Model();
+
+    public FightHarness(ModelParameters player, int roundNumber)
+    {
+        NMNCKBPFCCP = player;
+        round.round = roundNumber;
+    }
+
+    public void Dispatch() { DispatchEclipseFightBegin(); }
+
+__DISPATCH__
+}
+
+public static class Program
+{
+    private static void Assert(bool condition, string message)
+    {
+        if (!condition) throw new Exception(message);
+    }
+
+    private static UserItem SavedItem(string xml)
+    {
+        var document = new XmlDocument();
+        document.LoadXml(xml);
+        return new UserItem(document.DocumentElement);
+    }
+
+    public static int Main()
+    {
+        var scripts = new Eclipse.Modding.ModScriptSession();
+        scripts.Content.Add("example.mod:enchantments/active", true);
+        scripts.Content.Add("example.mod:enchantments/failing", true);
+        scripts.Content.Add("example.mod:enchantments/throwing", true);
+        scripts.Content.Add("example.mod:enchantments/compat", false);
+        scripts.Content.AddPerk("example.mod:perks/active_perk", true);
+        scripts.Content.AddPerk("example.mod:perks/inactive_perk", true);
+        Eclipse.Modding.ModRuntime.Scripts = scripts;
+        Eclipse.Modding.ModRuntime.FailIds.Add("example.mod:enchantments/failing");
+        Eclipse.Modding.ModRuntime.ThrowIds.Add("example.mod:enchantments/throwing");
+
+        var weapon = new ItemInfo { Name = "weapon_test", Type = "Weapon" };
+        var player = new ModelParameters { IsPlayer = true };
+        player.Items.Add(weapon);
+        player.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:enchantments/throwing" });
+        player.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:enchantments/active" });
+        player.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:enchantments/failing" });
+        player.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:enchantments/compat" });
+        player.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:perks/active_perk" });
+        player.JGCNPHDGHAK.Add(new PerkInfoItem { Name = "example.mod:perks/active_perk" });
+        player.JGCNPHDGHAK.Add(new PerkInfoItem { Name = "example.mod:perks/inactive_perk" });
+        ListSF.Roster.UserPerks.Add("example.mod:perks/active_perk", new RosterPerk(
+            SavedItem("<Perk Name='example.mod:perks/active_perk'/>").Node));
+        ListSF.Roster.UserItems.Add(weapon, SavedItem(
+            "<Item Name='weapon_test'><Enchantments>" +
+            "<Perk Name='example.mod:enchantments/throwing' EclipseEnchantment='example.mod:enchantments/throwing'/>" +
+            "<Perk Name='example.mod:enchantments/active' EclipseEnchantment='example.mod:enchantments/active'/>" +
+            "<Perk Name='example.mod:enchantments/failing' EclipseEnchantment='example.mod:enchantments/failing'/>" +
+            "<Perk Name='example.mod:enchantments/compat' EclipseEnchantment='example.mod:enchantments/compat'/>" +
+            "<Perk Name='example.mod:enchantments/not_active' EclipseEnchantment='example.mod:enchantments/active'/>" +
+            "<Perk Name='missing.mod:enchantments/missing' EclipseEnchantment='missing.mod:enchantments/missing'/>" +
+            "<Perk Name='PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON'/>" +
+            "</Enchantments></Item>"));
+
+        var fight = new FightHarness(player, 1);
+        fight.Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 4,
+            "FightBegin did not dispatch the active learned perk plus active saved enchantments.");
+        Assert(Eclipse.Modding.ModRuntime.Invocations[0].Id == "example.mod:perks/active_perk" &&
+            Eclipse.Modding.ModRuntime.Invocations[1].Id == "example.mod:enchantments/throwing" &&
+            Eclipse.Modding.ModRuntime.Invocations[2].Id == "example.mod:enchantments/active" &&
+            Eclipse.Modding.ModRuntime.Invocations[3].Id == "example.mod:enchantments/failing",
+            "FightBegin dispatch order/identity did not follow learned perks then active saved enchantments.");
+        Assert(Eclipse.Modding.ModRuntime.Invocations[0].Context["side"] == "player" &&
+            Eclipse.Modding.ModRuntime.Invocations[0].Context["source"] == "perk" &&
+            Eclipse.Modding.ModRuntime.Invocations[0].Context["perk_id"] == "example.mod:perks/active_perk",
+            "Behavior-backed perk did not receive sanitized perk context.");
+        foreach (Eclipse.Modding.ModRuntime.Invocation invocation in Eclipse.Modding.ModRuntime.Invocations.Skip(1))
+        {
+            Assert(invocation.Context["side"] == "player" && invocation.Context["source"] == "enchantment" &&
+                invocation.Context["item_type"] == "Weapon" &&
+                invocation.Context["item_id"] == "weapon_test" && invocation.Context["enchantment_id"] == invocation.Id,
+                "FightBegin exposed incorrect sanitized fighter/item context.");
+        }
+        Assert(UnityEngine.Debug.Warnings.Count == 2 &&
+            UnityEngine.Debug.Warnings[0].Contains("node dispatch failed") &&
+            UnityEngine.Debug.Warnings[1].Contains("example.mod:enchantments/failing"),
+            "Host/behavior failures were not isolated and surfaced as mod combat warnings.");
+
+        fight.Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 4,
+            "FightBegin dispatched more than once for the same Fight instance.");
+
+        var laterRound = new FightHarness(player, 2);
+        laterRound.Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 4,
+            "FightBegin dispatched on a later round.");
+
+        var substitutedItem = new ItemInfo { Name = "weapon_rule_clone", Type = "Weapon", GNDLEFFMJDJ = true };
+        var substitutedPlayer = new ModelParameters { IsPlayer = true };
+        substitutedPlayer.Items.Add(substitutedItem);
+        substitutedPlayer.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:enchantments/active" });
+        ListSF.Roster.UserItems.Add(substitutedItem, SavedItem(
+            "<Item Name='weapon_rule_clone'><Enchantments>" +
+            "<Perk Name='example.mod:enchantments/active' EclipseEnchantment='example.mod:enchantments/active'/>" +
+            "</Enchantments></Item>"));
+        new FightHarness(substitutedPlayer, 1).Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 4,
+            "Rule-created/replaced item clone incorrectly consumed the player's saved enchantment behavior.");
+
+        var opponent = new ModelParameters { IsPlayer = false };
+        opponent.Items.Add(weapon);
+        opponent.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:enchantments/active" });
+        new FightHarness(opponent, 1).Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 4,
+            "Saved UserItem behavior dispatched for a non-player fighter.");
+
+        Console.WriteLine("Mod FightBegin runtime seam: PASS (learned perks, saved enchantments, active filtering, context, isolation, one-shot).");
+        return 0;
+    }
+}
+'@
+
+$code = $code.Replace('__DISPATCH__', $dispatch)
+$harness = Join-Path $testRoot 'Program.cs'
+[IO.File]::WriteAllText($harness, $code)
+
+$vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
+$csc = & $vswhere -latest -products * -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\Roslyn\csc.exe' |
+    Select-Object -First 1
+if (!$csc) { throw 'Could not locate the Visual Studio Roslyn compiler.' }
+
+$exe = Join-Path $testRoot 'ModFightBeginRuntime.exe'
+& $csc /nologo /langversion:9.0 /target:exe "/out:$exe" $modIdPath $definitionIdPath $harness
+if ($LASTEXITCODE -ne 0) { throw 'Mod FightBegin runtime regression compilation failed.' }
+& $exe
+if ($LASTEXITCODE -ne 0) { throw 'Mod FightBegin runtime regression failed.' }

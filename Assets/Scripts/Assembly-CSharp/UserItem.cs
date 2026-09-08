@@ -544,8 +544,22 @@ public class UserItem
 			if (aCONCDFDNJH != null)
 			{
 				JCGBOOPPOLG.Add(aCONCDFDNJH);
+				EnsureExternalEnchantmentKind(childNode, aCONCDFDNJH);
 			}
 		}
+	}
+
+	private static void EnsureExternalEnchantmentKind(XmlNode node, PerkInfoItem perk)
+	{
+		if (node == null || perk == null || node.Name != "Perk") return;
+		string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+		Eclipse.Modding.DefinitionId definitionId;
+		if (!Eclipse.Modding.DefinitionId.TryParse(name, out definitionId) || definitionId.Category != "perks" ||
+			definitionId.Namespace.Value == "core") return;
+		string expectedKind = perk.LELHEEDNMBP == PerkInfoItem.DNPGIEGCGKH.COMBO ? "Combo" : "Single";
+		XmlAttribute kind = node.Attributes[PerkStruct.EclipseKindAttribute];
+		if (kind == null || !string.Equals(kind.Value, expectedKind, System.StringComparison.Ordinal))
+			node.LLIKNHNLGJJ(PerkStruct.EclipseKindAttribute).Value = expectedKind;
 	}
 
 	private void LEFIBJHJAOD(bool KBLMKFKJHCE = true, bool removeNodes = false)
@@ -658,11 +672,26 @@ public class UserItem
 			XmlNode mEEAKLDGLDF = ((_Node["Enchantments"] != null) ? _Node["Enchantments"] : _Node.ACBPMPMPKJJ("Enchantments"));
 			foreach (PerkStruct item2 in HALHGEGADKA)
 			{
-				XmlNode xmlNode = mEEAKLDGLDF.KDPLHGGPJHN("Perk");
-				xmlNode.LLIKNHNLGJJ("Name").Value = item2.get_Name();
-				if (item2.EOLPAHGCMHH().Count > 0)
-				{
-					XmlNode mEEAKLDGLDF2 = xmlNode.KDPLHGGPJHN("Set");
+					XmlNode xmlNode = mEEAKLDGLDF.KDPLHGGPJHN("Perk");
+					xmlNode.LLIKNHNLGJJ("Name").Value = item2.get_Name();
+					if (!string.IsNullOrEmpty(item2.EclipseEnchantment))
+						xmlNode.LLIKNHNLGJJ(PerkStruct.EclipseEnchantmentAttribute).Value = item2.EclipseEnchantment;
+					if (!string.IsNullOrEmpty(item2.EclipseKind))
+						xmlNode.LLIKNHNLGJJ(PerkStruct.EclipseKindAttribute).Value = item2.EclipseKind;
+					if (item2.EclipseParameters.Count > 0)
+					{
+						XmlNode parameters = xmlNode.KDPLHGGPJHN(Eclipse.Modding.ModEffectSaveData.NodeName);
+						parameters.LLIKNHNLGJJ("Format").Value = Eclipse.Modding.ModEffectSaveData.Format;
+						foreach (KeyValuePair<string, string> parameter in item2.EclipseParameters)
+						{
+							XmlNode value = parameters.KDPLHGGPJHN(Eclipse.Modding.ModEffectSaveData.ParameterNodeName);
+							value.LLIKNHNLGJJ("Name").Value = parameter.Key;
+							value.LLIKNHNLGJJ("Value").Value = parameter.Value;
+						}
+					}
+					if (item2.EOLPAHGCMHH().Count > 0)
+					{
+						XmlNode mEEAKLDGLDF2 = xmlNode.KDPLHGGPJHN("Set");
 					PerkStruct jLFJOECODOF = new PerkStruct(item2);
 					jLFJOECODOF.MLONLJGHDEA();
 					foreach (KeyValuePair<string, string> item3 in jLFJOECODOF.EOLPAHGCMHH())
@@ -698,6 +727,7 @@ public class UserItem
 				num++;
 			}
 		}
+		RemoveSavedExternalEnchantmentsByKind("Single");
 	}
 
 	private void AMCMLDINIOM()
@@ -718,6 +748,33 @@ public class UserItem
 				num++;
 			}
 		}
+		RemoveSavedExternalEnchantmentsByKind("Combo");
+	}
+
+	private void RemoveSavedExternalEnchantmentsByKind(string kind)
+	{
+		XmlNode enchantments = _Node["Enchantments"];
+		if (enchantments == null) return;
+		var remove = new List<XmlNode>();
+		foreach (XmlNode child in enchantments.ChildNodes)
+		{
+			if (child.NodeType != XmlNodeType.Element || child.Name != "Perk") continue;
+			string savedKind = child.Attributes[PerkStruct.EclipseKindAttribute].CIPOICEEIBK(string.Empty);
+			if (string.Equals(savedKind, kind, System.StringComparison.Ordinal) && IsEclipseOwnedSavedEnchantment(child))
+				remove.Add(child);
+		}
+		for (int i = 0; i < remove.Count; i++) enchantments.RemoveChild(remove[i]);
+	}
+
+	private static bool IsEclipseOwnedSavedEnchantment(XmlNode node)
+	{
+		Eclipse.Modding.DefinitionId id;
+		string enchantmentId = node.Attributes[PerkStruct.EclipseEnchantmentAttribute].CIPOICEEIBK(string.Empty);
+		if (Eclipse.Modding.DefinitionId.TryParse(enchantmentId, out id) && id.Namespace.Value != "core" &&
+			id.Category == "enchantments") return true;
+		string runtimeName = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+		return Eclipse.Modding.DefinitionId.TryParse(runtimeName, out id) && id.Namespace.Value != "core" &&
+			id.Category == "perks";
 	}
 
 	public bool OJNNHFNPNEM(PerkInfoItem AEFFHJGMNFI)

@@ -1,4 +1,5 @@
 using System.Collections;
+using Eclipse.Modding;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -60,10 +61,22 @@ namespace Nekki.SF2.GUI.Shop
 			{
 				HideHintAndStopCorutine();
 			}
-			DBEKMNDHBCG = AOMLCBHAJJH;
-			FLAPNMIDCAM.gameObject.SetActive(true);
-			string lNGIMAAHIFE = AEFFHJGMNFI.PDLPHLNCOMJ(AEFFHJGMNFI.MGNNJPBCOGD);
-			FLAPNMIDCAM.SetText(AEFFHJGMNFI.HBCNKNFPAIM, lNGIMAAHIFE);
+				DBEKMNDHBCG = AOMLCBHAJJH;
+				FLAPNMIDCAM.gameObject.SetActive(true);
+				string title = AEFFHJGMNFI.HBCNKNFPAIM;
+				string description = AEFFHJGMNFI.PDLPHLNCOMJ(AEFFHJGMNFI.MGNNJPBCOGD);
+				// Public mod presentation belongs to the Eclipse definition, not to the
+				// recovered PerkInfoItem compatibility projection. Saved/cloned enchantment
+				// instances can carry legacy presentation metadata, so prefer the canonical
+				// registry keys for qualified external perks/enchantments.
+				string modTitle;
+				string modDescription;
+				if (ModRuntime.TryGetExternalEffectPresentation(AEFFHJGMNFI.Name, out modTitle, out modDescription))
+				{
+					title = modTitle;
+					description = modDescription;
+				}
+				FLAPNMIDCAM.SetText(title, description);
 			bool flag = false;
 			RectTransform component = base.transform.root.GetComponent<RectTransform>();
 			if (component != null)

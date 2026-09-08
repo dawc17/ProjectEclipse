@@ -109,10 +109,12 @@ public class ForgeManager : global::EventDispatcher<object>
 		return null;
 	}
 
-	public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)
+	public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName,
+		string enchantmentId, string perkKind, IReadOnlyDictionary<string, string> eclipseParameters = null)
 	{
 		Recipe recipe = GetRecipeByName(recipeName);
-		return recipe != null && recipe.AddExternalEnchantmentCandidate(itemType, perkName);
+		return recipe != null && recipe.AddExternalEnchantmentCandidate(itemType, perkName, enchantmentId, perkKind,
+			eclipseParameters);
 	}
 
 	public bool RemoveExternalEnchantmentCandidate(string recipeName, string itemType, string perkName)

@@ -1,11 +1,11 @@
 schema = 1
 id = "example.enchantment"
 name = "Example Enchantment"
-version = "1.0.0"
-api = ">=0.2 <1.0"
+version = "1.1.0"
+api = ">=0.3 <1.0"
 authors = ["Eclipse"]
 entrypoint = "scripts/main.lua"
-capabilities = ["content.register"]
+capabilities = ["content.register", "combat.change_life", "combat.magic_charge"]
 
 [[dependencies]]
 id = "core"

@@ -69,12 +69,250 @@ namespace Eclipse.Modding
             }
         }
 
+        public static bool TryGetExternalEffectPresentation(string runtimeName, out string displayName,
+            out string description)
+        {
+            displayName = string.Empty;
+            description = string.Empty;
+            if (_scripts == null || string.IsNullOrEmpty(runtimeName)) return false;
+
+            DefinitionId id;
+            if (!DefinitionId.TryParse(runtimeName, out id) || id.Namespace.Value == "core") return false;
+
+            if (id.Category == "enchantments")
+            {
+                EnchantmentDefinition enchantment;
+                if (!_scripts.Content.TryGetEnchantment(id, out enchantment)) return false;
+                displayName = enchantment.DisplayName.ToString();
+                description = enchantment.Description.ToString();
+                return !string.IsNullOrEmpty(displayName) && !string.IsNullOrEmpty(description);
+            }
+
+            if (id.Category == "perks")
+            {
+                PerkDefinition perk;
+                if (!_scripts.Content.TryGetPerk(id, out perk)) return false;
+                displayName = perk.DisplayName.ToString();
+                description = perk.Description.ToString();
+                return !string.IsNullOrEmpty(displayName) && !string.IsNullOrEmpty(description);
+            }
+
+            return false;
+        }
+
         public static void RecordSaveContext(System.Xml.XmlNode warrior)
         {
             // Do not overwrite provenance if mod initialization itself was unavailable.
             if (_scripts == null) return;
             if (!ModSaveData.RecordContext(warrior, _scripts.ActiveMods, _scripts.Content))
                 Debug.LogWarning("[ModSave] Unrecognized save metadata schema; leaving it unchanged.");
+        }
+
+        public static bool TryReadSavedEnchantment(XmlNode perkNode, out EnchantmentDefinition enchantment,
+            out ModEffectInstance instance, out string error)
+        {
+            enchantment = null;
+            instance = null;
+            error = string.Empty;
+            if (_scripts == null || perkNode == null)
+            {
+                error = "Mod scripts are not active or the saved enchantment node is missing.";
+                return false;
+            }
+            string savedId = perkNode.Attributes?[PerkStruct.EclipseEnchantmentAttribute]?.Value;
+            DefinitionId id;
+            if (!DefinitionId.TryParse(savedId, out id) || id.Category != "enchantments" ||
+                id.Namespace.Value == "core")
+            {
+                error = "Saved enchantment has no valid EclipseEnchantment identity.";
+                return false;
+            }
+            if (!_scripts.Content.TryGetEnchantment(id, out enchantment) || !enchantment.HasBehavior)
+            {
+                error = "Saved scripted enchantment is unavailable: '" + id + "'.";
+                enchantment = null;
+                return false;
+            }
+            ModBehaviorDefinition behavior;
+            if (!_scripts.Content.TryGetBehavior(enchantment.Behavior, out behavior))
+            {
+                error = "Saved enchantment behavior is unavailable: '" + enchantment.Behavior + "'.";
+                enchantment = null;
+                return false;
+            }
+
+            if (perkNode[ModEffectSaveData.NodeName] == null)
+            {
+                try
+                {
+                    Dictionary<string, ModParameterValue> values =
+                        behavior.Parameters.ResolveValues(enchantment.InitialParameters);
+                    instance = new ModEffectInstance(enchantment.Id, values);
+                    return true;
+                }
+                catch (ModContentException exception)
+                {
+                    error = exception.Message;
+                    return false;
+                }
+            }
+            return ModEffectSaveData.TryRead(perkNode, enchantment.Id, behavior.Parameters, out instance, out error);
+        }
+
+        public static bool TryInvokeSavedEnchantmentFightBegin(XmlNode perkNode,
+            IReadOnlyDictionary<string, string> fighterContext, out string error)
+        {
+            return TryInvokeSavedEnchantmentFightBegin(perkNode, fighterContext, null, out error);
+        }
+
+        public static bool TryInvokeSavedEnchantmentFightBegin(XmlNode perkNode,
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+        {
+            EnchantmentDefinition enchantment;
+            ModEffectInstance instance;
+            if (!TryReadSavedEnchantment(perkNode, out enchantment, out instance, out error)) return false;
+            if (_scripts == null)
+            {
+                error = "Mod scripts are not active.";
+                return false;
+            }
+            return _scripts.TryInvokeBehavior(enchantment.Behavior, ModEffectEvent.FightBegin,
+                instance.Values, fighterContext, fighter, out error);
+        }
+
+        public static bool TryInvokePerkFightBegin(DefinitionId perkId,
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+        {
+            error = string.Empty;
+            if (_scripts == null)
+            {
+                error = "Mod scripts are not active.";
+                return false;
+            }
+            if (perkId.Category != "perks" || perkId.Namespace.Value == "core")
+            {
+                error = "Scripted perk has no valid external perk identity: '" + perkId + "'.";
+                return false;
+            }
+            PerkDefinition perk;
+            if (!_scripts.Content.TryGetPerk(perkId, out perk) || !perk.HasBehavior)
+            {
+                error = "Scripted perk is unavailable: '" + perkId + "'.";
+                return false;
+            }
+            ModBehaviorDefinition behavior;
+            if (!_scripts.Content.TryGetBehavior(perk.Behavior, out behavior))
+            {
+                error = "Scripted perk behavior is unavailable: '" + perk.Behavior + "'.";
+                return false;
+            }
+            try
+            {
+                Dictionary<string, ModParameterValue> values = behavior.Parameters.ResolveValues(perk.InitialParameters);
+                return _scripts.TryInvokeBehavior(perk.Behavior, ModEffectEvent.FightBegin,
+                    values, fighterContext, fighter, out error);
+            }
+            catch (ModContentException exception)
+            {
+                error = exception.Message;
+                return false;
+            }
+        }
+
+        public static bool TryReadSavedPerk(XmlNode perkNode, out PerkDefinition perk,
+            out ModEffectInstance instance, out string error)
+        {
+            perk = null;
+            instance = null;
+            error = string.Empty;
+            if (_scripts == null || perkNode == null)
+            {
+                error = "Mod scripts are not active or the saved perk node is missing.";
+                return false;
+            }
+            DefinitionId id;
+            string savedId = perkNode.Attributes?["Name"]?.Value;
+            if (!DefinitionId.TryParse(savedId, out id) || id.Category != "perks" || id.Namespace.Value == "core")
+            {
+                error = "Saved perk has no valid external perk identity.";
+                return false;
+            }
+            if (!_scripts.Content.TryGetPerk(id, out perk) || !perk.HasBehavior)
+            {
+                error = "Saved scripted perk is unavailable: '" + id + "'.";
+                perk = null;
+                return false;
+            }
+            ModBehaviorDefinition behavior;
+            if (!_scripts.Content.TryGetBehavior(perk.Behavior, out behavior))
+            {
+                error = "Saved perk behavior is unavailable: '" + perk.Behavior + "'.";
+                perk = null;
+                return false;
+            }
+            if (perkNode[ModEffectSaveData.NodeName] == null)
+            {
+                try
+                {
+                    Dictionary<string, ModParameterValue> values = behavior.Parameters.ResolveValues(perk.InitialParameters);
+                    instance = new ModEffectInstance(perk.Id, values);
+                    return true;
+                }
+                catch (ModContentException exception)
+                {
+                    error = exception.Message;
+                    return false;
+                }
+            }
+            return ModEffectSaveData.TryRead(perkNode, perk.Id, behavior.Parameters, out instance, out error);
+        }
+
+        public static bool TryInvokeSavedPerkFightBegin(XmlNode perkNode,
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+        {
+            PerkDefinition perk;
+            ModEffectInstance instance;
+            if (!TryReadSavedPerk(perkNode, out perk, out instance, out error)) return false;
+            if (_scripts == null)
+            {
+                error = "Mod scripts are not active.";
+                return false;
+            }
+            return _scripts.TryInvokeBehavior(perk.Behavior, ModEffectEvent.FightBegin,
+                instance.Values, fighterContext, fighter, out error);
+        }
+
+        public static bool TryInitializeSavedPerkParameters(XmlNode perkNode, out string error)
+        {
+            error = string.Empty;
+            if (_scripts == null || perkNode == null || perkNode[ModEffectSaveData.NodeName] != null) return true;
+            DefinitionId id;
+            string savedId = perkNode.Attributes?["Name"]?.Value;
+            if (!DefinitionId.TryParse(savedId, out id) || id.Category != "perks" || id.Namespace.Value == "core") return true;
+            PerkDefinition perk;
+            if (!_scripts.Content.TryGetPerk(id, out perk) || !perk.HasBehavior) return true;
+            ModBehaviorDefinition behavior;
+            if (!_scripts.Content.TryGetBehavior(perk.Behavior, out behavior))
+            {
+                error = "Scripted perk behavior is unavailable: '" + perk.Behavior + "'.";
+                return false;
+            }
+            XmlElement element = perkNode as XmlElement;
+            if (element == null)
+            {
+                error = "Saved scripted perk is not an XML element.";
+                return false;
+            }
+            try
+            {
+                ModEffectSaveData.Write(element, perk.Id, behavior.Parameters, perk.InitialParameters);
+                return true;
+            }
+            catch (Exception exception) when (exception is ModContentException || exception is ArgumentException)
+            {
+                error = exception.Message;
+                return false;
+            }
         }
 
         public static ModHost InitializeDefault()

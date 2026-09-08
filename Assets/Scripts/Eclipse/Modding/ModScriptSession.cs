@@ -104,6 +104,54 @@ namespace Eclipse.Modding
             return builder.ToString().TrimEnd();
         }
 
+        public bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,
+            IReadOnlyDictionary<string, ModParameterValue> parameters,
+            IReadOnlyDictionary<string, string> context, out string error)
+        {
+            return TryInvokeBehavior(behaviorId, effectEvent, parameters, context, null, out error);
+        }
+
+        public bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,
+            IReadOnlyDictionary<string, ModParameterValue> parameters,
+            IReadOnlyDictionary<string, string> context, IModFighterOperations fighter, out string error)
+        {
+            error = string.Empty;
+            if (behaviorId.Category != "behaviors")
+            {
+                error = "Behavior ID must use the behaviors category: '" + behaviorId + "'.";
+                return false;
+            }
+            for (int i = 0; i < _contexts.Count; i++)
+            {
+                IModScriptContext scriptContext = _contexts[i];
+                if (scriptContext == null || scriptContext.Mod.Id != behaviorId.Namespace) continue;
+                IModBehaviorScriptContext behaviorContext = scriptContext as IModBehaviorScriptContext;
+                if (behaviorContext == null)
+                {
+                    error = "Script runtime does not expose behavior callbacks for '" + behaviorId + "'.";
+                    return false;
+                }
+                if (!behaviorContext.HasBehaviorHandler(behaviorId, effectEvent))
+                {
+                    error = "Behavior '" + behaviorId + "' has no handler for " + effectEvent + ".";
+                    return false;
+                }
+                if (fighter != null)
+                {
+                    IModInteractiveBehaviorScriptContext interactive = scriptContext as IModInteractiveBehaviorScriptContext;
+                    if (interactive == null)
+                    {
+                        error = "Script runtime does not expose fighter operations for '" + behaviorId + "'.";
+                        return false;
+                    }
+                    return interactive.TryInvokeBehavior(behaviorId, effectEvent, parameters, context, fighter, out error);
+                }
+                return behaviorContext.TryInvokeBehavior(behaviorId, effectEvent, parameters, context, out error);
+            }
+            error = "Behavior owner mod is not active: '" + behaviorId.Namespace + "'.";
+            return false;
+        }
+
         public void Dispose()
         {
             for (int i = _contexts.Count - 1; i >= 0; i--)

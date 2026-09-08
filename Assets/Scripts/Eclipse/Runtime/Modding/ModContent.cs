@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Eclipse.Modding
 {
@@ -254,23 +255,262 @@ namespace Eclipse.Modding
         Magic = 4
     }
 
-    // Perks and enchantments deliberately share one combat-effect backend. A PerkDefinition
-    // identifies executable perk behavior; EnchantmentDefinition only exposes that behavior
-    // through a recovered forge recipe. API 0.2 keeps custom behavior conservative by deriving
-    // external perks from an already-registered template instead of exposing recovered XML.
+    public enum ModParameterType
+    {
+        Number = 0,
+        Integer = 1,
+        Boolean = 2,
+        String = 3
+    }
+
+    public readonly struct ModParameterValue
+    {
+        public const long MaxSafeInteger = 9007199254740991L;
+        public const long MinSafeInteger = -MaxSafeInteger;
+
+        private readonly double _number;
+        private readonly long _integer;
+        private readonly bool _boolean;
+        private readonly string _string;
+
+        public ModParameterType Type { get; }
+        public double Number => Type == ModParameterType.Number ? _number : throw TypeError(ModParameterType.Number);
+        public long Integer => Type == ModParameterType.Integer ? _integer : throw TypeError(ModParameterType.Integer);
+        public bool Boolean => Type == ModParameterType.Boolean ? _boolean : throw TypeError(ModParameterType.Boolean);
+        public string String => Type == ModParameterType.String ? (_string ?? string.Empty) : throw TypeError(ModParameterType.String);
+
+        private ModParameterValue(ModParameterType type, double number, long integer, bool boolean, string text)
+        {
+            Type = type;
+            _number = number;
+            _integer = integer;
+            _boolean = boolean;
+            _string = text;
+        }
+
+        public static ModParameterValue FromNumber(double value)
+        {
+            if (double.IsNaN(value) || double.IsInfinity(value))
+                throw new ArgumentOutOfRangeException(nameof(value), "Parameter number must be finite.");
+            return new ModParameterValue(ModParameterType.Number, value, 0L, false, null);
+        }
+
+        public static ModParameterValue FromInteger(long value)
+        {
+            if (value < MinSafeInteger || value > MaxSafeInteger)
+                throw new ArgumentOutOfRangeException(nameof(value),
+                    "Parameter integer must stay within the exact Lua integer range.");
+            return new ModParameterValue(ModParameterType.Integer, 0d, value, false, null);
+        }
+
+        public static ModParameterValue FromBoolean(bool value)
+        {
+            return new ModParameterValue(ModParameterType.Boolean, 0d, 0L, value, null);
+        }
+
+        public static ModParameterValue FromString(string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value.Length > ModParameterDefinition.MaxStringLength)
+                throw new ArgumentOutOfRangeException(nameof(value), "Parameter string exceeds the maximum length.");
+            return new ModParameterValue(ModParameterType.String, 0d, 0L, false, value);
+        }
+
+        public string ToWireString()
+        {
+            switch (Type)
+            {
+                case ModParameterType.Number: return _number.ToString("R", CultureInfo.InvariantCulture);
+                case ModParameterType.Integer: return _integer.ToString(CultureInfo.InvariantCulture);
+                case ModParameterType.Boolean: return _boolean ? "1" : "0";
+                case ModParameterType.String: return _string ?? string.Empty;
+                default: throw new InvalidOperationException("Unsupported parameter type: " + Type);
+            }
+        }
+
+        public static bool TryParse(ModParameterType type, string text, out ModParameterValue value)
+        {
+            value = default;
+            if (text == null) return false;
+            switch (type)
+            {
+                case ModParameterType.Number:
+                    double number;
+                    if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out number) ||
+                        double.IsNaN(number) || double.IsInfinity(number)) return false;
+                    value = FromNumber(number);
+                    return true;
+                case ModParameterType.Integer:
+                    long integer;
+                    if (!long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out integer) ||
+                        integer < MinSafeInteger || integer > MaxSafeInteger) return false;
+                    value = FromInteger(integer);
+                    return true;
+                case ModParameterType.Boolean:
+                    if (text == "1" || string.Equals(text, "true", StringComparison.OrdinalIgnoreCase))
+                    { value = FromBoolean(true); return true; }
+                    if (text == "0" || string.Equals(text, "false", StringComparison.OrdinalIgnoreCase))
+                    { value = FromBoolean(false); return true; }
+                    return false;
+                case ModParameterType.String:
+                    if (text.Length > ModParameterDefinition.MaxStringLength) return false;
+                    value = FromString(text);
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private InvalidOperationException TypeError(ModParameterType expected)
+        {
+            return new InvalidOperationException("Parameter value is " + Type + ", expected " + expected + ".");
+        }
+    }
+
+    public sealed class ModParameterDefinition
+    {
+        public const int MaxNameLength = 64;
+        public const int MaxStringLength = 2048;
+
+        public string Name { get; }
+        public ModParameterType Type { get; }
+        public bool Required { get; }
+        public bool HasDefault { get; }
+        public ModParameterValue DefaultValue { get; }
+
+        public ModParameterDefinition(string name, ModParameterType type, bool required = false)
+            : this(name, type, required, false, default)
+        {
+        }
+
+        public ModParameterDefinition(string name, ModParameterType type, bool required, ModParameterValue defaultValue)
+            : this(name, type, required, true, defaultValue)
+        {
+        }
+
+        private ModParameterDefinition(string name, ModParameterType type, bool required, bool hasDefault,
+            ModParameterValue defaultValue)
+        {
+            ValidateName(name);
+            if (!Enum.IsDefined(typeof(ModParameterType), type))
+                throw new ArgumentOutOfRangeException(nameof(type), "Unsupported parameter type.");
+            if (hasDefault && defaultValue.Type != type)
+                throw new ArgumentException("Parameter default type does not match schema type.", nameof(defaultValue));
+            Name = name;
+            Type = type;
+            Required = required;
+            HasDefault = hasDefault;
+            DefaultValue = defaultValue;
+        }
+
+        internal static void ValidateName(string name)
+        {
+            if (string.IsNullOrEmpty(name) || name.Length > MaxNameLength)
+                throw new ModContentException("Parameter name must be 1.." + MaxNameLength + " characters.");
+            for (int i = 0; i < name.Length; i++)
+            {
+                char c = name[i];
+                if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+                    (c >= '0' && c <= '9') || c == '_'))
+                    throw new ModContentException("Unsafe parameter name '" + name + "'.");
+            }
+        }
+    }
+
+    public sealed class ModParameterSchema
+    {
+        public const int MaxParameters = 64;
+        private readonly Dictionary<string, ModParameterDefinition> _byName;
+        private readonly IReadOnlyList<ModParameterDefinition> _parameters;
+
+        public IReadOnlyList<ModParameterDefinition> Parameters => _parameters;
+        public int Count => _parameters.Count;
+
+        public ModParameterSchema(IEnumerable<ModParameterDefinition> parameters)
+        {
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+            _byName = new Dictionary<string, ModParameterDefinition>(StringComparer.Ordinal);
+            var values = new List<ModParameterDefinition>();
+            foreach (ModParameterDefinition parameter in parameters)
+            {
+                if (parameter == null) throw new ArgumentException("Parameter schema contains null.", nameof(parameters));
+                if (values.Count >= MaxParameters)
+                    throw new ModContentException("Parameter schema limit exceeded (" + MaxParameters + ").");
+                if (_byName.ContainsKey(parameter.Name))
+                    throw new ModContentException("Duplicate parameter schema field '" + parameter.Name + "'.");
+                _byName.Add(parameter.Name, parameter);
+                values.Add(parameter);
+            }
+            _parameters = values.AsReadOnly();
+        }
+
+        public bool TryGet(string name, out ModParameterDefinition parameter)
+        {
+            return _byName.TryGetValue(name, out parameter);
+        }
+
+        public Dictionary<string, ModParameterValue> ResolveValues(
+            IReadOnlyDictionary<string, ModParameterValue> supplied)
+        {
+            var result = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal);
+            if (supplied != null)
+            {
+                foreach (KeyValuePair<string, ModParameterValue> pair in supplied)
+                {
+                    ModParameterDefinition definition;
+                    if (!TryGet(pair.Key, out definition))
+                        throw new ModContentException("Unknown instance parameter '" + pair.Key + "'.");
+                    if (pair.Value.Type != definition.Type)
+                        throw new ModContentException("Instance parameter '" + pair.Key + "' has type " + pair.Value.Type +
+                            ", expected " + definition.Type + ".");
+                    result.Add(pair.Key, pair.Value);
+                }
+            }
+            for (int i = 0; i < Parameters.Count; i++)
+            {
+                ModParameterDefinition parameter = Parameters[i];
+                if (result.ContainsKey(parameter.Name)) continue;
+                if (parameter.HasDefault) result.Add(parameter.Name, parameter.DefaultValue);
+                else if (parameter.Required)
+                    throw new ModContentException("Required instance parameter '" + parameter.Name + "' is missing.");
+            }
+            return result;
+        }
+    }
+
+    public sealed class ModBehaviorDefinition
+    {
+        public DefinitionId Id { get; }
+        public ModParameterSchema Parameters { get; }
+
+        internal ModBehaviorDefinition(DefinitionId id, ModParameterSchema parameters)
+        {
+            Id = id;
+            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+        }
+    }
+
+    // API 0.3 treats behavior as an independent executable definition. Perks and enchantments
+    // may both reference the same behavior without referencing each other. The template-backed
+    // fields remain only for API 0.2 compatibility with the recovered PerkInfoItem backend.
     public sealed class PerkDefinition
     {
         private readonly Dictionary<string, string> _parameters;
+        private readonly IReadOnlyDictionary<string, ModParameterValue> _initialParameters;
 
         public DefinitionId Id { get; }
         public DefinitionId Template { get; }
         public bool HasTemplate { get; }
+        public DefinitionId Behavior { get; }
+        public bool HasBehavior { get; }
         public DefinitionId DisplayName { get; }
         public DefinitionId Description { get; }
         public AssetId Icon { get; }
         public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
         public ModPerkKind Kind { get; }
         public IReadOnlyDictionary<string, string> Parameters => _parameters;
+        public IReadOnlyDictionary<string, ModParameterValue> InitialParameters => _initialParameters;
+        public bool IsScripted => HasBehavior;
         public string LegacyName { get; }
         public string LegacyPerkXml { get; }
         public bool IsCore => Id.Namespace.Value == "core";
@@ -278,11 +518,14 @@ namespace Eclipse.Modding
         internal PerkDefinition(DefinitionId id, DefinitionId template, bool hasTemplate,
             DefinitionId displayName, DefinitionId description, AssetId icon, ModPerkKind kind,
             IReadOnlyDictionary<string, string> parameters = null, string legacyName = null,
-            string legacyPerkXml = null)
+            string legacyPerkXml = null, DefinitionId behavior = default,
+            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null)
         {
             Id = id;
             Template = template;
             HasTemplate = hasTemplate;
+            Behavior = behavior;
+            HasBehavior = !string.IsNullOrEmpty(behavior.Category);
             DisplayName = displayName;
             Description = description;
             Icon = icon;
@@ -290,6 +533,10 @@ namespace Eclipse.Modding
             _parameters = new Dictionary<string, string>(StringComparer.Ordinal);
             if (parameters != null)
                 foreach (KeyValuePair<string, string> pair in parameters) _parameters.Add(pair.Key, pair.Value);
+            var copiedInitial = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal);
+            if (initialParameters != null)
+                foreach (KeyValuePair<string, ModParameterValue> pair in initialParameters) copiedInitial.Add(pair.Key, pair.Value);
+            _initialParameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, ModParameterValue>(copiedInitial);
             LegacyName = legacyName;
             LegacyPerkXml = legacyPerkXml;
         }
@@ -299,20 +546,60 @@ namespace Eclipse.Modding
     {
         private readonly ModEquipmentKind[] _equipment;
         private readonly IReadOnlyList<ModEquipmentKind> _readOnlyEquipment;
+        private readonly IReadOnlyDictionary<string, ModParameterValue> _initialParameters;
 
         public DefinitionId Id { get; }
         public DefinitionId Perk { get; }
+        public bool HasPerk { get; }
+        public DefinitionId Behavior { get; }
+        public bool HasBehavior { get; }
+        public DefinitionId DisplayName { get; }
+        public DefinitionId Description { get; }
+        public AssetId Icon { get; }
+        public bool HasIcon => !string.IsNullOrEmpty(Icon.Path);
         public ModEnchantmentRecipe Recipe { get; }
         public IReadOnlyList<ModEquipmentKind> Equipment => _readOnlyEquipment;
+        public IReadOnlyDictionary<string, ModParameterValue> InitialParameters => _initialParameters;
+        public bool IsScripted => HasBehavior;
+        public ModPerkKind Kind => Recipe == ModEnchantmentRecipe.Complex ? ModPerkKind.Combo : ModPerkKind.Single;
 
         internal EnchantmentDefinition(DefinitionId id, DefinitionId perk, ModEnchantmentRecipe recipe,
             ModEquipmentKind[] equipment)
         {
             Id = id;
             Perk = perk;
+            HasPerk = true;
+            Behavior = default;
+            HasBehavior = false;
+            DisplayName = default;
+            Description = default;
+            Icon = default;
             Recipe = recipe;
             _equipment = equipment == null ? Array.Empty<ModEquipmentKind>() : (ModEquipmentKind[])equipment.Clone();
             _readOnlyEquipment = Array.AsReadOnly(_equipment);
+            _initialParameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, ModParameterValue>(
+                new Dictionary<string, ModParameterValue>(StringComparer.Ordinal));
+        }
+
+        internal EnchantmentDefinition(DefinitionId id, DefinitionId displayName, DefinitionId description,
+            AssetId icon, ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment,
+            DefinitionId behavior, IReadOnlyDictionary<string, ModParameterValue> initialParameters)
+        {
+            Id = id;
+            Perk = default;
+            HasPerk = false;
+            Behavior = behavior;
+            HasBehavior = true;
+            DisplayName = displayName;
+            Description = description;
+            Icon = icon;
+            Recipe = recipe;
+            _equipment = equipment == null ? Array.Empty<ModEquipmentKind>() : (ModEquipmentKind[])equipment.Clone();
+            _readOnlyEquipment = Array.AsReadOnly(_equipment);
+            var copiedInitial = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal);
+            if (initialParameters != null)
+                foreach (KeyValuePair<string, ModParameterValue> pair in initialParameters) copiedInitial.Add(pair.Key, pair.Value);
+            _initialParameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, ModParameterValue>(copiedInitial);
         }
     }
 
@@ -338,6 +625,8 @@ namespace Eclipse.Modding
             new DefinitionRegistry<PerkDefinition>(value => value.Id);
         private readonly DefinitionRegistry<EnchantmentDefinition> _enchantments =
             new DefinitionRegistry<EnchantmentDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<ModBehaviorDefinition> _behaviors =
+            new DefinitionRegistry<ModBehaviorDefinition>(value => value.Id);
 
         public bool IsFrozen { get; private set; }
         public IReadOnlyList<LocalizationDefinition> Localizations => _localizations.Values;
@@ -350,6 +639,7 @@ namespace Eclipse.Modding
         public IReadOnlyList<ShopListingDefinition> ShopListings => _shopListings.Values;
         public IReadOnlyList<PerkDefinition> Perks => _perks.Values;
         public IReadOnlyList<EnchantmentDefinition> Enchantments => _enchantments.Values;
+        public IReadOnlyList<ModBehaviorDefinition> Behaviors => _behaviors.Values;
 
         public ModRegistrationTransaction BeginRegistration(ModDescriptor mod)
         {
@@ -443,6 +733,12 @@ namespace Eclipse.Modding
             return id.Category == "enchantments" && _enchantments.TryGet(id, out value);
         }
 
+        public bool TryGetBehavior(DefinitionId id, out ModBehaviorDefinition value)
+        {
+            value = null;
+            return id.Category == "behaviors" && _behaviors.TryGet(id, out value);
+        }
+
         public void Freeze()
         {
             IsFrozen = true;
@@ -453,7 +749,7 @@ namespace Eclipse.Modding
             ArmorDefinition[] armors, HelmDefinition[] helms, RangedDefinition[] ranged,
             MagicDefinition[] magic, ItemRedirectDefinition[] itemRedirects,
             ShopListingDefinition[] shopListings, PerkDefinition[] perks,
-            EnchantmentDefinition[] enchantments)
+            EnchantmentDefinition[] enchantments, ModBehaviorDefinition[] behaviors)
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
             if (IsFrozen) throw new InvalidOperationException("Definition registries are frozen.");
@@ -468,6 +764,7 @@ namespace Eclipse.Modding
             _shopListings.ValidateCanAdd(shopListings);
             _perks.ValidateCanAdd(perks);
             _enchantments.ValidateCanAdd(enchantments);
+            _behaviors.ValidateCanAdd(behaviors);
 
             ValidateRegisteredItems(localizations, weapons, "Weapon");
             ValidateRegisteredItems(localizations, armors, "Armor");
@@ -498,30 +795,65 @@ namespace Eclipse.Modding
                     !_localizations.TryGet(perk.Description, out LocalizationDefinition ignoredDescription))
                     throw new ModContentException("Perk '" + perk.Id +
                         "' references missing description localization '" + perk.Description + "'.");
-                if (!perk.HasTemplate)
-                    throw new ModContentException("External perk '" + perk.Id + "' must derive from a registered template.");
-                PerkDefinition template;
-                if (!TryGetPendingPerk(perk.Template, perks, out template) && !_perks.TryGet(perk.Template, out template))
-                    throw new ModContentException("Perk '" + perk.Id + "' references missing template '" +
-                        perk.Template + "'.");
-                if (template.Id == perk.Id)
-                    throw new ModContentException("Perk cannot derive from itself: '" + perk.Id + "'.");
+                if (perk.HasTemplate)
+                {
+                    PerkDefinition template;
+                    if (!TryGetPendingPerk(perk.Template, perks, out template) && !_perks.TryGet(perk.Template, out template))
+                        throw new ModContentException("Perk '" + perk.Id + "' references missing template '" +
+                            perk.Template + "'.");
+                    if (template.Id == perk.Id)
+                        throw new ModContentException("Perk cannot derive from itself: '" + perk.Id + "'.");
+                }
+                else if (perk.HasBehavior)
+                {
+                    ModBehaviorDefinition behavior;
+                    if (!TryGetPendingBehavior(perk.Behavior, behaviors, out behavior) &&
+                        !_behaviors.TryGet(perk.Behavior, out behavior))
+                        throw new ModContentException("Perk '" + perk.Id + "' references missing behavior '" +
+                            perk.Behavior + "'.");
+                }
+                else if (!perk.IsCore)
+                {
+                    throw new ModContentException("External perk '" + perk.Id +
+                        "' must either use the legacy template bridge or register Lua behavior.");
+                }
             }
 
             for (int i = 0; i < enchantments.Length; i++)
             {
                 EnchantmentDefinition enchantment = enchantments[i];
-                PerkDefinition perk;
-                if (!TryGetPendingPerk(enchantment.Perk, perks, out perk) && !_perks.TryGet(enchantment.Perk, out perk))
-                    throw new ModContentException("Enchantment '" + enchantment.Id + "' references missing perk '" +
-                        enchantment.Perk + "'.");
                 if (enchantment.Equipment.Count == 0)
                     throw new ModContentException("Enchantment '" + enchantment.Id + "' has no equipment categories.");
-                if (enchantment.Recipe == ModEnchantmentRecipe.Complex && perk.Kind != ModPerkKind.Combo)
-                    throw new ModContentException("Complex enchantment '" + enchantment.Id + "' requires a combo perk.");
-                if (enchantment.Recipe != ModEnchantmentRecipe.Complex && perk.Kind != ModPerkKind.Single)
-                    throw new ModContentException("Simple/medium enchantment '" + enchantment.Id +
-                        "' requires a single perk.");
+                if (enchantment.HasPerk)
+                {
+                    PerkDefinition perk;
+                    if (!TryGetPendingPerk(enchantment.Perk, perks, out perk) && !_perks.TryGet(enchantment.Perk, out perk))
+                        throw new ModContentException("Enchantment '" + enchantment.Id + "' references missing perk '" +
+                            enchantment.Perk + "'.");
+                    if (enchantment.Recipe == ModEnchantmentRecipe.Complex && perk.Kind != ModPerkKind.Combo)
+                        throw new ModContentException("Complex enchantment '" + enchantment.Id + "' requires a combo perk.");
+                    if (enchantment.Recipe != ModEnchantmentRecipe.Complex && perk.Kind != ModPerkKind.Single)
+                        throw new ModContentException("Simple/medium enchantment '" + enchantment.Id +
+                            "' requires a single perk.");
+                }
+                else
+                {
+                    if (!enchantment.HasBehavior)
+                        throw new ModContentException("Enchantment '" + enchantment.Id + "' has no behavior backend.");
+                    ModBehaviorDefinition behavior;
+                    if (!TryGetPendingBehavior(enchantment.Behavior, behaviors, out behavior) &&
+                        !_behaviors.TryGet(enchantment.Behavior, out behavior))
+                        throw new ModContentException("Enchantment '" + enchantment.Id +
+                            "' references missing behavior '" + enchantment.Behavior + "'.");
+                    if (!ContainsLocalization(localizations, enchantment.DisplayName) &&
+                        !_localizations.TryGet(enchantment.DisplayName, out LocalizationDefinition ignoredEnchantName))
+                        throw new ModContentException("Enchantment '" + enchantment.Id +
+                            "' references missing display localization '" + enchantment.DisplayName + "'.");
+                    if (!ContainsLocalization(localizations, enchantment.Description) &&
+                        !_localizations.TryGet(enchantment.Description, out LocalizationDefinition ignoredEnchantDescription))
+                        throw new ModContentException("Enchantment '" + enchantment.Id +
+                            "' references missing description localization '" + enchantment.Description + "'.");
+                }
             }
 
             _localizations.AddRange(localizations);
@@ -534,9 +866,19 @@ namespace Eclipse.Modding
             _shopListings.AddRange(shopListings);
             _perks.AddRange(perks);
             _enchantments.AddRange(enchantments);
+            _behaviors.AddRange(behaviors);
         }
 
         private static bool TryGetPendingPerk(DefinitionId id, PerkDefinition[] values, out PerkDefinition value)
+        {
+            for (int i = 0; i < values.Length; i++)
+                if (values[i].Id == id) { value = values[i]; return true; }
+            value = null;
+            return false;
+        }
+
+        private static bool TryGetPendingBehavior(DefinitionId id, ModBehaviorDefinition[] values,
+            out ModBehaviorDefinition value)
         {
             for (int i = 0; i < values.Length; i++)
                 if (values[i].Id == id) { value = values[i]; return true; }
@@ -720,13 +1062,15 @@ namespace Eclipse.Modding
             new Dictionary<DefinitionId, PerkDefinition>();
         private readonly Dictionary<DefinitionId, EnchantmentDefinition> _enchantments =
             new Dictionary<DefinitionId, EnchantmentDefinition>();
+        private readonly Dictionary<DefinitionId, ModBehaviorDefinition> _behaviors =
+            new Dictionary<DefinitionId, ModBehaviorDefinition>();
         private readonly HashSet<DefinitionId> _listedItems = new HashSet<DefinitionId>();
         private bool _completed;
 
         public ModDescriptor Mod { get; }
         public int RegistrationCount => _localizations.Count + _weapons.Count + _armors.Count + _helms.Count +
             _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
-            _enchantments.Count;
+            _enchantments.Count + _behaviors.Count;
 
         internal ModRegistrationTransaction(ModContentCatalog catalog, ModDescriptor mod)
         {
@@ -936,6 +1280,19 @@ namespace Eclipse.Modding
             throw new ModContentException("Perk is not registered: '" + id + "'.");
         }
 
+        public ModBehaviorDefinition RegisterBehavior(string localId, ModParameterSchema parameters)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("behaviors", localId);
+            if (_behaviors.ContainsKey(id))
+                throw new ModContentException("Duplicate behavior definition: '" + id + "'.");
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+            EnsureCapacityForNewRegistration();
+            var definition = new ModBehaviorDefinition(id, parameters);
+            _behaviors.Add(id, definition);
+            return definition;
+        }
+
         public PerkDefinition RegisterPerk(string localId, DefinitionId template, DefinitionId displayName,
             DefinitionId description, AssetId icon, IReadOnlyDictionary<string, string> parameters)
         {
@@ -974,6 +1331,26 @@ namespace Eclipse.Modding
             return definition;
         }
 
+        public PerkDefinition RegisterScriptedPerk(string localId, DefinitionId displayName,
+            DefinitionId description, AssetId icon, ModPerkKind kind, DefinitionId behavior,
+            IReadOnlyDictionary<string, ModParameterValue> initialParameters)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("perks", localId);
+            if (_perks.ContainsKey(id)) throw new ModContentException("Duplicate perk definition: '" + id + "'.");
+            ValidateScriptedPresentation(displayName, description, icon, "Perk");
+            if (!Enum.IsDefined(typeof(ModPerkKind), kind))
+                throw new ModContentException("Unsupported perk kind: " + kind);
+            ModBehaviorDefinition behaviorDefinition = RequirePendingBehavior(behavior, "Perk");
+            Dictionary<string, ModParameterValue> initial = behaviorDefinition.Parameters.ResolveValues(initialParameters);
+
+            EnsureCapacityForNewRegistration();
+            var definition = new PerkDefinition(id, default, false, displayName, description, icon, kind,
+                null, null, null, behaviorDefinition.Id, initial);
+            _perks.Add(id, definition);
+            return definition;
+        }
+
         public EnchantmentDefinition RegisterEnchantment(string localId, DefinitionId perk,
             ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment)
         {
@@ -986,6 +1363,9 @@ namespace Eclipse.Modding
             PerkDefinition perkDefinition;
             if (!_perks.TryGetValue(perk, out perkDefinition))
                 throw new ModContentException("Enchantment perk must be registered by the same transaction: '" + perk + "'.");
+            if (!perkDefinition.HasTemplate)
+                throw new ModContentException("Mod API 0.2 perk-backed enchantments require a template-backed perk. " +
+                    "Behavior-backed enchantments must register their behavior directly.");
             if (!Enum.IsDefined(typeof(ModEnchantmentRecipe), recipe))
                 throw new ModContentException("Unsupported enchantment recipe: " + recipe);
             if (equipment == null || equipment.Length == 0)
@@ -1005,8 +1385,42 @@ namespace Eclipse.Modding
             if (recipe != ModEnchantmentRecipe.Complex && perkDefinition.Kind != ModPerkKind.Single)
                 throw new ModContentException("Simple/medium enchantments require a single perk.");
 
+            foreach (EnchantmentDefinition existing in _enchantments.Values)
+            {
+                if (existing.Perk != perkDefinition.Id || existing.Recipe != recipe) continue;
+                for (int i = 0; i < copied.Length; i++)
+                {
+                    for (int j = 0; j < existing.Equipment.Count; j++)
+                    {
+                        if (copied[i] != existing.Equipment[j]) continue;
+                        throw new ModContentException("Enchantment '" + id + "' duplicates perk candidate '" +
+                            existing.Id + "' for recipe " + recipe + " and equipment " + copied[i] + ".");
+                    }
+                }
+            }
+
             EnsureCapacityForNewRegistration();
             var definition = new EnchantmentDefinition(id, perkDefinition.Id, recipe, copied);
+            _enchantments.Add(id, definition);
+            return definition;
+        }
+
+        public EnchantmentDefinition RegisterScriptedEnchantment(string localId, DefinitionId displayName,
+            DefinitionId description, AssetId icon, ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment,
+            DefinitionId behavior, IReadOnlyDictionary<string, ModParameterValue> initialParameters)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("enchantments", localId);
+            if (_enchantments.ContainsKey(id))
+                throw new ModContentException("Duplicate enchantment definition: '" + id + "'.");
+            ValidateScriptedPresentation(displayName, description, icon, "Enchantment");
+            ValidateRecipeAndEquipment(recipe, equipment, out ModEquipmentKind[] copied);
+            ModBehaviorDefinition behaviorDefinition = RequirePendingBehavior(behavior, "Enchantment");
+            Dictionary<string, ModParameterValue> initial = behaviorDefinition.Parameters.ResolveValues(initialParameters);
+
+            EnsureCapacityForNewRegistration();
+            var definition = new EnchantmentDefinition(id, displayName, description, icon, recipe, copied,
+                behaviorDefinition.Id, initial);
             _enchantments.Add(id, definition);
             return definition;
         }
@@ -1042,9 +1456,11 @@ namespace Eclipse.Modding
             _perks.Values.CopyTo(perks, 0);
             var enchantments = new EnchantmentDefinition[_enchantments.Count];
             _enchantments.Values.CopyTo(enchantments, 0);
+            var behaviors = new ModBehaviorDefinition[_behaviors.Count];
+            _behaviors.Values.CopyTo(behaviors, 0);
 
             _catalog.Commit(this, localizations, weapons, armors, helms, ranged, magic, itemRedirects, listings,
-                perks, enchantments);
+                perks, enchantments, behaviors);
             _completed = true;
             ClearPending();
         }
@@ -1087,6 +1503,47 @@ namespace Eclipse.Modding
                 char c = name[i];
                 if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_'))
                     throw new ModContentException("Unsafe perk parameter name '" + name + "'.");
+            }
+        }
+
+        private void ValidateScriptedPresentation(DefinitionId displayName, DefinitionId description,
+            AssetId icon, string type)
+        {
+            if (displayName.Namespace != Mod.Id || displayName.Category != "localization")
+                throw new ModContentException(type + " display_name must be a localization owned by mod '" + Mod.Id + "'.");
+            if (description.Namespace != Mod.Id || description.Category != "localization")
+                throw new ModContentException(type + " description must be a localization owned by mod '" + Mod.Id + "'.");
+            if (!icon.Equals(default(AssetId)) && !CanReferenceNamespace(icon.Namespace))
+                throw new ModContentException(type + " icon belongs to undeclared namespace '" + icon.Namespace + "'.");
+        }
+
+        private ModBehaviorDefinition RequirePendingBehavior(DefinitionId behavior, string ownerType)
+        {
+            if (behavior.Namespace != Mod.Id || behavior.Category != "behaviors")
+                throw new ModContentException(ownerType + " behavior must be owned by the registering mod.");
+            ModBehaviorDefinition definition;
+            if (!_behaviors.TryGetValue(behavior, out definition))
+                throw new ModContentException(ownerType + " behavior must be registered by the same transaction: '" +
+                    behavior + "'.");
+            return definition;
+        }
+
+        private static void ValidateRecipeAndEquipment(ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment,
+            out ModEquipmentKind[] copied)
+        {
+            if (!Enum.IsDefined(typeof(ModEnchantmentRecipe), recipe))
+                throw new ModContentException("Unsupported enchantment recipe: " + recipe);
+            if (equipment == null || equipment.Length == 0)
+                throw new ModContentException("Enchantment must support at least one equipment category.");
+            var seen = new HashSet<ModEquipmentKind>();
+            copied = new ModEquipmentKind[equipment.Length];
+            for (int i = 0; i < equipment.Length; i++)
+            {
+                if (!Enum.IsDefined(typeof(ModEquipmentKind), equipment[i]))
+                    throw new ModContentException("Unsupported enchantment equipment category: " + equipment[i]);
+                if (!seen.Add(equipment[i]))
+                    throw new ModContentException("Duplicate enchantment equipment category: " + equipment[i]);
+                copied[i] = equipment[i];
             }
         }
 
@@ -1202,6 +1659,7 @@ namespace Eclipse.Modding
             _shopListings.Clear();
             _perks.Clear();
             _enchantments.Clear();
+            _behaviors.Clear();
             _listedItems.Clear();
         }
     }

@@ -24,6 +24,7 @@ foreach ($directory in @(
     'Assets/Scripts/Eclipse/Content/TarAssets',
     'Assets/Scripts/Eclipse/Runtime/Modding',
     'Assets/Scripts/Eclipse/Modding',
+    'Assets/TestMods/example.enchantment',
     'Packages',
     'ProjectSettings')) {
     New-Item -ItemType Directory -Path (Join-Path $fixture $directory) -Force | Out-Null
@@ -40,6 +41,7 @@ Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Modding/*.cs') -Destina
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Runtime/Modding') -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidatePackagedArt.cs') -Destination (Join-Path $fixture 'Assets/ValidatePackagedArt.cs')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'LegacyModdingStubs.cs') -Destination (Join-Path $fixture 'Assets/LegacyModdingStubs.cs')
+Copy-Item -Path (Join-Path $root 'Mods/example.enchantment/*') -Destination (Join-Path $fixture 'Assets/TestMods/example.enchantment') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Content/TarAssets/*') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Content/TarAssets') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/Resources/SF2Content/Art/*') -Destination (Join-Path $fixture 'Assets/Resources/SF2Content/Art') -Recurse -Force
 Copy-Item -Path (Join-Path $root 'Assets/Resources/SF2Content/Fonts/*') -Destination (Join-Path $fixture 'Assets/Resources/SF2Content/Fonts') -Recurse -Force

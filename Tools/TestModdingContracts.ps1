@@ -593,6 +593,9 @@ internal static class Program
                 perkDescription, default(AssetId), parameters);
             EnchantmentDefinition enchantment = registration.RegisterEnchantment("example_lifesteal_weapon", perk.Id,
                 ModEnchantmentRecipe.Medium, new[] { ModEquipmentKind.Weapon });
+            RejectContent(() => registration.RegisterEnchantment("duplicate_lifesteal_weapon", perk.Id,
+                ModEnchantmentRecipe.Medium, new[] { ModEquipmentKind.Weapon }),
+                "Two enchantment IDs exposed the same runtime perk candidate in one recipe/equipment slot.");
             Assert(catalog.Perks.Count == perkCountBefore && catalog.Enchantments.Count == enchantmentCountBefore,
                 "Uncommitted perk/enchantment transaction leaked into global registries.");
             Assert(perk.HasTemplate && perk.Template == template.Id && perk.Kind == ModPerkKind.Single &&
@@ -614,13 +617,112 @@ internal static class Program
         Assert(perkFingerprint != equipmentOnlyFingerprint,
             "Content-set fingerprint ignored committed perk/enchantment definitions.");
 
+        var behaviorSchema = new ModParameterSchema(new[]
+        {
+            new ModParameterDefinition("chance", ModParameterType.Number, true),
+            new ModParameterDefinition("stacks", ModParameterType.Integer, false, ModParameterValue.FromInteger(1)),
+            new ModParameterDefinition("enabled", ModParameterType.Boolean, false, ModParameterValue.FromBoolean(true)),
+            new ModParameterDefinition("tag", ModParameterType.String, false, ModParameterValue.FromString("base"))
+        });
+        using (ModRegistrationTransaction registration = catalog.BeginRegistration(mod))
+        {
+            ModBehaviorDefinition behavior = registration.RegisterBehavior("lifesteal", behaviorSchema);
+            DefinitionId scriptedTitle = registration.GetLocalization("perk.example_lifesteal");
+            DefinitionId scriptedDescription = registration.GetLocalization("perk.example_lifesteal.description");
+            var scriptedValues = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal)
+            {
+                { "chance", ModParameterValue.FromNumber(0.55d) }
+            };
+            PerkDefinition scriptedPerk = registration.RegisterScriptedPerk("direct_lifesteal", scriptedTitle,
+                scriptedDescription, default(AssetId), ModPerkKind.Single, behavior.Id, scriptedValues);
+            RejectContent(() => registration.RegisterEnchantment("invalid_scripted_perk_bridge", scriptedPerk.Id,
+                ModEnchantmentRecipe.Medium, new[] { ModEquipmentKind.Weapon }),
+                "Behavior-backed perk was accepted through the API 0.2 perk-backed enchantment compatibility path.");
+            EnchantmentDefinition scriptedEnchantment = registration.RegisterScriptedEnchantment(
+                "direct_lifesteal_weapon", scriptedTitle, scriptedDescription, default(AssetId),
+                ModEnchantmentRecipe.Medium, new[] { ModEquipmentKind.Weapon }, behavior.Id, scriptedValues);
+            Assert(behavior.Id == DefinitionId.Parse("example.weapon:behaviors/lifesteal") &&
+                behavior.Parameters.Count == 4 && catalog.Behaviors.Count == 0 &&
+                scriptedPerk.HasBehavior && !scriptedPerk.HasTemplate && scriptedPerk.Behavior == behavior.Id &&
+                scriptedPerk.InitialParameters["chance"].Number == 0.55d &&
+                scriptedPerk.InitialParameters["stacks"].Integer == 1 &&
+                scriptedEnchantment.HasBehavior && !scriptedEnchantment.HasPerk &&
+                scriptedEnchantment.Behavior == behavior.Id && scriptedEnchantment.Kind == ModPerkKind.Single,
+                "Behavior-backed perk/enchantment registration leaked or lost typed values.");
+            registration.Commit();
+        }
+        ModBehaviorDefinition committedBehavior;
+        Assert(catalog.TryGetBehavior(DefinitionId.Parse("example.weapon:behaviors/lifesteal"), out committedBehavior) &&
+            committedBehavior.Parameters.TryGet("chance", out ModParameterDefinition chanceDefinition) &&
+            chanceDefinition.Required && chanceDefinition.Type == ModParameterType.Number &&
+            committedBehavior.Parameters.TryGet("stacks", out ModParameterDefinition stacksDefinition) &&
+            stacksDefinition.HasDefault && stacksDefinition.DefaultValue.Integer == 1,
+            "Committed behavior schema lost type/default metadata.");
+        Assert(!ModParameterValue.TryParse(ModParameterType.Integer, "9007199254740992", out ModParameterValue unsafeInteger),
+            "Typed parameter wire parser accepted an integer MoonSharp cannot represent exactly.");
+        string behaviorFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
+        Assert(behaviorFingerprint != perkFingerprint,
+            "Content-set fingerprint ignored registered behavior/schema changes.");
+
+        DefinitionId directEffectId = DefinitionId.Parse("example.weapon:enchantments/direct_lifesteal_weapon");
+        var effectDocument = new XmlDocument();
+        effectDocument.LoadXml("<Perk Name='runtime-compat' EclipseEnchantment='" + directEffectId + "'>" +
+            "<Set Aspect='321' future='opaque'/><EclipseParams Format='1'>" +
+            "<Param Name='chance' Value='0.25'/><Param Name='enabled' Value='true'/>" +
+            "<Param Name='future' Value='opaque'/></EclipseParams><Future/></Perk>");
+        string effectBeforeRead = effectDocument.OuterXml;
+        Assert(ModEffectSaveData.TryRead(effectDocument.DocumentElement, directEffectId, behaviorSchema,
+            out ModEffectInstance effectInstance, out string effectError) && string.IsNullOrEmpty(effectError) &&
+            Math.Abs(effectInstance.Values["chance"].Number - 0.25d) < 0.000001d &&
+            effectInstance.Values["stacks"].Integer == 1 && effectInstance.Values["enabled"].Boolean &&
+            effectInstance.Values["tag"].String == "base" && effectDocument.OuterXml == effectBeforeRead,
+            "Typed effect read failed, defaults were not applied, or read mutated save XML.");
+
+        var writeValues = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal)
+        {
+            { "chance", ModParameterValue.FromNumber(0.5d) },
+            { "enabled", ModParameterValue.FromBoolean(false) }
+        };
+        ModEffectSaveData.Write(effectDocument.DocumentElement, directEffectId, behaviorSchema, writeValues);
+        XmlElement writtenSet = effectDocument.DocumentElement["Set"];
+        XmlElement writtenParams = effectDocument.DocumentElement["EclipseParams"];
+        Assert(writtenSet.GetAttribute("Aspect") == "321" && writtenSet.GetAttribute("future") == "opaque" &&
+            writtenParams.SelectSingleNode("Param[@Name='chance']").Attributes["Value"].Value == "0.5" &&
+            writtenParams.SelectSingleNode("Param[@Name='stacks']").Attributes["Value"].Value == "1" &&
+            writtenParams.SelectSingleNode("Param[@Name='enabled']").Attributes["Value"].Value == "0" &&
+            writtenParams.SelectSingleNode("Param[@Name='tag']").Attributes["Value"].Value == "base" &&
+            writtenParams.SelectSingleNode("Param[@Name='future']").Attributes["Value"].Value == "opaque" &&
+            effectDocument.DocumentElement["Future"] != null,
+            "Typed effect write was not canonical or destroyed unknown save data.");
+
+        var malformedEffect = new XmlDocument();
+        malformedEffect.LoadXml("<Perk Name='runtime-compat'><Set Aspect='12'/><EclipseParams Format='1'>" +
+            "<Param Name='chance' Value='not-a-number'/><Param Name='future' Value='opaque'/>" +
+            "</EclipseParams></Perk>");
+        string malformedBefore = malformedEffect.OuterXml;
+        Assert(!ModEffectSaveData.TryRead(malformedEffect.DocumentElement, directEffectId, behaviorSchema,
+            out effectInstance, out effectError) && effectError.Contains("chance") && malformedEffect.OuterXml == malformedBefore,
+            "Malformed known typed parameter was accepted or mutated in place.");
+
+        var genericEffect = new XmlDocument();
+        genericEffect.LoadXml("<Perk Name='opaque'><EclipseParams Format='1'><Param Name='chance' Value='0.75'/>" +
+            "</EclipseParams></Perk>");
+        string genericBefore = genericEffect.OuterXml;
+        DefinitionId differentOwner = DefinitionId.Parse("example.weapon:perks/direct_lifesteal");
+        Assert(ModEffectSaveData.TryRead(genericEffect.DocumentElement, differentOwner, behaviorSchema,
+            out effectInstance, out effectError) && effectInstance.Owner == differentOwner &&
+            genericEffect.OuterXml == genericBefore,
+            "Generic typed effect codec incorrectly coupled payload parsing to legacy Perk Name identity.");
+
         ModDescriptor rollbackMod = Descriptor("rollback.perk", "1.0.0", "core", ">=1.0 <2.0");
         int localizationCountBeforeRollback = catalog.Localizations.Count;
         int perkCountBeforeRollback = catalog.Perks.Count;
         int enchantmentCountBeforeRollback = catalog.Enchantments.Count;
+        int behaviorCountBeforeRollback = catalog.Behaviors.Count;
         string fingerprintBeforeRollback = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
         using (ModRegistrationTransaction rollback = catalog.BeginRegistration(rollbackMod))
         {
+            rollback.RegisterBehavior("rollback", behaviorSchema);
             PerkDefinition template = rollback.GetPerk("core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON");
             DefinitionId title = rollback.AddLocalization("perk.rollback", "eng", "Rollback Perk");
             DefinitionId description = rollback.AddLocalization("perk.rollback.description", "eng", "Must not commit.");
@@ -631,10 +733,12 @@ internal static class Program
         }
         Assert(catalog.Localizations.Count == localizationCountBeforeRollback &&
             catalog.Perks.Count == perkCountBeforeRollback && catalog.Enchantments.Count == enchantmentCountBeforeRollback &&
+            catalog.Behaviors.Count == behaviorCountBeforeRollback &&
             !catalog.TryGetPerk(DefinitionId.Parse("rollback.perk:perks/rollback"), out committedPerk) &&
             !catalog.TryGetEnchantment(DefinitionId.Parse("rollback.perk:enchantments/rollback"), out committedEnchantment) &&
+            !catalog.TryGetBehavior(DefinitionId.Parse("rollback.perk:behaviors/rollback"), out committedBehavior) &&
             ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog) == fingerprintBeforeRollback,
-            "Disposed perk/enchantment transaction did not roll back cleanly or changed the fingerprint.");
+            "Disposed perk/enchantment/behavior transaction did not roll back cleanly or changed the fingerprint.");
 
         ModDescriptor helper = Descriptor("helper.mod", "2.0.0", "core", ">=1.0 <2.0");
         string orderedFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod, helper }, catalog);
@@ -642,7 +746,7 @@ internal static class Program
         Assert(orderedFingerprint == reversedFingerprint,
             "Content-set fingerprint depends on active mod discovery order.");
         ModDescriptor changedVersion = Descriptor("example.weapon", "1.0.1", "core", ">=1.0 <2.0");
-        Assert(ModSaveData.ComputeContentSetFingerprint(new[] { changedVersion }, catalog) != perkFingerprint,
+        Assert(ModSaveData.ComputeContentSetFingerprint(new[] { changedVersion }, catalog) != behaviorFingerprint,
             "Content-set fingerprint ignored an active mod version change.");
         catalog.Freeze();
         bool frozen = false;
@@ -664,7 +768,7 @@ internal static class Program
         Assert(view.Attributes["Weapon"].Value == "Fists" && save.DocumentElement.GetAttribute("Weapon") == itemId &&
             record.OuterXml == originalRecord, "Missing equipment fallback mutated persistent ownership or equipped ID.");
         Assert(ModSaveData.RecordContext(save.DocumentElement, new[] { mod }, catalog), "Mod save context was not written.");
-        Assert(save.DocumentElement["EclipseMods"].Attributes["contentHash"]?.Value == perkFingerprint,
+        Assert(save.DocumentElement["EclipseMods"].Attributes["contentHash"]?.Value == behaviorFingerprint,
             "Mod save context did not persist the current content-set fingerprint.");
         Assert(ModSaveData.RecordContext(save.DocumentElement, new ModDescriptor[0]), "Missing mod context was not recorded.");
         XmlElement lastSeen = (XmlElement)save.SelectSingleNode("/Warrior/EclipseMods/Mod");

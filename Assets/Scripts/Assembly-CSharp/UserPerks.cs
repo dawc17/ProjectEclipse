@@ -98,8 +98,9 @@ public class UserPerks
 				{
 					item.FMMDLMGHPIB(aKKLOMFOLNO);
 				}
-				item.AppendNodeChild(AEFFHJGMNFI.Pairs);
-				item.NOLDHAFMOLF(null);
+					item.AppendNodeChild(AEFFHJGMNFI.Pairs);
+					InitializeEclipsePerkParameters(item);
+					item.NOLDHAFMOLF(null);
 				DDBGEFPKAPN(item, AEFFHJGMNFI);
 				return item;
 			}
@@ -126,8 +127,9 @@ public class UserPerks
 		{
 			hOGDBKBFFDJ.FMMDLMGHPIB(aKKLOMFOLNO2);
 		}
-		hOGDBKBFFDJ.AppendNodeChild(AEFFHJGMNFI.Pairs);
-		DDBGEFPKAPN(hOGDBKBFFDJ, AEFFHJGMNFI);
+			hOGDBKBFFDJ.AppendNodeChild(AEFFHJGMNFI.Pairs);
+			InitializeEclipsePerkParameters(hOGDBKBFFDJ);
+			DDBGEFPKAPN(hOGDBKBFFDJ, AEFFHJGMNFI);
 		return hOGDBKBFFDJ;
 	}
 
@@ -137,8 +139,9 @@ public class UserPerks
 		RosterPerk hOGDBKBFFDJ = new RosterPerk(hKPPBKPJOEO);
 		hOGDBKBFFDJ.set_Name(AEFFHJGMNFI.Name);
 		hOGDBKBFFDJ.DLDMOHEGENM(AEFFHJGMNFI.Level);
-		hOGDBKBFFDJ.FMMDLMGHPIB(AEFFHJGMNFI.AKKLOMFOLNO);
-		return hOGDBKBFFDJ;
+			hOGDBKBFFDJ.FMMDLMGHPIB(AEFFHJGMNFI.AKKLOMFOLNO);
+			InitializeEclipsePerkParameters(hOGDBKBFFDJ);
+			return hOGDBKBFFDJ;
 	}
 
 	public RosterPerk HGOLHMJEPIA(ProfilePerk AEFFHJGMNFI)
@@ -155,8 +158,9 @@ public class UserPerks
 				{
 					item.FMMDLMGHPIB(num);
 				}
-				item.NOLDHAFMOLF(null);
-				DDBGEFPKAPN(item, AEFFHJGMNFI);
+					item.NOLDHAFMOLF(null);
+					InitializeEclipsePerkParameters(item);
+					DDBGEFPKAPN(item, AEFFHJGMNFI);
 				return item;
 			}
 			if (flag || flag3)
@@ -172,11 +176,12 @@ public class UserPerks
 		hOGDBKBFFDJ.DLDMOHEGENM(AEFFHJGMNFI.PINDEKDNCNL());
 		hOGDBKBFFDJ.set_Name(AEFFHJGMNFI.KAMBOKLFBEE());
 		int num2 = AEFFHJGMNFI.LMGGMMFEODJ();
-		if (num2 > 0)
-		{
-			hOGDBKBFFDJ.FMMDLMGHPIB(num2);
-		}
-		DDBGEFPKAPN(hOGDBKBFFDJ, AEFFHJGMNFI);
+			if (num2 > 0)
+			{
+				hOGDBKBFFDJ.FMMDLMGHPIB(num2);
+			}
+			InitializeEclipsePerkParameters(hOGDBKBFFDJ);
+			DDBGEFPKAPN(hOGDBKBFFDJ, AEFFHJGMNFI);
 		return hOGDBKBFFDJ;
 	}
 
@@ -229,7 +234,16 @@ public class UserPerks
 				return hOGDBKBFFDJ;
 			}
 		}
-		return null;
+			return null;
+		}
+
+	private static void InitializeEclipsePerkParameters(RosterPerk perk)
+	{
+		if (perk == null || perk.Node == null) return;
+		string error;
+		if (!Eclipse.Modding.ModRuntime.TryInitializeSavedPerkParameters(perk.Node, out error))
+			UnityEngine.Debug.LogWarning("[ModSave] Failed to initialize scripted perk state for '" +
+				perk.get_Name() + "': " + error);
 	}
 
 	public int IBAOKPECDLF()

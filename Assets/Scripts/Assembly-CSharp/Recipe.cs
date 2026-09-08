@@ -70,9 +70,13 @@ public class Recipe
 		return GetRecipeItemByType(info.Type);
 	}
 
-	public bool AddExternalEnchantmentCandidate(string itemType, string perkName)
+	public bool AddExternalEnchantmentCandidate(string itemType, string perkName, string enchantmentId, string perkKind,
+		IReadOnlyDictionary<string, string> eclipseParameters = null)
 	{
-		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName)) return false;
+		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName) || string.IsNullOrEmpty(enchantmentId))
+			return false;
+		if (!string.Equals(perkKind, "Single", StringComparison.Ordinal) &&
+			!string.Equals(perkKind, "Combo", StringComparison.Ordinal)) return false;
 		RecipeItem recipeItem = GetRecipeItemByType(itemType);
 		if (recipeItem == null) return false;
 
@@ -89,6 +93,21 @@ public class Recipe
 		XmlElement perk = document.CreateElement("Perk");
 		perk.SetAttribute("Name", perkName);
 		perk.SetAttribute("ItemType", itemType);
+		perk.SetAttribute(PerkStruct.EclipseEnchantmentAttribute, enchantmentId);
+		perk.SetAttribute(PerkStruct.EclipseKindAttribute, perkKind);
+		if (eclipseParameters != null && eclipseParameters.Count > 0)
+		{
+			XmlElement parameters = document.CreateElement(Eclipse.Modding.ModEffectSaveData.NodeName);
+			parameters.SetAttribute("Format", Eclipse.Modding.ModEffectSaveData.Format);
+			foreach (KeyValuePair<string, string> pair in eclipseParameters)
+			{
+				XmlElement parameter = document.CreateElement(Eclipse.Modding.ModEffectSaveData.ParameterNodeName);
+				parameter.SetAttribute("Name", pair.Key);
+				parameter.SetAttribute("Value", pair.Value ?? string.Empty);
+				parameters.AppendChild(parameter);
+			}
+			perk.AppendChild(parameters);
+		}
 		if (UsesRandomAspectForExternalCandidates())
 		{
 			XmlElement set = document.CreateElement("Set");

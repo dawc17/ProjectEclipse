@@ -1,2 +1,6 @@
 perk.eclipse_lifesteal = "Eclipse Lifesteal"
 perk.eclipse_lifesteal.description = "A weapon enchantment derived from vanilla Lifesteal with a higher trigger chance."
+perk.battle_focus = "Battle Focus"
+perk.battle_focus.description = "A reusable scripted perk that grants magic charge and a small heal when a fight begins."
+enchantment.battle_charge = "Battle Charge"
+enchantment.battle_charge.description = "A custom scripted weapon enchantment that starts each fight with 35% magic charge and restores 5% health."

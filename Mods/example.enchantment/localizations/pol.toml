@@ -1,2 +1,6 @@
 perk.eclipse_lifesteal = "Kradzież życia Eclipse"
 perk.eclipse_lifesteal.description = "Zaklęcie broni oparte na bazowej Kradzieży życia z większą szansą aktywacji."
+perk.battle_focus = "Skupienie bojowe"
+perk.battle_focus.description = "Skryptowy perk wielokrotnego użytku, który na początku walki dodaje energię magii i lekko leczy."
+enchantment.battle_charge = "Ładunek bojowy"
+enchantment.battle_charge.description = "Własne skryptowe zaklęcie broni: walka zaczyna się z 35% energii magii, a postać odzyskuje 5% zdrowia."

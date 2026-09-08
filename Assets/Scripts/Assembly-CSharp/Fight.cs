@@ -4,6 +4,7 @@ using System.Diagnostics;
 using CodeStage.AntiCheat.ObscuredTypes;
 using Nekki.SF2.Core.Fights.Controller;
 using Nekki.SF2.GUI.Fight;
+using Eclipse.Modding;
 using Eclipse.Underworld;
 using UnityEngine;
 
@@ -54,6 +55,71 @@ public class Fight
 		public float JAOMELOGOOJ;
 
 		public int OGOLNFLBLBD;
+	}
+
+	private sealed class EclipseFighterOperations : IModFighterOperations
+	{
+		private readonly Fight _fight;
+		private readonly Model _model;
+
+		public EclipseFighterOperations(Fight fight, Model model)
+		{
+			_fight = fight;
+			_model = model;
+		}
+
+		public bool TryChangeHealth(double amount, out string error)
+		{
+			error = string.Empty;
+			if (_fight == null || _model == null)
+			{
+				error = "The fighter is no longer available.";
+				return false;
+			}
+			if (double.IsNaN(amount) || double.IsInfinity(amount) || amount < -float.MaxValue || amount > float.MaxValue)
+			{
+				error = "Health change must be a finite single-precision number.";
+				return false;
+			}
+			try
+			{
+				// This is the same recovered health path used by Lifesteal and ModHealthChange.
+				_fight.UpdateLife(_model, (float)amount);
+				return true;
+			}
+			catch (Exception exception)
+			{
+				error = exception.Message;
+				return false;
+			}
+		}
+
+		public bool TryAddMagicCharge(double amount, out string error)
+		{
+			error = string.Empty;
+			if (_model == null)
+			{
+				error = "The fighter is no longer available.";
+				return false;
+			}
+			if (double.IsNaN(amount) || double.IsInfinity(amount) || amount < -float.MaxValue || amount > float.MaxValue)
+			{
+				error = "Magic charge change must be a finite single-precision number.";
+				return false;
+			}
+			try
+			{
+				// Mirror PerkActionAddMagicCharge: mutate charge, then normalize/update its fight UI state.
+				_model.JJHLOKBPBLD((float)amount);
+				_model.BFBFNKMLOJA();
+				return true;
+			}
+			catch (Exception exception)
+			{
+				error = exception.Message;
+				return false;
+			}
+		}
 	}
 
 	private const float BFBKFFJGNAO = 2f;
@@ -152,6 +218,8 @@ public class Fight
 	private bool BDDBMCNFNMG;
 
 	private bool FJHJNOFPABO;
+
+	private bool _eclipseFightBeginDispatched;
 
 	private GameOverParameters LBKDADMLJOE = new GameOverParameters();
 
@@ -479,6 +547,7 @@ public class Fight
 		NCAEOKCFBFD = false;
 		NLBINDFGKHO = false;
 		FJHJNOFPABO = false;
+		_eclipseFightBeginDispatched = false;
 		MNEOALEBNNA = true;
 		IOPJDMCBIMM = true;
 		KCNHDABOAAA = false;
@@ -2350,9 +2419,117 @@ public class Fight
 			item.KMMJCHDKBDO.HANOHOBGGJF();
 		}
 		EPBDEDGLHJE.DEHPKPPDIIA();
+		DispatchEclipseFightBegin();
 		IFKFINOGOLC(false);
 		_isRoundOver = false;
 		GC.Collect();
+	}
+
+	private void DispatchEclipseFightBegin()
+	{
+		if (_eclipseFightBeginDispatched || round.round != 1) return;
+		_eclipseFightBeginDispatched = true;
+
+		try
+		{
+				ModScriptSession scripts = ModRuntime.Scripts;
+				if (scripts == null || NMNCKBPFCCP == null || !NMNCKBPFCCP.IsPlayer || _playerModel == null) return;
+				var fighterOperations = new EclipseFighterOperations(this, _playerModel);
+
+				var activeRuntimePerks = new HashSet<string>(StringComparer.Ordinal);
+			foreach (PerkInfoItem perk in NMNCKBPFCCP.NHBIJEEKALC)
+			{
+					if (perk != null && !string.IsNullOrEmpty(perk.Name)) activeRuntimePerks.Add(perk.Name);
+				}
+
+				// Learned/profile perks are a separate provenance source from item enchantments. Intersect
+				// them with the final active runtime set so recovered NoPerks/rule filtering still wins.
+				var dispatchedPerks = new HashSet<DefinitionId>();
+				foreach (PerkInfoItem learnedPerk in NMNCKBPFCCP.JGCNPHDGHAK)
+				{
+					if (learnedPerk == null || string.IsNullOrEmpty(learnedPerk.Name) ||
+						!activeRuntimePerks.Contains(learnedPerk.Name)) continue;
+					DefinitionId perkId;
+					if (!DefinitionId.TryParse(learnedPerk.Name, out perkId) || perkId.Category != "perks" ||
+						perkId.Namespace.Value == "core" || !dispatchedPerks.Add(perkId)) continue;
+					PerkDefinition perkDefinition;
+					if (!scripts.Content.TryGetPerk(perkId, out perkDefinition) || !perkDefinition.HasBehavior) continue;
+
+					var perkContext = new Dictionary<string, string>(StringComparer.Ordinal)
+					{
+						{ "side", "player" },
+						{ "source", "perk" },
+						{ "perk_id", perkId.ToString() },
+					};
+					RosterPerk savedPerk = ListSF.CCDKHLAMKKO().JLBDOBLHHAF()?.LKIEAGLHNON(learnedPerk.Name);
+					if (savedPerk == null || savedPerk.Node == null) continue;
+					string perkError;
+					if (!ModRuntime.TryInvokeSavedPerkFightBegin(savedPerk.Node, perkContext, fighterOperations, out perkError))
+						UnityEngine.Debug.LogWarning("[ModCombat] FightBegin failed for perk '" + perkId + "': " + perkError);
+				}
+
+				UserItems userItems = ListSF.CCDKHLAMKKO().KHCNHPCPFII();
+			if (userItems == null) return;
+			foreach (ItemInfo item in NMNCKBPFCCP.PJNJIJIODHE())
+			{
+				// Mirror ModelParameters.JBIOECDAAKP(): rule-created/replaced item clones do not
+				// consume the player's saved UserItem enchantments.
+				if (item == null || item.GNDLEFFMJDJ) continue;
+				UserItem userItem = userItems.CMGOCLGHNLH(item);
+				System.Xml.XmlNode enchantments = userItem?.Node?["Enchantments"];
+				if (enchantments == null) continue;
+
+					var context = new Dictionary<string, string>(StringComparer.Ordinal)
+					{
+						{ "side", "player" },
+						{ "source", "enchantment" },
+						{ "item_type", item.Type ?? string.Empty },
+					{ "item_id", item.Name ?? string.Empty },
+				};
+
+				var savedPerks = new List<System.Xml.XmlNode>();
+				foreach (System.Xml.XmlNode perkNode in enchantments.ChildNodes)
+				{
+					if (perkNode.NodeType == System.Xml.XmlNodeType.Element && perkNode.Name == "Perk")
+						savedPerks.Add(perkNode);
+				}
+
+				foreach (System.Xml.XmlNode perkNode in savedPerks)
+				{
+					try
+					{
+						string runtimeName = perkNode.Attributes?["Name"]?.Value;
+						if (string.IsNullOrEmpty(runtimeName) || !activeRuntimePerks.Contains(runtimeName)) continue;
+
+						DefinitionId enchantmentId;
+						string savedId = perkNode.Attributes?[PerkStruct.EclipseEnchantmentAttribute]?.Value;
+						if (!DefinitionId.TryParse(savedId, out enchantmentId) ||
+							enchantmentId.Category != "enchantments" || enchantmentId.Namespace.Value == "core") continue;
+
+						EnchantmentDefinition definition;
+						if (!scripts.Content.TryGetEnchantment(enchantmentId, out definition) || !definition.HasBehavior) continue;
+
+						context["enchantment_id"] = enchantmentId.ToString();
+						string error;
+							if (!ModRuntime.TryInvokeSavedEnchantmentFightBegin(perkNode, context, fighterOperations, out error))
+						{
+							UnityEngine.Debug.LogWarning("[ModCombat] FightBegin failed for '" + enchantmentId +
+								"' on item '" + item.Name + "': " + error);
+						}
+					}
+					catch (Exception exception)
+					{
+						UnityEngine.Debug.LogWarning("[ModCombat] FightBegin node dispatch failed on item '" +
+							item.Name + "': " + exception.Message);
+					}
+				}
+			}
+		}
+		catch (Exception exception)
+		{
+			// Mod combat dispatch must never break the recovered fight state machine.
+			UnityEngine.Debug.LogWarning("[ModCombat] FightBegin dispatch failed: " + exception);
+		}
 	}
 
 	private void StartStance()
