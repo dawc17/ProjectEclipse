@@ -20,6 +20,8 @@ namespace Eclipse.UI
                 ListSF.CCDKHLAMKKO()?.GGGEHAGCLGC();
                 savePreferences?.Invoke();
                 PlayerPrefs.Save();
+                Sound.FAJONFGJBPD(); // Persistent music channel survives scene loads.
+                Sound.GKMINHHAMAK(); // Stop remaining campaign sound channels.
                 IsRestarting = true;
                 Time.timeScale = 1f;
                 AudioListener.pause = false;

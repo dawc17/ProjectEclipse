@@ -309,6 +309,8 @@ public class ListSF
 
 	public static void Reset()
 	{
+		if (_instance != null)
+			GlobalTimer.get_Instance().removeEventListener(0, _instance.ILFBDHDMHPD);
 		_instance = null;
 		ANEHEDFAPCH = null;
 		_items = new Items();

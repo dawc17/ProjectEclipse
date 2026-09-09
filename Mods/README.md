@@ -8,6 +8,10 @@ DE parity or Mod API expansion must read both parity documents before editing.
 
 Current public Mod API version: **0.7.0**.
 
+The [archived DE XML coverage audit](DE_XML_API_GAP_AUDIT.md) records the remaining
+gaps. Accepted phase showcases do not imply complete DE parity or support for
+every field/event in the recovered XML.
+
 See [Phase 3 API](P3_API.md) and its [numbered playtest guide](example.phase3/README.md).
 The [Phase 2 API](P2_API.md) and [showcase](example.phase2/README.md) remain supported.
 
@@ -16,6 +20,22 @@ for the minimal weapon slice, `example.loadout` for armor, helm, ranged, and mag
 and `example.enchantment` for the API 0.3 reusable behavior + typed perk/enchantment slice.
 That sample also keeps its older template-derived Lifesteal definitions as an explicit API 0.2
 compatibility example.
+
+## Enabling and disabling mods
+
+Open **Mods** directly from the title screen. Toggle the installed mods, then
+choose **Apply & Restart**. The game saves and reloads to the title screen;
+enter Campaign to load the new selection. **Back / Cancel** discards unapplied
+changes. In game, open the main **Menu** and choose **Return to Title** to reach
+the mod list again.
+
+Enabling a mod also enables its dependencies. Disabling a dependency disables
+the mods that require it. Core remains enabled. Unmet requirements appear under
+**Details**, and must be resolved before applying. New mods default to enabled;
+selections persist across launches without moving or deleting mod folders.
+Mod-owned saved progress is retained while a mod is disabled.
+
+See [mod menu verification](../Tools/MOD_MENU_TESTING.md) for the reload checklist.
 
 ## API design: definitions and behavior
 

@@ -9,6 +9,7 @@ namespace Eclipse.UI
     {
         private MainMenu menu;
         private GameObject panel;
+        private GameObject canvasObject;
         private Text label;
         public static void Attach(MainMenu owner)
         {
@@ -18,8 +19,9 @@ namespace Eclipse.UI
         private void Build(MainMenu owner)
         {
             menu = owner;
-            var canvasObject = new GameObject("Return to Title", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-            canvasObject.transform.SetParent(transform, false);
+            // Must be a root canvas: nesting under the recovered menu inherits its
+            // canvas scale and coordinate space, even with ScreenSpaceOverlay set.
+            canvasObject = new GameObject("Return to Title", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 31000;
@@ -29,8 +31,8 @@ namespace Eclipse.UI
             panel = new GameObject("Return to Title button", typeof(RectTransform), typeof(Image), typeof(Button));
             panel.transform.SetParent(canvasObject.transform, false);
             var rect = panel.GetComponent<RectTransform>();
-            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(1, 1);
-            rect.anchoredPosition = new Vector2(-24, -26);
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(0, 1);
+            rect.anchoredPosition = new Vector2(280, -96);
             rect.sizeDelta = new Vector2(280, 52);
             panel.GetComponent<Image>().color = new Color32(73, 43, 29, 255);
             var textObject = new GameObject("Label", typeof(RectTransform), typeof(Text));
@@ -54,6 +56,10 @@ namespace Eclipse.UI
         {
             if (panel != null) panel.SetActive(menu != null && menu.Scroll != null && menu.Scroll.CurScrollState == MenuScroll.ANJKEGGALAG.ScrollOpen &&
                 !TitleScreen.IsOpen && !GameSessionRestart.IsRestarting);
+        }
+        private void OnDestroy()
+        {
+            if (canvasObject != null) Destroy(canvasObject);
         }
     }
 }

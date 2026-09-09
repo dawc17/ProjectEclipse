@@ -1,0 +1,1990 @@
+{
+  "schema": 1,
+  "scope": "All XML in Assets/DExml and Assets/vanillaXml; current base includes canonical economy edits. Non-XML payloads are not inventoried here.",
+  "method": "Attribute/text/order delta plus complete added/removed subtrees. Named siblings paired by identity and occurrence; numeric strings remain exact. No comment-only differences. File absence does not imply active content removal; trace includes. DE intent is unconfirmed unless separately evidenced.",
+  "counts": {
+    "vanilla": 164,
+    "de": 212,
+    "files": 219,
+    "statuses": {
+      "changed": 83,
+      "equal": 74,
+      "de_only": 55,
+      "vanilla_only": 7
+    },
+    "changes": 44955
+  },
+  "entries": [
+    {
+      "file": "Achievements.xml",
+      "domain": "achievements",
+      "status": "changed",
+      "vanilla_sha256": "f969af99177e08c0b3d0222d0ce9b48306a8f7404bdf439d105287972c376473",
+      "de_sha256": "86fbbe561c0f12a4ca225fbdd148c62435581ac14e1c770b74f160c0044b903a",
+      "de_nodes": 225,
+      "delta_records": 258
+    },
+    {
+      "file": "CharacterProgress.xml",
+      "domain": "progression",
+      "status": "changed",
+      "vanilla_sha256": "73a54364c2bc04854d363f082984d29c23c33fe2cfed5314fbb4c9f875947236",
+      "de_sha256": "56404708018b10939910a1a8490355e9c5a33007e7c1e8c3e99114758acb72b7",
+      "de_nodes": 856,
+      "delta_records": 17
+    },
+    {
+      "file": "ComputerSettings.xml",
+      "domain": "ai",
+      "status": "equal",
+      "vanilla_sha256": "49b62c46cb736d885c93f2bf343fe978f97ece09bba2bc1f1bf7a74e2d441360",
+      "de_sha256": "17e3986357920868adba0ce1b93a33c7fda2c17808d1e81ff779810a1b2b6ec9",
+      "de_nodes": 192,
+      "delta_records": 0
+    },
+    {
+      "file": "RBLoggerSettings.xml",
+      "domain": "configuration",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "825c7ae11921d2ac353ae815e38582fdce7f6a0c863b0b6622840a0d5550c6c7",
+      "de_nodes": 10,
+      "delta_records": 1
+    },
+    {
+      "file": "animations/moves.xml",
+      "domain": "moves",
+      "status": "changed",
+      "vanilla_sha256": "fd02cca484ba593ace270d50926899dccb1864d5bfcd56ae8cb2e06551cde241",
+      "de_sha256": "0c79503439e07111ab178fe9dd6542e978f0a51ec959daf7a1049d533d24051e",
+      "de_nodes": 49515,
+      "delta_records": 10203
+    },
+    {
+      "file": "compat/internalSettings.xml",
+      "domain": "archived_compatibility_overlay",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "6908b10bd693f6d4b38ee404c554e1bc143a10c24554dd8e149f82043b1106f8",
+      "de_nodes": 735,
+      "delta_records": 1
+    },
+    {
+      "file": "compat/quests.xml",
+      "domain": "archived_compatibility_overlay",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "104d1a147907ba14ec7be97b84009de883052ae576f426db3679a6dab63468d2",
+      "de_nodes": 7603,
+      "delta_records": 1
+    },
+    {
+      "file": "compat/stages.xml",
+      "domain": "archived_compatibility_overlay",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "e241ca54bae9024d8ac5fdcc3c51eb8f8441b440a7fd20a326b35ab9ea9e8c97",
+      "de_nodes": 138,
+      "delta_records": 1
+    },
+    {
+      "file": "config_cdn.xml",
+      "domain": "configuration",
+      "status": "vanilla_only",
+      "vanilla_sha256": "a0b00d5cca7489c26c1a4881313a88e82bdc65e3af161711abfe386e2c163c13",
+      "de_sha256": null,
+      "de_nodes": 0,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/cro.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/eng.xml",
+      "domain": "credits",
+      "status": "changed",
+      "vanilla_sha256": "1bf1430d7052b790a9f5810c259a2d30dfacbeb80465da4af563addeeda64ee4",
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 17
+    },
+    {
+      "file": "credits/fra.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/ger.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/hin.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/hun.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/ita.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/kor.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/por.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/rom.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/rus.xml",
+      "domain": "credits",
+      "status": "changed",
+      "vanilla_sha256": "8f35db60831a3789714a50579e2b8b093fa6a9018c60d5ad4407672f928c2867",
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 17
+    },
+    {
+      "file": "credits/spa.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/swe.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "credits/tur.xml",
+      "domain": "credits",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "79417cf0a8decf69fe4790ebedf2ed467b4273ea48696860651101b8582c1069",
+      "de_nodes": 2,
+      "delta_records": 1
+    },
+    {
+      "file": "devices.xml",
+      "domain": "configuration",
+      "status": "changed",
+      "vanilla_sha256": "e64783233d2543769e55d3d866c4344451d62a92e43b3251e3b9df3d5b04db5b",
+      "de_sha256": "8bc84046c7addb7684752e036376f843310b9e5e4725e24f25fb6e749cef0ef9",
+      "de_nodes": 9,
+      "delta_records": 159
+    },
+    {
+      "file": "forge.xml",
+      "domain": "forge",
+      "status": "changed",
+      "vanilla_sha256": "3855cc3a6edb72df7ca541357753b34b0ed393117305408b0755a3ddf4b7599e",
+      "de_sha256": "3e8407c01374f86fa396cd42a603f4fdb91300b4f147553f77ba218484938da2",
+      "de_nodes": 2500,
+      "delta_records": 23
+    },
+    {
+      "file": "internalSettings.xml",
+      "domain": "configuration",
+      "status": "changed",
+      "vanilla_sha256": "abeefefb90cc08b23ccfd470d7e4396830a018d6e318901c08bae778c3230ec1",
+      "de_sha256": "b8d36bbe0b7a589086f3202cc6195dd3f1c3765be9b9a35a2f298aed9a0783a7",
+      "de_nodes": 635,
+      "delta_records": 44
+    },
+    {
+      "file": "list.xml",
+      "domain": "items_sets",
+      "status": "changed",
+      "vanilla_sha256": "147afcf311c2145e1a90140597d71370088192b067d84c2548d19a1c568c299c",
+      "de_sha256": "b9f2d71e25fc396281a469dfce85c9cd1eb253a61a5329967beea6ed1befb76e",
+      "de_nodes": 3853,
+      "delta_records": 3390
+    },
+    {
+      "file": "localization.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "9134da4e0568c49d40e498e866c49cfaeee1f29cf845eedcdf23333a7c729a16",
+      "de_sha256": "859efd9c80a5b09ce3edc5a26e4caf2ca90f3b3a2581a27dcc9d6b0ef4d8ee90",
+      "de_nodes": 36,
+      "delta_records": 16
+    },
+    {
+      "file": "localizations/chn.xml",
+      "domain": "localization",
+      "status": "vanilla_only",
+      "vanilla_sha256": "f683633e369c035668772fabe546dcbc5c6829a63d2522b7e56979177a3ce397",
+      "de_sha256": null,
+      "de_nodes": 0,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/chn_tr.xml",
+      "domain": "localization",
+      "status": "vanilla_only",
+      "vanilla_sha256": "bc96bc753a64eaa8cebd5f7bead703f48db1ccc33d37edd1fa21ef785013f256",
+      "de_sha256": null,
+      "de_nodes": 0,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/cro.xml",
+      "domain": "localization",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "7fb8d279e8c1ae7b4e95d5ee0e545cdd7420130878b90c641a133ceaee414ea2",
+      "de_nodes": 5486,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/eng.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "8c4381f89915ae70fda63e24ea27d2f40dcd96ca004ef0c7c53afbbbaa60179d",
+      "de_sha256": "a143e643aa84e1806b1c11ea5e36892dfbf4f0ee1b8e9c4d6bc2407f27806081",
+      "de_nodes": 5482,
+      "delta_records": 3509
+    },
+    {
+      "file": "localizations/fra.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "0c3d817f5c618d9d645bab896f875c7c0512565b0f4c23587458640d33c0d72f",
+      "de_sha256": "6a4b0a1dd221a297de040d6d940a02f3ec326fce0a2212c29bd5e917960496c8",
+      "de_nodes": 5486,
+      "delta_records": 2706
+    },
+    {
+      "file": "localizations/ger.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "bfe67b5753c545222bbe5fa7181e679ef2c9335e8bcfd3dda0d9a3cd8209ceb0",
+      "de_sha256": "eac26e64b374a58f588312a393d0a206334a7d35d942d816ef64c52e6c074274",
+      "de_nodes": 5486,
+      "delta_records": 2707
+    },
+    {
+      "file": "localizations/hin.xml",
+      "domain": "localization",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "1360d3b3d05286c22004d2d27a94f2556d39ee60fea7b0d20fc3d18204463179",
+      "de_nodes": 5486,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/hun.xml",
+      "domain": "localization",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "b6ed94330d5bc31e332bc3e5e587f13892c0df1c4b8e7e081b3171af951e8122",
+      "de_nodes": 5486,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/ita.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "19e43beeb68c0bcbc96f8fcd5e046ce5625fbb25892e0be4018008abf809a90b",
+      "de_sha256": "796c84599f02f1a7b6e83c566ecc40bbf00a8217cacb2ff163ced0f0ae187505",
+      "de_nodes": 5486,
+      "delta_records": 2701
+    },
+    {
+      "file": "localizations/jpn.xml",
+      "domain": "localization",
+      "status": "vanilla_only",
+      "vanilla_sha256": "b4d6d1d373faee91c8736d904779b0533a25093874e5f9561b86054ccde5ff78",
+      "de_sha256": null,
+      "de_nodes": 0,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/kor.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "f6c5cefd9ab49c34c48e1e6f2a89fa5f9f2f5e8db4853a4d73dfe32995c0a78d",
+      "de_sha256": "5297eeaa35535d01579e62463bf946d2d019a73191d02e42da3a9627b41c2073",
+      "de_nodes": 5486,
+      "delta_records": 2728
+    },
+    {
+      "file": "localizations/por.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "8ea4d4f0a87b27105782b9a8b7ed8f339caf9ce73fa4b50fa6e24a4b56f083b3",
+      "de_sha256": "88a900e95f2dec4efd378f9173bd7bd3d7b041408409d4dbca8d00ec9b5b51fb",
+      "de_nodes": 5486,
+      "delta_records": 2700
+    },
+    {
+      "file": "localizations/rom.xml",
+      "domain": "localization",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "512c793c914154bb403e82e414bd8419f7d212dca39e6fdec902b471ed19dc6f",
+      "de_nodes": 5486,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/rus.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "a909d461500f08d71946ff84324534eb178ef1adc1016b7330dee5b01e17d42a",
+      "de_sha256": "f01c9f4c08935e461e1293b58cc8af604f79660cc4fd0fb15b3980fb6f306043",
+      "de_nodes": 5486,
+      "delta_records": 3028
+    },
+    {
+      "file": "localizations/spa.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "fbde065e78f414f98b8f75fb41c7da6bc3f9e5eea65f7f665524bc9b713909d2",
+      "de_sha256": "20ddeb61ac6ad16c764cf4516642590e5f697412cf88e9371734dbd7d9537f0c",
+      "de_nodes": 5486,
+      "delta_records": 2715
+    },
+    {
+      "file": "localizations/swe.xml",
+      "domain": "localization",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "353362dc989e0bfd4aa4c668404d1c4f5d79a456bd2435a6bf51237899ee097e",
+      "de_nodes": 5486,
+      "delta_records": 1
+    },
+    {
+      "file": "localizations/tur.xml",
+      "domain": "localization",
+      "status": "changed",
+      "vanilla_sha256": "8ffdebf559d49a1c39abdd35226291466c6349c0c0d517d137f545481d1d35e0",
+      "de_sha256": "a54751389287166d3f848f41372a2883cf2edd6b6100c8e595d4e52bdc0e3922",
+      "de_nodes": 5485,
+      "delta_records": 3252
+    },
+    {
+      "file": "locations/american_event_24/american_event_24_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "4b5a6ceeed150bfd6de2d541437327fc975860a018bb424b6c4697ed27e1fb83",
+      "de_nodes": 27,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/arena/arena_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "3b9f004c598e6640dd475e45c3399efe0eb5936c15235ad2918ecf6b818d5b16",
+      "de_sha256": "3b9f004c598e6640dd475e45c3399efe0eb5936c15235ad2918ecf6b818d5b16",
+      "de_nodes": 127,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/arena_new/arena_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "deb91dff2781f1e56a8af7a39f82bc97d3e485e13798c599cb20b2b32af85688",
+      "de_nodes": 182,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/arkhos_raid/arkhos_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "7495045d38e04606d9991c946c6589c08e9f9bf19c1f3fab8a39914081bffcdb",
+      "de_sha256": "24e22323dbb2fc03234d3bef9b0236a3a0459d6f90be11d5658ac0a2ebb738a7",
+      "de_nodes": 31,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/autumn/autumn_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "003faa8ca397a618b64f8f9fa66f5eb07c072b26f007c9d369eb9e1248b8a6aa",
+      "de_sha256": "003faa8ca397a618b64f8f9fa66f5eb07c072b26f007c9d369eb9e1248b8a6aa",
+      "de_nodes": 33,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/autumn_new/autumn_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "274f0cb1613cea7ffb6e802bef469f9d494f18456440d4a2d1eecdf2d4f9eab5",
+      "de_nodes": 33,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/bamboo_grove/bamboo_grove_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "ca11175fbc250a996636839cf139f9bc05632794625e03d8d0a5c726674c633e",
+      "de_sha256": "ca11175fbc250a996636839cf139f9bc05632794625e03d8d0a5c726674c633e",
+      "de_nodes": 54,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/bamboo_grove_new/bamboo_grove_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "f5bd389be619787145438db5fde0d7bbd1f885e6599a10e234148d8da5746975",
+      "de_nodes": 65,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/battlefield/battlefield_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "1e109f7af1cca440b39d45aa38f83b78f9da372b31734561f2becf783077b7e0",
+      "de_sha256": "f14ad54deb7bb29c8cd9903181d908b66d2e92fe36a3a0899c3efbcce1f093d2",
+      "de_nodes": 68,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/blackness_raid/blackness_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "16a804547f0821b60b98e04c6cc6ace9bcc94ef7b668b82cf193d06a59c9439f",
+      "de_sha256": "854dfec06deeed9e248ce67cf108413575ce1fdb6589d419c831ed75e0d6e46c",
+      "de_nodes": 41,
+      "delta_records": 5
+    },
+    {
+      "file": "locations/burning_town/burning_town_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "7c34f39de647be3e41f2f6b03ae42cc51c578b7d0cc015ff0ed97f0fe6129c5e",
+      "de_sha256": "7c34f39de647be3e41f2f6b03ae42cc51c578b7d0cc015ff0ed97f0fe6129c5e",
+      "de_nodes": 54,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/burning_town_new/burning_town_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "5acb70ca4c6341a7431a917b355d969a51b229814561b5877c14798e8138161c",
+      "de_nodes": 54,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/capsules/capsules_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "e9e6e808048903384aed8065b985267e6636ca7053b5c4d836bf960b8f74f7f2",
+      "de_sha256": "54b456011194c3f4bc0aab15b712aff4cfa9fbd1adf5276657541ce3758d0a3b",
+      "de_nodes": 29,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/castle_and_bridge/castle_and_bridge_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "ac0284a64641d6094278d49ced81a3a168e6b5097cbaf53211ea0785e71a37e9",
+      "de_sha256": "bcd140b35f904d754e86d4ae6408866e4a8700995d1120b375f1d60fc9c35916",
+      "de_nodes": 87,
+      "delta_records": 3
+    },
+    {
+      "file": "locations/cave/cave_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "1d38f322af8610674a38bec762b2b5719418f8c99974872ad0b43cf136e555f5",
+      "de_sha256": "9068ea4292fb4bfcfcb73543d259439b94296e8c9de069960d898b81f2692b0a",
+      "de_nodes": 46,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/chess_yard/chess_yard_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "ecd9f1999c2ef3f64d28cabf6909703054b92d15b378fb2141fc93334cc22b7d",
+      "de_sha256": "ecd9f1999c2ef3f64d28cabf6909703054b92d15b378fb2141fc93334cc22b7d",
+      "de_nodes": 30,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/chess_yard_new/chess_yard_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "a5da3c7f6e3bee267b47ab2677b60672be449422efbf65464302da5945975546",
+      "de_nodes": 32,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dark_room/dark_room_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "282e0425a608934cce8261db2db38d57993b4156d9d1bc4eef4c10226c75f9c1",
+      "de_sha256": "f58f9303622edaa37cd9443345e2c10000232c7fafae1681b623d5c327cdc398",
+      "de_nodes": 21,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/dock/dock_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "7940d1e6ed03ab85eb966bb11828fb3f14f57371c091adbb2717513b3e4157ac",
+      "de_sha256": "8b48528dd9ad5c5484cf6ac4e4961d127f15f2b06db4a386092126e4ec88efc3",
+      "de_nodes": 37,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/dojo/dojo_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "96023686abe730a2584fe930d3057eddebec66e6cd7986e33e3d328fe6dc675e",
+      "de_sha256": "3258d8ac2fa61e578ba5ce286e98611aea601f14dfbcd7f5199f0a316d58e134",
+      "de_nodes": 33,
+      "delta_records": 56
+    },
+    {
+      "file": "locations/dojo_8_march/dojo_8_march_params.xml",
+      "domain": "locations",
+      "status": "vanilla_only",
+      "vanilla_sha256": "69fd2c3bf2a548f8b51fcaacfad1696ce2927b5d124a8004b9e20694c2a16ce9",
+      "de_sha256": null,
+      "de_nodes": 0,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_american_event/dojo_american_event_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "01dd4f916283b6037deac8a95be7805e5cb87ccab5ff4e9faa495022bb902997",
+      "de_sha256": "203560df1eac2990b16720807d42ba3e01f00d460ad1e31a791078fd70d23ffc",
+      "de_nodes": 27,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_american_event_22/dojo_american_event_22_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "e24e50820f6232547bbc06aacbf770afd0976bb46dc5835208684503660e9285",
+      "de_nodes": 27,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_cny25/dojo_cny25_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "5bd27a8ee5427ffe297cd0f1bd02105279055ffb36a14a3c86dd8359d4755684",
+      "de_sha256": "d7d27168ba5099fe604e80f84eb25d6b2fda21325df69f97b7a825eaea71afc1",
+      "de_nodes": 23,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/dojo_fall_event_24/dojo_fall_event_24_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "c33c6b3401d132407a1ede135f7c140c956e27fd99a2cb9d6fe1f6d5f209ed12",
+      "de_nodes": 11,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_hw21/dojo_hw21_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "1b4bee328d04fe628351437147912e1b9c8770e7c0d9951499d0b6c2b5196337",
+      "de_sha256": "db632fc01f82b9c2d964997470ecd435d437c6be65bc7ef09e1d5a39a017f938",
+      "de_nodes": 28,
+      "delta_records": 6
+    },
+    {
+      "file": "locations/dojo_hw22/dojo_hw22_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "300be410b78bbfc5856b6ed86c0721c08a1601ac93e3508c8808f2b80222cd4b",
+      "de_nodes": 35,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_hw24/dojo_hw24_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "c1d9144d0f54064b5b672e39f9bdfa62377171b1c8207e7e30cd78f87b64be63",
+      "de_nodes": 81,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_india24/dojo_india24_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "ab4d3a7efb8670007eb9006afc28212ae529c6da0a1e67e8d846775ad829d2ba",
+      "de_sha256": "d5cf0642f436ff7dd129644272fe80f16fc2cface1541644b205cdc083579dd0",
+      "de_nodes": 33,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_india25/dojo_india25_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "b86430a192ff0ba6b11479c8b59fbdef55582422560f7e4c093db3319d4f2f72",
+      "de_nodes": 34,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_indian_event/dojo_indian_event_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "bbd1d936c2263f375017b8f28666f766f54d4707f381fd60eb374a1c43540394",
+      "de_sha256": "ab185fc0774327c9b45e88942e1c1f549d3356e55080fb5964b3d81e31e2f27c",
+      "de_nodes": 27,
+      "delta_records": 35
+    },
+    {
+      "file": "locations/dojo_indian_event_22/dojo_indian_event_22_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "ac7ecfd52e7e7b33d8d7bafb6ea86e401e94e2bba3f72a329a5571bc7fbc4274",
+      "de_sha256": "f7886b2559aa3199ceefba51907c5f1074c4f142c702e01633b0a8cecf856bbe",
+      "de_nodes": 29,
+      "delta_records": 37
+    },
+    {
+      "file": "locations/dojo_new_year_22/dojo_new_year_22_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "457a6bc440ce211d6e33e60576c19b24413df695e057096eaae416914852ae03",
+      "de_sha256": "bcf96e74cbbf1428b34aaf79c25157dee0268de3c05837e642e777d46768bc3d",
+      "de_nodes": 40,
+      "delta_records": 60
+    },
+    {
+      "file": "locations/dojo_ny25/dojo_ny25_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "88fd7333cb009f5ae1b1f71bb093eda26ee72872f67f7e980180fa2b6503d89a",
+      "de_nodes": 31,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/dojo_summer_event/dojo_summer_event_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "8225cd86f4af0b9c9ab673a29562b041e46331cff34436a92d32352d96c638f5",
+      "de_sha256": "bb3bbf4bbdc575586a14b498f69a83a7907d43ef00c661322ccb83380b7b164d",
+      "de_nodes": 25,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/eggs/eggs_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "9393e4b44800a39b1ef2e4821ddaea53d760ece963d90c283276f988d4b99fac",
+      "de_sha256": "0b5a164300621863ae5861a15ca462dde22afee4e42bec10832eb12fde46d270",
+      "de_nodes": 42,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/emerald_forest/emerald_forest_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "7de419678c962f555b780b2f9a16b46dfc57c3a3aaceeafe115b3627783230e1",
+      "de_sha256": "7de419678c962f555b780b2f9a16b46dfc57c3a3aaceeafe115b3627783230e1",
+      "de_nodes": 38,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/emerald_forest_new/emerald_forest_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "3ab1b0ac7efa361a059d348a14cec43bfc99bdd9feff4a5703c1e5b09c5ec41d",
+      "de_nodes": 48,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/factory/factory_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "958504fe5e1a9ec792ca7a200c4c9e01ec4341348305b29e116bfcceebd6fda3",
+      "de_sha256": "ec34bfb82202dc2fe92404b5e92c50c35a53572568ac68f6112d609e18782263",
+      "de_nodes": 35,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/fall_event_24/fall_event_24_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "af5a23346741f25c9d480c8dcdc3b0224b0c64177be2e5777091e9dc3103e868",
+      "de_nodes": 17,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/fatum_raid/fatum_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "4ff297ee979a6580ca9a1b654b7da10d7a3a58d25c4f43bab3f515b7e932daae",
+      "de_sha256": "fc105411000740e9e3e7e7a070949c50a887a13887129187238c602dc990549c",
+      "de_nodes": 23,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/fear_raid/fear_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "0ddfd58d1570d326447e78eaef860e44aae0695e4be419dc29219c8d77b0537d",
+      "de_sha256": "b4f17e4b2b6d05797208ebc2dae17c53e9934632fb77ca1fa3c4c7512aa1f709",
+      "de_nodes": 161,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/flooded_village/flooded_village_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "33caf8ac0032e1f1098b77d2e88c4066fec701e84313be8ef1f4a3aa9a66aa9c",
+      "de_sha256": "dd0c49eb1fc9f90f00e2c2b8d4e1c73e2f75c49401268d935a9217cded2c43f1",
+      "de_nodes": 63,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/flowers_field/flowers_field_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "edba04f5e7a768ac8a4f3138364c2418e6e67f270d5c242848d2036b164485b7",
+      "de_sha256": "9c85e65437441c95b2ed74a0b4594356947d2ac9c1dabd584d9f2d3f1ac63caf",
+      "de_nodes": 50,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/flying_rocks/flying_rocks_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "434b84b7603c720f18dece57712fb3f0e05901aea8f95a1602a014f2ee3d7cf2",
+      "de_sha256": "e5f6c285e34f19bead64ca2e041ef839ca7a7f546df67555b9cfa9ae8349da1a",
+      "de_nodes": 67,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/flying_rocks_small/flying_rocks_small_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "8089b4e2d10ca0438eaba268f9791692c415238d7da0f11d934e62fde9992b1d",
+      "de_sha256": "db975dd45c24ca486a10147fd98abc6728bb58c88cba208fe4f0a843ca4ae08e",
+      "de_nodes": 67,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/freeze_raid/freeze_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "ab933befc99b4270b4f44b598b9c21349bbe38bacd960c655a26a56879d81fca",
+      "de_sha256": "19e59ec212b1f5e784ef52706cbe4daf4fa685e368237c0d0cee46b979ebd409",
+      "de_nodes": 102,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/freeze_raid0/freeze_raid0_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "e71682ce5e73aea71f71d43540282a778352841be81ba02afbb76109375e6c99",
+      "de_sha256": "11ff16c4b17f4140bb754dc79956762ddc6ca7b82123d094947ac8b6d5f50a5a",
+      "de_nodes": 102,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/fuji/fuji_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "9a48d4b254932ca1b750f1b6b029f086ad43afae3698823976bf337aa4f4f752",
+      "de_sha256": "4db191f316e4174d645388903ffea7e125c4e00e970613e75008a3680a0901c0",
+      "de_nodes": 32,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/fungus_raid/fungus_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "d17fa0bd2131f42db05f1e8ca3886c03f73bfe95b057fbb6e17bcb40519bc199",
+      "de_sha256": "f0c0e7175d49e903ac8a6a6659851afd98fc94196929e3b789c19380f66d4dca",
+      "de_nodes": 33,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/gatekeeper_raid/gatekeeper_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "2ab1ffb688cb5825ef639a9a00e611e694bae75c135503f2b1aee119842faab1",
+      "de_sha256": "96535b9046a58ac8cbaeea13cc1b432541482650124c2d203567fc0e29a9437d",
+      "de_nodes": 25,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/graveyard_ships/graveyard_ships_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "e7e63c20a3904a340ea115987a27bafbb142c2c0fbe22e7b3c8f000d001eac92",
+      "de_sha256": "427851c9fef973017432e899f6361473d4f449696888dbb57d4683f0cfbf089b",
+      "de_nodes": 94,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/haloween_dojo/haloween_dojo_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "e6cfcd9b5a868b5233c7159214681245c7e6daf1c6766727d4f3c15e3ce9d839",
+      "de_sha256": "342e428756c6a7eb3cbdbd2033926807f0084a6fe4010d92d372ae3e0b591142",
+      "de_nodes": 56,
+      "delta_records": 43
+    },
+    {
+      "file": "locations/haloween_dojo_2019/haloween_dojo_2019_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "68ceb028542c64ff7d0357f5811468499d82927427d728ccfd0e17a462bb7377",
+      "de_sha256": "88100b37b2a503158a52a132ac0d0990a1f1e96bfe4726853c000010c9d7305b",
+      "de_nodes": 54,
+      "delta_records": 41
+    },
+    {
+      "file": "locations/heaven/heaven_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "7b1cb18c60882ecedf6c1a1b1e68e90c967f5ab7a36448cdfeadec8835f36651",
+      "de_sha256": "597317a456031734a402516f9a1c47bc630ad5effb3f5eb9970a80793c66ac95",
+      "de_nodes": 56,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/hoaxen_raid/hoaxen_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "a64a794513c012824a8c19e5b549a58f62ce6663ab4188cf86e31bced40e9b8d",
+      "de_sha256": "0657a1f5d15742cf6338fd99787d7e93e177a63d790e420a93d1dfa2470909eb",
+      "de_nodes": 42,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/hunger_raid/hunger_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "b87773d7c78e26bcfd2eceb534e2427f145acfa359eb2013851b7a5df606384d",
+      "de_sha256": "92d3180993d68e8ea3951b2430aed1c1a5fb1852a34a31b1d16992fa179d7b30",
+      "de_nodes": 90,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/hunter_raid/hunter_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "59e0b9f1c6e4a0dd7a0d0c6a33c8b54402b4c3916746b6637621ba067fd5da80",
+      "de_sha256": "f407d2b604647d65cf60025f54caa0c22492de24849a80af4ce8827bb5a7f6eb",
+      "de_nodes": 34,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/hw24_ancient_temple/hw24_ancient_temple_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "37b07fe18e542b3575719f05558bde345bc66d7af5f1ee9f2d03a78b09fb90a0",
+      "de_nodes": 35,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/hw24_village_night/hw24_village_night_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "c387c74bcafabd8cf93397e0a18b9129e75eab667f77c3100c1e84eeb78b55d3",
+      "de_nodes": 19,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/hw24_waterfall_night/hw24_waterfall_night_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "1be44fee9b2a3df76757c2376ee033cb16cb3fe686da2c8e8296ea5f3885fec6",
+      "de_nodes": 32,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/ice_cave/ice_cave_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "a558c52f7c8f80111c8acf8ea0604120ba5512342aefb56c324f66f668f9c0de",
+      "de_sha256": "253a1eebdc3b0dfe393ebec2f0ca990cf5f288da4f491e1764e5146a97ac0e4b",
+      "de_nodes": 29,
+      "delta_records": 2
+    },
+    {
+      "file": "locations/lamps_on_water/lamps_on_water_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "380a6872ec6414df3c0f293d4ec1982981561892a69196387a57b26247785961",
+      "de_sha256": "b65b21139fe7d9fa4c228dd941fab5076d8fd6decc501a099e1acc18364d401d",
+      "de_nodes": 57,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/magic_rocks/magic_rocks_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "c1b05b85371115c97fe249dd1aa2105bb006608086dc60f455c7605db53ee12f",
+      "de_sha256": "681f2f05df41db561878402d6a2b0fdedee8269ca484af1583e0438339f7fd06",
+      "de_nodes": 60,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/megalith_raid/megalith_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "438b1d0bfe7ea13a00e0e0b06a615ee4956dfbc5a991e10e9167ccaf2387c8ca",
+      "de_sha256": "89fbd6c7daa8f2f85bd9e08e566e7cc07a84ab71f950ca5fe30dd4e259a13d36",
+      "de_nodes": 25,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/moon/moon_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "d9c61d6b4f49327429964e3345066bae34443b1616366cf5732a4d3b8e5ed9c6",
+      "de_sha256": "d9c61d6b4f49327429964e3345066bae34443b1616366cf5732a4d3b8e5ed9c6",
+      "de_nodes": 61,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/moon_new/moon_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "3f49e747acda6a0f8eee456a82bd9345d2b3b9c57d7d73cf518dc960e9afa017",
+      "de_nodes": 61,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/mountain/mountain_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "671aee82c8616f42d92824d3903d3111d566fac7b7d729ca3b5651db3e967202",
+      "de_sha256": "a988254516e99f812b0b6f8b024073d79f8bedf7017700e3ee685f0d2944bec0",
+      "de_nodes": 81,
+      "delta_records": 20
+    },
+    {
+      "file": "locations/mountain_new/mountain_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "02956d42bf111207d7871bc7a2856f77104c07ebf3ac71d1d94ce96bb898dece",
+      "de_nodes": 89,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/mountains_ny_25/mountains_ny_25_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "875abcffdaa019be3b099307c2ee85909d85f0f0c7eaec2e0833b7ac12dd53da",
+      "de_nodes": 27,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/neural_network/neural_network_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "2dfce3534aea6a9a9a19bfbaa947df9e9894355b116754108477bcf678774f7e",
+      "de_sha256": "7bef5ec51ff315400665bba9cf16f43bc8f9d3b82eecc2059ec5c650fa3f7fc0",
+      "de_nodes": 133,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/new_year_24_china_dojo/new_year_24_china_dojo_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "c0d19c00483d1def977cab96a317ba6e2ba3386211199561ad1af2f0428abfdf",
+      "de_sha256": "8c3c32ff091253bf3fb813ef654529ac28d06894740766297cdbbb79bf264b09",
+      "de_nodes": 40,
+      "delta_records": 2
+    },
+    {
+      "file": "locations/new_year_china_dojo/new_year_china_dojo_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "0cbbcd0719c884832c9e940f874bc1a66f11031094a1180c441ab7f274b7a116",
+      "de_sha256": "299a44627fd50563951152f7447ecd699662369945f56d79bb46b0ef567e4d18",
+      "de_nodes": 40,
+      "delta_records": 4
+    },
+    {
+      "file": "locations/new_year_china_dojo_raid/new_year_china_dojo_raid_params.xml",
+      "domain": "locations",
+      "status": "vanilla_only",
+      "vanilla_sha256": "cb025a1490fc07c95d8ad9914373192176f74293e2528a743424e819a108b15a",
+      "de_sha256": null,
+      "de_nodes": 0,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/new_year_dojo/new_year_dojo_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "043498b43bc29db1ffd90a62afbdd12113ca62788c3ce6814116067e8da2328a",
+      "de_sha256": "0ad96a4c81ecaeb3dfd967bb8a3e4e254a0b738ebad8c8c576d77d3097a8ad98",
+      "de_nodes": 22,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/night_bridge/night_bridge_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "3f1c9995e2ee2b5ebead4a8dae5bf8d39a0e34b0a938fcd36fc2831301491839",
+      "de_sha256": "3f1c9995e2ee2b5ebead4a8dae5bf8d39a0e34b0a938fcd36fc2831301491839",
+      "de_nodes": 38,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/night_bridge_new/night_bridge_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "ad986dc358302b8cdbee305f06d53918558f091eccc08d65b77be700c657238e",
+      "de_nodes": 38,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/pink_lake/pink_lake_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "3500a00b892437c717a8f2a42489eeaa91fdcd3bcfe627e8162fcb3eba227217",
+      "de_sha256": "710413be04b45ff8e0df3d15a843c30d3bc3ac095e69878a44db70e2aedcc796",
+      "de_nodes": 45,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/ritual_battle_raid/ritual_battle_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "acb151823d45b220e3d6db0c87c4dbab34d28a10be17f3e8ddc745838933fce0",
+      "de_sha256": "3430ebac03ebc3d2b942c35cf7982810ba662aeede9d73de9074dbbb5b4862c3",
+      "de_nodes": 28,
+      "delta_records": 38
+    },
+    {
+      "file": "locations/ritual_fungus_raid/ritual_fungus_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "a0911c3a291a373b785009aaf235110d7f2beeabc04910391165a1e834c495f6",
+      "de_sha256": "e71e614df9691babe5c543d1e339b9f903ce8e7b13fcaa05b62de9c99ef31f58",
+      "de_nodes": 39,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/ritual_hunger_raid/ritual_hunger_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "557d609eb426b63d183bec0807a80e2ca48eac3b5e5f930001ca5d9171b99d76",
+      "de_sha256": "d3e3d28125c9ef772db577f74d85c568075e7595f9ef83dac7ad4f61f5856b41",
+      "de_nodes": 97,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/ritual_vulcan_raid/ritual_vulcan_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "76da43a2ac05dd2b33c9125da5d6aa8db64e4170d8fdf8d90af11fa0fec8a783",
+      "de_sha256": "2ea4ff106c6a3bedc0270877894b1af7608b3778aa2217cb945876a827556d47",
+      "de_nodes": 42,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/road/road_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "f88de752ae9906965efd0f97615ae669ff7093548ac9f537210776df14197dc3",
+      "de_sha256": "70ec0ad621bbe795096e8ff3351a7088ae0f9cce82878f8c1504e78f5a88325f",
+      "de_nodes": 233,
+      "delta_records": 82
+    },
+    {
+      "file": "locations/ruins_village/ruins_village_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "399afe0a947cf05be993a890ff0b896998bc874a6009b672f61c3859e0235538",
+      "de_sha256": "e7ad71fa2c0a0f15a307ca6c5f1dd2290a866ffc275853f523f65e61da9f9047",
+      "de_nodes": 25,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/ruins_village_small/ruins_village_small_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "6e5d4739bc2cf0f12edb707851e6346f8f2dc4352e9dc4d6456a57f07d36ef14",
+      "de_sha256": "3f11698d06c2183f3c6b36f56d0e7559b7ef4fb0e1009145bbc03212d15fd0b8",
+      "de_nodes": 25,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/sakura/sakura_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "9773100916875d7f42a775b2da4b28ef8799f93722dafa5e26adc6e27ac45cc9",
+      "de_sha256": "9773100916875d7f42a775b2da4b28ef8799f93722dafa5e26adc6e27ac45cc9",
+      "de_nodes": 28,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/sakura_new/sakura_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "78078f138df0bcfad862c7dbcfd999ecd61a21e1435af1f04c024f59311d4456",
+      "de_nodes": 28,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/saturn_raid/saturn_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "b147b3c57739b0b1d79e1190c7f1ce02515e8187696e19e33813c1692946bb77",
+      "de_sha256": "fb191be92a98912a5d5eddd518907b130b1a2bafb18c8cae60c58f184eb4eb2f",
+      "de_nodes": 64,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/shadow_gate/shadow_gate_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "5ff2602b5a621015f9be056ee896f5217f9ee0feba7cbb9e5b9749056828a9d5",
+      "de_sha256": "b8227350814f206f36f76783f4ba21d9c5438b2c86baabc94c9b460e460d7ac0",
+      "de_nodes": 78,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/ships/ships_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "dd868da6407f071c95bb3e0a45056a56b9a80224b5af100f542764eaba74c9aa",
+      "de_sha256": "2976f941199afc4f931cd72ad9957b68a44a4f2cc63ad534fde9f09482b5acff",
+      "de_nodes": 94,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/skyport/skyport_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "e5eff20fd67fcdcedd91b6bcbb486050b2f4ba37822e76190f4d3bab3ea30603",
+      "de_sha256": "7fa3973cb28bf61fa42602711d62845d23a5e2a6993542436da0511e01524aa5",
+      "de_nodes": 32,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/snowy_peak/snowy_peak_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "5b8fe9e25e08ae21be0fa9ba89920d6345510cf8a0bef49867dae5d4cab6fafb",
+      "de_sha256": "3a283b8218895b6585909ed7a2d10d657e46c1849f3a675f25388126c4cff493",
+      "de_nodes": 30,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/spaceship/spaceship_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "ddb6e049924fded0a86fb9f7e4067490626f8bfd30dd094fd5afbdfc071dcf58",
+      "de_sha256": "8527a77866da6d2278350a22107299885a3cda4ffaaf0833b47445789797ad5f",
+      "de_nodes": 78,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/spaceship_thorny/spaceship_thorny_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "b1c017c765b747a797f7a18be24171a4e35ec76cc5394d78ea9c49247fdf8440",
+      "de_sha256": "87cb8b0821a497097766537a826c8b27c5c2aec515ccf561fa0af8bbaeb487c2",
+      "de_nodes": 79,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/statue/statue_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "162c2c298e7810dfc2c5f036427b5263fa46d0a6f07b3eea4714fb69cebf546a",
+      "de_sha256": "162c2c298e7810dfc2c5f036427b5263fa46d0a6f07b3eea4714fb69cebf546a",
+      "de_nodes": 26,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/statue_new/statue_new_params.xml",
+      "domain": "locations",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "b5ca14f4fe2ad049af52b2d753c25836e82c719cd0a703582c52fe292fcd2b9d",
+      "de_nodes": 26,
+      "delta_records": 1
+    },
+    {
+      "file": "locations/stone_dragon/stone_dragon_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "9ea8ad6a030c8b84581e94698809b8c6d2e0435dd46dcc706abf63c24f16b9aa",
+      "de_sha256": "2ed00555dbfe807f85711d4f8a9be6f5f358aeb50fe3b349cc0840aa8363032e",
+      "de_nodes": 25,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/stone_forest/stone_forest_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "82574d3da6a8332617e8d18731de767232549852c718f5ee25ecc81b278bdb1e",
+      "de_sha256": "a39a0d70e612f508bcef95bb828af61047dd8897601ae6d212e763235a70f2de",
+      "de_nodes": 52,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/stone_forest_thorny/stone_forest_thorny_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "292f6bfdd327d7f147a303f6581322e3f55f5fa5675002237d56aae39ec8c8b8",
+      "de_sha256": "cfb362699011be05ba3447a4ff13e72c24edcc07cfce4ce6300b757976e09f1d",
+      "de_nodes": 42,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/swamp/swamp_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "8d0a15f142720fed5c7820406892e029021be6595eac5e79bab47611a4d6e925",
+      "de_sha256": "52b01cef06d467bcc85eef873925161f55d025605c32195678b09278b0744a1a",
+      "de_nodes": 74,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/village/village_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "acfdd8e38c8da2fc84ec154fffd9c67712393df04fdad995393a265edb3e1962",
+      "de_sha256": "b61ee868ee9de3a70664f416cf5ef76ac1acbfab2b5e82ca6d8fcb166bdc3220",
+      "de_nodes": 72,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/volcano/volcano_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "85ec86cbe5d1296671068c6d5c776919241275bf95ea237f840252e6dfe93dda",
+      "de_sha256": "02ac0b46a93ac4ff298fcc42f76835f78a520d6cd20fef5ec5c983769edab3cc",
+      "de_nodes": 36,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/vortex_raid/vortex_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "108be13c87ae68f3ca426af94775de96c1f540c8d351c90e1d92dc258bf12b48",
+      "de_sha256": "bfa8000933e73de8ceeab5b7e75d7bba29e498819e7ac0ebd351bb785e79bec3",
+      "de_nodes": 24,
+      "delta_records": 2
+    },
+    {
+      "file": "locations/vulcan_raid/vulcan_raid_params.xml",
+      "domain": "locations",
+      "status": "changed",
+      "vanilla_sha256": "850104d9e6fe7f7d97e8d68a075407bcf1907bc86c15f004235bcfc382426cee",
+      "de_sha256": "16c17b0aba3ae27ee10331122691a83a191e51bb8b6ef106a1eb04011b40c808",
+      "de_nodes": 36,
+      "delta_records": 5
+    },
+    {
+      "file": "locations/war_raid/war_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "69ba7981b48dd35a6b114e29461228c3feec650fdb1c82d79a2ad49f839ab99b",
+      "de_sha256": "020d0718c9010c17eb989ea37a3bd6b1af651b468eada89d5227e5ddae51566b",
+      "de_nodes": 74,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/waterfall/waterfall_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "737762cda93ca74a638c82cfeb65c947d7e984cec4bab170c0fc1472f7ad1201",
+      "de_sha256": "bc3435d9f221597c5a8e2a1963377b58c634ed20a72eda3fee55dce5450b4752",
+      "de_nodes": 76,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/waterfall_small/waterfall_small_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "89878d3e17100c660639ddaf58a37d6020a8a8e4ed1c52bd2edfe308bead7970",
+      "de_sha256": "e210b5286f589e50aa95fb13d3f3cb8c0bce536b6f95302b8cdaeca21ef4890e",
+      "de_nodes": 76,
+      "delta_records": 0
+    },
+    {
+      "file": "locations/whisper_raid/whisper_raid_params.xml",
+      "domain": "locations",
+      "status": "equal",
+      "vanilla_sha256": "c29c331a23395bd3681dde9410e8e58b6bbd057858a980a32d02a996ac620f92",
+      "de_sha256": "5a73b4da71ab0337eca1614304d091ae062590564a1a8cc6cb26486f7bd38464",
+      "de_nodes": 80,
+      "delta_records": 0
+    },
+    {
+      "file": "packs.xml",
+      "domain": "configuration",
+      "status": "vanilla_only",
+      "vanilla_sha256": "4fedebadb7de04847cf4db956ab1d00b419b4dfedca8314c9d1a55e967334d1e",
+      "de_sha256": null,
+      "de_nodes": 0,
+      "delta_records": 1
+    },
+    {
+      "file": "perks.xml",
+      "domain": "perks",
+      "status": "changed",
+      "vanilla_sha256": "0188559cde0b0122243a328cbbaffe62049b28f312369787ad1af3f50149df55",
+      "de_sha256": "06d92f04c1362c0e6e5080c65b71e9854b35c73f79d0623b44e4f9ef51fe933b",
+      "de_nodes": 4422,
+      "delta_records": 597
+    },
+    {
+      "file": "quest_extensions/advertising.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/ambrush.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "c25a2ebb5b3358a4be93e88de9f7aae46476e35bf6020e849446f2529053221a",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 9
+    },
+    {
+      "file": "quest_extensions/battles.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "9a903a09dca223cb3983a517e0e533a693a4e0b8e40509506a35a654b0e89606",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 17
+    },
+    {
+      "file": "quest_extensions/cashback_quests.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "7208714e37627f4d4cc462cd228614300857081d3f8cd2936fa08df2a080b3a0",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 6
+    },
+    {
+      "file": "quest_extensions/dynamic_discounts.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "847b76d2e06729facd6401dbf68f056cda6ec03cbd20884c2e28bd6da1adae07",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 104
+    },
+    {
+      "file": "quest_extensions/eclipse.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "63f6638e39aa3c6e0ebb17e9a31dda12062396c95b9617a66b68e20baeebd28b",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 22
+    },
+    {
+      "file": "quest_extensions/energy.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "508046cc1772c8f6eb52fc27413fd8db9b3ee132748cac131267dc7372c4948b",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 10
+    },
+    {
+      "file": "quest_extensions/event_offers.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/events/battle_pass/battle_pass_base.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "381dcf2c37d6a8bee0987726c84678043bbb0a613dd6571b5f8db4b0e7f49135",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 8
+    },
+    {
+      "file": "quest_extensions/events/battle_pass/battle_pass_summer_fest_25.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/events/general_events/chinese_new_year_2026.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "4b36aada846bd1d2466d9048010b016069e5aac187fa84c54b3778b756b0a5bf",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 20
+    },
+    {
+      "file": "quest_extensions/events/general_events/event_american_25.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/events/general_events/event_hw_25.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/events/general_events/event_summer_fest_25_prt1.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/events/general_events/event_summer_fest_25_prt2.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/events/general_events/event_vaisakhi_25.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/events/general_events/new_year_2026.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/events/mini_events/battle_pass/ascension_reborn.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "5b43a16437760557c2daf30990c75a9f04d3badc3550a7e25fae3e5fb8773abf",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 16
+    },
+    {
+      "file": "quest_extensions/events/mini_events/mini_event_ritual_fungus.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "486af4d2d414ec6cb5a67e3f4baa1de75979897b5b8d01ca4d05fa2c40d513f7",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 13
+    },
+    {
+      "file": "quest_extensions/events/mini_events/mini_event_ritual_hunger.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "381832128eb4677202814835817d3e9214d85f905145bafc8f8775fbfa944153",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 13
+    },
+    {
+      "file": "quest_extensions/events/mini_events/mini_event_ritual_vulcan.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "c9bec8b7447cabe7771f0a7f54814b1316193221ee64d9a84e3d702277bae85e",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 13
+    },
+    {
+      "file": "quest_extensions/f2p_quests.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "420e8f88103636fe93675593c6ae00915c5239b974724ca85982292ce5b1b02d",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 4
+    },
+    {
+      "file": "quest_extensions/facebook.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/forge_quests.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "f17af439e177a3f53590756c47ac5d98dfccf55cb8c0b1c412062a1087b6d0d8",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 13
+    },
+    {
+      "file": "quest_extensions/gdpr.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/hardmode.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "6169ebcf44f50cc3681ae6444785d04496f5d49764fa82da1a0d21a3bb40da9b",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/intermission/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "eb3efc662f1d16af09d432caed634995b99d6fa178057856e8edd9fbdf4a1d5a",
+      "de_sha256": "23b407ee799c4bc62ee767e0f3ef8e076113dea2fce714b131c1bebe4883c6eb",
+      "de_nodes": 987,
+      "delta_records": 39
+    },
+    {
+      "file": "quest_extensions/item_restore_quests.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "b52c074582d9183afd1e638781a9fc0944d413760ba5fb0126da0d44c697e2d2",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 20
+    },
+    {
+      "file": "quest_extensions/local_daily.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/login_notify.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/offers.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/offers_quests.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/packs.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/premium_packs.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/promotions.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/promotions_from_first_session.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/raid_offers.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/raid_quests.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "3d9cd596d6962d545410b1ea25ce5b2b2593372f072096112085cccd05b5c2ba",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 72
+    },
+    {
+      "file": "quest_extensions/restore_items_temp_quest.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "e8ad50c6ca5cbc024ada29db770fd662d86f8de44fbf2ffb2bf9044f679e9ac7",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/sensei_arc.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/server_quests.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/starter_packs.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/tutorial_quests.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "3373acb20cc6698d8fda6ab1d3ec9f652ea0df0417519ffa6e3fb09f3109134c",
+      "de_sha256": "187ac4350aeebb5c11c18fb8bc0ded9331669450bcb1b570bf797be94eff4b81",
+      "de_nodes": 216,
+      "delta_records": 20
+    },
+    {
+      "file": "quest_extensions/update_quests.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "f797c3731f60d857bc7fb02a40290189dfae7e53a42060c113e0e144483d6d13",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/update_quests_start.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "dc829731e6a91abf2963c59c33aa6afcf39d4fc0df44120608ee3001631fc1a0",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/utils.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "82e70cc73ef12f8d82b128d55303cd4a0bbab661076d6fa72608b93d90ad76bf",
+      "de_sha256": "bd880e627712838cb5b7f43f6147c2118d3a0e1e48213bcdaaffab927b37ce91",
+      "de_nodes": 1,
+      "delta_records": 8
+    },
+    {
+      "file": "quest_extensions/zone_1/core.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "1c2aeb8e677dc3f91a61a5acc67445e6d0bf30818a14c6b7afdb330b91ab6d78",
+      "de_sha256": "b254884054969b9c0f5ce5644a218827c7f8c8e94a6170080cc7ba4d29f36c73",
+      "de_nodes": 14,
+      "delta_records": 2
+    },
+    {
+      "file": "quest_extensions/zone_1/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "574630f87a0c7719c568dd3f354fd10c938fc498cb3c31320ff7b102695464fd",
+      "de_sha256": "85a7eda89498b8a43974ba71f8fd69ea94aef51dfd2a90ba27318917cb9fab7a",
+      "de_nodes": 663,
+      "delta_records": 16
+    },
+    {
+      "file": "quest_extensions/zone_2/core.xml",
+      "domain": "quests",
+      "status": "equal",
+      "vanilla_sha256": "b828707cc4830421add572754935dd7031ead5e5689ae7e244a814baab64cbb8",
+      "de_sha256": "799b6fa2176330ab6048058b5b372a3462d8f3701cbe02bc86d5e2de66c5e5cf",
+      "de_nodes": 13,
+      "delta_records": 0
+    },
+    {
+      "file": "quest_extensions/zone_2/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "21a6501e7bad0b6729aa693fac1ebb6931b740367f6195d3539c194216942b96",
+      "de_sha256": "c2297a2034282f1a999b8d01f19bf2687b6e3eab3bc208efb6574882f19b7e37",
+      "de_nodes": 589,
+      "delta_records": 14
+    },
+    {
+      "file": "quest_extensions/zone_3/core.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "4408348a72e83f9143995e74bc33daceda263457760310686220bcef847c9197",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/zone_3/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "563e084cc8a13be03af7ba4241322d96f5655f3e8b5c487786d8ae6f4788a986",
+      "de_sha256": "62dbb17923e90c057b32055731760b9acf5cb95aba31903169092db2dd8d806e",
+      "de_nodes": 577,
+      "delta_records": 15
+    },
+    {
+      "file": "quest_extensions/zone_4/core.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "4408348a72e83f9143995e74bc33daceda263457760310686220bcef847c9197",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/zone_4/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "9a96dd5f18d9de475a95a552b0b4ada4c538bdf428ec346933d7d38acf8fd15e",
+      "de_sha256": "39dbaaf460cfcbda1e56501995d91df9ac5d639cfa94679099c1453c6e08f2a8",
+      "de_nodes": 593,
+      "delta_records": 15
+    },
+    {
+      "file": "quest_extensions/zone_5/core.xml",
+      "domain": "quests",
+      "status": "de_only",
+      "vanilla_sha256": null,
+      "de_sha256": "4408348a72e83f9143995e74bc33daceda263457760310686220bcef847c9197",
+      "de_nodes": 1,
+      "delta_records": 1
+    },
+    {
+      "file": "quest_extensions/zone_5/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "c816e574dc9a3739995389cf835293b28f42b5a53cc95736f704320df2ebde1e",
+      "de_sha256": "d112d77a56619d925c6d64fe696887791a5259a4e80f2aef5a583a56d2f2892b",
+      "de_nodes": 594,
+      "delta_records": 15
+    },
+    {
+      "file": "quest_extensions/zone_6/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "2d8bda7e2f0e98581e7aa9256d98025db86676998dab77c468326490e646f514",
+      "de_sha256": "cd8a14a92e6f0cd8642c6d769097aef3ae27a4dd70c0738ec5b664a562c2759f",
+      "de_nodes": 711,
+      "delta_records": 13
+    },
+    {
+      "file": "quest_extensions/zone_7/story.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "d256940403c4f89697e0b63a4775f03d218d7f4be248b6de2dd86d49fcc518c9",
+      "de_sha256": "8e6f66a3b277b333c4f67eda0cfb93ebd95c1e3ed8a81a01e4a15f9a76ee3507",
+      "de_nodes": 1075,
+      "delta_records": 31
+    },
+    {
+      "file": "quests.xml",
+      "domain": "quests",
+      "status": "changed",
+      "vanilla_sha256": "ac304d229d49fdd7f1cdc143f62420257ae3024f841d8a4d5c3e40258aee3996",
+      "de_sha256": "dd3da66fd8a4beae0806dba3292c547904b68db30276c8ef95afb01e51737faa",
+      "de_nodes": 5050,
+      "delta_records": 405
+    },
+    {
+      "file": "raid_stages_default.xml",
+      "domain": "raids",
+      "status": "changed",
+      "vanilla_sha256": "5ad1090e622675941a0147ec87276e3224ff199e6e42011348605e5d1f64bf9e",
+      "de_sha256": "3b43bfdc6806999fb1dcd820188056a5f389a687a07a897c8a321efcc8a90b8e",
+      "de_nodes": 2743,
+      "delta_records": 25
+    },
+    {
+      "file": "stages.xml",
+      "domain": "stages",
+      "status": "changed",
+      "vanilla_sha256": "6344d64d102c7af6437fa949fdfa7db055b293414fe29c7fc158be1ed53b1eb0",
+      "de_sha256": "4d762b42b58e3b5e250626e5534035b08f1ef3170a832a9a047da5618c55bfed",
+      "de_nodes": 30310,
+      "delta_records": 2655
+    },
+    {
+      "file": "tacticSettings.xml",
+      "domain": "ai",
+      "status": "changed",
+      "vanilla_sha256": "0e3685093671f60fbf8a7770273d5e1dfe1881ad03acd2dacd36b01e52586807",
+      "de_sha256": "8dc1d8fbba89fae28038edf18780b7f24837443076fda267a244568cfdc5a044",
+      "de_nodes": 371,
+      "delta_records": 3
+    },
+    {
+      "file": "usersDefault.xml",
+      "domain": "default_profile",
+      "status": "changed",
+      "vanilla_sha256": "ddae064784bdaab2028289b5ce23d211a8cb9539eb01a7aac5bf89dd19977d9f",
+      "de_sha256": "3365d631b02d878157616047c9364b0a90868988111d369c9e431b584c533e77",
+      "de_nodes": 29,
+      "delta_records": 10
+    },
+    {
+      "file": "usersDefaultWarrior.xml",
+      "domain": "default_profile",
+      "status": "changed",
+      "vanilla_sha256": "4570370e584fd94278e335933688cf03b884cde83ae1e9c2df4f6236fe6f73d0",
+      "de_sha256": "3eafe36c79cd21807a74e2d07e82a1c32e34842f0333827483dcbeaf18385a0e",
+      "de_nodes": 11,
+      "delta_records": 6
+    }
+  ]
+}

@@ -431,6 +431,7 @@ namespace Eclipse.UI
             PlayerPrefs.Save();
             if (currentPage == "Confirm") RevertDisplay();
             else if (currentPage == "Home") QuitPrompt();
+            else if (currentPage == "Mod details") DrawMods();
             else Home();
         }
 

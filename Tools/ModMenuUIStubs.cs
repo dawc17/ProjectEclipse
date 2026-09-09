@@ -21,3 +21,6 @@ namespace Nekki.SF2.GUI.Menu
         public ANJKEGGALAG CurScrollState;
     }
 }
+public static class SF2MotionBlur { public static void EnsureOnMainCamera() { } }
+
+public static class Sound { public static void FAJONFGJBPD() { } public static void GKMINHHAMAK() { } }

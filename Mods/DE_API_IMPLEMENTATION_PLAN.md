@@ -12,6 +12,22 @@ changes.** Do not start from a partial task description alone.
 The target document defines *what must eventually be possible*. This document
 defines *how we get there, in dependency order, without breaking the architecture*.
 
+## Coverage correction, 2026-09-10
+
+The [complete archived XML inventory and API gap audit](DE_XML_API_GAP_AUDIT.md)
+compares all 212 DE XML files against 164 base XML files. Phase 1–3 showcase
+acceptance below remains valid, but **does not mean every domain exit criterion
+or every archived DE mechanic is implemented**. Historical baseline/in-progress
+paragraphs below must not override the current 0.7 contract or this audit.
+
+P4.2/P5.4 review identified gaps G01–G14: targeted core patch/removal, programmable
+story queries/operations, dojo/UI selection, lotteries and enchanted chests,
+set/ability linkage, richer combat mechanics, level-specific perk data, move/input/
+projectile authoring, conditional AI, animated locations, item metadata, existing
+forge edits, contextual achievements/core localization, and remaining service/
+boot/presentation classification. Some require host recovery, not merely bindings.
+Use the audit's concrete DE fixtures and source references before claiming parity.
+
 ## 1. Source-of-truth hierarchy
 
 When requirements appear to conflict, use this order:
@@ -1683,18 +1699,14 @@ If only the DTO/registry exists, the task is **not complete**.
 
 # 10. Immediate next milestone
 
-P0 through P1 are now complete enough for the next dependency-ordered production
-milestone. The current phase is **P2A: expanded combat behaviors**, in progress.
+API 0.7 and the Phase 1–3 showcase flows are implemented and have the recorded
+user acceptance above. The current work is **P4.2 coverage/intent classification**
+before a complete downstream DE conversion and wiki. Updated DE source is awaited.
 
-Do not bypass P2A by adding DE-specific perk/effect shortcuts. Continue the API
-0.3 reusable behavior + typed per-instance parameter architecture and add only
-authoritative recovered lifecycle events and narrow fighter/effect operations.
-The Phase 1 showcase must remain green while P2A is developed.
-
-Prioritize one complete behavior example meeting the P2A exit criteria before
-expanding the event catalog broadly. Use a source-backed mechanic with real Lua
-decisions and state; document exactly which hooks are available. The existing
-`on_fight_begin` slice is a foundation; `on_damage_received` is now implemented
-for normal player fights. Other proposed hit/damage handlers must not appear
-in examples as if they already work. Programmable quest and
-AI support remain recorded follow-up gaps under section 3.7.
+The September 10 audit identifies work that is already demonstrably missing in
+the archived XML; it does not authorize inventing behavior or adding DE-specific
+shortcuts. Start any subsequent implementation from [G01–G14](DE_XML_API_GAP_AUDIT.md)
+and the relevant original phase exit criteria. Keep current showcases green,
+preserve the economy firewall, and use typed capabilities with real Lua handlers
+for new procedural behavior. Full parity still requires the DE reference mod,
+record-level intent decisions and P5 gameplay verification.
