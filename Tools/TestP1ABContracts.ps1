@@ -27,6 +27,8 @@ $sources = @(
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1C.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1D.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContentP2.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContentP3.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModSelection.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModLocalizationLoader.cs')
 )
 

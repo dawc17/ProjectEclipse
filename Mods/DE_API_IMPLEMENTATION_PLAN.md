@@ -989,12 +989,12 @@ DE fixtures include `HermitStorm` and `WallRunUp` reactions.
 
 # PHASE P2A: EXPANDED COMBAT BEHAVIORS
 
-**Implemented for playtesting, 2026-09-09.** API 0.6 adds fight/round lifecycle,
+**Implemented and user runtime-tested, 2026-09-09.** API 0.6 adds fight/round lifecycle,
 resolved damage, block, critical and incoming-damage hooks; player and opponent
 contexts; scoped target capabilities; temporary damage shields; and typed
 round/fight/saved behavior state with migrations. Composition uses Lua functions
 and modules. See [the supported contract](P2_API.md) and
-[integrated sample](example.phase2/README.md). Gameplay acceptance is pending;
+[integrated sample](example.phase2/README.md). Gameplay acceptance was confirmed by the project owner;
 the candidate event families below are not a claim that every hook is exposed.
 
 API 0.3 proves the reusable behavior + typed instance parameter architecture. Do
@@ -1065,7 +1065,7 @@ engine internals still need it.
 
 # PHASE P2B: TIMERS, SERVICES, UI POLICY, EVENTS
 
-**Implemented for playtesting, 2026-09-09.** API 0.6 implements forge duration/skip policy, named service/feature gates, and repeatable scheduled fight events with level/time eligibility. Arbitrary UI extensions and settings are not exposed; see [the bounded contract](P2_API.md). Gameplay acceptance is pending.
+**Implemented and user runtime-tested, 2026-09-09.** API 0.6 implements forge duration/skip policy, named service/feature gates, and repeatable scheduled fight events with level/time eligibility. Arbitrary UI extensions and settings are not exposed; see [the bounded contract](P2_API.md). Gameplay acceptance was confirmed by the project owner.
 
 ## P2B.1 Semantic timer policy
 
@@ -1131,7 +1131,7 @@ This is the core mechanism for DE's no-FOMO permanent events.
 
 # PHASE P2C: ASCENSION
 
-**Implemented for playtesting, 2026-09-09.** API 0.6 implements typed multi-fight mode sequences, loss reset, persistent progress, entry items and native rewards. The sample exercises a three-fight Ascension sequence and Monk equipment rewards through this reusable mode host. Gameplay acceptance is pending.
+**Implemented and user runtime-tested, 2026-09-09.** API 0.6 implements typed multi-fight mode sequences, loss reset, persistent progress, entry items and native rewards. The sample exercises a three-fight Ascension sequence and Monk equipment rewards through this reusable mode host. Gameplay acceptance was confirmed by the project owner.
 
 Ascension must be composed from generic mode/fight/reward/state primitives, not a
 DE-specific toggle.
@@ -1164,7 +1164,7 @@ do not treat Ascension as a single battle type.
 
 # PHASE P2D/P3: UNDERWORLD / RAIDS
 
-**Implemented for playtesting, 2026-09-09.** The revised sample now uses one 300-second fight, a ten-bar boss with the native blue health display/counter, and a 25-gem victory reward. Timeout requires boss defeat; manual acceptance of this correction is pending. Included in this implementation pass: registered offline raid encounters, mod-owned entry tickets, persistent boss progression, native loot presentation, metadata-based raid/hard-mode classification and raid quest events. Native online services are outside this contract. Gameplay acceptance is pending.
+**Implemented and user runtime-tested, 2026-09-09.** The revised sample now uses one 300-second fight, a ten-bar boss with the native blue health display/counter, and a 25-gem victory reward. Timeout requires boss defeat; the project owner confirmed this correction. Included in this implementation pass: registered offline raid encounters, mod-owned entry tickets, persistent boss progression, native loot presentation, metadata-based raid/hard-mode classification and raid quest events. Native online services are outside this contract. Gameplay acceptance was confirmed by the project owner.
 
 Underworld is a larger host gap than ordinary story content. Existing Eclipse
 support is internal compatibility code and hardcoded naming/UI policy, not a
@@ -1226,6 +1226,14 @@ definition metadata before declaring third-party raid support.
 
 # PHASE P3A: ACHIEVEMENTS, COUNTERS, REMAINING PROGRESSION DOMAINS
 
+**Implemented; core showcase user runtime-tested, API 0.7.** Owned achievement counters
+integrate with the native profile/save model and advance from Lua callbacks.
+The remaining configuration differences are classified in a reproducible ledger;
+no arbitrary settings passthrough was added. See [P3_API.md](P3_API.md) and the
+[showcase playtest record](example.phase3/README.md#recorded-user-playtest).
+The user confirmed the achievement flow, restart persistence and no progress on
+loss/surrender. Removal/reinstallation remains automated-test coverage.
+
 ## P3A.1 Achievement/counter registry
 
 Expose typed achievement/counter definitions only after tracing the recovered
@@ -1256,7 +1264,14 @@ Do not create Mod API surface merely because a file differs.
 
 # PHASE P3B: CONTROLLED CORE ASSET REPLACEMENT
 
-Core assets are addressable today but intentionally not replaceable. DE may need
+**Implemented, API 0.7; showcase sprite replacement user-confirmed.** Explicit typed sprite/texture/audio/model
+redirects now enforce dependency ownership, atomic conflicts and provenance.
+Native atlas-member identity and core model text loading are covered. Arbitrary
+config, boot-time resources, opaque animation replacement and deletion remain
+outside this supported contract; animation authoring uses the existing move API.
+See [the precise boundaries](P3_API.md#asset-replacement).
+
+Core assets are addressable and supported runtime kinds are replaceable. DE may need
 to change existing art/model/audio/animation assets rather than only reference
 new ones.
 

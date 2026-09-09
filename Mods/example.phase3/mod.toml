@@ -1,0 +1,12 @@
+schema = 1
+id = "example.phase3"
+name = "Phase 3 Progression and Asset Showcase"
+version = "0.1.0"
+api = ">=0.7 <1.0"
+authors = ["Eclipse"]
+entrypoint = "scripts/main.lua"
+capabilities = ["content.register", "progression.read", "progression.write", "assets.replace"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0 <2.0"

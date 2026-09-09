@@ -1402,7 +1402,8 @@ public static class GameUtils
 		for (int i = 0; i < list.Count; i++)
 		{
 			Achievement jNPIOKEKMII = HHLEKNNJGMJ.ABNAODNDHDM(list[i].get_Name());
-			if (jNPIOKEKMII != null)
+			// Local mod achievements have no platform achievement identity.
+			if (jNPIOKEKMII != null && !string.IsNullOrEmpty(jNPIOKEKMII.EIEBHLJCOKE))
 			{
 				list2.Add(new SocialAchievement(jNPIOKEKMII.EIEBHLJCOKE, jNPIOKEKMII.EOGLBDCLMBM, jNPIOKEKMII.EOGLBDCLMBM));
 				list3.Add(jNPIOKEKMII.Name);
@@ -1455,7 +1456,7 @@ public static class GameUtils
 				List<Achievement> fOICCCGPCMJ = mDNKEAFGAOB[j].FOICCCGPCMJ;
 				for (int k = 0; k < fOICCCGPCMJ.Count; k++)
 				{
-					if (fOICCCGPCMJ[k].Name == list[i].get_Name())
+					if (fOICCCGPCMJ[k].Name == list[i].get_Name() && !string.IsNullOrEmpty(fOICCCGPCMJ[k].EIEBHLJCOKE))
 					{
 						if (fOICCCGPCMJ[k].EOGLBDCLMBM == 0)
 						{

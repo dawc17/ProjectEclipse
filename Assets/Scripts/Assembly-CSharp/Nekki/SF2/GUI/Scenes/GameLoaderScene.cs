@@ -71,6 +71,8 @@ namespace Nekki.SF2.GUI.Scenes
 			Application.runInBackground = true;
 			CDCHAOBEMKH = true;
 			HOCNNFGOMHL = PIHEPFHMJHJ;
+            if (HOCNNFGOMHL) { Stop(); HOCNNFGOMHL = false; }
+            Eclipse.UI.GameSessionRestart.ArrivedAtTitle();
 			EOKFGFADIIH = false;
 			PIHEPFHMJHJ = true;
 			get_Logo().SetActive(false);
@@ -148,6 +150,7 @@ namespace Nekki.SF2.GUI.Scenes
 
 		public static void Stop()
 		{
+            Eclipse.Modding.ModRuntime.Shutdown();
 			PIHEPFHMJHJ = false;
 			GameUtils.OBJEKOBDMOE = false;
 			GameUtils.GCDIGFODNFO = true;

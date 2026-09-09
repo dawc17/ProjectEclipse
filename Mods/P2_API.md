@@ -1,6 +1,6 @@
 # Phase 2 — API 0.6
 
-Implemented for playtesting; gameplay acceptance is pending. The integrated external
+User runtime-tested and accepted, including the corrected replayable Volcano raid. The integrated external
 sample is [example.phase2](example.phase2/README.md). Phase 1 remains accepted.
 This document lists the supported contract, rather than promising every possible
 recovered combat event or arbitrary engine access.

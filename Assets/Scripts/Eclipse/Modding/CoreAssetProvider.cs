@@ -20,7 +20,8 @@ namespace Eclipse.Modding
             else if (PackagedArtCatalog.ContainsSprite(id.Path))
                 kind = AssetKind.Sprite;
             else if (PackagedArtCatalog.ContainsExactAddress(id.Path))
-                kind = AssetKind.Unknown;
+                kind = PackagedArtCatalog.Load<UnityEngine.AudioClip>(id.Path) != null ? AssetKind.Audio :
+                    PackagedArtCatalog.Load<UnityEngine.Texture2D>(id.Path) != null ? AssetKind.Texture : AssetKind.Unknown;
             else
                 return false;
             metadata = new AssetMetadata(id, kind, AssetSourceKind.Core, string.Empty, -1,

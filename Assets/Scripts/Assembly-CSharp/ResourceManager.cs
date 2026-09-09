@@ -637,6 +637,8 @@ public static class ResourceManager
 
 	public static string GetText(string ONEIGMLOGDC, bool GIEAPLJHHDK = false)
 	{
+        string replacement = Eclipse.Modding.ModRuntime.LoadCoreModelReplacement(ONEIGMLOGDC);
+        if (replacement != null) return replacement;
 		if (TryDevXml(ONEIGMLOGDC, out var t0))
 		{
 			return t0;
@@ -666,6 +668,8 @@ public static class ResourceManager
 
 	public static string IJMMFCDCOAC(string ONEIGMLOGDC)
 	{
+        string replacement = Eclipse.Modding.ModRuntime.LoadCoreModelReplacement(ONEIGMLOGDC);
+        if (replacement != null) return replacement;
 		if (TryDevXml(ONEIGMLOGDC, out var t1))
 		{
 			return t1;
@@ -698,6 +702,8 @@ public static class ResourceManager
 
 	public static string KIHHJGJKMIC(string ONEIGMLOGDC)
 	{
+        string replacement = Eclipse.Modding.ModRuntime.LoadCoreModelReplacement(ONEIGMLOGDC);
+        if (replacement != null) return replacement;
 		if (TryDevXml(ONEIGMLOGDC, out var t2))
 		{
 			return t2;

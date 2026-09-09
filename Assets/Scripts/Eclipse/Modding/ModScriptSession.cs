@@ -46,6 +46,7 @@ namespace Eclipse.Modding
             if (host == null) throw new ArgumentNullException(nameof(host));
             if (runtime == null) throw new ArgumentNullException(nameof(runtime));
 
+            host.Assets.SetReplacements(null);
             var contexts = new List<IModScriptContext>();
             var active = new List<ModDescriptor>();
             var activeIds = new HashSet<ModId>();
@@ -98,6 +99,7 @@ namespace Eclipse.Modding
             }
 
             content.Freeze();
+            host.Assets.SetReplacements(content.AssetReplacements);
             state.FreezeDefinitions();
             return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state);
         }

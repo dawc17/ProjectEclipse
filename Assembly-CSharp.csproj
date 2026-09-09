@@ -147,6 +147,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionShakeScreen.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UserItems.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowStarterPackTimer.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\ReturnToTitleButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\WinShockRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ModelMacroNode.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Scenes\DojoScene.cs" />
@@ -228,6 +229,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\PricesData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\ContentBossesFinal.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionSetModEffect.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\LegacyContentAdapterP3.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\ViewerFight.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionName.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableViewCellDidHighlightEvent.cs" />
@@ -246,6 +248,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightData.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Exceptions\HackDetectedException.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RecipeItemInfo.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\TitleScreenMods.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TextGradient.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\TableView.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\Controller\Stick.cs" />
@@ -324,6 +327,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\BasicGUI.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SFButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LoseFallRule.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\GameSessionRestart.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemBuyHelper.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\PrizePanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Roster.cs" />
@@ -573,6 +577,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\Renders\Model\EdgeRender.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\WarriorAttribute.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionOpenForge.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeP3.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DamageRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Limit.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DialogType.cs" />

@@ -404,6 +404,7 @@ namespace Eclipse.Modding
                 _loading.Clear();
                 _localizationHandles.Clear();
                 _spriteHandles.Clear();
+                _counterHandles.Clear();
                 _modelHandles.Clear();
                 _itemHandles.Clear();
                 _itemSetHandles.Clear();
@@ -692,6 +693,7 @@ namespace Eclipse.Modding
 
                 AddP1DModules(root);
                 AddP2Modules(root);
+                AddP3Modules(root);
 
                 DynValue value = DynValue.NewTable(root);
                 _modules.Add(moduleName, value);

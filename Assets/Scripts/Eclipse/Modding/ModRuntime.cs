@@ -80,6 +80,7 @@ namespace Eclipse.Modding
             try
             {
                 _legacyContent.ApplyStages(ListSF.ELEBLBJKDBI());
+                _legacyContent.ApplyP3Content();
                 Debug.Log("[ModContent] Applied stage graph: " + Scripts.Content.Zones.Count + " zones, " +
                     Scripts.Content.Battles.Count + " battles, " + Scripts.Content.Fights.Count + " fights.");
             }
@@ -395,6 +396,36 @@ namespace Eclipse.Modding
             return true;
         }
 
+        public static bool TryLoadCoreSpriteReplacement(string atlas, string member, out Sprite sprite)
+        {
+            sprite = null;
+            if (string.IsNullOrEmpty(atlas) || string.IsNullOrEmpty(member)) return false;
+            string path = atlas.Replace('\\', '/').TrimEnd('/');
+            string leaf = path.Substring(path.LastIndexOf('/') + 1);
+            string address = path + "." + (member.StartsWith(leaf + ".", StringComparison.OrdinalIgnoreCase) ? member.Substring(leaf.Length + 1) : member);
+            if (!TryResolveCoreReplacement(address, out var replacement)) return false;
+            sprite = Host.TypedAssets.LoadReplacementMember(replacement, member);
+            return true;
+        }
+
+        public static string LoadCoreModelReplacement(string reference)
+        {
+            if (string.IsNullOrEmpty(reference)) return null;
+            string path = reference.Replace('\\', '/').TrimStart('/');
+            if (!path.StartsWith("gamedata/models/", StringComparison.OrdinalIgnoreCase)) return null;
+            if (path.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)) path = path.Substring(0, path.Length - 4);
+            return TryResolveCoreReplacement(path, out var replacement) ? Host.TypedAssets.LoadModelText(replacement) : null;
+        }
+
+        public static bool TryResolveCoreReplacement(string reference, out AssetId replacement)
+        {
+            replacement=default;
+            if(_host==null || string.IsNullOrEmpty(reference)) return false;
+            if(!AssetId.TryParse("core:"+reference.Replace('\\','/').TrimStart('/'),out var id)) return false;
+            replacement=_host.Assets.Resolve(id);
+            return replacement!=id;
+        }
+
         public static bool TryLoadCore<T>(string reference, out T asset) where T : UnityEngine.Object
         {
             asset = null;
@@ -431,6 +462,7 @@ namespace Eclipse.Modding
         public static void Shutdown()
         {
             ModModeRuntime.Clear();
+            ModProgressionAccess.Clear();
             ModPolicies.Content = null;
             _legacyContent?.Dispose();
             _legacyContent = null;
@@ -439,6 +471,8 @@ namespace Eclipse.Modding
             if (_host == null) return;
             _host.Dispose();
             _host = null;
+            AtlasCache.Clear();
+            LocationSpriteCache.Clear();
         }
 
         private static void LogScript(ModLogEntry entry)

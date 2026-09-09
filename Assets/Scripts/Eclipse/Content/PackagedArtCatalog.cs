@@ -98,6 +98,8 @@ namespace Eclipse.Content
 
         public static T Load<T>(string resourcePath) where T : UnityEngine.Object
         {
+            if (Eclipse.Modding.ModRuntime.TryResolveCoreReplacement(resourcePath, out var replacement))
+                return Eclipse.Modding.ModRuntime.Host.TypedAssets.LoadUnityAsset<T>(replacement);
             if (!IsSupportedAssetType(typeof(T)) || string.IsNullOrEmpty(resourcePath))
                 return null;
 
@@ -119,6 +121,9 @@ namespace Eclipse.Content
 
         public static string LoadModelText(string resourcePath)
         {
+            string replacementPath = resourcePath != null && resourcePath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase) ? resourcePath.Substring(0,resourcePath.Length-4) : resourcePath;
+            if (Eclipse.Modding.ModRuntime.TryResolveCoreReplacement(replacementPath, out var replacement))
+                return Eclipse.Modding.ModRuntime.Host.TypedAssets.LoadModelText(replacement);
             if (string.IsNullOrEmpty(resourcePath))
                 return null;
             string normalized = Normalize(resourcePath);
@@ -286,6 +291,8 @@ namespace Eclipse.Content
 
         public static T[] LoadWithSubAssets<T>(string resourcePath) where T : UnityEngine.Object
         {
+            if (Eclipse.Modding.ModRuntime.TryResolveCoreReplacement(resourcePath, out var replacement))
+                return Eclipse.Modding.ModRuntime.Host.TypedAssets.LoadUnityAssets<T>(replacement);
             if (!IsSupportedAssetType(typeof(T)) || string.IsNullOrEmpty(resourcePath))
                 return null;
 
@@ -297,7 +304,17 @@ namespace Eclipse.Content
                     continue;
                 T[] assets = bundle.LoadAssetWithSubAssets<T>(entry.AssetPath);
                 if (assets != null && assets.Length != 0)
+                {
+                    if (typeof(T) == typeof(Sprite))
+                    {
+                        var result = (T[])assets.Clone();
+                        for (int i = 0; i < result.Length; i++)
+                            if (result[i] != null && Eclipse.Modding.ModRuntime.TryLoadCoreSpriteReplacement(entry.AssetPath, result[i].name, out var sprite))
+                                result[i] = sprite as T;
+                        return result;
+                    }
                     return assets;
+                }
             }
             return null;
         }

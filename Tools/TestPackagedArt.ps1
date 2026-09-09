@@ -38,6 +38,7 @@ Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Content/Packaged
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Content/GameplayContentArchive.cs') -Destination (Join-Path $fixture 'Assets/GameplayContentArchive.cs')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ResourcesAndBundles.cs') -Destination (Join-Path $fixture 'Assets/ResourcesAndBundles.cs')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/LocationSpriteCache.cs') -Destination (Join-Path $fixture 'Assets/LocationSpriteCache.cs')
+Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/AtlasCache.cs') -Destination (Join-Path $fixture 'Assets/AtlasCache.cs')
 Copy-Item -Exclude ModModeRuntime.cs -Path (Join-Path $root 'Assets/Scripts/Eclipse/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Modding') -Force
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Runtime/Modding') -Force
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidatePackagedArt.cs') -Destination (Join-Path $fixture 'Assets/ValidatePackagedArt.cs')

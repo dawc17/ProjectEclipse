@@ -1,0 +1,366 @@
+{
+  "schema": 1,
+  "scope": "Semantic differences, ignoring XML indentation; archived DE is evidence, not base authority.",
+  "entries": [
+    {
+      "file": "internalSettings.xml",
+      "section": "AchievementCounter",
+      "classification": "progression_content",
+      "decision": "P3 owned counters and Lua callbacks; preserve shipped native counter semantics.",
+      "vanilla_sha256": "c73c5e26f26ffcf3dcb43d00baa4aa72634e1ac0b5e4af517c7b37431806181c",
+      "archived_de_sha256": "09033c7decdf2e78b9c04100ac4eb3c3548f0bb3159905ab6699cc3ad79e6fba"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "AntiCheatSettings",
+      "classification": "compatibility",
+      "decision": "Archived item exception list; do not expose anti-cheat internals or delete base validation.",
+      "vanilla_sha256": "b2c90274e658bf0246815f6142925772b8b6e21076c0e8a9bfcb379a15655289",
+      "archived_de_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "Benchmark",
+      "classification": "platform_configuration",
+      "decision": "Benchmark cycles belong to device performance setup.",
+      "vanilla_sha256": "e0c72920ab49ffb13d99974a4ac2bacbe6f7d9021276bd6bea722b20163f3e14",
+      "archived_de_sha256": "b5f9de7cac8dcdf3d8bc63e9ca44ed5b59578735f1aaa4eb04b973e548084a52"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "Camera",
+      "classification": "presentation_content",
+      "decision": "Camera width is a rendering parameter; no recovered mod-safe global camera contract yet.",
+      "vanilla_sha256": "0efc94546b212f5de1fae4e0ad725733b9e346a994ddd665a739d3ff0d4c3810",
+      "archived_de_sha256": "9b70e9f94e22331ee557f92e09e4961573d5519c9a91b149edcfdfa0e5d37439"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "CounterPunches",
+      "classification": "combat_compatibility",
+      "decision": "Native combat counter tuning; do not infer a universal mod policy from the DE value.",
+      "vanilla_sha256": "84a7abc8a70e434e498d41855cd83ab4bb6bd4f7395a799e61274de9508f5b14",
+      "archived_de_sha256": "2bf363c429e68f49a634ef8422f1eb69f9907c7358252a70eee9687a7d85feb6"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "DefaultServerResponseTimeout",
+      "classification": "platform_configuration",
+      "decision": "Service transport timeout; P2 service opt-outs replace timeout tricks.",
+      "vanilla_sha256": "b53951aae6825631a930e0c90088af991c676d7ca0aebd685318da553843b054",
+      "archived_de_sha256": "32f49f74f8c2ef8eaeaad0ecbd7c59645eb82224213081285258ef908039924d"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "GUI",
+      "classification": "presentation_content",
+      "decision": "Hint timeout and credits scroll speed. No active external consumers of these BasicGUI getters were found; no nominal API.",
+      "vanilla_sha256": "cbd673a7276860f239df84df9e59736eeb28aa0687f80a5013c49caa1520f537",
+      "archived_de_sha256": "841e55ce6a2f4851e18a3e0427d50c5274475f59d695310ce0b2b11120625bce"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "Hints",
+      "classification": "presentation_content",
+      "decision": "Archived raid advice changes; use localized mod fight descriptions/dialogue.",
+      "vanilla_sha256": "83c236ae60e7098747da7616f30f809ac6234d8a5a603dda5cc66675f4a26fa5",
+      "archived_de_sha256": "9a45375640e2e7a95c6e9542459c58d8b00e5fc03a958ae6edff2ebc684458b5"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "HitEffects",
+      "classification": "combat_compatibility",
+      "decision": "Native hit pause timing; keep recovered timing authority rather than globally overwriting it.",
+      "vanilla_sha256": "3eb1732da2b5a4c3add91b01c71dfc2d046ca577a381f5cc6809b69fa84c8b76",
+      "archived_de_sha256": "d8b75801eef9d131aafeb9bf1c92519e24642f190d490bfbbb4598ce42aebb73"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "LotteryRerollPrices",
+      "classification": "private_economy",
+      "decision": "Reroll cost schedule remains base-owned.",
+      "vanilla_sha256": "ede2364d8c44da6ce7bc6b2825d0317ba349ad2969f35c8f546dcdedc5074a61",
+      "archived_de_sha256": "cd8e1dbf9afcf3e57ffa8117fc15c02d50b80e19c0504bd1296d1b89c3714ea3"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "PushRetantionTime",
+      "classification": "platform_configuration",
+      "decision": "Notification retention belongs to platform integration.",
+      "vanilla_sha256": "93cc2123915181449079efdc8c767b913a5f2e1489fe0460fe68715fb25bc917",
+      "archived_de_sha256": "70aab7323c63380a5019464fd1ca905da9460278db2bd7f6a08885c4d3180ddf"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "QualityOptions",
+      "classification": "platform_configuration",
+      "decision": "Device quality flags are not gameplay mod capabilities.",
+      "vanilla_sha256": "1aa863b5788a8135480918626cf72980b6f9bbf3b68bb58f5e431467484e0925",
+      "archived_de_sha256": "d97b3a60fa42a7c9805fe2844f13a52a9180c2c33e96b74a65a4d356e04a5eca"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "Resistances",
+      "classification": "combat_compatibility",
+      "decision": "Removed legacy resistance descriptor is not evidence that the base mechanic should be removed.",
+      "vanilla_sha256": "77aec4a29835022cef71cf58931a56568859492f205f8227961cd42c8576ce4f",
+      "archived_de_sha256": "2a007e540a1c3df537acff4076bf64c5906faaffab623bc3ff0a7c572f2b2895"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "SlowMode",
+      "classification": "combat_compatibility",
+      "decision": "Native slow-motion timing remains reconstruction-owned.",
+      "vanilla_sha256": "897567ee5b2c9b2d49f3dd2fc955b666a76c3c1c544103b497897dd48ca5192c",
+      "archived_de_sha256": "fe2fd3908d80aabbedb0ee7a42a02c2f340a8f03e0fecd42c656a0c8939f27c9"
+    },
+    {
+      "file": "internalSettings.xml",
+      "section": "VideoAdCounterReset",
+      "classification": "existing_p2_policy",
+      "decision": "Use rewarded_video/ads service opt-out; do not change ad counter internals.",
+      "vanilla_sha256": "d702fd67d2df67bb691a1cbcf7d44ca10da3a7697e2ece18a4f57926e39b4059",
+      "archived_de_sha256": "61a2ab2b20de95d6d8c45c2b196fdb666c74ee4d5c3de656a50e41aa6756e535"
+    },
+    {
+      "file": "devices.xml",
+      "section": "Config",
+      "classification": "platform_configuration",
+      "decision": "Archived device/quality heuristics; retain reconstruction platform selection.",
+      "vanilla_sha256": "021fccbc3ea0305449ed2e6363b727584a82efe7f5e5a6ef1e0a1767af1c6e7e",
+      "archived_de_sha256": "03d829bb331a354902dcd2e15db8feed9c8df978346d682bafada489533f2987"
+    },
+    {
+      "file": "devices.xml",
+      "section": "Devices",
+      "classification": "platform_configuration",
+      "decision": "Archived device/quality heuristics; retain reconstruction platform selection.",
+      "vanilla_sha256": "6c687aa31dcd72ee769bfeb65d8bad50d7f1d82704cf3853207d9338dfffc640",
+      "archived_de_sha256": "cdb1cc410b645665df2490b58edbeacfd7427841277136d25c580d2d4a243258"
+    },
+    {
+      "file": "devices.xml",
+      "section": "ForcedLowTextureQualityDevices",
+      "classification": "platform_configuration",
+      "decision": "Archived device/quality heuristics; retain reconstruction platform selection.",
+      "vanilla_sha256": "f5e5d6be0caa5403300043a71360e17709414674253473c34fc6e11e79ff068b",
+      "archived_de_sha256": "307f7e3580e7877d626b1ef5bf62a35a69e074c3d451eef52999cc605f6672f7"
+    },
+    {
+      "file": "devices.xml",
+      "section": "QualityConditions",
+      "classification": "platform_configuration",
+      "decision": "Archived device/quality heuristics; retain reconstruction platform selection.",
+      "vanilla_sha256": "271a60062336b5cd6c68851da84b90cdfe4cb3c36c73e2ed1ff44627048154ea",
+      "archived_de_sha256": "815a4562142633d711670ed1004c6c219b25df275c7b38a96833dde01761a3d1"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "CheckNetworkLoginTimeoutSec",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "624b60c58c9d8bfb6ff1886c2fd605d2adeb6ea4da576068201b6c6958ce93f4",
+      "archived_de_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "ConfigResponseTimeout",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "39e5b4830d4d9c14db7368a95b65d5463ea3d09520373723430c03a5a453b5df",
+      "archived_de_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "DebugStatistics",
+      "classification": "build_only",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "archived_de_sha256": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "GPG",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "71c58541dfaceff0a4e5fcbce0e3faefd61ec24674d31e3fcff9b5cee9f1c267",
+      "archived_de_sha256": "f3a4a408a6af9a43f6269234160d9e62a5b5fb3c8c310b46c6355f52e3ae621b"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "HideLanguageFlags",
+      "classification": "presentation_content",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "14143c69192cda11caaa5f02c946855912194b7ca40f7405b9a4c6e551a9f982",
+      "archived_de_sha256": "eaf1d7439b1386a1e328fc480c851803e11c16167b92a3c7d595aa60ca05acf9"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "Internet",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "355c6d725775ea126139ec9ee70195f5a0a6f6872c7343063dda604fa2c094b5",
+      "archived_de_sha256": "f59f0b44008f68cb809bd99e5eee966977d68e6c7c741df53aa946cff91836f9"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "OpenAltUrlTimeout",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "40510175845988f13f6162ed8526f0b09f73384467fa855e1e79b44a56562a58",
+      "archived_de_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "ServerResponseTimeout",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "0f8eb4b72b6e0c9e88b388eb967b49e067ef1004bf07bffc22c3acb13b43580a",
+      "archived_de_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "ShowIntro",
+      "classification": "presentation_content",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+      "archived_de_sha256": "fcbcf165908dd18a9e49f7ff27810176db8e9f63b4352213741664245224f8aa"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "SocialAuthorizeTimeout",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "d4c999ae43633bd2036188d2bca68e1be8202b2cc1f3a1c42a728eaff7d2483d",
+      "archived_de_sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "file": "BuildSettings.json",
+      "section": "TacticsCaching",
+      "classification": "platform_configuration",
+      "decision": "Build/platform/presentation configuration, not a gameplay XML patch. P2 disables supported services semantically.",
+      "vanilla_sha256": "254685fefd28b75d15932c0a87c0963fad10d5a46f0d982112377ad8826197f9",
+      "archived_de_sha256": "b4d4e9d6a89fb5958a64fa1f451e4d3d7ccdc5b4839348795e795e69955a75cb"
+    },
+    {
+      "file": "loaderScreenSettings.json",
+      "section": "SpritesPresets",
+      "classification": "presentation_content",
+      "decision": "Regional loader/preloader branding. Boot-time assets load before gameplay mods; no unsupported hot replacement promise.",
+      "vanilla_sha256": "23153e33ee7891c456a8fd2f20d7216d1391169783fe96aa48ceeb3e2dc05355",
+      "archived_de_sha256": "1c6b5b1771f64d38fc258f48f26c9633e2515497fd265e76818821bef224cc9b"
+    },
+    {
+      "file": "credits/cro.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/eng.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "0863b64e8d218edc6e85bdf7c31a09393bae6c7e32bfda0752e33f6e17a5caa3",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/fra.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/ger.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/hin.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/hun.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/ita.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/kor.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/por.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/rom.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/rus.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "0c9045f9029b9a4f088e199cf4b7a27fa304b3e1be38ed6268394879bb86db0e",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/spa.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/swe.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    },
+    {
+      "file": "credits/tur.xml",
+      "section": "document",
+      "classification": "presentation_content",
+      "decision": "Credit text/localization and attribution; preserve base credits. No platform or gameplay API inferred.",
+      "vanilla_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "archived_de_sha256": "cde48831a0bd1f2cb3dc6fa8dd5419df7d6364d765d228975bffae80f40c4eb2"
+    }
+  ]
+}

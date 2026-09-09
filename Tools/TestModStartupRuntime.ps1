@@ -56,6 +56,7 @@ namespace Eclipse.Modding {
     public class ModContentException : Exception { public ModContentException(string s) : base(s) {} }
     public class Adapter {
         public bool FailStage, FailQuest;
+        public void ApplyP3Content() {}
         public void ApplyStages(ListSF list) { if (FailStage) throw new Exception("stage failure"); }
         public void ApplyQuests(ListSF list) { if (FailQuest) throw new Exception("quest failure"); }
         __KIND__

@@ -275,6 +275,22 @@ public class UserAchievements
 		}
 	}
 
+    public int AdvanceExternalCounter(string name, int amount, int maximum)
+    {
+        if (!Eclipse.Modding.DefinitionId.TryParse(name, out var id) || id.Namespace.Value == "core" || id.Category != "counters" || amount < 0 || maximum < 1)
+            throw new System.ArgumentException("Invalid external counter increment.");
+        var existing = KJPLIHEMLJL(name);
+        int previous = existing?.MCIPEJBLIDC() ?? 0;
+        int next = System.Math.Max(previous, (int)System.Math.Min(maximum, (long)previous + amount));
+        if(existing == null) CreateRosterAchievCounter(name,next); else existing.set_Counter(next);
+        var definition = GameUtils.HHLEKNNJGMJ.KJPLIHEMLJL(name);
+        if(definition != null) foreach(var achievement in definition.FOICCCGPCMJ)
+            if(next >= achievement.EOGLBDCLMBM && JABBCCJLOOC(achievement.Name) == null)
+                POKNGJJAHAL(achievement, true, false);
+        ListSF.CCDKHLAMKKO().GGGEHAGCLGC();
+        return next;
+    }
+
 	private void CreateRosterAchievCounter(string name, int value)
 	{
 		XmlNode hKPPBKPJOEO = BEFBGGHPJFB.ACBPMPMPKJJ("Counter");

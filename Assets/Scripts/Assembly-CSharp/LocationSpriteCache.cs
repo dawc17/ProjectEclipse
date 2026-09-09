@@ -45,6 +45,8 @@ public static class LocationSpriteCache
 			// remain available for installed/core locations through the branch below.
 			return OPHFAHOKBOK(PPAJIHNNNDG, CMMPHNJDOCF);
 		}
+        if (Eclipse.Modding.ModRuntime.TryResolveCoreReplacement(PPAJIHNNNDG + "/" + CMMPHNJDOCF, out var replacement))
+            return Eclipse.Modding.ModRuntime.Host.TypedAssets.LoadSprite(replacement);
 		if (!string.IsNullOrEmpty(BBPGNOBFECF))
 		{
 			string oNNKJLOGHGH = string.Format("{0}/{1}", PPAJIHNNNDG, BBPGNOBFECF);

@@ -28,6 +28,7 @@ public static class AtlasCache
 
 	public static Sprite GetSpriteFromAtlas(string ONNKJLOGHGH, string CMMPHNJDOCF)
 	{
+        if (Eclipse.Modding.ModRuntime.TryLoadCoreSpriteReplacement(ONNKJLOGHGH, CMMPHNJDOCF, out var replacement)) return replacement;
 		Sprite[] array = ENFOJMFEGJH(ONNKJLOGHGH);
 		if ((array == null || array.Length == 0) && !string.IsNullOrEmpty(ONNKJLOGHGH))
 		{

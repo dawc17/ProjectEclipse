@@ -33,8 +33,22 @@ namespace Eclipse.Modding
             _resolver = resolver ?? throw new ArgumentNullException(nameof(resolver));
         }
 
+        private readonly Dictionary<string, Sprite> _replacementMembers = new Dictionary<string, Sprite>();
+        public Sprite LoadReplacementMember(AssetId id, string memberName)
+        {
+            string key = id + "|" + memberName;
+            if (_replacementMembers.TryGetValue(key, out var cached) && cached != null) return cached;
+            var source = LoadSprite(id);
+            if (source == null) throw new InvalidDataException("Replacement sprite is missing: " + id);
+            var member = UnityEngine.Object.Instantiate(source);
+            member.name = memberName;
+            _replacementMembers.Add(key, member);
+            return member;
+        }
+
         public T LoadUnityAsset<T>(AssetId id) where T : UnityEngine.Object
         {
+            id = _resolver.Resolve(id);
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
             IRuntimeAssetProvider runtimeProvider;
@@ -52,6 +66,7 @@ namespace Eclipse.Modding
 
         public T[] LoadUnityAssets<T>(AssetId id) where T : UnityEngine.Object
         {
+            id = _resolver.Resolve(id);
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
             IRuntimeAssetProvider runtimeProvider;
@@ -66,6 +81,7 @@ namespace Eclipse.Modding
 
         public Sprite LoadSprite(AssetId id)
         {
+            id = _resolver.Resolve(id);
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
             IRuntimeAssetProvider runtimeProvider;
@@ -116,6 +132,7 @@ namespace Eclipse.Modding
 
         public Texture2D LoadTexture(AssetId id)
         {
+            id = _resolver.Resolve(id);
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
             IRuntimeAssetProvider runtimeProvider;
@@ -157,6 +174,7 @@ namespace Eclipse.Modding
 
         public string LoadModelText(AssetId id)
         {
+            id = _resolver.Resolve(id);
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
             IRuntimeAssetProvider runtimeProvider;
@@ -183,6 +201,7 @@ namespace Eclipse.Modding
 
         public byte[] LoadBinary(AssetId id)
         {
+            id = _resolver.Resolve(id);
             AssetBytes bytes;
             if (!_resolver.TryRead(id, out bytes)) return null;
             if (bytes.Metadata.Kind != AssetKind.Binary)
@@ -192,6 +211,7 @@ namespace Eclipse.Modding
 
         public AudioClip LoadAudio(AssetId id)
         {
+            id = _resolver.Resolve(id);
             AssetMetadata metadata;
             if (!_resolver.TryDescribe(id, out metadata)) return null;
             IRuntimeAssetProvider runtimeProvider;
@@ -217,6 +237,8 @@ namespace Eclipse.Modding
 
         public void Dispose()
         {
+            foreach (var member in _replacementMembers.Values) if (member != null) Destroy(member);
+            _replacementMembers.Clear();
             foreach (Sprite sprite in _sprites.Values)
                 if (sprite != null) Destroy(sprite);
             foreach (Texture2D texture in _textures.Values)

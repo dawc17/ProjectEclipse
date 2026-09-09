@@ -160,6 +160,7 @@ namespace Nekki.SF2.GUI.Menu
 			_materials.Init();
 			DesktopTopBarLayout.Configure(_experience, _energy, _money);
 			ConfigureMenuScrollLayout();
+            Eclipse.UI.ReturnToTitleButton.Attach(this);
 			LGGBLFOKHAO();
 			GBKFLJIEHBH();
 			HIPEIJPLBJJ();

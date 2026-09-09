@@ -450,6 +450,7 @@ public sealed class PerkItems
 
 public static class GameUtils
 {
+    public static readonly FixtureAchievCounters HHLEKNNJGMJ = new FixtureAchievCounters();
     public static readonly PerkItems FDEJIIDIPBI = new PerkItems();
 }
 
@@ -656,6 +657,8 @@ public sealed class PerkTree
 
 public sealed class ListSF
 {
+    public static ListSF CCDKHLAMKKO() => Instance;
+    public FixtureUserAchievements KJNPJKEHGLE() => new FixtureUserAchievements();
     private static Items _items = new Items();
     private static readonly ListSF Instance = new ListSF();
     private readonly Dictionary<string, Battle> _battles = new Dictionary<string, Battle>(StringComparer.Ordinal);
@@ -792,3 +795,14 @@ namespace Eclipse.Modding
         public static void Bind(XmlNode warrior) { }
     }
 }
+
+// Achievement persistence is exercised against real native sources in
+// TestPhase3Progression.ps1; art validation only needs the host boundary.
+public sealed class FixtureAchievCounters { public readonly List<AchievCounter> MDNKEAFGAOB = new List<AchievCounter>(); }
+public sealed class AchievCounter { public AchievCounter(XmlNode node) {} }
+public sealed class FixtureUserAchievements
+{
+    public FixtureRosterCounter KJPLIHEMLJL(string name) => null;
+    public int AdvanceExternalCounter(string name, int amount, int maximum) => amount;
+}
+public sealed class FixtureRosterCounter { public int MCIPEJBLIDC() => 0; }

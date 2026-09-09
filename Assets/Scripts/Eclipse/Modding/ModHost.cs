@@ -39,7 +39,7 @@ namespace Eclipse.Modding
             if (string.IsNullOrEmpty(modsRoot)) throw new ArgumentNullException(nameof(modsRoot));
             string root = Path.GetFullPath(modsRoot);
             ModDiscoveryResult discovery = ModDiscovery.DiscoverLoose(root);
-            DependencyResolutionResult resolution = DependencyResolver.Resolve(discovery.Mods,
+            DependencyResolutionResult resolution = DependencyResolver.Resolve(ModSelection.Load(GetSelectionPath(root)).Filter(discovery.Mods),
                 ModPlatformVersions.Api, ModPlatformVersions.Core);
 
             var diagnostics = new List<ModDiagnostic>();
@@ -75,6 +75,17 @@ namespace Eclipse.Modding
             }
 
             return new ModHost(root, enabled.ToArray(), diagnostics.ToArray(), new AssetResolver(providers));
+        }
+
+        public static string GetSelectionPath(string modsRoot)
+        {
+            // Separate installations/test fixtures do not share enablement state.
+            string identity = Path.GetFullPath(modsRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).ToLowerInvariant();
+            using (var hash = System.Security.Cryptography.SHA256.Create())
+            {
+                string key = BitConverter.ToString(hash.ComputeHash(Encoding.UTF8.GetBytes(identity))).Replace("-", "");
+                return Path.Combine(Application.persistentDataPath, "ModSelections", key + ".xml");
+            }
         }
 
         public static ModHost BuildDefault()
@@ -122,6 +133,7 @@ namespace Eclipse.Modding
 
         public void Dispose()
         {
+            Assets.SetReplacements(null);
             TypedAssets.Dispose();
         }
 

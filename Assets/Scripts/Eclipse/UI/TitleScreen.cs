@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace Eclipse.UI
 {
     // Built independently of the recovered canvas: no scene or sprite GUID changes.
-    public sealed class TitleScreen : MonoBehaviour
+    public sealed partial class TitleScreen : MonoBehaviour
     {
         private static bool enteredCampaign;
         public static bool IsOpen { get; private set; }
@@ -67,6 +67,8 @@ namespace Eclipse.UI
             if (enteredCampaign || IsOpen || Application.isBatchMode) return;
             new GameObject("Eclipse Title Screen", typeof(RectTransform)).AddComponent<TitleScreen>();
         }
+
+        public static void PrepareForRestart() { enteredCampaign = false; }
 
         private void Awake()
         {
@@ -227,8 +229,9 @@ namespace Eclipse.UI
             multiplayer.interactable = false;
             controls.Remove(multiplayer);
             Label(page, "COMING SOON", 405, 408, 470, 20, 12, Ink, TextAnchor.MiddleCenter);
-            Button(page, "OPTIONS", 405, 442, 470, 60, () => Settings("Display"));
-            Button(page, "QUIT GAME", 405, 517, 470, 60, QuitPrompt);
+            Button(page, "MODS", 405, 433, 470, 56, OpenMods);
+            Button(page, "OPTIONS", 405, 494, 470, 56, () => Settings("Display"));
+            Button(page, "QUIT GAME", 405, 555, 470, 56, QuitPrompt);
             FocusFirst();
         }
         private void Settings(string tab)
@@ -443,6 +446,7 @@ namespace Eclipse.UI
 
         private void Update()
         {
+            if (GameSessionRestart.IsRestarting) return;
             if (bindingAction >= 0) { CaptureControllerBinding(); return; }
             if (Time.frameCount == bindingFrame) return;
             if (leaving)

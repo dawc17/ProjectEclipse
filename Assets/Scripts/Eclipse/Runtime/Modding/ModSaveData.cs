@@ -84,7 +84,7 @@ namespace Eclipse.Modding
             if (content == null) throw new ArgumentNullException(nameof(content));
 
             var canonical = new StringBuilder();
-            Append(canonical, "fingerprint-v6");
+            Append(canonical, "fingerprint-v7");
             Append(canonical, ModPlatformVersions.Api.ToString());
             Append(canonical, ModPlatformVersions.Core.ToString());
 
@@ -116,6 +116,28 @@ namespace Eclipse.Modding
                     Append(canonical, language);
                     Append(canonical, localization.Values[language]);
                 }
+            }
+
+            var counters = new List<ModCounterDefinition>(content.Counters);
+            counters.Sort((a, b) => CompareIds(a.Id, b.Id));
+            Append(canonical, "counters"); Append(canonical, counters.Count);
+            foreach (var value in counters) { Append(canonical, value.Id.ToString()); Append(canonical, value.Maximum); }
+            var achievements = new List<ModAchievementDefinition>(content.Achievements);
+            achievements.Sort((a, b) => CompareIds(a.Id, b.Id));
+            Append(canonical, "achievements"); Append(canonical, achievements.Count);
+            foreach (var value in achievements)
+            {
+                Append(canonical, value.Id.ToString()); Append(canonical, value.Counter.ToString());
+                Append(canonical, value.Title.ToString()); Append(canonical, value.Description.ToString());
+                Append(canonical, value.Icon.ToString()); Append(canonical, value.Threshold); Append(canonical, value.Hidden);
+            }
+            var replacements = new List<ModAssetReplacement>(content.AssetReplacements);
+            replacements.Sort((a, b) => string.CompareOrdinal(a.Target.ToString(), b.Target.ToString()));
+            Append(canonical, "asset-replacements"); Append(canonical, replacements.Count);
+            foreach (var value in replacements)
+            {
+                Append(canonical, value.Owner.Value); Append(canonical, value.Target.ToString());
+                Append(canonical, value.Replacement.ToString()); Append(canonical, (int)value.Kind);
             }
 
             var patches = new List<ModContentPatchRecord>(content.Patches);

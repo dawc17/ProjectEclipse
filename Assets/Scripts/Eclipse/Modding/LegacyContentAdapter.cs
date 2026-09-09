@@ -100,6 +100,8 @@ namespace Eclipse.Modding
                 _localizationKeys.Add(key);
             }
 
+            ApplyP3Localization(language);
+
             // Core localization patches bind to the exact recovered legacy key. The
             // LocalizationManager overlay makes this reversible: disposing the mod removes
             // only the overlay and immediately exposes the base language value again.
@@ -338,6 +340,7 @@ namespace Eclipse.Modding
             }
             RemoveLocalization();
             RemoveP1DContent();
+            RemoveP3Content();
             RemoveQuests(ListSF.ELEBLBJKDBI());
             RemoveStages(ListSF.ELEBLBJKDBI());
             RemovePerksAndEnchantments();

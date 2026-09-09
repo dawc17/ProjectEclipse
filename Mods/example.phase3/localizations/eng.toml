@@ -1,0 +1,7 @@
+first = "P3 First Record"
+first.description = "Win one fight with Archivist equipped."
+third = "P3 Three Records"
+third.description = "Win three fights with Archivist equipped. Progress survives restart."
+archivist = "Archivist"
+archivist.description = "Records victories in your profile achievement counter. Unlocks achievements at one and three wins."
+forge = "P3 Archivist"

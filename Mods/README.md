@@ -6,9 +6,10 @@ The dependency-ordered engineering roadmap is
 [DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
 DE parity or Mod API expansion must read both parity documents before editing.
 
-Current public Mod API version: **0.6.0**.
+Current public Mod API version: **0.7.0**.
 
-See [Phase 2 API](P2_API.md) and the [integrated playtest guide](example.phase2/README.md).
+See [Phase 3 API](P3_API.md) and its [numbered playtest guide](example.phase3/README.md).
+The [Phase 2 API](P2_API.md) and [showcase](example.phase2/README.md) remain supported.
 
 Place each mod in `Mods/<folder>/` with a `mod.toml` manifest. See `example.weapon`
 for the minimal weapon slice, `example.loadout` for armor, helm, ranged, and magic,
@@ -31,8 +32,9 @@ not demonstrate the full programmable direction.
 
 The current executable foundation is reusable perk/enchantment behavior with
 typed instance parameters, `on_fight_begin`, the documented health/magic-charge
-capabilities, and mod-owned state. Expanded combat events, quest callbacks, and
-programmable AI remain roadmap work. The
+capabilities, and mod-owned state. Phase 2 adds combat lifecycle/damage callbacks; Phase 3 adds saved achievement
+counters and explicit asset replacement. General quest callbacks and programmable
+AI remain roadmap work. The
 [design rule and acceptance criteria](DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior)
 guide that work; the API sections below describe what is available today.
 
@@ -865,10 +867,10 @@ addresses. Those members are valid first-class core sprite IDs when the exact at
 named member both exist, for example
 `core:ui/items/armor12.img_armor_mantle_of_night`. A nonexistent member does not resolve.
 
-Addressability does **not** mean replaceability. External mods cannot claim the reserved
-`core` namespace, and there is no last-mod-wins override behavior. If controlled core
-replacement is added later it will require an explicit replacement contract and dependency,
-not filesystem ordering.
+API 0.7 adds [explicit typed asset replacement](P3_API.md#asset-replacement).
+External mods still cannot claim the reserved `core` namespace. Replacement requires
+`assets.replace`, a declared dependency, matching types and a unique target claim;
+conflicts fail rather than using filesystem or last-mod-wins ordering.
 
 ## Save compatibility
 
