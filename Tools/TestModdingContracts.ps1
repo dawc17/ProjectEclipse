@@ -16,9 +16,16 @@ $sources = @(
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\AssetResolver.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModScripting.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModScriptingP1C.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModScriptingP1D.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModWarriorTemplates.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModSaveData.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\CoreContentImporter.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\CoreContentImporterP1C.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContent.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1B.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1C.cs'),
+    (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1D.cs'),
     (Join-Path $root 'Assets\Scripts\Eclipse\Runtime\Modding\ModLocalizationLoader.cs')
 )
 
@@ -95,6 +102,19 @@ internal static class Program
         throw new Exception(message);
     }
 
+    private static string RejectContentMessage(Action action, string message)
+    {
+        try
+        {
+            action();
+        }
+        catch (ModContentException exception)
+        {
+            return exception.Message;
+        }
+        throw new Exception(message);
+    }
+
     private static string Manifest(string id, string version, string api, params string[] dependencies)
     {
         string text =
@@ -119,6 +139,15 @@ internal static class Program
     {
         ModManifest manifest = ModManifestReader.ParseExternal(
             Manifest(id, version, ">=0.1 <1.0", dependencies), id + "/mod.toml");
+        return new ModDescriptor(manifest, Path.GetFullPath(id), ModSourceKind.Loose);
+    }
+
+    private static ModDescriptor PatchDescriptor(string id, string version, params string[] dependencies)
+    {
+        string text = Manifest(id, version, ">=0.1 <1.0", dependencies).Replace(
+            "capabilities = [\"content.register\"]",
+            "capabilities = [\"content.register\", \"content.patch\"]");
+        ModManifest manifest = ModManifestReader.ParseExternal(text, id + "/mod.toml");
         return new ModDescriptor(manifest, Path.GetFullPath(id), ModSourceKind.Loose);
     }
 
@@ -560,6 +589,129 @@ internal static class Program
             catalog.Ranged.Count == 85 && catalog.Magic.Count == 73 && catalog.Localizations.Count == 739 &&
             catalog.Perks.Count == 210 && catalog.Enchantments.Count == 0,
             "Failed core import was not atomic.");
+
+        XmlNode nunchakuNode = vanilla.SelectSingleNode(
+            "/List/Items/Item[@Type='Weapon' and @Name='WEAPON_NUNCHAKU']");
+        Assert(nunchakuNode != null, "Canonical Nunchaku fixture disappeared from vanilla list.xml.");
+        DefinitionId nunchakuLocalizationId = DefinitionId.Parse("core:localization/weapon_nunchaku");
+        DefinitionId nunchakuItemId = DefinitionId.Parse("core:items/weapon/weapon_nunchaku");
+
+        var patchCatalog = new ModContentCatalog();
+        Assert(CoreContentImporter.ImportWeapons(patchCatalog, new[] { nunchakuNode }, languages) == 1,
+            "P0 localization patch fixture could not project its core weapon.");
+        LocalizationDefinition baseNunchaku;
+        Assert(patchCatalog.TryGetLocalization(nunchakuLocalizationId, out baseNunchaku) &&
+            baseNunchaku.GetOrEnglish("eng") == "Nunchacku" && baseNunchaku.LegacyKey == "WEAPON_NUNCHAKU",
+            "P0 core localization fixture lost its canonical or recovered identity.");
+
+        ModDescriptor patchA = PatchDescriptor("patch.alpha", "1.0.0", "core", ">=1.0 <2.0");
+        string patchBaselineFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { patchA }, patchCatalog);
+        using (ModRegistrationTransaction registration = patchCatalog.BeginRegistration(patchA))
+        {
+            Assert(registration.PatchLocalization("core:localization/WEAPON_NUNCHAKU", "eng", "Nunchaku") ==
+                nunchakuLocalizationId, "Core localization patch did not canonicalize its typed target.");
+            Assert(patchCatalog.Patches.Count == 0 && baseNunchaku.GetOrEnglish("eng") == "Nunchacku",
+                "Uncommitted localization patch leaked into the catalog.");
+            registration.Commit();
+        }
+        LocalizationDefinition patchedNunchaku;
+        Assert(patchCatalog.TryGetLocalization(nunchakuLocalizationId, out patchedNunchaku) &&
+            patchedNunchaku.GetOrEnglish("eng") == "Nunchaku" && patchedNunchaku.LegacyKey == "WEAPON_NUNCHAKU",
+            "Committed localization patch lost its value or legacy runtime binding.");
+        Assert(patchCatalog.Patches.Count == 1 && patchCatalog.Patches[0].Owner == patchA.Id &&
+            patchCatalog.Patches[0].Target == nunchakuLocalizationId &&
+            patchCatalog.Patches[0].Field == "values/eng" &&
+            patchCatalog.Patches[0].Operation == ModContentPatchOperation.Replace,
+            "Committed localization patch lost ownership/provenance metadata.");
+        string patchFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { patchA }, patchCatalog);
+        Assert(patchFingerprint != patchBaselineFingerprint,
+            "Content-set fingerprint ignored committed patch semantics/provenance.");
+
+        ModDescriptor missingCoreDependency = PatchDescriptor("patch.nodependency", "1.0.0");
+        using (ModRegistrationTransaction registration = patchCatalog.BeginRegistration(missingCoreDependency))
+        {
+            RejectContent(() => registration.PatchLocalization(nunchakuLocalizationId.ToString(), "rus", "blocked"),
+                "A mod patched core localization without declaring a core dependency.");
+        }
+        using (ModRegistrationTransaction registration = patchCatalog.BeginRegistration(patchA))
+        {
+            RejectContent(() => registration.PatchLocalization(nunchakuItemId.ToString(), "eng", "wrong category"),
+                "Localization patch accepted an item definition target.");
+        }
+
+        ModDescriptor patchB = PatchDescriptor("patch.beta", "1.0.0", "core", ">=1.0 <2.0");
+        using (ModRegistrationTransaction registration = patchCatalog.BeginRegistration(patchB))
+        {
+            registration.PatchLocalization(nunchakuLocalizationId.ToString(), "eng", "Last writer must not win");
+            string conflict = RejectContentMessage(() => registration.Commit(),
+                "Two mods replaced the same localization field without an explicit conflict.");
+            Assert(conflict.Contains(nunchakuLocalizationId.ToString()) && conflict.Contains("values/eng") &&
+                conflict.Contains("patch.alpha") && conflict.Contains("patch.beta"),
+                "Patch conflict diagnostic omitted target, field, or both owners: " + conflict);
+        }
+        Assert(patchCatalog.Patches.Count == 1 &&
+            patchCatalog.TryGetLocalization(nunchakuLocalizationId, out patchedNunchaku) &&
+            patchedNunchaku.GetOrEnglish("eng") == "Nunchaku",
+            "Rejected overlapping patch behaved like last-mod-wins or partially committed.");
+
+        using (ModRegistrationTransaction registration = patchCatalog.BeginRegistration(patchB))
+        {
+            registration.PatchLocalization(nunchakuLocalizationId.ToString(), "rus", "P0 Russian fixture");
+            registration.Commit();
+        }
+        Assert(patchCatalog.Patches.Count == 2 &&
+            patchCatalog.TryGetLocalization(nunchakuLocalizationId, out patchedNunchaku) &&
+            patchedNunchaku.GetOrEnglish("eng") == "Nunchaku" &&
+            patchedNunchaku.GetOrEnglish("rus") == "P0 Russian fixture",
+            "Non-overlapping localization fields did not compose.");
+
+        var atomicPatchCatalog = new ModContentCatalog();
+        CoreContentImporter.ImportWeapons(atomicPatchCatalog, new[] { nunchakuNode }, languages);
+        ModDescriptor atomicPatchMod = PatchDescriptor("patch.atomic", "1.0.0", "core", ">=1.0 <2.0");
+        using (ModRegistrationTransaction seed = atomicPatchCatalog.BeginRegistration(atomicPatchMod))
+        {
+            seed.AddLocalization("already.exists", "eng", "Original");
+            seed.Commit();
+        }
+        using (ModRegistrationTransaction failing = atomicPatchCatalog.BeginRegistration(atomicPatchMod))
+        {
+            failing.PatchLocalization(nunchakuLocalizationId.ToString(), "eng", "Must roll back");
+            failing.AddLocalization("already.exists", "eng", "Duplicate");
+            RejectContent(() => failing.Commit(), "Definition collision did not atomically reject a staged patch.");
+        }
+        Assert(atomicPatchCatalog.Patches.Count == 0 &&
+            atomicPatchCatalog.TryGetLocalization(nunchakuLocalizationId, out baseNunchaku) &&
+            baseNunchaku.GetOrEnglish("eng") == "Nunchacku",
+            "Failed transaction partially committed a localization patch.");
+
+        Assert(ModContentPolicies.GetFieldPolicy(nunchakuItemId, ModContentPolicies.EconomyItemPrice) ==
+            ModContentFieldPolicy.BaseOnly,
+            "Core/shared item price is not centrally marked base-only.");
+        RejectContent(() => ModContentPolicies.RequirePatchAllowed(nunchakuItemId,
+            ModContentPolicies.EconomyItemPrice, ModContentPatchOperation.Replace),
+            "Economy firewall allowed a mod patch of a core item price.");
+        RejectContent(() => ModContentPolicies.RequirePatchAllowed(nunchakuItemId,
+            "presentation/unknown-field", ModContentPatchOperation.Replace),
+            "Unknown semantic patch fields did not default to read-only.");
+
+        using (ModRegistrationTransaction registration = patchCatalog.BeginRegistration(
+            Descriptor("patch.nocapability", "1.0.0", "core", ">=1.0 <2.0")))
+        {
+            ModDescriptor noCapability = registration.Mod;
+            var patchApi = new ModApiFacade(noCapability,
+                new AssetResolver(new IAssetProvider[] { new FakeCoreProvider() }), registration, null);
+            RejectContent(() => patchApi.PatchLocalization(nunchakuLocalizationId.ToString(), "tur", "blocked"),
+                "Public facade allowed content patching without the content.patch capability.");
+        }
+
+        var restoredBaseCatalog = new ModContentCatalog();
+        CoreContentImporter.ImportWeapons(restoredBaseCatalog, new[] { nunchakuNode }, languages);
+        LocalizationDefinition restoredNunchaku;
+        Assert(restoredBaseCatalog.Patches.Count == 0 &&
+            restoredBaseCatalog.TryGetLocalization(nunchakuLocalizationId, out restoredNunchaku) &&
+            restoredNunchaku.GetOrEnglish("eng") == "Nunchacku",
+            "Rebuilding content without the patching mod did not restore the canonical base value.");
+
         ModDescriptor mod = Descriptor("example.weapon", "1.0.0", "core", ">=1.0 <2.0");
         string coreOnlyFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
         Assert(coreOnlyFingerprint.StartsWith("sha256:", StringComparison.Ordinal) && coreOnlyFingerprint.Length == 71,
@@ -575,6 +727,48 @@ internal static class Program
         string contentFingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog);
         Assert(contentFingerprint != coreOnlyFingerprint,
             "Content-set fingerprint ignored registered content changes without a version bump.");
+
+        using (ModRegistrationTransaction registration = catalog.BeginRegistration(mod))
+        {
+            registration.RegisterLocaleMetadata("sv", "Swedish", "sv-SE", "sv", string.Empty,
+                string.Empty, string.Empty, string.Empty, false,
+                new LocaleFontDefinition("font_content", "font_title", "font_button"));
+            var locationLayer = new LocationLayerDefinition(1, 1f, false, new[]
+            {
+                new LocationImageDefinition(AssetId.Parse("example.weapon:sprites/locations/test/bg"),
+                    0f, 0f, 512f, 256f)
+            });
+            registration.RegisterLocation("test_stage", "0xffffff", 200f, 80f, 0f, 1936f, 512f,
+                1936f, 0f, 0, AssetId.Parse("example.weapon:audio/test"), new[] { locationLayer });
+            MoveTemplateDefinition moveTemplate = registration.RegisterMoveTemplate("test_template", null,
+                new[] { "Stance" }, null, null, null, string.Empty, 0, 0, 0, 0, string.Empty,
+                string.Empty, string.Empty, false, false);
+            MoveDefinition move = registration.RegisterMove("test_move",
+                AssetId.Parse("example.weapon:animations/test"), new[] { moveTemplate.Id }, null, null, null,
+                null, "MOVE", 1, 0, 0, 0, string.Empty, string.Empty, string.Empty, false, false);
+            registration.RegisterMoveTrigger("test_trigger",
+                new[] { new ModMoveEvent(ModMoveEventKind.AnimationEnd) }, null,
+                new[] { ModMoveAction.Sound(AssetId.Parse("example.weapon:audio/test")) });
+            registration.RegisterTactic("test_tactic", ModTacticKind.Tabular, string.Empty, 10, 1f,
+                null, null, null, null, null, null, null, null,
+                new[] { new ModTacticAnimationValue(move.Id, string.Empty, new ModTacticValue(@base: 1f)) },
+                null, null, null);
+            registration.Commit();
+        }
+        Assert(catalog.LocaleMetadata.Count == 1 && catalog.Locations.Count == 1 &&
+            catalog.MoveTemplates.Count == 1 && catalog.Moves.Count == 1 && catalog.MoveTriggers.Count == 1 &&
+            catalog.Tactics.Count == 1, "P1D typed definitions did not commit atomically into their registries.");
+        Assert(ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog) != contentFingerprint,
+            "Content-set fingerprint ignored committed P1D locale/location/move/tactic content.");
+        int p1dMoveCount = catalog.Moves.Count;
+        using (ModRegistrationTransaction rollbackP1D = catalog.BeginRegistration(mod))
+        {
+            rollbackP1D.RegisterMove("rollback_move", AssetId.Parse("example.weapon:animations/rollback"),
+                null, new[] { "Stance" }, null, null, null, "MOVE", 0, 0, 0, 0, string.Empty,
+                string.Empty, string.Empty, false, false);
+        }
+        Assert(catalog.Moves.Count == p1dMoveCount,
+            "Disposed P1D registration transaction leaked an additive move into the catalog.");
 
         int perkCountBefore = catalog.Perks.Count;
         int enchantmentCountBefore = catalog.Enchantments.Count;

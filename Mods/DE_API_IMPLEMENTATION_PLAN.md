@@ -183,6 +183,58 @@ not bypass the prerequisites above.
 P0 is the blocker for almost every later domain. Do this before proliferating
 one-off registries.
 
+## P0 implementation status, 2026-09-08
+
+API 0.5.0 now contains the common ownership, patch/conflict, policy, fingerprint,
+and durable state foundation. Generic collection child adapters are still proven
+per-domain as those domains land rather than through raw XML mutation:
+
+- P0.1: existing `DefinitionId`, namespace ownership, direct-dependency checks,
+  and deterministic dependency order are retained as the common identity base;
+- P0.2: typed replacement of a selected localization language field is live
+  through `sf2.localization.patch`; generic collection child operations and
+  public remove/tombstone operations for new domains remain open;
+- P0.3: committed patches carry owner/target/field/operation provenance;
+  same-field writes conflict explicitly while non-overlapping language fields
+  compose;
+- P0.4: the centralized semantic-field policy is deny-by-default and all
+  `economy/*` semantic fields are base-only;
+- P0.5: `sf2.state` now provides namespaced typed schemas, transactional batch
+  writes, bounded N -> N+1 migrations, aliases/tombstones, opaque missing-mod
+  preservation, reinstall restoration, and rollback on migration failure;
+- P0.6: the deterministic content fingerprint is now `fingerprint-v6` and
+  includes patch provenance, effective content, registered state schemas, and
+  every committed Phase 1 semantic registry.
+
+Authoritative implementation evidence for this slice:
+
+- `Assets/Scripts/Eclipse/Runtime/Modding/ModContent.cs` owns patch policy,
+  provenance, transaction validation, conflict detection, and atomic
+  localization replacement;
+- `Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs` exposes only the
+  typed localization patch adapter, not generic XML/object mutation;
+- `Assets/Scripts/Assembly-CSharp/LocalizationManager.cs` applies external
+  strings as an overlay so removing a core localization patch reveals the base
+  value instead of deleting it;
+- `Tools/TestModdingContracts.ps1` covers dependency rejection, wrong-category
+  rejection, same-field conflict, non-overlap composition, atomic rollback,
+  capability gating, fingerprint changes, base restoration, and the economy
+  firewall;
+- `Tools/TestModStateRuntime.ps1` executes the exact P0.5 remove/save/reinstall/
+  migrate/fail sequence, including transactional writes and future-schema
+  preservation;
+- `Tools/TestPackagedArt.ps1` / `ValidatePackagedArt.cs` exercise the public Lua
+  patch path, a real two-mod overlap, state-backed behavior, successful Lua
+  migration, and failed-migration rollback in isolated Unity. The editor fixture
+  passes 160 checks before the API 0.5 version gate rerun;
+- `dotnet build Assembly-CSharp.csproj --no-restore` builds the project with
+  zero errors after this slice.
+
+The common P0 machinery is now stable enough for P1 domains to consume. New
+collection-like domains must still use the shared semantic patch-key/provenance
+model and add explicit add/remove child policies rather than inventing private
+last-wins logic.
+
 ## P0.1 Generic definition ownership and typed references
 
 ### Goal
@@ -339,6 +391,53 @@ order or generated runtime object IDs.
 
 This graph must exist before complete quest support because quests reference and
 manipulate fights/battles.
+
+## Phase 1 implementation status, 2026-09-09
+
+**Phase 1 is implemented and regression-gated. P2A is the next unstarted roadmap
+phase.** The integrated acceptance fixture is `Mods/example.phase1`, which is
+discovered and executed through the real public MoonSharp path by
+`Tools/TestPhase1ShowcaseRuntime.ps1` on an unchanged base content catalog.
+
+Shipped Phase 1 slices:
+
+- **P1A:** typed zone/battle/fight/warrior/template/rule/reward definitions,
+  authored child ordering, provenance-tracked mod battle append into existing
+  dependency/core zones, reversible supported core fight field patches, and
+  direct/weighted non-economic item rewards. `RewardChoice`'s recovered backing
+  list initialization defect is fixed and covered by a runtime regression.
+- **P1B:** typed quest events, compare/all/any/not conditions, stable fight/battle
+  operands, dialog/story/variable/map/fight/battle/Eclipse/item actions, nested
+  dialog-button action sequences, recovered quest injection, and reversible
+  external quest teardown. The public surface remains an allowlist rather than
+  exposing the recovered action factory wholesale.
+- **P1C:** consumable/free/seal definitions, first-class item sets, shared
+  shop/quest availability policy, targeted progression branch overlays, and
+  structural forge recipe families that reference immutable host economic
+  profiles. Shared/core costs and currency formulas remain base-owned.
+- **P1D:** locale metadata, qualified PCM16 WAV audio and binary assets, typed
+  location layers using namespaced single sprites/music, additive typed
+  move/template/trigger registration, and ordinary recovered tactics. Opaque
+  tactic handles can be passed directly to `sf2.warriors.register`.
+- **Cross-slice save identity:** `fingerprint-v6` includes P1A/P1B/P1C/P1D
+  semantic content so changing a shipped Phase 1 definition changes the
+  deterministic content-set hash.
+
+Authoritative limitations remain recorded rather than guessed:
+
+- `ConditionalDecisions` is not public because no recovered parser/evaluator was
+  found in live source or the recovered dump;
+- mod audio playback is currently PCM16 WAV only;
+- namespaced location art currently supports individual sprite assets, not a
+  general loose multi-sprite atlas/particle/prefab contract;
+- move registration is additive only because no authoritative reversible
+  replace/remove runtime seam has been proven.
+
+Focused gates are `Tools/TestP1ABContracts.ps1`, `Tools/TestP1CContracts.ps1`,
+`Tools/TestPhase1Showcase.ps1`, `Tools/TestPhase1ShowcaseRuntime.ps1`, the existing
+state/save/enchantment/fight-begin/RewardChoice suites, and
+`Tools/TestPackagedArt.ps1`. The packaged-art editor fixture covers 160 checks with
+95 groups, 94 TAR/LZ4 archives, and 10 loose fonts.
 
 ## P1A.1 ZoneDefinition
 
@@ -1458,19 +1557,10 @@ If only the DTO/registry exists, the task is **not complete**.
 
 # 10. Immediate next milestone
 
-The next implementation milestone should be **P0**, not another isolated DE
-feature.
+P0 through P1 are now complete enough for the next dependency-ordered production
+milestone. The next unstarted phase is **P2A: expanded combat behaviors**.
 
-Concretely:
-
-1. design the common semantic definition/patch operation model;
-2. define field-policy metadata including the economy firewall;
-3. add provenance/conflict tracking to committed content;
-4. add general namespaced mod state and versioned migrations;
-5. prove the foundation using one tiny core non-economic patch, one overlapping
-   conflict fixture, and one missing/reinstalled state fixture;
-6. only then start the public zone/battle/fight registry.
-
-That order prevents the project from accumulating separate special-case APIs for
-quests, raids, Ascension, locations, and progression that later have to be
-rewritten to share ownership/conflict/save semantics.
+Do not bypass P2A by adding DE-specific perk/effect shortcuts. Continue the API
+0.3 reusable behavior + typed per-instance parameter architecture and add only
+authoritative recovered lifecycle events and narrow fighter/effect operations.
+The Phase 1 showcase must remain green while P2A is developed.

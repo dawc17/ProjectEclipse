@@ -28,6 +28,8 @@ public class AiData
 
 	private static List<Tactic> PNBAAKIIDGG = new List<Tactic>();
 
+	private static HashSet<string> EclipseExternalTactics = new HashSet<string>();
+
 	private static Tactic JMGFJNKBJHM;
 
 	public static int KINPOOFGAGD;
@@ -455,6 +457,7 @@ public class AiData
 		PJJEHBOPLNB.Clear();
 		EPJJKMOFJHC.Clear();
 		OLPDJEKFMGJ.Clear();
+		EclipseExternalTactics.Clear();
 	}
 
 	public static void ClearTables()
@@ -745,6 +748,32 @@ public class AiData
 				PNBAAKIIDGG.Add(item);
 			}
 		}
+	}
+
+	internal static void AddExternalTactic(XmlNode node)
+	{
+		if (node == null || node.Name != "Tactic")
+			throw new System.ArgumentException("External tactic node must be a Tactic element.", "node");
+		string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+		if (string.IsNullOrEmpty(name))
+			throw new System.ArgumentException("External tactic requires a Name.", "node");
+		for (int i = 0; i < PNBAAKIIDGG.Count; i++)
+			if (PNBAAKIIDGG[i].get_Name() == name)
+				throw new System.InvalidOperationException("External tactic collides with existing tactic '" + name + "'.");
+		PNBAAKIIDGG.Add(new Tactic(node));
+		EclipseExternalTactics.Add(name);
+	}
+
+	internal static bool RemoveExternalTactic(string name)
+	{
+		if (string.IsNullOrEmpty(name) || !EclipseExternalTactics.Remove(name)) return false;
+		for (int i = PNBAAKIIDGG.Count - 1; i >= 0; i--)
+		{
+			if (PNBAAKIIDGG[i].get_Name() != name) continue;
+			PNBAAKIIDGG.RemoveAt(i);
+			return true;
+		}
+		return false;
 	}
 
 	public static string GetItemEquivalent(string LKBJNLBIDGP)

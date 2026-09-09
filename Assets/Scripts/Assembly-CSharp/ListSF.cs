@@ -325,8 +325,10 @@ public class ListSF
 		ItemInfo.DenominateItems();
 		OFIPOGGCKIN();
 		KIEEPEOPJGB();
+		Eclipse.Modding.ModRuntime.ApplyStageContent();
 		JGFGMICMBKL = true;
 		PDCHBPKOBFI(string.Empty);
+		Eclipse.Modding.ModRuntime.ApplyQuestContent();
 		LDADJAGGGPA();
 		PacksController.ELEBLBJKDBI().GDNFPIBDDBO();
 		IEGJHNHFJFA = null;
@@ -1594,6 +1596,25 @@ public class ListSF
 		nKGLHEGIKKP.DDBBADOGHHB(text);
 	}
 
+	public QuestStage AddExternalQuest(XmlNode node, string ownerFile)
+	{
+		if (node == null || node.Name != "Quest")
+			throw new System.ArgumentException("External quest content must provide one Quest node.", "node");
+		string name = node.Attributes?["Name"]?.Value ?? string.Empty;
+		if (string.IsNullOrEmpty(name)) throw new System.ArgumentException("External quest Name must not be empty.", "node");
+		if (_QuestsManager.GetQuestByName(name) != null)
+			throw new System.InvalidOperationException("Quest already exists: '" + name + "'.");
+		QuestStage quest = new QuestStage(node, string.IsNullOrEmpty(ownerFile) ? "eclipse-mod" : ownerFile);
+		_QuestsManager.set_QuestsAllCapacity(1);
+		_QuestsManager.AddQuest(quest);
+		return quest;
+	}
+
+	public void RemoveExternalQuest(QuestStage quest)
+	{
+		if (quest != null) _QuestsManager.RemoveExternalQuest(quest);
+	}
+
 	public void KBCBLOMDKCA(FightList KGKDKENMAOA)
 	{
 		if (Module.ELEBLBJKDBI().NMCNDOPKFJD() != ScreenType.ModuleMap)
@@ -2630,6 +2651,85 @@ public class ListSF
 	public List<Battle> MMCHMBIKIEP()
 	{
 		return _battles;
+	}
+
+	// Additive/removable stage seam for Eclipse's typed Mod API. The recovered parser remains
+	// authoritative; callers provide one complete validated Zone node assembled by the host.
+	public Zone AddExternalZone(XmlNode node)
+	{
+		if (node == null || node.Name != "Zone")
+		{
+			throw new System.ArgumentException("External stage content must provide one Zone node.", "node");
+		}
+		string name = node.Attributes?["Name"]?.Value ?? string.Empty;
+		if (string.IsNullOrEmpty(name))
+		{
+			throw new System.ArgumentException("External zone Name must not be empty.", "node");
+		}
+		if (CFEDCFACBLE(name) != null)
+		{
+			throw new System.InvalidOperationException("Zone already exists: '" + name + "'.");
+		}
+		Zone zone = PGGMIJMOJHA(node, false);
+		CMEABHLEKNH.Add(zone);
+		return zone;
+	}
+
+	public bool RemoveExternalZone(string name)
+	{
+		if (string.IsNullOrEmpty(name)) return false;
+		Zone zone = CMEABHLEKNH.Find((Zone value) => value.get_Name() == name);
+		if (zone == null) return false;
+		foreach (Battle battle in zone.LGIIBNJFADA)
+		{
+			List<FightList> fights = JEBHJOKNENP(battle);
+			for (int i = 0; i < fights.Count; i++) KINHMMGJEMP(fights[i]);
+			_battles.Remove(battle);
+		}
+		CMEABHLEKNH.Remove(zone);
+		return true;
+	}
+
+	public Battle FindBattleForModding(string zoneName, string battleName)
+	{
+		Zone zone = CFEDCFACBLE(zoneName);
+		return zone == null ? null : zone.LGIIBNJFADA.Find((Battle value) => value.get_Name() == battleName);
+	}
+
+	public Battle AddExternalBattle(string zoneName, XmlNode node)
+	{
+		if (string.IsNullOrEmpty(zoneName)) throw new System.ArgumentException("Target zone must not be empty.", "zoneName");
+		if (node == null || node.Name != "Battle")
+			throw new System.ArgumentException("External stage content must provide one Battle node.", "node");
+		Zone zone = CFEDCFACBLE(zoneName);
+		if (zone == null) throw new System.InvalidOperationException("Zone does not exist: '" + zoneName + "'.");
+		string battleName = node.Attributes?["Name"]?.Value ?? string.Empty;
+		if (string.IsNullOrEmpty(battleName)) throw new System.ArgumentException("External battle Name must not be empty.", "node");
+		if (zone.LGIIBNJFADA.Exists((Battle value) => value.get_Name() == battleName))
+			throw new System.InvalidOperationException("Battle already exists in zone '" + zoneName + "': '" + battleName + "'.");
+		Battle battle = MMDBBEFAHJH(node, zone, false);
+		ELCJGIEJHNE(battle);
+		battle.BDAELBFECAJ();
+		FightIDS ids = new FightIDS(string.Copy(zone.get_Name()), string.Copy(battle.get_Name()), string.Empty);
+		bool available = CCDKHLAMKKO().HAMPNCKAJKD(ids);
+		if (battle.get_Type() == BattleType.FightRaid) available = true;
+		battle.DCHJDPCEODD = available;
+		zone.LGIIBNJFADA.Add(battle);
+		return battle;
+	}
+
+	public bool RemoveExternalBattle(string zoneName, string battleName)
+	{
+		if (string.IsNullOrEmpty(zoneName) || string.IsNullOrEmpty(battleName)) return false;
+		Zone zone = CFEDCFACBLE(zoneName);
+		if (zone == null) return false;
+		Battle battle = zone.LGIIBNJFADA.Find((Battle value) => value.get_Name() == battleName);
+		if (battle == null) return false;
+		List<FightList> fights = JEBHJOKNENP(battle);
+		for (int i = 0; i < fights.Count; i++) KINHMMGJEMP(fights[i]);
+		zone.LGIIBNJFADA.Remove(battle);
+		_battles.Remove(battle);
+		return true;
 	}
 
 	private void KIEEPEOPJGB()

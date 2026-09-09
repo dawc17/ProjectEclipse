@@ -109,6 +109,31 @@ public class ForgeManager : global::EventDispatcher<object>
 		return null;
 	}
 
+	public bool AddExternalRecipeFamily(string name, string alias, string economicProfileName,
+		IReadOnlyList<ExternalRecipeItemSpec> items)
+	{
+		EnsureParsed();
+		if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(economicProfileName) || GetRecipeByName(name) != null)
+			return false;
+		Recipe profile = GetRecipeByName(economicProfileName);
+		if (profile == null) return false;
+		_recipes.Add(new Recipe(name, alias, profile, items));
+		return true;
+	}
+
+	public bool RemoveExternalRecipeFamily(string name)
+	{
+		EnsureParsed();
+		if (string.IsNullOrEmpty(name)) return false;
+		for (int i = 0; i < _recipes.Count; i++)
+		{
+			if (!string.Equals(_recipes[i].Name, name, StringComparison.OrdinalIgnoreCase)) continue;
+			_recipes.RemoveAt(i);
+			return true;
+		}
+		return false;
+	}
+
 	public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName,
 		string enchantmentId, string perkKind, IReadOnlyDictionary<string, string> eclipseParameters = null)
 	{
@@ -121,6 +146,13 @@ public class ForgeManager : global::EventDispatcher<object>
 	{
 		Recipe recipe = GetRecipeByName(recipeName);
 		return recipe != null && recipe.RemoveExternalEnchantmentCandidate(itemType, perkName);
+	}
+
+	public bool AddExternalPerkCandidate(string recipeName, string itemType, string perkName, string perkKind,
+		int minLevel = int.MinValue, int maxLevel = int.MaxValue)
+	{
+		Recipe recipe = GetRecipeByName(recipeName);
+		return recipe != null && recipe.AddExternalPerkCandidate(itemType, perkName, perkKind, minLevel, maxLevel);
 	}
 
 	public List<Recipe> GetAvailableRecipesForItem(UserItem userItem)

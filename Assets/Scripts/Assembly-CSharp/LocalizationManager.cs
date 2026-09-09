@@ -81,7 +81,9 @@ public class Language
 		}
 	}
 
-	private static Dictionary<string, string> KCAMAIIHKKH;
+		private static Dictionary<string, string> KCAMAIIHKKH;
+
+		private static readonly Dictionary<string, string> EclipseExternalStrings = new Dictionary<string, string>(StringComparer.Ordinal);
 
 	private const string OJPIOFPLHME = "UI/Fonts/";
 
@@ -222,8 +224,9 @@ public class Language
 		return KEAMIDNCCNN;
 	}
 
-	// Thin Eclipse modding seam. External aliases are namespaced and are reapplied after the
-	// recovered language loader clears/rebuilds this dictionary.
+	// Thin Eclipse modding seam. External strings are an overlay rather than destructive writes
+	// into the recovered language dictionary. Removing an override therefore reveals the
+	// canonical base value again, including for controlled core localization patches.
 	public static void SetExternalString(string key, string value)
 	{
 		if (KCAMAIIHKKH == null)
@@ -234,14 +237,14 @@ public class Language
 		{
 			throw new ArgumentException("External localization key must not be empty.", "key");
 		}
-		KCAMAIIHKKH[key] = value ?? string.Empty;
+		EclipseExternalStrings[key] = value ?? string.Empty;
 	}
 
 	public static void RemoveExternalString(string key)
 	{
-		if (KCAMAIIHKKH != null && !string.IsNullOrEmpty(key))
+		if (!string.IsNullOrEmpty(key))
 		{
-			KCAMAIIHKKH.Remove(key);
+			EclipseExternalStrings.Remove(key);
 		}
 	}
 
@@ -309,11 +312,12 @@ public class Language
 		return ILAJKOBCHFH != null;
 	}
 
-	public static void Init()
-	{
-		MCLNNPPCFFL = new List<Language>();
-		KCAMAIIHKKH = new Dictionary<string, string>();
-		OEBFNIGOPDB();
+		public static void Init()
+		{
+			MCLNNPPCFFL = new List<Language>();
+			KCAMAIIHKKH = new Dictionary<string, string>();
+			EclipseExternalStrings.Clear();
+			OEBFNIGOPDB();
 		foreach (Language item in MCLNNPPCFFL)
 		{
 			if (item.name == POIPGLLCCKC)
@@ -408,16 +412,16 @@ public class Language
 			// "replays " and spam a false missing-localization error.
 			key = PEMOECLNECD.Substring(0, num).TrimEnd();
 		}
-		if (!KCAMAIIHKKH.ContainsKey(key))
-		{
-			if (PEMOECLNECD != string.Empty)
+			string text;
+			if (!EclipseExternalStrings.TryGetValue(key, out text) && !KCAMAIIHKKH.TryGetValue(key, out text))
 			{
-				LLLOJBFMONN.Error(string.Format("ERROR: localization does not contain title \"{0}\"", PEMOECLNECD));
+				if (PEMOECLNECD != string.Empty)
+				{
+					LLLOJBFMONN.Error(string.Format("ERROR: localization does not contain title \"{0}\"", PEMOECLNECD));
+				}
+				return "%%ERROR%%";
 			}
-			return "%%ERROR%%";
-		}
-		string text = KCAMAIIHKKH[key];
-		// Newer localization files use {br} as an explicit line break.  The
+			// Newer localization files use {br} as an explicit line break.  The
 		// original formatter treated every brace token as a numeric argument;
 		// int.TryParse("br") therefore became argument zero and produced strings
 		// such as "EXPERIENCE6060/190".
@@ -584,6 +588,7 @@ public class Language
 	private static void Clear()
 	{
 		KCAMAIIHKKH.Clear();
+		EclipseExternalStrings.Clear();
 		FJLMLAGEJDL = false;
 	}
 

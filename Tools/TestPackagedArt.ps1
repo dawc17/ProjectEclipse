@@ -51,6 +51,7 @@ $coreFixture = Join-Path $fixture 'Assets/vanillaXml'
 New-Item -ItemType Directory -Force -Path (Join-Path $coreFixture 'localizations') | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'Assets/vanillaXml/list.xml') -Destination (Join-Path $coreFixture 'list.xml')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/vanillaXml/perks.xml') -Destination (Join-Path $coreFixture 'perks.xml')
+Copy-Item -LiteralPath (Join-Path $root 'Assets/vanillaXml/stages.xml') -Destination (Join-Path $coreFixture 'stages.xml')
 Copy-Item -Path (Join-Path $root 'Assets/vanillaXml/localizations/*.xml') -Destination (Join-Path $coreFixture 'localizations')
 
 $log = Join-Path $root ('Temp/packaged-art-' + [Guid]::NewGuid().ToString('N') + '.log')

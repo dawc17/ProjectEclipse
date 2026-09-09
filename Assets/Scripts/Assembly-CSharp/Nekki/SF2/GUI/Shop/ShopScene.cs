@@ -587,8 +587,7 @@ namespace Nekki.SF2.GUI.Shop
 		{
 			foreach (ItemInfo item in CAIHJJFKFLP)
 			{
-				bool flag = !string.IsNullOrEmpty(item.MMHIKEIDDNB) && !ListSF.CCDKHLAMKKO().FLFKOIPCEPI(item.MMHIKEIDDNB);
-				if (item.DCHJDPCEODD && !item.GOKHJMOEGIJ() && !flag)
+				if (ShopAvailabilityPolicy.IsAvailable(item, ListSF.CCDKHLAMKKO()))
 				{
 					PPFNLLCMHGM.Add(item);
 				}

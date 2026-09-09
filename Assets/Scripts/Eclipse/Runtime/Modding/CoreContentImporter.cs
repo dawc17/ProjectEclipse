@@ -8,7 +8,7 @@ namespace Eclipse.Modding
 {
     // A read-only projection of vanilla definitions. LegacyItemXml retains fields not yet
     // modeled by the public API; this importer must not reconstruct or replace ItemInfo.
-    public static class CoreContentImporter
+    public static partial class CoreContentImporter
     {
         public static DefinitionId WeaponId(string legacyName)
         {
@@ -38,6 +38,169 @@ namespace Eclipse.Modding
         public static DefinitionId PerkId(string legacyName)
         {
             return DefinitionId.Parse("core:perks/" + legacyName);
+        }
+
+        public static DefinitionId ZoneId(string legacyName)
+        {
+            return DefinitionId.Parse("core:zones/" + StageSegment(legacyName));
+        }
+
+        public static DefinitionId BattleId(string zoneLegacyName, string battleLegacyName)
+        {
+            return DefinitionId.Parse("core:battles/" + StageSegment(zoneLegacyName) + "/" + StageSegment(battleLegacyName));
+        }
+
+        public static DefinitionId FightId(string zoneLegacyName, string battleLegacyName, string fightLegacyName)
+        {
+            return DefinitionId.Parse("core:fights/" + StageSegment(zoneLegacyName) + "/" +
+                StageSegment(battleLegacyName) + "/" + StageSegment(fightLegacyName));
+        }
+
+        public static int ImportStages(ModContentCatalog catalog, XmlNode zonesRoot)
+        {
+            if (catalog == null) throw new ArgumentNullException(nameof(catalog));
+            if (zonesRoot == null) throw new ArgumentNullException(nameof(zonesRoot));
+            var zones = new List<ZoneDefinition>();
+            var battles = new List<BattleDefinition>();
+            var fights = new List<FightDefinition>();
+            var seen = new HashSet<DefinitionId>();
+
+            foreach (XmlNode zoneNode in zonesRoot.ChildNodes)
+            {
+                if (zoneNode.NodeType != XmlNodeType.Element || zoneNode.Name != "Zone") continue;
+                string zoneName = RequiredAttribute(zoneNode, "Name", "core zone");
+                DefinitionId zoneId = ZoneId(zoneName);
+                if (!seen.Add(zoneId)) throw new ModContentException("Duplicate projected core zone ID: '" + zoneId + "'.");
+                var battleIds = new List<DefinitionId>();
+                foreach (XmlNode battleNode in zoneNode.ChildNodes)
+                {
+                    if (battleNode.NodeType != XmlNodeType.Element || battleNode.Name != "Battle") continue;
+                    string battleName = RequiredAttribute(battleNode, "Name", "core battle");
+                    DefinitionId battleId = BattleId(zoneName, battleName);
+                    if (!seen.Add(battleId)) throw new ModContentException("Duplicate projected core battle ID: '" + battleId + "'.");
+                    battleIds.Add(battleId);
+                    var fightIds = new List<DefinitionId>();
+                    foreach (XmlNode fightNode in battleNode.SelectNodes("Fight"))
+                    {
+                        string fightName = RequiredAttribute(fightNode, "Name", "core fight");
+                        DefinitionId fightId = FightId(zoneName, battleName, fightName);
+                        if (!seen.Add(fightId)) throw new ModContentException("Duplicate projected core fight ID: '" + fightId + "'.");
+                        fightIds.Add(fightId);
+                        fights.Add(new FightDefinition(fightId, battleId, fightName,
+                            IntAttribute(fightNode, "Replays", 0),
+                            IntAttribute(fightNode, "ReplayInterval", 0),
+                            IntAttribute(fightNode, "Power", 1),
+                            IntAttribute(fightNode, "Rounds", 2),
+                            IntAttribute(fightNode, "RoundTime", 60),
+                            StringAttribute(fightNode, "Location", string.Empty),
+                            StringAttribute(fightNode, "Music", string.Empty),
+                            FloatAttribute(fightNode, "EvaluatedRating", -1f),
+                            FloatAttribute(fightNode, "HealthRecovery", 1f),
+                            StringAttribute(fightNode, "Description", string.Empty),
+                            BoolAttribute(fightNode, "Locked", false),
+                            StringAttribute(fightNode, "RewardImage", string.Empty),
+                            Array.Empty<DefinitionId>(), Array.Empty<DefinitionId>(), Array.Empty<DefinitionId>(),
+                            fightNode.OuterXml));
+                    }
+                    battles.Add(new BattleDefinition(battleId, zoneId, battleName,
+                        ParseBattleKind(StringAttribute(battleNode, "Type", "DUMMY")),
+                        IntAttribute(battleNode, "X", 0), IntAttribute(battleNode, "Y", 0),
+                        StringAttribute(battleNode, "Alias", string.Empty),
+                        StringAttribute(battleNode, "Title", string.Empty),
+                        StringAttribute(battleNode, "Icon", "training"),
+                        StringAttribute(battleNode, "Preview", string.Empty),
+                        StringAttribute(battleNode, "Description", string.Empty),
+                        StringAttribute(battleNode, "Location", string.Empty),
+                        StringAttribute(battleNode, "Music", string.Empty),
+                        StringAttribute(battleNode, "RewardImage", string.Empty),
+                        BoolAttribute(battleNode, "ShowResistance", false), fightIds.ToArray(),
+                        StringAttribute(battleNode, "IconAtlas", string.Empty),
+                        StringAttribute(battleNode, "EclipseToggleName", string.Empty), battleNode.OuterXml));
+                }
+                zones.Add(new ZoneDefinition(zoneId, zoneName,
+                    StringAttribute(zoneNode, "FileName", string.Empty),
+                    IntAttribute(zoneNode, "Start", 0) > 0, battleIds.ToArray()));
+            }
+            catalog.ImportCoreStages(zones.ToArray(), battles.ToArray(), fights.ToArray());
+            return fights.Count;
+        }
+
+        private static ModBattleKind ParseBattleKind(string value)
+        {
+            switch (value)
+            {
+                case "TUTORIAL": return ModBattleKind.Tutorial;
+                case "CHALLENGE": return ModBattleKind.Challenge;
+                case "BOSSES": return ModBattleKind.Bosses;
+                case "TOURNAMENT": return ModBattleKind.Tournament;
+                case "STORY": return ModBattleKind.Story;
+                case "SURVIVAL": return ModBattleKind.Survival;
+                case "TACTICS": return ModBattleKind.Friendly;
+                case "AUTO": return ModBattleKind.Auto;
+                case "AI": return ModBattleKind.Ai;
+                case "HIDDEN": return ModBattleKind.Hidden;
+                case "FAKE": return ModBattleKind.Fake;
+                case "PVP": return ModBattleKind.Pvp;
+                case "PERIODIC": return ModBattleKind.Periodic;
+                case "FINAL_BATTLE": return ModBattleKind.Final;
+                case "FINAL_BATTLE_REPLAYABLE": return ModBattleKind.FinalReplayable;
+                case "BOSSES_INTERMISSION": return ModBattleKind.BossesIntermission;
+                case "REPLAYABLE": return ModBattleKind.Replayable;
+                case "BOSSES_REPLAYABLE": return ModBattleKind.BossesReplayable;
+                case "FINAL_BATTLE_TITAN": return ModBattleKind.FinalTitan;
+                case "ASCENSION": return ModBattleKind.Ascension;
+                case "RAID": return ModBattleKind.Raid;
+                case "DUMMY": return ModBattleKind.Dummy;
+                default: throw new ModContentException("Unsupported core battle type '" + value + "'.");
+            }
+        }
+
+        private static string StageSegment(string value)
+        {
+            if (string.IsNullOrEmpty(value)) throw new ModContentException("Stage identity must not be empty.");
+            var builder = new System.Text.StringBuilder(value.Length);
+            for (int i = 0; i < value.Length; i++)
+            {
+                char c = char.ToLowerInvariant(value[i]);
+                bool safe = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
+                builder.Append(safe ? c : '_');
+            }
+            return builder.ToString();
+        }
+
+        private static string RequiredAttribute(XmlNode node, string name, string kind)
+        {
+            string value = StringAttribute(node, name, string.Empty);
+            if (string.IsNullOrEmpty(value)) throw new ModContentException(kind + " requires attribute '" + name + "'.");
+            return value;
+        }
+
+        private static string StringAttribute(XmlNode node, string name, string fallback)
+        {
+            XmlAttribute attribute = node?.Attributes?[name];
+            return attribute == null ? fallback : attribute.Value;
+        }
+
+        private static int IntAttribute(XmlNode node, string name, int fallback)
+        {
+            int value;
+            return int.TryParse(StringAttribute(node, name, string.Empty), NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out value) ? value : fallback;
+        }
+
+        private static float FloatAttribute(XmlNode node, string name, float fallback)
+        {
+            float value;
+            return float.TryParse(StringAttribute(node, name, string.Empty), NumberStyles.Float,
+                CultureInfo.InvariantCulture, out value) ? value : fallback;
+        }
+
+        private static bool BoolAttribute(XmlNode node, string name, bool fallback)
+        {
+            string value = StringAttribute(node, name, string.Empty);
+            if (value == "1" || string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)) return true;
+            if (value == "0" || string.Equals(value, "false", StringComparison.OrdinalIgnoreCase)) return false;
+            return fallback;
         }
 
         public static int ImportWeapons(ModContentCatalog catalog, IEnumerable<XmlNode> source,
@@ -228,7 +391,7 @@ namespace Eclipse.Modding
             }
             // Hidden/NPC-only definitions can legitimately have no localized label.
             if (!values.ContainsKey("eng")) values.Add("eng", name);
-            return new LocalizationDefinition(id, values);
+            return new LocalizationDefinition(id, values, name);
         }
 
         private static DefinitionId ResolveLocalization(ModContentCatalog catalog,
@@ -256,6 +419,7 @@ namespace Eclipse.Modding
 
         private static bool SameLocalization(LocalizationDefinition left, LocalizationDefinition right)
         {
+            if (!string.Equals(left.LegacyKey, right.LegacyKey, StringComparison.Ordinal)) return false;
             if (left.Values.Count != right.Values.Count) return false;
             foreach (KeyValuePair<string, string> pair in left.Values)
             {

@@ -14,8 +14,16 @@ public class Recipe
 	private readonly List<RecipeItem> _items = new List<RecipeItem>();
 	private readonly List<RecipePrices> _prices = new List<RecipePrices>();
 	private readonly List<Variation> _variations = new List<Variation>();
-	private readonly Dictionary<string, List<PerkStruct>> _externalEnchantments =
-		new Dictionary<string, List<PerkStruct>>(StringComparer.Ordinal);
+	private sealed class ExternalCandidate
+	{
+		public PerkStruct Perk;
+		public int MinLevel;
+		public int MaxLevel;
+		public bool Contains(int level) => level >= MinLevel && level <= MaxLevel;
+	}
+
+	private readonly Dictionary<string, List<ExternalCandidate>> _externalEnchantments =
+		new Dictionary<string, List<ExternalCandidate>>(StringComparer.Ordinal);
 
 	public string Name => _name;
 	public string Alias => _alias;
@@ -70,30 +78,66 @@ public class Recipe
 		return GetRecipeItemByType(info.Type);
 	}
 
+	internal Recipe(string name, string alias, Recipe economicProfile, IReadOnlyList<ExternalRecipeItemSpec> items)
+	{
+		if (string.IsNullOrEmpty(name)) throw new ArgumentException("Recipe name must not be empty.", "name");
+		if (economicProfile == null) throw new ArgumentNullException("economicProfile");
+		if (items == null || items.Count == 0) throw new ArgumentException("Recipe requires at least one item type.", "items");
+		_name = name;
+		_alias = alias ?? string.Empty;
+		for (int i = 0; i < items.Count; i++)
+		{
+			ExternalRecipeItemSpec spec = items[i];
+			RecipeItem economicItem = economicProfile.GetRecipeItemByType(spec.ItemType);
+			if (economicItem == null)
+				throw new InvalidOperationException("Economic profile '" + economicProfile.Name +
+					"' has no price binding for item type '" + spec.ItemType + "'.");
+			_items.Add(new RecipeItem(spec.ItemType, economicItem.PricesBlockName, spec.EnchantmentsNumber,
+				spec.BarScale, spec.MinDeviation, spec.MaxDeviation, spec.RandomAspect));
+		}
+		// These objects are intentionally shared with the immutable host profile. External recipe
+		// families can select a host-owned economic profile, but can never author or mutate its values.
+		_prices.AddRange(economicProfile._prices);
+	}
+
 	public bool AddExternalEnchantmentCandidate(string itemType, string perkName, string enchantmentId, string perkKind,
 		IReadOnlyDictionary<string, string> eclipseParameters = null)
 	{
-		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName) || string.IsNullOrEmpty(enchantmentId))
+		return AddExternalCandidate(itemType, perkName, enchantmentId, perkKind, int.MinValue, int.MaxValue,
+			eclipseParameters);
+	}
+
+	public bool AddExternalPerkCandidate(string itemType, string perkName, string perkKind,
+		int minLevel = int.MinValue, int maxLevel = int.MaxValue)
+	{
+		return AddExternalCandidate(itemType, perkName, null, perkKind, minLevel, maxLevel, null);
+	}
+
+	private bool AddExternalCandidate(string itemType, string perkName, string enchantmentId, string perkKind,
+		int minLevel, int maxLevel, IReadOnlyDictionary<string, string> eclipseParameters)
+	{
+		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName) || minLevel > maxLevel)
 			return false;
 		if (!string.Equals(perkKind, "Single", StringComparison.Ordinal) &&
 			!string.Equals(perkKind, "Combo", StringComparison.Ordinal)) return false;
 		RecipeItem recipeItem = GetRecipeItemByType(itemType);
 		if (recipeItem == null) return false;
 
-		List<PerkStruct> candidates;
+		List<ExternalCandidate> candidates;
 		if (!_externalEnchantments.TryGetValue(itemType, out candidates))
 		{
-			candidates = new List<PerkStruct>();
+			candidates = new List<ExternalCandidate>();
 			_externalEnchantments.Add(itemType, candidates);
 		}
 		for (int i = 0; i < candidates.Count; i++)
-			if (string.Equals(candidates[i].get_Name(), perkName, StringComparison.Ordinal)) return false;
+			if (string.Equals(candidates[i].Perk.get_Name(), perkName, StringComparison.Ordinal)) return false;
 
 		var document = new XmlDocument();
 		XmlElement perk = document.CreateElement("Perk");
 		perk.SetAttribute("Name", perkName);
 		perk.SetAttribute("ItemType", itemType);
-		perk.SetAttribute(PerkStruct.EclipseEnchantmentAttribute, enchantmentId);
+		if (!string.IsNullOrEmpty(enchantmentId))
+			perk.SetAttribute(PerkStruct.EclipseEnchantmentAttribute, enchantmentId);
 		perk.SetAttribute(PerkStruct.EclipseKindAttribute, perkKind);
 		if (eclipseParameters != null && eclipseParameters.Count > 0)
 		{
@@ -108,7 +152,7 @@ public class Recipe
 			}
 			perk.AppendChild(parameters);
 		}
-		if (UsesRandomAspectForExternalCandidates())
+			if (UsesRandomAspectForExternalCandidates(itemType))
 		{
 			XmlElement set = document.CreateElement("Set");
 			set.SetAttribute("Aspect", "?RandomAspect[" +
@@ -117,18 +161,18 @@ public class Recipe
 			perk.AppendChild(set);
 		}
 		document.AppendChild(perk);
-		candidates.Add(new PerkStruct(perk));
+		candidates.Add(new ExternalCandidate { Perk = new PerkStruct(perk), MinLevel = minLevel, MaxLevel = maxLevel });
 		return true;
 	}
 
 	public bool RemoveExternalEnchantmentCandidate(string itemType, string perkName)
 	{
 		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName)) return false;
-		List<PerkStruct> candidates;
+		List<ExternalCandidate> candidates;
 		if (!_externalEnchantments.TryGetValue(itemType, out candidates)) return false;
 		for (int i = 0; i < candidates.Count; i++)
 		{
-			if (!string.Equals(candidates[i].get_Name(), perkName, StringComparison.Ordinal)) continue;
+			if (!string.Equals(candidates[i].Perk.get_Name(), perkName, StringComparison.Ordinal)) continue;
 			candidates.RemoveAt(i);
 			if (candidates.Count == 0) _externalEnchantments.Remove(itemType);
 			return true;
@@ -143,10 +187,10 @@ public class Recipe
 		return null;
 	}
 
-	private bool UsesRandomAspectForExternalCandidates()
+	private bool UsesRandomAspectForExternalCandidates(string itemType)
 	{
-		return string.Equals(_name, "Simple", StringComparison.OrdinalIgnoreCase) ||
-			string.Equals(_name, "Medium", StringComparison.OrdinalIgnoreCase);
+		RecipeItem item = GetRecipeItemByType(itemType);
+		return item != null && item.RandomAspect;
 	}
 
 	private RecipePrices GetRecipePricesByName(string name)
@@ -214,12 +258,14 @@ public class Recipe
 			}
 
 			ItemInfo info = CurrentInfo(userItem);
-			List<PerkStruct> external;
+				List<ExternalCandidate> external;
 		if (info != null && _externalEnchantments.TryGetValue(info.Type, out external))
 		{
 			for (int i = 0; i < external.Count; i++)
 			{
-				PerkStruct enchantment = external[i];
+					ExternalCandidate candidate = external[i];
+					if (!candidate.Contains(itemLevel)) continue;
+					PerkStruct enchantment = candidate.Perk;
 				if (enchantment == null || !IsPerkReadyToEnchant(enchantment)) continue;
 				if (checkRequired && IsEnchantmentAlreadyExists(enchantment, userItem.JAJNJAIJOPA)) continue;
 				result.Add(new PerkStruct(enchantment));
@@ -313,6 +359,7 @@ public sealed class RecipeItem
 	public string BarScale { get; }
 	public int MinDeviation { get; }
 	public int MaxDeviation { get; }
+	public bool RandomAspect { get; }
 
 	public RecipeItem(XmlNode node)
 	{
@@ -322,6 +369,40 @@ public sealed class RecipeItem
 		BarScale = Recipe.Attr(node, "BarScale");
 		MinDeviation = Recipe.IntAttr(node, "MinDeviation");
 		MaxDeviation = Recipe.IntAttr(node, "MaxDeviation");
+		RandomAspect = node?.Attributes?["MinDeviation"] != null || node?.Attributes?["MaxDeviation"] != null;
+	}
+
+	internal RecipeItem(string itemType, string pricesBlockName, int enchantmentsNumber, string barScale,
+		int minDeviation, int maxDeviation, bool randomAspect)
+	{
+		ItemType = itemType ?? string.Empty;
+		PricesBlockName = pricesBlockName ?? string.Empty;
+		EnchantmentsNumber = enchantmentsNumber;
+		BarScale = barScale ?? string.Empty;
+		MinDeviation = minDeviation;
+		MaxDeviation = maxDeviation;
+		RandomAspect = randomAspect;
+	}
+}
+
+public sealed class ExternalRecipeItemSpec
+{
+	public string ItemType { get; }
+	public int EnchantmentsNumber { get; }
+	public string BarScale { get; }
+	public int MinDeviation { get; }
+	public int MaxDeviation { get; }
+	public bool RandomAspect { get; }
+
+	public ExternalRecipeItemSpec(string itemType, int enchantmentsNumber, string barScale,
+		int minDeviation, int maxDeviation, bool randomAspect)
+	{
+		ItemType = itemType ?? string.Empty;
+		EnchantmentsNumber = enchantmentsNumber;
+		BarScale = barScale ?? string.Empty;
+		MinDeviation = minDeviation;
+		MaxDeviation = maxDeviation;
+		RandomAspect = randomAspect;
 	}
 }
 

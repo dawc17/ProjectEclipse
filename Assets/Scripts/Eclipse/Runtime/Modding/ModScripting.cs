@@ -29,27 +29,35 @@ namespace Eclipse.Modding
         }
     }
 
-    public sealed class ModApiFacade
+    public sealed partial class ModApiFacade
     {
         private readonly Action<ModLogEntry> _logger;
 
         public ModDescriptor Mod { get; }
         public AssetResolver Assets { get; }
         public ModRegistrationTransaction Registration { get; }
+        public ModStateRuntime State { get; }
 
         public ModApiFacade(ModDescriptor mod, AssetResolver assets, Action<ModLogEntry> logger)
-            : this(mod, assets, null, logger)
+            : this(mod, assets, null, new ModStateRuntime(), logger)
         {
         }
 
         public ModApiFacade(ModDescriptor mod, AssetResolver assets, ModRegistrationTransaction registration,
             Action<ModLogEntry> logger)
+            : this(mod, assets, registration, new ModStateRuntime(), logger)
+        {
+        }
+
+        public ModApiFacade(ModDescriptor mod, AssetResolver assets, ModRegistrationTransaction registration,
+            ModStateRuntime state, Action<ModLogEntry> logger)
         {
             Mod = mod ?? throw new ArgumentNullException(nameof(mod));
             Assets = assets ?? throw new ArgumentNullException(nameof(assets));
             if (registration != null && registration.Mod.Id != mod.Id)
                 throw new ArgumentException("Registration transaction belongs to another mod.", nameof(registration));
             Registration = registration;
+            State = state ?? throw new ArgumentNullException(nameof(state));
             _logger = logger;
         }
 
@@ -91,6 +99,38 @@ namespace Eclipse.Modding
             return RequireRegistration().GetLocalization(key);
         }
 
+        public DefinitionId PatchLocalization(string target, string language, string value)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchLocalization(target, language, value);
+        }
+
+        public ModStateDefinition RegisterState(int version, ModParameterSchema fields,
+            System.Collections.Generic.IReadOnlyDictionary<string, string> aliases,
+            System.Collections.Generic.IReadOnlyCollection<string> tombstones)
+        {
+            RequireCapability("state.write");
+            return State.RegisterDefinition(Mod, version, fields, aliases, tombstones);
+        }
+
+        public bool TryGetState(string name, out ModParameterValue value)
+        {
+            RequireCapability("state.read");
+            return State.TryGetValue(Mod.Id, name, out value);
+        }
+
+        public void SetState(System.Collections.Generic.IReadOnlyDictionary<string, ModParameterValue> values)
+        {
+            RequireCapability("state.write");
+            State.SetValues(Mod.Id, values);
+        }
+
+        public void UnsetState(string name)
+        {
+            RequireCapability("state.write");
+            State.UnsetValue(Mod.Id, name);
+        }
+
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
             AssetId model, string subType)
         {
@@ -124,6 +164,12 @@ namespace Eclipse.Modding
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterMagic(localId, displayName, icon, model, subType);
+        }
+
+        public ItemDefinition GetItem(string reference)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().GetItem(reference);
         }
 
         public ItemRedirectDefinition RegisterItemAlias(string oldLocalPath, DefinitionId target)
@@ -188,6 +234,139 @@ namespace Eclipse.Modding
             RequireCapability("content.register");
             return RequireRegistration().RegisterScriptedEnchantment(localId, displayName, description, icon,
                 recipe, equipment, behavior, initialParameters);
+        }
+
+        public ZoneDefinition RegisterZone(string localId, string fileName, bool isStart)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterZone(localId, fileName, isStart);
+        }
+
+        public ZoneDefinition GetZone(string reference)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().GetZone(reference);
+        }
+
+        public BattleDefinition RegisterBattle(string localId, DefinitionId zone, ModBattleKind kind,
+            int x, int y, string alias, string title, string icon, string preview, string description,
+            string location, string music, string rewardImage, bool showResistance, string iconAtlas,
+            string eclipseToggleName)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterBattle(localId, zone, kind, x, y, alias, title, icon,
+                preview, description, location, music, rewardImage, showResistance, iconAtlas, eclipseToggleName);
+        }
+
+        public WarriorDefinition RegisterWarrior(string localId, string firstName, string lastName, string avatar,
+            string voice, int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
+            DefinitionId template, bool hasTemplate, string group, int random,
+            System.Collections.Generic.IReadOnlyDictionary<string, float> attributes,
+            WarriorAttributeAlignmentDefinition[] attributeAlignments)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterWarrior(localId, firstName, lastName, avatar, voice, level,
+                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments);
+        }
+
+        public WarriorTemplateDefinition GetWarriorTemplate(string reference)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().GetWarriorTemplate(reference);
+        }
+
+        public FightRuleDefinition RegisterNoPerksRule(string localId, ModRuleTarget target, ModRuleMode mode,
+            int[] rounds, string name)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterNoPerksRule(localId, target, mode, rounds, name);
+        }
+
+        public FightRuleDefinition RegisterRequireItemRule(string localId, DefinitionId item, int minimumLevel,
+            ModRuleMode mode, int[] rounds)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterRequireItemRule(localId, item, minimumLevel, mode, rounds);
+        }
+
+        public FightRuleDefinition RegisterEquipItemRule(string localId, DefinitionId item, int minimumLevel,
+            ModRuleTarget target, ModRuleMode mode, int[] rounds)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterEquipItemRule(localId, item, minimumLevel, target, mode, rounds);
+        }
+
+        public FightRuleDefinition RegisterNamedRule(string localId, ModFightRuleKind kind, string name,
+            ModRuleTarget target, ModRuleMode mode, int[] rounds)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterNamedRule(localId, kind, name, target, mode, rounds);
+        }
+
+        public FightRuleDefinition RegisterPerkRule(string localId, DefinitionId perk, ModRuleTarget target,
+            ModRuleMode mode, int[] rounds)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterPerkRule(localId, perk, target, mode, rounds);
+        }
+
+        public FightRuleDefinition RegisterRechargeMagicRule(string localId, ModRuleTarget target,
+            ModRuleMode mode, int[] rounds)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterRechargeMagicRule(localId, target, mode, rounds);
+        }
+
+        public FightRuleDefinition RegisterAttributesRule(string localId, ModRuleTarget target, ModRuleMode mode,
+            int[] rounds, System.Collections.Generic.IReadOnlyDictionary<string, float> attributes)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterAttributesRule(localId, target, mode, rounds, attributes);
+        }
+
+        public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items,
+            RewardChoiceDefinition[] choices)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterReward(localId, items, choices);
+        }
+
+        public FightDefinition RegisterFight(string localId, DefinitionId battle, int replays, int replayInterval,
+            int power, int rounds, int roundTime, string location, string music, float evaluatedRating,
+            float healthRecovery, string description, bool locked, string rewardImage, DefinitionId[] warriors,
+            DefinitionId[] rules, DefinitionId[] rewards)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterFight(localId, battle, replays, replayInterval, power, rounds,
+                roundTime, location, music, evaluatedRating, healthRecovery, description, locked, rewardImage,
+                warriors, rules, rewards);
+        }
+
+        public DefinitionId PatchFightDescription(string target, string value)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightDescription(target, value);
+        }
+
+        public DefinitionId PatchFightRounds(string target, int value)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightRounds(target, value);
+        }
+
+        public DefinitionId PatchFightRoundTime(string target, int value)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightRoundTime(target, value);
+        }
+
+        public QuestDefinition RegisterQuest(string localId, int priority, bool unresumable, bool allowDoubles,
+            ModQuestActionPlace place, string[] groups, string[] marks, ModQuestEventKind[] events,
+            ModQuestCondition[] conditions, ModQuestAction[] actions)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterQuest(localId, priority, unresumable, allowDoubles, place,
+                groups, marks, events, conditions, actions);
         }
 
         public bool HasCapability(string capability)

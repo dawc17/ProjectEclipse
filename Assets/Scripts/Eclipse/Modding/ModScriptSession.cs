@@ -7,11 +7,14 @@ namespace Eclipse.Modding
     public sealed class ModScriptSession : IDisposable
     {
         private readonly List<IModScriptContext> _contexts;
+        private readonly List<ModDiagnostic> _stateDiagnostics = new List<ModDiagnostic>();
 
         public string RuntimeName { get; }
         public IReadOnlyList<ModDescriptor> ActiveMods { get; }
         public IReadOnlyList<ModDiagnostic> Diagnostics { get; }
+        public IReadOnlyList<ModDiagnostic> StateDiagnostics => _stateDiagnostics.AsReadOnly();
         public ModContentCatalog Content { get; }
+        public ModStateRuntime State { get; }
 
         public bool HasErrors
         {
@@ -19,18 +22,22 @@ namespace Eclipse.Modding
             {
                 foreach (ModDiagnostic diagnostic in Diagnostics)
                     if (diagnostic.Severity == ModDiagnosticSeverity.Error) return true;
+                foreach (ModDiagnostic diagnostic in _stateDiagnostics)
+                    if (diagnostic.Severity == ModDiagnosticSeverity.Error) return true;
                 return false;
             }
         }
 
         private ModScriptSession(string runtimeName, List<IModScriptContext> contexts,
-            ModDescriptor[] activeMods, ModDiagnostic[] diagnostics, ModContentCatalog content)
+            ModDescriptor[] activeMods, ModDiagnostic[] diagnostics, ModContentCatalog content,
+            ModStateRuntime state)
         {
             RuntimeName = runtimeName ?? string.Empty;
             _contexts = contexts;
             ActiveMods = Array.AsReadOnly(activeMods ?? Array.Empty<ModDescriptor>());
             Diagnostics = Array.AsReadOnly(diagnostics ?? Array.Empty<ModDiagnostic>());
             Content = content ?? throw new ArgumentNullException(nameof(content));
+            State = state ?? throw new ArgumentNullException(nameof(state));
         }
 
         internal static ModScriptSession Start(ModHost host, IModScriptRuntime runtime,
@@ -44,6 +51,7 @@ namespace Eclipse.Modding
             var activeIds = new HashSet<ModId>();
             var diagnostics = new List<ModDiagnostic>();
             var content = new ModContentCatalog();
+            var state = new ModStateRuntime();
             importCore?.Invoke(content);
 
             foreach (ModDescriptor mod in host.EnabledMods)
@@ -62,7 +70,7 @@ namespace Eclipse.Modding
                 {
                     registration = content.BeginRegistration(mod);
                     ModLocalizationLoader.Load(mod, host.Assets, registration);
-                    var api = new ModApiFacade(mod, host.Assets, registration, logger);
+                    var api = new ModApiFacade(mod, host.Assets, registration, state, logger);
                     context = runtime.CreateContext(mod, api);
                     if (context == null) throw new InvalidOperationException("Script runtime returned a null context.");
                     context.ExecuteEntrypoint();
@@ -74,6 +82,7 @@ namespace Eclipse.Modding
                 }
                 catch (Exception exception)
                 {
+                    state.RemoveDefinition(mod.Id);
                     string source = mod.Manifest.Entrypoint;
                     ModScriptException scriptException = exception as ModScriptException;
                     if (scriptException != null && !string.IsNullOrEmpty(scriptException.SourceName))
@@ -89,7 +98,8 @@ namespace Eclipse.Modding
             }
 
             content.Freeze();
-            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content);
+            state.FreezeDefinitions();
+            return new ModScriptSession(runtime.Name, contexts, active.ToArray(), diagnostics.ToArray(), content, state);
         }
 
         public string FormatReport()
@@ -101,7 +111,17 @@ namespace Eclipse.Modding
                 builder.Append("+ ").Append(mod.Id).Append(' ').Append(mod.Version).AppendLine();
             foreach (ModDiagnostic diagnostic in Diagnostics)
                 builder.Append("! ").AppendLine(diagnostic.ToString());
+            foreach (ModDiagnostic diagnostic in _stateDiagnostics)
+                builder.Append("! ").AppendLine(diagnostic.ToString());
             return builder.ToString().TrimEnd();
+        }
+
+        public IReadOnlyList<ModDiagnostic> BindState(System.Xml.XmlNode warrior)
+        {
+            _stateDiagnostics.Clear();
+            IReadOnlyList<ModDiagnostic> diagnostics = State.Bind(warrior, _contexts);
+            for (int i = 0; i < diagnostics.Count; i++) _stateDiagnostics.Add(diagnostics[i]);
+            return StateDiagnostics;
         }
 
         public bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,

@@ -113,6 +113,8 @@ public static class ValidatePackagedArt
             "CoreAssetProvider resolved an unknown packaged address");
         CheckModHost(coreProvider);
         CheckRepositoryEnchantmentSample();
+        CheckLocalizationPatchLua();
+        CheckModStateLua();
 
         string model = PackagedArtCatalog.LoadModelText("gamedata/models/mdl_skeleton");
         Require(!string.IsNullOrEmpty(model) && model.Contains("<Scene") && model.Contains("<Figures>"),
@@ -229,6 +231,252 @@ public static class ValidatePackagedArt
                     "Tracked example.enchantment did not execute its custom fighter operations: " + error);
             }
         }
+    }
+
+    private static void CheckLocalizationPatchLua()
+    {
+        string modsRoot = Path.Combine(Application.temporaryCachePath,
+            "sf2de-localization-patch-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            string modRoot = Path.Combine(modsRoot, "patch.localization");
+            Directory.CreateDirectory(Path.Combine(modRoot, "scripts"));
+            File.WriteAllText(Path.Combine(modRoot, "scripts", "main.lua"),
+                "local sf2 = require(\"sf2\")\n" +
+                "sf2.localization.patch { target=\"core:localization/weapon_nunchaku\", language=\"eng\", value=\"Nunchaku\" }\n");
+            File.WriteAllText(Path.Combine(modRoot, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"patch.localization\"\n" +
+                "name = \"Localization Patch Fixture\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.4 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.patch\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
+            using (ModHost host = ModHost.Build(modsRoot))
+            using (ModScriptSession scripts = host.StartScripts(new MoonSharpScriptRuntime(), null, content =>
+            {
+                var list = new XmlDocument();
+                list.Load(Path.Combine(GameplayContentArchive.GetXmlRoot(), "list.xml"));
+                XmlNode nunchaku = list.SelectSingleNode(
+                    "/List/Items/Item[@Type='Weapon' and @Name='WEAPON_NUNCHAKU']");
+                CoreContentImporter.ImportWeapons(content, new[] { nunchaku },
+                    CoreContentImporter.ReadLocalizations(
+                        Path.Combine(GameplayContentArchive.GetXmlRoot(), "localizations")));
+            }))
+            {
+                Require(!host.HasErrors && !scripts.HasErrors && scripts.ActiveMods.Count == 1,
+                    "Lua localization patch fixture failed to initialize");
+                LocalizationDefinition patched;
+                Require(scripts.Content.Patches.Count == 1 && scripts.Content.TryGetLocalization(
+                        DefinitionId.Parse("core:localization/weapon_nunchaku"), out patched) &&
+                    patched.GetOrEnglish("eng") == "Nunchaku",
+                    "sf2.localization.patch did not commit through the public Lua API");
+
+                LocalizationManager.ResetModdingTestLanguage("eng");
+                LocalizationManager.SetBaseStringForTest("WEAPON_NUNCHAKU", "Nunchacku");
+                using (var adapter = new LegacyContentAdapter(scripts.Content))
+                {
+                    adapter.ApplyLocalization();
+                    Require(LocalizationManager.GetStringForTest("WEAPON_NUNCHAKU") == "Nunchaku",
+                        "Core localization patch did not bind to the recovered runtime key");
+                }
+                Require(LocalizationManager.GetExternalStringForTest("WEAPON_NUNCHAKU") == null &&
+                    LocalizationManager.GetStringForTest("WEAPON_NUNCHAKU") == "Nunchacku",
+                    "Removing the patch overlay did not reveal the canonical base localization again");
+            }
+
+            string conflictRoot = Path.Combine(modsRoot, "patch.localization.conflict");
+            Directory.CreateDirectory(Path.Combine(conflictRoot, "scripts"));
+            File.WriteAllText(Path.Combine(conflictRoot, "scripts", "main.lua"),
+                "local sf2 = require(\"sf2\")\n" +
+                "sf2.localization.patch { target=\"core:localization/weapon_nunchaku\", language=\"eng\", value=\"Forbidden last writer\" }\n");
+            File.WriteAllText(Path.Combine(conflictRoot, "mod.toml"),
+                "schema = 1\n" +
+                "id = \"patch.localization.conflict\"\n" +
+                "name = \"Localization Conflict Fixture\"\n" +
+                "version = \"1.0.0\"\n" +
+                "api = \">=0.4 <1.0\"\n" +
+                "authors = [\"Test\"]\n" +
+                "entrypoint = \"scripts/main.lua\"\n" +
+                "capabilities = [\"content.patch\"]\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"core\"\n" +
+                "version = \">=1.0 <2.0\"\n\n" +
+                "[[dependencies]]\n" +
+                "id = \"patch.localization\"\n" +
+                "version = \">=1.0 <2.0\"\n");
+
+            using (ModHost host = ModHost.Build(modsRoot))
+            using (ModScriptSession scripts = host.StartScripts(new MoonSharpScriptRuntime(), null, content =>
+            {
+                var list = new XmlDocument();
+                list.Load(Path.Combine(GameplayContentArchive.GetXmlRoot(), "list.xml"));
+                XmlNode nunchaku = list.SelectSingleNode(
+                    "/List/Items/Item[@Type='Weapon' and @Name='WEAPON_NUNCHAKU']");
+                CoreContentImporter.ImportWeapons(content, new[] { nunchaku },
+                    CoreContentImporter.ReadLocalizations(
+                        Path.Combine(GameplayContentArchive.GetXmlRoot(), "localizations")));
+            }))
+            {
+                LocalizationDefinition patched;
+                Require(scripts.HasErrors && scripts.ActiveMods.Count == 1 &&
+                    scripts.ActiveMods[0].Id.Value == "patch.localization" &&
+                    scripts.Content.TryGetLocalization(DefinitionId.Parse("core:localization/weapon_nunchaku"),
+                        out patched) && patched.GetOrEnglish("eng") == "Nunchaku",
+                    "Overlapping Lua patches behaved like last-mod-wins or disabled the valid owner");
+                Require(scripts.Diagnostics.Any(x => x.Code == "SCRIPT001" &&
+                    x.Source == "patch.localization.conflict" && x.Message.Contains("values/eng") &&
+                    x.Message.Contains("patch.localization") && x.Message.Contains("patch.localization.conflict")),
+                    "Overlapping Lua patch did not emit a deterministic owner/field conflict diagnostic");
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(modsRoot)) Directory.Delete(modsRoot, true);
+        }
+    }
+
+    private static void CheckModStateLua()
+    {
+        string modsRoot = Path.Combine(Application.temporaryCachePath,
+            "sf2de-state-" + Guid.NewGuid().ToString("N"));
+        string modRoot = Path.Combine(modsRoot, "state.fixture");
+        try
+        {
+            Directory.CreateDirectory(Path.Combine(modRoot, "scripts"));
+            WriteStateFixture(modRoot, "1.0.0",
+                "sf2.state.register {\n" +
+                "  version = 1,\n" +
+                "  fields = { fights = { type=sf2.state.INTEGER, required=true, default=0 } },\n" +
+                "}\n" +
+                "sf2.behaviors.register {\n" +
+                "  id = \"state_counter\",\n" +
+                "  on_fight_begin = function(parameters, fighter)\n" +
+                "    local fights = sf2.state.get(\"fights\")\n" +
+                "    sf2.state.set { fights = fights + 1 }\n" +
+                "  end,\n" +
+                "}\n");
+
+            var save = new XmlDocument();
+            save.LoadXml("<Warrior />");
+            using (ModHost host = ModHost.Build(modsRoot))
+            using (ModScriptSession scripts = host.StartScripts(new MoonSharpScriptRuntime()))
+            {
+                Require(!host.HasErrors && !scripts.HasErrors && scripts.ActiveMods.Count == 1 &&
+                    scripts.State.Definitions.Count == 1,
+                    "Lua state v1 fixture failed to register its typed schema");
+                Require(ModSaveData.RecordContext(save.DocumentElement, scripts.ActiveMods, scripts.Content),
+                    "Lua state fixture could not create EclipseMods ownership context");
+                Require(scripts.BindState(save.DocumentElement).Count == 0,
+                    "Lua state v1 fixture failed to bind to the player save");
+                string error;
+                Require(scripts.TryInvokeBehavior(DefinitionId.Parse("state.fixture:behaviors/state_counter"),
+                        ModEffectEvent.FightBegin,
+                        new Dictionary<string, ModParameterValue>(StringComparer.Ordinal),
+                        new Dictionary<string, string>(StringComparer.Ordinal), out error) && string.IsNullOrEmpty(error),
+                    "State-backed Lua behavior could not write bound state: " + error);
+                ModParameterValue fights;
+                Require(scripts.State.TryGetValue(ModId.Parse("state.fixture"), "fights", out fights) &&
+                    fights.Integer == 1,
+                    "sf2.state.get/set did not round-trip typed integer state");
+                XmlElement state = (XmlElement)save.SelectSingleNode(
+                    "/Warrior/EclipseMods/Mod[@id='state.fixture']/State");
+                Require(state != null && state.GetAttribute("format") == "1" && state.GetAttribute("version") == "1" &&
+                    state.SelectSingleNode("Value[@name='fights' and @type='integer' and @value='1']") != null,
+                    "Lua state write did not commit to the namespaced save node");
+            }
+
+            WriteStateFixture(modRoot, "2.0.0",
+                "sf2.state.register {\n" +
+                "  version = 2,\n" +
+                "  fields = {\n" +
+                "    fights = { type=sf2.state.INTEGER, required=true, default=0 },\n" +
+                "    migrated = { type=sf2.state.BOOLEAN, required=true, default=false },\n" +
+                "  },\n" +
+                "  migrations = {\n" +
+                "    [1] = function(state) state.migrated = true end,\n" +
+                "  },\n" +
+                "}\n");
+            using (ModHost host = ModHost.Build(modsRoot))
+            using (ModScriptSession scripts = host.StartScripts(new MoonSharpScriptRuntime()))
+            {
+                Require(!host.HasErrors && !scripts.HasErrors && scripts.ActiveMods.Count == 1,
+                    "Lua state v2 fixture failed to initialize");
+                Require(ModSaveData.RecordContext(save.DocumentElement, scripts.ActiveMods, scripts.Content),
+                    "Lua state v2 fixture could not refresh ownership context");
+                Require(scripts.BindState(save.DocumentElement).Count == 0,
+                    "Lua v1 -> v2 state migration failed");
+                ModParameterValue fights;
+                ModParameterValue migrated;
+                Require(scripts.State.TryGetValue(ModId.Parse("state.fixture"), "fights", out fights) &&
+                    fights.Integer == 1 &&
+                    scripts.State.TryGetValue(ModId.Parse("state.fixture"), "migrated", out migrated) && migrated.Boolean,
+                    "Lua migration did not preserve old values and add the new typed field");
+                XmlElement state = (XmlElement)save.SelectSingleNode(
+                    "/Warrior/EclipseMods/Mod[@id='state.fixture']/State");
+                Require(state != null && state.GetAttribute("version") == "2" &&
+                    state.SelectSingleNode("Value[@name='migrated' and @type='boolean' and @value='1']") != null,
+                    "Successful Lua migration did not commit schema 2 state");
+            }
+
+            XmlElement beforeFailure = (XmlElement)save.SelectSingleNode(
+                "/Warrior/EclipseMods/Mod[@id='state.fixture']/State");
+            string exactBeforeFailure = beforeFailure.OuterXml;
+            WriteStateFixture(modRoot, "3.0.0",
+                "sf2.state.register {\n" +
+                "  version = 3,\n" +
+                "  fields = {\n" +
+                "    fights = { type=sf2.state.INTEGER, required=true, default=0 },\n" +
+                "    migrated = { type=sf2.state.BOOLEAN, required=true, default=false },\n" +
+                "  },\n" +
+                "  migrations = {\n" +
+                "    [2] = function(state) error(\"intentional-state-migration-failure\") end,\n" +
+                "  },\n" +
+                "}\n");
+            using (ModHost host = ModHost.Build(modsRoot))
+            using (ModScriptSession scripts = host.StartScripts(new MoonSharpScriptRuntime()))
+            {
+                Require(!host.HasErrors && !scripts.HasErrors && scripts.ActiveMods.Count == 1,
+                    "Lua state v3 failure fixture failed before migration could be tested");
+                Require(ModSaveData.RecordContext(save.DocumentElement, scripts.ActiveMods, scripts.Content),
+                    "Lua state v3 fixture could not refresh ownership context");
+                IReadOnlyList<ModDiagnostic> diagnostics = scripts.BindState(save.DocumentElement);
+                Require(diagnostics.Count == 1 && diagnostics[0].Code == "STATE003" &&
+                    diagnostics[0].Message.Contains("intentional-state-migration-failure"),
+                    "Failing Lua state migration did not produce the expected state diagnostic");
+                XmlElement afterFailure = (XmlElement)save.SelectSingleNode(
+                    "/Warrior/EclipseMods/Mod[@id='state.fixture']/State");
+                Require(afterFailure != null && afterFailure.OuterXml == exactBeforeFailure,
+                    "Failing Lua state migration partially rewrote the saved state");
+            }
+        }
+        finally
+        {
+            if (Directory.Exists(modsRoot)) Directory.Delete(modsRoot, true);
+        }
+    }
+
+    private static void WriteStateFixture(string modRoot, string version, string body)
+    {
+        File.WriteAllText(Path.Combine(modRoot, "scripts", "main.lua"),
+            "local sf2 = require(\"sf2\")\n" + body);
+        File.WriteAllText(Path.Combine(modRoot, "mod.toml"),
+            "schema = 1\n" +
+            "id = \"state.fixture\"\n" +
+            "name = \"State Fixture\"\n" +
+            "version = \"" + version + "\"\n" +
+            "api = \">=0.5 <1.0\"\n" +
+            "authors = [\"Test\"]\n" +
+            "entrypoint = \"scripts/main.lua\"\n" +
+            "capabilities = [\"content.register\", \"state.read\", \"state.write\"]\n\n" +
+            "[[dependencies]]\n" +
+            "id = \"core\"\n" +
+            "version = \">=1.0 <2.0\"\n");
     }
 
     private static void CheckModHost(CoreAssetProvider coreProvider)
@@ -837,8 +1085,8 @@ public static class ValidatePackagedArt
             PerkInfoItem legacyPerk = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalPerkId);
             PerkInfoItem legacyEnchantment = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(externalEnchantmentId);
             PerkInfoItem compatibilityPerk = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(legacyPerkId);
-            string externalPresentationTitle;
-            string externalPresentationDescription;
+            string externalPresentationTitle = string.Empty;
+            string externalPresentationDescription = string.Empty;
             Require(legacyPerk != null && legacyPerk.HAAKMBKCMCO.Attributes["Alias"]?.Value ==
                     "example.enchantment:localization/perk.eclipse_lifesteal" &&
                 legacyPerk.HAAKMBKCMCO["Set"] == null && legacyEnchantment != null &&

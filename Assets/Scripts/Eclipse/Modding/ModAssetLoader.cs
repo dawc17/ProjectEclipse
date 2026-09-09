@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml;
 using Eclipse.Content.TarAssets;
 using UnityEngine;
 
@@ -180,6 +181,15 @@ namespace Eclipse.Modding
             return DecodeText(bytes, id);
         }
 
+        public byte[] LoadBinary(AssetId id)
+        {
+            AssetBytes bytes;
+            if (!_resolver.TryRead(id, out bytes)) return null;
+            if (bytes.Metadata.Kind != AssetKind.Binary)
+                throw new InvalidDataException("Asset is not binary data: " + id);
+            return bytes.Data;
+        }
+
         public AudioClip LoadAudio(AssetId id)
         {
             AssetMetadata metadata;
@@ -277,5 +287,251 @@ namespace Eclipse.Modding
             UnityEngine.Object.Destroy(value);
 #endif
         }
+    }
+
+    // Runtime-only bridge used by recovered host systems. Public scripting receives typed
+    // handles instead of this loader or raw Unity objects.
+    internal static class ModAssetBinding
+    {
+        internal static bool TryLoadAudio(string reference, out AudioClip clip)
+        {
+            clip = null;
+            AssetId id;
+            if (!TryParseExternal(reference, out id) || !ModRuntime.IsInitialized) return false;
+            clip = ModRuntime.Host.TypedAssets.LoadAudio(id);
+            return clip != null;
+        }
+
+        internal static bool TryLoadBinary(string reference, out byte[] data)
+        {
+            data = null;
+            AssetId id;
+            if (!TryParseExternal(reference, out id) || !ModRuntime.IsInitialized) return false;
+            data = ModRuntime.Host.TypedAssets.LoadBinary(id);
+            return data != null;
+        }
+
+        internal static bool TryLoadSprite(string reference, out Sprite sprite)
+        {
+            sprite = null;
+            AssetId id;
+            if (!TryParseExternal(reference, out id) || !ModRuntime.IsInitialized) return false;
+            sprite = ModRuntime.Host.TypedAssets.LoadSprite(id);
+            return sprite != null;
+        }
+
+        internal static bool IsQualified(string reference)
+        {
+            AssetId id;
+            return TryParseExternal(reference, out id);
+        }
+
+        private static bool TryParseExternal(string reference, out AssetId id)
+        {
+            if (!AssetId.TryParse(reference, out id)) return false;
+            return id.Namespace.Value != "core";
+        }
+    }
+
+    internal static class ExternalLocationRuntime
+    {
+        internal sealed class Entry
+        {
+            internal XmlDocument Params;
+            internal string MusicAsset;
+        }
+
+        private static readonly Dictionary<string, Entry> Entries =
+            new Dictionary<string, Entry>(StringComparer.Ordinal);
+
+        internal static void Set(string runtimeName, XmlDocument parameters, string musicAsset)
+        {
+            if (string.IsNullOrWhiteSpace(runtimeName))
+                throw new ArgumentException("External location runtime name must not be empty.", "runtimeName");
+            if (parameters == null || parameters["Root"] == null)
+                throw new ArgumentException("External location parameters require a Root element.", "parameters");
+            if (!string.IsNullOrEmpty(musicAsset) && !ModAssetBinding.IsQualified(musicAsset))
+                throw new ArgumentException("External location music must be a mod-owned qualified asset.", "musicAsset");
+            Entries[runtimeName] = new Entry
+            {
+                Params = (XmlDocument)parameters.CloneNode(true),
+                MusicAsset = musicAsset ?? string.Empty
+            };
+        }
+
+        internal static bool TryGet(string runtimeName, out Entry entry)
+        {
+            return Entries.TryGetValue(runtimeName ?? string.Empty, out entry);
+        }
+
+        internal static void Remove(string runtimeName)
+        {
+            if (!string.IsNullOrEmpty(runtimeName)) Entries.Remove(runtimeName);
+        }
+
+        internal static void Clear()
+        {
+            Entries.Clear();
+        }
+    }
+
+    internal sealed class ExternalLocaleMetadata
+    {
+        internal string Name;
+        internal string Locale;
+        internal string Alias;
+        internal string FileIcon;
+        internal string FileIconSelected;
+        internal string LoaderImage;
+        internal string PreloaderImage;
+        internal bool IsAsian;
+        internal string ContentFont;
+        internal string TitleFont;
+        internal string ButtonFont;
+        internal float FontSizeScale = 1f;
+        internal float LineSpacing = 1f;
+        internal float CustomLineSpacingScale = 1f;
+    }
+
+    internal static class ExternalLocaleRuntime
+    {
+        private static readonly List<ExternalLocaleMetadata> Entries = new List<ExternalLocaleMetadata>();
+
+        internal static void Add(ExternalLocaleMetadata metadata)
+        {
+            if (metadata == null) throw new ArgumentNullException("metadata");
+            if (string.IsNullOrWhiteSpace(metadata.Name) || string.IsNullOrWhiteSpace(metadata.Locale))
+                throw new ArgumentException("External locale requires both Name and Locale.", "metadata");
+            bool anyFont = !string.IsNullOrEmpty(metadata.ContentFont) || !string.IsNullOrEmpty(metadata.TitleFont) ||
+                !string.IsNullOrEmpty(metadata.ButtonFont);
+            if (anyFont && (string.IsNullOrEmpty(metadata.ContentFont) || string.IsNullOrEmpty(metadata.TitleFont) ||
+                string.IsNullOrEmpty(metadata.ButtonFont)))
+                throw new ArgumentException("External locale font metadata must provide content, title, and button fonts together.", "metadata");
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                if (string.Equals(Entries[i].Name, metadata.Name, StringComparison.Ordinal) ||
+                    string.Equals(Entries[i].Locale, metadata.Locale, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("External locale metadata collides with an already registered locale: " + metadata.Name);
+            }
+            Entries.Add(metadata);
+        }
+
+        internal static void Apply()
+        {
+            if (LocalizationManager.MCLNNPPCFFL == null || Entries.Count == 0) return;
+            for (int i = 0; i < Entries.Count; i++)
+            {
+                ExternalLocaleMetadata metadata = Entries[i];
+                if (LocalizationManager.NLFKNPBICED(metadata.Name) != null || LocalizationManager.HHKANICOAAG(metadata.Locale) != null)
+                    throw new InvalidOperationException("External locale collides with recovered locale metadata: " + metadata.Name);
+
+                XmlDocument document = new XmlDocument();
+                XmlElement node = document.CreateElement("Language");
+                document.AppendChild(node);
+                Set(node, "Name", metadata.Name);
+                Set(node, "Locale", metadata.Locale);
+                Set(node, "Alias", metadata.Alias);
+                Set(node, "FileIcon", metadata.FileIcon);
+                Set(node, "FileIconSelected", metadata.FileIconSelected);
+                Set(node, "LoaderImage", metadata.LoaderImage);
+                Set(node, "PreloaderImage", metadata.PreloaderImage);
+                Set(node, "IsAsian", metadata.IsAsian ? "1" : "0");
+                if (!string.IsNullOrEmpty(metadata.ContentFont))
+                {
+                    XmlElement fonts = document.CreateElement("Fonts");
+                    Set(fonts, "ContentFont", metadata.ContentFont);
+                    Set(fonts, "TitleFont", metadata.TitleFont);
+                    Set(fonts, "ButtonFont", metadata.ButtonFont);
+                    Set(fonts, "FontSizeScale", metadata.FontSizeScale.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    Set(fonts, "LineSpacing", metadata.LineSpacing.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    Set(fonts, "CustomLineSpacingScale", metadata.CustomLineSpacingScale.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    node.AppendChild(fonts);
+                }
+                LocalizationManager.MCLNNPPCFFL.Add(new LocalizationManager.Language(node, LocalizationManager.MCLNNPPCFFL.Count));
+            }
+        }
+
+        internal static void Clear()
+        {
+            Entries.Clear();
+        }
+
+        private static void Set(XmlElement node, string name, string value)
+        {
+            node.SetAttribute(name, value ?? string.Empty);
+        }
+    }
+
+    internal static class ExternalCombatContentRuntime
+    {
+        internal static int ApplyMoves(XmlDocument document)
+        {
+            if (document == null || document["Movesxml"] == null)
+                throw new InvalidOperationException("External moves overlay requires a Movesxml root.");
+            return AnimationData.AddExternalMoves(document);
+        }
+
+        internal static int ApplyTactics(XmlDocument overlay)
+        {
+            if (overlay == null)
+                throw new ArgumentNullException("overlay");
+            XmlNode overlayRoot = overlay["TacticsSettings"];
+            if (overlayRoot == null)
+                throw new InvalidOperationException("External tactics overlay requires a TacticsSettings root.");
+            if (overlayRoot["ConditionalDecisions"] != null)
+                throw new NotSupportedException("ConditionalDecisions have no recovered parser/evaluator and cannot be registered by mods.");
+            XmlNode overlayTactics = overlayRoot["Tactics"];
+            if (overlayTactics == null) return 0;
+
+            XmlDocument combined = XmlUtils.OpenXMLDocument(SF2Paths.KKIDGPBOBNI(), "tacticSettings.xml");
+            if (combined == null || combined["TacticsSettings"] == null || combined["TacticsSettings"]["Tactics"] == null)
+                throw new InvalidOperationException("Recovered tacticSettings.xml is unavailable.");
+            XmlNode combinedTactics = combined["TacticsSettings"]["Tactics"];
+            List<string> names = new List<string>();
+            HashSet<string> pendingNames = new HashSet<string>(StringComparer.Ordinal);
+            foreach (XmlNode node in overlayTactics.ChildNodes)
+            {
+                if (node.Name != "Tactic") continue;
+                string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+                if (string.IsNullOrEmpty(name))
+                    throw new InvalidOperationException("External tactic requires a Name.");
+                if (!pendingNames.Add(name))
+                    throw new InvalidOperationException("External tactics asset contains duplicate tactic '" + name + "'.");
+                Tactic existing = AiData.GetTacticByName(name);
+                if (existing != null && existing.get_Name() == name)
+                    throw new InvalidOperationException("External tactic collides with existing tactic '" + name + "'.");
+                names.Add(name);
+                combinedTactics.AppendChild(combined.ImportNode(node, true));
+            }
+
+            TacticsCompiler.CompileTacticsSettings(combined);
+            List<XmlNode> compiledNodes = new List<XmlNode>();
+            for (int i = 0; i < names.Count; i++)
+            {
+                XmlNode node = FindTactic(combinedTactics, names[i]);
+                if (node == null)
+                    throw new InvalidOperationException("Compiled external tactic disappeared: " + names[i]);
+                // Construct before mutating AiData so malformed tactic content cannot leave
+                // a partially applied overlay.
+                new Tactic(node);
+                compiledNodes.Add(node);
+            }
+            for (int i = 0; i < compiledNodes.Count; i++) AiData.AddExternalTactic(compiledNodes[i]);
+            return compiledNodes.Count;
+        }
+
+        internal static bool RemoveTactic(string runtimeName)
+        {
+            return AiData.RemoveExternalTactic(runtimeName);
+        }
+
+        private static XmlNode FindTactic(XmlNode tactics, string name)
+        {
+            foreach (XmlNode node in tactics.ChildNodes)
+                if (node.Name == "Tactic" && node.Attributes["Name"].CIPOICEEIBK(string.Empty) == name)
+                    return node;
+            return null;
+        }
+
     }
 }

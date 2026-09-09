@@ -6,6 +6,8 @@ The dependency-ordered engineering roadmap is
 [DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
 DE parity or Mod API expansion must read both parity documents before editing.
 
+Current public Mod API version: **0.5.0**.
+
 Place each mod in `Mods/<folder>/` with a `mod.toml` manifest. See `example.weapon`
 for the minimal weapon slice, `example.loadout` for armor, helm, ranged, and magic,
 and `example.enchantment` for the API 0.3 reusable behavior + typed perk/enchantment slice.
@@ -150,6 +152,342 @@ sf2.log.error("operation failed")
 
 Every log entry retains the originating mod ID and its severity. Logging an
 error does not throw or roll back registration; use Lua `error(...)` for that.
+
+## Targeted content patches (0.4)
+
+API 0.4 adds the first typed proof of the shared content ownership/patch/conflict
+framework. It is deliberately **not** a raw XML replacement API. The currently
+shipped patch adapter is localization-only:
+
+```lua
+local sf2 = require("sf2")
+
+sf2.localization.patch {
+    target = "core:localization/weapon_nunchaku",
+    language = "eng",
+    value = "Nunchaku",
+}
+```
+
+The manifest must declare `content.patch`, and the target namespace must be an
+explicit dependency. Patching `core:*` therefore requires the normal `core`
+dependency:
+
+```toml
+capabilities = ["content.patch"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0 <2.0"
+```
+
+Each committed patch records its owner, target `DefinitionId`, semantic field,
+and operation. Two mods replacing the same semantic field, such as
+`values/eng` on the same localization definition, produce an explicit conflict
+that names both owners. There is no filesystem-order or last-mod-wins fallback.
+Non-overlapping fields, for example `eng` and `rus`, can compose.
+
+Core localization projections retain the exact recovered lookup key, so a patch
+is applied as a reversible runtime overlay. Removing or disabling the patching
+mod reveals the unchanged base string again. The base XML is never rewritten.
+
+The patch policy is deny-by-default: unsupported semantic fields are read-only.
+Shared/core economy fields are centrally classified as base-only, including item
+prices, upgrade costs, forge/enchantment costs, skip costs, shared currency
+values/formulas, and global balance tables. `content.patch` does not grant any
+way around that boundary. Prices declared on a new mod-owned item/listing remain
+local definition data and do not mutate the shared economy.
+
+This 0.4 slice proves the architecture on already projected core localization
+definitions. It does not yet expose arbitrary core strings, generic item/stage/
+quest patching, collection child operations, or public content removal. Those
+remain roadmap work rather than hidden XML escape hatches.
+
+## Mod-owned state and migrations (0.5)
+
+API 0.5 adds durable typed state owned by one mod namespace. State schemas are
+registered during the normal Lua entrypoint, then bound to the current player
+only when the recovered roster save is loaded. Lua never receives the raw
+`Warrior`, `Roster`, or save XML object.
+
+```lua
+local sf2 = require("sf2")
+
+sf2.state.register {
+    version = 2,
+    fields = {
+        victories = { type=sf2.state.INTEGER, required=true, default=0 },
+        completed = { type=sf2.state.BOOLEAN, required=true, default=false },
+        title = { type=sf2.state.STRING, required=false },
+    },
+    aliases = {
+        wins = "victories",
+    },
+    tombstones = { "obsolete_flag" },
+    migrations = {
+        [1] = function(state)
+            -- Runs once for schema 1 -> 2 under a bounded instruction budget.
+            state.completed = state.completed or false
+        end,
+    },
+}
+```
+
+The manifest must declare `state.read` to read state and `state.write` to
+register or mutate it. State uses the same bounded `NUMBER`, `INTEGER`,
+`BOOLEAN`, and `STRING` value contract as behavior parameters. Required fields
+must have defaults so a new save has deterministic initial values.
+
+Once a player save is bound, scripts can use:
+
+```lua
+local fights = sf2.state.get("victories")
+sf2.state.set {
+    victories = fights + 1,
+    completed = true,
+}
+sf2.state.unset("title") -- optional/default-backed fields only
+```
+
+`sf2.state.set` validates the entire batch before replacing the saved state, so
+one bad field cannot partially commit earlier fields. Migration also works on a
+clone and replaces the real `<State>` node only after every N -> N+1 step and
+the final schema validation succeed. A failed migration leaves the previous
+state XML untouched and produces a `STATE003` diagnostic.
+
+State is stored beneath that mod's existing `EclipseMods/Mod` ownership record.
+Removing the mod marks the record inactive but leaves the complete state node
+opaque. Saving and reloading without the mod does not delete it; reinstalling
+the mod rebinds the preserved values. A saved state schema newer than the
+installed mod understands is also left untouched rather than downgraded.
+Unknown XML children remain opaque through normal binding/migration. Renames and
+intentional removals should use explicit `aliases` and `tombstones`, not rely on
+incidental table omission.
+
+The deterministic `contentHash` is now `fingerprint-v6` and includes registered
+state schema version, typed fields/defaults, aliases, and tombstones in addition
+to the committed content/patch set. Phase 1 stage, quest, item/set/progression/
+forge, locale/location/move/tactic definitions are also part of the fingerprint.
+Runtime state values themselves are save progress and are not part of the content
+fingerprint.
+
+## Phase 1 content graph API (0.5)
+
+API 0.5 now includes the first complete downstream content-authoring layer used by
+`Mods/example.phase1`. The public surface is typed and validated. Lua never receives
+raw `XmlNode`, stage XML, `Model`, `Roster`, `ListSF`, or arbitrary Unity objects.
+
+### Zones, battles, fighters, rules, rewards, fights
+
+```lua
+local zone = sf2.zones.register {
+    id = "arena_zone",
+    file = "",
+    start = false,
+}
+
+local battle = sf2.battles.register {
+    id = "arena_battle",
+    zone = zone,
+    type = sf2.battles.STORY,
+    x = 0,
+    y = 0,
+    title = "Arena",
+    location = "mountain",
+}
+
+local fighter = sf2.warriors.register {
+    id = "arena_fighter",
+    template = sf2.warriors.get_template("core:warrior-templates/default"),
+    first_name = "Arena",
+    last_name = "Fighter",
+    level = 1,
+    tactic = "Standard", -- recovered/core tactic compatibility form
+}
+
+local rule = sf2.rules.recharge_magic_each_round {
+    id = "arena_recharge",
+    target = sf2.rules.ALL,
+    mode = sf2.rules.BOTH,
+}
+
+local reward = sf2.rewards.register {
+    id = "arena_reward",
+    items = { { item = some_item } },
+}
+
+local fight = sf2.fights.register {
+    id = "arena_fight",
+    battle = battle,
+    rounds = 1,
+    round_time = 99,
+    warriors = { fighter },
+    rules = { rule },
+    rewards = { reward },
+}
+```
+
+The stage graph preserves authored child order. A mod may add its own battle under
+an existing `core`/dependency zone through the same typed battle registration path;
+the child append is provenance-tracked and conflicts if another mod claims the same
+semantic child identity. Supported core fight fields can be patched through
+`sf2.fights.patch` and removal restores the original recovered source definition.
+
+The currently exposed fight-rule helpers are the recovered, validated subset:
+no-perks, require-item, equip-item, avatar/name, perk, recharge-magic-each-round,
+attributes, and no-button. Shared currency/cost rule forms remain private.
+
+Rewards currently expose non-economic item grants and weighted item choices. Shared
+money/currency reward tuning is intentionally not public.
+
+### Quests
+
+`sf2.quests.register` adapts typed Lua data into the recovered quest engine:
+
+```lua
+sf2.quests.register {
+    id = "arena_complete",
+    priority = 20,
+    place = "fight",
+    events = { "fight_end" },
+    conditions = {
+        {
+            op = "eq",
+            left = { kind = "event_fight" },
+            right = { kind = "fight_id", fight = fight },
+        },
+    },
+    actions = {
+        { type = "show_battle", battle = battle, locked = false },
+        { type = "toggle_battle", battle = battle, visible = true },
+        { type = "start_current_fight" },
+        { type = "update_eclipse_battles" },
+        { type = "give_item", item = some_item },
+    },
+}
+```
+
+Conditions support typed compare operands plus nested `all`/`any`/`not`. Verified
+actions include dialog/story presentation, user-variable writes, battle show/toggle,
+map focus, typed fight start/current-fight start, Eclipse-mode refresh/toggle, and
+non-economic item grants. Dialog buttons may contain their own typed nested action
+sequence. Unsupported service/network/currency actions are not exposed wholesale.
+
+### Non-equipment items, sets, availability, progression, forge structure
+
+```lua
+local token = sf2.items.register_consumable {
+    id = "token",
+    display_name = sf2.localization.key("token.name"),
+    icon = sf2.assets.sprite("sprites/token"),
+    subtype = "Token",
+}
+
+sf2.shop.set_availability {
+    item = token,
+    visibility = sf2.shop.FORCE_VISIBLE,
+}
+
+sf2.itemsets.register {
+    id = "token_set",
+    title = sf2.localization.key("token_set.title"),
+    text = sf2.localization.key("token_set.text"),
+    brief = sf2.localization.key("token_set.brief"),
+    members = { { item = token } },
+}
+
+sf2.forge.register_recipe {
+    id = "token_recipe",
+    economic_profile = sf2.forge.profile("Simple"),
+    items = {
+        { equipment = sf2.forge.WEAPON, enchantments = 1 },
+    },
+    candidates = {
+        { perk = some_perk, equipment = sf2.forge.WEAPON, min_level = 1, max_level = 52 },
+    },
+}
+```
+
+Supported non-equipment kinds are consumable, free, and seal. Item availability is
+shared by shop and quest availability checks. Progression overlays are targeted
+branch replacements rather than arbitrary global progression mutation. Forge recipe
+families are structural only: mods reference immutable host economic profiles and
+cannot publish forge costs, skip costs, shared currency values, or shared formulas.
+
+See `Mods/P1C_API.md` for the complete P1C authoring contract.
+
+### Locales, audio, locations, moves, triggers, tactics
+
+```lua
+local music = sf2.assets.audio("audio/arena")
+local anim = sf2.assets.binary("animations/arena_step")
+
+sf2.locales.register {
+    id = "arena_english",
+    name = "eng_arena",
+    locale = "en",
+}
+
+local location = sf2.locations.register {
+    id = "arena_location",
+    music = music,
+    layers = {
+        { images = { { sprite = sf2.assets.sprite("sprites/background") } } },
+    },
+}
+
+local template = sf2.moves.register_template {
+    id = "arena_step_template",
+    core_templates = { "ForwardStep" },
+}
+
+local move = sf2.moves.register {
+    id = "arena_step",
+    animation = anim,
+    templates = { template },
+}
+
+sf2.moves.register_trigger {
+    id = "arena_step_sound",
+    events = { { type = sf2.moves.ANIMATION_START, name = "example.mod:moves/arena_step" } },
+    actions = { { type = sf2.moves.SOUND, audio = music, volume = 0.25 } },
+}
+
+local tactic = sf2.tactics.register {
+    id = "arena_tactic",
+    type = sf2.tactics.TABULAR,
+    template = "Standard",
+    animation_weights = {
+        { move = move, value = { base = 1 } },
+    },
+}
+
+local fighter = sf2.warriors.register {
+    id = "arena_tactician",
+    template = sf2.warriors.get_template("core:warrior-templates/default"),
+    first_name = "Arena",
+    last_name = "Tactician",
+    level = 1,
+    tactic = tactic,
+}
+```
+
+For recovered/core tactics, the compatibility string form such as
+`tactic = "Standard"` remains valid. Prefer the opaque handle for mod-owned
+tactics. `sf2.tactics.name(tactic)` is available as a narrow explicit runtime-name
+adapter when another supported field genuinely requires the recovered tactic name.
+
+Qualified runtime audio is currently PCM16 WAV only. `sf2.assets.binary` supports
+namespaced move animation bytes. Location art supports typed single-sprite layers;
+loose multi-sprite atlas subassets and recovered particle/prefab layer forms are not
+yet a general public contract. Move/template/trigger registration is additive only
+because no safe recovered reversible replace/remove seam has been proven. Ordinary
+recovered tactics are supported; DE `ConditionalDecisions` remains unsupported
+because no authoritative parser/evaluator exists in the recovered runtime.
+
+`Mods/example.phase1` is the integrated Phase 1 showcase. It combines durable
+state, localization, P1C content, P1D location/move/tactic content, a P1A stage
+graph, and P1B quest flow using only the public Lua API on an unchanged base install.
 
 ## Perks, enchantments, and reusable behaviors (0.3)
 
@@ -489,13 +827,13 @@ restores ownership without overriding that newer equipment choice.
 warrior's additive `EclipseMods` node records schema/API/core versions and each
 successfully initialized mod's version and active status. Last-seen records for
 absent mods are retained; unsupported future metadata schemas are left unchanged.
-It also records a deterministic `contentHash` over active mod IDs/versions and the
-actual committed localization/item/shop definitions. The hash therefore changes
-when registered content changes even if a mod author forgets to bump their version.
-This metadata is diagnostic, not a reason to reject or reset a save. Item aliases and
-tombstones provide the first non-destructive ID-evolution contract. Automatic versioned mod
-migrations and transactional save rewrites remain future work; keeping published IDs stable
-is still preferable when possible.
+It also records a deterministic `contentHash` over active mod IDs/versions, the
+actual committed definitions, committed patch provenance, and registered state
+schemas. The hash therefore changes when registered semantic content changes
+even if a mod author forgets to bump their version. This metadata is diagnostic,
+not a reason to reject or reset a save. Item aliases/tombstones and API 0.5 state
+aliases/tombstones provide non-destructive ID/state evolution; state migrations
+are transactional and preserve the previous XML when a migration fails.
 
 ## Built-in core equipment registry
 
@@ -525,11 +863,13 @@ asset calls routed through `ResourcesAndBundles` are now implicitly qualified to
 before the Unity `Resources` fallback, so vanilla and external assets share the same
 namespace boundary without rewriting thousands of recovered call sites.
 
-External Lua registration now supports weapon, armor, helm, ranged, and magic. The
+External Lua registration supports weapon, armor, helm, ranged, magic, Phase 1
+non-equipment/set/progression/forge content, stages, quests, locales, locations,
+moves, and ordinary tactics. The
 tracked `example.loadout` registers one of each non-weapon category using matching
 core-owned atlas sprites and model assets, and the recovered shop consumes the same five
-category lists that `LegacyContentAdapter` updates. Perks, enchantments, fights, and quests
-remain later content slices.
+category lists that `LegacyContentAdapter` updates. `example.phase1` is the integrated
+public-API acceptance fixture spanning P0.5 plus P1A/P1B/P1C/P1D.
 
 Validation: `Tools/TestModdingContracts.ps1` checks all 740 vanilla equipment
 rows, atomic registration, duplicate-name disambiguation, and save XML round
@@ -537,7 +877,8 @@ trips. `Tools/TestModSaveRuntime.ps1` executes the recovered inventory parse and
 actual `UserItem` XML mutation methods for ownership, upgrade, delivery, and
 equipment state. `Tools/TestPackagedArt.ps1` checks provider routing, MoonSharp
 registration, all five equipment registries, and the registry/legacy bridge in isolated
-Unity. The expanded editor fixture currently passes 124 checks, including vanilla-derived
-starting stats. A real player build has also been manually started with save data containing
+Unity. The expanded editor fixture currently passes 160 checks, including vanilla-derived
+starting stats, the public Lua localization-patch path, reversible core localization binding,
+and an intentional two-mod same-field conflict. A real player build has also been manually started with save data containing
 modded equipment without breaking save load/startup. These checks still do not replace a
 complete purchase/upgrade/equip/fight/removal/reinstall playtest for every category.

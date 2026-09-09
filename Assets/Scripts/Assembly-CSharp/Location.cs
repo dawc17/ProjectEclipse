@@ -144,23 +144,27 @@ public class Location
 	public void init()
 	{
 		MFILBEJPGHO = name;
+		Eclipse.Modding.ExternalLocationRuntime.Entry externalLocation;
+		bool hasExternalLocation = Eclipse.Modding.ExternalLocationRuntime.TryGet(name, out externalLocation);
 		string value;
-		if (!_preferCustomLayout && MissingArtworkFallbacks.TryGetValue(MFILBEJPGHO, out value))
+		if (!hasExternalLocation && !_preferCustomLayout && MissingArtworkFallbacks.TryGetValue(MFILBEJPGHO, out value))
 		{
 			Debug.Log("[Location] Using installed artwork '" + value + "' for newer location '" + MFILBEJPGHO + "'.");
 			MFILBEJPGHO = value;
 		}
 		// Recovered raid artwork belongs to the new combined-layer layouts.
 		// The embedded legacy params split those layers into obsolete tiles.
-		XmlDocument xmlDocument = _preferCustomLayout ?
-			XmlUtils.OpenXMLDocument(BBNOJALBLKC(), string.Empty) : OpenInstalledLocationDocument();
+		XmlDocument xmlDocument = hasExternalLocation ? OpenExternalLocationDocument(externalLocation.Params) :
+			(_preferCustomLayout ? XmlUtils.OpenXMLDocument(BBNOJALBLKC(), string.Empty) : OpenInstalledLocationDocument());
 		if (xmlDocument == null)
 		{
-			xmlDocument = _preferCustomLayout ? OpenInstalledLocationDocument() : XmlUtils.OpenXMLDocument(BBNOJALBLKC(), string.Empty);
+			xmlDocument = hasExternalLocation ? null :
+				(_preferCustomLayout ? OpenInstalledLocationDocument() : XmlUtils.OpenXMLDocument(BBNOJALBLKC(), string.Empty));
 		}
 		if (xmlDocument == null || xmlDocument["Root"] == null)
 		{
 			Debug.LogWarning("[Location] Missing or invalid location '" + name + "'; using dojo fallback.");
+			hasExternalLocation = false;
 			MFILBEJPGHO = "dojo";
 			xmlDocument = OpenInstalledLocationDocument();
 			if (xmlDocument == null)
@@ -174,7 +178,11 @@ public class Location
 			return;
 		}
 		musics.Clear();
-		if (PINIIFIOECE != string.Empty)
+		if (hasExternalLocation && !string.IsNullOrEmpty(externalLocation.MusicAsset))
+		{
+			musics.Add(externalLocation.MusicAsset);
+		}
+		else if (PINIIFIOECE != string.Empty)
 		{
 			musics.Add(PINIIFIOECE);
 		}
@@ -204,6 +212,16 @@ public class Location
 			ParseLayer(childNode, num);
 			num += -3;
 		}
+	}
+
+	private XmlDocument OpenExternalLocationDocument(XmlDocument parameters)
+	{
+		if (parameters == null)
+		{
+			Debug.LogWarning("[Location] Missing external parameters for '" + name + "'.");
+			return null;
+		}
+		return (XmlDocument)parameters.CloneNode(true);
 	}
 
 	private XmlDocument OpenInstalledLocationDocument()
@@ -264,6 +282,10 @@ public class Location
 
 	private string LKDJCCIJFMD(string FAAALPKKJID)
 	{
+		if (Eclipse.Modding.ModAssetBinding.IsQualified(FAAALPKKJID))
+		{
+			return FAAALPKKJID.TrimEnd('/');
+		}
 		return "Textures/" + FAAALPKKJID.Trim('/');
 	}
 

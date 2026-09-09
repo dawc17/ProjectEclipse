@@ -337,7 +337,8 @@ public class Items
 		ItemInfo item = HOBNJMONDKB(node, HCDLKHKBEPF().Count);
 		List<ItemInfo> category = ONFMAJEAACM(item.Type);
 		if (category == null || (item.Type != "Weapon" && item.Type != "Armor" && item.Type != "Helm" &&
-			item.Type != "Ranged" && item.Type != "Magic"))
+			item.Type != "Ranged" && item.Type != "Magic" && item.Type != "Consumable" &&
+			item.Type != "Free" && item.Type != "Seal"))
 		{
 			throw new System.InvalidOperationException("Unsupported external item type '" + item.Type + "': " + name);
 		}

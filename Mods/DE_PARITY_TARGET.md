@@ -21,16 +21,16 @@ must also be usable by other mods.
  |
 |  |
 |  |
-| No wait timers | Configure purchase delivery, upgrades, enchanting, forging, and other relevant timers and skip costs independently. |
+| No wait timers | Configure purchase delivery, upgrades, enchanting, forging, and other relevant timer policy, including whether skipping is available. Shared/base skip costs remain immutable. |
 | No battle passes | Disable pass systems, gating, offers, and UI; provide alternate item/reward acquisition. |
-| No premium currency or offers | Control currency purpose, visibility, acquisition and spending, and offer UI. Keeping gems as an earned currency must be supported independently of paid purchases. |
+| No premium currency or offers | Control service/offer visibility, gating, alternate acquisition, and presentation. Keeping gems as an earned currency must be supported independently of paid purchases, without exposing shared currency values/formulas for mod mutation. |
 | No FOMO; permanent events | Register events and control schedules, eligibility, repeatability, and permanent availability. |
 | Underworld event bosses | Register raid zones, bosses, encounters, rules, rewards, keys, and progression. |
 | All cut/unused music | Supply/reference audio assets and assign playback to scenes, battles, and story sequences. |
 | Sensei's Story / Old Wounds | Register complete quest chains, dialogue, battles, conditions, actions, unlocks, and rewards. |
 |  |
 | Ascension and Monk set | Register the mode, entry rules, loot/reward selection, and set acquisition. |
-| Every weapon, armor, helm, ranged weapon, and magic | Define equipment, assets, combat behavior, enchantments, unlocks, shop visibility, purchase prices, and upgrade paths. |
+| Every weapon, armor, helm, ranged weapon, and magic | Define equipment, assets, combat behavior, enchantments, unlocks, shop visibility, mod-owned listing prices, and upgrade/acquisition paths. Existing/core prices and shared upgrade economy remain base-owned. |
 | Special-offer items in the shop | Make shop availability independent of the original paid offer or event. |
 | Titan's Desolator earned in Eclipse mode | Attach conditional item rewards to the appropriate boss/mode completion. |
 | Sentinel, Neo-wanderer, and every other set | Define set membership, effects, assets, and acquisition paths. |

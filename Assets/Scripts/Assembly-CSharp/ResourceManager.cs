@@ -24,6 +24,15 @@ public static class ResourceManager
 
 	public static byte[] GetBinary(string DCOPLCIFCFL)
 	{
+		byte[] externalBinary;
+		if (Eclipse.Modding.ModAssetBinding.TryLoadBinary(DCOPLCIFCFL, out externalBinary))
+		{
+			return externalBinary;
+		}
+		if (Eclipse.Modding.ModAssetBinding.IsQualified(DCOPLCIFCFL))
+		{
+			return null;
+		}
 #if UNITY_EDITOR
 		byte[] previewAnimation;
 		if (Eclipse.Content.LocalAnimationPreview.TryGetBinary(DCOPLCIFCFL, out previewAnimation))

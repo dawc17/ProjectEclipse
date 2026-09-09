@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Eclipse.Modding
 {
-    public static class ModRuntime
+    public static partial class ModRuntime
     {
         private static ModHost _host;
         private static ModScriptSession _scripts;
@@ -42,6 +42,7 @@ namespace Eclipse.Modding
                 _legacyContent = new LegacyContentAdapter(scripts.Content);
                 _legacyContent.ApplyItems(ListSF.DJBOFEEKJMP());
                 _legacyContent.ApplyPerksAndEnchantments(GameUtils.FDEJIIDIPBI, ForgeManager.ELEBLBJKDBI());
+                ApplyP1DContent();
                 Debug.Log("[ModContent] Catalog equipment: " + scripts.Content.Weapons.Count + " weapons, " +
                     scripts.Content.Armors.Count + " armor, " + scripts.Content.Helms.Count + " helms, " +
                     scripts.Content.Ranged.Count + " ranged, " + scripts.Content.Magic.Count + " magic; applied " +
@@ -66,6 +67,37 @@ namespace Eclipse.Modding
             {
                 Debug.LogError("[ModContent] Failed to apply mod localization; vanilla localization remains active. " +
                     exception);
+            }
+        }
+
+        public static void ApplyStageContent()
+        {
+            if (_legacyContent == null) return;
+            try
+            {
+                _legacyContent.ApplyStages(ListSF.ELEBLBJKDBI());
+                Debug.Log("[ModContent] Applied stage graph: " + Scripts.Content.Zones.Count + " zones, " +
+                    Scripts.Content.Battles.Count + " battles, " + Scripts.Content.Fights.Count + " fights.");
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("[ModContent] Failed to apply mod stage content; mod startup is invalid. " + exception);
+                throw;
+            }
+        }
+
+        public static void ApplyQuestContent()
+        {
+            if (_legacyContent == null) return;
+            try
+            {
+                _legacyContent.ApplyQuests(ListSF.ELEBLBJKDBI());
+                Debug.Log("[ModContent] Applied quest graph: " + Scripts.Content.Quests.Count + " external quest(s).");
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("[ModContent] Failed to apply mod quest content; mod startup is invalid. " + exception);
+                throw;
             }
         }
 
@@ -104,8 +136,14 @@ namespace Eclipse.Modding
         {
             // Do not overwrite provenance if mod initialization itself was unavailable.
             if (_scripts == null) return;
-            if (!ModSaveData.RecordContext(warrior, _scripts.ActiveMods, _scripts.Content))
+            if (!ModSaveData.RecordContext(warrior, _scripts.ActiveMods, _scripts.Content, _scripts.State))
+            {
                 Debug.LogWarning("[ModSave] Unrecognized save metadata schema; leaving it unchanged.");
+                return;
+            }
+            IReadOnlyList<ModDiagnostic> stateDiagnostics = _scripts.BindState(warrior);
+            for (int i = 0; i < stateDiagnostics.Count; i++)
+                Debug.LogWarning("[ModSave] " + stateDiagnostics[i]);
         }
 
         public static bool TryReadSavedEnchantment(XmlNode perkNode, out EnchantmentDefinition enchantment,
@@ -412,6 +450,18 @@ namespace Eclipse.Modding
             int helms = nodes.Count == 0 ? 0 : CoreContentImporter.ImportHelms(content, nodes, languages);
             int ranged = nodes.Count == 0 ? 0 : CoreContentImporter.ImportRanged(content, nodes, languages);
             int magic = nodes.Count == 0 ? 0 : CoreContentImporter.ImportMagic(content, nodes, languages);
+            int nonEquipment = nodes.Count == 0 ? 0 : CoreContentImporter.ImportNonEquipment(content, nodes);
+            var forgeProfileNames = new List<string>();
+            ForgeManager forge = ForgeManager.ELEBLBJKDBI();
+            if (forge != null)
+            {
+                foreach (Recipe recipe in forge.Recipes)
+                {
+                    if (recipe == null || string.IsNullOrEmpty(recipe.Name)) continue;
+                    forgeProfileNames.Add(recipe.Name);
+                }
+            }
+            int forgeProfiles = CoreContentImporter.ImportForgeEconomicProfiles(content, forgeProfileNames);
             int perks = 0;
             string perksPath = Path.Combine(GameplayContentArchive.GetXmlRoot(), "perks.xml");
             var perksDocument = new XmlDocument { XmlResolver = null };
@@ -419,8 +469,21 @@ namespace Eclipse.Modding
                 { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })) perksDocument.Load(reader);
             XmlNode perksRoot = perksDocument["Perks"];
             if (perksRoot != null) perks = CoreContentImporter.ImportPerks(content, EnumerateChildren(perksRoot));
-            Debug.Log("[ModContent] Imported core equipment: " + weapons + " weapons, " + armors +
-                " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic; " + perks + " perks.");
+            int fights = 0;
+            string stagesPath = Path.Combine(GameplayContentArchive.GetXmlRoot(), "stages.xml");
+            var stagesDocument = new XmlDocument { XmlResolver = null };
+            using (XmlReader reader = XmlReader.Create(stagesPath, new XmlReaderSettings
+                { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null })) stagesDocument.Load(reader);
+            XmlNode zonesRoot = stagesDocument["Stages"]?["Zones"];
+            if (zonesRoot != null) fights = CoreContentImporter.ImportStages(content, zonesRoot);
+            int warriorTemplates = CoreContentImporter.ImportWarriorTemplates(content,
+                stagesDocument["Stages"]?["Warriors"]?["Templates"]);
+            Debug.Log("[ModContent] Imported core items: " + weapons + " weapons, " + armors +
+                " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic, " + nonEquipment +
+                " non-equipment; " + perks + " perks; " + forgeProfiles + " immutable forge economic profiles.");
+            Debug.Log("[ModContent] Imported core stage graph: " + content.Zones.Count + " zones, " +
+                content.Battles.Count + " battles, " + fights + " fights, " + warriorTemplates +
+                " warrior templates.");
         }
 
         private static IEnumerable<XmlNode> EnumerateChildren(XmlNode parent)

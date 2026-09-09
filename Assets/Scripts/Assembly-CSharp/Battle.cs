@@ -569,6 +569,58 @@ public class Battle
 		CMDDPMAAJOF.Set(node);
 	}
 
+	// Narrow Eclipse modding seam. Stage patches operate on the stored source definition
+	// before fights are lazily materialized. This deliberately does not expose the live
+	// FightList objects or mutate the base stages.xml document.
+	public XmlNode CloneSourceDefinitionForModding()
+	{
+		XmlNode node = CMDDPMAAJOF.IOJIGDNFCFL();
+		return node == null ? null : node.CloneNode(true);
+	}
+
+	public bool ReplaceSourceDefinitionForModding(XmlNode node, out string error)
+	{
+		error = string.Empty;
+		if (node == null || node.Name != "Battle")
+		{
+			error = "Battle replacement source must be a Battle XML node.";
+			return false;
+		}
+		if (JNPMCNMEOLE.Count != 0 || NLLECKHLMAN || LEGLFDDINKO != 0)
+		{
+			error = "Battle fights were already materialized; stage patches must be applied before fight parsing.";
+			return false;
+		}
+		string replacementName = node.Attributes?["Name"]?.Value ?? string.Empty;
+		if (!string.Equals(replacementName, _name, System.StringComparison.Ordinal))
+		{
+			error = "Battle replacement cannot change recovered identity '" + _name + "'.";
+			return false;
+		}
+		JNIIGKNBCCL(node);
+		return true;
+	}
+
+	public bool RestoreSourceDefinitionForModding(XmlNode node, out string error)
+	{
+		error = string.Empty;
+		if (node == null || node.Name != "Battle")
+		{
+			error = "Battle restore source must be a Battle XML node.";
+			return false;
+		}
+		string replacementName = node.Attributes?["Name"]?.Value ?? string.Empty;
+		if (!string.Equals(replacementName, _name, System.StringComparison.Ordinal))
+		{
+			error = "Battle restore cannot change recovered identity '" + _name + "'.";
+			return false;
+		}
+		// Live mod unloading is intentionally unsupported. Restoring the stored source is
+		// sufficient for the next lazy parse/reinitialization without touching a running fight.
+		JNIIGKNBCCL(node);
+		return true;
+	}
+
 	public void MHMGONPIPKG()
 	{
 		QuestParameters hHKLFIIBIFF = ListSF.ELEBLBJKDBI().BNMLDPNCMLB();

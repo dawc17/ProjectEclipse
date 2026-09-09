@@ -36,7 +36,7 @@ public class RewardChoice
 		}
 	}
 
-	private List<GIMEDBLIEFF> GKOHOFKFDFP;
+	private List<GIMEDBLIEFF> GKOHOFKFDFP = new List<GIMEDBLIEFF>();
 
 	public RewardChoice(XmlNode node)
 	{

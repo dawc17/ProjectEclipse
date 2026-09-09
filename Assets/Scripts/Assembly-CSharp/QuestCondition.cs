@@ -729,8 +729,7 @@ public class QuestCondition : ConditionExtension
 			break;
 		case "Availability":
 		{
-			bool flag = dJKEECEOCJB.GOKHJMOEGIJ() || !dJKEECEOCJB.DCHJDPCEODD || (!dJKEECEOCJB.MMHIKEIDDNB.Equals(string.Empty) && !nKGLHEGIKKP.FLFKOIPCEPI(dJKEECEOCJB.MMHIKEIDDNB));
-			BMDEBHIHIAJ.resultNumber = ((!flag) ? 1 : 0);
+			BMDEBHIHIAJ.resultNumber = ShopAvailabilityPolicy.IsAvailable(dJKEECEOCJB, nKGLHEGIKKP) ? 1 : 0;
 			break;
 		}
 		case "RealPrice":

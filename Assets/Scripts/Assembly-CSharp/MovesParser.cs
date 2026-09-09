@@ -10,6 +10,10 @@ public static class MovesParser
 
 	private static Dictionary<string, XmlNode> _LegacyTemplateTemp;
 
+	private static Dictionary<string, XmlNode> _BaseTemplateNodes = new Dictionary<string, XmlNode>();
+
+	private static Dictionary<string, XmlNode> _BaseLegacyTemplateNodes = new Dictionary<string, XmlNode>();
+
 	public static void Parse(string path, List<InfoAnimation> DPPDBCBFHIL, Dictionary<string, TemplateAnimation> CBNKICJENCB, List<Trick> IAGDAAPCDNI, List<Trigger> CMHFKBKKKOK, bool OOJAEKEOEFJ)
 	{
 		MovesMaps.Init();
@@ -21,15 +25,112 @@ public static class MovesParser
 		XmlNode iLCCDINCICK = xmlDocument["Movesxml"]["Moves"];
 		XmlNode hKPPBKPJOEO = xmlDocument["Movesxml"]["Triggers"];
 		AKGCKOGKJBD(aFHNINCKJEE, CBNKICJENCB);
+		_BaseTemplateNodes.Clear();
+		foreach (KeyValuePair<string, XmlNode> pair in _TemplateTemp)
+			_BaseTemplateNodes.Add(pair.Key, pair.Value.CloneNode(true));
+		_BaseLegacyTemplateNodes.Clear();
 		_LegacyTemplateTemp = new Dictionary<string, XmlNode>();
 		foreach (XmlNode template in xmlDocument.SelectNodes("/Movesxml/LegacyTemplates/Template"))
+		{
 			_LegacyTemplateTemp.Add(template.Attributes["Name"].Value, template);
+			_BaseLegacyTemplateNodes[template.Attributes["Name"].Value] = template.CloneNode(true);
+		}
 		MNCBOOGMKGB(iLCCDINCICK, CBNKICJENCB, DPPDBCBFHIL, IAGDAAPCDNI);
 		KOKCNPLBFAG(hKPPBKPJOEO, CMHFKBKKKOK);
 		_TemplateTemp.Clear();
 		_TemplateTemp = null;
 		_LegacyTemplateTemp.Clear();
 		_LegacyTemplateTemp = null;
+	}
+
+	internal static int ParseAdditional(XmlDocument xmlDocument, List<InfoAnimation> moves,
+		Dictionary<string, TemplateAnimation> templates, List<Trick> tricks, List<Trigger> triggers)
+	{
+		if (xmlDocument == null || xmlDocument["Movesxml"] == null)
+			throw new System.ArgumentException("External moves document must have a Movesxml root.", "xmlDocument");
+
+		XmlNode root = xmlDocument["Movesxml"];
+		XmlNode templateNodes = root["Templates"];
+		XmlNode moveNodes = root["Moves"];
+		XmlNode triggerNodes = root["Triggers"];
+		if (moveNodes == null) throw new System.ArgumentException("External moves document is missing Moves.", "xmlDocument");
+
+		_TemplateTemp = CloneNodeMap(_BaseTemplateNodes);
+		_LegacyTemplateTemp = CloneNodeMap(_BaseLegacyTemplateNodes);
+		try
+		{
+			HashSet<string> pendingTemplates = new HashSet<string>();
+			if (templateNodes != null)
+			{
+				foreach (XmlNode node in templateNodes.ChildNodes)
+				{
+					if (node.Name != "Template") continue;
+					string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+					if (string.IsNullOrEmpty(name) || templates.ContainsKey(name) || _TemplateTemp.ContainsKey(name) || !pendingTemplates.Add(name))
+						throw new System.InvalidOperationException("External move template collides with existing template '" + name + "'.");
+				}
+			}
+
+			HashSet<string> pendingMoves = new HashSet<string>();
+			foreach (XmlNode node in moveNodes.ChildNodes)
+			{
+				if (node.NodeType != XmlNodeType.Element) continue;
+				string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+				if (string.IsNullOrEmpty(name) || !pendingMoves.Add(name))
+					throw new System.InvalidOperationException("External moves document contains invalid or duplicate move '" + name + "'.");
+				for (int i = 0; i < moves.Count; i++)
+					if (moves[i].Name == name)
+						throw new System.InvalidOperationException("External move collides with existing move '" + name + "'.");
+			}
+
+			HashSet<string> pendingTriggers = new HashSet<string>();
+			if (triggerNodes != null)
+			{
+				foreach (XmlNode node in triggerNodes.ChildNodes)
+				{
+					if (node.NodeType != XmlNodeType.Element) continue;
+					string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+					if (string.IsNullOrEmpty(name) || !pendingTriggers.Add(name))
+						throw new System.InvalidOperationException("External moves document contains invalid or duplicate trigger '" + name + "'.");
+					for (int i = 0; i < triggers.Count; i++)
+						if (triggers[i].Name == name)
+							throw new System.InvalidOperationException("External trigger collides with existing trigger '" + name + "'.");
+				}
+			}
+
+			if (templateNodes != null)
+			{
+				foreach (XmlNode node in templateNodes.ChildNodes)
+				{
+					if (node.Name != "Template") continue;
+					string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+					TemplateAnimation template = new TemplateAnimation(node);
+					templates.Add(name, template);
+					_TemplateTemp.Add(name, node);
+					_BaseTemplateNodes.Add(name, node.CloneNode(true));
+				}
+			}
+
+			int before = moves.Count;
+			MNCBOOGMKGB(moveNodes, templates, moves, tricks);
+			if (triggerNodes != null) KOKCNPLBFAG(triggerNodes, triggers);
+			return moves.Count - before;
+		}
+		finally
+		{
+			_TemplateTemp.Clear();
+			_TemplateTemp = null;
+			_LegacyTemplateTemp.Clear();
+			_LegacyTemplateTemp = null;
+		}
+	}
+
+	private static Dictionary<string, XmlNode> CloneNodeMap(Dictionary<string, XmlNode> source)
+	{
+		Dictionary<string, XmlNode> result = new Dictionary<string, XmlNode>();
+		foreach (KeyValuePair<string, XmlNode> pair in source)
+			result.Add(pair.Key, pair.Value.CloneNode(true));
+		return result;
 	}
 
 	private static void SetMoveTemplate(XmlNode KIKPDADFBDM, XmlNode LFKJDMIPCEA, List<XmlNode> HKIBBEPJGCH, Dictionary<string, XmlNode> templates)
@@ -617,6 +718,8 @@ public static class MovesParser
 	public static void CHILAIJNEHG()
 	{
 		MovesMaps.Clear();
+		_BaseTemplateNodes.Clear();
+		_BaseLegacyTemplateNodes.Clear();
 	}
 
 	private static void JGLOLDJFFKC(InfoAnimation DBOLBEOCEME, XmlNode MEEAKLDGLDF, List<XmlNode> MMLFAGGGINF)

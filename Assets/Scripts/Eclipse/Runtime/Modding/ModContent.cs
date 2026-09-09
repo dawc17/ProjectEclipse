@@ -4,6 +4,158 @@ using System.Globalization;
 
 namespace Eclipse.Modding
 {
+    public enum ModContentPatchOperation
+    {
+        Replace = 0,
+        Append = 1,
+        Remove = 2
+    }
+
+    public enum ModContentFieldPolicy
+    {
+        ReadOnly = 0,
+        BaseOnly = 1,
+        Replaceable = 2,
+        Appendable = 3,
+        Removable = 4,
+        Mergeable = 5
+    }
+
+    public sealed class ModContentPatchRecord
+    {
+        public ModId Owner { get; }
+        public DefinitionId Target { get; }
+        public string Field { get; }
+        public ModContentPatchOperation Operation { get; }
+
+        internal ModContentPatchRecord(ModId owner, DefinitionId target, string field,
+            ModContentPatchOperation operation)
+        {
+            Owner = owner;
+            Target = target;
+            Field = field ?? throw new ArgumentNullException(nameof(field));
+            Operation = operation;
+        }
+    }
+
+    internal readonly struct ModContentPatchKey : IEquatable<ModContentPatchKey>
+    {
+        public DefinitionId Target { get; }
+        public string Field { get; }
+
+        public ModContentPatchKey(DefinitionId target, string field)
+        {
+            Target = target;
+            Field = field ?? throw new ArgumentNullException(nameof(field));
+        }
+
+        public bool Equals(ModContentPatchKey other)
+        {
+            return Target == other.Target && string.Equals(Field, other.Field, StringComparison.Ordinal);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is ModContentPatchKey other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Target.GetHashCode() * 397) ^ StringComparer.Ordinal.GetHashCode(Field);
+            }
+        }
+    }
+
+    internal sealed class LocalizationValuePatch
+    {
+        public ModContentPatchRecord Record { get; }
+        public string Language { get; }
+        public string Value { get; }
+
+        public LocalizationValuePatch(ModContentPatchRecord record, string language, string value)
+        {
+            Record = record ?? throw new ArgumentNullException(nameof(record));
+            Language = language ?? throw new ArgumentNullException(nameof(language));
+            Value = value ?? throw new ArgumentNullException(nameof(value));
+        }
+    }
+
+    internal sealed class FightFieldPatch
+    {
+        public ModContentPatchRecord Record { get; }
+        public string StringValue { get; }
+        public int IntValue { get; }
+
+        public FightFieldPatch(ModContentPatchRecord record, string stringValue, int intValue)
+        {
+            Record = record ?? throw new ArgumentNullException(nameof(record));
+            StringValue = stringValue;
+            IntValue = intValue;
+        }
+    }
+
+    // Semantic field policy is deliberately centralized. New public patch adapters must map
+    // their typed fields here before they can mutate committed content. Unknown fields are
+    // read-only by default, while all economy/* fields are permanently base-owned.
+    internal static class ModContentPolicies
+    {
+        public const string EconomyItemPrice = "economy/item-price";
+        public const string EconomyUpgradeCost = "economy/upgrade-cost";
+        public const string EconomyForgeCost = "economy/forge-cost";
+        public const string EconomyEnchantmentCost = "economy/enchantment-cost";
+        public const string EconomySkipCost = "economy/skip-cost";
+        public const string EconomyCurrencyValue = "economy/currency-value";
+        public const string EconomyCurrencyFormula = "economy/currency-formula";
+        public const string EconomyBalanceTable = "economy/balance-table";
+
+        public static string LocalizationValue(string language)
+        {
+            if (string.IsNullOrEmpty(language)) throw new ArgumentNullException(nameof(language));
+            return "values/" + language;
+        }
+
+        public const string FightDescription = "fight/description";
+        public const string FightRounds = "fight/rounds";
+        public const string FightRoundTime = "fight/round-time";
+        public const string ZoneBattleChildren = "children/battles/";
+
+        public static ModContentFieldPolicy GetFieldPolicy(DefinitionId target, string field)
+        {
+            if (string.IsNullOrEmpty(field)) return ModContentFieldPolicy.ReadOnly;
+            if (field.StartsWith("economy/", StringComparison.Ordinal)) return ModContentFieldPolicy.BaseOnly;
+            if (target.Category == "localization" && field.StartsWith("values/", StringComparison.Ordinal))
+                return ModContentFieldPolicy.Replaceable;
+            if (target.Category == "fights" &&
+                (field == FightDescription || field == FightRounds || field == FightRoundTime))
+                return ModContentFieldPolicy.Replaceable;
+            if (target.Category == "zones" && field.StartsWith(ZoneBattleChildren, StringComparison.Ordinal))
+                return ModContentFieldPolicy.Appendable;
+            return ModContentFieldPolicy.ReadOnly;
+        }
+
+        public static void RequirePatchAllowed(DefinitionId target, string field, ModContentPatchOperation operation)
+        {
+            ModContentFieldPolicy policy = GetFieldPolicy(target, field);
+            if (policy == ModContentFieldPolicy.BaseOnly)
+                throw new ModContentException("Field '" + field + "' on '" + target +
+                    "' is base-only. The shared Eclipse economy cannot be modified by mods.");
+            if (policy == ModContentFieldPolicy.ReadOnly)
+                throw new ModContentException("Field '" + field + "' on '" + target + "' is read-only.");
+
+            bool allowed = operation == ModContentPatchOperation.Replace
+                ? policy == ModContentFieldPolicy.Replaceable || policy == ModContentFieldPolicy.Mergeable
+                : operation == ModContentPatchOperation.Append
+                    ? policy == ModContentFieldPolicy.Appendable || policy == ModContentFieldPolicy.Mergeable
+                    : operation == ModContentPatchOperation.Remove &&
+                        (policy == ModContentFieldPolicy.Removable || policy == ModContentFieldPolicy.Mergeable);
+            if (!allowed)
+                throw new ModContentException("Patch operation " + operation + " is not allowed for field '" +
+                    field + "' on '" + target + "' (policy " + policy + ").");
+        }
+    }
+
     public enum ModShopSection
     {
         Weapons = 0,
@@ -68,12 +220,16 @@ namespace Eclipse.Modding
 
         public DefinitionId Id { get; }
         public IReadOnlyDictionary<string, string> Values => _values;
+        // Exact recovered lookup key for projected core localization. Mod-owned localization
+        // definitions have no legacy key. This is a read-only identity bridge, not raw XML.
+        public string LegacyKey { get; }
 
-        internal LocalizationDefinition(DefinitionId id, Dictionary<string, string> values)
+        internal LocalizationDefinition(DefinitionId id, Dictionary<string, string> values, string legacyKey = null)
         {
             Id = id;
             _values = new Dictionary<string, string>(values ?? throw new ArgumentNullException(nameof(values)),
                 StringComparer.Ordinal);
+            LegacyKey = legacyKey;
         }
 
         public bool TryGet(string language, out string value)
@@ -403,7 +559,7 @@ namespace Eclipse.Modding
             DefaultValue = defaultValue;
         }
 
-        internal static void ValidateName(string name)
+        public static void ValidateName(string name)
         {
             if (string.IsNullOrEmpty(name) || name.Length > MaxNameLength)
                 throw new ModContentException("Parameter name must be 1.." + MaxNameLength + " characters.");
@@ -603,7 +759,402 @@ namespace Eclipse.Modding
         }
     }
 
-    public sealed class ModContentCatalog
+    public enum ModBattleKind
+    {
+        Dummy = 0,
+        Tutorial = 1,
+        Challenge = 2,
+        Bosses = 3,
+        Tournament = 4,
+        Story = 5,
+        Survival = 6,
+        Friendly = 7,
+        Auto = 8,
+        Ai = 9,
+        Hidden = 10,
+        Fake = 11,
+        Pvp = 12,
+        Final = 13,
+        FinalTitan = 14,
+        Periodic = 15,
+        Replayable = 16,
+        BossesReplayable = 17,
+        FinalReplayable = 18,
+        BossesIntermission = 19,
+        Ascension = 20,
+        Raid = 21,
+    }
+
+    public enum ModFightRuleKind
+    {
+        RequireItem = 0,
+        NoPerks = 1,
+        EquipItem = 2,
+        Avatar = 3,
+        Name = 4,
+        Perk = 5,
+        RechargeMagicEachRound = 6,
+        Attributes = 7,
+        NoButton = 8,
+    }
+
+    public enum ModRuleTarget
+    {
+        Player = 0,
+        Opponent = 1,
+        All = 2,
+    }
+
+    public enum ModRuleMode
+    {
+        All = 0,
+        Normal = 1,
+        Eclipse = 2,
+    }
+
+    public sealed class ZoneDefinition
+    {
+        private readonly DefinitionId[] _battles;
+        private readonly IReadOnlyList<DefinitionId> _readOnlyBattles;
+
+        public DefinitionId Id { get; }
+        public string LegacyName { get; }
+        public string FileName { get; }
+        public bool IsStart { get; }
+        public IReadOnlyList<DefinitionId> Battles => _readOnlyBattles;
+        public bool IsCore => Id.Namespace.Value == "core";
+
+        internal ZoneDefinition(DefinitionId id, string legacyName, string fileName, bool isStart,
+            DefinitionId[] battles)
+        {
+            Id = id;
+            LegacyName = legacyName ?? string.Empty;
+            FileName = fileName ?? string.Empty;
+            IsStart = isStart;
+            _battles = battles == null ? Array.Empty<DefinitionId>() : (DefinitionId[])battles.Clone();
+            _readOnlyBattles = Array.AsReadOnly(_battles);
+        }
+    }
+
+    public sealed class BattleDefinition
+    {
+        private readonly DefinitionId[] _fights;
+        private readonly IReadOnlyList<DefinitionId> _readOnlyFights;
+
+        public DefinitionId Id { get; }
+        public DefinitionId Zone { get; }
+        public string LegacyName { get; }
+        public ModBattleKind Kind { get; }
+        public int X { get; }
+        public int Y { get; }
+        public string Alias { get; }
+        public string Title { get; }
+        public string Icon { get; }
+        public string IconAtlas { get; }
+        public string EclipseToggleName { get; }
+        public string Preview { get; }
+        public string Description { get; }
+        public string Location { get; }
+        public string Music { get; }
+        public string RewardImage { get; }
+        public bool ShowResistance { get; }
+        public IReadOnlyList<DefinitionId> Fights => _readOnlyFights;
+        public bool IsCore => Id.Namespace.Value == "core";
+        internal string LegacyXml { get; }
+
+        internal BattleDefinition(DefinitionId id, DefinitionId zone, string legacyName, ModBattleKind kind,
+            int x, int y, string alias, string title, string icon, string preview, string description,
+            string location, string music, string rewardImage, bool showResistance, DefinitionId[] fights,
+            string iconAtlas = null, string eclipseToggleName = null,
+            string legacyXml = null)
+        {
+            Id = id;
+            Zone = zone;
+            LegacyName = legacyName ?? string.Empty;
+            Kind = kind;
+            X = x;
+            Y = y;
+            Alias = alias ?? string.Empty;
+            Title = title ?? string.Empty;
+            Icon = icon ?? string.Empty;
+            IconAtlas = iconAtlas ?? string.Empty;
+            EclipseToggleName = eclipseToggleName ?? string.Empty;
+            Preview = preview ?? string.Empty;
+            Description = description ?? string.Empty;
+            Location = location ?? string.Empty;
+            Music = music ?? string.Empty;
+            RewardImage = rewardImage ?? string.Empty;
+            ShowResistance = showResistance;
+            _fights = fights == null ? Array.Empty<DefinitionId>() : (DefinitionId[])fights.Clone();
+            _readOnlyFights = Array.AsReadOnly(_fights);
+            LegacyXml = legacyXml;
+        }
+    }
+
+    public sealed class FightDefinition
+    {
+        private readonly DefinitionId[] _warriors;
+        private readonly DefinitionId[] _rules;
+        private readonly DefinitionId[] _rewards;
+
+        public DefinitionId Id { get; }
+        public DefinitionId Battle { get; }
+        public string LegacyName { get; }
+        public int Replays { get; }
+        public int ReplayInterval { get; }
+        public int Power { get; }
+        public int Rounds { get; }
+        public int RoundTime { get; }
+        public string Location { get; }
+        public string Music { get; }
+        public float EvaluatedRating { get; }
+        public float HealthRecovery { get; }
+        public string Description { get; }
+        public bool Locked { get; }
+        public string RewardImage { get; }
+        public IReadOnlyList<DefinitionId> Warriors => Array.AsReadOnly(_warriors);
+        public IReadOnlyList<DefinitionId> Rules => Array.AsReadOnly(_rules);
+        public IReadOnlyList<DefinitionId> Rewards => Array.AsReadOnly(_rewards);
+        public bool IsCore => Id.Namespace.Value == "core";
+        internal string LegacyXml { get; }
+
+        internal FightDefinition(DefinitionId id, DefinitionId battle, string legacyName, int replays,
+            int replayInterval, int power, int rounds, int roundTime, string location, string music,
+            float evaluatedRating, float healthRecovery, string description, bool locked, string rewardImage,
+            DefinitionId[] warriors, DefinitionId[] rules, DefinitionId[] rewards, string legacyXml = null)
+        {
+            if (replays < 0) throw new ModContentException("Fight replays must not be negative.");
+            if (replayInterval < 0) throw new ModContentException("Fight replay interval must not be negative.");
+            if (power < 0) throw new ModContentException("Fight power must not be negative.");
+            if (rounds < 1 || rounds > 100) throw new ModContentException("Fight rounds must be 1..100.");
+            if (roundTime < 1 || roundTime > 86400) throw new ModContentException("Fight round time must be 1..86400 seconds.");
+            if (float.IsNaN(evaluatedRating) || float.IsInfinity(evaluatedRating))
+                throw new ModContentException("Fight evaluated rating must be finite.");
+            if (float.IsNaN(healthRecovery) || float.IsInfinity(healthRecovery) || healthRecovery < 0f)
+                throw new ModContentException("Fight health recovery must be finite and non-negative.");
+            Id = id;
+            Battle = battle;
+            LegacyName = legacyName ?? string.Empty;
+            Replays = replays;
+            ReplayInterval = replayInterval;
+            Power = power;
+            Rounds = rounds;
+            RoundTime = roundTime;
+            Location = location ?? string.Empty;
+            Music = music ?? string.Empty;
+            EvaluatedRating = evaluatedRating;
+            HealthRecovery = healthRecovery;
+            Description = description ?? string.Empty;
+            Locked = locked;
+            RewardImage = rewardImage ?? string.Empty;
+            _warriors = warriors == null ? Array.Empty<DefinitionId>() : (DefinitionId[])warriors.Clone();
+            _rules = rules == null ? Array.Empty<DefinitionId>() : (DefinitionId[])rules.Clone();
+            _rewards = rewards == null ? Array.Empty<DefinitionId>() : (DefinitionId[])rewards.Clone();
+            LegacyXml = legacyXml;
+        }
+
+        internal FightDefinition WithDescription(string description)
+        {
+            return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
+                Location, Music, EvaluatedRating, HealthRecovery, description, Locked, RewardImage,
+                _warriors, _rules, _rewards, LegacyXml);
+        }
+
+        internal FightDefinition WithRounds(int rounds)
+        {
+            return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, rounds, RoundTime,
+                Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
+                _warriors, _rules, _rewards, LegacyXml);
+        }
+
+        internal FightDefinition WithRoundTime(int roundTime)
+        {
+            return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, roundTime,
+                Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
+                _warriors, _rules, _rewards, LegacyXml);
+        }
+    }
+
+    public sealed class WarriorDefinition
+    {
+        private readonly DefinitionId[] _items;
+        private readonly DefinitionId[] _perks;
+        private readonly Dictionary<string, float> _attributes;
+        private readonly WarriorAttributeAlignmentDefinition[] _attributeAlignments;
+        public DefinitionId Id { get; }
+        public DefinitionId Template { get; }
+        public bool HasTemplate { get; }
+        public string FirstName { get; }
+        public string LastName { get; }
+        public string Avatar { get; }
+        public string Voice { get; }
+        public int Level { get; }
+        public string Tactic { get; }
+        public string Group { get; }
+        public int Random { get; }
+        public IReadOnlyDictionary<string, float> Attributes => _attributes;
+        public IReadOnlyList<WarriorAttributeAlignmentDefinition> AttributeAlignments =>
+            Array.AsReadOnly(_attributeAlignments);
+        public IReadOnlyList<DefinitionId> Items => Array.AsReadOnly(_items);
+        public IReadOnlyList<DefinitionId> Perks => Array.AsReadOnly(_perks);
+
+        internal WarriorDefinition(DefinitionId id, string firstName, string lastName, string avatar, string voice,
+            int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
+            DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
+            int random = 0, IReadOnlyDictionary<string, float> attributes = null,
+            WarriorAttributeAlignmentDefinition[] attributeAlignments = null)
+        {
+            if (level < 0 || level > 10000) throw new ModContentException("Warrior level must be 0..10000.");
+            Id = id;
+            Template = template;
+            HasTemplate = hasTemplate;
+            FirstName = firstName ?? string.Empty;
+            LastName = lastName ?? string.Empty;
+            Avatar = avatar ?? string.Empty;
+            Voice = voice ?? string.Empty;
+            Level = level;
+            Tactic = tactic ?? string.Empty;
+            Group = group ?? string.Empty;
+            Random = random;
+            _attributes = new Dictionary<string, float>(StringComparer.Ordinal);
+            if (attributes != null)
+                foreach (KeyValuePair<string, float> pair in attributes)
+                {
+                    if (string.IsNullOrWhiteSpace(pair.Key) || float.IsNaN(pair.Value) || float.IsInfinity(pair.Value))
+                        throw new ModContentException("Warrior attributes require non-empty names and finite values.");
+                    _attributes.Add(pair.Key, pair.Value);
+                }
+            _attributeAlignments = attributeAlignments == null ? Array.Empty<WarriorAttributeAlignmentDefinition>() :
+                (WarriorAttributeAlignmentDefinition[])attributeAlignments.Clone();
+            _items = items == null ? Array.Empty<DefinitionId>() : (DefinitionId[])items.Clone();
+            _perks = perks == null ? Array.Empty<DefinitionId>() : (DefinitionId[])perks.Clone();
+        }
+    }
+
+    public sealed class FightRuleDefinition
+    {
+        private readonly int[] _rounds;
+        public DefinitionId Id { get; }
+        public ModFightRuleKind Kind { get; }
+        public ModRuleTarget Target { get; }
+        public ModRuleMode Mode { get; }
+        public IReadOnlyList<int> Rounds => Array.AsReadOnly(_rounds);
+        public string Name { get; }
+        public DefinitionId Item { get; }
+        public bool HasItem { get; }
+        public int MinimumLevel { get; }
+        public DefinitionId Perk { get; }
+        public bool HasPerk { get; }
+        private readonly Dictionary<string, float> _attributes;
+        public IReadOnlyDictionary<string, float> Attributes => _attributes;
+
+        internal FightRuleDefinition(DefinitionId id, ModFightRuleKind kind, ModRuleTarget target, ModRuleMode mode,
+            int[] rounds, string name, DefinitionId item, bool hasItem, int minimumLevel,
+            DefinitionId perk = default(DefinitionId), bool hasPerk = false,
+            IReadOnlyDictionary<string, float> attributes = null)
+        {
+            Id = id;
+            Kind = kind;
+            Target = target;
+            Mode = mode;
+            _rounds = rounds == null ? Array.Empty<int>() : (int[])rounds.Clone();
+            for (int i = 0; i < _rounds.Length; i++)
+                if (_rounds[i] < 1 || _rounds[i] > 100)
+                    throw new ModContentException("Rule round must be 1..100.");
+            Name = name ?? string.Empty;
+            Item = item;
+            HasItem = hasItem;
+            MinimumLevel = minimumLevel;
+            Perk = perk;
+            HasPerk = hasPerk;
+            _attributes = new Dictionary<string, float>(StringComparer.Ordinal);
+            if (attributes != null)
+            {
+                foreach (KeyValuePair<string, float> pair in attributes)
+                {
+                    if (string.IsNullOrWhiteSpace(pair.Key) || float.IsNaN(pair.Value) || float.IsInfinity(pair.Value))
+                        throw new ModContentException("Rule attribute names and values must be valid and finite.");
+                    _attributes.Add(pair.Key, pair.Value);
+                }
+            }
+            if (kind == ModFightRuleKind.RequireItem || kind == ModFightRuleKind.EquipItem)
+            {
+                if (!hasItem || item.Category != "items")
+                    throw new ModContentException(kind + " rule requires an item definition.");
+                if (minimumLevel < 0 || minimumLevel > 10000)
+                    throw new ModContentException(kind + " minimum level must be 0..10000.");
+            }
+            else if (hasItem)
+            {
+                throw new ModContentException("Only item rules accept an item reference.");
+            }
+            if (kind == ModFightRuleKind.Perk && (!hasPerk || perk.Category != "perks"))
+                throw new ModContentException("Perk rule requires a perk definition.");
+            if (kind != ModFightRuleKind.Perk && hasPerk)
+                throw new ModContentException("Only Perk rules accept a perk reference.");
+            if (kind == ModFightRuleKind.Attributes && _attributes.Count == 0)
+                throw new ModContentException("Attributes rule requires at least one override.");
+            if (kind != ModFightRuleKind.Attributes && _attributes.Count != 0)
+                throw new ModContentException("Only Attributes rules accept attribute overrides.");
+        }
+    }
+
+    public sealed class RewardItemGrant
+    {
+        public DefinitionId Item { get; }
+        public uint UpgradeNumber { get; }
+        public RewardItemGrant(DefinitionId item, uint upgradeNumber = 0)
+        {
+            if (item.Category != "items") throw new ModContentException("Reward item must reference an item definition.");
+            Item = item;
+            UpgradeNumber = upgradeNumber;
+        }
+    }
+
+    public sealed class RewardChoiceItem
+    {
+        public RewardItemGrant Grant { get; }
+        public float Weight { get; }
+        public RewardChoiceItem(RewardItemGrant grant, float weight = 1f)
+        {
+            Grant = grant ?? throw new ArgumentNullException(nameof(grant));
+            if (float.IsNaN(weight) || float.IsInfinity(weight) || weight <= 0f)
+                throw new ModContentException("Reward choice weight must be finite and positive.");
+            Weight = weight;
+        }
+    }
+
+    public sealed class RewardChoiceDefinition
+    {
+        private readonly RewardChoiceItem[] _items;
+        public IReadOnlyList<RewardChoiceItem> Items => Array.AsReadOnly(_items);
+        public RewardChoiceDefinition(RewardChoiceItem[] items)
+        {
+            if (items == null || items.Length == 0)
+                throw new ModContentException("Reward choice must contain at least one item.");
+            _items = (RewardChoiceItem[])items.Clone();
+        }
+    }
+
+    public sealed class RewardDefinition
+    {
+        private readonly RewardItemGrant[] _items;
+        private readonly RewardChoiceDefinition[] _choices;
+        public DefinitionId Id { get; }
+        public IReadOnlyList<RewardItemGrant> Items => Array.AsReadOnly(_items);
+        public IReadOnlyList<RewardChoiceDefinition> Choices => Array.AsReadOnly(_choices);
+
+        internal RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices)
+        {
+            Id = id;
+            _items = items == null ? Array.Empty<RewardItemGrant>() : (RewardItemGrant[])items.Clone();
+            _choices = choices == null ? Array.Empty<RewardChoiceDefinition>() : (RewardChoiceDefinition[])choices.Clone();
+            if (_items.Length == 0 && _choices.Length == 0)
+                throw new ModContentException("Reward definition must grant at least one non-economic item or choice.");
+        }
+    }
+
+    public sealed partial class ModContentCatalog
     {
         private readonly DefinitionRegistry<LocalizationDefinition> _localizations =
             new DefinitionRegistry<LocalizationDefinition>(value => value.Id);
@@ -627,6 +1178,22 @@ namespace Eclipse.Modding
             new DefinitionRegistry<EnchantmentDefinition>(value => value.Id);
         private readonly DefinitionRegistry<ModBehaviorDefinition> _behaviors =
             new DefinitionRegistry<ModBehaviorDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<ZoneDefinition> _zones =
+            new DefinitionRegistry<ZoneDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<BattleDefinition> _battles =
+            new DefinitionRegistry<BattleDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<FightDefinition> _fights =
+            new DefinitionRegistry<FightDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<WarriorDefinition> _warriors =
+            new DefinitionRegistry<WarriorDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<FightRuleDefinition> _fightRules =
+            new DefinitionRegistry<FightRuleDefinition>(value => value.Id);
+        private readonly DefinitionRegistry<RewardDefinition> _rewards =
+            new DefinitionRegistry<RewardDefinition>(value => value.Id);
+        private readonly List<ModContentPatchRecord> _patches = new List<ModContentPatchRecord>();
+        private readonly IReadOnlyList<ModContentPatchRecord> _readOnlyPatches;
+        private readonly Dictionary<ModContentPatchKey, ModContentPatchRecord> _patchByKey =
+            new Dictionary<ModContentPatchKey, ModContentPatchRecord>();
 
         public bool IsFrozen { get; private set; }
         public IReadOnlyList<LocalizationDefinition> Localizations => _localizations.Values;
@@ -640,6 +1207,18 @@ namespace Eclipse.Modding
         public IReadOnlyList<PerkDefinition> Perks => _perks.Values;
         public IReadOnlyList<EnchantmentDefinition> Enchantments => _enchantments.Values;
         public IReadOnlyList<ModBehaviorDefinition> Behaviors => _behaviors.Values;
+        public IReadOnlyList<ZoneDefinition> Zones => _zones.Values;
+        public IReadOnlyList<BattleDefinition> Battles => _battles.Values;
+        public IReadOnlyList<FightDefinition> Fights => _fights.Values;
+        public IReadOnlyList<WarriorDefinition> Warriors => _warriors.Values;
+        public IReadOnlyList<FightRuleDefinition> FightRules => _fightRules.Values;
+        public IReadOnlyList<RewardDefinition> Rewards => _rewards.Values;
+        public IReadOnlyList<ModContentPatchRecord> Patches => _readOnlyPatches;
+
+        public ModContentCatalog()
+        {
+            _readOnlyPatches = _patches.AsReadOnly();
+        }
 
         public ModRegistrationTransaction BeginRegistration(ModDescriptor mod)
         {
@@ -692,6 +1271,7 @@ namespace Eclipse.Modding
             if (_ranged.TryGet(id, out ranged)) { value = ranged; return true; }
             MagicDefinition magic;
             if (_magic.TryGet(id, out magic)) { value = magic; return true; }
+            if (TryGetP1CItem(id, out value)) return true;
             return false;
         }
 
@@ -739,6 +1319,42 @@ namespace Eclipse.Modding
             return id.Category == "behaviors" && _behaviors.TryGet(id, out value);
         }
 
+        public bool TryGetZone(DefinitionId id, out ZoneDefinition value)
+        {
+            value = null;
+            return id.Category == "zones" && _zones.TryGet(id, out value);
+        }
+
+        public bool TryGetBattle(DefinitionId id, out BattleDefinition value)
+        {
+            value = null;
+            return id.Category == "battles" && _battles.TryGet(id, out value);
+        }
+
+        public bool TryGetFight(DefinitionId id, out FightDefinition value)
+        {
+            value = null;
+            return id.Category == "fights" && _fights.TryGet(id, out value);
+        }
+
+        public bool TryGetWarrior(DefinitionId id, out WarriorDefinition value)
+        {
+            value = null;
+            return id.Category == "warriors" && _warriors.TryGet(id, out value);
+        }
+
+        public bool TryGetFightRule(DefinitionId id, out FightRuleDefinition value)
+        {
+            value = null;
+            return id.Category == "rules" && _fightRules.TryGet(id, out value);
+        }
+
+        public bool TryGetReward(DefinitionId id, out RewardDefinition value)
+        {
+            value = null;
+            return id.Category == "rewards" && _rewards.TryGet(id, out value);
+        }
+
         public void Freeze()
         {
             IsFrozen = true;
@@ -747,9 +1363,14 @@ namespace Eclipse.Modding
         internal void Commit(ModRegistrationTransaction transaction,
             LocalizationDefinition[] localizations, WeaponDefinition[] weapons,
             ArmorDefinition[] armors, HelmDefinition[] helms, RangedDefinition[] ranged,
-            MagicDefinition[] magic, ItemRedirectDefinition[] itemRedirects,
+            MagicDefinition[] magic, NonEquipmentItemDefinition[] nonEquipmentItems,
+            ItemRedirectDefinition[] itemRedirects,
             ShopListingDefinition[] shopListings, PerkDefinition[] perks,
-            EnchantmentDefinition[] enchantments, ModBehaviorDefinition[] behaviors)
+            EnchantmentDefinition[] enchantments, ModBehaviorDefinition[] behaviors,
+            ZoneDefinition[] zones, BattleDefinition[] battles, FightDefinition[] fights,
+            WarriorDefinition[] warriors, FightRuleDefinition[] fightRules, RewardDefinition[] rewards,
+            LocalizationValuePatch[] localizationPatches, FightFieldPatch[] fightPatches,
+            ModContentPatchRecord[] collectionPatches)
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
             if (IsFrozen) throw new InvalidOperationException("Definition registries are frozen.");
@@ -765,6 +1386,17 @@ namespace Eclipse.Modding
             _perks.ValidateCanAdd(perks);
             _enchantments.ValidateCanAdd(enchantments);
             _behaviors.ValidateCanAdd(behaviors);
+            _zones.ValidateCanAdd(zones);
+            _battles.ValidateCanAdd(battles);
+            _fights.ValidateCanAdd(fights);
+            _warriors.ValidateCanAdd(warriors);
+            _fightRules.ValidateCanAdd(fightRules);
+            _rewards.ValidateCanAdd(rewards);
+
+            Dictionary<DefinitionId, LocalizationDefinition> localizationReplacements =
+                PrepareLocalizationPatches(localizationPatches);
+            Dictionary<DefinitionId, FightDefinition> fightReplacements = PrepareFightPatches(fightPatches);
+            ValidateCollectionPatches(collectionPatches);
 
             ValidateRegisteredItems(localizations, weapons, "Weapon");
             ValidateRegisteredItems(localizations, armors, "Armor");
@@ -856,6 +1488,9 @@ namespace Eclipse.Modding
                 }
             }
 
+            ValidateStageGraph(zones, battles, fights, warriors, fightRules, rewards,
+                weapons, armors, helms, ranged, magic, nonEquipmentItems, perks);
+
             _localizations.AddRange(localizations);
             _weapons.AddRange(weapons);
             _armors.AddRange(armors);
@@ -867,6 +1502,232 @@ namespace Eclipse.Modding
             _perks.AddRange(perks);
             _enchantments.AddRange(enchantments);
             _behaviors.AddRange(behaviors);
+            _zones.AddRange(zones);
+            _battles.AddRange(battles);
+            _fights.AddRange(fights);
+            _warriors.AddRange(warriors);
+            _fightRules.AddRange(fightRules);
+            _rewards.AddRange(rewards);
+            foreach (KeyValuePair<DefinitionId, LocalizationDefinition> replacement in localizationReplacements)
+                _localizations.Replace(replacement.Key, replacement.Value);
+            foreach (KeyValuePair<DefinitionId, FightDefinition> replacement in fightReplacements)
+                _fights.Replace(replacement.Key, replacement.Value);
+            for (int i = 0; i < localizationPatches.Length; i++)
+            {
+                ModContentPatchRecord record = localizationPatches[i].Record;
+                var key = new ModContentPatchKey(record.Target, record.Field);
+                _patchByKey.Add(key, record);
+                _patches.Add(record);
+            }
+            for (int i = 0; i < fightPatches.Length; i++)
+            {
+                ModContentPatchRecord record = fightPatches[i].Record;
+                var key = new ModContentPatchKey(record.Target, record.Field);
+                _patchByKey.Add(key, record);
+                _patches.Add(record);
+            }
+            for (int i = 0; i < collectionPatches.Length; i++)
+            {
+                ModContentPatchRecord record = collectionPatches[i];
+                var key = new ModContentPatchKey(record.Target, record.Field);
+                _patchByKey.Add(key, record);
+                _patches.Add(record);
+            }
+        }
+
+        private void ValidateCollectionPatches(ModContentPatchRecord[] patches)
+        {
+            var pending = new HashSet<ModContentPatchKey>();
+            for (int i = 0; i < patches.Length; i++)
+            {
+                ModContentPatchRecord record = patches[i];
+                ModContentPolicies.RequirePatchAllowed(record.Target, record.Field, record.Operation);
+                var key = new ModContentPatchKey(record.Target, record.Field);
+                ModContentPatchRecord existing;
+                if (_patchByKey.TryGetValue(key, out existing)) throw PatchConflict(existing, record);
+                if (!pending.Add(key))
+                    throw new ModContentException("Collection child patch is staged more than once for '" +
+                        record.Target + "' field '" + record.Field + "'.");
+            }
+        }
+
+        private Dictionary<DefinitionId, FightDefinition> PrepareFightPatches(FightFieldPatch[] fightPatches)
+        {
+            var replacements = new Dictionary<DefinitionId, FightDefinition>();
+            var pendingKeys = new HashSet<ModContentPatchKey>();
+            for (int i = 0; i < fightPatches.Length; i++)
+            {
+                FightFieldPatch patch = fightPatches[i];
+                ModContentPatchRecord record = patch.Record;
+                ModContentPolicies.RequirePatchAllowed(record.Target, record.Field, record.Operation);
+                var patchKey = new ModContentPatchKey(record.Target, record.Field);
+                ModContentPatchRecord existingPatch;
+                if (_patchByKey.TryGetValue(patchKey, out existingPatch)) throw PatchConflict(existingPatch, record);
+                if (!pendingKeys.Add(patchKey))
+                    throw new ModContentException("Fight patch is staged more than once for '" + record.Target +
+                        "' field '" + record.Field + "'.");
+                FightDefinition current;
+                if (!replacements.TryGetValue(record.Target, out current) && !_fights.TryGet(record.Target, out current))
+                    throw new ModContentException("Fight patch target is not registered: '" + record.Target + "'.");
+                if (record.Field == ModContentPolicies.FightDescription) current = current.WithDescription(patch.StringValue);
+                else if (record.Field == ModContentPolicies.FightRounds) current = current.WithRounds(patch.IntValue);
+                else if (record.Field == ModContentPolicies.FightRoundTime) current = current.WithRoundTime(patch.IntValue);
+                else throw new ModContentException("Unsupported fight patch field '" + record.Field + "'.");
+                replacements[record.Target] = current;
+            }
+            return replacements;
+        }
+
+        private void ValidateStageGraph(ZoneDefinition[] zones, BattleDefinition[] battles, FightDefinition[] fights,
+            WarriorDefinition[] warriors, FightRuleDefinition[] fightRules, RewardDefinition[] rewards,
+            WeaponDefinition[] weapons, ArmorDefinition[] armors, HelmDefinition[] helms,
+            RangedDefinition[] ranged, MagicDefinition[] magic, NonEquipmentItemDefinition[] nonEquipmentItems,
+            PerkDefinition[] perks)
+        {
+            var zoneIds = new HashSet<DefinitionId>();
+            for (int i = 0; i < zones.Length; i++) zoneIds.Add(zones[i].Id);
+            var battleIds = new HashSet<DefinitionId>();
+            for (int i = 0; i < battles.Length; i++) battleIds.Add(battles[i].Id);
+            var fightIds = new HashSet<DefinitionId>();
+            for (int i = 0; i < fights.Length; i++) fightIds.Add(fights[i].Id);
+            var warriorIds = new HashSet<DefinitionId>();
+            for (int i = 0; i < warriors.Length; i++) warriorIds.Add(warriors[i].Id);
+            var ruleIds = new HashSet<DefinitionId>();
+            for (int i = 0; i < fightRules.Length; i++) ruleIds.Add(fightRules[i].Id);
+            var rewardIds = new HashSet<DefinitionId>();
+            for (int i = 0; i < rewards.Length; i++) rewardIds.Add(rewards[i].Id);
+
+            for (int i = 0; i < zones.Length; i++)
+            {
+                ZoneDefinition zone = zones[i];
+                for (int j = 0; j < zone.Battles.Count; j++)
+                {
+                    DefinitionId battleId = zone.Battles[j];
+                    if (!battleIds.Contains(battleId))
+                        throw new ModContentException("Zone '" + zone.Id + "' references missing battle '" + battleId + "'.");
+                }
+            }
+
+            for (int i = 0; i < battles.Length; i++)
+            {
+                BattleDefinition battle = battles[i];
+                if (!zoneIds.Contains(battle.Zone) && !_zones.TryGet(battle.Zone, out ZoneDefinition ignoredZone))
+                    throw new ModContentException("Battle '" + battle.Id + "' references missing zone '" + battle.Zone + "'.");
+                for (int j = 0; j < battle.Fights.Count; j++)
+                    if (!fightIds.Contains(battle.Fights[j]))
+                        throw new ModContentException("Battle '" + battle.Id + "' references missing fight '" + battle.Fights[j] + "'.");
+            }
+
+            for (int i = 0; i < fights.Length; i++)
+            {
+                FightDefinition fight = fights[i];
+                if (!battleIds.Contains(fight.Battle))
+                    throw new ModContentException("Fight '" + fight.Id + "' references missing battle '" + fight.Battle + "'.");
+                for (int j = 0; j < fight.Warriors.Count; j++)
+                    if (!warriorIds.Contains(fight.Warriors[j]) && !_warriors.TryGet(fight.Warriors[j], out WarriorDefinition ignoredWarrior))
+                        throw new ModContentException("Fight '" + fight.Id + "' references missing warrior '" + fight.Warriors[j] + "'.");
+                for (int j = 0; j < fight.Rules.Count; j++)
+                    if (!ruleIds.Contains(fight.Rules[j]) && !_fightRules.TryGet(fight.Rules[j], out FightRuleDefinition ignoredRule))
+                        throw new ModContentException("Fight '" + fight.Id + "' references missing rule '" + fight.Rules[j] + "'.");
+                for (int j = 0; j < fight.Rewards.Count; j++)
+                    if (!rewardIds.Contains(fight.Rewards[j]) && !_rewards.TryGet(fight.Rewards[j], out RewardDefinition ignoredReward))
+                        throw new ModContentException("Fight '" + fight.Id + "' references missing reward '" + fight.Rewards[j] + "'.");
+            }
+
+            for (int i = 0; i < warriors.Length; i++)
+            {
+                WarriorDefinition warrior = warriors[i];
+                for (int j = 0; j < warrior.Items.Count; j++)
+                {
+                    ItemDefinition item;
+                    if (!TryGetPendingItem(warrior.Items[j], weapons, armors, helms, ranged, magic,
+                            nonEquipmentItems, out item) &&
+                        !TryResolveItem(warrior.Items[j], out item))
+                        throw new ModContentException("Warrior '" + warrior.Id + "' references missing item '" + warrior.Items[j] + "'.");
+                }
+                for (int j = 0; j < warrior.Perks.Count; j++)
+                {
+                    PerkDefinition perk;
+                    if (!TryGetPendingPerk(warrior.Perks[j], perks, out perk) && !_perks.TryGet(warrior.Perks[j], out perk))
+                        throw new ModContentException("Warrior '" + warrior.Id + "' references missing perk '" + warrior.Perks[j] + "'.");
+                }
+            }
+
+            for (int i = 0; i < fightRules.Length; i++)
+            {
+                FightRuleDefinition rule = fightRules[i];
+                if (!rule.HasItem) continue;
+                ItemDefinition item;
+                if (!TryGetPendingItem(rule.Item, weapons, armors, helms, ranged, magic,
+                        nonEquipmentItems, out item) &&
+                    !TryResolveItem(rule.Item, out item))
+                    throw new ModContentException("Fight rule '" + rule.Id + "' references missing item '" + rule.Item + "'.");
+            }
+
+            for (int i = 0; i < rewards.Length; i++)
+            {
+                RewardDefinition reward = rewards[i];
+                for (int j = 0; j < reward.Items.Count; j++)
+                    ValidateCommittedRewardItem(reward.Id, reward.Items[j], weapons, armors, helms, ranged, magic,
+                        nonEquipmentItems);
+                for (int j = 0; j < reward.Choices.Count; j++)
+                    for (int k = 0; k < reward.Choices[j].Items.Count; k++)
+                        ValidateCommittedRewardItem(reward.Id, reward.Choices[j].Items[k].Grant,
+                            weapons, armors, helms, ranged, magic, nonEquipmentItems);
+            }
+        }
+
+        private void ValidateCommittedRewardItem(DefinitionId rewardId, RewardItemGrant grant,
+            WeaponDefinition[] weapons, ArmorDefinition[] armors, HelmDefinition[] helms,
+            RangedDefinition[] ranged, MagicDefinition[] magic, NonEquipmentItemDefinition[] nonEquipmentItems)
+        {
+            ItemDefinition item;
+            if (!TryGetPendingItem(grant.Item, weapons, armors, helms, ranged, magic, nonEquipmentItems, out item) &&
+                !TryResolveItem(grant.Item, out item))
+                throw new ModContentException("Reward '" + rewardId + "' references missing item '" + grant.Item + "'.");
+        }
+
+        private Dictionary<DefinitionId, LocalizationDefinition> PrepareLocalizationPatches(
+            LocalizationValuePatch[] localizationPatches)
+        {
+            var replacements = new Dictionary<DefinitionId, LocalizationDefinition>();
+            var pendingKeys = new HashSet<ModContentPatchKey>();
+            for (int i = 0; i < localizationPatches.Length; i++)
+            {
+                LocalizationValuePatch patch = localizationPatches[i];
+                ModContentPatchRecord record = patch.Record;
+                if (record.Target.Category != "localization")
+                    throw new ModContentException("Localization patch target must use the localization category: '" +
+                        record.Target + "'.");
+                ModContentPolicies.RequirePatchAllowed(record.Target, record.Field, record.Operation);
+
+                var patchKey = new ModContentPatchKey(record.Target, record.Field);
+                ModContentPatchRecord existingPatch;
+                if (_patchByKey.TryGetValue(patchKey, out existingPatch))
+                    throw PatchConflict(existingPatch, record);
+                if (!pendingKeys.Add(patchKey))
+                    throw new ModContentException("Patch is staged more than once for '" + record.Target +
+                        "' field '" + record.Field + "' by mod '" + record.Owner + "'.");
+
+                LocalizationDefinition current;
+                if (!replacements.TryGetValue(record.Target, out current) &&
+                    !_localizations.TryGet(record.Target, out current))
+                    throw new ModContentException("Patch target is not registered: '" + record.Target + "'.");
+
+                var values = new Dictionary<string, string>(StringComparer.Ordinal);
+                foreach (KeyValuePair<string, string> pair in current.Values) values.Add(pair.Key, pair.Value);
+                values[patch.Language] = patch.Value;
+                replacements[record.Target] = new LocalizationDefinition(current.Id, values, current.LegacyKey);
+            }
+            return replacements;
+        }
+
+        private static ModContentException PatchConflict(ModContentPatchRecord existing,
+            ModContentPatchRecord incoming)
+        {
+            return new ModContentException("Patch conflict on '" + incoming.Target + "' field '" + incoming.Field +
+                "': mod '" + existing.Owner + "' already owns this semantic field; mod '" + incoming.Owner +
+                "' cannot replace it.");
         }
 
         private static bool TryGetPendingPerk(DefinitionId id, PerkDefinition[] values, out PerkDefinition value)
@@ -903,12 +1764,22 @@ namespace Eclipse.Modding
             ArmorDefinition[] armors, HelmDefinition[] helms, RangedDefinition[] ranged,
             MagicDefinition[] magic, out ItemDefinition value)
         {
+            return TryGetPendingItem(id, weapons, armors, helms, ranged, magic,
+                new NonEquipmentItemDefinition[0], out value);
+        }
+
+        private static bool TryGetPendingItem(DefinitionId id, WeaponDefinition[] weapons,
+            ArmorDefinition[] armors, HelmDefinition[] helms, RangedDefinition[] ranged,
+            MagicDefinition[] magic, NonEquipmentItemDefinition[] nonEquipmentItems, out ItemDefinition value)
+        {
             value = null;
             for (int i = 0; i < weapons.Length; i++) if (weapons[i].Id == id) { value = weapons[i]; return true; }
             for (int i = 0; i < armors.Length; i++) if (armors[i].Id == id) { value = armors[i]; return true; }
             for (int i = 0; i < helms.Length; i++) if (helms[i].Id == id) { value = helms[i]; return true; }
             for (int i = 0; i < ranged.Length; i++) if (ranged[i].Id == id) { value = ranged[i]; return true; }
             for (int i = 0; i < magic.Length; i++) if (magic[i].Id == id) { value = magic[i]; return true; }
+            for (int i = 0; i < nonEquipmentItems.Length; i++)
+                if (nonEquipmentItems[i].Id == id) { value = nonEquipmentItems[i]; return true; }
             return false;
         }
 
@@ -963,6 +1834,32 @@ namespace Eclipse.Modding
                 if (!perks[i].IsCore || perks[i].HasTemplate || string.IsNullOrEmpty(perks[i].LegacyName))
                     throw new ModContentException("Invalid core perk import: " + perks[i].Id);
             _perks.AddRange(perks);
+        }
+
+        internal void ImportCoreStages(ZoneDefinition[] zones, BattleDefinition[] battles,
+            FightDefinition[] fights)
+        {
+            if (IsFrozen) throw new InvalidOperationException("Definition registries are frozen.");
+            if (zones == null) throw new ArgumentNullException(nameof(zones));
+            if (battles == null) throw new ArgumentNullException(nameof(battles));
+            if (fights == null) throw new ArgumentNullException(nameof(fights));
+            _zones.ValidateCanAdd(zones);
+            _battles.ValidateCanAdd(battles);
+            _fights.ValidateCanAdd(fights);
+            for (int i = 0; i < zones.Length; i++)
+                if (!zones[i].IsCore || string.IsNullOrEmpty(zones[i].LegacyName))
+                    throw new ModContentException("Invalid core zone import: " + zones[i].Id);
+            for (int i = 0; i < battles.Length; i++)
+                if (!battles[i].IsCore || battles[i].Zone.Namespace.Value != "core" ||
+                    string.IsNullOrEmpty(battles[i].LegacyName) || string.IsNullOrEmpty(battles[i].LegacyXml))
+                    throw new ModContentException("Invalid core battle import: " + battles[i].Id);
+            for (int i = 0; i < fights.Length; i++)
+                if (!fights[i].IsCore || fights[i].Battle.Namespace.Value != "core" ||
+                    string.IsNullOrEmpty(fights[i].LegacyName) || string.IsNullOrEmpty(fights[i].LegacyXml))
+                    throw new ModContentException("Invalid core fight import: " + fights[i].Id);
+            _zones.AddRange(zones);
+            _battles.AddRange(battles);
+            _fights.AddRange(fights);
         }
 
         private void ValidateCoreItems<T>(LocalizationDefinition[] localizations, T[] items, string type)
@@ -1033,10 +1930,23 @@ namespace Eclipse.Modding
                     _values.Add(values[i]);
                 }
             }
+
+            public void Replace(DefinitionId id, T value)
+            {
+                T existing;
+                if (!_byId.TryGetValue(id, out existing))
+                    throw new ModContentException("Definition does not exist for replacement: '" + id + "'.");
+                if (_getId(value) != id)
+                    throw new ModContentException("Replacement definition identity changed: '" + id + "'.");
+                int index = _values.IndexOf(existing);
+                if (index < 0) throw new InvalidOperationException("Definition registry index is inconsistent: '" + id + "'.");
+                _byId[id] = value;
+                _values[index] = value;
+            }
         }
     }
 
-    public sealed class ModRegistrationTransaction : IDisposable
+    public sealed partial class ModRegistrationTransaction : IDisposable
     {
         public const int MaxRegistrations = 4096;
         public const int MaxEquipmentLevel = 52;
@@ -1064,13 +1974,33 @@ namespace Eclipse.Modding
             new Dictionary<DefinitionId, EnchantmentDefinition>();
         private readonly Dictionary<DefinitionId, ModBehaviorDefinition> _behaviors =
             new Dictionary<DefinitionId, ModBehaviorDefinition>();
+        private readonly Dictionary<DefinitionId, ZoneDefinition> _zones =
+            new Dictionary<DefinitionId, ZoneDefinition>();
+        private readonly Dictionary<DefinitionId, BattleDefinition> _battles =
+            new Dictionary<DefinitionId, BattleDefinition>();
+        private readonly Dictionary<DefinitionId, FightDefinition> _fights =
+            new Dictionary<DefinitionId, FightDefinition>();
+        private readonly List<DefinitionId> _battleOrder = new List<DefinitionId>();
+        private readonly List<DefinitionId> _fightOrder = new List<DefinitionId>();
+        private readonly Dictionary<DefinitionId, WarriorDefinition> _warriors =
+            new Dictionary<DefinitionId, WarriorDefinition>();
+        private readonly Dictionary<DefinitionId, FightRuleDefinition> _fightRules =
+            new Dictionary<DefinitionId, FightRuleDefinition>();
+        private readonly Dictionary<DefinitionId, RewardDefinition> _rewards =
+            new Dictionary<DefinitionId, RewardDefinition>();
+        private readonly List<LocalizationValuePatch> _localizationPatches = new List<LocalizationValuePatch>();
+        private readonly List<FightFieldPatch> _fightPatches = new List<FightFieldPatch>();
+        private readonly List<ModContentPatchRecord> _collectionPatches = new List<ModContentPatchRecord>();
+        private readonly HashSet<ModContentPatchKey> _patchKeys = new HashSet<ModContentPatchKey>();
         private readonly HashSet<DefinitionId> _listedItems = new HashSet<DefinitionId>();
         private bool _completed;
 
         public ModDescriptor Mod { get; }
         public int RegistrationCount => _localizations.Count + _weapons.Count + _armors.Count + _helms.Count +
             _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
-            _enchantments.Count + _behaviors.Count;
+            _enchantments.Count + _behaviors.Count + _zones.Count + _battles.Count + _fights.Count +
+            _warriors.Count + _fightRules.Count + _rewards.Count + _localizationPatches.Count + _fightPatches.Count +
+            _collectionPatches.Count + P1CRegistrationCount + P1BRegistrationCount + P1DRegistrationCount;
 
         internal ModRegistrationTransaction(ModContentCatalog catalog, ModDescriptor mod)
         {
@@ -1107,6 +2037,47 @@ namespace Eclipse.Modding
             LocalizationDefinition ignored;
             if (_catalog.TryGetLocalization(id, out ignored)) return id;
             throw new ModContentException("Localization key is not registered: '" + id + "'.");
+        }
+
+        public DefinitionId PatchLocalization(string reference, string language, string value)
+        {
+            ThrowIfCompleted();
+            if (string.IsNullOrWhiteSpace(reference))
+                throw new ModContentException("Localization patch target must not be empty.");
+            DefinitionId id;
+            try
+            {
+                id = reference.IndexOf(':') >= 0 ? DefinitionId.Parse(reference) : Qualify("localization", reference);
+            }
+            catch (FormatException exception)
+            {
+                throw new ModContentException(exception.Message, exception);
+            }
+            if (id.Category != "localization")
+                throw new ModContentException("Localization patch target must use the 'localization' definition category: '" +
+                    id + "'.");
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Mod '" + Mod.Id + "' cannot patch undeclared namespace '" +
+                    id.Namespace + "'. Declare it as a dependency first.");
+            LocalizationDefinition existing;
+            if (!_catalog.TryGetLocalization(id, out existing))
+                throw new ModContentException("Localization patch target is not registered: '" + id + "'.");
+
+            string normalizedLanguage = NormalizeLanguage(language);
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value.Length == 0)
+                throw new ModContentException("Localization patch value for '" + id + "' must not be empty.");
+            string field = ModContentPolicies.LocalizationValue(normalizedLanguage);
+            ModContentPolicies.RequirePatchAllowed(id, field, ModContentPatchOperation.Replace);
+            var key = new ModContentPatchKey(id, field);
+            EnsureCapacityForNewRegistration();
+            if (!_patchKeys.Add(key))
+                throw new ModContentException("Duplicate localization patch for '" + id + "' language '" +
+                    normalizedLanguage + "'.");
+
+            var record = new ModContentPatchRecord(Mod.Id, id, field, ModContentPatchOperation.Replace);
+            _localizationPatches.Add(new LocalizationValuePatch(record, normalizedLanguage, value));
+            return id;
         }
 
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
@@ -1191,6 +2162,23 @@ namespace Eclipse.Modding
                 progression: ItemProgressionKind.Vanilla);
             _magic.Add(id, definition);
             return definition;
+        }
+
+        public ItemDefinition GetItem(string reference)
+        {
+            ThrowIfCompleted();
+            if (string.IsNullOrWhiteSpace(reference)) throw new ModContentException("Item reference must not be empty.");
+            DefinitionId id;
+            try { id = DefinitionId.Parse(reference); }
+            catch (FormatException exception) { throw new ModContentException(exception.Message, exception); }
+            if (id.Category != "items")
+                throw new ModContentException("Item reference must use the 'items' definition category: '" + id + "'.");
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Mod '" + Mod.Id + "' cannot reference undeclared item namespace '" +
+                    id.Namespace + "'.");
+            ItemDefinition value;
+            if (TryGetPendingItem(id, out value) || _catalog.TryResolveItem(id, out value)) return value;
+            throw new ModContentException("Item is not registered: '" + id + "'.");
         }
 
         public ItemRedirectDefinition RegisterItemAlias(string oldLocalPath, DefinitionId target)
@@ -1425,9 +2413,302 @@ namespace Eclipse.Modding
             return definition;
         }
 
+        public ZoneDefinition RegisterZone(string localId, string fileName = null, bool isStart = false)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("zones", localId);
+            if (_zones.ContainsKey(id)) throw new ModContentException("Duplicate zone definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new ZoneDefinition(id, id.ToString(), fileName, isStart, Array.Empty<DefinitionId>());
+            _zones.Add(id, definition);
+            return definition;
+        }
+
+        public ZoneDefinition GetZone(string reference)
+        {
+            ThrowIfCompleted();
+            if (string.IsNullOrWhiteSpace(reference)) throw new ModContentException("Zone reference must not be empty.");
+            DefinitionId id;
+            try { id = reference.IndexOf(':') >= 0 ? DefinitionId.Parse(reference) : Qualify("zones", reference); }
+            catch (FormatException exception) { throw new ModContentException(exception.Message, exception); }
+            if (id.Category != "zones")
+                throw new ModContentException("Zone reference must use the 'zones' definition category: '" + id + "'.");
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Mod '" + Mod.Id + "' cannot reference undeclared zone namespace '" +
+                    id.Namespace + "'.");
+            ZoneDefinition value;
+            if (_zones.TryGetValue(id, out value) || _catalog.TryGetZone(id, out value)) return value;
+            throw new ModContentException("Zone is not registered: '" + id + "'.");
+        }
+
+        public BattleDefinition RegisterBattle(string localId, DefinitionId zone, ModBattleKind kind,
+            int x = 0, int y = 0, string alias = null, string title = null, string icon = null,
+            string preview = null, string description = null, string location = null, string music = null,
+            string rewardImage = null, bool showResistance = false, string iconAtlas = null,
+            string eclipseToggleName = null)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("battles", localId);
+            if (_battles.ContainsKey(id)) throw new ModContentException("Duplicate battle definition: '" + id + "'.");
+            if (zone.Category != "zones" || !CanReferenceNamespace(zone.Namespace))
+                throw new ModContentException("External battle references an invalid or undeclared zone namespace: '" + zone + "'.");
+            ZoneDefinition zoneDefinition;
+            bool pendingZone = _zones.TryGetValue(zone, out zoneDefinition);
+            if (!pendingZone && !_catalog.TryGetZone(zone, out zoneDefinition))
+                throw new ModContentException("External battle references missing zone '" + zone + "'.");
+            if (!Enum.IsDefined(typeof(ModBattleKind), kind))
+                throw new ModContentException("Unsupported battle kind: " + kind + ".");
+            if (kind == ModBattleKind.Periodic || kind == ModBattleKind.Replayable ||
+                kind == ModBattleKind.BossesReplayable || kind == ModBattleKind.FinalReplayable ||
+                kind == ModBattleKind.Ascension || kind == ModBattleKind.Raid)
+                throw new ModContentException("Battle kind '" + kind +
+                    "' needs its dedicated roadmap mode adapter and is not available through the ordinary P1A battle API.");
+            EnsureCapacityForNewRegistration();
+            var definition = new BattleDefinition(id, zone, id.ToString(), kind, x, y, alias, title,
+                string.IsNullOrEmpty(icon) ? "training" : icon, preview, description, location, music,
+                rewardImage, showResistance, Array.Empty<DefinitionId>(), iconAtlas, eclipseToggleName);
+            _battles.Add(id, definition);
+            _battleOrder.Add(id);
+            if (!pendingZone)
+            {
+                string field = ModContentPolicies.ZoneBattleChildren + id.ToString();
+                ModContentPolicies.RequirePatchAllowed(zone, field, ModContentPatchOperation.Append);
+                var key = new ModContentPatchKey(zone, field);
+                if (!_patchKeys.Add(key))
+                    throw new ModContentException("Duplicate battle child append for zone '" + zone +
+                        "' and battle '" + id + "'.");
+                _collectionPatches.Add(new ModContentPatchRecord(Mod.Id, zone, field,
+                    ModContentPatchOperation.Append));
+            }
+            return definition;
+        }
+
+        public WarriorDefinition RegisterWarrior(string localId, string firstName, string lastName, string avatar,
+            string voice, int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
+            DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
+            int random = 0, IReadOnlyDictionary<string, float> attributes = null,
+            WarriorAttributeAlignmentDefinition[] attributeAlignments = null)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("warriors", localId);
+            if (_warriors.ContainsKey(id)) throw new ModContentException("Duplicate warrior definition: '" + id + "'.");
+            if (hasTemplate)
+            {
+                WarriorTemplateDefinition templateDefinition;
+                if (template.Category != "warrior-templates" || !CanReferenceNamespace(template.Namespace) ||
+                    !_catalog.TryGetWarriorTemplate(template, out templateDefinition))
+                    throw new ModContentException("Warrior references unavailable template '" + template + "'.");
+            }
+            if (random < 0) throw new ModContentException("Warrior random group selector must not be negative.");
+            items = items ?? Array.Empty<DefinitionId>();
+            perks = perks ?? Array.Empty<DefinitionId>();
+            var seenItems = new HashSet<DefinitionId>();
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i].Category != "items" || !CanReferenceNamespace(items[i].Namespace))
+                    throw new ModContentException("Warrior item belongs to an undeclared or invalid namespace: '" + items[i] + "'.");
+                ItemDefinition item;
+                if (!TryGetPendingItem(items[i], out item) && !_catalog.TryResolveItem(items[i], out item))
+                    throw new ModContentException("Warrior references missing item '" + items[i] + "'.");
+                if (!seenItems.Add(items[i])) throw new ModContentException("Duplicate warrior item '" + items[i] + "'.");
+            }
+            var seenPerks = new HashSet<DefinitionId>();
+            for (int i = 0; i < perks.Length; i++)
+            {
+                if (perks[i].Category != "perks" || !CanReferenceNamespace(perks[i].Namespace))
+                    throw new ModContentException("Warrior perk belongs to an undeclared or invalid namespace: '" + perks[i] + "'.");
+                PerkDefinition perk;
+                if (!_perks.TryGetValue(perks[i], out perk) && !_catalog.TryGetPerk(perks[i], out perk))
+                    throw new ModContentException("Warrior references missing perk '" + perks[i] + "'.");
+                if (!seenPerks.Add(perks[i])) throw new ModContentException("Duplicate warrior perk '" + perks[i] + "'.");
+            }
+            EnsureCapacityForNewRegistration();
+            var definition = new WarriorDefinition(id, firstName, lastName, avatar, voice, level, tactic, items, perks,
+                template, hasTemplate, group, random, attributes, attributeAlignments);
+            _warriors.Add(id, definition);
+            return definition;
+        }
+
+        public FightRuleDefinition RegisterNoPerksRule(string localId, ModRuleTarget target, ModRuleMode mode,
+            int[] rounds, string name = null)
+        {
+            ThrowIfCompleted();
+            ValidateRuleEnums(target, mode);
+            DefinitionId id = Qualify("rules", localId);
+            if (_fightRules.ContainsKey(id)) throw new ModContentException("Duplicate fight rule definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new FightRuleDefinition(id, ModFightRuleKind.NoPerks, target, mode,
+                rounds, name, default, false, 0);
+            _fightRules.Add(id, definition);
+            return definition;
+        }
+
+        public FightRuleDefinition RegisterRequireItemRule(string localId, DefinitionId item, int minimumLevel,
+            ModRuleMode mode, int[] rounds)
+        {
+            ThrowIfCompleted();
+            ValidateRuleEnums(ModRuleTarget.Player, mode);
+            if (!CanReferenceNamespace(item.Namespace))
+                throw new ModContentException("RequireItem rule references undeclared namespace '" + item.Namespace + "'.");
+            ItemDefinition itemDefinition;
+            if (!TryGetPendingItem(item, out itemDefinition) && !_catalog.TryResolveItem(item, out itemDefinition))
+                throw new ModContentException("RequireItem rule references missing item '" + item + "'.");
+            DefinitionId id = Qualify("rules", localId);
+            if (_fightRules.ContainsKey(id)) throw new ModContentException("Duplicate fight rule definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new FightRuleDefinition(id, ModFightRuleKind.RequireItem, ModRuleTarget.Player, mode,
+                rounds, string.Empty, item, true, minimumLevel);
+            _fightRules.Add(id, definition);
+            return definition;
+        }
+
+        public FightRuleDefinition RegisterEquipItemRule(string localId, DefinitionId item, int minimumLevel,
+            ModRuleTarget target, ModRuleMode mode, int[] rounds)
+        {
+            ThrowIfCompleted();
+            ValidateRuleEnums(target, mode);
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("EquipItem references undeclared namespace.");
+            ItemDefinition itemDefinition;
+            if (!TryGetPendingItem(item, out itemDefinition) && !_catalog.TryResolveItem(item, out itemDefinition))
+                throw new ModContentException("EquipItem references missing item '" + item + "'.");
+            return RegisterExtendedRule(localId, ModFightRuleKind.EquipItem, target, mode, rounds, string.Empty,
+                item, true, minimumLevel, default(DefinitionId), false, null);
+        }
+
+        public FightRuleDefinition RegisterNamedRule(string localId, ModFightRuleKind kind, string name,
+            ModRuleTarget target, ModRuleMode mode, int[] rounds)
+        {
+            if (kind != ModFightRuleKind.Avatar && kind != ModFightRuleKind.Name && kind != ModFightRuleKind.NoButton)
+                throw new ModContentException("Unsupported named rule kind: " + kind + ".");
+            if (string.IsNullOrWhiteSpace(name)) throw new ModContentException(kind + " rule requires a name.");
+            return RegisterExtendedRule(localId, kind, target, mode, rounds, name, default(DefinitionId), false, 0,
+                default(DefinitionId), false, null);
+        }
+
+        public FightRuleDefinition RegisterPerkRule(string localId, DefinitionId perk, ModRuleTarget target,
+            ModRuleMode mode, int[] rounds)
+        {
+            ThrowIfCompleted();
+            PerkDefinition perkDefinition;
+            if (perk.Category != "perks" || !CanReferenceNamespace(perk.Namespace) ||
+                (!_perks.TryGetValue(perk, out perkDefinition) && !_catalog.TryGetPerk(perk, out perkDefinition)))
+                throw new ModContentException("Perk rule references an unavailable perk '" + perk + "'.");
+            return RegisterExtendedRule(localId, ModFightRuleKind.Perk, target, mode, rounds, string.Empty,
+                default(DefinitionId), false, 0, perk, true, null);
+        }
+
+        public FightRuleDefinition RegisterRechargeMagicRule(string localId, ModRuleTarget target, ModRuleMode mode,
+            int[] rounds)
+        {
+            return RegisterExtendedRule(localId, ModFightRuleKind.RechargeMagicEachRound, target, mode, rounds,
+                string.Empty, default(DefinitionId), false, 0, default(DefinitionId), false, null);
+        }
+
+        public FightRuleDefinition RegisterAttributesRule(string localId, ModRuleTarget target, ModRuleMode mode,
+            int[] rounds, IReadOnlyDictionary<string, float> attributes)
+        {
+            return RegisterExtendedRule(localId, ModFightRuleKind.Attributes, target, mode, rounds, string.Empty,
+                default(DefinitionId), false, 0, default(DefinitionId), false, attributes);
+        }
+
+        private FightRuleDefinition RegisterExtendedRule(string localId, ModFightRuleKind kind, ModRuleTarget target,
+            ModRuleMode mode, int[] rounds, string name, DefinitionId item, bool hasItem, int minimumLevel,
+            DefinitionId perk, bool hasPerk, IReadOnlyDictionary<string, float> attributes)
+        {
+            ThrowIfCompleted();
+            ValidateRuleEnums(target, mode);
+            DefinitionId id = Qualify("rules", localId);
+            if (_fightRules.ContainsKey(id)) throw new ModContentException("Duplicate fight rule definition: '" + id + "'.");
+            EnsureCapacityForNewRegistration();
+            var definition = new FightRuleDefinition(id, kind, target, mode, rounds, name, item, hasItem,
+                minimumLevel, perk, hasPerk, attributes);
+            _fightRules.Add(id, definition);
+            return definition;
+        }
+
+        public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items, RewardChoiceDefinition[] choices)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("rewards", localId);
+            if (_rewards.ContainsKey(id)) throw new ModContentException("Duplicate reward definition: '" + id + "'.");
+            var definition = new RewardDefinition(id, items, choices);
+            ValidateRewardReferences(definition);
+            EnsureCapacityForNewRegistration();
+            _rewards.Add(id, definition);
+            return definition;
+        }
+
+        public FightDefinition RegisterFight(string localId, DefinitionId battle, int replays, int replayInterval,
+            int power, int rounds, int roundTime, string location, string music, float evaluatedRating,
+            float healthRecovery, string description, bool locked, string rewardImage,
+            DefinitionId[] warriors, DefinitionId[] rules, DefinitionId[] rewards)
+        {
+            ThrowIfCompleted();
+            DefinitionId id = Qualify("fights", localId);
+            if (_fights.ContainsKey(id)) throw new ModContentException("Duplicate fight definition: '" + id + "'.");
+            if (battle.Namespace != Mod.Id || battle.Category != "battles" || !_battles.ContainsKey(battle))
+                throw new ModContentException("External fight must reference a battle registered by the same mod transaction.");
+            warriors = warriors ?? Array.Empty<DefinitionId>();
+            rules = rules ?? Array.Empty<DefinitionId>();
+            rewards = rewards ?? Array.Empty<DefinitionId>();
+            if (warriors.Length == 0) throw new ModContentException("External fight must reference at least one warrior.");
+            ValidateDefinitionReferences(warriors, "warriors", id, "warrior");
+            ValidateDefinitionReferences(rules, "rules", id, "rule");
+            ValidateDefinitionReferences(rewards, "rewards", id, "reward");
+            EnsureCapacityForNewRegistration();
+            var definition = new FightDefinition(id, battle, id.ToString(), replays, replayInterval, power, rounds,
+                roundTime, location, music, evaluatedRating, healthRecovery, description, locked, rewardImage,
+                warriors, rules, rewards);
+            _fights.Add(id, definition);
+            _fightOrder.Add(id);
+            return definition;
+        }
+
+        public DefinitionId PatchFightDescription(string reference, string value)
+        {
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            return StageFightPatch(reference, ModContentPolicies.FightDescription, value, 0);
+        }
+
+        public DefinitionId PatchFightRounds(string reference, int value)
+        {
+            if (value < 1 || value > 100) throw new ModContentException("Fight rounds patch must be 1..100.");
+            return StageFightPatch(reference, ModContentPolicies.FightRounds, null, value);
+        }
+
+        public DefinitionId PatchFightRoundTime(string reference, int value)
+        {
+            if (value < 1 || value > 86400) throw new ModContentException("Fight round-time patch must be 1..86400 seconds.");
+            return StageFightPatch(reference, ModContentPolicies.FightRoundTime, null, value);
+        }
+
+        private DefinitionId StageFightPatch(string reference, string field, string stringValue, int intValue)
+        {
+            ThrowIfCompleted();
+            if (string.IsNullOrWhiteSpace(reference)) throw new ModContentException("Fight patch target must not be empty.");
+            DefinitionId id;
+            try { id = reference.IndexOf(':') >= 0 ? DefinitionId.Parse(reference) : Qualify("fights", reference); }
+            catch (FormatException exception) { throw new ModContentException(exception.Message, exception); }
+            if (id.Category != "fights") throw new ModContentException("Fight patch target must use the fights category: '" + id + "'.");
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Mod '" + Mod.Id + "' cannot patch undeclared namespace '" + id.Namespace + "'.");
+            FightDefinition existing;
+            if (!_catalog.TryGetFight(id, out existing)) throw new ModContentException("Fight patch target is not registered: '" + id + "'.");
+            ModContentPolicies.RequirePatchAllowed(id, field, ModContentPatchOperation.Replace);
+            var key = new ModContentPatchKey(id, field);
+            EnsureCapacityForNewRegistration();
+            if (!_patchKeys.Add(key)) throw new ModContentException("Duplicate fight patch for '" + id + "' field '" + field + "'.");
+            var record = new ModContentPatchRecord(Mod.Id, id, field, ModContentPatchOperation.Replace);
+            _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue));
+            return id;
+        }
+
         public void Commit()
         {
             ThrowIfCompleted();
+            ValidateP1CCommit();
+            ValidateP1BCommit();
+            ValidateP1DCommit();
 
             var localizations = new LocalizationDefinition[_localizations.Count];
             int localizationIndex = 0;
@@ -1448,6 +2729,8 @@ namespace Eclipse.Modding
             _ranged.Values.CopyTo(ranged, 0);
             var magic = new MagicDefinition[_magic.Count];
             _magic.Values.CopyTo(magic, 0);
+            var nonEquipmentItems = new NonEquipmentItemDefinition[_p1cItems.Count];
+            _p1cItems.Values.CopyTo(nonEquipmentItems, 0);
             var itemRedirects = new ItemRedirectDefinition[_itemRedirects.Count];
             _itemRedirects.Values.CopyTo(itemRedirects, 0);
             var listings = new ShopListingDefinition[_shopListings.Count];
@@ -1458,11 +2741,72 @@ namespace Eclipse.Modding
             _enchantments.Values.CopyTo(enchantments, 0);
             var behaviors = new ModBehaviorDefinition[_behaviors.Count];
             _behaviors.Values.CopyTo(behaviors, 0);
+            ZoneDefinition[] zones = BuildCommittedZones();
+            BattleDefinition[] battles = BuildCommittedBattles();
+            FightDefinition[] fights = SortedValues(_fights);
+            WarriorDefinition[] warriors = SortedValues(_warriors);
+            FightRuleDefinition[] fightRules = SortedValues(_fightRules);
+            RewardDefinition[] rewards = SortedValues(_rewards);
+            LocalizationValuePatch[] localizationPatches = _localizationPatches.ToArray();
+            FightFieldPatch[] fightPatches = _fightPatches.ToArray();
+            ModContentPatchRecord[] collectionPatches = _collectionPatches.ToArray();
 
-            _catalog.Commit(this, localizations, weapons, armors, helms, ranged, magic, itemRedirects, listings,
-                perks, enchantments, behaviors);
+            _catalog.Commit(this, localizations, weapons, armors, helms, ranged, magic, nonEquipmentItems,
+                itemRedirects, listings,
+                perks, enchantments, behaviors, zones, battles, fights, warriors, fightRules, rewards,
+                localizationPatches, fightPatches, collectionPatches);
+            ApplyP1CCommit();
+            ApplyP1BCommit();
+            ApplyP1DCommit();
             _completed = true;
             ClearPending();
+        }
+
+        private ZoneDefinition[] BuildCommittedZones()
+        {
+            var result = new List<ZoneDefinition>();
+            foreach (ZoneDefinition zone in _zones.Values)
+            {
+                var children = new List<DefinitionId>();
+                for (int i = 0; i < _battleOrder.Count; i++)
+                {
+                    BattleDefinition battle = _battles[_battleOrder[i]];
+                    if (battle.Zone == zone.Id) children.Add(battle.Id);
+                }
+                result.Add(new ZoneDefinition(zone.Id, zone.LegacyName, zone.FileName, zone.IsStart, children.ToArray()));
+            }
+            result.Sort((left, right) => string.CompareOrdinal(left.Id.ToString(), right.Id.ToString()));
+            return result.ToArray();
+        }
+
+        private BattleDefinition[] BuildCommittedBattles()
+        {
+            var result = new List<BattleDefinition>();
+            foreach (BattleDefinition battle in _battles.Values)
+            {
+                var children = new List<DefinitionId>();
+                for (int i = 0; i < _fightOrder.Count; i++)
+                {
+                    FightDefinition fight = _fights[_fightOrder[i]];
+                    if (fight.Battle == battle.Id) children.Add(fight.Id);
+                }
+                result.Add(new BattleDefinition(battle.Id, battle.Zone, battle.LegacyName, battle.Kind,
+                    battle.X, battle.Y, battle.Alias, battle.Title, battle.Icon, battle.Preview,
+                    battle.Description, battle.Location, battle.Music, battle.RewardImage,
+                    battle.ShowResistance, children.ToArray(), battle.IconAtlas, battle.EclipseToggleName,
+                    battle.LegacyXml));
+            }
+            result.Sort((left, right) => string.CompareOrdinal(left.Id.ToString(), right.Id.ToString()));
+            return result.ToArray();
+        }
+
+        private static T[] SortedValues<T>(Dictionary<DefinitionId, T> source) where T : class
+        {
+            var pairs = new List<KeyValuePair<DefinitionId, T>>(source);
+            pairs.Sort((left, right) => string.CompareOrdinal(left.Key.ToString(), right.Key.ToString()));
+            var result = new T[pairs.Count];
+            for (int i = 0; i < pairs.Count; i++) result[i] = pairs[i].Value;
+            return result;
         }
 
         public void Dispose()
@@ -1599,6 +2943,53 @@ namespace Eclipse.Modding
             throw new ModContentException("Unsupported equipment progression for '" + item.Id + "'.");
         }
 
+        private static void ValidateRuleEnums(ModRuleTarget target, ModRuleMode mode)
+        {
+            if (!Enum.IsDefined(typeof(ModRuleTarget), target))
+                throw new ModContentException("Unsupported rule target: " + target + ".");
+            if (!Enum.IsDefined(typeof(ModRuleMode), mode))
+                throw new ModContentException("Unsupported rule mode: " + mode + ".");
+        }
+
+        private void ValidateRewardReferences(RewardDefinition reward)
+        {
+            for (int i = 0; i < reward.Items.Count; i++) ValidateRewardItem(reward.Items[i]);
+            for (int i = 0; i < reward.Choices.Count; i++)
+            {
+                RewardChoiceDefinition choice = reward.Choices[i];
+                for (int j = 0; j < choice.Items.Count; j++) ValidateRewardItem(choice.Items[j].Grant);
+            }
+        }
+
+        private void ValidateRewardItem(RewardItemGrant grant)
+        {
+            if (!CanReferenceNamespace(grant.Item.Namespace))
+                throw new ModContentException("Reward item belongs to undeclared namespace '" + grant.Item.Namespace + "'.");
+            ItemDefinition item;
+            if (!TryGetPendingItem(grant.Item, out item) && !_catalog.TryResolveItem(grant.Item, out item))
+                throw new ModContentException("Reward references missing item '" + grant.Item + "'.");
+        }
+
+        private void ValidateDefinitionReferences(DefinitionId[] references, string category, DefinitionId owner,
+            string kind)
+        {
+            var seen = new HashSet<DefinitionId>();
+            for (int i = 0; i < references.Length; i++)
+            {
+                DefinitionId reference = references[i];
+                if (reference.Category != category || !CanReferenceNamespace(reference.Namespace))
+                    throw new ModContentException("Fight '" + owner + "' references invalid or undeclared " + kind +
+                        " '" + reference + "'.");
+                bool exists;
+                if (category == "warriors") exists = _warriors.ContainsKey(reference) || _catalog.TryGetWarrior(reference, out WarriorDefinition ignoredWarrior);
+                else if (category == "rules") exists = _fightRules.ContainsKey(reference) || _catalog.TryGetFightRule(reference, out FightRuleDefinition ignoredRule);
+                else if (category == "rewards") exists = _rewards.ContainsKey(reference) || _catalog.TryGetReward(reference, out RewardDefinition ignoredReward);
+                else exists = false;
+                if (!exists) throw new ModContentException("Fight '" + owner + "' references missing " + kind + " '" + reference + "'.");
+                if (!seen.Add(reference)) throw new ModContentException("Fight '" + owner + "' repeats " + kind + " '" + reference + "'.");
+            }
+        }
+
         private bool TryGetPendingItem(DefinitionId id, out ItemDefinition value)
         {
             value = null;
@@ -1612,6 +3003,7 @@ namespace Eclipse.Modding
             if (_ranged.TryGetValue(id, out ranged)) { value = ranged; return true; }
             MagicDefinition magic;
             if (_magic.TryGetValue(id, out magic)) { value = magic; return true; }
+            if (TryGetPendingP1CItem(id, out value)) return true;
             return false;
         }
 
@@ -1660,7 +3052,22 @@ namespace Eclipse.Modding
             _perks.Clear();
             _enchantments.Clear();
             _behaviors.Clear();
+            _zones.Clear();
+            _battles.Clear();
+            _fights.Clear();
+            _battleOrder.Clear();
+            _fightOrder.Clear();
+            _warriors.Clear();
+            _fightRules.Clear();
+            _rewards.Clear();
+            _localizationPatches.Clear();
+            _fightPatches.Clear();
+            _collectionPatches.Clear();
+            _patchKeys.Clear();
             _listedItems.Clear();
+            ClearP1CPending();
+            ClearP1BPending();
+            ClearP1DPending();
         }
     }
 

@@ -62,10 +62,14 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModScripting.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\AssetId.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\CoreContentImporterP1C.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineStoreData.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModLocalizationLoader.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\DependencyResolver.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1C.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModManifestReader.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1B.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModWarriorTemplates.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\AssetProvider.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\VersionRange.cs" />
@@ -75,12 +79,15 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModDiscovery.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\DefinitionId.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1D.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModDiagnostics.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModScriptingP1D.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\AssetResolver.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\MotionBlur\SF2MotionBlur.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModSaveData.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModId.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineServices.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModScriptingP1C.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\CoreContentImporter.cs" />
   </ItemGroup>
   <ItemGroup>

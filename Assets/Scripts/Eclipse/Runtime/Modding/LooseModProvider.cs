@@ -104,6 +104,9 @@ namespace Eclipse.Modding
             string extension = Path.GetExtension(relative);
             if (string.IsNullOrEmpty(extension))
                 throw new InvalidDataException("Loose mod asset has no file extension: " + relative);
+            if (extension.Equals(".ogg", StringComparison.OrdinalIgnoreCase) ||
+                extension.Equals(".mp3", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Loose mod audio supports PCM16 WAV only; unsupported audio file: " + relative);
             string logicalPath = logicalPrefix + relative.Substring(0, relative.Length - extension.Length);
             AssetId id = AssetId.Parse(Namespace.Value + ":" + logicalPath);
             AssetKind kind = GetKind(id.Path, extension);
@@ -132,7 +135,7 @@ namespace Eclipse.Modding
             if (ext == ".png" && logicalPath.StartsWith("sprites/", StringComparison.Ordinal)) return AssetKind.Sprite;
             if (ext == ".png") return AssetKind.Texture;
             if (ext == ".xml" && logicalPath.StartsWith("models/", StringComparison.Ordinal)) return AssetKind.Model;
-            if (ext == ".wav" || ext == ".ogg" || ext == ".mp3") return AssetKind.Audio;
+            if (ext == ".wav") return AssetKind.Audio;
             if (ext == ".xml" || ext == ".toml" || ext == ".json" || ext == ".txt" || ext == ".lua")
                 return AssetKind.Text;
             return AssetKind.Binary;

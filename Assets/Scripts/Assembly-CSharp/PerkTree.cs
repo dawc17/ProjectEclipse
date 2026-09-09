@@ -177,6 +177,33 @@ public class PerkTree
 		return COPMNJGPPIH;
 	}
 
+	public PerkBranch ReplaceExternalBranch(int level, IReadOnlyList<PerkItem> items)
+	{
+		if (items == null || items.Count == 0)
+			throw new System.ArgumentException("External perk-tree branch requires at least one item.", "items");
+		PerkBranch previous = FMNLBLFHJFB(level);
+		PerkBranch replacement = new PerkBranch(level);
+		for (int i = 0; i < items.Count; i++)
+		{
+			PerkItem item = items[i];
+			if (item == null || item.Type == AAAIBJGLPAI.TYPE_NONE || string.IsNullOrEmpty(item.Name))
+				throw new System.ArgumentException("External perk-tree branch contains an invalid item.", "items");
+			replacement.OJIAKDDCGLB.Add(new PerkItem(item.Type, item.Name, level));
+		}
+		if (previous != null) COPMNJGPPIH.Remove(previous);
+		COPMNJGPPIH.Add(replacement);
+		COPMNJGPPIH.Sort((left, right) => left.Level.CompareTo(right.Level));
+		return previous;
+	}
+
+	public void RestoreExternalBranch(int level, PerkBranch branch)
+	{
+		PerkBranch current = FMNLBLFHJFB(level);
+		if (current != null) COPMNJGPPIH.Remove(current);
+		if (branch != null) COPMNJGPPIH.Add(branch);
+		COPMNJGPPIH.Sort((left, right) => left.Level.CompareTo(right.Level));
+	}
+
 	public List<ProfilePerk> JGCHDCOOGII()
 	{
 		return DPPMNFCIIGP;

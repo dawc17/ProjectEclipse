@@ -538,11 +538,27 @@ public static class Sound
 			}
 			LOJOJHIFCBL = "fight1_samurai_spirit";
 		}
+		AudioClip audioClip;
+		if (Eclipse.Modding.ModAssetBinding.TryLoadAudio(LOJOJHIFCBL, out audioClip))
+		{
+			AudioManager.AddAudio(audioClip, LOJOJHIFCBL, 1f);
+			MDGPOBCKJMJ(FINECDOIGAH, LOJOJHIFCBL, KKHJAJFEPPA, MLELLNBHONP);
+			MDAIMFGPCEG(LOJOJHIFCBL);
+			return;
+		}
+		if (Eclipse.Modding.ModAssetBinding.IsQualified(LOJOJHIFCBL))
+		{
+			if (MissingAudioWarnings.Add("music-mod-missing:" + LOJOJHIFCBL))
+			{
+				UnityEngine.Debug.LogWarning("[Audio] Missing mod music '" + LOJOJHIFCBL + "'; continuing without music.");
+			}
+			return;
+		}
 		string bLMBLOKPMEC = BLMBLOKPMEC;
 		string text = LOJOJHIFCBL;
 		bool flag = text.EndsWith(".ogg", System.StringComparison.OrdinalIgnoreCase);
 		bLMBLOKPMEC = ((!flag && !SF2Paths.CGOHPKEBECD) ? (bLMBLOKPMEC + LOJOJHIFCBL + EJGKHALAMAG) : (bLMBLOKPMEC + LOJOJHIFCBL));
-		AudioClip audioClip = ResourceManager.GetAudioClip(bLMBLOKPMEC);
+		audioClip = ResourceManager.GetAudioClip(bLMBLOKPMEC);
 		if (audioClip == null)
 		{
 			string fallback = ResolveRecoveredMusicName(LOJOJHIFCBL);
@@ -638,6 +654,16 @@ public static class Sound
 
 	public static bool IOIEJHLMBLI(string DPBKBKDCIOI, float JIJAJFEJJHK = 1f)
 	{
+		AudioClip externalClip;
+		if (Eclipse.Modding.ModAssetBinding.TryLoadAudio(DPBKBKDCIOI, out externalClip))
+		{
+			AudioManager.AddAudio(externalClip, DPBKBKDCIOI, JIJAJFEJJHK);
+			return true;
+		}
+		if (Eclipse.Modding.ModAssetBinding.IsQualified(DPBKBKDCIOI))
+		{
+			return false;
+		}
 		string text = AJLAODNPHFB();
 		text += DPBKBKDCIOI;
 		if (!SF2Paths.CGOHPKEBECD)

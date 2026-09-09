@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Xml;
 
 public static class AnimationData
 {
@@ -118,6 +119,26 @@ public static class AnimationData
 			BKCEJLOBCNB[pJAHIOELGGD.Name] = pJAHIOELGGD;
 		}
 		CreateCapabilityTables();
+	}
+
+	internal static int AddExternalMoves(XmlDocument document)
+	{
+		int before = LNKJIIGBEDA.Count;
+		int added = MovesParser.ParseAdditional(document, LNKJIIGBEDA, KKANPMPHNNA, AGBJABJNGEA, NMILPLHGCMA);
+		if (added == 0) return 0;
+
+		List<InfoAnimation> newMoves = LNKJIIGBEDA.GetRange(before, added);
+		for (int i = 0; i < newMoves.Count; i++)
+			BKCEJLOBCNB.Add(newMoves[i].Name, newMoves[i]);
+
+		// Existing lower-priority moves may now transition into newly added moves. Only
+		// compare old entries against the new tail to avoid duplicating established tables.
+		for (int i = 0; i < before; i++)
+			CreateCapabilityTable(LNKJIIGBEDA[i], newMoves);
+		for (int i = 0; i < newMoves.Count; i++)
+			CreateCapabilityTable(newMoves[i], LNKJIIGBEDA);
+		_WeaponTypeList.Clear();
+		return added;
 	}
 
 	public static void BCILLFEBJHK()

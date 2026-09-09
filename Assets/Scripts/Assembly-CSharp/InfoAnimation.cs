@@ -845,7 +845,8 @@ public class InfoAnimation
 			AnimationContainerStruct aGAMDIHPFPF = IAPAKFDEKOI();
 			if (aGAMDIHPFPF == null || aGAMDIHPFPF.Container == null)
 			{
-				string iFKJHHPJPLP = SF2Paths.CBKLONCNPCP() + "/" + FileName;
+				string iFKJHHPJPLP = Eclipse.Modding.ModAssetBinding.IsQualified(FileName) ?
+					FileName : SF2Paths.CBKLONCNPCP() + "/" + FileName;
 				OOICKIBOFGH(iFKJHHPJPLP);
 				if (_AnimationContainer != null)
 				{

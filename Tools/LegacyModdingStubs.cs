@@ -2,7 +2,85 @@
 // The real project compiles the adapter against the recovered Items/ListSF/LocalizationManager classes.
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
+
+public static class TestXmlAttributeExtensions
+{
+    public static string CIPOICEEIBK(this XmlAttribute attribute, string fallback = "")
+    {
+        return attribute == null ? fallback : attribute.Value;
+    }
+}
+
+public static class SF2Paths
+{
+    public static string KKIDGPBOBNI() { return Eclipse.Content.GameplayContentArchive.GetXmlRoot(); }
+    public static string ENFGGKMDICD() { return Path.Combine(KKIDGPBOBNI(), "localizations"); }
+}
+
+public static class XmlUtils
+{
+    public static XmlDocument OpenXMLDocument(string root, string file)
+    {
+        string path = string.IsNullOrEmpty(file) ? root : Path.Combine(root, file);
+        if (!File.Exists(path)) return null;
+        var document = new XmlDocument { XmlResolver = null };
+        document.Load(path);
+        return document;
+    }
+}
+
+public static class AnimationData
+{
+    public static int AddExternalMoves(XmlDocument document)
+    {
+        if (document == null || document["Movesxml"] == null) return 0;
+        int count = 0;
+        foreach (XmlNode child in document["Movesxml"].ChildNodes)
+            if (child.NodeType == XmlNodeType.Element) count++;
+        return count;
+    }
+}
+
+public sealed class Tactic
+{
+    private readonly string _name;
+    public Tactic(XmlNode node) { _name = node?.Attributes?["Name"]?.Value ?? string.Empty; }
+    public string get_Name() { return _name; }
+}
+
+public static class TacticsCompiler
+{
+    public static void CompileTacticsSettings(XmlDocument document) { }
+}
+
+public static class AiData
+{
+    private static readonly Dictionary<string, Tactic> Tactics = new Dictionary<string, Tactic>(StringComparer.Ordinal);
+    private static readonly HashSet<string> External = new HashSet<string>(StringComparer.Ordinal);
+
+    public static Tactic GetTacticByName(string name)
+    {
+        Tactic tactic;
+        return name != null && Tactics.TryGetValue(name, out tactic) ? tactic : null;
+    }
+
+    public static void AddExternalTactic(XmlNode node)
+    {
+        var tactic = new Tactic(node);
+        if (string.IsNullOrEmpty(tactic.get_Name()) || Tactics.ContainsKey(tactic.get_Name()))
+            throw new InvalidOperationException("Invalid or duplicate external tactic.");
+        Tactics.Add(tactic.get_Name(), tactic);
+        External.Add(tactic.get_Name());
+    }
+
+    public static bool RemoveExternalTactic(string name)
+    {
+        if (!External.Remove(name)) return false;
+        return Tactics.Remove(name);
+    }
+}
 
 public sealed class Attributes
 {
@@ -67,6 +145,7 @@ public sealed class Items
     private readonly List<ItemInfo> _magic = new List<ItemInfo>();
     private readonly Dictionary<string, UpgradeDataContainer> _upgrades =
         new Dictionary<string, UpgradeDataContainer>(StringComparer.Ordinal);
+    private readonly ItemSets _itemSets = new ItemSets();
 
     public List<ItemInfo> MJKFCBMNNGJ() { return _weapons; }
     public List<ItemInfo> MCGKNJPLIIH() { return _armors; }
@@ -74,6 +153,7 @@ public sealed class Items
     public List<ItemInfo> LKGPBHADANE() { return _ranged; }
     public List<ItemInfo> OGFOBKIEGKA() { return _magic; }
     public List<ItemInfo> HCDLKHKBEPF() { return _all; }
+    public ItemSets DGKMILIPLLF() { return _itemSets; }
 
     public UpgradeDataContainer BKPOCLGODDM(string name)
     {
@@ -236,6 +316,28 @@ public sealed class Items
     }
 }
 
+public sealed class ItemSet
+{
+    public string Name { get; private set; }
+    public ItemSet(XmlNode node) { Name = node?.Attributes?["Name"]?.Value ?? string.Empty; }
+}
+
+public sealed class ItemSets
+{
+    private readonly Dictionary<string, ItemSet> _sets = new Dictionary<string, ItemSet>(StringComparer.Ordinal);
+
+    public ItemSet AddExternalSet(XmlNode node)
+    {
+        var set = new ItemSet(node);
+        if (string.IsNullOrEmpty(set.Name) || _sets.ContainsKey(set.Name))
+            throw new InvalidOperationException("Invalid or duplicate external item set.");
+        _sets.Add(set.Name, set);
+        return set;
+    }
+
+    public bool RemoveExternalSet(string name) { return !string.IsNullOrEmpty(name) && _sets.Remove(name); }
+}
+
 public sealed class PerkInfoItem
 {
     public string Name = string.Empty;
@@ -351,8 +453,42 @@ public sealed class ForgeManager
     private static readonly ForgeManager Instance = new ForgeManager();
     private readonly HashSet<string> _external = new HashSet<string>(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _metadata = new Dictionary<string, string>(StringComparer.Ordinal);
+    private readonly List<Recipe> _recipes = new List<Recipe>();
+
+    private ForgeManager()
+    {
+        _recipes.Add(new Recipe("Simple"));
+        _recipes.Add(new Recipe("Medium"));
+        _recipes.Add(new Recipe("Complex"));
+    }
 
     public static ForgeManager ELEBLBJKDBI() { return Instance; }
+    public IReadOnlyList<Recipe> Recipes { get { return _recipes.AsReadOnly(); } }
+
+    public bool AddExternalRecipeFamily(string name, string alias, string economicProfileName,
+        IReadOnlyList<ExternalRecipeItemSpec> items)
+    {
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(economicProfileName) ||
+            _recipes.Exists(value => string.Equals(value.Name, name, StringComparison.OrdinalIgnoreCase)) ||
+            !_recipes.Exists(value => string.Equals(value.Name, economicProfileName, StringComparison.OrdinalIgnoreCase)))
+            return false;
+        _recipes.Add(new Recipe(name));
+        return true;
+    }
+
+    public bool RemoveExternalRecipeFamily(string name)
+    {
+        Recipe recipe = _recipes.Find(value => string.Equals(value.Name, name, StringComparison.OrdinalIgnoreCase));
+        if (recipe == null || recipe.Name == "Simple" || recipe.Name == "Medium" || recipe.Name == "Complex") return false;
+        return _recipes.Remove(recipe);
+    }
+
+    public bool AddExternalPerkCandidate(string recipeName, string itemType, string perkName, string perkKind,
+        int minLevel = int.MinValue, int maxLevel = int.MaxValue)
+    {
+        if (!_recipes.Exists(value => string.Equals(value.Name, recipeName, StringComparison.OrdinalIgnoreCase))) return false;
+        return AddExternalEnchantmentCandidate(recipeName, itemType, perkName, string.Empty, perkKind);
+    }
 
     public bool AddExternalEnchantmentCandidate(string recipeName, string itemType, string perkName,
         string enchantmentId, string perkKind, IReadOnlyDictionary<string, string> eclipseParameters = null)
@@ -399,10 +535,128 @@ public sealed class ForgeManager
     }
 }
 
-public static class ListSF
+public sealed class Recipe
+{
+    public string Name { get; private set; }
+    public Recipe(string name) { Name = name ?? string.Empty; }
+}
+
+public sealed class ExternalRecipeItemSpec
+{
+    public string ItemType { get; private set; }
+    public int EnchantmentsNumber { get; private set; }
+    public string BarScale { get; private set; }
+    public int MinDeviation { get; private set; }
+    public int MaxDeviation { get; private set; }
+    public bool RandomAspect { get; private set; }
+
+    public ExternalRecipeItemSpec(string itemType, int enchantmentsNumber, string barScale,
+        int minDeviation, int maxDeviation, bool randomAspect)
+    {
+        ItemType = itemType ?? string.Empty;
+        EnchantmentsNumber = enchantmentsNumber;
+        BarScale = barScale ?? string.Empty;
+        MinDeviation = minDeviation;
+        MaxDeviation = maxDeviation;
+        RandomAspect = randomAspect;
+    }
+}
+
+public sealed class Battle
+{
+    private XmlNode _source;
+
+    public XmlNode CloneSourceDefinitionForModding()
+    {
+        return _source == null ? null : _source.CloneNode(true);
+    }
+
+    public bool ReplaceSourceDefinitionForModding(XmlNode source, out string error)
+    {
+        error = string.Empty;
+        _source = source == null ? null : source.CloneNode(true);
+        return true;
+    }
+
+    public bool RestoreSourceDefinitionForModding(XmlNode source, out string error)
+    {
+        return ReplaceSourceDefinitionForModding(source, out error);
+    }
+
+    public void SetSourceForTest(XmlNode source) { _source = source == null ? null : source.CloneNode(true); }
+}
+
+public sealed class QuestStage
+{
+    public readonly XmlNode Node;
+    public readonly string Owner;
+    public QuestStage(XmlNode node, string owner)
+    {
+        Node = node == null ? null : node.CloneNode(true);
+        Owner = owner ?? string.Empty;
+    }
+}
+
+public sealed class PerkTree
+{
+    public enum AAAIBJGLPAI
+    {
+        TYPE_PERK,
+        TYPE_UPGRADE,
+    }
+
+    public sealed class PerkItem
+    {
+        public readonly AAAIBJGLPAI Type;
+        public readonly string Name;
+        public readonly int Level;
+        public PerkItem(AAAIBJGLPAI type, string name, int level)
+        {
+            Type = type;
+            Name = name;
+            Level = level;
+        }
+    }
+
+    public sealed class PerkBranch
+    {
+        public readonly int Level;
+        public readonly List<PerkItem> Items;
+        public PerkBranch(int level, IEnumerable<PerkItem> items)
+        {
+            Level = level;
+            Items = items == null ? new List<PerkItem>() : new List<PerkItem>(items);
+        }
+    }
+
+    private static readonly PerkTree Instance = new PerkTree();
+    private readonly Dictionary<int, PerkBranch> _branches = new Dictionary<int, PerkBranch>();
+
+    public static PerkTree GBPBIPFIOJH() { return Instance; }
+
+    public PerkBranch ReplaceExternalBranch(int level, IEnumerable<PerkItem> items)
+    {
+        PerkBranch previous;
+        _branches.TryGetValue(level, out previous);
+        _branches[level] = new PerkBranch(level, items);
+        return previous;
+    }
+
+    public void RestoreExternalBranch(int level, PerkBranch previous)
+    {
+        if (previous == null) _branches.Remove(level);
+        else _branches[level] = previous;
+    }
+}
+
+public sealed class ListSF
 {
     private static Items _items = new Items();
+    private static readonly ListSF Instance = new ListSF();
+    private readonly Dictionary<string, Battle> _battles = new Dictionary<string, Battle>(StringComparer.Ordinal);
+    private readonly List<QuestStage> _quests = new List<QuestStage>();
     public static Items DJBOFEEKJMP() { return _items; }
+    public static ListSF ELEBLBJKDBI() { return Instance; }
     public static void ResetModdingTestItems() { _items = new Items(); }
 
     public static void SeedModdingTestCoreItems()
@@ -414,40 +668,109 @@ public static class ListSF
             "/List/Items/Item[@Type='Weapon' or @Type='Armor' or @Type='Helm' or @Type='Ranged' or @Type='Magic']"))
             _items.AddCoreItem(node);
     }
-}
 
-public sealed class Language
-{
-    public string name;
+    public void AddExternalZone(XmlNode node) { }
+    public bool RemoveExternalZone(string name) { return true; }
+    public void AddExternalBattle(string zoneName, XmlNode node)
+    {
+        string battleName = node?.Attributes?["Name"]?.Value ?? string.Empty;
+        var battle = new Battle();
+        battle.SetSourceForTest(node);
+        _battles[zoneName + "|" + battleName] = battle;
+    }
+    public bool RemoveExternalBattle(string zoneName, string battleName)
+    {
+        return _battles.Remove(zoneName + "|" + battleName);
+    }
+    public Battle FindBattleForModding(string zoneName, string battleName)
+    {
+        Battle battle;
+        return _battles.TryGetValue(zoneName + "|" + battleName, out battle) ? battle : null;
+    }
+    public QuestStage AddExternalQuest(XmlNode node, string owner)
+    {
+        var quest = new QuestStage(node, owner);
+        _quests.Add(quest);
+        return quest;
+    }
+    public bool RemoveExternalQuest(QuestStage quest) { return quest != null && _quests.Remove(quest); }
 }
 
 public static class LocalizationManager
 {
-    private static readonly Dictionary<string, string> Strings = new Dictionary<string, string>();
+    public sealed class Language
+    {
+        public string name;
+        public string EOMNCDDELLB;
+        public int index;
+
+        public Language(XmlNode node, int languageIndex)
+        {
+            name = node?.Attributes?["Name"]?.Value ?? string.Empty;
+            EOMNCDDELLB = node?.Attributes?["Locale"]?.Value ?? string.Empty;
+            index = languageIndex;
+        }
+
+        public Language(string languageName)
+        {
+            name = languageName ?? string.Empty;
+            EOMNCDDELLB = languageName ?? string.Empty;
+        }
+    }
+
+    private static readonly Dictionary<string, string> BaseStrings = new Dictionary<string, string>();
+    private static readonly Dictionary<string, string> ExternalStrings = new Dictionary<string, string>();
     public static string POIPGLLCCKC = "eng";
-    public static Language ILAJKOBCHFH = new Language { name = "eng" };
+    public static List<Language> MCLNNPPCFFL = new List<Language> { new Language("eng") };
+    public static Language ILAJKOBCHFH = MCLNNPPCFFL[0];
     public static event Action OCLBJLPOKLB;
 
-    public static void SetExternalString(string key, string value) { Strings[key] = value; }
-    public static void RemoveExternalString(string key) { Strings.Remove(key); }
+    public static Language NLFKNPBICED(string name)
+    {
+        return MCLNNPPCFFL.Find(value => string.Equals(value.name, name, StringComparison.Ordinal));
+    }
+
+    public static Language HHKANICOAAG(string locale)
+    {
+        return MCLNNPPCFFL.Find(value => string.Equals(value.EOMNCDDELLB, locale, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static void SetExternalString(string key, string value) { ExternalStrings[key] = value; }
+    public static void RemoveExternalString(string key) { ExternalStrings.Remove(key); }
 
     public static string GetExternalStringForTest(string key)
     {
         string value;
-        return Strings.TryGetValue(key, out value) ? value : null;
+        return ExternalStrings.TryGetValue(key, out value) ? value : null;
+    }
+
+    public static void SetBaseStringForTest(string key, string value)
+    {
+        BaseStrings[key] = value;
+    }
+
+    public static string GetStringForTest(string key)
+    {
+        string value;
+        if (ExternalStrings.TryGetValue(key, out value)) return value;
+        return BaseStrings.TryGetValue(key, out value) ? value : null;
     }
 
     public static void ResetModdingTestLanguage(string language)
     {
-        Strings.Clear();
+        BaseStrings.Clear();
+        ExternalStrings.Clear();
         POIPGLLCCKC = language;
-        ILAJKOBCHFH = new Language { name = language };
+        MCLNNPPCFFL = new List<Language> { new Language(language) };
+        ILAJKOBCHFH = MCLNNPPCFFL[0];
     }
 
     public static void ChangeModdingTestLanguage(string language)
     {
-        Strings.Clear();
-        ILAJKOBCHFH = new Language { name = language };
+        BaseStrings.Clear();
+        ExternalStrings.Clear();
+        MCLNNPPCFFL = new List<Language> { new Language(language) };
+        ILAJKOBCHFH = MCLNNPPCFFL[0];
         Action changed = OCLBJLPOKLB;
         if (changed != null) changed();
     }

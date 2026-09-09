@@ -28,13 +28,23 @@ public static class LocationSpriteCache
 		{
 			return _CachedSingleSprite[text];
 		}
-		Sprite sprite = ResourcesAndBundles.Load<Sprite>(text);
+		Sprite sprite;
+		if (!Eclipse.Modding.ModAssetBinding.TryLoadSprite(text, out sprite))
+		{
+			sprite = ResourcesAndBundles.Load<Sprite>(text);
+		}
 		_CachedSingleSprite[text] = sprite;
 		return sprite;
 	}
 
 	public static Sprite PPBEKKDIJKC(string PPAJIHNNNDG, string CMMPHNJDOCF, string BBPGNOBFECF)
 	{
+		if (Eclipse.Modding.ModAssetBinding.IsQualified(PPAJIHNNNDG))
+		{
+			// Loose mod location art is addressed per sprite. Legacy atlas sub-assets
+			// remain available for installed/core locations through the branch below.
+			return OPHFAHOKBOK(PPAJIHNNNDG, CMMPHNJDOCF);
+		}
 		if (!string.IsNullOrEmpty(BBPGNOBFECF))
 		{
 			string oNNKJLOGHGH = string.Format("{0}/{1}", PPAJIHNNNDG, BBPGNOBFECF);
