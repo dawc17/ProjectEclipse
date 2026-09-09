@@ -6,7 +6,7 @@ namespace Eclipse.Modding
     public enum ModQuestEventKind
     {
         FightEnter, FightEnd, LevelUp, GotItem, Dialog, Session, Activate, Purchase, Delivery, TimerEnd,
-        MapButtonPress, Enchantment, ActivatePerk, DeactivatePerk, SetItemAcquired, SceneLoaded, ShopEnter
+        MapButtonPress, Enchantment, ActivatePerk, DeactivatePerk, SetItemAcquired, SceneLoaded, ShopEnter, RaidFightEnter, RaidFightEnd, RaidEnter, RaidEnd, ResetMode, RaidMapEnter, RaidFloorChanged, ShowRaidLoot
     }
 
     public enum ModQuestCompareOperator { Equal, Greater, GreaterEqual, Less, LessEqual }

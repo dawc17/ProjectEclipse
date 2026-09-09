@@ -414,21 +414,8 @@ public static class ResourceManager
 		private static string AdaptStages(string file)
 		{
 			XmlDocument custom = LoadPlainXml(file);
-			// Underworld shipped as a second stage document in newer gamedata, but
-			// this legacy runtime only opens stages.xml. Merge the raid zones into
-			// the document before applying the normal compatibility transforms so
-			// their fights use the same parser and local FightScene as story fights.
-			string raidsFile = Path.Combine(GetDevXmlRoot(), "raid_stages_default.xml");
-			int importedRaidZones = 0;
-			if (custom.DocumentElement != null && File.Exists(raidsFile))
-			{
-				importedRaidZones = UnderworldStageCompatibility.ImportRaidZones(custom, LoadPlainXml(raidsFile));
-			}
-			if (importedRaidZones != 0 && _devXmlLogged.Add("underworld-stage-zones"))
-			{
-				Debug.Log("[Underworld] loaded " + importedRaidZones +
-					" raid map zone(s) from raid_stages_default.xml");
-			}
+			// Raid encounters are registered by mods. Keep the recovered raid document
+			// as reference data rather than adding a non-playable base map page.
 
 			string compatFile = Path.Combine(GetDevXmlRoot(), "compat", "stages.xml");
 			int imported = 0;

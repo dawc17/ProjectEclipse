@@ -628,6 +628,14 @@ namespace Eclipse.Modding
         {
             switch (kind)
             {
+                case ModQuestEventKind.RaidFightEnter: return "RaidFightEnter";
+                case ModQuestEventKind.RaidFightEnd: return "RaidFightEnd";
+                case ModQuestEventKind.RaidEnter: return "RaidEnter";
+                case ModQuestEventKind.RaidEnd: return "RaidEnd";
+                case ModQuestEventKind.ResetMode: return "AscensionReset";
+                case ModQuestEventKind.RaidMapEnter: return "RaidMapEnter";
+                case ModQuestEventKind.RaidFloorChanged: return "RaidFloorChanged";
+                case ModQuestEventKind.ShowRaidLoot: return "ShowRaidLoot";
                 case ModQuestEventKind.FightEnter: return "FightEnter"; case ModQuestEventKind.FightEnd: return "FightEnd";
                 case ModQuestEventKind.LevelUp: return "LevelUp"; case ModQuestEventKind.GotItem: return "GotItem";
                 case ModQuestEventKind.Dialog: return "Dialog"; case ModQuestEventKind.Session: return "SessionStart";
@@ -758,6 +766,7 @@ namespace Eclipse.Modding
             if (warrior.Random != 0) node.SetAttribute("Random", warrior.Random.ToString(CultureInfo.InvariantCulture));
             foreach (KeyValuePair<string, float> pair in warrior.Attributes)
                 node.SetAttribute(pair.Key, pair.Value.ToString(CultureInfo.InvariantCulture));
+            if (warrior.HealthBars > 0) node.SetAttribute("ShieldTotal", warrior.HealthBars.ToString(CultureInfo.InvariantCulture));
             if (warrior.Items.Count != 0)
             {
                 XmlElement items = document.CreateElement("Items");
@@ -858,6 +867,7 @@ namespace Eclipse.Modding
         private XmlElement BuildRewardNode(XmlDocument document, RewardDefinition reward)
         {
             XmlElement node = document.CreateElement("Reward");
+            if (reward.Gems > 0) node.SetAttribute("Bonus", reward.Gems.ToString(CultureInfo.InvariantCulture));
             for (int i = 0; i < reward.Items.Count; i++)
                 node.AppendChild(BuildRewardItemNode(document, reward.Items[i], null));
             for (int i = 0; i < reward.Choices.Count; i++)
@@ -936,6 +946,7 @@ namespace Eclipse.Modding
                 case ModBattleKind.Bosses: return "BOSSES";
                 case ModBattleKind.Tournament: return "TOURNAMENT";
                 case ModBattleKind.Story: return "STORY";
+                case ModBattleKind.Raid: return "RAID";
                 case ModBattleKind.Survival: return "SURVIVAL";
                 case ModBattleKind.Friendly: return "TACTICS";
                 case ModBattleKind.Auto: return "AUTO";

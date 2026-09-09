@@ -39,9 +39,11 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1B.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1C.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs',
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP2.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModLocalizationLoader.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs',
-    'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs'
+    'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs',
+    'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs'
 ) | ForEach-Object { Join-Path $root $_ }
 
 $program = Join-Path $testRoot 'Program.cs'

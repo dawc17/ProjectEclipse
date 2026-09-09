@@ -15,7 +15,7 @@ namespace Eclipse.Underworld
 		public static bool IsRaidZoneName(string name)
 		{
 			return !string.IsNullOrEmpty(name) &&
-				name.StartsWith(RaidZonePrefix, StringComparison.OrdinalIgnoreCase);
+				(name.StartsWith(RaidZonePrefix, StringComparison.OrdinalIgnoreCase) || Eclipse.Modding.ModPolicies.IsRaidZone(name));
 		}
 
 		public static void MarkLocallyPlayable(IEnumerable<Zone> zones)

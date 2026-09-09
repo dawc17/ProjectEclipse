@@ -989,14 +989,13 @@ DE fixtures include `HermitStorm` and `WallRunUp` reactions.
 
 # PHASE P2A: EXPANDED COMBAT BEHAVIORS
 
-**In progress, 2026-09-09.** The first slice adds player `on_damage_received`
-after resolved-hit health application, typed damage observations, and expiring
-fighter capability tables. `Mods/example.phase2` provides Measured Resolve and
-Quick Resolve using one Lua behavior with different typed parameters. Real Lua
-and production-dispatch fixtures cover branching, state reset, failure isolation,
-re-entry and compatibility. Gameplay acceptance is pending. Round/end hooks,
-temporary effects/modifiers, opponent contexts and broader representative mechanics
-remain unimplemented; P2A is not yet complete. See the sample README for scope.
+**Implemented for playtesting, 2026-09-09.** API 0.6 adds fight/round lifecycle,
+resolved damage, block, critical and incoming-damage hooks; player and opponent
+contexts; scoped target capabilities; temporary damage shields; and typed
+round/fight/saved behavior state with migrations. Composition uses Lua functions
+and modules. See [the supported contract](P2_API.md) and
+[integrated sample](example.phase2/README.md). Gameplay acceptance is pending;
+the candidate event families below are not a claim that every hook is exposed.
 
 API 0.3 proves the reusable behavior + typed instance parameter architecture. Do
 not replace it with template copying. Expand it carefully at authoritative combat
@@ -1066,6 +1065,8 @@ engine internals still need it.
 
 # PHASE P2B: TIMERS, SERVICES, UI POLICY, EVENTS
 
+**Implemented for playtesting, 2026-09-09.** API 0.6 implements forge duration/skip policy, named service/feature gates, and repeatable scheduled fight events with level/time eligibility. Arbitrary UI extensions and settings are not exposed; see [the bounded contract](P2_API.md). Gameplay acceptance is pending.
+
 ## P2B.1 Semantic timer policy
 
 The current base already forces some shop delivery paths instant while forge still
@@ -1130,6 +1131,8 @@ This is the core mechanism for DE's no-FOMO permanent events.
 
 # PHASE P2C: ASCENSION
 
+**Implemented for playtesting, 2026-09-09.** API 0.6 implements typed multi-fight mode sequences, loss reset, persistent progress, entry items and native rewards. The sample exercises a three-fight Ascension sequence and Monk equipment rewards through this reusable mode host. Gameplay acceptance is pending.
+
 Ascension must be composed from generic mode/fight/reward/state primitives, not a
 DE-specific toggle.
 
@@ -1160,6 +1163,8 @@ do not treat Ascension as a single battle type.
 ---
 
 # PHASE P2D/P3: UNDERWORLD / RAIDS
+
+**Implemented for playtesting, 2026-09-09.** The revised sample now uses one 300-second fight, a ten-bar boss with the native blue health display/counter, and a 25-gem victory reward. Timeout requires boss defeat; manual acceptance of this correction is pending. Included in this implementation pass: registered offline raid encounters, mod-owned entry tickets, persistent boss progression, native loot presentation, metadata-based raid/hard-mode classification and raid quest events. Native online services are outside this contract. Gameplay acceptance is pending.
 
 Underworld is a larger host gap than ordinary story content. Existing Eclipse
 support is internal compatibility code and hardcoded naming/UI policy, not a

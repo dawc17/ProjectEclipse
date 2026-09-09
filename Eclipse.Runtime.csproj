@@ -87,6 +87,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModSaveData.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModId.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineServices.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP2.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModScriptingP1C.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\CoreContentImporter.cs" />
   </ItemGroup>

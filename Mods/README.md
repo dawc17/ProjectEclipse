@@ -6,7 +6,9 @@ The dependency-ordered engineering roadmap is
 [DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
 DE parity or Mod API expansion must read both parity documents before editing.
 
-Current public Mod API version: **0.5.0**.
+Current public Mod API version: **0.6.0**.
+
+See [Phase 2 API](P2_API.md) and the [integrated playtest guide](example.phase2/README.md).
 
 Place each mod in `Mods/<folder>/` with a `mod.toml` manifest. See `example.weapon`
 for the minimal weapon slice, `example.loadout` for armor, helm, ranged, and magic,
@@ -543,8 +545,9 @@ graph, and P1B quest flow using only the public Lua API on an unchanged base ins
 
 This is the executable side of the API: definitions bind typed parameters to
 reusable Lua code, and that code calls supported runtime capabilities. The current
-event surface now includes `on_fight_begin` and the first P2A
-`on_damage_received` slice described in `example.phase2/README.md`.
+event surface includes fight/round lifecycle, resolved damage, block, critical,
+and incoming-damage hooks. API 0.6 adds typed instance state and scoped target/effect
+capabilities; see [the current contract](P2_API.md).
 
 API 0.3 separates three concepts that the recovered engine historically represented with
 the same `PerkInfoItem` machinery:
@@ -740,17 +743,12 @@ The save-specific dispatcher is deliberately player-only: recovered AI loadouts 
 authoritative `UserItem` instance after fight-rule equipment replacement. `FightNone`/punchbag
 also does not use the normal `NextRound` lifecycle and has no `on_fight_begin` policy yet.
 
-The first P2A slice also wires `on_damage_received(parameters, fighter, event)`
-after a resolved hit reduces the player's health in the normal fight lifecycle.
-The third argument provides numeric `round`, `health_before`, `health_after`,
-and `damage`, plus boolean `blocked` and `critical`. Existing capabilities are
-valid only during their invocation; retaining a fighter table does not retain
-mutation authority. See [Measured Resolve](example.phase2/README.md) for the
-playable example, source ordering, tests, and current limitations.
-
-Further hit/damage/round events should continue to be added one
-at a time from authoritative recovered event seams, with similarly narrow capabilities rather than
-giving Lua unrestricted access to mutable engine objects.
+API 0.6 expands these hooks to player equipment and registered opponent perks,
+with round/fight/saved instance state, bounded migrations, damage shields and
+incoming-hit scaling. Capability tables expire after each invocation. The
+[integrated Phase 2 sample](example.phase2/README.md) also exercises timer policy,
+feature gates, repeatable events, Ascension progression and offline raids.
+See [P2_API.md](P2_API.md) for the exact supported surface and verification limits.
 
 ### API 0.2 template compatibility
 

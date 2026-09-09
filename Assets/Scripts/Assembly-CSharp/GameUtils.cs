@@ -1792,6 +1792,7 @@ public static class GameUtils
 
 	public static FightList GKBHKJNGNPO(Battle DPOOIONCEOA)
 	{
+		if (Eclipse.Modding.ModModeRuntime.TryCurrent(DPOOIONCEOA, out var modeFight)) return modeFight;
 		if (DPOOIONCEOA != null)
 		{
 			List<FightList> list = DPOOIONCEOA.ANNHMNIHKCC();
@@ -2084,6 +2085,7 @@ public static class GameUtils
 		{
 			LLLOJBFMONN.Error("0 == fightList");
 		}
+		if (!Eclipse.Modding.ModModeRuntime.CanResolve(KGKDKENMAOA)) return;
 		FightResult nHIDAJFLHJN = new FightResult();
 		nHIDAJFLHJN.KGKDKENMAOA = KGKDKENMAOA;
 		nHIDAJFLHJN.LFLGCDNKNJI = KGKDKENMAOA.get_Type();
@@ -2136,6 +2138,8 @@ public static class GameUtils
 			}
 			flag3 = ListSF.ELEBLBJKDBI().IMDGMNFHFCN(nHIDAJFLHJN);
 		}
+		Eclipse.Modding.ModModeRuntime.Complete(KGKDKENMAOA, !flag2 && nHIDAJFLHJN.IsWinner());
+        if (Eclipse.Modding.ModModeRuntime.IsRaid(KGKDKENMAOA)) Eclipse.Modding.ModModeRuntime.SetRaidResult(nHIDAJFLHJN);
 		QuestParameters hHKLFIIBIFF = ListSF.ELEBLBJKDBI().BNMLDPNCMLB();
 		if (KGKDKENMAOA.get_Type() == BattleType.FightAscension)
 		{
@@ -2170,6 +2174,7 @@ public static class GameUtils
 		{
 			hHKLFIIBIFF.OHPHPJBMNLH = KGKDKENMAOA.BCKFACGMOKC.CPHDPCAECJN();
 		}
+        Eclipse.Modding.ModModeRuntime.NotifyResult(KGKDKENMAOA);
 		bool flag4 = false;
 		List<RewardStruct> list = KGKDKENMAOA.APKPCGDBMEP();
 		foreach (RewardStruct item in list)
@@ -2199,7 +2204,7 @@ public static class GameUtils
 		MenuController.KGACOEJKEBP();
 		if (!flag)
 		{
-			if (KGKDKENMAOA.get_Type() == BattleType.FightRaid)
+			if (KGKDKENMAOA.get_Type() == BattleType.FightRaid && !Eclipse.Modding.ModModeRuntime.IsRaid(KGKDKENMAOA))
 			{
 				int num2 = 0;
 				ModelParameters kIKOGDEPGHB = ((!ABKBEJBICOA.IsPlayer) ? ABKBEJBICOA : LEBLJJCFKOP);
@@ -2226,7 +2231,8 @@ public static class GameUtils
 			}
 			else if (Fight.OHNKFOHIAKG() != null)
 			{
-				Fight.OHNKFOHIAKG().BCFBHJOLGNL(nHIDAJFLHJN);
+				if (Eclipse.Modding.ModModeRuntime.IsRaid(KGKDKENMAOA)) Eclipse.Modding.ModModeRuntime.ShowRaidResult();
+                else Fight.OHNKFOHIAKG().BCFBHJOLGNL(nHIDAJFLHJN);
 			}
 		}
 		if (nHIDAJFLHJN.IsWinner())
@@ -2254,6 +2260,7 @@ public static class GameUtils
 			LLLOJBFMONN.Error("GameUtils::StartFight(..) Error! FightList is empty!");
 			return false;
 		}
+		if (!Eclipse.Modding.ModModeRuntime.ResolveEntry(ref KGKDKENMAOA)) return false;
 		ScreenType iPKNDMINFMJ = Module.ELEBLBJKDBI().NMCNDOPKFJD();
 		FightList jDIPBIHBGPF = null;
 		if (iPKNDMINFMJ == ScreenType.ModuleDojo || iPKNDMINFMJ == ScreenType.ModuleFight)
@@ -2292,6 +2299,7 @@ public static class GameUtils
 				return true;
 			}
 		}
+		if (!Eclipse.Modding.ModModeRuntime.Begin(KGKDKENMAOA)) return false;
 		if (KGKDKENMAOA.get_Type() != BattleType.FightPeriodic)
 		{
 			KGKDKENMAOA.FLKFFDLLBKA().CKJFJFPBIFF(ListSF.BLBNJKJKMBM());
@@ -2312,9 +2320,11 @@ public static class GameUtils
 			{
 				current.EnableMapButtons(false);
 			}
-			if (!Module.DLOKJOHNDID(ScreenType.ModuleFight, KGKDKENMAOA) && current != null)
+			if (!Module.DLOKJOHNDID(ScreenType.ModuleFight, KGKDKENMAOA))
 			{
-				current.EnableMapButtons(true);
+                if (current != null) current.EnableMapButtons(true);
+                Eclipse.Modding.ModModeRuntime.CancelLaunch(KGKDKENMAOA);
+                return false;
 			}
 		}
 		else
@@ -2340,6 +2350,7 @@ public static class GameUtils
 			}
 		}
 		FightHolder.fightList = KGKDKENMAOA;
+        Eclipse.Modding.ModModeRuntime.NotifyEntry(KGKDKENMAOA);
 		return true;
 	}
 

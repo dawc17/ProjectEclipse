@@ -52,7 +52,10 @@ public class QuestEvent
 		QUEST_EVENT_LOGIN_END = 45,
 		QUEST_EVENT_SHOP_ENTER = 46,
 		QUEST_EVENT_SCENE_LOADED = 47,
-		QUEST_EVENT_SHOP_BUTTON_PRESS = 48
+		QUEST_EVENT_SHOP_BUTTON_PRESS = 48,
+        QUEST_EVENT_RAID_MAP_ENTER = 49,
+        QUEST_EVENT_RAID_FLOOR_CHANGED = 50,
+        QUEST_EVENT_SHOW_RAID_LOOT = 51
 	}
 
 	public PMDPDMFLCIJ LFLGCDNKNJI;
@@ -71,6 +74,10 @@ public class QuestEvent
 	{
 		switch (LFLGCDNKNJI)
 		{
+        case "RaidMapEnter": return PMDPDMFLCIJ.QUEST_EVENT_RAID_MAP_ENTER;
+        case "RaidFloorChanged": return PMDPDMFLCIJ.QUEST_EVENT_RAID_FLOOR_CHANGED;
+        case "ShowRaidLoot": return PMDPDMFLCIJ.QUEST_EVENT_SHOW_RAID_LOOT;
+
 		case "FightEnter":
 			return PMDPDMFLCIJ.QUEST_EVENT_FIGHT_ENTER;
 		case "FightEnd":

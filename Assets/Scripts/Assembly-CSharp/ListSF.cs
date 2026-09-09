@@ -2216,7 +2216,10 @@ public class ListSF
 		XmlNode hKPPBKPJOEO = node["Rules"];
 		XmlNode hKPPBKPJOEO2 = node["Rewards"];
 		EEPPJEMHBCK(fight, hKPPBKPJOEO);
-		if (LFLGCDNKNJI != BattleType.FightRaid)
+		// FightIDS is assigned after this parser returns; use the already registered
+		// battle metadata to identify offline raids while building their rewards.
+		if (LFLGCDNKNJI != BattleType.FightRaid ||
+			(DPOOIONCEOA != null && Eclipse.Modding.ModPolicies.TryRaidBattle(DPOOIONCEOA.get_Name(), out _)))
 		{
 			HCJDHMGAMIE(fight, hKPPBKPJOEO2);
 		}

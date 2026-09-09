@@ -638,11 +638,18 @@ namespace Eclipse.Modding
     {
         public DefinitionId Id { get; }
         public ModParameterSchema Parameters { get; }
+        public ModParameterSchema StateSchema { get; }
+        public string StateLifetime { get; }
+        public int StateVersion { get; }
 
-        internal ModBehaviorDefinition(DefinitionId id, ModParameterSchema parameters)
+        internal ModBehaviorDefinition(DefinitionId id, ModParameterSchema parameters,
+            ModParameterSchema state = null, string lifetime = "fight", int version = 1)
         {
             Id = id;
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            if (lifetime != "fight" && lifetime != "round" && lifetime != "saved") throw new ModContentException("Invalid behavior state lifetime.");
+            if (version < 1) throw new ModContentException("State version must be positive.");
+            StateSchema = state; StateLifetime = lifetime; StateVersion = version;
         }
     }
 
@@ -990,6 +997,7 @@ namespace Eclipse.Modding
         public string Voice { get; }
         public int Level { get; }
         public string Tactic { get; }
+        public int HealthBars { get; }
         public string Group { get; }
         public int Random { get; }
         public IReadOnlyDictionary<string, float> Attributes => _attributes;
@@ -1002,7 +1010,7 @@ namespace Eclipse.Modding
             int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
-            WarriorAttributeAlignmentDefinition[] attributeAlignments = null)
+            WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0)
         {
             if (level < 0 || level > 10000) throw new ModContentException("Warrior level must be 0..10000.");
             Id = id;
@@ -1014,6 +1022,8 @@ namespace Eclipse.Modding
             Voice = voice ?? string.Empty;
             Level = level;
             Tactic = tactic ?? string.Empty;
+            if (healthBars < 0 || healthBars > 10000) throw new ModContentException("Warrior health_bars must be 0..10000 (zero inherits the template).");
+            HealthBars = healthBars;
             Group = group ?? string.Empty;
             Random = random;
             _attributes = new Dictionary<string, float>(StringComparer.Ordinal);
@@ -1141,13 +1151,16 @@ namespace Eclipse.Modding
         private readonly RewardItemGrant[] _items;
         private readonly RewardChoiceDefinition[] _choices;
         public DefinitionId Id { get; }
+        public int Gems { get; }
         public IReadOnlyList<RewardItemGrant> Items => Array.AsReadOnly(_items);
         public IReadOnlyList<RewardChoiceDefinition> Choices => Array.AsReadOnly(_choices);
 
-        internal RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices)
+        internal RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0)
         {
             Id = id;
             _items = items == null ? Array.Empty<RewardItemGrant>() : (RewardItemGrant[])items.Clone();
+            if (gems < 0 || gems > 1000000) throw new ModContentException("Reward gems must be 0..1000000.");
+            Gems = gems;
             _choices = choices == null ? Array.Empty<RewardChoiceDefinition>() : (RewardChoiceDefinition[])choices.Clone();
             // Empty slots are meaningful: recovered fights index rewards by wins,
             // including a zero-win slot that commonly grants nothing.
@@ -2000,7 +2013,7 @@ namespace Eclipse.Modding
             _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
             _enchantments.Count + _behaviors.Count + _zones.Count + _battles.Count + _fights.Count +
             _warriors.Count + _fightRules.Count + _rewards.Count + _localizationPatches.Count + _fightPatches.Count +
-            _collectionPatches.Count + P1CRegistrationCount + P1BRegistrationCount + P1DRegistrationCount;
+            _collectionPatches.Count + P1CRegistrationCount + P1BRegistrationCount + P1DRegistrationCount + _modes.Count + _timers.Count + _disabledFeatures.Count;
 
         internal ModRegistrationTransaction(ModContentCatalog catalog, ModDescriptor mod)
         {
@@ -2268,7 +2281,8 @@ namespace Eclipse.Modding
             throw new ModContentException("Perk is not registered: '" + id + "'.");
         }
 
-        public ModBehaviorDefinition RegisterBehavior(string localId, ModParameterSchema parameters)
+        public ModBehaviorDefinition RegisterBehavior(string localId, ModParameterSchema parameters,
+            ModParameterSchema state = null, string lifetime = "fight", int version = 1)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("behaviors", localId);
@@ -2276,7 +2290,7 @@ namespace Eclipse.Modding
                 throw new ModContentException("Duplicate behavior definition: '" + id + "'.");
             if (parameters == null) throw new ArgumentNullException(nameof(parameters));
             EnsureCapacityForNewRegistration();
-            var definition = new ModBehaviorDefinition(id, parameters);
+            var definition = new ModBehaviorDefinition(id, parameters, state, lifetime, version);
             _behaviors.Add(id, definition);
             return definition;
         }
@@ -2460,7 +2474,7 @@ namespace Eclipse.Modding
                 throw new ModContentException("Unsupported battle kind: " + kind + ".");
             if (kind == ModBattleKind.Periodic || kind == ModBattleKind.Replayable ||
                 kind == ModBattleKind.BossesReplayable || kind == ModBattleKind.FinalReplayable ||
-                kind == ModBattleKind.Ascension || kind == ModBattleKind.Raid)
+                kind == ModBattleKind.Ascension)
                 throw new ModContentException("Battle kind '" + kind +
                     "' needs its dedicated roadmap mode adapter and is not available through the ordinary P1A battle API.");
             EnsureCapacityForNewRegistration();
@@ -2487,7 +2501,7 @@ namespace Eclipse.Modding
             string voice, int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
-            WarriorAttributeAlignmentDefinition[] attributeAlignments = null)
+            WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("warriors", localId);
@@ -2524,7 +2538,7 @@ namespace Eclipse.Modding
             }
             EnsureCapacityForNewRegistration();
             var definition = new WarriorDefinition(id, firstName, lastName, avatar, voice, level, tactic, items, perks,
-                template, hasTemplate, group, random, attributes, attributeAlignments);
+                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars);
             _warriors.Add(id, definition);
             return definition;
         }
@@ -2626,12 +2640,12 @@ namespace Eclipse.Modding
             return definition;
         }
 
-        public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items, RewardChoiceDefinition[] choices)
+        public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("rewards", localId);
             if (_rewards.ContainsKey(id)) throw new ModContentException("Duplicate reward definition: '" + id + "'.");
-            var definition = new RewardDefinition(id, items, choices);
+            var definition = new RewardDefinition(id, items, choices, gems);
             ValidateRewardReferences(definition);
             EnsureCapacityForNewRegistration();
             _rewards.Add(id, definition);
@@ -2709,6 +2723,7 @@ namespace Eclipse.Modding
             ValidateP1CCommit();
             ValidateP1BCommit();
             ValidateP1DCommit();
+            ValidateP2Commit();
 
             var localizations = new LocalizationDefinition[_localizations.Count];
             int localizationIndex = 0;
@@ -2758,6 +2773,7 @@ namespace Eclipse.Modding
             ApplyP1CCommit();
             ApplyP1BCommit();
             ApplyP1DCommit();
+            ApplyP2Commit();
             _completed = true;
             ClearPending();
         }
@@ -3068,6 +3084,7 @@ namespace Eclipse.Modding
             ClearP1CPending();
             ClearP1BPending();
             ClearP1DPending();
+            ClearP2Pending();
         }
     }
 

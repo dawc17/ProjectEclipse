@@ -5,32 +5,30 @@ sf2.state.register {
     fields = { activations = { type = sf2.state.INTEGER, required = true, default = 0 } },
 }
 
--- Ephemeral per-equipped-instance counters. Saved activation totals are separate.
-local hits = {}
-local function instance(fighter)
-    return (fighter.item_id or "profile") .. ":" .. (fighter.perk_id or fighter.enchantment_id)
-end
 local resolve = sf2.behaviors.register {
     id = "measured_resolve",
     parameters = {
         hits_required = sf2.behaviors.INTEGER,
         charge = sf2.behaviors.NUMBER,
     },
-    on_fight_begin = function(parameters, fighter)
-        hits[instance(fighter)] = 0
-    end,
-    on_damage_received = function(parameters, fighter, event)
+    state = {
+        lifetime = "round",
+        fields = { hits = { type = sf2.behaviors.INTEGER, required = true, default = 0 } },
+    },
+    on_fight_begin = function(self, fighter) self.state.hits = 0 end,
+    on_round_begin = function(self, fighter) self.state.hits = 0 end,
+    on_damage_received = function(self, fighter, event)
         if event.blocked or event.damage <= 0 or event.health_after <= 0 then return end
-        local key = instance(fighter)
-        local count = (hits[key] or 0) + 1
+        local parameters = self.params
+        local count = self.state.hits + 1
         if count < parameters.hits_required then
-            hits[key] = count
+            self.state.hits = count
             return
         end
         fighter:add_magic_charge(parameters.charge)
-        hits[key] = 0
+        self.state.hits = 0
         sf2.state.set { activations = (sf2.state.get("activations") or 0) + 1 }
-        sf2.log.info("Measured Resolve activated: " .. key)
+        sf2.log.info("Measured Resolve activated on " .. (fighter.item_id or "profile"))
     end,
 }
 
@@ -57,3 +55,5 @@ for _, variant in ipairs({
         candidates = { { perk = perk, equipment = sf2.forge.WEAPON, min_level = 1, max_level = 52 } },
     }
 end
+
+require("showcase")

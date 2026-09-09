@@ -40,7 +40,7 @@ namespace Nekki.SF2.GUI.Map
 				BattleType pJMEMGHKKBM = KOMGFJOCEDN.get_Type();
 				num2 = ((pJMEMGHKKBM != BattleType.FightBosses && pJMEMGHKKBM != BattleType.FightFinalTitan) ? 200f : 300f);
 				int gNLOCMLBNHF = ListSF.CCDKHLAMKKO().PINDEKDNCNL();
-				RewardPrize dPIIJICBGGA = fDFKLPHBAHJ.KOBOIFJNPMO(gNLOCMLBNHF);
+				RewardPrize dPIIJICBGGA = fDFKLPHBAHJ == null ? new RewardPrize() : fDFKLPHBAHJ.KOBOIFJNPMO(gNLOCMLBNHF);
 				int cFMPJLLNCFF = 68;
 				_prize.Init(bAINMLLIKOL, num, dPIIJICBGGA, 0f, num2, cFMPJLLNCFF);
 				PDDFGIGHAEE(0f, num2);

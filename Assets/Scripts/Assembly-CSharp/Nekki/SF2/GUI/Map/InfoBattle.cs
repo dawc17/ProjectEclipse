@@ -173,6 +173,40 @@ namespace Nekki.SF2.GUI.Map
 			}
 			_lblBattleName.SetAlias(DPOOIONCEOA.IGPOHDHPIIL());
 			UpdateIcon(DPOOIONCEOA.FGPAPMGHBDE());
+            if (Eclipse.Modding.ModModeRuntime.TryCurrent(DPOOIONCEOA, out var modeFight))
+            {
+                string reason = modeFight == null ? "This mode is complete or currently unavailable." : Eclipse.Modding.ModModeRuntime.EntryStatus(modeFight);
+                if (reason != "")
+                {
+                    _contentClosed.InitText(reason); MHPKMPKPBPG = _contentClosed; MHPKMPKPBPG.gameObject.SetActive(true);
+                }
+                else
+                {
+                    string title = LocalizationManager.GetString(DPOOIONCEOA.IGPOHDHPIIL());
+                    if (modeFight.get_Type() == BattleType.FightRaid)
+                    {
+                        _lblBattleName.set_text(title);
+                        _contentBossesFinal.Init(DPOOIONCEOA, modeFight);
+                        MHPKMPKPBPG = _contentBossesFinal;
+                    }
+                    else
+                    {
+                        _lblBattleName.set_text(title + Eclipse.Modding.ModModeRuntime.ProgressLabel(modeFight));
+                        _contentTourChall.Init(DPOOIONCEOA, modeFight);
+                        MHPKMPKPBPG = _contentTourChall;
+                    }
+                    MHPKMPKPBPG.gameObject.SetActive(true); OHNNACAAOKH(DPOOIONCEOA, modeFight);
+                }
+                return;
+            }
+			if (DPOOIONCEOA.get_Type() == BattleType.FightRaid)
+			{
+				_contentClosed.InitText("This raid is not available offline.");
+				MHPKMPKPBPG = _contentClosed;
+				MHPKMPKPBPG.gameObject.SetActive(true);
+				_btnFight.gameObject.SetActive(false);
+				return;
+			}
 			if (jDIPBIHBGPF != null && GameUtils.HHKHINLNCJB && GameUtils.NFBKHONMMDL != jDIPBIHBGPF.JKMJHIIMHPG + jDIPBIHBGPF.CNAOMDMIGLJ.get_Name() + jDIPBIHBGPF.Name)
 			{
 				GameUtils.HHKHINLNCJB = false;
@@ -396,7 +430,11 @@ namespace Nekki.SF2.GUI.Map
 			{
 				return;
 			}
-			if (jDIPBIHBGPF.get_Type() == BattleType.FightPeriodic)
+			if (Eclipse.Modding.ModModeRuntime.IsRaid(jDIPBIHBGPF))
+            {
+                StartFight(jDIPBIHBGPF);
+            }
+            else if (jDIPBIHBGPF.get_Type() == BattleType.FightPeriodic)
 			{
 				if (!SystemProperties.DCKPKCIFOAG())
 				{

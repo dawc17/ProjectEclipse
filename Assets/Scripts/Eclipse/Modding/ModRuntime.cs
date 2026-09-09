@@ -22,7 +22,11 @@ namespace Eclipse.Modding
             _legacyContent?.Dispose();
             _legacyContent = null;
             _scripts?.Dispose();
+            ModModeRuntime.Clear();
+            ModModeRuntime.Warning = message => Debug.LogWarning(message);
+            ModPolicies.Content = null;
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript, ImportCoreContent);
+            ModPolicies.Content = _scripts.Content;
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
             return _scripts;
@@ -81,8 +85,10 @@ namespace Eclipse.Modding
             }
             catch (Exception exception)
             {
-                Debug.LogError("[ModContent] Failed to apply mod stage content; mod startup is invalid. " + exception);
-                throw;
+                Debug.LogError("[ModContent] Failed to apply mod stage content; continuing without external mods. " + exception);
+                // Let the base parse finish. Throwing here makes ParseModule retry the entire
+                // non-idempotent item/zone parse on its next Update, duplicating vanilla content.
+                Shutdown();
             }
         }
 
@@ -96,8 +102,8 @@ namespace Eclipse.Modding
             }
             catch (Exception exception)
             {
-                Debug.LogError("[ModContent] Failed to apply mod quest content; mod startup is invalid. " + exception);
-                throw;
+                Debug.LogError("[ModContent] Failed to apply mod quest content; continuing without external mods. " + exception);
+                Shutdown();
             }
         }
 
@@ -141,6 +147,7 @@ namespace Eclipse.Modding
                 Debug.LogWarning("[ModSave] Unrecognized save metadata schema; leaving it unchanged.");
                 return;
             }
+            ModModeRuntime.Bind(warrior);
             IReadOnlyList<ModDiagnostic> stateDiagnostics = _scripts.BindState(warrior);
             for (int i = 0; i < stateDiagnostics.Count; i++)
                 Debug.LogWarning("[ModSave] " + stateDiagnostics[i]);
@@ -216,7 +223,7 @@ namespace Eclipse.Modding
                 return false;
             }
             return _scripts.TryInvokeBehavior(enchantment.Behavior, effectEvent,
-                instance.Values, fighterContext, fighter, out error);
+                instance.Values, fighterContext, new ModInstanceFighter(fighter, perkNode), out error);
         }
 
         public static bool TryInvokePerkFightBegin(DefinitionId perkId,
@@ -319,7 +326,7 @@ namespace Eclipse.Modding
                 return false;
             }
             return _scripts.TryInvokeBehavior(perk.Behavior, effectEvent,
-                instance.Values, fighterContext, fighter, out error);
+                instance.Values, fighterContext, new ModInstanceFighter(fighter, perkNode), out error);
         }
 
         public static bool TryInitializeSavedPerkParameters(XmlNode perkNode, out string error)
@@ -423,6 +430,8 @@ namespace Eclipse.Modding
 
         public static void Shutdown()
         {
+            ModModeRuntime.Clear();
+            ModPolicies.Content = null;
             _legacyContent?.Dispose();
             _legacyContent = null;
             _scripts?.Dispose();

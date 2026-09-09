@@ -86,11 +86,10 @@ namespace Nekki.SF2.GUI.Map
 
 		public void AddRaidZones()
 		{
-			List<Zone> raidZones = ListSF.FHAIJEAPFEA().FindAll(UnderworldZonePolicy.IsRaidZone);
-			// The legacy roster format never created availability records for the
-			// newer Underworld bosses. Treat entries in the dedicated raid document
-			// as locally playable; otherwise MapPanel discards every raid page.
-			UnderworldZonePolicy.MarkLocallyPlayable(raidZones);
+            // Only registered offline raid zones have a supported entry path.
+            List<Zone> raidZones = ListSF.FHAIJEAPFEA().FindAll(
+                zone => zone != null && Eclipse.Modding.ModPolicies.IsRaidZone(zone.get_Name()));
+            UnderworldZonePolicy.MarkLocallyPlayable(raidZones);
 			GHCJGLHOFHO(raidZones);
 		}
 

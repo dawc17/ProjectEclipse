@@ -10,7 +10,9 @@ namespace Eclipse.Underworld.UI
 			{
 				return true;
 			}
-			bool hardMode = battle.get_Name().EndsWith("_HARDMODE", StringComparison.OrdinalIgnoreCase);
+			bool hardMode;
+            if (!Eclipse.Modding.ModPolicies.TryRaidBattle(battle.get_Name(), out hardMode))
+                hardMode = battle.get_Name().EndsWith("_HARDMODE", StringComparison.OrdinalIgnoreCase);
 			return hardMode == powerMode;
 		}
 

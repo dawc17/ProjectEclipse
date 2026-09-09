@@ -17,6 +17,11 @@ namespace Nekki.SF2.GUI.Map
 		{
 			string empty = string.Empty;
 			empty = ((DPOOIONCEOA.get_Type() == BattleType.FightBosses || DPOOIONCEOA.get_Type() == BattleType.FightBossesReplayable || DPOOIONCEOA.get_Type() == BattleType.FightFinalTitan) ? (LocalizationManager.GetString(DPOOIONCEOA.IGPOHDHPIIL()) + " " + LocalizationManager.GetString("challengeBoss")) : LocalizationManager.GetString(DPOOIONCEOA.GJOAJAIJHOE()));
+            if (DPOOIONCEOA.get_Type() == BattleType.FightRaid)
+            {
+                empty = LocalizationManager.GetString(DPOOIONCEOA.IGPOHDHPIIL()) + " " +
+                    LocalizationManager.GetString("challengeBoss") + ".";
+            }
 			_lblDescription.set_text(empty);
 			MKHMHMAOKOA(DPOOIONCEOA);
 			bool mMDLKOPCFLK = (DPOOIONCEOA.get_Type() != BattleType.FightBosses && DPOOIONCEOA.get_Type() != BattleType.FightBossesReplayable && DPOOIONCEOA.get_Type() != BattleType.FightFinalTitan) || !KJHIOOFNKEG(KOMGFJOCEDN);

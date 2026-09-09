@@ -333,6 +333,15 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 
 	public bool Compare(QuestParameters GFIHPBCEEOB)
 	{
+        string sourcePath = (FileName ?? "").Replace('\\', '/');
+        if (sourcePath.IndexOf("/battle_pass/", StringComparison.OrdinalIgnoreCase) >= 0 && !Eclipse.Modding.ModPolicies.FeatureEnabled("battle_pass")) return false;
+        foreach (string group in FBDKJJBICOK)
+        {
+            string feature = group == "Advertising" ? "ads" : group == "BattlePass" ? "battle_pass" :
+                group == "Offers" ? "paid_offers" : group == "RewardedVideo" ? "rewarded_video" :
+                group == "OnlineServices" ? "online_services" : group == "Payments" ? "payments" : null;
+            if (feature != null && !Eclipse.Modding.ModPolicies.FeatureEnabled(feature)) return false;
+        }
 		foreach (QuestCondition item in conditions)
 		{
 			if (!item.Compare(GFIHPBCEEOB, LBIPHHIJEFP()))

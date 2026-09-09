@@ -21,10 +21,7 @@ namespace Eclipse.Content
 		{
 			"BeforeQueue",
 			"CheckUserUpdate",
-			"RaidFloorChanged",
-			"RaidMapEnter",
 			"ReplayButtonPress",
-			"ShowRaidLoot"
 		};
 
 		private static readonly HashSet<string> LoggedDeferredActions = new HashSet<string>(StringComparer.Ordinal);
@@ -429,11 +426,16 @@ namespace Eclipse.Content
 			case "ClickHint":
 			case "ConnectToRaids":
 			case "GiveGift":
-			case "OpenRaidZone":
-			case "RaidIndicateRaidBtn":
+                return new DeferredQuestAction();
+            case "OpenRaidZone":
+                return new Eclipse.Modding.OfflineRaidQuestAction("open");
+            case "RaidIndicateRaidBtn":
+                return new Eclipse.Modding.OfflineRaidQuestAction("indicate");
 			case "SceneMenuScroll":
-			case "ShowRaidLoot":
-			case "UnlockCharacter":
+                return new DeferredQuestAction();
+            case "ShowRaidLoot":
+                return new Eclipse.Modding.OfflineRaidQuestAction("loot");
+            case "UnlockCharacter":
 				return new DeferredQuestAction();
 			default:
 				return null;

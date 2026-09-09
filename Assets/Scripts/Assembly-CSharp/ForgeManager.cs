@@ -249,7 +249,7 @@ public class ForgeManager : global::EventDispatcher<object>
 		bool success = false;
 		try
 		{
-			if (price.DeliveryTime <= 0)
+			if (recipeItem.RecipeDeliveryTime <= 0)
 				success = EnchantItem(recipeItem);
 			else
 				success = userItem.SetRecipeDelivery(recipeItem);
@@ -270,6 +270,7 @@ public class ForgeManager : global::EventDispatcher<object>
 	public bool FinishEnchant(RecipeItemInfo recipeItem)
 	{
 		if (recipeItem == null || recipeItem.MFEAIEJFDAM() == null) return false;
+        if (recipeItem.IsStillInOrder && !Eclipse.Modding.ModPolicies.SkipEnabled("forge")) return false;
 		UserItem userItem = recipeItem.MFEAIEJFDAM();
 		bool success = EnchantItem(recipeItem);
 		if (success)

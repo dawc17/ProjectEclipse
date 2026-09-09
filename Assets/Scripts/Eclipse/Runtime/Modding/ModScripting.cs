@@ -197,10 +197,11 @@ namespace Eclipse.Modding
             return RequireRegistration().GetPerk(reference);
         }
 
-        public ModBehaviorDefinition RegisterBehavior(string localId, ModParameterSchema parameters)
+        public ModBehaviorDefinition RegisterBehavior(string localId, ModParameterSchema parameters,
+            ModParameterSchema state = null, string lifetime = "fight", int version = 1)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterBehavior(localId, parameters);
+            return RequireRegistration().RegisterBehavior(localId, parameters, state, lifetime, version);
         }
 
         public PerkDefinition RegisterPerk(string localId, DefinitionId template, DefinitionId displayName,
@@ -262,11 +263,11 @@ namespace Eclipse.Modding
             string voice, int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
             DefinitionId template, bool hasTemplate, string group, int random,
             System.Collections.Generic.IReadOnlyDictionary<string, float> attributes,
-            WarriorAttributeAlignmentDefinition[] attributeAlignments)
+            WarriorAttributeAlignmentDefinition[] attributeAlignments, int healthBars = 0)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterWarrior(localId, firstName, lastName, avatar, voice, level,
-                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments);
+                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments, healthBars);
         }
 
         public WarriorTemplateDefinition GetWarriorTemplate(string reference)
@@ -325,10 +326,10 @@ namespace Eclipse.Modding
         }
 
         public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items,
-            RewardChoiceDefinition[] choices)
+            RewardChoiceDefinition[] choices, int gems = 0)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterReward(localId, items, choices);
+            return RequireRegistration().RegisterReward(localId, items, choices, gems);
         }
 
         public FightDefinition RegisterFight(string localId, DefinitionId battle, int replays, int replayInterval,
@@ -406,7 +407,14 @@ namespace Eclipse.Modding
     public enum ModEffectEvent
     {
         FightBegin = 0,
-        DamageReceived = 1
+        DamageReceived = 1,
+        DamageDealt = 2,
+        RoundBegin = 3,
+        RoundEnd = 4,
+        FightEnd = 5,
+        Block = 6,
+        Critical = 7,
+        DamageResolving = 8
     }
 
     public interface IModScriptContext : IDisposable
@@ -454,6 +462,66 @@ namespace Eclipse.Modding
     public interface IModDamageEventSource
     {
         ModDamageEvent DamageEvent { get; }
+    }
+
+    public interface IModBehaviorInstanceSource
+    {
+        System.Xml.XmlNode SavedInstance { get; }
+    }
+
+    // Adds persistence provenance without exposing the saved XML to Lua.
+    public interface IModFighterEffects
+    {
+        bool TrySetDamageShield(object key, double fraction, int frames, out string error);
+        bool TryRemoveDamageShield(object key, out string error);
+    }
+    public interface IModIncomingHitSource { ModIncomingHit IncomingHit { get; } }
+    public sealed class ModIncomingHit
+    {
+        private readonly Func<double> _read;
+        private readonly Action<double> _write;
+        public double Damage => _read();
+        public ModIncomingHit(Func<double> read, Action<double> write) { _read = read; _write = write; }
+        public bool TryScale(double scale, out string error)
+        {
+            error = "";
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale < 0 || scale > 1) { error = "Incoming damage scale must be 0..1."; return false; }
+            _write(Damage * scale); return true;
+        }
+    }
+    public interface IModFighterTargets
+    {
+        double Health { get; }
+        IModFighterOperations Opponent { get; }
+    }
+
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects
+    {
+        private readonly IModFighterOperations _inner;
+        public System.Xml.XmlNode SavedInstance { get; }
+        public ModDamageEvent DamageEvent => (_inner as IModDamageEventSource)?.DamageEvent;
+        public ModIncomingHit IncomingHit => (_inner as IModIncomingHitSource)?.IncomingHit;
+        public double Health => (_inner as IModFighterTargets)?.Health ?? 0;
+        public IModFighterOperations Opponent => (_inner as IModFighterTargets)?.Opponent;
+        public bool TrySetDamageShield(object key, double fraction, int frames, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterEffects effects) return effects.TrySetDamageShield((SavedInstance, key), fraction, frames, out error);
+            error = "Timed effects are unavailable."; return false;
+        }
+        public bool TryRemoveDamageShield(object key, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterEffects effects) return effects.TryRemoveDamageShield((SavedInstance, key), out error);
+            error = "Timed effects are unavailable."; return false;
+        }
+        public ModInstanceFighter(IModFighterOperations inner, System.Xml.XmlNode node) { _inner = inner; SavedInstance = node; }
+        public bool TryChangeHealth(double amount, out string error)
+        {
+            error = "Fighter unavailable."; return _inner != null && _inner.TryChangeHealth(amount, out error);
+        }
+        public bool TryAddMagicCharge(double amount, out string error)
+        {
+            error = "Fighter unavailable."; return _inner != null && _inner.TryAddMagicCharge(amount, out error);
+        }
     }
 
     public interface IModInteractiveBehaviorScriptContext

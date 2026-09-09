@@ -15,7 +15,10 @@ namespace Nekki.SF2.Core.Quests
 
 		private static QuestsManager _instance;
 
-		private List<QuestStage> DHKJBMDEODI = new List<QuestStage>();
+		private readonly List<QuestStage> EclipseRaidMapEnter = new List<QuestStage>();
+        private readonly List<QuestStage> EclipseRaidFloorChanged = new List<QuestStage>();
+        private readonly List<QuestStage> EclipseShowRaidLoot = new List<QuestStage>();
+        private List<QuestStage> DHKJBMDEODI = new List<QuestStage>();
 
 		private List<QuestStage> APPKOJAAHDN = new List<QuestStage>();
 
@@ -469,6 +472,9 @@ namespace Nekki.SF2.Core.Quests
 			{
 				LKECNMACNMM.Add(PJEAMPLHPOH);
 			}
+			if (PJEAMPLHPOH.IsEvent(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_MAP_ENTER)) EclipseRaidMapEnter.Add(PJEAMPLHPOH);
+            if (PJEAMPLHPOH.IsEvent(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_FLOOR_CHANGED)) EclipseRaidFloorChanged.Add(PJEAMPLHPOH);
+            if (PJEAMPLHPOH.IsEvent(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_SHOW_RAID_LOOT)) EclipseShowRaidLoot.Add(PJEAMPLHPOH);
 			if (PJEAMPLHPOH.IsEvent(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_SHOP_ENTER))
 			{
 				DLFEDMGKGDA.Add(PJEAMPLHPOH);
@@ -500,6 +506,7 @@ namespace Nekki.SF2.Core.Quests
 					DevXmlShopButtonPress, NCJBGIFHMDK
 				};
 				for (int i = 0; i < lists.Length; i++) lists[i].Remove(quest);
+                EclipseRaidMapEnter.Remove(quest); EclipseRaidFloorChanged.Remove(quest); EclipseShowRaidLoot.Remove(quest);
 				DHKJBMDEODI.Remove(quest);
 				QuestsInQueue.Remove(quest.get_Name());
 				DNLKMNIEHLM();
@@ -510,6 +517,9 @@ namespace Nekki.SF2.Core.Quests
 			List<QuestStage> list = null;
 			switch (MCGHIOHACBJ)
 			{
+            case QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_MAP_ENTER: list = EclipseRaidMapEnter; break;
+            case QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_FLOOR_CHANGED: list = EclipseRaidFloorChanged; break;
+            case QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_SHOW_RAID_LOOT: list = EclipseShowRaidLoot; break;
 			case QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_FIGHT_ENTER:
 				list = APPKOJAAHDN;
 				break;

@@ -30,10 +30,11 @@ public class RecipeItemInfo : ItemInfo
 		NKBIOFJMONB = userItem;
 		HKBJMPIJOOA = price;
 		Type = "Recipe";
-		if (price != null && price.DeliveryTime > 0)
+		int deliverySeconds = Eclipse.Modding.ModPolicies.DeliverySeconds("forge", price?.DeliveryTime ?? 0);
+		if (deliverySeconds > 0)
 		{
-			_RecipeDeliveryTime = CurrentTimeSeconds() + price.DeliveryTime;
-			KLHOKKPALOK = price.BonusDeliveryPrice;
+			_RecipeDeliveryTime = CurrentTimeSeconds() + deliverySeconds;
+			KLHOKKPALOK = price?.BonusDeliveryPrice ?? (ObscuredLong)0L;
 		}
 		else
 		{

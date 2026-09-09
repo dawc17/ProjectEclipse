@@ -135,7 +135,7 @@ namespace Eclipse.Modding
             {
                 ThrowIfDisposed();
                 error = string.Empty;
-                if (effectEvent != ModEffectEvent.FightBegin && effectEvent != ModEffectEvent.DamageReceived)
+                if (!Enum.IsDefined(typeof(ModEffectEvent), effectEvent))
                 {
                     error = "Unsupported behavior event: " + effectEvent + ".";
                     return false;
@@ -171,9 +171,66 @@ namespace Eclipse.Modding
                             invocationActive ? FighterOperation("fighter:add_magic_charge", "combat.magic_charge", args, fighter.TryAddMagicCharge) :
                                 throw new ScriptRuntimeException("Fighter operations have expired.")));
                     }
+                    if (fighter is IModFighterTargets targets)
+                    {
+                        fighterTable.Set("health", DynValue.NewNumber(targets.Health));
+                        var target = targets.Opponent;
+                        if (target != null)
+                        {
+                            var targetTable = new Table(_script);
+                            if (target is IModFighterTargets query) targetTable.Set("health", DynValue.NewNumber(query.Health));
+                            targetTable.Set("change_health", DynValue.NewCallback((ctx, args) =>
+                            {
+                                if (!invocationActive) throw new ScriptRuntimeException("Target operations have expired.");
+                                _api.RequireCapability("combat.target");
+                                return FighterOperation("target:change_health", "combat.change_life", args, target.TryChangeHealth);
+                            }));
+                            targetTable.Set("add_magic_charge", DynValue.NewCallback((ctx, args) =>
+                            {
+                                if (!invocationActive) throw new ScriptRuntimeException("Target operations have expired.");
+                                _api.RequireCapability("combat.target");
+                                return FighterOperation("target:add_magic_charge", "combat.magic_charge", args, target.TryAddMagicCharge);
+                            }));
+                            fighterTable.Set("opponent", DynValue.NewTable(targetTable));
+                        }
+                    }
+                    if (fighter is IModFighterEffects effects)
+                    {
+                        fighterTable.Set("add_damage_shield", DynValue.NewCallback((ctx, args) =>
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Effect operations have expired.");
+                            _api.RequireCapability("combat.effects");
+                            int offset = args[0].Type == DataType.Table ? 1 : 0;
+                            string key = args.AsType(offset, "add_damage_shield", DataType.String, false).String;
+                            ModParameterDefinition.ValidateName(key);
+                            double fraction = args.AsType(offset+1, "add_damage_shield", DataType.Number, false).Number;
+                            double frames = args.AsType(offset+2, "add_damage_shield", DataType.Number, false).Number;
+                            if (double.IsNaN(frames) || frames != Math.Floor(frames) || frames < 1 || frames > 3600) throw new ScriptRuntimeException("Shield frames must be an integer from 1 to 3600.");
+                            if (!effects.TrySetDamageShield(behaviorId.ToString() + ":" + key, fraction, (int)frames, out var failure)) throw new ScriptRuntimeException(failure);
+                            return DynValue.Nil;
+                        }));
+                        fighterTable.Set("remove_damage_shield", DynValue.NewCallback((ctx, args) =>
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Effect operations have expired.");
+                            _api.RequireCapability("combat.effects");
+                            int offset = args[0].Type == DataType.Table ? 1 : 0;
+                            string key = args.AsType(offset, "remove_damage_shield", DataType.String, false).String;
+                            ModParameterDefinition.ValidateName(key);
+                            if (!effects.TryRemoveDamageShield(behaviorId.ToString() + ":" + key, out var failure)) throw new ScriptRuntimeException(failure);
+                            return DynValue.Nil;
+                        }));
+                    }
                     var eventTable = new Table(_script);
+                    if (context != null && context.TryGetValue("round", out var roundText) && int.TryParse(roundText, out var roundNumber))
+                        eventTable.Set("round", DynValue.NewNumber(roundNumber));
+                    if (effectEvent == ModEffectEvent.FightEnd && context != null && context.TryGetValue("player_result", out var playerResult))
+                    {
+                        eventTable.Set("player_result", DynValue.NewString(playerResult));
+                        context.TryGetValue("side", out var side);
+                        eventTable.Set("won", DynValue.NewBoolean(side == "player" ? playerResult == "win" : playerResult == "loss" || playerResult == "surrender"));
+                    }
                     ModDamageEvent damage = (fighter as IModDamageEventSource)?.DamageEvent;
-                    if (effectEvent == ModEffectEvent.DamageReceived)
+                    if (damage != null)
                     {
                         if (damage == null) throw new ModContentException("Damage event snapshot is missing.");
                         eventTable.Set("round", DynValue.NewNumber(damage.Round));
@@ -183,8 +240,23 @@ namespace Eclipse.Modding
                         eventTable.Set("blocked", DynValue.NewBoolean(damage.Blocked));
                         eventTable.Set("critical", DynValue.NewBoolean(damage.Critical));
                     }
+                    var incoming = (fighter as IModIncomingHitSource)?.IncomingHit;
+                    if (effectEvent == ModEffectEvent.DamageResolving)
+                    {
+                        if (incoming == null) throw new ModContentException("Incoming hit capability is unavailable.");
+                        eventTable.Set("damage", DynValue.NewNumber(incoming.Damage));
+                        fighterTable.Set("scale_incoming_damage", DynValue.NewCallback((ctx, args) =>
+                            invocationActive ? FighterOperation("fighter:scale_incoming_damage", "combat.modify_hit", args, incoming.TryScale) :
+                                throw new ScriptRuntimeException("Incoming hit operations have expired.")));
+                    }
+                    eventTable.Set("type", DynValue.NewString(effectEvent.ToString()));
+                    var argument = parameterTable;
+                    Action commitState = null;
+                    if (_instanceDefinitions.TryGetValue(behaviorId, out var definition) && definition.StateSchema != null)
+                        argument = PrepareBehaviorState(definition, parameterTable, context, fighter, effectEvent, out commitState);
                     RunBounded(handler, behaviorId + ":" + effectEvent, MaxBehaviorInstructionSlices,
-                        new[] { DynValue.NewTable(parameterTable), DynValue.NewTable(fighterTable), DynValue.NewTable(eventTable) });
+                        new[] { DynValue.NewTable(argument), DynValue.NewTable(fighterTable), DynValue.NewTable(eventTable) });
+                    commitState?.Invoke();
                     return true;
                 }
                 catch (InterpreterException exception)
@@ -351,6 +423,9 @@ namespace Eclipse.Modding
                 _questHandles.Clear();
                 ClearP1DHandles();
                 _behaviorHandlers.Clear();
+                _instanceDefinitions.Clear();
+                _instanceMigrations.Clear();
+                _instanceState = new System.Runtime.CompilerServices.ConditionalWeakTable<System.Xml.XmlNode, Dictionary<DefinitionId, BehaviorState>>();
             }
 
             private DynValue Require(ScriptExecutionContext context, CallbackArguments args)
@@ -616,6 +691,7 @@ namespace Eclipse.Modding
                 root.Set("shop", DynValue.NewTable(shop));
 
                 AddP1DModules(root);
+                AddP2Modules(root);
 
                 DynValue value = DynValue.NewTable(root);
                 _modules.Add(moduleName, value);
@@ -993,20 +1069,39 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "parameters", "on_fight_begin", "on_damage_received");
+                    var allowed = new List<string> { "id", "parameters", "state" };
+                    allowed.AddRange(BehaviorEvents.Keys);
+                    ValidateFields(table, function, allowed.ToArray());
                     string id = RequiredString(table, "id", function);
                     ModParameterSchema parameters = OptionalParameterSchema(table, "parameters", function);
-                    DynValue handler = table.Get("on_fight_begin");
-                    DynValue damageHandler = table.Get("on_damage_received");
-                    if (!handler.IsNil() && handler.Type != DataType.Function)
-                        throw new ModContentException(function + " field 'on_fight_begin' must be a Lua function.");
-                    if (!damageHandler.IsNil() && damageHandler.Type != DataType.Function)
-                        throw new ModContentException(function + " field 'on_damage_received' must be a Lua function.");
-                    if (handler.IsNil() && damageHandler.IsNil())
-                        throw new ModContentException(function + " requires at least one behavior handler.");
-                    ModBehaviorDefinition definition = _api.RegisterBehavior(id, parameters);
-                    if (!handler.IsNil()) _behaviorHandlers.Add((definition.Id, ModEffectEvent.FightBegin), handler);
-                    if (!damageHandler.IsNil()) _behaviorHandlers.Add((definition.Id, ModEffectEvent.DamageReceived), damageHandler);
+                    ModParameterSchema state = null;
+                    string lifetime = "fight";
+                    int version = 1;
+                    var migrations = new Dictionary<int, DynValue>();
+                    if (!table.Get("state").IsNil())
+                    {
+                        if (table.Get("state").Type != DataType.Table) throw new ModContentException("Behavior state must be a table.");
+                        Table spec = table.Get("state").Table;
+                        ValidateFields(spec, function + ".state", "fields", "lifetime", "version", "migrations");
+                        state = OptionalParameterSchema(spec, "fields", function);
+                        state.ResolveValues(null); // Required fields must have initial values.
+                        lifetime = OptionalString(spec, "lifetime", "fight", function);
+                        version = spec.Get("version").IsNil() ? 1 : RequiredInt(spec, "version", function);
+                        migrations = OptionalMigrationMap(spec, "migrations", version, function);
+                    }
+                    var handlers = new Dictionary<ModEffectEvent, DynValue>();
+                    foreach (var entry in BehaviorEvents)
+                    {
+                        DynValue handler = table.Get(entry.Key);
+                        if (handler.IsNil()) continue;
+                        if (handler.Type != DataType.Function) throw new ModContentException(entry.Key + " must be a Lua function.");
+                        handlers.Add(entry.Value, handler);
+                    }
+                    if (handlers.Count == 0) throw new ModContentException(function + " requires at least one behavior handler.");
+                    ModBehaviorDefinition definition = _api.RegisterBehavior(id, parameters, state, lifetime, version);
+                    foreach (var entry in handlers) _behaviorHandlers.Add((definition.Id, entry.Key), entry.Value);
+                    _instanceDefinitions.Add(definition.Id, definition);
+                    _instanceMigrations.Add(definition.Id, migrations);
                     return NewHandle(_behaviorHandles, definition);
                 });
             }
@@ -1175,7 +1270,7 @@ namespace Eclipse.Modding
                 return ApiCall(function, () =>
                 {
                     ValidateFields(table, function, "id", "template", "first_name", "last_name", "avatar", "voice", "level",
-                        "tactic", "group", "random", "attributes", "attribute_alignments", "items", "perks");
+                        "tactic", "group", "random", "attributes", "attribute_alignments", "items", "perks", "health_bars");
                     string id = RequiredString(table, "id", function);
                     DefinitionId[] items = OptionalHandleArray(table, "items", _itemHandles, "item", function);
                     DefinitionId[] perks = OptionalHandleArray(table, "perks", _perkHandles, "perk", function);
@@ -1221,7 +1316,7 @@ namespace Eclipse.Modding
                         OptionalStringAllowEmpty(table, "voice", string.Empty, function),
                         OptionalInt(table, "level", 0, function), tactic, items, perks,
                         template, hasTemplate, OptionalStringAllowEmpty(table, "group", string.Empty, function),
-                        OptionalInt(table, "random", 0, function), attributes, alignments);
+                        OptionalInt(table, "random", 0, function), attributes, alignments, OptionalInt(table, "health_bars", 0, function));
                     return NewHandle(_warriorHandles, definition.Id);
                 });
             }
@@ -1371,10 +1466,10 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "items", "choices");
+                    ValidateFields(table, function, "id", "items", "choices", "gems");
                     RewardItemGrant[] items = ReadRewardItems(table.Get("items"), function + ".items", false);
                     RewardChoiceDefinition[] choices = ReadRewardChoices(table.Get("choices"), function + ".choices");
-                    RewardDefinition definition = _api.RegisterReward(RequiredString(table, "id", function), items, choices);
+                    RewardDefinition definition = _api.RegisterReward(RequiredString(table, "id", function), items, choices, OptionalInt(table, "gems", 0, function));
                     return NewHandle(_rewardHandles, definition.Id);
                 });
             }
@@ -1731,6 +1826,7 @@ namespace Eclipse.Modding
                     case "pvp": return ModBattleKind.Pvp;
                     case "final": return ModBattleKind.Final;
                     case "final_titan": return ModBattleKind.FinalTitan;
+                    case "raid": return ModBattleKind.Raid;
                     default: throw new ModContentException(function + " field 'type' is not supported.");
                 }
             }
@@ -1798,6 +1894,14 @@ namespace Eclipse.Modding
                     {
                         case "fight_enter": result.Add(ModQuestEventKind.FightEnter); break;
                         case "fight_end": result.Add(ModQuestEventKind.FightEnd); break;
+                        case "raid_fight_enter": result.Add(ModQuestEventKind.RaidFightEnter); break;
+                        case "raid_fight_end": result.Add(ModQuestEventKind.RaidFightEnd); break;
+                        case "raid_enter": result.Add(ModQuestEventKind.RaidEnter); break;
+                        case "raid_end": result.Add(ModQuestEventKind.RaidEnd); break;
+                        case "reset_mode": result.Add(ModQuestEventKind.ResetMode); break;
+                        case "raid_map_enter": result.Add(ModQuestEventKind.RaidMapEnter); break;
+                        case "raid_floor_changed": result.Add(ModQuestEventKind.RaidFloorChanged); break;
+                        case "show_raid_loot": result.Add(ModQuestEventKind.ShowRaidLoot); break;
                         case "level_up": result.Add(ModQuestEventKind.LevelUp); break;
                         case "got_item": result.Add(ModQuestEventKind.GotItem); break;
                         case "dialog": result.Add(ModQuestEventKind.Dialog); break;

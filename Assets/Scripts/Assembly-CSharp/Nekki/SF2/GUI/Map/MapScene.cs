@@ -202,7 +202,8 @@ namespace Nekki.SF2.GUI.Map
 			}
 		}
 
-		public void UpdateCurrentZone()
+		private ZoneScrollItem _lastEclipseRaidZone;
+        public void UpdateCurrentZone()
 		{
 			if ((bool)OFKGMKADHBD)
 			{
@@ -217,6 +218,13 @@ namespace Nekki.SF2.GUI.Map
 				{
 					OFKGMKADHBD = currentZone;
 					OFKGMKADHBD.Enabled(true);
+                    if (LDOJANLOFHI == NMFLNANKNOJ.RaidMode)
+                    {
+                        var previous = _lastEclipseRaidZone; _lastEclipseRaidZone = currentZone;
+                        if (previous != null && previous != currentZone)
+                            Eclipse.Modding.ModModeRuntime.Raise(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_FLOOR_CHANGED);
+                    }
+                    else _lastEclipseRaidZone = null;
 				}
 			}
 		}
@@ -361,6 +369,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				return false;
 			}
+			if (HLJKOKMKMLM.LGIIBNJFADA.Exists(battle => battle.DCHJDPCEODD && Eclipse.Modding.ModModeRuntime.OwnsBattle(battle))) return true;
 			if (UnderworldZonePolicy.IsRaidZone(HLJKOKMKMLM))
 				return HLJKOKMKMLM.LGIIBNJFADA.Exists(battle => battle.DCHJDPCEODD);
 			List<Battle> list = HLJKOKMKMLM.LGIIBNJFADA.FindAll(battle =>
@@ -531,7 +540,9 @@ namespace Nekki.SF2.GUI.Map
 
 		public void SwitchToRaidMap()
 		{
+            bool changed = LDOJANLOFHI != NMFLNANKNOJ.RaidMode;
 			SwitchMapMode(NMFLNANKNOJ.RaidMode);
+            if (changed) Eclipse.Modding.ModModeRuntime.Raise(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_MAP_ENTER);
 		}
 
 		public void SwitchToStoryMap()

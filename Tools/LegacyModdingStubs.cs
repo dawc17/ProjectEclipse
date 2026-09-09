@@ -781,3 +781,14 @@ public static class LocalizationManager
         if (changed != null) changed();
     }
 }
+
+namespace Eclipse.Modding
+{
+    // Mode host behavior is exercised by TestP2ACombatRuntime, not the art-only Unity fixture.
+    public static class ModModeRuntime
+    {
+        public static Action<string> Warning;
+        public static void Clear() { }
+        public static void Bind(XmlNode warrior) { }
+    }
+}

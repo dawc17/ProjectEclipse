@@ -450,6 +450,7 @@ public class Battle
 
 	public virtual ConditionStatus MNHLGELMOEJ()
 	{
+        if (Eclipse.Modding.ModModeRuntime.TryCurrent(this, out var modeFight)) return modeFight != null ? ConditionStatus.StatusOpen : ConditionStatus.StatusComplete;
 		uint aIKIOPMGCEG = AIKIOPMGCEG;
 		if (!NLLECKHLMAN)
 		{

@@ -153,7 +153,7 @@ namespace Eclipse.Modding
                 }
                 if (!behaviorContext.HasBehaviorHandler(behaviorId, effectEvent))
                 {
-                    if (effectEvent == ModEffectEvent.DamageReceived || effectEvent == ModEffectEvent.FightBegin) return true;
+                    if (Enum.IsDefined(typeof(ModEffectEvent), effectEvent)) return true;
                     error = "Behavior '" + behaviorId + "' has no handler for " + effectEvent + ".";
                     return false;
                 }

@@ -42,6 +42,7 @@ namespace Eclipse.Modding
 {
     public enum ModEffectEvent { FightBegin, DamageReceived }
     public sealed class ModDamageEvent {}
+    public sealed class ModIncomingHit {}
     public interface IModFighterOperations
     {
         bool TryChangeHealth(double amount, out string error);
@@ -233,12 +234,14 @@ public sealed class FightHarness
 {
     private sealed class EclipseFighterOperations : Eclipse.Modding.IModFighterOperations
     {
-        public EclipseFighterOperations(FightHarness fight, Model model, ModDamageEvent damageEvent = null) { }
+        public EclipseFighterOperations(FightHarness fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null) { }
         public bool TryChangeHealth(double amount, out string error) { error = string.Empty; return true; }
         public bool TryAddMagicCharge(double amount, out string error) { error = string.Empty; return true; }
     }
 
     private bool _eclipseFightBeginDispatched;
+    private string _eclipseFightId = "fixture";
+    private string _eclipsePlayerResult = "none";
     private bool _eclipseCombatDispatching;
     private readonly RoundStub round = new RoundStub();
     private readonly ModelParameters NMNCKBPFCCP;

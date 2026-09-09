@@ -1,11 +1,11 @@
 schema = 1
 id = "example.phase2"
-name = "Phase 2 Combat Showcase"
-version = "0.1.0"
-api = ">=0.5 <1.0"
+name = "Phase 2 Integrated Showcase"
+version = "0.2.1"
+api = ">=0.6 <1.0"
 authors = ["Eclipse"]
 entrypoint = "scripts/main.lua"
-capabilities = ["content.register", "state.read", "state.write", "combat.magic_charge"]
+capabilities = ["content.register", "content.patch", "state.read", "state.write", "combat.magic_charge", "combat.change_life", "combat.target", "combat.effects", "combat.modify_hit", "policy.timers", "policy.services"]
 
 [[dependencies]]
 id = "core"

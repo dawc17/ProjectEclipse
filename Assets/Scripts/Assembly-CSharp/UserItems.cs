@@ -401,6 +401,7 @@ public class UserItems
 		if (recipeItem == null || recipeItem.MFEAIEJFDAM() == null) return false;
 		RecipeItemInfo pending = recipeItem.MFEAIEJFDAM().PHDBCIHJKON();
 		if (pending == null || pending.ItemAndRecipeInfo != recipeItem.ItemAndRecipeInfo) return false;
+		if (pending.IsStillInOrder && !Eclipse.Modding.ModPolicies.SkipEnabled("forge")) return false;
 		if (!ForgeManager.ELEBLBJKDBI().FinishEnchant(pending)) return false;
 		if (!LFADKPKKFMP.Contains(pending)) LFADKPKKFMP.Add(pending);
 		if (runEvent)

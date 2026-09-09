@@ -38,11 +38,13 @@ namespace Nekki.SF2.GUI.Map
 			_lblTour.set_text(string.Empty);
 			List<FightList> list = DPOOIONCEOA.ANNHMNIHKCC();
 			int num = list.Count;
-			if (DPOOIONCEOA.get_Type() == BattleType.FightBosses || DPOOIONCEOA.get_Type() == BattleType.FightBossesReplayable)
+			bool modeProgress = Eclipse.Modding.ModModeRuntime.TryProgress(KOMGFJOCEDN, out int completed, out int total);
+			if (modeProgress) num = total;
+			if (!modeProgress && (DPOOIONCEOA.get_Type() == BattleType.FightBosses || DPOOIONCEOA.get_Type() == BattleType.FightBossesReplayable))
 			{
 				num--;
 			}
-			bool flag = (DPOOIONCEOA.get_Type() != BattleType.FightBosses && DPOOIONCEOA.get_Type() != BattleType.FightBossesReplayable) || KOMGFJOCEDN.Index != num;
+			bool flag = modeProgress || (DPOOIONCEOA.get_Type() != BattleType.FightBosses && DPOOIONCEOA.get_Type() != BattleType.FightBossesReplayable) || KOMGFJOCEDN.Index != num;
 			if (!flag)
 			{
 				return;
@@ -68,8 +70,8 @@ namespace Nekki.SF2.GUI.Map
 				for (int j = 0; j < num9; j++)
 				{
 					int index = i * num4 + j;
-					bool flag2 = list[index].PGBKNLAEANJ == ConditionStatus.StatusComplete;
-					bool cNNCIENODGE = list[index].CNNCIENODGE;
+					bool flag2 = modeProgress ? index < completed : list[index].PGBKNLAEANJ == ConditionStatus.StatusComplete;
+					bool cNNCIENODGE = modeProgress ? index > completed : list[index].CNNCIENODGE;
 					GameObject gameObject = Object.Instantiate(IndicatorFightPrefab);
 					IndicatorFight component2 = gameObject.GetComponent<IndicatorFight>();
 					component2.gameObject.transform.SetParent(base.gameObject.transform, false);

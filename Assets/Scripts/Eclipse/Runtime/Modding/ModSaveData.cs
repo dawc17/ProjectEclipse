@@ -229,6 +229,14 @@ namespace Eclipse.Modding
             foreach (ModBehaviorDefinition behavior in behaviors)
             {
                 Append(canonical, behavior.Id.ToString());
+                Append(canonical, behavior.StateLifetime);
+                Append(canonical, behavior.StateVersion);
+                if (behavior.StateSchema != null)
+                    foreach (var field in behavior.StateSchema.Parameters)
+                    {
+                        Append(canonical, field.Name); Append(canonical, field.Type.ToString());
+                        Append(canonical, field.HasDefault ? field.DefaultValue.ToWireString() : "");
+                    }
                 var parameters = new List<ModParameterDefinition>(behavior.Parameters.Parameters);
                 parameters.Sort((left, right) => string.CompareOrdinal(left.Name, right.Name));
                 Append(canonical, parameters.Count);
@@ -280,6 +288,27 @@ namespace Eclipse.Modding
                 for (int j = 0; j < tombstones.Count; j++) Append(canonical, tombstones[j]);
             }
 
+            var modes = new List<ModModeDefinition>(content.Modes);
+            modes.Sort((a,b) => string.CompareOrdinal(a.Id.ToString(), b.Id.ToString()));
+            Append(canonical, "modes"); Append(canonical, modes.Count);
+            foreach (var mode in modes)
+            {
+                Append(canonical, mode.Id.ToString()); Append(canonical, mode.Repeatable ? "repeat" : "once");
+                Append(canonical, mode.ResetOnLoss ? "reset" : "retain"); Append(canonical, mode.Raid ? "raid" : "mode");
+                Append(canonical, mode.HardMode ? "hard" : "normal"); Append(canonical, mode.MinimumLevel);
+                Append(canonical, mode.StartsAt.ToString(CultureInfo.InvariantCulture)); Append(canonical, mode.EndsAt.ToString(CultureInfo.InvariantCulture));
+                Append(canonical, mode.EntryItem.ToString()); Append(canonical, mode.EntryCount);
+                foreach (var fight in mode.Fights) Append(canonical, fight.ToString());
+            }
+            var timers = new List<ModTimerPolicy>(content.TimerPolicies);
+            timers.Sort((a,b) => string.CompareOrdinal(a.Subsystem, b.Subsystem));
+            foreach (var timer in timers)
+            {
+                Append(canonical, timer.Owner.ToString()); Append(canonical, timer.Subsystem); Append(canonical, timer.Seconds);
+                Append(canonical, timer.SkipEnabled ? "skip" : "wait");
+            }
+            var features = new List<string>(content.DisabledFeatures); features.Sort(StringComparer.Ordinal);
+            foreach (var feature in features) Append(canonical, feature);
             byte[] data = Encoding.UTF8.GetBytes(canonical.ToString());
             byte[] hash;
             using (SHA256 sha = SHA256.Create()) hash = sha.ComputeHash(data);
@@ -425,7 +454,7 @@ namespace Eclipse.Modding
                 Append(canonical, warrior.HasTemplate ? warrior.Template.ToString() : string.Empty);
                 Append(canonical, warrior.FirstName); Append(canonical, warrior.LastName);
                 Append(canonical, warrior.Avatar); Append(canonical, warrior.Voice);
-                Append(canonical, warrior.Level); Append(canonical, warrior.Tactic);
+                Append(canonical, warrior.Level); Append(canonical, warrior.Tactic); Append(canonical, warrior.HealthBars);
                 Append(canonical, warrior.Group); Append(canonical, warrior.Random);
                 var attributeNames = new List<string>(warrior.Attributes.Keys);
                 attributeNames.Sort(StringComparer.Ordinal);
@@ -466,7 +495,7 @@ namespace Eclipse.Modding
             Append(canonical, "rewards"); Append(canonical, rewards.Count);
             for (int i = 0; i < rewards.Count; i++)
             {
-                RewardDefinition reward = rewards[i]; Append(canonical, reward.Id.ToString());
+                RewardDefinition reward = rewards[i]; Append(canonical, reward.Id.ToString()); Append(canonical, reward.Gems);
                 Append(canonical, reward.Items.Count);
                 for (int j = 0; j < reward.Items.Count; j++) AppendRewardGrant(canonical, reward.Items[j]);
                 Append(canonical, reward.Choices.Count);
