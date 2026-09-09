@@ -3,13 +3,15 @@
 Project Eclipse is a mod engine for Shadow Fight 2. Think of this as the SF2 equivalent of Forge for Minecraft. </br>
 It targets **Unity 2022.3.62f3**.
 
-**The project is not meant to be played on it's own out of the box.** </br>
-It is intentionally bare, and it is recommended to play with mods. (when that time comes lol)
+**The project is not meant to be played on it's own without mods, even if it is possible** </br>
+It is intentionally bare, and it is strongly recommended to play with mods. (when that time comes lol)
 
-The base project is intentionally not the Definitive Edition mod. Project-owned
+Definitive Edition 128 will be bundled as a mod, and enabled by default on the first stable public release. </br>
+This will be the """vanilla""" Project Eclipse experience, but modders will always have the option to disable DE128 for their modding purposes. </br>
+
+The base project is intentionally not Definitive Edition. Project-owned
 engine, compatibility, desktop, presentation, and future modding code lives under
 `Assets/Scripts/Eclipse/`. </br>
-Definitive Edition will be bundled as a mod, and enabled by default on the first stable public release.
 
 ## Layout
 
