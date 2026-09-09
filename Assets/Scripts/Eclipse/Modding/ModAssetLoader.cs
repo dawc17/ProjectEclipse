@@ -396,6 +396,34 @@ namespace Eclipse.Modding
     internal static class ExternalLocaleRuntime
     {
         private static readonly List<ExternalLocaleMetadata> Entries = new List<ExternalLocaleMetadata>();
+        private static readonly List<LocalizationManager.Language> Applied = new List<LocalizationManager.Language>();
+        private static XmlNode BaseLanguage;
+
+        internal static void ValidateBaseLanguages(XmlNode languages)
+        {
+            if (Entries.Count == 0) return;
+            if (languages == null) throw new InvalidOperationException("Recovered locale metadata is unavailable.");
+            string defaultName = languages.Attributes?["Default"]?.Value;
+            XmlNode fallback = null;
+            foreach (XmlNode language in languages.ChildNodes)
+            {
+                if (language.NodeType != XmlNodeType.Element) continue;
+                string name = language.Attributes?["Name"]?.Value;
+                string locale = language.Attributes?["Locale"]?.Value;
+                if (name == defaultName) fallback = language;
+                foreach (ExternalLocaleMetadata metadata in Entries)
+                    ValidateNoCollision(metadata, name, locale);
+            }
+            if (fallback == null) throw new InvalidOperationException("Recovered default locale metadata is unavailable.");
+            BaseLanguage = fallback.CloneNode(true);
+        }
+
+        private static void ValidateNoCollision(ExternalLocaleMetadata metadata, string name, string locale)
+        {
+            if (string.Equals(metadata.Name, name, StringComparison.Ordinal) ||
+                string.Equals(metadata.Locale, locale, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("External locale collides with recovered locale metadata: " + metadata.Name);
+        }
 
         internal static void Add(ExternalLocaleMetadata metadata)
         {
@@ -419,14 +447,22 @@ namespace Eclipse.Modding
         internal static void Apply()
         {
             if (LocalizationManager.MCLNNPPCFFL == null || Entries.Count == 0) return;
+            // Validate the complete overlay before adding anything. A collision must not
+            // escape halfway through ParseModule and cause all game data to be parsed again.
+            foreach (ExternalLocaleMetadata metadata in Entries)
+                foreach (LocalizationManager.Language language in LocalizationManager.MCLNNPPCFFL)
+                    if (!Applied.Contains(language)) ValidateNoCollision(metadata, language.name, language.EOMNCDDELLB);
+
+            var pending = new List<LocalizationManager.Language>();
             for (int i = 0; i < Entries.Count; i++)
             {
                 ExternalLocaleMetadata metadata = Entries[i];
-                if (LocalizationManager.NLFKNPBICED(metadata.Name) != null || LocalizationManager.HHKANICOAAG(metadata.Locale) != null)
-                    throw new InvalidOperationException("External locale collides with recovered locale metadata: " + metadata.Name);
+                if (Applied.Exists(language => language.name == metadata.Name &&
+                    LocalizationManager.MCLNNPPCFFL.Contains(language))) continue;
 
                 XmlDocument document = new XmlDocument();
-                XmlElement node = document.CreateElement("Language");
+                XmlElement node = BaseLanguage == null ? document.CreateElement("Language") :
+                    (XmlElement)document.ImportNode(BaseLanguage, true);
                 document.AppendChild(node);
                 Set(node, "Name", metadata.Name);
                 Set(node, "Locale", metadata.Locale);
@@ -438,6 +474,7 @@ namespace Eclipse.Modding
                 Set(node, "IsAsian", metadata.IsAsian ? "1" : "0");
                 if (!string.IsNullOrEmpty(metadata.ContentFont))
                 {
+                    if (node["Fonts"] != null) node.RemoveChild(node["Fonts"]);
                     XmlElement fonts = document.CreateElement("Fonts");
                     Set(fonts, "ContentFont", metadata.ContentFont);
                     Set(fonts, "TitleFont", metadata.TitleFont);
@@ -447,13 +484,31 @@ namespace Eclipse.Modding
                     Set(fonts, "CustomLineSpacingScale", metadata.CustomLineSpacingScale.ToString(System.Globalization.CultureInfo.InvariantCulture));
                     node.AppendChild(fonts);
                 }
-                LocalizationManager.MCLNNPPCFFL.Add(new LocalizationManager.Language(node, LocalizationManager.MCLNNPPCFFL.Count));
+                var language = new LocalizationManager.Language(node, LocalizationManager.MCLNNPPCFFL.Count + pending.Count);
+                // Loose locales supply mod strings through TOML, not a replacement base
+                // localization XML. Keep ordinary game text available through the base locale.
+                LocalizationManager.Language fallback = LocalizationManager.NLFKNPBICED(LocalizationManager.POIPGLLCCKC);
+                if (fallback != null) language.PMFEIPCHENB = fallback.PMFEIPCHENB;
+                pending.Add(language);
             }
+            LocalizationManager.MCLNNPPCFFL.AddRange(pending);
+            Applied.AddRange(pending);
         }
 
         internal static void Clear()
         {
+            if (LocalizationManager.MCLNNPPCFFL != null)
+            {
+                bool selected = Applied.Contains(LocalizationManager.ILAJKOBCHFH);
+                foreach (LocalizationManager.Language language in Applied)
+                    LocalizationManager.MCLNNPPCFFL.Remove(language);
+                for (int i = 0; i < LocalizationManager.MCLNNPPCFFL.Count; i++)
+                    LocalizationManager.MCLNNPPCFFL[i].index = i;
+                if (selected) LocalizationManager.ILAJKOBCHFH = LocalizationManager.NLFKNPBICED(LocalizationManager.POIPGLLCCKC);
+            }
+            Applied.Clear();
             Entries.Clear();
+            BaseLanguage = null;
         }
 
         private static void Set(XmlElement node, string name, string value)

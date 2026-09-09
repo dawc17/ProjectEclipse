@@ -3,7 +3,14 @@ $root = Split-Path -Parent $PSScriptRoot
 $testRoot = Join-Path $root 'Temp/Phase1ShowcaseRuntime'
 $modsRoot = Join-Path $testRoot 'Mods'
 $modRoot = Join-Path $modsRoot 'example.phase1'
-Remove-Item -Recurse -Force $testRoot -ErrorAction SilentlyContinue
+if (Test-Path -LiteralPath $testRoot) {
+    $resolvedFixture = (Resolve-Path -LiteralPath $testRoot).Path
+    $resolvedTemp = (Resolve-Path -LiteralPath (Join-Path $root 'Temp')).Path
+    if (!$resolvedFixture.StartsWith($resolvedTemp + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Refusing to delete fixture outside Temp: $resolvedFixture"
+    }
+    Remove-Item -LiteralPath $resolvedFixture -Recurse -Force
+}
 New-Item -ItemType Directory -Force $modsRoot | Out-Null
 Copy-Item -Recurse -Force (Join-Path $root 'Mods/example.phase1') $modRoot
 
@@ -39,10 +46,29 @@ $sources = @(
 
 $program = Join-Path $testRoot 'Program.cs'
 $exe = Join-Path $testRoot 'Phase1ShowcaseRuntime.dll'
+$adapterSource = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs')
+$adapterBase = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs')
+$projectionMethods = foreach ($method in @('BuildLocationDocument', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition')) {
+    $match = [regex]::Match($adapterSource, '(?ms)^        private [^\r\n]*\b' + $method + '\(.*?^        \}')
+    if (!$match.Success) { throw "Cannot extract production projection: $method" }
+    $match.Value
+}
+$projectionMethods += [regex]::Match($adapterSource, '(?m)^        private static string F\(.*$').Value
+$projectionMethods += [regex]::Match($adapterBase, '(?ms)^        private static void Set\(.*?^        \}').Value
+foreach ($method in @('BuildRewardItemNode', 'LegacyItemName')) {
+    $projectionMethods += [regex]::Match($adapterBase, '(?ms)^        private [^\r\n]*\b' + $method + '\(.*?^        \}').Value
+}
+$projection = Join-Path $testRoot 'Projection.cs'
+Set-Content -Encoding UTF8 $projection ('using System; using System.Globalization; using System.Xml; using Eclipse.Modding; internal sealed class Projection {' +
+    'private ModContentCatalog _content; public XmlElement Reward(ModContentCatalog catalog, RewardItemGrant grant) { _content = catalog; return BuildRewardItemNode(new XmlDocument(), grant, null); }' +
+    'public XmlDocument Location(LocationDefinition value) => BuildLocationDocument(value);' +
+    'public XmlElement Condition(ModMoveCondition value) => BuildMoveCondition(new XmlDocument(), value);' +
+    ($projectionMethods -join "`n") + '}')
 @'
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using Eclipse.Modding;
 
@@ -52,7 +78,13 @@ internal sealed class EmptyCoreProvider : IAssetProvider
     public bool TryDescribe(AssetId id, out AssetMetadata metadata)
     {
         metadata = null;
-        if (id.Namespace != Namespace || id.Path != "gamedata/models/mdl_weapon_katana_ritual") return false;
+        if (id.Namespace != Namespace) return false;
+        if (id.Path == "textures/locations/battlefield/battlefield_bg1.back_1")
+        {
+            metadata = new AssetMetadata(id, AssetKind.Sprite, AssetSourceKind.Core, string.Empty, -1, "core-background-fixture");
+            return true;
+        }
+        if (id.Path != "gamedata/models/mdl_weapon_katana_ritual") return false;
         metadata = new AssetMetadata(id, AssetKind.Model, AssetSourceKind.Core, string.Empty, -1, "core-model-fixture");
         return true;
     }
@@ -60,6 +92,13 @@ internal sealed class EmptyCoreProvider : IAssetProvider
 
 internal static class Program
 {
+    private sealed class Fighter : IModFighterOperations
+    {
+        public double Charge;
+        public bool TryChangeHealth(double amount, out string error) { error = "Unexpected health change"; return false; }
+        public bool TryAddMagicCharge(double amount, out string error) { Charge += amount; error = string.Empty; return true; }
+    }
+
     private static void Assert(bool condition, string message)
     {
         if (!condition) throw new Exception(message);
@@ -99,6 +138,20 @@ internal static class Program
             context.ExecuteEntrypoint();
             registration.Commit();
             if (!expectCommit) throw new Exception("Duplicate showcase transaction unexpectedly committed.");
+            var save = new XmlDocument(); save.LoadXml("<Warrior/>");
+            Assert(ModSaveData.RecordContext(save.DocumentElement, new[] { mod }, catalog, state), "Cannot bind fixture save.");
+            state.Bind(save.DocumentElement, new[] { context });
+            var perk = catalog.Perks.Single();
+            var behavior = catalog.Behaviors.Single();
+            var fighter = new Fighter();
+            string error;
+            Assert(((IModInteractiveBehaviorScriptContext)context).TryInvokeBehavior(perk.Behavior,
+                ModEffectEvent.FightBegin, behavior.Parameters.ResolveValues(perk.InitialParameters),
+                new Dictionary<string, string> { { "side", "player" }, { "source", "enchantment" } },
+                fighter, out error), "Opening Focus callback failed: " + error);
+            Assert(fighter.Charge == 0.25, "Opening Focus did not grant 25% magic charge.");
+            Assert(behavior.Parameters.ResolveValues(new Dictionary<string, ModParameterValue>()).Count == 1,
+                "Old empty perk parameters do not receive the new optional default.");
         }
         catch (ModContentException)
         {
@@ -134,7 +187,7 @@ internal static class Program
         Assert(catalog.TryGetForgeRecipeFamily(DefinitionId.Parse("example.phase1:forge-recipes/showcase_simple"), out ForgeRecipeFamilyDefinition recipe),
             "P1C forge family was not committed.");
         Assert(catalog.Zones.Count == 1 && catalog.Battles.Count == 1 && catalog.Fights.Count == 1 &&
-            catalog.Warriors.Count == 1 && catalog.FightRules.Count == 1 && catalog.Rewards.Count == 1,
+            catalog.Warriors.Count == 1 && catalog.FightRules.Count == 1 && catalog.Rewards.Count == 2,
             "P1A graph did not commit as one coherent slice.");
         Assert(catalog.Quests.Count == 2, "P1B quests did not commit.");
         Assert(catalog.Locations.Count == 1 && catalog.MoveTemplates.Count == 1 && catalog.Moves.Count == 1 &&
@@ -142,6 +195,57 @@ internal static class Program
             "P1D definitions did not commit.");
         Assert(catalog.Behaviors.Count == 1 && catalog.Perks.Count == 1,
             "Behavior-backed perk did not commit.");
+        var localeDocument = new XmlDocument(); localeDocument.Load(args[1]);
+        var locale = catalog.LocaleMetadata.Single();
+        foreach (XmlNode language in localeDocument.SelectNodes("/Localization/Languages/Language"))
+            Assert(locale.Name != language.Attributes["Name"].Value &&
+                !string.Equals(locale.Locale, language.Attributes["Locale"].Value, StringComparison.OrdinalIgnoreCase),
+                "Showcase locale collides with a shipped language.");
+        Assert(catalog.Zones.Single().FileName == "Map1.1", "Showcase zone has no recovered map art.");
+        var gameplay = catalog.Locations.Single().Layers.Single(layer => layer.Type == 2);
+        Assert(gameplay.Fighters != null && gameplay.Fighters.PlayerX < gameplay.Fighters.EnemyX,
+            "Arena has no distinct fighter spawn positions on its gameplay layer.");
+        var move = catalog.Moves.Single();
+        Assert(catalog.Tactics.Single().AnimationWeights.Count == 0 && catalog.Tactics.Single().SafeAttack == null,
+            "Showcase tactic replaces the inherited Standard decision weights.");
+        Assert(!move.Intervals.Any(i => i.Name == "SelfUninterrupt"), "Opening move has an unbounded self-interruption lock.");
+        Assert(move.Events.Any(e => e.Kind == ModMoveEventKind.RoundStageStart && e.Name == "Fight"),
+            "Showcase move has no deterministic activation event.");
+        Assert(move.Conditions.Any(c => c.Kind == ModMoveConditionKind.Perk && c.Name == catalog.Perks.Single().Id.ToString()),
+            "Showcase opening move is not scoped to its perk owner.");
+        var projection = new Projection();
+        var fightRewards = catalog.Fights.Single().Rewards;
+        Assert(fightRewards.Count == 2 && catalog.TryGetReward(fightRewards[0], out var lossReward) && lossReward.Items.Count == 0,
+            "One-round showcase must provide the recovered zero-win reward slot.");
+        Assert(catalog.TryGetReward(fightRewards[1], out var winReward) && winReward.Items.Count == 1,
+            "Winning the one-round showcase cannot resolve reward slot 1.");
+        var rewardXml = projection.Reward(catalog, winReward.Items.Single());
+        Assert(rewardXml.GetAttribute("Drop") == "1" && rewardXml.GetAttribute("Name") == item.Id.ToString(),
+            "Token grant is not marked for end-of-fight item presentation.");
+        var arenaXml = projection.Location(catalog.Locations.Single());
+        var background = arenaXml.SelectSingleNode("/Root/Layer[@Path='core:textures/locations/battlefield']/Image");
+        Assert(background != null && background.Attributes["X"].Value == "0" && background.Attributes["Y"].Value == "0",
+            "Arena backdrop is not centered in the location artwork coordinate system.");
+        var spawns = arenaXml.SelectSingleNode("/Root/Layer[@Type='2']/ModelsViewer");
+        Assert(spawns != null && spawns.Attributes["PlayerPositionX"].Value == "868" &&
+            spawns.Attributes["EnemyPositionX"].Value == "1068", "Location projection lost recovered spawn attributes.");
+        var perkXml = projection.Condition(move.Conditions.Single(c => c.Kind == ModMoveConditionKind.Perk));
+        Assert(perkXml.Name == "Perk" && perkXml.GetAttribute("Name") == catalog.Perks.Single().Id.ToString(),
+            "Move projection does not match the recovered ConditionPerk predicate.");
+        string SpawnFingerprint(float enemyX)
+        {
+            var spawnCatalog = new ModContentCatalog();
+            using (var registration = spawnCatalog.BeginRegistration(mod))
+            {
+                registration.RegisterLocation("spawn_hash", "0x000000", 200, 80, 0, 1936, 512, 1936, 0, 0,
+                    default(AssetId), new[] { new LocationLayerDefinition(2, 1, false, null,
+                        new LocationFighterPositions(868, -94, enemyX, -94)) });
+                registration.Commit();
+            }
+            return ModSaveData.ComputeContentSetFingerprint(new[] { mod }, spawnCatalog);
+        }
+        Assert(SpawnFingerprint(1068) == SpawnFingerprint(1068) && SpawnFingerprint(1068) != SpawnFingerprint(1168),
+            "Content identity does not deterministically include fighter spawn positions.");
         Assert(catalog.ForgeEconomicProfiles.Count == coreProfilesBefore && catalog.WarriorTemplates.Count == coreTemplatesBefore,
             "Showcase mutated imported core registries.");
 
@@ -164,7 +268,7 @@ internal static class Program
 
 $moon = Join-Path $root 'Library/ScriptAssemblies/MoonSharp.Interpreter.dll'
 $project = Join-Path $testRoot 'Phase1ShowcaseRuntime.csproj'
-$compileItems = @($program) + $sources
+$compileItems = @($program, $projection) + $sources
 $compileXml = ($compileItems | ForEach-Object { '    <Compile Include="' + [Security.SecurityElement]::Escape($_) + '" />' }) -join "`n"
 $moonXml = [Security.SecurityElement]::Escape($moon)
 @"
@@ -189,5 +293,5 @@ $compileXml
 dotnet build $project -nologo --verbosity quiet
 if ($LASTEXITCODE -ne 0) { throw "Showcase runtime fixture compile failed: $LASTEXITCODE" }
 $exe = Join-Path $testRoot 'bin/Debug/net10.0/Phase1ShowcaseRuntime.dll'
-dotnet $exe $modsRoot
+dotnet $exe $modsRoot (Join-Path $root 'Assets/vanillaXml/localization.xml')
 if ($LASTEXITCODE -ne 0) { throw "Showcase runtime fixture failed: $LASTEXITCODE" }

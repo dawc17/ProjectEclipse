@@ -484,16 +484,18 @@ public class Language
 		string text = BFFNFGKHBJA;
 		for (int num = text.IndexOf('%'); num != -1; num = text.IndexOf('%', num + 1))
 		{
-			if (num < text.Length && text[num + 1] == '%')
+			if (num + 1 >= text.Length || char.IsWhiteSpace(text[num + 1])) continue;
+			if (text[num + 1] == '%')
 			{
 				text = text.Remove(num, 1);
 			}
 			else
 			{
-				int num2 = GetWordEndSymbol(BFFNFGKHBJA, num);
-				string text2 = BFFNFGKHBJA.Substring(num + 1, num2 - num - 1);
+				int num2 = GetWordEndSymbol(text, num);
+				string text2 = text.Substring(num + 1, num2 - num - 1);
 				string newValue = GetString(text2);
-				text = text.Replace("%" + text2, newValue);
+				text = text.Remove(num, num2 - num).Insert(num, newValue);
+				num += newValue.Length - 1;
 			}
 		}
 		return text;

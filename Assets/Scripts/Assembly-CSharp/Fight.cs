@@ -57,20 +57,27 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-	private sealed class EclipseFighterOperations : IModFighterOperations
+	private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
 
-		public EclipseFighterOperations(Fight fight, Model model)
+		public ModDamageEvent DamageEvent { get; }
+		public EclipseFighterOperations(Fight fight, Model model, ModDamageEvent damageEvent = null)
 		{
 			_fight = fight;
 			_model = model;
+			DamageEvent = damageEvent;
 		}
 
 		public bool TryChangeHealth(double amount, out string error)
 		{
 			error = string.Empty;
+			if (DamageEvent != null && DamageEvent.HealthAfter <= 0)
+			{
+				error = "A resolved lethal hit cannot be reversed by a damage callback.";
+				return false;
+			}
 			if (_fight == null || _model == null)
 			{
 				error = "The fighter is no longer available.";
@@ -1576,7 +1583,13 @@ public class Fight
 			gHHCDAFIKJE.EEDJBBOCFNL = 0f;
 		}
 		EGHPHELLOGO.KJDFJPBIGJC.LogDamage(gHHCDAFIKJE.EEDJBBOCFNL, BHLIBKKJNKH(hFIIPNLCIEE), gHHCDAFIKJE.DefenceAttribute);
+		float eclipseHealthBefore = EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB();
 		UpdateLife(EGHPHELLOGO.KJDFJPBIGJC, 0f - gHHCDAFIKJE.EEDJBBOCFNL);
+		if (_eclipseFightBeginDispatched && EGHPHELLOGO.KJDFJPBIGJC == _playerModel && _playerModel.KKMCHCNOHMB() < eclipseHealthBefore)
+		{
+			DispatchEclipseCombatEvent(ModEffectEvent.DamageReceived, new ModDamageEvent(round.round,
+				eclipseHealthBefore, _playerModel.KKMCHCNOHMB(), gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.DNGKOMPMPCD));
+		}
 		KDMDOBOKAIB(EGHPHELLOGO.KJDFJPBIGJC.EGGEACCDAEK(), gHHCDAFIKJE.EEDJBBOCFNL);
 		if (!gHHCDAFIKJE.PBPDKJNKFCJ.BKGIEPOEBOF())
 		{
@@ -2419,22 +2432,28 @@ public class Fight
 			item.KMMJCHDKBDO.HANOHOBGGJF();
 		}
 		EPBDEDGLHJE.DEHPKPPDIIA();
-		DispatchEclipseFightBegin();
+		DispatchEclipseCombatEvent();
 		IFKFINOGOLC(false);
 		_isRoundOver = false;
 		GC.Collect();
 	}
 
-	private void DispatchEclipseFightBegin()
+	private bool _eclipseCombatDispatching;
+	private void DispatchEclipseCombatEvent(ModEffectEvent effectEvent = ModEffectEvent.FightBegin, ModDamageEvent damageEvent = null)
 	{
-		if (_eclipseFightBeginDispatched || round.round != 1) return;
-		_eclipseFightBeginDispatched = true;
+		if (_eclipseCombatDispatching) return;
+		if (effectEvent == ModEffectEvent.FightBegin)
+		{
+			if (_eclipseFightBeginDispatched || round.round != 1) return;
+			_eclipseFightBeginDispatched = true;
+		}
+		_eclipseCombatDispatching = true;
 
 		try
 		{
 				ModScriptSession scripts = ModRuntime.Scripts;
 				if (scripts == null || NMNCKBPFCCP == null || !NMNCKBPFCCP.IsPlayer || _playerModel == null) return;
-				var fighterOperations = new EclipseFighterOperations(this, _playerModel);
+				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent);
 
 				var activeRuntimePerks = new HashSet<string>(StringComparer.Ordinal);
 			foreach (PerkInfoItem perk in NMNCKBPFCCP.NHBIJEEKALC)
@@ -2464,7 +2483,7 @@ public class Fight
 					RosterPerk savedPerk = ListSF.CCDKHLAMKKO().JLBDOBLHHAF()?.LKIEAGLHNON(learnedPerk.Name);
 					if (savedPerk == null || savedPerk.Node == null) continue;
 					string perkError;
-					if (!ModRuntime.TryInvokeSavedPerkFightBegin(savedPerk.Node, perkContext, fighterOperations, out perkError))
+					if (!ModRuntime.TryInvokeSavedPerkFightBegin(savedPerk.Node, perkContext, fighterOperations, out perkError, effectEvent))
 						UnityEngine.Debug.LogWarning("[ModCombat] FightBegin failed for perk '" + perkId + "': " + perkError);
 				}
 
@@ -2503,6 +2522,24 @@ public class Fight
 
 						DefinitionId enchantmentId;
 						string savedId = perkNode.Attributes?[PerkStruct.EclipseEnchantmentAttribute]?.Value;
+						// Forge recipes can also install behavior-backed perk definitions directly.
+						// Their saved Name is the identity; they have no EclipseEnchantment marker.
+						if (string.IsNullOrEmpty(savedId))
+						{
+							DefinitionId perkId;
+							PerkDefinition perkDefinition;
+							if (!DefinitionId.TryParse(runtimeName, out perkId) || perkId.Category != "perks" ||
+								perkId.Namespace.Value == "core" || !scripts.Content.TryGetPerk(perkId, out perkDefinition) ||
+								!perkDefinition.HasBehavior || !dispatchedPerks.Add(perkId)) continue;
+							var perkContext = new Dictionary<string, string>(context, StringComparer.Ordinal);
+							perkContext.Remove("enchantment_id");
+							perkContext["perk_id"] = perkId.ToString();
+							string perkError;
+							if (!ModRuntime.TryInvokeSavedPerkFightBegin(perkNode, perkContext, fighterOperations, out perkError, effectEvent))
+								UnityEngine.Debug.LogWarning("[ModCombat] FightBegin failed for perk '" + perkId +
+									"' on item '" + item.Name + "': " + perkError);
+							continue;
+						}
 						if (!DefinitionId.TryParse(savedId, out enchantmentId) ||
 							enchantmentId.Category != "enchantments" || enchantmentId.Namespace.Value == "core") continue;
 
@@ -2511,7 +2548,7 @@ public class Fight
 
 						context["enchantment_id"] = enchantmentId.ToString();
 						string error;
-							if (!ModRuntime.TryInvokeSavedEnchantmentFightBegin(perkNode, context, fighterOperations, out error))
+							if (!ModRuntime.TryInvokeSavedEnchantmentFightBegin(perkNode, context, fighterOperations, out error, effectEvent))
 						{
 							UnityEngine.Debug.LogWarning("[ModCombat] FightBegin failed for '" + enchantmentId +
 								"' on item '" + item.Name + "': " + error);
@@ -2530,6 +2567,7 @@ public class Fight
 			// Mod combat dispatch must never break the recovered fight state machine.
 			UnityEngine.Debug.LogWarning("[ModCombat] FightBegin dispatch failed: " + exception);
 		}
+		finally { _eclipseCombatDispatching = false; }
 	}
 
 	private void StartStance()

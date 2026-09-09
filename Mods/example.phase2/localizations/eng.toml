@@ -1,0 +1,6 @@
+resolve = "Measured Resolve"
+resolve.description = "Every third unblocked damaging hit grants 20% magic charge. Requires equipped magic. Counter resets each fight."
+resolve_quick = "Quick Resolve"
+resolve_quick.description = "Every second unblocked damaging hit grants 10% magic charge. Requires equipped magic. Counter resets each fight."
+forge = "P2A Measured Resolve"
+forge_quick = "P2A Quick Resolve"

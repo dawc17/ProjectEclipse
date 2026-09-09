@@ -208,6 +208,15 @@ namespace Eclipse.Content
 
 		public static void NormalizeActions(XmlDocument document)
 		{
+			// The recovered dialog supports three footer buttons, but no fourth
+			// Close type. Preserve the two energy offers and expose dismissal in
+			// the available middle slot for the shipped empty Close declaration.
+			foreach (XmlElement close in document.SelectNodes("//Dialog/Button[@Type='Close']"))
+			{
+				if (close.HasChildNodes || close.ParentNode.SelectSingleNode("Button[@Type='Middle']") != null) continue;
+				close.SetAttribute("Type", "Middle");
+				if (!close.HasAttribute("Text")) close.SetAttribute("Text", "CANCEL");
+			}
 			XmlNodeList visibilityNodes = document.SelectNodes("//SetBattleVisibility");
 			List<XmlElement> visibility = new List<XmlElement>();
 			foreach (XmlNode node in visibilityNodes)

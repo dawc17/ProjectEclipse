@@ -75,8 +75,9 @@ useful as an internal compatibility bridge, but unrestricted file replacement is
 not the public parity architecture and is explicitly insufficient evidence in
 `DE_PARITY_TARGET.md`.
 
-Public APIs should produce validated definitions/patches which may internally
-adapt into recovered XML/runtime structures.
+Public content APIs should produce validated definitions/patches which may
+internally adapt into recovered XML/runtime structures. Executable behavior uses
+Lua handlers and typed capabilities as specified in section 3.7.
 
 ### 3.3 No raw engine objects in Lua
 
@@ -103,6 +104,51 @@ access without silently rebinding saved IDs to unrelated content.
 If DE needs a feature, implement the underlying reusable capability rather than a
 DE-only special case. The same API should support a third-party story mod, raid
 mod, item set, event, location, or combat mechanic.
+
+### 3.7 Static definitions and programmable behavior
+
+Recorded 2026-09-09 from the project owner's API design direction.
+
+Static game content remains typed and declarative. Custom procedural behavior
+belongs in executable Lua handlers calling safe, typed domain capabilities.
+Do not use Lua merely as a carrier for a generic operation DSL.
+
+- Definitions describe what exists: item stats and metadata, quest identity and
+  prerequisites, battles, warriors, locations, animation assets, and references.
+- Handlers express what happens: branching, calculations, dynamic choices,
+  reactions to runtime events, and changes to mod-owned state. Use Lua functions,
+  control flow, and composition for this logic.
+- Capabilities perform verified game operations, such as the existing health and
+  magic-charge operations. Future quest/story or AI handlers must use similarly
+  narrow interfaces with authoritative runtime semantics.
+- Reuse one behavior implementation across multiple perk/enchantment definitions
+  with different typed instance parameters. Parameters configure behavior; they
+  must not become instructions for another interpreter.
+
+Reject new generic instruction tables such as
+`{ action_type = "add", op1 = 4, op2 = 2 }`, or an expanding vocabulary of
+`SetVariable`/`Conditional`/arithmetic nodes as the way to write custom logic.
+Typed domain definitions, content patch operations, and recovered animation or
+quest compatibility data remain legitimate; the rule does not require every
+quest, move, or tactic to be rewritten entirely in Lua.
+
+The shipped Phase 1 quest condition/action adapters and ordinary tactic
+definitions remain supported compatibility authoring paths. They are not the
+design template for future procedural APIs. Quest callbacks and programmable AI
+remain follow-up gaps until their event/query/operation contracts are implemented
+and tested; this rule does not announce them as available or remove existing APIs.
+
+Keep registration validation, namespaces, dependencies, transactional commits,
+save ownership, and lifecycle cleanup. Apply capability checks, bounded execution,
+error isolation, defined dispatch order, and teardown to handlers as well. Lua
+must still never receive raw XML, Model/Roster objects, or unrestricted engine
+access, and executable logic does not bypass the economy firewall.
+
+A mostly declarative Phase 1 example proves content integration and safety. It
+does not by itself demonstrate the programmable API's expressive power. P2A must
+deliver a runnable behavior example whose runtime decisions and state cannot be
+preserved by mechanically translating registration tables to existing SF2 XML.
+Evaluate the actual supported behavior, not whether Lua syntax is used.
 
 ## 4. Audited baseline
 
@@ -394,10 +440,33 @@ manipulate fights/battles.
 
 ## Phase 1 implementation status, 2026-09-09
 
-**Phase 1 is implemented and regression-gated. P2A is the next unstarted roadmap
-phase.** The integrated acceptance fixture is `Mods/example.phase1`, which is
+**Phase 1's integrated showcase is accepted end to end following the user's
+September 9 gameplay retests, including the final token reward panel.
+P2A is now in progress.** The integrated acceptance fixture is `Mods/example.phase1`, which is
 discovered and executed through the real public MoonSharp path by
 `Tools/TestPhase1ShowcaseRuntime.ps1` on an unchanged base content catalog.
+
+The September 9 playtest exposed a locale-code collision (`en`), repeated core
+parsing/duplicated zones, an unavailable showcase map, missing arena fighter
+layer/spawns, and an unbound custom move. Fixes use early locale validation and
+guarded late binding, the unique code `en-x-phase1`, recovered map art, typed
+fighter positions, and a perk-scoped round-start move event. The locale parser
+regression is covered by `Tools/TestModLocaleRuntime.ps1`. The subsequent user
+playtests closed the reported showcase blockers. See the sample README for the
+accepted scope and limitations; this does not certify every API combination or
+complete DE parity.
+
+The follow-up playtest confirmed map/fighter/dialogue/forge presentation. Repairs
+now clear reused tooltip labels, preserve Standard AI weights, remove the sample's
+unbounded movement lock, scale qualified arena sprites by their import density,
+and supply a verified packaged backdrop. Phase Token is hidden from equipment
+shop listings; its set remains metadata without a collection UI. Opening Focus
+now adds 25% magic charge through a Lua capability, and the player fight-begin
+dispatcher supports behavior-backed perks saved by forge recipes. Focused Lua,
+dispatch, label regressions and isolated Unity asset loading pass. User gameplay
+confirmed movement/blocking, arena rendering, the visible effect, localization,
+and the final reward display. The reward sample now supplies both the empty
+zero-win slot and token victory slot required by the recovered runtime.
 
 Shipped Phase 1 slices:
 
@@ -575,8 +644,10 @@ Shared money/currency amount/formula tuning remains base-owned.
 
 # PHASE P1B: QUEST GRAPH
 
-The recovered quest system is powerful and should remain the execution engine.
-The public API should be a validated, namespaced adapter over it.
+The recovered quest system remains the execution engine for compatible quest
+content. Phase 1 provides a validated, namespaced adapter over it. Future custom
+quest procedures should use Lua handlers and typed quest capabilities under
+section 3.7, while preserving recovered scheduling, progression, and save semantics.
 
 ## P1B.1 QuestDefinition and QuestStageDefinition
 
@@ -623,8 +694,8 @@ Silently mapping it to `QUEST_EVENT_NONE` is not parity.
 
 ## P1B.3 Quest conditions and expression system
 
-Wrap verified `QuestCondition` capabilities instead of exposing expression strings
-without validation. Required concepts include:
+For recovered-content compatibility, wrap verified `QuestCondition` capabilities
+instead of exposing expression strings without validation. Required concepts include:
 
 - equal/greater/greater-equal/less/less-equal;
 - nested AND/OR/NOT;
@@ -637,15 +708,19 @@ without validation. Required concepts include:
 - enchantment state;
 - shop-open state;
 - raid/mode state where supported;
-- safe math/string helpers only where required by actual content.
+- verified recovered math/string expressions only where required for compatibility.
+
+Custom calculations and branching belong in Lua. Future programmable quest
+support should expose typed queries/predicates instead of expanding this
+compatibility grammar into a general-purpose expression interpreter.
 
 Any property that reads shared economy may be query-only if needed for compatibility;
 it must not imply mutation authority.
 
 ## P1B.4 Quest actions
 
-Expose an allowlist of actions whose semantics are verified and safe. Important DE
-families include:
+Preserve an allowlist of compatibility actions whose semantics are verified and
+safe. Important DE families include:
 
 - dialog/story presentation;
 - enter/start/show/hide fight or battle;
@@ -661,6 +736,12 @@ families include:
 Do **not** expose the entire recovered action factory. It contains currency,
 billing, advertisement, network, platform, and legacy service actions outside the
 public contract.
+
+For future custom quest procedures, expose verified domain operations to Lua
+handlers. A handler should perform its own branching and call an operation to
+open content or update allowed state, rather than construct generic instruction
+tables. Callback names, scheduling, resumability, and state access require a
+separate verified contract; Phase 1 action registration does not supply one.
 
 ### Deferred/no-op action blocker
 
@@ -887,6 +968,13 @@ DE fixtures include `AirPunch`, `MindThrow*Normal`, `ShadowCloakPlayer`,
 Tactic support depends on moves existing first. Expose typed reaction/tactic
 definitions and references instead of raw tactic XML replacement.
 
+These definitions cover ordinary recovered tactics. Custom decision-making
+should eventually use Lua decision handlers with typed observations and supported
+move/target capabilities, rather than an ever-growing declarative decision tree.
+That programmable contract remains unimplemented until authoritative decision
+seams, ordering, and execution bounds are established. Static move metadata and
+recovered animation timelines can remain data.
+
 DE fixtures include `HermitStorm` and `WallRunUp` reactions.
 
 ### P1D exit criteria
@@ -900,6 +988,15 @@ DE fixtures include `HermitStorm` and `WallRunUp` reactions.
 ---
 
 # PHASE P2A: EXPANDED COMBAT BEHAVIORS
+
+**In progress, 2026-09-09.** The first slice adds player `on_damage_received`
+after resolved-hit health application, typed damage observations, and expiring
+fighter capability tables. `Mods/example.phase2` provides Measured Resolve and
+Quick Resolve using one Lua behavior with different typed parameters. Real Lua
+and production-dispatch fixtures cover branching, state reset, failure isolation,
+re-entry and compatibility. Gameplay acceptance is pending. Round/end hooks,
+temporary effects/modifiers, opponent contexts and broader representative mechanics
+remain unimplemented; P2A is not yet complete. See the sample README for scope.
 
 API 0.3 proves the reusable behavior + typed instance parameter architecture. Do
 not replace it with template copying. Expand it carefully at authoritative combat
@@ -953,6 +1050,12 @@ engine internals still need it.
 
 ### P2A exit criteria
 
+- a runnable public Lua example reacts to a verified combat event, makes a
+  runtime decision using typed event/query data and mod-owned state, and invokes
+  a supported gameplay capability; its custom procedure cannot be represented
+  by translating registration tables into existing SF2 XML;
+- the example reuses one behavior with different typed instance parameters and
+  tests runtime effects, event order, state lifetime, error isolation, and cleanup;
 - representative DE perk/enchantment/set mechanics that depend on hit/damage/
   round state can be implemented without copying recovered XML templates;
 - callback ordering is tested;
@@ -1536,6 +1639,9 @@ Parallel lanes after P0:
 A domain is not done until **all** of these are true:
 
 - public typed definition exists;
+- static definitions and executable procedures follow section 3.7; domains
+  claiming custom behavior expose tested Lua handlers and typed capabilities,
+  with unsupported behavioral surfaces documented as gaps;
 - namespace/dependency validation exists;
 - add/reference behavior exists;
 - required targeted patch/remove behavior exists;
@@ -1558,9 +1664,17 @@ If only the DTO/registry exists, the task is **not complete**.
 # 10. Immediate next milestone
 
 P0 through P1 are now complete enough for the next dependency-ordered production
-milestone. The next unstarted phase is **P2A: expanded combat behaviors**.
+milestone. The current phase is **P2A: expanded combat behaviors**, in progress.
 
 Do not bypass P2A by adding DE-specific perk/effect shortcuts. Continue the API
 0.3 reusable behavior + typed per-instance parameter architecture and add only
 authoritative recovered lifecycle events and narrow fighter/effect operations.
 The Phase 1 showcase must remain green while P2A is developed.
+
+Prioritize one complete behavior example meeting the P2A exit criteria before
+expanding the event catalog broadly. Use a source-backed mechanic with real Lua
+decisions and state; document exactly which hooks are available. The existing
+`on_fight_begin` slice is a foundation; `on_damage_received` is now implemented
+for normal player fights. Other proposed hit/damage handlers must not appear
+in examples as if they already work. Programmable quest and
+AI support remain recorded follow-up gaps under section 3.7.

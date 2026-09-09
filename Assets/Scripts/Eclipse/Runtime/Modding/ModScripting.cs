@@ -405,7 +405,8 @@ namespace Eclipse.Modding
 
     public enum ModEffectEvent
     {
-        FightBegin = 0
+        FightBegin = 0,
+        DamageReceived = 1
     }
 
     public interface IModScriptContext : IDisposable
@@ -430,6 +431,29 @@ namespace Eclipse.Modding
     {
         bool TryChangeHealth(double amount, out string error);
         bool TryAddMagicCharge(double amount, out string error);
+    }
+
+    // Immutable observations of a resolved hit, never a live engine object.
+    public sealed class ModDamageEvent
+    {
+        public int Round { get; }
+        public double HealthBefore { get; }
+        public double HealthAfter { get; }
+        public double Damage => System.Math.Max(0, HealthBefore - HealthAfter);
+        public bool Blocked { get; }
+        public bool Critical { get; }
+        public ModDamageEvent(int round, double before, double after, bool blocked, bool critical)
+        {
+            if (round < 1 || double.IsNaN(before) || double.IsInfinity(before) ||
+                double.IsNaN(after) || double.IsInfinity(after) || before < 0 || after < 0)
+                throw new System.ArgumentOutOfRangeException(nameof(before));
+            Round = round; HealthBefore = before; HealthAfter = after; Blocked = blocked; Critical = critical;
+        }
+    }
+
+    public interface IModDamageEventSource
+    {
+        ModDamageEvent DamageEvent { get; }
     }
 
     public interface IModInteractiveBehaviorScriptContext

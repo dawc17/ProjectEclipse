@@ -53,6 +53,14 @@ public static class ValidatePackagedArt
 
     private static void CheckPackagedBundles()
     {
+        Sprite showcaseBackground = PackagedArtCatalog.Load<Sprite>("Textures/Locations/battlefield/battlefield_bg1.back_1");
+        Require(showcaseBackground != null && showcaseBackground.rect.width > 0 && showcaseBackground.pixelsPerUnit > 0,
+            "Phase 1 arena background is not a loadable packaged sprite.");
+        AssetMetadata backgroundMetadata;
+        Require(new CoreAssetProvider().TryDescribe(AssetId.Parse("core:Textures/Locations/battlefield/battlefield_bg1.back_1"), out backgroundMetadata)
+            && backgroundMetadata.Kind == AssetKind.Sprite, "Arena background cannot resolve through the public asset API.");
+        Require(LocationSpriteCache.PPBEKKDIJKC("core:textures/locations/battlefield", "battlefield_bg1.back_1", "") == showcaseBackground,
+            "Arena sprite failed through the recovered location cache.");
         TextAsset manifest = Resources.Load<TextAsset>(PackagedArtCatalog.CatalogResourcePath);
         Require(manifest != null, "Packaged catalog missing");
         PackagedArtCatalog.Catalog catalog = PackagedArtCatalog.ReadCatalog(manifest.text);

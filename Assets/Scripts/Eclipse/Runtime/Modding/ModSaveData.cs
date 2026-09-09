@@ -631,6 +631,11 @@ namespace Eclipse.Modding
                 for (int j = 0; j < location.Layers.Count; j++)
                 {
                     LocationLayerDefinition layer = location.Layers[j]; Append(canonical, layer.Type); Append(canonical, layer.Factor);
+                    if (layer.Fighters != null)
+                    {
+                        Append(canonical, "fighters"); Append(canonical, layer.Fighters.PlayerX); Append(canonical, layer.Fighters.PlayerY);
+                        Append(canonical, layer.Fighters.EnemyX); Append(canonical, layer.Fighters.EnemyY);
+                    }
                     Append(canonical, layer.Scaling); Append(canonical, layer.Images.Count);
                     for (int k = 0; k < layer.Images.Count; k++)
                     {

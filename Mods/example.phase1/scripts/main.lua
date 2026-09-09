@@ -10,6 +10,7 @@ sf2.state.register {
 
 -- Shared typed assets used by P1C and P1D. These are ordinary loose-mod assets.
 local showcase_sprite = sf2.assets.sprite("sprites/showcase")
+local arena_background = sf2.assets.sprite("core:Textures/Locations/battlefield/battlefield_bg1.back_1")
 local showcase_audio = sf2.assets.audio("audio/showcase")
 local showcase_animation = sf2.assets.binary("animations/showcase_step")
 
@@ -25,8 +26,8 @@ local perk_description = sf2.localization.key("showcase.perk.description")
 sf2.locales.register {
     id = "showcase_english",
     name = "eng_showcase",
-    locale = "en",
-    alias = "Phase1Showcase",
+    locale = "en-x-phase1",
+    alias = "example.phase1:localization/showcase.locale",
     file_icon = "usbr",
     file_icon_selected = "usbr_selected",
     loader_image = "Logo",
@@ -46,14 +47,51 @@ local showcase_location = sf2.locations.register {
         {
             type = 1,
             factor = 1,
+            images = {
+                { sprite = arena_background, x = 0, y = 0, width = 1936, height = 1024 },
+            },
+        },
+        {
+            type = 1,
+            factor = 1,
             scaling = false,
             images = {
-                { sprite = showcase_sprite, x = 0, y = 0, width = 256, height = 256 },
+                { sprite = showcase_sprite, x = 0, y = -100, width = 200, height = 200 },
             },
+        },
+        {
+            type = 2,
+            factor = 1,
+            -- Recovered battlefield spawn positions; this layer hosts the fighters.
+            fighters = { player_x = 868, player_y = -94, enemy_x = 1068, enemy_y = -94 },
         },
     },
 }
 local showcase_location_name = sf2.locations.name(showcase_location)
+
+-- The perk also scopes the opening animation to the showcase fighter.
+local opening_focus_behavior = sf2.behaviors.register {
+    id = "opening_focus_counter",
+    parameters = {
+        magic_charge = { type = sf2.behaviors.NUMBER, required = false, default = 0.25 },
+    },
+    on_fight_begin = function(parameters, fighter)
+        fighter:add_magic_charge(parameters.magic_charge)
+        local count = sf2.state.get("fight_begins") or 0
+        sf2.state.set { fight_begins = count + 1 }
+        sf2.log.info("Phase 1 showcase fight begin #" .. tostring(count + 1))
+    end,
+}
+
+local opening_focus = sf2.perks.register {
+    id = "opening_focus",
+    behavior = opening_focus_behavior,
+    kind = sf2.perks.SINGLE,
+    display_name = perk_name,
+    description = perk_description,
+    icon = showcase_sprite,
+    parameters = { magic_charge = 0.25 },
+}
 
 local forward_step_template = sf2.moves.register_template {
     id = "showcase_forward_step",
@@ -64,12 +102,16 @@ local showcase_step = sf2.moves.register {
     id = "showcase_step",
     animation = showcase_animation,
     templates = { forward_step_template },
-    core_templates = { "1key", "Step", "Forward", "Controlled", "SoundStrike" },
+    core_templates = { "Step", "Forward", "SoundStrike" },
     type = "MOVE",
     priority = 10,
     mid_frames = 2,
     first_frame = 3,
     mirror_node = "NHeel_1",
+    -- A deterministic opening step, not a new player movement binding.
+    events = { { type = sf2.moves.ROUND_STAGE_START, name = "Fight" } },
+    conditions = { { type = sf2.moves.PERK, perk = opening_focus } },
+    intervals = { { type = "Block" }, { name = "Throwable" } },
 }
 
 sf2.moves.register_trigger {
@@ -87,10 +129,8 @@ local showcase_tactic = sf2.tactics.register {
     type = sf2.tactics.TABULAR,
     template = "Standard",
     memory = { strikes = 2, round_factor = 0.25 },
-    safe_attack = { base = 1, distance_factor = 0.1 },
-    animation_weights = {
-        { move = showcase_step, value = { base = 1 } },
-    },
+    -- Inherit Standard's complete movement/attack weights. Supplying a weights
+    -- section replaces that section; weighting only the opening move stalls AI.
 }
 
 -- P1C: a non-equipment item, availability overlay, item set, and forge family that borrows
@@ -107,7 +147,7 @@ local phase_token = sf2.items.register_consumable {
 
 sf2.shop.set_availability {
     item = phase_token,
-    visibility = sf2.shop.FORCE_VISIBLE,
+    visibility = sf2.shop.FORCE_HIDDEN,
 }
 
 sf2.itemsets.register {
@@ -120,30 +160,10 @@ sf2.itemsets.register {
     },
 }
 
-local opening_focus_behavior = sf2.behaviors.register {
-    id = "opening_focus_counter",
-    parameters = {},
-    on_fight_begin = function(parameters, fighter)
-        local count = sf2.state.get("fight_begins") or 0
-        sf2.state.set { fight_begins = count + 1 }
-        sf2.log.info("Phase 1 showcase fight begin #" .. tostring(count + 1))
-    end,
-}
-
-local opening_focus = sf2.perks.register {
-    id = "opening_focus",
-    behavior = opening_focus_behavior,
-    kind = sf2.perks.SINGLE,
-    display_name = perk_name,
-    description = perk_description,
-    icon = showcase_sprite,
-    parameters = {},
-}
-
 local simple_profile = sf2.forge.profile("Simple")
 sf2.forge.register_recipe {
     id = "showcase_simple",
-    alias = "Phase1Showcase",
+    alias = "example.phase1:localization/showcase.forge",
     economic_profile = simple_profile,
     items = {
         {
@@ -163,7 +183,7 @@ sf2.forge.register_recipe {
 -- P1A: one complete Zone -> Battle -> Warrior/Rule/Reward -> Fight graph.
 local showcase_zone = sf2.zones.register {
     id = "showcase_zone",
-    file = "",
+    file = "Map1.1",
     start = false,
 }
 
@@ -173,9 +193,9 @@ local showcase_battle = sf2.battles.register {
     type = sf2.battles.STORY,
     x = 0,
     y = 0,
-    alias = "Phase1Showcase",
-    title = "Phase 1 Showcase",
-    description = "Integrated public API showcase",
+    alias = "example.phase1:localization/showcase.battle",
+    title = "example.phase1:localization/showcase.battle",
+    description = "example.phase1:localization/showcase.description",
     location = showcase_location_name,
 }
 
@@ -183,8 +203,8 @@ local default_template = sf2.warriors.get_template("core:warrior-templates/defau
 local showcase_warrior = sf2.warriors.register {
     id = "showcase_warrior",
     template = default_template,
-    first_name = "Showcase",
-    last_name = "Fighter",
+    first_name = "example.phase1:localization/showcase.fighter",
+    last_name = "",
     level = 1,
     tactic = showcase_tactic,
     perks = { opening_focus },
@@ -196,6 +216,12 @@ local recharge_rule = sf2.rules.recharge_magic_each_round {
     mode = sf2.rules.BOTH,
 }
 
+-- Recovered reward slots are indexed by wins: zero wins uses slot 0;
+-- this one-round fight's victory uses slot 1.
+local no_win_reward = sf2.rewards.register {
+    id = "showcase_no_win",
+    items = {},
+}
 local token_reward = sf2.rewards.register {
     id = "showcase_reward",
     items = {
@@ -209,14 +235,14 @@ local showcase_fight = sf2.fights.register {
     rounds = 1,
     round_time = 99,
     location = showcase_location_name,
-    description = "Phase 1 showcase fight",
+    description = "example.phase1:localization/showcase.description",
     warriors = { showcase_warrior },
     rules = { recharge_rule },
-    rewards = { token_reward },
+    rewards = { no_win_reward, token_reward },
 }
 
--- P1B: map/session discovery plus a fight-end condition that crosses back into the P1A graph
--- and grants the P1C item through a typed action.
+-- P1B: map/session discovery plus a fight-end dialog scoped to the P1A graph.
+-- The fight reward alone grants the token, avoiding a duplicate quest grant.
 sf2.quests.register {
     id = "showcase_intro",
     priority = 10,
@@ -243,10 +269,10 @@ sf2.quests.register {
     actions = {
         {
             type = "dialog",
-            title = "Phase 1 Showcase",
-            lines = { "The integrated Phase 1 public API path completed." },
+            title = "example.phase1:localization/showcase.battle",
+            lines = { "example.phase1:localization/showcase.completed" },
         },
-        { type = "give_item", item = phase_token },
+
     },
 }
 

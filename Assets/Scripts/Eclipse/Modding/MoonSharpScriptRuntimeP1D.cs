@@ -56,6 +56,7 @@ namespace Eclipse.Modding
                 moves.Set("CURRENT_ANIMATION", DynValue.NewString("current_animation"));
                 moves.Set("CURRENT_INTERVAL", DynValue.NewString("current_interval"));
                 moves.Set("ITEM", DynValue.NewString("item"));
+                moves.Set("PERK", DynValue.NewString("perk"));
                 moves.Set("ALL", DynValue.NewString("all"));
                 moves.Set("ANY", DynValue.NewString("any"));
                 moves.Set("SOUND", DynValue.NewString("sound"));
@@ -167,10 +168,24 @@ namespace Eclipse.Modding
                     if (entry.Type != DataType.Table) throw new ModContentException(function + " entries must be tables.");
                     string where = function + "[" + i + "]";
                     Table layer = entry.Table;
-                    ValidateFields(layer, where, "type", "factor", "scaling", "images");
+                    ValidateFields(layer, where, "type", "factor", "scaling", "images", "fighters");
+                    LocationFighterPositions fighters = null;
+                    DynValue fighterValue = layer.Get("fighters");
+                    if (!fighterValue.IsNil())
+                    {
+                        if (fighterValue.Type != DataType.Table) throw new ModContentException(where + ".fighters must be a table.");
+                        Table positions = fighterValue.Table;
+                        ValidateFields(positions, where + ".fighters", "player_x", "player_y", "enemy_x", "enemy_y");
+                        foreach (string field in new[] { "player_x", "player_y", "enemy_x", "enemy_y" })
+                            if (positions.Get(field).IsNil()) throw new ModContentException(where + ".fighters requires " + field + ".");
+                        fighters = new LocationFighterPositions(OptionalFloat(positions, "player_x", 0, where),
+                            OptionalFloat(positions, "player_y", 0, where), OptionalFloat(positions, "enemy_x", 0, where),
+                            OptionalFloat(positions, "enemy_y", 0, where));
+                    }
                     result.Add(new LocationLayerDefinition(OptionalInt(layer, "type", 1, where),
                         OptionalFloat(layer, "factor", 1f, where), OptionalBool(layer, "scaling", false, where),
-                        ReadLocationImages(layer.Get("images"), where + ".images")));
+                        layer.Get("images").IsNil() ? Array.Empty<LocationImageDefinition>() :
+                            ReadLocationImages(layer.Get("images"), where + ".images"), fighters));
                 }
                 EnsureDenseArray(array, result.Count, function);
                 if (result.Count == 0) throw new ModContentException(function + " must not be empty.");
@@ -315,6 +330,13 @@ namespace Eclipse.Modding
             {
                 string type = RequiredString(table, "type", function);
                 ModMoveConditionKind kind = ParseMoveConditionKind(type, function);
+                if (kind == ModMoveConditionKind.Perk)
+                {
+                    ValidateFields(table, function, "type", "perk", "player", "not");
+                    return new ModMoveCondition(kind, RequiredHandle(table, "perk", _perkHandles, "perk", function).ToString(),
+                        OptionalStringAllowEmpty(table, "player", string.Empty, function),
+                        not: OptionalBool(table, "not", false, function));
+                }
                 if (kind == ModMoveConditionKind.All || kind == ModMoveConditionKind.Any)
                 {
                     ValidateFields(table, function, "type", "not", "conditions");
@@ -496,6 +518,7 @@ namespace Eclipse.Modding
             {
                 switch (value)
                 {
+                    case "perk": return ModMoveConditionKind.Perk;
                     case "current_animation": return ModMoveConditionKind.CurrentAnimation;
                     case "current_interval": return ModMoveConditionKind.CurrentInterval;
                     case "item": return ModMoveConditionKind.Item;

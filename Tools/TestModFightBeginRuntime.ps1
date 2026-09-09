@@ -9,8 +9,15 @@ $definitionIdPath = Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/Defi
 # stubbed. This keeps the regression tied to the real one-shot integration seam rather than a
 # duplicate implementation in the test.
 $dispatch = [regex]::Match($fightSource,
-    '(?ms)^\tprivate void DispatchEclipseFightBegin\(\).*?^\t\}(?=\r?\n\r?\n\tprivate void StartStance)').Value
-if (!$dispatch) { throw 'Could not extract DispatchEclipseFightBegin from Fight.cs.' }
+    '(?ms)^\tprivate void DispatchEclipseCombatEvent\([^\r\n]*\).*?^\t\}(?=\r?\n\r?\n\tprivate void StartStance)').Value
+if (!$dispatch) { throw 'Could not extract DispatchEclipseCombatEvent from Fight.cs.' }
+$damageBefore = $fightSource.IndexOf('float eclipseHealthBefore =')
+$damageApply = $fightSource.IndexOf('UpdateLife(EGHPHELLOGO.KJDFJPBIGJC', $damageBefore)
+$damageDispatch = $fightSource.IndexOf('DispatchEclipseCombatEvent(ModEffectEvent.DamageReceived', $damageApply)
+$damageBookkeeping = $fightSource.IndexOf('KDMDOBOKAIB(EGHPHELLOGO.KJDFJPBIGJC', $damageDispatch)
+if ($damageBefore -lt 0 -or $damageApply -le $damageBefore -or $damageDispatch -le $damageApply -or $damageBookkeeping -le $damageDispatch) {
+    throw 'Damage callback is not ordered after health application and before hit bookkeeping.'
+}
 
 $testRoot = Join-Path $root 'Temp/ModFightBeginRuntime'
 New-Item -ItemType Directory -Force -Path $testRoot | Out-Null
@@ -33,6 +40,8 @@ namespace UnityEngine
 
 namespace Eclipse.Modding
 {
+    public enum ModEffectEvent { FightBegin, DamageReceived }
+    public sealed class ModDamageEvent {}
     public interface IModFighterOperations
     {
         bool TryChangeHealth(double amount, out string error);
@@ -87,16 +96,18 @@ namespace Eclipse.Modding
         public sealed class Invocation
         {
             public string Id;
+            public ModEffectEvent Event;
             public Dictionary<string, string> Context;
         }
 
         public static ModScriptSession Scripts;
+        public static Action OnInvoke;
         public static readonly List<Invocation> Invocations = new List<Invocation>();
         public static readonly HashSet<string> FailIds = new HashSet<string>(StringComparer.Ordinal);
         public static readonly HashSet<string> ThrowIds = new HashSet<string>(StringComparer.Ordinal);
 
         public static bool TryInvokeSavedEnchantmentFightBegin(XmlNode perkNode,
-            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error, ModEffectEvent effectEvent = ModEffectEvent.FightBegin)
         {
             string id = perkNode.Attributes?[PerkStruct.EclipseEnchantmentAttribute]?.Value ?? string.Empty;
             var context = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -120,7 +131,7 @@ namespace Eclipse.Modding
         }
 
         public static bool TryInvokeSavedPerkFightBegin(XmlNode perkNode,
-            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error, ModEffectEvent effectEvent = ModEffectEvent.FightBegin)
         {
             string id = perkNode.Attributes?["Name"]?.Value ?? string.Empty;
             var context = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -128,7 +139,8 @@ namespace Eclipse.Modding
             {
                 foreach (KeyValuePair<string, string> pair in fighterContext) context[pair.Key] = pair.Value;
             }
-            Invocations.Add(new Invocation { Id = id, Context = context });
+            Invocations.Add(new Invocation { Id = id, Context = context, Event = effectEvent });
+            OnInvoke?.Invoke();
             error = string.Empty;
             return true;
         }
@@ -221,12 +233,13 @@ public sealed class FightHarness
 {
     private sealed class EclipseFighterOperations : Eclipse.Modding.IModFighterOperations
     {
-        public EclipseFighterOperations(FightHarness fight, Model model) { }
+        public EclipseFighterOperations(FightHarness fight, Model model, ModDamageEvent damageEvent = null) { }
         public bool TryChangeHealth(double amount, out string error) { error = string.Empty; return true; }
         public bool TryAddMagicCharge(double amount, out string error) { error = string.Empty; return true; }
     }
 
     private bool _eclipseFightBeginDispatched;
+    private bool _eclipseCombatDispatching;
     private readonly RoundStub round = new RoundStub();
     private readonly ModelParameters NMNCKBPFCCP;
     private readonly Model _playerModel = new Model();
@@ -237,7 +250,8 @@ public sealed class FightHarness
         round.round = roundNumber;
     }
 
-    public void Dispatch() { DispatchEclipseFightBegin(); }
+    public void Dispatch() { DispatchEclipseCombatEvent(); }
+    public void Damage() { DispatchEclipseCombatEvent(ModEffectEvent.DamageReceived, new ModDamageEvent()); }
 
 __DISPATCH__
 }
@@ -344,6 +358,34 @@ public static class Program
         new FightHarness(opponent, 1).Dispatch();
         Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 4,
             "Saved UserItem behavior dispatched for a non-player fighter.");
+
+        scripts.Content.AddPerk("example.mod:perks/forged", true);
+        var forgedPlayer = new ModelParameters { IsPlayer = true };
+        forgedPlayer.Items.Add(weapon);
+        forgedPlayer.NHBIJEEKALC.Add(new PerkInfoItem { Name = "example.mod:perks/forged" });
+        ListSF.Roster.UserItems.Add(weapon, SavedItem(
+            "<Item Name='weapon_test'><Enchantments>" +
+            "<Perk Name='example.mod:perks/forged'/><Perk Name='example.mod:perks/forged'/>" +
+            "<Perk Name='example.mod:perks/inactive_perk'/>" +
+            "</Enchantments></Item>"));
+        var forgedFight = new FightHarness(forgedPlayer, 1);
+        forgedFight.Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 5,
+            "Forged perk did not dispatch exactly once or ignored active-perk filtering.");
+        var forged = Eclipse.Modding.ModRuntime.Invocations.Last();
+        Assert(forged.Id == "example.mod:perks/forged" && forged.Context["source"] == "enchantment" &&
+            forged.Context["perk_id"] == forged.Id && forged.Context["item_id"] == "weapon_test" &&
+            !forged.Context.ContainsKey("enchantment_id"), "Forged perk context lost its equipment provenance.");
+        forgedFight.Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 5, "Forged perk dispatched twice in one fight.");
+        Eclipse.Modding.ModRuntime.OnInvoke = forgedFight.Damage;
+        forgedFight.Damage();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 6 &&
+            Eclipse.Modding.ModRuntime.Invocations.Last().Event == ModEffectEvent.DamageReceived,
+            "Damage dispatch was suppressed by FightBegin or re-entered recursively.");
+        Eclipse.Modding.ModRuntime.OnInvoke = null;
+        forgedFight.Damage();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 7, "Damage dispatch did not release its re-entry guard.");
 
         Console.WriteLine("Mod FightBegin runtime seam: PASS (learned perks, saved enchantments, active filtering, context, isolation, one-shot).");
         return 0;

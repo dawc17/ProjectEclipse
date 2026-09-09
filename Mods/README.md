@@ -14,6 +14,26 @@ and `example.enchantment` for the API 0.3 reusable behavior + typed perk/enchant
 That sample also keeps its older template-derived Lifesteal definitions as an explicit API 0.2
 compatibility example.
 
+## API design: definitions and behavior
+
+Static content belongs in typed definitions; custom procedures belong in Lua
+handlers using safe typed capabilities. Lua functions should express branching,
+calculations, dynamic choices, and state changes. We should not recreate a generic
+action/expression interpreter inside Lua to express that logic.
+
+Phase 1 chiefly demonstrates content registration, validation, references, and
+recovered-runtime integration. Its quest condition/action tables and ordinary
+tactics are supported compatibility authoring paths. They do not define the
+intended shape of future custom quest or AI logic, and the showcase alone does
+not demonstrate the full programmable direction.
+
+The current executable foundation is reusable perk/enchantment behavior with
+typed instance parameters, `on_fight_begin`, the documented health/magic-charge
+capabilities, and mod-owned state. Expanded combat events, quest callbacks, and
+programmable AI remain roadmap work. The
+[design rule and acceptance criteria](DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior)
+guide that work; the API sections below describe what is available today.
+
 ## Sprites and textures
 
 Keep image pixels separate from sprite definitions:
@@ -311,6 +331,7 @@ local rule = sf2.rules.recharge_magic_each_round {
     mode = sf2.rules.BOTH,
 }
 
+local no_win_reward = sf2.rewards.register { id = "arena_no_win", items = {} }
 local reward = sf2.rewards.register {
     id = "arena_reward",
     items = { { item = some_item } },
@@ -323,7 +344,7 @@ local fight = sf2.fights.register {
     round_time = 99,
     warriors = { fighter },
     rules = { rule },
-    rewards = { reward },
+    rewards = { no_win_reward, reward },
 }
 ```
 
@@ -339,10 +360,17 @@ attributes, and no-button. Shared currency/cost rule forms remain private.
 
 Rewards currently expose non-economic item grants and weighted item choices. Shared
 money/currency reward tuning is intentionally not public.
+Reward entries preserve the recovered zero-based win-count slots: a one-round
+fight needs an empty slot 0 followed by its victory reward in slot 1. Empty reward
+definitions are supported for this purpose; Lua array positions are 1 and 2.
 
 ### Quests
 
-`sf2.quests.register` adapts typed Lua data into the recovered quest engine:
+`sf2.quests.register` adapts typed Lua data into the recovered quest engine.
+
+This is the shipped Phase 1 compatibility surface. Future custom quest logic
+should use Lua handlers and typed operations; quest callbacks are not exposed by
+this registration API today.
 
 ```lua
 sf2.quests.register {
@@ -425,7 +453,7 @@ local anim = sf2.assets.binary("animations/arena_step")
 sf2.locales.register {
     id = "arena_english",
     name = "eng_arena",
-    locale = "en",
+    locale = "en-x-arena",
 }
 
 local location = sf2.locations.register {
@@ -433,6 +461,7 @@ local location = sf2.locations.register {
     music = music,
     layers = {
         { images = { { sprite = sf2.assets.sprite("sprites/background") } } },
+        { type = 2, fighters = { player_x = 868, player_y = -94, enemy_x = 1068, enemy_y = -94 } },
     },
 }
 
@@ -485,11 +514,37 @@ because no safe recovered reversible replace/remove seam has been proven. Ordina
 recovered tactics are supported; DE `ConditionalDecisions` remains unsupported
 because no authoritative parser/evaluator exists in the recovered runtime.
 
+Locale names and platform codes must both be unique against the shipped language
+metadata. Use a private-use code such as `en-x-arena` for an English variant;
+`en` already belongs to the base English entry. Additive locales inherit the
+default language's base text and fonts unless explicit fonts are supplied. Mod
+TOML translations still fall back to `eng` when the selected language has no file.
+
+A fight location needs a gameplay layer (`type = 2`). Its optional `fighters`
+record supplies all four spawn coordinates shown above; this layer may omit
+`images`. These coordinates are recovered location units, not screen pixels.
+The `color` field colors the fighters, not a full-screen backdrop.
+
+`ForwardStep` is a classification template, not an input binding. Moves require
+activation events and applicable conditions. The integrated showcase uses
+`ROUND_STAGE_START` with `name = "Fight"` and a `PERK` condition whose `perk`
+field is an opaque perk handle. This uses the recovered perk predicate to scope
+the move to the showcase fighter. It does not add a player dash key.
+
+For a mod zone's map footer, define the localization key `zones/<zone-local-id>`
+in that mod's TOML files. The adapter publishes it under the zone's qualified
+runtime name, which the recovered map uses for its title.
+
 `Mods/example.phase1` is the integrated Phase 1 showcase. It combines durable
 state, localization, P1C content, P1D location/move/tactic content, a P1A stage
 graph, and P1B quest flow using only the public Lua API on an unchanged base install.
 
 ## Perks, enchantments, and reusable behaviors (0.3)
+
+This is the executable side of the API: definitions bind typed parameters to
+reusable Lua code, and that code calls supported runtime capabilities. The current
+event surface now includes `on_fight_begin` and the first P2A
+`on_damage_received` slice described in `example.phase2/README.md`.
 
 API 0.3 separates three concepts that the recovered engine historically represented with
 the same `PerkInfoItem` machinery:
@@ -685,7 +740,15 @@ The save-specific dispatcher is deliberately player-only: recovered AI loadouts 
 authoritative `UserItem` instance after fight-rule equipment replacement. `FightNone`/punchbag
 also does not use the normal `NextRound` lifecycle and has no `on_fight_begin` policy yet.
 
-Only `on_fight_begin` is wired today. Later hit/damage/round events should continue to be added one
+The first P2A slice also wires `on_damage_received(parameters, fighter, event)`
+after a resolved hit reduces the player's health in the normal fight lifecycle.
+The third argument provides numeric `round`, `health_before`, `health_after`,
+and `damage`, plus boolean `blocked` and `critical`. Existing capabilities are
+valid only during their invocation; retaining a fighter table does not retain
+mutation authority. See [Measured Resolve](example.phase2/README.md) for the
+playable example, source ordering, tests, and current limitations.
+
+Further hit/damage/round events should continue to be added one
 at a time from authoritative recovered event seams, with similarly narrow capabilities rather than
 giving Lua unrestricted access to mutable engine objects.
 

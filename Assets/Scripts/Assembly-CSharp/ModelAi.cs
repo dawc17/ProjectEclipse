@@ -946,6 +946,9 @@ public class ModelAi
 
 	private bool IsPlayableAnimations(InfoAnimation DBOLBEOCEME)
 	{
+		// AI executes its choices through key input. Event-only animations are
+		// started by their runtime events and cannot be selected by this path.
+		if (DBOLBEOCEME.ILBCHANCOBP() == null) return false;
 		List<InfoAnimation> list = _Model.MCFPDHOLNGB();
 		if (!list.Contains(DBOLBEOCEME))
 		{
@@ -966,7 +969,7 @@ public class ModelAi
 		{
 			foreach (InfoAnimation item in iCANLHJKKNE.NINJLLDJLFI)
 			{
-				if (list.Contains(item))
+				if (list.Contains(item) && item.ILBCHANCOBP() != null)
 				{
 					dGJJDPIAEAO.PDKPGKPBBIL = item.FOLOOGCLPNE();
 					dGJJDPIAEAO.PCAOCHAIBJC = item.CEDEDCLGJDE(dGJJDPIAEAO, _ModelAnimation.KFCNPADAMHA());
@@ -983,6 +986,7 @@ public class ModelAi
 
 	private bool IsTacticPlayableAnimations(InfoAnimation DBOLBEOCEME)
 	{
+		if (DBOLBEOCEME.ILBCHANCOBP() == null) return false;
 		List<InfoAnimation> list = _Model.MCFPDHOLNGB();
 		if (!list.Contains(DBOLBEOCEME))
 		{
@@ -1693,6 +1697,9 @@ public class ModelAi
 		}
 		GroupTables kMLMHGLLOHM = null;
 		List<global::Pair<List<GroupTables>, string>> list = pJAHIOELGGD.NLCLHLIPFFH()[2];
+		// Event-only poses/steps can legitimately have no precomputed dodge table.
+		if (list.Count == 0 && NPIOFGMJDKI == BHIOPDNPEPA.Standard && pJAHIOELGGD.ILBCHANCOBP() == null)
+			return 0;
 		if (list.Count == 1)
 		{
 			List<GroupTables> lLHEDBIEHAA = list[0].First;

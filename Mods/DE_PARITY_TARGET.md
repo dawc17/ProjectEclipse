@@ -51,6 +51,11 @@ an API alone cannot recreate missing models, music, or animations.
   Mods need supported asset loading and replacement, alongside data definitions.
 - Provide runtime hooks for behavior that data alone cannot express, including
   combat effects, mode entry, reward calculation, and UI/service policy.
+- Keep static content typed/declarative and custom procedures in Lua handlers
+  using safe typed capabilities. Do not recreate a generic operation language
+  inside Lua for branching, arithmetic, or state manipulation. Existing recovered
+  content adapters remain supported; they do not define the limit of custom
+  behavior. See [the API design rule](DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior).
 - Define deterministic dependency/load order and conflict diagnostics. Report
   unsupported fields or actions instead of silently dropping DE behavior.
 - Keep mod-owned progression and state saveable, with versioned migrations and
@@ -77,6 +82,10 @@ an API alone cannot recreate missing models, music, or animations.
    modes, item acquisition/upgrading, and save/reload behavior in Unity.
 5. Verify the base profile separately with the DE mod disabled and check defined
    conflict behavior with another mod changing an overlapping definition.
+6. Demonstrate programmable behavior through a runnable Lua handler that makes
+   runtime decisions, maintains mod-owned state, and calls verified gameplay
+   capabilities. Typed registration alone, even if it covers all static XML
+   content, is insufficient evidence of this behavioral capability.
 
 The economy changes directly applied to `Assets/vanillaXml/` during September 8
 are explicitly requested changes. Preserve them as the canonical Eclipse economy.

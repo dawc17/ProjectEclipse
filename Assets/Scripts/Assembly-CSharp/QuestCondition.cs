@@ -35,6 +35,7 @@ public class QuestCondition : ConditionExtension
 	public List<QuestCondition> conditions = new List<QuestCondition>();
 
 	public bool isNot;
+	private bool _compareVersions;
 
 	private QuestParameters GFIHPBCEEOB;
 
@@ -77,6 +78,7 @@ public class QuestCondition : ConditionExtension
 	public virtual void Parse(XmlNode BGPKIKNPIKP)
 	{
 		isNot = XmlUtils.ParseBool(BGPKIKNPIKP.Attributes["Not"]);
+		_compareVersions = XmlUtils.ParseString(BGPKIKNPIKP.Attributes["CompareType"]) == "Versions";
 		LFLGCDNKNJI = MHKNIEBONKD(BGPKIKNPIKP.Name);
 		FDHOMBHPNEF = FDFDIMHDFNH(XmlUtils.ParseString(BGPKIKNPIKP.Attributes["Type"]));
 		HJBGHOJCEKO = ClearGaps(XmlUtils.ParseString(BGPKIKNPIKP.Attributes["Value1"]));
@@ -242,6 +244,14 @@ public class QuestCondition : ConditionExtension
 
 	private bool KGCPIDICOJB(CompareResult HJJBNECFJGO, CompareResult KAGCCGKOPFM)
 	{
+		if (_compareVersions)
+		{
+			VersionContainer left = new VersionContainer(HJJBNECFJGO.ToString());
+			VersionContainer right = new VersionContainer(KAGCCGKOPFM.ToString());
+			int order = VersionContainer.LFPMCJPCJBD(left, right) ? 0 :
+				VersionContainer.CGMHEDJDOEK(left, right) ? 1 : -1;
+			return NumberCompare(order, 0);
+		}
 		if (!HJJBNECFJGO.INCOIAANDCO() && !KAGCCGKOPFM.INCOIAANDCO())
 		{
 			return StringCompare(HJJBNECFJGO.resultSTR, KAGCCGKOPFM.resultSTR);
@@ -998,6 +1008,9 @@ public class QuestCondition : ConditionExtension
 		VersionContainer pAMHFPMEPCH = SystemProperties.DFJEJKJECBI();
 		switch (KJFKPMCPIBH.HBDLDIKHFEG)
 		{
+		case "Version":
+			BMDEBHIHIAJ.resultSTR = pAMHFPMEPCH.ToString();
+			break;
 		case "Production":
 			BMDEBHIHIAJ.resultNumber = pAMHFPMEPCH.FAOHNABGKFH();
 			break;
@@ -1021,6 +1034,9 @@ public class QuestCondition : ConditionExtension
 		VersionContainer pAMHFPMEPCH = SystemProperties.KCJMMIEBLHL();
 		switch (KJFKPMCPIBH.HBDLDIKHFEG)
 		{
+		case "Version":
+			BMDEBHIHIAJ.resultSTR = pAMHFPMEPCH.ToString();
+			break;
 		case "Production":
 			BMDEBHIHIAJ.resultNumber = pAMHFPMEPCH.FAOHNABGKFH();
 			break;

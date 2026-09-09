@@ -111,24 +111,45 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class LocationFighterPositions
+    {
+        public float PlayerX { get; }
+        public float PlayerY { get; }
+        public float EnemyX { get; }
+        public float EnemyY { get; }
+
+        public LocationFighterPositions(float playerX, float playerY, float enemyX, float enemyY)
+        {
+            foreach (float value in new[] { playerX, playerY, enemyX, enemyY })
+                if (float.IsNaN(value) || float.IsInfinity(value))
+                    throw new ModContentException("Location fighter positions must be finite.");
+            PlayerX = playerX; PlayerY = playerY; EnemyX = enemyX; EnemyY = enemyY;
+        }
+    }
+
     public sealed class LocationLayerDefinition
     {
         private readonly LocationImageDefinition[] _images;
         public int Type { get; }
         public float Factor { get; }
         public bool Scaling { get; }
+        public LocationFighterPositions Fighters { get; }
         public IReadOnlyList<LocationImageDefinition> Images => _images;
 
-        public LocationLayerDefinition(int type, float factor, bool scaling, LocationImageDefinition[] images)
+        public LocationLayerDefinition(int type, float factor, bool scaling, LocationImageDefinition[] images,
+            LocationFighterPositions fighters = null)
         {
             if (float.IsNaN(factor) || float.IsInfinity(factor))
                 throw new ModContentException("Location layer factor must be finite.");
-            if (images == null || images.Length == 0)
-                throw new ModContentException("Location layer requires at least one typed sprite image.");
+            if ((images == null || images.Length == 0) && fighters == null)
+                throw new ModContentException("Location layer requires a typed sprite image or fighter positions.");
+            if (fighters != null && type != 2)
+                throw new ModContentException("Location fighter positions require the recovered gameplay layer (type 2).");
             Type = type;
             Factor = factor;
             Scaling = scaling;
-            _images = (LocationImageDefinition[])images.Clone();
+            _images = images == null ? Array.Empty<LocationImageDefinition>() : (LocationImageDefinition[])images.Clone();
+            Fighters = fighters;
         }
     }
 
@@ -202,7 +223,7 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk }
 
     public sealed class ModMoveCondition
     {
@@ -629,6 +650,7 @@ namespace Eclipse.Modding
             _catalog.ValidateP1DCanAdd(locales, locations, templates, moves, triggers, tactics);
             for (int i = 0; i < templates.Length; i++) ValidateTemplateRefs(templates[i]);
             for (int i = 0; i < moves.Length; i++) ValidateTemplateRefs(moves[i]);
+            for (int i = 0; i < triggers.Length; i++) ValidateMovePerkRefs(triggers[i].Conditions);
             for (int i = 0; i < tactics.Length; i++)
             {
                 ValidateTacticMoveRefs(tactics[i].AnimationWeights);
@@ -652,6 +674,7 @@ namespace Eclipse.Modding
 
         private void ValidateTemplateRefs(MoveNodeDefinition node)
         {
+            ValidateMovePerkRefs(node.Conditions);
             for (int i = 0; i < node.Templates.Count; i++)
             {
                 DefinitionId id = node.Templates[i];
@@ -659,6 +682,15 @@ namespace Eclipse.Modding
                     throw new ModContentException("Move/template references invalid template '" + id + "'.");
                 if (!_p1dMoveTemplates.ContainsKey(id) && !_catalog.TryGetMoveTemplate(id, out MoveTemplateDefinition ignored))
                     throw new ModContentException("Move/template references missing template '" + id + "'.");
+            }
+        }
+
+        private void ValidateMovePerkRefs(IReadOnlyList<ModMoveCondition> conditions)
+        {
+            foreach (ModMoveCondition condition in conditions)
+            {
+                if (condition.Kind == ModMoveConditionKind.Perk) GetPerk(condition.Name);
+                ValidateMovePerkRefs(condition.Children);
             }
         }
 

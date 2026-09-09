@@ -44,6 +44,12 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
   When behavior is a DE feature (monetization removal, unlimited energy,
   restored content, permanent events, etc.), keep it isolated so it can become
   a downstream mod/configuration once the modding API exists.
+- Mod API design: static content stays typed/declarative; custom procedural
+  behavior belongs in Lua handlers using safe typed capabilities. Do not build
+  a generic operation DSL inside Lua for arithmetic, branching, or variable
+  manipulation. Preserve shipped recovered-content compatibility adapters;
+  extend programmable behavior through evidence-backed runtime hooks. See
+  [the API design rule](Mods/DE_API_IMPLEMENTATION_PLAN.md#37-static-definitions-and-programmable-behavior).
 - Preserve every Unity `.meta` file and its GUID. When moving or renaming an
   asset or script, move its `.meta` file with it; never regenerate GUIDs unless
   the task explicitly requires a new asset.

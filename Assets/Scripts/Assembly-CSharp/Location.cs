@@ -282,7 +282,7 @@ public class Location
 
 	private string LKDJCCIJFMD(string FAAALPKKJID)
 	{
-		if (Eclipse.Modding.ModAssetBinding.IsQualified(FAAALPKKJID))
+		if (Eclipse.Modding.AssetId.TryParse(FAAALPKKJID, out _))
 		{
 			return FAAALPKKJID.TrimEnd('/');
 		}
@@ -392,6 +392,12 @@ public class Location
 		else
 		{
 			vector = new Vector3(num5 / x, num6 / y, 1f);
+		}
+		// Qualified sprites carry their own pixels-per-unit import density.
+		if (Eclipse.Modding.AssetId.TryParse(PPAJIHNNNDG, out _))
+		{
+			vector.x *= sprite.pixelsPerUnit;
+			vector.y *= sprite.pixelsPerUnit;
 		}
 		gameObject.transform.localScale = vector;
 		gameObject.transform.localPosition = new Vector3(num + num3 * vector.x, num2 + num4 * vector.y, 0f);

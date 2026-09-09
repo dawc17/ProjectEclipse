@@ -5,6 +5,20 @@ namespace Eclipse.Modding
 {
     public static partial class ModRuntime
     {
+        public static void ApplyLocaleMetadata()
+        {
+            if (_legacyContent == null) return;
+            try
+            {
+                ExternalLocaleRuntime.Apply();
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError("[ModContent] Failed to bind mod locales; disabling external mods without restarting the game parser. " + exception);
+                Shutdown();
+            }
+        }
+
         public static void ApplyP1DContent()
         {
             if (_legacyContent == null) return;

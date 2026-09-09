@@ -292,7 +292,9 @@ namespace Nekki.SF2.GUI
 
 		public void SetAlias(string HCPNFPMHFCM)
 		{
-			_Alias = HCPNFPMHFCM;
+			_Alias = HCPNFPMHFCM ?? string.Empty;
+			// Explicit clears must discard text left by a previous tooltip or item.
+			if (_Alias.Length == 0) set_text(string.Empty);
 			OCLBJLPOKLB();
 		}
 

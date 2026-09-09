@@ -13,6 +13,11 @@ public static class TestXmlAttributeExtensions
     }
 }
 
+public static class CocosAnimationData
+{
+    public static void DECIILEPLDM() { }
+}
+
 public static class SF2Paths
 {
     public static string KKIDGPBOBNI() { return Eclipse.Content.GameplayContentArchive.GetXmlRoot(); }
@@ -702,6 +707,7 @@ public static class LocalizationManager
     {
         public string name;
         public string EOMNCDDELLB;
+        public string PMFEIPCHENB;
         public int index;
 
         public Language(XmlNode node, int languageIndex)

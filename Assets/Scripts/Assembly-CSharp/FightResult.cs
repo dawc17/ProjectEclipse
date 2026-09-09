@@ -192,7 +192,11 @@ public class FightResult
 				return;
 			}
 			UserItem dKCHDHMLKHN = ListSF.CCDKHLAMKKO().KHCNHPCPFII().CMGOCLGHNLH(JJBPBGKBEED.Name);
-			if (dKCHDHMLKHN != null)
+			Eclipse.Modding.DefinitionId rewardId;
+			bool repeatableModConsumable = Eclipse.Modding.DefinitionId.TryParse(JJBPBGKBEED.Name, out rewardId) &&
+				rewardId.Namespace.Value != "core" && rewardId.Category == "items" &&
+				ListSF.DJBOFEEKJMP().KCCDBEEKBCG(JJBPBGKBEED.Name)?.Type == "Consumable";
+			if (dKCHDHMLKHN != null && !repeatableModConsumable)
 			{
 				return;
 			}

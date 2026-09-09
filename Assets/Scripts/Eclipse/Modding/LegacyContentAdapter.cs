@@ -148,6 +148,19 @@ namespace Eclipse.Modding
                 _localizationKeys.Add(key);
             }
 
+            // The map footer localizes the runtime zone identity, while mod strings
+            // are registered in the localization category. Bridge the documented
+            // zones/<local-id> key without allowing arbitrary base-string aliases.
+            foreach (ZoneDefinition zone in _content.Zones)
+            {
+                if (zone.IsCore) continue;
+                LocalizationDefinition title;
+                DefinitionId key = DefinitionId.Parse(zone.Id.Namespace + ":localization/zones/" + zone.Id.LocalId);
+                if (!_content.TryGetLocalization(key, out title)) continue;
+                LocalizationManager.SetExternalString(zone.LegacyName, title.GetOrEnglish(language));
+                _localizationKeys.Add(zone.LegacyName);
+            }
+
             if (!_languageSubscribed)
             {
                 LocalizationManager.OCLBJLPOKLB += OnLanguageChanged;
@@ -864,6 +877,8 @@ namespace Eclipse.Modding
         {
             XmlElement item = document.CreateElement("Item");
             item.SetAttribute("Name", LegacyItemName(grant.Item));
+            // EndFightContent lists only item grants marked as drops.
+            item.SetAttribute("Drop", "1");
             if (grant.UpgradeNumber != 0)
                 item.SetAttribute("UpgradeNumber", grant.UpgradeNumber.ToString(CultureInfo.InvariantCulture));
             if (weight.HasValue) item.SetAttribute("Weight", weight.Value.ToString(CultureInfo.InvariantCulture));

@@ -74,8 +74,8 @@ namespace Eclipse.Modding
                 new Dictionary<Table, DefinitionId>();
             private readonly Dictionary<Table, DefinitionId> _questHandles =
                 new Dictionary<Table, DefinitionId>();
-            private readonly Dictionary<DefinitionId, DynValue> _behaviorHandlers =
-                new Dictionary<DefinitionId, DynValue>();
+            private readonly Dictionary<(DefinitionId, ModEffectEvent), DynValue> _behaviorHandlers =
+                new Dictionary<(DefinitionId, ModEffectEvent), DynValue>();
             private readonly Dictionary<int, DynValue> _stateMigrations = new Dictionary<int, DynValue>();
             private ModStateDefinition _stateDefinition;
             private bool _disposed;
@@ -119,7 +119,7 @@ namespace Eclipse.Modding
             public bool HasBehaviorHandler(DefinitionId behaviorId, ModEffectEvent effectEvent)
             {
                 ThrowIfDisposed();
-                return effectEvent == ModEffectEvent.FightBegin && _behaviorHandlers.ContainsKey(behaviorId);
+                return _behaviorHandlers.ContainsKey((behaviorId, effectEvent));
             }
 
             public bool TryInvokeBehavior(DefinitionId behaviorId, ModEffectEvent effectEvent,
@@ -135,18 +135,19 @@ namespace Eclipse.Modding
             {
                 ThrowIfDisposed();
                 error = string.Empty;
-                if (effectEvent != ModEffectEvent.FightBegin)
+                if (effectEvent != ModEffectEvent.FightBegin && effectEvent != ModEffectEvent.DamageReceived)
                 {
                     error = "Unsupported behavior event: " + effectEvent + ".";
                     return false;
                 }
                 DynValue handler;
-                if (!_behaviorHandlers.TryGetValue(behaviorId, out handler))
+                if (!_behaviorHandlers.TryGetValue((behaviorId, effectEvent), out handler))
                 {
                     error = "Behavior handler is not registered: '" + behaviorId + "'.";
                     return false;
                 }
 
+                bool invocationActive = true;
                 try
                 {
                     var parameterTable = new Table(_script);
@@ -164,12 +165,26 @@ namespace Eclipse.Modding
                     if (fighter != null)
                     {
                         fighterTable.Set("change_health", DynValue.NewCallback((ctx, args) =>
-                            FighterOperation("fighter:change_health", "combat.change_life", args, fighter.TryChangeHealth)));
+                            invocationActive ? FighterOperation("fighter:change_health", "combat.change_life", args, fighter.TryChangeHealth) :
+                                throw new ScriptRuntimeException("Fighter operations have expired.")));
                         fighterTable.Set("add_magic_charge", DynValue.NewCallback((ctx, args) =>
-                            FighterOperation("fighter:add_magic_charge", "combat.magic_charge", args, fighter.TryAddMagicCharge)));
+                            invocationActive ? FighterOperation("fighter:add_magic_charge", "combat.magic_charge", args, fighter.TryAddMagicCharge) :
+                                throw new ScriptRuntimeException("Fighter operations have expired.")));
+                    }
+                    var eventTable = new Table(_script);
+                    ModDamageEvent damage = (fighter as IModDamageEventSource)?.DamageEvent;
+                    if (effectEvent == ModEffectEvent.DamageReceived)
+                    {
+                        if (damage == null) throw new ModContentException("Damage event snapshot is missing.");
+                        eventTable.Set("round", DynValue.NewNumber(damage.Round));
+                        eventTable.Set("health_before", DynValue.NewNumber(damage.HealthBefore));
+                        eventTable.Set("health_after", DynValue.NewNumber(damage.HealthAfter));
+                        eventTable.Set("damage", DynValue.NewNumber(damage.Damage));
+                        eventTable.Set("blocked", DynValue.NewBoolean(damage.Blocked));
+                        eventTable.Set("critical", DynValue.NewBoolean(damage.Critical));
                     }
                     RunBounded(handler, behaviorId + ":" + effectEvent, MaxBehaviorInstructionSlices,
-                        new[] { DynValue.NewTable(parameterTable), DynValue.NewTable(fighterTable) });
+                        new[] { DynValue.NewTable(parameterTable), DynValue.NewTable(fighterTable), DynValue.NewTable(eventTable) });
                     return true;
                 }
                 catch (InterpreterException exception)
@@ -182,6 +197,7 @@ namespace Eclipse.Modding
                     error = exception.Message;
                     return false;
                 }
+                finally { invocationActive = false; }
             }
 
             public bool TryMigrateState(int fromVersion, IReadOnlyDictionary<string, ModParameterValue> values,
@@ -977,14 +993,20 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "parameters", "on_fight_begin");
+                    ValidateFields(table, function, "id", "parameters", "on_fight_begin", "on_damage_received");
                     string id = RequiredString(table, "id", function);
                     ModParameterSchema parameters = OptionalParameterSchema(table, "parameters", function);
                     DynValue handler = table.Get("on_fight_begin");
-                    if (handler.Type != DataType.Function)
+                    DynValue damageHandler = table.Get("on_damage_received");
+                    if (!handler.IsNil() && handler.Type != DataType.Function)
                         throw new ModContentException(function + " field 'on_fight_begin' must be a Lua function.");
+                    if (!damageHandler.IsNil() && damageHandler.Type != DataType.Function)
+                        throw new ModContentException(function + " field 'on_damage_received' must be a Lua function.");
+                    if (handler.IsNil() && damageHandler.IsNil())
+                        throw new ModContentException(function + " requires at least one behavior handler.");
                     ModBehaviorDefinition definition = _api.RegisterBehavior(id, parameters);
-                    _behaviorHandlers.Add(definition.Id, handler);
+                    if (!handler.IsNil()) _behaviorHandlers.Add((definition.Id, ModEffectEvent.FightBegin), handler);
+                    if (!damageHandler.IsNil()) _behaviorHandlers.Add((definition.Id, ModEffectEvent.DamageReceived), damageHandler);
                     return NewHandle(_behaviorHandles, definition);
                 });
             }

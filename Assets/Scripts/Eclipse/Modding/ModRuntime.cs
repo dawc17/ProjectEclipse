@@ -204,7 +204,8 @@ namespace Eclipse.Modding
         }
 
         public static bool TryInvokeSavedEnchantmentFightBegin(XmlNode perkNode,
-            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error,
+            ModEffectEvent effectEvent = ModEffectEvent.FightBegin)
         {
             EnchantmentDefinition enchantment;
             ModEffectInstance instance;
@@ -214,7 +215,7 @@ namespace Eclipse.Modding
                 error = "Mod scripts are not active.";
                 return false;
             }
-            return _scripts.TryInvokeBehavior(enchantment.Behavior, ModEffectEvent.FightBegin,
+            return _scripts.TryInvokeBehavior(enchantment.Behavior, effectEvent,
                 instance.Values, fighterContext, fighter, out error);
         }
 
@@ -306,7 +307,8 @@ namespace Eclipse.Modding
         }
 
         public static bool TryInvokeSavedPerkFightBegin(XmlNode perkNode,
-            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error)
+            IReadOnlyDictionary<string, string> fighterContext, IModFighterOperations fighter, out string error,
+            ModEffectEvent effectEvent = ModEffectEvent.FightBegin)
         {
             PerkDefinition perk;
             ModEffectInstance instance;
@@ -316,7 +318,7 @@ namespace Eclipse.Modding
                 error = "Mod scripts are not active.";
                 return false;
             }
-            return _scripts.TryInvokeBehavior(perk.Behavior, ModEffectEvent.FightBegin,
+            return _scripts.TryInvokeBehavior(perk.Behavior, effectEvent,
                 instance.Values, fighterContext, fighter, out error);
         }
 

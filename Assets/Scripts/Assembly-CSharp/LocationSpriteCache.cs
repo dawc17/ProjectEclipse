@@ -39,9 +39,9 @@ public static class LocationSpriteCache
 
 	public static Sprite PPBEKKDIJKC(string PPAJIHNNNDG, string CMMPHNJDOCF, string BBPGNOBFECF)
 	{
-		if (Eclipse.Modding.ModAssetBinding.IsQualified(PPAJIHNNNDG))
+		if (Eclipse.Modding.AssetId.TryParse(PPAJIHNNNDG, out _))
 		{
-			// Loose mod location art is addressed per sprite. Legacy atlas sub-assets
+			// Qualified core/mod location art is addressed per sprite. Legacy atlas sub-assets
 			// remain available for installed/core locations through the branch below.
 			return OPHFAHOKBOK(PPAJIHNNNDG, CMMPHNJDOCF);
 		}

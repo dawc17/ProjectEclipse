@@ -1149,8 +1149,8 @@ namespace Eclipse.Modding
             Id = id;
             _items = items == null ? Array.Empty<RewardItemGrant>() : (RewardItemGrant[])items.Clone();
             _choices = choices == null ? Array.Empty<RewardChoiceDefinition>() : (RewardChoiceDefinition[])choices.Clone();
-            if (_items.Length == 0 && _choices.Length == 0)
-                throw new ModContentException("Reward definition must grant at least one non-economic item or choice.");
+            // Empty slots are meaningful: recovered fights index rewards by wins,
+            // including a zero-win slot that commonly grants nothing.
         }
     }
 

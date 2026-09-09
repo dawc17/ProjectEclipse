@@ -5,7 +5,7 @@ version = "1.0.0"
 api = ">=0.5 <1.0"
 authors = ["Eclipse"]
 entrypoint = "scripts/main.lua"
-capabilities = ["content.register", "content.patch", "state.read", "state.write"]
+capabilities = ["content.register", "content.patch", "state.read", "state.write", "combat.magic_charge"]
 
 [[dependencies]]
 id = "core"

@@ -56,6 +56,12 @@ namespace Eclipse.Modding
                 }
                 ExternalLocaleRuntime.Add(metadata);
             }
+            if (_content.LocaleMetadata.Count != 0)
+            {
+                // Validate before stages, quests, and save-bound state are initialized.
+                XmlDocument localization = XmlUtils.OpenXMLDocument(SF2Paths.KKIDGPBOBNI(), "localization.xml");
+                ExternalLocaleRuntime.ValidateBaseLanguages(localization?["Localization"]?["Languages"]);
+            }
         }
 
         private void ApplyLocations()
@@ -93,8 +99,17 @@ namespace Eclipse.Modding
                 Set(node, "Type", layer.Type.ToString(CultureInfo.InvariantCulture));
                 Set(node, "Factor", F(layer.Factor));
                 if (layer.Scaling) Set(node, "Scaling", "1");
-                string path = LocationAssetDirectory(layer.Images[0].Sprite);
-                Set(node, "Path", path);
+                string path = layer.Images.Count == 0 ? string.Empty : LocationAssetDirectory(layer.Images[0].Sprite);
+                if (path.Length != 0) Set(node, "Path", path);
+                if (layer.Fighters != null)
+                {
+                    XmlElement fighters = document.CreateElement("ModelsViewer");
+                    Set(fighters, "PlayerPositionX", F(layer.Fighters.PlayerX));
+                    Set(fighters, "PlayerPositionY", F(layer.Fighters.PlayerY));
+                    Set(fighters, "EnemyPositionX", F(layer.Fighters.EnemyX));
+                    Set(fighters, "EnemyPositionY", F(layer.Fighters.EnemyY));
+                    node.AppendChild(fighters);
+                }
                 for (int j = 0; j < layer.Images.Count; j++)
                 {
                     LocationImageDefinition image = layer.Images[j];
@@ -254,7 +269,8 @@ namespace Eclipse.Modding
                 return op;
             }
             string element = value.Kind == ModMoveConditionKind.CurrentAnimation ? "CurrentAnimation" :
-                value.Kind == ModMoveConditionKind.CurrentInterval ? "CurrentInterval" : "Item";
+                value.Kind == ModMoveConditionKind.CurrentInterval ? "CurrentInterval" :
+                value.Kind == ModMoveConditionKind.Perk ? "Perk" : "Item";
             XmlElement node = document.CreateElement(element);
             if (value.Name.Length != 0) Set(node, "Name", value.Name);
             if (value.Player.Length != 0) Set(node, "Player", value.Player);
