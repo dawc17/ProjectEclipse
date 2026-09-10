@@ -33,6 +33,30 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
   `Deobfuscation/README.md` before changing mappings or running its scripts.
 - `Tools/` - focused repair, extraction, audit, and runtime-check utilities.
 - `BuildScripts/` - project-specific build and reference maintenance scripts.
+- `Docs/Modding/` - Git-tracked Astro Starlight modding API wiki and GitHub
+  Pages build configuration. Keep website tooling outside Unity's `Assets/`.
+
+## Modding API documentation
+
+- Keep the modding wiki up to date at all times. Any change to the public API,
+  capabilities, manifests, content or asset formats, callbacks, save behavior,
+  compatibility, or example mods must update the relevant wiki documentation
+  in the same change. Do not leave documentation updates as follow-up work.
+- Read `Docs/Modding/README.md` before editing the wiki. API reference pages
+  are generated from the tracked `Mods/README.md`, `Mods/P1C_API.md`,
+  `Mods/P2_API.md`, and `Mods/P3_API.md`; showcase pages use the tracked example
+  READMEs. Edit those original sources, not ignored generated page copies.
+  Keep hand-authored guides, navigation, and reference route mappings in sync.
+- Document the implemented Eclipse contract. Clearly distinguish supported
+  behavior, legacy compatibility, and planned work; the DE parity roadmap is
+  not evidence that a feature is available. Preserve verification limits.
+- Keep all authored wiki files, configuration, scripts, and the npm lockfile
+  Git-tracked. Never commit `node_modules/`, `.astro/`, generated reference
+  copies, or `dist/` output.
+- For documentation/API changes, run `npm ci` in `Docs/Modding/` when installing
+  dependencies, then `npm run build`. This checks types, builds the site and
+  search index, and validates internal links, anchors, and GitHub Pages paths.
+  Report any documentation checks that could not be run.
 
 ## Working conventions
 

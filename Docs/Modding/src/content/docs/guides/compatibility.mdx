@@ -1,0 +1,45 @@
+---
+title: Compatibility and supported scope
+description: Distinguish current API contracts, legacy forms, roadmap work, and recorded verification.
+---
+
+import { pageUrl, sourceUrl } from '../../../../site.config.mjs';
+
+## Use the current contract
+
+Your manifest's `api` range must accept the runtime version. Reference pages
+retain historical labels such as 0.3 or 0.6 to identify feature introductions;
+they are maintained together as documentation of the current API.
+
+Later contracts can extend earlier ones. In particular,
+<a href={pageUrl('api/combat-callbacks')}>combat callbacks</a> and
+<a href={pageUrl('api/behavior-instances')}>behavior instances</a> extend the
+original fight-begin behavior slice.
+
+## Legacy compatibility
+
+The older template-backed perk/enchantment form and documented aliases remain
+compatibility paths. New custom procedures belong in Lua behavior handlers.
+Quest condition/action tables and ordinary tactics remain supported recovered
+content adapters. They do not imply general programmable quests or AI.
+
+See <a href={pageUrl('api/legacy-compatibility')}>legacy aliases and sprite migration</a>
+and <a href={pageUrl('api/perks-and-enchantments')}>perk compatibility</a>.
+
+## Planned work
+
+The <a href={sourceUrl('Mods/DE_API_IMPLEMENTATION_PLAN.md')}>implementation roadmap</a>
+and <a href={sourceUrl('Mods/DE_PARITY_TARGET.md')}>DE parity target</a> describe
+engineering goals. They are not an additional callable API. General quest
+callbacks, programmable AI, and unsupported recovered XML fields must not be
+treated as shipped features.
+
+## Verification scope
+
+Each showcase documents its own test steps and recorded outcomes. Static checks,
+isolated runtime tests, Unity asset checks, and manual playtests cover different
+things. Refer to those records before assuming a particular category or lifecycle
+has been exercised end to end.
+
+Start with the <a href={pageUrl('examples')}>working examples</a> and use their
+linked playtest guides when checking a mod against a new build.

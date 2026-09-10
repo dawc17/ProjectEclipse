@@ -1,0 +1,41 @@
+---
+title: Eclipse Modding
+description: Build your first mod, learn the content model, and explore the Eclipse Lua API.
+---
+
+import { readFileSync } from 'node:fs';
+import { LinkCard, CardGrid } from '@astrojs/starlight/components';
+import { pageUrl } from '../../../site.config.mjs';
+export const apiVersion = readFileSync(new URL('../../../../../Mods/README.md', import.meta.url), 'utf8').match(/Current public Mod API version: \*\*([^*]+)\*\*/)?.[1];
+
+Create equipment, perks, battles, and other content for Eclipse using Lua and
+namespaced assets. Add custom behavior through the API's supported callbacks.
+
+**Documented API: {apiVersion}.** Start with a working weapon mod, then explore
+the systems you need.
+
+<CardGrid>
+  <LinkCard title="Your first weapon" description="Set up a manifest, register a weapon, and find it in the shop." href={pageUrl('guides/first-weapon')} />
+  <LinkCard title="Understand the API" description="Learn namespaces, typed handles, capabilities, and when your code runs." href={pageUrl('guides/core-concepts')} />
+  <LinkCard title="Combat callbacks" description="React to rounds and hits with reusable Lua behavior." href={pageUrl('api/combat-callbacks')} />
+  <LinkCard title="Working examples" description="Explore the tracked equipment and integrated showcase mods." href={pageUrl('examples')} />
+</CardGrid>
+
+## Find a system
+
+- **Content API** covers equipment, shops, sprites, battles, quests, perks,
+  localization, and asset replacement.
+- **Behavior and progression** covers saved state, combat callbacks, events,
+  modes, offline raids, and achievements.
+- **Compatibility and status** explains legacy forms, current limitations,
+  and the scope of recorded verification.
+
+## What this wiki documents
+
+This is the public **Eclipse** modding API. Definitive Edition is a downstream
+content target. Planned DE parity does not imply that every recovered XML field
+or gameplay event is available to Lua.
+
+Reference pages are built from the repository's maintained API documentation.
+Each has an **Edit page** link to its original source. Historical version labels
+describe when a feature arrived; read the current limitations before using it.

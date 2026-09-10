@@ -1,0 +1,52 @@
+---
+title: Troubleshooting
+description: Diagnose missing mods, failed registration, asset lookup errors, and inactive callbacks.
+---
+
+import { pageUrl } from '../../../../site.config.mjs';
+
+## The mod is missing or cannot be enabled
+
+Check that `Mods/<folder>/mod.toml` exists, the manifest ID is unique, and the
+entrypoint path points to your Lua file. Inspect **Details** in the title-screen
+mod menu for unmet requirements. The manifest's API range must accept the host's
+version, and every declared dependency must be available at a compatible version.
+
+Choose **Apply & Restart** after changing the selection, then enter Campaign.
+See <a href={pageUrl('api/installing-mods')}>installing and enabling mods</a>.
+
+## Registration fails
+
+Read the error tagged with your mod ID. Check duplicate IDs, missing handles,
+required capabilities, references to undeclared dependencies, and field types.
+Fix the first registration error before investigating missing content: a failed
+registration does not commit part of the mod's definitions.
+
+Two mods cannot independently replace the same asset or the same semantic
+localization field. Resolve the conflicting claims; changing folder order does
+not choose a winner.
+
+## A sprite does not load
+
+Check the descriptor's `type=sprite` and its `texture` path relative to `assets/`.
+The texture path includes `.png`; the logical sprite ID used from Lua omits
+`.asset`. Keep PNGs in `textures/` and descriptors in `sprites/`.
+
+Rectangles and borders must fit the image. For core atlas sprites, verify both
+the atlas address and member name. See
+<a href={pageUrl('api/sprites-and-textures')}>sprite descriptors</a>.
+
+## A combat callback does not run
+
+Register a supported callback and attach the behavior through an active perk or
+enchantment. Verify its capability requirements and whether it dispatches for
+the player, an NPC, or both. The dojo punchbag does not use the normal fight
+lifecycle. See <a href={pageUrl('api/combat-callbacks')}>combat callbacks</a> for
+the exact boundaries and event fields.
+
+## Content is unavailable after disabling a mod
+
+Missing mod-owned save records are preserved. Re-enable the mod and reload the
+profile to restore access. Do not delete the save as a troubleshooting step.
+Keep the original namespace and published IDs, or provide the documented
+compatibility mappings. See <a href={pageUrl('api/save-compatibility')}>save compatibility</a>.

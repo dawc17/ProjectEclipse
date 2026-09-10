@@ -1,0 +1,63 @@
+---
+title: Core concepts
+description: Namespaces, handles, capabilities, registration, and Lua behavior in Eclipse.
+---
+
+import { pageUrl } from '../../../../site.config.mjs';
+
+## Namespaces and ownership
+
+The manifest's `id` owns the mod's content. A qualified ID names an owner and a
+local path, such as `example.weapon:items/weapon/example_blade`. The reserved
+`core` namespace identifies built-in content. Declare dependencies when using
+another owner's content.
+
+Asset IDs use paths relative to `assets/`, without the final extension. For
+example, `assets/sprites/weapon.asset` becomes `sprites/weapon` within its mod.
+See <a href={pageUrl('api/core-assets')}>core assets and ownership</a>.
+
+## Typed handles
+
+Public lookups and registration functions return handles for particular kinds
+of content. Pass a weapon handle to a weapon shop listing, a sprite handle to an
+icon field, and a behavior handle to a behavior-backed perk or enchantment.
+Lua does not receive arbitrary Unity objects or the recovered runtime object graph.
+
+## Capabilities
+
+Declare the permissions your mod uses in `mod.toml`. Registering content uses
+`content.register`; patching localization uses `content.patch`; replacing an
+asset uses `assets.replace`. Combat and progression operations have their own
+capabilities, documented on each reference page.
+
+A dependency names content your mod can refer to. A capability permits an
+operation. Some operations require both.
+
+## Registration and execution
+
+Register static content in the Lua entrypoint. Registration is transactional:
+invalid definitions or conflicting ownership claims fail the registering mod's
+transaction rather than leaving partial definitions active.
+
+Use supported callbacks for custom calculations and gameplay behavior. Static
+definitions describe content; ordinary Lua functions express branching and
+procedures. Read <a href={pageUrl('api/definitions-and-behavior')}>definitions and behavior</a>
+for the supported compatibility paths and future boundaries.
+
+## State and lifetime
+
+Mod-owned profile state and behavior-instance state are separate contracts.
+An instance may have round, fight, or saved state. Fighter and effect methods
+are only valid during their callback; do not retain them for later use.
+
+State validation is transactional, but gameplay operations already performed
+before a callback error are not rolled back. See
+<a href={pageUrl('api/behavior-instances')}>behavior instances</a> and
+<a href={pageUrl('api/mod-state')}>mod-owned state</a>.
+
+## Changes and conflicts
+
+Keep published content IDs stable. Use the documented alias, tombstone, and
+migration mechanisms when evolving saved content. Content patches and asset
+replacements have explicit ownership and conflict rules; filesystem order does
+not resolve competing claims.

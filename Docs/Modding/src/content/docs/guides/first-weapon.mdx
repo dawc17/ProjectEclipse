@@ -1,0 +1,84 @@
+---
+title: Your first weapon
+description: Run the tracked weapon example and learn how its manifest, Lua, and assets fit together.
+---
+
+import { Code } from '@astrojs/starlight/components';
+import { pageUrl, sourceUrl } from '../../../../site.config.mjs';
+import manifest from '../../../../../../Mods/example.weapon/mod.toml?raw';
+import script from '../../../../../../Mods/example.weapon/scripts/main.lua?raw';
+import sprite from '../../../../../../Mods/example.weapon/assets/sprites/weapon.asset?raw';
+
+Start with the repository's `example.weapon` mod. It registers a katana, gives it
+a loose sprite, borrows a core model, and adds a level-1 shop listing for one coin.
+The snippets below are loaded directly from that example's tracked files.
+
+## 1. Put the example in Mods
+
+Use an Eclipse build with the current modding API. Copy the complete
+<a href={sourceUrl('Mods/example.weapon')}>example.weapon folder</a> into the
+game's `Mods/` directory. When working in this repository, it is already present.
+
+Keep the folder together, including its PNG and localization files:
+
+```text
+Mods/example.weapon/
+  mod.toml
+  scripts/main.lua
+  localizations/eng.toml
+  localizations/pol.toml
+  assets/sprites/weapon.asset
+  assets/textures/weapon.png
+```
+
+Do not install a second copy with the same manifest ID.
+
+## 2. Read the manifest
+
+<Code code={manifest} lang="toml" title="mod.toml" />
+
+`id` is the mod's namespace. `entrypoint` selects the Lua script. `api` declares
+the compatible API range. `content.register` permits content registration, and
+the `core` dependency permits the example's references to built-in content.
+
+## 3. Register the weapon and shop listing
+
+<Code code={script} lang="lua" title="scripts/main.lua" />
+
+The registration returns an opaque weapon handle, which is passed to the shop.
+The icon is owned by this mod; the model is owned by `core`. Normal equipment
+power comes from its category and listing level.
+
+The alias and tombstone lines demonstrate save-compatible identity changes.
+They are optional for a new item; preserve published IDs once players use a mod.
+
+The `weapon.example_blade` localization key is defined in the sample's
+`localizations/eng.toml` and `pol.toml`. Change those values to rename the weapon
+in the corresponding language.
+
+## 4. Understand the sprite
+
+<Code code={sprite} lang="ini" title="assets/sprites/weapon.asset" />
+
+The descriptor points to a PNG relative to the mod's `assets/` directory.
+`sf2.assets.sprite("sprites/weapon")` references the descriptor without its
+extension. This `.asset` is a text descriptor; it is not Unity serialized YAML.
+
+## 5. Enable and check it
+
+1. Open **Mods** from the title screen and enable **Example Weapon**.
+2. Choose **Apply & Restart**, then enter Campaign.
+3. Open the weapon shop and find the item using the sample's localized name.
+4. Buy and equip it, then enter a normal fight to check its appearance and behavior.
+
+If it does not appear, inspect the mod's **Details**, check its dependencies, and
+look for the `registered Example Blade` log message or a registration error.
+See <a href={pageUrl('guides/troubleshooting')}>troubleshooting</a>.
+
+## Make it yours
+
+For a separate mod, copy the complete folder under a new name and change its
+manifest `id` and `name`. Adjust the localization, item definition, and PNG.
+Keep core asset references qualified with `core:` and preserve the required
+dependency. See <a href={pageUrl('api/equipment-shop-logging')}>equipment and shops</a>
+for the other equipment categories and progression limits.

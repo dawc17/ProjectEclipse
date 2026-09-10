@@ -1,0 +1,28 @@
+{
+  "name": "eclipse-modding-docs",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "sync:docs": "node scripts/sync-docs.mjs",
+    "predev": "npm run sync:docs",
+    "dev": "astro dev --host 127.0.0.1",
+    "prebuild": "npm run sync:docs",
+    "build": "astro check && astro build && node scripts/check-links.mjs",
+    "preview": "astro preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "7.3.0",
+    "@astrojs/starlight": "0.42.0",
+    "astro": "7.3.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "github-slugger": "^2.0.0",
+    "mdast-util-to-string": "^4.0.0",
+    "parse5": "^8.0.0",
+    "remark-parse": "^11.0.0",
+    "typescript": "^5.9.0",
+    "unified": "^11.0.0"
+  }
+}

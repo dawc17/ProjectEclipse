@@ -23,6 +23,7 @@ engine, compatibility, desktop, presentation, and future modding code lives unde
 - `Deobfuscation/` - reviewed identifier-recovery workflow.
 - `Tools/` - validation, repair, and audit utilities.
 - `BuildScripts/` - project build and reference scripts.
+- `Docs/Modding/` - Astro Starlight modding wiki; see its [setup and deployment guide](Docs/Modding/README.md).
 
 ## Verify
 
