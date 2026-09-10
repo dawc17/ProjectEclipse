@@ -1,0 +1,98 @@
+{
+  "name": "eclipse-modding-preview",
+  "displayName": "Eclipse Modding",
+  "description": "Complete Eclipse Lua API IntelliSense, mod validation, asset navigation, and a beginner-friendly mod starter.",
+  "version": "0.1.0",
+  "publisher": "eclipse-modding",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dawc17/ProjectEclipse.git",
+    "directory": "Tools/ModdingEditor"
+  },
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "keywords": [
+    "Eclipse",
+    "Shadow Fight 2",
+    "Lua",
+    "modding"
+  ],
+  "main": "./out/extension.cjs",
+  "extensionDependencies": [
+    "sumneko.lua"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": false
+    },
+    "virtualWorkspaces": false
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "eclipseModding.enable",
+        "title": "Eclipse Modding: Enable in This Folder"
+      },
+      {
+        "command": "eclipseModding.disable",
+        "title": "Eclipse Modding: Disable in This Folder"
+      },
+      {
+        "command": "eclipseModding.createMod",
+        "title": "Eclipse Modding: Create Mod"
+      },
+      {
+        "command": "eclipseModding.validate",
+        "title": "Eclipse Modding: Validate Open Mod"
+      },
+      {
+        "command": "eclipseModding.docs",
+        "title": "Eclipse Modding: Open Documentation"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "lua",
+        "path": "./snippets/lua.json"
+      }
+    ],
+    "configuration": {
+      "title": "Eclipse Modding",
+      "properties": {
+        "eclipseModding.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Enable project-aware Eclipse mod suggestions and diagnostics in this folder. Use the Enable/Disable commands to also configure LuaLS."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "generate": "node scripts/generate.cjs",
+    "check": "node --check extension.cjs && node --check src/providers.cjs && node scripts/generate.cjs --check",
+    "build": "npm run check && esbuild extension.cjs --bundle --platform=node --main-fields=module,main --format=cjs --external:vscode --outfile=out/extension.cjs",
+    "test": "node --test test/project.cjs",
+    "test:lsp": "node test/lsp.cjs",
+    "test:vscode": "npm run build && node test/run-vscode.cjs",
+    "package": "npm run build && node -e \"require('node:fs').mkdirSync('dist',{recursive:true})\" && vsce package --no-dependencies --skip-license --out dist/eclipse-modding-0.1.0.vsix"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "3.9.2",
+    "esbuild": "0.28.2"
+  },
+  "dependencies": {
+    "jsonc-parser": "3.3.1",
+    "luaparse": "0.3.1"
+  },
+  "activationEvents": [
+    "onLanguage:lua",
+    "workspaceContains:**/mod.toml"
+  ]
+}

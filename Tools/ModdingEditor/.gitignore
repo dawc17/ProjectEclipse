@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.test-runtime/
+# This is authored LuaLS metadata, not Unity's generated Library directory.
+!library/
+!library/**
+
+out/

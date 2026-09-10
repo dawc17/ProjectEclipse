@@ -109,16 +109,16 @@ Equipment categories are `sf2.forge.WEAPON`, `ARMOR`, `HELM`, `RANGED`, and `MAG
 
 Each `items` entry requires `equipment`. Optional fields are `enchantments` (integer, default `1`), `bar_scale` (string, default empty), `min_deviation` and `max_deviation` (integers, default `0`), and `random_aspect` (boolean, default `false`). These describe the recipe's enchantment presentation and roll behavior; they are not currency prices.
 
-Each `candidates` entry requires `perk` (a perk or enchantment handle) and `equipment`. Optional integer `min_level` and `max_level` restrict eligibility; omitting them leaves the candidate unrestricted by level. Use explicit sensible bounds for your content.
+Each `candidates` entry requires `perk` (a perk handle from `sf2.perks.register`) and `equipment`. Optional integer `min_level` and `max_level` restrict eligibility; omitting them leaves the candidate unrestricted by level. Use explicit sensible bounds for your content.
 
 ```lua
--- training_enchantment is a handle from sf2.enchantments.register.
+-- training_perk is a handle from sf2.perks.register.
 local recipe = sf2.forge.register_recipe {
     id = "training_recipe",
     economic_profile = sf2.forge.profile("Simple"),
     items = { { equipment = sf2.forge.WEAPON, enchantments = 1 } },
     candidates = {
-        { perk = training_enchantment, equipment = sf2.forge.WEAPON,
+        { perk = training_perk, equipment = sf2.forge.WEAPON,
           min_level = 1, max_level = 52 },
     },
 }

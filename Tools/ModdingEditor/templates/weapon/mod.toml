@@ -1,0 +1,12 @@
+schema = 1
+id = "tutorial.blade"
+name = "Training Blade"
+version = "1.0.0"
+api = ">=0.7 <1.0"
+authors = ["Your Name"]
+entrypoint = "scripts/main.lua"
+capabilities = ["content.register"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0 <2.0"

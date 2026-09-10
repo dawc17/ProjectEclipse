@@ -15,9 +15,24 @@ local weapon = sf2.items.register_weapon {
 sf2.items.alias { from = "weapon/example_blade_legacy", to = weapon }
 sf2.items.tombstone { id = "weapon/example_blade_retired" }
 
+local weapon2 = sf2.items.register_weapon {
+    id = "example_blade2",
+    display_name = sf2.localization.key("weapon.example_blade2"),
+    icon = sf2.assets.sprite("sprites/weapon"),
+    model = sf2.assets.model("core:gamedata/models/mdl_weapon_katana"),
+    subtype = "Katana",
+}
+
 sf2.shop.addItem {
     section = sf2.shop.WEAPONS,
     item = weapon,
+    level = 1,
+    price = sf2.price.coins(1),
+}
+
+sf2.shop.addItem {
+    section = sf2.shop.WEAPONS,
+    item = weapon2,
     level = 1,
     price = sf2.price.coins(1),
 }

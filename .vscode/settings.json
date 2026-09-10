@@ -1,3 +1,6 @@
 {
-    "dotnet.preferCSharpExtension": true
+    "dotnet.preferCSharpExtension": true,
+    "Lua.workspace.library": [
+        "c:\\Users\\dawid.DAWCZA67\\.vscode\\extensions\\eclipse-modding.eclipse-modding-preview-0.0.1\\library"
+    ]
 }

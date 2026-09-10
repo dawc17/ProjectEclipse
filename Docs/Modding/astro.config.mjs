@@ -19,6 +19,7 @@ export default defineConfig({
           { slug: 'index' },
           { slug: 'guides/first-weapon' },
           { slug: 'guides/lua-basics' },
+          { slug: 'guides/vscode' },
           { slug: 'guides/manifest' },
           { slug: 'guides/first-battle' },
           { slug: 'api/installing-mods' },

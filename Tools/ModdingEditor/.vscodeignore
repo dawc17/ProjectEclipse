@@ -1,0 +1,11 @@
+.test-runtime/**
+node_modules/**
+test/**
+scripts/**
+sample/**
+dist/**
+package-lock.json
+.gitignore
+
+src/**
+extension.cjs

@@ -35,6 +35,9 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
 - `BuildScripts/` - project-specific build and reference maintenance scripts.
 - `Docs/Modding/` - Git-tracked Astro Starlight modding API wiki and GitHub
   Pages build configuration. Keep website tooling outside Unity's `Assets/`.
+- `Tools/ModdingEditor/` - VS Code/LuaLS modding extension, generated API contracts,
+  project validation, and mod starter templates. Editor-only Lua definitions must
+  never ship as executable mod scripts.
 
 ## Modding API documentation
 
@@ -61,6 +64,10 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
   dependencies, then `npm run build`. This checks types, builds the site and
   search index, and validates internal links, anchors, and GitHub Pages paths.
   Report any documentation checks that could not be run.
+- When changing API members covered by `Tools/ModdingEditor/`, update its
+  authored schema, generated definitions, templates, and editor guide in the same
+  change. Run `npm run generate`, `npm run check`, `npm test`, and relevant LuaLS
+  and VS Code integration tests; do not confuse editor diagnostics with a game playtest.
 
 ## Working conventions
 

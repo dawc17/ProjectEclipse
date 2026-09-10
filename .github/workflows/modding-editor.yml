@@ -1,0 +1,50 @@
+name: Modding editor
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Tools/ModdingEditor/**'
+      - 'Docs/Modding/src/content/docs/api/**'
+      - 'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime*.cs'
+      - '.github/workflows/modding-editor.yml'
+  pull_request:
+    paths:
+      - 'Tools/ModdingEditor/**'
+      - 'Docs/Modding/src/content/docs/api/**'
+      - 'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime*.cs'
+      - '.github/workflows/modding-editor.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Tools/ModdingEditor
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            Tools/ModdingEditor
+            Docs/Modding/src/content/docs/api
+            Assets/Scripts/Eclipse/Modding
+          lfs: false
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Tools/ModdingEditor/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eclipse-modding-vsix
+          path: Tools/ModdingEditor/dist/*.vsix
+          if-no-files-found: error

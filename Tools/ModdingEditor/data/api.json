@@ -1,0 +1,2063 @@
+{
+  "apiVersion": "0.7",
+  "functions": {
+    "sf2.items.register_weapon": {
+      "params": {
+        "definition": "Eclipse.WeaponDefinition"
+      },
+      "returns": "An item handle with the weapon category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_weapon",
+      "summary": "Create a new weapon definition owned by your mod.",
+      "requires": "`content.register` and dependencies for referenced content.",
+      "when": "Entrypoint, before listing or referencing this item."
+    },
+    "sf2.items.register_armor": {
+      "params": {
+        "definition": "Eclipse.ArmorDefinition"
+      },
+      "returns": "An item handle with the armor category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_armor",
+      "summary": "Create a new armor definition owned by your mod.",
+      "requires": "`content.register` and dependencies for referenced content.",
+      "when": "Entrypoint, before listing or referencing this item."
+    },
+    "sf2.items.register_helm": {
+      "params": {
+        "definition": "Eclipse.HelmDefinition"
+      },
+      "returns": "An item handle with the helm category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_helm",
+      "summary": "Create a new helm definition owned by your mod.",
+      "requires": "`content.register` and dependencies for referenced content.",
+      "when": "Entrypoint, before listing or referencing this item."
+    },
+    "sf2.items.register_ranged": {
+      "params": {
+        "definition": "Eclipse.RangedDefinition"
+      },
+      "returns": "An item handle with the ranged category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_ranged",
+      "summary": "Create a new ranged definition owned by your mod.",
+      "requires": "`content.register` and dependencies for referenced content.",
+      "when": "Entrypoint, before listing or referencing this item."
+    },
+    "sf2.items.register_magic": {
+      "params": {
+        "definition": "Eclipse.MagicDefinition"
+      },
+      "returns": "An item handle with the magic category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_magic",
+      "summary": "Create a new magic definition owned by your mod.",
+      "requires": "`content.register` and dependencies for referenced content.",
+      "when": "Entrypoint, before listing or referencing this item."
+    },
+    "sf2.items.register_consumable": {
+      "params": {
+        "definition": "Eclipse.NonEquipmentDefinition"
+      },
+      "returns": "An item handle for this non-equipment category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_consumable",
+      "summary": "Create a consumable, such as a mod-owned entry ticket for a mode.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint."
+    },
+    "sf2.items.register_free": {
+      "params": {
+        "definition": "Eclipse.NonEquipmentDefinition"
+      },
+      "returns": "An item handle for this non-equipment category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_free",
+      "summary": "Create a free-category item for content and reward definitions.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint."
+    },
+    "sf2.items.register_seal": {
+      "params": {
+        "definition": "Eclipse.NonEquipmentDefinition"
+      },
+      "returns": "An item handle for this non-equipment category.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsregister_seal",
+      "summary": "Create a seal-category item for content and reward definitions.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint."
+    },
+    "sf2.items.get": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "An item handle. Missing IDs or references outside allowed ownership raise errors; this function does not return `nil` for a missing item.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsget",
+      "summary": "Obtain a handle to an existing item definition, including a core item.",
+      "requires": "`content.register`; other owners must be declared dependencies.",
+      "when": "Entrypoint, before using the handle in another definition."
+    },
+    "sf2.items.alias": {
+      "params": {
+        "definition": "Eclipse.ItemAlias"
+      },
+      "returns": "`nil`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemsalias",
+      "summary": "Let an old saved item ID resolve to a current item definition.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after registering the replacement item."
+    },
+    "sf2.items.tombstone": {
+      "params": {
+        "definition": "Eclipse.IdDefinition"
+      },
+      "returns": "`nil`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/equipment-shop-logging/#sf2itemstombstone",
+      "summary": "Reserve an old item ID when it has been retired without a replacement.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint."
+    },
+    "sf2.shop.addItem": {
+      "params": {
+        "definition": "Eclipse.ShopListing"
+      },
+      "returns": "The listing's qualified ID as a string.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/shop/#sf2shopaddItem",
+      "summary": "Add a shop listing for equipment owned by your mod.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after registering the item."
+    },
+    "sf2.shop.set_availability": {
+      "params": {
+        "definition": "Eclipse.Availability"
+      },
+      "returns": "`nil`.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/shop/#sf2shopset_availability",
+      "summary": "Apply a non-economic visibility policy to an existing item.",
+      "requires": "`content.patch`; a declared dependency when targeting another owner. Obtaining an item handle with `sf2.items.get` also requires `content.register`.",
+      "when": "Entrypoint, after obtaining the item handle."
+    },
+    "sf2.price.coins": {
+      "params": {
+        "amount": "integer"
+      },
+      "returns": "An opaque price handle.",
+      "capability": null,
+      "bounds": {
+        "amount": [
+          0,
+          2147483647
+        ]
+      },
+      "url": "https://dawc17.github.io/ProjectEclipse/api/shop/#sf2pricecoins",
+      "summary": "Create a coin price to use in a shop listing. This does not spend or grant coins.",
+      "requires": "No capability to construct the price; listing it requires `content.register`.",
+      "when": "Usually during registration."
+    },
+    "sf2.price.gems": {
+      "params": {
+        "amount": "integer"
+      },
+      "returns": "An opaque price handle. The same integer bounds as coin prices apply.",
+      "capability": null,
+      "bounds": {
+        "amount": [
+          0,
+          2147483647
+        ]
+      },
+      "url": "https://dawc17.github.io/ProjectEclipse/api/shop/#sf2pricegems",
+      "summary": "Create a gem price to use in a shop listing.",
+      "requires": "No capability to construct the price.",
+      "when": "Usually during registration."
+    },
+    "sf2.assets.sprite": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A sprite handle. Missing assets and assets of another type raise errors.",
+      "capability": null,
+      "referenceKind": "sprite",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetssprite",
+      "summary": "Get a sprite handle for an item icon, achievement, or location image.",
+      "requires": "No capability; cross-mod references require a dependency.",
+      "when": "Usually during registration, before passing the handle to a definition."
+    },
+    "sf2.assets.model": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A model handle. The asset must exist and be classified as a model.",
+      "capability": null,
+      "referenceKind": "model",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsmodel",
+      "summary": "Get a model handle for equipment.",
+      "requires": "No capability; cross-mod references require a dependency.",
+      "when": "Usually during registration."
+    },
+    "sf2.assets.audio": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "An audio handle. Missing or non-audio assets raise an error.",
+      "capability": null,
+      "referenceKind": "audio",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsaudio",
+      "summary": "Get an audio handle for location music or a move's sound action.",
+      "requires": "No capability; cross-mod references require a dependency.",
+      "when": "During registration before using the handle."
+    },
+    "sf2.assets.binary": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A binary handle. An asset of another kind is rejected.",
+      "capability": null,
+      "referenceKind": "binary",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsbinary",
+      "summary": "Get a binary asset handle for an animation supplied to `sf2.moves.register`.",
+      "requires": "No capability; cross-mod references require a dependency.",
+      "when": "During registration."
+    },
+    "sf2.assets.qualify": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A normalized string. It does not check whether the asset exists.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsqualify",
+      "summary": "Turn a local asset path into its complete namespaced ID. This is useful in logs.",
+      "requires": "No capability. Cross-mod references require a declared dependency.",
+      "when": "Entrypoint or a callback."
+    },
+    "sf2.assets.exists": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "`true` if the asset is described by the resolver, otherwise `false`. It does not guarantee successful image decoding or that the asset has the type you want. Malformed or unauthorized references raise an error.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsexists",
+      "summary": "Check whether an asset ID is available before choosing it.",
+      "requires": "No capability; the referenced owner must be your mod or a dependency.",
+      "when": "Entrypoint or a callback."
+    },
+    "sf2.assets.replace": {
+      "params": {
+        "definition": "Eclipse.AssetReplacement"
+      },
+      "returns": "`nil`.",
+      "capability": "assets.replace",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/asset-replacement/#sf2assetsreplace",
+      "summary": "Redirect a supported asset ID to another asset owned by your mod.",
+      "requires": "`assets.replace` and a declared dependency on the target's owner.",
+      "when": "Entrypoint. Restart after enabling/disabling a replacement mod."
+    },
+    "sf2.localization.key": {
+      "params": {
+        "key": "string"
+      },
+      "returns": "A localization handle. Missing keys raise an error.",
+      "capability": "content.register",
+      "referenceKind": "localization",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationkey",
+      "summary": "Get the typed localization handle used by item names, perks, and achievements.",
+      "requires": "`content.register`; other owners must be declared dependencies.",
+      "when": "Entrypoint, after localization files have been discovered by the host."
+    },
+    "sf2.localization.patch": {
+      "params": {
+        "definition": "Eclipse.LocalizationPatch"
+      },
+      "returns": "`nil`.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationpatch",
+      "summary": "Replace one language value of an existing localization definition.",
+      "requires": "`content.patch`, plus a dependency on the target's owner.",
+      "when": "Entrypoint."
+    },
+    "sf2.state.register": {
+      "params": {
+        "definition": "Eclipse.StateDefinition"
+      },
+      "returns": "`nil`.",
+      "capability": "state.write",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/mod-state/#sf2stateregister",
+      "summary": "Define the names, types, initial values, and version of your saved data.",
+      "requires": "`state.write`.",
+      "when": "Entrypoint, once for the mod's schema."
+    },
+    "sf2.state.get": {
+      "params": {
+        "name": "string"
+      },
+      "returns": "A number, integer-valued number, boolean, or string; `nil` if no value is present for that name. Invalid names or unavailable state raise errors.",
+      "capability": "state.read",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/mod-state/#sf2stateget",
+      "summary": "Read one value belonging to this mod.",
+      "requires": "`state.read` and a registered, successfully loaded schema.",
+      "when": "A supported callback after profile load."
+    },
+    "sf2.state.set": {
+      "params": {
+        "values": "table<string,any>"
+      },
+      "returns": "`nil`.",
+      "capability": "state.write",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/mod-state/#sf2stateset",
+      "summary": "Update one or more fields together. Unmentioned fields retain their values.",
+      "requires": "`state.write`.",
+      "when": "A supported callback after profile load."
+    },
+    "sf2.state.unset": {
+      "params": {
+        "name": "string"
+      },
+      "returns": "`nil`.",
+      "capability": "state.write",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/mod-state/#sf2stateunset",
+      "summary": "Remove a field's explicit value and apply its schema's default, if it has one.",
+      "requires": "`state.write`.",
+      "when": "A supported callback after profile load."
+    },
+    "sf2.behaviors.register": {
+      "params": {
+        "definition": "Eclipse.BehaviorDefinition"
+      },
+      "returns": "A behavior handle.",
+      "capability": "content.register",
+      "overload": "fun(definition:Eclipse.StatefulBehavior):Eclipse.BehaviorHandle",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/behavior-instances/#sf2behaviorsregister",
+      "summary": "Register a behavior with one or more supported combat callbacks.",
+      "requires": "`content.register`. Operations performed by callbacks may require additional capabilities such as `combat.magic_charge`.",
+      "when": "Entrypoint, before registering perks or enchantments that use it."
+    },
+    "sf2.perks.get": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A perk handle. Missing or inaccessible definitions raise errors.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/perks-and-enchantments/#sf2perksget",
+      "summary": "Look up an existing perk definition.",
+      "requires": "`content.register`; a dependency on another owner when applicable.",
+      "when": "Entrypoint."
+    },
+    "sf2.perks.register": {
+      "params": {
+        "definition": "Eclipse.PerkDefinition|Eclipse.TemplatePerk"
+      },
+      "returns": "A perk handle. Registration does not automatically teach it to the player.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/perks-and-enchantments/#sf2perksregister",
+      "summary": "Register a new perk backed by your own Lua behavior or an existing perk template.",
+      "requires": "`content.register`, plus the capabilities used by its behavior.",
+      "when": "Entrypoint, after the behavior or template is available."
+    },
+    "sf2.enchantments.register": {
+      "params": {
+        "definition": "Eclipse.EnchantmentDefinition|Eclipse.LegacyEnchantment"
+      },
+      "returns": "An enchantment handle. The player still needs to forge and equip it.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/perks-and-enchantments/#sf2enchantmentsregister",
+      "summary": "Create a forgeable enchantment for selected equipment categories.",
+      "requires": "`content.register`, plus the capabilities used by its behavior.",
+      "when": "Entrypoint, after registering its behavior or looking up its legacy perk."
+    },
+    "sf2.zones.register": {
+      "params": {
+        "definition": "Eclipse.ZoneDefinition"
+      },
+      "returns": "A zone handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2zonesregister",
+      "summary": "Create a map page for your battles.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before its battles."
+    },
+    "sf2.zones.get": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A zone handle; a missing or inaccessible ID raises an error.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2zonesget",
+      "summary": "Obtain an existing zone's handle instead of creating a new page.",
+      "requires": "`content.register` and a dependency on an external owner.",
+      "when": "Entrypoint."
+    },
+    "sf2.battles.register": {
+      "params": {
+        "definition": "Eclipse.BattleDefinition"
+      },
+      "returns": "A battle handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesregister",
+      "summary": "Create the map entry that the player selects to open a fight.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after the zone."
+    },
+    "sf2.warriors.get_template": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A warrior-template handle; missing IDs raise errors.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2warriorsget_template",
+      "summary": "Get an existing opponent template as the starting point for a new warrior.",
+      "requires": "`content.register` and the template owner's dependency.",
+      "when": "Entrypoint."
+    },
+    "sf2.warriors.register": {
+      "params": {
+        "definition": "Eclipse.WarriorDefinition"
+      },
+      "returns": "A warrior handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2warriorsregister",
+      "summary": "Define an opponent, optionally inheriting from a core template.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before registering the fight."
+    },
+    "sf2.rewards.register": {
+      "params": {
+        "definition": "Eclipse.RewardDefinition"
+      },
+      "returns": "A reward handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2rewardsregister",
+      "summary": "Create a reward that a fight can grant through its normal result/save flow.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before the fight uses the reward."
+    },
+    "sf2.fights.register": {
+      "params": {
+        "definition": "Eclipse.FightDefinition"
+      },
+      "returns": "A fight handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2fightsregister",
+      "summary": "Connect a battle to opponents, rounds, rules, and rewards.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after the referenced definitions."
+    },
+    "sf2.fights.patch": {
+      "params": {
+        "definition": "Eclipse.FightPatch"
+      },
+      "returns": "`nil`.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2fightspatch",
+      "summary": "Replace supported fields on an existing registered fight.",
+      "requires": "`content.patch`, and a dependency on the target owner.",
+      "when": "Entrypoint, after the target mod has committed its definitions."
+    },
+    "sf2.rules.no_perks": {
+      "params": {
+        "definition": "Eclipse.Rule_no_perks"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesno_perks",
+      "summary": "Disable perks matching the rule's target and optional name filter.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.require_item": {
+      "params": {
+        "definition": "Eclipse.Rule_require_item"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesrequire_item",
+      "summary": "Require an item as a fight-entry/equipment condition.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.equip_item": {
+      "params": {
+        "definition": "Eclipse.Rule_equip_item"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesequip_item",
+      "summary": "Apply a specified item to the target for this fight.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.avatar": {
+      "params": {
+        "definition": "Eclipse.Rule_avatar"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesavatar",
+      "summary": "Override the target's fight portrait reference.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.name": {
+      "params": {
+        "definition": "Eclipse.Rule_name"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesname",
+      "summary": "Override the target's displayed name during the fight.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.no_button": {
+      "params": {
+        "definition": "Eclipse.Rule_no_button"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesno_button",
+      "summary": "Disable a named combat button through the native fight-rule system.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.perk": {
+      "params": {
+        "definition": "Eclipse.Rule_perk"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesperk",
+      "summary": "Apply a perk rule to the selected target.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.recharge_magic_each_round": {
+      "params": {
+        "definition": "Eclipse.Rule_recharge_magic_each_round"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesrecharge_magic_each_round",
+      "summary": "Request normal magic recharge at round boundaries.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.attributes": {
+      "params": {
+        "definition": "Eclipse.Rule_attributes"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesattributes",
+      "summary": "Apply a map of native fight attribute values.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.quests.register": {
+      "params": {
+        "definition": "Eclipse.QuestDefinition"
+      },
+      "returns": "A quest handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/quests/#sf2questsregister",
+      "summary": "Create a quest that responds to selected game events.",
+      "requires": "`content.register`, plus dependencies for referenced content.",
+      "when": "Entrypoint, after the battle/fight/item definitions used by the quest."
+    },
+    "sf2.itemsets.register": {
+      "params": {
+        "definition": "Eclipse.ItemSet"
+      },
+      "returns": "An item-set handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsetsregister",
+      "summary": "",
+      "requires": "`content.register`.",
+      "when": "During mod loading."
+    },
+    "sf2.progression.replace_perk_branch": {
+      "params": {
+        "definition": "Eclipse.PerkBranch"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2progressionreplace_perk_branch",
+      "summary": "",
+      "requires": "`content.patch`; looking up or registering perks also requires `content.register`.",
+      "when": "During mod loading, before the perk tree is used."
+    },
+    "sf2.forge.profile": {
+      "params": {
+        "reference": "string"
+      },
+      "returns": "A forge economy-profile handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2forgeprofile",
+      "summary": "",
+      "requires": "`content.register`, and a declared dependency when reading another mod's content.",
+      "when": "During mod loading."
+    },
+    "sf2.forge.register_recipe": {
+      "params": {
+        "definition": "Eclipse.ForgeRecipe"
+      },
+      "returns": "A forge-recipe handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2forgeregister_recipe",
+      "summary": "",
+      "requires": "`content.register`.",
+      "when": "During mod loading."
+    },
+    "sf2.locales.register": {
+      "params": {
+        "definition": "Eclipse.LocaleDefinition"
+      },
+      "returns": "The qualified locale ID as a string.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2localesregister",
+      "summary": "",
+      "requires": "`content.register`.",
+      "when": "During mod loading."
+    },
+    "sf2.locations.register": {
+      "params": {
+        "definition": "Eclipse.LocationDefinition"
+      },
+      "returns": "A location handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsregister",
+      "summary": "",
+      "requires": "`content.register`; declare dependencies for external assets.",
+      "when": "During mod loading."
+    },
+    "sf2.locations.name": {
+      "params": {
+        "location": "Eclipse.LocationHandle"
+      },
+      "returns": "The location's qualified ID as a string.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsname",
+      "summary": "",
+      "requires": "A valid location handle belonging to the current scripting context; no additional capability.",
+      "when": "During mod loading, after obtaining the location handle."
+    },
+    "sf2.moves.register_template": {
+      "params": {
+        "definition": "Eclipse.MoveTemplateDefinition"
+      },
+      "returns": "A move-template handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesregister_template",
+      "summary": "",
+      "requires": "`content.register`.",
+      "when": "During mod loading, before moves that use the template."
+    },
+    "sf2.moves.register": {
+      "params": {
+        "definition": "Eclipse.MoveDefinition"
+      },
+      "returns": "A move handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesregister",
+      "summary": "",
+      "requires": "`content.register`, plus dependencies for external templates or assets.",
+      "when": "During mod loading."
+    },
+    "sf2.moves.register_trigger": {
+      "params": {
+        "definition": "Eclipse.TriggerDefinition"
+      },
+      "returns": "A trigger handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesregister_trigger",
+      "summary": "",
+      "requires": "`content.register`.",
+      "when": "During mod loading."
+    },
+    "sf2.tactics.register": {
+      "params": {
+        "definition": "Eclipse.TacticDefinition"
+      },
+      "returns": "A tactic handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2tacticsregister",
+      "summary": "",
+      "requires": "`content.register`.",
+      "when": "During mod loading, before warriors that use it."
+    },
+    "sf2.tactics.name": {
+      "params": {
+        "tactic": "Eclipse.TacticHandle"
+      },
+      "returns": "The tactic's qualified ID as a string.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2tacticsname",
+      "summary": "",
+      "requires": "A valid tactic handle from the current scripting context; no additional capability.",
+      "when": "During mod loading, after obtaining the tactic handle."
+    },
+    "sf2.modes.register": {
+      "params": {
+        "definition": "Eclipse.ModeDefinition"
+      },
+      "returns": "`nil`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2modesregister",
+      "summary": "Create a progression sequence, such as a repeatable trial.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after registering its fights."
+    },
+    "sf2.events.register": {
+      "params": {
+        "definition": "Eclipse.ModeDefinition"
+      },
+      "returns": "`nil`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2eventsregister",
+      "summary": "Create a scheduled or permanently available event using the sequence format.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after its fights."
+    },
+    "sf2.raids.register": {
+      "params": {
+        "definition": "Eclipse.RaidDefinition"
+      },
+      "returns": "`nil`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2raidsregister",
+      "summary": "Register a local offline raid sequence.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after its fights with battle type `\"raid\"`."
+    },
+    "sf2.timers.set": {
+      "params": {
+        "definition": "Eclipse.TimerPolicy"
+      },
+      "returns": "`nil`.",
+      "capability": "policy.timers",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/timers-and-services/#sf2timersset",
+      "summary": "Set the delivery duration and early-skip policy for new forge orders.",
+      "requires": "`policy.timers`.",
+      "when": "Entrypoint."
+    },
+    "sf2.services.disable": {
+      "params": {
+        "name": "\"paid_offers\"|\"battle_pass\"|\"ads\"|\"rewarded_video\"|\"online_services\"|\"payments\""
+      },
+      "returns": "`nil`.",
+      "capability": "policy.services",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/timers-and-services/#sf2servicesdisable",
+      "summary": "Disable a supported optional service feature group.",
+      "requires": "`policy.services`.",
+      "when": "Entrypoint."
+    },
+    "sf2.counters.register": {
+      "params": {
+        "definition": "Eclipse.CounterDefinition"
+      },
+      "returns": "A counter handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/achievements/#sf2countersregister",
+      "summary": "Create a counter owned by this mod.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint."
+    },
+    "sf2.counters.get": {
+      "params": {
+        "counter": "Eclipse.CounterHandle"
+      },
+      "returns": "The current integer value as a Lua number.",
+      "capability": "progression.read",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/achievements/#sf2countersget",
+      "summary": "Read your counter's saved value.",
+      "requires": "`progression.read`.",
+      "when": "A supported callback after profile load."
+    },
+    "sf2.counters.add": {
+      "params": {
+        "counter": "Eclipse.CounterHandle",
+        "amount": "integer"
+      },
+      "returns": "The resulting counter value as a Lua number.",
+      "capability": "progression.write",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/achievements/#sf2countersadd",
+      "summary": "Increase a counter and process achievements whose thresholds it reaches.",
+      "requires": "`progression.write`.",
+      "when": "A supported callback after profile load."
+    },
+    "sf2.achievements.register": {
+      "params": {
+        "definition": "Eclipse.AchievementDefinition"
+      },
+      "returns": "`nil`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/achievements/#sf2achievementsregister",
+      "summary": "Define an achievement tied to one of your counters.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after registering the counter."
+    },
+    "sf2.log.debug": {
+      "params": {
+        "message": "string"
+      },
+      "returns": "`nil`.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/logging/#sf2logdebug",
+      "summary": "Write a detailed diagnostic message tagged with your mod's ID.",
+      "requires": "No capability.",
+      "when": "Entrypoint or a callback."
+    },
+    "sf2.log.info": {
+      "params": {
+        "message": "string"
+      },
+      "returns": "`nil`. `message` must be a string.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/logging/#sf2loginfo",
+      "summary": "Record a normal milestone, such as successful content registration.",
+      "requires": "No capability.",
+      "when": "Entrypoint or a callback."
+    },
+    "sf2.log.warn": {
+      "params": {
+        "message": "string"
+      },
+      "returns": "`nil`. `message` must be a string.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/logging/#sf2logwarn",
+      "summary": "Record a recoverable problem that may help explain unexpected behavior.",
+      "requires": "No capability.",
+      "when": "Entrypoint or a callback."
+    },
+    "sf2.log.error": {
+      "params": {
+        "message": "string"
+      },
+      "returns": "`nil`. `message` must be a string.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/logging/#sf2logerror",
+      "summary": "Record an error message. Logging alone does not stop execution or undo changes.",
+      "requires": "No capability.",
+      "when": "Entrypoint or a callback."
+    }
+  },
+  "aliases": {
+    "sf2.shop.add": "sf2.shop.addItem",
+    "sf2.mod.log": "sf2.log.info",
+    "sf2.mod.warn": "sf2.log.warn",
+    "sf2.mod.error": "sf2.log.error"
+  },
+  "constants": {
+    "sf2.state.NUMBER": "number",
+    "sf2.state.INTEGER": "integer",
+    "sf2.state.BOOLEAN": "boolean",
+    "sf2.state.STRING": "string",
+    "sf2.perks.SINGLE": "single",
+    "sf2.perks.COMBO": "combo",
+    "sf2.progression.UNLOCK": "unlock",
+    "sf2.progression.UPGRADE": "upgrade",
+    "sf2.forge.WEAPON": "weapon",
+    "sf2.forge.ARMOR": "armor",
+    "sf2.forge.HELM": "helm",
+    "sf2.forge.RANGED": "ranged",
+    "sf2.forge.MAGIC": "magic",
+    "sf2.behaviors.NUMBER": "number",
+    "sf2.behaviors.INTEGER": "integer",
+    "sf2.behaviors.BOOLEAN": "boolean",
+    "sf2.behaviors.STRING": "string",
+    "sf2.enchantments.SIMPLE": "simple",
+    "sf2.enchantments.MEDIUM": "medium",
+    "sf2.enchantments.COMPLEX": "complex",
+    "sf2.enchantments.WEAPON": "weapon",
+    "sf2.enchantments.ARMOR": "armor",
+    "sf2.enchantments.HELM": "helm",
+    "sf2.enchantments.RANGED": "ranged",
+    "sf2.enchantments.MAGIC": "magic",
+    "sf2.battles.DUMMY": "dummy",
+    "sf2.battles.TUTORIAL": "tutorial",
+    "sf2.battles.CHALLENGE": "challenge",
+    "sf2.battles.BOSSES": "bosses",
+    "sf2.battles.TOURNAMENT": "tournament",
+    "sf2.battles.STORY": "story",
+    "sf2.battles.SURVIVAL": "survival",
+    "sf2.battles.FRIENDLY": "friendly",
+    "sf2.battles.AUTO": "auto",
+    "sf2.battles.AI": "ai",
+    "sf2.battles.HIDDEN": "hidden",
+    "sf2.battles.FAKE": "fake",
+    "sf2.battles.PVP": "pvp",
+    "sf2.battles.FINAL": "final",
+    "sf2.battles.FINAL_TITAN": "final_titan",
+    "sf2.rules.PLAYER": "player",
+    "sf2.rules.OPPONENT": "opponent",
+    "sf2.rules.ALL": "all",
+    "sf2.rules.NORMAL": "normal",
+    "sf2.rules.ECLIPSE": "eclipse",
+    "sf2.rules.BOTH": "all",
+    "sf2.shop.WEAPONS": "weapons",
+    "sf2.shop.ARMOR": "armor",
+    "sf2.shop.HELMETS": "helmets",
+    "sf2.shop.RANGED": "ranged",
+    "sf2.shop.MAGIC": "magic",
+    "sf2.shop.INHERIT": "inherit",
+    "sf2.shop.FORCE_VISIBLE": "force_visible",
+    "sf2.shop.FORCE_HIDDEN": "force_hidden",
+    "sf2.moves.ANIMATION_END": "animation_end",
+    "sf2.moves.ANIMATION_START": "animation_start",
+    "sf2.moves.INTERVAL_END": "interval_end",
+    "sf2.moves.INTERVAL_START": "interval_start",
+    "sf2.moves.HIT": "hit",
+    "sf2.moves.STRIKE": "strike",
+    "sf2.moves.EVERY_FRAME": "every_frame",
+    "sf2.moves.BIRTH": "birth",
+    "sf2.moves.ROUND_STAGE_START": "round_stage_start",
+    "sf2.moves.MOD_EXPIRES": "mod_expires",
+    "sf2.moves.CURRENT_ANIMATION": "current_animation",
+    "sf2.moves.CURRENT_INTERVAL": "current_interval",
+    "sf2.moves.ITEM": "item",
+    "sf2.moves.PERK": "perk",
+    "sf2.moves.ALL": "all",
+    "sf2.moves.ANY": "any",
+    "sf2.moves.SOUND": "sound",
+    "sf2.moves.HIT_EFFECT": "hit_effect",
+    "sf2.tactics.RANDOM": "random",
+    "sf2.tactics.TABULAR": "tabular",
+    "sf2.tactics.LINEAR": "linear",
+    "sf2.tactics.EXPONENTIAL": "exponential"
+  },
+  "callbacks": [
+    "on_fight_begin",
+    "on_round_begin",
+    "on_damage_resolving",
+    "on_damage_received",
+    "on_damage_dealt",
+    "on_block",
+    "on_critical",
+    "on_round_end",
+    "on_fight_end"
+  ],
+  "fighterMethods": {
+    "change_health": {
+      "params": {
+        "amount": "number"
+      },
+      "capability": "combat.change_life"
+    },
+    "add_magic_charge": {
+      "params": {
+        "amount": "number"
+      },
+      "capability": "combat.magic_charge"
+    },
+    "scale_incoming_damage": {
+      "params": {
+        "multiplier": "number"
+      },
+      "capability": "combat.modify_hit"
+    },
+    "add_damage_shield": {
+      "params": {
+        "key": "string",
+        "fraction": "number",
+        "frames": "integer"
+      },
+      "capability": "combat.effects"
+    },
+    "remove_damage_shield": {
+      "params": {
+        "key": "string"
+      },
+      "capability": "combat.effects"
+    }
+  },
+  "types": {
+    "SpriteHandle": {
+      "fields": {
+        "private __eclipseSprite": "true"
+      }
+    },
+    "ModelHandle": {
+      "fields": {
+        "private __eclipseModel": "true"
+      }
+    },
+    "AudioHandle": {
+      "fields": {
+        "private __eclipseAudio": "true"
+      }
+    },
+    "BinaryHandle": {
+      "fields": {
+        "private __eclipseBinary": "true"
+      }
+    },
+    "LocalizationHandle": {
+      "fields": {
+        "private __eclipseLocalization": "true"
+      }
+    },
+    "ItemHandle": {
+      "fields": {
+        "private __eclipseItem": "true"
+      }
+    },
+    "PriceHandle": {
+      "fields": {
+        "private __eclipsePrice": "true"
+      }
+    },
+    "PerkHandle": {
+      "fields": {
+        "private __eclipsePerk": "true"
+      }
+    },
+    "BehaviorHandle": {
+      "fields": {
+        "private __eclipseBehavior": "true"
+      }
+    },
+    "ZoneHandle": {
+      "fields": {
+        "private __eclipseZone": "true"
+      }
+    },
+    "BattleHandle": {
+      "fields": {
+        "private __eclipseBattle": "true"
+      }
+    },
+    "WarriorTemplateHandle": {
+      "fields": {
+        "private __eclipseWarriorTemplate": "true"
+      }
+    },
+    "WarriorHandle": {
+      "fields": {
+        "private __eclipseWarrior": "true"
+      }
+    },
+    "RewardHandle": {
+      "fields": {
+        "private __eclipseReward": "true"
+      }
+    },
+    "FightHandle": {
+      "fields": {
+        "private __eclipseFight": "true"
+      }
+    },
+    "RuleHandle": {
+      "fields": {
+        "private __eclipseRule": "true"
+      }
+    },
+    "QuestHandle": {
+      "fields": {
+        "private __eclipseQuest": "true"
+      }
+    },
+    "ItemSetHandle": {
+      "fields": {
+        "private __eclipseItemSet": "true"
+      }
+    },
+    "ForgeProfileHandle": {
+      "fields": {
+        "private __eclipseForgeProfile": "true"
+      }
+    },
+    "ForgeRecipeHandle": {
+      "fields": {
+        "private __eclipseForgeRecipe": "true"
+      }
+    },
+    "LocationHandle": {
+      "fields": {
+        "private __eclipseLocation": "true"
+      }
+    },
+    "MoveTemplateHandle": {
+      "fields": {
+        "private __eclipseMoveTemplate": "true"
+      }
+    },
+    "MoveHandle": {
+      "fields": {
+        "private __eclipseMove": "true"
+      }
+    },
+    "TriggerHandle": {
+      "fields": {
+        "private __eclipseTrigger": "true"
+      }
+    },
+    "TacticHandle": {
+      "fields": {
+        "private __eclipseTactic": "true"
+      }
+    },
+    "CounterHandle": {
+      "fields": {
+        "private __eclipseCounter": "true"
+      }
+    },
+    "WeaponHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "ArmorHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "HelmHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "RangedHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "MagicHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "ConsumableHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "FreeHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "SealHandle": {
+      "fields": {},
+      "parent": "ItemHandle"
+    },
+    "EnchantmentHandle": {
+      "fields": {
+        "private __eclipseEnchantment": "true"
+      }
+    },
+    "FieldSchema": {
+      "fields": {
+        "type": "\"number\"|\"integer\"|\"boolean\"|\"string\"",
+        "required?": [
+          "boolean",
+          "Defaults to true. Required saved fields need defaults."
+        ],
+        "default?": "number|boolean|string"
+      }
+    },
+    "StateDefinition": {
+      "fields": {
+        "version": "integer",
+        "fields?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
+        "aliases?": "table<string,string>",
+        "tombstones?": "string[]",
+        "migrations?": "table<integer,fun(old:table<string,any>):table<string,any>|nil>"
+      }
+    },
+    "BehaviorState": {
+      "fields": {
+        "fields?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
+        "lifetime?": "\"round\"|\"fight\"|\"saved\"",
+        "version?": "integer",
+        "migrations?": "table<integer,fun(old:table<string,any>):table<string,any>|nil>"
+      }
+    },
+    "BehaviorSelf": {
+      "fields": {
+        "params": "table<string,any>",
+        "state": "table<string,any>"
+      }
+    },
+    "CombatEvent": {
+      "fields": {
+        "type": "string",
+        "round?": "integer",
+        "damage?": "number",
+        "health_before?": "number",
+        "health_after?": "number",
+        "blocked?": "boolean",
+        "critical?": "boolean",
+        "won?": "boolean"
+      }
+    },
+    "DamageEvent": {
+      "fields": {
+        "damage": "number",
+        "health_before": "number",
+        "health_after": "number",
+        "blocked": "boolean",
+        "critical": "boolean",
+        "round": "integer"
+      },
+      "parent": "CombatEvent"
+    },
+    "IncomingDamageEvent": {
+      "fields": {
+        "damage": "number"
+      },
+      "parent": "CombatEvent"
+    },
+    "FightEndEvent": {
+      "fields": {
+        "won": "boolean",
+        "player_result": "\"win\"|\"loss\"|\"surrender\"|\"timeout\""
+      },
+      "parent": "CombatEvent"
+    },
+    "BehaviorDefinition": {
+      "fields": {
+        "id": "string",
+        "parameters?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
+        "state?": "nil",
+        "on_fight_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_round_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_damage_resolving?": "fun(parameters:table<string,any>, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
+        "on_damage_received?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_damage_dealt?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_block?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_critical?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_round_end?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_fight_end?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.FightEndEvent)"
+      }
+    },
+    "StatefulBehavior": {
+      "fields": {
+        "id": "string",
+        "parameters?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
+        "state": "Eclipse.BehaviorState",
+        "on_fight_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_round_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_damage_resolving?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
+        "on_damage_received?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_damage_dealt?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_block?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_critical?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_round_end?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_fight_end?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.FightEndEvent)"
+      }
+    },
+    "Fighter": {
+      "fields": {
+        "health?": "number",
+        "side?": "string",
+        "opponent?": "Eclipse.Opponent"
+      }
+    },
+    "Opponent": {
+      "fields": {
+        "health?": "number"
+      }
+    },
+    "ResolvingFighter": {
+      "fields": {},
+      "parent": "Fighter"
+    },
+    "WeaponDefinition": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "icon": "Eclipse.SpriteHandle",
+        "model": "Eclipse.ModelHandle",
+        "subtype?": [
+          "string",
+          "Defaults to Katana. Match the model and move family."
+        ]
+      }
+    },
+    "ArmorDefinition": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "icon": "Eclipse.SpriteHandle",
+        "model": "Eclipse.ModelHandle"
+      }
+    },
+    "HelmDefinition": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "icon": "Eclipse.SpriteHandle",
+        "model": "Eclipse.ModelHandle"
+      }
+    },
+    "RangedDefinition": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "icon": "Eclipse.SpriteHandle",
+        "model": "Eclipse.ModelHandle",
+        "subtype": "string"
+      }
+    },
+    "MagicDefinition": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "icon": "Eclipse.SpriteHandle",
+        "model": "Eclipse.ModelHandle",
+        "subtype": "string"
+      }
+    },
+    "NonEquipmentDefinition": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "icon?": "Eclipse.SpriteHandle",
+        "model?": "Eclipse.ModelHandle",
+        "subtype?": "string",
+        "pack_label?": "string",
+        "silent_receive?": "boolean",
+        "spend_after_use?": "boolean"
+      }
+    },
+    "ItemAlias": {
+      "fields": {
+        "from": "string",
+        "to": "Eclipse.ItemHandle"
+      }
+    },
+    "IdDefinition": {
+      "fields": {
+        "id": "string"
+      }
+    },
+    "ShopListing": {
+      "fields": {
+        "section": "\"weapons\"|\"armor\"|\"helmets\"|\"ranged\"|\"magic\"",
+        "item": "Eclipse.ItemHandle",
+        "level": [
+          "integer",
+          "Weapon: 1-52; armor/helm: 2-52; ranged/magic: 6-52."
+        ],
+        "price": "Eclipse.PriceHandle"
+      }
+    },
+    "Availability": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "visibility?": "\"inherit\"|\"force_visible\"|\"force_hidden\"",
+        "required_group?": "string"
+      }
+    },
+    "AssetReplacement": {
+      "fields": {
+        "target": "string",
+        "replacement": "string"
+      }
+    },
+    "LocalizationPatch": {
+      "fields": {
+        "target": "string",
+        "language": "string",
+        "value": "string"
+      }
+    },
+    "PerkDefinition": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "description": "Eclipse.LocalizationHandle",
+        "icon?": "Eclipse.SpriteHandle",
+        "behavior": "Eclipse.BehaviorHandle",
+        "kind": "\"single\"|\"combo\"",
+        "parameters?": "table<string,any>"
+      }
+    },
+    "TemplatePerk": {
+      "fields": {
+        "id": "string",
+        "display_name": "Eclipse.LocalizationHandle",
+        "description": "Eclipse.LocalizationHandle",
+        "icon?": "Eclipse.SpriteHandle",
+        "template": "Eclipse.PerkHandle",
+        "parameters?": "table<string,any>"
+      }
+    },
+    "EnchantmentDefinition": {
+      "fields": {
+        "id": "string",
+        "recipe": "\"simple\"|\"medium\"|\"complex\"",
+        "item_types": "(\"weapon\"|\"armor\"|\"helm\"|\"ranged\"|\"magic\")[]",
+        "behavior": "Eclipse.BehaviorHandle",
+        "display_name": "Eclipse.LocalizationHandle",
+        "description": "Eclipse.LocalizationHandle",
+        "icon?": "Eclipse.SpriteHandle",
+        "parameters?": "table<string,any>"
+      }
+    },
+    "LegacyEnchantment": {
+      "fields": {
+        "id": "string",
+        "recipe": "\"simple\"|\"medium\"|\"complex\"",
+        "item_types": "(\"weapon\"|\"armor\"|\"helm\"|\"ranged\"|\"magic\")[]",
+        "perk": "Eclipse.PerkHandle"
+      }
+    },
+    "ZoneDefinition": {
+      "fields": {
+        "id": "string",
+        "file?": "string",
+        "start?": "boolean"
+      }
+    },
+    "BattleDefinition": {
+      "fields": {
+        "id": "string",
+        "zone": "Eclipse.ZoneHandle",
+        "type": "string",
+        "x?": "integer",
+        "y?": "integer",
+        "alias?": "string",
+        "title?": "string",
+        "description?": "string",
+        "icon?": "string",
+        "icon_atlas?": "string",
+        "preview?": "string",
+        "eclipse_toggle_name?": "string",
+        "location?": "string",
+        "music?": "string",
+        "reward_image?": "string",
+        "show_resistance?": "boolean"
+      }
+    },
+    "AttributeAlignment": {
+      "fields": {
+        "factor": "number",
+        "shift": "number",
+        "priority?": "integer",
+        "mode?": "\"all\"|\"normal\"|\"eclipse\""
+      }
+    },
+    "WarriorDefinition": {
+      "fields": {
+        "id": "string",
+        "template?": "Eclipse.WarriorTemplateHandle",
+        "first_name?": "string",
+        "last_name?": "string",
+        "avatar?": "string",
+        "voice?": "string",
+        "group?": "string",
+        "level?": "integer",
+        "tactic?": "Eclipse.TacticHandle|string",
+        "random?": "integer",
+        "items?": "Eclipse.ItemHandle[]",
+        "perks?": "Eclipse.PerkHandle[]",
+        "attributes?": "table<string,number>",
+        "attribute_alignments?": "Eclipse.AttributeAlignment[]",
+        "health_bars?": [
+          "integer",
+          "0 inherits the template; 1-10000 is the total number of health bars."
+        ]
+      }
+    },
+    "ItemGrant": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "upgrade?": "integer"
+      }
+    },
+    "RewardCandidate": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "upgrade?": "integer",
+        "weight?": "number"
+      }
+    },
+    "RewardChoice": {
+      "fields": {
+        "items": "Eclipse.RewardCandidate[]"
+      }
+    },
+    "RewardDefinition": {
+      "fields": {
+        "id": "string",
+        "items?": "Eclipse.ItemGrant[]",
+        "choices?": "Eclipse.RewardChoice[]",
+        "gems?": "integer"
+      }
+    },
+    "FightDefinition": {
+      "fields": {
+        "id": "string",
+        "battle": "Eclipse.BattleHandle",
+        "warriors?": "Eclipse.WarriorHandle[]",
+        "rules?": "Eclipse.RuleHandle[]",
+        "rewards?": [
+          "Eclipse.RewardHandle[]",
+          "First slot is the zero-win result; second slot is one win."
+        ],
+        "rounds?": "integer",
+        "round_time?": "integer",
+        "replays?": "integer",
+        "replay_interval?": "integer",
+        "power?": "integer",
+        "location?": "string",
+        "music?": "string",
+        "description?": "string",
+        "reward_image?": "string",
+        "evaluated_rating?": "number",
+        "health_recovery?": "number",
+        "locked?": "boolean"
+      }
+    },
+    "FightPatch": {
+      "fields": {
+        "target": "string",
+        "description?": "string",
+        "rounds?": "integer",
+        "round_time?": "integer"
+      }
+    },
+    "Rule_no_perks": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "name?": "string"
+      }
+    },
+    "Rule_require_item": {
+      "fields": {
+        "id": "string",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "item": "Eclipse.ItemHandle",
+        "minimum_level?": "integer"
+      }
+    },
+    "Rule_equip_item": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "item": "Eclipse.ItemHandle",
+        "minimum_level?": "integer"
+      }
+    },
+    "Rule_avatar": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "name": "string"
+      }
+    },
+    "Rule_name": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "name": "string"
+      }
+    },
+    "Rule_no_button": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "name": "string"
+      }
+    },
+    "Rule_perk": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "perk": "Eclipse.PerkHandle"
+      }
+    },
+    "Rule_recharge_magic_each_round": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]"
+      }
+    },
+    "Rule_attributes": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "values": "table<string,number>"
+      }
+    },
+    "VariableOperand": {
+      "fields": {
+        "kind": "\"variable\"",
+        "name": "string"
+      }
+    },
+    "EventOperand": {
+      "fields": {
+        "kind": "\"event_fight\"|\"fight_result\"|\"current_battle\""
+      }
+    },
+    "FightOperand": {
+      "fields": {
+        "kind": "\"fight_wins\"|\"fight_id\"",
+        "fight": "Eclipse.FightHandle"
+      }
+    },
+    "Comparison": {
+      "fields": {
+        "op": "\"eq\"|\"gt\"|\"gte\"|\"lt\"|\"lte\"",
+        "left": "number|boolean|string|Eclipse.VariableOperand|Eclipse.EventOperand|Eclipse.FightOperand",
+        "right": "number|boolean|string|Eclipse.VariableOperand|Eclipse.EventOperand|Eclipse.FightOperand",
+        "not?": "boolean"
+      }
+    },
+    "ConditionGroup": {
+      "fields": {
+        "op": "\"all\"|\"any\"",
+        "conditions": "(Eclipse.Comparison|Eclipse.ConditionGroup)[]",
+        "not?": "boolean"
+      }
+    },
+    "DialogLine": {
+      "fields": {
+        "text": "string",
+        "button?": "string",
+        "frames?": "integer"
+      }
+    },
+    "DialogButton": {
+      "fields": {
+        "text": "string",
+        "color?": "string",
+        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_dialog|Eclipse.Action_story)[]"
+      }
+    },
+    "Action_show_battle": {
+      "fields": {
+        "type": "\"show_battle\"",
+        "battle": "Eclipse.BattleHandle",
+        "locked?": "boolean"
+      }
+    },
+    "Action_toggle_battle": {
+      "fields": {
+        "type": "\"toggle_battle\"",
+        "battle": "Eclipse.BattleHandle",
+        "visible?": "boolean"
+      }
+    },
+    "Action_map_focus": {
+      "fields": {
+        "type": "\"map_focus\"",
+        "battle": "Eclipse.BattleHandle"
+      }
+    },
+    "Action_fight": {
+      "fields": {
+        "type": "\"fight\"",
+        "fight": "Eclipse.FightHandle"
+      }
+    },
+    "Action_current_fight": {
+      "fields": {
+        "type": "\"current_fight\""
+      }
+    },
+    "Action_eclipse": {
+      "fields": {
+        "type": "\"eclipse\"",
+        "enabled?": "boolean"
+      }
+    },
+    "Action_update_eclipse_battles": {
+      "fields": {
+        "type": "\"update_eclipse_battles\""
+      }
+    },
+    "Action_give_item": {
+      "fields": {
+        "type": "\"give_item\"",
+        "item": "Eclipse.ItemHandle"
+      }
+    },
+    "Action_set_variable": {
+      "fields": {
+        "type": "\"set_variable\"",
+        "name": "string",
+        "value": "string"
+      }
+    },
+    "Action_dialog": {
+      "fields": {
+        "type": "\"dialog\"",
+        "title?": "string",
+        "image?": "string",
+        "lines": "(string|Eclipse.DialogLine)[]",
+        "button?": "Eclipse.DialogButton"
+      }
+    },
+    "Action_story": {
+      "fields": {
+        "type": "\"story\"",
+        "lines": "(string|Eclipse.DialogLine)[]"
+      }
+    },
+    "QuestDefinition": {
+      "fields": {
+        "id": "string",
+        "priority?": "integer",
+        "unresumable?": "boolean",
+        "allow_doubles?": "boolean",
+        "place?": "\"map\"|\"fight\"|\"dojo\"",
+        "groups?": "string[]",
+        "marks?": "string[]",
+        "events": "(\"session\"|\"activate\"|\"fight_enter\"|\"fight_end\"|\"raid_fight_enter\"|\"raid_fight_end\"|\"raid_enter\"|\"raid_end\"|\"reset_mode\"|\"raid_map_enter\"|\"raid_floor_changed\"|\"show_raid_loot\"|\"level_up\"|\"got_item\"|\"set_item_acquired\"|\"purchase\"|\"delivery\"|\"timer_end\"|\"enchantment\"|\"activate_perk\"|\"deactivate_perk\"|\"dialog\"|\"map_button\"|\"scene_loaded\"|\"shop_enter\")[]",
+        "conditions?": "(Eclipse.Comparison|Eclipse.ConditionGroup)[]",
+        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_dialog|Eclipse.Action_story)[]"
+      }
+    },
+    "SetMember": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "scale?": "number",
+        "rotate?": "number",
+        "x?": "number",
+        "y?": "number",
+        "icons_y?": "number"
+      }
+    },
+    "ItemSet": {
+      "fields": {
+        "id": "string",
+        "title": "Eclipse.LocalizationHandle",
+        "text": "Eclipse.LocalizationHandle",
+        "brief": "Eclipse.LocalizationHandle",
+        "members": "Eclipse.SetMember[]"
+      }
+    },
+    "PerkChoice": {
+      "fields": {
+        "perk": "Eclipse.PerkHandle",
+        "action?": "\"unlock\"|\"upgrade\""
+      }
+    },
+    "PerkBranch": {
+      "fields": {
+        "level": "integer",
+        "entries": "Eclipse.PerkChoice[]"
+      }
+    },
+    "ForgeItem": {
+      "fields": {
+        "equipment": "\"weapon\"|\"armor\"|\"helm\"|\"ranged\"|\"magic\"",
+        "enchantments?": "integer",
+        "bar_scale?": "string",
+        "min_deviation?": "integer",
+        "max_deviation?": "integer",
+        "random_aspect?": "boolean"
+      }
+    },
+    "ForgeCandidate": {
+      "fields": {
+        "perk": "Eclipse.PerkHandle",
+        "equipment": "\"weapon\"|\"armor\"|\"helm\"|\"ranged\"|\"magic\"",
+        "min_level?": "integer",
+        "max_level?": "integer"
+      }
+    },
+    "ForgeRecipe": {
+      "fields": {
+        "id": "string",
+        "alias?": "string",
+        "economic_profile": "Eclipse.ForgeProfileHandle",
+        "items": "Eclipse.ForgeItem[]",
+        "candidates": "Eclipse.ForgeCandidate[]"
+      }
+    },
+    "Fonts": {
+      "fields": {
+        "content": "string",
+        "title": "string",
+        "button": "string",
+        "size_scale?": "number",
+        "line_spacing?": "number",
+        "custom_line_spacing_scale?": "number"
+      }
+    },
+    "LocaleDefinition": {
+      "fields": {
+        "id": "string",
+        "name": "string",
+        "locale": "string",
+        "alias?": "string",
+        "is_asian?": "boolean",
+        "file_icon?": "string",
+        "file_icon_selected?": "string",
+        "loader_image?": "string",
+        "preloader_image?": "string",
+        "fonts?": "Eclipse.Fonts"
+      }
+    },
+    "LocationImage": {
+      "fields": {
+        "sprite": "Eclipse.SpriteHandle",
+        "x?": "number",
+        "y?": "number",
+        "width?": "number",
+        "height?": "number",
+        "opaque?": "boolean",
+        "flip_x?": "boolean",
+        "flip_y?": "boolean",
+        "mask?": "boolean"
+      }
+    },
+    "FighterPositions": {
+      "fields": {
+        "player_x": "number",
+        "player_y": "number",
+        "enemy_x": "number",
+        "enemy_y": "number"
+      }
+    },
+    "LocationLayer": {
+      "fields": {
+        "type?": "integer",
+        "factor?": "number",
+        "scaling?": "boolean",
+        "images?": "Eclipse.LocationImage[]",
+        "fighters?": "Eclipse.FighterPositions"
+      }
+    },
+    "LocationDefinition": {
+      "fields": {
+        "id": "string",
+        "color?": "string",
+        "wall?": "number",
+        "floor?": "number",
+        "position_y?": "number",
+        "width?": "number",
+        "height?": "number",
+        "min_width?": "number",
+        "friction_force?": "number",
+        "grid_size?": "number",
+        "music?": "Eclipse.AudioHandle",
+        "layers": "Eclipse.LocationLayer[]"
+      }
+    },
+    "MoveEvent": {
+      "fields": {
+        "type": "\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"",
+        "name?": "string",
+        "player?": "string"
+      }
+    },
+    "MovePerkCondition": {
+      "fields": {
+        "type": "\"perk\"",
+        "perk": "Eclipse.PerkHandle",
+        "player?": "string",
+        "not?": "boolean"
+      }
+    },
+    "MoveNamedCondition": {
+      "fields": {
+        "type": "\"current_animation\"|\"current_interval\"|\"item\"",
+        "name?": "string",
+        "player?": "string",
+        "item_type?": "string",
+        "item_subtype?": "string",
+        "not?": "boolean"
+      }
+    },
+    "MoveConditionGroup": {
+      "fields": {
+        "type": "\"all\"|\"any\"",
+        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "not?": "boolean"
+      }
+    },
+    "MoveInterval": {
+      "fields": {
+        "type?": "string",
+        "name?": "string"
+      }
+    },
+    "MoveTemplateDefinition": {
+      "fields": {
+        "id": "string",
+        "templates?": "Eclipse.MoveTemplateHandle[]",
+        "core_templates?": "string[]",
+        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|Eclipse.MoveEvent)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "intervals?": "Eclipse.MoveInterval[]",
+        "type?": "string",
+        "mirror_node?": "string",
+        "tactic_equivalent?": "string",
+        "tactic_weapon?": "string",
+        "priority?": "integer",
+        "mid_frames?": "integer",
+        "first_frame?": "integer",
+        "end_frame?": "integer",
+        "looped?": "boolean",
+        "ends_stage?": "boolean"
+      }
+    },
+    "MoveDefinition": {
+      "fields": {
+        "id": "string",
+        "templates?": "Eclipse.MoveTemplateHandle[]",
+        "core_templates?": "string[]",
+        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|Eclipse.MoveEvent)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "intervals?": "Eclipse.MoveInterval[]",
+        "type?": "string",
+        "mirror_node?": "string",
+        "tactic_equivalent?": "string",
+        "tactic_weapon?": "string",
+        "priority?": "integer",
+        "mid_frames?": "integer",
+        "first_frame?": "integer",
+        "end_frame?": "integer",
+        "looped?": "boolean",
+        "ends_stage?": "boolean",
+        "animation": "Eclipse.BinaryHandle"
+      }
+    },
+    "SoundAction": {
+      "fields": {
+        "type": "\"sound\"",
+        "audio": "Eclipse.AudioHandle",
+        "volume?": "number",
+        "looped?": "boolean"
+      }
+    },
+    "HitEffectAction": {
+      "fields": {
+        "type": "\"hit_effect\"",
+        "name": "string"
+      }
+    },
+    "TriggerDefinition": {
+      "fields": {
+        "id": "string",
+        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|Eclipse.MoveEvent)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "actions?": "(Eclipse.SoundAction|Eclipse.HitEffectAction)[]"
+      }
+    },
+    "TacticValue": {
+      "fields": {
+        "base?": "number",
+        "counter_factor?": "number",
+        "damage_factor?": "number",
+        "health_factor?": "number",
+        "enemy_health_factor?": "number",
+        "animation_frames_factor?": "number",
+        "child_frames_factor?": "number",
+        "magic_bullet_factor?": "number",
+        "missile_bullet_factor?": "number",
+        "hit_factor?": "number",
+        "distance_factor?": "number",
+        "shift?": "number",
+        "limit?": "number",
+        "anti_limit?": "number",
+        "factor_type?": "\"linear\"|\"exponential\""
+      }
+    },
+    "TacticMemory": {
+      "fields": {
+        "strikes?": "integer",
+        "round_factor?": "number"
+      }
+    },
+    "TacticWeight": {
+      "fields": {
+        "move?": "Eclipse.MoveHandle",
+        "animation?": "string",
+        "value?": "Eclipse.TacticValue"
+      }
+    },
+    "TacticDefinition": {
+      "fields": {
+        "id": "string",
+        "type?": "\"tabular\"|\"random\"",
+        "template?": "string",
+        "memory?": "Eclipse.TacticMemory",
+        "counter_attack?": "Eclipse.TacticValue",
+        "dodge?": "Eclipse.TacticValue",
+        "block?": "Eclipse.TacticValue",
+        "safe_attack?": "Eclipse.TacticValue",
+        "table_attack?": "Eclipse.TacticValue",
+        "cautious_movement?": "Eclipse.TacticValue",
+        "dodge_missiles?": "Eclipse.TacticValue",
+        "dodge_magic?": "Eclipse.TacticValue",
+        "animation_weights?": "Eclipse.TacticWeight[]",
+        "quick_attacks?": "Eclipse.TacticWeight[]",
+        "evades?": "Eclipse.TacticWeight[]",
+        "expected_wait?": "Eclipse.TacticWeight[]"
+      }
+    },
+    "ModeDefinition": {
+      "fields": {
+        "id": "string",
+        "fights": "Eclipse.FightHandle[]",
+        "repeatable?": "boolean",
+        "reset_on_loss?": "boolean",
+        "minimum_level?": "integer",
+        "starts_at?": "integer",
+        "ends_at?": "integer",
+        "entry_item?": "Eclipse.ItemHandle",
+        "entry_count?": "integer"
+      }
+    },
+    "RaidDefinition": {
+      "fields": {
+        "id": "string",
+        "fights": "Eclipse.FightHandle[]",
+        "repeatable?": "boolean",
+        "reset_on_loss?": "boolean",
+        "minimum_level?": "integer",
+        "starts_at?": "integer",
+        "ends_at?": "integer",
+        "entry_item?": "Eclipse.ItemHandle",
+        "entry_count?": "integer",
+        "hard_mode?": "boolean"
+      }
+    },
+    "TimerPolicy": {
+      "fields": {
+        "subsystem": "\"forge\"",
+        "seconds": "integer",
+        "skip_enabled?": "boolean"
+      }
+    },
+    "CounterDefinition": {
+      "fields": {
+        "id": "string",
+        "maximum?": "integer"
+      }
+    },
+    "AchievementDefinition": {
+      "fields": {
+        "id": "string",
+        "counter": "Eclipse.CounterHandle",
+        "title": "Eclipse.LocalizationHandle",
+        "description": "Eclipse.LocalizationHandle",
+        "icon": "Eclipse.SpriteHandle",
+        "threshold": "integer",
+        "hidden?": "boolean"
+      }
+    }
+  }
+}

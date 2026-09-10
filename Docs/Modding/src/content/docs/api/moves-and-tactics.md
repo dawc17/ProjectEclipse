@@ -109,7 +109,7 @@ Requires `id`. `events`, `conditions`, and `actions` are arrays (default empty).
 | `type = "hit_effect"` | Required `name` of an existing native hit effect. |
 
 ```lua
--- Supply assets/audio/step.ogg (or another supported audio format).
+-- Supply assets/audio/step.wav (PCM16 WAV).
 local sound_trigger = sf2.moves.register_trigger {
     id = "opening_step_sound",
     events = { {

@@ -1,0 +1,123 @@
+{
+  "Eclipse weapon and shop listing": {
+    "prefix": "eclipse-weapon",
+    "description": "Register a weapon and a level-1 coin listing. Requires content.register, core dependency, localization and sprite files.",
+    "body": [
+      "local sf2 = require(\"sf2\")",
+      "",
+      "local weapon = sf2.items.register_weapon {",
+      "    id = \"${1:training_blade}\",",
+      "    display_name = sf2.localization.key(\"${2:weapon.training_blade}\"),",
+      "    icon = sf2.assets.sprite(\"${3:sprites/weapon}\"),",
+      "    model = sf2.assets.model(\"core:gamedata/models/mdl_weapon_katana_ritual\"),",
+      "    subtype = \"Katana\",",
+      "}",
+      "",
+      "sf2.shop.addItem {",
+      "    section = sf2.shop.WEAPONS,",
+      "    item = weapon,",
+      "    level = 1,",
+      "    price = sf2.price.coins(${4:1}),",
+      "}",
+      "$0"
+    ]
+  },
+  "Import Eclipse API": {
+    "prefix": "eclipse-api",
+    "description": "Load the Eclipse API in this Lua file.",
+    "body": [
+      "local sf2 = require(\"sf2\")",
+      "$0"
+    ]
+  },
+  "Combat behavior": {
+    "prefix": "eclipse-behavior",
+    "description": "Register a behavior; attach the returned handle to a perk or enchantment. Requires content.register.",
+    "body": [
+      "local ${1:behavior} = sf2.behaviors.register {",
+      "    id = \"${2:my_behavior}\",",
+      "    parameters = { amount = { type = \"number\", default = 5 } },",
+      "    on_damage_received = function(params, fighter, event)",
+      "        -- Requires combat.change_life in mod.toml.",
+      "        fighter:change_health(params.amount)",
+      "        $0",
+      "    end,",
+      "}"
+    ]
+  },
+  "Stateful behavior": {
+    "prefix": "eclipse-stateful",
+    "description": "Track state separately for each fighter using this behavior.",
+    "body": [
+      "local ${1:behavior} = sf2.behaviors.register {",
+      "    id = \"${2:hit_counter}\",",
+      "    state = {",
+      "        lifetime = \"fight\",",
+      "        fields = { hits = { type = \"integer\", default = 0 } },",
+      "    },",
+      "    on_damage_dealt = function(self, fighter, event)",
+      "        self.state.hits = self.state.hits + 1",
+      "        $0",
+      "    end,",
+      "}"
+    ]
+  },
+  "Incoming damage modifier": {
+    "prefix": "eclipse-damage",
+    "description": "Scale incoming damage in the supported callback. Requires combat.modify_hit.",
+    "body": [
+      "local ${1:behavior} = sf2.behaviors.register {",
+      "    id = \"${2:damage_reduction}\",",
+      "    on_damage_resolving = function(params, fighter, event)",
+      "        fighter:scale_incoming_damage(${3:0.8})",
+      "    end,",
+      "}",
+      "$0"
+    ]
+  },
+  "Persistent mod state": {
+    "prefix": "eclipse-state",
+    "description": "Declare saved fields before reading or writing them. Requires state.write and state.read.",
+    "body": [
+      "sf2.state.register {",
+      "    version = 1,",
+      "    fields = {",
+      "        ${1:visits} = { type = \"integer\", default = 0 },",
+      "    },",
+      "}",
+      "local ${2:visits} = sf2.state.get(\"${1:visits}\") or 0",
+      "sf2.state.set { ${1:visits} = ${2:visits} + 1 }",
+      "$0"
+    ]
+  },
+  "Mod sprite": {
+    "prefix": "eclipse-sprite",
+    "description": "Load a sprite; select a real indexed sprite inside the quotes.",
+    "body": [
+      "local ${1:icon} = sf2.assets.sprite(\"${2:sprites/weapon}\")",
+      "$0"
+    ]
+  },
+  "Localization handle": {
+    "prefix": "eclipse-localization",
+    "description": "Resolve a localization key declared in localizations/*.toml.",
+    "body": [
+      "local ${1:name} = sf2.localization.key(\"${2:weapon.training_blade}\")",
+      "$0"
+    ]
+  },
+  "Perk registration": {
+    "prefix": "eclipse-perk",
+    "description": "Attach a previously registered behavior to a perk.",
+    "body": [
+      "local ${1:perk} = sf2.perks.register {",
+      "    id = \"${2:my_perk}\",",
+      "    display_name = sf2.localization.key(\"${3:perk.name}\"),",
+      "    description = sf2.localization.key(\"${4:perk.description}\"),",
+      "    kind = sf2.perks.SINGLE,",
+      "    behavior = ${5:behavior},",
+      "}",
+      "$0"
+    ]
+  }
+}
