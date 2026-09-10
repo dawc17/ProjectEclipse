@@ -42,17 +42,21 @@ wait for or belong behind the modding/content API. See `DE_SCOPE_AUDIT.md`.
   capabilities, manifests, content or asset formats, callbacks, save behavior,
   compatibility, or example mods must update the relevant wiki documentation
   in the same change. Do not leave documentation updates as follow-up work.
-- Read `Docs/Modding/README.md` before editing the wiki. API reference pages
-  are generated from the tracked `Mods/README.md`, `Mods/P1C_API.md`,
-  `Mods/P2_API.md`, and `Mods/P3_API.md`; showcase pages use the tracked example
-  READMEs. Edit those original sources, not ignored generated page copies.
-  Keep hand-authored guides, navigation, and reference route mappings in sync.
+- Read `Docs/Modding/README.md` before editing the wiki. Author public guides
+  and reference pages in `Docs/Modding/src/content/docs/`. Engineering notes in
+  `Mods/` are supporting evidence, not text to copy into the public wiki.
+- Keep the wiki thorough and approachable for first-time modders. Explain terms,
+  mark required fields/defaults/limits, and include practical Lua examples. Do
+  not expose internal sweep or milestone labels in titles, prose, or code samples.
+- Every public Lua function, alias, fighter method, and combat callback needs its
+  own reference section with Signature, Returns, When, Requires, and a Lua example.
+  Keep the binding coverage audit and sidebar in sync as the API grows.
 - Document the implemented Eclipse contract. Clearly distinguish supported
   behavior, legacy compatibility, and planned work; the DE parity roadmap is
   not evidence that a feature is available. Preserve verification limits.
 - Keep all authored wiki files, configuration, scripts, and the npm lockfile
-  Git-tracked. Never commit `node_modules/`, `.astro/`, generated reference
-  copies, or `dist/` output.
+  Git-tracked. Never commit `node_modules/`, `.astro/`, the generated function
+  index, or `dist/` output.
 - For documentation/API changes, run `npm ci` in `Docs/Modding/` when installing
   dependencies, then `npm run build`. This checks types, builds the site and
   search index, and validates internal links, anchors, and GitHub Pages paths.

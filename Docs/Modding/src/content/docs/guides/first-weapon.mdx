@@ -1,84 +1,96 @@
 ---
 title: Your first weapon
-description: Run the tracked weapon example and learn how its manifest, Lua, and assets fit together.
+description: Create a complete weapon mod, even if you have never written Lua before.
 ---
 
 import { Code } from '@astrojs/starlight/components';
-import { pageUrl, sourceUrl } from '../../../../site.config.mjs';
-import manifest from '../../../../../../Mods/example.weapon/mod.toml?raw';
-import script from '../../../../../../Mods/example.weapon/scripts/main.lua?raw';
-import sprite from '../../../../../../Mods/example.weapon/assets/sprites/weapon.asset?raw';
+import { pageUrl } from '../../../../site.config.mjs';
+import manifest from '../../../../public/tutorial/training-blade/mod.toml?raw';
+import script from '../../../../public/tutorial/training-blade/scripts/main.lua?raw';
+import localization from '../../../../public/tutorial/training-blade/localizations/eng.toml?raw';
+import sprite from '../../../../public/tutorial/training-blade/assets/sprites/weapon.asset?raw';
 
-Start with the repository's `example.weapon` mod. It registers a katana, gives it
-a loose sprite, borrows a core model, and adds a level-1 shop listing for one coin.
-The snippets below are loaded directly from that example's tracked files.
+You will make **Training Blade**, a katana that appears in the weapon shop at level 1 for one coin. You need an Eclipse build with Mod API 0.7, a text editor, and the sample image linked below. You do not need Unity or a Lua installation; Eclipse runs the script for you.
 
-## 1. Put the example in Mods
+If code is new to you, keep <a href={pageUrl('guides/lua-basics')}>Lua basics</a> open alongside this page. Copy each complete file first, get the mod working, then experiment.
 
-Use an Eclipse build with the current modding API. Copy the complete
-<a href={sourceUrl('Mods/example.weapon')}>example.weapon folder</a> into the
-game's `Mods/` directory. When working in this repository, it is already present.
+## 1. Create the folder
 
-Keep the folder together, including its PNG and localization files:
+Open the game's `Mods` directory and make a folder called `tutorial.blade`. In a standalone desktop installation, `Mods` is beside the game executable; when working from the project, use its root `Mods` folder. A launcher-managed installation may use a shared Mods directory outside its version folders; use that installation's configured directory. Create these subfolders and files:
 
 ```text
-Mods/example.weapon/
-  mod.toml
-  scripts/main.lua
-  localizations/eng.toml
-  localizations/pol.toml
-  assets/sprites/weapon.asset
-  assets/textures/weapon.png
+Mods/
+  tutorial.blade/
+    mod.toml
+    scripts/
+      main.lua
+    localizations/
+      eng.toml
+    assets/
+      sprites/
+        weapon.asset
+      textures/
+        weapon.png
 ```
 
-Do not install a second copy with the same manifest ID.
+Enable file extensions in your file manager so you do not accidentally create `main.lua.txt` or `mod.toml.txt`. Save text files as UTF-8. `mod.toml` must be directly inside the mod folder, without an extra enclosing folder.
 
-## 2. Read the manifest
+## 2. Tell Eclipse about the mod
+
+Create `mod.toml` with this exact content:
 
 <Code code={manifest} lang="toml" title="mod.toml" />
 
-`id` is the mod's namespace. `entrypoint` selects the Lua script. `api` declares
-the compatible API range. `content.register` permits content registration, and
-the `core` dependency permits the example's references to built-in content.
+`id` is the mod's permanent identity; `name` is what players see. `entrypoint` names the first script to run. `content.register` gives it permission to add content. The `core` dependency lets it reuse the game's katana model. See <a href={pageUrl('guides/manifest')}>the manifest guide</a> for every field.
 
-## 3. Register the weapon and shop listing
+## 3. Give the weapon a name
 
-<Code code={script} lang="lua" title="scripts/main.lua" />
+Create `localizations/eng.toml`:
 
-The registration returns an opaque weapon handle, which is passed to the shop.
-The icon is owned by this mod; the model is owned by `core`. Normal equipment
-power comes from its category and listing level.
+<Code code={localization} lang="toml" title="localizations/eng.toml" />
 
-The alias and tombstone lines demonstrate save-compatible identity changes.
-They are optional for a new item; preserve published IDs once players use a mod.
+The left side is the key your script requests; the right side is the text players see. Keep the key unchanged when translating the name. For this first test, select English in the game.
 
-The `weapon.example_blade` localization key is defined in the sample's
-`localizations/eng.toml` and `pol.toml`. Change those values to rename the weapon
-in the corresponding language.
+## 4. Add the shop image
 
-## 4. Understand the sprite
+<a href={`${pageUrl('tutorial/training-blade/assets/textures')}weapon.png`} download="weapon.png">Download the sample weapon PNG</a> and save it as `assets/textures/weapon.png`. If your browser opens the image, use **Save image as** and keep the `.png` extension.
+
+Create `assets/sprites/weapon.asset`:
 
 <Code code={sprite} lang="ini" title="assets/sprites/weapon.asset" />
 
-The descriptor points to a PNG relative to the mod's `assets/` directory.
-`sf2.assets.sprite("sprites/weapon")` references the descriptor without its
-extension. This `.asset` is a text descriptor; it is not Unity serialized YAML.
+A *texture* is the PNG image. A *sprite* tells the game how to use that image. The descriptor's `texture` path starts inside `assets/`. This is a small text file, not a Unity asset file. The PNG controls the shop icon; the core model used below controls the equipped weapon's appearance.
 
-## 5. Enable and check it
+## 5. Register the weapon
 
-1. Open **Mods** from the title screen and enable **Example Weapon**.
-2. Choose **Apply & Restart**, then enter Campaign.
-3. Open the weapon shop and find the item using the sample's localized name.
-4. Buy and equip it, then enter a normal fight to check its appearance and behavior.
+Create `scripts/main.lua`:
 
-If it does not appear, inspect the mod's **Details**, check its dependencies, and
-look for the `registered Example Blade` log message or a registration error.
-See <a href={pageUrl('guides/troubleshooting')}>troubleshooting</a>.
+<Code code={script} lang="lua" title="scripts/main.lua" />
 
-## Make it yours
+Here is what the script does:
 
-For a separate mod, copy the complete folder under a new name and change its
-manifest `id` and `name`. Adjust the localization, item definition, and PNG.
-Keep core asset references qualified with `core:` and preserve the required
-dependency. See <a href={pageUrl('api/equipment-shop-logging')}>equipment and shops</a>
-for the other equipment categories and progression limits.
+1. `require("sf2")` loads the API into a variable called `sf2`.
+2. `register_weapon` defines the item and returns a *handle*, stored in `weapon`.
+3. `localization.key` finds its translated name. `assets.sprite` finds your descriptor; omit `.asset` in this reference.
+4. `assets.model` reuses the core katana model. Keep `subtype = "Katana"` with this model.
+5. `shop.addItem` makes the weapon purchasable. Registration alone does not put an item in the shop or in your inventory.
+6. `log.info` writes a message so you can tell that the script reached the end.
+
+The local item ID becomes `tutorial.blade:items/weapon/training_blade`. The variable `weapon` holds a handle, not this string; passing it to the shop preserves the item's type and identity.
+
+## 6. Enable and test it
+
+1. Start Eclipse and open **Mods** on the title screen.
+2. Enable **Training Blade**, inspect **Details** if it reports a problem, and choose **Apply & Restart**.
+3. Enter Campaign, open the weapon shop, and find **Training Blade**. Use a profile that has reached the shop.
+4. Buy it for one coin, equip it, and enter a fight. It should use the borrowed katana model.
+
+If something fails, start with <a href={pageUrl('guides/troubleshooting')}>troubleshooting</a>. A missing mod usually means the folder or manifest is wrong. A listed mod with an error usually means a dependency, script, localization, or asset reference needs fixing.
+
+## 7. Make one change
+
+Exit the game, change the displayed name in `eng.toml`, save, and launch again. You should see the new name in the shop. Next, try changing the price from `1` to `5`. Saving a script does not update the running game.
+
+For a separately distributed mod, change the folder name, manifest `id`, `name`, and `authors` before publishing. Use a unique ID, such as `yourname.training`. Keep that ID and the item's local ID stable after players start using it.
+
+Continue with <a href={pageUrl('api/equipment-shop-logging')}>other equipment types</a>, <a href={pageUrl('api/content-graph')}>battles and opponents</a>, or <a href={pageUrl('api/perks-and-enchantments')}>perks and enchantments</a>. The <a href={pageUrl('reference')}>function index</a> links every callable function and combat callback.

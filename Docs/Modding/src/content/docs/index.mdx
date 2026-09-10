@@ -18,24 +18,19 @@ the systems you need.
   <LinkCard title="Your first weapon" description="Set up a manifest, register a weapon, and find it in the shop." href={pageUrl('guides/first-weapon')} />
   <LinkCard title="Understand the API" description="Learn namespaces, typed handles, capabilities, and when your code runs." href={pageUrl('guides/core-concepts')} />
   <LinkCard title="Combat callbacks" description="React to rounds and hits with reusable Lua behavior." href={pageUrl('api/combat-callbacks')} />
-  <LinkCard title="Working examples" description="Explore the tracked equipment and integrated showcase mods." href={pageUrl('examples')} />
+  <LinkCard title="Working examples" description="Learn from complete equipment, combat, and progression mods." href={pageUrl('examples')} />
 </CardGrid>
 
-## Find a system
+## Choose your next step
 
-- **Content API** covers equipment, shops, sprites, battles, quests, perks,
-  localization, and asset replacement.
-- **Behavior and progression** covers saved state, combat callbacks, events,
-  modes, offline raids, and achievements.
-- **Compatibility and status** explains legacy forms, current limitations,
-  and the scope of recorded verification.
+- **New to coding?** Read <a href={pageUrl('guides/lua-basics')}>Lua basics</a>, then create your first weapon using complete copyable files.
+- **Adding content?** Browse the Content reference for equipment, shop listings, fights, quests, and presentation.
+- **Adding gameplay logic?** Start with reusable behaviors, then choose the callback that matches your event.
+- **Looking for one function?** Use the <a href={pageUrl('reference')}>alphabetical function index</a> or the search box.
+- **Something failed?** Read <a href={pageUrl('guides/troubleshooting')}>troubleshooting</a> and fix the first error before testing again.
 
-## What this wiki documents
+## How to read the reference
 
-This is the public **Eclipse** modding API. Definitive Edition is a downstream
-content target. Planned DE parity does not imply that every recovered XML field
-or gameplay event is available to Lua.
+Every public function and combat callback has its own section. **Signature** shows how to call it, **Requires** lists permissions and dependencies, **When** explains the valid time to call it, and **Returns** explains the result. Field tables mark required inputs, defaults, and limits. Reference snippets may use handles defined earlier on the page; the beginner tutorial supplies complete files.
 
-Reference pages are built from the repository's maintained API documentation.
-Each has an **Edit page** link to its original source. Historical version labels
-describe when a feature arrived; read the current limitations before using it.
+This wiki documents the implemented Eclipse API. It covers supported behavior and clearly labels compatibility forms and current limits. Your mod's manifest declares which API versions it accepts.

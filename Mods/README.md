@@ -1,7 +1,8 @@
 # Loose mods
 
 The browsable modding wiki is maintained in [Docs/Modding](../Docs/Modding/README.md).
-Its API reference is built directly from this document and the linked API docs.
+Its public reference is maintained against the Lua bindings; this document and
+the linked API notes provide engineering detail.
 
 The long-term acceptance target is [complete DE parity through the modding API](DE_PARITY_TARGET.md).
 That target describes required coverage; the documentation below describes current support.

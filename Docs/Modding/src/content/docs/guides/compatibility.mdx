@@ -1,45 +1,26 @@
 ---
 title: Compatibility and supported scope
-description: Distinguish current API contracts, legacy forms, roadmap work, and recorded verification.
+description: Choose supported APIs and keep your mod compatible across releases.
 ---
 
-import { pageUrl, sourceUrl } from '../../../../site.config.mjs';
+import { pageUrl } from '../../../../site.config.mjs';
 
-## Use the current contract
+## Check the API version
 
-Your manifest's `api` range must accept the runtime version. Reference pages
-retain historical labels such as 0.3 or 0.6 to identify feature introductions;
-they are maintained together as documentation of the current API.
+Your manifest's `api` range must accept the installed Eclipse API version. A wider range does not provide functions missing from older builds. Choose a minimum version that supports everything your mod uses, and test updates against existing saves.
 
-Later contracts can extend earlier ones. In particular,
-<a href={pageUrl('api/combat-callbacks')}>combat callbacks</a> and
-<a href={pageUrl('api/behavior-instances')}>behavior instances</a> extend the
-original fight-begin behavior slice.
+## Use the documented contract
 
-## Legacy compatibility
+Each <a href={pageUrl('reference')}>function section</a> lists its arguments, return value, capabilities, and timing. A field that appears in recovered game XML is not automatically available in Lua. Unknown definition fields and unsupported callback names can fail mod loading.
 
-The older template-backed perk/enchantment form and documented aliases remain
-compatibility paths. New custom procedures belong in Lua behavior handlers.
-Quest condition/action tables and ordinary tactics remain supported recovered
-content adapters. They do not imply general programmable quests or AI.
+The current API supports typed content definitions, combat behavior callbacks, saved mod state, local modes and raids, achievement counters, and explicit asset replacement. Quest tables and tactics configure supported native systems. They do not provide arbitrary Lua quest callbacks or programmable opponent AI.
 
-See <a href={pageUrl('api/legacy-compatibility')}>legacy aliases and sprite migration</a>
-and <a href={pageUrl('api/perks-and-enchantments')}>perk compatibility</a>.
+## Older mods
 
-## Planned work
+Documented aliases and template-backed perk/enchantment forms remain available. New custom combat logic belongs in reusable Lua behavior handlers. See <a href={pageUrl('api/legacy-compatibility')}>legacy compatibility</a> and <a href={pageUrl('api/perks-and-enchantments')}>perks and enchantments</a> before updating older source.
 
-The <a href={sourceUrl('Mods/DE_API_IMPLEMENTATION_PLAN.md')}>implementation roadmap</a>
-and <a href={sourceUrl('Mods/DE_PARITY_TARGET.md')}>DE parity target</a> describe
-engineering goals. They are not an additional callable API. General quest
-callbacks, programmable AI, and unsupported recovered XML fields must not be
-treated as shipped features.
+## Test what players use
 
-## Verification scope
+A successful registration confirms that the supplied definitions passed validation. It cannot prove that a sprite looks right, an opponent behaves well, a reward is balanced, or an update preserves every intended player experience. Test your mod in Eclipse, including restart, failure, and existing-save cases relevant to your feature.
 
-Each showcase documents its own test steps and recorded outcomes. Static checks,
-isolated runtime tests, Unity asset checks, and manual playtests cover different
-things. Refer to those records before assuming a particular category or lifecycle
-has been exercised end to end.
-
-Start with the <a href={pageUrl('examples')}>working examples</a> and use their
-linked playtest guides when checking a mod against a new build.
+Use <a href={pageUrl('examples')}>working examples</a> as starting points. Keep version numbers and saved IDs deliberate, and follow <a href={pageUrl('api/save-compatibility')}>save compatibility</a> when retiring content or changing state schemas.

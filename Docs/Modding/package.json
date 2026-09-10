@@ -4,10 +4,10 @@
   "type": "module",
   "engines": { "node": ">=22.12.0" },
   "scripts": {
-    "sync:docs": "node scripts/sync-docs.mjs",
-    "predev": "npm run sync:docs",
+    "check:reference": "node scripts/check-reference.mjs",
+    "predev": "npm run check:reference",
     "dev": "astro dev --host 127.0.0.1",
-    "prebuild": "npm run sync:docs",
+    "prebuild": "npm run check:reference",
     "build": "astro check && astro build && node scripts/check-links.mjs",
     "preview": "astro preview --host 127.0.0.1"
   },

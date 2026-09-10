@@ -1,33 +1,35 @@
 ---
 title: Working examples
-description: Choose a small tracked mod or an integrated showcase to learn an Eclipse API feature.
+description: Find complete mod source for equipment, combat behavior, battles, and progression.
 ---
 
 import { pageUrl } from '../../../site.config.mjs';
 
-Use the smallest example that covers your feature. The complete source lives in
-the repository's `Mods/` folder, including manifests, scripts, localization, and
-assets. Folder names containing a phase identify development fixtures, not a
-required learning order.
+Start with <a href={pageUrl('guides/first-weapon')}>Your first weapon</a> for complete files and step-by-step instructions. The examples below show how the API's pieces fit together in larger mods. Their repository folders contain manifests, scripts, localization, and any required assets.
 
-| Example | What to learn |
+## Equipment and behavior
+
+| Example source | What to learn |
 | --- | --- |
-| [example.weapon](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.weapon) | One weapon, a loose sprite, a core model, and a shop listing. |
-| [example.loadout](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.loadout) | Armor, helm, ranged, and magic using core assets. |
-| [example.enchantment](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.enchantment) | Reusable typed behavior shared by a perk and an enchantment; legacy template compatibility. |
+| [One weapon](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.weapon) | A weapon, loose sprite, core model, shop listing, and item identity migration. |
+| [A complete loadout](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.loadout) | Armor, helm, ranged, and magic using matching core assets. |
+| [Perks and enchantments](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.enchantment) | Reusable typed behavior and existing perk templates. |
 
-Follow <a href={pageUrl('guides/first-weapon')}>Your first weapon</a> for a guided
-walkthrough of the smallest example.
+## Larger connected mods
 
-## Integrated showcases
+| Example source | What to learn |
+| --- | --- |
+| [Content and battles](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.phase1) | Connect maps, battles, opponents, quests, equipment, forging, locations, moves, and tactics. |
+| [Combat and offline modes](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.phase2) | Stateful behaviors, damage events, scheduled content, Ascension, and a multi-bar raid boss. |
+| [Achievements and asset replacement](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.phase3) | Saved counters, achievements, and replacing existing assets explicitly. |
 
-- <a href={pageUrl('showcases/content')}>Content showcase</a>: battles, quests,
-  equipment, progression, locations, moves, and ordinary tactics.
-- <a href={pageUrl('showcases/combat-and-modes')}>Combat and modes showcase</a>:
-  stateful behavior, damage callbacks, policy, events, Ascension, and offline raids.
-- <a href={pageUrl('showcases/achievements-and-assets')}>Achievements and assets showcase</a>:
-  saved counters, achievements, and explicit asset replacement.
+These larger examples combine many features. Read one feature at a time and consult its <a href={pageUrl('reference')}>function reference</a> for fields and requirements. The example's manifest tells you which capabilities and dependencies it needs.
 
-Each walkthrough includes its recorded verification and known limits. Follow its
-restart instructions when testing changes; an already running session does not
-automatically become a fresh registration session.
+## Try a change
+
+1. Copy the complete example folder into the game's `Mods` directory if it is not already there.
+2. Enable it through the title-screen **Mods** menu and choose **Apply & Restart**.
+3. Follow the example's source README to reach its content in game.
+4. Exit Eclipse, change one value, save, and launch again to compare.
+
+For a separate mod, choose a new manifest ID and review references that explicitly include the original owner's ID. Do not install two copies with the same ID. Keep published IDs stable once players have saved progress with your mod.

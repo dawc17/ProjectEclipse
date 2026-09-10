@@ -34,12 +34,13 @@ jobs:
       run:
         working-directory: Docs/Modding
     steps:
-      - name: Check out documentation and examples
+      - name: Check out documentation, examples, and Lua bindings
         uses: actions/checkout@v7
         with:
           # Exclude the recovered Unity export and large LFS art bundles.
           sparse-checkout: |
             Docs/Modding
+            Assets/Scripts/Eclipse/Modding
             Mods
             Tools
           lfs: false

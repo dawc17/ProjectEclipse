@@ -5,6 +5,21 @@ description: Diagnose missing mods, failed registration, asset lookup errors, an
 
 import { pageUrl } from '../../../../site.config.mjs';
 
+## Start with a fresh load
+
+After editing files, save them and fully exit and relaunch Eclipse. Changing the
+selection in the mod menu uses **Apply & Restart**; saving a Lua file does not
+hot-reload the current session. Work on one error or change at a time.
+
+## The file name looks right, but nothing loads
+
+Show file extensions in your file manager and check for accidental `.txt`
+suffixes. Use UTF-8 text files. Make sure there is no extra folder between the
+mod folder and `mod.toml`. In Lua tables, check commas, quotes, braces, and `end`.
+TOML lists in the manifest must be on one line. See
+<a href={pageUrl('guides/manifest')}>manifest fields</a> and
+<a href={pageUrl('guides/lua-basics')}>Lua basics</a>.
+
 ## The mod is missing or cannot be enabled
 
 Check that `Mods/<folder>/mod.toml` exists, the manifest ID is unique, and the

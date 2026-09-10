@@ -29,6 +29,12 @@ for (const page of pages.values()) {
   const relative = page.filename.replaceAll('\\', '/').replace(/index\.html$/, '');
   const current = new URL(`${base}/${relative}`, site);
   walk(page.html, (node) => {
+    // Inspect rendered text too: MDX components can import snippets that the
+    // Markdown-source audit cannot see. Attribute URLs retain repository paths.
+    if (node.nodeName === '#text' && !['script', 'style'].includes(node.parentNode?.tagName)
+        && /\bphase\s*[0-9]|\bP[0-3](?:\.[0-9]|[A-D])?\b/i.test(node.value)) {
+      errors.push(`${page.filename}: internal milestone label in rendered text`);
+    }
     for (const attribute of node.attrs ?? []) {
       if (!['href', 'src'].includes(attribute.name) || !attribute.value) continue;
       const url = new URL(attribute.value, current);

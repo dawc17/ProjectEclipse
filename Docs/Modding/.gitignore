@@ -4,6 +4,5 @@ dist/
 .sites-runtime/
 .env
 .env.*
-# Built from tracked Mods/*.md. Never edit these copies.
-src/content/docs/api/
-src/content/docs/showcases/
+# Built from the function headings in the tracked reference pages.
+src/content/docs/reference.md
