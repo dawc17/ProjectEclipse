@@ -28,6 +28,19 @@ forge edits, contextual achievements/core localization, and remaining service/
 boot/presentation classification. Some require host recovery, not merely bindings.
 Use the audit's concrete DE fixtures and source references before claiming parity.
 
+## Engine extensibility review, 2026-09-11
+
+The owner's goal now explicitly extends beyond the DE reference mod: custom
+rules, modes, characters, animations, and UI. Phase 4 is deferred pending assets.
+[The engine review and E1–E8 roadmap](MOD_ENGINE_EXTENSIBILITY.md) defines this
+broader work without claiming those capabilities are implemented.
+
+API 0.8 delivers a bounded P1A.5 + P2A.1/P2A.3 slice: fight-attached Lua behavior
+rules with parameter validation, per-rule/per-side transient state, existing
+combat callbacks, and target/mode/round filters. This does not close G06/G08,
+custom outcomes, programmable AI, or general UI. It uses a core-art trial fixture;
+no downstream DE port or missing asset reconstruction is part of this slice.
+
 ## 1. Source-of-truth hierarchy
 
 When requirements appear to conflict, use this order:
@@ -1710,3 +1723,12 @@ and the relevant original phase exit criteria. Keep current showcases green,
 preserve the economy firewall, and use typed capabilities with real Lua handlers
 for new procedural behavior. Full parity still requires the DE reference mod,
 record-level intent decisions and P5 gameplay verification.
+
+
+## Active pre-DE expansion (2026-09-12)
+
+The owner requested continued implementation across the engine roadmap and DE
+port blockers while production assets are pending. Track cumulative delivery and
+open requirements in [PRE_DE_WORK_LOG.md](PRE_DE_WORK_LOG.md). API 0.10 adds
+existing-fight rule append/replacement and presentation patches. This is partial
+G01/E1 coverage; phase 4 and the full acceptance matrix remain incomplete.

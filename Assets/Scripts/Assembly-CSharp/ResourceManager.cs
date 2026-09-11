@@ -72,7 +72,7 @@ public static class ResourceManager
 
 	public static VideoClip DEKCGMCMGKK(string DCOPLCIFCFL)
 	{
-		DCOPLCIFCFL = SF2Paths.HAHDKJAPIJL() + "/" + DCOPLCIFCFL;
+		DCOPLCIFCFL = SF2Paths.HAHDKJAPIJL() + "/" + Path.ChangeExtension(DCOPLCIFCFL, null);
 		DCOPLCIFCFL = DCOPLCIFCFL.TrimStart('\\', '/');
 		return ResourcesAndBundles.Load<VideoClip>(DCOPLCIFCFL);
 	}

@@ -13,7 +13,7 @@ Registration does not mean the player has received an item or that a fight is vi
 
 ## Callbacks respond to gameplay
 
-A callback is a function you give the API to call later, such as when a round starts. Register it as part of a behavior, then attach the behavior to a perk or enchantment that a fighter can actually have.
+A callback is a function you give the API to call later, such as when a round starts. Register it as part of a behavior, then attach the behavior to a perk or enchantment that a fighter can actually have, or directly to a fight through [a behavior rule](../rules/#sf2rulesbehavior).
 
 ```lua
 -- A callback field inside a behavior definition:
@@ -30,7 +30,7 @@ This fragment belongs inside a behavior table, not alone at the top of a script.
 
 | Need | Use |
 | --- | --- |
-| A number that configures each perk or enchantment | Behavior `parameters`. |
+| A number that configures each perk, enchantment, or rule | Behavior `parameters`. |
 | A value that changes during a round or fight | Behavior instance state with the corresponding lifetime. |
 | Saved behavior state | Saved behavior state, where supported for player-owned instances. |
 | General mod progress between sessions | The [mod state API](../mod-state/). |

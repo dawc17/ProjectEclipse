@@ -117,3 +117,23 @@ No Unity validation or game playtest was performed for this editor-only change.
 
 [API wiki](https://dawc17.github.io/ProjectEclipse/).
 Implementation uses the [VS Code language feature APIs](https://code.visualstudio.com/api/language-extensions/programmatic-language-features).
+
+Battle rules: completion supports `sf2.rules.behavior` and its typed behavior,
+parameters, target, mode, and rounds fields. See the executable starter in
+`Mods/example.battle-rules` and the wiki's programmable-rules guide. Requires API
+0.8.0. IntelliSense does not imply support for arbitrary AI, victory conditions,
+or custom UI yet.
+
+`templates/battle-rules/` is a complete manual starter (copy it into your Mods
+folder, then change its manifest ID). The Create Mod wizard still defaults to
+the weapon starter. Its Lua resolves localization through `sf2.mod.id`.
+
+Combat callbacks now complete `fighter:snapshot()` and its typed health, position, and clock result (API 0.9). The battle-rules template includes a health-dependent guard transition. Generated metadata reads the API version from the runtime manifest.
+
+API 0.10 fight-patch completion includes `rules`, `append_rules`, `location`, and `music`. The `core-fight` template demonstrates editing an existing encounter; copy it manually as described for the battle-rules template.
+
+API 0.11 adds perk `upgrades` completion with level, description and parameter fields. Runtime/native upgrade acceptance is tracked in `Mods/PRE_DE_WORK_LOG.md`.
+
+The manual `perk-upgrades` template demonstrates a learned guard with three upgrades; its matching mod and automated checks are under `Mods/example.perk-upgrades` and `Tools/TestPerkUpgrades.ps1`.
+
+API 0.12 infers `OutgoingFighter` in `on_damage_dealing`, with `scale_outgoing_damage` requiring `combat.modify_outgoing_hit`. The manual `outgoing-rule` template demonstrates a per-round third-hit modifier.

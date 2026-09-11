@@ -205,3 +205,78 @@ local rule = sf2.rules.attributes {
     id = "attributes", values = { WeaponDamage = 100 }, target = sf2.rules.OPPONENT,
 }
 ```
+
+## sf2.rules.behavior
+
+Attach executable Lua behavior directly to a fight, without creating a perk or
+requiring an equipped item. Available since API **0.8.0**.
+
+**Signature:** `sf2.rules.behavior { id, behavior, parameters?, target?, mode?, rounds? }`
+
+**Returns:** A rule handle; put it in `sf2.fights.register { rules = { rule } }`.
+
+**When:** Register in the entrypoint. Attached handlers run only at the supported
+combat callback boundaries of the selected fight.
+
+**Requires:** `content.register`. Each fighter operation still requires its own
+combat capability, declared by the mod that owns the behavior.
+
+`behavior` is a handle returned by `sf2.behaviors.register`. `parameters` is a
+map matching that behavior's schema; required values and types are validated at
+registration. `target`, `mode`, and `rounds` use the shared defaults above.
+Unknown fields, missing behaviors, undeclared dependencies, and saved-lifetime
+behaviors are rejected. The behavior must use `fight` or `round` state (or no
+state); use `sf2.state` explicitly for longer-lived mod progression.
+
+```lua
+local guard = sf2.behaviors.register {
+    id = "guard",
+    parameters = { every = sf2.behaviors.INTEGER },
+    state = {
+        lifetime = "round",
+        fields = { hits = { type = sf2.behaviors.INTEGER, default = 0 } },
+    },
+    on_damage_resolving = function(self, fighter, event)
+        if event.damage <= 0 then return end
+        self.state.hits = self.state.hits + 1
+        if self.state.hits % self.params.every ~= 0 then
+            fighter:scale_incoming_damage(0)
+        end
+    end,
+}
+local rule = sf2.rules.behavior {
+    id = "third_strike", behavior = guard, parameters = { every = 3 },
+    target = sf2.rules.OPPONENT,
+}
+-- Add rules = { rule } to your fight definition.
+```
+
+The example needs `combat.modify_hit`. See the complete
+[programmable-rules guide](../../guides/programmable-rules/).
+
+State is isolated per attached rule and fighter, even when two rules reuse one
+behavior. An `ALL` rule gets separate player and opponent state. Fight state
+survives rounds; round state resets on the first callback in each new round.
+There is no mid-fight save/resume contract. Rule state never enters equipment or
+profile XML. The rule ID is available as `fighter.rule_id`, with
+`fighter.source == "rule"`.
+
+Each side runs rules in the fight's declared `rules` order, before that side's
+perk/enchantment callbacks. A duplicate rule handle runs once. These rules are
+independent of `no_perks`. Filters are checked for every callback: a rule limited
+to round two does not receive `on_fight_begin` in round one. It receives only the
+callbacks that occur while its filters match. No omitted callback is synthesized.
+
+Handlers share the existing execution budget, error isolation, and expiring
+fighter handles. One rule's failure does not stop subsequent rules; already
+performed gameplay operations are not rolled back. Nested combat notifications
+from an operation inside a handler are suppressed, preventing recursive loops.
+Shield keys are isolated by rule ID, so two rules reusing one behavior do not
+replace each other's shield on the same fighter.
+
+This API does **not** yet provide custom victory conditions, tick callbacks, animation control, additional fighters, or custom
+HUDs. The available operations remain the documented fighter methods. Rules can be attached to new fights or, since API 0.10, appended to or replace
+the rules of existing encounters through [fight patches](../content-graph/#sf2fightspatch).
+
+Attacker-side scaling is available through `on_damage_dealing` and
+`fighter:scale_outgoing_damage` with `combat.modify_outgoing_hit` (API 0.12).

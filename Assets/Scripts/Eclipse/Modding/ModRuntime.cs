@@ -205,6 +205,33 @@ namespace Eclipse.Modding
             return ModEffectSaveData.TryRead(perkNode, enchantment.Id, behavior.Parameters, out instance, out error);
         }
 
+        public static void DispatchBattleRules(ModBattleRuleInstances instances, string runtimeFightId,
+            bool player, int round, bool eclipse, string fightInstanceId, string playerResult,
+            ModEffectEvent effectEvent, IModFighterOperations fighter)
+        {
+            if (_scripts == null || fighter == null) return;
+            foreach (var rule in instances.Applicable(_scripts.Content, runtimeFightId, player, round, eclipse))
+            {
+                try
+                {
+                    var context = new Dictionary<string, string>
+                    {
+                        { "side", player ? "player" : "opponent" }, { "source", "rule" },
+                        { "rule_id", rule.Id.ToString() }, { "fight_id", fightInstanceId },
+                        { "round", round.ToString(System.Globalization.CultureInfo.InvariantCulture) },
+                        { "player_result", playerResult ?? string.Empty }
+                    };
+                    var instanceFighter = new ModInstanceFighter(fighter, instances.Instance(rule.Id, player));
+                    if (!_scripts.TryInvokeBehavior(rule.Behavior, effectEvent, rule.InitialParameters, context, instanceFighter, out var error))
+                        UnityEngine.Debug.LogWarning("[ModCombat] " + effectEvent + " failed for rule " + rule.Id + ": " + error);
+                }
+                catch (Exception exception)
+                {
+                    UnityEngine.Debug.LogWarning("[ModCombat] Rule " + rule.Id + " failed: " + exception.Message);
+                }
+            }
+        }
+
         public static bool TryInvokeSavedEnchantmentFightBegin(XmlNode perkNode,
             IReadOnlyDictionary<string, string> fighterContext, out string error)
         {
@@ -326,8 +353,13 @@ namespace Eclipse.Modding
                 error = "Mod scripts are not active.";
                 return false;
             }
-            return _scripts.TryInvokeBehavior(perk.Behavior, effectEvent,
-                instance.Values, fighterContext, new ModInstanceFighter(fighter, perkNode), out error);
+            try
+            {
+                var values = perk.ResolveSavedUpgradeParameters(perkNode, instance.Values);
+                return _scripts.TryInvokeBehavior(perk.Behavior, effectEvent,
+                    values, fighterContext, new ModInstanceFighter(fighter, perkNode), out error);
+            }
+            catch (ModContentException exception) { error = exception.Message; return false; }
         }
 
         public static bool TryInitializeSavedPerkParameters(XmlNode perkNode, out string error)

@@ -79,9 +79,12 @@ namespace Nekki.SF2.GUI.Map
 			_mapPanel.SelectBattle(DPOOIONCEOA, _Duration);
 		}
 
+		private Color _backgroundMask = Color.white;
+
 		public void AddStoryZones()
 		{
 			_mapPanel.AddStoryZones();
+			SetZonesBackgroundMask(_backgroundMask);
 			RefreshLamps();
 		}
 
@@ -174,6 +177,7 @@ namespace Nekki.SF2.GUI.Map
 
 		public void SetZonesBackgroundMask(Color color)
 		{
+			_backgroundMask = color;
 			List<ZoneScrollItem> zones = _mapPanel.GetZones();
 			foreach (ZoneScrollItem item in zones)
 			{

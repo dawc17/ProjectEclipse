@@ -71,6 +71,43 @@ In the legacy form, `template` copies an existing template and `parameters`
 contains scalar template overrides. It is a compatibility mechanism, not a way
 to expose an arbitrary C# object. For custom logic, use `behavior`.
 
+### Upgrade entries
+
+Since API 0.11, both perk registration forms accept `upgrades`, a dense array of
+1–100 tables: `{ level, description?, parameters? }`. Levels must be ordered and
+contiguous starting at 1. Level 0 uses the base perk. Omitted descriptions use the
+base description; supplied descriptions must be localization handles owned by
+this mod. An upgrade's parameters override the base independently, not the
+previous upgrade. Lua parameters use the behavior schema; template parameters
+use the existing native parameter validation.
+
+```lua
+-- Fields to include in sf2.perks.register; Drain must be in the behavior schema.
+upgrades = {
+    { level = 1, parameters = { Drain = 0.02 } },
+    { level = 2, parameters = { Drain = 0.04 } },
+}
+```
+
+Register unlock/upgrade choices separately with
+`sf2.progression.replace_perk_branch`. These entries do not change XP, currency,
+upgrade costs or the global progression curve. Native progression variants supply
+the selected description. Learned Lua perks use the saved `UpgradeLevel` to
+apply parameter overrides at callback time. Saved parameter records and behavior
+state are preserved; the effective map is a fresh copy. Unknown levels beyond the
+registered upgrades and malformed saved levels report an error without modifying
+the save. Perks without upgrade entries retain their existing parameter behavior.
+
+The complete `Mods/example.perk-upgrades` mod provides a learned guard with three
+upgrades, localized descriptions, and level 2–5 branch choices. Its managed tests
+exercise actual Lua damage callbacks across save/reload and context recreation;
+full Unity profile selection and encounter validation remains pending.
+
+Equipment and warrior callbacks continue to use base parameters; they do not
+inherit the player's learned upgrade level. Disabling a mod removes its native
+variants and leaves its saved learned perk data intact. This API does not provide
+the style/combo/outgoing-damage hooks required to finish the archived DE perks.
+
 ## sf2.enchantments.register
 
 Create a forgeable enchantment for selected equipment categories.

@@ -52,6 +52,16 @@ These are identity-based counts within the indicated files, not net counts of di
 
 All **11 DE-only quest extension files are empty roots** in this archive, including `sensei_arc.xml` and event/battle-pass filenames. Do not advertise them as implemented event content merely because they exist. Substantial Sensei/Ascension/dojo content is in `quests.xml` and `stages.xml`. Many shared extension files are emptied or no longer included; replacing them with extra registered quests would leave old behavior active unless removal/suppression is addressed.
 
+## Implementation follow-up (2026-09-12)
+
+The findings below retain their API 0.7 audit baseline. API 0.8 added direct Lua
+rule hosts; 0.9 added combat snapshots. API 0.10 now covers the G01 subset of
+existing fight rule append/replacement and location/music replacement. Core
+encounter identity, opponents, rewards and progress are preserved. G01 is still
+open for other content domains and fight opponent/reward editing; G10's scenery
+and music-selection semantics remain open. This is not DE parity certification.
+See [the cumulative pre-DE work log](PRE_DE_WORK_LOG.md) for changes and evidence.
+
 ## Verified gaps and boundaries
 
 ### G01 â€” Targeted modification and removal of core content

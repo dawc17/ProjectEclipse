@@ -22,6 +22,7 @@ export default defineConfig({
           { slug: 'guides/vscode' },
           { slug: 'guides/manifest' },
           { slug: 'guides/first-battle' },
+          { slug: 'guides/programmable-rules' },
           { slug: 'api/installing-mods' },
           { slug: 'guides/troubleshooting' },
         ] },

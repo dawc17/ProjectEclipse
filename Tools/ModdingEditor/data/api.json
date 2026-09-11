@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.7",
+  "apiVersion": "0.12.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -336,7 +336,7 @@
       "url": "https://dawc17.github.io/ProjectEclipse/api/behavior-instances/#sf2behaviorsregister",
       "summary": "Register a behavior with one or more supported combat callbacks.",
       "requires": "`content.register`. Operations performed by callbacks may require additional capabilities such as `combat.magic_charge`.",
-      "when": "Entrypoint, before registering perks or enchantments that use it."
+      "when": "Entrypoint, before registering perks, enchantments, or rules that use it."
     },
     "sf2.perks.get": {
       "params": {
@@ -535,6 +535,17 @@
       "summary": "Apply a perk rule to the selected target.",
       "requires": "`content.register`.",
       "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.behavior": {
+      "params": {
+        "definition": "Eclipse.Rule_behavior"
+      },
+      "returns": "A rule handle; put it in `sf2.fights.register { rules = { rule } }`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesbehavior",
+      "summary": "Attach executable Lua behavior directly to a fight, without creating a perk or requiring an equipped item. Available since API **0.8.0**.",
+      "requires": "`content.register`. Each fighter operation still requires its own combat capability, declared by the mod that owns the behavior.",
+      "when": "Register in the entrypoint. Attached handlers run only at the supported combat callback boundaries of the selected fight."
     },
     "sf2.rules.recharge_magic_each_round": {
       "params": {
@@ -934,6 +945,7 @@
     "on_fight_begin",
     "on_round_begin",
     "on_damage_resolving",
+    "on_damage_dealing",
     "on_damage_received",
     "on_damage_dealt",
     "on_block",
@@ -942,6 +954,11 @@
     "on_fight_end"
   ],
   "fighterMethods": {
+    "snapshot": {
+      "params": {},
+      "returns": "Eclipse.CombatSnapshot|nil",
+      "capability": null
+    },
     "change_health": {
       "params": {
         "amount": "number"
@@ -953,6 +970,12 @@
         "amount": "number"
       },
       "capability": "combat.magic_charge"
+    },
+    "scale_outgoing_damage": {
+      "params": {
+        "multiplier": "number"
+      },
+      "capability": "combat.modify_outgoing_hit"
     },
     "scale_incoming_damage": {
       "params": {
@@ -1201,7 +1224,9 @@
     },
     "IncomingDamageEvent": {
       "fields": {
-        "damage": "number"
+        "damage": "number",
+        "blocked": "boolean",
+        "critical": "boolean"
       },
       "parent": "CombatEvent"
     },
@@ -1220,6 +1245,7 @@
         "on_fight_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_round_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_damage_resolving?": "fun(parameters:table<string,any>, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
+        "on_damage_dealing?": "fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_received?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_damage_dealt?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_block?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
@@ -1236,6 +1262,7 @@
         "on_fight_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_round_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_damage_resolving?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
+        "on_damage_dealing?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_received?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_damage_dealt?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_block?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
@@ -1248,6 +1275,8 @@
       "fields": {
         "health?": "number",
         "side?": "string",
+        "source?": "string",
+        "rule_id?": "string",
         "opponent?": "Eclipse.Opponent"
       }
     },
@@ -1256,7 +1285,35 @@
         "health?": "number"
       }
     },
+    "CombatPosition": {
+      "fields": {
+        "x": "number",
+        "y": "number",
+        "z": "number"
+      }
+    },
+    "FighterSnapshot": {
+      "fields": {
+        "health": "number",
+        "max_health": "number",
+        "health_bars": "integer",
+        "position": "Eclipse.CombatPosition"
+      }
+    },
+    "CombatSnapshot": {
+      "fields": {
+        "self": "Eclipse.FighterSnapshot",
+        "opponent?": "Eclipse.FighterSnapshot",
+        "frame": "integer",
+        "seconds": "number",
+        "round_active": "boolean"
+      }
+    },
     "ResolvingFighter": {
+      "fields": {},
+      "parent": "Fighter"
+    },
+    "OutgoingFighter": {
       "fields": {},
       "parent": "Fighter"
     },
@@ -1360,6 +1417,13 @@
         "value": "string"
       }
     },
+    "PerkUpgrade": {
+      "fields": {
+        "level": "integer",
+        "description?": "Eclipse.LocalizationHandle",
+        "parameters?": "table<string,any>"
+      }
+    },
     "PerkDefinition": {
       "fields": {
         "id": "string",
@@ -1368,7 +1432,8 @@
         "icon?": "Eclipse.SpriteHandle",
         "behavior": "Eclipse.BehaviorHandle",
         "kind": "\"single\"|\"combo\"",
-        "parameters?": "table<string,any>"
+        "parameters?": "table<string,any>",
+        "upgrades?": "Eclipse.PerkUpgrade[]"
       }
     },
     "TemplatePerk": {
@@ -1378,7 +1443,8 @@
         "description": "Eclipse.LocalizationHandle",
         "icon?": "Eclipse.SpriteHandle",
         "template": "Eclipse.PerkHandle",
-        "parameters?": "table<string,any>"
+        "parameters?": "table<string,any>",
+        "upgrades?": "Eclipse.PerkUpgrade[]"
       }
     },
     "EnchantmentDefinition": {
@@ -1513,7 +1579,11 @@
         "target": "string",
         "description?": "string",
         "rounds?": "integer",
-        "round_time?": "integer"
+        "round_time?": "integer",
+        "location?": "string",
+        "music?": "string",
+        "rules?": "Eclipse.RuleHandle[]",
+        "append_rules?": "Eclipse.RuleHandle[]"
       }
     },
     "Rule_no_perks": {
@@ -1578,6 +1648,16 @@
         "mode?": "\"normal\"|\"eclipse\"|\"all\"",
         "rounds?": "integer[]",
         "perk": "Eclipse.PerkHandle"
+      }
+    },
+    "Rule_behavior": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "behavior": "Eclipse.BehaviorHandle",
+        "parameters?": "table<string,any>"
       }
     },
     "Rule_recharge_magic_each_round": {

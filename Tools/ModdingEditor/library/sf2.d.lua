@@ -183,6 +183,8 @@ local DamageEvent = {}
 
 ---@class (exact) Eclipse.IncomingDamageEvent: Eclipse.CombatEvent
 ---@field damage number
+---@field blocked boolean
+---@field critical boolean
 local IncomingDamageEvent = {}
 
 ---@class (exact) Eclipse.FightEndEvent: Eclipse.CombatEvent
@@ -197,6 +199,7 @@ local FightEndEvent = {}
 ---@field on_fight_begin? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_round_begin? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_damage_resolving? fun(parameters:table<string,any>, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)
+---@field on_damage_dealing? fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_received? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_damage_dealt? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_block? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
@@ -212,6 +215,7 @@ local BehaviorDefinition = {}
 ---@field on_fight_begin? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_round_begin? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_damage_resolving? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)
+---@field on_damage_dealing? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_received? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_damage_dealt? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_block? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
@@ -223,6 +227,8 @@ local StatefulBehavior = {}
 ---@class (exact) Eclipse.Fighter
 ---@field health? number
 ---@field side? string
+---@field source? string
+---@field rule_id? string
 ---@field opponent? Eclipse.Opponent
 local Fighter = {}
 
@@ -230,8 +236,32 @@ local Fighter = {}
 ---@field health? number
 local Opponent = {}
 
+---@class (exact) Eclipse.CombatPosition
+---@field x number
+---@field y number
+---@field z number
+local CombatPosition = {}
+
+---@class (exact) Eclipse.FighterSnapshot
+---@field health number
+---@field max_health number
+---@field health_bars integer
+---@field position Eclipse.CombatPosition
+local FighterSnapshot = {}
+
+---@class (exact) Eclipse.CombatSnapshot
+---@field self Eclipse.FighterSnapshot
+---@field opponent? Eclipse.FighterSnapshot
+---@field frame integer
+---@field seconds number
+---@field round_active boolean
+local CombatSnapshot = {}
+
 ---@class (exact) Eclipse.ResolvingFighter: Eclipse.Fighter
 local ResolvingFighter = {}
+
+---@class (exact) Eclipse.OutgoingFighter: Eclipse.Fighter
+local OutgoingFighter = {}
 
 ---@class (exact) Eclipse.WeaponDefinition
 ---@field id string
@@ -315,6 +345,12 @@ local AssetReplacement = {}
 ---@field value string
 local LocalizationPatch = {}
 
+---@class (exact) Eclipse.PerkUpgrade
+---@field level integer
+---@field description? Eclipse.LocalizationHandle
+---@field parameters? table<string,any>
+local PerkUpgrade = {}
+
 ---@class (exact) Eclipse.PerkDefinition
 ---@field id string
 ---@field display_name Eclipse.LocalizationHandle
@@ -323,6 +359,7 @@ local LocalizationPatch = {}
 ---@field behavior Eclipse.BehaviorHandle
 ---@field kind "single"|"combo"
 ---@field parameters? table<string,any>
+---@field upgrades? Eclipse.PerkUpgrade[]
 local PerkDefinition = {}
 
 ---@class (exact) Eclipse.TemplatePerk
@@ -332,6 +369,7 @@ local PerkDefinition = {}
 ---@field icon? Eclipse.SpriteHandle
 ---@field template Eclipse.PerkHandle
 ---@field parameters? table<string,any>
+---@field upgrades? Eclipse.PerkUpgrade[]
 local TemplatePerk = {}
 
 ---@class (exact) Eclipse.EnchantmentDefinition
@@ -449,6 +487,10 @@ local FightDefinition = {}
 ---@field description? string
 ---@field rounds? integer
 ---@field round_time? integer
+---@field location? string
+---@field music? string
+---@field rules? Eclipse.RuleHandle[]
+---@field append_rules? Eclipse.RuleHandle[]
 local FightPatch = {}
 
 ---@class (exact) Eclipse.Rule_no_perks
@@ -507,6 +549,15 @@ local Rule_no_button = {}
 ---@field rounds? integer[]
 ---@field perk Eclipse.PerkHandle
 local Rule_perk = {}
+
+---@class (exact) Eclipse.Rule_behavior
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+---@field behavior Eclipse.BehaviorHandle
+---@field parameters? table<string,any>
+local Rule_behavior = {}
 
 ---@class (exact) Eclipse.Rule_recharge_magic_each_round
 ---@field id string
@@ -1279,7 +1330,7 @@ function state.unset(name) end
 
 ---Register a behavior with one or more supported combat callbacks.
 ---Requires: `content.register`. Operations performed by callbacks may require additional capabilities such as `combat.magic_charge`.
----When: Entrypoint, before registering perks or enchantments that use it.
+---When: Entrypoint, before registering perks, enchantments, or rules that use it.
 ---Returns: A behavior handle.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/behavior-instances/#sf2behaviorsregister)
 ---@overload fun(definition:Eclipse.StatefulBehavior):Eclipse.BehaviorHandle
@@ -1447,6 +1498,15 @@ function rules.no_button(definition) end
 ---@param definition Eclipse.Rule_perk
 ---@return Eclipse.RuleHandle
 function rules.perk(definition) end
+
+---Attach executable Lua behavior directly to a fight, without creating a perk or requiring an equipped item. Available since API **0.8.0**.
+---Requires: `content.register`. Each fighter operation still requires its own combat capability, declared by the mod that owns the behavior.
+---When: Register in the entrypoint. Attached handlers run only at the supported combat callback boundaries of the selected fight.
+---Returns: A rule handle; put it in `sf2.fights.register { rules = { rule } }`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesbehavior)
+---@param definition Eclipse.Rule_behavior
+---@return Eclipse.RuleHandle
+function rules.behavior(definition) end
 
 ---Request normal magic recharge at round boundaries.
 ---Requires: `content.register`.
@@ -1934,6 +1994,14 @@ tactics.LINEAR = "linear"
 ---@type "exponential"
 tactics.EXPONENTIAL = "exponential"
 
+---Read fresh combat observations, including both fighters and the engine's elapsed fight clock. Available since API 0.9. Use this when making a health or distance decision; the older `fighter.health` field is captured at callback entry.
+---Requires: No additional capability. Observing the opponent does not require `combat.target`; changing the opponent still requires the normal capabilities.
+---When: Inside any supported combat behavior callback, including battle rules, perks, enchantments, and warrior behaviors. Each call samples the current state. The callable reference expires when that callback returns; the returned data may be retained as an observation, but will not update itself.
+---Returns: A `CombatSnapshot` table, or `nil` if the fighter cannot be observed.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fightersnapshot)
+---@return Eclipse.CombatSnapshot|nil
+function Fighter:snapshot() end
+
 ---Add or subtract health through the game's normal health-change path.
 ---Requires: `combat.change_life`.
 ---When: A supported callback with a live fighter capability.
@@ -1965,6 +2033,14 @@ function Fighter:add_magic_charge(amount) end
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighteropponentadd_magic_charge)
 ---@param amount number
 function Opponent:add_magic_charge(amount) end
+
+---Scale the current attacker's pending hit. Available since API 0.12.
+---Requires: `combat.modify_outgoing_hit`.
+---When: Only inside `on_damage_dealing`. It is absent from other callbacks.
+---Returns: `nil` on success; invalid values, missing capability, unavailable hit or expired references raise a Lua error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterscale_outgoing_damage)
+---@param multiplier number
+function OutgoingFighter:scale_outgoing_damage(multiplier) end
 
 ---Multiply this fighter's pending incoming damage before it is applied.
 ---Requires: `combat.modify_hit`.

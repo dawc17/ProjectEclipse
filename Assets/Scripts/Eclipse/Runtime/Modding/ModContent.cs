@@ -87,12 +87,16 @@ namespace Eclipse.Modding
         public ModContentPatchRecord Record { get; }
         public string StringValue { get; }
         public int IntValue { get; }
+        public DefinitionId[] Rules { get; }
+        public bool AppendRules { get; }
 
-        public FightFieldPatch(ModContentPatchRecord record, string stringValue, int intValue)
+        public FightFieldPatch(ModContentPatchRecord record, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false)
         {
             Record = record ?? throw new ArgumentNullException(nameof(record));
             StringValue = stringValue;
             IntValue = intValue;
+            Rules = rules == null ? null : (DefinitionId[])rules.Clone();
+            AppendRules = appendRules;
         }
     }
 
@@ -116,6 +120,9 @@ namespace Eclipse.Modding
             return "values/" + language;
         }
 
+        public const string FightRules = "fight/rules";
+        public const string FightLocation = "fight/location";
+        public const string FightMusic = "fight/music";
         public const string FightDescription = "fight/description";
         public const string FightRounds = "fight/rounds";
         public const string FightRoundTime = "fight/round-time";
@@ -128,7 +135,8 @@ namespace Eclipse.Modding
             if (target.Category == "localization" && field.StartsWith("values/", StringComparison.Ordinal))
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "fights" &&
-                (field == FightDescription || field == FightRounds || field == FightRoundTime))
+                (field == FightDescription || field == FightRounds || field == FightRoundTime ||
+                 field == FightRules || field == FightLocation || field == FightMusic))
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "zones" && field.StartsWith(ZoneBattleChildren, StringComparison.Ordinal))
                 return ModContentFieldPolicy.Appendable;
@@ -656,6 +664,27 @@ namespace Eclipse.Modding
     // API 0.3 treats behavior as an independent executable definition. Perks and enchantments
     // may both reference the same behavior without referencing each other. The template-backed
     // fields remain only for API 0.2 compatibility with the recovered PerkInfoItem backend.
+    public sealed class PerkUpgradeDefinition
+    {
+        public int Level { get; }
+        public DefinitionId Description { get; }
+        public IReadOnlyDictionary<string, string> Parameters { get; }
+        public IReadOnlyDictionary<string, ModParameterValue> TypedParameters { get; }
+        public PerkUpgradeDefinition(int level, DefinitionId description,
+            IReadOnlyDictionary<string, string> parameters = null,
+            IReadOnlyDictionary<string, ModParameterValue> typedParameters = null)
+        {
+            if (level < 1 || level > 100) throw new ModContentException("Perk upgrade level must be 1..100.");
+            Level = level; Description = description;
+            var native = new Dictionary<string, string>(StringComparer.Ordinal);
+            if (parameters != null) foreach (var pair in parameters) native.Add(pair.Key, pair.Value);
+            var typed = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal);
+            if (typedParameters != null) foreach (var pair in typedParameters) typed.Add(pair.Key, pair.Value);
+            Parameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, string>(native);
+            TypedParameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, ModParameterValue>(typed);
+        }
+    }
+
     public sealed class PerkDefinition
     {
         private readonly Dictionary<string, string> _parameters;
@@ -676,14 +705,16 @@ namespace Eclipse.Modding
         public bool IsScripted => HasBehavior;
         public string LegacyName { get; }
         public string LegacyPerkXml { get; }
+        public IReadOnlyList<PerkUpgradeDefinition> Upgrades { get; }
         public bool IsCore => Id.Namespace.Value == "core";
 
         internal PerkDefinition(DefinitionId id, DefinitionId template, bool hasTemplate,
             DefinitionId displayName, DefinitionId description, AssetId icon, ModPerkKind kind,
             IReadOnlyDictionary<string, string> parameters = null, string legacyName = null,
             string legacyPerkXml = null, DefinitionId behavior = default,
-            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null)
+            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null, PerkUpgradeDefinition[] upgrades = null)
         {
+            Upgrades = Array.AsReadOnly(upgrades == null ? Array.Empty<PerkUpgradeDefinition>() : (PerkUpgradeDefinition[])upgrades.Clone());
             Id = id;
             Template = template;
             HasTemplate = hasTemplate;
@@ -702,6 +733,34 @@ namespace Eclipse.Modding
             _initialParameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, ModParameterValue>(copiedInitial);
             LegacyName = legacyName;
             LegacyPerkXml = legacyPerkXml;
+        }
+        internal PerkDefinition WithUpgrades(PerkUpgradeDefinition[] upgrades) => new PerkDefinition(
+            Id, Template, HasTemplate, DisplayName, Description, Icon, Kind, Parameters, LegacyName,
+            LegacyPerkXml, Behavior, InitialParameters, upgrades);
+
+        public Dictionary<string, ModParameterValue> ResolveSavedUpgradeParameters(System.Xml.XmlNode node,
+            IReadOnlyDictionary<string, ModParameterValue> saved)
+        {
+            // Existing perks without an upgrade table keep their historical parameter contract.
+            if (Upgrades.Count == 0) return ResolveUpgradeParameters(0, saved);
+            int level = 0;
+            string text = node?.Attributes?["UpgradeLevel"]?.Value;
+            if (!string.IsNullOrEmpty(text) && (!int.TryParse(text, System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out level) || level < 0))
+                throw new ModContentException("Invalid saved perk upgrade level. Saved data preserved.");
+            return ResolveUpgradeParameters(level, saved);
+        }
+
+        public Dictionary<string, ModParameterValue> ResolveUpgradeParameters(int level,
+            IReadOnlyDictionary<string, ModParameterValue> saved)
+        {
+            if (level < 0 || (Upgrades.Count > 0 && level > Upgrades.Count))
+                throw new ModContentException("Unsupported saved perk upgrade level: " + level + ". Saved data preserved.");
+            var result = new Dictionary<string, ModParameterValue>(StringComparer.Ordinal);
+            foreach (var pair in saved ?? InitialParameters) result.Add(pair.Key, pair.Value);
+            if (Upgrades.Count > 0 && level > 0)
+                foreach (var pair in Upgrades[level - 1].TypedParameters) result[pair.Key] = pair.Value;
+            return result;
         }
     }
 
@@ -803,6 +862,7 @@ namespace Eclipse.Modding
         RechargeMagicEachRound = 6,
         Attributes = 7,
         NoButton = 8,
+        Behavior = 9,
     }
 
     public enum ModRuleTarget
@@ -924,11 +984,12 @@ namespace Eclipse.Modding
         public IReadOnlyList<DefinitionId> Rewards => Array.AsReadOnly(_rewards);
         public bool IsCore => Id.Namespace.Value == "core";
         internal string LegacyXml { get; }
+        public bool ReplacesLegacyRules { get; }
 
         internal FightDefinition(DefinitionId id, DefinitionId battle, string legacyName, int replays,
             int replayInterval, int power, int rounds, int roundTime, string location, string music,
             float evaluatedRating, float healthRecovery, string description, bool locked, string rewardImage,
-            DefinitionId[] warriors, DefinitionId[] rules, DefinitionId[] rewards, string legacyXml = null)
+            DefinitionId[] warriors, DefinitionId[] rules, DefinitionId[] rewards, string legacyXml = null, bool replacesLegacyRules = false)
         {
             if (replays < 0) throw new ModContentException("Fight replays must not be negative.");
             if (replayInterval < 0) throw new ModContentException("Fight replay interval must not be negative.");
@@ -958,27 +1019,83 @@ namespace Eclipse.Modding
             _rules = rules == null ? Array.Empty<DefinitionId>() : (DefinitionId[])rules.Clone();
             _rewards = rewards == null ? Array.Empty<DefinitionId>() : (DefinitionId[])rewards.Clone();
             LegacyXml = legacyXml;
+            ReplacesLegacyRules = replacesLegacyRules;
         }
 
         internal FightDefinition WithDescription(string description)
         {
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, description, Locked, RewardImage,
-                _warriors, _rules, _rewards, LegacyXml);
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
         }
 
         internal FightDefinition WithRounds(int rounds)
         {
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, rounds, RoundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
-                _warriors, _rules, _rewards, LegacyXml);
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
         }
 
         internal FightDefinition WithRoundTime(int roundTime)
         {
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, roundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
-                _warriors, _rules, _rewards, LegacyXml);
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+        }
+        internal FightDefinition WithPresentation(string location, string music)
+        {
+            return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
+                location, music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+        }
+
+        internal FightDefinition WithRules(DefinitionId[] rules, bool append)
+        {
+            var combined = append ? new List<DefinitionId>(_rules) : new List<DefinitionId>();
+            foreach (var rule in rules)
+            {
+                if (combined.Contains(rule)) throw new ModContentException("Fight rule is already attached: '" + rule + "'.");
+                combined.Add(rule);
+            }
+            if (combined.Count > 100) throw new ModContentException("A patched fight supports at most 100 rule handles.");
+            return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
+                Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
+                _warriors, combined.ToArray(), _rewards, LegacyXml, ReplacesLegacyRules || !append);
+        }
+    }
+
+    // Shared with the recovered adapter so projection can be verified without loading Unity.
+    public static class ModFightPatchProjection
+    {
+        public static void Apply(System.Xml.XmlElement node, FightDefinition fight, string field,
+            ModContentCatalog content, Func<FightRuleDefinition, System.Xml.XmlElement> buildRule)
+        {
+            if (node == null || fight == null || content == null) throw new ArgumentNullException(nameof(node));
+            if (field == ModContentPolicies.FightDescription) node.SetAttribute("Description", fight.Description);
+            else if (field == ModContentPolicies.FightRounds) node.SetAttribute("Rounds", fight.Rounds.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            else if (field == ModContentPolicies.FightRoundTime) node.SetAttribute("RoundTime", fight.RoundTime.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            else if (field == ModContentPolicies.FightLocation) node.SetAttribute("Location", fight.Location);
+            else if (field == ModContentPolicies.FightMusic) node.SetAttribute("Music", fight.Music);
+            else if (field == ModContentPolicies.FightRules)
+            {
+                if (fight.ReplacesLegacyRules)
+                {
+                    var oldRules = node.SelectNodes("Rules");
+                    foreach (System.Xml.XmlNode old in oldRules) node.RemoveChild(old);
+                }
+                var rules = node.SelectSingleNode("Rules") as System.Xml.XmlElement;
+                if (rules == null)
+                {
+                    rules = node.OwnerDocument.CreateElement("Rules");
+                    node.AppendChild(rules);
+                }
+                foreach (var id in fight.Rules)
+                {
+                    if (!content.TryGetFightRule(id, out var rule)) throw new ModContentException("Missing fight rule '" + id + "'.");
+                    if (rule.Kind != ModFightRuleKind.Behavior) rules.AppendChild(buildRule(rule));
+                }
+            }
+            else throw new ModContentException("Unsupported committed fight patch field '" + field + "'.");
         }
     }
 
@@ -1043,6 +1160,9 @@ namespace Eclipse.Modding
 
     public sealed class FightRuleDefinition
     {
+        public DefinitionId Behavior { get; }
+        public IReadOnlyDictionary<string, ModParameterValue> InitialParameters { get; }
+
         private readonly int[] _rounds;
         public DefinitionId Id { get; }
         public ModFightRuleKind Kind { get; }
@@ -1061,8 +1181,17 @@ namespace Eclipse.Modding
         internal FightRuleDefinition(DefinitionId id, ModFightRuleKind kind, ModRuleTarget target, ModRuleMode mode,
             int[] rounds, string name, DefinitionId item, bool hasItem, int minimumLevel,
             DefinitionId perk = default(DefinitionId), bool hasPerk = false,
-            IReadOnlyDictionary<string, float> attributes = null)
+            IReadOnlyDictionary<string, float> attributes = null, DefinitionId behavior = default,
+            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null)
         {
+            Behavior = behavior;
+            var parameterCopy = new Dictionary<string, ModParameterValue>();
+            if (initialParameters != null)
+                foreach (var pair in initialParameters) parameterCopy.Add(pair.Key, pair.Value);
+            InitialParameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, ModParameterValue>(
+                parameterCopy);
+            if (kind == ModFightRuleKind.Behavior && behavior.Category != "behaviors")
+                throw new ModContentException("Behavior rule requires a behavior definition.");
             Id = id;
             Kind = kind;
             Target = target;
@@ -1432,6 +1561,10 @@ namespace Eclipse.Modding
             for (int i = 0; i < perks.Length; i++)
             {
                 PerkDefinition perk = perks[i];
+                foreach (var upgrade in perk.Upgrades)
+                    if (!ContainsLocalization(localizations, upgrade.Description) &&
+                        !_localizations.TryGet(upgrade.Description, out LocalizationDefinition ignoredUpgradeDescription))
+                        throw new ModContentException("Perk upgrade references missing description localization '" + upgrade.Description + "'.");
                 if (!ContainsLocalization(localizations, perk.DisplayName) &&
                     !_localizations.TryGet(perk.DisplayName, out LocalizationDefinition ignoredName))
                     throw new ModContentException("Perk '" + perk.Id +
@@ -1585,6 +1718,9 @@ namespace Eclipse.Modding
                 if (record.Field == ModContentPolicies.FightDescription) current = current.WithDescription(patch.StringValue);
                 else if (record.Field == ModContentPolicies.FightRounds) current = current.WithRounds(patch.IntValue);
                 else if (record.Field == ModContentPolicies.FightRoundTime) current = current.WithRoundTime(patch.IntValue);
+                else if (record.Field == ModContentPolicies.FightLocation) current = current.WithPresentation(patch.StringValue, current.Music);
+                else if (record.Field == ModContentPolicies.FightMusic) current = current.WithPresentation(current.Location, patch.StringValue);
+                else if (record.Field == ModContentPolicies.FightRules) current = current.WithRules(patch.Rules, patch.AppendRules);
                 else throw new ModContentException("Unsupported fight patch field '" + record.Field + "'.");
                 replacements[record.Target] = current;
             }
@@ -2353,6 +2489,42 @@ namespace Eclipse.Modding
             return definition;
         }
 
+        public PerkDefinition SetPerkUpgrades(DefinitionId id, PerkUpgradeDefinition[] upgrades)
+        {
+            ThrowIfCompleted();
+            if (id.Namespace != Mod.Id || !_perks.TryGetValue(id, out var perk))
+                throw new ModContentException("Upgrades require a perk registered in this transaction.");
+            if (upgrades == null || upgrades.Length == 0 || upgrades.Length > 100)
+                throw new ModContentException("Perk upgrades require 1..100 entries.");
+            for (int i = 0; i < upgrades.Length; i++)
+            {
+                var upgrade = upgrades[i];
+                if (upgrade == null || upgrade.Level != i + 1) throw new ModContentException("Perk upgrades must be ordered and contiguous from level 1.");
+                ValidateScriptedPresentation(perk.DisplayName, upgrade.Description, perk.Icon, "Perk upgrade");
+                if (perk.HasBehavior)
+                {
+                    if (upgrade.Parameters.Count != 0) throw new ModContentException("Scripted upgrades require typed parameters.");
+                    var combined = new Dictionary<string, ModParameterValue>();
+                    foreach (var pair in perk.InitialParameters) combined.Add(pair.Key, pair.Value);
+                    foreach (var pair in upgrade.TypedParameters) combined[pair.Key] = pair.Value;
+                    RequirePendingBehavior(perk.Behavior, "Perk upgrade").Parameters.ResolveValues(combined);
+                }
+                else
+                {
+                    if (upgrade.TypedParameters.Count != 0) throw new ModContentException("Native upgrades require native parameters.");
+                    if (upgrade.Parameters.Count > 64) throw new ModContentException("Perk upgrade parameter limit exceeded (64).");
+                    foreach (var pair in upgrade.Parameters)
+                    {
+                        ValidatePerkParameterName(pair.Key);
+                        if (pair.Value == null || pair.Value.Length == 0 || pair.Value.Length > 2048) throw new ModContentException("Invalid perk upgrade parameter value.");
+                    }
+                }
+            }
+            var definition = perk.WithUpgrades(upgrades);
+            _perks[id] = definition;
+            return definition;
+        }
+
         public EnchantmentDefinition RegisterEnchantment(string localId, DefinitionId perk,
             ModEnchantmentRecipe recipe, ModEquipmentKind[] equipment)
         {
@@ -2640,6 +2812,27 @@ namespace Eclipse.Modding
             return definition;
         }
 
+        public FightRuleDefinition RegisterBehaviorRule(string localId, DefinitionId behavior, ModRuleTarget target,
+            ModRuleMode mode, int[] rounds, IReadOnlyDictionary<string, ModParameterValue> parameters)
+        {
+            ThrowIfCompleted();
+            ValidateRuleEnums(target, mode);
+            DefinitionId id = Qualify("rules", localId);
+            if (_fightRules.ContainsKey(id)) throw new ModContentException("Duplicate fight rule definition: '" + id + "'.");
+            if (!CanReferenceNamespace(behavior.Namespace))
+                throw new ModContentException("Rule behavior belongs to an undeclared dependency: '" + behavior + "'.");
+            if (!_behaviors.TryGetValue(behavior, out var definition) && !_catalog.TryGetBehavior(behavior, out definition))
+                throw new ModContentException("Rule behavior is not registered: '" + behavior + "'.");
+            if (definition.StateLifetime == "saved")
+                throw new ModContentException("Battle rules support fight or round state; use mod-owned state for persistent progression.");
+            var values = definition.Parameters.ResolveValues(parameters);
+            var rule = new FightRuleDefinition(id, ModFightRuleKind.Behavior, target, mode, rounds,
+                string.Empty, default, false, 0, behavior: behavior, initialParameters: values);
+            EnsureCapacityForNewRegistration();
+            _fightRules.Add(id, rule);
+            return rule;
+        }
+
         public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0)
         {
             ThrowIfCompleted();
@@ -2696,7 +2889,27 @@ namespace Eclipse.Modding
             return StageFightPatch(reference, ModContentPolicies.FightRoundTime, null, value);
         }
 
-        private DefinitionId StageFightPatch(string reference, string field, string stringValue, int intValue)
+        public DefinitionId PatchFightLocation(string reference, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) throw new ModContentException("Fight location must not be empty.");
+            return StageFightPatch(reference, ModContentPolicies.FightLocation, value, 0);
+        }
+
+        public DefinitionId PatchFightMusic(string reference, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value)) throw new ModContentException("Fight music must not be empty.");
+            return StageFightPatch(reference, ModContentPolicies.FightMusic, value, 0);
+        }
+
+        public DefinitionId PatchFightRules(string reference, DefinitionId[] rules, bool append)
+        {
+            if (rules == null || rules.Length > 100) throw new ModContentException("Fight rules must contain at most 100 handles.");
+            if (append && rules.Length == 0) throw new ModContentException("append_rules must not be empty.");
+            ValidateDefinitionReferences(rules, "rules", default, "rule");
+            return StageFightPatch(reference, ModContentPolicies.FightRules, null, 0, rules, append);
+        }
+
+        private DefinitionId StageFightPatch(string reference, string field, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false)
         {
             ThrowIfCompleted();
             if (string.IsNullOrWhiteSpace(reference)) throw new ModContentException("Fight patch target must not be empty.");
@@ -2713,7 +2926,7 @@ namespace Eclipse.Modding
             EnsureCapacityForNewRegistration();
             if (!_patchKeys.Add(key)) throw new ModContentException("Duplicate fight patch for '" + id + "' field '" + field + "'.");
             var record = new ModContentPatchRecord(Mod.Id, id, field, ModContentPatchOperation.Replace);
-            _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue));
+            _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue, rules, appendRules));
             return id;
         }
 

@@ -69,6 +69,7 @@ A capability permits an operation; a dependency permits references to another ow
 | `state.read`, `state.write` | Read and write mod-owned profile state. |
 | `combat.change_life`, `combat.magic_charge` | Supported health and magic-charge methods. |
 | `combat.modify_hit`, `combat.effects` | Damage scaling and temporary shields. |
+| `combat.modify_outgoing_hit` | Scale an attacker's pending hit during `on_damage_dealing`. |
 | `combat.target` | Use supported operations on the opposing fighter. |
 | `progression.read`, `progression.write` | Read and update achievement counters. |
 | `policy.timers`, `policy.services` | Supported timer settings and service switches. |

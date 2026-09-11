@@ -21,6 +21,8 @@ and `self.state`, instead.
 | `event.round` | Current round number when available. |
 | `fighter.health` | Health snapshot, when the current fighter capability supplies it. |
 | `fighter.opponent` | Opponent capability, when available; check it before using it. |
+| `fighter.rule_id` | Qualified rule identity for fight-attached behavior callbacks; absent on equipment/perk instances. |
+| `fighter.source` | Host provenance, including `rule`, `perk`, `enchantment`, or `warrior`. |
 | `fighter.side` | Fighter context string, such as `player` or `opponent`, when supplied. |
 
 Resolved hit events supply `damage`, `health_before`, `health_after`, `blocked`,
@@ -29,7 +31,9 @@ Damage uses the runtime's life units; do not assume it is a health percentage,
 raw weapon damage, or the entire pool of a boss with multiple health bars.
 Pending damage has not been applied yet.
 
-Player callbacks use active learned perks and equipped enchantments; opponent
+Fight-attached [behavior rules](../rules/#sf2rulesbehavior) also receive these callbacks, before each side's equipment/perk callbacks. Rule state is independent of equipped items.
+
+Player perk callbacks use active learned perks and equipped enchantments; opponent
 callbacks use active behavior-backed warrior perks. Normal fight rules may
 suppress a perk. The dojo punchbag does not use this normal fight lifecycle.
 
@@ -80,6 +84,96 @@ end,
 
 Round-lifetime behavior state is available for the new round. Use round state for effects that should recharge every round.
 
+## on_combo_changed
+
+Observe the native combo counter for the fighter receiving this callback.
+
+**Signature:** `on_combo_changed = function(parameters, fighter, event)`; stateful
+behaviors receive `self` instead of `parameters`.
+
+**Returns:** Nothing; the return value is ignored.
+
+**When:** After native combo bookkeeping and perk notification, from API 0.13.
+`event.combo` is the current reported count; `event.last_combo` is the native
+last-reported count. On native combo expiry, `combo` is zero and `last_combo`
+retains the completed combo count. Counts below the native display threshold do
+not produce this callback. Direct counter resets are not all event-producing;
+use round/fight state lifetimes to reset your own data reliably.
+
+**Requires:** No additional capability to observe. Operations called in the
+handler keep their own capability requirements.
+
+```lua
+on_combo_changed = function(self, fighter, event)
+    self.state.combo = event.combo
+end
+```
+
+Declare `combo` in the behavior's integer state schema. This reports the engine's
+combo, not a synthetic count of `on_damage_dealt` calls. It does not let scripts
+change the counter or its timeout. Player/opponent rule filters apply normally.
+
+## on_style_changed
+
+Observe a transition between native style ranks.
+
+**Signature:** `on_style_changed = function(parameters, fighter, event)`; stateful
+behaviors receive `self` instead of `parameters`.
+
+**Returns:** Nothing; the return value is ignored.
+
+**When:** After the model receives a new style rank, before the native style-rule
+check, from API 0.13. Fields are `style_rank` (native zero-based index),
+`style_name` (native name), `style_gain` (native progress value within that rank),
+and `is_hit` (the native event's hit-origin flag). Same-rank progress updates do
+not trigger this hook. Initial setup before fight callbacks begin is omitted.
+
+**Requires:** No additional capability to observe.
+
+```lua
+on_style_changed = function(self, fighter, event)
+    self.state.style = event.style_rank
+end
+```
+
+Declare `style` in the behavior's integer state schema. Rank names/order come
+from current game content; do not treat localized display strings as stable IDs.
+Style snapshots are detached data. This callback does not mutate the style meter
+or expose a general animation/contact event API.
+
+## on_damage_dealing
+
+Modify an attacker's pending hit after native damage, block and critical
+calculation, before defender invulnerability, shields, incoming modifiers and
+health application. Available since API 0.12 on the existing behavior hosts.
+
+**Signature:** `on_damage_dealing = function(parameters, fighter, event)`; with
+state, `on_damage_dealing = function(self, fighter, event)`.
+
+**Returns:** Nothing; the return value is ignored.
+
+**When:** A supported fighter deals a native strike. `fighter` is the attacker;
+`event.damage`, `event.blocked` and `event.critical` snapshot the pending hit at
+entry to this handler. Zero-damage hits can still reach the callback. Direct
+health changes do not synthesize a strike or recursively invoke this event.
+
+**Requires:** No additional capability to observe. Scaling requires
+`combat.modify_outgoing_hit`.
+
+```lua
+on_damage_dealing = function(parameters, fighter, event)
+    if event.critical and not event.blocked then
+        fighter:scale_outgoing_damage(1.5)
+    end
+end
+```
+
+The method operates on the current pending value, so multiple handlers compose
+in dispatch order. Your event table remains a snapshot. Normal defender rules
+still apply afterward. This hook cannot set critical/block flags, create a hit,
+or supply style/combo events. It is distinct from `on_damage_dealt`, which observes
+health already lost. Callback-scoped methods expire on return, including errors.
+
 ## on_damage_resolving
 
 Just before an incoming hit is applied to the fighter.
@@ -102,6 +196,9 @@ end,
 ```
 
 `event.damage` is pending incoming damage. This is the only callback where `scale_incoming_damage` is available. It reduces this hit; later damage notifications report the resulting observed decrease.
+
+Since API 0.12, the pending event also includes `blocked` and `critical`, captured
+from the native hit flags before health application.
 
 ## on_damage_received
 

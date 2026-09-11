@@ -51,6 +51,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				_lblTime.text = string.Empty;
 			}
+			_btnPlayVideo.onClick.RemoveListener(INDMIAIIHDD);
 			_btnPlayVideo.onClick.AddListener(INDMIAIIHDD);
 			if (DPOOIONCEOA.get_Type() == BattleType.FightFinal || DPOOIONCEOA.get_Type() == BattleType.FightFinalTitan)
 			{

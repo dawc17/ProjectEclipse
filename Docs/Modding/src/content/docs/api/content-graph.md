@@ -243,7 +243,7 @@ to manage sequence progress and entry requirements.
 
 Replace supported fields on an existing registered fight.
 
-**Signature:** `sf2.fights.patch { target, description?, rounds?, round_time? }`
+**Signature:** `sf2.fights.patch { target, description?, rounds?, round_time?, location?, music?, rules?, append_rules? }`
 
 **Requires:** `content.patch`, and a dependency on the target owner.
 
@@ -253,6 +253,23 @@ Replace supported fields on an existing registered fight.
 
 `target` is a fight definition ID string. Supply at least one changed field.
 `description` is a string; `rounds` is 1–100; `round_time` is 1–86400 seconds.
+Since API 0.10, `location` and `music` accept nonempty recovered runtime names,
+as in fight registration. For a registered custom location, use
+`sf2.locations.name(location)`. This changes the encounter's presentation; it does
+not register or validate the existence of an asset named by that string.
+
+Use `append_rules = { rule, ... }` to keep existing rules and add your own in
+array order. Use `rules = { rule, ... }` to replace the entire rule list, including
+native rules on a core encounter. `rules = {}` explicitly clears it; an empty
+`append_rules` is rejected. The two forms are mutually exclusive, accept at most
+100 registered rule handles (also bounded to 100 after appending), and reject
+duplicate handles. Handles may be registered earlier in this same entrypoint.
+Both static rules and [Lua behavior rules](../rules/#sf2rulesbehavior) are supported.
+
+Appending preserves native XML rules that have no public handle. Their native
+execution remains unchanged; Lua rules run through the documented combat callback
+dispatcher. Array order orders Lua rules relative to other Lua rules, not native
+engine actions across different callback stages.
 The target must already exist in the exposed catalog: this is not an arbitrary
 XML patch and not a setter for a newly staged fight in the same transaction.
 
@@ -267,3 +284,25 @@ sf2.fights.patch {
 Competing changes to the same semantic field conflict. Different supported
 fields can coexist. Unsupported fields, missing targets, or undeclared owners
 fail registration.
+
+`rules` and `append_rules` address the same semantic field: competing rule-list
+patches conflict, including two append requests. A conflict rolls back the whole
+registration transaction. Encounter IDs, opponents, rewards, and saved campaign
+progress are preserved. The patch is reapplied from base definitions at startup;
+disabling the mod and restarting restores base content. Content fingerprints
+distinguish appended rules from replacement, including an empty replacement.
+
+```lua
+local guard = sf2.rules.behavior { id = "guard", behavior = my_behavior }
+sf2.fights.patch {
+    target = "core:fights/zone_1/boss_lynx/1",
+    append_rules = { guard },
+    location = "dojo",
+    music = "fight1_samurai_spirit",
+}
+```
+
+`my_behavior` above must be a registered behavior handle. The complete
+`Mods/example.core-fight` mod demonstrates a health-dependent guard on an existing
+campaign opponent. These fields do not add opponent/reward replacement, a generic
+XML patch interface, or economy overrides.

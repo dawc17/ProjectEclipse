@@ -14,7 +14,9 @@ namespace Eclipse.Modding
                 { "on_fight_begin", ModEffectEvent.FightBegin }, { "on_round_begin", ModEffectEvent.RoundBegin },
                 { "on_round_end", ModEffectEvent.RoundEnd }, { "on_fight_end", ModEffectEvent.FightEnd },
                 { "on_damage_received", ModEffectEvent.DamageReceived }, { "on_damage_dealt", ModEffectEvent.DamageDealt },
-                { "on_damage_resolving", ModEffectEvent.DamageResolving }, { "on_block", ModEffectEvent.Block }, { "on_critical", ModEffectEvent.Critical }
+                { "on_damage_resolving", ModEffectEvent.DamageResolving }, { "on_damage_dealing", ModEffectEvent.DamageDealing },
+                { "on_combo_changed", ModEffectEvent.ComboChanged }, { "on_style_changed", ModEffectEvent.StyleChanged },
+                { "on_block", ModEffectEvent.Block }, { "on_critical", ModEffectEvent.Critical }
             };
             private sealed class BehaviorState
             {
@@ -29,7 +31,7 @@ namespace Eclipse.Modding
             private Table PrepareBehaviorState(ModBehaviorDefinition definition, Table parameters,
                 IReadOnlyDictionary<string, string> context, IModFighterOperations fighter, ModEffectEvent effectEvent, out Action commit)
             {
-                if (definition.StateLifetime == "saved" && context != null && context.TryGetValue("source", out var source) && source == "warrior")
+                if (definition.StateLifetime == "saved" && context != null && context.TryGetValue("source", out var source) && (source == "warrior" || source == "rule"))
                     throw new ModContentException("NPC behavior instances support fight/round state; saved state requires player-owned equipment or a learned perk.");
                 var node = (fighter as IModBehaviorInstanceSource)?.SavedInstance;
                 if (node == null) throw new ModContentException("Behavior state requires an equipped instance.");

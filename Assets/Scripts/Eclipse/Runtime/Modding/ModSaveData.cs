@@ -223,6 +223,19 @@ namespace Eclipse.Modding
                     Append(canonical, perk.Parameters[parameter]);
                 }
                 AppendParameterValues(canonical, perk.InitialParameters);
+                if (perk.Upgrades.Count > 0)
+                {
+                    Append(canonical, "upgrades"); Append(canonical, perk.Upgrades.Count);
+                    foreach (var upgrade in perk.Upgrades)
+                    {
+                        Append(canonical, upgrade.Level); Append(canonical, upgrade.Description.ToString());
+                        var upgradeNames = new List<string>(upgrade.Parameters.Keys); upgradeNames.Sort(StringComparer.Ordinal);
+                        Append(canonical, upgradeNames.Count);
+                        foreach (var name in upgradeNames)
+                        { Append(canonical, name); Append(canonical, upgrade.Parameters[name]); }
+                        AppendParameterValues(canonical, upgrade.TypedParameters);
+                    }
+                }
             }
 
             var enchantments = new List<EnchantmentDefinition>(content.Enchantments);
@@ -462,6 +475,7 @@ namespace Eclipse.Modding
                 Append(canonical, fight.EvaluatedRating); Append(canonical, fight.HealthRecovery);
                 Append(canonical, fight.Description); Append(canonical, fight.Locked);
                 Append(canonical, fight.RewardImage);
+                if (fight.ReplacesLegacyRules) Append(canonical, "replace-legacy-rules");
                 AppendIds(canonical, fight.Warriors); AppendIds(canonical, fight.Rules); AppendIds(canonical, fight.Rewards);
             }
 
@@ -507,6 +521,17 @@ namespace Eclipse.Modding
                 for (int j = 0; j < rule.Rounds.Count; j++) Append(canonical, rule.Rounds[j]);
                 Append(canonical, rule.Name); Append(canonical, rule.HasItem ? rule.Item.ToString() : string.Empty);
                 Append(canonical, rule.MinimumLevel); Append(canonical, rule.HasPerk ? rule.Perk.ToString() : string.Empty);
+                if (rule.Kind == ModFightRuleKind.Behavior)
+                {
+                    Append(canonical, rule.Behavior.ToString());
+                    var parameters = new List<string>(rule.InitialParameters.Keys); parameters.Sort(StringComparer.Ordinal);
+                    Append(canonical, parameters.Count);
+                    foreach (var key in parameters)
+                    {
+                        Append(canonical, key); Append(canonical, (int)rule.InitialParameters[key].Type);
+                        Append(canonical, rule.InitialParameters[key].ToWireString());
+                    }
+                }
                 var names = new List<string>(rule.Attributes.Keys); names.Sort(StringComparer.Ordinal);
                 Append(canonical, names.Count);
                 for (int j = 0; j < names.Count; j++) { Append(canonical, names[j]); Append(canonical, rule.Attributes[names[j]]); }

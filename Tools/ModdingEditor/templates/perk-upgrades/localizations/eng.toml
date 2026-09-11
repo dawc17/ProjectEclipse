@@ -1,0 +1,5 @@
+name = "Steady Guard"
+base = "Reduce incoming damage by 10%."
+first = "Reduce incoming damage by 20%."
+second = "Reduce incoming damage by 30%."
+third = "Reduce incoming damage by 40%."

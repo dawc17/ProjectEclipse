@@ -149,6 +149,16 @@ async function main() {
         }, `all ${module} functions, aliases, and constants`);
     }
     console.log(`PASS: every function, alias, and constant completes across ${modules.length} API modules`);
+    const ruleFields = probe('rule-fields.lua', 'local sf2=require("sf2")\nsf2.rules.behavior { | }');
+    await until(async () => {
+        const found = labels(await request('textDocument/completion', ruleFields));
+        return ['behavior', 'parameters', 'target', 'rounds', 'mode'].every(key => found.some(value => value.startsWith(key)));
+    }, 'battle behavior rule fields');
+    const patchFields = probe('fight-patch-fields.lua', 'local sf2=require("sf2")\nsf2.fights.patch { | }');
+    await until(async () => {
+        const found = labels(await request('textDocument/completion', patchFields));
+        return ['rules', 'append_rules', 'location', 'music'].every(key => found.some(value => value.startsWith(key)));
+    }, 'fight patch rule and presentation fields');
     const callback = probe('callback.lua', 'local sf2=require("sf2")\nsf2.behaviors.register { id="test", on_damage_resolving=function(params, fighter, event)\n fighter:|\nend }');
     await until(async () => labels(await request('textDocument/completion', callback)).some(n => n.startsWith('scale_incoming_damage')), 'resolving fighter callback inference');
     const event = probe('event.lua', 'local sf2=require("sf2")\nsf2.behaviors.register { id="test", on_damage_received=function(params, fighter, event)\n local value=event.|\nend }');
@@ -156,6 +166,12 @@ async function main() {
     const stateful = probe('stateful.lua', 'local sf2=require("sf2")\nsf2.behaviors.register { id="test", state={fields={hits={type="integer",default=0}}}, on_damage_received=function(self, fighter, event)\n local value=self.|\nend }');
     await until(async () => labels(await request('textDocument/completion', stateful)).includes('state'), 'stateful callback inference');
     console.log('PASS: inline callbacks infer fighter methods, damage events, and stateful self');
+    const snapshot = probe('snapshot.lua', 'local sf2=require("sf2")\nsf2.behaviors.register { id="test", on_round_begin=function(_, fighter)\n local combat=fighter:snapshot()\n if combat then local value=combat.self.| end\nend }');
+    await until(async () => {
+        const found=labels(await request('textDocument/completion',snapshot));
+        return ['health','max_health','health_bars','position'].every(name=>found.includes(name));
+    }, 'snapshot return type inference');
+    console.log('PASS: combat snapshot return type and fighter fields complete');
 
     const validText = fs.readFileSync(path.join(root, 'templates/weapon/scripts/main.lua'), 'utf8');
     // LuaLS does not publish an initial empty report. Introduce an error, then
@@ -166,6 +182,22 @@ async function main() {
     notify('textDocument/didChange', { textDocument: { uri: validUri, version: 2 }, contentChanges: [{ text: validText }] });
     await until(() => diagnostics.get(validKey)?.length === 0, 'cleared sample diagnostics');
     console.log('PASS: complete first-weapon script has no diagnostics');
+    const ruleText = fs.readFileSync(path.join(root, 'templates/battle-rules/scripts/main.lua'), 'utf8');
+    const ruleUri = open('valid-rule.lua', ruleText + '\nsf2.price.coins("temporary test error")\n');
+    const ruleKey = decodeURIComponent(ruleUri).toLowerCase();
+    await until(() => (diagnostics.get(ruleKey)?.length ?? 0) > 0, 'temporary rule diagnostic');
+    notify('textDocument/didChange', { textDocument: { uri: ruleUri, version: 2 }, contentChanges: [{ text: ruleText }] });
+    await until(() => diagnostics.get(ruleKey)?.length === 0, 'cleared battle-rule diagnostics');
+    console.log('PASS: complete snapshot-based battle rule has no diagnostics');
+    const upgradeFields=probe('upgrade-fields.lua','local sf2=require("sf2")\nsf2.perks.register { upgrades = { { | } } }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',upgradeFields));
+        return ['level','description','parameters'].every(name=>found.some(value=>value.startsWith(name)));
+    },'perk upgrade entry fields');
+    console.log('PASS: perk upgrade entries complete');
+    const outgoing=probe('outgoing.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="test",on_damage_dealing=function(_,fighter,event)\n fighter:|\nend }');
+    await until(async()=>labels(await request('textDocument/completion',outgoing)).some(name=>name.startsWith('scale_outgoing_damage')),'outgoing fighter method inference');
+    console.log('PASS: outgoing damage callbacks infer the scoped modifier');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

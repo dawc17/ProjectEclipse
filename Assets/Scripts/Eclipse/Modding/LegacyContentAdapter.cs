@@ -216,6 +216,23 @@ namespace Eclipse.Modding
                     }
                 }
 
+                foreach (var perk in _content.Perks)
+                {
+                    if (perk.IsCore || perk.Upgrades.Count == 0) continue;
+                    var document = new XmlDocument();
+                    var root = document.CreateElement("Upgrades"); document.AppendChild(root);
+                    foreach (var upgrade in perk.Upgrades)
+                    {
+                        var node = document.CreateElement("UpgradeLevel");
+                        node.SetAttribute("Value", upgrade.Level.ToString(CultureInfo.InvariantCulture));
+                        node.SetAttribute("Description", upgrade.Description.ToString());
+                        var set = document.CreateElement("Set");
+                        foreach (var pair in upgrade.Parameters) set.SetAttribute(pair.Key, pair.Value);
+                        node.AppendChild(set); root.AppendChild(node);
+                    }
+                    _perks.AddExternalPerkUpgrades(RuntimePerkName(perk), root);
+                }
+
                 foreach (ProgressionBranchOverlayDefinition overlay in GetProgressionOverlays())
                 {
                     var items = new List<PerkTree.PerkItem>();
@@ -415,14 +432,8 @@ namespace Eclipse.Modding
                 XmlElement fightNode = FindFightNode(battleNode, fight.LegacyName);
                 if (fightNode == null)
                     throw new ModContentException("Recovered fight for core patch is unavailable: '" + fight.Id + "'.");
-                if (patch.Field == "fight/description")
-                    fightNode.SetAttribute("Description", fight.Description ?? string.Empty);
-                else if (patch.Field == "fight/rounds")
-                    fightNode.SetAttribute("Rounds", fight.Rounds.ToString(CultureInfo.InvariantCulture));
-                else if (patch.Field == "fight/round-time")
-                    fightNode.SetAttribute("RoundTime", fight.RoundTime.ToString(CultureInfo.InvariantCulture));
-                else
-                    throw new ModContentException("Unsupported committed fight patch field '" + patch.Field + "'.");
+                ModFightPatchProjection.Apply(fightNode, fight, patch.Field, _content,
+                    rule => BuildRuleNode(fightNode.OwnerDocument, rule));
             }
 
             foreach (KeyValuePair<DefinitionId, XmlNode> pair in patched)
@@ -729,13 +740,7 @@ namespace Eclipse.Modding
 
             XmlElement rules = document.CreateElement("Rules");
             node.AppendChild(rules);
-            for (int i = 0; i < fight.Rules.Count; i++)
-            {
-                FightRuleDefinition rule;
-                if (!_content.TryGetFightRule(fight.Rules[i], out rule))
-                    throw new ModContentException("Fight references missing rule '" + fight.Rules[i] + "'.");
-                rules.AppendChild(BuildRuleNode(document, rule));
-            }
+            AppendFightRules(rules, fight);
 
             XmlElement rewards = document.CreateElement("Rewards");
             node.AppendChild(rewards);
@@ -747,6 +752,18 @@ namespace Eclipse.Modding
                 rewards.AppendChild(BuildRewardNode(document, reward));
             }
             return node;
+        }
+
+        private void AppendFightRules(XmlElement rules, FightDefinition fight)
+        {
+            for (int i = 0; i < fight.Rules.Count; i++)
+            {
+                FightRuleDefinition rule;
+                if (!_content.TryGetFightRule(fight.Rules[i], out rule))
+                    throw new ModContentException("Fight references missing rule '" + fight.Rules[i] + "'.");
+                // Scripted rules run at the combat callback boundary, not through the XML action interpreter.
+                if (rule.Kind != ModFightRuleKind.Behavior) rules.AppendChild(BuildRuleNode(rules.OwnerDocument, rule));
+            }
         }
 
         private XmlElement BuildWarriorNode(XmlDocument document, WarriorDefinition warrior)

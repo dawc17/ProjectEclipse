@@ -51,6 +51,8 @@ namespace Nekki.SF2.GUI.Map
 
 		private void RestoreTrimmedStripeLayout()
 		{
+			// Inactive map content may be initialized before its images awaken.
+			_difficultyBar.Background.set_SpriteName("DifficultyBars.empty");
 			Sprite backgroundSprite = _difficultyBar.Background.sprite;
 			Sprite stripeSprite = _difficultyBar.Stripe.sprite;
 			if (backgroundSprite == null || stripeSprite == null)

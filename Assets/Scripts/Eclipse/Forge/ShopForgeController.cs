@@ -67,6 +67,7 @@ namespace Eclipse.Forge
 		private readonly List<RecipeCard> _recipeCards = new List<RecipeCard>();
 
 		private GameObject _drawer;
+		private GameObject _recipePreview;
 		private ScrollRect _recipeScroll;
 		private RectTransform _recipeContent;
 		private GameObject _shopButtonsContainer;
@@ -171,6 +172,7 @@ namespace Eclipse.Forge
 			if (!_isOpen) return;
 			_isOpen = false;
 			if (_drawer != null) _drawer.SetActive(false);
+			if (_recipePreview != null) UnityEngine.Object.Destroy(_recipePreview);
 			SetShopForgeOffset(false);
 			_propertiesPanel?.SetOpen(false, SidePanelMoveDuration);
 			_mainMenu?.SetNormalViewMode(false);
@@ -529,7 +531,7 @@ namespace Eclipse.Forge
 			{
 				int index = i;
 				RecipeCard card = CreateRecipeCard(_displayedRecipes[i]);
-				card.Button.onClick.AddListener(() => SelectRecipe(index, true));
+				card.Button.onClick.AddListener(() => { SelectRecipe(index, true); ShowRecipePreview(); });
 				_recipeCards.Add(card);
 			}
 			LayoutRebuilder.ForceRebuildLayoutImmediate(_recipeContent);
@@ -764,6 +766,68 @@ namespace Eclipse.Forge
 				_ignoreScrollSelection = false;
 			}
 			RefreshPropertyControls();
+		}
+
+		// Dock against the animated properties panel in its own coordinate space.
+		public void UpdateDrawerPosition()
+		{
+			if (!_isOpen || _drawer == null || _propertiesRoot == null) return;
+			RectTransform drawer = (RectTransform)_drawer.transform;
+			Vector3 left = _propertiesRoot.TransformPoint(new Vector3(_propertiesRoot.rect.xMin, 0f, 0f));
+			Vector3 local = drawer.parent.InverseTransformPoint(left);
+			Vector3 position = drawer.localPosition;
+			position.x = local.x - drawer.rect.width;
+			drawer.localPosition = position;
+		}
+
+		private void ShowRecipePreview()
+		{
+			if (_selectedRecipe == null || _selectedItem == null) return;
+			int level = CurrentInfo(_selectedItem)?.MHGODOLNDLE ?? 1;
+			List<PerkStruct> candidates = _selectedRecipe.GetPossibleEnchantments(_selectedItem, level, false);
+			if (candidates.Count == 0) return;
+			if (_recipePreview != null) UnityEngine.Object.Destroy(_recipePreview);
+			_recipePreview = CreateStretched("RecipePreview", _drawer.transform, Vector2.zero, new Vector2(-70f, -110f));
+			Image paper = _recipePreview.AddComponent<Image>();
+			paper.color = new Color(0.77f, 0.64f, 0.43f, 1f);
+			LabelButton back = CloneLayoutButton("ClosePreview", _recipePreview.transform, LabelButton.FBMGEHJPPIK.BUTTON_BEIGE, "back");
+			RectTransform backRect = back.GetComponent<RectTransform>();
+			backRect.anchorMin = backRect.anchorMax = new Vector2(0.5f, 0f);
+			backRect.pivot = new Vector2(0.5f, 0f);
+			backRect.anchoredPosition = Vector2.zero;
+			backRect.sizeDelta = new Vector2(500f, 112f);
+			back.onClick.AddListener(() => UnityEngine.Object.Destroy(_recipePreview));
+			GameObject viewport = CreateStretched("PreviewScroll", _recipePreview.transform, new Vector2(0f, 60f), new Vector2(-20f, -140f));
+			Image scrollTarget = viewport.AddComponent<Image>();
+			scrollTarget.color = Color.clear;
+			viewport.AddComponent<RectMask2D>();
+			ScrollRect scroll = viewport.AddComponent<ScrollRect>();
+			scroll.horizontal = false;
+			scroll.movementType = ScrollRect.MovementType.Clamped;
+			scroll.viewport = (RectTransform)viewport.transform;
+			GameObject content = new GameObject("Enchantments", typeof(RectTransform));
+			content.layer = viewport.layer;
+			content.transform.SetParent(viewport.transform, false);
+			RectTransform contentRect = (RectTransform)content.transform;
+			contentRect.anchorMin = new Vector2(0f, 1f);
+			contentRect.anchorMax = new Vector2(1f, 1f);
+			contentRect.pivot = new Vector2(0.5f, 1f);
+			scroll.content = contentRect;
+			contentRect.sizeDelta = new Vector2(0f, candidates.Count * 120f);
+			for (int i = 0; i < candidates.Count; i++)
+			{
+				PerkInfoItem info = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(candidates[i].get_Name());
+				Text label = CreateText("Enchantment", content.transform, Vector2.zero, new Vector2(410f, 110f), 48, TextAnchor.MiddleLeft, DarkText);
+				label.rectTransform.anchorMin = label.rectTransform.anchorMax = new Vector2(0.5f, 1f);
+				label.rectTransform.anchoredPosition = new Vector2(45f, -60f - i * 120f);
+				label.text = LocalizationManager.GetString(info != null ? info.HBCNKNFPAIM : candidates[i].get_Name());
+				if (info != null)
+				{
+					ResolutionImage icon = CreateSprite("Icon", content.transform, info.NHKMCLPOMFK, new Vector2(90f, 90f), true);
+					icon.rectTransform.anchorMin = icon.rectTransform.anchorMax = new Vector2(0f, 1f);
+					icon.rectTransform.anchoredPosition = new Vector2(50f, -60f - i * 120f);
+				}
+			}
 		}
 
 		private void OnRecipeScrollChanged(Vector2 position)
@@ -1109,6 +1173,11 @@ namespace Eclipse.Forge
 		private void Update()
 		{
 			Controller?.Tick();
+		}
+
+		private void LateUpdate()
+		{
+			Controller?.UpdateDrawerPosition();
 		}
 	}
 

@@ -11,6 +11,26 @@ public class PerkItems
 	private List<PerkInfoItem> NIOMJEOEMDL = new List<PerkInfoItem>();
 
 	private HashSet<string> externalBasePerkNames = new HashSet<string>(StringComparer.Ordinal);
+	private readonly HashSet<PerkInfoItem> externalUpgradeVariants = new HashSet<PerkInfoItem>();
+
+	public void AddExternalPerkUpgrades(string name, XmlNode upgrades)
+	{
+		if (!externalBasePerkNames.Contains(name)) throw new InvalidOperationException("Upgrade owner is not an external perk: " + name);
+		if (GAEHBOAPMLI(name).Count != 0) throw new InvalidOperationException("Progression variants already exist: " + name);
+		PerkInfoItem original = ABAGJKMKCBA(name);
+		var variants = new List<PerkInfoItem>();
+		var baseline = original.Clone(null, null);
+		baseline.AKKLOMFOLNO = 0;
+		variants.Add(baseline);
+		foreach (XmlNode node in upgrades.ChildNodes)
+			if (node.Name == "UpgradeLevel") variants.Add(HDIPMKIGKDA(original, node));
+		foreach (var variant in variants)
+		{
+			variant.GDCBBAHKCIE = false;
+			PAABAIILNEG.Add(variant);
+			externalUpgradeVariants.Add(variant);
+		}
+	}
 
 	public List<PerkInfoItem> MHEJPIPKEFP
 	{
@@ -103,6 +123,7 @@ public class PerkItems
 			if (BJHCPMLJOEK[i].Name.Equals(name, StringComparison.Ordinal))
 			{
 				BJHCPMLJOEK.RemoveAt(i);
+				PAABAIILNEG.RemoveAll(perk => perk.Name == name && externalUpgradeVariants.Remove(perk));
 				externalBasePerkNames.Remove(name);
 				return true;
 			}

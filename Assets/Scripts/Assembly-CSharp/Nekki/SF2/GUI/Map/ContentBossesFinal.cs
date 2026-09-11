@@ -34,8 +34,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				_replaysLabel.gameObject.SetActive(true);
 				BattleReplayable bKKPCBGAEHC = (BattleReplayable)DPOOIONCEOA;
-				string alias = "replays {1}{" + bKKPCBGAEHC.HLBOMMKJAAO() + "}";
-				_replaysLabel.SetAlias(alias);
+				_replaysLabel.set_text(LocalizationManager.GetString("replays") + " " + bKKPCBGAEHC.HLBOMMKJAAO());
 			}
 			else
 			{

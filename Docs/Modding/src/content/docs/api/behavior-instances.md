@@ -3,9 +3,10 @@ title: Reusable behaviors
 description: Register Lua callbacks, configure typed parameters, and keep state for a round, fight, or saved effect.
 ---
 
-A **behavior** is reusable Lua logic. A perk or enchantment attaches it to a
-fighter and supplies its configuration. Registering a behavior by itself does
-not activate it; attach it using the [perk or enchantment functions](../perks-and-enchantments/).
+A **behavior** is reusable Lua logic. A perk, enchantment, or battle rule attaches
+it to a fighter and supplies its configuration. Registering a behavior by itself
+does not activate it; attach it using the [perk or enchantment functions](../perks-and-enchantments/)
+or [a behavior rule](../rules/#sf2rulesbehavior).
 
 ## sf2.behaviors.register
 
@@ -16,7 +17,7 @@ Register a behavior with one or more supported combat callbacks.
 **Requires:** `content.register`. Operations performed by callbacks may require
 additional capabilities such as `combat.magic_charge`.
 
-**When:** Entrypoint, before registering perks or enchantments that use it.
+**When:** Entrypoint, before registering perks, enchantments, or rules that use it.
 
 **Returns:** A behavior handle.
 
@@ -96,7 +97,9 @@ Attach this behavior with `parameters = { multiplier = 0.5 }` and declare
 state for this particular active effect. Round state resets for a new round;
 fight state resets for a new fight. Saved state follows a player's individual
 equipped enchantment or learned perk and is persisted by the normal save path.
-NPC instances support round and fight state, not saved state.
+NPC and battle-rule instances support round and fight state, not saved state.
+Rule state is isolated per rule and fighter, including when multiple rules share
+one behavior. It never modifies an equipment save.
 
 Saved-instance migrations use the same old-version → next-version function
 shape as mod state. Do not retain `self.state` tables to edit later: a successful

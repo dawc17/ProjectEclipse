@@ -10,7 +10,13 @@ The dependency-ordered engineering roadmap is
 [DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
 DE parity or Mod API expansion must read both parity documents before editing.
 
-Current public Mod API version: **0.7.0**.
+Current public Mod API version: **0.12.0**.
+
+API 0.8 adds `sf2.rules.behavior`: directly attach reusable Lua combat behavior
+to a fight, with isolated rule/fighter state and target/mode/round filtering.
+See [Third Strike Trial](example.battle-rules/README.md), the
+[rule reference](../Docs/Modding/src/content/docs/api/rules.md), and the
+[engine extensibility review](MOD_ENGINE_EXTENSIBILITY.md).
 
 The [archived DE XML coverage audit](DE_XML_API_GAP_AUDIT.md) records the remaining
 gaps. Accepted phase showcases do not imply complete DE parity or support for
@@ -969,3 +975,9 @@ starting stats, the public Lua localization-patch path, reversible core localiza
 and an intentional two-mod same-field conflict. A real player build has also been manually started with save data containing
 modded equipment without breaking save load/startup. These checks still do not replace a
 complete purchase/upgrade/equip/fight/removal/reinstall playtest for every category.
+
+API 0.9 adds `fighter:snapshot()` for fresh, detached health, position, and fight-clock observations. See the fighter reference and the updated Third Strike Trial.
+
+API 0.10 extends fight patches with location/music and rule replacement or append. [Campaign Guard Rule](example.core-fight/README.md) changes an existing encounter without duplicating it.
+
+API 0.12 adds `on_damage_dealing` and capability-gated `fighter:scale_outgoing_damage`, before defensive modifiers. See `example.outgoing-rule`.

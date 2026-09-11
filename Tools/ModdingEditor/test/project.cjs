@@ -65,3 +65,38 @@ test('scaffold creates a valid mod, refuses overwrite, and prevents path escape'
     await fs.writeFile(path.join(destination, 'assets', 'bad.ogg'), 'test');
     assert((await p.indexMod(destination)).issues.some(i => i.message.includes('PCM16')));
 });
+
+
+test('battle rule starter is recognized by the authored API contract', async () => {
+    const directory = path.resolve(__dirname, '../../../Mods/example.battle-rules');
+    const mod = await p.indexMod(directory);
+    assert.deepEqual(mod.issues, []);
+    const result = p.analyze(await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8'), mod);
+    assert.deepEqual(result.issues, []);
+    const api = require('../data/api.json');
+    assert(api.functions['sf2.rules.behavior']);
+    assert(api.types.Rule_behavior.fields.behavior);
+});
+
+test('core fight patch example validates with registered rule handles', async () => {
+    const directory = path.resolve(__dirname, '../../../Mods/example.core-fight');
+    const mod = await p.indexMod(directory);
+    assert.deepEqual(mod.issues, []);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8'), mod).issues, []);
+    const api = require('../data/api.json');
+    assert(api.types.FightPatch.fields['append_rules?']);
+});
+
+test('perk upgrade example validates its assets, localization and branch definitions', async () => {
+    const directory = path.resolve(__dirname, '../../../Mods/example.perk-upgrades');
+    const mod = await p.indexMod(directory);
+    assert.deepEqual(mod.issues, []);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8'), mod).issues, []);
+});
+
+test('outgoing rule example validates its callback and capability', async () => {
+    const directory=path.resolve(__dirname,'../../../Mods/example.outgoing-rule');
+    const mod=await p.indexMod(directory);
+    assert.deepEqual(mod.issues,[]);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});

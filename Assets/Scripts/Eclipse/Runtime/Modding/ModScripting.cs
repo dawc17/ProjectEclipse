@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Eclipse.Modding
 {
@@ -211,6 +212,12 @@ namespace Eclipse.Modding
             return RequireRegistration().RegisterPerk(localId, template, displayName, description, icon, parameters);
         }
 
+        public PerkDefinition SetPerkUpgrades(DefinitionId id, PerkUpgradeDefinition[] upgrades)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().SetPerkUpgrades(id, upgrades);
+        }
+
         public PerkDefinition RegisterScriptedPerk(string localId, DefinitionId displayName,
             DefinitionId description, AssetId icon, ModPerkKind kind, DefinitionId behavior,
             System.Collections.Generic.IReadOnlyDictionary<string, ModParameterValue> initialParameters)
@@ -274,6 +281,13 @@ namespace Eclipse.Modding
         {
             RequireCapability("content.register");
             return RequireRegistration().GetWarriorTemplate(reference);
+        }
+
+        public FightRuleDefinition RegisterBehaviorRule(string localId, DefinitionId behavior, ModRuleTarget target,
+            ModRuleMode mode, int[] rounds, IReadOnlyDictionary<string, ModParameterValue> parameters)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterBehaviorRule(localId, behavior, target, mode, rounds, parameters);
         }
 
         public FightRuleDefinition RegisterNoPerksRule(string localId, ModRuleTarget target, ModRuleMode mode,
@@ -341,6 +355,22 @@ namespace Eclipse.Modding
             return RequireRegistration().RegisterFight(localId, battle, replays, replayInterval, power, rounds,
                 roundTime, location, music, evaluatedRating, healthRecovery, description, locked, rewardImage,
                 warriors, rules, rewards);
+        }
+
+        public DefinitionId PatchFightLocation(string target, string value)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightLocation(target, value);
+        }
+        public DefinitionId PatchFightMusic(string target, string value)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightMusic(target, value);
+        }
+        public DefinitionId PatchFightRules(string target, DefinitionId[] rules, bool append)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightRules(target, rules, append);
         }
 
         public DefinitionId PatchFightDescription(string target, string value)
@@ -414,7 +444,10 @@ namespace Eclipse.Modding
         FightEnd = 5,
         Block = 6,
         Critical = 7,
-        DamageResolving = 8
+        DamageResolving = 8,
+        DamageDealing = 9,
+        ComboChanged = 10,
+        StyleChanged = 11
     }
 
     public interface IModScriptContext : IDisposable
@@ -459,9 +492,121 @@ namespace Eclipse.Modding
         }
     }
 
+    // Detached observations. These types deliberately contain no recovered engine references.
+    public sealed class ModFighterSnapshot
+    {
+        public double Health { get; }
+        public double MaxHealth { get; }
+        public int HealthBars { get; }
+        public double X { get; }
+        public double Y { get; }
+        public double Z { get; }
+        public ModFighterSnapshot(double health, double maxHealth, int healthBars, double x, double y, double z)
+        {
+            foreach (double value in new[] { health, maxHealth, x, y, z })
+                if (double.IsNaN(value) || double.IsInfinity(value)) throw new ArgumentOutOfRangeException(nameof(health));
+            if (health < 0 || maxHealth < 0 || healthBars < 1) throw new ArgumentOutOfRangeException(nameof(health));
+            Health = health; MaxHealth = maxHealth; HealthBars = healthBars; X = x; Y = y; Z = z;
+        }
+    }
+
+    public sealed class ModCombatSnapshot
+    {
+        public ModFighterSnapshot Self { get; }
+        public ModFighterSnapshot Opponent { get; }
+        public int Frame { get; }
+        public double Seconds => Frame / 60d;
+        public bool RoundActive { get; }
+        public ModCombatSnapshot(ModFighterSnapshot self, ModFighterSnapshot opponent, int frame, bool roundActive)
+        {
+            Self = self ?? throw new ArgumentNullException(nameof(self));
+            if (frame < 0) throw new ArgumentOutOfRangeException(nameof(frame));
+            Opponent = opponent; Frame = frame; RoundActive = roundActive;
+        }
+    }
+
+    public interface IModCombatSnapshotSource
+    {
+        ModCombatSnapshot CaptureCombatSnapshot();
+    }
+
+    public sealed class ModCombatActivityEvent
+    {
+        public ModEffectEvent Type { get; }
+        public int Combo { get; }
+        public int LastCombo { get; }
+        public int StyleRank { get; }
+        public string StyleName { get; }
+        public double StyleGain { get; }
+        public bool IsHit { get; }
+        private ModCombatActivityEvent(ModEffectEvent type, int combo, int lastCombo, int rank, string name, double gain, bool isHit)
+        { Type = type; Combo = combo; LastCombo = lastCombo; StyleRank = rank; StyleName = name; StyleGain = gain; IsHit = isHit; }
+        public static ModCombatActivityEvent ComboChange(int combo, int lastCombo)
+        {
+            if (combo < 0 || lastCombo < 0) throw new ArgumentOutOfRangeException(nameof(combo));
+            return new ModCombatActivityEvent(ModEffectEvent.ComboChanged, combo, lastCombo, 0, "", 0, false);
+        }
+        public static ModCombatActivityEvent StyleChange(int rank, string name, double gain, bool isHit)
+        {
+            if (rank < 0 || name == null || double.IsNaN(gain) || double.IsInfinity(gain)) throw new ArgumentOutOfRangeException(nameof(rank));
+            return new ModCombatActivityEvent(ModEffectEvent.StyleChanged, 0, 0, rank, name, gain, isHit);
+        }
+    }
+    public interface IModCombatActivitySource { ModCombatActivityEvent ActivityEvent { get; } }
+
     public interface IModDamageEventSource
     {
         ModDamageEvent DamageEvent { get; }
+    }
+
+    /// <summary>Combat-owned rule instances. Never attached to profile XML or equipment.</summary>
+    public sealed class ModBattleRuleInstances
+    {
+        private readonly List<FightRuleDefinition> _rules = new List<FightRuleDefinition>();
+        private readonly Dictionary<(DefinitionId, bool), System.Xml.XmlNode> _instances =
+            new Dictionary<(DefinitionId, bool), System.Xml.XmlNode>();
+        private bool _initialized;
+
+        public IEnumerable<FightRuleDefinition> Applicable(ModContentCatalog content, string runtimeFightId,
+            bool player, int round, bool eclipse)
+        {
+            if (!_initialized)
+            {
+                _initialized = true;
+                foreach (var fight in content.Fights)
+                {
+                    if (content.RuntimeFightId(fight.Id) != runtimeFightId) continue;
+                    var seen = new HashSet<DefinitionId>();
+                    foreach (var id in fight.Rules)
+                        if (seen.Add(id) && content.TryGetFightRule(id, out var rule) && rule.Kind == ModFightRuleKind.Behavior)
+                            _rules.Add(rule);
+                    break;
+                }
+            }
+            foreach (var rule in _rules)
+            {
+                if (rule.Target == ModRuleTarget.Player && !player || rule.Target == ModRuleTarget.Opponent && player) continue;
+                if (rule.Mode == ModRuleMode.Normal && eclipse || rule.Mode == ModRuleMode.Eclipse && !eclipse) continue;
+                if (rule.Rounds.Count != 0)
+                {
+                    bool applies = false;
+                    foreach (int number in rule.Rounds) if (number == round) applies = true;
+                    if (!applies) continue;
+                }
+                yield return rule;
+            }
+        }
+
+        public System.Xml.XmlNode Instance(DefinitionId rule, bool player)
+        {
+            if (!_instances.TryGetValue((rule, player), out var node))
+            {
+                var document = new System.Xml.XmlDocument();
+                node = document.CreateElement("BattleRuleInstance"); document.AppendChild(node);
+                _instances.Add((rule, player), node);
+            }
+            return node;
+        }
     }
 
     public interface IModBehaviorInstanceSource
@@ -481,12 +626,25 @@ namespace Eclipse.Modding
         private readonly Func<double> _read;
         private readonly Action<double> _write;
         public double Damage => _read();
-        public ModIncomingHit(Func<double> read, Action<double> write) { _read = read; _write = write; }
+        public bool Blocked { get; }
+        public bool Critical { get; }
+        public ModIncomingHit(Func<double> read, Action<double> write, bool blocked = false, bool critical = false)
+        { _read = read; _write = write; Blocked = blocked; Critical = critical; }
         public bool TryScale(double scale, out string error)
         {
             error = "";
             if (double.IsNaN(scale) || double.IsInfinity(scale) || scale < 0 || scale > 1) { error = "Incoming damage scale must be 0..1."; return false; }
             _write(Damage * scale); return true;
+        }
+        public bool TryScaleOutgoing(double scale, out string error)
+        {
+            error = "";
+            if (double.IsNaN(scale) || double.IsInfinity(scale) || scale < 0 || scale > 16)
+            { error = "Outgoing damage scale must be 0..16."; return false; }
+            double value = Damage * scale;
+            if (double.IsNaN(value) || double.IsInfinity(value) || value < 0 || value > float.MaxValue)
+            { error = "Outgoing damage must remain a finite nonnegative single-precision value."; return false; }
+            _write(value); return true;
         }
     }
     public interface IModFighterTargets
@@ -495,9 +653,11 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource
     {
         private readonly IModFighterOperations _inner;
+        public ModCombatActivityEvent ActivityEvent => (_inner as IModCombatActivitySource)?.ActivityEvent;
+        public ModCombatSnapshot CaptureCombatSnapshot() => (_inner as IModCombatSnapshotSource)?.CaptureCombatSnapshot();
         public System.Xml.XmlNode SavedInstance { get; }
         public ModDamageEvent DamageEvent => (_inner as IModDamageEventSource)?.DamageEvent;
         public ModIncomingHit IncomingHit => (_inner as IModIncomingHitSource)?.IncomingHit;

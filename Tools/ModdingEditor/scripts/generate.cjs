@@ -55,10 +55,14 @@ for(const [name,f] of Object.entries(schema.fighterMethods))for(const opponent o
     const symbol=`fighter${opponent?'.opponent':''}:${name}`;
     out+=comment(symbol);
     for(const [p,t] of Object.entries(f.params))out+=`---@param ${p} ${t}\n`;
-    out+=`function ${opponent?'Opponent':name==='scale_incoming_damage'?'ResolvingFighter':'Fighter'}:${name}(${Object.keys(f.params).join(', ')}) end\n\n`;
+    if(f.returns)out+=`---@return ${f.returns}\n`;
+    out+=`function ${opponent?'Opponent':name==='scale_incoming_damage'?'ResolvingFighter':name==='scale_outgoing_damage'?'OutgoingFighter':'Fighter'}:${name}(${Object.keys(f.params).join(', ')}) end\n\n`;
 }
 out+=`return { ${modules.map(m=>`${m} = ${m}`).join(', ')} }\n`;
-const metadata={apiVersion:'0.7',functions:Object.fromEntries(Object.entries(schema.functions).map(([n,f])=>[n,{...f,...docs[n]}])),aliases:schema.aliases,constants,callbacks:schema.callbacks,fighterMethods:schema.fighterMethods,types:schema.types};
+const runtimeManifest=fs.readFileSync(path.join(repo,'Assets/Scripts/Eclipse/Runtime/Modding/ModManifest.cs'),'utf8');
+const apiVersion=runtimeManifest.match(/Api = SemanticVersion.Parse\("([^"]+)"\)/)?.[1];
+assert(apiVersion,'Runtime API version was not found.');
+const metadata={apiVersion,functions:Object.fromEntries(Object.entries(schema.functions).map(([n,f])=>[n,{...f,...docs[n]}])),aliases:schema.aliases,constants,callbacks:schema.callbacks,fighterMethods:schema.fighterMethods,types:schema.types};
 fs.mkdirSync(path.join(root,'data'),{recursive:true});
 for(const [file,content] of [['library/sf2.d.lua',out],['data/api.json',JSON.stringify(metadata,null,2)+'\n']]){
     if(process.argv.includes('--check'))assert.equal(fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n'),content,`${file} is stale; run npm run generate`);

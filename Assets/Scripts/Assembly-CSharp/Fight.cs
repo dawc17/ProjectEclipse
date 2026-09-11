@@ -57,22 +57,41 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-	private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects
+	private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
 
 		public ModDamageEvent DamageEvent { get; }
         public ModIncomingHit IncomingHit { get; }
+        public ModCombatActivityEvent ActivityEvent { get; }
+        public ModCombatSnapshot CaptureCombatSnapshot()
+        {
+            if (_fight == null || _model == null || _model.KMMJCHDKBDO == null) return null;
+            var self = Capture(_model);
+            if (self == null) return null;
+            var opponent = _model == _fight._playerModel ? _fight.CKNCPOABFBO : _fight._playerModel;
+            return new ModCombatSnapshot(self, Capture(opponent), _fight.fightTimeInFrame, _fight.round.processing);
+        }
+        private static ModFighterSnapshot Capture(Model model)
+        {
+            if (model == null || model.KMMJCHDKBDO == null || model.CLDMEJKGLBA() == null) return null;
+            var position = model.PLBNCDCFPML();
+            if (position == null) return null;
+            var parameters = model.KMMJCHDKBDO;
+            return new ModFighterSnapshot(model.KKMCHCNOHMB(), parameters.CIDCNCDFONA,
+                parameters.HealthBarCount, position.GILCBJJPKBK(), position.OBIMBNIBEFG(), position.KMFEKANLCFO());
+        }
         public double Health => _model == null ? 0 : _model.KKMCHCNOHMB();
         public IModFighterOperations Opponent => _fight == null ? null :
             new EclipseFighterOperations(_fight, _model == _fight._playerModel ? _fight.CKNCPOABFBO : _fight._playerModel);
-		public EclipseFighterOperations(Fight fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null)
+		public EclipseFighterOperations(Fight fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null)
 		{
 			_fight = fight;
 			_model = model;
 			DamageEvent = damageEvent;
             IncomingHit = incomingHit;
+            ActivityEvent = activity;
 		}
 
 		public bool TrySetDamageShield(object key, double fraction, int frames, out string error)
@@ -582,6 +601,7 @@ public class Fight
 		_eclipseEndedRound = 0;
 		_eclipseFightId = Guid.NewGuid().ToString("N");
         _eclipseOpponentInstances.Clear();
+        _eclipseBattleRules = new ModBattleRuleInstances();
 		MNEOALEBNNA = true;
 		IOPJDMCBIMM = true;
 		KCNHDABOAAA = false;
@@ -1601,6 +1621,16 @@ public class Fight
 			isFirstStrike = true;
 		}
 		ModelParameters kMMJCHDKBDO = EGHPHELLOGO.KJDFJPBIGJC.KMMJCHDKBDO;
+        // Native hit/critical/block calculations are complete. Defense and health application follow.
+        if (_eclipseFightBeginDispatched)
+        {
+            var outgoing = new ModIncomingHit(() => gHHCDAFIKJE.EEDJBBOCFNL,
+                amount => gHHCDAFIKJE.EEDJBBOCFNL = (float)amount, gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.DNGKOMPMPCD);
+            if (EGHPHELLOGO.GAIBPAGPEGK == _playerModel)
+                DispatchEclipseCombatEvent(ModEffectEvent.DamageDealing, null, outgoing);
+            else if (EGHPHELLOGO.GAIBPAGPEGK == CKNCPOABFBO)
+                DispatchEclipseOpponent(ModEffectEvent.DamageDealing, null, outgoing);
+        }
 		if (preFight != null)
 		{
 			preFight.ViewerStrike(gHHCDAFIKJE.PBPDKJNKFCJ, gHHCDAFIKJE.EEDJBBOCFNL, gHHCDAFIKJE.Target, gHHCDAFIKJE.LOONMILKCFK, gHHCDAFIKJE.JMDIIIFJMFH, gHHCDAFIKJE.DNGKOMPMPCD, gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.APCAKCCOMLO);
@@ -1613,10 +1643,10 @@ public class Fight
             gHHCDAFIKJE.EEDJBBOCFNL *= (float)eclipseShields.Scale(fightTimeInFrame);
 		if (_eclipseFightBeginDispatched && EGHPHELLOGO.KJDFJPBIGJC == _playerModel)
 			DispatchEclipseCombatEvent(ModEffectEvent.DamageResolving, null,
-				new ModIncomingHit(() => gHHCDAFIKJE.EEDJBBOCFNL, amount => gHHCDAFIKJE.EEDJBBOCFNL = (float)amount));
+				new ModIncomingHit(() => gHHCDAFIKJE.EEDJBBOCFNL, amount => gHHCDAFIKJE.EEDJBBOCFNL = (float)amount, gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.DNGKOMPMPCD));
         if (_eclipseFightBeginDispatched && EGHPHELLOGO.KJDFJPBIGJC == CKNCPOABFBO)
             DispatchEclipseOpponent(ModEffectEvent.DamageResolving, null,
-                new ModIncomingHit(() => gHHCDAFIKJE.EEDJBBOCFNL, amount => gHHCDAFIKJE.EEDJBBOCFNL = (float)amount));
+                new ModIncomingHit(() => gHHCDAFIKJE.EEDJBBOCFNL, amount => gHHCDAFIKJE.EEDJBBOCFNL = (float)amount, gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.DNGKOMPMPCD));
 		EGHPHELLOGO.KJDFJPBIGJC.LogDamage(gHHCDAFIKJE.EEDJBBOCFNL, BHLIBKKJNKH(hFIIPNLCIEE), gHHCDAFIKJE.DefenceAttribute);
 		float eclipseHealthBefore = EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB();
 		UpdateLife(EGHPHELLOGO.KJDFJPBIGJC, 0f - gHHCDAFIKJE.EEDJBBOCFNL);
@@ -2499,7 +2529,7 @@ public class Fight
 
     private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseOpponentInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();
     private bool _eclipseOpponentDispatching;
-    private void DispatchEclipseOpponent(ModEffectEvent effectEvent, ModDamageEvent damage = null, ModIncomingHit incoming = null)
+    private void DispatchEclipseOpponent(ModEffectEvent effectEvent, ModDamageEvent damage = null, ModIncomingHit incoming = null, ModCombatActivityEvent activity = null)
     {
         if (_eclipseOpponentDispatching || _eclipseCombatDispatching || CKNCPOABFBO == null || ModRuntime.Scripts == null) return;
         if (effectEvent == ModEffectEvent.FightBegin && round.round != 1) return;
@@ -2507,6 +2537,9 @@ public class Fight
         try
         {
             var scripts = ModRuntime.Scripts;
+            ModRuntime.DispatchBattleRules(_eclipseBattleRules, KGKDKENMAOA.BCKFACGMOKC.ToString(), false,
+                round.round, ListSF.CCDKHLAMKKO().JPMPIDFGCJL(), _eclipseFightId, _eclipsePlayerResult, effectEvent,
+                new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming, activity));
             var active = new HashSet<DefinitionId>();
             foreach (var runtimePerk in CKNCPOABFBO.KMMJCHDKBDO.NHBIJEEKALC)
             {
@@ -2523,7 +2556,7 @@ public class Fight
                     { "fight_id", _eclipseFightId }, { "round", round.round.ToString() }, { "player_result", _eclipsePlayerResult }
                 };
                 scripts.Content.TryGetBehavior(perk.Behavior, out var behavior);
-                var fighter = new ModInstanceFighter(new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming), node);
+                var fighter = new ModInstanceFighter(new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming, activity), node);
                 if (!scripts.TryInvokeBehavior(perk.Behavior, effectEvent, behavior.Parameters.ResolveValues(perk.InitialParameters), context, fighter, out var error))
                     UnityEngine.Debug.LogWarning("[ModCombat] " + effectEvent + " failed for opponent perk " + id + ": " + error);
             }
@@ -2532,10 +2565,11 @@ public class Fight
         finally { _eclipseOpponentDispatching = false; }
     }
 
+	private ModBattleRuleInstances _eclipseBattleRules = new ModBattleRuleInstances();
 	private bool _eclipseCombatDispatching;
-	private void DispatchEclipseCombatEvent(ModEffectEvent effectEvent = ModEffectEvent.FightBegin, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null)
+	private void DispatchEclipseCombatEvent(ModEffectEvent effectEvent = ModEffectEvent.FightBegin, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null)
 	{
-		if (_eclipseCombatDispatching) return;
+		if (_eclipseCombatDispatching || _eclipseOpponentDispatching) return;
 		if (effectEvent == ModEffectEvent.FightBegin)
 		{
 			if (_eclipseFightBeginDispatched || round.round != 1) return;
@@ -2547,7 +2581,9 @@ public class Fight
 		{
 				ModScriptSession scripts = ModRuntime.Scripts;
 				if (scripts == null || NMNCKBPFCCP == null || !NMNCKBPFCCP.IsPlayer || _playerModel == null) return;
-				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent, incomingHit);
+				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent, incomingHit, activity);
+                ModRuntime.DispatchBattleRules(_eclipseBattleRules, KGKDKENMAOA.BCKFACGMOKC.ToString(), true,
+                    round.round, ListSF.CCDKHLAMKKO().JPMPIDFGCJL(), _eclipseFightId, _eclipsePlayerResult, effectEvent, fighterOperations);
 
 				var activeRuntimePerks = new HashSet<string>(StringComparer.Ordinal);
 			foreach (PerkInfoItem perk in NMNCKBPFCCP.NHBIJEEKALC)
@@ -3433,6 +3469,13 @@ public class Fight
 		}
 	}
 
+    private void DispatchEclipseActivity(Model model, ModCombatActivityEvent activity)
+    {
+        if (!_eclipseFightBeginDispatched) return;
+        if (model == _playerModel) DispatchEclipseCombatEvent(activity.Type, null, null, activity);
+        else if (model == CKNCPOABFBO) DispatchEclipseOpponent(activity.Type, null, null, activity);
+    }
+
 	private void OnStyleChanged(object data)
 	{
 		ModelStyleChange lONCJPNBHEA = (ModelStyleChange)data;
@@ -3449,6 +3492,9 @@ public class Fight
 			}
 			EPBDEDGLHJE.JALOHCICLGN(fGCODGKLHED, PerkEvent.KNKIIEPDCPN.EVENT_STYLE);
 			fGCODGKLHED.OnStyleChanged(kNBKAELNFDD, bPJNHNCOPOP, hFKPJPBCIEK, oJAHEEIFMBM);
+            if (_eclipseFightBeginDispatched && ModRuntime.Scripts != null)
+                DispatchEclipseActivity(fGCODGKLHED, ModCombatActivityEvent.StyleChange(
+                kNBKAELNFDD, bPJNHNCOPOP, hFKPJPBCIEK, oJAHEEIFMBM));
 			RuleAppliance eJPOJJKKICO = ((lONCJPNBHEA.KJDFJPBIGJC == ScreenModel.JEDPGMIGGKK.TYPE_LEFT) ? RuleAppliance.AppliancePlayer : RuleAppliance.ApplianceOpponent);
 			CheckFightRules(FightEvent.CrazyEvent, eJPOJJKKICO);
 		}
@@ -3513,6 +3559,8 @@ public class Fight
 			MOBFFOHPCOE.MKIPHHMHIOC(fGCODGKLHED.CLPDEPPPJFE());
 		}
 		EPBDEDGLHJE.JALOHCICLGN(fGCODGKLHED, PerkEvent.KNKIIEPDCPN.EVENT_COMBO);
+        if (_eclipseFightBeginDispatched && ModRuntime.Scripts != null)
+            DispatchEclipseActivity(fGCODGKLHED, ModCombatActivityEvent.ComboChange(num, fGCODGKLHED.CLPDEPPPJFE()));
 		int hIGBAPPOOKJ = fGCODGKLHED.HIGBAPPOOKJ;
 		if (preFight != null)
 		{

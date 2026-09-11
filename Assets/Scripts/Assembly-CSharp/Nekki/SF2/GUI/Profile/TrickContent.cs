@@ -99,23 +99,41 @@ namespace Nekki.SF2.GUI.Profile
 
 		private void JILNGKIPLIK()
 		{
-			string text = string.Empty;
-			for (int i = 0; i < _value.Count; i++)
+			var hits = new List<string>();
+			for (int i = 0; i < _value.Count;)
 			{
-				// The legacy inline-quad glyph depends on atlas/font UV metadata which
-				// was not preserved by the decompilation and renders as a noisy square.
-				// Keep the value readable and deterministic until the glyph atlas is
-				// reconstructed as a real sprite-backed control.
-				text = text + LocalizationManager.GetString("lblDamage") + " " + (int)(100f * _value[i])/*cast due to constrained. prefix*/;
-				if (i < _value.Count - 1)
-				{
-					text += "\n";
-				}
+				int damage = (int)(100f * _value[i]);
+				int count = 1;
+				while (i + count < _value.Count && (int)(100f * _value[i + count]) == damage) count++;
+				hits.Add(count > 1 ? damage + " x " + count : damage.ToString());
+				i += count;
 			}
+			string text = string.Join(" + ", hits);
+			Transform existing = _valueLabel.transform.Find("DamageIcon");
+			ResolutionImage icon;
+			if (existing == null)
+			{
+				var node = new GameObject("DamageIcon", typeof(RectTransform), typeof(CanvasRenderer), typeof(ResolutionImage));
+				node.layer = _valueLabel.gameObject.layer;
+				node.transform.SetParent(_valueLabel.transform, false);
+				icon = node.GetComponent<ResolutionImage>();
+				icon.set_TexturePath("UI/Atlases/");
+				icon.set_SpriteName(JMONPFHPBJK);
+				icon.raycastTarget = false;
+				icon.preserveAspect = true;
+			}
+			else icon = existing.GetComponent<ResolutionImage>();
+			_valueLabel.horizontalOverflow = HorizontalWrapMode.Overflow;
+			_valueLabel.resizeTextForBestFit = true;
+			_valueLabel.resizeTextMinSize = 24;
+			icon.rectTransform.anchorMin = icon.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+			icon.rectTransform.sizeDelta = new Vector2(64f, 64f);
+			icon.gameObject.SetActive(_value.Count > 0);
 			_valueLabel.transform.OKHPLHPBPKJ(-20f);
 			_valueLabel.transform.BGNJGIACJBG(10f);
 			_valueLabel.color = Constants.PJJIMHMJPAL;
 			_valueLabel.set_text(text);
+			icon.rectTransform.anchoredPosition = new Vector2(-_valueLabel.preferredWidth * 0.5f - 42f, 0f);
 			_valueLabel.SetVerticesDirty();
 			IEFFLCBGJJM();
 			_slider.ScrollToItem(0);

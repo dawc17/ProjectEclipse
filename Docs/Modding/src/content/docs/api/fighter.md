@@ -1,6 +1,6 @@
 ---
 title: Fighter methods
-description: Change health and magic charge, reduce pending damage, and manage temporary shields in callbacks.
+description: Observe combat, change health and magic charge, reduce pending damage, and manage temporary shields in callbacks.
 ---
 
 These methods are supplied as the `fighter` argument to supported
@@ -10,7 +10,90 @@ fighter as the method's first argument. They are not global `sf2` functions.
 The examples below run **inside a callback**. A fighter reference must not be
 saved and used after that callback returns. Missing capability declarations,
 expired references, invalid values, or an unavailable fighter raise Lua errors.
-Every method returns `nil` on success; it does not return a success boolean.
+Mutation methods return `nil` on success. Observation methods return detached data.
+
+## fighter:snapshot
+
+Read fresh combat observations, including both fighters and the engine's elapsed
+fight clock. Available since API 0.9. Use this when making a health or distance
+decision; the older `fighter.health` field is captured at callback entry.
+
+**Signature:** `fighter:snapshot()`
+
+**Returns:** A `CombatSnapshot` table, or `nil` if the fighter cannot be observed.
+
+**When:** Inside any supported combat behavior callback, including battle rules,
+perks, enchantments, and warrior behaviors. Each call samples the current state.
+The callable reference expires when that callback returns; the returned data may
+be retained as an observation, but will not update itself.
+
+**Requires:** No additional capability. Observing the opponent does not require
+`combat.target`; changing the opponent still requires the normal capabilities.
+
+| Field | Meaning |
+| --- | --- |
+| `self` | The fighter receiving this callback, even when it is the enemy. |
+| `opponent` | The opposing fighter's snapshot, or `nil` when unavailable. |
+| `frame` | Nonnegative elapsed active-fight frame count, shared by both sides. |
+| `seconds` | `frame / 60`, using the recovered engine's simulation rate. |
+| `round_active` | Whether the engine is processing the round at capture time. |
+
+Both fighter snapshots contain `health`, `max_health`, `health_bars`, and
+`position = { x, y, z }`. Health uses the same normalized pool units as
+`fighter.health`; `max_health` is the maximum in those units. `health_bars` is
+the total authored bar count (at least one), not the number remaining. For
+multi-bar opponents, incoming damage operations use single-bar units; do not
+equate the normalized pool with damage points. Divide health by max health for
+a fraction, guarding against a zero maximum.
+
+Positions use arena model coordinates, not screen pixels or metres. The clock
+counts active fight frames across rounds, excluding round transitions and frames
+when fight processing is stopped; it is neither wall time nor the remaining round
+timer. Capture a baseline in `on_round_begin` to measure a round-local duration.
+This method does not schedule callbacks or grant control of the clock.
+
+```lua
+on_damage_resolving = function(self, fighter, event)
+    local combat = fighter:snapshot()
+    if not combat or combat.self.max_health <= 0 then return end
+    local fraction = combat.self.health / combat.self.max_health
+    if fraction < 0.25 then
+        fighter:scale_incoming_damage(0.5) -- requires combat.modify_hit
+    end
+end
+```
+
+Each result is a detached Lua table. Editing it affects only your copy and cannot
+move a fighter, change health, alter later snapshots, or change the engine clock.
+Call again after a health operation to obtain a fresh observation. Query failure
+does not fabricate zero health or a default position.
+
+## fighter:scale_outgoing_damage
+
+Scale the current attacker's pending hit. Available since API 0.12.
+
+**Signature:** `fighter:scale_outgoing_damage(multiplier)`
+
+**Returns:** `nil` on success; invalid values, missing capability, unavailable hit
+or expired references raise a Lua error.
+
+**When:** Only inside `on_damage_dealing`. It is absent from other callbacks.
+
+**Requires:** `combat.modify_outgoing_hit`.
+
+```lua
+on_damage_dealing = function(parameters, fighter, event)
+    fighter:scale_outgoing_damage(1.25)
+end
+```
+
+The multiplier must be finite and between 0 and 16 inclusive. The resulting
+damage must remain finite, nonnegative, and representable as a single-precision
+number. Invalid scaling leaves the pending value unchanged. Calls multiply the
+current value; zero remains zero. Invulnerability, shields, incoming modifiers,
+and the normal health path run afterward. This does not bypass defense or change
+the shared weapon/stat economy. Earlier successful operations remain applied if
+a later handler fails. Retained methods cannot modify a later hit.
 
 ## fighter:change_health
 

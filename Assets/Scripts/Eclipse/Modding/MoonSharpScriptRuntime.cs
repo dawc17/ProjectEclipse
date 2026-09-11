@@ -164,6 +164,19 @@ namespace Eclipse.Modding
                     }
                     if (fighter != null)
                     {
+                        fighterTable.Set("snapshot", DynValue.NewCallback((ctx, args) =>
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Fighter observations have expired.");
+                            var snapshot = (fighter as IModCombatSnapshotSource)?.CaptureCombatSnapshot();
+                            if (snapshot == null) return DynValue.Nil;
+                            var result = new Table(_script);
+                            result.Set("self", FighterSnapshotTable(snapshot.Self));
+                            result.Set("opponent", FighterSnapshotTable(snapshot.Opponent));
+                            result.Set("frame", DynValue.NewNumber(snapshot.Frame));
+                            result.Set("seconds", DynValue.NewNumber(snapshot.Seconds));
+                            result.Set("round_active", DynValue.NewBoolean(snapshot.RoundActive));
+                            return DynValue.NewTable(result);
+                        }));
                         fighterTable.Set("change_health", DynValue.NewCallback((ctx, args) =>
                             invocationActive ? FighterOperation("fighter:change_health", "combat.change_life", args, fighter.TryChangeHealth) :
                                 throw new ScriptRuntimeException("Fighter operations have expired.")));
@@ -241,6 +254,19 @@ namespace Eclipse.Modding
                         eventTable.Set("critical", DynValue.NewBoolean(damage.Critical));
                     }
                     var incoming = (fighter as IModIncomingHitSource)?.IncomingHit;
+                    if (incoming != null && (effectEvent == ModEffectEvent.DamageDealing || effectEvent == ModEffectEvent.DamageResolving))
+                    {
+                        eventTable.Set("blocked", DynValue.NewBoolean(incoming.Blocked));
+                        eventTable.Set("critical", DynValue.NewBoolean(incoming.Critical));
+                    }
+                    if (effectEvent == ModEffectEvent.DamageDealing)
+                    {
+                        if (incoming == null) throw new ModContentException("Outgoing hit capability is unavailable.");
+                        eventTable.Set("damage", DynValue.NewNumber(incoming.Damage));
+                        fighterTable.Set("scale_outgoing_damage", DynValue.NewCallback((ctx, args) =>
+                            invocationActive ? FighterOperation("fighter:scale_outgoing_damage", "combat.modify_outgoing_hit", args, incoming.TryScaleOutgoing) :
+                                throw new ScriptRuntimeException("Outgoing hit operations have expired.")));
+                    }
                     if (effectEvent == ModEffectEvent.DamageResolving)
                     {
                         if (incoming == null) throw new ModContentException("Incoming hit capability is unavailable.");
@@ -248,6 +274,23 @@ namespace Eclipse.Modding
                         fighterTable.Set("scale_incoming_damage", DynValue.NewCallback((ctx, args) =>
                             invocationActive ? FighterOperation("fighter:scale_incoming_damage", "combat.modify_hit", args, incoming.TryScale) :
                                 throw new ScriptRuntimeException("Incoming hit operations have expired.")));
+                    }
+                    if (effectEvent == ModEffectEvent.ComboChanged || effectEvent == ModEffectEvent.StyleChanged)
+                    {
+                        var activity = (fighter as IModCombatActivitySource)?.ActivityEvent;
+                        if (activity == null || activity.Type != effectEvent) throw new ModContentException("Combat activity snapshot is unavailable.");
+                        if (effectEvent == ModEffectEvent.ComboChanged)
+                        {
+                            eventTable.Set("combo", DynValue.NewNumber(activity.Combo));
+                            eventTable.Set("last_combo", DynValue.NewNumber(activity.LastCombo));
+                        }
+                        else
+                        {
+                            eventTable.Set("style_rank", DynValue.NewNumber(activity.StyleRank));
+                            eventTable.Set("style_name", DynValue.NewString(activity.StyleName));
+                            eventTable.Set("style_gain", DynValue.NewNumber(activity.StyleGain));
+                            eventTable.Set("is_hit", DynValue.NewBoolean(activity.IsHit));
+                        }
                     }
                     eventTable.Set("type", DynValue.NewString(effectEvent.ToString()));
                     var argument = parameterTable;
@@ -270,6 +313,21 @@ namespace Eclipse.Modding
                     return false;
                 }
                 finally { invocationActive = false; }
+            }
+
+            private DynValue FighterSnapshotTable(ModFighterSnapshot snapshot)
+            {
+                if (snapshot == null) return DynValue.Nil;
+                var result = new Table(_script);
+                result.Set("health", DynValue.NewNumber(snapshot.Health));
+                result.Set("max_health", DynValue.NewNumber(snapshot.MaxHealth));
+                result.Set("health_bars", DynValue.NewNumber(snapshot.HealthBars));
+                var position = new Table(_script);
+                position.Set("x", DynValue.NewNumber(snapshot.X));
+                position.Set("y", DynValue.NewNumber(snapshot.Y));
+                position.Set("z", DynValue.NewNumber(snapshot.Z));
+                result.Set("position", DynValue.NewTable(position));
+                return DynValue.NewTable(result);
             }
 
             public bool TryMigrateState(int fromVersion, IReadOnlyDictionary<string, ModParameterValue> values,
@@ -652,6 +710,7 @@ namespace Eclipse.Modding
                 rules.Set("avatar", DynValue.NewCallback(RegisterAvatarRule));
                 rules.Set("name", DynValue.NewCallback(RegisterNameRule));
                 rules.Set("perk", DynValue.NewCallback(RegisterPerkRule));
+                rules.Set("behavior", DynValue.NewCallback(RegisterBehaviorRule));
                 rules.Set("recharge_magic_each_round", DynValue.NewCallback(RegisterRechargeMagicRule));
                 rules.Set("attributes", DynValue.NewCallback(RegisterAttributesRule));
                 rules.Set("no_button", DynValue.NewCallback(RegisterNoButtonRule));
@@ -1115,7 +1174,7 @@ namespace Eclipse.Modding
                 return ApiCall(function, () =>
                 {
                     ValidateFields(table, function, "id", "template", "behavior", "display_name", "description",
-                        "icon", "parameters", "kind");
+                        "icon", "parameters", "kind", "upgrades");
                     string id = RequiredString(table, "id", function);
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", function);
@@ -1155,6 +1214,36 @@ namespace Eclipse.Modding
                             "parameters", behavior.Parameters, function);
                         definition = _api.RegisterScriptedPerk(id, displayName, description, icon, kind,
                             behavior.Id, parameters);
+                    }
+                    if (!table.Get("upgrades").IsNil())
+                    {
+                        var list = table.Get("upgrades");
+                        if (list.Type != DataType.Table || list.Table.Length < 1 || list.Table.Length > 100)
+                            throw new ModContentException("Perk upgrades require an array of 1..100 entries.");
+                        int count = list.Table.Length;
+                        foreach (var pair in list.Table.Pairs)
+                            if (pair.Key.Type != DataType.Number || pair.Key.Number < 1 || pair.Key.Number > count || pair.Key.Number != Math.Floor(pair.Key.Number))
+                                throw new ModContentException("Perk upgrades must be a dense array.");
+                        var upgrades = new PerkUpgradeDefinition[count];
+                        for (int i = 1; i <= count; i++)
+                        {
+                            var value = list.Table.Get(i);
+                            if (value.Type != DataType.Table) throw new ModContentException("Perk upgrade entry must be a table.");
+                            var upgrade = value.Table;
+                            ValidateFields(upgrade, function + ".upgrades", "level", "description", "parameters");
+                            var upgradeDescription = upgrade.Get("description").IsNil() ? description :
+                                RequiredHandle(upgrade, "description", _localizationHandles, "localization", function);
+                            int level = RequiredInt(upgrade, "level", function);
+                            if (hasBehavior)
+                            {
+                                var behavior = RequiredHandle(table, "behavior", _behaviorHandles, "behavior", function);
+                                upgrades[i - 1] = new PerkUpgradeDefinition(level, upgradeDescription, null,
+                                    OptionalTypedParameterMap(upgrade, "parameters", behavior.Parameters, function));
+                            }
+                            else upgrades[i - 1] = new PerkUpgradeDefinition(level, upgradeDescription,
+                                OptionalScalarMap(upgrade, "parameters", function));
+                        }
+                        definition = _api.SetPerkUpgrades(definition.Id, upgrades);
                     }
                     return NewHandle(_perkHandles, definition.Id);
                 });
@@ -1405,6 +1494,23 @@ namespace Eclipse.Modding
                 });
             }
 
+            private DynValue RegisterBehaviorRule(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.rules.behavior";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "behavior", "parameters", "target", "mode", "rounds");
+                    ModBehaviorDefinition behavior = RequiredHandle(table, "behavior", _behaviorHandles, "behavior", function);
+                    return NewHandle(_ruleHandles, _api.RegisterBehaviorRule(
+                        RequiredString(table, "id", function), behavior.Id,
+                        ParseRuleTarget(OptionalString(table, "target", "all", function), function),
+                        ParseRuleMode(OptionalString(table, "mode", "all", function), function),
+                        OptionalIntArray(table, "rounds", function),
+                        OptionalTypedParameterMap(table, "parameters", behavior.Parameters, function)).Id);
+                });
+            }
+
             private DynValue RegisterPerkRule(ScriptExecutionContext context, CallbackArguments args)
             {
                 const string function = "sf2.rules.perk";
@@ -1513,7 +1619,9 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "target", "description", "rounds", "round_time");
+                    ValidateFields(table, function, "target", "description", "rounds", "round_time", "location", "music", "rules", "append_rules");
+                    if (!table.Get("rules").IsNil() && !table.Get("append_rules").IsNil())
+                        throw new ModContentException("Choose either rules or append_rules, not both.");
                     string target = RequiredString(table, "target", function);
                     bool changed = false;
                     DynValue description = table.Get("description");
@@ -1527,6 +1635,14 @@ namespace Eclipse.Modding
                     if (!rounds.IsNil()) { _api.PatchFightRounds(target, RequiredInt(table, "rounds", function)); changed = true; }
                     DynValue roundTime = table.Get("round_time");
                     if (!roundTime.IsNil()) { _api.PatchFightRoundTime(target, RequiredInt(table, "round_time", function)); changed = true; }
+                    if (!table.Get("location").IsNil()) { _api.PatchFightLocation(target, RequiredString(table, "location", function)); changed = true; }
+                    if (!table.Get("music").IsNil()) { _api.PatchFightMusic(target, RequiredString(table, "music", function)); changed = true; }
+                    foreach (string field in new[] { "rules", "append_rules" })
+                        if (!table.Get(field).IsNil())
+                        {
+                            _api.PatchFightRules(target, OptionalHandleArray(table, field, _ruleHandles, "rule", function), field == "append_rules");
+                            changed = true;
+                        }
                     if (!changed) throw new ModContentException(function + " must patch at least one supported field.");
                     return DynValue.Nil;
                 });

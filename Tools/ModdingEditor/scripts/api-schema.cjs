@@ -25,23 +25,31 @@ type('BehaviorState', { 'fields?':schema, 'lifetime?':enumOf('round','fight','sa
 type('BehaviorSelf', { params:values, state:values });
 type('CombatEvent', { type:'string', 'round?':'integer', 'damage?':'number', 'health_before?':'number', 'health_after?':'number', 'blocked?':'boolean', 'critical?':'boolean', 'won?':'boolean' });
 type('DamageEvent',{damage:'number',health_before:'number',health_after:'number',blocked:'boolean',critical:'boolean',round:'integer'},'CombatEvent');
-type('IncomingDamageEvent',{damage:'number'},'CombatEvent');
+type('IncomingDamageEvent',{damage:'number',blocked:'boolean',critical:'boolean'},'CombatEvent');
+type('ComboEvent',{combo:'integer',last_combo:'integer'},'CombatEvent');
+type('StyleEvent',{style_rank:'integer',style_name:'string',style_gain:'number',is_hit:'boolean'},'CombatEvent');
 type('FightEndEvent',{won:'boolean',player_result:enumOf('win','loss','surrender','timeout')},'CombatEvent');
-const callbacks = ['on_fight_begin','on_round_begin','on_damage_resolving','on_damage_received','on_damage_dealt','on_block','on_critical','on_round_end','on_fight_end'];
+const callbacks = ['on_fight_begin','on_round_begin','on_damage_resolving','on_damage_dealing','on_damage_received','on_damage_dealt','on_block','on_critical','on_combo_changed','on_style_changed','on_round_end','on_fight_end'];
 for (const stateful of [false,true]) {
     const fields = { id:'string', 'parameters?':schema, ...(stateful ? { state:E('BehaviorState') } : { 'state?':'nil' }) };
     for (const name of callbacks) {
-        const event=name==='on_damage_resolving'?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
-        fields[`${name}?`] = `fun(${stateful ? 'self:'+E('BehaviorSelf') : 'parameters:'+values}, fighter:${E(name==='on_damage_resolving'?'ResolvingFighter':'Fighter')}, event:${E(event)})`;
+        const event=name==='on_combo_changed'?'ComboEvent':name==='on_style_changed'?'StyleEvent':['on_damage_resolving','on_damage_dealing'].includes(name)?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
+        fields[`${name}?`] = `fun(${stateful ? 'self:'+E('BehaviorSelf') : 'parameters:'+values}, fighter:${E(name==='on_damage_resolving'?'ResolvingFighter':name==='on_damage_dealing'?'OutgoingFighter':'Fighter')}, event:${E(event)})`;
     }
     type(stateful ? 'StatefulBehavior' : 'BehaviorDefinition', fields);
 }
-type('Fighter', { 'health?':'number', 'side?':'string', 'opponent?':E('Opponent') });
+type('Fighter', { 'health?':'number', 'side?':'string', 'source?':'string', 'rule_id?':'string', 'opponent?':E('Opponent') });
 type('Opponent', {'health?':'number'});
+type('CombatPosition', {x:'number',y:'number',z:'number'});
+type('FighterSnapshot', {health:'number',max_health:'number',health_bars:'integer',position:E('CombatPosition')});
+type('CombatSnapshot', {self:E('FighterSnapshot'),'opponent?':E('FighterSnapshot'),frame:'integer',seconds:'number',round_active:'boolean'});
 type('ResolvingFighter',{},'Fighter');
+type('OutgoingFighter',{},'Fighter');
 const fighterMethods = {
+    snapshot:{params:{},returns:`${E('CombatSnapshot')}|nil`,capability:null},
     change_health:{params:{amount:'number'},capability:'combat.change_life'},
     add_magic_charge:{params:{amount:'number'},capability:'combat.magic_charge'},
+    scale_outgoing_damage:{params:{multiplier:'number'},capability:'combat.modify_outgoing_hit'},
     scale_incoming_damage:{params:{multiplier:'number'},capability:'combat.modify_hit'},
     add_damage_shield:{params:{key:'string',fraction:'number',frames:'integer'},capability:'combat.effects'},
     remove_damage_shield:{params:{key:'string'},capability:'combat.effects'},
@@ -73,8 +81,9 @@ fn('state.unset',{name:'string'},'nil','state.write');
 reg('behaviors.register','BehaviorDefinition','Behavior');
 functions['sf2.behaviors.register'].overload = `fun(definition:${E('StatefulBehavior')}):${H('Behavior')}`;
 lookup('perks.get','Perk');
-type('PerkDefinition',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),behavior:H('Behavior'),kind:enumOf('single','combo'),'parameters?':values});
-type('TemplatePerk',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),template:H('Perk'),'parameters?':values});
+type('PerkUpgrade',{level:'integer','description?':H('Localization'),'parameters?':values});
+type('PerkDefinition',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),behavior:H('Behavior'),kind:enumOf('single','combo'),'parameters?':values,'upgrades?':E('PerkUpgrade')+'[]'});
+type('TemplatePerk',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),template:H('Perk'),'parameters?':values,'upgrades?':E('PerkUpgrade')+'[]'});
 fn('perks.register',{definition:`${E('PerkDefinition')}|${E('TemplatePerk')}`},H('Perk'));
 const equipmentKinds=enumOf('weapon','armor','helm','ranged','magic');
 type('EnchantmentDefinition',{id:'string',recipe:enumOf('simple','medium','complex'),item_types:`(${equipmentKinds})[]`,behavior:H('Behavior'),display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),'parameters?':values});
@@ -88,9 +97,9 @@ lookup('warriors.get_template','WarriorTemplate');reg('warriors.register','Warri
 type('ItemGrant',{item:H('Item'),'upgrade?':'integer'});type('RewardCandidate',{item:H('Item'),'upgrade?':'integer','weight?':'number'});type('RewardChoice',{items:E('RewardCandidate')+'[]'});
 type('RewardDefinition',{id:'string','items?':E('ItemGrant')+'[]','choices?':E('RewardChoice')+'[]','gems?':'integer'});reg('rewards.register','RewardDefinition','Reward');
 type('FightDefinition',{id:'string',battle:H('Battle'),'warriors?':H('Warrior')+'[]','rules?':H('Rule')+'[]','rewards?':[H('Reward')+'[]','First slot is the zero-win result; second slot is one win.'],...Object.fromEntries(['rounds','round_time','replays','replay_interval','power'].map(k=>[k+'?','integer'])),...Object.fromEntries(['location','music','description','reward_image'].map(k=>[k+'?','string'])),'evaluated_rating?':'number','health_recovery?':'number','locked?':'boolean'});reg('fights.register','FightDefinition','Fight');
-type('FightPatch',{target:'string','description?':'string','rounds?':'integer','round_time?':'integer'});reg('fights.patch','FightPatch',null,'content.patch');
+type('FightPatch',{target:'string','description?':'string','rounds?':'integer','round_time?':'integer','location?':'string','music?':'string','rules?':H('Rule')+'[]','append_rules?':H('Rule')+'[]'});reg('fights.patch','FightPatch',null,'content.patch');
 const rule={id:'string','target?':enumOf('player','opponent','all'),'mode?':enumOf('normal','eclipse','all'),'rounds?':'integer[]'};
-for (const [name,extra] of Object.entries({no_perks:{'name?':'string'},require_item:{item:H('Item'),'minimum_level?':'integer'},equip_item:{item:H('Item'),'minimum_level?':'integer'},avatar:{name:'string'},name:{name:'string'},no_button:{name:'string'},perk:{perk:H('Perk')},recharge_magic_each_round:{},attributes:{values:'table<string,number>'}})) {
+for (const [name,extra] of Object.entries({no_perks:{'name?':'string'},require_item:{item:H('Item'),'minimum_level?':'integer'},equip_item:{item:H('Item'),'minimum_level?':'integer'},avatar:{name:'string'},name:{name:'string'},no_button:{name:'string'},perk:{perk:H('Perk')},behavior:{behavior:H('Behavior'),'parameters?':values},recharge_magic_each_round:{},attributes:{values:'table<string,number>'}})) {
     const fields={...rule,...extra};if(name==='require_item') delete fields['target?'];
     const shape='Rule_'+name;type(shape,fields);reg('rules.'+name,shape,'Rule');
 }

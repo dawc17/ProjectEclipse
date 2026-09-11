@@ -19,6 +19,7 @@ public class VideoPlayerController : MonoBehaviour
 	private bool completionRaised;
 
 	private float prepareStartedAt;
+	private int playStartedFrame;
 
 	private const float PrepareTimeoutSeconds = 8f;
 
@@ -84,7 +85,7 @@ public class VideoPlayerController : MonoBehaviour
 		{
 			return;
 		}
-		if (Input.touchCount > 0 || Input.anyKeyDown || Input.GetMouseButtonDown(0))
+		if (Time.frameCount > playStartedFrame + 1 && (Input.touchCount > 0 || Input.anyKeyDown || Input.GetMouseButtonDown(0)))
 		{
 			PNANBCJNMAL();
 			return;
@@ -107,6 +108,7 @@ public class VideoPlayerController : MonoBehaviour
 			FGLGMBPGLHP.controlledAudioTrackCount = 1;
 			FGLGMBPGLHP.EnableAudioTrack(0, true);
 			FGLGMBPGLHP.SetTargetAudioSource(0, EPAIJBJBACG);
+			playStartedFrame = Time.frameCount;
 			prepareStartedAt = Time.realtimeSinceStartup;
 			FGLGMBPGLHP.Prepare();
 			GHCOIBINJBP = true;
@@ -120,6 +122,7 @@ public class VideoPlayerController : MonoBehaviour
 		if (FGLGMBPGLHP != null)
 		{
 			FGLGMBPGLHP.clip = PIKHEAGHOKB;
+			playStartedFrame = Time.frameCount;
 			prepareStartedAt = Time.realtimeSinceStartup;
 			FGLGMBPGLHP.Prepare();
 			GHCOIBINJBP = true;
