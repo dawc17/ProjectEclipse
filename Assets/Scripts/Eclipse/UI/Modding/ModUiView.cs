@@ -1,0 +1,223 @@
+using System;
+using System.Collections.Generic;
+using Eclipse.Modding;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+namespace Eclipse.UI.Modding
+{
+    // Renders one owned surface within a coordinator-supplied mount. The coordinator
+    // remains responsible for scene/pause/input priority; this view never polls input.
+    public sealed class ModUiView : MonoBehaviour
+    {
+        private sealed class WidgetView
+        {
+            public RectTransform Rect;
+            public CanvasGroup Group;
+            public Text Label;
+            public RectTransform Fill;
+            public Button Button;
+        }
+        private readonly Dictionary<string, WidgetView> widgets = new Dictionary<string, WidgetView>(StringComparer.Ordinal);
+        private readonly List<string> buttons = new List<string>();
+        private ModUiSurface surface;
+        private Font font;
+        private GameObject previousSelection;
+        private bool disposed;
+
+        public static ModUiView Attach(ModUiSurface surface, RectTransform mount)
+        {
+            if (surface == null || surface.IsClosed) throw new ArgumentException("An open UI surface is required.");
+            if (mount == null) throw new ArgumentNullException(nameof(mount));
+            var root = new GameObject("Mod UI " + surface.Owner + "/" + surface.Id, typeof(RectTransform));
+            root.transform.SetParent(mount, false);
+            var view = root.AddComponent<ModUiView>();
+            view.surface = surface;
+            try
+            {
+                view.font = Resources.Load<Font>("ui/fonts/AGOpusBold") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                view.previousSelection = EventSystem.current == null ? null : EventSystem.current.currentSelectedGameObject;
+                var rect = root.GetComponent<RectTransform>();
+                rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2((float)surface.Placement.AnchorX, (float)surface.Placement.AnchorY);
+                rect.sizeDelta = new Vector2((float)surface.Root.Width, (float)surface.Root.Height);
+                view.Build(surface.Root, rect);
+                surface.Changed += view.UpdateWidget;
+                surface.Closed += view.Release;
+                return view;
+            }
+            catch
+            {
+                view.Release();
+                surface.Close();
+                throw;
+            }
+        }
+
+        private RectTransform Rect(string name, Transform parent, double width, double height)
+        {
+            var item = new GameObject(name, typeof(RectTransform));
+            var rect = item.GetComponent<RectTransform>();
+            rect.SetParent(parent, false);
+            rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2(.5f, .5f);
+            rect.sizeDelta = new Vector2((float)width, (float)height);
+            return rect;
+        }
+
+        private Text Label(RectTransform rect, string text)
+        {
+            var label = rect.gameObject.AddComponent<Text>();
+            label.font = font; label.fontSize = 22; label.text = text;
+            label.supportRichText = false;
+            label.color = new Color32(223, 207, 177, 255);
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Truncate;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.raycastTarget = false;
+            return label;
+        }
+
+        private static void Stretch(RectTransform rect)
+        {
+            rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
+            rect.offsetMin = rect.offsetMax = Vector2.zero;
+        }
+
+        private RectTransform Build(ModUiNode node, RectTransform parent)
+        {
+            var rect = Rect(node.Id, parent, node.Width, node.Height);
+            var layout = rect.gameObject.AddComponent<LayoutElement>();
+            layout.preferredWidth = (float)node.Width; layout.preferredHeight = (float)node.Height;
+            layout.flexibleWidth = node.Width == 0 ? 1 : 0;
+            layout.flexibleHeight = node.Height == 0 ? 1 : 0;
+            var view = new WidgetView { Rect = rect, Group = rect.gameObject.AddComponent<CanvasGroup>() };
+            widgets.Add(node.Id, view);
+            if (node.Kind == ModUiKind.Row || node.Kind == ModUiKind.Column)
+            {
+                HorizontalOrVerticalLayoutGroup group = node.Kind == ModUiKind.Row
+                    ? (HorizontalOrVerticalLayoutGroup)rect.gameObject.AddComponent<HorizontalLayoutGroup>()
+                    : rect.gameObject.AddComponent<VerticalLayoutGroup>();
+                group.spacing = (float)node.Gap; group.childAlignment = TextAnchor.UpperLeft;
+                group.childControlWidth = group.childControlHeight = true;
+                group.childForceExpandWidth = group.childForceExpandHeight = false;
+            }
+            if (node.Kind == ModUiKind.Text) view.Label = Label(rect, node.Text);
+            if (node.Kind == ModUiKind.Button)
+            {
+                var background = rect.gameObject.AddComponent<Image>();
+                background.color = new Color32(73, 43, 29, 255);
+                view.Button = rect.gameObject.AddComponent<Button>();
+                view.Button.targetGraphic = background;
+                view.Button.navigation = new Navigation { mode = Navigation.Mode.None };
+                view.Button.onClick.AddListener(() => surface.TryClick(node.Id));
+                buttons.Add(node.Id);
+                var label = Rect("Label", rect, 0, 0); Stretch(label);
+                label.offsetMin = new Vector2(8, 4); label.offsetMax = new Vector2(-8, -4);
+                view.Label = Label(label, node.Text);
+            }
+            if (node.Kind == ModUiKind.Progress)
+            {
+                var background = rect.gameObject.AddComponent<Image>();
+                background.color = new Color32(48, 31, 20, 255); background.raycastTarget = false;
+                view.Fill = Rect("Fill", rect, 0, 0);
+                Stretch(view.Fill);
+                var fill = view.Fill.gameObject.AddComponent<Image>();
+                fill.color = new Color32(213, 165, 62, 255); fill.raycastTarget = false;
+            }
+            if (node.Kind == ModUiKind.Scroll)
+            {
+                var viewport = Rect("Viewport", rect, 0, 0); Stretch(viewport);
+                viewport.gameObject.AddComponent<RectMask2D>();
+                // Transparent but raycastable so wheel/drag reaches ScrollRect.
+                var hit = viewport.gameObject.AddComponent<Image>(); hit.color = Color.clear;
+                var content = Build(node.Children[0], viewport);
+                content.anchorMin = content.anchorMax = content.pivot = new Vector2(.5f, 1);
+                content.anchoredPosition = Vector2.zero;
+                var scroll = rect.gameObject.AddComponent<ScrollRect>();
+                scroll.viewport = viewport; scroll.content = content;
+                scroll.horizontal = false; scroll.vertical = true;
+                scroll.movementType = ScrollRect.MovementType.Clamped;
+            }
+            else foreach (var child in node.Children) Build(child, rect);
+            UpdateWidget(node.Id);
+            return rect;
+        }
+
+        private void UpdateWidget(string id)
+        {
+            if (disposed || surface.IsClosed) return;
+            var view = widgets[id]; var state = surface.Read(id);
+            view.Rect.gameObject.SetActive(state.Visible);
+            view.Group.interactable = state.Enabled;
+            if (view.Label != null) view.Label.text = state.Text;
+            if (view.Fill != null) view.Fill.anchorMax = new Vector2((float)state.Value, 1);
+            if (view.Button != null) view.Button.interactable = state.Enabled;
+        }
+
+        public void FitToSafeArea(float width, float height)
+        {
+            if (disposed || surface.IsClosed) return;
+            width = Mathf.Max(0,width); height = Mathf.Max(0,height);
+            var rect = GetComponent<RectTransform>();
+            float scale = Mathf.Min(1,width/(float)surface.Root.Width,height/(float)surface.Root.Height);
+            rect.localScale = Vector3.one * scale;
+            float scaledWidth=(float)surface.Root.Width*scale, scaledHeight=(float)surface.Root.Height*scale;
+            float minX=rect.pivot.x*scaledWidth, minY=rect.pivot.y*scaledHeight;
+            float pivotX=Mathf.Clamp(rect.anchorMin.x*width+(float)surface.Placement.X,minX,Mathf.Max(minX,width-(1-rect.pivot.x)*scaledWidth));
+            float pivotY=Mathf.Clamp(rect.anchorMin.y*height-(float)surface.Placement.Y,minY,Mathf.Max(minY,height-(1-rect.pivot.y)*scaledHeight));
+            rect.anchoredPosition=new Vector2(pivotX-rect.anchorMin.x*width,pivotY-rect.anchorMin.y*height);
+        }
+
+        // Input is routed here only for the foreground surface by its coordinator.
+        public bool MoveFocus(int direction)
+        {
+            if (disposed || surface.IsClosed || EventSystem.current == null || buttons.Count == 0) return false;
+            var selected = EventSystem.current.currentSelectedGameObject;
+            int start = buttons.FindIndex(id => widgets[id].Button.gameObject == selected);
+            int step = direction < 0 ? -1 : 1;
+            if (start < 0) start = step > 0 ? -1 : 0;
+            for (int offset = 1; offset <= buttons.Count; offset++)
+            {
+                int index = (start + step * offset + buttons.Count * 2) % buttons.Count;
+                string id = buttons[index];
+                if (surface.CanClick(id)) { widgets[id].Button.Select(); return true; }
+            }
+            return false;
+        }
+
+        public bool ActivateSelected()
+        {
+            if (disposed || surface.IsClosed || EventSystem.current == null) return false;
+            var selected = EventSystem.current.currentSelectedGameObject;
+            foreach (string id in buttons)
+                if (widgets[id].Button.gameObject == selected) return surface.TryClick(id);
+            return false;
+        }
+
+        private void Release()
+        { ReleaseView(true); }
+
+        private void ReleaseView(bool destroy)
+        {
+            if (disposed) return;
+            disposed = true;
+            surface.Changed -= UpdateWidget; surface.Closed -= Release;
+            if (EventSystem.current != null)
+            {
+                var selected = EventSystem.current.currentSelectedGameObject;
+                if (selected != null && selected.transform.IsChildOf(transform))
+                    EventSystem.current.SetSelectedGameObject(previousSelection != null && previousSelection.activeInHierarchy ? previousSelection : null);
+            }
+            widgets.Clear(); buttons.Clear(); previousSelection = null;
+            gameObject.SetActive(false);
+            if (destroy) Destroy(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+            if (surface == null) return;
+            ReleaseView(false);
+            surface.Close();
+        }
+    }
+}

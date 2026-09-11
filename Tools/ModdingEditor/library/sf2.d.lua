@@ -187,6 +187,25 @@ local DamageEvent = {}
 ---@field critical boolean
 local IncomingDamageEvent = {}
 
+---@class (exact) Eclipse.ComboEvent: Eclipse.CombatEvent
+---@field combo integer
+---@field last_combo integer
+local ComboEvent = {}
+
+---@class (exact) Eclipse.StyleEvent: Eclipse.CombatEvent
+---@field style_rank integer
+---@field style_name string
+---@field style_gain number
+---@field is_hit boolean
+local StyleEvent = {}
+
+---@class (exact) Eclipse.TickEvent: Eclipse.CombatEvent
+---@field frame integer
+---@field seconds number
+---@field delta_frames integer
+---@field delta_seconds number
+local TickEvent = {}
+
 ---@class (exact) Eclipse.FightEndEvent: Eclipse.CombatEvent
 ---@field won boolean
 ---@field player_result "win"|"loss"|"surrender"|"timeout"
@@ -198,12 +217,15 @@ local FightEndEvent = {}
 ---@field state? nil
 ---@field on_fight_begin? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_round_begin? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
+---@field on_tick? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)
 ---@field on_damage_resolving? fun(parameters:table<string,any>, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_dealing? fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_received? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_damage_dealt? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_block? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_critical? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
+---@field on_combo_changed? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.ComboEvent)
+---@field on_style_changed? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.StyleEvent)
 ---@field on_round_end? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_fight_end? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.FightEndEvent)
 local BehaviorDefinition = {}
@@ -214,12 +236,15 @@ local BehaviorDefinition = {}
 ---@field state Eclipse.BehaviorState
 ---@field on_fight_begin? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_round_begin? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
+---@field on_tick? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)
 ---@field on_damage_resolving? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_dealing? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_received? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_damage_dealt? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_block? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_critical? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
+---@field on_combo_changed? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.ComboEvent)
+---@field on_style_changed? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.StyleEvent)
 ---@field on_round_end? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_fight_end? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.FightEndEvent)
 local StatefulBehavior = {}
@@ -985,6 +1010,37 @@ local CounterDefinition = {}
 ---@field hidden? boolean
 local AchievementDefinition = {}
 
+---@class (exact) Eclipse.UiHandle
+---@field private __eclipseUi true
+local UiHandle = {}
+
+---@class (exact) Eclipse.UiNode
+---@field id string
+---@field kind "stack"|"row"|"column"|"scroll"|"text"|"button"|"progress"
+---@field width? number
+---@field height? number
+---@field gap? number
+---@field text? string
+---@field value? number
+---@field visible? boolean
+---@field enabled? boolean
+---@field children? Eclipse.UiNode[]
+local UiNode = {}
+
+---@class (exact) Eclipse.UiPlacement
+---@field anchor? "top_left"|"top"|"top_right"|"left"|"center"|"right"|"bottom_left"|"bottom"|"bottom_right"
+---@field x? number
+---@field y? number
+local UiPlacement = {}
+
+---@class (exact) Eclipse.UiDefinition
+---@field id string
+---@field mount "menu"|"modal"|"hud"
+---@field root Eclipse.UiNode
+---@field placement? Eclipse.UiPlacement
+---@field on_click? fun(view:Eclipse.UiHandle,widget_id:string)
+local UiDefinition = {}
+
 ---@class Eclipse.Module_achievements
 local achievements = {}
 
@@ -1077,6 +1133,9 @@ local tactics = {}
 
 ---@class Eclipse.Module_timers
 local timers = {}
+
+---@class Eclipse.Module_ui
+local ui = {}
 
 ---@class Eclipse.Module_warriors
 local warriors = {}
@@ -1738,6 +1797,65 @@ function log.warn(message) end
 ---@param message string
 function log.error(message) end
 
+---Requires: `ui.create` in the manifest.
+---When: During script execution or callbacks with an available game UI host. Scene changes close the resulting view; create it from the relevant lifecycle callback when it must appear in a particular scene. Opening on every tick is unnecessary: keep a handle and update individual widgets.
+---Returns: An owned view handle, or raises an error if validation/mounting fails.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiopen)
+---@param definition Eclipse.UiDefinition
+---@return Eclipse.UiHandle
+function ui.open(definition) end
+
+---Requires: A view handle from this script context; no additional capability.
+---When: When the view is no longer needed, including inside its click handler. Closing an already closed valid handle is harmless. Close removes presentation and input ownership; it does not reset your gameplay variables.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiclose)
+---@param view Eclipse.UiHandle
+function ui.close(view) end
+
+---Requires: A view handle from this script context; no additional capability.
+---When: Before an update when Back, scene exit or a callback error may have closed the view. An invalid or foreign handle raises an error, rather than false.
+---Returns: `true` while open, otherwise `false`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiis_open)
+---@param view Eclipse.UiHandle
+---@return boolean
+function ui.is_open(view) end
+
+---Requires: An open owned view and a text/button ID; no additional capability.
+---When: Update a text or button label. The string may be empty and is limited to 8192 UTF-16 code units. Updates do not rebuild the layout tree.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_text)
+---@param view Eclipse.UiHandle
+---@param widget_id string
+---@param text string
+function ui.set_text(view, widget_id, text) end
+
+---Requires: An open owned view and a progress ID; no additional capability.
+---When: Change a progress widget's fill to a finite fraction from 0 to 1. Invalid values are rejected before mutation.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_value)
+---@param view Eclipse.UiHandle
+---@param widget_id string
+---@param value number
+function ui.set_value(view, widget_id, value) end
+
+---Requires: An open owned view and a valid widget ID; no additional capability.
+---When: Show/hide a widget or subtree using a boolean. Hiding the root releases its foreground input priority; showing it restores its original ordering.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_visible)
+---@param view Eclipse.UiHandle
+---@param widget_id string
+---@param visible boolean
+function ui.set_visible(view, widget_id, visible) end
+
+---Requires: An open owned view and a valid widget ID; no additional capability.
+---When: Enable/disable interaction using a boolean. A disabled ancestor prevents its descendants from activating. Disabling a root does not close its modal backdrop.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_enabled)
+---@param view Eclipse.UiHandle
+---@param widget_id string
+---@param enabled boolean
+function ui.set_enabled(view, widget_id, enabled) end
+
 ---Legacy alias for `sf2.shop.addItem`. Use `addItem` in new scripts.
 ---Requires: `content.register`.
 ---When: Entrypoint after item registration.
@@ -2068,4 +2186,4 @@ function Fighter:add_damage_shield(key, fraction, frames) end
 ---@param key string
 function Fighter:remove_damage_shield(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, progression = progression, quests = quests, raids = raids, rewards = rewards, rules = rules, services = services, shop = shop, state = state, tactics = tactics, timers = timers, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, progression = progression, quests = quests, raids = raids, rewards = rewards, rules = rules, services = services, shop = shop, state = state, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }

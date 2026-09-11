@@ -198,6 +198,20 @@ async function main() {
     const outgoing=probe('outgoing.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="test",on_damage_dealing=function(_,fighter,event)\n fighter:|\nend }');
     await until(async()=>labels(await request('textDocument/completion',outgoing)).some(name=>name.startsWith('scale_outgoing_damage')),'outgoing fighter method inference');
     console.log('PASS: outgoing damage callbacks infer the scoped modifier');
+    for (const [callback,field] of [['on_combo_changed','last_combo'],['on_style_changed','style_rank'],['on_tick','delta_frames']]) {
+        const position=probe(callback+'.lua',`local sf2=require("sf2")\nsf2.behaviors.register { id="test",${callback}=function(_,fighter,event)\n local value=event.|\nend }`);
+        await until(async()=>labels(await request('textDocument/completion',position)).includes(field),callback+' event inference');
+    }
+    console.log('PASS: native combo, style and tick callback fields complete');
+    const uiNode=probe('ui-node.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ | } }');
+    await until(async()=>labels(await request('textDocument/completion',uiNode)).includes('kind'),'recursive UI node completion');
+    const uiPlacement=probe('ui-placement.lua','local sf2=require("sf2")\nsf2.ui.open { id="hud",mount="hud",placement={ | } }');
+    await until(async()=>{
+        const result=await request('textDocument/completion',uiPlacement);
+        fs.writeFileSync(path.join(root,'.test-runtime/ui-placement.json'),JSON.stringify(result,null,2));
+        return labels(result).some(name=>name.startsWith('anchor'));
+    },'UI placement completion');
+    console.log('PASS: UI layout nodes complete from the open definition');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

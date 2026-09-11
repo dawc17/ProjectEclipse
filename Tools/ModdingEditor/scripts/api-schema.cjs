@@ -28,12 +28,13 @@ type('DamageEvent',{damage:'number',health_before:'number',health_after:'number'
 type('IncomingDamageEvent',{damage:'number',blocked:'boolean',critical:'boolean'},'CombatEvent');
 type('ComboEvent',{combo:'integer',last_combo:'integer'},'CombatEvent');
 type('StyleEvent',{style_rank:'integer',style_name:'string',style_gain:'number',is_hit:'boolean'},'CombatEvent');
+type('TickEvent',{frame:'integer',seconds:'number',delta_frames:'integer',delta_seconds:'number'},'CombatEvent');
 type('FightEndEvent',{won:'boolean',player_result:enumOf('win','loss','surrender','timeout')},'CombatEvent');
-const callbacks = ['on_fight_begin','on_round_begin','on_damage_resolving','on_damage_dealing','on_damage_received','on_damage_dealt','on_block','on_critical','on_combo_changed','on_style_changed','on_round_end','on_fight_end'];
+const callbacks = ['on_fight_begin','on_round_begin','on_tick','on_damage_resolving','on_damage_dealing','on_damage_received','on_damage_dealt','on_block','on_critical','on_combo_changed','on_style_changed','on_round_end','on_fight_end'];
 for (const stateful of [false,true]) {
     const fields = { id:'string', 'parameters?':schema, ...(stateful ? { state:E('BehaviorState') } : { 'state?':'nil' }) };
     for (const name of callbacks) {
-        const event=name==='on_combo_changed'?'ComboEvent':name==='on_style_changed'?'StyleEvent':['on_damage_resolving','on_damage_dealing'].includes(name)?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
+        const event=name==='on_tick'?'TickEvent':name==='on_combo_changed'?'ComboEvent':name==='on_style_changed'?'StyleEvent':['on_damage_resolving','on_damage_dealing'].includes(name)?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
         fields[`${name}?`] = `fun(${stateful ? 'self:'+E('BehaviorSelf') : 'parameters:'+values}, fighter:${E(name==='on_damage_resolving'?'ResolvingFighter':name==='on_damage_dealing'?'OutgoingFighter':'Fighter')}, event:${E(event)})`;
     }
     type(stateful ? 'StatefulBehavior' : 'BehaviorDefinition', fields);
@@ -135,4 +136,18 @@ type('TimerPolicy',{subsystem:'"forge"',seconds:'integer','skip_enabled?':'boole
 type('CounterDefinition',{id:'string','maximum?':'integer'});reg('counters.register','CounterDefinition','Counter');fn('counters.get',{counter:H('Counter')},'integer','progression.read');fn('counters.add',{counter:H('Counter'),amount:'integer'},'integer','progression.write');type('AchievementDefinition',{id:'string',counter:H('Counter'),title:H('Localization'),description:H('Localization'),icon:H('Sprite'),threshold:'integer','hidden?':'boolean'});reg('achievements.register','AchievementDefinition');
 for(const name of ['debug','info','warn','error']) fn('log.'+name,{message:'string'},'nil',null);
 for(const [name,target] of Object.entries({log:'info',warn:'warn',error:'error'})) aliases['sf2.mod.'+name]='sf2.log.'+target;
+type('UiHandle', { 'private __eclipseUi': 'true' });
+type('UiNode', { id:'string', kind:enumOf('stack','row','column','scroll','text','button','progress'),
+    'width?':'number','height?':'number','gap?':'number','text?':'string','value?':'number',
+    'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]' });
+type('UiPlacement', { 'anchor?':enumOf('top_left','top','top_right','left','center','right','bottom_left','bottom','bottom_right'),'x?':'number','y?':'number' });
+type('UiDefinition', { id:'string',mount:enumOf('menu','modal','hud'),root:E('UiNode'),'placement?':E('UiPlacement'),
+    'on_click?':`fun(view:${H('Ui')},widget_id:string)` });
+fn('ui.open',{definition:E('UiDefinition')},H('Ui'),'ui.create');
+fn('ui.close',{view:H('Ui')},'nil',null);
+fn('ui.is_open',{view:H('Ui')},'boolean',null);
+fn('ui.set_text',{view:H('Ui'),widget_id:'string',text:'string'},'nil',null);
+fn('ui.set_value',{view:H('Ui'),widget_id:'string',value:'number'},'nil',null,{bounds:{value:[0,1]}});
+fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',null);
+fn('ui.set_enabled',{view:H('Ui'),widget_id:'string',enabled:'boolean'},'nil',null);
 module.exports={types,functions,aliases,callbacks,fighterMethods};

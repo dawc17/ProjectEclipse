@@ -56,6 +56,7 @@ export default defineConfig({
           { slug: 'api/behavior-instances' },
           { slug: 'api/combat-callbacks' },
           { slug: 'api/fighter' },
+          { slug: 'api/ui' },
           { slug: 'api/mod-state' },
           { slug: 'api/achievements' },
           { slug: 'api/events-and-modes' },

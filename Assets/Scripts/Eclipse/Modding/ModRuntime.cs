@@ -25,7 +25,8 @@ namespace Eclipse.Modding
             ModModeRuntime.Clear();
             ModModeRuntime.Warning = message => Debug.LogWarning(message);
             ModPolicies.Content = null;
-            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(), LogScript, ImportCoreContent);
+            _scripts = Host.StartScripts(new MoonSharpScriptRuntime(Eclipse.UI.Modding.ModUiGameBridge.Attach,
+                () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name), LogScript, ImportCoreContent);
             ModPolicies.Content = _scripts.Content;
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
@@ -212,6 +213,7 @@ namespace Eclipse.Modding
             if (_scripts == null || fighter == null) return;
             foreach (var rule in instances.Applicable(_scripts.Content, runtimeFightId, player, round, eclipse))
             {
+                if (!_scripts.HasBehaviorHandler(rule.Behavior, effectEvent)) continue;
                 try
                 {
                     var context = new Dictionary<string, string>

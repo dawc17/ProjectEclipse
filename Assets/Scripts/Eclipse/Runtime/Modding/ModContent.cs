@@ -2178,6 +2178,25 @@ namespace Eclipse.Modding
             return id;
         }
 
+        public string ReadLocalization(DefinitionId id, string language)
+        {
+            if (id.Category != "localization" || !CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("A permitted localization definition is required.");
+            string requested = NormalizeLanguage(language);
+            _catalog.TryGetLocalization(id, out var definition);
+            _localizations.TryGetValue(id, out var pending);
+            if (definition == null && pending == null)
+                throw new ModContentException("Localization key is not registered: '" + id + "'.");
+            foreach (string candidate in new[] { requested, "eng" })
+            {
+                foreach (var patch in _localizationPatches)
+                    if (patch.Record.Target == id && patch.Language == candidate) return patch.Value;
+                if (pending != null && pending.TryGetValue(candidate, out var value)) return value;
+                if (definition != null && definition.TryGet(candidate, out var translated)) return translated;
+            }
+            return string.Empty;
+        }
+
         public DefinitionId GetLocalization(string key)
         {
             ThrowIfCompleted();

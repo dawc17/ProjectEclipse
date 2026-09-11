@@ -7,6 +7,8 @@ namespace Eclipse.Modding
     public sealed class ModScriptSession : IDisposable
     {
         private readonly List<IModScriptContext> _contexts;
+        private readonly Dictionary<ModEffectEvent, HashSet<DefinitionId>> _subscriptions =
+            new Dictionary<ModEffectEvent, HashSet<DefinitionId>>();
         private readonly List<ModDiagnostic> _stateDiagnostics = new List<ModDiagnostic>();
 
         public string RuntimeName { get; }
@@ -38,7 +40,26 @@ namespace Eclipse.Modding
             Diagnostics = Array.AsReadOnly(diagnostics ?? Array.Empty<ModDiagnostic>());
             Content = content ?? throw new ArgumentNullException(nameof(content));
             State = state ?? throw new ArgumentNullException(nameof(state));
+            // Registration is frozen before session construction. Cache handlers, not live
+            // equipped instances: native rules may change the latter during an encounter.
+            foreach (var behavior in Content.Behaviors)
+                foreach (ModEffectEvent kind in Enum.GetValues(typeof(ModEffectEvent)))
+                    foreach (var script in _contexts)
+                        if (script.Mod.Id == behavior.Id.Namespace && script is IModBehaviorScriptContext callbacks &&
+                            callbacks.HasBehaviorHandler(behavior.Id, kind))
+                        {
+                            if (!_subscriptions.TryGetValue(kind, out var ids))
+                                _subscriptions[kind] = ids = new HashSet<DefinitionId>();
+                            ids.Add(behavior.Id);
+                            break;
+                        }
         }
+
+        public bool HasHandlers(ModEffectEvent kind) =>
+            _subscriptions.TryGetValue(kind, out var ids) && ids.Count != 0;
+
+        public bool HasBehaviorHandler(DefinitionId id, ModEffectEvent kind) =>
+            _subscriptions.TryGetValue(kind, out var ids) && ids.Contains(id);
 
         internal static ModScriptSession Start(ModHost host, IModScriptRuntime runtime,
             Action<ModLogEntry> logger, Action<ModContentCatalog> importCore)
@@ -177,6 +198,7 @@ namespace Eclipse.Modding
 
         public void Dispose()
         {
+            _subscriptions.Clear();
             for (int i = _contexts.Count - 1; i >= 0; i--)
                 _contexts[i]?.Dispose();
             _contexts.Clear();

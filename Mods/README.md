@@ -10,7 +10,14 @@ The dependency-ordered engineering roadmap is
 [DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
 DE parity or Mod API expansion must read both parity documents before editing.
 
-Current public Mod API version: **0.12.0**.
+Current public Mod API version: **0.16.0**.
+
+API 0.16 adds safe-area anchors and bounded offsets to custom UI views.
+
+API 0.15 exposes owned custom UI through `sf2.ui`: layout creation, click handlers,
+targeted updates and closure. `example.charge-ui` demonstrates a charged attack
+with a live HUD. See the public Custom UI reference for supported widgets,
+mount/input behavior, lifecycle and verification limits.
 
 API 0.8 adds `sf2.rules.behavior`: directly attach reusable Lua combat behavior
 to a fight, with isolated rule/fighter state and target/mode/round filtering.
@@ -981,3 +988,9 @@ API 0.9 adds `fighter:snapshot()` for fresh, detached health, position, and figh
 API 0.10 extends fight patches with location/music and rule replacement or append. [Campaign Guard Rule](example.core-fight/README.md) changes an existing encounter without duplicating it.
 
 API 0.12 adds `on_damage_dealing` and capability-gated `fighter:scale_outgoing_damage`, before defensive modifiers. See `example.outgoing-rule`.
+
+API 0.13 adds native `on_combo_changed` and `on_style_changed` snapshots. `example.combo-reserve` shows a timed bonus using the existing fight clock.
+
+API 0.14 adds `on_tick` on active combat simulation frames. The combo-reserve
+example uses it to clear timed state even without another hit; pause time is
+excluded. See the public combat callback reference for ordering and lifetime.

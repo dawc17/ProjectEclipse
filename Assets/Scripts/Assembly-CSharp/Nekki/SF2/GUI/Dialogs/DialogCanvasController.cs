@@ -95,12 +95,14 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		private void OnDestroy()
 		{
+			Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(false);
 			_instance = null;
 			JIGBFKIFFIB = null;
 		}
 
 		public void BlockTouches()
 		{
+			Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(true);
 			GraphicRaycaster[] collection = UnityEngine.Object.FindObjectsOfType<GraphicRaycaster>();
 			List<GraphicRaycaster> list = new List<GraphicRaycaster>(collection);
 			for (int i = 0; i < list.Count; i++)
@@ -117,6 +119,7 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		public void UnBlockTouches()
 		{
+			Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(false);
 			GraphicRaycaster[] collection = UnityEngine.Object.FindObjectsOfType<GraphicRaycaster>();
 			List<GraphicRaycaster> list = new List<GraphicRaycaster>(collection);
 			for (int i = 0; i < list.Count; i++)

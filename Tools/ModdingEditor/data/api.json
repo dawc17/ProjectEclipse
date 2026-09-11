@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.12.0",
+  "apiVersion": "0.16.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -855,6 +855,97 @@
       "summary": "Record an error message. Logging alone does not stop execution or undo changes.",
       "requires": "No capability.",
       "when": "Entrypoint or a callback."
+    },
+    "sf2.ui.open": {
+      "params": {
+        "definition": "Eclipse.UiDefinition"
+      },
+      "returns": "An owned view handle, or raises an error if validation/mounting fails.",
+      "capability": "ui.create",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiopen",
+      "summary": "",
+      "requires": "`ui.create` in the manifest.",
+      "when": "During script execution or callbacks with an available game UI host. Scene changes close the resulting view; create it from the relevant lifecycle callback when it must appear in a particular scene. Opening on every tick is unnecessary: keep a handle and update individual widgets."
+    },
+    "sf2.ui.close": {
+      "params": {
+        "view": "Eclipse.UiHandle"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiclose",
+      "summary": "",
+      "requires": "A view handle from this script context; no additional capability.",
+      "when": "When the view is no longer needed, including inside its click handler. Closing an already closed valid handle is harmless. Close removes presentation and input ownership; it does not reset your gameplay variables."
+    },
+    "sf2.ui.is_open": {
+      "params": {
+        "view": "Eclipse.UiHandle"
+      },
+      "returns": "`true` while open, otherwise `false`.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiis_open",
+      "summary": "",
+      "requires": "A view handle from this script context; no additional capability.",
+      "when": "Before an update when Back, scene exit or a callback error may have closed the view. An invalid or foreign handle raises an error, rather than false."
+    },
+    "sf2.ui.set_text": {
+      "params": {
+        "view": "Eclipse.UiHandle",
+        "widget_id": "string",
+        "text": "string"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_text",
+      "summary": "",
+      "requires": "An open owned view and a text/button ID; no additional capability.",
+      "when": "Update a text or button label. The string may be empty and is limited to 8192 UTF-16 code units. Updates do not rebuild the layout tree."
+    },
+    "sf2.ui.set_value": {
+      "params": {
+        "view": "Eclipse.UiHandle",
+        "widget_id": "string",
+        "value": "number"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "bounds": {
+        "value": [
+          0,
+          1
+        ]
+      },
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_value",
+      "summary": "",
+      "requires": "An open owned view and a progress ID; no additional capability.",
+      "when": "Change a progress widget's fill to a finite fraction from 0 to 1. Invalid values are rejected before mutation."
+    },
+    "sf2.ui.set_visible": {
+      "params": {
+        "view": "Eclipse.UiHandle",
+        "widget_id": "string",
+        "visible": "boolean"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_visible",
+      "summary": "",
+      "requires": "An open owned view and a valid widget ID; no additional capability.",
+      "when": "Show/hide a widget or subtree using a boolean. Hiding the root releases its foreground input priority; showing it restores its original ordering."
+    },
+    "sf2.ui.set_enabled": {
+      "params": {
+        "view": "Eclipse.UiHandle",
+        "widget_id": "string",
+        "enabled": "boolean"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_enabled",
+      "summary": "",
+      "requires": "An open owned view and a valid widget ID; no additional capability.",
+      "when": "Enable/disable interaction using a boolean. A disabled ancestor prevents its descendants from activating. Disabling a root does not close its modal backdrop."
     }
   },
   "aliases": {
@@ -944,12 +1035,15 @@
   "callbacks": [
     "on_fight_begin",
     "on_round_begin",
+    "on_tick",
     "on_damage_resolving",
     "on_damage_dealing",
     "on_damage_received",
     "on_damage_dealt",
     "on_block",
     "on_critical",
+    "on_combo_changed",
+    "on_style_changed",
     "on_round_end",
     "on_fight_end"
   ],
@@ -1230,6 +1324,31 @@
       },
       "parent": "CombatEvent"
     },
+    "ComboEvent": {
+      "fields": {
+        "combo": "integer",
+        "last_combo": "integer"
+      },
+      "parent": "CombatEvent"
+    },
+    "StyleEvent": {
+      "fields": {
+        "style_rank": "integer",
+        "style_name": "string",
+        "style_gain": "number",
+        "is_hit": "boolean"
+      },
+      "parent": "CombatEvent"
+    },
+    "TickEvent": {
+      "fields": {
+        "frame": "integer",
+        "seconds": "number",
+        "delta_frames": "integer",
+        "delta_seconds": "number"
+      },
+      "parent": "CombatEvent"
+    },
     "FightEndEvent": {
       "fields": {
         "won": "boolean",
@@ -1244,12 +1363,15 @@
         "state?": "nil",
         "on_fight_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_round_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_tick?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)",
         "on_damage_resolving?": "fun(parameters:table<string,any>, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_dealing?": "fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_received?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_damage_dealt?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_block?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_critical?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_combo_changed?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.ComboEvent)",
+        "on_style_changed?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.StyleEvent)",
         "on_round_end?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_fight_end?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.FightEndEvent)"
       }
@@ -1261,12 +1383,15 @@
         "state": "Eclipse.BehaviorState",
         "on_fight_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_round_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
+        "on_tick?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)",
         "on_damage_resolving?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_dealing?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_received?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_damage_dealt?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_block?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_critical?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
+        "on_combo_changed?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.ComboEvent)",
+        "on_style_changed?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.StyleEvent)",
         "on_round_end?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_fight_end?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.FightEndEvent)"
       }
@@ -2137,6 +2262,41 @@
         "icon": "Eclipse.SpriteHandle",
         "threshold": "integer",
         "hidden?": "boolean"
+      }
+    },
+    "UiHandle": {
+      "fields": {
+        "private __eclipseUi": "true"
+      }
+    },
+    "UiNode": {
+      "fields": {
+        "id": "string",
+        "kind": "\"stack\"|\"row\"|\"column\"|\"scroll\"|\"text\"|\"button\"|\"progress\"",
+        "width?": "number",
+        "height?": "number",
+        "gap?": "number",
+        "text?": "string",
+        "value?": "number",
+        "visible?": "boolean",
+        "enabled?": "boolean",
+        "children?": "Eclipse.UiNode[]"
+      }
+    },
+    "UiPlacement": {
+      "fields": {
+        "anchor?": "\"top_left\"|\"top\"|\"top_right\"|\"left\"|\"center\"|\"right\"|\"bottom_left\"|\"bottom\"|\"bottom_right\"",
+        "x?": "number",
+        "y?": "number"
+      }
+    },
+    "UiDefinition": {
+      "fields": {
+        "id": "string",
+        "mount": "\"menu\"|\"modal\"|\"hud\"",
+        "root": "Eclipse.UiNode",
+        "placement?": "Eclipse.UiPlacement",
+        "on_click?": "fun(view:Eclipse.UiHandle,widget_id:string)"
       }
     }
   }

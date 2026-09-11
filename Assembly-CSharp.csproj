@@ -451,6 +451,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\RingOutRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UIFigures\UIRoundRect.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkEventAnimationStart.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\Modding\ModUiView.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\-PrivateImplementationDetails--f198b91c-f2c5-4211-a0cf-3cd1cbc59e09-\ArrayCopy1152.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UpgradeIndexItem.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\GroupTables.cs" />
@@ -590,6 +591,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionStatus.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RewardStruct.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UIExtensions.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\Modding\ModUiCoordinator.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Round.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionChangeScene.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\StyleBarStrip.cs" />
@@ -682,6 +684,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\FigureTopology.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestAction.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MarketSettings.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeUi.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RosterBattle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionsParser.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\ParameterProgressBar.cs" />
@@ -887,6 +890,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ComboRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CustomBinaryWriter.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDeliver.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\Modding\ModUiGameBridge.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\ModelContainer.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionSetAttributes.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionOperator.cs" />

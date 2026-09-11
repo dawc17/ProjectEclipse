@@ -1,7 +1,7 @@
 # Eclipse Modding for VS Code
 
-Editor support for all 31 public Eclipse API modules: 96 functions, aliases, and
-callbacks; 76 constants; and 134 typed structures. Version 0.1.0 retains the ID
+Editor support for all 32 public Eclipse API modules: 110 functions, aliases, and
+callbacks; 76 constants; and 147 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 ## Install
@@ -137,3 +137,17 @@ API 0.11 adds perk `upgrades` completion with level, description and parameter f
 The manual `perk-upgrades` template demonstrates a learned guard with three upgrades; its matching mod and automated checks are under `Mods/example.perk-upgrades` and `Tools/TestPerkUpgrades.ps1`.
 
 API 0.12 infers `OutgoingFighter` in `on_damage_dealing`, with `scale_outgoing_damage` requiring `combat.modify_outgoing_hit`. The manual `outgoing-rule` template demonstrates a per-round third-hit modifier.
+
+API 0.13 completes native combo/style event fields in callbacks. The manual `combo-reserve` template combines those events with a timed outgoing bonus and ordinary Lua control flow.
+
+API 0.15 adds `sf2.ui.open`, owned UI handles, targeted widget setters, close and
+open-state queries. Recursive layout definitions and click callback arguments
+are typed. The manual `charge-ui` template links a live HUD to a fresh combat
+callback; HUD buttons currently require pointer input. Full-game UI verification
+is separate from editor diagnostics.
+
+API 0.14 adds typed `on_tick` event fields (`frame`, `seconds`, `delta_frames`,
+`delta_seconds`). The combo-reserve template now expires its state on active
+simulation ticks. Editor completion does not replace a Unity pause/round playtest.
+
+API 0.16 adds typed `placement` completion for UI anchors and offsets. The Charged Strike starter places its HUD near the top-right safe-area corner.

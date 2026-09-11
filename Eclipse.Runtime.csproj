@@ -80,6 +80,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContent.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModDiscovery.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\DefinitionId.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModUiRuntime.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\LooseModProvider.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1D.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModDiagnostics.cs" />

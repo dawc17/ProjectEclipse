@@ -6,7 +6,10 @@ using Eclipse.Modding;
 
 public static class Program
 {
-    sealed class HitFighter : IModFighterOperations, IModIncomingHitSource {
+    sealed class HitFighter : IModFighterOperations, IModIncomingHitSource, IModCombatActivitySource, IModCombatSnapshotSource {
+        public ModCombatActivityEvent ActivityEvent { get; set; }
+        public int Frame;
+        public ModCombatSnapshot CaptureCombatSnapshot()=>new ModCombatSnapshot(new ModFighterSnapshot(1,1,1,0,0,0),null,Frame,true);
         public ModIncomingHit IncomingHit { get; set; }
         public bool TryChangeHealth(double n,out string e){e="";return true;}
         public bool TryAddMagicCharge(double n,out string e){e="";return true;}
@@ -118,6 +121,32 @@ public static class Program
                 Check(damage==(hit==4?20:10),"Third-hit rule ignored block/count/round semantics");
             }
         }),outgoingError);
+        var comboCatalog=new ModContentCatalog();CoreContentImporter.ImportStages(comboCatalog,stages.SelectSingleNode("Stages/Zones"));
+        Check(Execute(args[0],comboCatalog,File.ReadAllText(Path.Combine(args[1],"Mods/example.combo-reserve/scripts/main.lua")),out var comboError,(script,content)=>{
+            var rule=content.FightRules.Single();var state=new XmlDocument();state.LoadXml("<Rule/>");
+            Func<ModCombatActivityEvent,int,int,double> invoke=(activity,frame,round)=>{
+                double damage=10;
+                var fighter=new HitFighter{Frame=frame,ActivityEvent=activity,IncomingHit=new ModIncomingHit(()=>damage,n=>damage=n)};
+                var fields=new System.Collections.Generic.Dictionary<string,string>{{"source","rule"},{"round",round.ToString()},{"fight_id","fixture"}};
+                Check(script.TryInvokeBehavior(rule.Behavior,activity?.Type??ModEffectEvent.DamageDealing,rule.InitialParameters,fields,new ModInstanceFighter(fighter,state.DocumentElement),out var error),error);
+                return damage;
+            };
+            invoke(ModCombatActivityEvent.ComboChange(0,4),100,1);
+            Check(Math.Abs(invoke(null,100,1)-10.4)<0.00001,"Completed combo did not grant reserve");
+            invoke(ModCombatActivityEvent.ComboChange(0,15),200,1);
+            Check(Math.Abs(invoke(null,300,1)-10.4)<0.00001,"Active reserve was overwritten");
+            Check(invoke(null,400,1)==10,"Reserve survived expiration boundary");
+            var tickFields=new System.Collections.Generic.Dictionary<string,string>{{"source","rule"},{"round","1"},{"fight_id","fixture"}};
+            Check(script.TryInvokeBehavior(rule.Behavior,ModEffectEvent.Tick,rule.InitialParameters,tickFields,
+                new ModInstanceFighter(new HitFighter{Frame=400},state.DocumentElement),out var tickError),tickError);
+            // Rewind only this fixture's observation to prove the tick cleared stacks,
+            // rather than letting the outgoing deadline check hide a stale reserve.
+            Check(invoke(null,399,1)==10,"Tick did not clear expired reserve state");
+            invoke(ModCombatActivityEvent.ComboChange(0,20),400,1);
+            Check(Math.Abs(invoke(null,401,1)-11.5)<0.00001,"Reserve cap not applied");
+            Check(invoke(null,500,2)==10,"Reserve leaked into next round");
+            invoke(ModCombatActivityEvent.StyleChange(2,"FixtureStyle",0.25,true),500,2);
+        }),comboError);
         Console.WriteLine("PASS: "+checks+" fight patch checks: Lua validation, atomic conflicts, identity, fingerprint, native projection, core behavior dispatch and capability rejection.");
     }
 }

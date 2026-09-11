@@ -5,6 +5,14 @@ using System.Collections.Generic;
 using System.Xml;
 using Eclipse.Modding;
 
+// Asset mounting is isolated; the session, registration and Lua contexts are production code.
+namespace Eclipse.Modding {
+    public sealed class ModHost {
+        public IReadOnlyList<ModDescriptor> EnabledMods { get; set; }
+        public AssetResolver Assets { get; set; }
+    }
+}
+
 public sealed class Core : IAssetProvider {
     public ModId Namespace => ModId.Parse("core");
     public bool TryDescribe(AssetId id, out AssetMetadata metadata) {
@@ -29,6 +37,22 @@ public static class Program {
         File.WriteAllText(testManifest,File.ReadAllText(testManifest).Replace("\"content.register\"","\"content.register\", \"combat.modify_outgoing_hit\""));
         // Public Lua validation, not direct construction of internal DTOs.
         string probes = @"
+local tick_reader
+sf2.behaviors.register {
+    id='tick_probe',
+    state={lifetime='round',fields={count={type=sf2.behaviors.INTEGER,default=0}}},
+    on_tick=function(self,fighter,event)
+        assert(event.type=='Tick' and event.delta_frames==1 and event.delta_seconds==1/60)
+        assert(event.frame==120 or event.frame==121 or event.frame==180)
+        assert(event.seconds==event.frame/60 and fighter:snapshot().frame==event.frame)
+        assert(fighter.scale_outgoing_damage==nil and fighter.scale_incoming_damage==nil)
+        self.state.count=self.state.count+1
+        assert(self.state.count==(event.frame==121 and 2 or 1))
+        tick_reader=fighter.snapshot
+        event.frame=-99
+    end,
+    on_round_end=function() tick_reader() end,
+}
 local previous_combo
 sf2.behaviors.register {
     id='activity_probe',
@@ -147,6 +171,10 @@ sf2.behaviors.register {
           ModLocalizationLoader.Load(mod,assets,tx);
           using(var script=new MoonSharpScriptRuntime().CreateContext(mod,new ModApiFacade(mod,assets,tx,new ModStateRuntime(),null))) {
             script.ExecuteEntrypoint();tx.Commit();
+            if (filters) {
+                var ownedUi=((IModUiScriptContext)script).UiScope;
+                Check(ownedUi.Owner==mod.Id && !ownedUi.IsClosed,"Script UI ownership missing");
+            }
             Check(catalog.FightRules.Count==1,"Rejected registrations leaked rules");
             var rule=catalog.FightRules[0];var fight=catalog.Fights.Single();
             string runtimeId=catalog.RuntimeFightId(fight.Id);
@@ -185,6 +213,8 @@ sf2.behaviors.register {
             Check(upgraded.ResolveSavedUpgradeParameters(savedPerk.DocumentElement,saved)["every"].Integer==9,"Missing level must use base saved parameters");
             if (filters) SnapshotChecks(interactive, mod.Id);
             if (filters) ActivityChecks(interactive,mod.Id);
+            if (filters) TickChecks(interactive,mod.Id);
+            if (filters) SubscriptionChecks(mod,assets);
             if (filters || outgoingDenied) OutgoingChecks(interactive, mod.Id,outgoingDenied);
             for(int hit=1;hit<=every*2;hit++) {
                 double damage=Hit(interactive,rule,instances,false,1,forbidden);
@@ -214,9 +244,45 @@ sf2.behaviors.register {
                     Check(rejected,"Undeclared behavior accepted");
                 }
             }
+            if (filters) {
+                var ui=((IModUiScriptContext)script).UiScope;
+                var panel=ui.Open("owned",ModUiMount.Menu,new ModUiNode("root",ModUiKind.Text,100,40,text:"Owned"));
+                script.Dispose();
+                Check(ui.IsClosed && panel.IsClosed && ui.Count==0,"Script disposal retained owned UI");
+            }
             return ModSaveData.ComputeContentSetFingerprint(new[]{mod},catalog);
           }
         }
+    }
+    static void SubscriptionChecks(ModDescriptor mod,AssetResolver assets) {
+        var host=new ModHost{EnabledMods=new[]{mod},Assets=assets};
+        var session=ModScriptSession.Start(host,new MoonSharpScriptRuntime(),null,content=>{
+            var xml=new XmlDocument();xml.LoadXml("<Templates><Warrior Name='Default'/></Templates>");
+            CoreContentImporter.ImportWarriorTemplates(content,xml.DocumentElement);
+        });
+        Check(!session.HasErrors,"Session subscription fixture initialization failed: "+session.FormatReport());
+        var id=DefinitionId.Parse(mod.Id+":behaviors/tick_probe");
+        Check(session.HasHandlers(ModEffectEvent.Tick) && session.HasBehaviorHandler(id,ModEffectEvent.Tick),"Tick subscription missing");
+        Check(!session.HasBehaviorHandler(id,ModEffectEvent.DamageDealing),"Unregistered callback subscribed");
+        Check(!session.HasBehaviorHandler(DefinitionId.Parse("missing:behaviors/probe"),ModEffectEvent.Tick),"Inactive owner subscribed");
+        session.Dispose();
+        Check(!session.HasHandlers(ModEffectEvent.Tick) && !session.HasBehaviorHandler(id,ModEffectEvent.Tick),"Disposed subscription retained");
+    }
+    static void TickChecks(IModInteractiveBehaviorScriptContext context, ModId mod) {
+        var id=DefinitionId.Parse(mod+":behaviors/tick_probe");
+        var xml=new XmlDocument();xml.LoadXml("<Rule/>");
+        int frame=120;bool active=true;
+        var fighter=new Fighter{Capture=()=>new ModCombatSnapshot(new ModFighterSnapshot(1,1,1,0,0,0),null,frame,active)};
+        var wrapped=new ModInstanceFighter(fighter,xml.DocumentElement);
+        var fields=new Dictionary<string,string>{{"source","rule"},{"round","1"},{"fight_id","tick-fixture"}};
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.Tick,null,fields,wrapped,out var error),error);
+        frame=121;Check(context.TryInvokeBehavior(id,ModEffectEvent.Tick,null,fields,wrapped,out error),error);
+        Check(!context.TryInvokeBehavior(id,ModEffectEvent.RoundEnd,null,fields,wrapped,out error),"Tick query survived callback exit");
+        frame=180;fields["round"]="2";
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.Tick,null,fields,wrapped,out error),error);
+        active=false;Check(!context.TryInvokeBehavior(id,ModEffectEvent.Tick,null,fields,wrapped,out error),"Inactive tick accepted");
+        active=true;frame=0;Check(!context.TryInvokeBehavior(id,ModEffectEvent.Tick,null,fields,wrapped,out error),"Pre-clock tick accepted");
+        fighter.Capture=null;Check(!context.TryInvokeBehavior(id,ModEffectEvent.Tick,null,fields,wrapped,out error),"Missing tick clock accepted");
     }
     static void ActivityChecks(IModInteractiveBehaviorScriptContext context, ModId mod) {
         var id=DefinitionId.Parse(mod+":behaviors/activity_probe");

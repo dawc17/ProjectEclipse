@@ -100,6 +100,8 @@ namespace Eclipse.Modding
             return RequireRegistration().GetLocalization(key);
         }
 
+        public string ReadLocalization(DefinitionId id, string language) => RequireRegistration().ReadLocalization(id, language);
+
         public DefinitionId PatchLocalization(string target, string language, string value)
         {
             RequireCapability("content.patch");
@@ -447,7 +449,8 @@ namespace Eclipse.Modding
         DamageResolving = 8,
         DamageDealing = 9,
         ComboChanged = 10,
-        StyleChanged = 11
+        StyleChanged = 11,
+        Tick = 12
     }
 
     public interface IModScriptContext : IDisposable

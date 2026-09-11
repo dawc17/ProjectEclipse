@@ -55,6 +55,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 		private bool JKDKBHNKCPH;
 
 		private FightGamepadInput _gamepadInput;
+        private readonly Eclipse.Modding.ModUiControlGate<(FightCID, int)> _modUiControls =
+            new Eclipse.Modding.ModUiControlGate<(FightCID, int)>();
 
 		public static GameController BLOOLFFMKFI
 		{
@@ -87,6 +89,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		private void Update()
 		{
+            SyncModUiCapture();
 			NBMONJPAMHI.Render();
 			if (JKDKBHNKCPH)
 			{
@@ -347,19 +350,30 @@ namespace Nekki.SF2.Core.Fights.Controller
 		}
 
 		private void SendGamepadControlEvent(int eventType, FightCID control)
-		{
-			CBBEIGACPPD cBBEIGACPPD = new CBBEIGACPPD();
-			cBBEIGACPPD.Index = 0;
-			cBBEIGACPPD.KMOPCKPBHIA = control;
-			CallEvent(eventType, cBBEIGACPPD);
-		}
+        {
+            EmitControl(eventType, new CBBEIGACPPD { Index = 0, KMOPCKPBHIA = control });
+        }
+
+        private void SyncModUiCapture()
+        {
+            foreach (var control in _modUiControls.SetCaptured(Eclipse.UI.Modding.ModUiGameBridge.BlocksGameplayInput))
+                CallEvent(1, new CBBEIGACPPD { Index = control.Item2, KMOPCKPBHIA = control.Item1 });
+        }
+
+        private void EmitControl(int eventType, CBBEIGACPPD data)
+        {
+            SyncModUiCapture();
+            var key = (data.KMOPCKPBHIA, data.Index);
+            if (eventType == 0 ? _modUiControls.Press(key) : _modUiControls.Release(key))
+                CallEvent(eventType, data);
+        }
 
 		private void KJJNFLFLNHB(object data)
 		{
 			CBBEIGACPPD cBBEIGACPPD = (CBBEIGACPPD)data;
 			if (cBBEIGACPPD.KMOPCKPBHIA != FightCID.QuadrantZero && IsQuadrantEnabled(cBBEIGACPPD.KMOPCKPBHIA))
 			{
-				CallEvent(0, cBBEIGACPPD);
+				EmitControl(0, cBBEIGACPPD);
 			}
 		}
 
@@ -368,7 +382,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			CBBEIGACPPD cBBEIGACPPD = (CBBEIGACPPD)data;
 			if (IsQuadrantEnabled(cBBEIGACPPD.KMOPCKPBHIA))
 			{
-				CallEvent(1, cBBEIGACPPD);
+				EmitControl(1, cBBEIGACPPD);
 			}
 		}
 
@@ -379,7 +393,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			{
 				if (cBBEIGACPPD.KMOPCKPBHIA != FightCID.QuadrantZero && IsQuadrantEnabled(cBBEIGACPPD.KMOPCKPBHIA))
 				{
-					CallEvent(0, cBBEIGACPPD);
+					EmitControl(0, cBBEIGACPPD);
 				}
 			}
 			else
@@ -395,7 +409,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			{
 				if (IsQuadrantEnabled(cBBEIGACPPD.KMOPCKPBHIA))
 				{
-					CallEvent(1, cBBEIGACPPD);
+					EmitControl(1, cBBEIGACPPD);
 				}
 			}
 			else
@@ -429,7 +443,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 					{
 						item.isActive = false;
 						DFIBLGKFAHN.KMOPCKPBHIA = item.Index;
-						CallEvent(1, DFIBLGKFAHN);
+						EmitControl(1, DFIBLGKFAHN);
 					}
 				}
 			}
@@ -495,13 +509,13 @@ namespace Nekki.SF2.Core.Fights.Controller
 				if (AGEAHBBKHMB != FightCID.QuadrantZero)
 				{
 					DFIBLGKFAHN.KMOPCKPBHIA = AGEAHBBKHMB;
-					CallEvent(1, DFIBLGKFAHN);
+					EmitControl(1, DFIBLGKFAHN);
 				}
 				AGEAHBBKHMB = eCHINOPKGGI;
 				if (eCHINOPKGGI != FightCID.QuadrantZero)
 				{
 					DFIBLGKFAHN.KMOPCKPBHIA = eCHINOPKGGI;
-					CallEvent(0, DFIBLGKFAHN);
+					EmitControl(0, DFIBLGKFAHN);
 				}
 			}
 		}

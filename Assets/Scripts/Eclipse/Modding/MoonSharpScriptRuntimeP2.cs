@@ -16,6 +16,7 @@ namespace Eclipse.Modding
                 { "on_damage_received", ModEffectEvent.DamageReceived }, { "on_damage_dealt", ModEffectEvent.DamageDealt },
                 { "on_damage_resolving", ModEffectEvent.DamageResolving }, { "on_damage_dealing", ModEffectEvent.DamageDealing },
                 { "on_combo_changed", ModEffectEvent.ComboChanged }, { "on_style_changed", ModEffectEvent.StyleChanged },
+                { "on_tick", ModEffectEvent.Tick },
                 { "on_block", ModEffectEvent.Block }, { "on_critical", ModEffectEvent.Critical }
             };
             private sealed class BehaviorState

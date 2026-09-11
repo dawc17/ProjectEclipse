@@ -59,6 +59,7 @@ public class BackKeyManager : SFMonoBehaviour<object>
 
 	public void OnBackKeyClicked()
 	{
+		if (Eclipse.UI.Modding.ModUiGameBridge.TryHandleBack()) return;
 		if (BOFDPBGOPEI.Count > 0)
 		{
 			BOFDPBGOPEI[BOFDPBGOPEI.Count - 1].OnBackKeyClicked(0);

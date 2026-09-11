@@ -100,3 +100,17 @@ test('outgoing rule example validates its callback and capability', async () => 
     assert.deepEqual(mod.issues,[]);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
+
+test('combo reserve example validates native activity callbacks', async () => {
+    const directory=path.resolve(__dirname,'../../../Mods/example.combo-reserve');
+    const mod=await p.indexMod(directory);
+    assert.deepEqual(mod.issues,[]);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});
+
+test('charge UI example validates owned handles and callback capability', async () => {
+    const directory=path.resolve(__dirname,'../../../Mods/example.charge-ui');
+    const mod=await p.indexMod(directory);
+    assert.deepEqual(mod.issues,[]);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});

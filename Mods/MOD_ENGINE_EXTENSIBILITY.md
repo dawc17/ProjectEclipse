@@ -21,7 +21,7 @@ full field coverage, unrestricted behavior, or full-game acceptance. The existin
 `DE_XML_API_GAP_AUDIT.md` G01–G14 remains applicable. This review expands beyond DE
 and prioritizes author experience and reusable engine services.
 
-## Coverage against creator requests
+## Coverage against creator requests at the original review
 
 | Domain | Implemented foundation | Missing for genuinely custom content |
 | --- | --- | --- |
@@ -46,7 +46,8 @@ Source evidence: `MoonSharpScriptRuntime.cs`, `MoonSharpScriptRuntimeP2.cs` and
 projects static definitions; `Fight.cs` supplies combat dispatch;
 `ModModeRuntime.cs` consumes fixed sequences. The public rules, events-and-modes,
 quests, moves-and-tactics, locations-and-locales and fighter pages describe their
-limits. No general custom UI or programmable AI binding exists in these sources.
+limits. The original review had no general custom UI or programmable AI binding;
+subsequent delivered API changes are recorded below and in PRE_DE_WORK_LOG.md.
 
 ## Design decisions
 
@@ -234,3 +235,56 @@ the direct-rule host gap for existing campaign content and part of G01. See
 Attacker-side callbacks and bounded scaling are now implemented before defensive
 stages. Pending hit flags are observable. See PRE_DE_WORK_LOG.md for source-order,
 Lua and example checks; native gameplay and the remaining E2 controls stay open.
+
+## Native combo and style observations (API 0.13)
+
+Behavior handlers can observe native combo changes/expiry and style rank
+transitions. The combo-reserve example combines these observations with round
+state, the combat clock and outgoing scaling for a timed bonus. Its expiry is
+evaluated by subsequent callbacks; this does not supply tick subscriptions or
+status UI. See PRE_DE_WORK_LOG.md for the complete checks and native playtest
+limits. An eventual tick host needs explicit ordering around model updates and
+round settlement, plus cached subscriptions rather than full profile scans on
+each simulation frame.
+
+## Active combat ticks (API 0.14)
+
+`on_tick` runs before model/collision updates on each active combat frame, with
+an explicit frame/seconds/delta payload. Native pause gates the simulation and
+round processing gates clock advancement. Session handler subscriptions are
+cached after registration freezes, and absent handlers skip parameter/state
+resolution. Active equipment/perk eligibility is still read from the native
+host to preserve in-fight suppression; this is not a cached mutable loadout.
+The combo-reserve example now clears expired state on ticks. Native pause/round
+gameplay and performance profiling remain pending. General asynchronous tasks,
+UI lifetimes, status presentation and action/outcome authority remain separate.
+
+## Owned UI foundation (internal)
+
+An engine-independent scope/surface/tree model and Unity UI view now implement
+bounded widgets, live updates, guarded button callbacks and deterministic
+cleanup. Managed ownership tests and an isolated Unity play-mode fixture pass.
+This is not a published Lua capability: mount/input coordination and script
+lifetime integration are still required. See
+[the implementation evidence](UI_RUNTIME_IMPLEMENTATION.md) for exact source,
+supported internal primitives, native verification limits and remaining work.
+
+The internal scene coordinator now implements modal/menu/HUD ordering, bounded
+mounts, safe-area fitting, foreground input, Back, navigation ownership and scene
+cleanup. Its isolated Unity fixture includes overlapping mod canvases. Game
+entrypoints, native dialog/input routing and Lua lifetimes remain to be wired;
+the public API version remains 0.14.
+
+The game bridge now routes native dialog/Back/combat input ownership, preserves
+closing-frame consumption, and supplies on-demand mounting. Script contexts own
+UI scopes. Lua creation and handle methods remain the next integration boundary;
+full-game physical input acceptance is still pending despite passing isolated
+Unity bridge checks.
+
+API 0.15 now publishes the initial owned UI creation/update/close contract and
+a Charged Strike HUD with bounded click logic and fresh combat authority. The
+public Custom UI reference and editor definitions describe the exact limits.
+Full E4 remains open for native end-to-end acceptance, richer layout/assets/
+localization/widgets, HUD controller focus and the broader creator workflows.
+
+API 0.16 adds safe-area anchors/offsets to owned UI and connects the actual Charged Strike Lua example to the production Unity renderer in an isolated play-mode fixture. See [the UI implementation evidence](UI_RUNTIME_IMPLEMENTATION.md). Full-game acceptance and broader widget/mode workflows remain open.

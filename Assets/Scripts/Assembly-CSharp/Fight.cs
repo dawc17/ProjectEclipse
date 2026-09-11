@@ -1197,6 +1197,14 @@ public class Fight
 		if (round.processing)
 		{
 			fightTimeInFrame++;
+            // Simulation time only: pause disables RenderFight, and round boundaries
+            // disable processing. Run before model/collision updates for this frame.
+            if (_eclipseFightBeginDispatched && ModRuntime.Scripts != null &&
+                ModRuntime.Scripts.HasHandlers(ModEffectEvent.Tick))
+            {
+                DispatchEclipseCombatEvent(ModEffectEvent.Tick);
+                if (round.processing) DispatchEclipseOpponent(ModEffectEvent.Tick);
+            }
 		}
 		if (DODCPKOADGF)
 		{
@@ -2544,7 +2552,8 @@ public class Fight
             foreach (var runtimePerk in CKNCPOABFBO.KMMJCHDKBDO.NHBIJEEKALC)
             {
                 if (runtimePerk == null || !DefinitionId.TryParse(runtimePerk.Name, out var id) || !active.Add(id) ||
-                    !scripts.Content.TryGetPerk(id, out var perk) || !perk.HasBehavior) continue;
+                    !scripts.Content.TryGetPerk(id, out var perk) || !perk.HasBehavior ||
+                    !scripts.HasBehaviorHandler(perk.Behavior, effectEvent)) continue;
                 if (!_eclipseOpponentInstances.TryGetValue((CKNCPOABFBO, id), out var node))
                 {
                     var document = new System.Xml.XmlDocument(); document.LoadXml("<Perk/>");
@@ -2602,7 +2611,8 @@ public class Fight
 					if (!DefinitionId.TryParse(learnedPerk.Name, out perkId) || perkId.Category != "perks" ||
 						perkId.Namespace.Value == "core" || !dispatchedPerks.Add(perkId)) continue;
 					PerkDefinition perkDefinition;
-					if (!scripts.Content.TryGetPerk(perkId, out perkDefinition) || !perkDefinition.HasBehavior) continue;
+					if (!scripts.Content.TryGetPerk(perkId, out perkDefinition) || !perkDefinition.HasBehavior ||
+                        !scripts.HasBehaviorHandler(perkDefinition.Behavior, effectEvent)) continue;
 
 					var perkContext = new Dictionary<string, string>(StringComparer.Ordinal)
 					{
@@ -2664,7 +2674,8 @@ public class Fight
 							PerkDefinition perkDefinition;
 							if (!DefinitionId.TryParse(runtimeName, out perkId) || perkId.Category != "perks" ||
 								perkId.Namespace.Value == "core" || !scripts.Content.TryGetPerk(perkId, out perkDefinition) ||
-								!perkDefinition.HasBehavior || !dispatchedPerks.Add(perkId)) continue;
+								!perkDefinition.HasBehavior || !scripts.HasBehaviorHandler(perkDefinition.Behavior, effectEvent) ||
+                                !dispatchedPerks.Add(perkId)) continue;
 							var perkContext = new Dictionary<string, string>(context, StringComparer.Ordinal);
 							perkContext.Remove("enchantment_id");
 							perkContext["perk_id"] = perkId.ToString();
@@ -2678,7 +2689,8 @@ public class Fight
 							enchantmentId.Category != "enchantments" || enchantmentId.Namespace.Value == "core") continue;
 
 						EnchantmentDefinition definition;
-						if (!scripts.Content.TryGetEnchantment(enchantmentId, out definition) || !definition.HasBehavior) continue;
+						if (!scripts.Content.TryGetEnchantment(enchantmentId, out definition) || !definition.HasBehavior ||
+                            !scripts.HasBehaviorHandler(definition.Behavior, effectEvent)) continue;
 
 						context["enchantment_id"] = enchantmentId.ToString();
 						string error;

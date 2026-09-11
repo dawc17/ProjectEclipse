@@ -19,15 +19,20 @@ namespace Eclipse.Modding
         public const int MaxStateMigrationInstructionSlices = 20;
         public const long MaxStateMigrationInstructions = InstructionSlice * MaxStateMigrationInstructionSlices;
 
+        private readonly Action<ModUiSurface> _mountUi;
+        private readonly Func<string> _language;
+        public MoonSharpScriptRuntime() : this(null) { }
+        public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi) : this(mountUi, null) { }
+        public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi, Func<string> language) { _mountUi = mountUi; _language = language; }
         public string Name => "MoonSharp " + Script.VERSION;
 
         public IModScriptContext CreateContext(ModDescriptor mod, ModApiFacade api)
         {
-            return new MoonSharpScriptContext(mod, api);
+            return new MoonSharpScriptContext(mod, api, _mountUi, _language);
         }
 
         private sealed partial class MoonSharpScriptContext : IModScriptContext, IModBehaviorScriptContext,
-            IModInteractiveBehaviorScriptContext, IModStateMigrationScriptContext
+            IModInteractiveBehaviorScriptContext, IModStateMigrationScriptContext, IModUiScriptContext
         {
             private static readonly UTF8Encoding StrictUtf8 = new UTF8Encoding(false, true);
 
@@ -81,11 +86,17 @@ namespace Eclipse.Modding
             private bool _disposed;
 
             public ModDescriptor Mod { get; }
+            public ModUiScope UiScope { get; }
 
-            public MoonSharpScriptContext(ModDescriptor mod, ModApiFacade api)
+            private readonly Action<ModUiSurface> _mountUi;
+            private readonly Func<string> _language;
+            public MoonSharpScriptContext(ModDescriptor mod, ModApiFacade api, Action<ModUiSurface> mountUi, Func<string> language)
             {
                 Mod = mod ?? throw new ArgumentNullException(nameof(mod));
                 _api = api ?? throw new ArgumentNullException(nameof(api));
+                UiScope = new ModUiScope(mod.Id, error => api.Log(ModLogLevel.Error, "UI closed: " + error.Message));
+                _mountUi = mountUi;
+                _language = language;
                 if (api.Mod.Id != mod.Id)
                     throw new ArgumentException("Script API facade belongs to another mod.", nameof(api));
 
@@ -292,6 +303,16 @@ namespace Eclipse.Modding
                             eventTable.Set("is_hit", DynValue.NewBoolean(activity.IsHit));
                         }
                     }
+                    if (effectEvent == ModEffectEvent.Tick)
+                    {
+                        var clock = (fighter as IModCombatSnapshotSource)?.CaptureCombatSnapshot();
+                        if (clock == null || !clock.RoundActive || clock.Frame < 1)
+                            throw new ModContentException("An active combat tick clock is required.");
+                        eventTable.Set("frame", DynValue.NewNumber(clock.Frame));
+                        eventTable.Set("seconds", DynValue.NewNumber(clock.Seconds));
+                        eventTable.Set("delta_frames", DynValue.NewNumber(1));
+                        eventTable.Set("delta_seconds", DynValue.NewNumber(1.0 / 60.0));
+                    }
                     eventTable.Set("type", DynValue.NewString(effectEvent.ToString()));
                     var argument = parameterTable;
                     Action commitState = null;
@@ -458,6 +479,8 @@ namespace Eclipse.Modding
             {
                 if (_disposed) return;
                 _disposed = true;
+                UiScope.Dispose();
+                _uiHandles = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface>();
                 _modules.Clear();
                 _loading.Clear();
                 _localizationHandles.Clear();
@@ -590,6 +613,15 @@ namespace Eclipse.Modding
 
                 var localization = new Table(_script);
                 localization.Set("key", DynValue.NewCallback(LocalizationKey));
+                localization.Set("text", DynValue.NewCallback((ctx, args) => ApiCall("sf2.localization.text", () => {
+                    ThrowIfDisposed();
+                    if (args[0].Type != DataType.Table || !_localizationHandles.TryGetValue(args[0].Table, out var id))
+                        throw new ModContentException("sf2.localization.text requires a localization handle from this context.");
+                    var language = args[1];
+                    if (!language.IsNil() && language.Type != DataType.String)
+                        throw new ModContentException("Localization language must be a string.");
+                    return DynValue.NewString(_api.ReadLocalization(id, language.IsNil() ? (_language?.Invoke() ?? "eng") : language.String));
+                })));
                 localization.Set("patch", DynValue.NewCallback(LocalizationPatch));
                 root.Set("localization", DynValue.NewTable(localization));
 
@@ -753,6 +785,7 @@ namespace Eclipse.Modding
                 AddP1DModules(root);
                 AddP2Modules(root);
                 AddP3Modules(root);
+                AddUiModule(root);
 
                 DynValue value = DynValue.NewTable(root);
                 _modules.Add(moduleName, value);

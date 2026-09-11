@@ -29,6 +29,7 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/AssetResolver.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/LooseModProvider.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScripting.cs',
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModUiRuntime.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScriptingP1C.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScriptingP1D.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModWarriorTemplates.cs',
@@ -44,6 +45,7 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/ModSelection.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModLocalizationLoader.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs',
+    'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeUi.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs'
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP3.cs'

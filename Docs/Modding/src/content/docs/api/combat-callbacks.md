@@ -84,6 +84,50 @@ end,
 
 Round-lifetime behavior state is available for the new round. Use round state for effects that should recharge every round.
 
+## on_tick
+
+Update timed behavior even when neither fighter lands a hit. Available since API 0.14.
+
+**Signature:** `on_tick = function(parameters, fighter, event)`; stateful behaviors
+receive `self` instead of `parameters`.
+
+**Returns:** Nothing; returned values are ignored.
+
+**When:** Once per active combat simulation frame, after the combat clock advances
+and before model movement, collisions, AI and round settlement for that frame.
+Player callbacks run before opponent callbacks; rules run before that side's
+equipped behavior callbacks. It starts after the round-begin callbacks. Paused
+combat, round transitions and finished fights do not tick. This is the engine's
+60-frame combat clock, not wall time or a Unity display-frame callback.
+
+**Requires:** `content.register` to register the behavior. Observing the tick
+requires no extra capability; operations retain their own requirements.
+
+| Event field | Meaning |
+| --- | --- |
+| `frame` | Active combat frame number, cumulative across rounds in this fight. |
+| `seconds` | `frame / 60`. |
+| `delta_frames` | `1` for each delivered tick. |
+| `delta_seconds` | `1 / 60`; pause time is excluded. |
+
+```lua
+-- Declare elapsed as an integer in round-lifetime state.
+on_tick = function(self, fighter, event)
+    self.state.elapsed = self.state.elapsed + event.delta_frames
+    if self.state.elapsed >= 120 then
+        self.state.elapsed = self.state.elapsed - 120
+        sf2.log.info("Two seconds of active combat elapsed")
+    end
+end
+```
+
+Keep this handler small: it runs frequently. Use a counter or deadline to run
+expensive logic less often. State retains its declared round/fight/saved lifetime;
+the tick does not introduce persistent background work. Fighter methods expire
+when the handler returns, and pending-hit modifiers are unavailable. A handler
+error is isolated using the normal callback policy; it does not unsubscribe the
+handler. Mod authors should avoid repeated failing work or per-frame logging.
+
 ## on_combo_changed
 
 Observe the native combo counter for the fighter receiving this callback.
