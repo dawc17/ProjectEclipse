@@ -11,6 +11,10 @@ State is registered during startup but can only be read or changed after a playe
 profile loads. Put reads and writes inside a supported callback, not at the top
 of your entrypoint.
 
+For reproducible encounter choices, use [saved random streams](../random/)
+backed by declared integer fields. They share this API's ownership, schema and
+normal profile-save behavior.
+
 ## sf2.state.register
 
 Define the names, types, initial values, and version of your saved data.

@@ -1,0 +1,12 @@
+schema = 1
+id = "example.branching-trial"
+name = "Branching Trial"
+version = "1.0.0"
+api = ">=0.19 <1.0"
+entrypoint = "scripts/main.lua"
+authors = ["Eclipse"]
+capabilities = ["content.register"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0 <2.0"

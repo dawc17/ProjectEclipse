@@ -134,6 +134,66 @@ namespace Eclipse.Modding
             State.UnsetValue(Mod.Id, name);
         }
 
+        // Persist the stream in an ordinary owned integer field. Keep this sequence
+        // stable: saved states and reproducible mod runs depend on these constants.
+        private int ReadRandomState(string field)
+        {
+            RequireCapability("state.read");
+            RequireCapability("state.write");
+            if (!State.TryGetValue(Mod.Id, field, out var value) ||
+                value.Type != ModParameterType.Integer || value.Integer < int.MinValue || value.Integer > int.MaxValue)
+                throw new ModContentException("Random stream requires a declared integer state field with a signed 32-bit value: '" + field + "'.");
+            return (int)value.Integer;
+        }
+
+        private static uint NextRandomWord(ref int state)
+        {
+            unchecked
+            {
+                uint word = (uint)state + 0x9e3779b9u;
+                state = (int)word;
+                word = (word ^ (word >> 16)) * 0x85ebca6bu;
+                word = (word ^ (word >> 13)) * 0xc2b2ae35u;
+                return word ^ (word >> 16);
+            }
+        }
+
+        private void CommitRandomState(string field, int state)
+        {
+            State.SetValues(Mod.Id, new Dictionary<string, ModParameterValue>(StringComparer.Ordinal)
+            {
+                [field] = ModParameterValue.FromInteger(state)
+            });
+        }
+
+        public double RandomNumber(string field)
+        {
+            int state = ReadRandomState(field);
+            double result = NextRandomWord(ref state) / 4294967296.0;
+            CommitRandomState(field, state);
+            return result;
+        }
+
+        public int RandomInteger(string field, int minimum, int maximum)
+        {
+            if (minimum > maximum)
+                throw new ModContentException("Random integer minimum must not exceed maximum.");
+            int state = ReadRandomState(field);
+            ulong range = (ulong)((long)maximum - minimum + 1);
+            ulong limit = (4294967296UL / range) * range;
+            // Rejection avoids modulo bias. Bound native work independently of the
+            // Lua instruction budget; a rejected call leaves the saved stream intact.
+            for (int attempt = 0; attempt < 128; attempt++)
+            {
+                uint word = NextRandomWord(ref state);
+                if (word >= limit) continue;
+                int result = (int)(minimum + (long)(word % range));
+                CommitRandomState(field, state);
+                return result;
+            }
+            throw new ModContentException("Random integer rejection limit reached; saved stream was not advanced.");
+        }
+
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
             AssetId model, string subType)
         {
@@ -428,6 +488,11 @@ namespace Eclipse.Modding
                 throw new InvalidOperationException("This script context has no content registration transaction.");
             return Registration;
         }
+    }
+
+    public interface IModModeScriptContext
+    {
+        bool TryChooseModeNext(ModModeDefinition mode, bool won, int step, int completions, out int? selectedStep, out string error);
     }
 
     public interface IModScriptRuntime

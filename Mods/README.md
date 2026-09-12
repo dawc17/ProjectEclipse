@@ -10,7 +10,17 @@ The dependency-ordered engineering roadmap is
 [DE_API_IMPLEMENTATION_PLAN.md](DE_API_IMPLEMENTATION_PLAN.md). Agents working on
 DE parity or Mod API expansion must read both parity documents before editing.
 
-Current public Mod API version: **0.16.0**.
+Current public Mod API version: **0.19.0**.
+
+API 0.19 adds result-driven mode branching through `on_result`, preserving native settlement. See [Branching Trial](example.branching-trial/README.md).
+
+API 0.21 adds bounded UI `on_close` notification after input/renderer teardown. Charged Strike now cancels its armed bonus when its HUD closes.
+
+API 0.20 adds saved random streams through `sf2.random.integer` and `sf2.random.number`. See [Seeded Trial](example.seeded-trial/README.md); draws use owned integer state fields and require both state capabilities.
+
+API 0.18 adds bounded widget styles and native game skin defaults for custom UI.
+
+API 0.17 adds `sf2.localization.text` for current-language strings in Lua and custom UI.
 
 API 0.16 adds safe-area anchors and bounded offsets to custom UI views.
 

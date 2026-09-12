@@ -45,6 +45,10 @@ for (const source of sources) {
   for (const [, name] of source.matchAll(/\{\s*"(on_\w+)"\s*,\s*ModEffectEvent\./g)) exported.add(name);
 }
 
+if (sources.some(source => /table\.Get\("on_result"\)/.test(source))) exported.add('on_result');
+for (const name of ['on_click', 'on_close'])
+  if (sources.some(source => source.includes(`table.Get("${name}")`))) exported.add(name);
+
 const parser = unified().use(remarkParse);
 const documented = new Map();
 const failures = [];

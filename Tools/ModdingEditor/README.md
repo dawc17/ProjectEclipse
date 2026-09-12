@@ -1,7 +1,7 @@
 # Eclipse Modding for VS Code
 
-Editor support for all 32 public Eclipse API modules: 110 functions, aliases, and
-callbacks; 76 constants; and 147 typed structures. Version 0.1.0 retains the ID
+Editor support for all 32 public Eclipse API modules: 112 functions, aliases, and
+callbacks; 76 constants; and 149 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 ## Install
@@ -151,3 +151,23 @@ API 0.14 adds typed `on_tick` event fields (`frame`, `seconds`, `delta_frames`,
 simulation ticks. Editor completion does not replace a Unity pause/round playtest.
 
 API 0.16 adds typed `placement` completion for UI anchors and offsets. The Charged Strike starter places its HUD near the top-right safe-area corner.
+
+API 0.17 adds `sf2.localization.text(key, language?)` for translated strings. Charged Strike includes English and Polish translation files and refreshes localized labels using Lua.
+
+API 0.18 adds typed UI style fields. Defaults reuse the game font, parchment, beveled buttons and combat bar textures; styles provide limited explicit overrides.
+
+API 0.19 adds mode/event/raid `on_result` completion and result types. The `templates/branching-trial` starter demonstrates saved alternating routes with original game assets.
+
+API 0.20 adds `sf2.random.integer(field, minimum, maximum)` and
+`sf2.random.number(field)`, backed by declared integer save fields. Diagnostics
+report each missing capability separately: draws require both `state.read` and
+`state.write`. The manual `templates/seeded-trial` starter uses a saved stream to
+select a route; it retains the original game assets. LuaLS checks signatures and
+the example, while runtime fixtures verify save/reload and stream behavior.
+
+
+API 0.21 adds typed `on_close(view, reason)` notification to UI definitions.
+The public reference and generated callback inventory cover both `on_click`
+and `on_close`. Charged Strike demonstrates canceling pending gameplay state
+when its native view closes, retaining the existing game skin. Shutdown does
+not execute close callbacks; editor completion does not prove lifecycle timing.

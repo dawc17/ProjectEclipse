@@ -6,6 +6,7 @@ namespace Eclipse.Modding
     public static class ModModeRuntime
     {
         public static Action<string> Warning;
+        public static Func<ModModeDefinition,bool,int,int,int?> SelectNext;
         private static XmlNode _warrior;
         private static string _activeFight;
         private static bool _newReservation;
@@ -38,6 +39,7 @@ namespace Eclipse.Modding
         }
         public static bool IsRaid(FightList fight) => fight != null && TryFind(fight.BCKFACGMOKC.ToString(), out var mode) && mode.Raid;
         public static bool IsRaid(string runtimeId) => TryFind(runtimeId, out var mode) && mode.Raid;
+        public static bool HasCustomRouting(FightList fight) => fight != null && TryFind(fight.BCKFACGMOKC.ToString(),out var mode) && mode.UsesResultCallback;
 
         public static bool OwnsBattle(Battle battle)
         {
@@ -91,6 +93,7 @@ namespace Eclipse.Modding
         }
         public static string ProgressLabel(FightList fight)
         {
+            if (HasCustomRouting(fight)) return "";
             if (fight == null || !TryFind(fight.BCKFACGMOKC.ToString(), out var mode)) return "";
             var progress = new ModModeProgress(_warrior, mode);
             return " (" + (progress.Step + 1) + "/" + mode.Fights.Count + ")";
@@ -187,13 +190,22 @@ namespace Eclipse.Modding
         public static void Complete(FightList fight, bool won)
         {
             if (fight == null || _activeFight != fight.BCKFACGMOKC.ToString() || !TryFind(_activeFight, out var mode)) return;
+            _activeFight = null;
             try
             {
                 var progress = new ModModeProgress(_warrior, mode);
-                _completedMode = won && progress.Step == mode.Fights.Count - 1;
-                _resetMode = !won && mode.ResetOnLoss;
-                progress.Complete(mode, won);
-                _activeFight = null;
+                int before=progress.Completions;
+                int? selected=null;
+                try { selected=SelectNext?.Invoke(mode,won,progress.Step,progress.Completions); }
+                catch (Exception exception) { Reject("Mode result callback failed; using default progression. "+exception.Message); }
+                if (selected.HasValue && (selected < 0 || selected > mode.Fights.Count))
+                {
+                    Reject("Mode result callback selected an invalid step; using default progression.");
+                    selected=null;
+                }
+                progress.Complete(mode, won, selected);
+                _completedMode = progress.Completions > before;
+                _resetMode = !_completedMode && !won && progress.Step == 0 && (selected.HasValue || mode.ResetOnLoss);
                 ListSF.CCDKHLAMKKO().GGGEHAGCLGC(true);
             }
             catch (Exception exception) { Reject(exception.Message); }

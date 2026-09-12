@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.16.0",
+  "apiVersion": "0.21.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -271,6 +271,18 @@
       "requires": "`content.register`; other owners must be declared dependencies.",
       "when": "Entrypoint, after localization files have been discovered by the host."
     },
+    "sf2.localization.text": {
+      "params": {
+        "key": "Eclipse.LocalizationHandle",
+        "language?": "string"
+      },
+      "returns": "A plain translated string. Resolution uses the requested language, then `eng`, then an empty string if neither exists. Invalid handles or language values raise an error. Available since API **0.17**.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationtext",
+      "summary": "",
+      "requires": "A localization handle created by this script context; no additional capability for reading. Creating the handle requires `content.register` and the usual dependency declaration when referencing another owner.",
+      "when": "Entrypoint or later callbacks. Obtain the handle with `key` during registration and retain it for later reads. Each call reads current content, including committed localization patches; it does not freeze a translation at registration time. A patch made in the current transaction is also readable before commit."
+    },
     "sf2.localization.patch": {
       "params": {
         "definition": "Eclipse.LocalizationPatch"
@@ -325,6 +337,36 @@
       "summary": "Remove a field's explicit value and apply its schema's default, if it has one.",
       "requires": "`state.write`.",
       "when": "A supported callback after profile load."
+    },
+    "sf2.random.integer": {
+      "params": {
+        "field": "string",
+        "minimum": "integer",
+        "maximum": "integer"
+      },
+      "returns": "Integer between `minimum` and `maximum`, inclusive.",
+      "capability": [
+        "state.read",
+        "state.write"
+      ],
+      "url": "https://dawc17.github.io/ProjectEclipse/api/random/#sf2randominteger",
+      "summary": "Draw a whole number with equal probability for each value in an inclusive range.",
+      "requires": "`state.read` and `state.write`; an owned, declared integer state field.",
+      "when": "After profile state is bound, in a supported callback."
+    },
+    "sf2.random.number": {
+      "params": {
+        "field": "string"
+      },
+      "returns": "Number in `[0, 1)`, in increments of `1 / 4294967296`.",
+      "capability": [
+        "state.read",
+        "state.write"
+      ],
+      "url": "https://dawc17.github.io/ProjectEclipse/api/random/#sf2randomnumber",
+      "summary": "Draw a fractional value from zero inclusive to one exclusive.",
+      "requires": "`state.read` and `state.write`; an owned, declared integer state field.",
+      "when": "After profile state is bound, in a supported callback."
     },
     "sf2.behaviors.register": {
       "params": {
@@ -1046,6 +1088,13 @@
     "on_style_changed",
     "on_round_end",
     "on_fight_end"
+  ],
+  "modeCallbacks": [
+    "on_result"
+  ],
+  "uiCallbacks": [
+    "on_click",
+    "on_close"
   ],
   "fighterMethods": {
     "snapshot": {
@@ -2213,6 +2262,15 @@
         "expected_wait?": "Eclipse.TacticWeight[]"
       }
     },
+    "ModeResult": {
+      "fields": {
+        "won": "boolean",
+        "step": "integer",
+        "total": "integer",
+        "completions": "integer",
+        "fight_id": "string"
+      }
+    },
     "ModeDefinition": {
       "fields": {
         "id": "string",
@@ -2223,7 +2281,8 @@
         "starts_at?": "integer",
         "ends_at?": "integer",
         "entry_item?": "Eclipse.ItemHandle",
-        "entry_count?": "integer"
+        "entry_count?": "integer",
+        "on_result?": "fun(result:Eclipse.ModeResult):Eclipse.FightHandle|\"complete\"|nil"
       }
     },
     "RaidDefinition": {
@@ -2237,6 +2296,7 @@
         "ends_at?": "integer",
         "entry_item?": "Eclipse.ItemHandle",
         "entry_count?": "integer",
+        "on_result?": "fun(result:Eclipse.ModeResult):Eclipse.FightHandle|\"complete\"|nil",
         "hard_mode?": "boolean"
       }
     },
@@ -2269,6 +2329,15 @@
         "private __eclipseUi": "true"
       }
     },
+    "UiStyle": {
+      "fields": {
+        "font_size?": "integer",
+        "text_align?": "\"left\"|\"center\"|\"right\"",
+        "text_color?": "string",
+        "background_color?": "string",
+        "fill_color?": "string"
+      }
+    },
     "UiNode": {
       "fields": {
         "id": "string",
@@ -2280,7 +2349,8 @@
         "value?": "number",
         "visible?": "boolean",
         "enabled?": "boolean",
-        "children?": "Eclipse.UiNode[]"
+        "children?": "Eclipse.UiNode[]",
+        "style?": "Eclipse.UiStyle"
       }
     },
     "UiPlacement": {
@@ -2296,7 +2366,8 @@
         "mount": "\"menu\"|\"modal\"|\"hud\"",
         "root": "Eclipse.UiNode",
         "placement?": "Eclipse.UiPlacement",
-        "on_click?": "fun(view:Eclipse.UiHandle,widget_id:string)"
+        "on_click?": "fun(view:Eclipse.UiHandle,widget_id:string)",
+        "on_close?": "fun(view:Eclipse.UiHandle,reason:\"script\"|\"back\"|\"scene\"|\"error\"|\"destroyed\")"
       }
     }
   }

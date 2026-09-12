@@ -1,0 +1,9 @@
+trial = "Branching Trial"
+trial.description = "Alternate between a shortcut and a full route. Losing returns to the first encounter."
+fighter = "Trial fighter"
+
+zones/trial = "Branching Trial"
+
+fighter.1 = "Gatekeeper"
+fighter.2 = "Bulwark"
+fighter.3 = "Night Warden"

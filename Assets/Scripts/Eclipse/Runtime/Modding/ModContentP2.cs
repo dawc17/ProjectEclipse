@@ -47,8 +47,9 @@ namespace Eclipse.Modding
         public DefinitionId EntryItem { get; }
         public int EntryCount { get; }
         public bool HasEntryItem => EntryCount > 0;
+        public bool UsesResultCallback { get; }
         internal ModModeDefinition(DefinitionId id, DefinitionId[] fights, bool repeatable, bool resetOnLoss,
-            bool raid, bool hardMode, int minimumLevel, long startsAt, long endsAt, DefinitionId entryItem, int entryCount)
+            bool raid, bool hardMode, int minimumLevel, long startsAt, long endsAt, DefinitionId entryItem, int entryCount, bool usesResultCallback = false)
         {
             if (fights == null || fights.Length < 1 || fights.Length > 100) throw new ModContentException("Mode requires 1..100 fights.");
             if (minimumLevel < 1 || minimumLevel > 1000 || startsAt < 0 || endsAt < 0 || (endsAt > 0 && endsAt <= startsAt))
@@ -58,6 +59,7 @@ namespace Eclipse.Modding
             Id = id; Fights = Array.AsReadOnly((DefinitionId[])fights.Clone()); Repeatable = repeatable;
             ResetOnLoss = resetOnLoss; Raid = raid; HardMode = hardMode; MinimumLevel = minimumLevel;
             StartsAt = startsAt; EndsAt = endsAt; EntryItem = entryItem; EntryCount = entryCount;
+            UsesResultCallback = usesResultCallback;
         }
         public bool IsAvailable(int level, long now) => level >= MinimumLevel && now >= StartsAt && (EndsAt == 0 || now < EndsAt);
     }
@@ -100,10 +102,10 @@ namespace Eclipse.Modding
         private readonly Dictionary<string, ModTimerPolicy> _timers = new Dictionary<string, ModTimerPolicy>();
         private readonly HashSet<string> _disabledFeatures = new HashSet<string>();
         public ModModeDefinition RegisterMode(string id, DefinitionId[] fights, bool repeatable, bool resetOnLoss,
-            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count)
+            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count, bool usesResultCallback = false)
         {
             ThrowIfCompleted(); EnsureCapacityForNewRegistration();
-            var mode = new ModModeDefinition(Qualify("modes", id), fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count);
+            var mode = new ModModeDefinition(Qualify("modes", id), fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count, usesResultCallback);
             if (_modes.ContainsKey(mode.Id)) throw new ModContentException("Duplicate mode: " + mode.Id);
             _modes.Add(mode.Id, mode); return mode;
         }
@@ -174,10 +176,10 @@ namespace Eclipse.Modding
     public sealed partial class ModApiFacade
     {
         public ModModeDefinition RegisterMode(string id, DefinitionId[] fights, bool repeatable, bool resetOnLoss,
-            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count)
+            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count, bool usesResultCallback = false)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterMode(id, fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count);
+            return RequireRegistration().RegisterMode(id, fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count, usesResultCallback);
         }
         public void SetTimer(string subsystem, int seconds, bool skip) { RequireCapability("policy.timers"); RequireRegistration().SetTimer(subsystem, seconds, skip); }
         public void DisableFeature(string feature) { RequireCapability("policy.services"); RequireRegistration().DisableFeature(feature); }
@@ -248,12 +250,21 @@ namespace Eclipse.Modding
         public void Enter() { _node.SetAttribute("Entered", "1"); }
         public void CancelEnter() { _node.SetAttribute("Entered", "0"); }
         public void Complete(ModModeDefinition mode, bool won)
+            => Complete(mode, won, null);
+        public void Complete(ModModeDefinition mode, bool won, int? selectedStep)
         {
             if (!Entered) return;
+            int next = selectedStep ?? (won ? Step + 1 : mode.ResetOnLoss ? 0 : Step);
+            if (next < 0 || next > mode.Fights.Count) throw new ModContentException("Selected mode step is outside its fight roster.");
+            int completions = Completions;
+            if (next == mode.Fights.Count)
+            {
+                completions = checked(completions + 1);
+                if (mode.Repeatable) next = 0;
+            }
+            // Validate the complete transition before releasing the entry reservation.
             _node.SetAttribute("Entered", "0");
-            if (!won) { if (mode.ResetOnLoss) Write("Step", 0); return; }
-            int next = Step + 1;
-            if (next == mode.Fights.Count) { Write("Completions", checked(Completions + 1)); if (mode.Repeatable) next = 0; }
+            Write("Completions", completions);
             Write("Step", next);
         }
     }

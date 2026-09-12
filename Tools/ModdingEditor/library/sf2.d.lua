@@ -964,6 +964,14 @@ local TacticWeight = {}
 ---@field expected_wait? Eclipse.TacticWeight[]
 local TacticDefinition = {}
 
+---@class (exact) Eclipse.ModeResult
+---@field won boolean
+---@field step integer
+---@field total integer
+---@field completions integer
+---@field fight_id string
+local ModeResult = {}
+
 ---@class (exact) Eclipse.ModeDefinition
 ---@field id string
 ---@field fights Eclipse.FightHandle[]
@@ -974,6 +982,7 @@ local TacticDefinition = {}
 ---@field ends_at? integer
 ---@field entry_item? Eclipse.ItemHandle
 ---@field entry_count? integer
+---@field on_result? fun(result:Eclipse.ModeResult):Eclipse.FightHandle|"complete"|nil
 local ModeDefinition = {}
 
 ---@class (exact) Eclipse.RaidDefinition
@@ -986,6 +995,7 @@ local ModeDefinition = {}
 ---@field ends_at? integer
 ---@field entry_item? Eclipse.ItemHandle
 ---@field entry_count? integer
+---@field on_result? fun(result:Eclipse.ModeResult):Eclipse.FightHandle|"complete"|nil
 ---@field hard_mode? boolean
 local RaidDefinition = {}
 
@@ -1014,6 +1024,14 @@ local AchievementDefinition = {}
 ---@field private __eclipseUi true
 local UiHandle = {}
 
+---@class (exact) Eclipse.UiStyle
+---@field font_size? integer
+---@field text_align? "left"|"center"|"right"
+---@field text_color? string
+---@field background_color? string
+---@field fill_color? string
+local UiStyle = {}
+
 ---@class (exact) Eclipse.UiNode
 ---@field id string
 ---@field kind "stack"|"row"|"column"|"scroll"|"text"|"button"|"progress"
@@ -1025,6 +1043,7 @@ local UiHandle = {}
 ---@field visible? boolean
 ---@field enabled? boolean
 ---@field children? Eclipse.UiNode[]
+---@field style? Eclipse.UiStyle
 local UiNode = {}
 
 ---@class (exact) Eclipse.UiPlacement
@@ -1039,6 +1058,7 @@ local UiPlacement = {}
 ---@field root Eclipse.UiNode
 ---@field placement? Eclipse.UiPlacement
 ---@field on_click? fun(view:Eclipse.UiHandle,widget_id:string)
+---@field on_close? fun(view:Eclipse.UiHandle,reason:"script"|"back"|"scene"|"error"|"destroyed")
 local UiDefinition = {}
 
 ---@class Eclipse.Module_achievements
@@ -1112,6 +1132,9 @@ local quests = {}
 
 ---@class Eclipse.Module_raids
 local raids = {}
+
+---@class Eclipse.Module_random
+local random = {}
 
 ---@class Eclipse.Module_rewards
 local rewards = {}
@@ -1346,6 +1369,15 @@ function assets.replace(definition) end
 ---@return Eclipse.LocalizationHandle
 function localization.key(key) end
 
+---Requires: A localization handle created by this script context; no additional capability for reading. Creating the handle requires `content.register` and the usual dependency declaration when referencing another owner.
+---When: Entrypoint or later callbacks. Obtain the handle with `key` during registration and retain it for later reads. Each call reads current content, including committed localization patches; it does not freeze a translation at registration time. A patch made in the current transaction is also readable before commit.
+---Returns: A plain translated string. Resolution uses the requested language, then `eng`, then an empty string if neither exists. Invalid handles or language values raise an error. Available since API **0.17**.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationtext)
+---@param key Eclipse.LocalizationHandle
+---@param language? string
+---@return string
+function localization.text(key, language) end
+
 ---Replace one language value of an existing localization definition.
 ---Requires: `content.patch`, plus a dependency on the target's owner.
 ---When: Entrypoint.
@@ -1386,6 +1418,26 @@ function state.set(values) end
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/mod-state/#sf2stateunset)
 ---@param name string
 function state.unset(name) end
+
+---Draw a whole number with equal probability for each value in an inclusive range.
+---Requires: `state.read` and `state.write`; an owned, declared integer state field.
+---When: After profile state is bound, in a supported callback.
+---Returns: Integer between `minimum` and `maximum`, inclusive.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/random/#sf2randominteger)
+---@param field string
+---@param minimum integer
+---@param maximum integer
+---@return integer
+function random.integer(field, minimum, maximum) end
+
+---Draw a fractional value from zero inclusive to one exclusive.
+---Requires: `state.read` and `state.write`; an owned, declared integer state field.
+---When: After profile state is bound, in a supported callback.
+---Returns: Number in `[0, 1)`, in increments of `1 / 4294967296`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/random/#sf2randomnumber)
+---@param field string
+---@return number
+function random.number(field) end
 
 ---Register a behavior with one or more supported combat callbacks.
 ---Requires: `content.register`. Operations performed by callbacks may require additional capabilities such as `combat.magic_charge`.
@@ -2186,4 +2238,4 @@ function Fighter:add_damage_shield(key, fraction, frames) end
 ---@param key string
 function Fighter:remove_damage_shield(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, progression = progression, quests = quests, raids = raids, rewards = rewards, rules = rules, services = services, shop = shop, state = state, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, services = services, shop = shop, state = state, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }

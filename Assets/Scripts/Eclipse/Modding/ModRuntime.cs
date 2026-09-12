@@ -23,11 +23,17 @@ namespace Eclipse.Modding
             _legacyContent = null;
             _scripts?.Dispose();
             ModModeRuntime.Clear();
+            ModModeRuntime.SelectNext = null;
             ModModeRuntime.Warning = message => Debug.LogWarning(message);
             ModPolicies.Content = null;
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(Eclipse.UI.Modding.ModUiGameBridge.Attach,
                 () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name), LogScript, ImportCoreContent);
             ModPolicies.Content = _scripts.Content;
+            ModModeRuntime.SelectNext = (mode,won,step,completions) => {
+                if (_scripts.TryChooseModeNext(mode,won,step,completions,out var selected,out var error)) return selected;
+                Debug.LogWarning("[ModMode] Result callback failed; using default progression. "+error);
+                return null;
+            };
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
             return _scripts;
@@ -496,6 +502,7 @@ namespace Eclipse.Modding
         public static void Shutdown()
         {
             ModModeRuntime.Clear();
+            ModModeRuntime.SelectNext = null;
             ModProgressionAccess.Clear();
             ModPolicies.Content = null;
             _legacyContent?.Dispose();

@@ -212,6 +212,30 @@ async function main() {
         return labels(result).some(name=>name.startsWith('anchor'));
     },'UI placement completion');
     console.log('PASS: UI layout nodes complete from the open definition');
+    const modeResult=probe('mode-result.lua','local sf2=require("sf2")\nsf2.modes.register { id="trial",fights={},on_result=function(result)\n local won=result.|\nend }');
+    await until(async()=>labels(await request('textDocument/completion',modeResult)).includes('completions'),'mode result callback completion');
+    const uiStyle=probe('ui-style.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ id="root",kind="text",style={ | } } }');
+    await until(async()=>labels(await request('textDocument/completion',uiStyle)).some(name=>name.startsWith('font_size')),'UI style completion');
+    const closeDefinition=probe('ui-close.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu", | }');
+    await until(async()=>labels(await request('textDocument/completion',closeDefinition)).some(name=>name.startsWith('on_close')),'UI close callback completion');
+    const chargeText=fs.readFileSync(path.join(root,'templates/charge-ui/scripts/main.lua'),'utf8');
+    const chargeUri=open('charge-close.lua',chargeText+'\nsf2.ui.is_open("bad handle")');
+    const chargeKey=decodeURIComponent(chargeUri).toLowerCase();
+    await until(()=>(diagnostics.get(chargeKey)?.length??0)>0,'temporary UI handle diagnostic');
+    notify('textDocument/didChange',{textDocument:{uri:chargeUri,version:2},contentChanges:[{text:chargeText}]});
+    await until(()=>diagnostics.get(chargeKey)?.length===0,'cleared Charged Strike close callback diagnostics')
+        .catch(error=>{throw new Error(error.message+'\n'+JSON.stringify(diagnostics.get(chargeKey)));});
+    console.log('PASS: UI close callback completes and Charged Strike has no diagnostics');
+
+    const random=probe('random.lua','local sf2=require("sf2")\nsf2.random.|');
+    await until(async()=>{const found=labels(await request('textDocument/completion',random));return ['integer','number'].every(name=>found.some(label=>label.startsWith(name)));},'random stream functions');
+    const seededText=fs.readFileSync(path.join(root,'templates/seeded-trial/scripts/main.lua'),'utf8');
+    const seededUri=open('seeded.lua',seededText+'\nsf2.random.integer("route","invalid",3)');
+    const seededKey=decodeURIComponent(seededUri).toLowerCase();
+    await until(()=>(diagnostics.get(seededKey)?.length??0)>0,'random bound type diagnostic');
+    notify('textDocument/didChange',{textDocument:{uri:seededUri,version:2},contentChanges:[{text:seededText}]});
+    await until(()=>diagnostics.get(seededKey)?.length===0,'cleared seeded mode diagnostics');
+    console.log('PASS: random functions complete and seeded trial has no diagnostics');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

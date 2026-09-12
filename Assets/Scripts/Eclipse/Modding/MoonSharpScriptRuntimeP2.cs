@@ -157,6 +157,32 @@ namespace Eclipse.Modding
                 return time;
             }
 
+            private readonly Dictionary<DefinitionId, DynValue> _modeResultHandlers = new Dictionary<DefinitionId, DynValue>();
+            public bool TryChooseModeNext(ModModeDefinition mode, bool won, int step, int completions, out int? selectedStep, out string error)
+            {
+                selectedStep = null; error = null;
+                try
+                {
+                    ThrowIfDisposed();
+                    if (mode == null || mode.Id.Namespace != Mod.Id) throw new ModContentException("Mode callback owner mismatch.");
+                    if (!_modeResultHandlers.TryGetValue(mode.Id,out var handler)) return true;
+                    if (step < 0 || step >= mode.Fights.Count || completions < 0) throw new ModContentException("Invalid mode result snapshot.");
+                    var snapshot = new Table(_script);
+                    snapshot.Set("won",DynValue.NewBoolean(won));
+                    snapshot.Set("step",DynValue.NewNumber(step+1));
+                    snapshot.Set("total",DynValue.NewNumber(mode.Fights.Count));
+                    snapshot.Set("completions",DynValue.NewNumber(completions));
+                    snapshot.Set("fight_id",DynValue.NewString(mode.Fights[step].ToString()));
+                    var result = RunBounded(handler,mode.Id+":on_result",MaxBehaviorInstructionSlices,new[]{DynValue.NewTable(snapshot)});
+                    if (result.IsNil()) return true;
+                    if (result.Type == DataType.String && result.String == "complete") { selectedStep=mode.Fights.Count; return true; }
+                    if (result.Type == DataType.Table && _fightHandles.TryGetValue(result.Table,out var fight))
+                        for (int i=0;i<mode.Fights.Count;i++) if(mode.Fights[i]==fight) { selectedStep=i; return true; }
+                    throw new ModContentException("Mode on_result must return nil, 'complete', or a fight handle in this mode's roster.");
+                }
+                catch (Exception exception) { error=exception.Message; return false; }
+            }
+
             private DynValue RegisterMode(CallbackArguments args, string category)
             {
                 string function = "sf2." + category + ".register";
@@ -164,7 +190,9 @@ namespace Eclipse.Modding
                 {
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
                     ValidateFields(table, function, "id", "fights", "repeatable", "reset_on_loss", "minimum_level",
-                        "starts_at", "ends_at", "entry_item", "entry_count", "hard_mode");
+                        "starts_at", "ends_at", "entry_item", "entry_count", "hard_mode", "on_result");
+                    var onResult=table.Get("on_result");
+                    if (!onResult.IsNil() && onResult.Type != DataType.Function) throw new ModContentException("Mode on_result must be a Lua function.");
                     var list = table.Get("fights");
                     if (list.Type != DataType.Table || list.Table.Length == 0) throw new ModContentException("Mode requires fights.");
                     int length = list.Table.Length;
@@ -192,7 +220,8 @@ namespace Eclipse.Modding
                         category == "raids", OptionalBool(table, "hard_mode", false, function),
                         table.Get("minimum_level").IsNil() ? 1 : RequiredInt(table, "minimum_level", function),
                         ReadUnixTime(table, "starts_at"),
-                        ReadUnixTime(table, "ends_at"), item, count);
+                        ReadUnixTime(table, "ends_at"), item, count, !onResult.IsNil());
+                    if (!onResult.IsNil()) _modeResultHandlers.Add(mode.Id,onResult);
                     return DynValue.Nil;
                 });
             }

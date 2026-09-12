@@ -55,6 +55,15 @@ namespace Eclipse.Modding
                         }
         }
 
+        public bool TryChooseModeNext(ModModeDefinition mode, bool won, int step, int completions, out int? selectedStep, out string error)
+        {
+            selectedStep=null;error=null;
+            foreach (var context in _contexts)
+                if (context.Mod.Id == mode.Id.Namespace && context is IModModeScriptContext callbacks)
+                    return callbacks.TryChooseModeNext(mode,won,step,completions,out selectedStep,out error);
+            return true;
+        }
+
         public bool HasHandlers(ModEffectEvent kind) =>
             _subscriptions.TryGetValue(kind, out var ids) && ids.Count != 0;
 

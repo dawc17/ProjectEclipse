@@ -8,6 +8,7 @@ namespace Eclipse.Modding
     {
         private sealed partial class MoonSharpScriptContext
         {
+            private int _uiCloseDepth;
             private System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface> _uiHandles =
                 new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface>();
 
@@ -61,10 +62,11 @@ namespace Eclipse.Modding
             private DynValue OpenUi(CallbackArguments args)
             {
                 ThrowIfDisposed(); _api.RequireCapability("ui.create");
+                if (_uiCloseDepth != 0) throw new ModContentException("UI cannot be opened from on_close; finish cleanup before opening another surface.");
                 if (_mountUi == null) throw new ModContentException("Custom UI rendering is unavailable in this host.");
                 const string function = "sf2.ui.open";
                 var table = args.AsType(0, function, DataType.Table, false).Table;
-                ValidateFields(table, function, "id", "mount", "root", "on_click", "placement");
+                ValidateFields(table, function, "id", "mount", "root", "on_click", "on_close", "placement");
                 string id = RequiredString(table, "id", function);
                 ModUiMount mount;
                 switch (RequiredString(table, "mount", function))
@@ -77,6 +79,9 @@ namespace Eclipse.Modding
                 var callback = table.Get("on_click");
                 if (!callback.IsNil() && callback.Type != DataType.Function)
                     throw new ModContentException("UI on_click must be a Lua function.");
+                var onClose = table.Get("on_close");
+                if (!onClose.IsNil() && onClose.Type != DataType.Function)
+                    throw new ModContentException("UI on_close must be a Lua function.");
                 int count = 0;
                 var node = ReadUiNode(table.Get("root"), 1, ref count);
                 ModUiPlacement placement = null;
@@ -95,7 +100,17 @@ namespace Eclipse.Modding
                     if (!ready) throw new ModContentException("UI input arrived before mounting completed.");
                     RunBounded(callback, Mod.Id + ":ui/" + id + ":on_click", MaxBehaviorInstructionSlices,
                         new[] { handle, DynValue.NewString(widget) });
-                }, placement);
+                }, placement, reason => {
+                    // A failed mount or dead script has no live Lua view to notify.
+                    if (!ready || _disposed || reason == ModUiCloseReason.Shutdown || onClose.IsNil()) return;
+                    _uiCloseDepth++;
+                    try
+                    {
+                        RunBounded(onClose, Mod.Id + ":ui/" + id + ":on_close", MaxBehaviorInstructionSlices,
+                            new[] { handle, DynValue.NewString(reason.ToString().ToLowerInvariant()) });
+                    }
+                    finally { _uiCloseDepth--; }
+                });
                 try
                 {
                     _uiHandles.Add(handle.Table, surface);
@@ -113,7 +128,7 @@ namespace Eclipse.Modding
                 if (value.Type != DataType.Table) throw new ModContentException("UI nodes must be tables.");
                 const string function = "UI node";
                 var node = value.Table;
-                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "visible", "enabled", "children");
+                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "visible", "enabled", "children", "style");
                 ModUiKind kind;
                 switch (RequiredString(node, "kind", function))
                 {
@@ -145,7 +160,27 @@ namespace Eclipse.Modding
                 return new ModUiNode(RequiredString(node,"id",function), kind,
                     UiNumber(node,"width"), UiNumber(node,"height"), OptionalStringAllowEmpty(node,"text","",function),
                     UiNumber(node,"value"), OptionalBool(node,"visible",true,function), OptionalBool(node,"enabled",true,function),
-                    UiNumber(node,"gap"), children);
+                    UiNumber(node,"gap"), children, ReadUiStyle(node.Get("style")));
+            }
+
+            private ModUiStyle ReadUiStyle(DynValue value)
+            {
+                if (value.IsNil()) return null;
+                const string function = "UI style";
+                if (value.Type != DataType.Table) throw new ModContentException("UI style must be a table.");
+                var table = value.Table;
+                ValidateFields(table, function, "text_color", "background_color", "fill_color", "font_size", "text_align");
+                int? size = null;
+                if (!table.Get("font_size").IsNil())
+                {
+                    double number = UiNumber(table,"font_size");
+                    if (double.IsNaN(number) || double.IsInfinity(number) || number < 8 || number > 128 || number != Math.Truncate(number))
+                        throw new ModContentException("UI font_size must be an integer from 8 to 128.");
+                    size = (int)number;
+                }
+                return new ModUiStyle(OptionalString(table,"text_color",null,function),
+                    OptionalString(table,"background_color",null,function), OptionalString(table,"fill_color",null,function),
+                    size, OptionalString(table,"text_align",null,function));
             }
 
             private static double UiNumber(Table table, string name)

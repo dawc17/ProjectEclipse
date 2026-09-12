@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace Eclipse.Modding
 {
+    public enum ModUiCloseReason { Script, Back, Scene, Error, Destroyed, Shutdown }
+
     public interface IModUiScriptContext
     {
         ModUiScope UiScope { get; }
@@ -71,6 +73,55 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModUiColor
+    {
+        public byte R { get; }
+        public byte G { get; }
+        public byte B { get; }
+        public byte A { get; }
+        public ModUiColor(string hex)
+        {
+            if (hex == null || (hex.Length != 7 && hex.Length != 9) || hex[0] != '#')
+                throw new ArgumentException("UI colors require #RRGGBB or #RRGGBBAA.");
+            for (int i = 1; i < hex.Length; i++)
+                if (!Uri.IsHexDigit(hex[i])) throw new ArgumentException("Invalid UI color.");
+            R = Convert.ToByte(hex.Substring(1, 2), 16);
+            G = Convert.ToByte(hex.Substring(3, 2), 16);
+            B = Convert.ToByte(hex.Substring(5, 2), 16);
+            A = hex.Length == 9 ? Convert.ToByte(hex.Substring(7, 2), 16) : (byte)255;
+        }
+    }
+
+    public sealed class ModUiStyle
+    {
+        public ModUiColor TextColor { get; }
+        public ModUiColor BackgroundColor { get; }
+        public ModUiColor FillColor { get; }
+        public int? FontSize { get; }
+        public string TextAlign { get; }
+        public ModUiStyle(string textColor = null, string backgroundColor = null, string fillColor = null,
+            int? fontSize = null, string textAlign = null)
+        {
+            TextColor = textColor == null ? null : new ModUiColor(textColor);
+            BackgroundColor = backgroundColor == null ? null : new ModUiColor(backgroundColor);
+            FillColor = fillColor == null ? null : new ModUiColor(fillColor);
+            if (fontSize.HasValue && (fontSize < 8 || fontSize > 128))
+                throw new ArgumentOutOfRangeException(nameof(fontSize), "UI font size must be 8..128.");
+            if (textAlign != null && textAlign != "left" && textAlign != "center" && textAlign != "right")
+                throw new ArgumentException("UI text alignment must be left, center or right.");
+            FontSize = fontSize; TextAlign = textAlign;
+        }
+        internal void ValidateFor(ModUiKind kind)
+        {
+            if (kind != ModUiKind.Text && kind != ModUiKind.Button && (TextColor != null || FontSize.HasValue || TextAlign != null))
+                throw new ArgumentException("Only text/buttons accept text styling.");
+            if (kind != ModUiKind.Progress && FillColor != null)
+                throw new ArgumentException("Only progress widgets accept fill color.");
+            if (kind == ModUiKind.Text && BackgroundColor != null)
+                throw new ArgumentException("Use a container for a text background.");
+        }
+    }
+
     public sealed class ModUiNode
     {
         public string Id { get; }
@@ -83,10 +134,11 @@ namespace Eclipse.Modding
         public bool Visible { get; }
         public bool Enabled { get; }
         public IReadOnlyList<ModUiNode> Children { get; }
+        public ModUiStyle Style { get; }
 
         public ModUiNode(string id, ModUiKind kind, double width, double height,
             string text = "", double value = 0, bool visible = true, bool enabled = true,
-            double gap = 0, IEnumerable<ModUiNode> children = null)
+            double gap = 0, IEnumerable<ModUiNode> children = null, ModUiStyle style = null)
         {
             ValidateId(id);
             if (!Enum.IsDefined(typeof(ModUiKind), kind)) throw new ArgumentOutOfRangeException(nameof(kind));
@@ -114,6 +166,8 @@ namespace Eclipse.Modding
             Id = id; Kind = kind; Width = width; Height = height; Gap = gap;
             Text = text; Value = value; Visible = visible; Enabled = enabled;
             Children = copy.AsReadOnly();
+            Style = style ?? new ModUiStyle();
+            Style.ValidateFor(kind);
         }
 
         internal static void ValidateId(string id)
@@ -160,14 +214,15 @@ namespace Eclipse.Modding
         public ModUiScope(ModId owner, Action<Exception> report = null)
         { if (string.IsNullOrEmpty(owner.Value)) throw new ArgumentException("UI scope requires a mod owner."); Owner = owner; this.report = report; }
 
-        public ModUiSurface Open(string id, ModUiMount mount, ModUiNode root, Action<string> onClick = null, ModUiPlacement placement = null)
+        public ModUiSurface Open(string id, ModUiMount mount, ModUiNode root, Action<string> onClick = null, ModUiPlacement placement = null,
+            Action<ModUiCloseReason> onClose = null)
         {
             if (closed) throw new ObjectDisposedException(nameof(ModUiScope));
             ModUiNode.ValidateId(id);
             if (!Enum.IsDefined(typeof(ModUiMount), mount)) throw new ArgumentOutOfRangeException(nameof(mount));
             if (surfaces.ContainsKey(id)) throw new InvalidOperationException("UI surface is already open: " + id);
             if (surfaces.Count >= 8) throw new InvalidOperationException("A scope permits at most eight open surfaces.");
-            var surface = new ModUiSurface(this, id, mount, root, onClick, placement);
+            var surface = new ModUiSurface(this, id, mount, root, onClick, placement, onClose);
             surfaces.Add(id, surface);
             return surface;
         }
@@ -179,7 +234,7 @@ namespace Eclipse.Modding
         {
             if (closed) return;
             closed = true;
-            foreach (var surface in new List<ModUiSurface>(surfaces.Values)) surface.Close();
+            foreach (var surface in new List<ModUiSurface>(surfaces.Values)) surface.Close(ModUiCloseReason.Shutdown);
             surfaces.Clear();
         }
     }
@@ -195,6 +250,7 @@ namespace Eclipse.Modding
         private readonly ModUiScope scope;
         private readonly Dictionary<string, Widget> widgets = new Dictionary<string, Widget>(StringComparer.Ordinal);
         private Action<string> click;
+        private Action<ModUiCloseReason> close;
         private bool dispatching;
         private bool inputAllowed = true;
         internal ModUiLayerStack LayerOwner { get; set; }
@@ -209,7 +265,8 @@ namespace Eclipse.Modding
         public event Action<string> Changed;
         public event Action Closed;
 
-        internal ModUiSurface(ModUiScope scope, string id, ModUiMount mount, ModUiNode root, Action<string> onClick, ModUiPlacement placement)
+        internal ModUiSurface(ModUiScope scope, string id, ModUiMount mount, ModUiNode root, Action<string> onClick, ModUiPlacement placement,
+            Action<ModUiCloseReason> onClose)
         {
             this.scope = scope; Id = id; Mount = mount;
             Root = root ?? throw new ArgumentNullException(nameof(root));
@@ -217,6 +274,7 @@ namespace Eclipse.Modding
             if (root.Width == 0 || root.Height == 0) throw new ArgumentException("UI root needs positive dimensions.");
             Index(root, null, 1);
             click = onClick;
+            close = onClose;
         }
 
         private void Index(ModUiNode node, Widget parent, int depth)
@@ -269,7 +327,7 @@ namespace Eclipse.Modding
             if (old.Text == text && old.Value == value && old.Visible == visible && old.Enabled == enabled) return;
             widget.State = new ModUiWidgetState(text, value, visible, enabled);
             try { Changed?.Invoke(widget.Node.Id); }
-            catch (Exception error) { Close(); scope.Report(error); }
+            catch (Exception error) { Close(ModUiCloseReason.Error); scope.Report(error); }
         }
 
         public bool CanClick(string id)
@@ -287,22 +345,29 @@ namespace Eclipse.Modding
             if (!CanClick(id)) return false;
             dispatching = true;
             try { click(id); return true; }
-            catch (Exception error) { Close(); scope.Report(error); return false; }
+            catch (Exception error) { Close(ModUiCloseReason.Error); scope.Report(error); return false; }
             finally { dispatching = false; }
         }
 
-        public void Close()
+        public void Close() => Close(ModUiCloseReason.Script);
+
+        public void Close(ModUiCloseReason reason)
         {
             if (IsClosed) return;
+            if (!Enum.IsDefined(typeof(ModUiCloseReason), reason)) throw new ArgumentOutOfRangeException(nameof(reason));
             IsClosed = true;
             scope.Remove(this);
             click = null;
             widgets.Clear();
             var listeners = Closed;
+            var notification = close;
+            close = null;
             Closed = null; Changed = null;
             if (listeners != null)
                 foreach (Action listener in listeners.GetInvocationList())
                     try { listener(); } catch (Exception error) { scope.Report(error); }
+            // Renderer teardown and input release finish before notifying Lua.
+            try { notification?.Invoke(reason); } catch (Exception error) { scope.Report(error); }
         }
 
         public void Dispose() => Close();
@@ -366,14 +431,14 @@ namespace Eclipse.Modding
         public bool Back()
         {
             if (!HasExclusiveInput) return false;
-            Foreground.Close(); return true;
+            Foreground.Close(ModUiCloseReason.Back); return true;
         }
 
         public void Dispose()
         {
             if (disposed) return;
             disposed = true;
-            foreach (var surface in new List<ModUiSurface>(surfaces)) surface.Close();
+            foreach (var surface in new List<ModUiSurface>(surfaces)) surface.Close(ModUiCloseReason.Scene);
             surfaces.Clear(); updates.Clear(); Foreground = null; Changed = null;
         }
     }

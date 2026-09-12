@@ -367,6 +367,229 @@ Physical input, game-font appearance, full-game scene integration and broader
 custom UI/mode/character workflows remain open. These changes require no missing
 DE art assets and do not begin the DE content port.
 
+## API 0.17: dynamic localized text
+
+- Added `sf2.localization.text(key, language?)`, accepting an existing owned
+  localization handle and returning a plain string. Default language comes from
+  the game host on each call; tool hosts default to English. Explicit language
+  codes are normalized/validated. Requested language falls back to `eng`, then
+  empty text when neither exists. Forged handles and non-string codes fail.
+- Added read-only catalog/transaction resolution: pending owned translations and
+  pending patches are readable during registration, and retained handles read
+  committed content during later callbacks. No new mutation capability, template
+  expression language or implicit UI subscription was added. Lua owns formatting
+  and refresh timing. Existing localization ownership/dependency checks remain.
+- Preserved both existing MoonSharp runtime constructors and added an injectable
+  language provider; ModRuntime reads the same native language source as the
+  recovered localization adapter. The neutral runtime stays Unity-independent.
+- Updated Charged Strike and its editor template to use English and Polish TOML
+  translations. Percentage formatting uses Lua `string.format`; each refresh
+  resolves both status and button labels. The example now requires API 0.17.
+- Updated the localization/UI wiki references, example listing, engine version,
+  editor schema/generated contracts and editor guide. Contract inventory is
+  111 public bindings, 76 constants and 147 typed structures.
+- Verification: all four managed builds and the Phase 1 showcase pass; 404 Lua
+  assertions cover current/fallback/explicit language reads, bad handles/codes,
+  pending and committed patches, plus existing UI behavior. The isolated Unity
+  fixture passes 59 checks, including changing the provider language to Polish
+  and then an unknown language while the actual Lua HUD updates native widgets.
+  Editor generate/check, twelve project tests, LuaLS and seven isolated VS Code
+  integration checks pass. The VS Code runner now creates a fresh profile for
+  each run, preventing restored unsaved quick-fix edits from contaminating later
+  fixture runs; the rerun passes after an initial missing-diagnostic failure.
+  Wiki build passes with 42 pages, 111 bindings and 3,217 checked links/assets.
+
+This does not establish game-font glyph coverage, live native language-menu
+acceptance, automatic translation bindings or a complete custom UI system.
+
+## API 0.18: game-consistent UI defaults and bounded styles
+
+- Applied the user's explicit direction that custom UI should look consistent
+  with original SF2. The renderer now uses the original parchment, beveled white
+  button, combat-bar textures and AGOpusBold font. Label and button-state colors
+  follow native prefabs. HUD roots remain transparent; menus/modals get parchment.
+- Reused ResolutionImage's existing sprite resolution/compatibility path. Native
+  sliced button borders scale with authored height. No asset files or Unity GUIDs
+  were edited. Missing-art fixture fallbacks retain the game palette.
+- Added immutable node `style` fields: font_size (integer 8..128), text_align,
+  text_color, background_color and fill_color. Colors accept only RGB/RGBA hex.
+  Wrong widget kinds, malformed styles and invalid values fail before mounting.
+  Sprite color overrides tint existing art; they do not replace its shading.
+- Kept root-background visibility coupled to the owned root; hiding a menu does
+  not leave its parchment visible. Style updates do not alter input authority.
+- Charged Strike retains native styling and uses a 24-unit status label; its
+  minimum API and the engine API are now 0.18. Updated editor template, schema,
+  generated contracts, inline LuaLS style completion, wiki reference and guides.
+- Expanded the Unity fixture with the actual font/skin assets and production
+  ResolutionImage code, retaining substitute bundle/atlas backends. Added an
+  optional graphics preview capture and visually inspected the rendered result.
+  The fixture initially caught an invalid Color32 equality test; it now compares
+  values with Equals. New checks cover asset identity, native style application
+  and root-paper hide/show behavior.
+- Verification: 84 model checks, 434 real-Lua assertions, all four managed builds,
+  editor generation/check, twelve project tests, LuaLS and seven isolated VS Code
+  checks pass. The final Unity graphics run passes 66 checks; the wiki builds
+  42 pages, documents 111 bindings and validates 3,220 links/assets.
+  Full-game layout and physical-device acceptance remain open.
+
+## API 0.19: result-driven mode branching
+
+- Added optional `on_result` Lua callbacks to mode/event/raid registration.
+  A detached result snapshot provides won, one-based roster position, roster
+  size, saved completion count and fight definition ID. Callbacks return an
+  owned roster fight, "complete", or nil for default progression. Invalid,
+  foreign/non-roster and unbounded callback results are isolated and fall back.
+- Added a typed mode-script context boundary and session dispatch, wired through
+  ModRuntime into native ModModeRuntime settlement. Callbacks have no fighter or
+  shared reward capability. They run after native fight outcome/reward handling;
+  route choice does not replace fight settlement.
+- Extended saved progression with validated selected steps while retaining the
+  existing roster signature and save format. Complete transitions validate bounds
+  and counter overflow before releasing the reservation or writing progress.
+  Explicit completion works after either outcome and respects repeatability.
+- Consumed the live native settlement guard before dispatch, preventing repeated
+  callback execution/reward eligibility when a result has already been handled.
+  Existing entry tickets, launch rollback and interrupted reservation paths remain.
+- Marked definitions using custom routing. The native map resolves their saved
+  selected encounter, while linear completion bricks/count suffixes are hidden:
+  skipped roster entries must not appear to be wins. This map change is compiled
+  and covered at the host-policy level, not visually playtested in the full game.
+- Added the standalone `example.branching-trial` and matching editor template.
+  It alternates 1→3 and 1→2→3 using saved completion counts, routes losses to 1,
+  uses original game assets and grants no rewards. The actual shipped Lua executes
+  in the fixture across both routes. Existing integrated showcase behavior stays
+  unchanged; its copied fixture supplies additional malformed/failing callbacks.
+- Updated the public mode reference with a dedicated on_result section, examples,
+  callback timing/returns/fallback/save limitations, editor schema/generated data,
+  LuaLS result inference and starter validation. Mode callbacks are inventoried
+  separately from combat callbacks to avoid giving them fighter semantics.
+- Verification: all four managed builds pass; the expanded combat/mode fixture
+  passes Lua routing, invalid/foreign handles, instruction limits, native selection,
+  loss routing, duplicate guards, reload, counter-overflow preservation and existing
+  raid/state/policy tests. Underworld runtime passes 1,282 assertions. Its asset
+  audit completes but reports missing scenery across all three raid locations;
+  this is not complete asset acceptance. Editor generate/check, thirteen project
+  tests, LuaLS and seven isolated VS Code checks pass. Wiki build covers 42 pages,
+  112 public bindings and 3,224 local links/assets. Diff whitespace check passes.
+
+No full-game playtest was performed for this mode expansion. Persistent seeded
+RNG, generated encounters, pre-entry player choices, asynchronous lobby/results,
+custom run-state migrations and complete one-time settlement across interruption
+boundaries remain broader E3 work. The goal remains open.
+
+## Mode replay and interruption verification
+
+- Audited native entry from InfoBattle through GameUtils.StartFight. The map's
+  mode path selects the saved encounter, and StartFight resolves it before native
+  roster setup and reserves mode entry before scene launch. Existing equipment
+  requirements remain in effect. No replay-limit bypass was added.
+- Traced reward selection through Fight.GameOver and GameUtils.EndFight. The
+  native reward index comes from the current fight's initialized opponent/result
+  state, rather than the mode's saved route position. No new reward policy was
+  introduced during this audit.
+- Strengthened TestP2ACombatRuntime: the actual shipped Branching Trial now runs
+  both routes through production ModModeRuntime, not just ModModeProgress.
+  Every encounter settles, rejects a duplicate result without changing XML or
+  callback count, serializes/reloads the save and resolves the next native entry.
+  It also reloads an entered reservation, resumes it without mutating reservation
+  data, and verifies that a loss returns to the first encounter without adding a
+  completed run. All checks pass with the existing combat/mode regression.
+- This replaces weaker example coverage with native-host/save evidence. Scene
+  loading, RosterFight internals, native fight simulation and physical input are
+  not executed by this fixture; full-game acceptance remains unproven. The source
+  audit is evidence of routing order, not a substitute for a playtest.
+
+No public API or save format changed in this verification pass. Remaining E3 work
+still includes seeded persistent randomness, generated encounters and asynchronous
+player choices/lobby/results.
+
+## API 0.20: saved random streams and seeded encounter routes
+
+- Added `ModApiFacade.RandomInteger` and `RandomNumber` in ModScripting and
+  `sf2.random.integer(field, minimum, maximum)` / `sf2.random.number(field)` in
+  MoonSharpScriptRuntime. Streams use declared signed 32-bit integer state
+  fields, both state capabilities, the existing owned state save path and a
+  published stable v1 sequence. Bounds/types are strict; inclusive integer
+  ranges use rejection sampling with a 128-attempt native-work cap. A failed
+  draw does not commit stream state. Successful writes are not rolled back by
+  a later Lua error or grouped transactionally with mode results/rewards.
+- Advanced the API version to 0.20. No new save format, Unity asset or GUID was
+  introduced. Existing seeds may be reset using normal state writes; equal
+  seeds/calls reproduce results without touching Lua/native global randomness.
+- Added `Mods/example.seeded-trial` and matching manual editor template: a
+  three-encounter repeatable mode with first-win seeded branching, loss reset,
+  original core assets and no rewards/entry price. Seed defaults preserve
+  existing saves. The original alternating Branching Trial remains available.
+- Added `TestModRandomRuntime.ps1` / `ValidateModRandomRuntime.cs`: 123 passing
+  checks for golden sequences, full-width/single-value bounds, rejection,
+  negative/zero seeds, serialized reloads, independent profiles and mods in
+  one profile, disable/reinstall, future-schema preservation, mixed actual Lua
+  calls, invalid fields/arguments, unbound state and missing capabilities.
+- Extended TestP2ACombatRuntime to run both shipped branching examples through
+  production mode routing with native host stubs, serializing and rebinding
+  state after every encounter. It verifies selected routes, exactly-once
+  callbacks, duplicate results, two completed runs and resumed losses.
+- Added the public Saved random streams reference and sidebar entry, linked
+  state/editor guides, updated examples and Mods README. Updated editor schema,
+  generated Lua definitions/metadata and editor README. The validator now
+  supports functions needing multiple capabilities and emits separate fixes.
+  Added seeded template parity/capability tests, LuaLS completion/diagnostics,
+  and an actual VS Code test for both capability quick fixes.
+
+Verification: random runtime and existing P2 combat/mode fixtures pass; all four
+managed projects compile; editor generate/check/build, 14 project tests and
+LuaLS integration pass. Wiki build passes with 43 pages, 114 documented bindings
+and 3,340 checked links/assets. The existing duplicate-404 Astro warning remains.
+All 8 isolated VS Code integration checks pass, including separate quick fixes
+for both random-stream capabilities. `git diff --check` passes.
+No full-game Unity playtest was performed for this addition. The RNG fixture
+uses production Lua/state code; the mode fixture stubs native host objects.
+Actual gameplay/save timing and full interruption/settlement acceptance remain
+unproven. Generated fights, async choices and broader E1–E8/G01–G14 work remain.
+
+## API 0.21: UI close notification and cancellation
+
+- Added `ModUiCloseReason` and optional close notification to the neutral UI
+  model. First close wins; widgets, scope/layer ownership, native views and input
+  are released before notification. Script, Back, scene teardown, renderer/click
+  error and external destruction are distinguished. Close observer errors are
+  isolated. Scope shutdown uses its own host reason.
+- Added Lua `on_close(view, reason)` to UI definitions. It runs with the existing
+  200,000-instruction callback budget, once for a successfully mounted live view.
+  Failed mounts, owner-scope shutdown and disposed scripts skip Lua notification.
+  Opening UI from close callbacks is rejected, including nested callbacks, so
+  cleanup cannot rebuild menus during scene exit. Reopening after close returns
+  is supported. Widget setters reject the closed handle; querying/closing it is
+  safe. No gameplay authority, save transaction or pause behavior was added.
+- Updated ModUiView/ModUiCoordinator error and native destruction paths to carry
+  reasons. Preserved original game font, parchment, buttons, bars and assets.
+- Updated Charged Strike and matching editor template to require API 0.21 and
+  clear local view/charge/armed state on closure. An armed bonus is canceled if
+  its native HUD disappears. Renamed its unused tick parameter for clean LuaLS
+  diagnostics. Updated both example READMEs.
+- Updated public UI reference with dedicated `on_click`/`on_close` sections and
+  all timing/limits, examples, editor guide, editor README and Mods README.
+  Added UI callbacks to coverage inventories and generated Lua/API metadata;
+  editor definitions include the view handle and five public close reasons.
+- Extended model tests (104 checks), actual Lua tests (781 assertions) and
+  isolated Unity 2022.3.62f3 tests (69 checks). Covers notification order/reasons,
+  once-only/reentrant closes, errors/budget, stale setters, opening restrictions,
+  failed mount/shutdown suppression and armed-bonus cancellation after native
+  destruction. All pass. Full-game playtesting remains outstanding.
+- All four managed projects compile. Wiki build passes: 43 pages, 116 public
+  bindings/callbacks and 3,349 local links/assets; existing duplicate-404 warning
+  remains. Editor generate/check/build, 14 project tests, LuaLS integration and
+  all 8 isolated VS Code checks pass. `git diff --check` passes.
+- Added [the manual test checklist](PRE_DE_TEST_CHECKLIST.md) covering Charged
+  Strike first, mode replay/persistence, game styling and the original UI
+  regression reports. The original defects are listed for rechecking without
+  claiming this API pass repaired them.
+
+The user requested wrapping up after this work. No further feature expansion
+should start as part of this wrap-up. The full pre-DE objective remains incomplete;
+see the manual test checklist and open requirements rather than interpreting the
+current API version as completion.
+
 ## Requirements still open
 
 G07 source investigation is recorded in
@@ -392,8 +615,8 @@ records; no upgrade capability is claimed from this investigation alone.
 | G13: achievement predicates | Counters/core localization exist; event/query-driven predicates remain. |
 | G14: service/boot/presentation | Named gates exist; targeted quest suppression and intent classification remain. |
 | E2/E3/E4 shared runtime lifetimes | Combat query expiry and scoped ticks exist; general subscriptions, cancellation, clocked work and authority for modes/UI remain. |
-| E3 programmable modes | Fixed sequences exist; branching persistent runs and settlement proof remain. |
-| E4 custom UI | API 0.16 exposes owned UI, anchored placement and a Charged Strike example; full-game acceptance, HUD focus, localization/theme/assets, full widgets and creator workflows remain. |
+| E3 programmable modes | API 0.20 supplies saved random choices alongside result-driven roster branches; generated encounters, pre-entry choices, async lifecycle, lobbies/results and full interruption/settlement proof remain. |
+| E4 custom UI | API 0.17 exposes owned UI, anchored placement, dynamic translated strings and a Charged Strike example; full-game acceptance, HUD focus, automatic language bindings/custom assets, full widgets and creator workflows remain. |
 | E5 character/animation pipeline | Custom controller/identity, moves, rigs, authored import/export validation remain. |
 | E6 world/presentation | Dynamic hazards, audio/effects instances and camera operations remain. |
 | E7 composition | Existing ownership/conflicts persist; public service exports and more extension points remain. |
@@ -408,3 +631,60 @@ semantics, documentation/tooling and representative gameplay evidence. Missing
 assets may defer affected content, but do not block unrelated engine work.
 
 API 0.11 follow-up final checks: all four managed builds, foundation/core-save contracts, existing P2 combat/mode suite, nine editor project tests, LuaLS, isolated VS Code, and the wiki build pass. Wiki verification covers 41 pages, 98 bindings and 3,062 local links/assets. No Unity gameplay test was performed.
+
+
+## Charged Strike eclipse tournament attachment correction
+
+The user's live eclipse fight showed no HUD. Inspection of canonical stages.xml
+found a separate ZONE_1/Tournament_ECLIPSEMODE/3 identity. The sample patched
+only ZONE_1/Tournament/3; the rule's default all-mode filter does not attach it
+to another fight. The earlier answer claiming eclipse compatibility from the
+mode filter alone was insufficient and incorrect for this replay battle.
+
+Added an explicit append-rules patch for the eclipse fight to Charged Strike
+and its editor template. Updated the UI reference, both example READMEs and the
+manual checklist. Added regression assertions using production
+ModBattleRuleInstances.Applicable and canonical runtime fight IDs: both normal
+and eclipse fight 3 have the player rule; opponents and adjacent fight 2 do not.
+The Lua fixture now passes 787 assertions. Editor generate/check, all 14 project
+tests, LuaLS and the wiki build pass (43 pages, 116 bindings, 3349 links).
+No native source/assets or API version changed. Live replay remains for the
+user to retest after restarting Play mode so mod scripts reload.
+
+
+## Trial map visibility and footer correction
+
+The user could see Third Strike Trial but not Branching Trial or Seeded Trial.
+Both mode samples registered zones/battles without a map-session reveal quest.
+Added the existing supported show_battle entry quest, unlocked, to each sample
+and its editor template. Added zones/trial English localization to all three
+trial examples/templates, fixing the missing footer title visible in the report.
+Updated both mode READMEs, the public examples guide and manual checklist with
+bottom-page-dot navigation and the effect of several examples focusing pages.
+
+The P2 native-host fixture now checks each shipped mode's entry quest place,
+session event, unlocked target battle and matching localized zone title before
+its route/replay/save tests. The complete fixture passes. Editor project/LuaLS
+checks and wiki build pass; no API/native asset or source change was needed.
+Full-game map visibility still requires retesting after mod scripts reload.
+
+
+## Distinct fighters for the two route trials
+
+Replaced each mode's shared default opponent with three separately registered,
+localized warriors. Branching Trial: Gatekeeper (Man_Kunai), Bulwark
+(Man_Batons), Night Warden (Man_Night). Seeded Trial: Wayfarer (Man_Kungfu),
+Needlehand (Girl_Sai), Storm Ronin (Man_Nunchaku). The native templates supply
+original portraits, clothing, skeletons, voices and weapon loadouts. No generated
+art, asset identity changes or new combat policy was introduced. The first
+warrior retains its prior ID; encounter IDs/order and random state are unchanged
+so existing mode progression remains usable.
+
+Updated both example scripts/localizations/READMEs and their editor templates,
+the public examples page and manual test checklist. The P2 fixture now imports
+canonical warrior templates, verifies three distinct warrior bindings per mode,
+expected localized names/templates, and distinct native portrait and weapon
+references before running the existing routing/save/replay checks. It passes;
+editor generate/check, 14 project tests and LuaLS also pass. Wiki build passes
+with 43 pages, 116 bindings and 3349 checked links/assets. Full-game appearance
+and combat remain for user testing after restarting Play mode.

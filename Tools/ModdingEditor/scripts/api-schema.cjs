@@ -74,11 +74,14 @@ fn('assets.qualify',{reference:'string'},'string',null);
 fn('assets.exists',{reference:'string'},'boolean',null);
 type('AssetReplacement',{target:'string',replacement:'string'}); reg('assets.replace','AssetReplacement',null,'assets.replace');
 fn('localization.key',{key:'string'},H('Localization'),'content.register',{referenceKind:'localization'});
+fn('localization.text',{key:H('Localization'),'language?':'string'},'string',null);
 type('LocalizationPatch',{target:'string',language:'string',value:'string'});reg('localization.patch','LocalizationPatch',null,'content.patch');
 reg('state.register','StateDefinition',null,'state.write');
 fn('state.get',{name:'string'},`${primitive}|nil`,'state.read');
 fn('state.set',{values},'nil','state.write');
 fn('state.unset',{name:'string'},'nil','state.write');
+fn('random.integer',{field:'string',minimum:'integer',maximum:'integer'},'integer',['state.read','state.write']);
+fn('random.number',{field:'string'},'number',['state.read','state.write']);
 reg('behaviors.register','BehaviorDefinition','Behavior');
 functions['sf2.behaviors.register'].overload = `fun(definition:${E('StatefulBehavior')}):${H('Behavior')}`;
 lookup('perks.get','Perk');
@@ -130,19 +133,23 @@ const move={id:'string','templates?':H('MoveTemplate')+'[]','core_templates?':'s
 type('MoveTemplateDefinition',move);type('MoveDefinition',{...move,animation:H('Binary')});reg('moves.register_template','MoveTemplateDefinition','MoveTemplate');reg('moves.register','MoveDefinition','Move');
 type('SoundAction',{type:'"sound"',audio:H('Audio'),'volume?':'number','looped?':'boolean'});type('HitEffectAction',{type:'"hit_effect"',name:'string'});type('TriggerDefinition',{id:'string','events?':move['events?'],'conditions?':move['conditions?'],'actions?':`(${E('SoundAction')}|${E('HitEffectAction')})[]`});reg('moves.register_trigger','TriggerDefinition','Trigger');
 type('TacticValue',{...Object.fromEntries(['base','counter_factor','damage_factor','health_factor','enemy_health_factor','animation_frames_factor','child_frames_factor','magic_bullet_factor','missile_bullet_factor','hit_factor','distance_factor','shift','limit','anti_limit'].map(k=>[k+'?','number'])),'factor_type?':enumOf('linear','exponential')});type('TacticMemory',{'strikes?':'integer','round_factor?':'number'});type('TacticWeight',{'move?':H('Move'),'animation?':'string','value?':E('TacticValue')});type('TacticDefinition',{id:'string','type?':enumOf('tabular','random'),'template?':'string','memory?':E('TacticMemory'),...Object.fromEntries(['counter_attack','dodge','block','safe_attack','table_attack','cautious_movement','dodge_missiles','dodge_magic'].map(k=>[k+'?',E('TacticValue')])),...Object.fromEntries(['animation_weights','quick_attacks','evades','expected_wait'].map(k=>[k+'?',E('TacticWeight')+'[]']))});reg('tactics.register','TacticDefinition','Tactic');fn('tactics.name',{tactic:H('Tactic')},'string',null);
-const mode={id:'string',fights:H('Fight')+'[]','repeatable?':'boolean','reset_on_loss?':'boolean','minimum_level?':'integer','starts_at?':'integer','ends_at?':'integer','entry_item?':H('Item'),'entry_count?':'integer'};
+type('ModeResult',{won:'boolean',step:'integer',total:'integer',completions:'integer',fight_id:'string'});
+const mode={id:'string',fights:H('Fight')+'[]','repeatable?':'boolean','reset_on_loss?':'boolean','minimum_level?':'integer','starts_at?':'integer','ends_at?':'integer','entry_item?':H('Item'),'entry_count?':'integer','on_result?':`fun(result:${E('ModeResult')}):${H('Fight')}|"complete"|nil`};
 type('ModeDefinition',mode);type('RaidDefinition',{...mode,'hard_mode?':'boolean'});for(const name of ['modes','events','raids']) reg(name+'.register',name==='raids'?'RaidDefinition':'ModeDefinition');
 type('TimerPolicy',{subsystem:'"forge"',seconds:'integer','skip_enabled?':'boolean'});reg('timers.set','TimerPolicy',null,'policy.timers');fn('services.disable',{name:enumOf('paid_offers','battle_pass','ads','rewarded_video','online_services','payments')},'nil','policy.services');
 type('CounterDefinition',{id:'string','maximum?':'integer'});reg('counters.register','CounterDefinition','Counter');fn('counters.get',{counter:H('Counter')},'integer','progression.read');fn('counters.add',{counter:H('Counter'),amount:'integer'},'integer','progression.write');type('AchievementDefinition',{id:'string',counter:H('Counter'),title:H('Localization'),description:H('Localization'),icon:H('Sprite'),threshold:'integer','hidden?':'boolean'});reg('achievements.register','AchievementDefinition');
 for(const name of ['debug','info','warn','error']) fn('log.'+name,{message:'string'},'nil',null);
 for(const [name,target] of Object.entries({log:'info',warn:'warn',error:'error'})) aliases['sf2.mod.'+name]='sf2.log.'+target;
 type('UiHandle', { 'private __eclipseUi': 'true' });
+type('UiStyle', { 'font_size?':'integer','text_align?':enumOf('left','center','right'),
+    'text_color?':'string','background_color?':'string','fill_color?':'string' });
 type('UiNode', { id:'string', kind:enumOf('stack','row','column','scroll','text','button','progress'),
     'width?':'number','height?':'number','gap?':'number','text?':'string','value?':'number',
-    'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]' });
+    'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]','style?':E('UiStyle') });
 type('UiPlacement', { 'anchor?':enumOf('top_left','top','top_right','left','center','right','bottom_left','bottom','bottom_right'),'x?':'number','y?':'number' });
 type('UiDefinition', { id:'string',mount:enumOf('menu','modal','hud'),root:E('UiNode'),'placement?':E('UiPlacement'),
-    'on_click?':`fun(view:${H('Ui')},widget_id:string)` });
+    'on_click?':`fun(view:${H('Ui')},widget_id:string)`,
+    'on_close?':`fun(view:${H('Ui')},reason:${enumOf('script','back','scene','error','destroyed')})` });
 fn('ui.open',{definition:E('UiDefinition')},H('Ui'),'ui.create');
 fn('ui.close',{view:H('Ui')},'nil',null);
 fn('ui.is_open',{view:H('Ui')},'boolean',null);
@@ -150,4 +157,4 @@ fn('ui.set_text',{view:H('Ui'),widget_id:'string',text:'string'},'nil',null);
 fn('ui.set_value',{view:H('Ui'),widget_id:'string',value:'number'},'nil',null,{bounds:{value:[0,1]}});
 fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',null);
 fn('ui.set_enabled',{view:H('Ui'),widget_id:'string',enabled:'boolean'},'nil',null);
-module.exports={types,functions,aliases,callbacks,fighterMethods};
+module.exports={types,functions,aliases,callbacks,modeCallbacks:['on_result'],uiCallbacks:['on_click','on_close'],fighterMethods};

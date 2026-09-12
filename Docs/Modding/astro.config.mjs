@@ -58,6 +58,7 @@ export default defineConfig({
           { slug: 'api/fighter' },
           { slug: 'api/ui' },
           { slug: 'api/mod-state' },
+          { slug: 'api/random' },
           { slug: 'api/achievements' },
           { slug: 'api/events-and-modes' },
           { slug: 'api/offline-raids' },

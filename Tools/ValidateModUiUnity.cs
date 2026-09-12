@@ -60,6 +60,9 @@ public static class ValidateModUiUnity
             Check(text.font != null && !text.supportRichText && !text.raycastTarget, "Font/plain text/raycast defaults");
             Check(view.transform.Find("root").GetComponent<VerticalLayoutGroup>() != null, "Column not rendered");
             var button = view.transform.Find("root/button").GetComponent<Button>();
+            Check(button.GetComponent<Image>().sprite?.name=="CommonButtons.BtnWhite" && button.GetComponent<Image>().type==Image.Type.Sliced,"Original game button sprite not used");
+            Check(text.font.name=="AGOpusBold", "Original game font not loaded");
+            Check(view.transform.Find("root/bar/Fill").GetComponent<Image>().sprite?.name=="FightUI.HealthBar_Full","Original bar texture not used");
             Check(button.navigation.mode == Navigation.Mode.None, "View enabled uncontrolled navigation");
             Check(view.MoveFocus(1) && events.currentSelectedGameObject == button.gameObject, "Focus did not skip disabled button");
             Check(view.ActivateSelected() && clicks == 1, "Selected activation not routed");
@@ -80,16 +83,29 @@ public static class ValidateModUiUnity
             surface.Close();
             Check(!view.gameObject.activeSelf && events.currentSelectedGameObject == prior, "Close did not hide/restore focus immediately");
             Check(!view.ActivateSelected(), "Closed view retained input");
-            var second = scope.Open("second",ModUiMount.Menu,tree,_=>clicks++);
+            ModUiCloseReason? destroyedReason=null;
+            var second = scope.Open("second",ModUiMount.Menu,tree,_=>clicks++,onClose:reason=>destroyedReason=reason);
             var secondView = ModUiView.Attach(second,canvas.GetComponent<RectTransform>());
+            Check(secondView.GetComponent<Image>().sprite?.name=="DialogScroll.Background_Center","Menu did not use game parchment");
+            second.SetVisible("root",false);
+            Check(!secondView.GetComponent<Image>().enabled,"Hidden root retained its parchment");
+            second.SetVisible("root",true);
+            Check(secondView.GetComponent<Image>().enabled,"Showing root did not restore parchment");
+            var styled=scope.Open("styled",ModUiMount.Menu,new ModUiNode("style",ModUiKind.Text,200,40,text:"Style",style:new ModUiStyle(textColor:"#12345680",fontSize:28,textAlign:"right")));
+            var styledView=ModUiView.Attach(styled,canvas.GetComponent<RectTransform>());
+            var styledText=styledView.GetComponentInChildren<Text>();
+            Check(styledText.fontSize==28 && styledText.alignment==TextAnchor.MiddleRight && ((Color32)styledText.color).Equals(new Color32(18,52,86,128)),"Native text style lost");
+            styled.Close();
             UnityEngine.Object.DestroyImmediate(secondView.gameObject);
             Check(second.IsClosed && scope.Count == 0, "Native object teardown retained surface");
+            Check(destroyedReason==ModUiCloseReason.Destroyed,"Native destruction did not report its close reason");
             scope.Dispose();
             Placement(tree, canvas.GetComponent<RectTransform>());
             Coordination(tree, events, prior);
             Bridge(tree);
             LuaRoundTrip();
-            Debug.Log("[ModUiUnity] PASS: " + checks + " production Unity UI hierarchy, update, input and lifetime checks. No screenshot or full-game integration claimed.");
+            if (Environment.GetCommandLineArgs().Contains("-uiPreview")) Preview();
+            Debug.Log("[ModUiUnity] PASS: " + checks + " production Unity UI hierarchy, update, input and lifetime checks. Full-game integration is not claimed.");
             EditorApplication.Exit(0);
         }
         catch (Exception error)
@@ -97,6 +113,32 @@ public static class ValidateModUiUnity
             Debug.LogError("[ModUiUnity] FAIL: " + error);
             EditorApplication.Exit(1);
         }
+    }
+    static void Preview()
+    {
+        var camera = new GameObject("Preview camera",typeof(Camera)).GetComponent<Camera>();
+        camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=new Color32(35,19,12,255);
+        var target=new RenderTexture(1280,720,24);camera.targetTexture=target;
+        var canvas=new GameObject("Preview canvas",typeof(RectTransform),typeof(Canvas)).GetComponent<Canvas>();
+        canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=1;
+        using(var scope=new ModUiScope(ModId.Parse("example.preview")))
+        {
+            var tree=new ModUiNode("root",ModUiKind.Column,480,280,gap:16,children:new[]{
+                new ModUiNode("title",ModUiKind.Text,480,64,text:"Custom battle rules",style:new ModUiStyle(fontSize:32)),
+                new ModUiNode("description",ModUiKind.Text,480,48,text:"Charge your next strike"),
+                new ModUiNode("meter",ModUiKind.Progress,480,24,value:.65),
+                new ModUiNode("play",ModUiKind.Button,480,64,text:"FIGHT!") });
+            ModUiView.Attach(scope.Open("preview",ModUiMount.Menu,tree),canvas.GetComponent<RectTransform>());
+            Canvas.ForceUpdateCanvases();camera.Render();
+            var previous=RenderTexture.active;RenderTexture.active=target;
+            var pixels=new Texture2D(1280,720,TextureFormat.RGB24,false);
+            pixels.ReadPixels(new Rect(0,0,1280,720),0,0);pixels.Apply();RenderTexture.active=previous;
+            string path=Path.Combine(Path.GetDirectoryName(Application.dataPath),"ui-theme-preview.png");
+            File.WriteAllBytes(path,pixels.EncodeToPNG());Debug.Log("[ModUiUnity] Preview: "+path);
+            UnityEngine.Object.Destroy(pixels);
+        }
+        camera.targetTexture=null;target.Release();UnityEngine.Object.Destroy(target);
+        UnityEngine.Object.Destroy(canvas.gameObject);UnityEngine.Object.Destroy(camera.gameObject);
     }
     static void Placement(ModUiNode tree, RectTransform mount)
     {
@@ -144,10 +186,12 @@ public static class ValidateModUiUnity
         var assets=new AssetResolver(new IAssetProvider[]{new LooseModProvider(mod)});
         var views=new List<ModUiSurface>();
         var logs=new List<ModLogEntry>();
-        var runtime=new MoonSharpScriptRuntime(surface=>{views.Add(surface);ModUiGameBridge.Attach(surface);});
+        string language="eng";
+        var runtime=new MoonSharpScriptRuntime(surface=>{views.Add(surface);ModUiGameBridge.Attach(surface);},()=>language);
         using(var registration=catalog.BeginRegistration(mod))
         using(var context=runtime.CreateContext(mod,new ModApiFacade(mod,assets,registration,new ModStateRuntime(),logs.Add)))
         {
+            ModLocalizationLoader.Load(mod,assets,registration);
             context.ExecuteEntrypoint();registration.Commit();
             var behavior=catalog.FightRules.Single().Behavior;
             var fighter=new LuaFighter();
@@ -175,12 +219,24 @@ public static class ValidateModUiUnity
             fighter.IncomingHit=new ModIncomingHit(()=>damage,n=>damage=n);
             invoke(ModEffectEvent.DamageDealing);
             Check(damage==20 && fill.anchorMax.x==0 && status.text=="Charge: 0%", "Lua combat consumption did not reach native UI");
+            language="pol";fighter.Frame=306;invoke(ModEffectEvent.Tick);
+            Check(status.text.StartsWith("Ładowanie:") && button.GetComponentInChildren<Text>().text=="WZMOCNIJ NASTĘPNY CIOS","Language change did not reach native HUD");
+            language="unknown";fighter.Frame=312;invoke(ModEffectEvent.Tick);
+            Check(status.text.StartsWith("Charge:") && button.GetComponentInChildren<Text>().text=="ARM NEXT STRIKE","Unknown language did not fall back to English");
             invoke(ModEffectEvent.RoundEnd);
             Check(surface.IsClosed && !view.gameObject.activeSelf, "Lua round-end close retained visible Unity UI");
             button.onClick.Invoke();
             Check(surface.IsClosed, "Stale Unity button reactivated a closed Lua view");
             fields["round"]="2";invoke(ModEffectEvent.RoundBegin);
             var next=views.Last();var nextView=UnityEngine.Object.FindObjectsOfType<ModUiView>().Single();
+            for(int frame=313;frame<=612;frame++){fighter.Frame=frame;invoke(ModEffectEvent.Tick);}
+            nextView.transform.Find("root/arm").GetComponent<Button>().onClick.Invoke();
+            Check(nextView.transform.Find("root/status").GetComponent<Text>().text=="Next hit: double damage","Native second-round bonus was not armed before destruction");
+            UnityEngine.Object.DestroyImmediate(nextView.gameObject);
+            damage=10;invoke(ModEffectEvent.DamageDealing);
+            Check(next.IsClosed && damage==10,"Native HUD destruction retained Lua armed bonus");
+            fields["round"]="3";invoke(ModEffectEvent.RoundBegin);
+            next=views.Last();nextView=UnityEngine.Object.FindObjectsOfType<ModUiView>().Single();
             context.Dispose();
             Check(next.IsClosed && !nextView.gameObject.activeSelf, "Lua context disposal retained native UI");
             Check(logs.All(entry=>entry.Level!=ModLogLevel.Error), "Lua-to-Unity example logged unexpected errors");

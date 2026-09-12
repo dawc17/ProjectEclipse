@@ -1,0 +1,3 @@
+charge.status = "Charge: %d%%"
+charge.armed = "Next hit: double damage"
+charge.arm = "ARM NEXT STRIKE"

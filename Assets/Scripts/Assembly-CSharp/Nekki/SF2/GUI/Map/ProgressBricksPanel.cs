@@ -36,6 +36,12 @@ namespace Nekki.SF2.GUI.Map
 			_indicators.Clear();
 			_lblTour.set_Alias(string.Empty);
 			_lblTour.set_text(string.Empty);
+            if (Eclipse.Modding.ModModeRuntime.HasCustomRouting(KOMGFJOCEDN))
+            {
+                var rect = GetComponent<RectTransform>();
+                rect.sizeDelta = new Vector2(rect.sizeDelta.x, 0);
+                return;
+            }
 			List<FightList> list = DPOOIONCEOA.ANNHMNIHKCC();
 			int num = list.Count;
 			bool modeProgress = Eclipse.Modding.ModModeRuntime.TryProgress(KOMGFJOCEDN, out int completed, out int total);

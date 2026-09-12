@@ -76,7 +76,7 @@ function analyze(text,mod){
     function resolve(n,env){if(!n)return null;if(n.type==='Identifier')return env.get(n.name);if(n.type==='MemberExpression'){const base=resolve(n.base,env);return typeof base==='string'?`${base}.${n.identifier.name}`:null;}return null;}
     function add(n,code,message,capability){issues.push({range:n.range,code,message,capability});}
     const caps=new Set(mod.data.capabilities??[]),dependencies=new Set((mod.data.dependencies??[]).map(d=>d.id));
-    function required(n,cap){if(cap&&!caps.has(cap))add(n,'capability',`Declare "${cap}" in mod.toml to use this operation.`,cap);}
+    function required(n,cap){if(Array.isArray(cap)){for(const item of cap)required(n,item);}else if(cap&&!caps.has(cap))add(n,'capability',`Declare "${cap}" in mod.toml to use this operation.`,cap);}
     function expression(n,env,callback){
         if(!n||typeof n!=='object')return;
         if(['CallExpression','TableCallExpression','StringCallExpression'].includes(n.type)){

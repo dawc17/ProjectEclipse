@@ -1,3 +1,5 @@
 trial = "Third Strike Trial"
 description = "Only every third incoming hit can damage the opponent. The counter resets each round. At or below one third health, every hit can damage the guardian."
 opponent = "Trial Guardian"
+
+zones/trial = "Third Strike Trial"

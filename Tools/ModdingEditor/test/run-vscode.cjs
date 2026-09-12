@@ -8,7 +8,10 @@ const installed = process.argv.includes('--installed')
     ? fs.readdirSync(path.join(root, '.test-runtime/extensions')).find(n => n === 'eclipse-modding.eclipse-modding-preview-0.1.0') : undefined;
 if (process.argv.includes('--installed') && !installed) throw new Error('Install the 0.1.0 VSIX in the isolated extensions directory first.');
 const workspace = path.join(root, '.test-runtime/vscode-workspace');
-const profile = path.join(root, '.test-runtime/vscode-profile');
+// A reused profile can restore unsaved quick-fix edits from the previous run.
+// Keep the installed extensions shared, but isolate editor/session state.
+fs.mkdirSync(path.join(root, '.test-runtime'), { recursive: true });
+const profile = fs.mkdtempSync(path.join(root, '.test-runtime/vscode-profile-'));
 fs.mkdirSync(path.join(profile, 'User'), { recursive: true });
 fs.writeFileSync(path.join(profile, 'User/settings.json'), JSON.stringify({
     'extensions.autoUpdate': false,

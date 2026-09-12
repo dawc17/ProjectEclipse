@@ -1,0 +1,9 @@
+trial = "Seeded Trial"
+trial.description = "Take a seeded shortcut or the full route. Losing returns to the first encounter."
+fighter = "Trial fighter"
+
+zones/trial = "Seeded Trial"
+
+fighter.1 = "Wayfarer"
+fighter.2 = "Needlehand"
+fighter.3 = "Storm Ronin"

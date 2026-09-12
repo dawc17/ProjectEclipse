@@ -37,6 +37,44 @@ that explicitly require a plain string.
 local name = sf2.localization.key("item.training_blade")
 ```
 
+## sf2.localization.text
+
+**Signature:** `sf2.localization.text(key, language?)`
+
+**Returns:** A plain translated string. Resolution uses the requested language,
+then `eng`, then an empty string if neither exists. Invalid handles or language
+values raise an error. Available since API **0.17**.
+
+**When:** Entrypoint or later callbacks. Obtain the handle with `key` during
+registration and retain it for later reads. Each call reads current content,
+including committed localization patches; it does not freeze a translation at
+registration time. A patch made in the current transaction is also readable
+before commit.
+
+**Requires:** A localization handle created by this script context; no additional
+capability for reading. Creating the handle requires `content.register` and the
+usual dependency declaration when referencing another owner.
+
+Omit `language` to use the current game language. Tool hosts without a language
+provider use `eng`. An explicit language string is trimmed and lowercased; it
+must contain only letters, digits, underscores or hyphens and cannot be empty.
+Use game language codes such as `eng` or `pol`, matching localization filenames.
+
+The returned string is a snapshot, not a widget binding. Resolve it again when
+refreshing your UI after a language change. Formatting stays ordinary Lua; no
+format expression runs inside the localization service. A translation used with
+`string.format` must have matching placeholders in every language.
+
+```lua
+-- localizations/eng.toml: charge.status = "Charge: %d%%"
+-- During registration:
+local chargeText = sf2.localization.key("charge.status")
+
+-- Inside your later UI refresh function (view is an open UI handle):
+local label = string.format(sf2.localization.text(chargeText), 75)
+sf2.ui.set_text(view, "status", label)
+```
+
 ## sf2.localization.patch
 
 Replace one language value of an existing localization definition.

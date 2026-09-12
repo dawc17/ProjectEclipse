@@ -13,3 +13,11 @@ public static class GamePad {
     public static bool NFCGBMHPKMA(PFENLAPGKFM button, GGAKHLLMPMM player) => false;
     public static bool JAHEECFCLHN(PFENLAPGKFM button, GGAKHLLMPMM player) => false;
 }
+public static class ResourcesAndBundles
+{
+    public static T Load<T>(string path) where T : UnityEngine.Object => UnityEngine.Resources.Load<T>(path);
+}
+public static class AtlasCache
+{
+    public static UnityEngine.Sprite GetSpriteFromAtlas(string path,string name) => null;
+}

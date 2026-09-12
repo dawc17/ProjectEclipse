@@ -105,6 +105,14 @@ Modding** for indexing errors and **Output > Lua** for language-server errors.
 
 ## Keep testing in Eclipse
 
+UI definitions complete `on_close` with a typed view handle and close reason.
+The Charged Strike template demonstrates clearing local state after HUD closure.
+
+Saved random stream calls complete under `sf2.random`. The editor reports
+`state.read` and `state.write` requirements separately, so add both capabilities.
+The repository's manual `seeded-trial` template demonstrates a saved encounter
+choice; see [Saved random streams](../../api/random/) for bounds and lifetime rules.
+
 The editor cannot prove every dynamically constructed reference, helper function,
 schema value, numeric limit, or dependency compatibility rule. Asset checks do not
 decode images, models, or sound: a `.wav` filename does not prove PCM16 audio.

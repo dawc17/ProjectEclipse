@@ -1,0 +1,3 @@
+charge.status = "Ładowanie: %d%%"
+charge.armed = "Następny cios: podwójne obrażenia"
+charge.arm = "WZMOCNIJ NASTĘPNY CIOS"

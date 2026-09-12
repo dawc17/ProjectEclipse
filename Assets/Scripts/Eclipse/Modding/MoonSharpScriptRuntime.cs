@@ -32,7 +32,7 @@ namespace Eclipse.Modding
         }
 
         private sealed partial class MoonSharpScriptContext : IModScriptContext, IModBehaviorScriptContext,
-            IModInteractiveBehaviorScriptContext, IModStateMigrationScriptContext, IModUiScriptContext
+            IModInteractiveBehaviorScriptContext, IModStateMigrationScriptContext, IModUiScriptContext, IModModeScriptContext
         {
             private static readonly UTF8Encoding StrictUtf8 = new UTF8Encoding(false, true);
 
@@ -484,6 +484,7 @@ namespace Eclipse.Modding
                 _modules.Clear();
                 _loading.Clear();
                 _localizationHandles.Clear();
+                _modeResultHandlers.Clear();
                 _spriteHandles.Clear();
                 _counterHandles.Clear();
                 _modelHandles.Clear();
@@ -635,6 +636,14 @@ namespace Eclipse.Modding
                 state.Set("set", DynValue.NewCallback(StateSet));
                 state.Set("unset", DynValue.NewCallback(StateUnset));
                 root.Set("state", DynValue.NewTable(state));
+
+                var random = new Table(_script);
+                random.Set("number", DynValue.NewCallback((ctx, args) => ApiCall("sf2.random.number", () =>
+                    DynValue.NewNumber(_api.RandomNumber(RandomField(args[0]))))));
+                random.Set("integer", DynValue.NewCallback((ctx, args) => ApiCall("sf2.random.integer", () =>
+                    DynValue.NewNumber(_api.RandomInteger(RandomField(args[0]),
+                        RandomBound(args[1]), RandomBound(args[2]))))));
+                root.Set("random", DynValue.NewTable(random));
 
                 var items = new Table(_script);
                 items.Set("register_weapon", DynValue.NewCallback(RegisterWeapon));
@@ -831,6 +840,21 @@ namespace Eclipse.Modding
                 string reference = args.AsType(0, "sf2.assets.model", DataType.String, false).String;
                 return ApiCall("sf2.assets.model", () =>
                     NewHandle(_modelHandles, _api.RequireAsset(reference, AssetKind.Model)));
+            }
+
+            private static string RandomField(DynValue value)
+            {
+                if (value.Type != DataType.String)
+                    throw new ModContentException("Random stream field must be a string.");
+                return value.String;
+            }
+
+            private static int RandomBound(DynValue value)
+            {
+                if (value.Type != DataType.Number || double.IsNaN(value.Number) ||
+                    value.Number < int.MinValue || value.Number > int.MaxValue || Math.Truncate(value.Number) != value.Number)
+                    throw new ModContentException("Random integer bounds must be signed 32-bit integers.");
+                return (int)value.Number;
             }
 
             private DynValue LocalizationKey(ScriptExecutionContext context, CallbackArguments args)

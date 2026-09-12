@@ -24,6 +24,15 @@ static class Program
         var other = new ModUiScope(ModId.Parse("other.ui"));
         int clicks = 0;
         var surface = scope.Open("meter", ModUiMount.CombatHud, Root(), _ => clicks++);
+        var color = new ModUiColor("#Ab12Ef80");
+        Check(color.R==171 && color.G==18 && color.B==239 && color.A==128,"RGBA color parsing failed");
+        Check(new ModUiColor("#abcdef").A==255,"RGB color not opaque");
+        Reject(()=>new ModUiColor("red"),"Named color accepted");
+        Reject(()=>new ModUiColor("#00ffgg"),"Invalid hex accepted");
+        Reject(()=>new ModUiStyle(fontSize:7),"Unreadably small font accepted");
+        Reject(()=>new ModUiStyle(textAlign:"justify"),"Invalid alignment accepted");
+        Reject(()=>new ModUiNode("bad",ModUiKind.Progress,100,20,style:new ModUiStyle(textColor:"#ffffff")),"Progress accepted text style");
+        Reject(()=>new ModUiNode("bad",ModUiKind.Text,100,20,style:new ModUiStyle(backgroundColor:"#ffffff")),"Text accepted background");
         Check(surface.Placement.Anchor == "center" && surface.Placement.X == 0 && surface.Placement.AnchorY == .5, "Default placement changed");
         Reject(() => new ModUiPlacement("unknown"), "Unknown anchor accepted");
         Reject(() => new ModUiPlacement(x: double.NaN), "NaN placement accepted");
@@ -110,6 +119,7 @@ static class Program
         other.Dispose();
         Layers();
         Controls();
+        CloseNotifications();
         Console.WriteLine("PASS: " + checks + " UI ownership, validation, state, input and teardown checks; no Unity renderer or Lua API claimed.");
     }
 
@@ -132,6 +142,40 @@ static class Program
         Check(!gate.Release("left"), "Initially held control lost suppression");
         gate.SetCaptured(false);
         Check(gate.Press("left"), "Released direction remained suppressed");
+    }
+
+    static void CloseNotifications()
+    {
+        foreach(ModUiCloseReason reason in Enum.GetValues(typeof(ModUiCloseReason)))
+        using(var scope=new ModUiScope(ModId.Parse("example.close")))
+        using(var layers=new ModUiLayerStack())
+        {
+            int calls=0; bool released=false;
+            ModUiSurface view=null;
+            view=scope.Open("close",ModUiMount.Menu,Root(),onClose:actual=>{
+                calls++;
+                Check(actual==reason,"Wrong close reason");
+                Check(view.IsClosed && !view.IsMounted && released && scope.Count==0 && !layers.HasExclusiveInput,
+                    "Close notification ran before native cleanup/input release");
+                view.Close();
+            });
+            view.Closed+=()=>released=true;layers.Add(view);
+            if(reason==ModUiCloseReason.Back)layers.Back();
+            else if(reason==ModUiCloseReason.Scene)layers.Dispose();
+            else if(reason==ModUiCloseReason.Shutdown)scope.Dispose();
+            else view.Close(reason);
+            view.Close();Check(calls==1,"Repeated/reentrant close notified more than once");
+        }
+        var failures=new List<Exception>();
+        using(var scope=new ModUiScope(ModId.Parse("example.close"),failures.Add))
+        {
+            var view=scope.Open("failure",ModUiMount.Menu,Root(),onClose:_=>throw new Exception("handler failure"));
+            view.Close();Check(view.IsClosed && scope.Count==0 && failures.Count==1,"Notification error prevented teardown");
+            ModUiCloseReason? reason=null;
+            var broken=scope.Open("renderer",ModUiMount.Menu,Root(),onClose:value=>reason=value);
+            broken.Changed+=_=>throw new Exception("renderer failure");
+            broken.SetText("title","changed");Check(reason==ModUiCloseReason.Error,"Renderer failure reported normal close");
+        }
     }
 
     static void Layers()

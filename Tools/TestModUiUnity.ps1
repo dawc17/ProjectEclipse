@@ -1,4 +1,4 @@
-param([string]$Unity = 'F:\UnityInstalls\2022.3.62f3\Editor\Unity.exe')
+param([string]$Unity = 'F:\UnityInstalls\2022.3.62f3\Editor\Unity.exe', [switch]$WithPreview)
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path -LiteralPath $Unity)) { throw "Unity 2022.3.62f3 not found: $Unity" }
 $root = Split-Path -Parent $PSScriptRoot
@@ -17,10 +17,21 @@ Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUi
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUiCoordinator.cs') -Destination (Join-Path $fixture 'Assets')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUiGameBridge.cs') -Destination (Join-Path $fixture 'Assets')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ModUiBridgeFixtureStubs.cs') -Destination (Join-Path $fixture 'Assets')
+Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/ResolutionImage.cs') -Destination (Join-Path $fixture 'Assets')
+foreach ($resource in @('ui/atlases/CommonButtons.png','ui/atlases/CommonButtons.BtnWhite.asset',
+    'ui/atlases/DialogScroll.png','ui/atlases/DialogScroll.Background_Center.asset',
+    'ui/atlases/FightUI.png','ui/atlases/FightUI.HealthBar_Full.asset','ui/atlases/FightUI.HealthBar_Empty.asset',
+    'ui/fonts/AGOpusBold.ttf')) {
+    $destination = Join-Path $fixture ('Assets/Resources/' + $resource)
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $destination) | Out-Null
+    Copy-Item -LiteralPath (Join-Path $root ('Assets/Resources/' + $resource)) -Destination $destination
+    Copy-Item -LiteralPath (Join-Path $root ('Assets/Resources/' + $resource + '.meta')) -Destination ($destination + '.meta')
+}
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidateModUiUnity.cs') -Destination (Join-Path $fixture 'Assets/Editor')
 $log = Join-Path $fixture 'validation.log'
 Write-Host "Unity UI fixture: $fixture"
-$arguments = @('-batchmode','-nographics','-projectPath',('"' + $fixture + '"'),'-executeMethod','ValidateModUiUnity.RunEditor','-logFile',('"' + $log + '"'))
+$arguments = @('-batchmode','-projectPath',('"' + $fixture + '"'),'-executeMethod','ValidateModUiUnity.RunEditor','-logFile',('"' + $log + '"'))
+if ($WithPreview) { $arguments += '-uiPreview' } else { $arguments += '-nographics' }
 $process = Start-Process -FilePath $Unity -ArgumentList $arguments -WindowStyle Hidden -PassThru
 Write-Host "Unity UI process: $($process.Id)"
 $process.WaitForExit()

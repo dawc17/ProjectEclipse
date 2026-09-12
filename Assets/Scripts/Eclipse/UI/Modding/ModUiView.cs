@@ -41,6 +41,13 @@ namespace Eclipse.UI.Modding
                 var rect = root.GetComponent<RectTransform>();
                 rect.anchorMin = rect.anchorMax = rect.pivot = new Vector2((float)surface.Placement.AnchorX, (float)surface.Placement.AnchorY);
                 rect.sizeDelta = new Vector2((float)surface.Root.Width, (float)surface.Root.Height);
+                if (surface.Mount != ModUiMount.CombatHud)
+                {
+                    var paper = root.AddComponent<Image>();
+                    Skin(paper,"DialogScroll.Background_Center",new Color32(203,171,120,255));
+                    paper.color = ColorOf(surface.Root.Style.BackgroundColor,paper.color);
+                    paper.raycastTarget = false;
+                }
                 view.Build(surface.Root, rect);
                 surface.Changed += view.UpdateWidget;
                 surface.Closed += view.Release;
@@ -49,7 +56,7 @@ namespace Eclipse.UI.Modding
             catch
             {
                 view.Release();
-                surface.Close();
+                surface.Close(ModUiCloseReason.Error);
                 throw;
             }
         }
@@ -64,15 +71,27 @@ namespace Eclipse.UI.Modding
             return rect;
         }
 
-        private Text Label(RectTransform rect, string text)
+        private static Color ColorOf(ModUiColor value, Color fallback) => value == null ? fallback : new Color32(value.R,value.G,value.B,value.A);
+
+        private static void Skin(Image image, string name, Color fallback)
+        {
+            image.sprite = Nekki.SF2.GUI.ResolutionImage.GetSprite("UI/Atlases/", name);
+            image.type = Image.Type.Sliced;
+            image.color = image.sprite == null ? fallback : Color.white;
+        }
+
+        private Text Label(RectTransform rect, ModUiNode node)
         {
             var label = rect.gameObject.AddComponent<Text>();
-            label.font = font; label.fontSize = 22; label.text = text;
+            label.font = font; label.fontSize = node.Style.FontSize ?? 22; label.text = node.Text;
             label.supportRichText = false;
-            label.color = new Color32(223, 207, 177, 255);
+            Color normal = node.Kind == ModUiKind.Button ? new Color32(50,50,50,255) :
+                surface.Mount == ModUiMount.CombatHud ? new Color32(223,207,177,255) : new Color32(47,37,27,255);
+            label.color = ColorOf(node.Style.TextColor, normal);
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Truncate;
-            label.alignment = TextAnchor.MiddleCenter;
+            label.alignment = node.Style.TextAlign == "left" ? TextAnchor.MiddleLeft :
+                node.Style.TextAlign == "right" ? TextAnchor.MiddleRight : TextAnchor.MiddleCenter;
             label.raycastTarget = false;
             return label;
         }
@@ -101,28 +120,46 @@ namespace Eclipse.UI.Modding
                 group.childControlWidth = group.childControlHeight = true;
                 group.childForceExpandWidth = group.childForceExpandHeight = false;
             }
-            if (node.Kind == ModUiKind.Text) view.Label = Label(rect, node.Text);
+            bool container = node.Kind == ModUiKind.Stack || node.Kind == ModUiKind.Row || node.Kind == ModUiKind.Column || node.Kind == ModUiKind.Scroll;
+            if (container && node.Style.BackgroundColor != null && !(node == surface.Root && surface.Mount != ModUiMount.CombatHud))
+            {
+                var paper = rect.gameObject.AddComponent<Image>();
+                Skin(paper,"DialogScroll.Background_Center",new Color32(203,171,120,255));
+                paper.color = ColorOf(node.Style.BackgroundColor,paper.color); paper.raycastTarget = false;
+            }
+            if (node.Kind == ModUiKind.Text) view.Label = Label(rect, node);
             if (node.Kind == ModUiKind.Button)
             {
                 var background = rect.gameObject.AddComponent<Image>();
-                background.color = new Color32(73, 43, 29, 255);
+                Skin(background,"CommonButtons.BtnWhite",new Color32(223,207,177,255));
+                if (background.sprite != null && node.Height > 0)
+                    background.pixelsPerUnitMultiplier = background.sprite.rect.height / (float)node.Height;
+                background.color = ColorOf(node.Style.BackgroundColor,background.color);
                 view.Button = rect.gameObject.AddComponent<Button>();
                 view.Button.targetGraphic = background;
                 view.Button.navigation = new Navigation { mode = Navigation.Mode.None };
+                var colors = view.Button.colors;
+                colors.normalColor = Color.white;
+                colors.highlightedColor = colors.selectedColor = new Color32(245,245,245,255);
+                colors.pressedColor = new Color32(200,200,200,255);
+                colors.disabledColor = new Color32(200,200,200,128);
+                view.Button.colors = colors;
                 view.Button.onClick.AddListener(() => surface.TryClick(node.Id));
                 buttons.Add(node.Id);
                 var label = Rect("Label", rect, 0, 0); Stretch(label);
                 label.offsetMin = new Vector2(8, 4); label.offsetMax = new Vector2(-8, -4);
-                view.Label = Label(label, node.Text);
+                view.Label = Label(label, node);
             }
             if (node.Kind == ModUiKind.Progress)
             {
                 var background = rect.gameObject.AddComponent<Image>();
-                background.color = new Color32(48, 31, 20, 255); background.raycastTarget = false;
+                Skin(background,"FightUI.HealthBar_Empty",new Color32(48,31,20,255));
+                background.color = ColorOf(node.Style.BackgroundColor,background.color); background.raycastTarget = false;
                 view.Fill = Rect("Fill", rect, 0, 0);
                 Stretch(view.Fill);
                 var fill = view.Fill.gameObject.AddComponent<Image>();
-                fill.color = new Color32(213, 165, 62, 255); fill.raycastTarget = false;
+                Skin(fill,"FightUI.HealthBar_Full",new Color32(213,165,62,255));
+                fill.color = ColorOf(node.Style.FillColor,fill.color); fill.raycastTarget = false;
             }
             if (node.Kind == ModUiKind.Scroll)
             {
@@ -147,6 +184,7 @@ namespace Eclipse.UI.Modding
         {
             if (disposed || surface.IsClosed) return;
             var view = widgets[id]; var state = surface.Read(id);
+            if (id == surface.Root.Id && GetComponent<Image>() is Image paper) paper.enabled = state.Visible;
             view.Rect.gameObject.SetActive(state.Visible);
             view.Group.interactable = state.Enabled;
             if (view.Label != null) view.Label.text = state.Text;
@@ -217,7 +255,7 @@ namespace Eclipse.UI.Modding
         {
             if (surface == null) return;
             ReleaseView(false);
-            surface.Close();
+            surface.Close(ModUiCloseReason.Destroyed);
         }
     }
 }

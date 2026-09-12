@@ -114,3 +114,25 @@ test('charge UI example validates owned handles and callback capability', async 
     assert.deepEqual(mod.issues,[]);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
+test('branching mode example validates its callback and roster', async () => {
+    const directory=path.resolve(__dirname,'../../../Mods/example.branching-trial');
+    const mod=await p.indexMod(directory);
+    assert.deepEqual(mod.issues,[]);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});
+
+test('saved random streams require both capabilities and seeded starter validates', async () => {
+    const directory=path.resolve(__dirname,'../../../Mods/example.seeded-trial');
+    const mod=await p.indexMod(directory);
+    assert.deepEqual(mod.issues,[]);
+    const source=await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8');
+    assert.deepEqual(p.analyze(source,mod).issues,[]);
+    const template=path.resolve(__dirname,'../templates/seeded-trial');
+    for(const file of ['scripts/main.lua','mod.toml','localizations/eng.toml'])
+        assert.equal(await fs.readFile(path.join(template,file),'utf8'),await fs.readFile(path.join(directory,file),'utf8'));
+    for(const held of [[],['state.read'],['state.write'],['state.read','state.write']]) {
+        const missing=p.analyze(header+"sf2.random.integer('route',1,3)\nsf2.random.number('route')",{...mod,data:{...mod.data,capabilities:held}}).issues;
+        for(const cap of ['state.read','state.write'])
+            assert.equal(missing.filter(i=>i.capability===cap).length,held.includes(cap)?0:2);
+    }
+});

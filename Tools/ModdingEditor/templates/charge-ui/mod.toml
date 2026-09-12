@@ -2,7 +2,7 @@ schema = 1
 id = "example.charge-ui"
 name = "Charged Strike UI"
 version = "1.0.0"
-api = ">=0.16 <1.0"
+api = ">=0.21 <1.0"
 entrypoint = "scripts/main.lua"
 authors = ["Eclipse"]
 capabilities = ["content.register", "content.patch", "ui.create", "combat.modify_outgoing_hit"]

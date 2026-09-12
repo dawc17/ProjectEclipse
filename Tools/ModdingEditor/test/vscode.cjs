@@ -64,6 +64,22 @@ exports.run = async function () {
         assert(!vscode.languages.getDiagnostics(uri).some(d => d.code === 'capability:combat.change_life'));
         passed.push('PASS: missing capability diagnostics and manifest quick fix work with unsaved edits');
 
+        const randomEdit=new vscode.WorkspaceEdit();
+        randomEdit.insert(uri,new vscode.Position(modDoc.lineCount,0),'\nsf2.random.integer("route",1,3)\n');
+        await vscode.workspace.applyEdit(randomEdit);
+        await extension.exports.refresh();
+        for(const cap of ['state.read','state.write']) {
+            const issue=vscode.languages.getDiagnostics(uri).find(d=>d.code===`capability:${cap}`);
+            assert(issue,`Missing independent random capability diagnostic: ${cap}`);
+            const actions=await vscode.commands.executeCommand('vscode.executeCodeActionProvider',uri,issue.range);
+            const action=actions.find(f=>f.title===`Declare ${cap} in mod.toml`);
+            assert(action?.edit,`Missing random capability quick fix: ${cap}`);
+            await vscode.workspace.applyEdit(action.edit);
+            await extension.exports.refresh();
+            assert(!vscode.languages.getDiagnostics(uri).some(d=>d.code===`capability:${cap}`));
+        }
+        passed.push('PASS: both random stream capabilities have independent working manifest quick fixes');
+
         const schemaUri = vscode.Uri.joinPath(folder.uri, 'scripts', 'schema-test.lua');
         fs.writeFileSync(schemaUri.fsPath, 'local sf2=require("sf2")\nsf2.behaviors.register { id="hits", state={fields={hits={type="integer",default=0}}}, on_damage_dealt=function(self, fighter, event)\n local value=self.state.\nend }');
         await vscode.workspace.openTextDocument(schemaUri);

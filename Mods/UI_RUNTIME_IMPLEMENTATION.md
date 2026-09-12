@@ -95,7 +95,8 @@ bounded Lua runner and carry a UI handle/widget ID, never a fighter capability.
    gameplay intent where warranted. Never capture expired combat fighter handles
    in a later UI click. The Charged Strike example changes Lua state on click and
    consumes it using fresh authority in an outgoing-hit callback.
-4. Add localized dynamic text, validated sprites/fonts/colors, intrinsic sizing,
+4. Extend explicit localized text refresh with automatic bindings if warranted;
+   add validated custom sprites/fonts, intrinsic sizing,
    toggle/slider/list/grid behavior and virtualization. The current primitives
    are a foundation, not the promised full widget surface.
 5. Complete the loadout chooser and branching lobby workflows, and expand the
@@ -113,19 +114,22 @@ scope disposal, stale handles and teardown failures.
 `Tools/TestModUiUnity.ps1` creates a separate temporary Unity 2022.3.62f3 project
 and enters play mode. It checks production native hierarchy/layout components,
 font fallback, targeted updates, guarded activation/focus and cleanup. It uses
-the installed Unity UI package and no recovered assets. This fixture does not
-verify game-font rendering, actual device events, screenshots, native game
-dialogs, combat pause or full-game scene integration. It now includes multiple
+the installed Unity UI package. Since API 0.18 it also copies the original
+button/parchment/combat-bar assets and game font, and the production ResolutionImage
+loader. Resource/bundle and atlas lookup backends are fixture substitutes. Optional
+`-WithPreview` enables graphics and saves a native rendered PNG for inspection.
+This does not verify actual device events, native game dialogs, combat pause or
+full-game scene integration. It now includes multiple
 simultaneous mod canvases, modal/menu/HUD priority, focus handoff, native-block
 simulation, Back routing, duplicate mount rejection and coordinator destruction.
 
-Current evidence: 76 managed UI/control checks and 57 isolated Unity play-mode
+Current evidence: 84 managed UI/control checks and 66 isolated Unity play-mode
 checks pass, plus 209 battle-rule checks including actual Lua-context UI scope
 ownership/disposal, the existing combat/mode regression and all four managed
 project builds. Bridge fixture shell/controller signals are substitutes; the
 production bridge, coordinator and renderer execute in Unity play mode. No
 physical-device/full-game acceptance is claimed. API 0.15 adds a separate
-391-check real-Lua fixture for validation, capabilities, handles, callback
+434-check real-Lua fixture for validation, capabilities, handles, callback
 instruction bounds, mounting/entrypoint failure cleanup and the full Charged
 Strike source across 300 ticks, arming, blocked hits, consumption and rounds.
 
@@ -148,3 +152,61 @@ clamping and resize/restore checks execute the production renderer. Fighter and
 physical input signals remain fixture substitutes; this is not full-game visual
 or physical-device acceptance. Editor definitions, LuaLS completion and the wiki
 cover the same placement contract.
+
+
+## Dynamic translations
+
+API 0.17 exposes `sf2.localization.text` using a registration-time localization
+handle. Reads resolve the current catalog or the current transaction's pending
+values/patches, with the native game language provided by ModRuntime on every
+call. The shared assembly has no dependency on LocalizationManager. UI widgets
+still store plain strings; Lua explicitly formats and refreshes them. Charged
+Strike resolves its English/Polish text during each refresh. The Unity fixture
+changes the language provider after combat has begun and verifies native status
+and button text, including unknown-language English fallback. Font glyph and
+native language-menu acceptance remain full-game work.
+
+
+## Game-consistent styling
+
+The user explicitly requires custom UI to remain consistent with the original
+game. Shared defaults therefore use AGOpusBold, native parchment for menu/modal
+roots, CommonButtons.BtnWhite for buttons, and FightUI health-bar strip sprites
+for progress tracks/fills. Text and selectable-state colors follow the native
+LabelButton/ExitDialog prefabs. HUD roots remain transparent. Buttons scale their
+native sliced borders with authored height so the pointed ends retain proportion.
+Resources go through the existing ResolutionImage compatibility loader; no source
+texture, serialized sprite geometry, asset GUID or meta file was changed.
+
+API 0.18 provides immutable explicit style fields for font size, horizontal text
+alignment, text color, background tint and progress-fill tint. Validation enforces
+integer font sizes 8..128, known alignment values and #RRGGBB/#RRGGBBAA syntax;
+irrelevant widget/style combinations fail. Defaults do not require authors to
+recreate the game theme. Input semantics and rich-text prohibition remain intact.
+
+The isolated graphics fixture renders the real font and recovered skin assets.
+Its preview was visually inspected for parchment, label appearance, button shape
+and bar texture. Root visibility also controls the added parchment graphic.
+Complete native screen composition and physical input still need full-game QA.
+
+
+## Close notification and cancellation
+
+API 0.21 adds on_close(view, reason) after successful mount and teardown. The
+neutral surface records the first reason and clears widgets/click handlers,
+removes ownership and runs native Closed listeners before calling Lua. Back,
+scene-stack disposal, external native destruction and callback/render errors
+have distinct reasons. Scope/script shutdown and failed mounts do not run Lua
+notifications. Close errors are isolated and notifications have the existing
+200,000-instruction callback budget. Opening UI from any nested close callback
+is rejected; this prevents new surfaces escaping scene teardown.
+
+Charged Strike clears its view reference and cancels charge/armed state on
+close. The model fixture verifies reason/order/once-only delivery and observer
+failures. Actual Lua tests cover nested close, invalid/stale handles, budgets,
+reopen rejection, mount/shutdown suppression and scene-close cancellation.
+The Unity fixture verifies external native destruction reports its reason and
+cancels an actually armed Lua bonus; the original game skin is preserved.
+Physical input, full scene transitions and native gameplay acceptance remain
+manual checks. This provides a cancellation notification, not asynchronous
+mode entry or a transactional run controller.

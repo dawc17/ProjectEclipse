@@ -288,3 +288,31 @@ Full E4 remains open for native end-to-end acceptance, richer layout/assets/
 localization/widgets, HUD controller focus and the broader creator workflows.
 
 API 0.16 adds safe-area anchors/offsets to owned UI and connects the actual Charged Strike Lua example to the production Unity renderer in an isolated play-mode fixture. See [the UI implementation evidence](UI_RUNTIME_IMPLEMENTATION.md). Full-game acceptance and broader widget/mode workflows remain open.
+
+API 0.17 adds dynamic localization reads for Lua/custom UI, with current-language selection, English fallback and pending/committed patch support. Charged Strike exercises English/Polish refreshes in the isolated Unity fixture.
+
+API 0.18 establishes native game skin defaults for custom UI, per the user requirement, and adds bounded text/color styling. Future widget types must use the same original-game visual language by default. See the UI implementation evidence for native asset and preview coverage.
+
+
+API 0.19 adds bounded Lua mode-result routing over registered fight rosters and
+persists the selected step using existing mode storage. A standalone Branching
+Trial demonstrates alternating short/full routes and loss routing. Native outcome,
+reward and entry paths remain authoritative; malformed callbacks fall back.
+Linear completion indicators are suppressed for these modes. This advances E3,
+but does not deliver generated fights, seeded run services, asynchronous choices,
+full custom lobbies/results or complete interruption acceptance. See the cumulative
+work log for exact runtime/editor evidence and the remaining requirements.
+
+API 0.20 adds deterministic random draws backed by ordinary declared integer
+state fields. Integer ranges use bounded rejection sampling; both draw functions
+require owned state read/write capabilities and resume from serialized state.
+Seeded Trial connects this to actual Lua result routing over registered fights.
+This supplies persistent seeded choices for E3; generated encounters, async
+player choices, lobbies/results and transactional run settlement remain open.
+
+
+API 0.21 adds bounded UI close notification after input/view teardown, with
+explicit reasons and prevention of reopening UI during cancellation. Charged
+Strike demonstrates canceling pending gameplay state on native HUD destruction.
+This advances the E3/E4 lifetime foundation. Async mode entry, lobbies/results,
+subscriptions and general cancellation services remain open.

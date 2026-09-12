@@ -5,7 +5,49 @@ $root = Split-Path -Parent $PSScriptRoot
 $fixture = Join-Path $root ('Temp/P2ACombat-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path (Join-Path $fixture 'Mods') | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'Mods/example.phase2') -Destination (Join-Path $fixture 'Mods') -Recurse
+New-Item -ItemType Directory -Path (Join-Path $fixture 'BranchingMods') | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'Mods/example.branching-trial') -Destination (Join-Path $fixture 'BranchingMods') -Recurse
+New-Item -ItemType Directory -Path (Join-Path $fixture 'SeededMods') | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'Mods/example.seeded-trial') -Destination (Join-Path $fixture 'SeededMods') -Recurse
 $entry = Join-Path $fixture 'Mods/example.phase2/scripts/main.lua'
+$showcase = Join-Path $fixture 'Mods/example.phase2/scripts/showcase.lua'
+$showcaseText = [IO.File]::ReadAllText($showcase).Replace("`r`n", "`n")
+$originalMode = @'
+sf2.modes.register {
+    id = "ascension_trial", repeatable = true, reset_on_loss = true,
+    fights = {
+        fight("trial_1", ascension, ticket_reward),
+        fight("trial_2", ascension, ticket_reward),
+        fight("trial_3", ascension, monk_reward),
+    },
+}
+'@
+$branchingMode = @'
+local roster = {
+    fight("trial_1", ascension, ticket_reward),
+    fight("trial_2", ascension, ticket_reward),
+    fight("trial_3", ascension, monk_reward),
+}
+local outside = fight("outside", training, ticket_reward)
+sf2.modes.register {
+    id="ascension_trial",repeatable=true,reset_on_loss=true,fights=roster,
+    on_result=function(result)
+        assert(type(result.won)=="boolean" and result.step>=1 and result.total==3)
+        assert(type(result.fight_id)=="string")
+        if result.completions==0 then return result.won and roster[3] or roster[1] end
+        if result.completions==1 then return nil end
+        if result.completions==2 then return "complete" end
+        if result.completions==3 then error("result failure") end
+        if result.completions==4 then return {} end
+        if result.completions==5 then while true do end end
+        if result.completions==6 then return outside end
+    end,
+}
+'@
+$originalMode = $originalMode.Replace("`r`n", "`n")
+$branchingMode = $branchingMode.Replace("`r`n", "`n")
+if (-not $showcaseText.Contains($originalMode)) { throw 'Mode fixture source contract changed.' }
+[IO.File]::WriteAllText($showcase,$showcaseText.Replace($originalMode,$branchingMode))
 @'
 local retained
 sf2.behaviors.register {
@@ -53,8 +95,8 @@ public static class Program {
         Check(!discovered.HasErrors && discovered.Mods.Count == 1, "Sample discovery failed.");
         var mod = discovered.Mods[0]; var catalog = new ModContentCatalog(); var state = new ModStateRuntime();
         CoreContentImporter.ImportForgeEconomicProfiles(catalog, new[] { "Simple" });
-        var templates = new XmlDocument(); templates.LoadXml("<Templates><Warrior Name='Default'/></Templates>");
-        CoreContentImporter.ImportWarriorTemplates(catalog, templates.DocumentElement);
+        var templates = new XmlDocument(); templates.Load(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(args[1]),"stages.xml"));
+        CoreContentImporter.ImportWarriorTemplates(catalog, templates.SelectSingleNode("Stages/Warriors/Templates"));
         var list = new XmlDocument(); list.Load(args[1]);
         var nodes = list.SelectNodes("//Item").Cast<XmlNode>().ToArray();
         var languages = new Dictionary<string,XmlDocument>();
@@ -117,6 +159,31 @@ public static class Program {
                 Check(ModPolicies.DeliverySeconds("forge", 600) == 0 && !ModPolicies.SkipEnabled("forge"), "Forge timer policy ignored.");
                 Check(!ModPolicies.FeatureEnabled("battle_pass") && !ModPolicies.FeatureEnabled("ads"), "Service policy ignored.");
                 var trial = catalog.Modes.Single(m => m.Id.LocalId == "ascension_trial");
+                var modeCallbacks=(IModModeScriptContext)context;
+                Check(modeCallbacks.TryChooseModeNext(trial,true,0,0,out var chosen,out error) && chosen==2,"Lua did not choose a registered branch.");
+                Check(modeCallbacks.TryChooseModeNext(trial,false,2,0,out chosen,out error) && chosen==0,"Lua loss branch failed.");
+                Check(modeCallbacks.TryChooseModeNext(trial,true,0,1,out chosen,out error) && chosen==null,"Default progression return failed.");
+                Check(modeCallbacks.TryChooseModeNext(trial,false,0,2,out chosen,out error) && chosen==3,"Explicit completion failed.");
+                foreach(int completed in new[]{3,4,5,6})
+                    Check(!modeCallbacks.TryChooseModeNext(trial,true,0,completed,out chosen,out error) && chosen==null && !string.IsNullOrEmpty(error),"Invalid/unbounded mode callback escaped validation.");
+                var branchSave=new XmlDocument();branchSave.LoadXml("<Warrior/>");
+                var branchProgress=new ModModeProgress(branchSave.DocumentElement,trial);
+                branchProgress.Enter();
+                string beforeInvalid=branchSave.OuterXml;
+                bool rejectedBranch=false;try{branchProgress.Complete(trial,true,4);}catch(ModContentException){rejectedBranch=true;}
+                Check(rejectedBranch && beforeInvalid==branchSave.OuterXml,"Invalid transition consumed reservation.");
+                branchProgress.Complete(trial,true,2);
+                Check(branchProgress.Step==2 && !branchProgress.Entered,"Branch was not saved.");
+                var branchReload=new XmlDocument();branchReload.LoadXml(branchSave.OuterXml);
+                branchProgress=new ModModeProgress(branchReload.DocumentElement,trial);
+                Check(branchProgress.Step==2,"Reload lost branch.");
+                branchProgress.Enter();branchProgress.Complete(trial,false,trial.Fights.Count);
+                branchProgress.Complete(trial,false,trial.Fights.Count);
+                Check(branchProgress.Step==0 && branchProgress.Completions==1,"Loss completion/repeat or duplicate guard failed.");
+                ((XmlElement)branchReload.DocumentElement.SelectSingleNode("EclipseModes/Mode")).SetAttribute("Completions",int.MaxValue.ToString());
+                branchProgress.Enter();string beforeOverflow=branchReload.OuterXml;
+                bool overflow=false;try{branchProgress.Complete(trial,true,trial.Fights.Count);}catch(OverflowException){overflow=true;}
+                Check(overflow && branchReload.OuterXml==beforeOverflow,"Completion overflow partially settled progression.");
                 var progress = new ModModeProgress(save.DocumentElement, trial);
                 Check(progress.Step == 0, "Initial progression wrong.");
                 progress.Enter(); progress.Complete(trial, true); progress.Complete(trial, true);
@@ -225,11 +292,100 @@ public static class Program {
                     Check(ModModeRuntime.EntryStatus(raidEntry)=="" && ModModeRuntime.ResolveEntry(ref raidEntry) && ModModeRuntime.Begin(raidEntry), "Completed raid became locked on replay.");
                     ModModeRuntime.Complete(raidEntry, replay!=1);
                 }
+                int resultCalls=0;
+                ModModeRuntime.SelectNext=(definition,win,step,completed)=>{
+                    resultCalls++;
+                    if(!modeCallbacks.TryChooseModeNext(definition,win,step,completed,out var selection,out var reason)) throw new Exception(reason);
+                    return selection;
+                };
+                var trialEntry=ListSF.Fights[catalog.RuntimeFightId(trial.Fights[0])];
+                Check(ModModeRuntime.HasCustomRouting(trialEntry) && ModModeRuntime.ProgressLabel(trialEntry)=="","Branching mode showed linear completion count.");
+                Check(ModModeRuntime.ResolveEntry(ref trialEntry) && ModModeRuntime.Begin(trialEntry),"Branching trial entry failed.");
+                ModModeRuntime.Complete(trialEntry,true);ModModeRuntime.Complete(trialEntry,true);
+                Check(resultCalls==1 && new ModModeProgress(hostSave.DocumentElement,trial).Step==2,"Native settlement did not choose branch once.");
+                Check(ModModeRuntime.ResolveEntry(ref trialEntry) && trialEntry.BCKFACGMOKC.ToString()==catalog.RuntimeFightId(trial.Fights[2]),"Map entry ignored selected branch.");
+                Check(ModModeRuntime.Begin(trialEntry),"Selected branch could not enter.");
+                ModModeRuntime.Complete(trialEntry,false);
+                Check(new ModModeProgress(hostSave.DocumentElement,trial).Step==0,"Native loss did not take Lua route.");
+                ModModeRuntime.SelectNext=(definition,win,step,completed)=>throw new Exception("isolated mode failure");
+                Check(ModModeRuntime.ResolveEntry(ref trialEntry) && ModModeRuntime.Begin(trialEntry),"Fallback trial entry failed.");
+                ModModeRuntime.Complete(trialEntry,true);
+                Check(new ModModeProgress(hostSave.DocumentElement,trial).Step==1 && !ModModeRuntime.CanResolve(trialEntry),"Callback error did not settle once with default progression.");
+                ModModeRuntime.SelectNext=null;
                 ModModeRuntime.Clear();
                 ModPolicies.Content = null;
             }
         }
-        Console.WriteLine("PASS: Phase 2 public Lua, typed instance state/migration, capability lifetimes, mode persistence/repeat/loss/schedule, raid metadata/keys, timer/service policy and atomic rollback.");
+        foreach(bool seeded in new[]{false,true}) {
+        var branchMod=ModDiscovery.DiscoverLoose(System.IO.Path.Combine(args[0],seeded?"../SeededMods":"../BranchingMods")).Mods.Single();
+        var branchState=new ModStateRuntime();
+        var branchAssets=new AssetResolver(new IAssetProvider[]{new Core(),new LooseModProvider(branchMod)});
+        using(var registration=catalog.BeginRegistration(branchMod))
+        using(var script=new MoonSharpScriptRuntime().CreateContext(branchMod,new ModApiFacade(branchMod,branchAssets,registration,branchState,null)))
+        {
+            ModLocalizationLoader.Load(branchMod,branchAssets,registration);script.ExecuteEntrypoint();registration.Commit();
+            var mode=catalog.Modes.Single(m=>m.Id.Namespace==branchMod.Id);
+            string[] expectedTemplates=seeded?new[]{"Man_Kungfu","Girl_Sai","Man_Nunchaku"}:new[]{"Man_Kunai","Man_Batons","Man_Night"};
+            string[] expectedNames=seeded?new[]{"Wayfarer","Needlehand","Storm Ronin"}:new[]{"Gatekeeper","Bulwark","Night Warden"};
+            var uniqueFighters=new HashSet<DefinitionId>();
+            var weapons=new HashSet<string>();var portraits=new HashSet<string>();
+            for(int i=0;i<mode.Fights.Count;i++) {
+                catalog.TryGetFight(mode.Fights[i],out var encounter);
+                Check(encounter.Warriors.Count==1 && uniqueFighters.Add(encounter.Warriors[0]),"Trial reused an encounter fighter.");
+                Check(catalog.TryGetWarrior(encounter.Warriors[0],out var opponent) && opponent.HasTemplate &&
+                    catalog.TryGetWarriorTemplate(opponent.Template,out var nativeTemplate) && nativeTemplate.LegacyName==expectedTemplates[i],"Wrong trial fighter template.");
+                Check(catalog.TryGetLocalization(DefinitionId.Parse(opponent.FirstName),out var name) && name.GetOrEnglish("eng")==expectedNames[i],"Wrong encounter name.");
+                var native=templates.SelectSingleNode("Stages/Warriors/Templates/Template[@Name='"+expectedTemplates[i]+"']");
+                Check(native!=null && portraits.Add(native.Attributes["Avatar"].Value) &&
+                    weapons.Add(native.SelectSingleNode("Items/Item").Attributes["Name"].Value),"Trial templates lack distinct native portraits/weapons.");
+            }
+            var entryQuest=catalog.Quests.Single(q=>q.Id.Namespace==branchMod.Id);
+            catalog.TryGetFight(mode.Fights[0],out var firstEncounter);
+            Check(entryQuest.Place==ModQuestActionPlace.Map && entryQuest.Events.Contains(ModQuestEventKind.Session) &&
+                entryQuest.Actions.Any(a=>a.Kind==ModQuestActionKind.ShowBattle && a.Reference==firstEncounter.Battle && !a.Flag),
+                "Shipped trial has no unlocked map-session reveal for its battle.");
+            Check(catalog.TryGetLocalization(DefinitionId.Parse(branchMod.Id+":localization/zones/trial"),out var zoneTitle) &&
+                zoneTitle.GetOrEnglish("eng")== (seeded?"Seeded Trial":"Branching Trial"),"Trial map footer title missing.");
+            var data=new XmlDocument();data.LoadXml("<Warrior/>");
+            ModSaveData.RecordContext(data.DocumentElement,new[]{branchMod},catalog,branchState);
+            ModPolicies.Content=catalog;ModModeRuntime.Bind(data.DocumentElement);branchState.Bind(data.DocumentElement,new[]{script});
+            foreach(var id in mode.Fights) {
+                catalog.TryGetFight(id,out var definition);catalog.TryGetBattle(definition.Battle,out var owner);
+                string runtimeId=catalog.RuntimeFightId(id);
+                ListSF.Fights[runtimeId]=new FightList { BCKFACGMOKC=new FightIDS(runtimeId),CNAOMDMIGLJ=new Battle { Name=owner.LegacyName } };
+            }
+            int calls=0;
+            ModModeRuntime.SelectNext=(definition,won,step,completed)=>{
+                calls++;
+                Check(((IModModeScriptContext)script).TryChooseModeNext(definition,won,step,completed,out var selection,out var reason),reason);
+                return selection;
+            };
+            var entry=ListSF.Fights[catalog.RuntimeFightId(mode.Fights[0])];
+            foreach(int expected in seeded?new[]{1,2,0,2,0}:new[]{2,0,1,2,0})
+            {
+                var before=new ModModeProgress(data.DocumentElement,mode);
+                Check(ModModeRuntime.ResolveEntry(ref entry) && entry.BCKFACGMOKC.ToString()==catalog.RuntimeFightId(mode.Fights[before.Step]),"Reloaded mode entry selected the wrong encounter.");
+                Check(ModModeRuntime.Begin(entry),"Repeated route could not enter.");
+                ModModeRuntime.Complete(entry,true);
+                string settled=data.OuterXml;int settledCalls=calls;
+                ModModeRuntime.Complete(entry,true);
+                Check(calls==settledCalls && data.OuterXml==settled,"Duplicate result changed route or callback state.");
+                Check(new ModModeProgress(data.DocumentElement,mode).Step==expected,"Shipped branching example took the wrong native route.");
+                var loaded=new XmlDocument();loaded.LoadXml(data.OuterXml);data=loaded;
+                ModModeRuntime.Bind(data.DocumentElement);branchState.Bind(data.DocumentElement,new[]{script});
+            }
+            Check(calls==5 && new ModModeProgress(data.DocumentElement,mode).Completions==2,"Shipped branching example did not finish both routes exactly once.");
+            Check(ModModeRuntime.ResolveEntry(ref entry) && ModModeRuntime.Begin(entry),"Interrupted branch could not enter.");
+            string reserved=data.OuterXml;
+            var interrupted=new XmlDocument();interrupted.LoadXml(reserved);data=interrupted;
+            ModModeRuntime.Bind(data.DocumentElement);branchState.Bind(data.DocumentElement,new[]{script});
+            Check(ModModeRuntime.ResolveEntry(ref entry) && ModModeRuntime.Begin(entry) && data.OuterXml==reserved,"Resuming an interrupted route mutated its reservation.");
+            ModModeRuntime.Complete(entry,false);
+            Check(calls==6 && new ModModeProgress(data.DocumentElement,mode).Step==0 && new ModModeProgress(data.DocumentElement,mode).Completions==2,"Loss after resume changed completed-run count.");
+            ModModeRuntime.SelectNext=null;ModModeRuntime.Clear();ModPolicies.Content=null;
+        }
+        }
+        Console.WriteLine("PASS: public Lua, branching and seeded mode examples and native settlement, state/migration, capability lifetimes, persistence/repeat/loss/schedule, raid metadata/keys, timer/service policy and atomic rollback.");
     }
 }
 '@ | Set-Content -Encoding UTF8 (Join-Path $fixture 'Program.cs')

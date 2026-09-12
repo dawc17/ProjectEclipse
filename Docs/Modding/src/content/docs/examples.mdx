@@ -18,11 +18,27 @@ Start with <a href={pageUrl('guides/first-weapon')}>Your first weapon</a> for co
 
 ## Larger connected mods
 
+Branching Trial and Seeded Trial reveal their battles when a map session begins.
+After enabling either mod and restarting, use the bottom map-page dots to find
+its named zone. With several example mods enabled, another example may initially
+focus its own page. Each trial supplies a `zones/trial` localization for its map
+footer; registering a battle alone does not reveal it.
+
+Each trial has three named fighters with distinct original-game portraits and
+equipment. Branching Trial uses **Gatekeeper** (kunai), **Bulwark** (steel batons)
+and **Night Warden** (ninja sword). Its shortcut skips Bulwark. Seeded Trial uses
+**Wayfarer** (unarmed), **Needlehand** (sai) and **Storm Ronin** (nunchaku); its
+seeded choice either includes or skips Needlehand. These reuse native character
+templates while registering separate mod-owned warriors. Existing saved route
+positions and seeds survive the example update.
+
 The [Charged Strike HUD](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.charge-ui)
-shows an anchored HUD, live UI updates and a click that arms behavior for a fresh combat callback (API 0.16).
+shows an anchored, localized HUD, live UI updates and a click that arms behavior for a fresh combat callback. Closing the HUD cancels the armed bonus (API 0.21).
 
 | Example source | What to learn |
 | --- | --- |
+| [Branching Trial](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.branching-trial) | Choose fight routes using Lua results and saved completion counts. Requires API 0.19. |
+| [Seeded Trial](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.seeded-trial) | Choose a shortcut using a saved random stream that resumes across profile reloads. Requires API 0.20. |
 | [Timed combo reserve](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.combo-reserve) | Combine native combo events, round state and the fight clock for a timed damage bonus. |
 | [Outgoing battle rule](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.outgoing-rule) | Double every third unblocked hit using an attacker-side Lua callback. |
 | [Perk upgrades](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.perk-upgrades) | Learn and upgrade a Lua guard with level-specific parameters and descriptions. |

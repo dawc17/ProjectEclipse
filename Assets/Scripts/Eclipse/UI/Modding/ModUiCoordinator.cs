@@ -80,7 +80,7 @@ namespace Eclipse.UI.Modding
             {
                 entries.Remove(surface);
                 root.SetActive(false); Destroy(root);
-                surface.Close();
+                surface.Close(ModUiCloseReason.Error);
                 throw;
             }
         }
