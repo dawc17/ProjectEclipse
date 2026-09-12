@@ -55,13 +55,16 @@ Each node is a table:
 | Field | Required/default | Meaning |
 | --- | --- | --- |
 | `id` | Required | Unique within this view; 1–64 ASCII letters, digits, `_` or `-`. View IDs use the same syntax. |
-| `kind` | Required | `stack`, `row`, `column`, `scroll`, `text`, `button`, `progress`, `toggle`, or `slider`. The last two require API 0.22. |
+| `kind` | Required | `stack`, `row`, `column`, `scroll`, `text`, `button`, `progress`, `toggle`, `slider`, `image`, or `grid`. Toggle/slider require API 0.22; image requires API 0.41; grid requires API 0.43. |
 | `width`, `height` | `0` | Finite 0–8192 reference units. Both must be positive on the root. Zero gives flexible size in a row/column; use explicit dimensions inside stacks. |
 | `children` | Empty | Dense array of nodes. Only containers accept children; `scroll` requires exactly one content node. |
-| `gap` | `0` | Row/column spacing, finite 0–1024. Other kinds require zero. |
+| `gap` | `0` | Row/column/grid spacing, finite 0–1024. Other kinds require zero. Grid uses this spacing on both axes. |
+| `columns` | Required for grid | Integer 1–256, only on `grid`. Children fill each row from left to right. |
+| `cell_width`, `cell_height` | Required for grid | Finite 1–8192 reference units, only on `grid`. The grid controls each direct child's size. |
 | `text` | `""` | Text/button/toggle label, up to 8192 UTF-16 code units. Other kinds require empty text. Plain text, wrapped and clipped; rich text is disabled. |
 | `value` | `0` | Progress/slider fraction, finite 0–1. Toggles reject this field; other kinds require zero. |
 | `checked` | `false` | Boolean, toggles only. |
+| `sprite` | Required for image | Typed handle from `sf2.assets.sprite`. Only image widgets accept this field. Images require positive width and height, preserve aspect ratio, and do not receive clicks. |
 | `visible`, `enabled` | `true` | Widget state; hidden/disabled ancestors also prevent button activation. |
 | `style` | Game defaults | Optional style table, available since API 0.18; see below. |
 
@@ -74,8 +77,98 @@ consistent with the game: prefer these shared defaults and use overrides for
 readability or a specific semantic emphasis. Unknown fields, duplicate IDs, malformed arrays and invalid values
 are errors. Dynamic text accepts plain strings. Since API 0.17, use
 [`sf2.localization.text`](../localization-patches/#sf2localizationtext) to resolve
-translation handles during UI refreshes. Images, custom fonts and virtualized lists are not
-part of this initial UI contract.
+translation handles during UI refreshes. Custom fonts and virtualized lists are not
+supported yet.
+
+### Grid layouts
+
+API **0.43** adds fixed-column grids for equipment, character and reward selectors.
+A grid arranges existing widgets, so buttons and labels retain the original game
+sprites and font. A cell may also be a column or stack containing artwork and a
+button. Direct child widths/heights are overridden by the grid's cell dimensions;
+image nodes still require positive authored dimensions.
+
+```lua
+local sf2 = require("sf2")
+local names = { "Blade", "Spear", "Staff", "Claws", "Knives", "Axe" }
+local cells = {}
+for i, name in ipairs(names) do
+    cells[i] = { id = "option_" .. i, kind = "button", text = name }
+end
+sf2.ui.open {
+    id = "equipment_choices", mount = "modal",
+    root = { id = "panel", kind = "column", width = 460, height = 220,
+        gap = 12, children = {
+            { id = "selection", kind = "text", width = 460, height = 40,
+              text = "Choose equipment" },
+            { id = "options", kind = "grid", width = 460, height = 108,
+              columns = 3, cell_width = 148, cell_height = 48, gap = 6,
+              children = cells },
+        },
+    },
+    on_click = function(view, id)
+        local index = tonumber(id:match("^option_(%d+)$"))
+        if index then sf2.ui.set_text(view, "selection", names[index]) end
+    end,
+}
+```
+
+This example selects a label; it does not grant or equip an item. Use the selected
+value in your own supported workflow. Children appear in their authored order,
+starting at the upper left. Hidden children leave the layout and later cells move
+forward; disabled children keep their place. Set enough grid height for all rows:
+`rows * cell_height + math.max(0, rows - 1) * gap`, where
+`rows = math.ceil(#cells / columns)`. Width follows the same formula with columns.
+Grid dimensions do not grow automatically. Put a tall grid inside a `scroll` node
+for clipping and scrolling; grids by themselves do not clip overflowing children.
+
+Tab visits interactive descendants in row order; Shift+Tab reverses that order.
+Arrows, the D-pad and the left stick navigate grids by their visible layout:
+Left/Right stay on the current row and Up/Down prefer overlapping columns.
+Hidden and disabled controls are skipped. Directional grid navigation does not
+wrap at an edge; use Tab to reach controls outside that direction. Controls outside
+the grid can be reached when they lie in the requested direction. Outside grids,
+Up/Down retain ordered traversal. Left/Right adjust a selected slider, including
+when it is inside a grid; reaching the slider's endpoint does not move focus away.
+Focus reveals its control inside vertical scroll containers. Grids retain the
+256-node limit for the entire view, including nested cell contents; virtualized
+collections are not implemented.
+
+### Image widgets
+
+Requires API **0.41** and the usual `ui.create` capability. Put a PNG at
+`assets/sprites/reward.png` in your mod, then obtain its sprite handle. Replace
+`example.my-mod` with your manifest's ID:
+
+```lua
+local sf2 = require("sf2")
+local artwork = sf2.assets.sprite("example.my-mod:sprites/reward")
+local view = sf2.ui.open {
+    id = "reward_preview", mount = "modal",
+    root = { id = "paper", kind = "column", width = 400, height = 240,
+        children = {
+            { id = "art", kind = "image", width = 360, height = 160,
+              sprite = artwork },
+            { id = "caption", kind = "text", width = 360, height = 40,
+              text = "Your reward" },
+        },
+    },
+}
+```
+
+The sprite fits inside its rectangle without stretching or cropping. Use the
+shared parchment container and game-font caption to keep the presentation
+consistent. Images are decorative: they accept neither text, values, children,
+nor style overrides. Put any background on their parent. API **0.42** adds
+[`sf2.ui.set_sprite`](#sf2uiset_sprite) to replace artwork in place. Visibility and enabled
+state use the existing UI functions. Closing a view does not destroy shared
+loader-owned artwork. A missing or unloadable sprite fails mounting and closes
+the surface rather than leaving a white missing-image rectangle.
+
+Sprite handles retain the existing asset dependency and ownership checks. Raw
+paths, strings in `sprite`, forged handles, and Unity objects are not accepted.
+Automated Lua/runtime checks cover this contract; native rendering acceptance is
+tracked separately from editor diagnostics.
 
 API **0.22** adds toggles using the original checkbox sprites and sliders using
 the original settings track, fill and handle. In a menu/modal, Up/Down or Tab
@@ -245,6 +338,34 @@ to 8192 UTF-16 code units. Updates do not rebuild the layout tree.
 ```lua
 sf2.ui.set_text(view, "count", "Charge: " .. tostring(charge))
 ```
+
+## sf2.ui.set_sprite
+
+**Signature:** `sf2.ui.set_sprite(view, widget_id, sprite)`
+
+**Returns:** `nil`.
+
+**When:** After opening a surface, including from its click/change callbacks. Use
+this to switch a character portrait, equipment icon or reward preview without
+rebuilding the panel. Requires API **0.42**.
+
+**Requires:** An open UI handle and a sprite handle created by the same script
+context. The widget must be an `image`. Its size, aspect-preserving rendering,
+visibility and place in the layout stay unchanged. `ui.create` is required to
+create the surface; the setter grants no additional asset access.
+
+```lua
+local alternate = sf2.assets.sprite("example.selector:sprites/alternate")
+-- view contains an image node whose id is "portrait".
+sf2.ui.set_sprite(view, "portrait", alternate)
+```
+
+Strings, forged handles, other asset kinds, unknown widget IDs and closed views
+are rejected. Assigning the current sprite again does nothing. The renderer loads
+the replacement through the asset host; a missing or invalid image closes the
+surface with reason `error` and reports the failure, following the normal UI
+cleanup rules. Replacing an image never destroys loader-owned sprites used by
+other views. To hide artwork, use `sf2.ui.set_visible`; `nil` is not a sprite.
 
 ## sf2.ui.set_value
 

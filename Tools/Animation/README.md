@@ -4,7 +4,9 @@ For new SF2 characters and motions, start with the [Gymnast workflow](../../Docs
 `OpenGymnast.ps1` prepares and opens the upstream visible IK body; `GymnastBridge.py`
 validates native node bindings and exports evaluated motion. `PackageCharacter.py`
 packages existing native exports as an installable, repeatable map preview with
-an AI opponent that selects the authored move. The supplied upstream checkout
+an AI opponent that cycles through eligible authored moves. Add clips with
+`--clip NAME KEY MID_FRAMES FILE`; see the Gymnast guide for controls, timing,
+output files and the shared rig requirements. The supplied upstream checkout
 is loaded unchanged; no third-party add-on or scene is bundled here.
 
 Run `TestGymnastPipeline.ps1 -Blender <exe> -Suite <checkout>` for the real Blender,

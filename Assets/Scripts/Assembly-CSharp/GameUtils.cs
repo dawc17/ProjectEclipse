@@ -2179,21 +2179,15 @@ public static class GameUtils
 			hHKLFIIBIFF.OHPHPJBMNLH = KGKDKENMAOA.BCKFACGMOKC.CPHDPCAECJN();
 		}
         Eclipse.Modding.ModModeRuntime.NotifyResult(KGKDKENMAOA);
-		bool flag4 = false;
-		List<RewardStruct> list = KGKDKENMAOA.APKPCGDBMEP();
-		foreach (RewardStruct item in list)
-		{
-			RewardPrize cMHHEHILIIH = item.KOBOIFJNPMO(nKGLHEGIKKP.PINDEKDNCNL());
-			RewardLottery fAPDEKOMOGH = cMHHEHILIIH.FAPDEKOMOGH;
-			if (fAPDEKOMOGH != null)
-			{
-				flag4 = true;
-				break;
-			}
-		}
+		// Use this result's already composed reward. Scanning all reward scopes
+		// can defer a normal win because another win count contains a lottery,
+		// and re-evaluates reward expressions after progression/level-up changes.
+		bool flag4 = !flag2 && nHIDAJFLHJN.PMIHPJFAJIO.FAPDEKOMOGH != null;
 		if (flag4 && nHIDAJFLHJN.IsWinner())
 		{
 			ListSF.ELEBLBJKDBI().HAOHNNFLOGK = hHKLFIIBIFF;
+			Eclipse.Modding.ModRuntime.PrepareBattleLottery(nHIDAJFLHJN.PMIHPJFAJIO.FAPDEKOMOGH, hHKLFIIBIFF,
+				KGKDKENMAOA.get_Type() == BattleType.FightRaid, KGKDKENMAOA.EclipseStoryEncounter?.Id);
 		}
 		if ((!flag4 || !nHIDAJFLHJN.IsWinner()) && ((KGKDKENMAOA.get_Type() != BattleType.FightRaid && ListSF.ELEBLBJKDBI().FFBAJNGHGGD(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_FIGHT_END)) || (KGKDKENMAOA.get_Type() == BattleType.FightRaid && ListSF.ELEBLBJKDBI().FFBAJNGHGGD(QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_FIGHT_END))) && flag)
 		{
@@ -2249,6 +2243,7 @@ public static class GameUtils
 		}
 		if (Eclipse.Modding.ModRuntime.StoryEvents.TryCompleteEncounterResult(eclipseStoryEncounter) && eclipseStoryResult != null)
 			Eclipse.Modding.ModRuntime.StoryEvents.Publish(eclipseStoryResult);
+		Eclipse.Modding.ModRuntime.ShowPendingBattleLottery();
 	}
 
 	public static void CGFHDKDJCPL()
@@ -2266,6 +2261,11 @@ public static class GameUtils
 			LLLOJBFMONN.Error("GameUtils::StartFight(..) Error! FightList is empty!");
 			return false;
 		}
+        if (Eclipse.Modding.ModRuntime.HasPendingLottery)
+        {
+            Eclipse.Modding.ModRuntime.ShowPendingBattleLottery();
+            return false;
+        }
         var requestedFight = KGKDKENMAOA;
         if (!Eclipse.Modding.ModModeRuntime.PrepareEntry(requestedFight, () => StartFight(requestedFight,FLLKCPMJOEL,DPOOIONCEOA,CDFICPGIBEE,IINNCMDDLGE))) return false;
 		if (!Eclipse.Modding.ModModeRuntime.ResolveEntry(ref KGKDKENMAOA)) return false;

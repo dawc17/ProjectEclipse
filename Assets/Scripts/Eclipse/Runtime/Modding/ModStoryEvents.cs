@@ -100,6 +100,7 @@ namespace Eclipse.Modding
     // Host-only attempt identity. Never serialized or exposed to Lua.
     public sealed class ModStoryEncounter
     {
+        public string Id { get; } = Guid.NewGuid().ToString("N");
         internal int State;
         internal ModStoryEncounter() { }
     }

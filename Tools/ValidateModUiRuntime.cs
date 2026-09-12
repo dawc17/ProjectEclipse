@@ -19,6 +19,44 @@ static class Program
     });
     static void Main()
     {
+        var grid = new ModUiNode("grid", ModUiKind.Grid, 220, 100, gap: 10, columns: 2, cellWidth: 100, cellHeight: 40,
+            children: new[] { new ModUiNode("a", ModUiKind.Button, 0, 0, text: "A"), new ModUiNode("b", ModUiKind.Button, 0, 0, text: "B") });
+        Check(grid.Columns == 2 && grid.CellWidth == 100 && grid.CellHeight == 40 && grid.Children.Count == 2, "Grid lost layout contract");
+        foreach (int columns in new[] { -1, 0, 257 })
+            Reject(() => new ModUiNode("grid", ModUiKind.Grid, 220, 100, columns: columns, cellWidth: 100, cellHeight: 40), "Invalid grid columns accepted");
+        foreach (double dimension in new[] { 0, -1, double.NaN, double.PositiveInfinity, 8193 })
+            Reject(() => new ModUiNode("grid", ModUiKind.Grid, 220, 100, columns: 2, cellWidth: dimension, cellHeight: 40), "Invalid cell dimension accepted");
+        Reject(() => new ModUiNode("row", ModUiKind.Row, 200, 100, columns: 2), "Non-grid accepted columns");
+        using (var gridScope = new ModUiScope(ModId.Parse("example.grid")))
+        {
+            var gridSurface = gridScope.Open("grid", ModUiMount.Menu, grid, _ => { });
+            gridSurface.SetInputAllowed(true);
+            Check(gridSurface.CanClick("a") && gridSurface.CanClick("b"), "Grid children not interactive");
+            gridSurface.SetEnabled("grid", false); Check(!gridSurface.CanClick("b"), "Disabled grid did not gate children");
+        }
+        var icon = AssetId.Parse("example.ui:sprites/reward");
+        var image = new ModUiNode("art", ModUiKind.Image, 160, 80, sprite: icon);
+        Check(image.Sprite == icon, "Image lost its typed asset identity");
+        Reject(() => new ModUiNode("art", ModUiKind.Image, 160, 80), "Image accepted no sprite");
+        Reject(() => new ModUiNode("art", ModUiKind.Image, 0, 80, sprite: icon), "Image accepted undefined size");
+        Reject(() => new ModUiNode("art", ModUiKind.Text, 160, 80, sprite: icon), "Text accepted artwork");
+        using (var artScope = new ModUiScope(ModId.Parse("example.ui")))
+        {
+            var artView = artScope.Open("art", ModUiMount.Menu, image);
+            artView.SetInputAllowed(true);
+            Check(!artView.TryClick("art"), "Decorative image consumed click as a button");
+            var previousArtwork = artView.Read("art");
+            var replacement = AssetId.Parse("example.ui:sprites/other");
+            int updates = 0; artView.Changed += _ => updates++;
+            artView.SetSprite("art", replacement);
+            Check(artView.Read("art").Sprite == replacement && previousArtwork.Sprite == icon && image.Sprite == icon, "Sprite update changed snapshot/definition or failed");
+            artView.SetSprite("art", replacement); Check(updates == 1, "Unchanged sprite triggered redraw");
+            artView.SetVisible("art", false); artView.SetEnabled("art", false);
+            Check(artView.Read("art").Sprite == replacement, "Other updates reset live sprite");
+            Reject(() => artView.SetSprite("art", default(AssetId)), "Default sprite accepted");
+            Reject(() => artView.SetSprite("missing", icon), "Unknown image ID accepted");
+            artView.Close(); Reject(() => artView.SetSprite("art", icon), "Closed image accepted update");
+        }
         using (var controls = new ModUiScope(ModId.Parse("example.controls")))
         {
             int notifications = 0;

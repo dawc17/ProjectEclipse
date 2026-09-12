@@ -5,6 +5,8 @@ description: Author playable animation moves and program opponent decisions in L
 
 These are advanced content APIs. They configure the native animation and AI systems; Lua combat callbacks are covered separately in [Combat callbacks](../combat-callbacks/). Begin with a working fight and change one move at a time.
 
+Native equipment can use a different AI table group from its animation subtype. Eclipse respects the shipped `TacticSubtype` metadata (for example, a `TwoHandedBlunt` weapon can use `TwoHanded` AI tables), falling back to `SubType` when it is absent. Item cloning preserves this distinction, and weapon changes update the fighter's own AI group. Animation and item-condition matching still use the actual subtype. Owned weapon registration supports an optional `tactic_subtype` since API 0.51; see [weapon registration](../equipment-shop-logging/#sf2itemsregister_weapon). API 0.52 also supports [overriding weapon AI groups](../items-progression-forge/#sf2itemsset_tactic_subtype). Managed tests cover parsing and group updates; live combat acceptance remains separate.
+
 ## Shared move fields
 
 Both move registration functions accept the following fields:
@@ -190,7 +192,16 @@ waits still apply. `event.self` and `event.opponent` contain detached health,
 maximum health, health-bar count and position snapshots, as described in the
 [fighter reference](../fighter/). `event.frame` and `event.seconds` are the
 fighter controller's simulation clock. `event.actions` is an array of currently
-legal input-driven actions, each with a native `name` string. It may be empty.
+legal input-driven actions. It may be empty. Each candidate has these fields:
+
+| Field | Meaning |
+| --- | --- |
+| `name` | Native runtime action name, including namespaced authored moves. |
+| `type` | Since API **0.44**: native classification `"none"`, `"move"`, or `"attack"`. This is authored animation metadata, not a prediction of contact or damage. |
+| `priority` | Since API **0.44**: native integer move priority. Higher numbers take precedence among competing moves when native conditions apply; this is not an AI utility score. |
+| `timing` | Since API **0.45**: detached nominal clip timing, described below. Older name-only host adapters leave this `nil`. |
+| `inputs` | Since API **0.45**: array of `{ control, press }` entries from the native key combination used to dispatch this action. Empty if key metadata is unavailable. |
+
 The host filters move conditions, equipment availability and priority before
 Lua sees this list; a selected action still goes through normal input dispatch.
 
@@ -207,14 +218,115 @@ local patient = sf2.tactics.register {
     on_decide = function(memory, event)
         memory.next_attack = memory.next_attack or 0
         if event.seconds < memory.next_attack then return "wait" end
-        if #event.actions == 0 then return nil end
+        local best
+        for _, action in ipairs(event.actions) do
+            if action.type == "attack" and
+               (not best or action.priority > best.priority) then
+                best = action
+            end
+        end
+        if not best then return nil end
         memory.next_attack = event.seconds + 1
-        return event.actions[1]
+        return best
     end,
 }
 -- In an owned warrior definition:
 -- tactic = sf2.tactics.name(patient)
 ```
+
+This example requires `api = ">=0.44 <1.0"` in your manifest. Returning a
+candidate selects its original identity even if Lua edits its fields. Field edits
+cannot change the move, its priority, or a later decision's snapshot. An action
+classified as `"move"` or `"none"` can still contain authored combat behavior;
+use your own move knowledge when classification alone is insufficient.
+
+### Clip timing and controls
+
+With `api = ">=0.45 <1.0"`, each native candidate's `timing` contains:
+
+| Field | Meaning |
+| --- | --- |
+| `first_sample`, `last_sample` | Inclusive, zero-based sample indices in the animation's native storage. These are not simulation clock values. |
+| `mid_frames` | Number of interpolation frames between stored samples. Sample spacing is `mid_frames + 1`. |
+| `nominal_frames` | Native nominal clip length: `(last_sample - first_sample + 1) * (mid_frames + 1)`. |
+| `nominal_seconds` | `nominal_frames / 60`, using the nominal simulation rate. |
+| `looped` | Whether native playback is configured to loop. Nominal length describes one cycle. |
+
+This is clip metadata, **not a guaranteed completion time, recovery time, or
+hit window**. Transitions, interruption, looping, triggered actions and slow
+motion affect playback. Native eligibility continues to decide when the AI may
+select another action. For example, ten samples at `mid_frames = 2` have a
+nominal length of 30 frames (0.5 seconds).
+
+Each input's `press` is `"tap"`, `"hold"`, or `"release"`. `control` uses the
+same names as move authoring: `Up`, `Up-Forward`, `Forward`, `Down-Forward`,
+`Down`, `Down-Back`, `Back`, `Up-Back`, `Punch`, `Kick`, `Ranged`, `Magic`,
+`RaidCharge`, or `Super`. Unexpected native control IDs become `Unknown`.
+Forward and Back describe authored facing-relative directions, not screen-left
+and screen-right. Inputs are grouped by tap, hold, then release, preserving
+the native order within each group. They describe a combination, not a timed
+sequence of commands. At most 64 entries are supported per candidate.
+
+For example, this callback chooses the shortest non-looping clip dispatched by
+a kick tap, without depending on any native or custom move name:
+
+```lua
+-- Place this function in a tactic definition's on_decide field.
+local function choose_quick_kick(memory, event)
+    local best
+    for _, action in ipairs(event.actions) do
+        local timing = action.timing
+        if timing and not timing.looped then
+            for _, input in ipairs(action.inputs) do
+                if input.control == "Kick" and input.press == "tap" then
+                    if not best or timing.nominal_frames < best.timing.nominal_frames then
+                        best = action
+                    end
+                    break
+                end
+            end
+        end
+    end
+    return best -- nil uses native tactics when no candidate matches
+end
+```
+
+Editing `timing` or `inputs` only edits this Lua snapshot. It cannot change
+playback, issue a different control, or affect the next decision. Return the
+original candidate table to select it.
+
+### Reacting to the current animation
+
+Since API **0.46**, `event.self.animation` and `event.opponent.animation` expose
+the same detached [active animation observations](../fighter/#fightersnapshot)
+as combat callbacks. Check for a missing opponent or `nil` animation. This lets
+your AI react to live native intervals, rather than infer an attack from the
+opponent's animation name or its nominal duration:
+
+```lua
+-- An on_decide callback; requires api = ">=0.46 <1.0".
+local function evade_active_attack(memory, event)
+    local animation = event.opponent and event.opponent.animation
+    if not animation then return nil end
+    local attacking = false
+    for _, interval in ipairs(animation.intervals) do
+        if interval.type == "attack" then attacking = true; break end
+    end
+    if not attacking then return nil end
+    for _, action in ipairs(event.actions) do
+        if action.type == "move" then
+            for _, input in ipairs(action.inputs) do
+                if input.control == "Back" then return action end
+            end
+        end
+    end
+    return nil
+end
+```
+
+Native eligibility and the six-frame decision throttle still apply. This is a
+reaction policy, not a guarantee of evading a hit. The observation describes the
+current animation state; it is not a candidate you may return from `on_decide`.
 
 `memory` is a plain Lua table private to this native fighter controller and this
 tactic. It survives decisions on that controller, not save/reload or controller
@@ -226,9 +338,18 @@ native fallback; the first failure is diagnosed. Other fighters keep their own
 AI. This callback is not a coroutine.
 
 The [programmable AI example](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.programmable-ai)
-uses different pacing for three opponents. Isolated Lua tests cover choices,
-memory isolation, stale actions and failures. Native combat and physical input
+includes four opponents. The fourth, **Reactive Guardian**, uses active attack
+intervals to choose backward movement and nominal clip timing to choose a quick
+kick, without matching move names. It requires API 0.46. Isolated Lua tests cover
+those reactions, fallback, memory isolation, stale actions and failures. Native combat and physical input
 acceptance require a game playtest.
+
+The AI test suite also parses shipped retreat/kick definitions and their 67-node
+clip bytes through the compiled native parser, reader and snapshot adapter. It
+feeds those real control/timing snapshots to the Reactive Guardian callback.
+The test bypasses Unity resource I/O by prewarming the native animation cache;
+candidate eligibility and opponent observations remain controlled in that test.
+It verifies the content-to-Lua connection, not in-fight reactions or rendering.
 
 ## sf2.tactics.name
 

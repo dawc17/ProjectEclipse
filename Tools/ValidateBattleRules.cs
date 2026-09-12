@@ -96,6 +96,10 @@ sf2.behaviors.register {
         assert(first.self.health_bars == 3 and first.self.position.x == -25)
         assert(first.self.position.y == 4 and first.self.position.z == 2)
         assert(first.opponent.health == 50 and first.opponent.health_bars == 1)
+        assert(first.self.animation == nil)
+        assert(first.opponent.animation.name == 'opponent kick' and first.opponent.animation.type == 'attack' and first.opponent.animation.facing == -1)
+        assert(first.opponent.animation.intervals[1].name == 'contact' and first.opponent.animation.intervals[1].type == 'attack')
+        first.opponent.animation.intervals[1].type = 'block'
         assert(first.frame == 120 and first.seconds == 2 and first.round_active)
         first.self.position.x = 999
         first.self.health = -1
@@ -103,6 +107,7 @@ sf2.behaviors.register {
         local fresh = fighter:snapshot()
         assert(fresh.self.health == 70 and fresh.self.position.x == -25)
         assert(fresh.opponent.health == 50 and first.self.health == -1)
+        assert(fresh.opponent.animation.intervals[1].type == 'attack')
         previous_snapshot, previous_reader = fresh, fighter.snapshot
     end,
     on_round_end = function() previous_reader() end,
@@ -110,6 +115,7 @@ sf2.behaviors.register {
         assert(previous_snapshot.self.health == 70)
         local final = fighter:snapshot()
         assert(final.self.health == 0 and final.opponent == nil)
+        assert(final.self.animation == nil)
         assert(final.frame == 180 and final.seconds == 3 and not final.round_active)
     end,
 }
@@ -318,7 +324,8 @@ sf2.behaviors.register {
 
     static void SnapshotChecks(IModInteractiveBehaviorScriptContext context, ModId mod) {
         int captures=0;
-        var opponent=new ModFighterSnapshot(50,100,1,25,4,2);
+        var opponent=new ModFighterSnapshot(50,100,1,25,4,2,
+            new ModAnimationSnapshot("opponent kick","attack",-1,new[]{new ModAnimationIntervalSnapshot("contact","attack")}));
         var fighter=new Fighter { Capture=()=>new ModCombatSnapshot(
             new ModFighterSnapshot(++captures==1?80:70,100,3,-25,4,2),opponent,120,true) };
         var xml=new XmlDocument(); xml.LoadXml("<Instance/>");
@@ -326,6 +333,7 @@ sf2.behaviors.register {
         var id=DefinitionId.Parse(mod+":behaviors/snapshot_probe");
         Check(context.TryInvokeBehavior(id,ModEffectEvent.RoundBegin,null,null,wrapped,out var error),"Snapshot observations: "+error);
         Check(captures==2 && opponent.Health==50,"Fresh read or native snapshot isolation failed");
+        Check(opponent.Animation.Intervals[0].Type=="attack","Behavior changed native animation snapshot");
         Check(!context.TryInvokeBehavior(id,ModEffectEvent.RoundEnd,null,null,wrapped,out error) && error.Contains("expired"),"Retained snapshot operation survived callback");
         Check(captures==2,"Expired observation reached native source");
         fighter.Capture=()=>new ModCombatSnapshot(new ModFighterSnapshot(0,100,3,-25,4,2),null,180,false);

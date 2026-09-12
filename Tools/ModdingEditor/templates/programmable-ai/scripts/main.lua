@@ -1,3 +1,8 @@
+-- API >=0.46 adds event.opponent.animation with current facing and active intervals.
+-- API >=0.44 also provides action.type (none/move/attack) and action.priority.
+-- Use these in on_decide to select candidates without matching native names.
+-- API >=0.45 adds action.timing.nominal_frames/looped and action.inputs.
+-- Inputs have control (e.g. Kick) and press (tap/hold/release); timing is nominal.
 local sf2 = require("sf2")
 local function alias(key) return "example.programmable-ai:localization/" .. key end
 local arena = sf2.locations.register {
@@ -52,7 +57,54 @@ brains[3] = sf2.tactics.register {
         return nil
     end,
 }
-local fighter_templates = { "man_kunai", "man_batons", "man_night" }
+-- This brain uses observations and typed input/timing metadata, not move names.
+local function has_input(candidate, control, press)
+    for _, input in ipairs(candidate.inputs) do
+        if input.control == control and (not press or input.press == press) then return true end
+    end
+    return false
+end
+brains[4] = sf2.tactics.register {
+    id = "reactive", template = "Standard",
+    on_decide = function(memory, event)
+        if not event.opponent then return nil end
+        local distance = math.abs(event.self.position.x - event.opponent.position.x)
+        local animation = event.opponent.animation
+        if distance < 180 and animation then
+            for _, interval in ipairs(animation.intervals) do
+                if interval.type == "attack" then
+                    for _, candidate in ipairs(event.actions) do
+                        if candidate.type == "move" and
+                           (has_input(candidate, "Back", "tap") or has_input(candidate, "Back", "hold")) then
+                            -- Defense can take priority over our voluntary attack pause.
+                            memory.ready = event.seconds + 0.4
+                            return candidate
+                        end
+                    end
+                    break
+                end
+            end
+        end
+        if event.seconds < (memory.ready or 0) then return "wait" end
+        if distance >= 160 then return nil end -- native approach at long range
+        local quickest
+        for _, candidate in ipairs(event.actions) do
+            local timing = candidate.timing
+            if candidate.type == "attack" and timing and not timing.looped and
+               has_input(candidate, "Kick", "tap") and
+               (not quickest or timing.nominal_frames < quickest.timing.nominal_frames) then
+                quickest = candidate
+            end
+        end
+        if quickest then
+            -- A pacing policy, not a prediction of actual animation completion.
+            memory.ready = event.seconds + math.max(0.35, math.min(1.5, quickest.timing.nominal_seconds + 0.2))
+            return quickest
+        end
+        return nil
+    end,
+}
+local fighter_templates = { "man_kunai", "man_batons", "man_night", "man_staff" }
 local fighters = {}
 for i, template in ipairs(fighter_templates) do
     fighters[i] = sf2.warriors.register {
@@ -69,7 +121,7 @@ local battle = sf2.battles.register {
     alias = alias("trial"), title = alias("trial"), description = alias("trial.description"), location = location,
 }
 local fights = {}
-for i = 1, 3 do
+for i = 1, #fighters do
     fights[i] = sf2.fights.register {
         id = "encounter_" .. i, battle = battle, rounds = 1, round_time = 99,
         location = location, warriors = { fighters[i] }, rewards = { loss, win },

@@ -42,7 +42,9 @@ for (const stateful of [false,true]) {
 type('Fighter', { 'health?':'number', 'side?':'string', 'source?':'string', 'rule_id?':'string', 'opponent?':E('Opponent') });
 type('Opponent', {'health?':'number'});
 type('CombatPosition', {x:'number',y:'number',z:'number'});
-type('FighterSnapshot', {health:'number',max_health:'number',health_bars:'integer',position:E('CombatPosition')});
+type('AnimationIntervalSnapshot',{name:'string',type:enumOf('none','unstable','uninterrupt','self_uninterrupt','attack','block','invulnerable','invisible')});
+type('AnimationSnapshot',{name:'string',type:enumOf('none','move','attack'),facing:'integer',intervals:E('AnimationIntervalSnapshot')+'[]'});
+type('FighterSnapshot', {health:'number',max_health:'number',health_bars:'integer',position:E('CombatPosition'),'animation?':E('AnimationSnapshot')});
 type('CombatSnapshot', {self:E('FighterSnapshot'),'opponent?':E('FighterSnapshot'),frame:'integer',seconds:'number',round_active:'boolean'});
 type('ResolvingFighter',{},'Fighter');
 type('OutgoingFighter',{},'Fighter');
@@ -57,7 +59,7 @@ const fighterMethods = {
 };
 const equipment = { id:'string', display_name:H('Localization'), icon:H('Sprite'), model:H('Model') };
 for (const name of ['Weapon','Armor','Helm','Ranged','Magic']) {
-    type(`${name}Definition`, { ...equipment, ...(name === 'Weapon' ? {'subtype?':['string','Defaults to Katana. Match the model and move family.']} : ['Ranged','Magic'].includes(name) ? {subtype:'string'} : {}) });
+    type(`${name}Definition`, { ...equipment, ...(name === 'Weapon' ? {'subtype?':['string','Defaults to Katana. Match the model and move family.'], 'tactic_subtype?':['string','API 0.51: optional AI table group, defaults to subtype. 1-128 ASCII letters, digits or underscores.']} : ['Ranged','Magic'].includes(name) ? {subtype:'string'} : {}) });
     reg(`items.register_${name.toLowerCase()}`,`${name}Definition`,name);
 }
 type('NonEquipmentDefinition', {id:'string',display_name:H('Localization'),'icon?':H('Sprite'),'model?':H('Model'),'subtype?':'string','pack_label?':'string','silent_receive?':'boolean','spend_after_use?':'boolean'});
@@ -123,6 +125,11 @@ type('QuestDefinition',{id:'string','priority?':'integer','unresumable?':'boolea
 type('SetMember',{item:H('Item'),'scale?':'number','rotate?':'number','x?':'number','y?':'number','icons_y?':'number'});type('ItemSet',{id:'string',title:H('Localization'),text:H('Localization'),brief:H('Localization'),members:E('SetMember')+'[]'});reg('itemsets.register','ItemSet','ItemSet');
 type('PerkChoice',{perk:H('Perk'),'action?':enumOf('unlock','upgrade')});type('PerkBranch',{level:'integer',entries:E('PerkChoice')+'[]'});reg('progression.replace_perk_branch','PerkBranch',null,'content.patch');
 lookup('forge.profile','ForgeProfile');
+type('InnatePerk',{perk:H('Perk'),'parameters?':'table<string, number>'});type('ItemInnatePerks',{item:H('Item'),entries:E('InnatePerk')+'[]'});reg('items.set_innate_perks','ItemInnatePerks',null,'content.patch');
+type('ItemTacticSubtype',{item:H('Item'),group:['string','Native AI table group; empty selects physical subtype fallback.']});reg('items.set_tactic_subtype','ItemTacticSubtype',null,'content.patch');
+type('DefaultEnchantment',{perk:H('Perk'),'aspect?':'integer'});type('ItemDefaultEnchantments',{item:H('Item'),entries:E('DefaultEnchantment')+'[]'});reg('items.set_default_enchantments','ItemDefaultEnchantments',null,'content.patch');
+type('ForgeDeviation',{profile:H('ForgeProfile'),equipment:equipmentKinds,minimum:'integer',maximum:'integer'});reg('forge.override_deviation','ForgeDeviation',null,'content.patch');
+type('ForgeCandidateExclusion',{profile:H('ForgeProfile'),perk:H('Perk'),equipment:equipmentKinds});reg('forge.exclude_candidate','ForgeCandidateExclusion',null,'content.patch');
 type('ForgeItem',{equipment:equipmentKinds,'enchantments?':'integer','bar_scale?':'string','min_deviation?':'integer','max_deviation?':'integer','random_aspect?':'boolean'});type('ForgeCandidate',{perk:H('Perk'),equipment:equipmentKinds,'min_level?':'integer','max_level?':'integer'});type('ForgeRecipe',{id:'string','alias?':'string',economic_profile:H('ForgeProfile'),items:E('ForgeItem')+'[]',candidates:E('ForgeCandidate')+'[]'});reg('forge.register_recipe','ForgeRecipe','ForgeRecipe');
 type('Fonts',{content:'string',title:'string',button:'string','size_scale?':'number','line_spacing?':'number','custom_line_spacing_scale?':'number'});type('LocaleDefinition',{id:'string',name:'string',locale:'string','alias?':'string','is_asian?':'boolean','file_icon?':'string','file_icon_selected?':'string','loader_image?':'string','preloader_image?':'string','fonts?':E('Fonts')});fn('locales.register',{definition:E('LocaleDefinition')},'string');
 type('LocationCurvePoint',{period:'number',value:'number','ease?':'number'});type('LocationCurve',{'offset?':'number',points:E('LocationCurvePoint')+'[]'});
@@ -148,7 +155,7 @@ type('MoveInterval',{'type?':'string','name?':'string','start?':'integer','end?'
 const move={id:'string','templates?':H('MoveTemplate')+'[]','core_templates?':'string[]','events?':`(${moveEvent}|${E('MoveEvent')})[]`,'conditions?':`(${moveCondition})[]`,'intervals?':E('MoveInterval')+'[]',...Object.fromEntries(['type','mirror_node','tactic_equivalent','tactic_weapon'].map(k=>[k+'?','string'])),...Object.fromEntries(['priority','mid_frames','first_frame','end_frame'].map(k=>[k+'?','integer'])),'looped?':'boolean','ends_stage?':'boolean'};
 type('MoveTemplateDefinition',move);type('MoveDefinition',{...move,animation:H('Binary')});reg('moves.register_template','MoveTemplateDefinition','MoveTemplate');reg('moves.register','MoveDefinition','Move');
 type('SoundAction',{type:'"sound"',audio:H('Audio'),'volume?':'number','looped?':'boolean'});type('HitEffectAction',{type:'"hit_effect"',name:'string'});type('TriggerDefinition',{id:'string','events?':move['events?'],'conditions?':move['conditions?'],'actions?':`(${E('SoundAction')}|${E('HitEffectAction')})[]`});reg('moves.register_trigger','TriggerDefinition','Trigger');
-type('TacticValue',{...Object.fromEntries(['base','counter_factor','damage_factor','health_factor','enemy_health_factor','animation_frames_factor','child_frames_factor','magic_bullet_factor','missile_bullet_factor','hit_factor','distance_factor','shift','limit','anti_limit'].map(k=>[k+'?','number'])),'factor_type?':enumOf('linear','exponential')});type('TacticMemory',{'strikes?':'integer','round_factor?':'number'});type('TacticWeight',{'move?':H('Move'),'animation?':'string','value?':E('TacticValue')});type('AiAction',{name:'string'});type('AiDecision',{self:E('FighterSnapshot'),opponent:E('FighterSnapshot')+'?',frame:'integer',seconds:'number',actions:E('AiAction')+'[]'});type('TacticDefinition',{id:'string','on_decide?':`fun(memory:table,event:${E('AiDecision')}): ${E('AiAction')}|"wait"|nil`,'type?':enumOf('tabular','random'),'template?':'string','memory?':E('TacticMemory'),...Object.fromEntries(['counter_attack','dodge','block','safe_attack','table_attack','cautious_movement','dodge_missiles','dodge_magic'].map(k=>[k+'?',E('TacticValue')])),...Object.fromEntries(['animation_weights','quick_attacks','evades','expected_wait'].map(k=>[k+'?',E('TacticWeight')+'[]']))});reg('tactics.register','TacticDefinition','Tactic');fn('tactics.name',{tactic:H('Tactic')},'string',null);
+type('TacticValue',{...Object.fromEntries(['base','counter_factor','damage_factor','health_factor','enemy_health_factor','animation_frames_factor','child_frames_factor','magic_bullet_factor','missile_bullet_factor','hit_factor','distance_factor','shift','limit','anti_limit'].map(k=>[k+'?','number'])),'factor_type?':enumOf('linear','exponential')});type('TacticMemory',{'strikes?':'integer','round_factor?':'number'});type('TacticWeight',{'move?':H('Move'),'animation?':'string','value?':E('TacticValue')});type('AiActionTiming',{first_sample:'integer',last_sample:'integer',mid_frames:'integer',nominal_frames:'integer',nominal_seconds:'number',looped:'boolean'});type('AiActionInput',{control:enumOf('Up','Up-Forward','Forward','Down-Forward','Down','Down-Back','Back','Up-Back','Punch','Kick','Ranged','Magic','RaidCharge','Super','Unknown'),press:enumOf('tap','hold','release')});type('AiAction',{name:'string',type:enumOf('none','move','attack'),priority:'integer','timing?':E('AiActionTiming'),inputs:E('AiActionInput')+'[]'});type('AiDecision',{self:E('FighterSnapshot'),opponent:E('FighterSnapshot')+'?',frame:'integer',seconds:'number',actions:E('AiAction')+'[]'});type('TacticDefinition',{id:'string','on_decide?':`fun(memory:table,event:${E('AiDecision')}): ${E('AiAction')}|"wait"|nil`,'type?':enumOf('tabular','random'),'template?':'string','memory?':E('TacticMemory'),...Object.fromEntries(['counter_attack','dodge','block','safe_attack','table_attack','cautious_movement','dodge_missiles','dodge_magic'].map(k=>[k+'?',E('TacticValue')])),...Object.fromEntries(['animation_weights','quick_attacks','evades','expected_wait'].map(k=>[k+'?',E('TacticWeight')+'[]']))});reg('tactics.register','TacticDefinition','Tactic');fn('tactics.name',{tactic:H('Tactic')},'string',null);
 type('ModeResult',{won:'boolean',step:'integer',total:'integer',completions:'integer',fight_id:'string'});
 type('ModeRequest',{'private __eclipseModeRequest':'true'});type('EncounterPlan',{'warriors?':H('Warrior')+'[]','level?':'integer','rounds?':'integer','round_time?':'integer'});type('ModePreparation',{step:'integer',total:'integer',completions:'integer',fight_id:'string'});
 const mode={'on_prepare?':`fun(request:${E('ModeRequest')},event:${E('ModePreparation')}):${E('EncounterPlan')}|nil`,id:'string',fights:H('Fight')+'[]','repeatable?':'boolean','reset_on_loss?':'boolean','minimum_level?':'integer','starts_at?':'integer','ends_at?':'integer','entry_item?':H('Item'),'entry_count?':'integer','on_result?':`fun(result:${E('ModeResult')}):${H('Fight')}|"complete"|nil`};
@@ -161,9 +168,10 @@ for(const [name,target] of Object.entries({log:'info',warn:'warn',error:'error'}
 type('UiHandle', { 'private __eclipseUi': 'true' });
 type('UiStyle', { 'font_size?':'integer','text_align?':enumOf('left','center','right'),
     'text_color?':'string','background_color?':'string','fill_color?':'string' });
-type('UiNode', { id:'string', kind:enumOf('stack','row','column','scroll','text','button','progress','toggle','slider'),
+type('UiNode', { id:'string', kind:enumOf('stack','row','column','scroll','text','button','progress','toggle','slider','image','grid'),
     'width?':'number','height?':'number','gap?':'number','text?':'string','value?':'number','checked?':'boolean',
-    'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]','style?':E('UiStyle') });
+    'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]','style?':E('UiStyle'),'sprite?':H('Sprite'),
+    'columns?':'integer','cell_width?':'number','cell_height?':'number' });
 type('UiPlacement', { 'anchor?':enumOf('top_left','top','top_right','left','center','right','bottom_left','bottom','bottom_right'),'x?':'number','y?':'number' });
 type('UiDefinition', { id:'string',mount:enumOf('menu','modal','hud'),root:E('UiNode'),'placement?':E('UiPlacement'),
     'on_change?':`fun(view:${H('Ui')},widget_id:string,value:boolean|number)`,
@@ -173,6 +181,7 @@ fn('ui.open',{definition:E('UiDefinition')},H('Ui'),'ui.create');
 fn('ui.close',{view:H('Ui')},'nil',null);
 fn('ui.is_open',{view:H('Ui')},'boolean',null);
 fn('ui.set_text',{view:H('Ui'),widget_id:'string',text:'string'},'nil',null);
+fn('ui.set_sprite',{view:H('Ui'),widget_id:'string',sprite:H('Sprite')},'nil',null);
 fn('ui.set_value',{view:H('Ui'),widget_id:'string',value:'number'},'nil',null,{bounds:{value:[0,1]}});
 fn('ui.set_checked',{view:H('Ui'),widget_id:'string',checked:'boolean'},'nil',null);
 fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',null);

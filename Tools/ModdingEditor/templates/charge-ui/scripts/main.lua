@@ -1,4 +1,10 @@
 local sf2 = require("sf2")
+-- API >=0.43: use kind="grid", columns=3, cell_width=100, cell_height=60
+-- for fixed-column controls. Raise your manifest API minimum before using it.
+-- API >=0.41 can add artwork to the UI children:
+-- { id="art", kind="image", width=64, height=64,
+--   sprite=sf2.assets.sprite("YOUR_MOD_ID:sprites/reward") }
+-- Put reward.png in assets/sprites and raise the manifest's API minimum first.
 local statusText = sf2.localization.key("charge.status")
 local armedText = sf2.localization.key("charge.armed")
 local armText = sf2.localization.key("charge.arm")
@@ -68,3 +74,5 @@ local rule = sf2.rules.behavior { id = "charge", behavior = behavior, target = s
 sf2.fights.patch { target = "core:fights/zone_1/tournament/3", append_rules = { rule } }
 -- Eclipse replays use a separate native battle/fight identity.
 sf2.fights.patch { target = "core:fights/zone_1/tournament_eclipsemode/3", append_rules = { rule } }
+-- API 0.42: sf2.ui.set_sprite(view, "portrait", icon) updates an existing image
+-- using a handle from sf2.assets.sprite, preserving its layout and game styling.

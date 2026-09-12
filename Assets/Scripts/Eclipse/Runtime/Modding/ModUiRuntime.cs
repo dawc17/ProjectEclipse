@@ -42,7 +42,7 @@ namespace Eclipse.Modding
 
     // Engine-independent UI ownership and state, consumed by the Lua binding,
     // Unity renderer, input coordinator and script-context teardown.
-    public enum ModUiKind { Stack, Row, Column, Scroll, Text, Button, Progress, Toggle, Slider }
+    public enum ModUiKind { Stack, Row, Column, Scroll, Text, Button, Progress, Toggle, Slider, Image, Grid }
     public enum ModUiMount { Menu, Modal, CombatHud }
 
     public sealed class ModUiPlacement
@@ -117,8 +117,8 @@ namespace Eclipse.Modding
                 throw new ArgumentException("Only text, buttons and toggles accept text styling.");
             if (kind != ModUiKind.Progress && kind != ModUiKind.Slider && FillColor != null)
                 throw new ArgumentException("Only progress widgets and sliders accept fill color.");
-            if (kind == ModUiKind.Text && BackgroundColor != null)
-                throw new ArgumentException("Use a container for a text background.");
+            if ((kind == ModUiKind.Text || kind == ModUiKind.Image) && BackgroundColor != null)
+                throw new ArgumentException("Use a container for a text or image background.");
         }
     }
 
@@ -129,7 +129,11 @@ namespace Eclipse.Modding
         public double Width { get; }
         public double Height { get; }
         public double Gap { get; }
+        public int Columns { get; }
+        public double CellWidth { get; }
+        public double CellHeight { get; }
         public string Text { get; }
+        public AssetId? Sprite { get; }
         public double Value { get; }
         public bool Visible { get; }
         public bool Enabled { get; }
@@ -138,7 +142,8 @@ namespace Eclipse.Modding
 
         public ModUiNode(string id, ModUiKind kind, double width, double height,
             string text = "", double value = 0, bool visible = true, bool enabled = true,
-            double gap = 0, IEnumerable<ModUiNode> children = null, ModUiStyle style = null)
+            double gap = 0, IEnumerable<ModUiNode> children = null, ModUiStyle style = null, AssetId? sprite = null,
+            int columns = 0, double cellWidth = 0, double cellHeight = 0)
         {
             ValidateId(id);
             if (!Enum.IsDefined(typeof(ModUiKind), kind)) throw new ArgumentOutOfRangeException(nameof(kind));
@@ -147,6 +152,21 @@ namespace Eclipse.Modding
             ValidateNumber(gap, 0, 1024, nameof(gap));
             ValidateText(text);
             ValidateNumber(value, 0, 1, nameof(value));
+            if (kind == ModUiKind.Grid)
+            {
+                if (columns < 1 || columns > 256) throw new ArgumentOutOfRangeException(nameof(columns), "Grid columns must be 1..256.");
+                ValidateNumber(cellWidth, 1, 8192, nameof(cellWidth));
+                ValidateNumber(cellHeight, 1, 8192, nameof(cellHeight));
+            }
+            else if (columns != 0 || cellWidth != 0 || cellHeight != 0)
+                throw new ArgumentException("Only grids accept columns and cell dimensions.");
+            if (kind == ModUiKind.Image)
+            {
+                if (!sprite.HasValue || !AssetId.TryParse(sprite.Value.ToString(), out _))
+                    throw new ArgumentException("Image widgets require a sprite asset.");
+                if (width <= 0 || height <= 0) throw new ArgumentException("Image widgets require positive width and height.");
+            }
+            else if (sprite.HasValue) throw new ArgumentException("Only image widgets accept a sprite.");
             var copy = new List<ModUiNode>();
             if (children != null)
                 foreach (var child in children)
@@ -155,7 +175,7 @@ namespace Eclipse.Modding
                     if (copy.Count == 256) throw new ArgumentException("A UI tree permits at most 256 nodes.");
                     copy.Add(child);
                 }
-            bool container = kind == ModUiKind.Stack || kind == ModUiKind.Row || kind == ModUiKind.Column || kind == ModUiKind.Scroll;
+            bool container = kind == ModUiKind.Stack || kind == ModUiKind.Row || kind == ModUiKind.Column || kind == ModUiKind.Scroll || kind == ModUiKind.Grid;
             if (!container && copy.Count != 0) throw new ArgumentException("Leaf widgets cannot have children.");
             if (kind == ModUiKind.Scroll && copy.Count != 1) throw new ArgumentException("Scroll requires one content child.");
             if (kind != ModUiKind.Text && kind != ModUiKind.Button && kind != ModUiKind.Toggle && text.Length != 0)
@@ -163,10 +183,12 @@ namespace Eclipse.Modding
             if (kind != ModUiKind.Progress && kind != ModUiKind.Slider && kind != ModUiKind.Toggle && value != 0)
                 throw new ArgumentException("Only progress, slider and toggle widgets have a value.");
             if (kind == ModUiKind.Toggle && value != 0 && value != 1) throw new ArgumentException("Toggle values are zero or one.");
-            if (kind != ModUiKind.Row && kind != ModUiKind.Column && gap != 0)
-                throw new ArgumentException("Only rows and columns have a gap.");
+            if (kind != ModUiKind.Row && kind != ModUiKind.Column && kind != ModUiKind.Grid && gap != 0)
+                throw new ArgumentException("Only rows, columns and grids have a gap.");
             Id = id; Kind = kind; Width = width; Height = height; Gap = gap;
+            Columns = columns; CellWidth = cellWidth; CellHeight = cellHeight;
             Text = text; Value = value; Visible = visible; Enabled = enabled;
+            Sprite = sprite;
             Children = copy.AsReadOnly();
             Style = style ?? new ModUiStyle();
             Style.ValidateFor(kind);
@@ -200,8 +222,9 @@ namespace Eclipse.Modding
         public double Value { get; }
         public bool Visible { get; }
         public bool Enabled { get; }
-        internal ModUiWidgetState(string text, double value, bool visible, bool enabled)
-        { Text = text; Value = value; Visible = visible; Enabled = enabled; }
+        public AssetId? Sprite { get; }
+        internal ModUiWidgetState(string text, double value, bool visible, bool enabled, AssetId? sprite)
+        { Text = text; Value = value; Visible = visible; Enabled = enabled; Sprite = sprite; }
     }
 
     public sealed class ModUiScope : IDisposable
@@ -286,7 +309,7 @@ namespace Eclipse.Modding
             if (depth > 16 || widgets.Count == 256) throw new ArgumentException("UI trees permit 256 nodes and depth 16.");
             if (widgets.ContainsKey(node.Id)) throw new ArgumentException("Duplicate UI widget ID: " + node.Id);
             var widget = new Widget { Node = node, Parent = parent,
-                State = new ModUiWidgetState(node.Text, node.Value, node.Visible, node.Enabled) };
+                State = new ModUiWidgetState(node.Text, node.Value, node.Visible, node.Enabled, node.Sprite) };
             widgets.Add(node.Id, widget);
             foreach (var child in node.Children) Index(child, widget, depth + 1);
         }
@@ -318,6 +341,15 @@ namespace Eclipse.Modding
             if (widget.Node.Kind != ModUiKind.Progress && widget.Node.Kind != ModUiKind.Slider) throw new InvalidOperationException("This widget has no numeric value.");
             ModUiNode.ValidateNumber(value, 0, 1, nameof(value));
             Update(widget, widget.State.Text, value, widget.State.Visible, widget.State.Enabled);
+        }
+
+        public void SetSprite(string id, AssetId sprite)
+        {
+            var widget = Get(id);
+            if (widget.Node.Kind != ModUiKind.Image) throw new InvalidOperationException("This widget is not an image.");
+            if (string.IsNullOrEmpty(sprite.Namespace.Value) || string.IsNullOrEmpty(sprite.Path))
+                throw new ArgumentException("Image requires a valid sprite identity.");
+            Update(widget, widget.State.Text, widget.State.Value, widget.State.Visible, widget.State.Enabled, sprite);
         }
 
         public void SetVisible(string id, bool visible)
@@ -361,11 +393,12 @@ namespace Eclipse.Modding
             finally { dispatching = false; }
         }
 
-        private void Update(Widget widget, string text, double value, bool visible, bool enabled)
+        private void Update(Widget widget, string text, double value, bool visible, bool enabled, AssetId? sprite = null)
         {
             var old = widget.State;
-            if (old.Text == text && old.Value == value && old.Visible == visible && old.Enabled == enabled) return;
-            widget.State = new ModUiWidgetState(text, value, visible, enabled);
+            sprite = sprite ?? old.Sprite;
+            if (old.Text == text && old.Value == value && old.Visible == visible && old.Enabled == enabled && old.Sprite == sprite) return;
+            widget.State = new ModUiWidgetState(text, value, visible, enabled, sprite);
             try { Changed?.Invoke(widget.Node.Id); }
             catch (Exception error) { Close(ModUiCloseReason.Error); scope.Report(error); }
         }

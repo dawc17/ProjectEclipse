@@ -209,10 +209,10 @@ namespace Eclipse.Modding
         }
 
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType)
+            AssetId model, string subType, string tacticSubtype = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterWeapon(localId, displayName, icon, model, subType);
+            return RequireRegistration().RegisterWeapon(localId, displayName, icon, model, subType, tacticSubtype);
         }
 
         public ArmorDefinition RegisterArmor(string localId, DefinitionId displayName, AssetId icon,
@@ -536,10 +536,70 @@ namespace Eclipse.Modding
         bool TryChooseModeNext(ModModeDefinition mode, bool won, int step, int completions, out int? selectedStep, out string error);
     }
 
+    public sealed class ModAiActionTiming
+    {
+        public int FirstSample { get; }
+        public int LastSample { get; }
+        public int MidFrames { get; }
+        public int NominalFrames { get; }
+        public double NominalSeconds => NominalFrames / 60.0;
+        public bool Looped { get; }
+
+        public ModAiActionTiming(int firstSample, int lastSample, int midFrames, bool looped)
+        {
+            if (firstSample < 0 || lastSample < firstSample || midFrames < 0)
+                throw new ArgumentOutOfRangeException(nameof(firstSample), "Invalid AI animation sample range or spacing.");
+            long frames = ((long)lastSample - firstSample + 1) * ((long)midFrames + 1);
+            if (frames > int.MaxValue) throw new ArgumentOutOfRangeException(nameof(lastSample), "AI animation duration is too large.");
+            FirstSample = firstSample; LastSample = lastSample; MidFrames = midFrames;
+            NominalFrames = (int)frames; Looped = looped;
+        }
+    }
+
+    public sealed class ModAiActionInput
+    {
+        public string Control { get; }
+        public string Press { get; }
+
+        public ModAiActionInput(string control, string press)
+        {
+            if (string.IsNullOrEmpty(control)) throw new ArgumentException("An AI input control is required.", nameof(control));
+            if (press != "tap" && press != "hold" && press != "release")
+                throw new ArgumentException("Unknown AI input press type.", nameof(press));
+            Control = control; Press = press;
+        }
+    }
+
+    public sealed class ModAiActionSnapshot
+    {
+        public string Name { get; }
+        public string Type { get; }
+        public int Priority { get; }
+        public ModAiActionTiming Timing { get; }
+        public IReadOnlyList<ModAiActionInput> Inputs { get; }
+
+        public ModAiActionSnapshot(string name, string type = "none", int priority = 0,
+            ModAiActionTiming timing = null, IReadOnlyList<ModAiActionInput> inputs = null)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            if (type != "none" && type != "move" && type != "attack")
+                throw new ArgumentException("Unknown AI action type.", nameof(type));
+            Type = type;
+            Priority = priority;
+            Timing = timing;
+            if (inputs != null && inputs.Count > 64) throw new ArgumentException("AI actions support at most 64 input entries.", nameof(inputs));
+            var copy = new ModAiActionInput[inputs?.Count ?? 0];
+            for (int i = 0; i < copy.Length; i++) copy[i] = inputs[i] ?? throw new ArgumentException("Null AI input.", nameof(inputs));
+            Inputs = Array.AsReadOnly(copy);
+        }
+    }
+
     public interface IModAiScriptContext
     {
         bool HasAiHandler(string tactic);
         bool TryDecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<string> actions,
+            out int? selection, out string error);
+        bool TryDecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<ModAiActionSnapshot> actions,
             out int? selection, out string error);
     }
 
@@ -614,6 +674,43 @@ namespace Eclipse.Modding
     }
 
     // Detached observations. These types deliberately contain no recovered engine references.
+    public sealed class ModAnimationIntervalSnapshot
+    {
+        public string Name { get; }
+        public string Type { get; }
+        public ModAnimationIntervalSnapshot(string name, string type)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            switch (type)
+            {
+                case "none": case "unstable": case "uninterrupt": case "self_uninterrupt":
+                case "attack": case "block": case "invulnerable": case "invisible": break;
+                default: throw new ArgumentException("Unknown animation interval type.", nameof(type));
+            }
+            Type = type;
+        }
+    }
+
+    public sealed class ModAnimationSnapshot
+    {
+        public string Name { get; }
+        public string Type { get; }
+        public int Facing { get; }
+        public IReadOnlyList<ModAnimationIntervalSnapshot> Intervals { get; }
+        public ModAnimationSnapshot(string name, string type, int facing,
+            IReadOnlyList<ModAnimationIntervalSnapshot> intervals)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            if (type != "none" && type != "move" && type != "attack")
+                throw new ArgumentException("Unknown animation type.", nameof(type));
+            if (facing != -1 && facing != 1) throw new ArgumentOutOfRangeException(nameof(facing));
+            if (intervals == null || intervals.Count > 256) throw new ArgumentException("Invalid animation interval snapshot.", nameof(intervals));
+            var copy = new ModAnimationIntervalSnapshot[intervals.Count];
+            for (int i = 0; i < copy.Length; i++) copy[i] = intervals[i] ?? throw new ArgumentException("Null animation interval.", nameof(intervals));
+            Type = type; Facing = facing; Intervals = Array.AsReadOnly(copy);
+        }
+    }
+
     public sealed class ModFighterSnapshot
     {
         public double Health { get; }
@@ -622,12 +719,15 @@ namespace Eclipse.Modding
         public double X { get; }
         public double Y { get; }
         public double Z { get; }
-        public ModFighterSnapshot(double health, double maxHealth, int healthBars, double x, double y, double z)
+        public ModAnimationSnapshot Animation { get; }
+        public ModFighterSnapshot(double health, double maxHealth, int healthBars, double x, double y, double z,
+            ModAnimationSnapshot animation = null)
         {
             foreach (double value in new[] { health, maxHealth, x, y, z })
                 if (double.IsNaN(value) || double.IsInfinity(value)) throw new ArgumentOutOfRangeException(nameof(health));
             if (health < 0 || maxHealth < 0 || healthBars < 1) throw new ArgumentOutOfRangeException(nameof(health));
             Health = health; MaxHealth = maxHealth; HealthBars = healthBars; X = x; Y = y; Z = z;
+            Animation = animation;
         }
     }
 

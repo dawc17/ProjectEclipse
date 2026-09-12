@@ -267,11 +267,24 @@ local Opponent = {}
 ---@field z number
 local CombatPosition = {}
 
+---@class (exact) Eclipse.AnimationIntervalSnapshot
+---@field name string
+---@field type "none"|"unstable"|"uninterrupt"|"self_uninterrupt"|"attack"|"block"|"invulnerable"|"invisible"
+local AnimationIntervalSnapshot = {}
+
+---@class (exact) Eclipse.AnimationSnapshot
+---@field name string
+---@field type "none"|"move"|"attack"
+---@field facing integer
+---@field intervals Eclipse.AnimationIntervalSnapshot[]
+local AnimationSnapshot = {}
+
 ---@class (exact) Eclipse.FighterSnapshot
 ---@field health number
 ---@field max_health number
 ---@field health_bars integer
 ---@field position Eclipse.CombatPosition
+---@field animation? Eclipse.AnimationSnapshot
 local FighterSnapshot = {}
 
 ---@class (exact) Eclipse.CombatSnapshot
@@ -294,6 +307,7 @@ local OutgoingFighter = {}
 ---@field icon Eclipse.SpriteHandle
 ---@field model Eclipse.ModelHandle
 ---@field subtype? string Defaults to Katana. Match the model and move family.
+---@field tactic_subtype? string API 0.51: optional AI table group, defaults to subtype. 1-128 ASCII letters, digits or underscores.
 local WeaponDefinition = {}
 
 ---@class (exact) Eclipse.ArmorDefinition
@@ -749,6 +763,44 @@ local PerkChoice = {}
 ---@field entries Eclipse.PerkChoice[]
 local PerkBranch = {}
 
+---@class (exact) Eclipse.InnatePerk
+---@field perk Eclipse.PerkHandle
+---@field parameters? table<string, number>
+local InnatePerk = {}
+
+---@class (exact) Eclipse.ItemInnatePerks
+---@field item Eclipse.ItemHandle
+---@field entries Eclipse.InnatePerk[]
+local ItemInnatePerks = {}
+
+---@class (exact) Eclipse.ItemTacticSubtype
+---@field item Eclipse.ItemHandle
+---@field group string Native AI table group; empty selects physical subtype fallback.
+local ItemTacticSubtype = {}
+
+---@class (exact) Eclipse.DefaultEnchantment
+---@field perk Eclipse.PerkHandle
+---@field aspect? integer
+local DefaultEnchantment = {}
+
+---@class (exact) Eclipse.ItemDefaultEnchantments
+---@field item Eclipse.ItemHandle
+---@field entries Eclipse.DefaultEnchantment[]
+local ItemDefaultEnchantments = {}
+
+---@class (exact) Eclipse.ForgeDeviation
+---@field profile Eclipse.ForgeProfileHandle
+---@field equipment "weapon"|"armor"|"helm"|"ranged"|"magic"
+---@field minimum integer
+---@field maximum integer
+local ForgeDeviation = {}
+
+---@class (exact) Eclipse.ForgeCandidateExclusion
+---@field profile Eclipse.ForgeProfileHandle
+---@field perk Eclipse.PerkHandle
+---@field equipment "weapon"|"armor"|"helm"|"ranged"|"magic"
+local ForgeCandidateExclusion = {}
+
 ---@class (exact) Eclipse.ForgeItem
 ---@field equipment "weapon"|"armor"|"helm"|"ranged"|"magic"
 ---@field enchantments? integer
@@ -1049,8 +1101,26 @@ local TacticMemory = {}
 ---@field value? Eclipse.TacticValue
 local TacticWeight = {}
 
+---@class (exact) Eclipse.AiActionTiming
+---@field first_sample integer
+---@field last_sample integer
+---@field mid_frames integer
+---@field nominal_frames integer
+---@field nominal_seconds number
+---@field looped boolean
+local AiActionTiming = {}
+
+---@class (exact) Eclipse.AiActionInput
+---@field control "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"|"Unknown"
+---@field press "tap"|"hold"|"release"
+local AiActionInput = {}
+
 ---@class (exact) Eclipse.AiAction
 ---@field name string
+---@field type "none"|"move"|"attack"
+---@field priority integer
+---@field timing? Eclipse.AiActionTiming
+---@field inputs Eclipse.AiActionInput[]
 local AiAction = {}
 
 ---@class (exact) Eclipse.AiDecision
@@ -1171,7 +1241,7 @@ local UiStyle = {}
 
 ---@class (exact) Eclipse.UiNode
 ---@field id string
----@field kind "stack"|"row"|"column"|"scroll"|"text"|"button"|"progress"|"toggle"|"slider"
+---@field kind "stack"|"row"|"column"|"scroll"|"text"|"button"|"progress"|"toggle"|"slider"|"image"|"grid"
 ---@field width? number
 ---@field height? number
 ---@field gap? number
@@ -1182,6 +1252,10 @@ local UiStyle = {}
 ---@field enabled? boolean
 ---@field children? Eclipse.UiNode[]
 ---@field style? Eclipse.UiStyle
+---@field sprite? Eclipse.SpriteHandle
+---@field columns? integer
+---@field cell_width? number
+---@field cell_height? number
 local UiNode = {}
 
 ---@class (exact) Eclipse.UiPlacement
@@ -1830,6 +1904,42 @@ function progression.replace_perk_branch(definition) end
 ---@return Eclipse.ForgeProfileHandle
 function forge.profile(reference) end
 
+---Requires: `content.patch`; item/perk lookup or registration also requires `content.register`. Declare dependencies for referenced core or other-mod content.
+---When: During mod loading, before fighters are built. Available since API `0.50`.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_innate_perks)
+---@param definition Eclipse.ItemInnatePerks
+function items.set_innate_perks(definition) end
+
+---Replace the AI table group of a core or owned weapon without changing its animation subtype. Available since **API 0.52**.
+---Requires: `content.patch`; item lookup also requires `content.register`. Declare dependencies for referenced namespaces and require `api = ">=0.52 <1.0"`.
+---When: During entrypoint registration. The override applies when content is loaded, before subsequent fights are constructed.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_tactic_subtype)
+---@param definition Eclipse.ItemTacticSubtype
+function items.set_tactic_subtype(definition) end
+
+---Requires: `content.patch`; item/perk lookup or registration also requires `content.register`. Declare dependencies for referenced content from core or other mods.
+---When: During mod loading. Available since API `0.49`.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_default_enchantments)
+---@param definition Eclipse.ItemDefaultEnchantments
+function items.set_default_enchantments(definition) end
+
+---Requires: `content.patch`, `content.register` for the profile lookup, and a declared `core` dependency.
+---When: During mod loading. Available since API `0.48`.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2forgeoverride_deviation)
+---@param definition Eclipse.ForgeDeviation
+function forge.override_deviation(definition) end
+
+---Requires: `content.patch`, `content.register` for handle lookups, and a declared `core` dependency.
+---When: During mod loading. Available since API `0.47`.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2forgeexclude_candidate)
+---@param definition Eclipse.ForgeCandidateExclusion
+function forge.exclude_candidate(definition) end
+
 ---Requires: `content.register`.
 ---When: During mod loading.
 ---Returns: A forge-recipe handle.
@@ -2140,6 +2250,15 @@ function ui.is_open(view) end
 ---@param widget_id string
 ---@param text string
 function ui.set_text(view, widget_id, text) end
+
+---Requires: An open UI handle and a sprite handle created by the same script context. The widget must be an `image`. Its size, aspect-preserving rendering, visibility and place in the layout stay unchanged. `ui.create` is required to create the surface; the setter grants no additional asset access.
+---When: After opening a surface, including from its click/change callbacks. Use this to switch a character portrait, equipment icon or reward preview without rebuilding the panel. Requires API **0.42**.
+---Returns: `nil`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_sprite)
+---@param view Eclipse.UiHandle
+---@param widget_id string
+---@param sprite Eclipse.SpriteHandle
+function ui.set_sprite(view, widget_id, sprite) end
 
 ---Requires: An open owned view and a progress/slider ID; no additional capability. Sliders require API 0.22. Setters do not invoke `on_change`.
 ---When: Change a progress widget's fill or a slider's position to a finite fraction from 0 to 1. Invalid values are rejected before mutation.

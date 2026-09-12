@@ -24,11 +24,114 @@ public class Recipe
 
 	private readonly Dictionary<string, List<ExternalCandidate>> _externalEnchantments =
 		new Dictionary<string, List<ExternalCandidate>>(StringComparer.Ordinal);
+	private readonly Dictionary<string, HashSet<string>> _excludedNativeCandidates =
+		new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+	private readonly Dictionary<string, DeviationOverride> _deviationOverrides =
+		new Dictionary<string, DeviationOverride>(StringComparer.Ordinal);
+
+	private sealed class DeviationOverride : IDisposable
+	{
+		private Recipe _recipe;
+		public readonly RecipeItem Item;
+		public DeviationOverride(Recipe recipe, RecipeItem item) { _recipe = recipe; Item = item; }
+		public void Dispose()
+		{
+			Recipe recipe = _recipe;
+			if (recipe == null) return;
+			_recipe = null;
+			if (recipe._deviationOverrides.TryGetValue(Item.ItemType, out var current) && ReferenceEquals(current, this))
+				recipe._deviationOverrides.Remove(Item.ItemType);
+		}
+	}
+
+	internal bool TryOverrideDeviation(string itemType, int minimum, int maximum, out IDisposable lifetime)
+	{
+		lifetime = null;
+		if (string.IsNullOrEmpty(itemType) || minimum < -10000 || maximum > 10000 || minimum > maximum ||
+			_deviationOverrides.ContainsKey(itemType)) return false;
+		RecipeItem original = GetRecipeItemByType(itemType);
+		if (original == null || !original.RandomAspect) return false;
+		var item = new RecipeItem(original.ItemType, original.PricesBlockName, original.EnchantmentsNumber,
+			original.BarScale, minimum, maximum, true);
+		var replacement = new DeviationOverride(this, item);
+		_deviationOverrides.Add(itemType, replacement);
+		lifetime = replacement;
+		return true;
+	}
+
+	private PerkStruct CopyCandidateForItem(PerkStruct source, string itemType)
+	{
+		var copy = new PerkStruct(source);
+		if (itemType == null || !_deviationOverrides.TryGetValue(itemType, out var replacement)) return copy;
+		for (int i = 0; i < copy.Pairs.Count; i++)
+		{
+			var pair = copy.Pairs[i];
+			// Only replace a complete native random-aspect call. Fixed values and compound expressions retain their meaning.
+			if (pair.Key != "Aspect" || pair.Value == null || pair.Value.Length > 128 ||
+				!System.Text.RegularExpressions.Regex.IsMatch(pair.Value, @"\A\?RandomAspect\[-?\d+,-?\d+\]\z")) continue;
+			copy.Pairs[i] = new KeyValuePair<string, string>(pair.Key, "?RandomAspect[" +
+				replacement.Item.MinDeviation.ToString(CultureInfo.InvariantCulture) + "," +
+				replacement.Item.MaxDeviation.ToString(CultureInfo.InvariantCulture) + "]");
+		}
+		return copy;
+	}
+
+	private sealed class NativeCandidateExclusion : IDisposable
+	{
+		private Recipe _recipe;
+		private readonly string _itemType, _perkName;
+		public NativeCandidateExclusion(Recipe recipe, string itemType, string perkName)
+		{ _recipe = recipe; _itemType = itemType; _perkName = perkName; }
+		public void Dispose()
+		{
+			Recipe recipe = _recipe;
+			if (recipe == null) return;
+			_recipe = null;
+			if (!recipe._excludedNativeCandidates.TryGetValue(_itemType, out var excluded)) return;
+			excluded.Remove(_perkName);
+			if (excluded.Count == 0) recipe._excludedNativeCandidates.Remove(_itemType);
+		}
+	}
+
+	internal bool TryExcludeNativeCandidate(string itemType, string perkName, out IDisposable lifetime)
+	{
+		lifetime = null;
+		if (string.IsNullOrEmpty(itemType) || string.IsNullOrEmpty(perkName) || GetRecipeItemByType(itemType) == null)
+			return false;
+		bool exists = false;
+		foreach (var variation in _variations)
+			foreach (var candidate in variation.Enchantments)
+				if (candidate != null && string.Equals(candidate.get_Name(), perkName, StringComparison.Ordinal)) exists = true;
+		if (!exists) return false;
+		if (!_excludedNativeCandidates.TryGetValue(itemType, out var excluded))
+		{
+			excluded = new HashSet<string>(StringComparer.Ordinal);
+			_excludedNativeCandidates.Add(itemType, excluded);
+		}
+		if (!excluded.Add(perkName)) return false;
+		lifetime = new NativeCandidateExclusion(this, itemType, perkName);
+		return true;
+	}
+
+	private bool IsNativeCandidateExcluded(string itemType, string perkName)
+	{
+		return itemType != null && _excludedNativeCandidates.TryGetValue(itemType, out var excluded) && excluded.Contains(perkName);
+	}
 
 	public string Name => _name;
 	public string Alias => _alias;
 	public bool IsFree { get => _isFree; set => _isFree = value; }
-	public IReadOnlyList<RecipeItem> Items => _items.AsReadOnly();
+	public IReadOnlyList<RecipeItem> Items
+	{
+		get
+		{
+			if (_deviationOverrides.Count == 0) return _items.AsReadOnly();
+			var items = new List<RecipeItem>(_items.Count);
+			foreach (var item in _items)
+				items.Add(_deviationOverrides.TryGetValue(item.ItemType, out var replacement) ? replacement.Item : item);
+			return items.AsReadOnly();
+		}
+	}
 	public IReadOnlyList<RecipePrices> Prices => _prices.AsReadOnly();
 	public IReadOnlyList<Variation> Variations => _variations.AsReadOnly();
 
@@ -182,6 +285,7 @@ public class Recipe
 
 	private RecipeItem GetRecipeItemByType(string itemType)
 	{
+		if (itemType != null && _deviationOverrides.TryGetValue(itemType, out var replacement)) return replacement.Item;
 		for (int i = 0; i < _items.Count; i++)
 			if (string.Equals(_items[i].ItemType, itemType, StringComparison.Ordinal)) return _items[i];
 		return null;
@@ -245,19 +349,20 @@ public class Recipe
 	{
 		var result = new List<PerkStruct>();
 		if (userItem == null) return result;
+		ItemInfo info = CurrentInfo(userItem);
 			for (int i = 0; i < _variations.Count; i++)
 			{
 				Variation variation = _variations[i];
 				if (!variation.CheckConditions(userItem, itemLevel)) continue;
 				foreach (PerkStruct enchantment in variation.Enchantments)
 				{
+					if (enchantment != null && IsNativeCandidateExcluded(info?.Type, enchantment.get_Name())) continue;
 					if (enchantment == null || !IsPerkReadyToEnchant(enchantment)) continue;
 					if (checkRequired && IsEnchantmentAlreadyExists(enchantment, userItem.JAJNJAIJOPA)) continue;
-					result.Add(new PerkStruct(enchantment));
+					result.Add(CopyCandidateForItem(enchantment, info?.Type));
 				}
 			}
 
-			ItemInfo info = CurrentInfo(userItem);
 				List<ExternalCandidate> external;
 		if (info != null && _externalEnchantments.TryGetValue(info.Type, out external))
 		{
@@ -268,7 +373,7 @@ public class Recipe
 					PerkStruct enchantment = candidate.Perk;
 				if (enchantment == null || !IsPerkReadyToEnchant(enchantment)) continue;
 				if (checkRequired && IsEnchantmentAlreadyExists(enchantment, userItem.JAJNJAIJOPA)) continue;
-				result.Add(new PerkStruct(enchantment));
+				result.Add(CopyCandidateForItem(enchantment, info.Type));
 			}
 		}
 		return result;

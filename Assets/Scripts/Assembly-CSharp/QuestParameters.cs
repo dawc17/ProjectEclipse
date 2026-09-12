@@ -75,6 +75,18 @@ public class QuestParameters
 
 	public bool inLottery;
 
+	internal QuestParameters SnapshotForQueue()
+	{
+		var snapshot = (QuestParameters)MemberwiseClone();
+		snapshot.JLGLBLDPAAF = JLGLBLDPAAF == null ? null : new FightIDS(JLGLBLDPAAF);
+		if (DPLEGFCHOCE != null)
+			snapshot.DPLEGFCHOCE = new BPJGDAOGHLC {
+				OHCGEEEKEJH = DPLEGFCHOCE.OHCGEEEKEJH, FHELNNCGCGC = DPLEGFCHOCE.FHELNNCGCGC,
+				MECEADEKGJB = DPLEGFCHOCE.MECEADEKGJB, BMNFPNBAMAF = DPLEGFCHOCE.BMNFPNBAMAF
+			};
+		return snapshot;
+	}
+
 	public QuestParameters()
 	{
 		GMGMEEIKGLG = null;

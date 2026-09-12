@@ -1,10 +1,37 @@
 # Eclipse Modding for VS Code
 
-Editor support for all 32 public Eclipse API modules: 112 functions, aliases, and
-callbacks; 76 constants; and 149 typed structures. Version 0.1.0 retains the ID
+Editor support for all 36 public Eclipse API modules: 140 functions, aliases, and
+callbacks; 76 constants; and 179 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 ## Install
+
+API 0.52 adds `sf2.items.set_tactic_subtype { item, group }` for core or owned weapons; an empty group selects subtype fallback. Requires `content.patch`.
+
+API 0.51 adds optional `tactic_subtype` to weapon registration for an independent native AI table group; omission preserves the animation subtype fallback.
+
+API 0.50 adds `sf2.items.set_innate_perks { item, entries }`; each entry has a
+perk handle and optional named numeric parameters. Empty entries remove innate effects.
+API 0.49 adds `sf2.items.set_default_enchantments { item, entries }`; each entry
+has a perk handle and optional integer aspect. An empty entries array removes defaults.
+API 0.48 adds `sf2.forge.override_deviation { profile, equipment, minimum, maximum }`
+for an existing random-aspect recipe category. Its typed table requires integer bounds.
+API 0.47 adds `sf2.forge.exclude_candidate { profile, perk, equipment }` with
+typed core profile/perk handles and a `content.patch` capability diagnostic.
+API 0.46 adds optional `animation` observations to both sides of AI decisions
+and `fighter:snapshot()`: current name/type, facing and active named intervals.
+API 0.45 adds AI candidate `timing` (sample bounds, spacing, nominal duration,
+loop flag) and `inputs` (native controls and press types). Nested fields complete
+inside `on_decide`; nominal duration is not a prediction of completion or hits.
+API 0.44 adds `type` (`none`, `move`, `attack`) and integer `priority` to AI
+action candidates, with completions in `on_decide` callbacks.
+API 0.43 adds `kind = "grid"` with required `columns`, `cell_width` and
+`cell_height`, using the existing game-styled child widgets and `gap` spacing.
+API 0.42 adds `sf2.ui.set_sprite(view, widget_id, sprite)` for changing a live image
+without rebuilding its panel. Completion requires a typed sprite handle.
+API 0.41 adds `kind = "image"` UI nodes with a typed `sprite` handle and explicit
+positive width/height. The generated `UiNode` contract includes completion for
+`sprite`; artwork preserves aspect ratio and uses the shared UI container styling.
 
 1. Install **Lua** by **sumneko** in VS Code. LuaLS **3.18.2** is the tested version.
 2. Build the package below, then run **Extensions: Install from VSIX...** and

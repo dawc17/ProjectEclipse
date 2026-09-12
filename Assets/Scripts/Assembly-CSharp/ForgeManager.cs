@@ -155,6 +155,20 @@ public class ForgeManager : global::EventDispatcher<object>
 		return recipe != null && recipe.AddExternalPerkCandidate(itemType, perkName, perkKind, minLevel, maxLevel);
 	}
 
+	internal bool TryExcludeNativeCandidate(string recipeName, string itemType, string perkName, out IDisposable lifetime)
+	{
+		lifetime = null;
+		Recipe recipe = GetRecipeByName(recipeName);
+		return recipe != null && recipe.TryExcludeNativeCandidate(itemType, perkName, out lifetime);
+	}
+
+	internal bool TryOverrideDeviation(string recipeName, string itemType, int minimum, int maximum, out IDisposable lifetime)
+	{
+		lifetime = null;
+		Recipe recipe = GetRecipeByName(recipeName);
+		return recipe != null && recipe.TryOverrideDeviation(itemType, minimum, maximum, out lifetime);
+	}
+
 	public List<Recipe> GetAvailableRecipesForItem(UserItem userItem)
 	{
 		EnsureParsed();

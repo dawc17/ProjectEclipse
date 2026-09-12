@@ -55,6 +55,27 @@ public static class ValidateModUiUnity
                         new ModUiNode("long",ModUiKind.Text,300,200,text:"Scrollable content") }) }) });
             var surface = scope.Open("meter",ModUiMount.CombatHud,tree,_=>clicks++);
             var view = ModUiView.Attach(surface,canvas.GetComponent<RectTransform>());
+            var artTexture=new Texture2D(32,16);
+            var artSprite=Sprite.Create(artTexture,new Rect(0,0,32,16),new Vector2(.5f,.5f));
+            ModRuntime.Host.TypedAssets.Sprite=artSprite;
+            var artSurface=scope.Open("art",ModUiMount.CombatHud,new ModUiNode("art",ModUiKind.Image,100,100,sprite:AssetId.Parse("example.ui:sprites/art")));
+            var artView=ModUiView.Attach(artSurface,canvas.GetComponent<RectTransform>());
+            var artImage=artView.transform.Find("art").GetComponent<Image>();
+            Check(artImage.sprite==artSprite&&artImage.preserveAspect&&!artImage.raycastTarget,"Image lost sprite/aspect/noninteractive presentation");
+            var replacementSprite=Sprite.Create(artTexture,new Rect(0,0,16,16),new Vector2(.5f,.5f));
+            ModRuntime.Host.TypedAssets.Sprite=replacementSprite;
+            artSurface.SetSprite("art",AssetId.Parse("example.ui:sprites/replacement"));
+            Check(artImage.sprite==replacementSprite&&artImage.preserveAspect&&!artImage.raycastTarget,"Live sprite replacement lost presentation");
+            Check(artView.transform.Find("art").GetComponent<Image>()==artImage&&artSprite!=null,"Sprite replacement rebuilt widget or destroyed shared sprite");
+            ModRuntime.Host.TypedAssets.Sprite=null;
+            artSurface.SetVisible("art",false);artSurface.SetVisible("art",true);
+            Check(!artSurface.IsClosed&&artImage.sprite==replacementSprite,"Visibility update reloaded unchanged artwork");
+            artSurface.SetSprite("art",AssetId.Parse("example.ui:sprites/missing"));
+            Check(artSurface.IsClosed,"Missing replacement sprite left a broken open surface");
+            artSurface.Close();
+            Check(artSprite!=null,"Closing UI destroyed loader-owned sprite");
+            UnityEngine.Object.Destroy(artSprite);UnityEngine.Object.Destroy(artTexture);
+            UnityEngine.Object.Destroy(replacementSprite);
             Canvas.ForceUpdateCanvases();
             var text = view.transform.Find("root/text").GetComponent<Text>();
             Check(text.font != null && !text.supportRichText && !text.raycastTarget, "Font/plain text/raycast defaults");
@@ -82,6 +103,44 @@ public static class ValidateModUiUnity
                 "Scroll hierarchy/clipping missing");
             surface.Close();
             Check(!view.gameObject.activeSelf && events.currentSelectedGameObject == prior, "Close did not hide/restore focus immediately");
+            var cells = new List<ModUiNode>();
+            for (int i = 0; i < 6; i++) cells.Add(new ModUiNode("cell" + i, ModUiKind.Button, 0, 0, text: "Item " + i, enabled: i != 1));
+            var gridSurface = scope.Open("grid", ModUiMount.Menu,
+                new ModUiNode("viewport", ModUiKind.Scroll, 200, 80, children: new[] {
+                    new ModUiNode("grid", ModUiKind.Grid, 200, 140, columns: 2, cellWidth: 90, cellHeight: 40, gap: 10, children: cells)
+                }), _ => clicks++);
+            gridSurface.SetInputAllowed(true);
+            var gridView = ModUiView.Attach(gridSurface, canvas.GetComponent<RectTransform>());
+            Canvas.ForceUpdateCanvases();
+            var gridScroll = gridView.GetComponentInChildren<ScrollRect>();
+            var gridLayout = gridView.GetComponentInChildren<GridLayoutGroup>();
+            var firstCell = gridLayout.transform.Find("cell0").GetComponent<RectTransform>();
+            var secondCell = gridLayout.transform.Find("cell1").GetComponent<RectTransform>();
+            var thirdCell = gridLayout.transform.Find("cell2").GetComponent<RectTransform>();
+            Check(firstCell.rect.size == new Vector2(90,40) && secondCell.anchoredPosition.x-firstCell.anchoredPosition.x == 100,
+                "Grid cell width/gap did not override child sizing");
+            Check(firstCell.anchoredPosition.y == secondCell.anchoredPosition.y && firstCell.anchoredPosition.y-thirdCell.anchoredPosition.y == 50,
+                "Grid did not wrap after fixed column count");
+            Check(firstCell.GetComponent<Image>().sprite?.name == "CommonButtons.BtnWhite" && firstCell.GetComponentInChildren<Text>().font.name == "AGOpusBold",
+                "Grid discarded original widget styling");
+            Check(gridView.MoveFocus(1) && events.currentSelectedGameObject == firstCell.gameObject,"Grid first focus failed");
+            Check(gridView.MoveFocus(1) && events.currentSelectedGameObject == thirdCell.gameObject,"Grid focus did not skip disabled cell");
+            gridView.MoveFocus(1); gridView.MoveFocus(1);
+            Check(events.currentSelectedGameObject.name == "cell4" && gridScroll.content.anchoredPosition.y > 0,
+                "Keyboard focus did not reveal lower grid row");
+            Check(gridView.ActivateSelected(),"Grid selected button did not activate");
+            Check(gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell5", "Grid right did not follow row");
+            Check(!gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell5", "Grid right wrapped at edge");
+            Check(gridView.NavigateFocus(0,-1) && events.currentSelectedGameObject.name == "cell3", "Grid up did not follow column");
+            Check(gridView.NavigateFocus(-1,0) && events.currentSelectedGameObject.name == "cell2", "Grid left did not follow row");
+            Check(gridView.NavigateFocus(0,-1) && events.currentSelectedGameObject.name == "cell0" && gridScroll.content.anchoredPosition.y == 0,
+                "Grid up did not reveal first row");
+            Check(!gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell0", "Grid entered disabled neighbor or jumped rows");
+            gridSurface.SetEnabled("cell1",true);
+            Check(gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell1", "Enabled grid neighbor remained unreachable");
+            Check(gridView.NavigateFocus(0,1) && events.currentSelectedGameObject.name == "cell3", "Grid down advanced in linear order");
+            gridSurface.Close();
+            Check(events.currentSelectedGameObject == prior && !gridView.gameObject.activeSelf,"Grid close left focus or view behind");
             Check(!view.ActivateSelected(), "Closed view retained input");
             ModUiCloseReason? destroyedReason=null;
             var second = scope.Open("second",ModUiMount.Menu,tree,_=>clicks++,onClose:reason=>destroyedReason=reason);
@@ -117,6 +176,10 @@ public static class ValidateModUiUnity
             Check(changes==2 && !toggle.isOn && slider.value==.25,"Setters echoed changes or failed to render");
             toggle.isOn=true; slider.value=.75f;
             Check(changes==4 && controls.Read("toggle").Value==1 && controls.Read("slider").Value==.75,"Pointer value changes did not reach model");
+            controls.SetValue("slider",1);
+            Check(controlsView.NavigateFocus(1,0) && events.currentSelectedGameObject==slider.gameObject && slider.value==1,
+                "Slider endpoint let horizontal input escape to navigation");
+            controls.SetValue("slider",.75);
             controls.SetInputAllowed(false); toggle.isOn=false; slider.value=1;
             Check(changes==4 && toggle.isOn && slider.value==.75,"Blocked control did not restore authoritative state");
             controls.Close();
@@ -367,6 +430,18 @@ public static class ValidateModUiUnity
             var modal=scope.Open("modal",ModUiMount.Modal,tree,_=>clicks++);
             ModUiGameBridge.Attach(modal);
             Check(ModUiGameBridge.TryHandleBack() && !modal.IsClosed, "Same Back event closed two overlays");
+            var grid=scope.Open("grid_navigation",ModUiMount.Modal,
+                new ModUiNode("grid",ModUiKind.Grid,200,100,columns:2,cellWidth:90,cellHeight:40,gap:10,
+                    children:Enumerable.Range(0,4).Select(i=>new ModUiNode("nav"+i,ModUiKind.Button,0,0,text:i.ToString()))),_=>{});
+            ModUiGameBridge.Attach(grid);
+            Check(EventSystem.current.currentSelectedGameObject.name=="nav0","Bridge grid initial focus missing");
+            Check(ModUiGameBridge.Route(1,false,false,sequential:false) && EventSystem.current.currentSelectedGameObject.name=="nav2",
+                "Bridge arrow route did not use grid geometry");
+            Check(ModUiGameBridge.Route(0,false,false,1) && EventSystem.current.currentSelectedGameObject.name=="nav3",
+                "Bridge horizontal route did not navigate grid");
+            Check(ModUiGameBridge.Route(-1,false,false) && EventSystem.current.currentSelectedGameObject.name=="nav2",
+                "Bridge reverse sequential route did not preserve Tab order");
+            grid.Close();
             var bridge=UnityEngine.Object.FindObjectOfType<ModUiGameBridge>();
             UnityEngine.Object.DestroyImmediate(bridge.gameObject);
             Check(modal.IsClosed && !scope.IsClosed, "Game bridge teardown retained UI");

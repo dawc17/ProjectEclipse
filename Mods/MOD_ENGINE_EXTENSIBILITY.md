@@ -530,3 +530,21 @@ Settlement defers native saves; failed grants block later saves until profile
 reload. Native/lifecycle and payload fixtures pass with stated controlled services.
 No live UI/quest consumer exists yet; full-game settlement and recovery remain
 unverified, so G04 remains open.
+
+API 0.42 follow-up: custom UI images now change in place through the public
+sf2.ui.set_sprite function, retaining the original-style container and layout.
+Runtime/Lua/isolated Unity and editor checks pass; full-game acceptance remains
+pending. The earlier lottery notes above are historical: the current saved claim,
+quest and battle presentation implementation is documented in PRE_DE_WORK_LOG.md
+and the public save compatibility page. Paid spins, multiple pending claims and
+full-game crash acceptance still keep that domain open.
+
+API 0.43 adds fixed-column grid UI containers, consuming the shared game-styled
+widgets and supporting ordered focus with automatic vertical scroll reveal.
+Runtime/Lua/isolated Unity/editor checks pass. This does not implement virtualized
+collections or spatial four-direction navigation; full-game acceptance remains.
+
+API 0.43 navigation follow-up: grids now use directional geometry for arrows and
+D-pad/stick, alongside Tab/Shift+Tab traversal. Sliders retain horizontal input
+at their endpoints. Isolated Unity and bridge routing checks pass; device/game
+acceptance and virtualized collections remain pending.

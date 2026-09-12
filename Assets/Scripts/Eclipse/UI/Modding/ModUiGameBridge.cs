@@ -65,7 +65,7 @@ namespace Eclipse.UI.Modding
         }
 
         // Also used by the input fixture; actual device polling remains below.
-        public static bool Route(int move, bool submit, bool back, int adjust = 0)
+        public static bool Route(int move, bool submit, bool back, int adjust = 0, bool sequential = true)
         {
             if (current == null) return false;
             current.RefreshNativeBlock();
@@ -77,8 +77,12 @@ namespace Eclipse.UI.Modding
                 { backHandledFrame = Time.frameCount; current.coordinator.Back(); }
             }
             else if (submit) current.coordinator.ActivateSelected();
-            else if (move != 0) current.coordinator.MoveFocus(move);
-            else if (adjust != 0) current.coordinator.AdjustSelected(adjust);
+            else if (move != 0)
+            {
+                if (sequential) current.coordinator.MoveFocus(move);
+                else current.coordinator.NavigateFocus(0, move);
+            }
+            else if (adjust != 0) current.coordinator.NavigateFocus(adjust, 0);
             return true;
         }
 
@@ -95,9 +99,11 @@ namespace Eclipse.UI.Modding
             float horizontal = Mathf.Abs(pad.x) > .5f ? pad.x : stick.x;
             int nextHorizontal = UnityEngine.Input.GetKey(KeyCode.LeftArrow) ? -1 : UnityEngine.Input.GetKey(KeyCode.RightArrow) ? 1 :
                 horizontal > .5f ? 1 : horizontal < -.5f ? -1 : 0;
-            bool down = UnityEngine.Input.GetKey(KeyCode.DownArrow) || UnityEngine.Input.GetKey(KeyCode.Tab);
+            bool tab = UnityEngine.Input.GetKey(KeyCode.Tab);
+            bool reverseTab = UnityEngine.Input.GetKey(KeyCode.LeftShift) || UnityEngine.Input.GetKey(KeyCode.RightShift);
+            bool down = UnityEngine.Input.GetKey(KeyCode.DownArrow);
             bool up = UnityEngine.Input.GetKey(KeyCode.UpArrow);
-            int next = down ? 1 : up ? -1 : vertical > .5f ? -1 : vertical < -.5f ? 1 : 0;
+            int next = tab ? (reverseTab ? -1 : 1) : down ? 1 : up ? -1 : vertical > .5f ? -1 : vertical < -.5f ? 1 : 0;
             bool submitHeld = UnityEngine.Input.GetKey(KeyCode.Return) || UnityEngine.Input.GetKey(KeyCode.Space) ||
                 GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.A, GamePad.GGAKHLLMPMM.One);
             bool backHeld = UnityEngine.Input.GetKey(KeyCode.Escape) ||
@@ -119,7 +125,7 @@ namespace Eclipse.UI.Modding
             if (nextHorizontal != 0 && (nextHorizontal != horizontalDirection || Time.unscaledTime >= horizontalRepeatAt))
             { adjust = nextHorizontal; horizontalRepeatAt = Time.unscaledTime + (nextHorizontal != horizontalDirection ? .35f : .1f); }
             horizontalDirection = nextHorizontal;
-            Route(move, submit, back, adjust);
+            Route(move, submit, back, adjust, sequential: tab);
         }
 
         private void OnDestroy()

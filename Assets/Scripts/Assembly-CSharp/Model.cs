@@ -2367,7 +2367,7 @@ public class Model : global::EventDispatcher<object>
 		_Strike = new ModelStrike(_ModelObject);
 		_Animation = new ModelAnimation(_ModelObject);
 		_Collision = new ModelCollision(_ModelObject);
-		HJOGNGDMAKJ = new ModelAi(_Animation, _Physics, (KMMJCHDKBDO.JGMLKIPCFII == null) ? string.Empty : KMMJCHDKBDO.JGMLKIPCFII.MDPPNGIEJGD, KMMJCHDKBDO);
+		HJOGNGDMAKJ = new ModelAi(_Animation, _Physics, (KMMJCHDKBDO.JGMLKIPCFII == null) ? string.Empty : KMMJCHDKBDO.JGMLKIPCFII.EffectiveTacticSubtype, KMMJCHDKBDO);
 		HJOGNGDMAKJ.set_Model(this);
 		KDAHHIMLJGG = new EventModel();
 		FEHOHLMIEBP.AddEventListener(0, LONHMEJHOOO);
@@ -2415,7 +2415,7 @@ public class Model : global::EventDispatcher<object>
 		_Animation.NFEGCGJIICB(HFGPAELCNMF._Animation);
 		if (HFGPAELCNMF.KMMJCHDKBDO.JGMLKIPCFII != null)
 		{
-			HJOGNGDMAKJ.SetWeaponEnemy(HFGPAELCNMF.KMMJCHDKBDO.JGMLKIPCFII.MDPPNGIEJGD);
+			HJOGNGDMAKJ.SetWeaponEnemy(HFGPAELCNMF.KMMJCHDKBDO.JGMLKIPCFII.EffectiveTacticSubtype);
 		}
 		SetNearestEnemy();
 	}
@@ -4101,9 +4101,9 @@ public class Model : global::EventDispatcher<object>
 		if (fGCODGKLHED != null)
 		{
 			Model fGCODGKLHED2 = fGCODGKLHED.BDJBNOPNCNB();
-			fGCODGKLHED2.HJOGNGDMAKJ.SetWeaponEnemy(dJKEECEOCJB.MDPPNGIEJGD);
+			fGCODGKLHED2.HJOGNGDMAKJ.SetWeaponEnemy(dJKEECEOCJB.EffectiveTacticSubtype);
 		}
-		HJOGNGDMAKJ.SetWeaponBot(dJKEECEOCJB.MDPPNGIEJGD);
+		HJOGNGDMAKJ.SetWeaponBot(dJKEECEOCJB.EffectiveTacticSubtype);
 		DisarmData eHCLMBADLKH = new DisarmData(this, jGMLKIPCFII.NHBIJEEKALC);
 		CallEvent(16, eHCLMBADLKH);
 	}

@@ -121,7 +121,7 @@ the Act I third tournament fight does not demonstrate these features.
 ## 6. AI Dojo: new programmable opponents
 
 Enable `example.programmable-ai`, Apply & Restart, and select **AI Dojo** using
-the map-page dots. Fight all three opponents and observe decisions over several
+the map-page dots. Fight all four opponents and observe decisions over several
 seconds, at close and long distances:
 
 - **Patient Gatekeeper** (kunai): prefers a high kick when playable, then waits
@@ -131,9 +131,50 @@ seconds, at close and long distances:
 - **Alternating Warden** (ninja sword): alternates playable high/low kicks with
   short pauses. A missing preferred move uses native tactics, so conditions,
   stun, equipment and current animation still affect what can happen.
+- **Reactive Guardian** (staff, green armor): the fourth encounter. Attack at
+  close range to trigger legal backward movement during an active attack window.
+  Remain close without attacking to see quick-kick choices, then move far away
+  to allow native approach behavior. Its voluntary attack pause must not block
+  an otherwise legal defensive retreat. This opponent uses interval, control and
+  timing metadata, so no Lua editing is needed to exercise those APIs.
 - Pause/resume and restart a round: decisions must stop while simulation is
   paused and per-fighter decision memory must not leak to another opponent.
   Unmodified campaign opponents should retain their native AI.
+
+For API 0.45 authoring acceptance, use the `choose_quick_kick` callback from
+`Docs/Modding/src/content/docs/api/moves-and-tactics.md` in a test tactic and
+set its manifest to `api = ">=0.45 <1.0"`:
+
+- With both native and custom kick-tap moves eligible, it should choose the
+  candidate with the shortest nominal clip length. It should ignore looping
+  candidates and use native fallback if no kick tap is available.
+- Inspect a custom move with a known nonzero first sample and `mid_frames`:
+  `timing` should report the inclusive sample range and
+  `(last_sample - first_sample + 1) * (mid_frames + 1)` nominal frames. Do not
+  interpret this as a measured recovery/hit time.
+- Confirm a directional hold plus kick tap appears as separate `inputs`
+  entries. Turn the fighter around: Forward/Back metadata stays relative to
+  the authored facing, while native dispatch mirrors the on-screen control.
+- Editing a candidate's nested timing/control fields must not alter native
+  playback or subsequent snapshots. The original candidate identity is selected.
+
+The automated `Tools/TestModAi.ps1` checks the native adapter and Lua snapshot
+isolation; these full-game observations remain a separate acceptance step.
+
+For API 0.46, use `evade_active_attack` from the same guide in a test tactic:
+
+- Attack at close range. When a backward movement candidate is legal during
+  an observed attack interval, the callback should select it. Native reaction
+  throttling and current uninterruptible states still apply; this is not an
+  automatic guarantee of dodging a hit.
+- Observe `event.opponent.animation` through attack and recovery. Its intervals
+  should reflect the current native window, not every interval authored on the
+  move. Repeat after changing facing and with a custom named interval.
+- Compare with `fighter:snapshot().opponent.animation` inside a combat callback.
+  Both paths expose the same fields; different capture moments can see different
+  native states. Stopped/unavailable animation controllers report `nil`.
+- Retain an observation, then capture again after an interval ends. The old
+  table remains a historical value; it must not change or alter the fresh result.
 
 ## 7. Character/animation authoring
 
@@ -438,5 +479,134 @@ survive quit/restart with no pending .eclipse-write records after completed save
 Verify intentional profile replacement/reset cannot restore an earlier pending
 record. Disk fault/replay behavior is covered by TestProfileWriteJournal.ps1 and
 TestProfileSaveBoundary.ps1; do not interrupt or corrupt a real player's save to
-run these checks. Full-game acceptance does not establish lottery claim recovery,
-which remains unimplemented.
+run these checks. Lottery claim recovery now has implementation and controlled
+fixtures; full-game claim/restart acceptance remains pending.
+
+### Custom UI artwork (API 0.41)
+
+- Use an image node with a sprite handle from sf2.assets.sprite and explicit
+  positive width/height; see the wiki UI image example. No DE assets are needed.
+- Open it within the shared parchment modal alongside a text caption; verify the
+  original game font and unchanged image aspect ratio in a square and wide layout.
+- Click the artwork: it must not trigger a button callback. Close/reopen the view;
+  other views using the same sprite must retain their artwork.
+- Try a string or forged table in sprite, a missing sprite, or zero dimensions:
+  initialization must fail without leaving a blank exclusive modal behind.
+- Disable/reload the mod and change scenes: existing UI ownership/cleanup rules
+  must still apply. Isolated Unity checks passed; these full-game checks are pending.
+Lottery artwork: check the saved slot or first-item icon preserves aspect ratio, a short summary is visible without blank scrolling, missing optional art leaves Claim usable, and dismiss/reopen keeps the same reward. Full-game acceptance remains pending.
+
+### Live custom UI artwork (API 0.42)
+
+- In a menu/modal with an image node, call sf2.ui.set_sprite from a button callback
+  using a second handle from sf2.assets.sprite. The image must change in place;
+  panel size, scroll position, focus and the original game theme should remain.
+- Switch between wide and square art, then hide/show the image. Check aspect ratio
+  and the latest selected artwork; other views sharing the original sprite remain.
+- Missing replacement artwork closes the surface through normal error cleanup.
+  Wrong handle types and attempts to update a closed view must be rejected.
+- Runtime/Lua and isolated Unity tests passed; full-game/device acceptance pending.
+
+### Custom UI grids (API 0.43)
+
+- Use the wiki's Grid layouts example with ui.create and API >=0.43. Check the
+  six buttons form two rows of three with the original game font/button textures.
+- Select cells by pointer, Tab/Shift+Tab, arrows and D-pad/stick. Arrows should move
+  by grid rows/columns; Tab remains ordered. Disabled cells must be skipped;
+  hiding a cell should close its layout gap. Directional movement must not wrap
+  across a grid edge. Slider Left/Right input must stay on the slider at its limit.
+- Put a taller grid inside a scroll node. Navigate to a lower button: the viewport
+  must scroll to reveal it, and activation must reach that button's callback.
+- Close/reopen and change scenes. Verify restored focus, no leftover input capture,
+  and unchanged artwork shared by another view. Full-game acceptance is pending;
+  isolated Unity verifies geometry, styling, ordered focus, scrolling and cleanup.
+- This is fixed-column layout within the existing 256-node limit. Large virtualized
+  collections remain open work; directional navigation now has isolated Unity
+  coverage but still needs a physical keyboard/controller playtest.
+
+### Character packages with multiple animations
+
+- Export at least two motions against the same rig. Package the first using
+  --animation and add another using --clip kick Kick 0 path/to/kick.bin.
+  The Gymnast guide documents per-clip timing, valid controls and output files.
+- Enable the generated mod, open Character Preview and watch the opponent cycle
+  through eligible clips. Verify each motion retains its own timing and no damage
+  is dealt by the generated preview moves.
+- Test authored input bindings only on the intended warrior, both facing directions,
+  equipment attachment and skin deformation. These require a full-game test.
+- Check preview.html and preview-kick.html separately. Existing output folders,
+  duplicate clip/control names and malformed clips must fail without overwriting
+  authored files or publishing a partial package.
+- This packages several validated native exports; it does not implement automatic
+  retargeting, arbitrary character controllers/forms or attack authoring in Blender.
+
+### Battle lottery continuation and queued quest context (pending game acceptance)
+
+- Use a disposable profile and a winning fight whose composed reward contains a
+  lottery. Return from combat: the original-style reward dialog should open.
+- Choose Later, navigate away and return: the same reward must reopen. A new fight
+  must not replace the pending reward. Restart before claiming and check the draw
+  remains unchanged.
+- Claim once: inventory should change once, and matching fight-end quests should
+  run with the original fight, raid identity and lottery item. Reopening/restarting
+  must not grant the same draw again.
+- Queue two different quests while the first waits on a dialog. Trigger another
+  event before the second starts. Each quest must retain its own event parameters.
+- Save/reload two queued resumable quests with different fight or lottery contexts;
+  the second must not inherit the first quest's fight/item/spin context.
+- Put a checkpoint after an observable action, save while a later dialog waits,
+  then reload. Resume at the saved checkpoint; do not replay the earlier action.
+- Empty/invalid lottery pools still report an authoring error; no fallback prize
+  or automatic skipped reward is defined. Paid spins and multiple pending draws
+  are not implemented. Controlled queue/disk tests do not prove native crash recovery.
+
+## Forge candidate exclusion (API 0.47)
+
+- [ ] Use the complete sf2.forge.exclude_candidate example in the forge wiki with API >=0.47, content.register/content.patch and the core dependency. Enable and Apply & Restart.
+- [ ] Open Complex enchantments for a weapon: Monk set enchantment must be absent from the recipe preview and eligible rolls. Existing enchanted equipment must retain its enchantment.
+- [ ] Compare armor/helm previews and recipe costs, timers and power ranges against the disabled-mod baseline: unchanged.
+- [ ] Disable the mod and Apply & Restart: the weapon candidate returns when its usual native eligibility conditions are met.
+- [ ] Two enabled mods excluding that same target must report a conflict. A different equipment category may coexist.
+
+Automated command: ./Tools/TestModForgeExclusions.ps1 (Lua registration, native filtering and compiled adapter lifecycle). These checks do not replace the game checks above.
+
+## Forge deviation overrides (API 0.48)
+
+- [ ] Use sf2.forge.override_deviation from the forge wiki with Simple/weapon and minimum=15, maximum=75; enable and Apply & Restart.
+- [ ] At the same equipment level, inspect recipe power range and complete weapon enchantments: random-aspect candidates use the new delta from the normal base aspect. Fixed values/compound expressions remain unchanged.
+- [ ] Armor/helm/ranged/magic settings, prices, timers and existing enchanted equipment stay unchanged.
+- [ ] Disable and Apply & Restart: Simple weapon range returns to its native -30..30; existing completed enchantments keep their saved power.
+- [ ] A second mod overriding Simple/weapon conflicts. Overrides for different categories and candidate exclusions coexist.
+- [ ] Targeting Complex/weapon must fail application and restore all earlier forge overlays from that failed application.
+
+Automated verification: ./Tools/TestModForgeExclusions.ps1 and ./Tools/TestModForgeDeviation.ps1. Native fixtures verify projection and lifecycle, not the random draw, rendered recipe UI or full-game unload.
+
+## Default equipment enchantments (API 0.49)
+
+- [ ] Use the set_default_enchantments example in the forge/items wiki (WEAPON_KNIVES, precision weapon perk, aspect 100), with content.register/content.patch and core dependency. Enable and Apply & Restart.
+- [ ] On a test profile where Knives have not been bought, inspect their shop enchantment preview and acquire them. Confirm precision is present at the specified aspect.
+- [ ] Save/restart and confirm the acquired enchantment persists. Previously owned equipment must not be retroactively modified by enabling the loadout.
+- [ ] Disable and Apply & Restart: original acquisition defaults return, while the already saved enchantment remains.
+- [ ] Empty entries remove acquisition defaults; omitted aspect uses the perk default. Different items coexist; two mods targeting the same item conflict.
+
+Automated checks: ./Tools/TestModDefaultEnchantments.ps1 and ./Tools/TestModForgeExclusions.ps1 (the latter also runs actual Lua loadout cases). Neither is a full-game acquisition/save/render test.
+
+## Innate equipment perks (API 0.50)
+
+- [ ] Apply the set_innate_perks wiki example to Knives, equip them and enter a new fight. Verify the chosen native precision effect follows its normal activation conditions.
+- [ ] Unequip Knives and enter another fight: the added effect must be absent. Confirm existing saved forge enchantments are unchanged.
+- [ ] Disable and Apply & Restart: original innate effects return for subsequent fights. The operation does not refresh already constructed fighters.
+- [ ] Attach a registered Lua-backed perk with no loadout parameters and verify its callback in a new fight. Configure its initial values during perk registration; nonempty loadout parameters must be rejected.
+- [ ] Default enchantments and innate perks can target the same item; two innate loadouts on that item conflict. Empty entries remove innate effects.
+
+Automated commands: ./Tools/TestModInnatePerks.ps1 and ./Tools/TestModForgeExclusions.ps1. Native model collection is tested; real fight effect activation remains an acceptance check.
+
+Automated innate execution check: run `pwsh -NoProfile -File Tools/TestModInnateLua.ps1` after the managed build. It uses the compiled game ModRuntime and real MoonSharp session to check initial parameters, state across rounds, isolated instances and missing definitions. Physical fighter operations are controlled; run TestModFightBeginRuntime separately for source selection. This does not replace a game playtest.
+
+- [ ] Use a native TwoHandedBlunt weapon with TacticSubtype=TwoHanded in an AI fight, then disarm the fighter: verify weapon and barehand movement/attacks remain valid. Check the other fighter's weapon behavior stays independent. Automated prerequisite: `pwsh -NoProfile -File Tools/TestItemTacticSubtype.ps1` (native classification helper, clone/merge, canonical metadata and own/enemy updates; no physical combat).
+
+- [ ] With manifest API >=0.51, register a custom mace with subtype=TwoHandedBlunt and tactic_subtype=TwoHanded, provide matching assets/moves and a shop listing, then equip it on an AI fighter. Verify the mace animation family is retained and AI uses the intended table group, including after disarm. Removing tactic_subtype falls back to subtype. Changing it should trigger the normal content compatibility handling.
+
+- [ ] API >=0.52: use items.set_tactic_subtype on a core weapon; start a new fight and verify AI grouping independently of animation subtype. Try group empty to select subtype fallback. Disable and Apply & Restart to restore the original group. Two mods targeting the same weapon should report a conflict. Existing fight copies are not refreshed.
+
+- [ ] Buy multiple units through a supported consumable/shop quantity flow: granted quantity must match the selected quantity and charge. Default single-unit purchases should behave as before. Automated dispatcher check: `pwsh -NoProfile -File Tools/TestPurchaseQuantity.ps1`; real inventory/save behavior still needs a playtest.

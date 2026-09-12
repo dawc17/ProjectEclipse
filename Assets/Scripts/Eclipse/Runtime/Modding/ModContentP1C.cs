@@ -125,6 +125,87 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModInnatePerk
+    {
+        public DefinitionId Perk { get; }
+        public IReadOnlyDictionary<string, float> Parameters { get; }
+        public ModInnatePerk(DefinitionId perk, IReadOnlyDictionary<string, float> parameters = null)
+        {
+            Perk = perk;
+            var copy = new Dictionary<string, float>(StringComparer.Ordinal);
+            if (parameters != null)
+            {
+                if (parameters.Count > 64) throw new ModContentException("Innate perk accepts at most 64 numeric parameters.");
+                foreach (var pair in parameters)
+                {
+                    if (pair.Key == null || pair.Key.Length > 128 ||
+                        !System.Text.RegularExpressions.Regex.IsMatch(pair.Key, @"\A[A-Za-z_][A-Za-z0-9_]*\z") ||
+                        float.IsNaN(pair.Value) || float.IsInfinity(pair.Value))
+                        throw new ModContentException("Innate perk parameters require identifiers and finite numeric values.");
+                    copy.Add(pair.Key, pair.Value);
+                }
+            }
+            Parameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, float>(copy);
+        }
+    }
+
+    public sealed class ItemTacticSubtypeDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Item { get; }
+        public string Group { get; }
+        internal ItemTacticSubtypeDefinition(ModId owner, DefinitionId item, string group)
+        { Owner = owner; Item = item; Group = group; }
+    }
+
+    public sealed class ItemInnatePerksDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Item { get; }
+        public IReadOnlyList<ModInnatePerk> Entries { get; }
+        internal ItemInnatePerksDefinition(ModId owner, DefinitionId item, ModInnatePerk[] entries)
+        { Owner = owner; Item = item; Entries = Array.AsReadOnly((ModInnatePerk[])entries.Clone()); }
+    }
+
+    public sealed class ModDefaultEnchantment
+    {
+        public DefinitionId Perk { get; }
+        public int? Aspect { get; }
+        public ModDefaultEnchantment(DefinitionId perk, int? aspect = null) { Perk = perk; Aspect = aspect; }
+    }
+
+    public sealed class ItemDefaultEnchantmentsDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Item { get; }
+        public IReadOnlyList<ModDefaultEnchantment> Entries { get; }
+        internal ItemDefaultEnchantmentsDefinition(ModId owner, DefinitionId item, ModDefaultEnchantment[] entries)
+        { Owner = owner; Item = item; Entries = Array.AsReadOnly((ModDefaultEnchantment[])entries.Clone()); }
+    }
+
+    public sealed class ForgeDeviationDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Profile { get; }
+        public ModEquipmentKind Equipment { get; }
+        public int Minimum { get; }
+        public int Maximum { get; }
+        internal string Field => "deviation/" + Equipment.ToString().ToLowerInvariant();
+        internal ForgeDeviationDefinition(ModId owner, DefinitionId profile, ModEquipmentKind equipment, int minimum, int maximum)
+        { Owner = owner; Profile = profile; Equipment = equipment; Minimum = minimum; Maximum = maximum; }
+    }
+
+    public sealed class ForgeCandidateExclusionDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Profile { get; }
+        public DefinitionId Perk { get; }
+        public ModEquipmentKind Equipment { get; }
+        internal string Field => "native-candidate/" + Equipment.ToString().ToLowerInvariant() + "/" + Perk;
+        internal ForgeCandidateExclusionDefinition(ModId owner, DefinitionId profile, DefinitionId perk, ModEquipmentKind equipment)
+        { Owner = owner; Profile = profile; Perk = perk; Equipment = equipment; }
+    }
+
     public sealed class ModForgeRecipeItem
     {
         public ModEquipmentKind Equipment { get; }
@@ -197,6 +278,62 @@ namespace Eclipse.Modding
         private readonly Dictionary<DefinitionId, ForgeRecipeFamilyDefinition> _forgeRecipes =
             new Dictionary<DefinitionId, ForgeRecipeFamilyDefinition>();
         private readonly List<ForgeRecipeFamilyDefinition> _forgeRecipeValues = new List<ForgeRecipeFamilyDefinition>();
+        private readonly List<ForgeCandidateExclusionDefinition> _forgeExclusions = new List<ForgeCandidateExclusionDefinition>();
+        private readonly List<ForgeDeviationDefinition> _forgeDeviations = new List<ForgeDeviationDefinition>();
+        private readonly List<ItemDefaultEnchantmentsDefinition> _itemDefaultEnchantments = new List<ItemDefaultEnchantmentsDefinition>();
+        private readonly List<ItemInnatePerksDefinition> _itemInnatePerks = new List<ItemInnatePerksDefinition>();
+        private readonly List<ItemTacticSubtypeDefinition> _itemTacticSubtypes = new List<ItemTacticSubtypeDefinition>();
+        public IReadOnlyList<ItemTacticSubtypeDefinition> ItemTacticSubtypes => _itemTacticSubtypes.AsReadOnly();
+        internal void ValidateItemTacticSubtypes(IEnumerable<ItemTacticSubtypeDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(definition.Item, "tactic-subtype"), out var existing))
+                    throw new ModContentException("Tactic subtype already patched by '" + existing.Owner + "': " + definition.Item);
+        }
+        internal void CommitItemTacticSubtypes(IEnumerable<ItemTacticSubtypeDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+            {
+                var record = new ModContentPatchRecord(definition.Owner, definition.Item, "tactic-subtype", ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+                _patches.Add(record); _itemTacticSubtypes.Add(definition);
+            }
+        }
+        public IReadOnlyList<ItemInnatePerksDefinition> ItemInnatePerks => _itemInnatePerks.AsReadOnly();
+        internal void ValidateItemInnatePerks(IEnumerable<ItemInnatePerksDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(definition.Item, "innate-perks"), out var existing))
+                    throw new ModContentException("Innate perks already patched by '" + existing.Owner + "': " + definition.Item);
+        }
+        internal void CommitItemInnatePerks(IEnumerable<ItemInnatePerksDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+            {
+                var record = new ModContentPatchRecord(definition.Owner, definition.Item, "innate-perks", ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+                _patches.Add(record); _itemInnatePerks.Add(definition);
+            }
+        }
+        public IReadOnlyList<ItemDefaultEnchantmentsDefinition> ItemDefaultEnchantments => _itemDefaultEnchantments.AsReadOnly();
+
+        internal void ValidateItemDefaultEnchantments(IEnumerable<ItemDefaultEnchantmentsDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(definition.Item, "default-enchantments"), out var existing))
+                    throw new ModContentException("Default enchantments already patched by '" + existing.Owner + "': " + definition.Item);
+        }
+
+        internal void CommitItemDefaultEnchantments(IEnumerable<ItemDefaultEnchantmentsDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+            {
+                var record = new ModContentPatchRecord(definition.Owner, definition.Item, "default-enchantments", ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+                _patches.Add(record);
+                _itemDefaultEnchantments.Add(definition);
+            }
+        }
         private readonly Dictionary<DefinitionId, ItemAvailabilityPolicyDefinition> _availabilityPolicies =
             new Dictionary<DefinitionId, ItemAvailabilityPolicyDefinition>();
         private readonly Dictionary<int, ProgressionBranchOverlayDefinition> _progressionBranches =
@@ -206,6 +343,8 @@ namespace Eclipse.Modding
         public IReadOnlyList<ItemSetDefinition> ItemSets => _itemSetValues.AsReadOnly();
         public IReadOnlyList<ForgeEconomicProfileDefinition> ForgeEconomicProfiles => _forgeProfileValues.AsReadOnly();
         public IReadOnlyList<ForgeRecipeFamilyDefinition> ForgeRecipeFamilies => _forgeRecipeValues.AsReadOnly();
+        public IReadOnlyList<ForgeCandidateExclusionDefinition> ForgeCandidateExclusions => _forgeExclusions.AsReadOnly();
+        public IReadOnlyList<ForgeDeviationDefinition> ForgeDeviations => _forgeDeviations.AsReadOnly();
         internal IEnumerable<ItemAvailabilityPolicyDefinition> ItemAvailabilityPolicies => _availabilityPolicies.Values;
         internal IEnumerable<ProgressionBranchOverlayDefinition> ProgressionBranches => _progressionBranches.Values;
 
@@ -288,8 +427,14 @@ namespace Eclipse.Modding
         }
 
         internal void ValidateP1CPatches(IEnumerable<ItemAvailabilityPolicyDefinition> availability,
-            IEnumerable<ProgressionBranchOverlayDefinition> progression)
+            IEnumerable<ProgressionBranchOverlayDefinition> progression, IEnumerable<ForgeCandidateExclusionDefinition> exclusions, IEnumerable<ForgeDeviationDefinition> deviations)
         {
+            foreach (var deviation in deviations)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(deviation.Profile, deviation.Field), out var owner))
+                    throw new ModContentException("Forge deviation already patched by '" + owner.Owner + "': " + deviation.Profile + "/" + deviation.Equipment);
+            foreach (var exclusion in exclusions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(exclusion.Profile, exclusion.Field), out var existing))
+                    throw new ModContentException("Forge candidate already excluded by '" + existing.Owner + "': " + exclusion.Profile + "/" + exclusion.Equipment + "/" + exclusion.Perk);
             foreach (ItemAvailabilityPolicyDefinition policy in availability)
             {
                 var key = new ModContentPatchKey(policy.Item, "item/availability");
@@ -307,8 +452,22 @@ namespace Eclipse.Modding
 
         internal void CommitP1C(IEnumerable<NonEquipmentItemDefinition> items, IEnumerable<ItemSetDefinition> sets,
             IEnumerable<ForgeRecipeFamilyDefinition> recipes, IEnumerable<ItemAvailabilityPolicyDefinition> availability,
-            IEnumerable<ProgressionBranchOverlayDefinition> progression)
+            IEnumerable<ProgressionBranchOverlayDefinition> progression, IEnumerable<ForgeCandidateExclusionDefinition> exclusions, IEnumerable<ForgeDeviationDefinition> deviations)
         {
+            foreach (var deviation in deviations)
+            {
+                var record = new ModContentPatchRecord(deviation.Owner, deviation.Profile, deviation.Field, ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(deviation.Profile, deviation.Field), record);
+                _patches.Add(record);
+                _forgeDeviations.Add(deviation);
+            }
+            foreach (var exclusion in exclusions)
+            {
+                var record = new ModContentPatchRecord(exclusion.Owner, exclusion.Profile, exclusion.Field, ModContentPatchOperation.Remove);
+                _patchByKey.Add(new ModContentPatchKey(exclusion.Profile, exclusion.Field), record);
+                _patches.Add(record);
+                _forgeExclusions.Add(exclusion);
+            }
             foreach (NonEquipmentItemDefinition item in items)
             {
                 _nonEquipmentItems.Add(item.Id, item);
@@ -353,13 +512,115 @@ namespace Eclipse.Modding
         private readonly Dictionary<DefinitionId, ItemSetDefinition> _p1cSets = new Dictionary<DefinitionId, ItemSetDefinition>();
         private readonly Dictionary<DefinitionId, ForgeRecipeFamilyDefinition> _p1cForgeRecipes =
             new Dictionary<DefinitionId, ForgeRecipeFamilyDefinition>();
+        private readonly Dictionary<ModContentPatchKey, ForgeCandidateExclusionDefinition> _p1cForgeExclusions =
+            new Dictionary<ModContentPatchKey, ForgeCandidateExclusionDefinition>();
         private readonly Dictionary<DefinitionId, ItemAvailabilityPolicyDefinition> _p1cAvailability =
             new Dictionary<DefinitionId, ItemAvailabilityPolicyDefinition>();
         private readonly Dictionary<int, ProgressionBranchOverlayDefinition> _p1cProgression =
             new Dictionary<int, ProgressionBranchOverlayDefinition>();
 
-        private int P1CRegistrationCount => _p1cItems.Count + _p1cSets.Count + _p1cForgeRecipes.Count +
-            _p1cAvailability.Count + _p1cProgression.Count;
+        private readonly Dictionary<DefinitionId, ItemDefaultEnchantmentsDefinition> _p1cDefaultEnchantments =
+            new Dictionary<DefinitionId, ItemDefaultEnchantmentsDefinition>();
+
+        public void SetDefaultEnchantments(DefinitionId item, ModDefaultEnchantment[] entries)
+        {
+            ThrowIfCompleted();
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("Default enchantment item requires a declared dependency.");
+            if (!TryGetPendingItem(item, out var target) && !_catalog.TryResolveItem(item, out target))
+                throw new ModContentException("Unknown default enchantment item: " + item);
+            if (!(target is WeaponDefinition || target is ArmorDefinition || target is HelmDefinition || target is RangedDefinition || target is MagicDefinition))
+                throw new ModContentException("Default enchantments require equipment.");
+            if (entries == null || entries.Length > 64) throw new ModContentException("Default enchantments require an array of at most 64 entries.");
+            var seen = new HashSet<DefinitionId>();
+            foreach (var entry in entries)
+            {
+                if (entry == null || !seen.Add(entry.Perk)) throw new ModContentException("Null or duplicate default enchantment perk.");
+                if (!CanReferenceNamespace(entry.Perk.Namespace) ||
+                    (!_perks.TryGetValue(entry.Perk, out var perk) && !_catalog.TryGetPerk(entry.Perk, out perk)))
+                    throw new ModContentException("Unknown or undeclared default enchantment perk: " + entry.Perk);
+            }
+            if (_p1cDefaultEnchantments.ContainsKey(target.Id)) throw new ModContentException("Duplicate default enchantment loadout: " + target.Id);
+            EnsureCapacityForNewRegistration();
+            _p1cDefaultEnchantments.Add(target.Id, new ItemDefaultEnchantmentsDefinition(Mod.Id, target.Id, entries));
+        }
+
+        private readonly Dictionary<DefinitionId, ItemInnatePerksDefinition> _p1cInnatePerks = new Dictionary<DefinitionId, ItemInnatePerksDefinition>();
+        public void SetInnatePerks(DefinitionId item, ModInnatePerk[] entries)
+        {
+            ThrowIfCompleted();
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("Innate perk item requires a declared dependency.");
+            if (!TryGetPendingItem(item, out var target) && !_catalog.TryResolveItem(item, out target))
+                throw new ModContentException("Unknown innate perk item: " + item);
+            if (!(target is WeaponDefinition || target is ArmorDefinition || target is HelmDefinition || target is RangedDefinition || target is MagicDefinition))
+                throw new ModContentException("Innate perks require equipment.");
+            if (entries == null || entries.Length > 64) throw new ModContentException("Innate perks require an array of at most 64 entries.");
+            var seen = new HashSet<DefinitionId>();
+            foreach (var entry in entries)
+            {
+                if (entry == null || !seen.Add(entry.Perk)) throw new ModContentException("Null or duplicate innate perk.");
+                if (!CanReferenceNamespace(entry.Perk.Namespace) ||
+                    (!_perks.TryGetValue(entry.Perk, out var perk) && !_catalog.TryGetPerk(entry.Perk, out perk)))
+                    throw new ModContentException("Unknown or undeclared innate perk: " + entry.Perk);
+                if (perk.HasBehavior && entry.Parameters.Count != 0)
+                    throw new ModContentException("Lua-backed innate perks configure parameters when registering the perk, not in the equipment loadout.");
+            }
+            if (_p1cInnatePerks.ContainsKey(target.Id)) throw new ModContentException("Duplicate innate perk loadout: " + target.Id);
+            EnsureCapacityForNewRegistration();
+            _p1cInnatePerks.Add(target.Id, new ItemInnatePerksDefinition(Mod.Id, target.Id, entries));
+        }
+
+        private readonly Dictionary<DefinitionId, ItemTacticSubtypeDefinition> _p1cTacticSubtypes = new Dictionary<DefinitionId, ItemTacticSubtypeDefinition>();
+        public void SetTacticSubtype(DefinitionId item, string group)
+        {
+            ThrowIfCompleted();
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("Tactic subtype item requires a declared dependency.");
+            if (!TryGetPendingItem(item, out var target) && !_catalog.TryResolveItem(item, out target))
+                throw new ModContentException("Unknown tactic subtype item: " + item);
+            if (!(target is WeaponDefinition)) throw new ModContentException("Tactic subtype requires a weapon.");
+            if (group == null || group.Length > 128) throw new ModContentException("Tactic subtype requires a group of at most 128 characters; empty selects subtype fallback.");
+            foreach (char c in group)
+                if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_'))
+                    throw new ModContentException("Tactic subtype group must contain ASCII letters, digits or underscores.");
+            if (_p1cTacticSubtypes.ContainsKey(target.Id)) throw new ModContentException("Duplicate tactic subtype: " + target.Id);
+            EnsureCapacityForNewRegistration();
+            _p1cTacticSubtypes.Add(target.Id, new ItemTacticSubtypeDefinition(Mod.Id, target.Id, group));
+        }
+
+        private int P1CRegistrationCount => _p1cTacticSubtypes.Count + _p1cInnatePerks.Count + _p1cDefaultEnchantments.Count + _p1cItems.Count + _p1cSets.Count + _p1cForgeRecipes.Count +
+            _p1cAvailability.Count + _p1cProgression.Count + _p1cForgeExclusions.Count + _p1cForgeDeviations.Count;
+
+        private readonly Dictionary<ModContentPatchKey, ForgeDeviationDefinition> _p1cForgeDeviations =
+            new Dictionary<ModContentPatchKey, ForgeDeviationDefinition>();
+
+        public void OverrideForgeDeviation(DefinitionId profile, ModEquipmentKind equipment, int minimum, int maximum)
+        {
+            ThrowIfCompleted();
+            if (!Enum.IsDefined(typeof(ModEquipmentKind), equipment)) throw new ModContentException("Invalid forge equipment category.");
+            if (minimum < -10000 || maximum > 10000 || minimum > maximum)
+                throw new ModContentException("Forge deviation requires -10000 <= minimum <= maximum <= 10000.");
+            if (profile.Namespace.Value != "core" || !CanReferenceNamespace(profile.Namespace) || !_catalog.TryGetForgeEconomicProfile(profile, out var economic))
+                throw new ModContentException("Forge deviations require a registered core profile and a core dependency.");
+            var definition = new ForgeDeviationDefinition(Mod.Id, economic.Id, equipment, minimum, maximum);
+            var key = new ModContentPatchKey(definition.Profile, definition.Field);
+            if (_p1cForgeDeviations.ContainsKey(key)) throw new ModContentException("Duplicate forge deviation: " + profile + "/" + equipment);
+            EnsureCapacityForNewRegistration();
+            _p1cForgeDeviations.Add(key, definition);
+        }
+
+        public void ExcludeForgeCandidate(DefinitionId profile, DefinitionId perk, ModEquipmentKind equipment)
+        {
+            ThrowIfCompleted();
+            if (!Enum.IsDefined(typeof(ModEquipmentKind), equipment)) throw new ModContentException("Invalid forge equipment category.");
+            if (profile.Namespace.Value != "core" || !CanReferenceNamespace(profile.Namespace) || !_catalog.TryGetForgeEconomicProfile(profile, out var economic))
+                throw new ModContentException("Forge exclusions require a registered core profile and a core dependency.");
+            if (!_catalog.TryGetPerk(perk, out var definition) || !definition.IsCore || !CanReferenceNamespace(perk.Namespace))
+                throw new ModContentException("Forge exclusions require a registered core perk.");
+            var exclusion = new ForgeCandidateExclusionDefinition(Mod.Id, economic.Id, definition.Id, equipment);
+            var key = new ModContentPatchKey(exclusion.Profile, exclusion.Field);
+            if (_p1cForgeExclusions.ContainsKey(key)) throw new ModContentException("Duplicate forge candidate exclusion: " + profile + "/" + equipment + "/" + perk);
+            EnsureCapacityForNewRegistration();
+            _p1cForgeExclusions.Add(key, exclusion);
+        }
 
         public NonEquipmentItemDefinition RegisterNonEquipmentItem(string localId, ModNonEquipmentItemKind kind,
             DefinitionId displayName, AssetId icon, AssetId model, string subType, string packLabel,
@@ -517,6 +778,9 @@ namespace Eclipse.Modding
 
         private void ValidateP1CCommit()
         {
+            _catalog.ValidateItemInnatePerks(_p1cInnatePerks.Values);
+            _catalog.ValidateItemTacticSubtypes(_p1cTacticSubtypes.Values);
+            _catalog.ValidateItemDefaultEnchantments(_p1cDefaultEnchantments.Values);
             foreach (DefinitionId id in _p1cItems.Keys)
                 if (_catalog.TryGetItem(id, out ItemDefinition ignored)) throw new ModContentException("Duplicate item definition: '" + id + "'.");
             foreach (DefinitionId id in _p1cSets.Keys)
@@ -529,20 +793,28 @@ namespace Eclipse.Modding
             foreach (int level in _p1cProgression.Keys)
                 if (_catalog.TryGetProgressionBranch(level, out ProgressionBranchOverlayDefinition ignored))
                     throw new ModContentException("Progression branch already patched at level " + level + ".");
-            _catalog.ValidateP1CPatches(_p1cAvailability.Values, _p1cProgression.Values);
+            _catalog.ValidateP1CPatches(_p1cAvailability.Values, _p1cProgression.Values, _p1cForgeExclusions.Values, _p1cForgeDeviations.Values);
         }
 
         private void ApplyP1CCommit()
         {
+            _catalog.CommitItemInnatePerks(_p1cInnatePerks.Values);
+            _catalog.CommitItemTacticSubtypes(_p1cTacticSubtypes.Values);
+            _catalog.CommitItemDefaultEnchantments(_p1cDefaultEnchantments.Values);
             _catalog.CommitP1C(_p1cItems.Values, _p1cSets.Values, _p1cForgeRecipes.Values,
-                _p1cAvailability.Values, _p1cProgression.Values);
+                _p1cAvailability.Values, _p1cProgression.Values, _p1cForgeExclusions.Values, _p1cForgeDeviations.Values);
         }
 
         private void ClearP1CPending()
         {
+            _p1cInnatePerks.Clear();
+            _p1cTacticSubtypes.Clear();
+            _p1cDefaultEnchantments.Clear();
             _p1cItems.Clear();
             _p1cSets.Clear();
             _p1cForgeRecipes.Clear();
+            _p1cForgeExclusions.Clear();
+            _p1cForgeDeviations.Clear();
             _p1cAvailability.Clear();
             _p1cProgression.Clear();
         }

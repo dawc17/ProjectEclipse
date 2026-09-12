@@ -26,7 +26,7 @@ static class Program
             if(warrior.BodyModel.Namespace!=mod.Id || warrior.SkinModels.Count!=1) throw new Exception("Authored model handles did not reach character definition");
             if(packaged)
             {
-                var move=catalog.Moves.Single();
+                var move=catalog.Moves.Single(m=>m.Id.LocalId=="authored_move");
                 int sampleCount=BitConverter.ToInt32(File.ReadAllBytes(Path.Combine(mod.RootPath,"assets/animations/authored.bytes")),0);
                 if(move.EndFrame!=sampleCount-1)
                     throw new Exception("Move bounds must index native samples independently of interpolation spacing");
@@ -38,6 +38,40 @@ static class Program
                 var snapshot=new ModCombatSnapshot(new ModFighterSnapshot(1,1,1,0,0,0),null,60,true);
                 if(!ai.TryDecideAi(warrior.Tactic,new object(),snapshot,new[]{move.RuntimeName},out var choice,out var error) || choice!=0)
                     throw new Exception("Packaged opponent does not select its authored move: "+error);
+                var moves=catalog.Moves.OrderBy(m=>m.Id.LocalId=="authored_move"?0:1).ToArray();
+                foreach(var motion in moves)
+                {
+                    string name=motion.Id.LocalId=="authored_move"?"authored":motion.Id.LocalId;
+                    int count=BitConverter.ToInt32(File.ReadAllBytes(Path.Combine(mod.RootPath,"assets/animations/"+name+".bytes")),0);
+                    if(motion.EndFrame!=count-1) throw new Exception("Clip sample bounds changed: "+name);
+                    using(var report=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(mod.RootPath,"assets/animations/"+name+".rig.json"))))
+                    {
+                        if(motion.MidFrames!=report.RootElement.GetProperty("mid_frames").GetInt32()) throw new Exception("Clip interpolation spacing changed: "+name);
+                        if(report.RootElement.TryGetProperty("control",out var control) &&
+                            motion.Conditions.SelectMany(c=>c.Keys).Single().Key!=control.GetString())
+                            throw new Exception("Clip input binding changed: "+name);
+                    }
+                }
+                if(moves.Length>1)
+                {
+                    var actor=new object();var choices=moves.Select(m=>m.RuntimeName).ToArray();
+                    if(!ai.TryDecideAi(warrior.Tactic,actor,snapshot,choices,out choice,out error)||choice!=0)
+                        throw new Exception("Multi-clip preview did not start at primary clip: "+error);
+                    if(!ai.TryDecideAi(warrior.Tactic,actor,snapshot,choices,out choice,out error)||choice!=-1)
+                        throw new Exception("Multi-clip preview ignored its pacing interval: "+error);
+                    var later=new ModCombatSnapshot(new ModFighterSnapshot(1,1,1,0,0,0),null,240,true);
+                    if(!ai.TryDecideAi(warrior.Tactic,actor,later,choices,out choice,out error)||choice==0)
+                        throw new Exception("Multi-clip preview did not advance to another clip: "+error);
+                    foreach(int frame in new[]{420,600})
+                    {
+                        var limited=new ModCombatSnapshot(snapshot.Self,snapshot.Opponent,frame,true);
+                        if(!ai.TryDecideAi(warrior.Tactic,actor,limited,new[]{move.RuntimeName},out choice,out error)||choice!=0)
+                            throw new Exception("Multi-clip preview did not skip unavailable clips: "+error);
+                    }
+                    var empty=new ModCombatSnapshot(snapshot.Self,snapshot.Opponent,780,true);
+                    if(!ai.TryDecideAi(warrior.Tactic,actor,empty,Array.Empty<string>(),out choice,out error)||choice!=null)
+                        throw new Exception("No available clips should defer to native tactics: "+error);
+                }
                 Console.WriteLine("PASS: complete packaged character Lua, map/fight/mode binding, skin assets and authored-move AI selection.");
                 return;
             }

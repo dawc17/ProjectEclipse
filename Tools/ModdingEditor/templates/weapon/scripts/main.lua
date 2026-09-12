@@ -6,6 +6,7 @@ local weapon = sf2.items.register_weapon {
     icon = sf2.assets.sprite("sprites/weapon"),
     model = sf2.assets.model("core:gamedata/models/mdl_weapon_katana_ritual"),
     subtype = "Katana",
+    -- API >=0.51 also supports tactic_subtype for a different native AI table group.
 }
 
 sf2.shop.addItem {

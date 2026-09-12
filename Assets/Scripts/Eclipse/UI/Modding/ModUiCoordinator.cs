@@ -164,6 +164,12 @@ namespace Eclipse.UI.Modding
             return entry.View.AdjustSelected(direction);
         }
 
+        public bool NavigateFocus(int horizontal, int vertical)
+        {
+            if (!CapturesInput || !entries.TryGetValue(layers.Foreground, out var entry)) return false;
+            return entry.View.NavigateFocus(horizontal, vertical);
+        }
+
         private void UpdateSafeAreas(bool force = false)
         {
             var screen = new Vector2Int(Screen.width, Screen.height);

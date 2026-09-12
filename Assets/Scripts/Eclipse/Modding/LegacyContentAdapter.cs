@@ -13,6 +13,11 @@ namespace Eclipse.Modding
         private readonly List<string> _perkNames = new List<string>();
         private readonly List<string> _itemSetNames = new List<string>();
         private readonly List<string> _forgeRecipeNames = new List<string>();
+        private readonly List<IDisposable> _forgeExclusionLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _forgeDeviationLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _defaultEnchantmentLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _innatePerkLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _tacticSubtypeLifetimes = new List<IDisposable>();
         private readonly List<ProgressionBranchBinding> _progressionBindings = new List<ProgressionBranchBinding>();
         private readonly List<string> _externalZoneNames = new List<string>();
         private readonly List<ExternalBattleBinding> _externalBattles = new List<ExternalBattleBinding>();
@@ -182,6 +187,12 @@ namespace Eclipse.Modding
                 var visiting = new HashSet<DefinitionId>();
                 foreach (PerkDefinition definition in _content.Perks)
                     if (!definition.IsCore) EnsurePerkApplied(definition, visiting);
+
+                ApplyForgeExclusions();
+                ApplyForgeDeviations();
+                ApplyDefaultEnchantments();
+                ApplyInnatePerks();
+                ApplyTacticSubtypes();
 
                 foreach (ForgeRecipeFamilyDefinition definition in _content.ForgeRecipeFamilies)
                 {
@@ -1153,8 +1164,118 @@ namespace Eclipse.Modding
             return result;
         }
 
+        private void ApplyTacticSubtypes()
+        {
+            foreach (var definition in _content.ItemTacticSubtypes)
+            {
+                if (_items == null || !_content.TryGetItem(definition.Item, out var target))
+                    throw new InvalidOperationException("Tactic subtype requires applied items: " + definition.Item);
+                var item = _items.KCCDBEEKBCG(target.IsCore ? target.LegacyName : target.Id.ToString());
+                if (item == null || !item.TryOverrideTacticSubtype(definition.Group, out var lifetime))
+                    throw new InvalidOperationException("Could not apply tactic subtype for '" + definition.Owner + "': " + definition.Item);
+                _tacticSubtypeLifetimes.Add(lifetime);
+            }
+        }
+
+        private void ApplyInnatePerks()
+        {
+            foreach (var definition in _content.ItemInnatePerks)
+            {
+                if (_items == null || !_content.TryGetItem(definition.Item, out var target))
+                    throw new InvalidOperationException("Innate perks require applied items: " + definition.Item);
+                var item = _items.KCCDBEEKBCG(target.IsCore ? target.LegacyName : target.Id.ToString());
+                var xml = new XmlDocument();
+                var root = xml.CreateElement("Perks"); xml.AppendChild(root);
+                foreach (var entry in definition.Entries)
+                {
+                    if (!_content.TryGetPerk(entry.Perk, out var perk)) throw new InvalidOperationException("Missing innate perk: " + entry.Perk);
+                    var node = xml.CreateElement("Perk"); node.SetAttribute("Name", RuntimePerkName(perk));
+                    if (entry.Parameters.Count != 0)
+                    {
+                        var set = xml.CreateElement("Set");
+                        foreach (var pair in entry.Parameters) set.SetAttribute(pair.Key, pair.Value.ToString("R", CultureInfo.InvariantCulture));
+                        node.AppendChild(set);
+                    }
+                    root.AppendChild(node);
+                }
+                if (item == null || !item.TryOverrideInnatePerks(root, out var lifetime))
+                    throw new InvalidOperationException("Could not apply innate perks for '" + definition.Owner + "': " + definition.Item);
+                _innatePerkLifetimes.Add(lifetime);
+            }
+        }
+
+        private void ApplyDefaultEnchantments()
+        {
+            foreach (var definition in _content.ItemDefaultEnchantments)
+            {
+                if (_items == null || !_content.TryGetItem(definition.Item, out var target))
+                    throw new InvalidOperationException("Default enchantments require applied items: " + definition.Item);
+                var item = _items.KCCDBEEKBCG(target.IsCore ? target.LegacyName : target.Id.ToString());
+                var xml = new XmlDocument();
+                var root = xml.CreateElement("Enchantments"); xml.AppendChild(root);
+                foreach (var entry in definition.Entries)
+                {
+                    if (!_content.TryGetPerk(entry.Perk, out var perk)) throw new InvalidOperationException("Missing default perk: " + entry.Perk);
+                    var node = xml.CreateElement("Perk"); node.SetAttribute("Name", RuntimePerkName(perk));
+                    if (entry.Aspect.HasValue)
+                    {
+                        var set = xml.CreateElement("Set");
+                        set.SetAttribute("Aspect", entry.Aspect.Value.ToString(CultureInfo.InvariantCulture));
+                        node.AppendChild(set);
+                    }
+                    root.AppendChild(node);
+                }
+                if (item == null || !item.TryOverrideDefaultEnchantments(root, out var lifetime))
+                    throw new InvalidOperationException("Could not apply default enchantments for '" + definition.Owner + "': " + definition.Item);
+                _defaultEnchantmentLifetimes.Add(lifetime);
+            }
+        }
+
+        private void ApplyForgeDeviations()
+        {
+            foreach (var deviation in _content.ForgeDeviations)
+            {
+                if (!_content.TryGetForgeEconomicProfile(deviation.Profile, out var profile) ||
+                    !_forge.TryOverrideDeviation(profile.RuntimeRecipeName, EquipmentType(deviation.Equipment),
+                        deviation.Minimum, deviation.Maximum, out var lifetime))
+                    throw new InvalidOperationException("Could not override forge deviation for '" + deviation.Owner + "': " +
+                        deviation.Profile + "/" + deviation.Equipment + ". Target must be an existing random-aspect category without another override.");
+                _forgeDeviationLifetimes.Add(lifetime);
+            }
+        }
+
+        private void ApplyForgeExclusions()
+        {
+            foreach (var exclusion in _content.ForgeCandidateExclusions)
+            {
+                if (!_content.TryGetForgeEconomicProfile(exclusion.Profile, out var profile) ||
+                    !_content.TryGetPerk(exclusion.Perk, out var perk))
+                    throw new InvalidOperationException("Committed forge exclusion lost a referenced definition: " + exclusion.Profile + "/" + exclusion.Perk);
+                if (!_forge.TryExcludeNativeCandidate(profile.RuntimeRecipeName, EquipmentType(exclusion.Equipment),
+                        RuntimePerkName(perk), out var lifetime))
+                    throw new InvalidOperationException("Could not exclude native forge candidate for '" + exclusion.Owner + "': " +
+                        exclusion.Profile + "/" + exclusion.Equipment + "/" + exclusion.Perk + ". Candidate or equipment is missing, or another exclusion is active.");
+                _forgeExclusionLifetimes.Add(lifetime);
+            }
+        }
+
+        private void RemoveForgeExclusions()
+        {
+            for (int i = _forgeExclusionLifetimes.Count - 1; i >= 0; i--) _forgeExclusionLifetimes[i].Dispose();
+            _forgeExclusionLifetimes.Clear();
+        }
+
         private void RemovePerksAndEnchantments()
         {
+            for (int i = _innatePerkLifetimes.Count - 1; i >= 0; i--) _innatePerkLifetimes[i].Dispose();
+            for (int i = _tacticSubtypeLifetimes.Count - 1; i >= 0; i--) _tacticSubtypeLifetimes[i].Dispose();
+            _tacticSubtypeLifetimes.Clear();
+            _innatePerkLifetimes.Clear();
+            for (int i = _defaultEnchantmentLifetimes.Count - 1; i >= 0; i--) _defaultEnchantmentLifetimes[i].Dispose();
+            _defaultEnchantmentLifetimes.Clear();
+            for (int i = _forgeDeviationLifetimes.Count - 1; i >= 0; i--) _forgeDeviationLifetimes[i].Dispose();
+            _forgeDeviationLifetimes.Clear();
+            RemoveForgeExclusions();
             for (int i = _progressionBindings.Count - 1; i >= 0; i--)
             {
                 ProgressionBranchBinding binding = _progressionBindings[i];
@@ -1306,6 +1427,7 @@ namespace Eclipse.Modding
             {
                 Set(item, "Type", "Weapon");
                 Set(item, "SubType", weapon.SubType);
+                if (weapon.TacticSubtype != null) Set(item, "TacticSubtype", weapon.TacticSubtype);
                 upgradeTemplate = "Weapon_Bonus";
                 Set(item, "WeaponDamage", ResolveVanillaStat(upgradeTemplate, listing.Level, "WeaponDamage")
                     .ToString(CultureInfo.InvariantCulture));

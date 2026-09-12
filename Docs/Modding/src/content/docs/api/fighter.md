@@ -46,6 +46,44 @@ multi-bar opponents, incoming damage operations use single-bar units; do not
 equate the normalized pool with damage points. Divide health by max health for
 a fraction, guarding against a zero maximum.
 
+Since API **0.46**, each fighter snapshot also has an optional `animation` table.
+It is `nil` when the native controller is absent, stopped, or cannot provide a
+valid bounded observation. The rest of the fighter snapshot remains available.
+
+| Animation field | Meaning |
+| --- | --- |
+| `name` | Native name of the currently playing animation, including authored namespaced moves. |
+| `type` | Native authored classification: `"none"`, `"move"`, or `"attack"`. |
+| `facing` | Native orientation sign: `1` along positive model X, `-1` along negative model X. |
+| `intervals` | Array of currently active `{ name, type }` interval observations, in native order. May be empty; at most 256 entries. |
+
+Interval `type` is one of `"none"`, `"unstable"`, `"uninterrupt"`,
+`"self_uninterrupt"`, `"attack"`, `"block"`, `"invulnerable"`, or
+`"invisible"`. `name` preserves the authored interval name, or is empty when
+the native interval has no name. Custom named intervals may have type `"none"`.
+These are observations from the controller's latest interval update, not the
+animation's complete list of future windows. An active attack interval does not
+guarantee contact; an interval label does not override other native combat rules.
+
+For example, inside a callback you can detect an opponent's active attack window:
+
+```lua
+local combat = fighter:snapshot()
+local animation = combat and combat.opponent and combat.opponent.animation
+local attacking = false
+if animation then
+    for _, interval in ipairs(animation.intervals) do
+        if interval.type == "attack" then attacking = true; break end
+    end
+end
+-- Use attacking in your own Lua rule logic.
+```
+
+This requires `api = ">=0.46 <1.0"`. Animation and interval tables are detached
+values: editing them cannot start/stop an animation, turn a fighter, or add/remove
+an interval. They can be retained as historical observations, but never used as
+an AI candidate or an engine operation handle.
+
 Positions use arena model coordinates, not screen pixels or metres. The clock
 counts active fight frames across rounds, excluding round transitions and frames
 when fight processing is stopped; it is neither wall time nor the remaining round

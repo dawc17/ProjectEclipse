@@ -43,6 +43,8 @@ namespace Eclipse.Modding
     public enum ModEffectEvent { FightBegin, DamageReceived }
     public sealed class ModDamageEvent {}
     public sealed class ModIncomingHit {}
+    public sealed class ModCombatActivityEvent {}
+    public sealed class ModBattleRuleInstances {}
     public interface IModFighterOperations
     {
         bool TryChangeHealth(double amount, out string error);
@@ -51,11 +53,13 @@ namespace Eclipse.Modding
 
     public sealed class EnchantmentDefinition
     {
+        public DefinitionId Behavior;
         public bool HasBehavior;
     }
 
     public sealed class PerkDefinition
     {
+        public DefinitionId Behavior;
         public bool HasBehavior;
     }
 
@@ -90,15 +94,18 @@ namespace Eclipse.Modding
     public sealed class ModScriptSession
     {
         public ModContentCatalog Content { get; } = new ModContentCatalog();
+        public bool HasBehaviorHandler(DefinitionId id, ModEffectEvent kind) => true;
     }
 
     public static class ModRuntime
     {
+        public static void DispatchBattleRules(ModBattleRuleInstances instances,string runtimeId,bool player,int round,bool eclipse,string fightId,string result,ModEffectEvent kind,IModFighterOperations fighter) {}
         public sealed class Invocation
         {
             public string Id;
             public ModEffectEvent Event;
             public Dictionary<string, string> Context;
+            public XmlNode Node;
         }
 
         public static ModScriptSession Scripts;
@@ -140,7 +147,7 @@ namespace Eclipse.Modding
             {
                 foreach (KeyValuePair<string, string> pair in fighterContext) context[pair.Key] = pair.Value;
             }
-            Invocations.Add(new Invocation { Id = id, Context = context, Event = effectEvent });
+            Invocations.Add(new Invocation { Id = id, Context = context, Event = effectEvent, Node = perkNode });
             OnInvoke?.Invoke();
             error = string.Empty;
             return true;
@@ -160,6 +167,7 @@ public sealed class PerkInfoItem
 
 public sealed class ItemInfo
 {
+    public List<PerkInfoItem> NHBIJEEKALC = new List<PerkInfoItem>();
     public string Name;
     public string Type;
     public bool GNDLEFFMJDJ;
@@ -185,6 +193,7 @@ public sealed class UserItems
 
 public sealed class RosterStub
 {
+    public bool JPMPIDFGCJL() => false;
     public UserItems UserItems = new UserItems();
     public UserPerks UserPerks = new UserPerks();
     public UserItems KHCNHPCPFII() { return UserItems; }
@@ -234,12 +243,17 @@ public sealed class FightHarness
 {
     private sealed class EclipseFighterOperations : Eclipse.Modding.IModFighterOperations
     {
-        public EclipseFighterOperations(FightHarness fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null) { }
+        public EclipseFighterOperations(FightHarness fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null) { }
         public bool TryChangeHealth(double amount, out string error) { error = string.Empty; return true; }
         public bool TryAddMagicCharge(double amount, out string error) { error = string.Empty; return true; }
     }
 
     private bool _eclipseFightBeginDispatched;
+    private bool _eclipseOpponentDispatching;
+    private readonly ModBattleRuleInstances _eclipseBattleRules = new ModBattleRuleInstances();
+    private sealed class FightIdentity { public int BCKFACGMOKC; }
+    private readonly FightIdentity KGKDKENMAOA = new FightIdentity();
+    private readonly Dictionary<(Model,DefinitionId),XmlNode> _eclipseInnateInstances = new Dictionary<(Model,DefinitionId),XmlNode>();
     private string _eclipseFightId = "fixture";
     private string _eclipsePlayerResult = "none";
     private bool _eclipseCombatDispatching;
@@ -390,7 +404,44 @@ public static class Program
         forgedFight.Damage();
         Assert(Eclipse.Modding.ModRuntime.Invocations.Count == 7, "Damage dispatch did not release its re-entry guard.");
 
-        Console.WriteLine("Mod FightBegin runtime seam: PASS (learned perks, saved enchantments, active filtering, context, isolation, one-shot).");
+        Eclipse.Modding.ModRuntime.Invocations.Clear();
+        var innatePlayer = new ModelParameters { IsPlayer = true };
+        var innateWeapon = new ItemInfo { Name="innate_weapon",Type="Weapon",GNDLEFFMJDJ=true };
+        var innateArmor = new ItemInfo { Name="innate_armor",Type="Armor" };
+        innateWeapon.NHBIJEEKALC.Add(new PerkInfoItem { Name="example.mod:perks/active_perk" });
+        innateWeapon.NHBIJEEKALC.Add(new PerkInfoItem { Name="example.mod:perks/inactive_perk" });
+        innateArmor.NHBIJEEKALC.Add(new PerkInfoItem { Name="example.mod:perks/active_perk" });
+        innatePlayer.Items.Add(innateWeapon); innatePlayer.Items.Add(innateArmor);
+        innatePlayer.NHBIJEEKALC.Add(new PerkInfoItem { Name="example.mod:perks/active_perk" });
+        var savedItems=ListSF.Roster.UserItems;
+        ListSF.Roster.UserItems=null;
+        var innateFight=new FightHarness(innatePlayer,1);
+        innateFight.Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count==1,"Innate dispatch requires inventory, duplicates items, or ignores active filtering.");
+        var firstInnate=Eclipse.Modding.ModRuntime.Invocations.Single();
+        Assert(firstInnate.Context["source"]=="innate" && firstInnate.Context["item_id"]=="innate_weapon" && firstInnate.Context["side"]=="player","Innate provenance is missing.");
+        Assert(firstInnate.Node.ParentNode is XmlDocument && firstInnate.Node.Attributes["Name"].Value==firstInnate.Id,"Innate instance lacks detached perk identity.");
+        innateFight.Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count==1,"Innate FightBegin fired twice.");
+        Eclipse.Modding.ModRuntime.OnInvoke=innateFight.Damage;
+        innateFight.Damage();
+        Eclipse.Modding.ModRuntime.OnInvoke=null;
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count==2 && ReferenceEquals(firstInnate.Node,Eclipse.Modding.ModRuntime.Invocations.Last().Node),"Innate instance does not persist across events or reentered recursively.");
+        innatePlayer.NHBIJEEKALC.Clear(); innateFight.Damage();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count==2,"Removed/filtered innate effect still dispatched.");
+        innatePlayer.NHBIJEEKALC.Add(new PerkInfoItem { Name="example.mod:perks/active_perk" });
+        var freshFight=new FightHarness(innatePlayer,1); freshFight.Dispatch();
+        Assert(!ReferenceEquals(firstInnate.Node,Eclipse.Modding.ModRuntime.Invocations.Last().Node),"Innate state leaked into another fight.");
+        ListSF.Roster.UserItems=savedItems;
+        innatePlayer.JGCNPHDGHAK.Add(new PerkInfoItem { Name="example.mod:perks/active_perk" });
+        int before=Eclipse.Modding.ModRuntime.Invocations.Count;
+        new FightHarness(innatePlayer,1).Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count==before+1 && Eclipse.Modding.ModRuntime.Invocations.Last().Context["source"]=="perk","Learned/innate duplicate suppression changed.");
+        ListSF.Roster.UserPerks=new UserPerks();
+        before=Eclipse.Modding.ModRuntime.Invocations.Count;
+        new FightHarness(innatePlayer,1).Dispatch();
+        Assert(Eclipse.Modding.ModRuntime.Invocations.Count==before+1 && Eclipse.Modding.ModRuntime.Invocations.Last().Context["source"]=="innate","Missing learned save node suppressed equipped innate source.");
+        Console.WriteLine("Mod FightBegin runtime seam: PASS (learned/saved/innate sources, native filtering, provenance, transient instance isolation, one-shot and re-entry guards).");
         return 0;
     }
 }

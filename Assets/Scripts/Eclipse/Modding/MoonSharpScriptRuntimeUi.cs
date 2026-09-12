@@ -29,6 +29,14 @@ namespace Eclipse.Modding
                     UiHandle(args, "sf2.ui.set_value").SetValue(UiString(args, 1, "sf2.ui.set_value"), UiArgument(args,2,DataType.Number,"sf2.ui.set_value").Number);
                     return DynValue.Nil;
                 })));
+                ui.Set("set_sprite", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.set_sprite", () => {
+                    var surface = UiHandle(args, "sf2.ui.set_sprite");
+                    var handle = UiArgument(args, 2, DataType.Table, "sf2.ui.set_sprite").Table;
+                    if (!_spriteHandles.TryGetValue(handle, out var sprite))
+                        throw new ModContentException("sf2.ui.set_sprite requires a sprite handle created by this script context.");
+                    surface.SetSprite(UiString(args, 1, "sf2.ui.set_sprite"), sprite);
+                    return DynValue.Nil;
+                })));
                 ui.Set("set_checked", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.set_checked", () => {
                     UiHandle(args, "sf2.ui.set_checked").SetChecked(UiString(args, 1, "sf2.ui.set_checked"), UiArgument(args,2,DataType.Boolean,"sf2.ui.set_checked").Boolean);
                     return DynValue.Nil;
@@ -141,7 +149,7 @@ namespace Eclipse.Modding
                 if (value.Type != DataType.Table) throw new ModContentException("UI nodes must be tables.");
                 const string function = "UI node";
                 var node = value.Table;
-                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "checked", "visible", "enabled", "children", "style");
+                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "checked", "visible", "enabled", "children", "style", "sprite", "columns", "cell_width", "cell_height");
                 ModUiKind kind;
                 switch (RequiredString(node, "kind", function))
                 {
@@ -154,10 +162,19 @@ namespace Eclipse.Modding
                     case "progress": kind = ModUiKind.Progress; break;
                     case "toggle": kind = ModUiKind.Toggle; break;
                     case "slider": kind = ModUiKind.Slider; break;
+                    case "image": kind = ModUiKind.Image; break;
+                    case "grid": kind = ModUiKind.Grid; break;
                     default: throw new ModContentException("Unsupported UI widget kind.");
                 }
                 if (kind != ModUiKind.Toggle && !node.Get("checked").IsNil()) throw new ModContentException("Only toggles accept checked.");
                 if (kind == ModUiKind.Toggle && !node.Get("value").IsNil()) throw new ModContentException("Use checked for a toggle.");
+                if (kind != ModUiKind.Image && !node.Get("sprite").IsNil()) throw new ModContentException("Only image widgets accept a sprite.");
+                AssetId? sprite = kind == ModUiKind.Image ? RequiredHandle(node,"sprite",_spriteHandles,"sprite",function) : (AssetId?)null;
+                if (kind != ModUiKind.Grid && (!node.Get("columns").IsNil() || !node.Get("cell_width").IsNil() || !node.Get("cell_height").IsNil()))
+                    throw new ModContentException("Only grids accept columns and cell dimensions.");
+                double columns = UiNumber(node,"columns");
+                if (columns != Math.Truncate(columns) || columns < 0 || columns > 256)
+                    throw new ModContentException("Grid columns must be an integer from 1 to 256.");
                 var children = new List<ModUiNode>();
                 var source = node.Get("children");
                 if (!source.IsNil())
@@ -177,7 +194,8 @@ namespace Eclipse.Modding
                 return new ModUiNode(RequiredString(node,"id",function), kind,
                     UiNumber(node,"width"), UiNumber(node,"height"), OptionalStringAllowEmpty(node,"text","",function),
                     kind == ModUiKind.Toggle ? (OptionalBool(node,"checked",false,function) ? 1 : 0) : UiNumber(node,"value"), OptionalBool(node,"visible",true,function), OptionalBool(node,"enabled",true,function),
-                    UiNumber(node,"gap"), children, ReadUiStyle(node.Get("style")));
+                    UiNumber(node,"gap"), children, ReadUiStyle(node.Get("style")), sprite,
+                    (int)columns, UiNumber(node,"cell_width"), UiNumber(node,"cell_height"));
             }
 
             private static ModUiNode FindUiNode(ModUiNode node, string id)

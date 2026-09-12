@@ -223,6 +223,7 @@ public class Module : global::EventDispatcher<object>
 			}
 		}
 		CallEvent(1, DMCJGOMOJEF.ScreenType);
+		Eclipse.Modding.ModRuntime.ShowPendingBattleLottery();
 		CallEvent(2, 0);
 	}
 

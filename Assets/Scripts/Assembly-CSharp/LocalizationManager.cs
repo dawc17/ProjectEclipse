@@ -393,6 +393,15 @@ public class Language
 		}
 	}
 
+	// Host UI can supply readable defaults for newly reconstructed labels without
+	// logging a missing-key error for every frame or displaying %%ERROR%%.
+	internal static string GetStringOrDefault(string key, string fallback, params string[] arguments)
+	{
+		if (string.IsNullOrEmpty(key) || ILAJKOBCHFH == null ||
+			(!EclipseExternalStrings.ContainsKey(key) && (KCAMAIIHKKH == null || !KCAMAIIHKKH.ContainsKey(key)))) return fallback;
+		return GetString(key, arguments);
+	}
+
 	public static string GetString(string PEMOECLNECD, params string[] JCICKLIMBEF)
 	{
 		if (PEMOECLNECD == null || ILAJKOBCHFH == null)

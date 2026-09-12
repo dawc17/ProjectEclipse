@@ -2124,3 +2124,340 @@ checks, including interrupted quest receipt replay, new completed runs, definiti
 changes and profile replacement. Assembly-CSharp managed compilation passed.
 Public Lua API remains 0.40.0; save-compatibility documentation updated. Unity
 playtest remains pending.
+
+2026-09-12: Replaced the top-level DialogLottery no-op with saved draw presentation.
+FightName uses native quest expression resolution; exactly one mode/level lottery
+is required. The action completes only after claiming (or replay of its receipt).
+Later/scene teardown preserves the claim; the active presenter reopens on the next
+non-combat scene. Paid SpinNumber continuation and native Lock are rejected rather
+than guessed. Remaining work includes paid rerolls, fight-end dispatch, nested and
+concurrent quest identities, localized labels/artwork and full-game acceptance.
+TestLotteryDialog passes 23 production dialog/presenter checks with controlled
+claim and Unity services; TestLotteryClaim passes 51. Managed game compile passed.
+
+The user caught a Unity import failure missed by managed compilation: the newly
+added ModQuestInvocationLedger GUID was 33 hex characters. Corrected it to 32;
+there were no serialized references to the invalid value. An Assets-wide GUID
+format scan found no other malformed guid lines. Lottery claim checks now also
+validate metadata for all five new lottery/save scripts. Unity reimport has not
+yet been observed in Editor.log; native import/playtest remains unverified.
+Unity verification follow-up: Editor.log now records successful import of ModQuestInvocationLedger with corrected GUID, assembly reload and entry into play mode. Library/ScriptAssemblies runtime/game DLLs refreshed at 14:57:41/43. The reported missing-type import failure is resolved; lottery gameplay/visual acceptance remains pending. Wiki build passed (48 pages, 4039 links); git diff --check passed.
+
+2026-09-12: Added production PrepareQuestLotteryClaim coverage for saved source
+independence, acknowledged action replay, claim ownership, missing fight, missing
+lottery, ambiguous lotteries and ineligible slots. TestLotteryClaim passes 60
+checks; native content lookup/reward evaluation remain controlled in this fixture.
+Lottery preview now resolves native item/currency display names and level suffix;
+Claim/Later/title use existing localization keys. New host status/scalar labels
+have explicit fallback keys and readable English defaults. Missing keys do not
+emit localization errors. Original parchment/font renderer remains in use.
+TestLotteryDialog passes 23 checks. Managed game compile passed. Public Lua API
+unchanged; wiki save contract updated. Native visual acceptance remains pending.
+
+2026-09-12: API 0.41 adds reusable image UI widgets. Runtime nodes require typed
+sprite identity and positive dimensions; Lua consumes owned sprite handles, not
+paths or Unity objects. The production view loads through the existing typed
+asset host, preserves aspect, disables artwork raycasts, and retains loader-owned
+sprites when the view closes. Missing sprites fail mount. Text/value/children and
+style overrides are rejected for images. Wiki, editor schema/generated contracts,
+charge-ui starter guidance and LuaLS completion coverage updated together.
+Verification: TestModUiRuntime 124 checks; TestModUiLua 818 actual Lua checks;
+TestModUiUnity 101 isolated production Unity hierarchy/input/lifetime checks with
+controlled asset service, including aspect preservation and sprite lifetime.
+Managed editor/game compile, editor generate/check/project tests, LuaLS integration
+and VS Code integration passed. VS Code run used node test/run-vscode.cjs with the
+installed Code.exe directly after npm argument escaping prevented the first run.
+The LuaLS optional sprite field is labeled sprite?, and the assertion now accepts
+that protocol label. Wiki build passed (48 pages, 4042 links).
+Lottery artwork consumption and full-game visual acceptance remain pending; the
+new widget is reusable by all mods and is not DE policy or content porting.
+2026-09-12: Lottery artwork now uses the shared image widget, saved slot/item icon resolution and optional-art fallback. Compact text layout keeps short rewards visible. TestLotteryArtwork passed 7 checks; TestLotteryDialog passed 25; managed editor compile passed. Full-game visual acceptance remains pending.
+
+2026-09-12: Corrected native fight-end lottery detection. GameUtils.EndFight now
+uses the already composed result prize rather than scanning every reward scope
+and re-evaluating expressions after progression/level-up. A lottery in a different
+win-count reward no longer suppresses normal quest events. Surrenders are excluded.
+TestBattleResultFlow passes 16 full extracted EndFight checks with controlled
+collaborators, including source/result disagreement, no detection re-evaluation,
+loss and surrender. Managed editor/game compile passed. Underworld runtime passed
+1282 assertions. AuditUnderworld ran and reported missing loose location images;
+its source only checks Resources files/plists, not packaged art bundles, so this
+is not evidence of an in-game asset failure or a clean asset audit. Wiki build
+passed (48 pages, 4042 links). Automatic battle-won lottery presentation and
+full-game reward acceptance still remain to be connected/verified.
+2026-09-12: Native RosterQuest checkpoint writes and QuestStage resume now preserve lottery/raid condition context through optional EclipseLotteryContext metadata. Last spin, inLottery, awarded item and raid identity survive XML reload; ordinary checkpoints do not gain metadata and clear stale lottery context. Malformed context rejects before partial mutation. TestLotteryClaim passed 67 checks; managed editor/game compilation passed. This is context persistence, not completed battle-lottery scheduling. Wiki updated; full-game acceptance pending.
+
+2026-09-12: Battle-won lottery draws now carry saved BattleEnd context, show after
+combat, and queue native fight-end quests after claiming. Reload between claim
+and event acceptance resumes the continuation; pending rewards block new fights.
+TestLotteryClaim passed 80 controlled claim/recovery checks; TestBattleResultFlow
+passed 16 extracted native EndFight checks. Empty/invalid reward pools still fail
+as authoring errors; no implicit fallback reward policy or paid spins were added.
+
+2026-09-12: Fixed queued native quest context and checkpoint resumption. Acceptance
+copies event scalar fields, fight IDs and purchase payload values. Each resumed
+quest reads its own checkpoint, preserves its action position, and does not rerun
+the entry checkpoint. Native average FPS now restores too. Tests execute the full
+production quest manager, production QuestParameters/FightIDS and extracted stage
+capture with controlled quest execution/roster services: 585 checks passed.
+Run/Foreach/resume routing passed 15, managed editor compilation passed, wiki build
+passed (48 pages, 4042 links), diff whitespace check passed. Underworld fixture
+reported 1282 passing assertions; its surrounding shell wrapper incorrectly
+returned 1 by checking an unset LASTEXITCODE for a pure PowerShell script. Inspected
+the script and complete output to confirm the fixture finished its final PASS.
+Full-game scene, reward and queued checkpoint acceptance remains pending; checklist
+and public save contract updated. No DE content port or new Lua binding this turn.
+
+2026-09-12, P2B.3 / E4: API 0.42 adds sf2.ui.set_sprite for live character,
+equipment and reward artwork without rebuilding a surface. Uses context-owned
+sprite handles, immutable widget snapshots and typed asset loading. Replacements
+preserve layout/aspect/input behavior and never destroy loader-owned assets.
+Unchanged identity avoids reload; render failure closes the owned surface.
+Updated ModUiRuntime.SetSprite, MoonSharpScriptRuntimeUi, ModUiView.UpdateWidget,
+wiki, editor schema/generated contracts, starter guidance and LuaLS coverage.
+This supplies reusable preview behavior for G04 reward/chest presentations, not a
+DE port. No economic mutation exposed. Verification: 130 runtime UI checks, 833
+actual Lua UI checks, 105 isolated Unity hierarchy/input/lifetime checks; managed
+editor compilation; editor generate/check, 25 project tests, LuaLS and installed
+VS Code integration passed. Full-game acceptance and broader rich-widget
+requirements remain pending. Wiki build passed; final link output recorded below.
+Final API 0.42 wiki verification: 48 pages, 4047 local links/assets, 136 documented functions/aliases/callbacks; diff whitespace check passed.
+
+2026-09-12, P2B.3 / E4: API 0.43 adds typed fixed-column grid layout with columns,
+cell_width/cell_height and existing gap, children and game theme. ModUiNode validates
+its grid-only fields and ModUiView consumes them through Unity GridLayoutGroup.
+Lua retains the existing dense-tree/depth/node/ownership checks. Focus now reveals
+its control in vertical ScrollRects, making lower grid rows reachable visibly.
+Wiki has a complete six-choice example and explicit sizing/navigation limits;
+editor schema/generated contracts, starter guidance, LuaLS and checklist updated.
+Verification: managed editor compilation passed; TestModUiRuntime 142,
+TestModUiLua 852, isolated TestModUiUnity 113 production hierarchy/input/lifetime
+checks. Unity confirms actual cell size/wrapping, native font/button art, disabled
+focus skip, lower-row scrolling and cleanup. Editor generate/check, 25 project
+tests, LuaLS and installed VS Code integration passed. Wiki: 48 pages, 4050 links;
+diff whitespace check passed. No economic mutation or DE port. G04 reward/chest
+selectors and E4 character/loadout selectors can reuse this layout. Virtualized
+collections, spatial grid navigation and full-game acceptance remain open.
+
+2026-09-12, P2B.3 / E4: Added spatial grid focus navigation through production
+ModUiView.NavigateFocus, ModUiCoordinator and ModUiGameBridge.Route/Update.
+Arrows/D-pad/stick use visible control geometry; horizontal movement stays in
+its row and vertical movement prefers overlapping columns. Hidden/disabled
+controls are skipped and focus reveals scrolled rows. Tab retains ordered
+traversal; Shift+Tab reverses it. Slider horizontal input remains an adjustment
+even at an endpoint. Non-grid vertical traversal retains its prior behavior.
+Managed editor compile and 126 isolated Unity UI checks passed, including actual
+bridge directional/sequential routes, grid edges, column movement, disabled
+neighbors, scroll return and slider endpoint ownership. Wiki build passed: 48
+pages, 4050 links; whitespace diff check passed. No new Lua binding or economic
+mutation. API remains 0.43. Physical keyboard/controller and full-game acceptance
+remain pending; virtualized collection work is still open. Checklist updated.
+
+2026-09-12, P1D.4/P1D.5 / E5: PackageCharacter now accepts additional named clips
+via --clip NAME KEY MID_FRAMES FILE. Each uses the shared validated rig/skins,
+retains its native bytes, gets its own timing/hash/control sidecar and point
+preview, and registers as an editable character-scoped move. The generated Lua AI
+cycles through eligible clips; the module preserves warrior/move returns and adds
+a moves table. Duplicate identities/controls and invalid clips reject before
+publishing. Primary Punch plus seven distinct preview controls are supported;
+the package has a two-million aggregate node-sample budget. Controls follow the
+native key allowlist in ModContentP1D.ModMoveKey; generated moves continue through
+public registration and programmable AI, not a private controller.
+Verification: seven Python packager tests pass, including payload/timing/control,
+CLI, validation/output protection and aggregate budget. Actual Lua registration
+of a generated two-clip package passes map/fight/mode wiring, native frame bounds,
+mid_frames/control metadata and AI clip advance. Unity's unchanged animation
+reader passed 32 checks on its three-frame/two-node test clip. These synthetic
+fixtures do not establish full-rig visual/playable acceptance; unchanged Blender
+export was not rerun. Wiki built 48 pages/4053 links; checklist and tool guide
+updated. API remains 0.43, no economic mutation or DE port. Full custom forms,
+controllers, retargeting and full-game authoring acceptance remain open.
+
+2026-09-12, P1D.4/P1D.5 / E5 and P5.2: Closed a verification gap between
+packaged clip registration and native AI candidate filtering. New
+TestModAiEligibility executes ModelAi.GetPlayableAnimations/IsPlayableAnimations
+and production ModCharacterCondition with controlled model/animation predicates
+and key metadata. Fourteen checks cover two authored clips, index alignment,
+foreign characters, uninterruptible state, event-only actions, priority competitors,
+missing conditions and preservation of the model's original animation list.
+Integrated into TestModAi: 30 actual Lua AI tests also pass. Generated multi-clip
+Lua checks now assert pacing, cycling, skipping unavailable clips and empty-list
+fallback. The two-clip generated package passes those checks. No gameplay source
+or API changed this turn; this is stronger automated evidence, not native visual
+or contact-physics acceptance. Wiki verification guidance updated. No economy
+mutation or DE port; controllers/forms and broader engine domains remain open.
+
+## 2026-09-12: AI candidate metadata (P1D.5 / E5, API 0.44)
+
+- Native AI now snapshots InfoAnimation.Type and Priority alongside Name. Lua on_decide candidates expose type (none/move/attack) and priority; these describe authored native metadata, not hit predictions or an AI utility score. The safe runtime DTO contains no recovered engine references. Existing name-only host calls retain an adapter.
+- Candidate identity remains bound to this decision. Actual MoonSharp tests select by metadata, mutate the returned Lua table, and confirm both original host data and subsequent decisions remain unchanged. Existing stale/forged-action, per-controller memory, instruction-bound and native-fallback checks remain covered.
+- Updated public callback guide/example, manifest API version, authored editor schema/generated contracts, starter guidance and LuaLS completion checks in the same change.
+- Validation: managed Assembly-CSharp-Editor build passed; 14 native eligibility fixture checks and 35 actual Lua AI checks passed; editor generation/check, 25 project tests and LuaLS passed; wiki built 48 pages and checked 4053 links. VS Code integration initially exposed an existing asynchronous quick-fix diagnostic assertion race; the test now waits for the published diagnostic removal with a 10-second bound, and the integration rerun passed.
+- Limits: no full-game combat or physical input playtest in this pass. Native classification is not guaranteed damage behavior; duration, attack reach/prediction and broader AI/character pipeline gaps remain open. DE port remains deferred.
+
+## 2026-09-12: AI timing and input observations (P1D.5 / E5, API 0.45)
+
+- AI candidates now carry detached timing (inclusive first/last sample, MidFrames, nominal frame/second length, loop flag) and input metadata (control plus tap/hold/release). Modders can choose the shortest non-looping kick or authored control combination without hard-coding native action names. Original candidate identity and native eligibility/dispatch remain authoritative.
+- Evidence: MovesParser assigns MidFrames/FirstFrame/EndFrame; InfoAnimation.PGOFHCBPLOE and ONLKMFOENEH define inclusive sample count and nominal simulation length; NCEKKNIMHAG exposes loop status. Model's AI dispatch uses the same ILBCHANCOBP().FONEJOKEIEN key combination. ConditionKeys maps tap/hold/release lists, and MovesMaps supplies the control names. No claim of predicted recovery, contact, completion or slow-motion-adjusted duration.
+- Immutable runtime DTOs copy input collections, bound entries to 64 and validate timing without integer overflow. Lua gets new nested tables each decision, never engine objects or mutable native lists. Name-only host adapters retain nil timing and empty inputs.
+- Updated wiki fields/examples, manual checklist, schema/generated editor definitions, shipped/starter guidance and nested LuaLS completions. The initial project test caught starter/example comment drift; both now match and all 25 project tests passed.
+- Checks passed: managed Editor/dependency compile; 14 native eligibility checks; 37 production adapter/native nominal formula/mapping/bounds/isolation checks; 40 actual Lua AI checks; editor generate/check/build, 25 project tests, LuaLS and VS Code integration; wiki 48 pages/4056 links; diff whitespace check.
+- Full-game combat, physical controls and authored-clip visual acceptance were not run. These changes advance programmable observations; broader AI/controller/animation and DE parity gaps remain open. DE port deferred.
+
+## 2026-09-12: live animation observations (P1D.5 / E2 / E5, API 0.46)
+
+- Both AI event sides and fighter:snapshot sides now expose an optional detached animation observation: current name/type, facing, and active interval name/type entries. Lua can react to attack/block/invulnerable/uninterruptible windows and custom named intervals without name-based guesses or engine references.
+- Native capture reads Model.OCPMJKIEPIG and ModelAnimation.NMEEPBDJHMG/NNMAFFCCMHC/KFCNPADAMHA/PCKKMNHDDMP. The latter is the live list maintained by SetIntervals, not the full authored interval collection. Stopped/missing/malformed/unbounded controllers yield nil animation without fabricating state or losing health/position observations. Maximum 256 intervals; runtime collections copied/read-only; Lua receives fresh nested tables.
+- Shared projection is wired through ModRuntime AI capture and Fight's combat snapshot source. No mutation capability is added. Returning an animation observation instead of a current AI candidate remains invalid.
+- Updated fighter/AI wiki sections and examples, manual checklist, API version, authored schema/generated contracts, shipped/starter comments and LuaLS nested-field inference tests.
+- Passed managed Editor/dependency compilation; 14 eligibility and 56 native adapter/getter/timing/mapping/copy/bounds fixture checks; 49 actual Lua AI checks; 210 actual Lua battle-rule checks including fresh nested snapshot isolation; editor generate/check/build, 25 project tests, LuaLS and VS Code integration; wiki 48 pages/4060 links; whitespace check.
+- Verification limits: native model state and interval activation are controlled in adapter fixtures. Full-game interval timing, physical input, visuals and combat acceptance remain unverified. This advances observations, not the entire programmable AI/animation/controller or DE parity roadmap. DE port remains deferred.
+
+## 2026-09-12: playable reactive AI example (P1D.5 / E8)
+
+- AI Dojo 1.1.0 now appends Reactive Guardian as its fourth opponent, using the native Man_Staff template (staff and green armor). The existing three fighter/encounter IDs and order remain. Requires API >=0.46; base API version unchanged.
+- Its Lua brain uses active attack intervals to prioritize a legal backward tap/hold movement at close range, even during its voluntary attack pause. Otherwise it chooses the shortest nominal non-looping kick-tap candidate; native tactics approach at long range or handle missing candidates. No native move-name matching in this brain, no new animation/art claim, and no guaranteed dodge/recovery prediction.
+- Tests execute the shipped Lua and verify fourth-encounter/warrior/template/tactic wiring, shortest candidate selection, looping/missing metadata fallback, timing-based pacing, defense priority, release-only rejection, held-input acceptance, absent/far opponent, interval truth versus misleading animation names, empty shortlist and controller memory isolation.
+- Kept shipped and editor starter files identical; updated READMEs, example index, AI reference and manual checklist. No Lua editing is needed to play the new example: enable AI Dojo, Apply & Restart, win the first three encounters and test Reactive Guardian.
+- Passed 14 eligibility + 56 native snapshot fixture + 65 actual Lua AI checks, showcase runtime compile/registration, editor generation/check/build, 25 project tests, LuaLS and VS Code integration; wiki 48 pages/4060 links and whitespace check. Full-game combat/visual/input acceptance remains pending. Broader API/DE parity roadmap still open; DE port deferred.
+
+## 2026-09-12: native content-to-AI verification (P1D.5 / E5 / E8)
+
+- Added TestModAiNativeContent.ps1: builds current Assembly-CSharp and dependencies, loads the actual compiled native parser/reader/AI adapter, parses selected canonical vanilla definitions with their full template graph and real shipped 67-node clip bytes. Native cache prewarming bypasses only Unity resource I/O; no reader/parser/adapter method is substituted.
+- Verified StepBack and StaffStepBack are move/Back-tap candidates, HighKick and LowKick are attack/Kick-tap candidates, and native inclusive clip bounds resolve before the AI snapshot. Nominal lengths are 39, 39, 54 and 48 frames respectively.
+- TestModAi.ps1 runs this in a separate PowerShell process to isolate real native types from controlled fixtures. Its emitted JSON snapshots drive the shipped Reactive Guardian Lua: retreat with staff metadata, shortest native kick when idle, and kick fallback when retreat is not offered.
+- Checks passed: current native managed build; 14 native eligibility + 56 adapter/getter + 33 real-content parser/reader/adapter + 69 actual Lua AI checks; showcase runtime registration; wiki 48 pages/4060 links; whitespace check. Updated example/starter READMEs and public reference with exact verification scope. API unchanged at 0.46.
+- The initial direct native parser attempt reached Unity Application.dataPath outside Unity; cache prewarming resolves that test-environment limitation without changing production code. Native in-fight eligibility, opponent state, hit reactions, physical playback and rendering remain unverified. These are still separate acceptance requirements; broader roadmap open, DE port deferred.
+
+## 2026-09-12: reversible native forge exclusions (G12 / E7, internal foundation)
+
+- Added internal Recipe/ForgeManager.TryExcludeNativeCandidate returning an IDisposable lifetime. A recipe/equipment/perk exclusion filters every matching native candidate occurrence without mutating native Variation/Perk data, original order, price objects, item deviations or source XML. Independently added external candidates remain available, allowing a future remove-and-replace contract.
+- Missing recipes/equipment/perks and duplicate active exclusions fail without a lifetime. Independent keys compose. Disposal restores native candidates; repeated disposal cannot remove a newer exclusion for the same key.
+- 19 checks execute production exclusion/lifetime/filter methods with controlled item/perk services, including other equipment isolation, external candidate level gates, already-equipped filters, duplicate native occurrences, rollback and stale lifetime disposal. Managed Editor/dependency compilation and existing P1C contract checks passed; whitespace clean.
+- This is NOT a new Lua capability or completion of G12. Pending: typed registration and ownership/conflict validation, legacy adapter apply/unload/rollback integration, public binding/schema/example, and gameplay acceptance. Public wiki now explicitly states current core candidate-edit limitation. API remains 0.46; DE port deferred.
+
+## 2026-09-12: public forge candidate exclusions (G12 / E7, API 0.47)
+
+- Added sf2.forge.exclude_candidate with core profile/perk handles and equipment category. Requires content.patch; lookups require content.register and a core dependency. Definitions record mod ownership and participate in transactional conflict validation. Native application retains disposable exclusion scopes and restores them on teardown or partial failure.
+- Public wiki now documents required fields, example, duplicate conflicts, apply-time native validation, restoration and limits. Updated editor schema/generated contracts, guide counts and LuaLS table-field completion.
+- Passed 21 actual Lua registration checks (ownership, independent categories, conflicting transaction atomicity, duplicate/capability/category/unknown-field/forged-handle rejection and retry), 19 native filtering/lifetime checks, and 9 checks using the real compiled LegacyContentAdapter/ForgeManager/Recipe with the canonical Complex XML. The latter runs public ApplyPerksAndEnchantments and the native teardown method, including failure on a second missing candidate and subsequent successful reapplication.
+- Managed Editor build and P1C static contracts passed. Editor generation/check/build, 25 project tests, LuaLS and VS Code integration passed. Wiki built 48 pages and validated 4064 links before the final profile casing clarification.
+- Full-game mod unload, preview rendering and forge rolls remain unplayed. Native adapter fixture bypasses Unity file discovery and uses an empty PerkItems service; it does not claim full gameplay acceptance. G12 still has native family/item/condition editing gaps. Broader goal remains active; no DE port.
+Final verification: combined forge runner passed all 49 checks; final wiki rebuild after casing clarification passed (48 pages, 4064 links).
+
+## 2026-09-12: native deviation override foundation (G12 / E7)
+
+- Evidence review: Simple/Medium RecipeItem deviation fields are also embedded independently in native PerkStruct Set Aspect expressions. Changing the item DTO alone would not change native rolls. QuestCondition.RandomAspect adds the requested random delta to ForgeManager.GetAspectValueByLevel; the base level curve remains core-owned. The existing custom-family contract already exposes candidate deviation deltas.
+- Recipe/ForgeManager now provide an internal reversible deviation override for an existing random-aspect equipment category. The overlay preserves native item identity on restoration, original price-block names and price object identity, enchantment count, bar scale, candidate source data and all fixed/compound aspect expressions. Candidate copies use the override only for a complete native RandomAspect call. Native and external candidate copying share this path; the original variation objects are never edited.
+- Invalid/missing/non-random targets and duplicate active overrides fail. Inclusive minimum/maximum bounds are constrained to -10000..10000 with minimum <= maximum. Independent equipment keys can compose; disposable ownership prevents stale teardown from removing a newer override.
+- Passed 21 real compiled native projection/identity/restoration checks with canonical forge XML, all 49 forge exclusion checks and managed Editor compilation. No full gameplay random roll, native UI rendering or Unity unload acceptance in this pass.
+- Still internal, API remains 0.47. Next required work: typed Lua registration, transaction conflict/save fingerprint integration, adapter lifetimes, schema/docs/example and gameplay checks. This is progress on the full G12 scope, not its completion; the other roadmap gaps and deferred DE port remain unchanged.
+
+## 2026-09-12: public forge deviation API (G12 / E7, API 0.48)
+
+- Added sf2.forge.override_deviation with a typed core profile, equipment category and required inclusive integer bounds. Capability/content dependency checks, per-target mod ownership, transaction capacity/conflicts and rollback match other core patches. Limits -10000 <= minimum <= maximum <= 10000; native apply rejects categories without existing random aspect.
+- Native adapter retains deviation lifetimes alongside exclusions. A later failed deviation restores both prior deviations and exclusions; teardown and reapplication use production code. Compatibility fingerprint includes sorted profile/category/owner/bounds; changing bounds is detected while registration order is irrelevant.
+- Updated wiki function reference and save guide, API version, authored editor schema/generated contracts, editor guide and LuaLS completion probe. Updated G12 audit to distinguish supported targeted operations from downstream port/gameplay acceptance and remaining arbitrary family/condition editing.
+- Passed managed Editor build; 43 actual Lua forge registration/fingerprint checks; 19 native candidate filtering/lifetime checks; 14 compiled native adapter composition/teardown/partial-failure checks; 21 compiled native deviation projection/identity checks; P1C static contracts. Editor generation/check/build, 25 project tests, LuaLS and VS Code integration passed. Wiki built 48 pages with 138 documented functions; full game roll/render/unload acceptance remains pending.
+- G12 operations now cover the cited Complex candidate removals and Simple deviation edits. No DE content was ported, no base economy/level curve changed. Broader G01-G14/E1-E8 goal remains active.
+
+## 2026-09-12: default equipment enchantment foundation (G11 / E7)
+
+- Evidence: ItemInfo parses Enchantments into LFIGBCDJHPG for previews and APMJCGBNEDI for acquisition. UserItem.PJEEGECBHMH reads the latter when ItemBuyHelper/ListSF acquire equipment. Permanent Perks instead populate NHBIJEEKALC; these must not be conflated. Existing UserItem saved Enchantments are separate.
+- Added internal ItemInfo.TryOverrideDefaultEnchantments: prepare both lists using the actual native perk resolver/clone and PerkStruct parser before publishing. Missing/duplicate perks, malformed children, more than 64 entries and concurrent overrides fail without changing either list. Empty loadout is explicit removal. Scoped disposal restores original list identities and cannot remove a newer override. The method does not touch UserItem save nodes, inventory or shared stats/costs.
+- 24 checks against actual compiled native types pass: preview/grant agreement, input XML and Set parameter isolation, parameterized preview clone, missing second perk atomicity, duplicates/conflicts, empty loadout, maximum/oversized loadouts and stale/repeated disposal. Managed Editor/dependency compilation and whitespace checks passed.
+- API remains 0.48. This is an internal prerequisite, not public G11 completion. Next: typed item loadout registration including core/owned reference validation, conflict/fingerprint handling, application after perk definitions are available, lifecycle integration, public/editor documentation and grant/save/gameplay acceptance. Permanent innate effects and non-economic metadata remain separate work. No DE port.
+
+## 2026-09-12: default enchantment content/adapter integration (G11 / E7)
+
+- Added immutable typed default-enchantment entries (perk plus optional integer aspect) and per-item loadout definitions to the content transaction. Equipment-only target validation, declared-reference checks, 64-entry bound, duplicate detection, copied arrays, deterministic ownership conflicts and transaction capacity/rollback are implemented. Empty lists express removal. No Lua function is exposed yet.
+- Native adapter applies default enchantments only after owned items and base perks exist, updates both preview and acquisition lists through the verified ItemInfo scope, and restores loadouts before removing external perks/items. Missing later native items roll back previous loadouts. Optional aspect is emitted as a numeric Set value, never a raw expression DSL.
+- Compatibility fingerprint includes sorted item loadouts, owner, entry order, perk IDs and optional aspects. Tests distinguish changed aspects and validate failure atomicity/caller array isolation.
+- Passed 33 compiled native/content/adapter checks, managed Editor/dependency build and P1C static contracts. Tests execute actual frozen catalog-to-adapter projection and native teardown; inventory grant, saved profile and UI rendering remain unplayed.
+- API version stays 0.48 until Lua binding, capability checks, editor schema/reference/example and actual Lua tests are complete. Those are next, followed by acquisition/save acceptance. Permanent innate effects, metadata and broader G11/engine gaps remain open. No DE port.
+
+## 2026-09-12: public default equipment enchantments (G11 / E7, API 0.49)
+
+- Added sf2.items.set_default_enchantments with typed item/perk handles, optional integer aspect, explicit empty-loadout semantics and content.patch enforcement. Strict Lua table validation rejects unknown fields, sparse arrays, forged handles and fractional aspects. Core/owned/dependency item resolution and native integration use the previously verified transaction/adapter contract.
+- Updated public reference with manifest requirements, a visible early-game Knives example, materialization/order constraints, restoration and save limits; updated save guide, gap audit, editor schema/generated definitions, README and LuaLS nested-entry completion. No generic XML/operation DSL introduced.
+- Passed managed Editor/dependency compilation; 60 actual Lua forge/loadout/fingerprint checks (17 new loadout checks), 33 compiled default-enchantment checks, 19 native forge exclusion checks, 14 forge adapter checks and P1C contracts. Editor generation/check/build, 25 project tests, LuaLS and VS Code integration passed. Wiki built 48 pages and checked 4072 links. Full-game acquisition, save retention and UI rendering remain unverified.
+- Permanent innate perks, metadata, contextual acquisition and broader roadmap gaps remain open. API 0.49 is not G11 completion. No DE port.
+
+## 2026-09-12: native innate equipment effect foundation (G11 / E7)
+
+- Traced permanent ItemInfo.NHBIJEEKALC through ModelParameters.JBIOECDAAKP: equipped-item perks enter the combat list and are marked as weapon/non-weapon. These are distinct from default enchantment previews and acquisition payloads. A shared registry reference would leak that mutable marker across equipment.
+- Added internal TryOverrideInnatePerks with full prevalidation, cloned native perk instances, 64-entry bound, duplicate/missing rejection and reversible original-list identity. It supports explicit empty loadouts and optional native Set data without modifying acquisition defaults or profile saves. Clones retain the native parser/evaluator contract; no new Lua API or raw-XML public access.
+- 19 actual compiled native checks pass, including real ModelParameters equipment collection, marker isolation from armor/registry, restoration reflected in subsequent collection, duplicate/missing atomicity, 64/65 bounds and stale/repeated disposal. Existing 33 default-enchantment checks and managed Editor compilation pass.
+- API remains 0.49. Public typed innate loadout registration, ownership/fingerprint/adapter handling, Lua/editor/reference support and real fight acceptance are pending. Already constructed fight snapshots are not refreshed by this seam; apply/teardown must remain at supported content lifecycle boundaries. Full G11/engine scope stays open; no DE port.
+
+## 2026-09-12: innate equipment content/adapter integration (G11 / E7)
+
+- Added immutable innate perk entries with up to 64 named finite numeric parameters and per-equipment loadout definitions. Transaction validates equipment/reference ownership, duplicate perks/targets and capacity; deterministic conflict key is separate from default enchantments, so the two compose. Parameters are copied and serialized as literals, with identifier validation; no expression DSL.
+- Native adapter applies after item/perk definitions, retains scopes and restores innate lists before other equipment defaults/perks are removed. A missing later target rolls back both innate and acquisition-default changes. The existing model collector consumes adapted innate effects without inventory writes.
+- Compatibility fingerprint includes sorted item targets/parameter keys, entry order, owner, perk and parameter values. Changed parameters produce different hashes.
+- Passed 30 actual compiled content/native/adapter/collection checks (including copied parameter isolation and finite/name validation), 33 default-enchantment checks, P1C static contracts and managed Editor/dependency compilation. No live fight callback, damage, save or rendering acceptance claimed.
+- API stays 0.49: Lua binding/capability checks, schema/reference/examples and actual Lua loadout tests remain next. Broader G11/G01-G14/E1-E8 goals stay open; no DE port.
+
+## 2026-09-12: public innate equipment perks (G11 / E7, API 0.50)
+
+- Exposed sf2.items.set_innate_perks with typed item/perk handles, dense bounded arrays and optional finite numeric native parameters. Capability/dependency/ownership and immutable transaction/lifecycle checks use the verified implementation. Names are bounded ASCII identifiers, values are finite float literals; raw expressions/booleans/NaN/infinity are rejected.
+- Lua-backed owned perks may attach directly with their registration-time initial parameters. Nonempty loadout parameters for those perks are explicitly rejected instead of silently treating native Set fields as Lua initial values. New actual Lua test covers pending owned perk attachment and atomic rejection of that misuse.
+- Updated API reference, save guide, gap audit, schema/generated editor contracts, README, nested LuaLS completion and manual checklist. Original game style unchanged; no new generic UI is introduced by this content API.
+- Passed managed Editor/dependency compile; 86 actual Lua forge/loadout/fingerprint checks (26 new innate cases), 30 compiled innate checks, 19 native forge filtering and 14 adapter checks, plus P1C contracts. Editor generation/check/build, 25 project tests, LuaLS and VS Code integration passed. Wiki builds 48 pages; final rebuild follows the explicit Lua-parameter clarification.
+- No live fight effect/callback acceptance yet. The operation does not refresh existing fight snapshots. Activated ability mechanics, metadata, broader G11 and other engine gaps remain open; no DE port.
+Final API 0.50 wiki rebuild passed: 48 pages and 4076 local links/assets checked after Lua-parameter clarification.
+
+## 2026-09-12: player innate Lua dispatch repair (G11 / E1)
+
+- Audit found the new equipment innate list reached native model collection but player callback routing only covered learned/profile perks and saved enchantments. Opponent routing already uses the active model perk list. Fixed player dispatch to inspect equipped innate sources, intersect native final active-perk names, and dispatch through the existing perk evaluator with a detached per-model/perk node.
+- Innate context identifies source=innate plus item/perk/fight metadata. Shared deduplication makes learned perks take precedence, then innate, then saved enchantments. Innate processing precedes inventory lookup, so rule-supplied equipment and absent UserItems do not suppress it. State persists across events within the same fight and is cleared at fight initialization; it is not profile-backed.
+- Updated the old FightBegin fixture's unrelated stubs to match the current production dispatch signature and added regressions for innate delivery without inventory, duplicate items, native filtering/removal, provenance, detached node reuse/isolation, one-shot/re-entry and learned/innate deduplication. The fixture executes the actual production dispatch method; Lua invocation/profile/fighter services remain controlled. Existing saved/learned regressions still pass.
+- Managed Editor/dependency compile and 30 native innate registration/adapter/collection checks pass. Public guide now states source, precedence and state lifetime. API remains 0.50. Full fight-to-Lua execution and live gameplay remain acceptance work; no DE port or broad completion claim.
+
+## 2026-09-12: compiled runtime innate Lua execution and fallback repair
+
+- Added TestModInnateLua/ValidateModInnateLua: actual compiled ModRuntime, ModScriptSession and MoonSharp registration/invocation, with controlled physical health operations. Eight checks pass for registration parameters, fight state across rounds, independent detached nodes and missing definition rejection. This complements native collection/adapter and extracted production dispatch checks; it is not a full running Fight or Unity playtest.
+- Found learned-perk dedup claimed an ID before resolving its saved node. Moved ownership until the saved instance exists, allowing active equipped innate fallback. Production dispatch regression and managed Editor build pass. Public guide and checklist updated.
+- The standalone host emits MoonSharp's caught Unity resource-loader initialization warning; Eclipse's mod loader still executes the real entrypoint and handlers. No Unity native rendering/physical operations are asserted. Broader roadmap remains open; API stays 0.50, no DE port.
+
+Final verification: wiki build passed (140 documented functions, 48 pages, 4076 links); compiled-runtime Lua fixture passed again after rebuild.
+
+## 2026-09-12: native AI equipment classification repair (G11/G09)
+
+- Evidence: canonical list.xml contains TacticSubtype distinct from SubType; ItemInfo never read it. Model passed animation subtype to all four AI init/update sites. Added a separate native classification property with dynamic subtype fallback, preserved in clone/merge; only AI consumers changed. Moved classification parsing into a private helper used by the original parser so it can be exercised without unrelated Unity commerce/platform services.
+- SetWeaponBot incorrectly wrote HCJOIHLKOKJ (enemy group) while native decision table selection reads EIMKBOMDAAE (own group). Corrected this assignment; independent own/enemy/disarm updates are verified with compiled native methods.
+- 21 compiled native metadata/copy/merge/AI checks and all 172 existing AI checks pass. Public guide/checklist updated. No dedicated Lua metadata operation yet; API 0.50 remains. No live physical fight, full constructor Unity services or DE port claimed.
+
+## 2026-09-12: owned weapon AI grouping (API 0.51, G11/G09)
+
+- Added optional tactic_subtype to weapon registration, separate from physical subtype; validated bounded ASCII native group names. Existing registrations omit it and keep previous defaults. Native item builder emits the field, and compatibility hash adds it only when supplied (omission preserves prior format). No arbitrary XML DSL, new tables or core patch operation.
+- Actual Lua tests now total 102 (16 new registration/invalid/rollback/fingerprint assertions); 19 forge filtering and 14 native adapter checks pass. Actual compiled runtime fixture now totals 10, including Lua-owned weapon through real BuildItemNode to ItemInfo classification. Asset bytes are metadata-only fixtures, not rendering evidence.
+- Managed Editor compilation passes. Editor generate/check/build, 25 project tests, LuaLS field completion and VS Code integration passed. Wiki/reference/save guide and weapon starter comment updated. Broader metadata/core patch/acquisition work and game acceptance remain open; no DE port.
+
+## 2026-09-12: reversible core/owned weapon AI group overrides (API 0.52)
+
+- Native scoped override accepts a bounded group or explicit empty subtype fallback. Preserves original classification/XML/subtype, retains already-created fight snapshots, validates weapon targets, rejects concurrent ownership and restores safely after repeated/stale disposal.
+- Typed transaction includes dependency/weapon checks, capacity and deterministic conflicts. Native adapter composes after equipment/perks, restores on partial failure and permits reapplication. Fingerprint includes target/owner/group without changing empty-content format.
+- Exposed sf2.items.set_tactic_subtype with strict required item/group and content.patch checks. 51 compiled native/catalog/adapter checks and 123 actual Lua registration/rollback/fingerprint checks pass; managed compilation passes. Schema/generated editor contract and public reference/save guide/manual checklist updated. Full gameplay and other broad equipment/engine gaps remain open; no DE port.
+
+## 2026-09-12: acquisition-path audit and quantity repair
+
+- Traced one-time-purchase requirements through both native purchase entry routes, consumption and story notifications. Recorded authoritative route matrix and remaining ledger/atomicity requirements in ITEM_ACQUISITION_AUDIT.md. Inventory count and optional story subscribers cannot serve as purchase history. No SingleTimeBuy policy is claimed or hard-coded from archived DE data.
+- Found shop dispatcher charges using selected quantity but omitted count when calling the grant path. Forwarded count; reject null items/nonpositive counts before monetary mutation. Recipe delivery unchanged.
+- Fifteen checks execute the production dispatcher with controlled currency/grant/UI services; managed Editor/dependency build passes. Native inventory/save/physical shop acceptance remains open. API stays 0.52; purchase policy implementation and broader engine goal remain active.
+
+## 2026-09-12: purchase total overflow repair
+
+- Affordability multiplied unit price by quantity without a range check. Added bounded total calculation; reject null/nonpositive quantities and negative totals/balances before subtraction. Valid representable totals and existing insufficient-currency classifications remain unchanged.
+- Forty production dispatcher/affordability checks pass, including positive and negative overflow, max representable cost, free items, default quantity and invalid quantities. Managed Editor build passes. Currency/grant/UI services are controlled; no native inventory/save acceptance claimed. Purchase ledger and broader roadmap remain active; API unchanged at 0.52.
+- Percentage reporting remains unverified: historical gap text and append-only completion notes require reconciliation into a stable requirement denominator. Function/version/test counts must not be reported as completion percentages.
+
+## 2026-09-12: roadmap reconciliation begins
+
+- Replaced stale G07/G09/G10 missing-feature claims with current implementation and acceptance boundaries. Added ROADMAP_STATUS.md preserving all G01-G14/E1-E8 requirements and a reconciliation queue; no guessed development percentage.
+- Freshly reran 39 Lua perk-upgrade, 49 native perk-upgrade, six native music-selection and 36 location motion/music/projection checks. All pass. These tests do not replace full game acceptance or close entire roadmap domains. No API or DE port change.
+
+## 2026-09-12: story/dojo/lottery reconciliation
+
+- Corrected G02/G03/G04 stale missing/stub claims using current bindings and QuestActionDialogLottery source. Kept paid continuation, concurrency, tutorial/archive breadth and live persistence/visual acceptance explicitly open.
+- Fresh checks: 56 Lua story subscription cases, 29 native-source dojo routing cases, 80 production claim/recovery cases all pass with their documented controlled services. ROADMAP_STATUS now records six reassessed G tracks, not six closed tracks; remaining G/E scope unchanged.

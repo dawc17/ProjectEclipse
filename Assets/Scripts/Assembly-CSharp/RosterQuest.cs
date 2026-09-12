@@ -117,6 +117,7 @@ public class RosterQuest
 		get_Parameters().EFIFIPKDMIN(hHKLFIIBIFF.BJIDALJIKNC);
 		get_Parameters().MPFIPAANJON(hHKLFIIBIFF.JNGFNNFAAGN);
 		get_Parameters().set_FightAvgFPS(hHKLFIIBIFF.fightAvgFps);
+		Eclipse.Modding.ModRuntime.SaveQuestLotteryContext(get_Parameters(), hHKLFIIBIFF);
 	}
 
 	public void SetFileName(string _fileName)

@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.40.0",
+  "apiVersion": "0.52.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -655,6 +655,61 @@
       "requires": "`content.register`, and a declared dependency when reading another mod's content.",
       "when": "During mod loading."
     },
+    "sf2.items.set_innate_perks": {
+      "params": {
+        "definition": "Eclipse.ItemInnatePerks"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_innate_perks",
+      "summary": "",
+      "requires": "`content.patch`; item/perk lookup or registration also requires `content.register`. Declare dependencies for referenced core or other-mod content.",
+      "when": "During mod loading, before fighters are built. Available since API `0.50`."
+    },
+    "sf2.items.set_tactic_subtype": {
+      "params": {
+        "definition": "Eclipse.ItemTacticSubtype"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_tactic_subtype",
+      "summary": "Replace the AI table group of a core or owned weapon without changing its animation subtype. Available since **API 0.52**.",
+      "requires": "`content.patch`; item lookup also requires `content.register`. Declare dependencies for referenced namespaces and require `api = \">=0.52 <1.0\"`.",
+      "when": "During entrypoint registration. The override applies when content is loaded, before subsequent fights are constructed."
+    },
+    "sf2.items.set_default_enchantments": {
+      "params": {
+        "definition": "Eclipse.ItemDefaultEnchantments"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_default_enchantments",
+      "summary": "",
+      "requires": "`content.patch`; item/perk lookup or registration also requires `content.register`. Declare dependencies for referenced content from core or other mods.",
+      "when": "During mod loading. Available since API `0.49`."
+    },
+    "sf2.forge.override_deviation": {
+      "params": {
+        "definition": "Eclipse.ForgeDeviation"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2forgeoverride_deviation",
+      "summary": "",
+      "requires": "`content.patch`, `content.register` for the profile lookup, and a declared `core` dependency.",
+      "when": "During mod loading. Available since API `0.48`."
+    },
+    "sf2.forge.exclude_candidate": {
+      "params": {
+        "definition": "Eclipse.ForgeCandidateExclusion"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2forgeexclude_candidate",
+      "summary": "",
+      "requires": "`content.patch`, `content.register` for handle lookups, and a declared `core` dependency.",
+      "when": "During mod loading. Available since API `0.47`."
+    },
     "sf2.forge.register_recipe": {
       "params": {
         "definition": "Eclipse.ForgeRecipe"
@@ -1082,6 +1137,19 @@
       "summary": "",
       "requires": "An open owned view and a text/button/toggle ID; no additional capability.",
       "when": "Update a text, button or toggle label. The string may be empty and is limited to 8192 UTF-16 code units. Updates do not rebuild the layout tree."
+    },
+    "sf2.ui.set_sprite": {
+      "params": {
+        "view": "Eclipse.UiHandle",
+        "widget_id": "string",
+        "sprite": "Eclipse.SpriteHandle"
+      },
+      "returns": "`nil`.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_sprite",
+      "summary": "",
+      "requires": "An open UI handle and a sprite handle created by the same script context. The widget must be an `image`. Its size, aspect-preserving rendering, visibility and place in the layout stay unchanged. `ui.create` is required to create the surface; the setter grants no additional asset access.",
+      "when": "After opening a surface, including from its click/change callbacks. Use this to switch a character portrait, equipment icon or reward preview without rebuilding the panel. Requires API **0.42**."
     },
     "sf2.ui.set_value": {
       "params": {
@@ -1643,12 +1711,27 @@
         "z": "number"
       }
     },
+    "AnimationIntervalSnapshot": {
+      "fields": {
+        "name": "string",
+        "type": "\"none\"|\"unstable\"|\"uninterrupt\"|\"self_uninterrupt\"|\"attack\"|\"block\"|\"invulnerable\"|\"invisible\""
+      }
+    },
+    "AnimationSnapshot": {
+      "fields": {
+        "name": "string",
+        "type": "\"none\"|\"move\"|\"attack\"",
+        "facing": "integer",
+        "intervals": "Eclipse.AnimationIntervalSnapshot[]"
+      }
+    },
     "FighterSnapshot": {
       "fields": {
         "health": "number",
         "max_health": "number",
         "health_bars": "integer",
-        "position": "Eclipse.CombatPosition"
+        "position": "Eclipse.CombatPosition",
+        "animation?": "Eclipse.AnimationSnapshot"
       }
     },
     "CombatSnapshot": {
@@ -1677,6 +1760,10 @@
         "subtype?": [
           "string",
           "Defaults to Katana. Match the model and move family."
+        ],
+        "tactic_subtype?": [
+          "string",
+          "API 0.51: optional AI table group, defaults to subtype. 1-128 ASCII letters, digits or underscores."
         ]
       }
     },
@@ -2202,6 +2289,54 @@
         "entries": "Eclipse.PerkChoice[]"
       }
     },
+    "InnatePerk": {
+      "fields": {
+        "perk": "Eclipse.PerkHandle",
+        "parameters?": "table<string, number>"
+      }
+    },
+    "ItemInnatePerks": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "entries": "Eclipse.InnatePerk[]"
+      }
+    },
+    "ItemTacticSubtype": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "group": [
+          "string",
+          "Native AI table group; empty selects physical subtype fallback."
+        ]
+      }
+    },
+    "DefaultEnchantment": {
+      "fields": {
+        "perk": "Eclipse.PerkHandle",
+        "aspect?": "integer"
+      }
+    },
+    "ItemDefaultEnchantments": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "entries": "Eclipse.DefaultEnchantment[]"
+      }
+    },
+    "ForgeDeviation": {
+      "fields": {
+        "profile": "Eclipse.ForgeProfileHandle",
+        "equipment": "\"weapon\"|\"armor\"|\"helm\"|\"ranged\"|\"magic\"",
+        "minimum": "integer",
+        "maximum": "integer"
+      }
+    },
+    "ForgeCandidateExclusion": {
+      "fields": {
+        "profile": "Eclipse.ForgeProfileHandle",
+        "perk": "Eclipse.PerkHandle",
+        "equipment": "\"weapon\"|\"armor\"|\"helm\"|\"ranged\"|\"magic\""
+      }
+    },
     "ForgeItem": {
       "fields": {
         "equipment": "\"weapon\"|\"armor\"|\"helm\"|\"ranged\"|\"magic\"",
@@ -2536,9 +2671,29 @@
         "value?": "Eclipse.TacticValue"
       }
     },
+    "AiActionTiming": {
+      "fields": {
+        "first_sample": "integer",
+        "last_sample": "integer",
+        "mid_frames": "integer",
+        "nominal_frames": "integer",
+        "nominal_seconds": "number",
+        "looped": "boolean"
+      }
+    },
+    "AiActionInput": {
+      "fields": {
+        "control": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"|\"Unknown\"",
+        "press": "\"tap\"|\"hold\"|\"release\""
+      }
+    },
     "AiAction": {
       "fields": {
-        "name": "string"
+        "name": "string",
+        "type": "\"none\"|\"move\"|\"attack\"",
+        "priority": "integer",
+        "timing?": "Eclipse.AiActionTiming",
+        "inputs": "Eclipse.AiActionInput[]"
       }
     },
     "AiDecision": {
@@ -2673,7 +2828,7 @@
     "UiNode": {
       "fields": {
         "id": "string",
-        "kind": "\"stack\"|\"row\"|\"column\"|\"scroll\"|\"text\"|\"button\"|\"progress\"|\"toggle\"|\"slider\"",
+        "kind": "\"stack\"|\"row\"|\"column\"|\"scroll\"|\"text\"|\"button\"|\"progress\"|\"toggle\"|\"slider\"|\"image\"|\"grid\"",
         "width?": "number",
         "height?": "number",
         "gap?": "number",
@@ -2683,7 +2838,11 @@
         "visible?": "boolean",
         "enabled?": "boolean",
         "children?": "Eclipse.UiNode[]",
-        "style?": "Eclipse.UiStyle"
+        "style?": "Eclipse.UiStyle",
+        "sprite?": "Eclipse.SpriteHandle",
+        "columns?": "integer",
+        "cell_width?": "number",
+        "cell_height?": "number"
       }
     },
     "UiPlacement": {

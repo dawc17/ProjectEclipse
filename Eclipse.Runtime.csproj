@@ -65,10 +65,10 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\AssetId.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\CoreContentImporterP1C.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModSelection.cs" />
-    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModQuestInvocationLedger.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModProfileWriteJournal.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Offline\OfflineStoreData.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModLocalizationLoader.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModQuestInvocationLedger.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\DependencyResolver.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1C.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModManifestReader.cs" />

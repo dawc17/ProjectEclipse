@@ -4,6 +4,7 @@ $fixture = Join-Path $root ('Temp/ModUi-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Force -Path $fixture | Out-Null
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/ModUiRuntime.cs') -Destination $fixture
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/ModId.cs') -Destination $fixture
+Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/AssetId.cs') -Destination $fixture
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidateModUiRuntime.cs') -Destination (Join-Path $fixture 'Program.cs')
 '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup></Project>' | Set-Content -Encoding UTF8 (Join-Path $fixture 'Ui.csproj')
 dotnet run --project (Join-Path $fixture 'Ui.csproj')

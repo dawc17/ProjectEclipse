@@ -354,6 +354,23 @@ namespace Eclipse.Modding
                 position.Set("y", DynValue.NewNumber(snapshot.Y));
                 position.Set("z", DynValue.NewNumber(snapshot.Z));
                 result.Set("position", DynValue.NewTable(position));
+                if (snapshot.Animation != null)
+                {
+                    var animation = new Table(_script);
+                    animation.Set("name", DynValue.NewString(snapshot.Animation.Name));
+                    animation.Set("type", DynValue.NewString(snapshot.Animation.Type));
+                    animation.Set("facing", DynValue.NewNumber(snapshot.Animation.Facing));
+                    var intervals = new Table(_script);
+                    for (int i = 0; i < snapshot.Animation.Intervals.Count; i++)
+                    {
+                        var interval = new Table(_script);
+                        interval.Set("name", DynValue.NewString(snapshot.Animation.Intervals[i].Name));
+                        interval.Set("type", DynValue.NewString(snapshot.Animation.Intervals[i].Type));
+                        intervals.Set(i + 1, DynValue.NewTable(interval));
+                    }
+                    animation.Set("intervals", DynValue.NewTable(intervals));
+                    result.Set("animation", DynValue.NewTable(animation));
+                }
                 return DynValue.NewTable(result);
             }
 
@@ -659,6 +676,9 @@ namespace Eclipse.Modding
 
                 var items = new Table(_script);
                 items.Set("register_weapon", DynValue.NewCallback(RegisterWeapon));
+                items.Set("set_default_enchantments", DynValue.NewCallback(SetDefaultEnchantments));
+                items.Set("set_innate_perks", DynValue.NewCallback(SetInnatePerks));
+                items.Set("set_tactic_subtype", DynValue.NewCallback(SetTacticSubtype));
                 items.Set("register_armor", DynValue.NewCallback(RegisterArmor));
                 items.Set("register_helm", DynValue.NewCallback(RegisterHelm));
                 items.Set("register_ranged", DynValue.NewCallback(RegisterRanged));
@@ -699,6 +719,8 @@ namespace Eclipse.Modding
                 forge.Set("MAGIC", DynValue.NewString("magic"));
                 forge.Set("profile", DynValue.NewCallback(GetForgeEconomicProfile));
                 forge.Set("register_recipe", DynValue.NewCallback(RegisterForgeRecipeFamily));
+                forge.Set("exclude_candidate", DynValue.NewCallback(ExcludeForgeCandidate));
+                forge.Set("override_deviation", DynValue.NewCallback(OverrideForgeDeviation));
                 root.Set("forge", DynValue.NewTable(forge));
 
                 var behaviors = new Table(_script);
@@ -957,13 +979,97 @@ namespace Eclipse.Modding
                 });
             }
 
+            private DynValue SetTacticSubtype(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.set_tactic_subtype";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "item", "group");
+                    var item = RequiredHandle(table, "item", _itemHandles, "item", function);
+                    var group = table.Get("group");
+                    if (group.Type != DataType.String) throw new ModContentException(function + ".group must be a string; use empty string for subtype fallback.");
+                    _api.SetTacticSubtype(item, group.String);
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue SetInnatePerks(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.set_innate_perks";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "item", "entries");
+                    DefinitionId item = RequiredHandle(table, "item", _itemHandles, "item", function);
+                    DynValue value = table.Get("entries");
+                    if (value.Type != DataType.Table || value.Table.Length > 64)
+                        throw new ModContentException(function + " requires an entries array with at most 64 entries.");
+                    int length = value.Table.Length;
+                    foreach (var pair in value.Table.Pairs)
+                        if (pair.Key.Type != DataType.Number || pair.Key.Number < 1 || pair.Key.Number > length || pair.Key.Number != Math.Floor(pair.Key.Number))
+                            throw new ModContentException(function + " entries must be a dense array.");
+                    var entries = new ModInnatePerk[length];
+                    for (int i = 0; i < length; i++)
+                    {
+                        DynValue row = value.Table.Get(i + 1);
+                        if (row.Type != DataType.Table) throw new ModContentException(function + " entries must contain tables.");
+                        ValidateFields(row.Table, function, "perk", "parameters");
+                        var parameters = new Dictionary<string, float>(StringComparer.Ordinal);
+                        DynValue values = row.Table.Get("parameters");
+                        if (!values.IsNil())
+                        {
+                            if (values.Type != DataType.Table) throw new ModContentException(function + " parameters must be a numeric table.");
+                            foreach (var pair in values.Table.Pairs)
+                            {
+                                if (parameters.Count >= 64 || pair.Key.Type != DataType.String || pair.Value.Type != DataType.Number)
+                                    throw new ModContentException(function + " parameters require at most 64 named numeric values.");
+                                parameters.Add(pair.Key.String, (float)pair.Value.Number);
+                            }
+                        }
+                        entries[i] = new ModInnatePerk(RequiredHandle(row.Table, "perk", _perkHandles, "perk", function), parameters);
+                    }
+                    _api.SetInnatePerks(item, entries);
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue SetDefaultEnchantments(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.set_default_enchantments";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "item", "entries");
+                    DefinitionId item = RequiredHandle(table, "item", _itemHandles, "item", function);
+                    DynValue value = table.Get("entries");
+                    if (value.Type != DataType.Table || value.Table.Length > 64)
+                        throw new ModContentException(function + " requires an entries array with at most 64 entries.");
+                    int length = value.Table.Length;
+                    foreach (var pair in value.Table.Pairs)
+                        if (pair.Key.Type != DataType.Number || pair.Key.Number < 1 || pair.Key.Number > length || pair.Key.Number != Math.Floor(pair.Key.Number))
+                            throw new ModContentException(function + " entries must be a dense array.");
+                    var entries = new ModDefaultEnchantment[length];
+                    for (int i = 0; i < length; i++)
+                    {
+                        DynValue row = value.Table.Get(i + 1);
+                        if (row.Type != DataType.Table) throw new ModContentException(function + " entries must contain tables.");
+                        ValidateFields(row.Table, function, "perk", "aspect");
+                        entries[i] = new ModDefaultEnchantment(RequiredHandle(row.Table, "perk", _perkHandles, "perk", function),
+                            row.Table.Get("aspect").IsNil() ? (int?)null : RequiredInt(row.Table, "aspect", function));
+                    }
+                    _api.SetDefaultEnchantments(item, entries);
+                    return DynValue.Nil;
+                });
+            }
+
             private DynValue RegisterWeapon(ScriptExecutionContext context, CallbackArguments args)
             {
                 Table table = args.AsType(0, "sf2.items.register_weapon", DataType.Table, false).Table;
                 return ApiCall("sf2.items.register_weapon", () =>
                 {
                     ValidateFields(table, "sf2.items.register_weapon", "id", "display_name", "icon", "model",
-                        "subtype");
+                        "subtype", "tactic_subtype");
                     string id = RequiredString(table, "id", "sf2.items.register_weapon");
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", "sf2.items.register_weapon");
@@ -972,7 +1078,9 @@ namespace Eclipse.Modding
                     AssetId model = RequiredHandle(table, "model", _modelHandles, "model",
                         "sf2.items.register_weapon");
                     string subType = OptionalString(table, "subtype", "Katana", "sf2.items.register_weapon");
-                    WeaponDefinition definition = _api.RegisterWeapon(id, displayName, icon, model, subType);
+                    string tacticSubtype = table.Get("tactic_subtype").IsNil() ? null :
+                        RequiredString(table, "tactic_subtype", "sf2.items.register_weapon");
+                    WeaponDefinition definition = _api.RegisterWeapon(id, displayName, icon, model, subType, tacticSubtype);
                     return NewHandle(_itemHandles, definition.Id);
                 });
             }
@@ -1110,6 +1218,34 @@ namespace Eclipse.Modding
                 string resolved = reference;
                 return ApiCall(function, () => NewHandle(_forgeProfileHandles,
                     _api.GetForgeEconomicProfile(resolved).Id));
+            }
+
+            private DynValue OverrideForgeDeviation(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.forge.override_deviation";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "profile", "equipment", "minimum", "maximum");
+                    _api.OverrideForgeDeviation(RequiredHandle(table, "profile", _forgeProfileHandles, "forge profile", function),
+                        ParseEquipmentKind(RequiredString(table, "equipment", function), function),
+                        RequiredInt(table, "minimum", function), RequiredInt(table, "maximum", function));
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue ExcludeForgeCandidate(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.forge.exclude_candidate";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "profile", "perk", "equipment");
+                    _api.ExcludeForgeCandidate(RequiredHandle(table, "profile", _forgeProfileHandles, "forge profile", function),
+                        RequiredHandle(table, "perk", _perkHandles, "perk", function),
+                        ParseEquipmentKind(RequiredString(table, "equipment", function), function));
+                    return DynValue.Nil;
+                });
             }
 
             private DynValue RegisterForgeRecipeFamily(ScriptExecutionContext context, CallbackArguments args)

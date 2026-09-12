@@ -203,8 +203,28 @@ async function main() {
         await until(async()=>labels(await request('textDocument/completion',position)).includes(field),callback+' event inference');
     }
     console.log('PASS: native combo, style and tick callback fields complete');
+    const aiAction=probe('ai-action.lua','local sf2=require("sf2")\nsf2.tactics.register { id="brain",on_decide=function(memory,event)\n local action=event.actions[1]\n local value=action.|\nend }');
+    for (const field of ['name','type','priority','timing','inputs'])
+        await until(async()=>labels(await request('textDocument/completion',aiAction)).includes(field),'AI action '+field+' completion');
+    const aiTiming=probe('ai-timing.lua','local sf2=require("sf2")\nsf2.tactics.register { id="brain",on_decide=function(memory,event)\n local timing=event.actions[1].timing\n if timing then local value=timing.| end\nend }');
+    for (const field of ['first_sample','last_sample','mid_frames','nominal_frames','nominal_seconds','looped'])
+        await until(async()=>labels(await request('textDocument/completion',aiTiming)).includes(field),'AI timing '+field+' completion');
+    const aiInput=probe('ai-input.lua','local sf2=require("sf2")\nsf2.tactics.register { id="brain",on_decide=function(memory,event)\n local input=event.actions[1].inputs[1]\n local value=input.|\nend }');
+    for (const field of ['control','press'])
+        await until(async()=>labels(await request('textDocument/completion',aiInput)).includes(field),'AI input '+field+' completion');
+    const aiAnimation=probe('ai-animation.lua','local sf2=require("sf2")\nsf2.tactics.register { id="brain",on_decide=function(memory,event)\n local animation=event.opponent and event.opponent.animation\n if animation then local value=animation.| end\nend }');
+    for (const field of ['name','type','facing','intervals'])
+        await until(async()=>labels(await request('textDocument/completion',aiAnimation)).includes(field),'AI animation '+field+' completion');
+    const interval=probe('combat-interval.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="observer",on_round_begin=function(_,fighter)\n local combat=fighter:snapshot()\n local animation=combat and combat.self.animation\n if animation then local interval=animation.intervals[1]; local value=interval.| end\nend }');
+    for (const field of ['name','type'])
+        await until(async()=>labels(await request('textDocument/completion',interval)).includes(field),'Combat interval '+field+' completion');
     const uiNode=probe('ui-node.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ | } }');
     await until(async()=>labels(await request('textDocument/completion',uiNode)).includes('kind'),'recursive UI node completion');
+    const uiImage=probe('ui-image.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ id="art",kind="image",width=64,height=64, | } }');
+    await until(async()=>labels(await request('textDocument/completion',uiImage)).some(label=>label==='sprite'||label==='sprite?'),'image sprite completion');
+    const uiGrid=probe('ui-grid.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ id="grid",kind="grid",width=300,height=200, | } }');
+    for (const field of ['columns','cell_width','cell_height'])
+        await until(async()=>labels(await request('textDocument/completion',uiGrid)).some(label=>label===field||label===field+'?'),'grid '+field+' completion');
     const uiPlacement=probe('ui-placement.lua','local sf2=require("sf2")\nsf2.ui.open { id="hud",mount="hud",placement={ | } }');
     await until(async()=>{
         const result=await request('textDocument/completion',uiPlacement);
@@ -221,6 +241,7 @@ async function main() {
     await until(async()=>labels(await request('textDocument/completion',closeDefinition)).some(name=>name.startsWith('on_change')),'UI change callback completion');
     const checkedSetter=probe('ui-checked.lua','local sf2=require("sf2")\nsf2.ui.|');
     await until(async()=>labels(await request('textDocument/completion',checkedSetter)).some(name=>name.startsWith('set_checked')),'UI checked setter completion');
+    await until(async()=>labels(await request('textDocument/completion',checkedSetter)).some(name=>name.startsWith('set_sprite')),'UI sprite setter completion');
     const chargeText=fs.readFileSync(path.join(root,'templates/charge-ui/scripts/main.lua'),'utf8');
     const chargeUri=open('charge-close.lua',chargeText+'\nsf2.ui.is_open("bad handle")');
     const chargeKey=decodeURIComponent(chargeUri).toLowerCase();
@@ -279,6 +300,36 @@ async function main() {
         const result=labels(await request('textDocument/completion',storyProbe));
         return ['kind','item','recipe','previous_level','level','scene','previous_count','count','fight','outcome','eclipse','equipment'].every(field=>result.includes(field));
     },'story event callback fields');
+    const groupPatchProbe=probe('group-patch.lua','local sf2=require("sf2")\nsf2.items.set_tactic_subtype { | }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',groupPatchProbe));
+        return ['item','group'].every(field=>result.some(name=>name.startsWith(field)));
+    },'weapon group override fields');
+    const weaponGroupProbe=probe('weapon-group.lua','local sf2=require("sf2")\nsf2.items.register_weapon { | }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',weaponGroupProbe));
+        return result.some(name=>name.startsWith('tactic_subtype'));
+    },'weapon tactic group field');
+    const innateProbe=probe('innate-perks.lua','local sf2=require("sf2")\nsf2.items.set_innate_perks { entries={{ | }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',innateProbe));
+        return ['perk','parameters'].every(field=>result.some(name=>name === field || name === field+'?' || name.startsWith(field + ' ')));
+    },'innate perk entry fields');
+    const loadoutProbe=probe('default-enchantments.lua','local sf2=require("sf2")\nsf2.items.set_default_enchantments { entries={{ | }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',loadoutProbe));
+        return ['perk','aspect'].every(field=>result.some(name=>name === field || name === field+'?' || name.startsWith(field + ' ')));
+    },'default enchantment entry fields');
+    const deviationProbe=probe('forge-deviation.lua','local sf2=require("sf2")\nsf2.forge.override_deviation { | }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',deviationProbe));
+        return ['profile','equipment','minimum','maximum'].every(field=>result.some(name=>name === field || name.startsWith(field + ' ')));
+    },'forge deviation fields');
+    const forgeProbe=probe('forge-exclusion.lua','local sf2=require("sf2")\nsf2.forge.exclude_candidate { | }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',forgeProbe));
+        return ['profile','perk','equipment'].every(field=>result.some(name=>name === field || name.startsWith(field + ' ')));
+    },'forge exclusion fields');
     const curveProbe=probe('location-curve.lua','local sf2=require("sf2")\nsf2.locations.register { layers = { { images = { { motion_y = { points = { { | } } } } } } } }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',curveProbe));

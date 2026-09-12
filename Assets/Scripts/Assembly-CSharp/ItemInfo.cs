@@ -96,6 +96,42 @@ public class ItemInfo
 
 	public string MDPPNGIEJGD = string.Empty;
 
+	// AI table grouping may differ from the subtype used by animations and conditions.
+	internal string TacticSubtype { get; private set; } = string.Empty;
+	internal string EffectiveTacticSubtype => string.IsNullOrEmpty(TacticSubtype) ? MDPPNGIEJGD : TacticSubtype;
+	private TacticSubtypeOverride _tacticSubtypeOverride;
+
+	private sealed class TacticSubtypeOverride : System.IDisposable
+	{
+		private ItemInfo _item;
+		private readonly string _previous;
+		public TacticSubtypeOverride(ItemInfo item) { _item = item; _previous = item.TacticSubtype; }
+		public void Dispose()
+		{
+			ItemInfo item = _item;
+			if (item == null) return;
+			_item = null;
+			if (!object.ReferenceEquals(item._tacticSubtypeOverride, this)) return;
+			item.TacticSubtype = _previous;
+			item._tacticSubtypeOverride = null;
+		}
+	}
+
+	// Empty explicitly restores subtype fallback; null is not an override request.
+	// Existing fight copies retain their snapshot until the next content lifecycle.
+	internal bool TryOverrideTacticSubtype(string group, out System.IDisposable lifetime)
+	{
+		lifetime = null;
+		if (Type != "Weapon" || _tacticSubtypeOverride != null || group == null || group.Length > 128) return false;
+		foreach (char c in group)
+			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_')) return false;
+		var replacement = new TacticSubtypeOverride(this);
+		TacticSubtype = group;
+		_tacticSubtypeOverride = replacement;
+		lifetime = replacement;
+		return true;
+	}
+
 	public string IDFNCLPIIMA = string.Empty;
 
 	public string HBCNKNFPAIM = string.Empty;
@@ -175,6 +211,47 @@ public class ItemInfo
 	public Attributes IBLHIAHECLK = new Attributes();
 
 	public List<PerkInfoItem> NHBIJEEKALC = new List<PerkInfoItem>();
+	private InnatePerkOverride _innatePerkOverride;
+
+	private sealed class InnatePerkOverride : System.IDisposable
+	{
+		private ItemInfo _item;
+		private readonly List<PerkInfoItem> _previous;
+		public InnatePerkOverride(ItemInfo item) { _item = item; _previous = item.NHBIJEEKALC; }
+		public void Dispose()
+		{
+			ItemInfo item = _item;
+			if (item == null) return;
+			_item = null;
+			if (!object.ReferenceEquals(item._innatePerkOverride, this)) return;
+			item.NHBIJEEKALC = _previous;
+			item._innatePerkOverride = null;
+		}
+	}
+
+	internal bool TryOverrideInnatePerks(XmlNode perks, out System.IDisposable lifetime)
+	{
+		lifetime = null;
+		if (_innatePerkOverride != null || perks == null || perks.Name != "Perks") return false;
+		var resolved = new List<PerkInfoItem>();
+		var names = new HashSet<string>(System.StringComparer.Ordinal);
+		foreach (XmlNode child in perks.ChildNodes)
+		{
+			if (child.NodeType == XmlNodeType.Comment || child.NodeType == XmlNodeType.Whitespace) continue;
+			if (child.NodeType != XmlNodeType.Element || child.Name != "Perk" || resolved.Count >= 64) return false;
+			string name = child.Attributes?["Name"]?.Value;
+			if (string.IsNullOrEmpty(name) || !names.Add(name)) return false;
+			PerkInfoItem definition = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(name);
+			if (definition == null) return false;
+			// Combat marks equipment perks as weapon/non-weapon. Never share that mutable marker with the registry or another item.
+			resolved.Add(definition.Clone(child["Set"], child["RatingEvaluation"]));
+		}
+		var replacement = new InnatePerkOverride(this);
+		NHBIJEEKALC = resolved;
+		_innatePerkOverride = replacement;
+		lifetime = replacement;
+		return true;
+	}
 
 	public List<UpgradeData> KEFPALGDBOC = new List<UpgradeData>();
 
@@ -183,6 +260,54 @@ public class ItemInfo
 	public List<PerkInfoItem> BAHCGAGHPNE = new List<PerkInfoItem>();
 
 	public List<PerkStruct> APMJCGBNEDI = new List<PerkStruct>();
+
+	private DefaultEnchantmentOverride _defaultEnchantmentOverride;
+
+	private sealed class DefaultEnchantmentOverride : System.IDisposable
+	{
+		private ItemInfo _item;
+		private readonly List<PerkInfoItem> _previousPreview;
+		private readonly List<PerkStruct> _previousGrants;
+		public DefaultEnchantmentOverride(ItemInfo item)
+		{ _item = item; _previousPreview = item.LFIGBCDJHPG; _previousGrants = item.APMJCGBNEDI; }
+		public void Dispose()
+		{
+			ItemInfo item = _item;
+			if (item == null) return;
+			_item = null;
+			if (!object.ReferenceEquals(item._defaultEnchantmentOverride, this)) return;
+			item.LFIGBCDJHPG = _previousPreview;
+			item.APMJCGBNEDI = _previousGrants;
+			item._defaultEnchantmentOverride = null;
+		}
+	}
+
+	// Update shop preview and acquisition defaults together. Existing UserItem save nodes are untouched.
+	internal bool TryOverrideDefaultEnchantments(XmlNode enchantments, out System.IDisposable lifetime)
+	{
+		lifetime = null;
+		if (_defaultEnchantmentOverride != null || enchantments == null || enchantments.Name != "Enchantments") return false;
+		var previews = new List<PerkInfoItem>();
+		var grants = new List<PerkStruct>();
+		var names = new HashSet<string>(System.StringComparer.Ordinal);
+		foreach (XmlNode child in enchantments.ChildNodes)
+		{
+			if (child.NodeType == XmlNodeType.Comment || child.NodeType == XmlNodeType.Whitespace) continue;
+			if (child.NodeType != XmlNodeType.Element || child.Name != "Perk" || grants.Count >= 64) return false;
+			string name = child.Attributes?["Name"]?.Value;
+			if (string.IsNullOrEmpty(name) || !names.Add(name)) return false;
+			PerkInfoItem preview = APPAODDDDKI(child);
+			if (preview == null) return false;
+			previews.Add(preview);
+			grants.Add(new PerkStruct(child));
+		}
+		var replacement = new DefaultEnchantmentOverride(this);
+		LFIGBCDJHPG = previews;
+		APMJCGBNEDI = grants;
+		_defaultEnchantmentOverride = replacement;
+		lifetime = replacement;
+		return true;
+	}
 
 	private bool DJNOJLDEHDD;
 
@@ -257,6 +382,7 @@ public class ItemInfo
 		KJDFJPBIGJC = item.KJDFJPBIGJC;
 		Type = item.Type;
 		MDPPNGIEJGD = item.MDPPNGIEJGD;
+		TacticSubtype = item.TacticSubtype;
 		IDFNCLPIIMA = item.IDFNCLPIIMA;
 		HBCNKNFPAIM = item.HBCNKNFPAIM;
 		DBJJONLCHND = item.DBJJONLCHND;
@@ -413,6 +539,22 @@ public class ItemInfo
 		return dJKEECEOCJB;
 	}
 
+	private void ReadCombatClassification(XmlNode node)
+	{
+		if (!node.Attributes["Type"].Empty())
+		{
+			Type = node.Attributes["Type"].CIPOICEEIBK(string.Empty);
+		}
+		if (!node.Attributes["SubType"].Empty())
+		{
+			MDPPNGIEJGD = node.Attributes["SubType"].CIPOICEEIBK(string.Empty);
+		}
+		if (!node.Attributes["TacticSubtype"].Empty())
+		{
+			TacticSubtype = node.Attributes["TacticSubtype"].CIPOICEEIBK(string.Empty);
+		}
+	}
+
 	private void JKJLFOAOLFI(XmlNode node)
 	{
 		if (!node.Attributes["Name"].Empty())
@@ -435,14 +577,7 @@ public class ItemInfo
 		{
 			KJDFJPBIGJC = node.Attributes["Model"].CIPOICEEIBK(string.Empty);
 		}
-		if (!node.Attributes["Type"].Empty())
-		{
-			Type = node.Attributes["Type"].CIPOICEEIBK(string.Empty);
-		}
-		if (!node.Attributes["SubType"].Empty())
-		{
-			MDPPNGIEJGD = node.Attributes["SubType"].CIPOICEEIBK(string.Empty);
-		}
+		ReadCombatClassification(node);
 		if (!node.Attributes["Text"].Empty())
 		{
 			GGDJIPKMKFC = node.Attributes["Text"].CIPOICEEIBK(string.Empty);
@@ -615,6 +750,10 @@ public class ItemInfo
 		if (!string.IsNullOrEmpty(item.MDPPNGIEJGD))
 		{
 			MDPPNGIEJGD = item.MDPPNGIEJGD;
+		}
+		if (!string.IsNullOrEmpty(item.TacticSubtype))
+		{
+			TacticSubtype = item.TacticSubtype;
 		}
 	}
 

@@ -297,14 +297,16 @@ namespace Eclipse.Modding
     public sealed class WeaponDefinition : ItemDefinition
     {
         public string SubType { get; }
+        public string TacticSubtype { get; }
         public int Damage { get; }
 
         internal WeaponDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
             string subType, int damage, string legacyName = null, string legacyItemXml = null,
-            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, string tacticSubtype = null)
             : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
         {
             SubType = subType;
+            TacticSubtype = tacticSubtype;
             Damage = damage;
         }
     }
@@ -2410,7 +2412,7 @@ namespace Eclipse.Modding
         }
 
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType)
+            AssetId model, string subType, string tacticSubtype = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("items", "weapon/" + localId);
@@ -2421,12 +2423,18 @@ namespace Eclipse.Modding
                 throw new ModContentException("Weapon display_name must be a localization handle.");
             if (string.IsNullOrWhiteSpace(subType))
                 throw new ModContentException("Weapon subtype must not be empty.");
+            if (tacticSubtype != null && (string.IsNullOrWhiteSpace(tacticSubtype) || tacticSubtype.Length > 128))
+                throw new ModContentException("Weapon tactic_subtype must be 1-128 ASCII letters, digits or underscores.");
+            if (tacticSubtype != null)
+                foreach (char c in tacticSubtype)
+                    if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_'))
+                        throw new ModContentException("Weapon tactic_subtype must be 1-128 ASCII letters, digits or underscores.");
             if (_weapons.ContainsKey(id))
                 throw new ModContentException("Duplicate weapon definition: '" + id + "'.");
 
             EnsureCapacityForNewRegistration();
             var definition = new WeaponDefinition(id, displayName, icon, model, subType.Trim(), 0,
-                progression: ItemProgressionKind.Vanilla);
+                progression: ItemProgressionKind.Vanilla, tacticSubtype: tacticSubtype);
             _weapons.Add(id, definition);
             return definition;
         }

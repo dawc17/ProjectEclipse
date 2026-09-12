@@ -80,7 +80,8 @@ public class Fight
             if (position == null) return null;
             var parameters = model.KMMJCHDKBDO;
             return new ModFighterSnapshot(model.KKMCHCNOHMB(), parameters.CIDCNCDFONA,
-                parameters.HealthBarCount, position.GILCBJJPKBK(), position.OBIMBNIBEFG(), position.KMFEKANLCFO());
+                parameters.HealthBarCount, position.GILCBJJPKBK(), position.OBIMBNIBEFG(), position.KMFEKANLCFO(),
+                ModRuntime.CaptureAnimationSnapshot(model));
         }
         public double Health => _model == null ? 0 : _model.KKMCHCNOHMB();
         public IModFighterOperations Opponent => _fight == null ? null :
@@ -601,6 +602,7 @@ public class Fight
 		_eclipseEndedRound = 0;
 		_eclipseFightId = Guid.NewGuid().ToString("N");
         _eclipseOpponentInstances.Clear();
+        _eclipseInnateInstances.Clear();
         _eclipseBattleRules = new ModBattleRuleInstances();
 		MNEOALEBNNA = true;
 		IOPJDMCBIMM = true;
@@ -2537,6 +2539,7 @@ public class Fight
 	}
 
     private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseOpponentInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();
+    private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseInnateInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();
     private bool _eclipseOpponentDispatching;
     private void DispatchEclipseOpponent(ModEffectEvent effectEvent, ModDamageEvent damage = null, ModIncomingHit incoming = null, ModCombatActivityEvent activity = null)
     {
@@ -2610,7 +2613,7 @@ public class Fight
 						!activeRuntimePerks.Contains(learnedPerk.Name)) continue;
 					DefinitionId perkId;
 					if (!DefinitionId.TryParse(learnedPerk.Name, out perkId) || perkId.Category != "perks" ||
-						perkId.Namespace.Value == "core" || !dispatchedPerks.Add(perkId)) continue;
+						perkId.Namespace.Value == "core" || dispatchedPerks.Contains(perkId)) continue;
 					PerkDefinition perkDefinition;
 					if (!scripts.Content.TryGetPerk(perkId, out perkDefinition) || !perkDefinition.HasBehavior ||
                         !scripts.HasBehaviorHandler(perkDefinition.Behavior, effectEvent)) continue;
@@ -2625,11 +2628,39 @@ public class Fight
 					};
 					RosterPerk savedPerk = ListSF.CCDKHLAMKKO().JLBDOBLHHAF()?.LKIEAGLHNON(learnedPerk.Name);
 					if (savedPerk == null || savedPerk.Node == null) continue;
+					dispatchedPerks.Add(perkId);
 					string perkError;
 					if (!ModRuntime.TryInvokeSavedPerkFightBegin(savedPerk.Node, perkContext, fighterOperations, out perkError, effectEvent))
 						UnityEngine.Debug.LogWarning("[ModCombat] " + effectEvent + " failed for perk '" + perkId + "': " + perkError);
 				}
 
+                foreach (ItemInfo equipment in NMNCKBPFCCP.PJNJIJIODHE())
+                {
+                    if (equipment == null) continue;
+                    foreach (PerkInfoItem innate in equipment.NHBIJEEKALC)
+                    {
+                        if (innate == null || !activeRuntimePerks.Contains(innate.Name) ||
+                            !DefinitionId.TryParse(innate.Name, out var perkId) || perkId.Category != "perks" ||
+                            perkId.Namespace.Value == "core" ||
+                            !scripts.Content.TryGetPerk(perkId, out var definition) || !definition.HasBehavior ||
+                            !scripts.HasBehaviorHandler(definition.Behavior, effectEvent) || !dispatchedPerks.Add(perkId)) continue;
+                        if (!_eclipseInnateInstances.TryGetValue((_playerModel, perkId), out var node))
+                        {
+                            var document = new System.Xml.XmlDocument();
+                            var element = document.CreateElement("Perk"); document.AppendChild(element);
+                            element.SetAttribute("Name", perkId.ToString());
+                            _eclipseInnateInstances[(_playerModel, perkId)] = node = element;
+                        }
+                        var context = new Dictionary<string, string>(StringComparer.Ordinal)
+                        {
+                            { "side", "player" }, { "source", "innate" }, { "perk_id", perkId.ToString() },
+                            { "item_type", equipment.Type ?? string.Empty }, { "item_id", equipment.Name ?? string.Empty },
+                            { "fight_id", _eclipseFightId }, { "round", round.round.ToString() }, { "player_result", _eclipsePlayerResult }
+                        };
+                        if (!ModRuntime.TryInvokeSavedPerkFightBegin(node, context, fighterOperations, out var error, effectEvent))
+                            UnityEngine.Debug.LogWarning("[ModCombat] " + effectEvent + " failed for innate perk '" + perkId + "': " + error);
+                    }
+                }
 				UserItems userItems = ListSF.CCDKHLAMKKO().KHCNHPCPFII();
 			if (userItems == null) return;
 			foreach (ItemInfo item in NMNCKBPFCCP.PJNJIJIODHE())

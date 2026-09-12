@@ -1,8 +1,8 @@
 schema = 1
 id = "example.programmable-ai"
 name = "AI Dojo"
-version = "1.0.0"
-api = ">=0.22 <1.0"
+version = "1.1.0"
+api = ">=0.46 <1.0"
 entrypoint = "scripts/main.lua"
 authors = ["Eclipse"]
 capabilities = ["content.register"]

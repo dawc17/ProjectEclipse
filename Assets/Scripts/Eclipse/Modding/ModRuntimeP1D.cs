@@ -48,11 +48,58 @@ namespace Eclipse.Modding
             try
             {
                 if (_scripts == null) return null;
-                var names = new string[actions.Count];
-                for (int i = 0; i < names.Length; i++) names[i] = actions[i].Name;
-                return _scripts.DecideAi(tactic, instance, new ModCombatSnapshot(AiSnapshot(self), AiSnapshot(opponent), Math.Max(0,frame), true), names);
+                var candidates = new ModAiActionSnapshot[actions.Count];
+                for (int i = 0; i < candidates.Length; i++)
+                    candidates[i] = AiActionSnapshot(actions[i]);
+                return _scripts.DecideAi(tactic, instance, new ModCombatSnapshot(AiSnapshot(self), AiSnapshot(opponent), Math.Max(0,frame), true), candidates);
             }
             catch (Exception error) { Debug.LogWarning("[ModAI] Using native tactics after decision failure. " + error.Message); return null; }
+        }
+
+        private static ModAiActionSnapshot AiActionSnapshot(InfoAnimation action)
+        {
+            string type = action.Type == InfoAnimation.MGHNBEPCKIF.AnimationAttack ? "attack" :
+                action.Type == InfoAnimation.MGHNBEPCKIF.AnimationMove ? "move" : "none";
+            var timing = new ModAiActionTiming(action.GOBJCKFGIPA, action.LHHAGECFIOL,
+                action.MNHGBPOIHKG, action.NCEKKNIMHAG());
+            var inputs = new System.Collections.Generic.List<ModAiActionInput>();
+            var keys = action.ILBCHANCOBP()?.FONEJOKEIEN;
+            if (keys != null)
+            {
+                AppendAiInputs(inputs, keys.IGEEOAGOMEM, "tap");
+                AppendAiInputs(inputs, keys.CEPODJDDLBF, "hold");
+                AppendAiInputs(inputs, keys.HPEOJLAMIHC, "release");
+            }
+            return new ModAiActionSnapshot(action.Name, type, action.Priority, timing, inputs);
+        }
+
+        private static void AppendAiInputs(System.Collections.Generic.List<ModAiActionInput> target,
+            System.Collections.Generic.List<int> controls, string press)
+        {
+            if (controls.Count > 64 - target.Count) throw new ModContentException("AI action has too many input entries.");
+            foreach (int control in controls)
+            {
+                string name;
+                switch ((FightCID)control)
+                {
+                    case FightCID.QuadrantUp: name = "Up"; break;
+                    case FightCID.QuadrantUpForward: name = "Up-Forward"; break;
+                    case FightCID.QuadrantForward: name = "Forward"; break;
+                    case FightCID.QuadrantDownForward: name = "Down-Forward"; break;
+                    case FightCID.QuadrantDown: name = "Down"; break;
+                    case FightCID.QuadrantDownBack: name = "Down-Back"; break;
+                    case FightCID.QuadrantBack: name = "Back"; break;
+                    case FightCID.QuadrantUpBack: name = "Up-Back"; break;
+                    case FightCID.Punch: name = "Punch"; break;
+                    case FightCID.Kick: name = "Kick"; break;
+                    case FightCID.MissileButton: name = "Ranged"; break;
+                    case FightCID.MagicButton: name = "Magic"; break;
+                    case FightCID.RaidChargeButton: name = "RaidCharge"; break;
+                    case FightCID.Super: name = "Super"; break;
+                    default: name = "Unknown"; break;
+                }
+                target.Add(new ModAiActionInput(name, press));
+            }
         }
 
         private static ModFighterSnapshot AiSnapshot(Model model)
@@ -60,7 +107,41 @@ namespace Eclipse.Modding
             if (model == null || model.KMMJCHDKBDO == null || model.PLBNCDCFPML() == null) return null;
             var position = model.PLBNCDCFPML();
             return new ModFighterSnapshot(model.KKMCHCNOHMB(), model.KMMJCHDKBDO.CIDCNCDFONA,
-                model.KMMJCHDKBDO.HealthBarCount, position.GILCBJJPKBK(),position.OBIMBNIBEFG(),position.KMFEKANLCFO());
+                model.KMMJCHDKBDO.HealthBarCount, position.GILCBJJPKBK(),position.OBIMBNIBEFG(),position.KMFEKANLCFO(),
+                CaptureAnimationSnapshot(model));
+        }
+
+        public static ModAnimationSnapshot CaptureAnimationSnapshot(Model model)
+        {
+            var controller = model?.OCPMJKIEPIG();
+            if (controller == null || !controller.NMEEPBDJHMG()) return null;
+            var animation = controller.NNMAFFCCMHC();
+            var active = controller.PCKKMNHDDMP();
+            if (animation == null || animation.Name == null || active == null || active.Count > 256) return null;
+            int facing = controller.KFCNPADAMHA();
+            if (facing != -1 && facing != 1) return null;
+            var intervals = new ModAnimationIntervalSnapshot[active.Count];
+            for (int i = 0; i < intervals.Length; i++)
+            {
+                var interval = active[i];
+                if (interval == null) return null;
+                string kind;
+                switch (interval.Type)
+                {
+                    case IntervalAnimation.NGAJJDIEDGF.INTERVAL_UNSTABLE: kind = "unstable"; break;
+                    case IntervalAnimation.NGAJJDIEDGF.INTERVAL_UNINTERRUPT: kind = "uninterrupt"; break;
+                    case IntervalAnimation.NGAJJDIEDGF.INTERVAL_SELF_UNINTERRUPT: kind = "self_uninterrupt"; break;
+                    case IntervalAnimation.NGAJJDIEDGF.INTERVAL_ATTACK: kind = "attack"; break;
+                    case IntervalAnimation.NGAJJDIEDGF.INTERVAL_BLOCK: kind = "block"; break;
+                    case IntervalAnimation.NGAJJDIEDGF.INTERVAL_INVULNERABLE: kind = "invulnerable"; break;
+                    case IntervalAnimation.NGAJJDIEDGF.INTERVAL_INVISIBLE: kind = "invisible"; break;
+                    default: kind = "none"; break;
+                }
+                intervals[i] = new ModAnimationIntervalSnapshot(interval.Name ?? string.Empty, kind);
+            }
+            string type = animation.Type == InfoAnimation.MGHNBEPCKIF.AnimationAttack ? "attack" :
+                animation.Type == InfoAnimation.MGHNBEPCKIF.AnimationMove ? "move" : "none";
+            return new ModAnimationSnapshot(animation.Name, type, facing, intervals);
         }
 
         public static void ApplyLocaleMetadata()

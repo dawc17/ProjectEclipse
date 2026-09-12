@@ -82,7 +82,7 @@ namespace Eclipse.Modding
             error = "Mode script context is unavailable."; request.Invalidate(); return false;
         }
 
-        public int? DecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<string> actions)
+        public int? DecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<ModAiActionSnapshot> actions)
         {
             foreach (var context in _contexts)
                 if (context is IModAiScriptContext callbacks && callbacks.HasAiHandler(tactic))

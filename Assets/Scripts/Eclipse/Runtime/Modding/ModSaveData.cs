@@ -463,6 +463,11 @@ namespace Eclipse.Modding
             {
                 Append(canonical, weapon.SubType);
                 Append(canonical, weapon.Damage);
+                if (weapon.TacticSubtype != null)
+                {
+                    Append(canonical, "tactic-subtype");
+                    Append(canonical, weapon.TacticSubtype);
+                }
             }
             else if (item is ArmorDefinition armor)
             {
@@ -711,6 +716,63 @@ namespace Eclipse.Modding
 
         private static void AppendP1C(StringBuilder canonical, ModContentCatalog content)
         {
+            if (content.ItemTacticSubtypes.Count != 0)
+            {
+                var groups = new List<ItemTacticSubtypeDefinition>(content.ItemTacticSubtypes);
+                groups.Sort((a,b) => string.CompareOrdinal(a.Item.ToString(),b.Item.ToString()));
+                Append(canonical,"item-tactic-subtypes"); Append(canonical,groups.Count);
+                foreach (var group in groups)
+                { Append(canonical,group.Owner.Value); Append(canonical,group.Item.ToString()); Append(canonical,group.Group); }
+            }
+            if (content.ItemInnatePerks.Count != 0)
+            {
+                var loadouts = new List<ItemInnatePerksDefinition>(content.ItemInnatePerks);
+                loadouts.Sort((a, b) => CompareIds(a.Item, b.Item));
+                Append(canonical, "item-innate-perks"); Append(canonical, loadouts.Count);
+                foreach (var loadout in loadouts)
+                {
+                    Append(canonical, loadout.Owner.Value); Append(canonical, loadout.Item.ToString());
+                    Append(canonical, loadout.Entries.Count);
+                    foreach (var entry in loadout.Entries)
+                    {
+                        Append(canonical, entry.Perk.ToString()); Append(canonical, entry.Parameters.Count);
+                        var keys = new List<string>(entry.Parameters.Keys); keys.Sort(StringComparer.Ordinal);
+                        foreach (var key in keys) { Append(canonical, key); Append(canonical, entry.Parameters[key]); }
+                    }
+                }
+            }
+            if (content.ItemDefaultEnchantments.Count != 0)
+            {
+                var loadouts = new List<ItemDefaultEnchantmentsDefinition>(content.ItemDefaultEnchantments);
+                loadouts.Sort((a, b) => CompareIds(a.Item, b.Item));
+                Append(canonical, "item-default-enchantments"); Append(canonical, loadouts.Count);
+                foreach (var loadout in loadouts)
+                {
+                    Append(canonical, loadout.Owner.Value); Append(canonical, loadout.Item.ToString());
+                    Append(canonical, loadout.Entries.Count);
+                    foreach (var entry in loadout.Entries)
+                    {
+                        Append(canonical, entry.Perk.ToString()); Append(canonical, entry.Aspect.HasValue);
+                        if (entry.Aspect.HasValue) Append(canonical, entry.Aspect.Value);
+                    }
+                }
+            }
+            // Preserve fingerprints of configurations that do not use this optional overlay.
+            if (content.ForgeDeviations.Count != 0)
+            {
+                var deviations = new List<ForgeDeviationDefinition>(content.ForgeDeviations);
+                deviations.Sort((left, right) =>
+                {
+                    int order = CompareIds(left.Profile, right.Profile);
+                    return order != 0 ? order : left.Equipment.CompareTo(right.Equipment);
+                });
+                Append(canonical, "forge-deviations"); Append(canonical, deviations.Count);
+                foreach (var deviation in deviations)
+                {
+                    Append(canonical, deviation.Owner.Value); Append(canonical, deviation.Profile.ToString());
+                    Append(canonical, (int)deviation.Equipment); Append(canonical, deviation.Minimum); Append(canonical, deviation.Maximum);
+                }
+            }
             var sets = new List<ItemSetDefinition>(content.ItemSets);
             sets.Sort((left, right) => CompareIds(left.Id, right.Id));
             Append(canonical, "item-sets"); Append(canonical, sets.Count);

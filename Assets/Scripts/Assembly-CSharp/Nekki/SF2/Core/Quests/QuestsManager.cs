@@ -797,7 +797,7 @@ namespace Nekki.SF2.Core.Quests
 				if (mLLKDGBEGJI != null)
 				{
 					mLLKDGBEGJI.AddEventListener(0, OnQuestComplete);
-					mLLKDGBEGJI.MHHNIPBJNAD(QuestParameters, false);
+					mLLKDGBEGJI.MHHNIPBJNAD(mLLKDGBEGJI.EclipseQueuedParameters ?? QuestParameters, mLLKDGBEGJI.EclipseQueuedResume);
 					flag = true;
 					CurrentQuestName = mLLKDGBEGJI.get_Name();
 				}
@@ -830,16 +830,18 @@ namespace Nekki.SF2.Core.Quests
 			if (EclipseSuppressedQuests.Count != 0)
 				NKNMCOEBMNG = NKNMCOEBMNG.FindAll(quest => !IsEclipseSuppressed(quest));
 			if (NKNMCOEBMNG.Count == 0) return false;
-			ParametersQuest dHLPMNEKHKD = ((NKNMCOEBMNG[0].LBIPHHIJEFP() == null) ? null : NKNMCOEBMNG[0].LBIPHHIJEFP().get_Parameters());
-			if (dHLPMNEKHKD != null)
-			{
-				QuestParameters = NKNMCOEBMNG[0].JMHGHCAGFDI(dHLPMNEKHKD);
-			}
 			foreach (QuestStage item in NKNMCOEBMNG)
 			{
 				if (item.LBIPHHIJEFP() != null && !FJADEODAOFO(item))
 				{
-					item.MHNEBBGMOLA(QuestParameters);
+					var checkpoint = item.LBIPHHIJEFP().get_Parameters();
+					if (checkpoint == null) item.MHNEBBGMOLA(QuestParameters);
+					else
+					{
+						// Do not run the entry checkpoint again: that resets the saved action index.
+						item.EclipseQueuedParameters = item.JMHGHCAGFDI(checkpoint);
+						item.EclipseQueuedResume = true;
+					}
 					item.index = DHKJBMDEODI.Count;
 					Add(item);
 				}

@@ -61,18 +61,58 @@ python Tools/Animation/PackageCharacter.py --rig Temp/CharacterCore/models/mdl_s
 
 This path validates file structure; only the Blender bridge can compare the output with its source pose. Neither path rescales, reorders or rewrites the animation bytes. Eclipse stores the same payload as `assets/animations/authored.bytes`.
 
+### Package several animations together
+
+Export each motion separately with the same dependency rig, then add named clips
+to the standalone packager. Each `--clip` takes **name, control, mid-frames, file**:
+
+```powershell
+python Tools/Animation/PackageCharacter.py --rig Temp/CharacterCore/models/mdl_skeleton.xml --animation Temp/MyGymnast/punch.bin --clip kick Kick 0 Temp/MyGymnast/kick.bin --clip flourish Magic 2 Temp/MyGymnast/flourish.bin --output Temp/MyGymnast/local.moveset --mod-id local.moveset
+```
+
+The primary `--animation` keeps the `authored_move` name and Punch input.
+Additional names require 1–48 lowercase letters/digits/underscores, starting with
+a letter; `authored` and `authored_move` are reserved. Controls must be distinct:
+`Kick`, `Ranged`, `Magic`, `Up`, `Down`, `Forward`, or `Back`. Forward/Back are relative
+to facing. This allows eight preview clips including the primary one. Directional
+bindings may replace ordinary movement for the authored warrior; choose combat
+buttons first when testing. Edit the generated Lua for advanced input combinations
+or a larger moveset rather than relying on this preview binding scheme.
+
+Each clip's mid-frames is an integer from 0 to 8 and must match its source sampling.
+It changes interpolation spacing, not binary sample count or native end-frame
+indices. Clip bytes stay unchanged. Every clip is checked against the shared rig
+before publishing the package; an invalid clip prevents the output directory from
+being created. The package permits at most two million node samples in total.
+All existing output protection and skin validation still apply.
+
+Each additional clip receives `assets/animations/<name>.bytes`, its own
+`<name>.rig.json` timing/hash/control sidecar, and `preview-<name>.html`.
+The original preview stays at `preview.html`. `scripts/character.lua` returns
+`warrior`, the original `move`, and a `moves` table keyed by `authored_move` and
+your additional names. The preview AI cycles through eligible clips, skipping
+unavailable ones and waiting between requests. All generated moves still deal
+no damage until you author attack intervals.
+
 The package contains a manifest, native assets, localization, `scripts/character.lua`, `scripts/main.lua`, a rig fingerprint sidecar, and a point-motion `preview.html`. The preview respects sample spacing. Body and skin appearance should be inspected in Blender and the game, not inferred from the point preview.
 
 ## Test in Eclipse
 
 Copy the complete `local.character-preview` folder into Eclipse's `Mods` directory, preserving any existing work under that ID. Enable it through **Mods → Apply & Restart** and find **Character Preview** using the bottom map-page dots.
 
-The repeatable fight uses your authored warrior. Its Lua AI selects `authored_move` whenever the native conditions permit, with a pause between requests. This allows you to watch the export without creating another fight script. The preview move does no attack damage; entry costs and rewards are empty.
+The repeatable fight uses your authored warrior. Its Lua AI selects eligible authored clips with a pause between requests. This allows you to watch the export without creating another fight script. Preview moves do no attack damage; entry costs and rewards are empty.
 
 Edit `scripts/character.lua` to add the [typed attack intervals](../../api/moves-and-tactics/), change input conditions or supply your own tactic. `scripts/main.lua` is ordinary mod code and can be replaced by your own battles. Inspect both facing directions, rig/skin deformation, equipment attachment, movement, hit reactions and contact timing. A successful binary read does not establish all of those behaviors.
 
 ## Verification and limits
 
 `Tools/Animation/TestGymnastPipeline.ps1 -Blender <executable> -Suite <checkout>` exercises the supplied IK/body scene, an authored hand motion, upstream model and animation exports, source-pose comparison, packaging, real Lua map/mode/AI bindings, and the unchanged Unity animation reader. It writes an inspection render and test artifacts under `Temp`.
+
+`Tools/TestModAiEligibility.ps1` executes the recovered AI shortlist and priority
+methods with controlled model/animation services. It checks that character
+restrictions, uninterruptible state and higher-priority input moves filter the
+candidate list; event-only animations are excluded. Generated package tests also
+exercise Lua clip cycling, pacing and unavailable-clip fallback. Neither test
+simulates contact physics or proves that authored geometry looks correct in a fight.
 
 The [low-level point-rig tools](../character-authoring/) remain available for format work. They are not the recommended visual authoring interface. Automatic retargeting from unrelated skeletons, arbitrary Blender shaders, complete custom character controllers/forms and full-game visual/combat acceptance remain separate requirements.

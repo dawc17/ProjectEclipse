@@ -63,7 +63,31 @@ static class Program
         });
         const string root="{id='root',kind='column',width=200,height=100,children={{id='label',kind='text',width=200,height=40,text='old'},{id='go',kind='button',width=200,height=40,text='Go'}}}";
         const string prefix="local sf2=require('sf2')\n";
+        string spritePath=Path.Combine(mods,"example.charge-ui/assets/sprites/ui-test.png");
+        Directory.CreateDirectory(Path.GetDirectoryName(spritePath));
+        File.WriteAllBytes(spritePath,Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD2sAAAAASUVORK5CYII="));
+        const string imageSource="local icon=sf2.assets.sprite('example.charge-ui:sprites/ui-test')\n";
+        File.Copy(spritePath,Path.Combine(Path.GetDirectoryName(spritePath),"ui-other.png"),true);
+        const string imageView="local view=sf2.ui.open{id='art',mount='menu',root={id='art',kind='image',width=160,height=80,sprite=icon}}\n";
+        Run(prefix+imageSource+imageView+"sf2.ui.set_sprite(view,'art',sf2.assets.sprite('example.charge-ui:sprites/ui-other'))",false,
+            (ctx,cat,views)=>Check(views.Single().Read("art").Sprite==AssetId.Parse("example.charge-ui:sprites/ui-other"),"Lua live image update failed"));
+        foreach(string invalidSprite in new[]{"{}","'example.charge-ui:sprites/ui-other'","nil","sf2.localization.key('charge.arm')"})
+            Run(prefix+imageSource+imageView+"sf2.ui.set_sprite(view,'art',"+invalidSprite+")",true);
+        Run(prefix+imageSource+imageView+"sf2.ui.close(view); sf2.ui.set_sprite(view,'art',icon)",true);
+        Run(prefix+imageSource+"local v=sf2.ui.open{id='text',mount='menu',root={id='text',kind='text',text='hi',width=100,height=40}}; sf2.ui.set_sprite(v,'text',icon)",true);
+        Run(prefix+imageSource+"sf2.ui.open{id='art',mount='menu',root={id='art',kind='image',width=160,height=80,sprite=icon}}",false,
+            (ctx,cat,views)=>Check(views.Single().Root.Sprite==AssetId.Parse("example.charge-ui:sprites/ui-test"),"Lua image lost sprite handle"));
+        foreach(string imageFields in new[]{"width=160,height=80", "width=160,height=80,sprite={}","width=160,height=80,sprite='example.charge-ui:sprites/ui-test'","width=0,height=80,sprite=icon"})
+            Run(prefix+imageSource+"sf2.ui.open{id='art',mount='menu',root={id='art',kind='image',"+imageFields+"}}",true,
+                (ctx,cat,views)=>Check(views.Count==0,"Invalid image reached renderer"));
         const string controlRoot="{id='root',kind='column',width=300,height=140,children={{id='toggle',kind='toggle',width=300,height=40,text='Challenge',checked=true},{id='slider',kind='slider',width=300,height=40,value=0.25}}}";
+        const string gridRoot="{id='grid',kind='grid',width=220,height=100,columns=2,cell_width=100,cell_height=40,gap=10,children={{id='a',kind='button',text='A'},{id='b',kind='button',text='B'}}}";
+        Run(prefix+"sf2.ui.open{id='grid',mount='menu',root="+gridRoot+",on_click=function(view,id) sf2.ui.set_text(view,id,'Selected') end}",false,
+            (ctx,cat,views)=>Check(views[0].Root.Columns==2 && views[0].TryClick("b") && views[0].Read("b").Text=="Selected","Lua grid layout/click failed"));
+        foreach (string badColumns in new[]{"0","-1","257","1.5","'2'","0/0"})
+            Run(prefix+"sf2.ui.open{id='grid',mount='menu',root="+gridRoot.Replace("columns=2","columns="+badColumns)+"}",true);
+        Run(prefix+"sf2.ui.open{id='grid',mount='menu',root="+gridRoot.Replace("cell_width=100","cell_width=0")+"}",true);
+        Run(prefix+"sf2.ui.open{id='grid',mount='menu',root="+gridRoot.Replace("kind='grid'","kind='row'")+"}",true);
         Run(prefix+"local changes=0\nlocal view=sf2.ui.open{id='controls',mount='menu',root="+controlRoot+@",on_change=function(view,id,value)
             changes=changes+1
             if id=='toggle' then assert(type(value)=='boolean' and not value)

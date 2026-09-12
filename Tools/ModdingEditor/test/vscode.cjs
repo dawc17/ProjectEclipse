@@ -69,7 +69,12 @@ exports.run = async function () {
         assert(fix?.edit, 'Missing capability quick fix');
         await vscode.workspace.applyEdit(fix.edit);
         await extension.exports.refresh();
-        assert(!vscode.languages.getDiagnostics(uri).some(d => d.code === 'capability:combat.change_life'));
+        // Manifest-change debounce can supersede this refresh as well. Verify
+        // the published result, with the same bound as diagnostic creation.
+        const removalDeadline = Date.now() + 10000;
+        while (vscode.languages.getDiagnostics(uri).some(d => d.code === 'capability:combat.change_life') && Date.now() < removalDeadline)
+            await new Promise(resolve => setTimeout(resolve, 100));
+        assert(!vscode.languages.getDiagnostics(uri).some(d => d.code === 'capability:combat.change_life'), 'Quick fix did not clear the capability diagnostic');
         passed.push('PASS: missing capability diagnostics and manifest quick fix work with unsaved edits');
 
         const randomEdit=new vscode.WorkspaceEdit();

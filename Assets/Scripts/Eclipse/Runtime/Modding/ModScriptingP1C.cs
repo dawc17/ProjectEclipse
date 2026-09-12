@@ -4,6 +4,24 @@ namespace Eclipse.Modding
 {
     public sealed partial class ModApiFacade
     {
+        public void SetTacticSubtype(DefinitionId item, string group)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().SetTacticSubtype(item, group);
+        }
+
+        public void SetInnatePerks(DefinitionId item, ModInnatePerk[] entries)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().SetInnatePerks(item, entries);
+        }
+
+        public void SetDefaultEnchantments(DefinitionId item, ModDefaultEnchantment[] entries)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().SetDefaultEnchantments(item, entries);
+        }
+
         public NonEquipmentItemDefinition RegisterNonEquipmentItem(string localId, ModNonEquipmentItemKind kind,
             DefinitionId displayName, AssetId icon, AssetId model, string subType, string packLabel,
             bool silentReceive, bool spendAfterUse)
@@ -45,6 +63,18 @@ namespace Eclipse.Modding
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterForgeRecipeFamily(localId, alias, economicProfile, items, candidates);
+        }
+
+        public void OverrideForgeDeviation(DefinitionId profile, ModEquipmentKind equipment, int minimum, int maximum)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().OverrideForgeDeviation(profile, equipment, minimum, maximum);
+        }
+
+        public void ExcludeForgeCandidate(DefinitionId profile, DefinitionId perk, ModEquipmentKind equipment)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().ExcludeForgeCandidate(profile, perk, equipment);
         }
     }
 }

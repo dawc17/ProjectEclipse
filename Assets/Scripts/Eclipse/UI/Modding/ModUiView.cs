@@ -21,6 +21,8 @@ namespace Eclipse.UI.Modding
             public Selectable Control;
             public Toggle Toggle;
             public Slider Slider;
+            public Image Artwork;
+            public AssetId? LoadedSprite;
         }
         private readonly Dictionary<string, WidgetView> widgets = new Dictionary<string, WidgetView>(StringComparer.Ordinal);
         private readonly List<string> buttons = new List<string>();
@@ -123,7 +125,18 @@ namespace Eclipse.UI.Modding
                 group.childControlWidth = group.childControlHeight = true;
                 group.childForceExpandWidth = group.childForceExpandHeight = false;
             }
-            bool container = node.Kind == ModUiKind.Stack || node.Kind == ModUiKind.Row || node.Kind == ModUiKind.Column || node.Kind == ModUiKind.Scroll;
+            if (node.Kind == ModUiKind.Grid)
+            {
+                var grid = rect.gameObject.AddComponent<GridLayoutGroup>();
+                grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                grid.constraintCount = node.Columns;
+                grid.cellSize = new Vector2((float)node.CellWidth, (float)node.CellHeight);
+                grid.spacing = Vector2.one * (float)node.Gap;
+                grid.startCorner = GridLayoutGroup.Corner.UpperLeft;
+                grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+                grid.childAlignment = TextAnchor.UpperLeft;
+            }
+            bool container = node.Kind == ModUiKind.Stack || node.Kind == ModUiKind.Row || node.Kind == ModUiKind.Column || node.Kind == ModUiKind.Scroll || node.Kind == ModUiKind.Grid;
             if (container && node.Style.BackgroundColor != null && !(node == surface.Root && surface.Mount != ModUiMount.CombatHud))
             {
                 var paper = rect.gameObject.AddComponent<Image>();
@@ -131,6 +144,13 @@ namespace Eclipse.UI.Modding
                 paper.color = ColorOf(node.Style.BackgroundColor,paper.color); paper.raycastTarget = false;
             }
             if (node.Kind == ModUiKind.Text) view.Label = Label(rect, node);
+            if (node.Kind == ModUiKind.Image)
+            {
+                var artwork = rect.gameObject.AddComponent<Image>();
+                artwork.preserveAspect = true;
+                artwork.raycastTarget = false;
+                view.Artwork = artwork;
+            }
             if (node.Kind == ModUiKind.Button)
             {
                 var background = rect.gameObject.AddComponent<Image>();
@@ -246,6 +266,14 @@ namespace Eclipse.UI.Modding
             if (view.Control != null) view.Control.interactable = state.Enabled;
             if (view.Toggle != null) view.Toggle.SetIsOnWithoutNotify(state.Value != 0);
             if (view.Slider != null) view.Slider.SetValueWithoutNotify((float)state.Value);
+            if (view.Artwork != null && view.LoadedSprite != state.Sprite)
+            {
+                if (!ModRuntime.IsInitialized) throw new InvalidOperationException("Image UI requires the asset host.");
+                var sprite = ModRuntime.Host.TypedAssets.LoadSprite(state.Sprite.Value);
+                if (sprite == null) throw new InvalidOperationException("UI sprite is unavailable: " + state.Sprite.Value);
+                view.Artwork.sprite = sprite;
+                view.LoadedSprite = state.Sprite;
+            }
         }
 
         public void FitToSafeArea(float width, float height)
@@ -274,9 +302,64 @@ namespace Eclipse.UI.Modding
             {
                 int index = (start + step * offset + buttons.Count * 2) % buttons.Count;
                 string id = buttons[index];
-                if (surface.CanInteract(id)) { widgets[id].Control.Select(); return true; }
+                if (surface.CanInteract(id)) { widgets[id].Control.Select(); Reveal(widgets[id].Rect); return true; }
             }
             return false;
+        }
+
+        private void Reveal(RectTransform target)
+        {
+            Canvas.ForceUpdateCanvases();
+            foreach (var scroll in target.GetComponentsInParent<ScrollRect>())
+            {
+                if (scroll.content == null || scroll.viewport == null || !scroll.vertical) continue;
+                var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(scroll.viewport, target);
+                var viewport = scroll.viewport.rect;
+                float offset = bounds.min.y < viewport.yMin ? viewport.yMin - bounds.min.y :
+                    bounds.max.y > viewport.yMax ? viewport.yMax - bounds.max.y : 0;
+                if (offset == 0) continue;
+                scroll.StopMovement();
+                var position = scroll.content.anchoredPosition;
+                position.y = Mathf.Clamp(position.y + offset, 0, Mathf.Max(0, scroll.content.rect.height - viewport.height));
+                scroll.content.anchoredPosition = position;
+            }
+        }
+
+        public bool NavigateFocus(int horizontal, int vertical)
+        {
+            if (disposed || surface.IsClosed || EventSystem.current == null || (horizontal == 0 && vertical == 0)) return false;
+            var selected = EventSystem.current.currentSelectedGameObject;
+            string currentId = buttons.Find(id => widgets[id].Control.gameObject == selected);
+            if (currentId == null) return MoveFocus(1);
+            var current = widgets[currentId];
+            // A slider keeps horizontal input even at its endpoint.
+            if (horizontal != 0 && current.Slider != null)
+            { AdjustSelected(horizontal); return true; }
+            if (current.Rect.GetComponentInParent<GridLayoutGroup>() == null)
+                return vertical != 0 && MoveFocus(vertical);
+            Canvas.ForceUpdateCanvases();
+            var origin = RectTransformUtility.CalculateRelativeRectTransformBounds(transform, current.Rect);
+            WidgetView best = null;
+            float bestAcross = float.PositiveInfinity, bestAlong = float.PositiveInfinity;
+            bool horizontalMove = horizontal != 0;
+            foreach (string id in buttons)
+            {
+                if (id == currentId || !surface.CanInteract(id)) continue;
+                var candidate = widgets[id];
+                var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(transform, candidate.Rect);
+                float along = horizontalMove ? (bounds.center.x - origin.center.x) * Math.Sign(horizontal) :
+                    (origin.center.y - bounds.center.y) * Math.Sign(vertical);
+                if (along <= .01f) continue;
+                float across = horizontalMove ? Mathf.Abs(bounds.center.y - origin.center.y) : Mathf.Abs(bounds.center.x - origin.center.x);
+                float overlap = horizontalMove ? origin.extents.y + bounds.extents.y : origin.extents.x + bounds.extents.x;
+                // Left/right stay on their row; up/down prefer overlapping columns.
+                if (horizontalMove && across >= overlap) continue;
+                float separation = Mathf.Max(0, across - overlap);
+                if (separation < bestAcross || (Mathf.Approximately(separation, bestAcross) && along < bestAlong))
+                { best = candidate; bestAcross = separation; bestAlong = along; }
+            }
+            if (best == null) return false;
+            best.Control.Select(); Reveal(best.Rect); return true;
         }
 
         public bool ActivateSelected()

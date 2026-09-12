@@ -74,7 +74,7 @@ Evidence: [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime
 
 ### G02 â€” Programmable story events, queries and operations
 
-**Missing public capabilities, high priority.** The public quest operand set is literal, user variable, event fight/result, current battle, fight win count and fight ID. DE logic queries purchased/equipped items, item subtype, player level, active perks, tutorial progress, and other scene/story state. Current actions cover dialogue/story screen, variable assignment, battle visibility/toggle/focus, fight start, Eclipse switching and item grants. They do not cover the complete archive.
+**Programmable support exists; breadth and acceptance remain.** Lua story subscriptions and profile queries now expose level, item ownership/count/equipment/subtype/upgrade and equipped-item snapshots. The legacy quest operand set is not the full programmable API. Fresh TestStoryApi checks pass for 56 subscription cases. Historical purchase counts, tutorial-state coverage, full archive operations and live lifecycle ordering remain separate gaps.
 
 Examples in changed/new main-file quests include `ChangeTab`, `ShopButtonPress`, `BuySpinGems`, `AscensionReset`, `Activate`, `AttachQuestFile`, `ClearQuestQueue`, `Wait`, `ChangeScene`, `OpenShop`, `GivePerk`, `GiveAchievement`, `ShowMapButton`, `ChangeDojoLocation`, tutorial hints/arrows and forge guidance. Similar event names are not automatically equivalent: e.g. the public Session hook does not prove both native application-start and session-start ordering.
 
@@ -84,19 +84,19 @@ Evidence: [ModQuest enums](../Assets/Scripts/Eclipse/Runtime/Modding/ModContentP
 
 ### G03 â€” Dojo selection and custom menu/dialogue flows
 
-**Missing public UI/scene capabilities.** `DojoChanger_*`, `Dojo*_Page`, `Dojo*_Load` and `DojoDiscipleUnlock` implement a persistent dojo selector through map buttons, dialogue actions and `ChangeDojoLocation`. Registering a location or globally replacing an asset does not implement that selector.
+**Selection APIs implemented; selector-flow acceptance remains.** Public locations.select_dojo, reset_dojo and selected_dojo exist, together with owned UI and scene navigation. Native dojo entry honors selection without changing battle routing. Archived page/load/unlock flows still need explicit behavior and persistence acceptance.
 
-The native `QuestActionChangeDojoLocation` sets `GameUtils.NIPABEEAMHJ`, so there is a concrete host seam. The public quest actions do not expose it, and there is no general typed menu/button/scene-navigation extension. Rich native dialogue options and tutorial presentations also exceed the limited public dialogue schema. Add reusable supported presentation operations rather than exposing GameObjects.
+QuestActionChangeDojoLocation sets the native selection, and Location.ResolveEntryLocation honors it at entry. Fresh TestDojoLocationRouting checks pass for 29 cases; selection services are controlled, without rendering or persistence proof. Rich tutorial presentation and the complete archived menu flow remain distinct from the supported selection API.
 
 Evidence: [main DE quests](../Assets/DExml/quests.xml), `DojoChanger_LoadSelectedDojo`; [QuestAction.cs](../Assets/Scripts/Assembly-CSharp/QuestAction.cs), `QuestActionChangeDojoLocation`; `ReadQuestActions`.
 
 ### G04 â€” Cosmetic lotteries and purchased set chests
 
-**Both public and host gaps.** DE adds `Cosmetic_Armor`, `Cosmetic_Helm`, `MonkSetChest`, `SentinelSetChest`, `NeoSetChest`, `ChronosSetChest`, the `Lottery` zone, `Lotteries` battle and associated quests. `CosmeticArmor_Lottery` checks purchase subtype then invokes `DialogLottery`. **Recovered `QuestActionDialogLottery` currently only completes the action; it does not implement the lottery.** A new API wrapper around it would still do nothing.
+**Claim/UI/quest workflow implemented; purchased flows remain incomplete.** QuestActionDialogLottery now creates and shows ModQuestLotteryAction instead of completing as a stub. Evaluated claims, continuation and recovery metadata exist; 80 fresh production claim/recovery checks pass with controlled selection/grant/disk services. Paid SpinNumber continuation is explicitly rejected. This does not complete archived cosmetic purchases, set chests or crash acceptance in game.
 
 `MonkSetChest_Give` grants level-dependent equipped items and attaches multiple specified perks/aspects to them. Public reward entries contain only item + fixed upgrade (and weight for choices); the public quest surface has no equivalent contextual grant-and-enchant operation. A weighted fight reward can cover some loot selection, but not the purchase flow, lottery presentation or exact chest loadouts.
 
-Evidence: [lottery action stub](../Assets/Scripts/Assembly-CSharp/QuestActionDialogLottery.cs), [DE list](../Assets/DExml/list.xml), [DE quests](../Assets/DExml/quests.xml); `ReadRewardItems`, `ReadRewardChoices`, `ReadQuestActions`. Recover the intended lottery semantics before implementing them. Borrow base-owned economic policy for prices/costs.
+Evidence: [lottery action](../Assets/Scripts/Assembly-CSharp/QuestActionDialogLottery.cs), [DE list](../Assets/DExml/list.xml), [DE quests](../Assets/DExml/quests.xml); `ReadRewardItems`, `ReadRewardChoices`, `ReadQuestActions`. Recover the intended lottery semantics before implementing them. Borrow base-owned economic policy for prices/costs.
 
 ### G05 â€” Set-to-ability binding and activated abilities
 
@@ -118,9 +118,9 @@ Evidence: [DE perks](../Assets/DExml/perks.xml), [P2 public contract](P2_API.md)
 
 ### G07 â€” Perk upgrade parameter tables
 
-**Missing public progression payload.** `CharacterProgress.xml` adds Master of Style and Relentless to the level branches and supplies `UpgradeLevel` records with changing descriptions and `Set` parameters (`Drain`, `DamagePerStack`, `MaxStacks`). `replace_perk_branch` only selects unlock/upgrade entries; perk registration accepts one parameter map, not these level-specific records.
+**Implemented API; gameplay acceptance remains.** Perk registration now accepts typed `upgrades` with per-level descriptions and parameters. `CharacterProgress.xml` supplies archived examples with `Drain`, `DamagePerStack` and `MaxStacks`; those are reference data, not a DE conversion. Current Lua and native upgrade fixtures verify overlays, cloning, descriptions and restoration.
 
-Branch placement is supported. Exact per-level behavior and description scaling are not established by the branch showcase. Add typed upgrade definitions or a verified learned-perk-level query/configuration mechanism, separate from immutable XP/currency/global progression formulas.
+Branch placement and upgrade payloads are separate supported operations. Fresh checks on 2026-09-12 passed 39 Lua/saved-parameter cases and 49 native-source cases. Full-game level-up UI, save and effect acceptance is still required; the branch showcase alone does not prove it. Shared XP/currency/global progression formulas remain separate.
 
 Evidence: [DE CharacterProgress](../Assets/DExml/CharacterProgress.xml); `RegisterPerk`, `ReplaceProgressionBranch` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs), [P1C contract](P1C_API.md).
 
@@ -134,17 +134,17 @@ Evidence: [DE moves](../Assets/DExml/animations/moves.xml); [public move model](
 
 ### G09 â€” Conditional AI reactions
 
-**Missing public support.** The exact tactic-settings deltas add `ConditionalDecisions/PlayerAnimation` reactions for `HermitStormPlayer`, `HermitStormPlayerIdle`, `WallRunUp`, with distance-conditioned animation choices and priorities. Ordinary tactic registration does not expose that global reaction tree or equivalent programmable decisions.
+**Programmable support implemented; scenario acceptance remains.** Lua AI decisions now receive perception, animation/interval snapshots and eligible move candidates with timing/input metadata, and can issue bounded actions with native fallback. The reactive example demonstrates responding to an opponent's active attack. This supplies programmable decisions; it does not prove every archived `HermitStormPlayer`, `HermitStormPlayerIdle` or `WallRunUp` scenario works in a live fight.
 
 `ComputerSettings.xml` is equal to the base: no new global computer-settings API is justified by this archive. Add evidence-backed reaction/decision hooks or typed compatibility support only for the required semantics.
 
-Evidence: [DE tacticSettings](../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs); current README explicitly records `ConditionalDecisions` as unsupported.
+Evidence: [DE tacticSettings](../Assets/DExml/tacticSettings.xml), `RegisterTactic` / `ReadTactic...` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs), `Tools/TestModAi.ps1`, `Mods/example.programmable-ai`. Native conditional-tree import and programmable equivalent behavior are distinct contracts. Live scenario coverage remains open.
 
 ### G10 â€” Animated location layers and music selection
 
-**Partial support.** Public location layers support images, factors/scaling and fighter positions. DE-only `arena_new` includes `SimpleEffect` flags with `OscillationY` points; other scenery uses particle/effect structures. The recovered `Location` parser supports SimpleEffect, ParticleEffect/NewParticleEffect and oscillations, but the Lua layer schema has no fields for them. A static background conversion would lose behavior.
+**Partial support with motion implemented.** Public location layers now support typed `motion_x`, `motion_y`, `rotation` and `opacity` tracks in addition to static images and placement. The API covers layer oscillation but not arbitrary particle control, collision or hazards. Archived `arena_new` and other scenery still require per-effect coverage and visual acceptance.
 
-The archive uses music lists such as `Music="6|7"` as well as numerous changed location/battle music assignments. Single audio assets and fight music assignment are available; equivalent playlist/random-selection behavior, targeted existing location edits, and dojo switching need explicit treatment. Supplying cut music files remains an asset task, not automatically an API gap.
+Location `music_choices` and native list selection are implemented alongside single-track music. Fresh checks on 2026-09-12 passed six native selection cases and 36 Lua motion/music/projection/fingerprint cases; these do not prove audio playback. Targeted location edits, broader effects and in-game acceptance remain separate. Supplying missing music files remains an asset task, not automatically an API gap.
 
 Evidence: [arena_new](../Assets/DExml/locations/arena_new/arena_new_params.xml), [Location parser](../Assets/Scripts/Assembly-CSharp/Location.cs), `ReadLocationLayers` / `ReadLocationImages` in the Lua binding. Full 108-path location comparison is in the file inventory.
 
@@ -154,13 +154,17 @@ Evidence: [arena_new](../Assets/DExml/locations/arena_new/arena_new_params.xml),
 
 DE item deltas include `TacticSubtype`, core item template changes, innate `<Perks>`/aspect changes, `SingleTimeBuy`, acquisition flags, package behavior and presentation metadata. There is no general field-complete registration/patch surface or contextual grant API for these. Do not count a visually matching weapon as the same item behavior.
 
+API 0.49 now supports replacing acquisition-time default enchantments for core or owned equipment through `items.set_default_enchantments`, with typed perk handles and optional numeric aspects. Preview/acquisition projection, ownership conflicts, compatibility fingerprints and rollback are tested. Existing inventory is not migrated; full-game acquisition/save/render acceptance remains pending. This does not supply permanent innate `<Perks>`, tactic metadata or arbitrary grant operations.
+
+API 0.50 adds `items.set_innate_perks` for the separate permanent equipment-perk list, with literal numeric native parameters and Lua-backed perk handles (their initial parameters belong at perk registration). Native model collection, cloned-instance isolation, composition with acquisition defaults, rollback and public Lua validation are tested. Live combat acceptance, activated ability mechanics, tactic metadata and general acquisition operations remain open.
+
 Important boundary: prices, bonus prices, upgrade/stat scaling and level changes must first be checked against the canonical economy policy. This audit does **not** request arbitrary core stat/economy overrides. Non-economic subtype, identity, availability, display and supported enchantment loadout changes are the separate legitimate API work.
 
 Evidence: [DE list](../Assets/DExml/list.xml); `RegisterWeapon`, `RegisterArmor`, `RegisterNonEquipmentItem`, `SetItemAvailability` in [Lua binding](../Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs); [LegacyContentAdapter](../Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs).
 
 ### G12 â€” Forge family editing and candidate structure
 
-**Partial support.** Added families are `Abilities`, `Abilities2`, `Abilities3`, `Complex2`, `Complex3`. Registering a family using a host economic profile and candidate level ranges works. DE also removes set candidates from existing Complex and changes Simple item deviation ranges. There is no corresponding targeted edit/removal of the core recipe candidate collections; new public recipe item bindings do accept min/max deviation and random-aspect fields; that does not let a mod change those fields on the existing Simple family.
+**Implemented operations, gameplay acceptance pending.** Added families are `Abilities`, `Abilities2`, `Abilities3`, `Complex2`, `Complex3`. Registering a family using a host economic profile and candidate level ranges works. API 0.47 adds targeted native candidate exclusions for existing recipes. API 0.48 adds per-equipment deviation overrides for existing random-aspect recipes, covering both effective item settings and embedded native candidate ranges. These provide the operations needed for the cited Complex candidate removals and Simple deviation changes; the downstream DE records have not been ported or accepted in game. Arbitrary candidate conditions, full native family replacement and broader variation/availability editing remain outside these operations.
 
 Exact prices/costs must remain base-owned. Check deviations/quality scaling against that boundary before deciding they should be configurable. New family registration is not evidence that the entire original forge is converted.
 
@@ -199,3 +203,9 @@ For raids, use the owner's confirmed one-fight, long timer, blue multiple-health
 5. Classify remaining metadata/forge/economy differences and map all selected DE records to actual mod code + tests. Obtain creator confirmation for ambiguous/archive-version differences instead of silently labelling them intentional.
 
 No runtime API, economy, XML source, asset identity or mod behavior was changed by this audit. Validation here consists of complete XML parsing/differencing, deterministic regeneration/checks and source inspection. No DE conversion or gameplay playthrough was performed. This is a complete **source inventory** and a source-backed **gap assessment**, not a claim that every archived mechanic has been recovered or individually playtested.
+
+G11/G09 native prerequisite update: shipped TacticSubtype was ignored by ItemInfo; it is now parsed independently from SubType, preserved by cloning/merge and consumed by Model's AI initialization and weapon changes. SetWeaponBot now updates the own-weapon table group used by native decision tables instead of the enemy field. Native metadata/AI checks and existing AI suite pass. A public typed metadata override and live combat acceptance remain open; this is not a DE port.
+
+API 0.51 exposes optional tactic_subtype on owned weapon registration, independent of animation subtype. Literal native group names are validated, projected by the actual native item builder and included in compatibility fingerprints. Lua omission/invalid/rollback/hash checks and compiled projection checks pass. Core equipment metadata patching, other G11 metadata/acquisition gaps and live combat acceptance remain open.
+
+API 0.52 adds items.set_tactic_subtype for core and owned weapons. Required group supports explicit empty fallback; weapon/dependency checks, conflict ledger, compatibility fingerprint, native scope restoration and adapter partial-failure rollback are implemented. 51 native/content/adapter tests and 123 Lua forge/loadout tests pass. Other equipment metadata/acquisition and full-game acceptance remain open.

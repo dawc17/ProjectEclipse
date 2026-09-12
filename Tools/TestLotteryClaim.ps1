@@ -1,5 +1,9 @@
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
+foreach ($relative in @('Runtime/Modding/ModQuestInvocationLedger','Runtime/Modding/ModProfileWriteJournal','Modding/ModLotteryPrizeCodec','Modding/ModQuestLotteryAction','UI/Modding/ModLotteryDialog')) {
+ $meta=Get-Content -Raw -LiteralPath (Join-Path $root ('Assets/Scripts/Eclipse/'+$relative+'.cs.meta'))
+ if($meta -notmatch '(?m)^guid: [0-9a-f]{32}\r?$'){throw "Invalid Unity script GUID: $relative"}
+}
 $fixture=Join-Path $root ('Temp/LotteryClaim-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
 $source=Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/ModRuntime.cs')
@@ -11,24 +15,44 @@ $defer=[regex]::Match($source,'(?ms)^        internal static bool DeferProfileSa
 $ack=[regex]::Match($source,'(?ms)^        private static Action ResolveLotteryAcknowledgement\(.*?^        \}')
 $questRun=[regex]::Match($source,'(?ms)^        internal static ModQuestInvocationLedger GetQuestLotteryInvocation\(.*?^        \}')
 $questComplete=[regex]::Match($source,'(?ms)^        internal static bool CompleteQuestLotteryRun\(.*?^        \}')
+$resolveQuest=[regex]::Match($source,'(?ms)^        internal static LotteryClaim PrepareQuestLotteryClaim\(.*?^        \}')
+$saveContext=[regex]::Match($source,'(?ms)^        internal static void SaveQuestLotteryContext\(.*?^        \}')
+$restoreContext=[regex]::Match($source,'(?ms)^        internal static void RestoreQuestLotteryContext\(.*?^        \}')
+$battlePrepare=[regex]::Match($source,'(?ms)^        internal static void PrepareBattleLottery\(.*?^        \}')
+$battleComplete=[regex]::Match($source,'(?ms)^        internal static void CompleteBattleLottery\(.*?^        \}')
+$pendingLottery=[regex]::Match($source,'(?ms)^        internal static bool HasPendingLottery =>.*?;')
+if(!$battlePrepare.Success -or !$battleComplete.Success -or !$pendingLottery.Success){throw 'Battle lottery continuation bridge missing.'}
+if(!$saveContext.Success -or !$restoreContext.Success){throw 'Quest checkpoint context bridge missing.'}
+if(!$resolveQuest.Success){throw 'Quest lottery resolution missing.'}
 if(!$questRun.Success -or !$questComplete.Success){throw 'Native quest lottery run bridge missing.'}
 if(!$resume.Success -or !$defer.Success){throw 'Lottery recovery/save gate missing.'}
 $program=@'
 using System;
+using System.Collections.Generic;
 using System.Xml;
 using System.IO;
 using Eclipse.Modding;
+static class LocalizationManager {public static string GetStringOrDefault(string key,string fallback,params string[] args)=>fallback;}
+namespace UnityEngine {static class Random {public static float value=.5f;}}
 class Program {
  public class Roster {public int Saves;public int PINDEKDNCNL()=>4;public void GGGEHAGCLGC(bool immediate){Saves++;}}
  static readonly ModStoryEvents StoryEvents=new ModStoryEvents();
  public class FightResult {public class ResultPrizeStruct {public object FAPDEKOMOGH;public int Token;public System.Collections.Generic.List<object> KBMDJACLAOH=new System.Collections.Generic.List<object>();}}
  public class RewardLottery {}
+ public class ParametersQuest {public XmlNode Node;}
+ public class QuestParameters {public bool inLottery;public int EGAPDJLHHNJ,BJIDALJIKNC;public string FOODLENBJGI,OHPHPJBMNLH,HEIADONEACH;public FightIDS JLGLBLDPAAF;public float fightAvgFps;}
+ public class FightIDS {public string Name;public void SetFightIDSByString(string n){Name=n;}public override string ToString()=>Name;}
+ class ModQuestLotteryAction {public void Dispose(){}}static ModQuestLotteryAction _battleLotteryPresentation;
+ public class RewardPrize {public RewardLottery FAPDEKOMOGH;}
+ public class RewardStruct {public RewardLottery Lottery;public int Evaluations;public RewardPrize KOBOIFJNPMO(int level){Evaluations++;return new RewardPrize{FAPDEKOMOGH=Lottery};}}
+ public class FightList {public List<RewardStruct> Rewards=new List<RewardStruct>();public List<RewardStruct> APKPCGDBMEP()=>Rewards;}
  public class QuestStage {public bool allowDoubles,EclipseResumeActions;public string FileName="quests.xml",EclipseActionsDefinition="<Actions><DialogLottery/></Actions>";public ModQuestInvocationLedger EclipseLotteryInvocations;public string get_Name()=>"LotteryQuest";}
  public struct MANJCIGJPMK {public string Image=>"test";public string ViewType=>"Weapon";}
  public class ItemInfo {public int MHGODOLNDLE,OBJDGBBFJOO;public ItemInfo HIOBANJPMKF(int n)=>this;}
  public class Catalog {public ItemInfo KCCDBEEKBCG(string n)=>null;public object ICFINJLNCPM(string n)=>null;public object NDMEGBEFBPJ(string n)=>null;}
  public static class GameUtils {public static Catalog AJDKHINLIDI=new Catalog(),JNIMKHKGPHE=new Catalog();}
- public class ListSF {public static Action Grant;public static int Grants,Writes;public static string Saved;public static Catalog DJBOFEEKJMP()=>new Catalog();public static ListSF ELEBLBJKDBI()=>new ListSF();public bool IMDGMNFHFCN(FightResult.ResultPrizeStruct p){Grants++;Grant?.Invoke();return false;}public void OnAuthenticate(bool force){if(DeferProfileSave())return;Writes++;Saved=_lotteryProfileNode.OwnerDocument.OuterXml;}}
+ public partial class ListSF {public static FightList Fight;public static FightList CHMCKGCDGCM(FightIDS id)=>id.Name=="test"?Fight:null;public static Action Grant;public static int Grants,Writes;public static string Saved;public static Catalog DJBOFEEKJMP()=>new Catalog();static ListSF current=new ListSF();public static ListSF ELEBLBJKDBI()=>current;public bool IMDGMNFHFCN(FightResult.ResultPrizeStruct p){Grants++;Grant?.Invoke();return false;}public void OnAuthenticate(bool force){if(DeferProfileSave())return;Writes++;Saved=_lotteryProfileNode.OwnerDocument.OuterXml;}}
+ public partial class ListSF {public QuestParameters HAOHNNFLOGK;public static Action Queue;public static int Queued,Runs;public static bool Raid;public static QuestParameters Context;public bool QueueLotteryFightEnd(QuestParameters context,bool raid){Queued++;Context=context;Raid=raid;Queue?.Invoke();return true;}public void MHHNIPBJNAD(){Runs++;}}
  public static class ModLotteryPrizeCodec {
   public static XmlElement Write(XmlDocument d,FightResult.ResultPrizeStruct p){var e=d.CreateElement("Prize");e.SetAttribute("Token",p.Token.ToString());return e;}
   public static FightResult.ResultPrizeStruct Read(XmlElement e,Func<string,int,int,ItemInfo> i,Func<string,object> c,Func<string,object> r)=>new FightResult.ResultPrizeStruct{Token=int.Parse(e.GetAttribute("Token"))};
@@ -44,6 +68,12 @@ class Program {
  /* ACK */
  /* QUEST RUN */
  /* QUEST COMPLETE */
+ /* QUEST RESOLVE */
+ /* SAVE CONTEXT */
+ /* RESTORE CONTEXT */
+ /* BATTLE PREPARE */
+ /* BATTLE COMPLETE */
+ /* PENDING LOTTERY */
  static int checks;static void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
  static void Reject(Action action,string message){try{action();}catch(InvalidOperationException){checks++;return;}throw new Exception(message);}
  static void Reset(){_profileRoster=new Roster();StoryEvents.Clear();StoryEvents.BindProfile();ListSF.Grant=null;ListSF.Grants=0;ListSF.Writes=0;ListSF.Saved=null;Builds=0;BuildAction=null;Available=true;_lotterySaveState=0;var d=new XmlDocument();d.LoadXml("<Warrior/>");_lotteryProfileNode=d.DocumentElement;}
@@ -102,11 +132,48 @@ class Program {
   Check(GetQuestLotteryInvocation(new QuestStage()).Operation(0)!=operation,"New completed quest run retained old draw");
   Reject(()=>GetQuestLotteryInvocation(new QuestStage{EclipseActionsDefinition="changed"}),"Changed action ordering reused receipt");
   try {GetQuestLotteryInvocation(new QuestStage{allowDoubles=true});throw new Exception("Concurrent quest identity accepted");}catch(NotSupportedException){checks++;}
+  Reset();stage=new QuestStage();ListSF.Fight=new FightList();var reward=new RewardStruct{Lottery=new RewardLottery()};ListSF.Fight.Rewards.Add(reward);
+  claim=PrepareQuestLotteryClaim(stage,0,"test",0.5);Check(claim!=null&&Builds==1&&reward.Evaluations==1,"Quest did not resolve one draw");
+  Check(PrepareQuestLotteryClaim(stage,0,"missing-after-reload",0.9)!=null&&Builds==1&&reward.Evaluations==1,"Pending reward re-evaluated changed source");
+  Reject(()=>PrepareQuestLotteryClaim(stage,1,"test",0.5),"Another action stole pending draw");
+  Check(claim.TryClaim(),"Resolved draw could not be claimed");
+  Check(PrepareQuestLotteryClaim(stage,0,"missing",0.5)==null&&reward.Evaluations==1,"Completed action re-evaluated source");
+  Reset();stage=new QuestStage();Reject(()=>PrepareQuestLotteryClaim(stage,0,"missing",0.5),"Missing fight silently completed");
+  ListSF.Fight=new FightList();Reject(()=>PrepareQuestLotteryClaim(stage,0,"test",0.5),"Missing lottery silently completed");
+  ListSF.Fight.Rewards.Add(new RewardStruct{Lottery=new RewardLottery()});ListSF.Fight.Rewards.Add(new RewardStruct{Lottery=new RewardLottery()});
+  Reject(()=>PrepareQuestLotteryClaim(stage,0,"test",0.5),"Ambiguous lotteries silently selected");
+  ListSF.Fight.Rewards.RemoveAt(1);Available=false;Reject(()=>PrepareQuestLotteryClaim(stage,0,"test",0.5),"Ineligible lottery silently completed");
+  var checkpointXml=new XmlDocument();checkpointXml.LoadXml("<QuestParameters><Fight Value='test'/></QuestParameters>");var checkpoint=new ParametersQuest{Node=checkpointXml.DocumentElement};
+  SaveQuestLotteryContext(checkpoint,new QuestParameters());Check(checkpoint.Node.ChildNodes.Count==1,"Ordinary quest gained lottery metadata");
+  var context=new QuestParameters{inLottery=true,EGAPDJLHHNJ=3,FOODLENBJGI="example:item<&>",OHPHPJBMNLH="raid"};SaveQuestLotteryContext(checkpoint,context);
+  checkpointXml.LoadXml(checkpointXml.OuterXml);checkpoint.Node=checkpointXml.DocumentElement;var resumed=new QuestParameters();RestoreQuestLotteryContext(checkpoint,resumed);
+  Check(resumed.inLottery&&resumed.EGAPDJLHHNJ==3&&resumed.FOODLENBJGI==context.FOODLENBJGI&&resumed.OHPHPJBMNLH=="raid","Quest context lost across XML reload");
+  Check(checkpoint.Node["Fight"].GetAttribute("Value")=="test","Lottery metadata damaged native checkpoint fields");
+  checkpoint.Node["EclipseLotteryContext"].SetAttribute("Spin","invalid");resumed=new QuestParameters();
+  try {RestoreQuestLotteryContext(checkpoint,resumed);throw new Exception("Malformed context accepted");}catch(InvalidDataException){checks++;}
+  Check(!resumed.inLottery&&resumed.EGAPDJLHHNJ==0,"Invalid context partially mutated resume state");
+  SaveQuestLotteryContext(checkpoint,new QuestParameters());Check(checkpoint.Node["EclipseLotteryContext"]==null,"New ordinary checkpoint retained stale lottery context");
+  RestoreQuestLotteryContext(checkpoint,resumed);Check(!resumed.inLottery,"Legacy checkpoint acquired lottery state");
+  Reset();ListSF.Queue=null;ListSF.Queued=ListSF.Runs=0;context=new QuestParameters{JLGLBLDPAAF=new FightIDS{Name="test"},BJIDALJIKNC=1,fightAvgFps=59.5f,OHPHPJBMNLH="boss"};
+  string encounter=Guid.NewGuid().ToString("N");PrepareBattleLottery(new RewardLottery(),context,true,encounter);
+  Check(HasPendingLottery&&ListSF.Saved.Contains("BattleEnd")&&Builds==1,"Battle draw/continuation not saved together");
+  PrepareBattleLottery(new RewardLottery(),context,true,encounter);Check(Builds==1,"Repeated encounter rerolled draw");
+  Reject(()=>PrepareBattleLottery(new RewardLottery(),context,false,Guid.NewGuid().ToString("N")),"New battle overwrote pending claim");
+  Reject(()=>CompleteBattleLottery(),"Unclaimed battle dispatched");
+  claim=ResumeLotteryClaim();Check(claim.TryClaim()&&HasPendingLottery,"Claim discarded unqueued fight-end context");
+  Reject(()=>Prepare(),"New draw overwrote unqueued fight-end context");
+  reloaded=new XmlDocument();reloaded.LoadXml(ListSF.Saved);_lotteryProfileNode=reloaded.DocumentElement;_profileRoster=new Roster();StoryEvents.BindProfile();
+  ListSF.Queue=()=>{int writes=ListSF.Writes;ListSF.ELEBLBJKDBI().OnAuthenticate(true);Check(ListSF.Writes==writes,"Quest queue saved before dispatch marker");};
+  CompleteBattleLottery();Check(!HasPendingLottery&&ListSF.Queued==1&&ListSF.Runs==1&&ListSF.Saved.Contains("Dispatched=\"1\""),"Battle continuation not durably accepted");
+  Check(ListSF.Raid&&ListSF.Context.JLGLBLDPAAF.ToString()=="test"&&ListSF.Context.inLottery&&ListSF.Context.BJIDALJIKNC==1&&ListSF.Context.fightAvgFps==59.5f,"Battle context changed on reload");
+  CompleteBattleLottery();PrepareBattleLottery(new RewardLottery(),context,true,encounter);Check(ListSF.Queued==1&&Builds==1,"Acknowledged battle replayed");
+  Reset();ListSF.Queue=()=>throw new InvalidOperationException("queue failure");PrepareBattleLottery(new RewardLottery(),context,false,Guid.NewGuid().ToString("N"));ResumeLotteryClaim().TryClaim();prepared=ListSF.Saved;
+  Reject(()=>CompleteBattleLottery(),"Queue failure ignored");Check(HasPendingLottery&&ListSF.Saved==prepared,"Failed queue overwrote recovery snapshot");Reject(()=>ListSF.ELEBLBJKDBI().OnAuthenticate(true),"Failed queue permitted autosave");
   Console.WriteLine("PASS: "+checks+" production lottery claim/recovery checks; selection, payload codec, quest stage, grant and disk save services controlled.");
  }
 }
 '@
-$program.Replace('/* CLAIM */',$claim.Value).Replace('/* PREPARE */',$prepare.Value).Replace('/* RESUME */',$resume.Value).Replace('/* DEFER */',$defer.Value).Replace('/* ACK */',$ack.Value).Replace('/* QUEST RUN */',$questRun.Value).Replace('/* QUEST COMPLETE */',$questComplete.Value) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Program.cs')
+$program.Replace('/* CLAIM */',$claim.Value).Replace('/* PREPARE */',$prepare.Value).Replace('/* RESUME */',$resume.Value).Replace('/* DEFER */',$defer.Value).Replace('/* ACK */',$ack.Value).Replace('/* QUEST RUN */',$questRun.Value).Replace('/* QUEST COMPLETE */',$questComplete.Value).Replace('/* QUEST RESOLVE */',$resolveQuest.Value).Replace('/* SAVE CONTEXT */',$saveContext.Value).Replace('/* RESTORE CONTEXT */',$restoreContext.Value).Replace('/* BATTLE PREPARE */',$battlePrepare.Value).Replace('/* BATTLE COMPLETE */',$battleComplete.Value).Replace('/* PENDING LOTTERY */',$pendingLottery.Value) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Program.cs')
 $sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs','ModQuestInvocationLedger.cs') | ForEach-Object {
  $path=[Security.SecurityElement]::Escape((Join-Path $root ('Assets/Scripts/Eclipse/Runtime/Modding/'+$_)))
  '<Compile Include="'+$path+'" />'

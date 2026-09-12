@@ -48,6 +48,8 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 	internal Eclipse.Modding.ModQuestInvocationLedger EclipseLotteryInvocations;
 	internal bool EclipseResumeActions;
 	internal string EclipseActionsDefinition;
+	internal QuestParameters EclipseQueuedParameters;
+	internal bool EclipseQueuedResume;
 
 	// Source provenance is separate from FileName, which is a saved loader contract.
 	public string EclipseSourceFile { get; private set; }
@@ -363,14 +365,18 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 
 	public void MHNEBBGMOLA(QuestParameters GFIHPBCEEOB)
 	{
+		EclipseQueuedParameters = GFIHPBCEEOB.SnapshotForQueue();
+		EclipseQueuedResume = false;
 		if (JAPJJHBDLKB != null)
 		{
-			JAPJJHBDLKB.OIPDKFAJILO(GFIHPBCEEOB);
+			JAPJJHBDLKB.OIPDKFAJILO(EclipseQueuedParameters);
 		}
 	}
 
 	public void MHHNIPBJNAD(QuestParameters GFIHPBCEEOB, bool MKBPLLIHMPE)
 	{
+		EclipseQueuedParameters = null;
+		EclipseQueuedResume = false;
 		EclipseLotteryInvocations = null;
 		EclipseResumeActions = MKBPLLIHMPE;
 		if (LogRules.ELEBLBJKDBI().MDKADLMMJLD())
@@ -456,6 +462,8 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 			hHKLFIIBIFF.AIEHNBBFNPF = KKNOCIPBIIK.JOLAAOAFNFF();
 			hHKLFIIBIFF.BJIDALJIKNC = KKNOCIPBIIK.OGIPFNNJOPK();
 			hHKLFIIBIFF.JNGFNNFAAGN = KKNOCIPBIIK.NHKMGNPADKI();
+			hHKLFIIBIFF.fightAvgFps = KKNOCIPBIIK.OEDLLJIBHFN();
+			Eclipse.Modding.ModRuntime.RestoreQuestLotteryContext(KKNOCIPBIIK, hHKLFIIBIFF);
 		}
 		return hHKLFIIBIFF;
 	}

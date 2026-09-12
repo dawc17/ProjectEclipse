@@ -556,6 +556,7 @@ public class ListSF
 
 	public static CheckItems CLKECIFEMNB(ItemInfo item, ItemAction LFLGCDNKNJI, int count = 1)
 	{
+		if (item == null || count <= 0) return new CheckItems { Value = -1L };
 		ELEBLBJKDBI().JLEMHLLLCLD();
 		CheckItems bJEBPDNMNAE = new CheckItems();
 		Roster nKGLHEGIKKP = CCDKHLAMKKO();
@@ -567,12 +568,12 @@ public class ListSF
 		case ItemAction.Item_Buy_Gold:
 		case ItemAction.Item_Upgrade_Gold:
 			num = nKGLHEGIKKP.BFBOEGMAMNF();
-			num2 = item.OHBBLIMNIMJ() * count;
+			num2 = CalculatePurchaseTotal(item.OHBBLIMNIMJ(), count);
 			break;
 		case ItemAction.Item_Buy_Ruby:
 		case ItemAction.Item_Upgrade_Ruby:
 			num = nKGLHEGIKKP.EHFJHFDACMP();
-			num2 = item.MCNMMBCJADI() * count;
+			num2 = CalculatePurchaseTotal(item.MCNMMBCJADI(), count);
 			break;
 		case ItemAction.Item_Buy_Real:
 		case ItemAction.Item_Free:
@@ -587,7 +588,7 @@ public class ListSF
 			break;
 		case ItemAction.Item_Consumable:
 			num = nKGLHEGIKKP.EHFJHFDACMP();
-			num2 = item.MCNMMBCJADI() * count;
+			num2 = CalculatePurchaseTotal(item.MCNMMBCJADI(), count);
 			break;
 		case ItemAction.Item_Recipe:
 		{
@@ -601,6 +602,8 @@ public class ListSF
 			LLLOJBFMONN.Error("ListSF::isBuyItem - unknown type: %i", LFLGCDNKNJI);
 			break;
 		}
+		// Invalid/overflowing totals must not wrap into an affordable price or balance.
+		if (num < 0 || num2 < 0) return new CheckItems { Value = -1L };
 		long num3 = num - num2;
 		bJEBPDNMNAE.Type = BKDHBIDPKLK.CHECK_ITEM_NONE;
 		bJEBPDNMNAE.Value = num3;
@@ -632,8 +635,15 @@ public class ListSF
 		return bJEBPDNMNAE;
 	}
 
+	internal static long CalculatePurchaseTotal(long unitPrice, int count)
+	{
+		if (unitPrice < 0 || count <= 0 || unitPrice > long.MaxValue / count) return -1L;
+		return unitPrice * count;
+	}
+
 	public static bool KCBCGDFKNME(ItemInfo item, ItemAction LFLGCDNKNJI, long FLCBMGGIDDA, int count = 1, Action<object> callback = null)
 	{
+		if (item == null || count <= 0) return false;
 		if (item != null)
 		{
 			Roster nKGLHEGIKKP = CCDKHLAMKKO();
@@ -680,7 +690,7 @@ public class ListSF
 			}
 			else
 			{
-				IGLBLDKOMML(item, LFLGCDNKNJI, FLCBMGGIDDA, bMNFPNBAMAF);
+				IGLBLDKOMML(item, LFLGCDNKNJI, FLCBMGGIDDA, bMNFPNBAMAF, count);
 			}
 			GameUtils.OFOKPNFGDMD("Virtual Good Purchased");
 			MenuController.IAMGKKOINFC();
@@ -1397,6 +1407,13 @@ public class ListSF
 		{
 			_QuestsManager.RunActionsAll();
 		}
+	}
+
+	// Acceptance checkpoints matching quests before the continuation is saved.
+	internal bool QueueLotteryFightEnd(QuestParameters context, bool raid)
+	{
+		_QuestsManager.QuestParameters = context;
+		return FFBAJNGHGGD(raid ? QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_RAID_FIGHT_END : QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_FIGHT_END);
 	}
 
 	public void FGAEEJBEGEJ(List<QuestStage> NKNMCOEBMNG)

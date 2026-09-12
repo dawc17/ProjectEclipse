@@ -573,6 +573,22 @@ namespace Eclipse.Modding
             public bool TryDecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<string> actions,
                 out int? selection, out string error)
             {
+                // Compatibility for hosts that supply only candidate names.
+                if (actions == null || actions.Count > 1024)
+                { selection = null; error = "Invalid AI decision snapshot."; return false; }
+                var candidates = new ModAiActionSnapshot[actions.Count];
+                for (int i = 0; i < actions.Count; i++)
+                {
+                    if (actions[i] == null)
+                    { selection = null; error = "Invalid AI action name."; return false; }
+                    candidates[i] = new ModAiActionSnapshot(actions[i]);
+                }
+                return TryDecideAi(tactic, instance, snapshot, candidates, out selection, out error);
+            }
+
+            public bool TryDecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<ModAiActionSnapshot> actions,
+                out int? selection, out string error)
+            {
                 selection = null; error = null;
                 AiMemory memory = null;
                 try
@@ -593,7 +609,31 @@ namespace Eclipse.Modding
                     var choices = new Dictionary<Table, int>();
                     for (int i = 0; i < actions.Count; i++)
                     {
-                        var action = new Table(_script); action.Set("name", DynValue.NewString(actions[i]));
+                        var candidate = actions[i] ?? throw new ModContentException("Invalid AI action snapshot.");
+                        var action = new Table(_script);
+                        action.Set("name", DynValue.NewString(candidate.Name));
+                        action.Set("type", DynValue.NewString(candidate.Type));
+                        action.Set("priority", DynValue.NewNumber(candidate.Priority));
+                        if (candidate.Timing != null)
+                        {
+                            var timing = new Table(_script);
+                            timing.Set("first_sample", DynValue.NewNumber(candidate.Timing.FirstSample));
+                            timing.Set("last_sample", DynValue.NewNumber(candidate.Timing.LastSample));
+                            timing.Set("mid_frames", DynValue.NewNumber(candidate.Timing.MidFrames));
+                            timing.Set("nominal_frames", DynValue.NewNumber(candidate.Timing.NominalFrames));
+                            timing.Set("nominal_seconds", DynValue.NewNumber(candidate.Timing.NominalSeconds));
+                            timing.Set("looped", DynValue.NewBoolean(candidate.Timing.Looped));
+                            action.Set("timing", DynValue.NewTable(timing));
+                        }
+                        var inputs = new Table(_script);
+                        for (int inputIndex = 0; inputIndex < candidate.Inputs.Count; inputIndex++)
+                        {
+                            var input = new Table(_script);
+                            input.Set("control", DynValue.NewString(candidate.Inputs[inputIndex].Control));
+                            input.Set("press", DynValue.NewString(candidate.Inputs[inputIndex].Press));
+                            inputs.Set(inputIndex + 1, DynValue.NewTable(input));
+                        }
+                        action.Set("inputs", DynValue.NewTable(inputs));
                         choices.Add(action, i); list.Set(i + 1, DynValue.NewTable(action));
                     }
                     eventTable.Set("actions", DynValue.NewTable(list));

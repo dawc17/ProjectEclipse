@@ -619,7 +619,7 @@ public class ModelAi
 
 	public void SetWeaponBot(string PPIEODBOOJA)
 	{
-		HCJOIHLKOKJ = AiData.GetItemEquivalent(PPIEODBOOJA);
+		EIMKBOMDAAE = AiData.GetItemEquivalent(PPIEODBOOJA);
 	}
 
 	public void OnGetHit()
