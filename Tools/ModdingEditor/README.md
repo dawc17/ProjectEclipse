@@ -233,3 +233,9 @@ payload fields. The observer example includes experience-driven level changes.
 API 0.30 adds scene_enter with a typed scene field. It observes initialized
 destinations after a deferred frame; it does not grant combat authority or bypass
 native dialogs. Existing UI close callbacks handle scene teardown.
+
+API 0.31 adds scenes.open with destination completion and presentation.navigate
+capability diagnostics. Scene Menu demonstrates native navigation from game-styled
+UI; native quests can consume a request, and loading completion is asynchronous.
+
+API 0.32 adds FightPatch.warriors: an optional array of 1–100 unique warrior handles for replacing an existing encounter's opponents. See the fight patch reference for preservation and conflict semantics.

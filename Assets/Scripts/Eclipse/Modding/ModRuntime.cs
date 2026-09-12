@@ -28,6 +28,7 @@ namespace Eclipse.Modding
             StoryEvents.Clear();
             _profileRoster = null;
             ModProfileAccess.Clear();
+            ModSceneAccess.Clear();
             DojoSelection.Clear();
             _legacyContent?.Dispose();
             _legacyContent = null;
@@ -45,6 +46,7 @@ namespace Eclipse.Modding
             DojoSelection.SetChoices(dojoChoices);
             ModProfileAccess.Level = ReadProfileLevel;
             ModProfileAccess.Item = ReadProfileItem;
+            ModSceneAccess.Open = TryNavigateScene;
             ModPolicies.Content = _scripts.Content;
             ModModeRuntime.SchedulePreparation = (request,ready,cancel) =>
                 new GameObject("Mod encounter preparation").AddComponent<ModPendingEncounter>().Configure(request,ready,cancel);
@@ -656,6 +658,7 @@ namespace Eclipse.Modding
             StoryEvents.Clear();
             _profileRoster = null;
             ModProfileAccess.Clear();
+            ModSceneAccess.Clear();
             DojoSelection.Clear();
             ModModeRuntime.Clear();
             ModModeRuntime.SelectNext = null;

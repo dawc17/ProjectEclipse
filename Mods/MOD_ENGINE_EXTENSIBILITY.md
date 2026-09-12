@@ -432,3 +432,23 @@ deferred delivery, unload, profile replacement and disabled/reactivated owners.
 This found and fixed a pending entry that could revive on reactivation: OnDisable
 now invalidates and removes the helper. Full-game native scenes and custom menu
 rendering/input remain acceptance work; the broader gaps remain open.
+
+API 0.31 adds scenes.open for map/shop/profile/dojo menu transitions. It preserves
+native quest/tab gates, rejects active combat/loading/dialog/lock/preparation states,
+and guards reentry. The result acknowledges acceptance, not completed loading;
+scene_enter observes arrival. Scene Menu demonstrates game-styled navigation UI.
+Native/Lua fixtures pass; full-game transitions and native menu insertion remain
+open, along with the wider story, UI and mode workflow requirements.
+
+Scene Menu Unity follow-up: the production UI fixture now loads the shipped Lua
+example and verifies its game font/sprites, bounds, rejected/accepted button flow,
+native blocking, directional submit, scene coordinator teardown and remounting.
+The complete fixture passes 99 checks. Navigation responses remain controlled;
+native game scene transitions and physical-input acceptance are still open.
+
+API 0.32 adds ordered opponent-list replacement to existing fight patches, with
+registered warrior handles, conflict detection and preservation of other encounter
+fields. Lua and projection fixtures pass; full-game opponent/progress acceptance
+remains pending. G01/E7 remain open for rewards, other core domains and broader
+composition. See PRE_DE_WORK_LOG.md for verification limits and remaining per-call
+patch rollback hardening.

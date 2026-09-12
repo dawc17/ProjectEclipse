@@ -434,7 +434,8 @@ namespace Eclipse.Modding
                 if (fightNode == null)
                     throw new ModContentException("Recovered fight for core patch is unavailable: '" + fight.Id + "'.");
                 ModFightPatchProjection.Apply(fightNode, fight, patch.Field, _content,
-                    rule => BuildRuleNode(fightNode.OwnerDocument, rule));
+                    rule => BuildRuleNode(fightNode.OwnerDocument, rule),
+                    warrior => BuildWarriorNode(fightNode.OwnerDocument, warrior));
             }
 
             foreach (KeyValuePair<DefinitionId, XmlNode> pair in patched)

@@ -247,7 +247,7 @@ to manage sequence progress and entry requirements.
 
 Replace supported fields on an existing registered fight.
 
-**Signature:** `sf2.fights.patch { target, description?, rounds?, round_time?, location?, music?, rules?, append_rules? }`
+**Signature:** `sf2.fights.patch { target, description?, rounds?, round_time?, location?, music?, warriors?, rules?, append_rules? }`
 
 **Requires:** `content.patch`, and a dependency on the target owner.
 
@@ -270,6 +270,28 @@ native rules on a core encounter. `rules = {}` explicitly clears it; an empty
 duplicate handles. Handles may be registered earlier in this same entrypoint.
 Both static rules and [Lua behavior rules](../rules/#sf2rulesbehavior) are supported.
 
+Since API 0.32, `warriors = { opponent, ... }` replaces the entire opponent list.
+Supply 1–100 unique registered warrior handles, in encounter order. An empty list
+is rejected. These are warrior handles, not warrior-template handles or string IDs;
+you may register them earlier in the same entrypoint. Omitting `warriors` preserves
+the existing opponents. This field uses the normal warrior authoring contract,
+including templates, equipment and custom character models.
+
+```lua
+-- opponent is a handle returned by sf2.warriors.register earlier in this script.
+sf2.fights.patch {
+    target = "core:fights/zone_1/boss_lynx/1",
+    warriors = { opponent },
+}
+```
+
+Opponent replacement leaves encounter identity, rewards and saved campaign
+progress intact; it does not unlock or reset the fight. Two patches replacing
+the same fight's opponents conflict. Opponent order contributes to the content
+fingerprint. Full-game opponent presentation and campaign replay acceptance
+remain pending; automated checks cover Lua registration, conflicts, preservation
+of other fields and native XML projection.
+
 Appending preserves native XML rules that have no public handle. Their native
 execution remains unchanged; Lua rules run through the documented combat callback
 dispatcher. Array order orders Lua rules relative to other Lua rules, not native
@@ -291,7 +313,7 @@ fail registration.
 
 `rules` and `append_rules` address the same semantic field: competing rule-list
 patches conflict, including two append requests. A conflict rolls back the whole
-registration transaction. Encounter IDs, opponents, rewards, and saved campaign
+registration transaction. Encounter IDs, rewards, and saved campaign
 progress are preserved. The patch is reapplied from base definitions at startup;
 disabling the mod and restarting restores base content. Content fingerprints
 distinguish appended rules from replacement, including an empty replacement.
@@ -308,5 +330,5 @@ sf2.fights.patch {
 
 `my_behavior` above must be a registered behavior handle. The complete
 `Mods/example.core-fight` mod demonstrates a health-dependent guard on an existing
-campaign opponent. These fields do not add opponent/reward replacement, a generic
+campaign opponent. These fields do not add reward replacement, a generic
 XML patch interface, or economy overrides.

@@ -37,6 +37,72 @@ public static class Program
         } catch(Exception e) { error=e.Message; return false; }
     }
     static string Fingerprint(string root,ModContentCatalog content) => ModSaveData.ComputeContentSetFingerprint(ModDiscovery.DiscoverLoose(root).Mods,content);
+    static void WarriorPatches(string root)
+    {
+        const string actors="local sf2=require('sf2');local a=sf2.warriors.register{id='a',first_name='A',level=3};local b=sf2.warriors.register{id='b',first_name='B',level=4};";
+        string previousFingerprint=null;
+        foreach(string order in new[]{"a,b","b,a"})
+        {
+            var content=Catalog();content.TryGetFight(DefinitionId.Parse(target),out var original);
+            string before=Fingerprint(root,content);
+            Check(Execute(root,content,actors+"sf2.fights.patch{target='"+target+"',warriors={"+order+"}}",out var error),error);
+            content.TryGetFight(DefinitionId.Parse(target),out var fight);
+            Check(fight.Id==original.Id&&fight.Battle==original.Battle&&fight.LegacyName==original.LegacyName,"Opponent patch changed encounter identity");
+            Check(Legacy(fight)==Legacy(original)&&fight.Power==original.Power&&fight.Replays==original.Replays&&fight.Rewards.SequenceEqual(original.Rewards)&&fight.Rules.SequenceEqual(original.Rules),"Opponent patch changed unrelated definition data");
+            Check(fight.Warriors.Count==2&&fight.Warriors[0].LocalId==order.Substring(0,1),"Opponent order not retained");
+            string fingerprint=Fingerprint(root,content);
+            Check(fingerprint!=before&&fingerprint!=previousFingerprint,"Opponent content/order missing from fingerprint");previousFingerprint=fingerprint;
+            var xml=new XmlDocument();xml.LoadXml(Legacy(original));
+            string rewards=xml.DocumentElement["Rewards"].OuterXml,rules=xml.DocumentElement["Rules"].OuterXml;
+            ModFightPatchProjection.Apply(xml.DocumentElement,fight,"fight/warriors",content,null,warrior=>{
+                var node=xml.CreateElement("Warrior");node.SetAttribute("FirstName",warrior.FirstName);return node;
+            });
+            Check(xml.DocumentElement["Warriors"].ChildNodes.Count==2&&xml.DocumentElement["Warriors"].FirstChild.Attributes["FirstName"].Value==order.Substring(0,1).ToUpperInvariant(),"Native opponent projection order");
+            Check(xml.DocumentElement["Rewards"].OuterXml==rewards&&xml.DocumentElement["Rules"].OuterXml==rules&&xml.DocumentElement.GetAttribute("Power")=="7","Opponent projection changed rewards/rules/power");
+            var rollback=new XmlDocument();rollback.LoadXml(Legacy(original));string untouched=rollback.OuterXml;int built=0;
+            bool failed=false;try{ModFightPatchProjection.Apply(rollback.DocumentElement,fight,"fight/warriors",content,null,w=>{if(++built==2)throw new Exception("projection failure");return rollback.CreateElement("Warrior");});}catch(Exception){failed=true;}
+            Check(failed&&rollback.OuterXml==untouched,"Failed opponent builder partially mutated native source");
+            string savedManifest=File.ReadAllText(manifest);int count=content.Warriors.Count;
+            string savedEntry=entry,savedPath=manifest;
+            string otherRoot=Path.Combine(Path.GetDirectoryName(root),"Other-"+Guid.NewGuid().ToString("N"));
+            manifest=Path.Combine(otherRoot,"example.other","mod.toml");
+            entry=Path.Combine(otherRoot,"example.other","scripts","main.lua");
+            Directory.CreateDirectory(Path.GetDirectoryName(entry));
+            File.WriteAllText(manifest,savedManifest.Replace("example.battle-rules","example.other"));
+            try {
+                Check(!Execute(otherRoot,content,actors+"sf2.fights.patch{target='"+target+"',warriors={a}}",out var conflict)&&conflict.Contains("fight/warriors"),"Competing opponent patch did not conflict: "+conflict);
+                Check(content.Warriors.Count==count,"Conflict leaked registered opponent definitions");
+            } finally { entry=savedEntry;manifest=savedPath; }
+        }
+        foreach(string value in new[]{"{}","{a,a}","{{}}","{r}"})
+        {
+            var content=Catalog();int count=content.Warriors.Count;
+            Check(!Execute(root,content,actors+"local r=sf2.rules.no_perks{id='r'};sf2.fights.patch{target='"+target+"',warriors="+value+"}",out var error),"Invalid opponent list accepted: "+value);
+            Check(content.Warriors.Count==count&&content.Patches.Count==0,"Rejected opponent patch leaked transaction state");
+        }
+    }
+    static string Legacy(FightDefinition fight) => (string)typeof(FightDefinition)
+        .GetProperty("LegacyXml",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).GetValue(fight);
+    static void CaughtPatchFailures(string root)
+    {
+        foreach (string failure in new[]{"rounds=0", "music=false", "append_rules={'fake'}", "round_time=0"})
+        {
+            var content=Catalog();
+            string script="local sf2=require('sf2');local a=sf2.warriors.register{id='a',level=3};"+
+                "sf2.fights.patch{target='"+target+"',round_time=123};"+
+                "local ok=pcall(function() sf2.fights.patch{target='"+target+"',warriors={a},description='leaked',"+failure+"} end);assert(not ok);"+
+                "sf2.fights.patch{target='"+target+"',warriors={a},description='accepted'}";
+            Check(Execute(root,content,script,out var error),"Caught patch validation/retry failed: "+error);
+            content.TryGetFight(DefinitionId.Parse(target),out var fight);
+            Check(content.Patches.Count==3&&fight.RoundTime==123&&fight.Warriors.Count==1&&fight.Description=="accepted","Caught error lost earlier patches or leaked failed fields");
+        }
+        var duplicate=Catalog();
+        Check(Execute(root,duplicate,"local sf2=require('sf2');sf2.fights.patch{target='"+target+"',music='original'};"+
+            "assert(not pcall(function() sf2.fights.patch{target='"+target+"',description='leaked',music='duplicate'} end));"+
+            "sf2.fights.patch{target='"+target+"',description='accepted'}",out var duplicateError),duplicateError);
+        duplicate.TryGetFight(DefinitionId.Parse(target),out var kept);
+        Check(duplicate.Patches.Count==2&&kept.Music=="original"&&kept.Description=="accepted","Caught duplicate removed an earlier patch/key");
+    }
     public static void Main(string[] args)
     {
         entry=Path.Combine(args[0],"example.battle-rules/scripts/main.lua");
@@ -99,6 +165,8 @@ public static class Program
         File.WriteAllText(manifest,originalManifest);
         Check(!Execute(args[0],Catalog(),"local sf2=require('sf2'); sf2.fights.patch {target='"+target+"',music='8'}",out var denied),"Missing content.patch allowed");
         File.WriteAllText(manifest,originalManifest.Replace("\"content.register\"","\"content.register\", \"content.patch\""));
+        WarriorPatches(args[0]);
+        CaughtPatchFailures(args[0]);
         var canonical = new ModContentCatalog(); var stages=new XmlDocument();
         stages.Load(Path.Combine(args[1],"Assets/vanillaXml/stages.xml"));
         Check(CoreContentImporter.ImportStages(canonical,stages.SelectSingleNode("Stages/Zones"))>0,"Canonical stage fixture is empty");

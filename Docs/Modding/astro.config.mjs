@@ -60,6 +60,7 @@ export default defineConfig({
           { slug: 'api/fighter' },
           { slug: 'api/profile' },
           { slug: 'api/story' },
+          { slug: 'api/scenes' },
           { slug: 'api/ui' },
           { slug: 'api/mod-state' },
           { slug: 'api/random' },

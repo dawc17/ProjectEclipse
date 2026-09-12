@@ -125,6 +125,7 @@ public static class ValidateModUiUnity
             Coordination(tree, events, prior);
             Bridge(tree);
             LuaRoundTrip();
+            SceneMenuRoundTrip();
             if (Environment.GetCommandLineArgs().Contains("-uiPreview")) Preview();
             Debug.Log("[ModUiUnity] PASS: " + checks + " production Unity UI hierarchy, update, input and lifetime checks. Full-game integration is not claimed.");
             EditorApplication.Exit(0);
@@ -267,6 +268,83 @@ public static class ValidateModUiUnity
         var bridge=UnityEngine.Object.FindObjectOfType<ModUiGameBridge>();
         if(bridge!=null)UnityEngine.Object.DestroyImmediate(bridge.gameObject);
     }
+    static void SceneMenuRoundTrip()
+    {
+        string root=Path.GetFullPath(Path.Combine(Application.dataPath,".."));
+        var mod=ModDiscovery.DiscoverLoose(Path.Combine(root,"SceneMods")).Mods.Single();
+        var catalog=new ModContentCatalog();
+        var assets=new AssetResolver(new IAssetProvider[]{new LooseModProvider(mod)});
+        var surfaces=new List<ModUiSurface>();
+        var errors=new List<string>();
+        var bus=new ModStoryEvents((id,error)=>errors.Add(error));
+        int requests=0;bool accepted=false;string destination=null;
+        ModSceneAccess.Open=name=>{requests++;destination=name;return accepted;};
+        var runtime=new MoonSharpScriptRuntime(surface=>{surfaces.Add(surface);ModUiGameBridge.Attach(surface);},null,null,bus);
+        var eventSystem=EventSystem.current;
+        bool nativeNavigation=eventSystem.sendNavigationEvents;
+        try
+        {
+            using(var registration=catalog.BeginRegistration(mod))
+            using(var context=runtime.CreateContext(mod,new ModApiFacade(mod,assets,registration,new ModStateRuntime(),null)))
+            {
+                context.ExecuteEntrypoint();registration.Commit();bus.BindProfile();
+                bus.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter,null,scene:"map"));
+                var surface=surfaces.Single();
+                var view=UnityEngine.Object.FindObjectsOfType<ModUiView>().Single();
+                Canvas.ForceUpdateCanvases();
+                Check(view.GetComponent<Image>().sprite?.name=="DialogScroll.Background_Center","Scene Menu parchment missing");
+                var buttons=view.GetComponentsInChildren<Button>();
+                Check(buttons.Length==5,"Scene Menu button count");
+                Check(buttons.All(button=>button.GetComponent<Image>().sprite?.name=="CommonButtons.BtnWhite"),"Scene Menu button skin differs from game");
+                Check(view.GetComponentsInChildren<Text>().All(text=>text.font!=null&&text.font.name=="AGOpusBold"),"Scene Menu font differs from game");
+                var parent=view.transform.Find("root").GetComponent<RectTransform>();
+                foreach(var button in buttons)
+                {
+                    var corners=new Vector3[4];button.GetComponent<RectTransform>().GetWorldCorners(corners);
+                    Check(corners.All(point=>{
+                        var local=parent.InverseTransformPoint(point);var bounds=parent.rect;
+                        return local.x>=bounds.xMin-.01f&&local.x<=bounds.xMax+.01f&&
+                            local.y>=bounds.yMin-.01f&&local.y<=bounds.yMax+.01f;
+                    }),"Scene Menu button escapes root: "+button.name);
+                }
+                var shop=view.transform.Find("root/shop").GetComponent<Button>();
+                shop.onClick.Invoke();
+                Check(requests==1&&destination=="shop"&&!surface.IsClosed,"Rejected native navigation closed menu or wrong request");
+                Check(view.transform.Find("root/status").GetComponent<Text>().text=="Unavailable right now","Native rejection label did not update");
+                ModUiGameBridge.SetNativeBlocked(true);
+                shop.onClick.Invoke();
+                Check(requests==1&&!surface.IsClosed&&!ModUiGameBridge.Route(0,true,false),"Native dialog block bypassed by menu");
+                ModUiGameBridge.SetNativeBlocked(false);accepted=true;
+                for(int i=0;i<5&&eventSystem.currentSelectedGameObject!=shop.gameObject;i++)
+                    ModUiGameBridge.Route(1,false,false);
+                Check(eventSystem.currentSelectedGameObject==shop.gameObject,"Scene Menu directional input could not select SHOP");
+                Check(ModUiGameBridge.Route(0,true,false),"Scene Menu submit was not routed");
+                Check(requests==2&&surface.IsClosed,"Accepted button did not close Lua/native menu");
+                Check(ModUiGameBridge.BlocksGameplayInput,"Navigation closing frame leaked input");
+
+                bus.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter,null,scene:"shop"));
+                var second=surfaces.Last();var bridge=UnityEngine.Object.FindObjectOfType<ModUiGameBridge>();
+                UnityEngine.Object.DestroyImmediate(bridge.gameObject);
+                Check(second.IsClosed,"Scene coordinator destruction retained menu");
+                bus.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter,null,scene:"profile"));
+                Check(surfaces.Count==3&&!surfaces.Last().IsClosed,"Live script could not remount after scene teardown");
+                bus.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter,null,scene:"fight"));
+                Check(surfaces.Count==3,"Scene Menu opened during combat");
+                Check(errors.Count==0,"Scene Menu callback failure: "+string.Join("; ",errors));
+            }
+            Check(surfaces.All(surface=>surface.IsClosed),"Unloaded script retained scene menu");
+            Check(!bus.HasSubscribers(ModStoryEventKind.SceneEnter),"Unloaded script retained scene listener");
+            Check(eventSystem.sendNavigationEvents==nativeNavigation&&!UnityEngine.Object.FindObjectOfType<ModUiCoordinator>().CapturesInput,
+                "Scene Menu teardown retained navigation ownership");
+        }
+        finally
+        {
+            ModSceneAccess.Clear();bus.Clear();ModUiGameBridge.SetNativeBlocked(false);
+            var bridge=UnityEngine.Object.FindObjectOfType<ModUiGameBridge>();
+            if(bridge!=null)UnityEngine.Object.DestroyImmediate(bridge.gameObject);
+        }
+    }
+
     static void Bridge(ModUiNode tree)
     {
         using (var scope = new ModUiScope(ModId.Parse("example.bridge")))

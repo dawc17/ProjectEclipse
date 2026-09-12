@@ -2,6 +2,13 @@ using System;
 using System.Collections.Generic;
 namespace Eclipse.Modding
 {
+    // Host service retains native scene/quest authority; Lua passes only a menu name.
+    public static class ModSceneAccess
+    {
+        public static Func<string,bool> Open;
+        public static void Clear() { Open=null; }
+    }
+
     public sealed class ModProfileItemSnapshot
     {
         public bool Present { get; }

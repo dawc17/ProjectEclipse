@@ -89,14 +89,16 @@ namespace Eclipse.Modding
         public int IntValue { get; }
         public DefinitionId[] Rules { get; }
         public bool AppendRules { get; }
+        public DefinitionId[] Warriors { get; }
 
-        public FightFieldPatch(ModContentPatchRecord record, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false)
+        public FightFieldPatch(ModContentPatchRecord record, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false, DefinitionId[] warriors = null)
         {
             Record = record ?? throw new ArgumentNullException(nameof(record));
             StringValue = stringValue;
             IntValue = intValue;
             Rules = rules == null ? null : (DefinitionId[])rules.Clone();
             AppendRules = appendRules;
+            Warriors = warriors == null ? null : (DefinitionId[])warriors.Clone();
         }
     }
 
@@ -121,6 +123,7 @@ namespace Eclipse.Modding
         }
 
         public const string FightRules = "fight/rules";
+        public const string FightWarriors = "fight/warriors";
         public const string FightLocation = "fight/location";
         public const string FightMusic = "fight/music";
         public const string FightDescription = "fight/description";
@@ -138,7 +141,7 @@ namespace Eclipse.Modding
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "fights" &&
                 (field == FightDescription || field == FightRounds || field == FightRoundTime ||
-                 field == FightRules || field == FightLocation || field == FightMusic))
+                 field == FightRules || field == FightLocation || field == FightMusic || field == FightWarriors))
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "zones" && field.StartsWith(ZoneBattleChildren, StringComparison.Ordinal))
                 return ModContentFieldPolicy.Appendable;
@@ -1064,13 +1067,23 @@ namespace Eclipse.Modding
                 Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
                 _warriors, combined.ToArray(), _rewards, LegacyXml, ReplacesLegacyRules || !append);
         }
+
+        internal FightDefinition WithWarriors(DefinitionId[] warriors)
+        {
+            if (warriors == null || warriors.Length < 1 || warriors.Length > 100)
+                throw new ModContentException("Patched warriors must contain 1..100 handles.");
+            return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
+                Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
+                warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+        }
     }
 
     // Shared with the recovered adapter so projection can be verified without loading Unity.
     public static class ModFightPatchProjection
     {
         public static void Apply(System.Xml.XmlElement node, FightDefinition fight, string field,
-            ModContentCatalog content, Func<FightRuleDefinition, System.Xml.XmlElement> buildRule)
+            ModContentCatalog content, Func<FightRuleDefinition, System.Xml.XmlElement> buildRule,
+            Func<WarriorDefinition, System.Xml.XmlElement> buildWarrior = null)
         {
             if (node == null || fight == null || content == null) throw new ArgumentNullException(nameof(node));
             if (field == ModContentPolicies.FightDescription) node.SetAttribute("Description", fight.Description);
@@ -1078,6 +1091,27 @@ namespace Eclipse.Modding
             else if (field == ModContentPolicies.FightRoundTime) node.SetAttribute("RoundTime", fight.RoundTime.ToString(System.Globalization.CultureInfo.InvariantCulture));
             else if (field == ModContentPolicies.FightLocation) node.SetAttribute("Location", fight.Location);
             else if (field == ModContentPolicies.FightMusic) node.SetAttribute("Music", fight.Music);
+            else if (field == ModContentPolicies.FightWarriors)
+            {
+                if (buildWarrior == null) throw new ArgumentNullException(nameof(buildWarrior));
+                var replacement = node.OwnerDocument.CreateElement("Warriors");
+                foreach (var id in fight.Warriors)
+                {
+                    if (!content.TryGetWarrior(id, out var warrior))
+                        throw new ModContentException("Patched fight references missing warrior: " + id);
+                    var built = buildWarrior(warrior);
+                    if (built == null || built.Name != "Warrior") throw new ModContentException("Warrior projection returned an invalid element.");
+                    replacement.AppendChild(node.OwnerDocument.ImportNode(built, true));
+                }
+                // Build every warrior first, so a failed projection leaves the source intact.
+                var prior = node.SelectNodes("Warriors");
+                if (prior.Count == 0) node.AppendChild(replacement);
+                else
+                {
+                    node.ReplaceChild(replacement, prior[0]);
+                    for (int i = 1; i < prior.Count; i++) node.RemoveChild(prior[i]);
+                }
+            }
             else if (field == ModContentPolicies.FightRules)
             {
                 if (fight.ReplacesLegacyRules)
@@ -1729,6 +1763,7 @@ namespace Eclipse.Modding
                 else if (record.Field == ModContentPolicies.FightLocation) current = current.WithPresentation(patch.StringValue, current.Music);
                 else if (record.Field == ModContentPolicies.FightMusic) current = current.WithPresentation(current.Location, patch.StringValue);
                 else if (record.Field == ModContentPolicies.FightRules) current = current.WithRules(patch.Rules, patch.AppendRules);
+                else if (record.Field == ModContentPolicies.FightWarriors) current = current.WithWarriors(patch.Warriors);
                 else throw new ModContentException("Unsupported fight patch field '" + record.Field + "'.");
                 replacements[record.Target] = current;
             }
@@ -2941,7 +2976,34 @@ namespace Eclipse.Modding
             return StageFightPatch(reference, ModContentPolicies.FightRules, null, 0, rules, append);
         }
 
-        private DefinitionId StageFightPatch(string reference, string field, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false)
+        // Only the host binding supplies this action; it stages fight fields and
+        // never executes a user callback or registers other kinds of content.
+        internal void StageFightPatchCall(Action stage)
+        {
+            ThrowIfCompleted();
+            int start = _fightPatches.Count;
+            try { stage(); }
+            catch
+            {
+                for (int i = _fightPatches.Count - 1; i >= start; i--)
+                {
+                    ModContentPatchRecord record = _fightPatches[i].Record;
+                    _patchKeys.Remove(new ModContentPatchKey(record.Target, record.Field));
+                    _fightPatches.RemoveAt(i);
+                }
+                throw;
+            }
+        }
+
+        public DefinitionId PatchFightWarriors(string reference, DefinitionId[] warriors)
+        {
+            if (warriors == null || warriors.Length < 1 || warriors.Length > 100)
+                throw new ModContentException("Patched warriors must contain 1..100 handles.");
+            ValidateDefinitionReferences(warriors, "warriors", default, "warrior");
+            return StageFightPatch(reference, ModContentPolicies.FightWarriors, null, 0, warriors: warriors);
+        }
+
+        private DefinitionId StageFightPatch(string reference, string field, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false, DefinitionId[] warriors = null)
         {
             ThrowIfCompleted();
             if (string.IsNullOrWhiteSpace(reference)) throw new ModContentException("Fight patch target must not be empty.");
@@ -2958,7 +3020,7 @@ namespace Eclipse.Modding
             EnsureCapacityForNewRegistration();
             if (!_patchKeys.Add(key)) throw new ModContentException("Duplicate fight patch for '" + id + "' field '" + field + "'.");
             var record = new ModContentPatchRecord(Mod.Id, id, field, ModContentPatchOperation.Replace);
-            _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue, rules, appendRules));
+            _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue, rules, appendRules, warriors));
             return id;
         }
 

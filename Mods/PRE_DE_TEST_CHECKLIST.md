@@ -260,3 +260,46 @@ an isolated Unity 2022.3.62f3 play-mode fixture now passes
 15 checks covering actual scene unload and helper coroutine lifetime, including
 deactivation/reactivation cancellation. Native full-game scenes, rendered menu
 placement and input still need the manual checks above.
+
+## 12. Native menu navigation (API 0.31)
+
+Enable `example.scene-menu` and enter the map. The Travel menu should use the
+normal game font, parchment/button styling and keyboard/controller navigation.
+
+- Use SHOP, PROFILE, DOJO and MAP. Each accepted transition should load that
+  native destination and open the example there. No duplicate transitions.
+- Choose the current destination: close the menu without reloading the scene.
+- BACK/Escape closes the example without navigation; normal input must resume.
+- Native dialogs, lock screens and pending encounter preparation must prevent
+  navigation. A rejected request displays `Unavailable right now`.
+- Native quest/tab interceptions must retain their normal behavior, without a
+  forced second transition. Actual fight exits still require normal surrender or
+  result handling; this API must not provide a shortcut around either.
+- Disable the example and restart: no Travel menu should remain.
+
+These are pending full-game checks. Production navigation/native transition
+fixtures and actual Lua example button tests pass with controlled host services.
+
+Additional automated evidence: the expanded Unity UI play-mode fixture passes 99
+checks, including the shipped Scene Menu in the production renderer/input bridge.
+It verifies game font/sprites, button bounds, directional submit, dialog blocking,
+rejection labels, teardown and remounting. Navigation results are controlled, so
+actual native destinations and physical-device checks above remain pending.
+
+## 13. Existing fight opponent replacement (API 0.32)
+
+In a test mod declaring content.register and content.patch, register an opponent
+using a known working template/loadout. Pass its warrior handle as the sole entry
+in warriors to sf2.fights.patch targeting core:fights/zone_1/boss_lynx/1.
+
+- Enter the first Lynx bodyguard fight in normal and Eclipse modes: confirm the
+  replacement name, portrait, equipment, model and attacks.
+- Confirm the encounter retains its original campaign identity, unlock/progress,
+  rules and rewards; replacing opponents must not reset completion.
+- Test a second ordered opponent using the encounter's native progression rules.
+- Disable the patching mod and restart: original opponents should return, without
+  losing campaign progress.
+
+These full-game checks remain pending. The automated fixture checks Lua validation,
+conflicts, order/fingerprints and XML collection replacement with a controlled
+warrior builder; it does not replace gameplay acceptance.

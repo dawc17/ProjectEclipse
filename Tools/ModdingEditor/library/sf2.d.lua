@@ -516,6 +516,7 @@ local FightDefinition = {}
 ---@field round_time? integer
 ---@field location? string
 ---@field music? string
+---@field warriors? Eclipse.WarriorHandle[]
 ---@field rules? Eclipse.RuleHandle[]
 ---@field append_rules? Eclipse.RuleHandle[]
 local FightPatch = {}
@@ -1259,6 +1260,9 @@ local rewards = {}
 ---@class Eclipse.Module_rules
 local rules = {}
 
+---@class Eclipse.Module_scenes
+local scenes = {}
+
 ---@class Eclipse.Module_services
 local services = {}
 
@@ -1843,6 +1847,14 @@ function story.off(subscription) end
 ---@param subscription Eclipse.StorySubscription
 ---@return boolean
 function story.is_active(subscription) end
+
+---Requires: `presentation.navigate`. `destination` is exactly one of `map`, `shop`, `profile` or `dojo`. Other values raise an error. Calling without a host navigation service also raises an error. Opening UI separately requires `ui.create`.
+---When: After a profile and a menu scene have initialized. Intended for custom menu buttons. Navigation is rejected while a transition is underway, encounter preparation is pending, native input is blocked, a lock screen is active, or the source is a fight, loader, preloader or credits scene. Navigation during a UI `on_close` callback raises an error: cleanup must not initiate another transition.
+---Returns: `true` if the native transition accepted the request or that scene is already current. `false` if navigation is currently unavailable or a native quest/tab gate consumed the request. A `true` result is not loading completion; observe `scene_enter` with [story subscriptions](../story/) for destination entry.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/scenes/#sf2scenesopen)
+---@param destination "map"|"shop"|"profile"|"dojo"
+---@return boolean
+function scenes.open(destination) end
 
 ---Requires: `content.register`; declare dependencies for external assets.
 ---When: During mod loading.
@@ -2456,4 +2468,4 @@ function Fighter:add_damage_shield(key, fraction, frames) end
 ---@param key string
 function Fighter:remove_damage_shield(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, services = services, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }

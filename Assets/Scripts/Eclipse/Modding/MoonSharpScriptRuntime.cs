@@ -1691,11 +1691,18 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "target", "description", "rounds", "round_time", "location", "music", "rules", "append_rules");
+                    ValidateFields(table, function, "target", "description", "rounds", "round_time", "location", "music", "rules", "append_rules", "warriors");
                     if (!table.Get("rules").IsNil() && !table.Get("append_rules").IsNil())
                         throw new ModContentException("Choose either rules or append_rules, not both.");
                     string target = RequiredString(table, "target", function);
+                    _api.StageFightPatchCall(() =>
+                    {
                     bool changed = false;
+                    if (!table.Get("warriors").IsNil())
+                    {
+                        _api.PatchFightWarriors(target, OptionalHandleArray(table, "warriors", _warriorHandles, "warrior", function));
+                        changed = true;
+                    }
                     DynValue description = table.Get("description");
                     if (!description.IsNil())
                     {
@@ -1716,6 +1723,7 @@ namespace Eclipse.Modding
                             changed = true;
                         }
                     if (!changed) throw new ModContentException(function + " must patch at least one supported field.");
+                    });
                     return DynValue.Nil;
                 });
             }

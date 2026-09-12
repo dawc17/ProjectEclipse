@@ -11,6 +11,18 @@ namespace Eclipse.Modding
                 new System.Runtime.CompilerServices.ConditionalWeakTable<Table,ModStorySubscription>();
             private void AddP3Modules(Table root)
             {
+                var scenes=new Table(_script);
+                scenes.Set("open",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.scenes.open",()=>{
+                    _api.RequireCapability("presentation.navigate");
+                    ThrowIfDisposed();
+                    if(_uiCloseDepth!=0)throw new ModContentException("Scene navigation is unavailable during UI cleanup.");
+                    string destination=args.AsType(0,"sf2.scenes.open",DataType.String,false).String;
+                    if(destination!="map"&&destination!="shop"&&destination!="profile"&&destination!="dojo")
+                        throw new ModContentException("Unsupported menu destination: "+destination);
+                    if(ModSceneAccess.Open==null)throw new ModContentException("Scene navigation is unavailable in this host.");
+                    return DynValue.NewBoolean(ModSceneAccess.Open(destination));
+                })));
+                root.Set("scenes",DynValue.NewTable(scenes));
                 var story = new Table(_script);
                 story.Set("on",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.story.on",()=>{
                     const string function="sf2.story.on";

@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.30.0",
+  "apiVersion": "0.32.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -730,6 +730,17 @@
       "summary": "",
       "requires": "`story.events` and this script context's subscription handle.",
       "when": "While the script is active."
+    },
+    "sf2.scenes.open": {
+      "params": {
+        "destination": "\"map\"|\"shop\"|\"profile\"|\"dojo\""
+      },
+      "returns": "`true` if the native transition accepted the request or that scene is already current. `false` if navigation is currently unavailable or a native quest/tab gate consumed the request. A `true` result is not loading completion; observe `scene_enter` with [story subscriptions](../story/) for destination entry.",
+      "capability": "presentation.navigate",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/scenes/#sf2scenesopen",
+      "summary": "",
+      "requires": "`presentation.navigate`. `destination` is exactly one of `map`, `shop`, `profile` or `dojo`. Other values raise an error. Calling without a host navigation service also raises an error. Opening UI separately requires `ui.create`.",
+      "when": "After a profile and a menu scene have initialized. Intended for custom menu buttons. Navigation is rejected while a transition is underway, encounter preparation is pending, native input is blocked, a lock screen is active, or the source is a fight, loader, preloader or credits scene. Navigation during a UI `on_close` callback raises an error: cleanup must not initiate another transition."
     },
     "sf2.locations.register": {
       "params": {
@@ -1904,6 +1915,7 @@
         "round_time?": "integer",
         "location?": "string",
         "music?": "string",
+        "warriors?": "Eclipse.WarriorHandle[]",
         "rules?": "Eclipse.RuleHandle[]",
         "append_rules?": "Eclipse.RuleHandle[]"
       }

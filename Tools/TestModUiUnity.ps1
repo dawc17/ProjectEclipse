@@ -12,6 +12,8 @@ Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') 
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime*.cs') -Destination (Join-Path $fixture 'Assets')
 Copy-Item -LiteralPath (Join-Path $root 'Library/ScriptAssemblies/MoonSharp.Interpreter.dll') -Destination (Join-Path $fixture 'Assets/Plugins')
 Copy-Item -LiteralPath (Join-Path $root 'Mods/example.charge-ui') -Destination (Join-Path $fixture 'Mods') -Recurse
+New-Item -ItemType Directory -Path (Join-Path $fixture 'SceneMods') | Out-Null
+Copy-Item -LiteralPath (Join-Path $root 'Mods/example.scene-menu') -Destination (Join-Path $fixture 'SceneMods') -Recurse
 Copy-Item -LiteralPath (Join-Path $root 'Assets/vanillaXml/stages.xml') -Destination (Join-Path $fixture 'FixtureData')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUiView.cs') -Destination (Join-Path $fixture 'Assets')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUiCoordinator.cs') -Destination (Join-Path $fixture 'Assets')

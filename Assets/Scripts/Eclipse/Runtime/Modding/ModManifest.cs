@@ -67,7 +67,7 @@ namespace Eclipse.Modding
 
     public static class ModPlatformVersions
     {
-        public static readonly SemanticVersion Api = SemanticVersion.Parse("0.30.0");
+        public static readonly SemanticVersion Api = SemanticVersion.Parse("0.32.0");
         public static readonly SemanticVersion Core = SemanticVersion.Parse("1.0.0");
     }
 }

@@ -1262,3 +1262,79 @@ Temp/SceneStoryUnity-b6a9b5fa42874d35990697cd5c8d47d0/validation.log. These gene
 projects/logs remain untracked. This improves scene-entry acceptance without
 claiming full-game native scene or custom UI rendering/input verification. Public
 documentation now states cancellation on deactivation. API remains 0.30.
+
+## API 0.31: native menu scene navigation
+
+Published sf2.scenes.open(destination), gated by presentation.navigate, over the
+native Module.DLOKJOHNDID path with quest/tab checks enabled. Destination strings
+are limited to map/shop/profile/dojo. Host checks require an active profile and
+initialized matching menu scene, with no pending encounter preparation, native
+input block, lock screen, combat/loader source or concurrent navigation. Same-scene
+requests succeed without reloading. False preserves native quest interception;
+exceptions release the reentry guard. Lua cannot navigate from UI on_close cleanup.
+The host service is installed after script load and cleared at restart/shutdown.
+
+Scene Menu opens game-styled travel buttons from scene_enter, closes on accepted
+requests and reports rejection without looping. Native menu insertion is still
+separate. Arrival remains asynchronous and observed through scene_enter.
+
+TestSceneNavigation.ps1 extracts both the production gate and native transition
+overload: 33 checks pass for destinations, source scenes, dialog/lock/preparation
+states, native quest/tab interception, reentry and exceptions. Thirty actual Lua
+checks cover capability/argument/host rejection, cleanup restrictions, boolean
+results and the shipped menu's accepted/rejected/Back buttons. All four managed
+assemblies compile. Editor generation/check, 23 project tests, LuaLS and eight
+isolated VS Code checks pass. Public reference, manifest guide and editor schema
+were updated together. Full-game transition, layout and input acceptance remain
+pending in checklist section 12. This advances G02/G03/E3/E4 rather than closing them.
+
+Navigation documentation final check: corrected the scene guide's relative story
+link; wiki build now passes 48 pages, 133 binding sections and 4,010 links/assets.
+Regenerated editor hover data and rechecked schema consistency after the link fix.
+
+## Scene Menu in the production Unity renderer/input bridge
+
+Extended TestModUiUnity.ps1 to copy example.scene-menu into a separate discovery
+root, preserving the existing Charged Strike fixture. ValidateModUiUnity now executes
+the shipped menu Lua with the real ModUiView, coordinator and input bridge in Unity
+2022.3.62f3 play mode. Story events/navigation responses are controlled in this fixture.
+
+Checks cover the original AGOpusBold font, parchment and button sprites, five button
+bounds, native rejection text, dialog blocking, accepted close, closing-frame input
+consumption, directional selection and submit, coordinator destruction, remounting,
+combat exclusion and context disposal restoring native navigation ownership.
+The initial bounds assertion used Rect.Contains, which excludes the upper/right
+edges; corrected the fixture to inclusive bounds with 0.01-unit rounding tolerance.
+No production layout repair was required.
+
+The expanded complete fixture passes 99 Unity hierarchy/update/input/lifetime
+checks. Latest evidence: Temp/ModUiUnity-51fa674d30f847d3b06c5244299ad430/validation.log.
+This generated fixture remains untracked. It does not claim actual native menu
+transitions, full-game visuals or physical-device acceptance. Public verification
+notes, the example README and checklist now distinguish this evidence. API stays 0.31.
+
+## API 0.32: existing encounter opponent replacement
+
+Fight patches now accept warriors: 1–100 unique registered warrior handles,
+replacing the complete list in order. Registration validates ownership and
+references; the semantic fight/warriors field participates in conflict handling.
+The patched definition preserves encounter identity and other fields. Native
+projection builds the entire replacement collection before changing its cloned
+source, using the existing production warrior builder. Rewards, rules and native
+attributes are retained. This advances G01; reward and other-domain editing remain
+open.
+
+Verification: 121 fight patch checks pass, including actual Lua registration,
+order-sensitive fingerprints, conflicting owners, invalid handles/lists, failed
+projection rollback and unrelated-field preservation. Corrected the competing-mod
+fixture to use a directory matching its manifest ID. All four managed builds pass.
+Editor generation/check, 23 project tests, LuaLS and eight VS Code checks pass.
+Wiki builds 48 pages and validates 4,010 local links/assets. Public reference and
+editor schema/generated definitions are updated together.
+
+Full-game opponent rendering, fight progression and disable/restart restoration
+remain manual acceptance work. The projection test uses a controlled warrior
+builder; it does not prove the complete native warrior construction path. A
+separate remaining hardening issue is per-call rollback when Lua catches a later
+field validation failure with pcall: existing multi-field patch staging needs an
+atomic call boundary, beyond the tested entrypoint/commit transaction rollback.

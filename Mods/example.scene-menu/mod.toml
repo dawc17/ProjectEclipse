@@ -1,0 +1,8 @@
+schema = 1
+id = "example.scene-menu"
+name = "Scene Menu"
+version = "1.0.0"
+api = ">=0.31 <1.0"
+entrypoint = "scripts/main.lua"
+authors = ["Eclipse"]
+capabilities = ["story.events", "ui.create", "presentation.navigate"]

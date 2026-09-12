@@ -442,6 +442,19 @@ namespace Eclipse.Modding
             return RequireRegistration().PatchFightDescription(target, value);
         }
 
+        // Host-only call boundary; no Lua function accepts this delegate.
+        public void StageFightPatchCall(Action stage)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().StageFightPatchCall(stage);
+        }
+
+        public DefinitionId PatchFightWarriors(string target, DefinitionId[] warriors)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightWarriors(target, warriors);
+        }
+
         public DefinitionId PatchFightRounds(string target, int value)
         {
             RequireCapability("content.patch");

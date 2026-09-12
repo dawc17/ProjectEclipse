@@ -94,6 +94,7 @@ test('core fight patch example validates with registered rule handles', async ()
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8'), mod).issues, []);
     const api = require('../data/api.json');
     assert(api.types.FightPatch.fields['append_rules?']);
+    assert(api.types.FightPatch.fields['warriors?']);
 });
 
 test('perk upgrade example validates its assets, localization and branch definitions', async () => {
@@ -185,6 +186,14 @@ test('story subscriptions require event capability', async () => {
 
 test('story observer example validates', async () => {
  const dir=path.resolve(__dirname,'../../../Mods/example.story-observer');
+ const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
+ assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});
+
+test('scene navigation capability and example validate', async () => {
+ const starter=await p.indexMod(template);
+ assert(p.analyze(header+'sf2.scenes.open("shop")',starter).issues.some(i=>i.message.includes('presentation.navigate')));
+ const dir=path.resolve(__dirname,'../../../Mods/example.scene-menu');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });

@@ -73,6 +73,7 @@ A capability permits an operation; a dependency permits references to another ow
 | `presentation.dojo` | Select, inspect or reset the saved dojo preference after profile loading. Selection is limited to the mod's own opted-in locations. |
 | `profile.read` | Read the active player's level and item ownership/equipped snapshots. |
 | `story.events` | Subscribe to purchases, enchantments, experience-driven level gains and initialized scene entry. |
+| `presentation.navigate` | Request native map, shop, profile and dojo menu transitions. |
 | `ui.create` | Open mod-owned UI layouts; returned handles can update and close that script's views. |
 | `combat.target` | Use supported operations on the opposing fighter. |
 | `progression.read`, `progression.write` | Read and update achievement counters. |
