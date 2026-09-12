@@ -1732,3 +1732,15 @@ port blockers while production assets are pending. Track cumulative delivery and
 open requirements in [PRE_DE_WORK_LOG.md](PRE_DE_WORK_LOG.md). API 0.10 adds
 existing-fight rule append/replacement and presentation patches. This is partial
 G01/E1 coverage; phase 4 and the full acceptance matrix remain incomplete.
+
+
+## API 0.22 implementation evidence
+
+The requested engine extensions now include generated encounter plans and deferred
+mode preparation, programmable tabular AI, body/skin bindings with Blender/native
+animation authoring, character/input/attack move fields, and native-styled toggle/
+slider widgets. See `PRE_DE_WORK_LOG.md` for exact contracts and verification and
+`MOD_ENGINE_EXTENSIBILITY.md` for remaining boundaries. These are reusable Eclipse
+capabilities, not a DE port or evidence that all legacy parity requirements closed.
+Public usage is documented in the wiki's modes, moves, UI, content-graph and
+character-authoring pages. API/editor metadata is 0.22.0.

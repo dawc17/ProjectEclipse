@@ -187,6 +187,20 @@ namespace Eclipse.Modding
                     XmlElement item = document.CreateElement("Interval");
                     if (interval.Type.Length != 0) Set(item, "Type", interval.Type);
                     if (interval.Name.Length != 0) Set(item, "Name", interval.Name);
+                    if (interval.Start.HasValue) Set(item,"Start",interval.Start.Value.ToString(CultureInfo.InvariantCulture));
+                    if (interval.End.HasValue) Set(item,"End",interval.End.Value.ToString(CultureInfo.InvariantCulture));
+                    if (interval.Attack != null)
+                    {
+                        var attack=interval.Attack;
+                        Set(item,"ID",attack.Id.ToString(CultureInfo.InvariantCulture));
+                        var parts=document.CreateElement("AttackingParts"); item.AppendChild(parts);
+                        foreach(var edge in attack.Edges) { var part=document.CreateElement("Edge"); Set(part,"Name",edge); parts.AppendChild(part); }
+                        var damage=document.CreateElement("Damage"); Set(damage,"Value",attack.Damage.ToString("R",CultureInfo.InvariantCulture)); item.AppendChild(damage);
+                        var attribute=document.CreateElement("Damage"); Set(attribute,"Type",attack.DamageType); damage.AppendChild(attribute);
+                        var impulse=document.CreateElement("Impulse"); item.AppendChild(impulse);
+                        Set(impulse,"X",attack.X.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Y",attack.Y.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Z",attack.Z.ToString("R",CultureInfo.InvariantCulture));
+                        var hit=document.CreateElement("Hit"); Set(hit,"Name",attack.Hit); item.AppendChild(hit);
+                    }
                     intervals.AppendChild(item);
                 }
                 node.AppendChild(intervals);
@@ -260,6 +274,13 @@ namespace Eclipse.Modding
 
         private XmlElement BuildMoveCondition(XmlDocument document, ModMoveCondition value)
         {
+            if(value.Kind==ModMoveConditionKind.Keys)
+            {
+                var keys=document.CreateElement("Keys");
+                if(value.Not) Set(keys,"Not","1");
+                foreach(var input in value.Keys) { var key=document.CreateElement("Key"); Set(key,"Type",input.Key); Set(key,"PressType",input.Press); keys.AppendChild(key); }
+                return keys;
+            }
             if (value.Kind == ModMoveConditionKind.All || value.Kind == ModMoveConditionKind.Any)
             {
                 XmlElement op = document.CreateElement("Operator");
@@ -269,6 +290,7 @@ namespace Eclipse.Modding
                 return op;
             }
             string element = value.Kind == ModMoveConditionKind.CurrentAnimation ? "CurrentAnimation" :
+                value.Kind == ModMoveConditionKind.Character ? "EclipseCharacter" :
                 value.Kind == ModMoveConditionKind.CurrentInterval ? "CurrentInterval" :
                 value.Kind == ModMoveConditionKind.Perk ? "Perk" : "Item";
             XmlElement node = document.CreateElement(element);
@@ -294,6 +316,7 @@ namespace Eclipse.Modding
                 case ModMoveEventKind.Birth: return "Birth";
                 case ModMoveEventKind.RoundStageStart: return "RoundStageStart";
                 case ModMoveEventKind.ModExpires: return "ModExpires";
+                case ModMoveEventKind.KeyPressed: return "KeyPressed";
                 default: throw new ModContentException("Unsupported move event kind: " + kind);
             }
         }

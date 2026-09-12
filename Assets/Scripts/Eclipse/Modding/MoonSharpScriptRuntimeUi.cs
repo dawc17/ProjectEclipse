@@ -29,6 +29,10 @@ namespace Eclipse.Modding
                     UiHandle(args, "sf2.ui.set_value").SetValue(UiString(args, 1, "sf2.ui.set_value"), UiArgument(args,2,DataType.Number,"sf2.ui.set_value").Number);
                     return DynValue.Nil;
                 })));
+                ui.Set("set_checked", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.set_checked", () => {
+                    UiHandle(args, "sf2.ui.set_checked").SetChecked(UiString(args, 1, "sf2.ui.set_checked"), UiArgument(args,2,DataType.Boolean,"sf2.ui.set_checked").Boolean);
+                    return DynValue.Nil;
+                })));
                 ui.Set("set_visible", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.set_visible", () => {
                     UiHandle(args, "sf2.ui.set_visible").SetVisible(UiString(args, 1, "sf2.ui.set_visible"), UiArgument(args,2,DataType.Boolean,"sf2.ui.set_visible").Boolean);
                     return DynValue.Nil;
@@ -66,7 +70,7 @@ namespace Eclipse.Modding
                 if (_mountUi == null) throw new ModContentException("Custom UI rendering is unavailable in this host.");
                 const string function = "sf2.ui.open";
                 var table = args.AsType(0, function, DataType.Table, false).Table;
-                ValidateFields(table, function, "id", "mount", "root", "on_click", "on_close", "placement");
+                ValidateFields(table, function, "id", "mount", "root", "on_click", "on_close", "on_change", "placement");
                 string id = RequiredString(table, "id", function);
                 ModUiMount mount;
                 switch (RequiredString(table, "mount", function))
@@ -82,6 +86,9 @@ namespace Eclipse.Modding
                 var onClose = table.Get("on_close");
                 if (!onClose.IsNil() && onClose.Type != DataType.Function)
                     throw new ModContentException("UI on_close must be a Lua function.");
+                var onChange = table.Get("on_change");
+                if (!onChange.IsNil() && onChange.Type != DataType.Function)
+                    throw new ModContentException("UI on_change must be a Lua function.");
                 int count = 0;
                 var node = ReadUiNode(table.Get("root"), 1, ref count);
                 ModUiPlacement placement = null;
@@ -110,6 +117,12 @@ namespace Eclipse.Modding
                             new[] { handle, DynValue.NewString(reason.ToString().ToLowerInvariant()) });
                     }
                     finally { _uiCloseDepth--; }
+                }, onChange.IsNil() ? (Action<string, double>)null : (widget, number) => {
+                    ThrowIfDisposed();
+                    if (!ready) throw new ModContentException("UI input arrived before mounting completed.");
+                    var definition = FindUiNode(node, widget);
+                    RunBounded(onChange, Mod.Id + ":ui/" + id + ":on_change", MaxBehaviorInstructionSlices,
+                        new[] { handle, DynValue.NewString(widget), definition.Kind == ModUiKind.Toggle ? DynValue.NewBoolean(number != 0) : DynValue.NewNumber(number) });
                 });
                 try
                 {
@@ -128,7 +141,7 @@ namespace Eclipse.Modding
                 if (value.Type != DataType.Table) throw new ModContentException("UI nodes must be tables.");
                 const string function = "UI node";
                 var node = value.Table;
-                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "visible", "enabled", "children", "style");
+                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "checked", "visible", "enabled", "children", "style");
                 ModUiKind kind;
                 switch (RequiredString(node, "kind", function))
                 {
@@ -139,8 +152,12 @@ namespace Eclipse.Modding
                     case "text": kind = ModUiKind.Text; break;
                     case "button": kind = ModUiKind.Button; break;
                     case "progress": kind = ModUiKind.Progress; break;
+                    case "toggle": kind = ModUiKind.Toggle; break;
+                    case "slider": kind = ModUiKind.Slider; break;
                     default: throw new ModContentException("Unsupported UI widget kind.");
                 }
+                if (kind != ModUiKind.Toggle && !node.Get("checked").IsNil()) throw new ModContentException("Only toggles accept checked.");
+                if (kind == ModUiKind.Toggle && !node.Get("value").IsNil()) throw new ModContentException("Use checked for a toggle.");
                 var children = new List<ModUiNode>();
                 var source = node.Get("children");
                 if (!source.IsNil())
@@ -159,8 +176,15 @@ namespace Eclipse.Modding
                 }
                 return new ModUiNode(RequiredString(node,"id",function), kind,
                     UiNumber(node,"width"), UiNumber(node,"height"), OptionalStringAllowEmpty(node,"text","",function),
-                    UiNumber(node,"value"), OptionalBool(node,"visible",true,function), OptionalBool(node,"enabled",true,function),
+                    kind == ModUiKind.Toggle ? (OptionalBool(node,"checked",false,function) ? 1 : 0) : UiNumber(node,"value"), OptionalBool(node,"visible",true,function), OptionalBool(node,"enabled",true,function),
                     UiNumber(node,"gap"), children, ReadUiStyle(node.Get("style")));
+            }
+
+            private static ModUiNode FindUiNode(ModUiNode node, string id)
+            {
+                if (node.Id == id) return node;
+                foreach (var child in node.Children) { var found = FindUiNode(child, id); if (found != null) return found; }
+                return null;
             }
 
             private ModUiStyle ReadUiStyle(DynValue value)

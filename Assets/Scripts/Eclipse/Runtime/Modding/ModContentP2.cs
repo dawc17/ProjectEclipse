@@ -48,8 +48,9 @@ namespace Eclipse.Modding
         public int EntryCount { get; }
         public bool HasEntryItem => EntryCount > 0;
         public bool UsesResultCallback { get; }
+        public bool UsesPrepareCallback { get; }
         internal ModModeDefinition(DefinitionId id, DefinitionId[] fights, bool repeatable, bool resetOnLoss,
-            bool raid, bool hardMode, int minimumLevel, long startsAt, long endsAt, DefinitionId entryItem, int entryCount, bool usesResultCallback = false)
+            bool raid, bool hardMode, int minimumLevel, long startsAt, long endsAt, DefinitionId entryItem, int entryCount, bool usesResultCallback = false, bool usesPrepareCallback = false)
         {
             if (fights == null || fights.Length < 1 || fights.Length > 100) throw new ModContentException("Mode requires 1..100 fights.");
             if (minimumLevel < 1 || minimumLevel > 1000 || startsAt < 0 || endsAt < 0 || (endsAt > 0 && endsAt <= startsAt))
@@ -60,6 +61,7 @@ namespace Eclipse.Modding
             ResetOnLoss = resetOnLoss; Raid = raid; HardMode = hardMode; MinimumLevel = minimumLevel;
             StartsAt = startsAt; EndsAt = endsAt; EntryItem = entryItem; EntryCount = entryCount;
             UsesResultCallback = usesResultCallback;
+            UsesPrepareCallback = usesPrepareCallback;
         }
         public bool IsAvailable(int level, long now) => level >= MinimumLevel && now >= StartsAt && (EndsAt == 0 || now < EndsAt);
     }
@@ -102,10 +104,10 @@ namespace Eclipse.Modding
         private readonly Dictionary<string, ModTimerPolicy> _timers = new Dictionary<string, ModTimerPolicy>();
         private readonly HashSet<string> _disabledFeatures = new HashSet<string>();
         public ModModeDefinition RegisterMode(string id, DefinitionId[] fights, bool repeatable, bool resetOnLoss,
-            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count, bool usesResultCallback = false)
+            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count, bool usesResultCallback = false, bool usesPrepareCallback = false)
         {
             ThrowIfCompleted(); EnsureCapacityForNewRegistration();
-            var mode = new ModModeDefinition(Qualify("modes", id), fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count, usesResultCallback);
+            var mode = new ModModeDefinition(Qualify("modes", id), fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count, usesResultCallback, usesPrepareCallback);
             if (_modes.ContainsKey(mode.Id)) throw new ModContentException("Duplicate mode: " + mode.Id);
             _modes.Add(mode.Id, mode); return mode;
         }
@@ -176,10 +178,10 @@ namespace Eclipse.Modding
     public sealed partial class ModApiFacade
     {
         public ModModeDefinition RegisterMode(string id, DefinitionId[] fights, bool repeatable, bool resetOnLoss,
-            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count, bool usesResultCallback = false)
+            bool raid, bool hardMode, int level, long starts, long ends, DefinitionId item, int count, bool usesResultCallback = false, bool usesPrepareCallback = false)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterMode(id, fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count, usesResultCallback);
+            return RequireRegistration().RegisterMode(id, fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count, usesResultCallback, usesPrepareCallback);
         }
         public void SetTimer(string subsystem, int seconds, bool skip) { RequireCapability("policy.timers"); RequireRegistration().SetTimer(subsystem, seconds, skip); }
         public void DisableFeature(string feature) { RequireCapability("policy.services"); RequireRegistration().DisableFeature(feature); }
@@ -249,6 +251,41 @@ namespace Eclipse.Modding
         private void Write(string name, int value) => _node.SetAttribute(name, value.ToString(CultureInfo.InvariantCulture));
         public void Enter() { _node.SetAttribute("Entered", "1"); }
         public void CancelEnter() { _node.SetAttribute("Entered", "0"); }
+        public ModEncounterPlan ReadPlan()
+        {
+            var plans = _node.SelectNodes("Encounter");
+            if (plans.Count > 1) throw new ModContentException("Duplicate saved encounter; data preserved.");
+            if (plans.Count == 0) return null;
+            var plan = (XmlElement)plans[0];
+            if (plan.GetAttribute("Version") != "1" || plan.GetAttribute("Step") != Step.ToString(CultureInfo.InvariantCulture))
+                throw new ModContentException("Unsupported or stale saved encounter; data preserved.");
+            var warriors = new List<DefinitionId>();
+            foreach (XmlNode node in plan.ChildNodes)
+            {
+                if (!(node is XmlElement child) || child.Name != "Warrior") throw new ModContentException("Invalid saved encounter child.");
+                warriors.Add(DefinitionId.Parse(child.GetAttribute("Id")));
+                if (warriors.Count > 64) throw new ModContentException("Saved encounter exceeds 64 warriors.");
+            }
+            return new ModEncounterPlan(warriors, PlanNumber(plan,"Level"), PlanNumber(plan,"Rounds"), PlanNumber(plan,"RoundTime"));
+        }
+        private static int? PlanNumber(XmlElement node, string name)
+        {
+            if (!node.HasAttribute(name)) return null;
+            if (!int.TryParse(node.GetAttribute(name),NumberStyles.None,CultureInfo.InvariantCulture,out int value))
+                throw new ModContentException("Invalid saved encounter " + name);
+            return value;
+        }
+        public void SavePlan(ModEncounterPlan plan)
+        {
+            if (Entered || ReadPlan() != null) throw new ModContentException("An encounter is already prepared or entered.");
+            var node = _node.OwnerDocument.CreateElement("Encounter");
+            node.SetAttribute("Version","1"); node.SetAttribute("Step",Step.ToString(CultureInfo.InvariantCulture));
+            if (plan.Level.HasValue) node.SetAttribute("Level",plan.Level.Value.ToString(CultureInfo.InvariantCulture));
+            if (plan.Rounds.HasValue) node.SetAttribute("Rounds",plan.Rounds.Value.ToString(CultureInfo.InvariantCulture));
+            if (plan.RoundTime.HasValue) node.SetAttribute("RoundTime",plan.RoundTime.Value.ToString(CultureInfo.InvariantCulture));
+            foreach (var id in plan.Warriors) { var child = node.OwnerDocument.CreateElement("Warrior"); child.SetAttribute("Id",id.ToString()); node.AppendChild(child); }
+            _node.AppendChild(node);
+        }
         public void Complete(ModModeDefinition mode, bool won)
             => Complete(mode, won, null);
         public void Complete(ModModeDefinition mode, bool won, int? selectedStep)
@@ -266,6 +303,35 @@ namespace Eclipse.Modding
             _node.SetAttribute("Entered", "0");
             Write("Completions", completions);
             Write("Step", next);
+            var plan = _node["Encounter"]; if (plan != null) _node.RemoveChild(plan);
         }
+    }
+
+    public sealed class ModEncounterPlan
+    {
+        public IReadOnlyList<DefinitionId> Warriors { get; }
+        public int? Level { get; }
+        public int? Rounds { get; }
+        public int? RoundTime { get; }
+        public ModEncounterPlan(IEnumerable<DefinitionId> warriors = null, int? level = null, int? rounds = null, int? roundTime = null)
+        {
+            var copy = warriors == null ? new List<DefinitionId>() : new List<DefinitionId>(warriors);
+            if (copy.Count > 64 || level < 1 || level > 1000 || rounds < 1 || rounds > 99 || roundTime < 1 || roundTime > 3600)
+                throw new ModContentException("Encounter permits up to 64 warriors, level 1..1000, rounds 1..99 and round_time 1..3600.");
+            Warriors = copy.AsReadOnly(); Level = level; Rounds = rounds; RoundTime = roundTime;
+        }
+    }
+
+    public sealed class ModModeRequest
+    {
+        public bool IsPending { get; private set; } = true;
+        public ModEncounterPlan Plan { get; private set; }
+        public void Resolve(ModEncounterPlan plan)
+        {
+            if (!IsPending) throw new ModContentException("Mode request is no longer pending.");
+            Plan = plan ?? throw new ArgumentNullException(nameof(plan)); IsPending = false;
+        }
+        public void Cancel() { if (IsPending) Invalidate(); }
+        public void Invalidate() { IsPending = false; Plan = null; }
     }
 }

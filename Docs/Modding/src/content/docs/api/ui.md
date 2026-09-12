@@ -55,12 +55,13 @@ Each node is a table:
 | Field | Required/default | Meaning |
 | --- | --- | --- |
 | `id` | Required | Unique within this view; 1–64 ASCII letters, digits, `_` or `-`. View IDs use the same syntax. |
-| `kind` | Required | `stack`, `row`, `column`, `scroll`, `text`, `button`, or `progress`. |
+| `kind` | Required | `stack`, `row`, `column`, `scroll`, `text`, `button`, `progress`, `toggle`, or `slider`. The last two require API 0.22. |
 | `width`, `height` | `0` | Finite 0–8192 reference units. Both must be positive on the root. Zero gives flexible size in a row/column; use explicit dimensions inside stacks. |
 | `children` | Empty | Dense array of nodes. Only containers accept children; `scroll` requires exactly one content node. |
 | `gap` | `0` | Row/column spacing, finite 0–1024. Other kinds require zero. |
-| `text` | `""` | Text/button label, up to 8192 UTF-16 code units. Other kinds require empty text. Plain text, wrapped and clipped; rich text is disabled. |
-| `value` | `0` | Progress fraction, finite 0–1. Other kinds require zero. |
+| `text` | `""` | Text/button/toggle label, up to 8192 UTF-16 code units. Other kinds require empty text. Plain text, wrapped and clipped; rich text is disabled. |
+| `value` | `0` | Progress/slider fraction, finite 0–1. Toggles reject this field; other kinds require zero. |
+| `checked` | `false` | Boolean, toggles only. |
 | `visible`, `enabled` | `true` | Widget state; hidden/disabled ancestors also prevent button activation. |
 | `style` | Game defaults | Optional style table, available since API 0.18; see below. |
 
@@ -73,8 +74,67 @@ consistent with the game: prefer these shared defaults and use overrides for
 readability or a specific semantic emphasis. Unknown fields, duplicate IDs, malformed arrays and invalid values
 are errors. Dynamic text accepts plain strings. Since API 0.17, use
 [`sf2.localization.text`](../localization-patches/#sf2localizationtext) to resolve
-translation handles during UI refreshes. Images, custom fonts, toggles/sliders and virtualized lists are not
+translation handles during UI refreshes. Images, custom fonts and virtualized lists are not
 part of this initial UI contract.
+
+API **0.22** adds toggles using the original checkbox sprites and sliders using
+the original settings track, fill and handle. In a menu/modal, Up/Down or Tab
+moves focus, Enter/Space (controller A) toggles the selected checkbox, and
+Left/Right (D-pad or stick) adjusts the selected slider in steps of 0.05.
+Pointer dragging is continuous. HUD controls accept pointer input.
+An optional [`on_change`](#on_change) callback receives actual user changes;
+programmatic setters never trigger it. Text styles also apply to toggle labels,
+and `fill_color` applies to sliders. Map normalized slider values to meaningful
+units in ordinary Lua, for example `seconds = 10 + value * 50`.
+
+## sf2.ui.set_checked
+
+**Signature:** `sf2.ui.set_checked(view, widget_id, checked)`
+
+**Returns:** Nothing.
+
+**When:** Set a toggle's boolean state without triggering `on_change`.
+
+**Requires:** API 0.22, an open owned view and a toggle ID. No additional capability.
+
+```lua
+sf2.ui.set_checked(view, "challenge", true)
+```
+
+## on_change
+
+**Signature:** `on_change = function(view, widget_id, value) ... end`
+
+**Returns:** Ignored.
+
+**When:** A visible, enabled toggle or slider in the foreground view changes
+through user input. `value` is a boolean for toggles, a number from 0 to 1 for
+sliders. The new value is committed before notification. Repeated identical
+values and programmatic setters do not notify. Hidden/disabled ancestors and
+native dialogs block input. A callback may update widgets or close its view.
+
+**Requires:** API 0.22 and `ui.create` to open the view. No fighter authority is
+supplied. The callback has a 200,000-instruction budget; failure closes the view
+and logs an error. Already committed Lua or saved state is not rolled back.
+
+```lua
+local sf2 = require("sf2")
+local challenge, duration = false, 30
+sf2.ui.open {
+    id = "options", mount = "menu",
+    root = { id = "root", kind = "column", width = 400, height = 160,
+        children = {
+            { id = "challenge", kind = "toggle", width = 400, height = 48,
+              text = "Challenge rules", checked = challenge },
+            { id = "duration", kind = "slider", width = 400, height = 48, value = 0.4 },
+        },
+    },
+    on_change = function(_, widget_id, value)
+        if widget_id == "challenge" then challenge = value
+        elseif widget_id == "duration" then duration = 10 + value * 50 end
+    end,
+}
+```
 
 ## Widget styles
 
@@ -84,11 +144,11 @@ They affect presentation only; they do not enable rich text or change input rule
 
 | Field | Default | Applies to |
 | --- | --- | --- |
-| `font_size` | `22` | Text/buttons; integer 8–128 reference units. Does not enlarge the layout box. |
-| `text_align` | `center` | Text/buttons; `left`, `center`, or `right`, vertically centered. |
-| `text_color` | Native dark text on parchment/buttons; pale gold on HUD labels | Text/buttons. |
-| `background_color` | Native sprite colors | Containers, buttons and progress tracks. Use a container behind text. |
-| `fill_color` | Native combat bar colors | Progress widgets only. |
+| `font_size` | `22` | Text/buttons/toggles; integer 8–128 reference units. Does not enlarge the layout box. |
+| `text_align` | `center` | Text/buttons/toggles; `left`, `center`, or `right`, vertically centered. |
+| `text_color` | Native dark text on parchment/buttons; pale gold on HUD labels | Text/buttons/toggles. |
+| `background_color` | Native sprite colors | Containers, buttons, toggles, progress and slider tracks. Use a container behind text. |
+| `fill_color` | Native combat bar colors | Progress widgets and sliders. |
 
 Colors must be `#RRGGBB` or `#RRGGBBAA` hex strings (case-insensitive); omitted
 alpha means opaque. Sprite colors are multiplicative tints, so a color does not
@@ -177,10 +237,10 @@ if view and sf2.ui.is_open(view) then sf2.ui.set_text(view, "count", "Ready") en
 
 **Returns:** Nothing.
 
-**When:** Update a text or button label. The string may be empty and is limited
+**When:** Update a text, button or toggle label. The string may be empty and is limited
 to 8192 UTF-16 code units. Updates do not rebuild the layout tree.
 
-**Requires:** An open owned view and a text/button ID; no additional capability.
+**Requires:** An open owned view and a text/button/toggle ID; no additional capability.
 
 ```lua
 sf2.ui.set_text(view, "count", "Charge: " .. tostring(charge))
@@ -192,10 +252,10 @@ sf2.ui.set_text(view, "count", "Charge: " .. tostring(charge))
 
 **Returns:** Nothing.
 
-**When:** Change a progress widget's fill to a finite fraction from 0 to 1.
+**When:** Change a progress widget's fill or a slider's position to a finite fraction from 0 to 1.
 Invalid values are rejected before mutation.
 
-**Requires:** An open owned view and a progress ID; no additional capability.
+**Requires:** An open owned view and a progress/slider ID; no additional capability. Sliders require API 0.22. Setters do not invoke `on_change`.
 
 ```lua
 sf2.ui.set_value(view, "meter", math.min(1, charge / maximum))

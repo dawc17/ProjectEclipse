@@ -158,6 +158,12 @@ namespace Eclipse.UI.Modding
 
         public bool Back() => !disposed && layers.Back();
 
+        public bool AdjustSelected(int direction)
+        {
+            if (!CapturesInput || !entries.TryGetValue(layers.Foreground, out var entry)) return false;
+            return entry.View.AdjustSelected(direction);
+        }
+
         private void UpdateSafeAreas(bool force = false)
         {
             var screen = new Vector2Int(Screen.width, Screen.height);

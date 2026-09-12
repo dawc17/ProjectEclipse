@@ -23,6 +23,7 @@ export default defineConfig({
           { slug: 'guides/manifest' },
           { slug: 'guides/first-battle' },
           { slug: 'guides/programmable-rules' },
+          { slug: 'guides/character-authoring' },
           { slug: 'api/installing-mods' },
           { slug: 'guides/troubleshooting' },
         ] },

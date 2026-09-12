@@ -63,6 +63,24 @@ static class Program
         });
         const string root="{id='root',kind='column',width=200,height=100,children={{id='label',kind='text',width=200,height=40,text='old'},{id='go',kind='button',width=200,height=40,text='Go'}}}";
         const string prefix="local sf2=require('sf2')\n";
+        const string controlRoot="{id='root',kind='column',width=300,height=140,children={{id='toggle',kind='toggle',width=300,height=40,text='Challenge',checked=true},{id='slider',kind='slider',width=300,height=40,value=0.25}}}";
+        Run(prefix+"local changes=0\nlocal view=sf2.ui.open{id='controls',mount='menu',root="+controlRoot+@",on_change=function(view,id,value)
+            changes=changes+1
+            if id=='toggle' then assert(type(value)=='boolean' and not value)
+            else assert(type(value)=='number' and value==0.75) end
+            sf2.ui.set_text(view,'toggle',tostring(changes))
+        end}
+        sf2.ui.set_checked(view,'toggle',true)
+        sf2.ui.set_value(view,'slider',0.25)
+        assert(changes==0)",false,(ctx,cat,views)=>{
+            Check(views[0].TryChange("toggle",0) && views[0].Read("toggle").Text=="1","Lua toggle callback missing or wrong type");
+            Check(views[0].TryChange("slider",.75) && views[0].Read("toggle").Text=="2","Lua slider callback missing or wrong type");
+        });
+        foreach (string body in new[]{"while true do end", "error('change failed')"})
+            Run(prefix+"sf2.ui.open{id='controls',mount='menu',root="+controlRoot+",on_change=function() "+body+" end}",false,
+                (ctx,cat,views)=>Check(!views[0].TryChange("toggle",0) && views[0].IsClosed,"Unbounded/failing change callback escaped"));
+        foreach (string invalid in new[]{"on_change=3", "root={id='bad',kind='toggle',width=100,height=40,value=1}", "root={id='bad',kind='slider',width=100,height=40,checked=true}"})
+            Run(prefix+"sf2.ui.open{id='controls',mount='menu',root="+controlRoot+","+invalid+"}",true);
         Run(prefix+@"local key=sf2.localization.key('charge.arm')
 assert(sf2.localization.text(key)=='ARM NEXT STRIKE')
 assert(sf2.localization.text(key,'eng')=='ARM NEXT STRIKE')

@@ -17,6 +17,11 @@ VSIX artifact. Project indexing runs locally and never executes your Lua scripts
 
 ## Features
 
+API 0.22 includes game-styled `toggle` and `slider` nodes, typed `on_change`
+callbacks and `sf2.ui.set_checked`. Slider values are normalized to 0–1;
+map them to your own units in Lua. Setters update presentation without calling
+input callbacks. See the Custom UI reference for lifetime and input rules.
+
 - API completion, typed argument tables, distinct handles, signatures, and hovers
   with requirements, timing, return values, and wiki links.
 - Inferred inline callback arguments: fighter methods, event fields, stateful
@@ -121,8 +126,7 @@ Implementation uses the [VS Code language feature APIs](https://code.visualstudi
 Battle rules: completion supports `sf2.rules.behavior` and its typed behavior,
 parameters, target, mode, and rounds fields. See the executable starter in
 `Mods/example.battle-rules` and the wiki's programmable-rules guide. Requires API
-0.8.0. IntelliSense does not imply support for arbitrary AI, victory conditions,
-or custom UI yet.
+0.8.0. IntelliSense reflects the implemented API; it does not replace a game playtest.
 
 `templates/battle-rules/` is a complete manual starter (copy it into your Mods
 folder, then change its manifest ID). The Create Mod wizard still defaults to
@@ -171,3 +175,19 @@ The public reference and generated callback inventory cover both `on_click`
 and `on_close`. Charged Strike demonstrates canceling pending gameplay state
 when its native view closes, retaining the existing game skin. Shutdown does
 not execute close callbacks; editor completion does not prove lifecycle timing.
+
+API 0.22 adds typed encounter preparation (`on_prepare`, `sf2.modes.resolve`,
+`cancel`, `is_pending`), generated encounter plans, programmable tactic
+`on_decide` callbacks, and native-styled toggles/sliders with `on_change` and
+`set_checked`. The manual `generated-expedition` and `programmable-ai` starters
+demonstrate complete map entries and gameplay scripts. Copy a starter into a
+folder matching its manifest ID; when renaming it, update its ID and localization
+namespace references together. The wizard still creates the weapon starter.
+
+Character definitions now complete `body_model` and `skin_models`. Move definitions
+complete `character`/`keys` conditions, `key_pressed` events, frame bounds and typed
+attack data. The Blender authoring workflow is documented in the wiki's
+`guides/character-authoring` page; its exporter creates a `character.generated.lua`
+module and native assets for your mod. Keep editor-only `sf2.d.lua` outside the mod's
+executable scripts. LuaLS verifies the new example scripts and callback/field
+completion; Blender, native animation reading, and game tests remain separate checks.

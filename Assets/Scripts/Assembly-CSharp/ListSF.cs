@@ -2133,6 +2133,14 @@ public class ListSF
 			}
 		}
 		Tactic hBFMBOHLKPJ = AiData.GetTacticByName(node.Attributes["Tactic"].CIPOICEEIBK(string.Empty));
+        if (node.Attributes["EclipseBodyModel"] != null) kIKOGDEPGHB.EclipseBodyModel = node.Attributes["EclipseBodyModel"].Value;
+        if (node.Attributes["EclipseCharacterId"] != null) kIKOGDEPGHB.EclipseCharacterId = node.Attributes["EclipseCharacterId"].Value;
+        if (node["EclipseSkinModels"] != null)
+        {
+            var models = new List<string>();
+            foreach (XmlNode skin in node["EclipseSkinModels"].ChildNodes) models.Add(skin.Attributes["Asset"].Value);
+            kIKOGDEPGHB.EclipseSkinModels = models.ToArray();
+        }
 		kIKOGDEPGHB.HBFMBOHLKPJ = hBFMBOHLKPJ;
 		kIKOGDEPGHB.EEGMBGBLLIF = node.Attributes["NotAI"] == null;
 		kIKOGDEPGHB.HKJFJHBHMND = node.Attributes["NotAnimation"] == null;

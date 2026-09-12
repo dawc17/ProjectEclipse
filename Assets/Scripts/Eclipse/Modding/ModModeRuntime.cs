@@ -7,6 +7,10 @@ namespace Eclipse.Modding
     {
         public static Action<string> Warning;
         public static Func<ModModeDefinition,bool,int,int,int?> SelectNext;
+        public static Action<ModModeDefinition,int,int,ModModeRequest> Prepare;
+        public static Func<ModModeDefinition,int,ModEncounterPlan,FightList> BuildEncounter;
+        public static Action<ModModeRequest,Action,Action> SchedulePreparation;
+        private static ModModeRequest _pending;
         private static XmlNode _warrior;
         private static string _activeFight;
         private static bool _newReservation;
@@ -28,7 +32,7 @@ namespace Eclipse.Modding
             if (list != null && list.FFBAJNGHGGD(kind)) list.MHHNIPBJNAD();
         }
         public static void Bind(XmlNode warrior) { if (_warrior != warrior) Clear(); _warrior = warrior; }
-        public static void Clear() { _warrior = null; _activeFight = null; _raidResult = null; _raidResultShown = false; _newReservation = false; _completedMode = false; _resetMode = false; }
+        public static void Clear() { _pending?.Invalidate(); _pending = null; _warrior = null; _activeFight = null; _raidResult = null; _raidResultShown = false; _newReservation = false; _completedMode = false; _resetMode = false; }
         public static bool TryFind(string runtimeId, out ModModeDefinition mode)
         {
             var content = ModPolicies.Content;
@@ -62,7 +66,11 @@ namespace Eclipse.Modding
                         {
                             var state = new ModModeProgress(_warrior, mode);
                             if (state.Step < mode.Fights.Count && mode.IsAvailable(ListSF.CCDKHLAMKKO().PINDEKDNCNL(), DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+                            {
                                 fight = ListSF.CHMCKGCDGCM(new FightIDS(content.RuntimeFightId(mode.Fights[state.Step])));
+                                var plan = state.ReadPlan();
+                                if (plan != null) fight = BuildEncounter?.Invoke(mode,state.Step,plan) ?? throw new ModContentException("Saved encounter construction is unavailable.");
+                            }
                         }
                         catch (Exception exception) { Reject(exception.Message); }
                         return true;
@@ -109,6 +117,40 @@ namespace Eclipse.Modding
         }
 
         // Every owned map battle is a semantic entry point into the mode's current step.
+        public static bool PrepareEntry(FightList fight, Action resume)
+        {
+            if (fight == null || !TryFind(fight.BCKFACGMOKC.ToString(),out var mode) || !mode.UsesPrepareCallback) return true;
+            try
+            {
+                if (_pending != null) return false;
+                var progress = new ModModeProgress(_warrior,mode);
+                if (progress.ReadPlan() != null || progress.Entered) return true;
+                if (progress.Step >= mode.Fights.Count || !mode.IsAvailable(ListSF.CCDKHLAMKKO().PINDEKDNCNL(),DateTimeOffset.UtcNow.ToUnixTimeSeconds()))
+                    return Reject("This mode is complete or unavailable.");
+                if (Prepare == null || BuildEncounter == null || SchedulePreparation == null) return Reject("Mode preparation is unavailable.");
+                int step = progress.Step, completions = progress.Completions;
+                var save = _warrior;
+                var request = new ModModeRequest();
+                _pending = request;
+                SchedulePreparation(request, () => {
+                    _pending = null;
+                    if (_warrior != save) throw new ModContentException("The profile changed during encounter preparation.");
+                    var current = new ModModeProgress(_warrior,mode);
+                    if (current.Step != step || current.Completions != completions || current.Entered)
+                        throw new ModContentException("Mode progress changed during preparation.");
+                    // Validate native construction before committing the saved plan or charging entry.
+                    if (BuildEncounter(mode,step,request.Plan) == null) throw new ModContentException("Encounter construction failed.");
+                    current.SavePlan(request.Plan);
+                    ListSF.CCDKHLAMKKO().GGGEHAGCLGC(true);
+                    request.Invalidate();
+                    resume();
+                }, () => { if (_pending == request) _pending = null; });
+                Prepare(mode,step,completions,request);
+                return false;
+            }
+            catch (Exception exception) { _pending?.Invalidate(); _pending=null; return Reject(exception.Message); }
+        }
+
         public static bool ResolveEntry(ref FightList fight)
         {
             if (fight == null || !TryFind(fight.BCKFACGMOKC.ToString(), out var mode)) return true;
@@ -120,6 +162,8 @@ namespace Eclipse.Modding
                 if (progress.Step >= mode.Fights.Count) return Reject("This mode is complete.");
                 var selected = ListSF.CHMCKGCDGCM(new FightIDS(ModPolicies.Content.RuntimeFightId(mode.Fights[progress.Step])));
                 if (selected == null) return Reject("The mode's next fight is unavailable.");
+                var plan = progress.ReadPlan();
+                if (plan != null) selected = BuildEncounter?.Invoke(mode,progress.Step,plan) ?? throw new ModContentException("Saved encounter construction is unavailable.");
                 if (mode.HasEntryItem && !progress.Entered)
                 {
                     var item = ListSF.CCDKHLAMKKO().KHCNHPCPFII().CMGOCLGHNLH(mode.EntryItem.ToString());

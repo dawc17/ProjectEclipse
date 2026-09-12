@@ -332,11 +332,12 @@ namespace Eclipse.Modding
             string voice, int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
             DefinitionId template, bool hasTemplate, string group, int random,
             System.Collections.Generic.IReadOnlyDictionary<string, float> attributes,
-            WarriorAttributeAlignmentDefinition[] attributeAlignments, int healthBars = 0)
+            WarriorAttributeAlignmentDefinition[] attributeAlignments, int healthBars = 0,
+            AssetId bodyModel = default, AssetId[] skinModels = null)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterWarrior(localId, firstName, lastName, avatar, voice, level,
-                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments, healthBars);
+                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels);
         }
 
         public WarriorTemplateDefinition GetWarriorTemplate(string reference)
@@ -493,6 +494,18 @@ namespace Eclipse.Modding
     public interface IModModeScriptContext
     {
         bool TryChooseModeNext(ModModeDefinition mode, bool won, int step, int completions, out int? selectedStep, out string error);
+    }
+
+    public interface IModAiScriptContext
+    {
+        bool HasAiHandler(string tactic);
+        bool TryDecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<string> actions,
+            out int? selection, out string error);
+    }
+
+    public interface IModModePrepareScriptContext
+    {
+        bool TryPrepareMode(ModModeDefinition mode, int step, int completions, ModModeRequest request, out string error);
     }
 
     public interface IModScriptRuntime

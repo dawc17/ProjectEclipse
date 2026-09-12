@@ -54,7 +54,15 @@ exports.run = async function () {
         edit.insert(uri, new vscode.Position(3, 0), 'sf2.behaviors.register { id="test", on_damage_received=function(params, fighter, event) fighter:change_health(5) end }\n');
         await vscode.workspace.applyEdit(edit);
         await extension.exports.refresh();
-        const issues = vscode.languages.getDiagnostics(uri).filter(d => d.source === 'Eclipse Modding');
+        // A debounced document-open/change refresh can supersede the explicit
+        // refresh. Wait for the published diagnostic, not one particular run.
+        let issues = [];
+        const diagnosticDeadline = Date.now() + 10000;
+        do {
+            issues = vscode.languages.getDiagnostics(uri).filter(d => d.source === 'Eclipse Modding');
+            if (issues.some(d => d.code === 'capability:combat.change_life')) break;
+            await new Promise(resolve => setTimeout(resolve, 100));
+        } while (Date.now() < diagnosticDeadline);
         assert(issues.some(d => d.code === 'capability:combat.change_life'), 'Missing capability diagnostic');
         const fixes = await vscode.commands.executeCommand('vscode.executeCodeActionProvider', uri, issues[0].range);
         const fix = fixes.find(f => f.title === 'Declare combat.change_life in mod.toml');

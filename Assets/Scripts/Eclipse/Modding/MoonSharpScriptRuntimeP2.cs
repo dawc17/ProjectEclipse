@@ -129,6 +129,15 @@ namespace Eclipse.Modding
                     module.Set("register", DynValue.NewCallback((ctx, args) => RegisterMode(args, category)));
                     root.Set(name, DynValue.NewTable(module));
                 }
+                root.Get("modes").Table.Set("resolve",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.modes.resolve",()=>{
+                    var request = ModeRequest(args,"sf2.modes.resolve");
+                    request.Resolve(ReadEncounterPlan(args[1])); return DynValue.Nil;
+                })));
+                root.Get("modes").Table.Set("cancel",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.modes.cancel",()=>{
+                    ModeRequest(args,"sf2.modes.cancel").Cancel(); return DynValue.Nil;
+                })));
+                root.Get("modes").Table.Set("is_pending",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.modes.is_pending",()=>
+                    DynValue.NewBoolean(ModeRequest(args,"sf2.modes.is_pending").IsPending))));
                 var timers = new Table(_script);
                 timers.Set("set", DynValue.NewCallback((ctx, args) => ApiCall("sf2.timers.set", () =>
                 {
@@ -158,6 +167,74 @@ namespace Eclipse.Modding
             }
 
             private readonly Dictionary<DefinitionId, DynValue> _modeResultHandlers = new Dictionary<DefinitionId, DynValue>();
+            private readonly Dictionary<DefinitionId, DynValue> _modePrepareHandlers = new Dictionary<DefinitionId, DynValue>();
+            private readonly List<ModModeRequest> _modeRequests = new List<ModModeRequest>();
+            private readonly System.Runtime.CompilerServices.ConditionalWeakTable<Table,ModModeRequest> _modeRequestHandles =
+                new System.Runtime.CompilerServices.ConditionalWeakTable<Table,ModModeRequest>();
+
+            private ModModeRequest ModeRequest(CallbackArguments args, string function)
+            {
+                ThrowIfDisposed();
+                var handle = args.AsType(0,function,DataType.Table,false).Table;
+                if (!_modeRequestHandles.TryGetValue(handle,out var request)) throw new ModContentException(function + " requires an owned mode request.");
+                return request;
+            }
+
+            private ModEncounterPlan ReadEncounterPlan(DynValue value)
+            {
+                if (value.Type != DataType.Table) throw new ModContentException("Encounter plan must be a table.");
+                var table = value.Table;
+                ValidateFields(table,"encounter plan","warriors","level","rounds","round_time");
+                var warriors = new List<DefinitionId>();
+                var list = table.Get("warriors");
+                if (!list.IsNil())
+                {
+                    if (list.Type != DataType.Table || list.Table.Length < 1 || list.Table.Length > 64) throw new ModContentException("Encounter warriors require 1..64 handles.");
+                    int length = list.Table.Length, pairs = 0;
+                    foreach (var pair in list.Table.Pairs)
+                    {
+                        pairs++;
+                        if (pair.Key.Type != DataType.Number || pair.Key.Number < 1 || pair.Key.Number > length || pair.Key.Number != Math.Truncate(pair.Key.Number))
+                            throw new ModContentException("Encounter warriors must be a dense array.");
+                    }
+                    if (pairs != length) throw new ModContentException("Encounter warriors must be a dense array.");
+                    for (int i=1;i<=length;i++)
+                    {
+                        var item = new Table(_script); item.Set("warrior",list.Table.Get(i));
+                        var id = RequiredHandle(item,"warrior",_warriorHandles,"warrior","encounter plan");
+                        if (id.Namespace != Mod.Id) throw new ModContentException("Generated encounters require owned warriors.");
+                        warriors.Add(id);
+                    }
+                }
+                return new ModEncounterPlan(warriors,
+                    table.Get("level").IsNil() ? (int?)null : RequiredInt(table,"level","encounter plan"),
+                    table.Get("rounds").IsNil() ? (int?)null : RequiredInt(table,"rounds","encounter plan"),
+                    table.Get("round_time").IsNil() ? (int?)null : RequiredInt(table,"round_time","encounter plan"));
+            }
+
+            public bool TryPrepareMode(ModModeDefinition mode, int step, int completions, ModModeRequest request, out string error)
+            {
+                error = null;
+                try
+                {
+                    ThrowIfDisposed();
+                    if (mode == null || mode.Id.Namespace != Mod.Id || step < 0 || step >= mode.Fights.Count || completions < 0 || request == null || !request.IsPending)
+                        throw new ModContentException("Invalid mode preparation context.");
+                    if (!_modePrepareHandlers.TryGetValue(mode.Id,out var handler)) throw new ModContentException("Mode preparation handler is unavailable.");
+                    _modeRequests.RemoveAll(item => !item.IsPending && item.Plan == null);
+                    if (_modeRequests.Count >= 64) throw new ModContentException("Too many retained mode requests.");
+                    _modeRequests.Add(request);
+                    var handle = new Table(_script); _modeRequestHandles.Add(handle,request);
+                    var snapshot = new Table(_script);
+                    snapshot.Set("step",DynValue.NewNumber(step+1)); snapshot.Set("total",DynValue.NewNumber(mode.Fights.Count));
+                    snapshot.Set("completions",DynValue.NewNumber(completions)); snapshot.Set("fight_id",DynValue.NewString(mode.Fights[step].ToString()));
+                    var result = RunBounded(handler,mode.Id+":on_prepare",MaxBehaviorInstructionSlices,
+                        new[]{DynValue.NewTable(handle),DynValue.NewTable(snapshot)});
+                    if (!result.IsNil()) request.Resolve(ReadEncounterPlan(result));
+                    return true;
+                }
+                catch (Exception exception) { request?.Invalidate(); error=exception.Message; return false; }
+            }
             public bool TryChooseModeNext(ModModeDefinition mode, bool won, int step, int completions, out int? selectedStep, out string error)
             {
                 selectedStep = null; error = null;
@@ -190,9 +267,11 @@ namespace Eclipse.Modding
                 {
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
                     ValidateFields(table, function, "id", "fights", "repeatable", "reset_on_loss", "minimum_level",
-                        "starts_at", "ends_at", "entry_item", "entry_count", "hard_mode", "on_result");
+                        "starts_at", "ends_at", "entry_item", "entry_count", "hard_mode", "on_result", "on_prepare");
                     var onResult=table.Get("on_result");
                     if (!onResult.IsNil() && onResult.Type != DataType.Function) throw new ModContentException("Mode on_result must be a Lua function.");
+                    var onPrepare=table.Get("on_prepare");
+                    if (!onPrepare.IsNil() && onPrepare.Type != DataType.Function) throw new ModContentException("Mode on_prepare must be a Lua function.");
                     var list = table.Get("fights");
                     if (list.Type != DataType.Table || list.Table.Length == 0) throw new ModContentException("Mode requires fights.");
                     int length = list.Table.Length;
@@ -220,8 +299,9 @@ namespace Eclipse.Modding
                         category == "raids", OptionalBool(table, "hard_mode", false, function),
                         table.Get("minimum_level").IsNil() ? 1 : RequiredInt(table, "minimum_level", function),
                         ReadUnixTime(table, "starts_at"),
-                        ReadUnixTime(table, "ends_at"), item, count, !onResult.IsNil());
+                        ReadUnixTime(table, "ends_at"), item, count, !onResult.IsNil(), !onPrepare.IsNil());
                     if (!onResult.IsNil()) _modeResultHandlers.Add(mode.Id,onResult);
+                    if (!onPrepare.IsNil()) _modePrepareHandlers.Add(mode.Id,onPrepare);
                     return DynValue.Nil;
                 });
             }

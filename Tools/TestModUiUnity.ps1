@@ -21,6 +21,8 @@ Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/Nekki/SF
 foreach ($resource in @('ui/atlases/CommonButtons.png','ui/atlases/CommonButtons.BtnWhite.asset',
     'ui/atlases/DialogScroll.png','ui/atlases/DialogScroll.Background_Center.asset',
     'ui/atlases/FightUI.png','ui/atlases/FightUI.HealthBar_Full.asset','ui/atlases/FightUI.HealthBar_Empty.asset',
+    'ui/atlases/MiscSprites.png','ui/atlases/MiscSprites.checkboxOff.asset','ui/atlases/MiscSprites.checkboxOn.asset',
+    'ui/atlases/SlidersSettings.png','ui/atlases/SlidersSettings.SettingsEmpty.asset','ui/atlases/SlidersSettings.full.asset','ui/atlases/SlidersSettings.slider.asset',
     'ui/fonts/AGOpusBold.ttf')) {
     $destination = Join-Path $fixture ('Assets/Resources/' + $resource)
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $destination) | Out-Null

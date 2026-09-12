@@ -118,6 +118,10 @@ public class ModelAi
 
 	private Model _Model;
 
+    private int _modDecisionFrame = -1;
+    private bool _modDecisionOwned;
+    private string _modDecisionTactic;
+
 	private List<int> _InterframesList = new List<int>();
 
 	private ModelAnimation _ModelAnimation;
@@ -427,6 +431,31 @@ public class ModelAi
 		{
 			return null;
 		}
+        string modTactic = get_Tactic()?.get_Name();
+        if (Eclipse.Modding.ModRuntime.HasAiHandler(modTactic))
+        {
+            if (_modDecisionTactic != modTactic)
+            {
+                _modDecisionTactic = modTactic;
+                _modDecisionFrame = -1;
+                _modDecisionOwned = false;
+            }
+            // At most ten Lua decisions per active simulation second. A requested
+            // wait retains control until the next decision; nil uses native AI.
+            if (_modDecisionFrame >= 0 && JLLPJLEDBPG >= _modDecisionFrame && JLLPJLEDBPG - _modDecisionFrame < 6)
+            {
+                if (_modDecisionOwned) return null;
+            }
+            else
+            {
+                _modDecisionFrame = JLLPJLEDBPG;
+                var available = new List<InfoAnimation>(_Model.MCFPDHOLNGB());
+                if (GetPlayableAnimations(available) == 0) available.Clear();
+                int? chosen = Eclipse.Modding.ModRuntime.DecideAi(modTactic, this, _Model, FNKFIMEDNLP, JLLPJLEDBPG, available);
+                _modDecisionOwned = chosen.HasValue;
+                if (chosen.HasValue) return chosen.Value >= 0 && chosen.Value < available.Count ? available[chosen.Value] : null;
+            }
+        }
 		MKMJONLDKEM = SelectDefenceMode(FNKFIMEDNLP);
 		HFGEBCOFPCA = GIBODDNLGJH.GetUseSafeAttackChance(fJCBLOKOBBD);
 		FHBHNNIIBDD = CIIDKJINKJG < HFGEBCOFPCA;

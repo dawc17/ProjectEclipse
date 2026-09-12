@@ -99,6 +99,27 @@ public static class ValidateModUiUnity
             UnityEngine.Object.DestroyImmediate(secondView.gameObject);
             Check(second.IsClosed && scope.Count == 0, "Native object teardown retained surface");
             Check(destroyedReason==ModUiCloseReason.Destroyed,"Native destruction did not report its close reason");
+            int changes = 0;
+            var controls = scope.Open("controls", ModUiMount.Menu, new ModUiNode("root",ModUiKind.Column,400,160,children:new[]{
+                new ModUiNode("toggle",ModUiKind.Toggle,400,48,text:"Challenge"),
+                new ModUiNode("slider",ModUiKind.Slider,400,48,value:.5)
+            }),onChange:(_,__)=>changes++);
+            var controlsView = ModUiView.Attach(controls,canvas.GetComponent<RectTransform>());
+            var toggle = controlsView.GetComponentInChildren<Toggle>();
+            var slider = controlsView.GetComponentInChildren<Slider>();
+            Check(toggle.targetGraphic.GetComponent<Image>().sprite?.name=="MiscSprites.checkboxOff" &&
+                toggle.graphic.GetComponent<Image>().sprite?.name=="MiscSprites.checkboxOn", "Original checkbox skin missing");
+            Check(slider.targetGraphic.GetComponent<Image>().sprite?.name=="SlidersSettings.slider" &&
+                slider.fillRect.GetComponent<Image>().sprite?.name=="SlidersSettings.full", "Original settings slider skin missing");
+            Check(controlsView.MoveFocus(1) && events.currentSelectedGameObject==toggle.gameObject && controlsView.ActivateSelected() && toggle.isOn,"Toggle focus/submit failed");
+            Check(controlsView.MoveFocus(1) && events.currentSelectedGameObject==slider.gameObject && controlsView.AdjustSelected(1) && Math.Abs(slider.value-.55)<.0001,"Slider focus/adjust failed");
+            controls.SetValue("slider",.25); controls.SetChecked("toggle",false);
+            Check(changes==2 && !toggle.isOn && slider.value==.25,"Setters echoed changes or failed to render");
+            toggle.isOn=true; slider.value=.75f;
+            Check(changes==4 && controls.Read("toggle").Value==1 && controls.Read("slider").Value==.75,"Pointer value changes did not reach model");
+            controls.SetInputAllowed(false); toggle.isOn=false; slider.value=1;
+            Check(changes==4 && toggle.isOn && slider.value==.75,"Blocked control did not restore authoritative state");
+            controls.Close();
             scope.Dispose();
             Placement(tree, canvas.GetComponent<RectTransform>());
             Coordination(tree, events, prior);
@@ -123,10 +144,12 @@ public static class ValidateModUiUnity
         canvas.renderMode=RenderMode.ScreenSpaceCamera;canvas.worldCamera=camera;canvas.planeDistance=1;
         using(var scope=new ModUiScope(ModId.Parse("example.preview")))
         {
-            var tree=new ModUiNode("root",ModUiKind.Column,480,280,gap:16,children:new[]{
+            var tree=new ModUiNode("root",ModUiKind.Column,480,400,gap:16,children:new[]{
                 new ModUiNode("title",ModUiKind.Text,480,64,text:"Custom battle rules",style:new ModUiStyle(fontSize:32)),
                 new ModUiNode("description",ModUiKind.Text,480,48,text:"Charge your next strike"),
                 new ModUiNode("meter",ModUiKind.Progress,480,24,value:.65),
+                new ModUiNode("challenge",ModUiKind.Toggle,480,48,text:"Challenge rules",value:1),
+                new ModUiNode("intensity",ModUiKind.Slider,480,48,value:.65),
                 new ModUiNode("play",ModUiKind.Button,480,64,text:"FIGHT!") });
             ModUiView.Attach(scope.Open("preview",ModUiMount.Menu,tree),canvas.GetComponent<RectTransform>());
             Canvas.ForceUpdateCanvases();camera.Render();

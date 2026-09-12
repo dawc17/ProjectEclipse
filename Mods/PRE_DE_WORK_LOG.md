@@ -688,3 +688,63 @@ references before running the existing routing/save/replay checks. It passes;
 editor generate/check, 14 project tests and LuaLS also pass. Wiki build passes
 with 43 pages, 116 bindings and 3349 checked links/assets. Full-game appearance
 and combat remain for user testing after restarting Play mode.
+
+
+## API 0.22: generated encounters, AI, character tools and native UI controls
+
+Implemented the owner's five requested extensions without starting the DE port.
+Static content remains typed; decisions and preparation use ordinary bounded Lua.
+
+- Modes/events/offline raids accept `on_prepare(request,event)`. Return a typed
+  encounter plan immediately or retain an owned request for a later UI callback.
+  `sf2.modes.resolve/cancel/is_pending` provide explicit completion and cancellation.
+  Plans override owned warrior rosters, level, rounds and round time over a registered
+  blueprint; location, rules, rewards and native identity remain the blueprint's.
+  The plan is validated and saved before native entry, reused on reload/retry,
+  and consumed by existing once-only settlement. Pending continuations are never
+  serialized. Scene/profile/context teardown invalidates requests.
+- Tabular tactics accept `on_decide(memory,event)` with detached fighter snapshots
+  and currently playable action handles. Return a current action, `"wait"`, or nil
+  for native fallback. Decisions are limited to one per six active simulation frames;
+  stale/forged choices and callback failures disable that fighter's handler and fall
+  back. Memory is isolated by controller and tactic. Tactic changes reset throttling.
+- Warriors accept typed `body_model` and `skin_models`. Narrow native parser,
+  model-composition and condition hooks carry these assets and character identity.
+  Moves add character/key conditions, key-pressed events, frame bounds, attacking
+  edges, damage attribute/multiplier, hit height and impulses. Existing serialized
+  enum values and Unity GUIDs are preserved.
+- Blender authoring tools import a native point rig, sample evaluated motion,
+  export rest-body geometry and attached triangle skins, bake 60 Hz animation,
+  emit fingerprints and an interactive preview, and generate a scoped Lua module.
+  Portable Python validation/baking is also available. This is the SF2 point-rig
+  workflow, not automatic arbitrary-FBX retargeting or Blender shader conversion.
+- UI toggles and sliders reuse original checkbox/settings-slider assets and the
+  game font. `on_change` and `set_checked` preserve ownership, bounded callbacks,
+  foreground input and silent programmatic updates. Menu focus supports keyboard/
+  controller slider adjustment; HUD interaction remains pointer-based.
+
+Added Generated Expedition (procedural opponent plus asynchronous difficulty/time
+choices) and AI Dojo (three visually distinct fighters with separate decision
+policies), with matching editor starters. Updated the public wiki, character guide,
+binding audit, authored editor schema, generated definitions and editor tests.
+
+Verification: all four managed assemblies compile. UI neutral runtime 119 checks,
+actual Lua UI 803 assertions, isolated native Unity UI 76 checks plus visual preview;
+AI 30 checks including shipped AI Dojo; mode workflow 33 checks including shipped
+Lua, production XML projection, save/reload, cancellation, settlement, malformed
+requests and instruction limits. Existing P2 branching/seeded/raid/settlement suite
+passes. Underworld runtime passes 1282 assertions; its asset audit still reports
+the known 40 missing scenery references and no malformed metadata.
+
+Character validation passes Python format tests, actual Blender 3.6.23 body/skin/
+motion export, the unchanged Unity animation reader (60 frames, 67 nodes; 16145
+checks), and actual generated Lua registration/native warrior+move projection.
+Editor generate/check, 16 project tests, LuaLS and eight real VS Code integration
+checks pass. Fixed a VS Code test race by waiting for diagnostic publication after
+a superseding refresh. The wiki builds 44 pages and covers 123 public functions/
+aliases/callbacks; links and search index pass.
+
+Full-game generated-fight construction/entry, physical input, AI behavior and
+authored character deformation/contact timing still require manual acceptance.
+Native UI and animation fixtures do not establish those outcomes. No DE assets,
+Unity serialized identities or shipped core content were rewritten.

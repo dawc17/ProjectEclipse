@@ -316,3 +316,23 @@ explicit reasons and prevention of reopening UI during cancellation. Charged
 Strike demonstrates canceling pending gameplay state on native HUD destruction.
 This advances the E3/E4 lifetime foundation. Async mode entry, lobbies/results,
 subscriptions and general cancellation services remain open.
+
+
+## Implemented extension update: API 0.22
+
+Procedural generation now produces saved typed encounter plans over registered
+fight blueprints. Modes/events/raids can defer entry with an owned `on_prepare`
+request and resolve it from UI. Programmable tabular AI receives playable actions,
+fighter snapshots and isolated transient memory. The character pipeline now spans
+Blender point-rig import, evaluated motion/skin export, validation/preview, native
+animation baking, model bindings and scoped playable moves. Native-styled toggles
+and sliders expand the UI contract. Generated Expedition and AI Dojo demonstrate
+the new behavior through ordinary Lua; editor/wiki contracts ship alongside it.
+
+This advances E2/E3/E4/E5; it does not declare the entire roadmap complete. Remaining
+work includes full-game acceptance, broader AI perception/control beyond selecting
+native playable actions, automatic cross-skeleton retargeting, richer UI asset and
+list/text-entry controls, custom lobbies/results and general asynchronous services.
+Requests cover mode preparation rather than arbitrary coroutine/network execution.
+The cumulative work log records checks and the manual checklist identifies the
+remaining in-game tests. Phase 4 remains deferred pending collaborator assets.

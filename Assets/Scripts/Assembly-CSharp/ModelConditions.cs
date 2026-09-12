@@ -42,6 +42,7 @@ public class ModelConditions
 	public Dictionary<string, string> PerkStringVariables = new Dictionary<string, string>();
 
 	public string ModelName;
+    public string EclipseCharacterId;
 
 	public SceneTypes IBBALIJOJMC;
 

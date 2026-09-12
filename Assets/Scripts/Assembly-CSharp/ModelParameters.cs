@@ -78,6 +78,9 @@ public class ModelParameters
 	public bool KKFBCOKMNDF;
 
 	public ItemInfo PILJCAOFAED;
+    public string EclipseBodyModel;
+    public string EclipseCharacterId;
+    public string[] EclipseSkinModels = System.Array.Empty<string>();
 
 	public ItemInfo JGMLKIPCFII;
 
@@ -463,6 +466,9 @@ public class ModelParameters
 		BMFLPBLAFLK = NBMGOEMJJAF.BMFLPBLAFLK;
 		HNKFHGOOKEG = NBMGOEMJJAF.HNKFHGOOKEG;
 		PILJCAOFAED = NBMGOEMJJAF.PILJCAOFAED;
+        EclipseBodyModel = NBMGOEMJJAF.EclipseBodyModel;
+        EclipseCharacterId = NBMGOEMJJAF.EclipseCharacterId;
+        EclipseSkinModels = (string[])NBMGOEMJJAF.EclipseSkinModels.Clone();
 		JGMLKIPCFII = NBMGOEMJJAF.JGMLKIPCFII;
 		LKKFNMBCCDB = NBMGOEMJJAF.LKKFNMBCCDB;
 		FKMOLBBLKDA = NBMGOEMJJAF.FKMOLBBLKDA;
@@ -726,7 +732,9 @@ public class ModelParameters
 	public void PPFDLIBLNDG()
 	{
 		MNPAALCFAKL.Clear();
-		if (PILJCAOFAED != null && !string.IsNullOrEmpty(PILJCAOFAED.KJDFJPBIGJC))
+        if (!string.IsNullOrEmpty(EclipseBodyModel))
+            MNPAALCFAKL.Add(EclipseBodyModel.EndsWith(".xml",System.StringComparison.OrdinalIgnoreCase) ? EclipseBodyModel : OKALHAKMOLI(EclipseBodyModel));
+		else if (PILJCAOFAED != null && !string.IsNullOrEmpty(PILJCAOFAED.KJDFJPBIGJC))
 		{
 			MNPAALCFAKL.Add(OKALHAKMOLI(PILJCAOFAED.KJDFJPBIGJC));
 		}
@@ -746,6 +754,8 @@ public class ModelParameters
 		{
 			MNPAALCFAKL.Add(OKALHAKMOLI(HEKILHEHMMH[i].KJDFJPBIGJC));
 		}
+        foreach (var skin in EclipseSkinModels)
+            MNPAALCFAKL.Add(skin.EndsWith(".xml",System.StringComparison.OrdinalIgnoreCase) ? skin : OKALHAKMOLI(skin));
 	}
 
 	public int DGLDFMCEDDO(string name, ref bool GMEMHMOHFGG)

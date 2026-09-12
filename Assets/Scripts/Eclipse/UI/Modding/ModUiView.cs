@@ -18,6 +18,9 @@ namespace Eclipse.UI.Modding
             public Text Label;
             public RectTransform Fill;
             public Button Button;
+            public Selectable Control;
+            public Toggle Toggle;
+            public Slider Slider;
         }
         private readonly Dictionary<string, WidgetView> widgets = new Dictionary<string, WidgetView>(StringComparer.Ordinal);
         private readonly List<string> buttons = new List<string>();
@@ -136,6 +139,7 @@ namespace Eclipse.UI.Modding
                     background.pixelsPerUnitMultiplier = background.sprite.rect.height / (float)node.Height;
                 background.color = ColorOf(node.Style.BackgroundColor,background.color);
                 view.Button = rect.gameObject.AddComponent<Button>();
+                view.Control = view.Button;
                 view.Button.targetGraphic = background;
                 view.Button.navigation = new Navigation { mode = Navigation.Mode.None };
                 var colors = view.Button.colors;
@@ -149,6 +153,56 @@ namespace Eclipse.UI.Modding
                 var label = Rect("Label", rect, 0, 0); Stretch(label);
                 label.offsetMin = new Vector2(8, 4); label.offsetMax = new Vector2(-8, -4);
                 view.Label = Label(label, node);
+            }
+            if (node.Kind == ModUiKind.Toggle)
+            {
+                float size = Mathf.Min(40, (float)node.Height);
+                var box = Rect("Box", rect, size, size);
+                box.anchorMin = box.anchorMax = new Vector2(0, .5f);
+                box.anchoredPosition = new Vector2(size / 2, 0);
+                var background = box.gameObject.AddComponent<Image>();
+                Skin(background, "MiscSprites.checkboxOff", new Color32(48,31,20,255));
+                background.color = ColorOf(node.Style.BackgroundColor, background.color);
+                var mark = Rect("Check", box, 0, 0); Stretch(mark);
+                var check = mark.gameObject.AddComponent<Image>();
+                Skin(check, "MiscSprites.checkboxOn", new Color32(213,165,62,255));
+                check.raycastTarget = false;
+                view.Toggle = rect.gameObject.AddComponent<Toggle>();
+                view.Control = view.Toggle;
+                view.Toggle.targetGraphic = background; view.Toggle.graphic = check;
+                view.Toggle.toggleTransition = Toggle.ToggleTransition.None;
+                var hit = rect.gameObject.AddComponent<Image>(); hit.color = Color.clear;
+                var label = Rect("Label", rect, 0, 0); Stretch(label);
+                label.offsetMin = new Vector2(size + 8, 0);
+                view.Label = Label(label, node);
+                view.Toggle.onValueChanged.AddListener(value => { surface.TryChange(node.Id, value ? 1 : 0); UpdateWidget(node.Id); });
+                view.Control.navigation = new Navigation { mode = Navigation.Mode.None };
+                buttons.Add(node.Id);
+            }
+            if (node.Kind == ModUiKind.Slider)
+            {
+                var hit = rect.gameObject.AddComponent<Image>(); hit.color = Color.clear;
+                var track = Rect("Track", rect, 0, 0); Stretch(track);
+                track.anchorMin = new Vector2(0, .35f); track.anchorMax = new Vector2(1, .65f);
+                track.offsetMin = new Vector2(12, 0); track.offsetMax = new Vector2(-12, 0);
+                var background = track.gameObject.AddComponent<Image>();
+                Skin(background, "SlidersSettings.SettingsEmpty", new Color32(48,31,20,255));
+                background.color = ColorOf(node.Style.BackgroundColor, background.color);
+                var fillRect = Rect("Fill", track, 0, 0); Stretch(fillRect);
+                var fill = fillRect.gameObject.AddComponent<Image>();
+                Skin(fill, "SlidersSettings.full", new Color32(213,165,62,255));
+                fill.color = ColorOf(node.Style.FillColor, fill.color); fill.raycastTarget = false;
+                var handleArea = Rect("HandleArea", rect, 0, 0); Stretch(handleArea);
+                handleArea.offsetMin = new Vector2(12, 0); handleArea.offsetMax = new Vector2(-12, 0);
+                var handle = Rect("Handle", handleArea, 24, 0); Stretch(handle); handle.sizeDelta = new Vector2(24, 0);
+                var thumb = handle.gameObject.AddComponent<Image>();
+                Skin(thumb, "SlidersSettings.slider", new Color32(213,165,62,255));
+                view.Slider = rect.gameObject.AddComponent<Slider>(); view.Control = view.Slider;
+                view.Slider.fillRect = fillRect; view.Slider.handleRect = handle; view.Slider.targetGraphic = thumb;
+                view.Slider.minValue = 0; view.Slider.maxValue = 1;
+                view.Slider.onValueChanged.AddListener(value => { surface.TryChange(node.Id, value); UpdateWidget(node.Id); });
+                view.Control.navigation = new Navigation { mode = Navigation.Mode.None };
+                buttons.Add(node.Id);
             }
             if (node.Kind == ModUiKind.Progress)
             {
@@ -189,7 +243,9 @@ namespace Eclipse.UI.Modding
             view.Group.interactable = state.Enabled;
             if (view.Label != null) view.Label.text = state.Text;
             if (view.Fill != null) view.Fill.anchorMax = new Vector2((float)state.Value, 1);
-            if (view.Button != null) view.Button.interactable = state.Enabled;
+            if (view.Control != null) view.Control.interactable = state.Enabled;
+            if (view.Toggle != null) view.Toggle.SetIsOnWithoutNotify(state.Value != 0);
+            if (view.Slider != null) view.Slider.SetValueWithoutNotify((float)state.Value);
         }
 
         public void FitToSafeArea(float width, float height)
@@ -211,14 +267,14 @@ namespace Eclipse.UI.Modding
         {
             if (disposed || surface.IsClosed || EventSystem.current == null || buttons.Count == 0) return false;
             var selected = EventSystem.current.currentSelectedGameObject;
-            int start = buttons.FindIndex(id => widgets[id].Button.gameObject == selected);
+            int start = buttons.FindIndex(id => widgets[id].Control.gameObject == selected);
             int step = direction < 0 ? -1 : 1;
             if (start < 0) start = step > 0 ? -1 : 0;
             for (int offset = 1; offset <= buttons.Count; offset++)
             {
                 int index = (start + step * offset + buttons.Count * 2) % buttons.Count;
                 string id = buttons[index];
-                if (surface.CanClick(id)) { widgets[id].Button.Select(); return true; }
+                if (surface.CanInteract(id)) { widgets[id].Control.Select(); return true; }
             }
             return false;
         }
@@ -228,7 +284,18 @@ namespace Eclipse.UI.Modding
             if (disposed || surface.IsClosed || EventSystem.current == null) return false;
             var selected = EventSystem.current.currentSelectedGameObject;
             foreach (string id in buttons)
-                if (widgets[id].Button.gameObject == selected) return surface.TryClick(id);
+                if (widgets[id].Control.gameObject == selected)
+                    return widgets[id].Toggle != null ? surface.TryChange(id, surface.Read(id).Value == 0 ? 1 : 0) : surface.TryClick(id);
+            return false;
+        }
+
+        public bool AdjustSelected(int direction)
+        {
+            if (disposed || surface.IsClosed || EventSystem.current == null || direction == 0) return false;
+            var selected = EventSystem.current.currentSelectedGameObject;
+            foreach (string id in buttons)
+                if (widgets[id].Control.gameObject == selected && widgets[id].Slider != null)
+                    return surface.TryChange(id, Math.Max(0, Math.Min(1, surface.Read(id).Value + (direction < 0 ? -.05 : .05))));
             return false;
         }
 

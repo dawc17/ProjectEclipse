@@ -330,6 +330,25 @@ namespace Eclipse.Modding
             {
                 string type = RequiredString(table, "type", function);
                 ModMoveConditionKind kind = ParseMoveConditionKind(type, function);
+                if (kind == ModMoveConditionKind.Character)
+                {
+                    ValidateFields(table,function,"type","warrior","not");
+                    return new ModMoveCondition(kind,RequiredHandle(table,"warrior",_warriorHandles,"warrior",function).ToString(),not:OptionalBool(table,"not",false,function));
+                }
+                if (kind == ModMoveConditionKind.Keys)
+                {
+                    ValidateFields(table,function,"type","keys","not");
+                    var array=RequireArray(table.Get("keys"),function+".keys");
+                    var keys=new List<ModMoveKey>();
+                    for(int i=1;i<=array.Length;i++)
+                    {
+                        var entry=array.Get(i); if(entry.Type!=DataType.Table) throw new ModContentException("Move keys require tables.");
+                        ValidateFields(entry.Table,function+".keys","key","press");
+                        keys.Add(new ModMoveKey(RequiredString(entry.Table,"key",function),OptionalString(entry.Table,"press","Tap",function)));
+                    }
+                    EnsureDenseArray(array,keys.Count,function);
+                    return new ModMoveCondition(kind,not:OptionalBool(table,"not",false,function),keys:keys.ToArray());
+                }
                 if (kind == ModMoveConditionKind.Perk)
                 {
                     ValidateFields(table, function, "type", "perk", "player", "not");
@@ -362,12 +381,33 @@ namespace Eclipse.Modding
                     if (entry.IsNil()) break;
                     if (entry.Type != DataType.Table) throw new ModContentException(function + " entries must be tables.");
                     string where = function + "[" + i + "]";
-                    ValidateFields(entry.Table, where, "type", "name");
+                    ValidateFields(entry.Table, where, "type", "name", "start", "end", "attack");
                     result.Add(new ModMoveInterval(OptionalStringAllowEmpty(entry.Table, "type", string.Empty, where),
-                        OptionalStringAllowEmpty(entry.Table, "name", string.Empty, where)));
+                        OptionalStringAllowEmpty(entry.Table, "name", string.Empty, where),
+                        entry.Table.Get("start").IsNil() ? (int?)null : RequiredInt(entry.Table,"start",where),
+                        entry.Table.Get("end").IsNil() ? (int?)null : RequiredInt(entry.Table,"end",where),
+                        ReadMoveAttack(entry.Table.Get("attack"),where+".attack")));
                 }
                 EnsureDenseArray(array, result.Count, function);
                 return result.ToArray();
+            }
+
+            private ModMoveAttack ReadMoveAttack(DynValue value,string function)
+            {
+                if(value.IsNil()) return null;
+                if(value.Type!=DataType.Table) throw new ModContentException(function+" must be a table.");
+                var table=value.Table;
+                ValidateFields(table,function,"edges","damage","damage_type","hit","id","impulse");
+                double x=0,y=0,z=0;
+                var impulse=table.Get("impulse");
+                if(!impulse.IsNil())
+                {
+                    if(impulse.Type!=DataType.Table) throw new ModContentException("Attack impulse must be a table.");
+                    ValidateFields(impulse.Table,function+".impulse","x","y","z");
+                    x=UiNumber(impulse.Table,"x"); y=UiNumber(impulse.Table,"y"); z=UiNumber(impulse.Table,"z");
+                }
+                return new ModMoveAttack(OptionalStringArray(table,"edges",function),UiNumber(table,"damage"),
+                    OptionalString(table,"damage_type","UnarmedDamage",function),OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z);
             }
 
             private ModMoveAction[] ReadMoveActions(DynValue value, string function)
@@ -408,7 +448,13 @@ namespace Eclipse.Modding
                 {
                     ValidateFields(table, function, "id", "type", "template", "memory", "counter_attack", "dodge",
                         "block", "safe_attack", "table_attack", "cautious_movement", "dodge_missiles", "dodge_magic",
-                        "animation_weights", "quick_attacks", "evades", "expected_wait");
+                        "animation_weights", "quick_attacks", "evades", "expected_wait", "on_decide");
+                    var onDecide = table.Get("on_decide");
+                    if (!onDecide.IsNil())
+                    {
+                        if (onDecide.Type != DataType.Function) throw new ModContentException("Tactic on_decide must be a Lua function.");
+                        if (OptionalString(table,"type","tabular",function) != "tabular") throw new ModContentException("Programmable AI requires the tabular input controller.");
+                    }
                     int memoryStrikes = 0;
                     float memoryRoundFactor = 0f;
                     DynValue memoryValue = table.Get("memory");
@@ -434,8 +480,61 @@ namespace Eclipse.Modding
                         ReadTacticAnimationValues(table.Get("quick_attacks"), function + ".quick_attacks"),
                         ReadTacticAnimationValues(table.Get("evades"), function + ".evades"),
                         ReadTacticAnimationValues(table.Get("expected_wait"), function + ".expected_wait"));
+                    if (!onDecide.IsNil()) _aiHandlers.Add(value.Id.ToString(), onDecide);
                     return NewHandle(_tacticHandles, value.Id);
                 });
+            }
+
+            private sealed class AiMemory
+            {
+                public Table State;
+                public bool Failed;
+            }
+            private readonly Dictionary<string, DynValue> _aiHandlers = new Dictionary<string, DynValue>(StringComparer.Ordinal);
+            private System.Runtime.CompilerServices.ConditionalWeakTable<object, Dictionary<string, AiMemory>> _aiInstances =
+                new System.Runtime.CompilerServices.ConditionalWeakTable<object, Dictionary<string, AiMemory>>();
+
+            public bool HasAiHandler(string tactic) => !_disposed && tactic != null && _aiHandlers.ContainsKey(tactic);
+
+            public bool TryDecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<string> actions,
+                out int? selection, out string error)
+            {
+                selection = null; error = null;
+                AiMemory memory = null;
+                try
+                {
+                    ThrowIfDisposed();
+                    if (!HasAiHandler(tactic)) return true;
+                    if (instance == null || snapshot == null || actions == null || actions.Count > 1024)
+                        throw new ModContentException("Invalid AI decision snapshot.");
+                    var instances = _aiInstances.GetOrCreateValue(instance);
+                    if (!instances.TryGetValue(tactic, out memory)) instances.Add(tactic, memory = new AiMemory { State = new Table(_script) });
+                    if (memory.Failed) return true;
+                    var eventTable = new Table(_script);
+                    eventTable.Set("self", FighterSnapshotTable(snapshot.Self));
+                    eventTable.Set("opponent", FighterSnapshotTable(snapshot.Opponent));
+                    eventTable.Set("frame", DynValue.NewNumber(snapshot.Frame));
+                    eventTable.Set("seconds", DynValue.NewNumber(snapshot.Seconds));
+                    var list = new Table(_script);
+                    var choices = new Dictionary<Table, int>();
+                    for (int i = 0; i < actions.Count; i++)
+                    {
+                        var action = new Table(_script); action.Set("name", DynValue.NewString(actions[i]));
+                        choices.Add(action, i); list.Set(i + 1, DynValue.NewTable(action));
+                    }
+                    eventTable.Set("actions", DynValue.NewTable(list));
+                    var result = RunBounded(_aiHandlers[tactic], tactic + ":on_decide", MaxBehaviorInstructionSlices,
+                        new[] { DynValue.NewTable(memory.State), DynValue.NewTable(eventTable) });
+                    if (result.IsNil()) return true;
+                    if (result.Type == DataType.String && result.String == "wait") { selection = -1; return true; }
+                    if (result.Type == DataType.Table && choices.TryGetValue(result.Table, out int index)) { selection = index; return true; }
+                    throw new ModContentException("AI on_decide must return nil, 'wait', or an action from this decision's snapshot.");
+                }
+                catch (Exception exception)
+                {
+                    if (memory != null) memory.Failed = true;
+                    error = exception.Message; return false;
+                }
             }
 
             private DynValue TacticName(ScriptExecutionContext context, CallbackArguments args)
@@ -510,6 +609,7 @@ namespace Eclipse.Modding
                     case "birth": return ModMoveEventKind.Birth;
                     case "round_stage_start": return ModMoveEventKind.RoundStageStart;
                     case "mod_expires": return ModMoveEventKind.ModExpires;
+                    case "key_pressed": return ModMoveEventKind.KeyPressed;
                     default: throw new ModContentException(function + " has unsupported event type '" + value + "'.");
                 }
             }
@@ -519,6 +619,8 @@ namespace Eclipse.Modding
                 switch (value)
                 {
                     case "perk": return ModMoveConditionKind.Perk;
+                    case "keys": return ModMoveConditionKind.Keys;
+                    case "character": return ModMoveConditionKind.Character;
                     case "current_animation": return ModMoveConditionKind.CurrentAnimation;
                     case "current_interval": return ModMoveConditionKind.CurrentInterval;
                     case "item": return ModMoveConditionKind.Item;

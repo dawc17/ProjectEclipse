@@ -216,3 +216,17 @@ does not supply Tekken moveset gameplay metadata.
 This profile has only been tested on the supplied clip and mannequin. It is a
 repeatable starting point for other grounded humanoid moves, not a universal
 Tekken-to-SF2 converter.
+
+## Character authoring pipeline
+
+`BlenderCharacter.py` imports the native point rig into Blender, samples authored
+or constrained motion, exports body/skin models and native animations, and writes
+a character-scoped Lua module. `CharacterPipeline.py` validates model references,
+bakes portable frame data, and creates an interactive local preview. The full
+workflow and format limits are in
+[`guides/character-authoring.md`](../../Docs/Modding/src/content/docs/guides/character-authoring.md).
+
+Run `Tools/Animation/TestCharacterPipeline.ps1` from the repository root for the
+Blender 3.6 export, native Unity animation reader and Lua projection fixture.
+Python-only format tests: `python Tools/Animation/TestCharacterPipeline.py`.
+These checks do not replace a fighter deformation/contact-timing playtest.

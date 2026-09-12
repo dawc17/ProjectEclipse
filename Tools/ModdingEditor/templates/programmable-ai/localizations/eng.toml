@@ -1,0 +1,6 @@
+trial = "AI Dojo"
+trial.description = "Patient kicks, evasive footwork, then alternating high and low attacks."
+zones/trial = "AI Dojo"
+fighter.1 = "Patient Gatekeeper"
+fighter.2 = "Footwork Sentinel"
+fighter.3 = "Alternating Warden"

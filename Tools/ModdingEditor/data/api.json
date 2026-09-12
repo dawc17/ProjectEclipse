@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.21.0",
+  "apiVersion": "0.22.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -787,6 +787,40 @@
       "requires": "`content.register`.",
       "when": "Entrypoint, after its fights with battle type `\"raid\"`."
     },
+    "sf2.modes.resolve": {
+      "params": {
+        "request": "Eclipse.ModeRequest",
+        "plan": "Eclipse.EncounterPlan"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2modesresolve",
+      "summary": "",
+      "requires": "API 0.22 and the pending request supplied to this script's `on_prepare`. Forged or foreign request tables are rejected. No extra capability.",
+      "when": "Complete a pending preparation, including from a UI callback. Reusing a resolved/canceled request or supplying an invalid plan is an error. It marks the request ready; native validation/save/entry occur after Lua returns."
+    },
+    "sf2.modes.cancel": {
+      "params": {
+        "request": "Eclipse.ModeRequest"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2modescancel",
+      "summary": "",
+      "requires": "API 0.22 and an owned request. No extra capability.",
+      "when": "Cancel an unfinished setup, for example in the view's `on_close`. No ticket is charged and no fight starts. Repeated cancellation is harmless. Cancellation after resolution is a no-op, so closing a successful choice view cannot undo the selected plan. Scene/script teardown can still prevent launch."
+    },
+    "sf2.modes.is_pending": {
+      "params": {
+        "request": "Eclipse.ModeRequest"
+      },
+      "returns": "`true` while awaiting a result, otherwise `false`.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2modesis_pending",
+      "summary": "",
+      "requires": "API 0.22 and an owned request. No extra capability.",
+      "when": "Guard buttons or late callbacks against stale requests."
+    },
     "sf2.timers.set": {
       "params": {
         "definition": "Eclipse.TimerPolicy"
@@ -960,8 +994,21 @@
       },
       "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_value",
       "summary": "",
-      "requires": "An open owned view and a progress ID; no additional capability.",
-      "when": "Change a progress widget's fill to a finite fraction from 0 to 1. Invalid values are rejected before mutation."
+      "requires": "An open owned view and a progress/slider ID; no additional capability. Sliders require API 0.22. Setters do not invoke `on_change`.",
+      "when": "Change a progress widget's fill or a slider's position to a finite fraction from 0 to 1. Invalid values are rejected before mutation."
+    },
+    "sf2.ui.set_checked": {
+      "params": {
+        "view": "Eclipse.UiHandle",
+        "widget_id": "string",
+        "checked": "boolean"
+      },
+      "returns": "Nothing.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_checked",
+      "summary": "",
+      "requires": "API 0.22, an open owned view and a toggle ID. No additional capability.",
+      "when": "Set a toggle's boolean state without triggering `on_change`."
     },
     "sf2.ui.set_visible": {
       "params": {
@@ -1090,11 +1137,16 @@
     "on_fight_end"
   ],
   "modeCallbacks": [
-    "on_result"
+    "on_result",
+    "on_prepare"
   ],
   "uiCallbacks": [
     "on_click",
-    "on_close"
+    "on_close",
+    "on_change"
+  ],
+  "aiCallbacks": [
+    "on_decide"
   ],
   "fighterMethods": {
     "snapshot": {
@@ -1692,6 +1744,8 @@
         "perks?": "Eclipse.PerkHandle[]",
         "attributes?": "table<string,number>",
         "attribute_alignments?": "Eclipse.AttributeAlignment[]",
+        "body_model?": "Eclipse.ModelHandle",
+        "skin_models?": "Eclipse.ModelHandle[]",
         "health_bars?": [
           "integer",
           "0 inherits the template; 1-10000 is the total number of health bars."
@@ -2111,7 +2165,7 @@
     },
     "MoveEvent": {
       "fields": {
-        "type": "\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"",
+        "type": "\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"",
         "name?": "string",
         "player?": "string"
       }
@@ -2137,14 +2191,54 @@
     "MoveConditionGroup": {
       "fields": {
         "type": "\"all\"|\"any\"",
-        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
         "not?": "boolean"
+      }
+    },
+    "MoveCharacterCondition": {
+      "fields": {
+        "type": "\"character\"",
+        "warrior": "Eclipse.WarriorHandle",
+        "not?": "boolean"
+      }
+    },
+    "MoveKey": {
+      "fields": {
+        "key": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"",
+        "press?": "\"Tap\"|\"Hold\"|\"Release\""
+      }
+    },
+    "MoveKeysCondition": {
+      "fields": {
+        "type": "\"keys\"",
+        "keys": "Eclipse.MoveKey[]",
+        "not?": "boolean"
+      }
+    },
+    "MoveImpulse": {
+      "fields": {
+        "x?": "number",
+        "y?": "number",
+        "z?": "number"
+      }
+    },
+    "MoveAttack": {
+      "fields": {
+        "edges": "string[]",
+        "damage?": "number",
+        "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
+        "hit?": "\"High\"|\"Middle\"|\"Low\"",
+        "id?": "integer",
+        "impulse?": "Eclipse.MoveImpulse"
       }
     },
     "MoveInterval": {
       "fields": {
         "type?": "string",
-        "name?": "string"
+        "name?": "string",
+        "start?": "integer",
+        "end?": "integer",
+        "attack?": "Eclipse.MoveAttack"
       }
     },
     "MoveTemplateDefinition": {
@@ -2152,8 +2246,8 @@
         "id": "string",
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
-        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
         "intervals?": "Eclipse.MoveInterval[]",
         "type?": "string",
         "mirror_node?": "string",
@@ -2172,8 +2266,8 @@
         "id": "string",
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
-        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
         "intervals?": "Eclipse.MoveInterval[]",
         "type?": "string",
         "mirror_node?": "string",
@@ -2205,8 +2299,8 @@
     "TriggerDefinition": {
       "fields": {
         "id": "string",
-        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]",
+        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
         "actions?": "(Eclipse.SoundAction|Eclipse.HitEffectAction)[]"
       }
     },
@@ -2242,9 +2336,24 @@
         "value?": "Eclipse.TacticValue"
       }
     },
+    "AiAction": {
+      "fields": {
+        "name": "string"
+      }
+    },
+    "AiDecision": {
+      "fields": {
+        "self": "Eclipse.FighterSnapshot",
+        "opponent": "Eclipse.FighterSnapshot?",
+        "frame": "integer",
+        "seconds": "number",
+        "actions": "Eclipse.AiAction[]"
+      }
+    },
     "TacticDefinition": {
       "fields": {
         "id": "string",
+        "on_decide?": "fun(memory:table,event:Eclipse.AiDecision): Eclipse.AiAction|\"wait\"|nil",
         "type?": "\"tabular\"|\"random\"",
         "template?": "string",
         "memory?": "Eclipse.TacticMemory",
@@ -2271,8 +2380,30 @@
         "fight_id": "string"
       }
     },
+    "ModeRequest": {
+      "fields": {
+        "private __eclipseModeRequest": "true"
+      }
+    },
+    "EncounterPlan": {
+      "fields": {
+        "warriors?": "Eclipse.WarriorHandle[]",
+        "level?": "integer",
+        "rounds?": "integer",
+        "round_time?": "integer"
+      }
+    },
+    "ModePreparation": {
+      "fields": {
+        "step": "integer",
+        "total": "integer",
+        "completions": "integer",
+        "fight_id": "string"
+      }
+    },
     "ModeDefinition": {
       "fields": {
+        "on_prepare?": "fun(request:Eclipse.ModeRequest,event:Eclipse.ModePreparation):Eclipse.EncounterPlan|nil",
         "id": "string",
         "fights": "Eclipse.FightHandle[]",
         "repeatable?": "boolean",
@@ -2287,6 +2418,7 @@
     },
     "RaidDefinition": {
       "fields": {
+        "on_prepare?": "fun(request:Eclipse.ModeRequest,event:Eclipse.ModePreparation):Eclipse.EncounterPlan|nil",
         "id": "string",
         "fights": "Eclipse.FightHandle[]",
         "repeatable?": "boolean",
@@ -2341,12 +2473,13 @@
     "UiNode": {
       "fields": {
         "id": "string",
-        "kind": "\"stack\"|\"row\"|\"column\"|\"scroll\"|\"text\"|\"button\"|\"progress\"",
+        "kind": "\"stack\"|\"row\"|\"column\"|\"scroll\"|\"text\"|\"button\"|\"progress\"|\"toggle\"|\"slider\"",
         "width?": "number",
         "height?": "number",
         "gap?": "number",
         "text?": "string",
         "value?": "number",
+        "checked?": "boolean",
         "visible?": "boolean",
         "enabled?": "boolean",
         "children?": "Eclipse.UiNode[]",
@@ -2366,6 +2499,7 @@
         "mount": "\"menu\"|\"modal\"|\"hud\"",
         "root": "Eclipse.UiNode",
         "placement?": "Eclipse.UiPlacement",
+        "on_change?": "fun(view:Eclipse.UiHandle,widget_id:string,value:boolean|number)",
         "on_click?": "fun(view:Eclipse.UiHandle,widget_id:string)",
         "on_close?": "fun(view:Eclipse.UiHandle,reason:\"script\"|\"back\"|\"scene\"|\"error\"|\"destroyed\")"
       }

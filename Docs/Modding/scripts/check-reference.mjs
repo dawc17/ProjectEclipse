@@ -46,7 +46,7 @@ for (const source of sources) {
 }
 
 if (sources.some(source => /table\.Get\("on_result"\)/.test(source))) exported.add('on_result');
-for (const name of ['on_click', 'on_close'])
+for (const name of ['on_click', 'on_close', 'on_change', 'on_decide', 'on_prepare'])
   if (sources.some(source => source.includes(`table.Get("${name}")`))) exported.add(name);
 
 const parser = unified().use(remarkParse);

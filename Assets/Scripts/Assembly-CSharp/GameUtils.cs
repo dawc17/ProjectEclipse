@@ -2261,6 +2261,8 @@ public static class GameUtils
 			LLLOJBFMONN.Error("GameUtils::StartFight(..) Error! FightList is empty!");
 			return false;
 		}
+        var requestedFight = KGKDKENMAOA;
+        if (!Eclipse.Modding.ModModeRuntime.PrepareEntry(requestedFight, () => StartFight(requestedFight,FLLKCPMJOEL,DPOOIONCEOA,CDFICPGIBEE,IINNCMDDLGE))) return false;
 		if (!Eclipse.Modding.ModModeRuntime.ResolveEntry(ref KGKDKENMAOA)) return false;
 		ScreenType iPKNDMINFMJ = Module.ELEBLBJKDBI().NMCNDOPKFJD();
 		FightList jDIPBIHBGPF = null;

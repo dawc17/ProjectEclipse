@@ -7,6 +7,7 @@ public class ConditionsParser
 	{
 		ConditionAnimation result = null;
 		string name = node.Name;
+        if (name == "EclipseCharacter") return new Eclipse.Modding.ModCharacterCondition(node.Attributes["Name"]?.Value);
 		switch (MovesMaps.MHKNIEBONKD(name))
 		{
 		case ConditionAnimation.DGAGKLODADD.ROUND:

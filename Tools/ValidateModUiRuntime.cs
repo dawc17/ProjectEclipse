@@ -19,6 +19,36 @@ static class Program
     });
     static void Main()
     {
+        using (var controls = new ModUiScope(ModId.Parse("example.controls")))
+        {
+            int notifications = 0;
+            ModUiSurface view = null;
+            view = controls.Open("controls", ModUiMount.Menu, new ModUiNode("root", ModUiKind.Column, 320, 200, children: new[] {
+                new ModUiNode("toggle", ModUiKind.Toggle, 300, 40, text:"Optional challenge"),
+                new ModUiNode("slider", ModUiKind.Slider, 300, 40, value:.25)
+            }), onChange:(id,value) => {
+                notifications++;
+                Check(view.Read(id).Value == value, "Change callback observed stale value");
+                Check(!view.TryChange(id, 0), "Reentrant user change accepted");
+            });
+            Check(view.TryChange("toggle", 1), "Toggle input rejected");
+            Check(view.TryChange("slider", .75), "Slider input rejected");
+            view.SetChecked("toggle", false); view.SetValue("slider", .5);
+            Check(notifications == 2, "Programmatic updates echoed input");
+            Check(!view.TryChange("slider", .5) && !view.TryChange("slider", double.NaN) && !view.TryChange("toggle", .5), "Invalid or unchanged input accepted");
+            view.SetEnabled("root", false);
+            Check(!view.TryChange("toggle", 1), "Disabled ancestor accepted change");
+            view.SetEnabled("root", true); view.SetInputAllowed(false);
+            Check(!view.TryChange("slider", 1), "Background surface accepted change");
+            view.SetInputAllowed(true); view.SetVisible("toggle", false);
+            Check(!view.TryChange("toggle", 1), "Hidden toggle accepted change");
+            Reject(() => view.SetValue("toggle", 1), "Toggle accepted numeric setter");
+            Reject(() => view.SetChecked("slider", true), "Slider accepted boolean setter");
+            view.Close(); Check(!view.TryChange("slider", 1), "Closed view accepted change");
+            var failed = controls.Open("failed", ModUiMount.Menu, new ModUiNode("slider",ModUiKind.Slider,100,40),
+                onChange:(_,__) => { throw new Exception("Callback failure"); });
+            Check(!failed.TryChange("slider", 1) && failed.IsClosed, "Failed change did not close view");
+        }
         var errors = new List<Exception>();
         var scope = new ModUiScope(ModId.Parse("example.ui"), errors.Add);
         var other = new ModUiScope(ModId.Parse("other.ui"));

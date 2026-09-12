@@ -1,6 +1,6 @@
 ---
 title: Moves, triggers, and opponent tactics
-description: Define animation moves and configure the game's existing opponent AI.
+description: Author playable animation moves and program opponent decisions in Lua.
 ---
 
 These are advanced content APIs. They configure the native animation and AI systems; Lua combat callbacks are covered separately in [Combat callbacks](../combat-callbacks/). Begin with a working fight and change one move at a time.
@@ -32,6 +32,7 @@ Events can be a type string or `{ type = ..., name = "...", player = "..." }`. T
 | `hit`, `strike` | `HIT`, `STRIKE` |
 | `every_frame`, `birth` | `EVERY_FRAME`, `BIRTH` |
 | `round_stage_start`, `mod_expires` | `ROUND_STAGE_START`, `MOD_EXPIRES` |
+| `key_pressed` | Use the string literal; no constant alias. |
 
 Conditions use `type` and optional `["not"] = true` (default `false`). Available types:
 
@@ -39,7 +40,25 @@ Conditions use `type` and optional `["not"] = true` (default `false`). Available
 - `"all"` / `"any"` (`ALL` / `ANY`): require a nonempty `conditions` array.
 - `"current_animation"`, `"current_interval"`, `"item"` (`CURRENT_ANIMATION`, `CURRENT_INTERVAL`, `ITEM`): accept native `name`, `player`, `item_type`, and `item_subtype` strings, default empty.
 
-An interval is `{ type = "...", name = "..." }`; at least one of `type` or `name` must be nonempty. These names describe native animation intervals, not seconds.
+- `"character"`: requires a registered `warrior` handle; matches only that character, including copies of its model parameters.
+- `"keys"`: requires 1–14 unique `keys`, each `{ key = "Kick", press = "Tap" }`. `press` defaults to `Tap`; alternatives are `Hold` and `Release`. Keys are `Up`, `Up-Forward`, `Forward`, `Down-Forward`, `Down`, `Down-Back`, `Back`, `Up-Back`, `Punch`, `Kick`, `Ranged`, `Magic`, `RaidCharge`, and `Super`.
+
+Character and key conditions use string literals, without constant aliases. Combine them with `key_pressed` to bind an authored move to a fighter's controls.
+
+An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices, and optional `attack`. At least one of `type` or `name` must be nonempty. Frame indices are integers from 0 to 100,000; when both are supplied, end must not precede start. Omitted bounds retain the native interval behavior. Use indices within the move's effective frame range, including native interpolation when `mid_frames` is nonzero.
+
+`attack` requires `type = "Attack"` and the following fields:
+
+| Field | Contract/default |
+| --- | --- |
+| `edges` | Required array of 1–64 native rig edge names, each 1–128 characters. These are attacking body parts, not arbitrary mesh vertices. |
+| `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
+| `damage_type` | `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. |
+| `hit` | `High` (default), `Middle`, or `Low`. |
+| `id` | Integer 0–999, default 0; native attack identity. |
+| `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
+
+See [Character authoring](../../guides/character-authoring/) for a complete exported character module and input/attack example. The registration API validates structure and bounds; verify edge names, contact timing, mirroring and damage in a fight.
 
 ## sf2.moves.register_template
 
@@ -153,7 +172,66 @@ Optional weighted-animation arrays are `animation_weights`, `quick_attacks`, `ev
 
 A value table accepts the following finite numbers, all defaulting to `0`: `base`, `counter_factor`, `damage_factor`, `health_factor`, `enemy_health_factor`, `animation_frames_factor`, `child_frames_factor`, `magic_bullet_factor`, `missile_bullet_factor`, `hit_factor`, `distance_factor`, `shift`, `limit`, `anti_limit`. `factor_type` defaults to `"linear"` (`sf2.tactics.LINEAR`); `"exponential"` (`EXPONENTIAL`) is also supported. These are native scoring factors rather than probability percentages. Preserve a known working template until you have tested your custom weights in a fight.
 
+## on_decide
+
+Available since API **0.22**. Attach this function to `sf2.tactics.register` to
+program an opponent using ordinary Lua. Keep `type = "tabular"` (the default)
+and a native `template`, usually `"Standard"`, for fallback behavior.
+
+**Signature:** `on_decide = function(memory, event) ... end`
+
+**Returns:** An action from this call's `event.actions`, `"wait"` to request no
+new action until the next decision, or `nil` to let the native tactic decide.
+Do not construct action tables or retain them for a later decision.
+
+**When:** The native AI reaches an eligible move decision, at most once per six
+active simulation frames (10 Hz). Native uninterruptible intervals and response
+waits still apply. `event.self` and `event.opponent` contain detached health,
+maximum health, health-bar count and position snapshots, as described in the
+[fighter reference](../fighter/). `event.frame` and `event.seconds` are the
+fighter controller's simulation clock. `event.actions` is an array of currently
+legal input-driven actions, each with a native `name` string. It may be empty.
+The host filters move conditions, equipment availability and priority before
+Lua sees this list; a selected action still goes through normal input dispatch.
+
+**Requires:** `content.register` when registering the tactic and a warrior whose
+`tactic` is `sf2.tactics.name(your_tactic)`. Only the tabular input controller
+supports this callback. No raw model, animation object, or fighter mutation
+capability is exposed. Snapshots can be edited locally; edits do not change
+combat. At most 1024 action candidates are passed to one decision.
+
+```lua
+local sf2 = require("sf2")
+local patient = sf2.tactics.register {
+    id = "patient", template = "Standard",
+    on_decide = function(memory, event)
+        memory.next_attack = memory.next_attack or 0
+        if event.seconds < memory.next_attack then return "wait" end
+        if #event.actions == 0 then return nil end
+        memory.next_attack = event.seconds + 1
+        return event.actions[1]
+    end,
+}
+-- In an owned warrior definition:
+-- tactic = sf2.tactics.name(patient)
+```
+
+`memory` is a plain Lua table private to this native fighter controller and this
+tactic. It survives decisions on that controller, not save/reload or controller
+replacement. Persist deliberate profile data through the owned state API.
+Closures at script scope are shared across fighters; use `memory` for isolated
+AI state. Callback errors, invalid/stale actions and instruction-budget overruns
+(200,000 instructions) disable this callback for that controller/tactic and use
+native fallback; the first failure is diagnosed. Other fighters keep their own
+AI. This callback is not a coroutine.
+
+The [programmable AI example](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.programmable-ai)
+uses different pacing for three opponents. Isolated Lua tests cover choices,
+memory isolation, stale actions and failures. Native combat and physical input
+acceptance require a game playtest.
+
 ## sf2.tactics.name
+
 
 **Signature:** `sf2.tactics.name(tactic)`
 

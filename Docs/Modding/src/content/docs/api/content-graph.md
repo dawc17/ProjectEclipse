@@ -142,6 +142,8 @@ Define an opponent, optionally inheriting from a core template.
 | `perks` | Perk-handle array | Empty | Active opponent perks. |
 | `attributes` | Name-to-number table | Empty | Finite native attribute values. |
 | `attribute_alignments` | Alignment array | Empty | Rows described below. |
+| `body_model` | Model handle | Inherit skeleton | Native body model, including its ordered point rig. |
+| `skin_models` | Model handle array | Empty | Up to 16 native geometry overlays, appended after equipment. |
 | `health_bars` | Integer | `0` | Additional health-pool configuration; `0` keeps the template setting; `1` explicitly selects one pool. |
 
 ```lua
@@ -159,6 +161,8 @@ to `0` and `mode` to `"all"` (`"normal"` and `"eclipse"` are also accepted).
 Use documented native attributes for the relevant content; adding a made-up
 attribute name does not create a new mechanic. Template inheritance and native
 attribute handling can affect the result, so test custom balance in a fight.
+
+For a Blender import, animation bake, geometric skin export and playable move example, follow [Character authoring](../../guides/character-authoring/). Body and skin assets must satisfy the native point-rig contract; these fields do not load arbitrary FBX files. The warrior handle also scopes moves through a `character` condition. Changing model bindings changes the saved content fingerprint.
 
 `health_bars` is bounded to 0–10,000. Zero inherits the template; 1 means one pool. Values above 1 set the **total** number of
 bars, including the active bar. These are separate from temporary Lua damage

@@ -1,7 +1,7 @@
 # Pre-DE manual test checklist
 
-Current additions: API 0.20 saved random streams and API 0.21 UI close
-notifications. Use Unity 2022.3.62f3 and allow script compilation/import to
+Current additions: API 0.22 generated encounters, deferred mode preparation,
+programmable AI, character authoring and native toggle/slider controls. Use Unity 2022.3.62f3 and allow script compilation/import to
 finish. These checks complement the automated fixtures; full-game acceptance
 has not been claimed.
 
@@ -92,3 +92,64 @@ latest API changes repaired all of them:
 For any failure, report the enabled example, exact steps, screenshot/video,
 whether it happened after reload/scene change, and the first relevant Console
 error. No new DE asset import or full downstream port is included in this pass.
+
+
+## 5. Generated Expedition: new procedural and asynchronous workflow
+
+Enable `example.generated-expedition`, Apply & Restart, and use the bottom map
+page dots to find **Generated Expedition**. This is a separate mod map entry;
+the Act I third tournament fight does not demonstrate these features.
+
+- Press Fight. A parchment preparation menu must appear with the game font,
+  original checkbox, slider and beveled Begin button. Combat must not start yet.
+- Toggle **Stronger opponent** and drag the round timer from 30 to 90 seconds.
+  The displayed value must follow. Try keyboard/controller focus and horizontal
+  slider adjustment. Resize the window and check for clipping or missing assets.
+- Back/Escape cancels the setup and leaves the map usable. Reopen it and press
+  Begin once; rapid double clicks must not start duplicate fights.
+- The fight should use the selected timer. Stronger opponents are three levels
+  above the ordinary encounter setting. The generator selects one of the unarmed,
+  sai or nunchaku fighters. Their identity is a generated encounter choice, not
+  just a route that skips an existing battle.
+- Leave/reload after the encounter starts but before settlement, then re-enter.
+  The prepared opponent/settings should be retained without another setup or roll.
+- Complete the encounter. The next of three steps gets a fresh preparation screen.
+  Complete the expedition and confirm it repeats; this example charges no entry
+  items and grants no rewards. Stop/restart Play mode while setup is open and
+  confirm no old menu/request resumes into a fight.
+
+## 6. AI Dojo: new programmable opponents
+
+Enable `example.programmable-ai`, Apply & Restart, and select **AI Dojo** using
+the map-page dots. Fight all three opponents and observe decisions over several
+seconds, at close and long distances:
+
+- **Patient Gatekeeper** (kunai): prefers a high kick when playable, then waits
+  about 1.5 seconds before another decision of that kind.
+- **Footwork Sentinel** (batons): prefers stepping back when close and forward
+  when farther away, with a short pause between choices.
+- **Alternating Warden** (ninja sword): alternates playable high/low kicks with
+  short pauses. A missing preferred move uses native tactics, so conditions,
+  stun, equipment and current animation still affect what can happen.
+- Pause/resume and restart a round: decisions must stop while simulation is
+  paused and per-fighter decision memory must not leak to another opponent.
+  Unmodified campaign opponents should retain their native AI.
+
+## 7. Character/animation authoring
+
+Follow `Docs/Modding/src/content/docs/guides/character-authoring.md` to import the
+native rig, edit a motion and optional geometric skin, export, validate and open
+the local preview. Copy generated assets/module into a test mod and use its
+warrior handle in a fight. This workflow is not an automatically installed map trial.
+
+- Confirm the exported body/skin loads without errors, equipment follows the
+  rig, and the authored movement is available only to that character.
+- Test both facing directions, movement, hit reactions and knockdown. Inspect
+  skin attachment under the largest bends; the point preview cannot prove skin
+  rendering or contact behavior.
+- Add the documented attack interval to an appropriate authored motion and
+  verify its input, damage, hit timing and impulse. The generated default module
+  is a movement preview and intentionally has no damaging interval.
+- Verify another fighter retains its normal controls. Keep the Console visible.
+  Blender export and the native animation-reader fixture already pass, but this
+  full-game visual/combat acceptance remains necessary.

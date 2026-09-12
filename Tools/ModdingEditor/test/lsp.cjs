@@ -218,6 +218,9 @@ async function main() {
     await until(async()=>labels(await request('textDocument/completion',uiStyle)).some(name=>name.startsWith('font_size')),'UI style completion');
     const closeDefinition=probe('ui-close.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu", | }');
     await until(async()=>labels(await request('textDocument/completion',closeDefinition)).some(name=>name.startsWith('on_close')),'UI close callback completion');
+    await until(async()=>labels(await request('textDocument/completion',closeDefinition)).some(name=>name.startsWith('on_change')),'UI change callback completion');
+    const checkedSetter=probe('ui-checked.lua','local sf2=require("sf2")\nsf2.ui.|');
+    await until(async()=>labels(await request('textDocument/completion',checkedSetter)).some(name=>name.startsWith('set_checked')),'UI checked setter completion');
     const chargeText=fs.readFileSync(path.join(root,'templates/charge-ui/scripts/main.lua'),'utf8');
     const chargeUri=open('charge-close.lua',chargeText+'\nsf2.ui.is_open("bad handle")');
     const chargeKey=decodeURIComponent(chargeUri).toLowerCase();
@@ -236,6 +239,25 @@ async function main() {
     notify('textDocument/didChange',{textDocument:{uri:seededUri,version:2},contentChanges:[{text:seededText}]});
     await until(()=>diagnostics.get(seededKey)?.length===0,'cleared seeded mode diagnostics');
     console.log('PASS: random functions complete and seeded trial has no diagnostics');
+
+    for (const name of ['programmable-ai','generated-expedition']) {
+        const source=fs.readFileSync(path.join(root,'templates',name,'scripts/main.lua'),'utf8');
+        const uri=open(name+'.lua',source+'\nsf2.price.coins("temporary error")');
+        const key=decodeURIComponent(uri).toLowerCase();
+        await until(()=>(diagnostics.get(key)?.length??0)>0,name+' temporary diagnostic');
+        notify('textDocument/didChange',{textDocument:{uri,version:2},contentChanges:[{text:source}]});
+        await until(()=>diagnostics.get(key)?.length===0,name+' cleared diagnostics')
+            .catch(error=>{throw new Error(error.message+'\n'+JSON.stringify(diagnostics.get(key)));});
+    }
+    const aiDecision=probe('ai-decision.lua','local sf2=require("sf2")\nsf2.tactics.register { id="brain",on_decide=function(memory,event)\n local value=event.|\nend }');
+    await until(async()=>labels(await request('textDocument/completion',aiDecision)).includes('actions'),'AI decision completion');
+    const prepare=probe('prepare.lua','local sf2=require("sf2")\nsf2.modes.register { id="mode",fights={},on_prepare=function(request,event)\n local value=event.|\nend }');
+    await until(async()=>labels(await request('textDocument/completion',prepare)).includes('step'),'mode preparation completion');
+    const body=probe('body.lua','local sf2=require("sf2")\nsf2.warriors.register { | }');
+    await until(async()=>labels(await request('textDocument/completion',body)).some(name=>name.startsWith('body_model')),'character model completion');
+    const attack=probe('attack.lua','local sf2=require("sf2")\nsf2.moves.register { intervals={{type="Attack",attack={ | }}} }');
+    await until(async()=>labels(await request('textDocument/completion',attack)).some(name=>name.startsWith('edges')),'attack interval completion');
+    console.log('PASS: procedural workflow and AI examples have no diagnostics; character, attack and callback fields complete');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

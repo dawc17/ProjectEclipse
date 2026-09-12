@@ -67,6 +67,32 @@ namespace Eclipse.Modding
         public bool HasHandlers(ModEffectEvent kind) =>
             _subscriptions.TryGetValue(kind, out var ids) && ids.Count != 0;
 
+        public bool HasAiHandler(string tactic)
+        {
+            foreach (var context in _contexts)
+                if (context is IModAiScriptContext callbacks && callbacks.HasAiHandler(tactic)) return true;
+            return false;
+        }
+
+        public bool TryPrepareMode(ModModeDefinition mode, int step, int completions, ModModeRequest request, out string error)
+        {
+            foreach (var context in _contexts)
+                if (context.Mod.Id == mode.Id.Namespace && context is IModModePrepareScriptContext callbacks)
+                    return callbacks.TryPrepareMode(mode,step,completions,request,out error);
+            error = "Mode script context is unavailable."; request.Invalidate(); return false;
+        }
+
+        public int? DecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<string> actions)
+        {
+            foreach (var context in _contexts)
+                if (context is IModAiScriptContext callbacks && callbacks.HasAiHandler(tactic))
+                {
+                    if (callbacks.TryDecideAi(tactic,instance,snapshot,actions,out var selection,out var error)) return selection;
+                    throw new ModContentException(tactic + ":on_decide: " + error);
+                }
+            return null;
+        }
+
         public bool HasBehaviorHandler(DefinitionId id, ModEffectEvent kind) =>
             _subscriptions.TryGetValue(kind, out var ids) && ids.Contains(id);
 

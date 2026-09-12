@@ -24,11 +24,29 @@ namespace Eclipse.Modding
             _scripts?.Dispose();
             ModModeRuntime.Clear();
             ModModeRuntime.SelectNext = null;
+            ModModeRuntime.Prepare = null; ModModeRuntime.BuildEncounter = null; ModModeRuntime.SchedulePreparation = null;
             ModModeRuntime.Warning = message => Debug.LogWarning(message);
             ModPolicies.Content = null;
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(Eclipse.UI.Modding.ModUiGameBridge.Attach,
                 () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name), LogScript, ImportCoreContent);
             ModPolicies.Content = _scripts.Content;
+            ModModeRuntime.SchedulePreparation = (request,ready,cancel) =>
+                new GameObject("Mod encounter preparation").AddComponent<ModPendingEncounter>().Configure(request,ready,cancel);
+            ModModeRuntime.Prepare = (mode,step,completions,request) => {
+                if (!_scripts.TryPrepareMode(mode,step,completions,request,out var error)) throw new ModContentException(error);
+            };
+            ModModeRuntime.BuildEncounter = (mode,step,plan) => {
+                if (_legacyContent == null || !_scripts.Content.TryGetFight(mode.Fights[step],out var definition))
+                    throw new ModContentException("Generated encounter content is unavailable.");
+                var original = ListSF.CHMCKGCDGCM(new FightIDS(_scripts.Content.RuntimeFightId(definition.Id)));
+                if (original == null) throw new ModContentException("Generated encounter blueprint is unavailable.");
+                var node = _legacyContent.BuildEncounterNode(definition,plan);
+                var result = new FightList();
+                ListSF.ELEBLBJKDBI().FOKCPLOMLOK(result,node,original.get_Type(),original.JKMJHIIMHPG,original.NPPIFKKLNCN,original.CNAOMDMIGLJ);
+                result.BCKFACGMOKC = new FightIDS(original.BCKFACGMOKC.ToString());
+                result.CNAOMDMIGLJ = original.CNAOMDMIGLJ; result.Index = original.Index;
+                return result;
+            };
             ModModeRuntime.SelectNext = (mode,won,step,completions) => {
                 if (_scripts.TryChooseModeNext(mode,won,step,completions,out var selected,out var error)) return selected;
                 Debug.LogWarning("[ModMode] Result callback failed; using default progression. "+error);
@@ -504,6 +522,7 @@ namespace Eclipse.Modding
             ModModeRuntime.Clear();
             ModModeRuntime.SelectNext = null;
             ModProgressionAccess.Clear();
+            ModModeRuntime.Prepare = null; ModModeRuntime.BuildEncounter = null; ModModeRuntime.SchedulePreparation = null;
             ModPolicies.Content = null;
             _legacyContent?.Dispose();
             _legacyContent = null;

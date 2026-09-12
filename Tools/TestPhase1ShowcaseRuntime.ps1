@@ -55,21 +55,27 @@ $program = Join-Path $testRoot 'Program.cs'
 $exe = Join-Path $testRoot 'Phase1ShowcaseRuntime.dll'
 $adapterSource = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs')
 $adapterBase = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs')
-$projectionMethods = foreach ($method in @('BuildLocationDocument', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition')) {
+$projectionMethods = foreach ($method in @('BuildLocationDocument', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition', 'BuildMoveNode', 'MoveTemplateNames', 'AppendEvents', 'AppendConditions', 'MoveEventElement')) {
     $match = [regex]::Match($adapterSource, '(?ms)^        private [^\r\n]*\b' + $method + '\(.*?^        \}')
     if (!$match.Success) { throw "Cannot extract production projection: $method" }
     $match.Value
 }
 $projectionMethods += [regex]::Match($adapterSource, '(?m)^        private static string F\(.*$').Value
 $projectionMethods += [regex]::Match($adapterBase, '(?ms)^        private static void Set\(.*?^        \}').Value
-foreach ($method in @('BuildRewardItemNode', 'LegacyItemName')) {
+foreach ($method in @('BuildRewardItemNode', 'LegacyItemName', 'LegacyPerkName', 'SetIfNotEmpty', 'RuleTargetName', 'BuildRuleNode', 'BuildRewardNode', 'BuildWarriorNode', 'BuildFightNode', 'AppendFightRules')) {
     $projectionMethods += [regex]::Match($adapterBase, '(?ms)^        private [^\r\n]*\b' + $method + '\(.*?^        \}').Value
 }
+$encounter = [regex]::Match($adapterBase, '(?ms)^        public XmlElement BuildEncounterNode\(.*?^        \}')
+if (!$encounter.Success) { throw 'Cannot extract production encounter projection.' }
+$projectionMethods += $encounter.Value
 $projection = Join-Path $testRoot 'Projection.cs'
-Set-Content -Encoding UTF8 $projection ('using System; using System.Globalization; using System.Xml; using Eclipse.Modding; internal sealed class Projection {' +
+Set-Content -Encoding UTF8 $projection ('using System; using System.Collections.Generic; using System.Globalization; using System.Xml; using Eclipse.Modding; internal sealed class Projection {' +
     'private ModContentCatalog _content; public XmlElement Reward(ModContentCatalog catalog, RewardItemGrant grant) { _content = catalog; return BuildRewardItemNode(new XmlDocument(), grant, null); }' +
     'public XmlDocument Location(LocationDefinition value) => BuildLocationDocument(value);' +
     'public XmlElement Condition(ModMoveCondition value) => BuildMoveCondition(new XmlDocument(), value);' +
+    'public XmlElement Move(MoveDefinition value) => BuildMoveNode(new XmlDocument(), "Move", value, value.Animation);' +
+    'public XmlElement Warrior(ModContentCatalog catalog, WarriorDefinition value) { _content = catalog; return BuildWarriorNode(new XmlDocument(), value); }' +
+    'public XmlElement Encounter(ModContentCatalog catalog, FightDefinition fight, ModEncounterPlan plan) { _content = catalog; return BuildEncounterNode(fight, plan); }' +
     ($projectionMethods -join "`n") + '}')
 @'
 using System;

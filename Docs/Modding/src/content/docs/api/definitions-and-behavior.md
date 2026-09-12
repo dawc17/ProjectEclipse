@@ -34,10 +34,12 @@ This fragment belongs inside a behavior table, not alone at the top of a script.
 | A value that changes during a round or fight | Behavior instance state with the corresponding lifetime. |
 | Saved behavior state | Saved behavior state, where supported for player-owned instances. |
 | General mod progress between sessions | The [mod state API](../mod-state/). |
+| Opponent decision memory for one fighter/controller | The `memory` table in [on_decide](../moves-and-tactics/#on_decide); it is transient. |
+| A generated encounter that must survive reload | Return or resolve an [encounter plan](../events-and-modes/#on_prepare); the host saves it before entry. |
 | An achievement total | [Counters and achievements](../achievements/). |
 
 A local Lua variable is useful for connecting definitions. It is not automatically a saved value. Use a callback's fighter handle only during the callback that supplied it.
 
 ## Choose the appropriate system
 
-Quest tables describe supported events, conditions, and actions. Move triggers describe native animation actions. Tactics configure the existing opponent AI. These tables do not accept arbitrary new Lua callback names. For custom combat logic, use ordinary Lua functions and the documented fighter methods.
+Quest tables describe supported events, conditions, and actions. Move triggers describe native animation actions. Tactics accept a documented `on_decide` function for programmable decisions over currently playable actions. Modes accept `on_prepare` for procedural encounters and asynchronous choices, and `on_result` for routing after settlement. UI callbacks handle player interaction. Use those explicit callback boundaries and ordinary Lua control flow; adding an invented callback field does not create a new runtime hook. For combat mutations, use the documented combat callbacks and scoped fighter methods.

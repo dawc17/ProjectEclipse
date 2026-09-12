@@ -1,0 +1,9 @@
+trial = "Generated Expedition"
+trial.description = "Choose rules, then face a generated opponent. Completed choices survive reload."
+fighter = "Trial fighter"
+
+zones/trial = "Generated Expedition"
+
+fighter.1 = "Wayfarer"
+fighter.2 = "Needlehand"
+fighter.3 = "Storm Ronin"

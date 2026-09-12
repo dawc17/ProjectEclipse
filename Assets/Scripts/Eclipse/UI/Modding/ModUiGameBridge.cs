@@ -14,6 +14,8 @@ namespace Eclipse.UI.Modding
         private bool capturing;
         private bool waitForNeutral;
         private int direction;
+        private int horizontalDirection;
+        private float horizontalRepeatAt;
         private float repeatAt;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -61,7 +63,7 @@ namespace Eclipse.UI.Modding
         }
 
         // Also used by the input fixture; actual device polling remains below.
-        public static bool Route(int move, bool submit, bool back)
+        public static bool Route(int move, bool submit, bool back, int adjust = 0)
         {
             if (current == null) return false;
             current.RefreshNativeBlock();
@@ -74,6 +76,7 @@ namespace Eclipse.UI.Modding
             }
             else if (submit) current.coordinator.ActivateSelected();
             else if (move != 0) current.coordinator.MoveFocus(move);
+            else if (adjust != 0) current.coordinator.AdjustSelected(adjust);
             return true;
         }
 
@@ -81,12 +84,15 @@ namespace Eclipse.UI.Modding
         {
             RefreshNativeBlock();
             bool now = coordinator.CapturesInput;
-            if (!now) { capturing = false; direction = 0; return; }
+            if (!now) { capturing = false; direction = horizontalDirection = 0; return; }
             consumedFrame = Time.frameCount;
-            if (!capturing) { capturing = true; waitForNeutral = true; direction = 0; }
+            if (!capturing) { capturing = true; waitForNeutral = true; direction = horizontalDirection = 0; }
             var pad = GamePad.CNNMBBLLGNE(GamePad.LCNPGEANNDP.Dpad, GamePad.GGAKHLLMPMM.One, true);
             var stick = GamePad.CNNMBBLLGNE(GamePad.LCNPGEANNDP.LeftStick, GamePad.GGAKHLLMPMM.One, true);
             float vertical = Mathf.Abs(pad.y) > .5f ? pad.y : stick.y;
+            float horizontal = Mathf.Abs(pad.x) > .5f ? pad.x : stick.x;
+            int nextHorizontal = UnityEngine.Input.GetKey(KeyCode.LeftArrow) ? -1 : UnityEngine.Input.GetKey(KeyCode.RightArrow) ? 1 :
+                horizontal > .5f ? 1 : horizontal < -.5f ? -1 : 0;
             bool down = UnityEngine.Input.GetKey(KeyCode.DownArrow) || UnityEngine.Input.GetKey(KeyCode.Tab);
             bool up = UnityEngine.Input.GetKey(KeyCode.UpArrow);
             int next = down ? 1 : up ? -1 : vertical > .5f ? -1 : vertical < -.5f ? 1 : 0;
@@ -96,7 +102,7 @@ namespace Eclipse.UI.Modding
                 GamePad.NFCGBMHPKMA(GamePad.PFENLAPGKFM.B, GamePad.GGAKHLLMPMM.One);
             if (waitForNeutral)
             {
-                if (next == 0 && !submitHeld && !backHeld) waitForNeutral = false;
+                if (next == 0 && nextHorizontal == 0 && !submitHeld && !backHeld) waitForNeutral = false;
                 return;
             }
             bool submit = UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.Space) ||
@@ -107,7 +113,11 @@ namespace Eclipse.UI.Modding
             if (next != 0 && (next != direction || Time.unscaledTime >= repeatAt))
             { move = next; repeatAt = Time.unscaledTime + (next != direction ? .35f : .1f); }
             direction = next;
-            Route(move, submit, back);
+            int adjust = 0;
+            if (nextHorizontal != 0 && (nextHorizontal != horizontalDirection || Time.unscaledTime >= horizontalRepeatAt))
+            { adjust = nextHorizontal; horizontalRepeatAt = Time.unscaledTime + (nextHorizontal != horizontalDirection ? .35f : .1f); }
+            horizontalDirection = nextHorizontal;
+            Route(move, submit, back, adjust);
         }
 
         private void OnDestroy()

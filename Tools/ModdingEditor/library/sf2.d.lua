@@ -462,6 +462,8 @@ local AttributeAlignment = {}
 ---@field perks? Eclipse.PerkHandle[]
 ---@field attributes? table<string,number>
 ---@field attribute_alignments? Eclipse.AttributeAlignment[]
+---@field body_model? Eclipse.ModelHandle
+---@field skin_models? Eclipse.ModelHandle[]
 ---@field health_bars? integer 0 inherits the template; 1-10000 is the total number of health bars.
 local WarriorDefinition = {}
 
@@ -826,7 +828,7 @@ local LocationLayer = {}
 local LocationDefinition = {}
 
 ---@class (exact) Eclipse.MoveEvent
----@field type "animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"
+---@field type "animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"
 ---@field name? string
 ---@field player? string
 local MoveEvent = {}
@@ -849,21 +851,56 @@ local MoveNamedCondition = {}
 
 ---@class (exact) Eclipse.MoveConditionGroup
 ---@field type "all"|"any"
----@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]
+---@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
 ---@field not? boolean
 local MoveConditionGroup = {}
+
+---@class (exact) Eclipse.MoveCharacterCondition
+---@field type "character"
+---@field warrior Eclipse.WarriorHandle
+---@field not? boolean
+local MoveCharacterCondition = {}
+
+---@class (exact) Eclipse.MoveKey
+---@field key "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"
+---@field press? "Tap"|"Hold"|"Release"
+local MoveKey = {}
+
+---@class (exact) Eclipse.MoveKeysCondition
+---@field type "keys"
+---@field keys Eclipse.MoveKey[]
+---@field not? boolean
+local MoveKeysCondition = {}
+
+---@class (exact) Eclipse.MoveImpulse
+---@field x? number
+---@field y? number
+---@field z? number
+local MoveImpulse = {}
+
+---@class (exact) Eclipse.MoveAttack
+---@field edges string[]
+---@field damage? number
+---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
+---@field hit? "High"|"Middle"|"Low"
+---@field id? integer
+---@field impulse? Eclipse.MoveImpulse
+local MoveAttack = {}
 
 ---@class (exact) Eclipse.MoveInterval
 ---@field type? string
 ---@field name? string
+---@field start? integer
+---@field end? integer
+---@field attack? Eclipse.MoveAttack
 local MoveInterval = {}
 
 ---@class (exact) Eclipse.MoveTemplateDefinition
 ---@field id string
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
----@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]
+---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
 ---@field intervals? Eclipse.MoveInterval[]
 ---@field type? string
 ---@field mirror_node? string
@@ -881,8 +918,8 @@ local MoveTemplateDefinition = {}
 ---@field id string
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
----@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]
+---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
 ---@field intervals? Eclipse.MoveInterval[]
 ---@field type? string
 ---@field mirror_node? string
@@ -911,8 +948,8 @@ local HitEffectAction = {}
 
 ---@class (exact) Eclipse.TriggerDefinition
 ---@field id string
----@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup)[]
+---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
 ---@field actions? (Eclipse.SoundAction|Eclipse.HitEffectAction)[]
 local TriggerDefinition = {}
 
@@ -945,8 +982,21 @@ local TacticMemory = {}
 ---@field value? Eclipse.TacticValue
 local TacticWeight = {}
 
+---@class (exact) Eclipse.AiAction
+---@field name string
+local AiAction = {}
+
+---@class (exact) Eclipse.AiDecision
+---@field self Eclipse.FighterSnapshot
+---@field opponent Eclipse.FighterSnapshot?
+---@field frame integer
+---@field seconds number
+---@field actions Eclipse.AiAction[]
+local AiDecision = {}
+
 ---@class (exact) Eclipse.TacticDefinition
 ---@field id string
+---@field on_decide? fun(memory:table,event:Eclipse.AiDecision): Eclipse.AiAction|"wait"|nil
 ---@field type? "tabular"|"random"
 ---@field template? string
 ---@field memory? Eclipse.TacticMemory
@@ -972,7 +1022,26 @@ local TacticDefinition = {}
 ---@field fight_id string
 local ModeResult = {}
 
+---@class (exact) Eclipse.ModeRequest
+---@field private __eclipseModeRequest true
+local ModeRequest = {}
+
+---@class (exact) Eclipse.EncounterPlan
+---@field warriors? Eclipse.WarriorHandle[]
+---@field level? integer
+---@field rounds? integer
+---@field round_time? integer
+local EncounterPlan = {}
+
+---@class (exact) Eclipse.ModePreparation
+---@field step integer
+---@field total integer
+---@field completions integer
+---@field fight_id string
+local ModePreparation = {}
+
 ---@class (exact) Eclipse.ModeDefinition
+---@field on_prepare? fun(request:Eclipse.ModeRequest,event:Eclipse.ModePreparation):Eclipse.EncounterPlan|nil
 ---@field id string
 ---@field fights Eclipse.FightHandle[]
 ---@field repeatable? boolean
@@ -986,6 +1055,7 @@ local ModeResult = {}
 local ModeDefinition = {}
 
 ---@class (exact) Eclipse.RaidDefinition
+---@field on_prepare? fun(request:Eclipse.ModeRequest,event:Eclipse.ModePreparation):Eclipse.EncounterPlan|nil
 ---@field id string
 ---@field fights Eclipse.FightHandle[]
 ---@field repeatable? boolean
@@ -1034,12 +1104,13 @@ local UiStyle = {}
 
 ---@class (exact) Eclipse.UiNode
 ---@field id string
----@field kind "stack"|"row"|"column"|"scroll"|"text"|"button"|"progress"
+---@field kind "stack"|"row"|"column"|"scroll"|"text"|"button"|"progress"|"toggle"|"slider"
 ---@field width? number
 ---@field height? number
 ---@field gap? number
 ---@field text? string
 ---@field value? number
+---@field checked? boolean
 ---@field visible? boolean
 ---@field enabled? boolean
 ---@field children? Eclipse.UiNode[]
@@ -1057,6 +1128,7 @@ local UiPlacement = {}
 ---@field mount "menu"|"modal"|"hud"
 ---@field root Eclipse.UiNode
 ---@field placement? Eclipse.UiPlacement
+---@field on_change? fun(view:Eclipse.UiHandle,widget_id:string,value:boolean|number)
 ---@field on_click? fun(view:Eclipse.UiHandle,widget_id:string)
 ---@field on_close? fun(view:Eclipse.UiHandle,reason:"script"|"back"|"scene"|"error"|"destroyed")
 local UiDefinition = {}
@@ -1765,6 +1837,29 @@ function events.register(definition) end
 ---@param definition Eclipse.RaidDefinition
 function raids.register(definition) end
 
+---Requires: API 0.22 and the pending request supplied to this script's `on_prepare`. Forged or foreign request tables are rejected. No extra capability.
+---When: Complete a pending preparation, including from a UI callback. Reusing a resolved/canceled request or supplying an invalid plan is an error. It marks the request ready; native validation/save/entry occur after Lua returns.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2modesresolve)
+---@param request Eclipse.ModeRequest
+---@param plan Eclipse.EncounterPlan
+function modes.resolve(request, plan) end
+
+---Requires: API 0.22 and an owned request. No extra capability.
+---When: Cancel an unfinished setup, for example in the view's `on_close`. No ticket is charged and no fight starts. Repeated cancellation is harmless. Cancellation after resolution is a no-op, so closing a successful choice view cannot undo the selected plan. Scene/script teardown can still prevent launch.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2modescancel)
+---@param request Eclipse.ModeRequest
+function modes.cancel(request) end
+
+---Requires: API 0.22 and an owned request. No extra capability.
+---When: Guard buttons or late callbacks against stale requests.
+---Returns: `true` while awaiting a result, otherwise `false`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/events-and-modes/#sf2modesis_pending)
+---@param request Eclipse.ModeRequest
+---@return boolean
+function modes.is_pending(request) end
+
 ---Set the delivery duration and early-skip policy for new forge orders.
 ---Requires: `policy.timers`.
 ---When: Entrypoint.
@@ -1881,14 +1976,23 @@ function ui.is_open(view) end
 ---@param text string
 function ui.set_text(view, widget_id, text) end
 
----Requires: An open owned view and a progress ID; no additional capability.
----When: Change a progress widget's fill to a finite fraction from 0 to 1. Invalid values are rejected before mutation.
+---Requires: An open owned view and a progress/slider ID; no additional capability. Sliders require API 0.22. Setters do not invoke `on_change`.
+---When: Change a progress widget's fill or a slider's position to a finite fraction from 0 to 1. Invalid values are rejected before mutation.
 ---Returns: Nothing.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_value)
 ---@param view Eclipse.UiHandle
 ---@param widget_id string
 ---@param value number
 function ui.set_value(view, widget_id, value) end
+
+---Requires: API 0.22, an open owned view and a toggle ID. No additional capability.
+---When: Set a toggle's boolean state without triggering `on_change`.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_checked)
+---@param view Eclipse.UiHandle
+---@param widget_id string
+---@param checked boolean
+function ui.set_checked(view, widget_id, checked) end
 
 ---Requires: An open owned view and a valid widget ID; no additional capability.
 ---When: Show/hide a widget or subtree using a boolean. Hiding the root releases its foreground input priority; showing it restores its original ordering.

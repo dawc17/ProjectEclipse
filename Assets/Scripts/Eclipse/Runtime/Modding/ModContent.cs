@@ -1101,6 +1101,8 @@ namespace Eclipse.Modding
 
     public sealed class WarriorDefinition
     {
+        public AssetId BodyModel { get; }
+        public IReadOnlyList<AssetId> SkinModels { get; }
         private readonly DefinitionId[] _items;
         private readonly DefinitionId[] _perks;
         private readonly Dictionary<string, float> _attributes;
@@ -1127,10 +1129,14 @@ namespace Eclipse.Modding
             int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
-            WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0)
+            WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0,
+            AssetId bodyModel = default, AssetId[] skinModels = null)
         {
             if (level < 0 || level > 10000) throw new ModContentException("Warrior level must be 0..10000.");
             Id = id;
+            BodyModel = bodyModel;
+            if (skinModels != null && skinModels.Length > 16) throw new ModContentException("A warrior permits at most 16 skin models.");
+            SkinModels = Array.AsReadOnly(skinModels == null ? Array.Empty<AssetId>() : (AssetId[])skinModels.Clone());
             Template = template;
             HasTemplate = hasTemplate;
             FirstName = firstName ?? string.Empty;
@@ -2692,7 +2698,8 @@ namespace Eclipse.Modding
             string voice, int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
-            WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0)
+            WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0,
+            AssetId bodyModel = default, AssetId[] skinModels = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("warriors", localId);
@@ -2705,6 +2712,10 @@ namespace Eclipse.Modding
                     throw new ModContentException("Warrior references unavailable template '" + template + "'.");
             }
             if (random < 0) throw new ModContentException("Warrior random group selector must not be negative.");
+            if (!string.IsNullOrEmpty(bodyModel.Path) && !CanReferenceNamespace(bodyModel.Namespace))
+                throw new ModContentException("Body model belongs to an undeclared namespace.");
+            if (skinModels != null) foreach (var model in skinModels)
+                if (string.IsNullOrEmpty(model.Path) || !CanReferenceNamespace(model.Namespace)) throw new ModContentException("Invalid skin model reference.");
             items = items ?? Array.Empty<DefinitionId>();
             perks = perks ?? Array.Empty<DefinitionId>();
             var seenItems = new HashSet<DefinitionId>();
@@ -2729,7 +2740,7 @@ namespace Eclipse.Modding
             }
             EnsureCapacityForNewRegistration();
             var definition = new WarriorDefinition(id, firstName, lastName, avatar, voice, level, tactic, items, perks,
-                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars);
+                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels);
             _warriors.Add(id, definition);
             return definition;
         }

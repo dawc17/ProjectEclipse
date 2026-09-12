@@ -29,7 +29,8 @@ public class ConditionAnimation
 		EVENT = 21,
 		DIRECTION = 22,
 		BATTLE_TYPE = 23,
-		BOSS_ABILITY_STATE = 24
+		BOSS_ABILITY_STATE = 24,
+        ECLIPSE_CHARACTER = 25
 	}
 
 	protected ModelType.KEIDBIOIFGA OOFFOILONLO;

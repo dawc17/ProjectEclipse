@@ -334,6 +334,7 @@ namespace Eclipse.Modding
                 Append(canonical, mode.StartsAt.ToString(CultureInfo.InvariantCulture)); Append(canonical, mode.EndsAt.ToString(CultureInfo.InvariantCulture));
                 Append(canonical, mode.EntryItem.ToString()); Append(canonical, mode.EntryCount);
                 foreach (var fight in mode.Fights) Append(canonical, fight.ToString());
+                if (mode.UsesPrepareCallback) Append(canonical,"prepare-v1");
             }
             var timers = new List<ModTimerPolicy>(content.TimerPolicies);
             timers.Sort((a,b) => string.CompareOrdinal(a.Subsystem, b.Subsystem));
@@ -492,6 +493,12 @@ namespace Eclipse.Modding
                 Append(canonical, warrior.Avatar); Append(canonical, warrior.Voice);
                 Append(canonical, warrior.Level); Append(canonical, warrior.Tactic); Append(canonical, warrior.HealthBars);
                 Append(canonical, warrior.Group); Append(canonical, warrior.Random);
+                if (!string.IsNullOrEmpty(warrior.BodyModel.Path) || warrior.SkinModels.Count > 0)
+                {
+                    Append(canonical,"character-models-v1"); Append(canonical,warrior.BodyModel.ToString());
+                    Append(canonical,warrior.SkinModels.Count);
+                    foreach (var model in warrior.SkinModels) Append(canonical,model.ToString());
+                }
                 var attributeNames = new List<string>(warrior.Attributes.Keys);
                 attributeNames.Sort(StringComparer.Ordinal);
                 Append(canonical, attributeNames.Count);
@@ -768,7 +775,20 @@ namespace Eclipse.Modding
             Append(canonical, node.Id.ToString()); Append(canonical, animation); AppendIds(canonical, node.Templates);
             AppendStrings(canonical, node.CoreTemplates); AppendMoveEvents(canonical, node.Events); AppendMoveConditions(canonical, node.Conditions);
             Append(canonical, node.Intervals.Count);
-            for (int i = 0; i < node.Intervals.Count; i++) { Append(canonical, node.Intervals[i].Type); Append(canonical, node.Intervals[i].Name); }
+            for (int i = 0; i < node.Intervals.Count; i++)
+            {
+                var interval=node.Intervals[i]; Append(canonical,interval.Type); Append(canonical,interval.Name);
+                if (interval.Start.HasValue || interval.End.HasValue || interval.Attack != null)
+                {
+                    Append(canonical,"interval-v1"); Append(canonical,interval.Start ?? -1); Append(canonical,interval.End ?? -1);
+                    if(interval.Attack != null)
+                    {
+                        var attack=interval.Attack; AppendStrings(canonical,attack.Edges); Append(canonical,attack.Id);
+                        Append(canonical,attack.Damage.ToString("R",CultureInfo.InvariantCulture)); Append(canonical,attack.DamageType); Append(canonical,attack.Hit);
+                        foreach(var impulse in new[]{attack.X,attack.Y,attack.Z}) Append(canonical,impulse.ToString("R",CultureInfo.InvariantCulture));
+                    }
+                }
+            }
             Append(canonical, node.Type); Append(canonical, node.Priority); Append(canonical, node.MidFrames);
             Append(canonical, node.FirstFrame); Append(canonical, node.EndFrame); Append(canonical, node.MirrorNode);
             Append(canonical, node.TacticEquivalent); Append(canonical, node.TacticWeapon); Append(canonical, node.Looped); Append(canonical, node.EndsStage);
@@ -793,6 +813,11 @@ namespace Eclipse.Modding
             Append(canonical, condition.ItemType); Append(canonical, condition.ItemSubType); Append(canonical, condition.Not);
             Append(canonical, condition.Children.Count);
             for (int i = 0; i < condition.Children.Count; i++) AppendMoveCondition(canonical, condition.Children[i]);
+            if(condition.Keys.Count > 0)
+            {
+                Append(canonical,"keys-v1"); Append(canonical,condition.Keys.Count);
+                foreach(var key in condition.Keys) { Append(canonical,key.Key); Append(canonical,key.Press); }
+            }
         }
 
         private static void AppendTacticAnimations(StringBuilder canonical, IReadOnlyList<ModTacticAnimationValue> values)

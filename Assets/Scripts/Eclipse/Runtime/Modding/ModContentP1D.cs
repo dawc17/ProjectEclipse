@@ -207,7 +207,7 @@ namespace Eclipse.Modding
     public enum ModMoveEventKind
     {
         AnimationEnd, AnimationStart, IntervalEnd, IntervalStart, Hit, Strike, EveryFrame, Birth,
-        RoundStageStart, ModExpires
+        RoundStageStart, ModExpires, KeyPressed
     }
 
     public sealed class ModMoveEvent
@@ -223,7 +223,19 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character }
+
+    public sealed class ModMoveKey
+    {
+        public string Key { get; }
+        public string Press { get; }
+        public ModMoveKey(string key,string press = "Tap")
+        {
+            if (Array.IndexOf(new[]{"Up","Up-Forward","Forward","Down-Forward","Down","Down-Back","Back","Up-Back","Punch","Kick","Ranged","Magic","RaidCharge","Super"},key)<0 ||
+                (press!="Tap" && press!="Hold" && press!="Release")) throw new ModContentException("Invalid move key or press type.");
+            Key=key; Press=press;
+        }
+    }
 
     public sealed class ModMoveCondition
     {
@@ -235,9 +247,10 @@ namespace Eclipse.Modding
         public string ItemSubType { get; }
         public bool Not { get; }
         public IReadOnlyList<ModMoveCondition> Children => _children;
+        public IReadOnlyList<ModMoveKey> Keys { get; }
 
         public ModMoveCondition(ModMoveConditionKind kind, string name = null, string player = null,
-            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null)
+            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null, ModMoveKey[] keys = null)
         {
             Kind = kind;
             Name = name ?? string.Empty;
@@ -245,6 +258,11 @@ namespace Eclipse.Modding
             ItemType = itemType ?? string.Empty;
             ItemSubType = itemSubType ?? string.Empty;
             Not = not;
+            Keys=Array.AsReadOnly(keys == null ? Array.Empty<ModMoveKey>() : (ModMoveKey[])keys.Clone());
+            if ((kind==ModMoveConditionKind.Keys && (Keys.Count<1 || Keys.Count>14)) || (kind!=ModMoveConditionKind.Keys && Keys.Count!=0))
+                throw new ModContentException("A keys condition requires 1..14 keys.");
+            var seenKeys=new HashSet<string>(StringComparer.Ordinal);
+            foreach(var key in Keys) if(key==null || !seenKeys.Add(key.Key)) throw new ModContentException("Duplicate/null move key.");
             _children = children == null ? Array.Empty<ModMoveCondition>() : (ModMoveCondition[])children.Clone();
             bool group = kind == ModMoveConditionKind.All || kind == ModMoveConditionKind.Any;
             if (group && _children.Length == 0) throw new ModContentException("Grouped move condition requires children.");
@@ -256,12 +274,41 @@ namespace Eclipse.Modding
     {
         public string Type { get; }
         public string Name { get; }
-        public ModMoveInterval(string type = null, string name = null)
+        public int? Start { get; }
+        public int? End { get; }
+        public ModMoveAttack Attack { get; }
+        public ModMoveInterval(string type = null, string name = null, int? start = null, int? end = null, ModMoveAttack attack = null)
         {
             Type = type ?? string.Empty;
             Name = name ?? string.Empty;
+            if (start < 0 || start > 100000 || end < 0 || end > 100000 || (start.HasValue && end.HasValue && end < start))
+                throw new ModContentException("Interval frame bounds must be ordered in 0..100000.");
+            if (attack != null && Type != "Attack") throw new ModContentException("Attack data requires an Attack interval.");
+            Start=start; End=end; Attack=attack;
             if (Type.Length == 0 && Name.Length == 0)
                 throw new ModContentException("Move interval requires a type or name.");
+        }
+    }
+
+    public sealed class ModMoveAttack
+    {
+        public IReadOnlyList<string> Edges { get; }
+        public int Id { get; }
+        public double Damage { get; }
+        public string DamageType { get; }
+        public string Hit { get; }
+        public double X { get; }
+        public double Y { get; }
+        public double Z { get; }
+        public ModMoveAttack(string[] edges, double damage, string damageType="UnarmedDamage", string hit="High", int id=0, double x=0,double y=0,double z=0)
+        {
+            if (edges==null || edges.Length<1 || edges.Length>64 || id<0 || id>999 || double.IsNaN(damage) || double.IsInfinity(damage) || damage<0 || damage>16)
+                throw new ModContentException("Attack needs 1..64 edges, damage 0..16 and id 0..999.");
+            foreach(var edge in edges) if(string.IsNullOrWhiteSpace(edge) || edge.Length>128) throw new ModContentException("Invalid attack edge name.");
+            if (Array.IndexOf(new[]{"UnarmedDamage","WeaponDamage","RangedDamage","MagicDamage"},damageType)<0 ||
+                Array.IndexOf(new[]{"High","Middle","Low"},hit)<0) throw new ModContentException("Unsupported damage type or hit height.");
+            foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
+            Edges=Array.AsReadOnly((string[])edges.Clone()); Damage=damage; DamageType=damageType; Hit=hit; Id=id; X=x; Y=y; Z=z;
         }
     }
 

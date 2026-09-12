@@ -8,6 +8,15 @@ const { createMod } = require('../src/scaffold.cjs');
 const template = path.resolve(__dirname, '../templates/weapon');
 const header = 'local sf2 = require("sf2")\n';
 
+for (const name of ['programmable-ai', 'generated-expedition']) test(name+' example and starter share a valid public contract', async () => {
+    const directory=path.resolve(__dirname,'../../../Mods/example.'+name);
+    const mod=await p.indexMod(directory);
+    assert.deepEqual(mod.issues,[]);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
+    for (const file of ['scripts/main.lua','mod.toml','localizations/eng.toml'])
+        assert.equal(await fs.readFile(path.resolve(__dirname,'../templates',name,file),'utf8'),await fs.readFile(path.join(directory,file),'utf8'));
+});
+
 test('clean starter indexes and validates, including table-call syntax', async () => {
     const mod = await p.indexMod(template);
     assert.deepEqual(mod.issues, []);

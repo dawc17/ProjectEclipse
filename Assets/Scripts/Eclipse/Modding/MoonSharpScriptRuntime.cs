@@ -32,7 +32,7 @@ namespace Eclipse.Modding
         }
 
         private sealed partial class MoonSharpScriptContext : IModScriptContext, IModBehaviorScriptContext,
-            IModInteractiveBehaviorScriptContext, IModStateMigrationScriptContext, IModUiScriptContext, IModModeScriptContext
+            IModInteractiveBehaviorScriptContext, IModStateMigrationScriptContext, IModUiScriptContext, IModModeScriptContext, IModAiScriptContext, IModModePrepareScriptContext
         {
             private static readonly UTF8Encoding StrictUtf8 = new UTF8Encoding(false, true);
 
@@ -485,6 +485,11 @@ namespace Eclipse.Modding
                 _loading.Clear();
                 _localizationHandles.Clear();
                 _modeResultHandlers.Clear();
+                _modePrepareHandlers.Clear();
+                foreach (var request in _modeRequests) request.Invalidate();
+                _modeRequests.Clear();
+                _aiHandlers.Clear();
+                _aiInstances = new System.Runtime.CompilerServices.ConditionalWeakTable<object, Dictionary<string, AiMemory>>();
                 _spriteHandles.Clear();
                 _counterHandles.Clear();
                 _modelHandles.Clear();
@@ -1418,7 +1423,7 @@ namespace Eclipse.Modding
                 return ApiCall(function, () =>
                 {
                     ValidateFields(table, function, "id", "template", "first_name", "last_name", "avatar", "voice", "level",
-                        "tactic", "group", "random", "attributes", "attribute_alignments", "items", "perks", "health_bars");
+                        "tactic", "group", "random", "attributes", "attribute_alignments", "items", "perks", "health_bars", "body_model", "skin_models");
                     string id = RequiredString(table, "id", function);
                     DefinitionId[] items = OptionalHandleArray(table, "items", _itemHandles, "item", function);
                     DefinitionId[] perks = OptionalHandleArray(table, "perks", _perkHandles, "perk", function);
@@ -1464,7 +1469,9 @@ namespace Eclipse.Modding
                         OptionalStringAllowEmpty(table, "voice", string.Empty, function),
                         OptionalInt(table, "level", 0, function), tactic, items, perks,
                         template, hasTemplate, OptionalStringAllowEmpty(table, "group", string.Empty, function),
-                        OptionalInt(table, "random", 0, function), attributes, alignments, OptionalInt(table, "health_bars", 0, function));
+                        OptionalInt(table, "random", 0, function), attributes, alignments, OptionalInt(table, "health_bars", 0, function),
+                        OptionalHandle(table,"body_model",_modelHandles,"model",function,default(AssetId)),
+                        OptionalHandleArray(table,"skin_models",_modelHandles,"model",function));
                     return NewHandle(_warriorHandles, definition.Id);
                 });
             }

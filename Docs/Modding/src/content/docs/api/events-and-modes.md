@@ -25,6 +25,7 @@ The three registration functions below accept the same table:
 | `entry_count` | Integer, 1–100000 | Required with entry item | Number consumed per fight attempt. |
 | `hard_mode` | Boolean | `false` | Raid-only Power Mode filter setting. |
 | `on_result` | Lua function | Omitted | Since API 0.19: choose the next fight after native result settlement. See below. |
+| `on_prepare` | Lua function | Omitted | Since API 0.22: generate an encounter or wait for a player choice before entry. |
 
 Timestamps are integer seconds since 1970-01-01 UTC, from 0 through 253402300799.
 A nonzero end must be after the start. Omit both for permanent availability.
@@ -37,6 +38,7 @@ and `final` are two fight handles registered by this mod; use only the function
 matching your intended content, not all three on the same fights.
 
 ## sf2.modes.register
+
 
 Create a progression sequence, such as a repeatable trial.
 
@@ -172,8 +174,9 @@ Linear completion bricks and the linear count suffix are hidden for modes with
 this callback: jumping to roster entry three does not mean two fights were won.
 The map still resolves each owned battle to the saved selected encounter.
 See the complete [Branching Trial example](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.branching-trial).
-This API does not yet provide generated encounters, persistent seeded RNG,
-pre-entry player choices or a complete custom result/lobby lifecycle.
+Use [on_prepare](#on_prepare) for generated encounters and pre-entry choices,
+and [saved random streams](../random/) for repeatable draws. A complete custom
+result/lobby lifecycle remains outside this contract.
 
 ## Entry, interruption, and save behavior
 
@@ -184,3 +187,129 @@ and reservations survive save/load and temporary mod removal.
 Keep published sequence identities stable. A saved sequence that no longer
 matches its definition is rejected rather than silently reinterpreted. Test
 updates on a separate save before shipping a changed sequence.
+
+## on_prepare
+
+**Signature:** `on_prepare = function(request, event) ... end`
+
+**Returns:** An encounter plan to resolve immediately, or `nil` to leave the
+request pending. An empty plan `{}` accepts the current fight unchanged.
+
+**When:** The player attempts entry into a mode whose current encounter has no
+saved plan. Runs before entry is charged or combat is launched. `event` contains
+one-based `step`, `total`, `completions` before this attempt, and the current
+blueprint's qualified `fight_id`. Return a generated plan directly, or open a
+custom UI and call `sf2.modes.resolve` from its input callback later. Combat
+launch is deferred until the Lua callback has returned. Repeated Fight clicks
+while preparing do not create another request.
+
+**Requires:** API 0.22 and `content.register` on mode registration. UI choices
+also need `ui.create`; saved random draws need `state.read` and `state.write`.
+The callback is bounded to 200,000 instructions. Invalid results/errors cancel
+entry and report a diagnostic. It cannot yield a Lua coroutine.
+Owned state writes and random draws are not rolled back if the callback later
+fails or the player cancels. Draw only when committing a choice if cancellation
+should leave the stream unchanged, as in Generated Expedition.
+
+```lua
+sf2.modes.register {
+    id = "expedition", fights = { first, second, third }, repeatable = true,
+    on_prepare = function(_, event)
+        return {
+            warriors = { opponents[sf2.random.integer("encounter_rng", 1, #opponents)] },
+            level = event.step + 2,
+            rounds = 1, round_time = 60,
+        }
+    end,
+}
+```
+
+This example assumes registered fight/warrior handles and a declared integer
+state field `encounter_rng`. Lua can calculate the roster, level and timing with
+normal loops, conditions and functions. It does not register new global fights.
+
+An **encounter plan** is a detached description applied to the current registered
+fight blueprint. All fields are optional:
+
+| Field | Meaning |
+| --- | --- |
+| `warriors` | Dense array of 1–64 owned warrior handles. Order and repetitions are retained. Omit to inherit the blueprint roster. |
+| `level` | Integer 1–1000 applied to the encounter's warriors. Omit to retain their declared levels. |
+| `rounds` | Integer 1–99; omit to inherit. |
+| `round_time` | Integer 1–3600 seconds; omit to inherit. |
+
+The blueprint supplies location, music, rules and rewards. Native reward
+settlement and entry tickets remain under host control. Only the generated
+instance changes; definitions and other fights keep their values. The host
+validates native construction before saving the plan and entering combat.
+
+Completed plans are stored with the mode's step in the player save. Reload and
+failed scene-launch retries reuse the same plan without running `on_prepare` or
+drawing random numbers again. Resolving a fight consumes its plan, including a
+loss that retries the same step. Pending UI/closures are not saved: leaving the
+scene, changing profile or disabling scripts cancels preparation. Press Fight
+again to recreate a pending choice. Unknown plan save versions, changed rosters
+or missing owned content are rejected with saved data preserved.
+
+Random draws and other state writes made by Lua are not rolled back if a later
+callback or scene launch fails. Draw after the player commits a choice when
+canceling should not advance the random stream. Once the native save succeeds,
+the chosen plan and the saved stream travel together. This is deterministic
+encounter selection, not deterministic combat simulation.
+
+## sf2.modes.resolve
+
+**Signature:** `sf2.modes.resolve(request, plan)`
+
+**Returns:** Nothing.
+
+**When:** Complete a pending preparation, including from a UI callback. Reusing
+a resolved/canceled request or supplying an invalid plan is an error. It marks
+the request ready; native validation/save/entry occur after Lua returns.
+
+**Requires:** API 0.22 and the pending request supplied to this script's
+`on_prepare`. Forged or foreign request tables are rejected. No extra capability.
+
+```lua
+-- Inside the setup view's on_click callback:
+sf2.modes.resolve(request, { warriors = { selected_opponent }, level = 4 })
+sf2.ui.close(view)
+```
+
+## sf2.modes.cancel
+
+**Signature:** `sf2.modes.cancel(request)`
+
+**Returns:** Nothing.
+
+**When:** Cancel an unfinished setup, for example in the view's `on_close`.
+No ticket is charged and no fight starts. Repeated cancellation is harmless.
+Cancellation after resolution is a no-op, so closing a successful choice view
+cannot undo the selected plan. Scene/script teardown can still prevent launch.
+
+**Requires:** API 0.22 and an owned request. No extra capability.
+
+```lua
+on_close = function() sf2.modes.cancel(request) end
+```
+
+## sf2.modes.is_pending
+
+**Signature:** `sf2.modes.is_pending(request)`
+
+**Returns:** `true` while awaiting a result, otherwise `false`.
+
+**When:** Guard buttons or late callbacks against stale requests.
+
+**Requires:** API 0.22 and an owned request. No extra capability.
+
+```lua
+if sf2.modes.is_pending(request) then
+    sf2.modes.resolve(request, {})
+end
+```
+
+The [Generated Expedition example](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/example.generated-expedition)
+combines a saved random stream, generated opponent roster and asynchronous game-
+styled setup UI. Its runtime fixture tests the shipped Lua, cancellation,
+deferred entry and save/reload. Full-game combat acceptance remains a playtest.

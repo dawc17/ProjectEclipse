@@ -42,7 +42,7 @@ namespace Eclipse.Modding
 
     // Engine-independent UI ownership and state, consumed by the Lua binding,
     // Unity renderer, input coordinator and script-context teardown.
-    public enum ModUiKind { Stack, Row, Column, Scroll, Text, Button, Progress }
+    public enum ModUiKind { Stack, Row, Column, Scroll, Text, Button, Progress, Toggle, Slider }
     public enum ModUiMount { Menu, Modal, CombatHud }
 
     public sealed class ModUiPlacement
@@ -113,10 +113,10 @@ namespace Eclipse.Modding
         }
         internal void ValidateFor(ModUiKind kind)
         {
-            if (kind != ModUiKind.Text && kind != ModUiKind.Button && (TextColor != null || FontSize.HasValue || TextAlign != null))
-                throw new ArgumentException("Only text/buttons accept text styling.");
-            if (kind != ModUiKind.Progress && FillColor != null)
-                throw new ArgumentException("Only progress widgets accept fill color.");
+            if (kind != ModUiKind.Text && kind != ModUiKind.Button && kind != ModUiKind.Toggle && (TextColor != null || FontSize.HasValue || TextAlign != null))
+                throw new ArgumentException("Only text, buttons and toggles accept text styling.");
+            if (kind != ModUiKind.Progress && kind != ModUiKind.Slider && FillColor != null)
+                throw new ArgumentException("Only progress widgets and sliders accept fill color.");
             if (kind == ModUiKind.Text && BackgroundColor != null)
                 throw new ArgumentException("Use a container for a text background.");
         }
@@ -158,9 +158,11 @@ namespace Eclipse.Modding
             bool container = kind == ModUiKind.Stack || kind == ModUiKind.Row || kind == ModUiKind.Column || kind == ModUiKind.Scroll;
             if (!container && copy.Count != 0) throw new ArgumentException("Leaf widgets cannot have children.");
             if (kind == ModUiKind.Scroll && copy.Count != 1) throw new ArgumentException("Scroll requires one content child.");
-            if (kind != ModUiKind.Text && kind != ModUiKind.Button && text.Length != 0)
+            if (kind != ModUiKind.Text && kind != ModUiKind.Button && kind != ModUiKind.Toggle && text.Length != 0)
                 throw new ArgumentException("Only text and button widgets have text.");
-            if (kind != ModUiKind.Progress && value != 0) throw new ArgumentException("Only progress widgets have a value.");
+            if (kind != ModUiKind.Progress && kind != ModUiKind.Slider && kind != ModUiKind.Toggle && value != 0)
+                throw new ArgumentException("Only progress, slider and toggle widgets have a value.");
+            if (kind == ModUiKind.Toggle && value != 0 && value != 1) throw new ArgumentException("Toggle values are zero or one.");
             if (kind != ModUiKind.Row && kind != ModUiKind.Column && gap != 0)
                 throw new ArgumentException("Only rows and columns have a gap.");
             Id = id; Kind = kind; Width = width; Height = height; Gap = gap;
@@ -215,14 +217,14 @@ namespace Eclipse.Modding
         { if (string.IsNullOrEmpty(owner.Value)) throw new ArgumentException("UI scope requires a mod owner."); Owner = owner; this.report = report; }
 
         public ModUiSurface Open(string id, ModUiMount mount, ModUiNode root, Action<string> onClick = null, ModUiPlacement placement = null,
-            Action<ModUiCloseReason> onClose = null)
+            Action<ModUiCloseReason> onClose = null, Action<string, double> onChange = null)
         {
             if (closed) throw new ObjectDisposedException(nameof(ModUiScope));
             ModUiNode.ValidateId(id);
             if (!Enum.IsDefined(typeof(ModUiMount), mount)) throw new ArgumentOutOfRangeException(nameof(mount));
             if (surfaces.ContainsKey(id)) throw new InvalidOperationException("UI surface is already open: " + id);
             if (surfaces.Count >= 8) throw new InvalidOperationException("A scope permits at most eight open surfaces.");
-            var surface = new ModUiSurface(this, id, mount, root, onClick, placement, onClose);
+            var surface = new ModUiSurface(this, id, mount, root, onClick, placement, onClose, onChange);
             surfaces.Add(id, surface);
             return surface;
         }
@@ -250,6 +252,7 @@ namespace Eclipse.Modding
         private readonly ModUiScope scope;
         private readonly Dictionary<string, Widget> widgets = new Dictionary<string, Widget>(StringComparer.Ordinal);
         private Action<string> click;
+        private Action<string, double> change;
         private Action<ModUiCloseReason> close;
         private bool dispatching;
         private bool inputAllowed = true;
@@ -266,7 +269,7 @@ namespace Eclipse.Modding
         public event Action Closed;
 
         internal ModUiSurface(ModUiScope scope, string id, ModUiMount mount, ModUiNode root, Action<string> onClick, ModUiPlacement placement,
-            Action<ModUiCloseReason> onClose)
+            Action<ModUiCloseReason> onClose, Action<string, double> onChange)
         {
             this.scope = scope; Id = id; Mount = mount;
             Root = root ?? throw new ArgumentNullException(nameof(root));
@@ -275,6 +278,7 @@ namespace Eclipse.Modding
             Index(root, null, 1);
             click = onClick;
             close = onClose;
+            change = onChange;
         }
 
         private void Index(ModUiNode node, Widget parent, int depth)
@@ -302,7 +306,7 @@ namespace Eclipse.Modding
         public void SetText(string id, string text)
         {
             var widget = Get(id);
-            if (widget.Node.Kind != ModUiKind.Text && widget.Node.Kind != ModUiKind.Button)
+            if (widget.Node.Kind != ModUiKind.Text && widget.Node.Kind != ModUiKind.Button && widget.Node.Kind != ModUiKind.Toggle)
                 throw new InvalidOperationException("This widget has no text.");
             ModUiNode.ValidateText(text);
             Update(widget, text, widget.State.Value, widget.State.Visible, widget.State.Enabled);
@@ -311,7 +315,7 @@ namespace Eclipse.Modding
         public void SetValue(string id, double value)
         {
             var widget = Get(id);
-            if (widget.Node.Kind != ModUiKind.Progress) throw new InvalidOperationException("This widget has no progress value.");
+            if (widget.Node.Kind != ModUiKind.Progress && widget.Node.Kind != ModUiKind.Slider) throw new InvalidOperationException("This widget has no numeric value.");
             ModUiNode.ValidateNumber(value, 0, 1, nameof(value));
             Update(widget, widget.State.Text, value, widget.State.Visible, widget.State.Enabled);
         }
@@ -320,6 +324,42 @@ namespace Eclipse.Modding
         { var w = Get(id); Update(w, w.State.Text, w.State.Value, visible, w.State.Enabled); }
         public void SetEnabled(string id, bool enabled)
         { var w = Get(id); Update(w, w.State.Text, w.State.Value, w.State.Visible, enabled); }
+
+        public void SetChecked(string id, bool value)
+        {
+            var w = Get(id);
+            if (w.Node.Kind != ModUiKind.Toggle) throw new InvalidOperationException("This widget is not a toggle.");
+            Update(w, w.State.Text, value ? 1 : 0, w.State.Visible, w.State.Enabled);
+        }
+
+        public bool CanInteract(string id)
+        {
+            if (IsClosed || !inputAllowed || dispatching || id == null || !widgets.TryGetValue(id, out var w)) return false;
+            if (w.Node.Kind != ModUiKind.Button && w.Node.Kind != ModUiKind.Toggle && w.Node.Kind != ModUiKind.Slider) return false;
+            for (var ancestor = w; ancestor != null; ancestor = ancestor.Parent)
+                if (!ancestor.State.Visible || !ancestor.State.Enabled) return false;
+            return true;
+        }
+
+        // User changes commit before notification. Script setters never echo callbacks.
+        public bool TryChange(string id, double value)
+        {
+            if (!CanInteract(id)) return false;
+            var w = Get(id);
+            if (w.Node.Kind != ModUiKind.Toggle && w.Node.Kind != ModUiKind.Slider) return false;
+            if (double.IsNaN(value) || double.IsInfinity(value) || value < 0 || value > 1 ||
+                (w.Node.Kind == ModUiKind.Toggle && value != 0 && value != 1) || value == w.State.Value) return false;
+            dispatching = true;
+            try
+            {
+                Update(w, w.State.Text, value, w.State.Visible, w.State.Enabled);
+                if (IsClosed) return false;
+                change?.Invoke(id, value);
+                return true;
+            }
+            catch (Exception error) { Close(ModUiCloseReason.Error); scope.Report(error); return false; }
+            finally { dispatching = false; }
+        }
 
         private void Update(Widget widget, string text, double value, bool visible, bool enabled)
         {
@@ -358,6 +398,7 @@ namespace Eclipse.Modding
             IsClosed = true;
             scope.Remove(this);
             click = null;
+            change = null;
             widgets.Clear();
             var listeners = Closed;
             var notification = close;

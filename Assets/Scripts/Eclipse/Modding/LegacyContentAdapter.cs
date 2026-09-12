@@ -754,6 +754,28 @@ namespace Eclipse.Modding
             return node;
         }
 
+        public XmlElement BuildEncounterNode(FightDefinition fight, ModEncounterPlan plan)
+        {
+            var document = new XmlDocument();
+            var node = BuildFightNode(document,fight); document.AppendChild(node);
+            var warriors = node["Warriors"];
+            if (plan.Warriors.Count > 0)
+            {
+                warriors.RemoveAll();
+                foreach (var id in plan.Warriors)
+                {
+                    if (id.Namespace != fight.Id.Namespace || !_content.TryGetWarrior(id,out var warrior))
+                        throw new ModContentException("Generated encounter references an unavailable or foreign warrior: " + id);
+                    warriors.AppendChild(BuildWarriorNode(document,warrior));
+                }
+            }
+            if (plan.Level.HasValue)
+                foreach (XmlElement warrior in warriors.ChildNodes) warrior.SetAttribute("Level",plan.Level.Value.ToString(CultureInfo.InvariantCulture));
+            if (plan.Rounds.HasValue) node.SetAttribute("Rounds",plan.Rounds.Value.ToString(CultureInfo.InvariantCulture));
+            if (plan.RoundTime.HasValue) node.SetAttribute("RoundTime",plan.RoundTime.Value.ToString(CultureInfo.InvariantCulture));
+            return node;
+        }
+
         private void AppendFightRules(XmlElement rules, FightDefinition fight)
         {
             for (int i = 0; i < fight.Rules.Count; i++)
@@ -769,6 +791,13 @@ namespace Eclipse.Modding
         private XmlElement BuildWarriorNode(XmlDocument document, WarriorDefinition warrior)
         {
             XmlElement node = document.CreateElement("Warrior");
+            node.SetAttribute("EclipseCharacterId",warrior.Id.ToString());
+            if (!string.IsNullOrEmpty(warrior.BodyModel.Path)) node.SetAttribute("EclipseBodyModel",warrior.BodyModel.ToString());
+            if (warrior.SkinModels.Count > 0)
+            {
+                var skins = document.CreateElement("EclipseSkinModels"); node.AppendChild(skins);
+                foreach (var model in warrior.SkinModels) { var skin=document.CreateElement("Model"); skin.SetAttribute("Asset",model.ToString()); skins.AppendChild(skin); }
+            }
             if (warrior.HasTemplate)
             {
                 WarriorTemplateDefinition template;

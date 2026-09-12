@@ -1433,6 +1433,7 @@ public class Model : global::EventDispatcher<object>
 		GDGHBKAENHK = false;
 		APOHBENDEKO = -1;
 		KMMJCHDKBDO = data;
+        _ModelConditions.EclipseCharacterId = data.EclipseCharacterId;
 		ODLJHBDMEIJ = null;
 		FJGNHALJJFF = -1;
 		NIKPBGPPFEP = false;
