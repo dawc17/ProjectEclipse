@@ -1,9 +1,11 @@
 ---
-title: Author a character and animation
+title: Low-level point-rig tools
 description: Import a native SF2 rig into Blender, author its motion and geometric skin, and install a character with playable controls.
 ---
 
-Eclipse characters use SF2's point-based physics rig. An animation stores the positions of those points in a fixed order; body and equipment models attach geometry to them. The authoring tools bridge Blender to that format and generate a Lua module with typed character and move registrations. This workflow requires API **0.22.0**, Python 3, and Blender 3.6 or newer. Blender 3.6.23 is the tested version.
+For visual authoring, start with [Gymnast Tool Suite and Eclipse packaging](../gymnast/). It provides a visible body and IK controls. This page documents the earlier low-level point importer for format experiments; its point objects alone are not a complete character authoring interface.
+
+Eclipse characters use SF2's point-based physics rig. An animation stores the positions of those points in a fixed order; body and equipment models attach geometry to them. These low-level tools require API **0.22.0**, Python 3, and Blender 3.6 or newer. Blender 3.6.23 is the tested version for this importer only.
 
 The pipeline supports body proportions, native geometry overlays, animation import, constrained or keyframed point motion, baking, validation, a local preview, and runtime registration. It does not automatically retarget an arbitrary FBX skeleton or turn Blender materials into game shaders. Preserve the native rig's names and point order when sharing the game's moves, equipment, and physics. Substantially different skeletons also need compatible moves and equipment.
 

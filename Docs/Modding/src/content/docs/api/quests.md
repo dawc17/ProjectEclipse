@@ -139,3 +139,50 @@ Button actions use the same supported action shapes.
 
 Use either a fight reward or a quest item grant for an intended single reward;
 using both awards twice.
+
+
+## sf2.quests.suppress
+
+**Signature:** `sf2.quests.suppress { target = "namespace:quests/id" }`
+
+**Returns:** Nothing.
+
+**When:** During registration, before the mod entrypoint returns. Requires API 0.23
+or newer. Changes take effect through Apply & Restart, before saved quests resume.
+
+**Requires:** `content.patch`. The target must already be registered in your mod or
+an explicitly declared dependency. Declare `core` when targeting base quests.
+
+Suppresses execution while preserving the native definition and saved progress.
+It covers event dispatch, explicit activation, direct Run/Foreach children and saved
+resume. It does not undo actions that ran earlier or mark the quest complete.
+Disabling the suppressing mod and restarting restores eligibility; normal quest
+conditions and completion state still apply. This is whole-quest suppression,
+not editing individual actions or replacing the quest's behavior.
+
+Core targets use `core:quests/<source-file>/<quest-name>` in lowercase, including
+`.xml` and the source path relative to the gameplay XML root. For example,
+`core:quests/quest_extensions/energy.xml/energychecker`. Includes retain their
+original source identity. Identical names in different source files are distinct;
+repeated same-name records in one source are suppressed together. Mod-owned
+quests use their ordinary qualified ID. The operation never replaces an XML file.
+
+```lua
+local sf2 = require("sf2")
+
+-- Suppress an already registered quest belonging to a declared story dependency.
+-- Replace the target with that dependency's actual quest ID.
+sf2.quests.suppress { target = "my.story:quests/old_introduction" }
+```
+
+Unknown targets, undeclared dependencies, extra fields, duplicate requests and
+conflicting requests by two mods fail registration. Even dependency order does
+not silently override another suppression request. Suppression records participate
+in content fingerprints. Shared prices, currencies and economic formulas remain
+outside this operation.
+
+Managed routing and Lua registration are tested, including recovered Run/Foreach
+entry and saved-resume methods with host services stubbed. Saved lookup matches
+both the quest name and its saved loading file, so a same-named quest in another
+loaded file is not selected. Full-game interruption/resume and native presentation
+acceptance remain separate checks.

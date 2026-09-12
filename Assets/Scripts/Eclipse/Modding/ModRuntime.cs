@@ -12,6 +12,12 @@ namespace Eclipse.Modding
         private static ModHost _host;
         private static ModScriptSession _scripts;
         private static LegacyContentAdapter _legacyContent;
+        private static readonly ModDojoSelection DojoSelection = new ModDojoSelection();
+        internal static readonly ModStoryEvents StoryEvents = new ModStoryEvents(
+            (owner, message) => Debug.LogWarning("[ModStory] " + owner + ": " + message));
+        private static Roster _profileRoster;
+        private static bool _sceneNavigationInProgress;
+        public static string ResolveDojoLocation(string fallback) => DojoSelection.Resolve(fallback);
 
         public static bool IsInitialized => _host != null;
         public static ModHost Host => _host ?? InitializeDefault();
@@ -19,6 +25,10 @@ namespace Eclipse.Modding
 
         public static ModScriptSession StartScripts()
         {
+            StoryEvents.Clear();
+            _profileRoster = null;
+            ModProfileAccess.Clear();
+            DojoSelection.Clear();
             _legacyContent?.Dispose();
             _legacyContent = null;
             _scripts?.Dispose();
@@ -28,7 +38,13 @@ namespace Eclipse.Modding
             ModModeRuntime.Warning = message => Debug.LogWarning(message);
             ModPolicies.Content = null;
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(Eclipse.UI.Modding.ModUiGameBridge.Attach,
-                () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name), LogScript, ImportCoreContent);
+                () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name, DojoSelection, StoryEvents), LogScript, ImportCoreContent);
+            var dojoChoices = new List<DefinitionId>();
+            foreach (var location in _scripts.Content.Locations)
+                if (location.IsDojo) dojoChoices.Add(location.Id);
+            DojoSelection.SetChoices(dojoChoices);
+            ModProfileAccess.Level = ReadProfileLevel;
+            ModProfileAccess.Item = ReadProfileItem;
             ModPolicies.Content = _scripts.Content;
             ModModeRuntime.SchedulePreparation = (request,ready,cancel) =>
                 new GameObject("Mod encounter preparation").AddComponent<ModPendingEncounter>().Configure(request,ready,cancel);
@@ -164,8 +180,11 @@ namespace Eclipse.Modding
             return false;
         }
 
-        public static void RecordSaveContext(System.Xml.XmlNode warrior)
+        public static void RecordSaveContext(System.Xml.XmlNode warrior, Roster roster = null)
         {
+            StoryEvents.UnbindProfile();
+            _profileRoster = null;
+            DojoSelection.Unbind();
             // Do not overwrite provenance if mod initialization itself was unavailable.
             if (_scripts == null) return;
             if (!ModSaveData.RecordContext(warrior, _scripts.ActiveMods, _scripts.Content, _scripts.State))
@@ -174,9 +193,124 @@ namespace Eclipse.Modding
                 return;
             }
             ModModeRuntime.Bind(warrior);
+            try { DojoSelection.Bind(warrior); }
+            catch (ModContentException error) { Debug.LogWarning("[ModDojo] " + error.Message); }
             IReadOnlyList<ModDiagnostic> stateDiagnostics = _scripts.BindState(warrior);
             for (int i = 0; i < stateDiagnostics.Count; i++)
                 Debug.LogWarning("[ModSave] " + stateDiagnostics[i]);
+            _profileRoster = roster;
+            if (roster != null) StoryEvents.BindProfile();
+        }
+
+        public static void UnbindProfile()
+        {
+            StoryEvents.UnbindProfile();
+            _profileRoster = null;
+            DojoSelection.Unbind();
+            ModModeRuntime.Clear();
+            _scripts?.State.Unbind();
+        }
+
+        private static int? ReadProfileLevel() => _profileRoster == null ? (int?)null : _profileRoster.Level;
+
+        internal static bool TryNavigateScene(string destination)
+        {
+            ScreenType target;
+            switch (destination)
+            {
+                case "map": target = ScreenType.ModuleMap; break;
+                case "shop": target = ScreenType.ModuleShop; break;
+                case "profile": target = ScreenType.ModuleProfile; break;
+                case "dojo": target = ScreenType.ModuleDojo; break;
+                default: throw new ModContentException("Unsupported menu destination: " + destination);
+            }
+            if (_profileRoster == null || _sceneNavigationInProgress || ModModeRuntime.HasPendingPreparation ||
+                Eclipse.UI.Modding.ModUiGameBridge.NativeInputBlocked) return false;
+            var lockScreen = Nekki.SF2.GUI.LockScreen.get_Instance();
+            if (lockScreen != null && lockScreen.gameObject.activeInHierarchy) return false;
+            var module = Module.ELEBLBJKDBI();
+            var current = SceneManagerSF.EKFBDMBCDMB();
+            // A combat exit must go through the native surrender/result workflow.
+            if (current != ScreenType.ModuleMap && current != ScreenType.ModuleShop &&
+                current != ScreenType.ModuleProfile && current != ScreenType.ModuleDojo) return false;
+            if (module.BOHBCFMJPCA() == null || module.NMCNDOPKFJD() != current ||
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != (int)current) return false;
+            if (current == target) return true;
+            _sceneNavigationInProgress = true;
+            try
+            {
+                // Keep the native quest/tab gates enabled. False can mean a native
+                // quest consumed the request; do not force a second transition.
+                return Module.DLOKJOHNDID(target);
+            }
+            finally { _sceneNavigationInProgress = false; }
+        }
+
+        internal static void PublishSceneEntry(string scene, int profileGeneration)
+        {
+            if (_profileRoster == null || StoryEvents.ProfileGeneration != profileGeneration ||
+                !StoryEvents.HasSubscribers(ModStoryEventKind.SceneEnter)) return;
+            StoryEvents.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter, null, scene: scene));
+        }
+
+        internal static void PublishLevelUp(Roster roster, int previousLevel, int profileGeneration)
+        {
+            if (roster == null || !ReferenceEquals(roster, _profileRoster) || previousLevel < 1 ||
+                StoryEvents.ProfileGeneration != profileGeneration || !StoryEvents.HasSubscribers(ModStoryEventKind.LevelUp)) return;
+            int level = roster.Level;
+            if (level > previousLevel)
+                StoryEvents.Publish(new ModStoryEvent(ModStoryEventKind.LevelUp, null, null, previousLevel, level));
+        }
+
+        internal static ModStoryEvent CaptureStoryEvent(QuestEvent.PMDPDMFLCIJ kind, QuestParameters parameters)
+        {
+            if (_profileRoster == null || _scripts == null || parameters == null) return null;
+            ModStoryEventKind eventKind;
+            if (kind == QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_PURCHASE) eventKind = ModStoryEventKind.Purchase;
+            else if (kind == QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_ENCHANTMENT) eventKind = ModStoryEventKind.Enchantment;
+            else return null;
+            if (!StoryEvents.HasSubscribers(eventKind)) return null;
+            try
+            {
+                string name = eventKind == ModStoryEventKind.Purchase
+                    ? parameters.DLKPBAJDHBO?.Name : parameters.DPLEGFCHOCE?.OHCGEEEKEJH;
+                string xml = eventKind == ModStoryEventKind.Purchase ? parameters.DLKPBAJDHBO?.NodeXML?.OuterXml : null;
+                DefinitionId? item = _scripts.Content.TryResolveRuntimeItem(name, xml, out var itemId) ? itemId : (DefinitionId?)null;
+                DefinitionId? recipe = null;
+                if (eventKind == ModStoryEventKind.Enchantment)
+                {
+                    string recipeName = parameters.DPLEGFCHOCE?.FHELNNCGCGC;
+                    if (DefinitionId.TryParse(recipeName, out var recipeId) && _scripts.Content.TryGetForgeRecipeFamily(recipeId, out var family))
+                        recipe = family.Id;
+                    else
+                        foreach (var profile in _scripts.Content.ForgeEconomicProfiles)
+                            if (string.Equals(profile.RuntimeRecipeName, recipeName, StringComparison.Ordinal)) { recipe = profile.Id; break; }
+                }
+                return new ModStoryEvent(eventKind, item, recipe);
+            }
+            catch (Exception error)
+            {
+                Debug.LogWarning("[ModStory] Unable to capture native notification: " + error.Message);
+                return null;
+            }
+        }
+
+        internal static void PublishStoryEvent(ModStoryEvent notification, int profileGeneration)
+        {
+            if (notification != null && StoryEvents.ProfileGeneration == profileGeneration)
+                StoryEvents.Publish(notification);
+        }
+
+        private static ModProfileItemSnapshot ReadProfileItem(DefinitionId id)
+        {
+            if (_profileRoster == null || _scripts == null) return null;
+            if (!_scripts.Content.TryResolveItem(id, out var definition))
+                throw new ModContentException("Profile query references unavailable item: " + id);
+            string name = definition.IsCore && !string.IsNullOrEmpty(definition.LegacyName)
+                ? definition.LegacyName : definition.Id.ToString();
+            var item = _profileRoster.KHCNHPCPFII().CMGOCLGHNLH(name);
+            return item == null ? new ModProfileItemSnapshot(false, 0, false, null)
+                : new ModProfileItemSnapshot(true, item.Count, item.EFMFGEPDAOP(), item.DHNNCAEEMLL());
         }
 
         public static bool TryReadSavedEnchantment(XmlNode perkNode, out EnchantmentDefinition enchantment,
@@ -519,6 +653,10 @@ namespace Eclipse.Modding
 
         public static void Shutdown()
         {
+            StoryEvents.Clear();
+            _profileRoster = null;
+            ModProfileAccess.Clear();
+            DojoSelection.Clear();
             ModModeRuntime.Clear();
             ModModeRuntime.SelectNext = null;
             ModProgressionAccess.Clear();
@@ -583,6 +721,7 @@ namespace Eclipse.Modding
             if (zonesRoot != null) fights = CoreContentImporter.ImportStages(content, zonesRoot);
             int warriorTemplates = CoreContentImporter.ImportWarriorTemplates(content,
                 stagesDocument["Stages"]?["Warriors"]?["Templates"]);
+            CoreContentImporter.ImportQuestSources(content, GameplayContentArchive.GetXmlRoot());
             Debug.Log("[ModContent] Imported core items: " + weapons + " weapons, " + armors +
                 " armors, " + helms + " helms, " + ranged + " ranged, " + magic + " magic, " + nonEquipment +
                 " non-equipment; " + perks + " perks; " + forgeProfiles + " immutable forge economic profiles.");

@@ -73,6 +73,42 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class LocationCurvePoint
+    {
+        public float Period { get; }
+        public float Value { get; }
+        public float Ease { get; }
+        public LocationCurvePoint(float period, float value, float ease = 0)
+        {
+            if (float.IsNaN(period) || period < 1f / 60f || period > 120f ||
+                float.IsNaN(value) || Math.Abs(value) > 10000f || float.IsNaN(ease) || Math.Abs(ease) > 1000f ||
+                (ease != 0 && Math.Abs(ease) < 0.0001f))
+                throw new ModContentException("Location curve points require period 1/60..120 seconds, value -10000..10000 and ease zero or magnitude 0.0001..1000.");
+            Period = period; Value = value; Ease = ease;
+        }
+    }
+
+    public sealed class LocationCurveDefinition
+    {
+        private readonly IReadOnlyList<LocationCurvePoint> _points;
+        public IReadOnlyList<LocationCurvePoint> Points => _points;
+        public float Offset { get; }
+        public LocationCurveDefinition(float offset, LocationCurvePoint[] points)
+        {
+            if (points == null || points.Length < 2 || points.Length > 64)
+                throw new ModContentException("Location curves require 2..64 points.");
+            float duration = 0;
+            foreach (var point in points)
+            {
+                if (point == null) throw new ModContentException("Location curve points cannot be null.");
+                duration += point.Period;
+            }
+            if (float.IsNaN(offset) || offset < 0 || offset > duration)
+                throw new ModContentException("Location curve offset must be between zero and its total duration.");
+            Offset = offset; _points = Array.AsReadOnly((LocationCurvePoint[])points.Clone());
+        }
+    }
+
     public sealed class LocationImageDefinition
     {
         public AssetId Sprite { get; }
@@ -84,9 +120,16 @@ namespace Eclipse.Modding
         public bool FlipX { get; }
         public bool FlipY { get; }
         public bool IsMask { get; }
+        public LocationCurveDefinition MotionX { get; }
+        public LocationCurveDefinition MotionY { get; }
+        public LocationCurveDefinition Rotation { get; }
+        public LocationCurveDefinition Opacity { get; }
+        public bool IsAnimated => MotionX != null || MotionY != null || Rotation != null || Opacity != null;
 
         public LocationImageDefinition(AssetId sprite, float x, float y, float width, float height,
-            bool isOpaque = false, bool flipX = false, bool flipY = false, bool isMask = false)
+            bool isOpaque = false, bool flipX = false, bool flipY = false, bool isMask = false,
+            LocationCurveDefinition motionX = null, LocationCurveDefinition motionY = null,
+            LocationCurveDefinition rotation = null, LocationCurveDefinition opacity = null)
         {
             if (string.IsNullOrEmpty(sprite.Path)) throw new ModContentException("Location image requires a sprite asset.");
             ValidateFinite(x, "Location image X");
@@ -102,6 +145,13 @@ namespace Eclipse.Modding
             FlipX = flipX;
             FlipY = flipY;
             IsMask = isMask;
+            MotionX = motionX; MotionY = motionY; Rotation = rotation; Opacity = opacity;
+            if (IsAnimated && (isMask || isOpaque))
+                throw new ModContentException("Animated location images cannot use mask or opaque flags.");
+            if (opacity != null)
+                foreach (var point in opacity.Points)
+                    if (point.Value < 0 || point.Value > 100)
+                        throw new ModContentException("Location opacity values must be 0..100 percent.");
         }
 
         private static bool IsPositive(float value) => !float.IsNaN(value) && !float.IsInfinity(value) && value > 0f;
@@ -167,13 +217,15 @@ namespace Eclipse.Modding
         public float MinWidth { get; }
         public float FrictionForce { get; }
         public int GridSize { get; }
+        public bool IsDojo { get; }
         public AssetId Music { get; }
+        public IReadOnlyList<AssetId> MusicChoices { get; }
         public bool HasMusic => !string.IsNullOrEmpty(Music.Path);
         public IReadOnlyList<LocationLayerDefinition> Layers => _layers;
 
         internal LocationDefinition(DefinitionId id, string color, float wall, float floor, float positionY,
             float width, float height, float minWidth, float frictionForce, int gridSize, AssetId music,
-            LocationLayerDefinition[] layers)
+            LocationLayerDefinition[] layers, AssetId[] musicChoices = null, bool dojo = false)
         {
             if (!Positive(width) || !Positive(height) || !Positive(minWidth))
                 throw new ModContentException("Location width, height, and min-width must be finite and greater than zero.");
@@ -193,7 +245,16 @@ namespace Eclipse.Modding
             MinWidth = minWidth;
             FrictionForce = frictionForce;
             GridSize = gridSize;
+            IsDojo = dojo;
             Music = music;
+            var choices = musicChoices ?? new AssetId[0];
+            if (choices.Length > 16 || (HasMusic && choices.Length != 0))
+                throw new ModContentException("Location accepts music or up to 16 music_choices, not both.");
+            var unique = new HashSet<AssetId>();
+            foreach (var choice in choices)
+                if (string.IsNullOrEmpty(choice.Path) || !unique.Add(choice))
+                    throw new ModContentException("Location music_choices require distinct audio assets.");
+            MusicChoices = Array.AsReadOnly((AssetId[])choices.Clone());
             _layers = (LocationLayerDefinition[])layers.Clone();
         }
 
@@ -615,17 +676,19 @@ namespace Eclipse.Modding
 
         public LocationDefinition RegisterLocation(string localId, string color, float wall, float floor,
             float positionY, float width, float height, float minWidth, float frictionForce, int gridSize,
-            AssetId music, LocationLayerDefinition[] layers)
+            AssetId music, LocationLayerDefinition[] layers, AssetId[] musicChoices = null, bool dojo = false)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("locations", localId);
             ValidateAssetReference(music, "location music");
+            if (musicChoices != null)
+                foreach (var choice in musicChoices) ValidateAssetReference(choice, "location music choice");
             if (layers != null)
                 for (int i = 0; i < layers.Length; i++)
                     for (int j = 0; j < layers[i].Images.Count; j++)
                         ValidateAssetReference(layers[i].Images[j].Sprite, "location sprite");
             var value = new LocationDefinition(id, color, wall, floor, positionY, width, height, minWidth,
-                frictionForce, gridSize, music, layers);
+                frictionForce, gridSize, music, layers, musicChoices, dojo);
             AddP1D(_p1dLocations, id, value);
             return value;
         }
@@ -690,6 +753,10 @@ namespace Eclipse.Modding
         {
             LocaleMetadataDefinition[] locales = Values(_p1dLocales);
             LocationDefinition[] locations = Values(_p1dLocations);
+            int dojoCount = 0;
+            foreach (var location in _catalog.Locations) if (location.IsDojo) dojoCount++;
+            foreach (var location in locations) if (location.IsDojo) dojoCount++;
+            if (dojoCount > 256) throw new ModContentException("At most 256 dojo choices may be active.");
             MoveTemplateDefinition[] templates = Values(_p1dMoveTemplates);
             MoveDefinition[] moves = Values(_p1dMoves);
             MoveTriggerDefinition[] triggers = Values(_p1dMoveTriggers);

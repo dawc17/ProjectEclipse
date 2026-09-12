@@ -1004,3 +1004,40 @@ API 0.13 adds native `on_combo_changed` and `on_style_changed` snapshots. `examp
 API 0.14 adds `on_tick` on active combat simulation frames. The combo-reserve
 example uses it to clear timed state even without another hit; pause time is
 excluded. See the public combat callback reference for ordering and lifetime.
+
+
+### Source-aware quest suppression (API 0.23)
+
+`sf2.quests.suppress { target = "namespace:quests/id" }` requires `content.patch`.
+Core targets include the original XML file and quest name; owned targets use
+ordinary qualified IDs. Requests participate in transactional conflict checking
+and content fingerprints. Suppressed definitions and saved progress are retained.
+Apply & Restart installs policies before resume. Individual action editing remains
+unsupported. See `example.quest-suppression` and the public quests reference.
+
+### Animated scenery (API 0.24)
+
+Location images support motion_x, motion_y, rotation and opacity curves. See
+example.animated-arena and the public locations reference for required point data,
+limits and phase offsets. This is decorative native scenery; it provides no hazard
+or combat timing authority. Full-game visual/pause acceptance remains pending.
+
+API 0.25 also supports location music_choices: up to 16 distinct audio handles,
+choosing one at fight entry and looping it. See the public location guide for
+priority, dependency, fingerprint and restart behavior. This is random selection,
+not sequential playlist playback.
+
+### Saved dojo selection (API 0.26)
+
+Register a location with dojo=true, then use locations.select_dojo from a UI
+callback with presentation.dojo. selected_dojo reads the saved ID; reset_dojo
+clears only your mod's preference. Missing mods preserve the saved choice and use
+the native dojo temporarily. Changes apply on next dojo entry; normal game saving
+persists them. See example.dojo-selector and the public locations reference.
+
+### Player profile queries (API 0.27)
+
+With profile.read, sf2.profile.level() reads progression and sf2.profile.item(handle)
+returns current presence, ownership, count, equipped flag and upgrade index.
+Obtain item handles during loading; query after profile loading. Snapshots are
+copies and do not mutate inventory. See the public Player profile queries page.

@@ -785,6 +785,38 @@ local Fonts = {}
 ---@field fonts? Eclipse.Fonts
 local LocaleDefinition = {}
 
+---@class (exact) Eclipse.LocationCurvePoint
+---@field period number
+---@field value number
+---@field ease? number
+local LocationCurvePoint = {}
+
+---@class (exact) Eclipse.LocationCurve
+---@field offset? number
+---@field points Eclipse.LocationCurvePoint[]
+local LocationCurve = {}
+
+---@class (exact) Eclipse.ProfileItemSnapshot
+---@field present boolean
+---@field owned boolean
+---@field count integer
+---@field equipped boolean
+---@field upgrade? integer
+local ProfileItemSnapshot = {}
+
+---@class (exact) Eclipse.StorySubscription
+---@field private __eclipseStorySubscription true
+local StorySubscription = {}
+
+---@class (exact) Eclipse.StoryEvent
+---@field kind "purchase"|"enchantment"|"level_up"|"scene_enter"
+---@field item? string
+---@field recipe? string
+---@field previous_level? integer
+---@field level? integer
+---@field scene? "map"|"shop"|"profile"|"dojo"|"fight"
+local StoryEvent = {}
+
 ---@class (exact) Eclipse.LocationImage
 ---@field sprite Eclipse.SpriteHandle
 ---@field x? number
@@ -795,6 +827,10 @@ local LocaleDefinition = {}
 ---@field flip_x? boolean
 ---@field flip_y? boolean
 ---@field mask? boolean
+---@field motion_x? Eclipse.LocationCurve
+---@field motion_y? Eclipse.LocationCurve
+---@field rotation? Eclipse.LocationCurve
+---@field opacity? Eclipse.LocationCurve
 local LocationImage = {}
 
 ---@class (exact) Eclipse.FighterPositions
@@ -824,6 +860,8 @@ local LocationLayer = {}
 ---@field friction_force? number
 ---@field grid_size? number
 ---@field music? Eclipse.AudioHandle
+---@field music_choices? Eclipse.AudioHandle[]
+---@field dojo? boolean
 ---@field layers Eclipse.LocationLayer[]
 local LocationDefinition = {}
 
@@ -1133,6 +1171,10 @@ local UiPlacement = {}
 ---@field on_close? fun(view:Eclipse.UiHandle,reason:"script"|"back"|"scene"|"error"|"destroyed")
 local UiDefinition = {}
 
+---@class (exact) Eclipse.QuestSuppression
+---@field target string
+local QuestSuppression = {}
+
 ---@class Eclipse.Module_achievements
 local achievements = {}
 
@@ -1196,6 +1238,9 @@ local perks = {}
 ---@class Eclipse.Module_price
 local price = {}
 
+---@class Eclipse.Module_profile
+local profile = {}
+
 ---@class Eclipse.Module_progression
 local progression = {}
 
@@ -1222,6 +1267,9 @@ local shop = {}
 
 ---@class Eclipse.Module_state
 local state = {}
+
+---@class Eclipse.Module_story
+local story = {}
 
 ---@class Eclipse.Module_tactics
 local tactics = {}
@@ -1757,6 +1805,45 @@ function forge.register_recipe(definition) end
 ---@return string
 function locales.register(definition) end
 
+---Requires: `profile.read`.
+---When: After a game profile has loaded.
+---Returns: The active player's level as an integer.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profilelevel)
+---@return integer
+function profile.level() end
+
+---Requires: `profile.read` and an item handle obtained by this mod context. Declare dependencies when obtaining another mod's item handle.
+---When: After a game profile has loaded.
+---Returns: A new snapshot table with these fields:
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileitem)
+---@param item Eclipse.ItemHandle
+---@return Eclipse.ProfileItemSnapshot
+function profile.item(item) end
+
+---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up` or `scene_enter`) and a Lua function.
+---When: During mod loading or a callback while the script is active, including before a profile loads.
+---Returns: An opaque subscription handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon)
+---@param event "purchase"|"enchantment"|"level_up"|"scene_enter"
+---@param callback fun(event: Eclipse.StoryEvent)
+---@return Eclipse.StorySubscription
+function story.on(event, callback) end
+
+---Requires: `story.events` and a handle created by this script context. Copied, fabricated or foreign handles are rejected.
+---When: While the script is active, including inside the subscription's callback.
+---Returns: Nothing. Repeated cancellation is harmless.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyoff)
+---@param subscription Eclipse.StorySubscription
+function story.off(subscription) end
+
+---Requires: `story.events` and this script context's subscription handle.
+---When: While the script is active.
+---Returns: `true` while subscribed; `false` after cancellation or callback failure. An active subscription can be waiting for a profile to load.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyis_active)
+---@param subscription Eclipse.StorySubscription
+---@return boolean
+function story.is_active(subscription) end
+
 ---Requires: `content.register`; declare dependencies for external assets.
 ---When: During mod loading.
 ---Returns: A location handle.
@@ -1772,6 +1859,26 @@ function locations.register(definition) end
 ---@param location Eclipse.LocationHandle
 ---@return string
 function locations.name(location) end
+
+---Requires: `presentation.dojo` and this mod's registered location handle with `dojo = true`. UI creation separately requires `ui.create`.
+---When: After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo entry; it does not refresh an open dojo.
+---Returns: `nil`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselect_dojo)
+---@param location Eclipse.LocationHandle
+function locations.select_dojo(location) end
+
+---Requires: `presentation.dojo`. The saved choice must belong to this mod or already be empty; another mod's preference cannot be cleared by this function.
+---When: After a game profile has loaded, normally from a reset button.
+---Returns: `nil`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsreset_dojo)
+function locations.reset_dojo() end
+
+---Requires: `presentation.dojo`.
+---When: After a game profile has loaded.
+---Returns: Saved qualified location ID string, or `nil` for the native default.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselected_dojo)
+---@return string|nil
+function locations.selected_dojo() end
 
 ---Requires: `content.register`.
 ---When: During mod loading, before moves that use the template.
@@ -1967,8 +2074,8 @@ function ui.close(view) end
 ---@return boolean
 function ui.is_open(view) end
 
----Requires: An open owned view and a text/button ID; no additional capability.
----When: Update a text or button label. The string may be empty and is limited to 8192 UTF-16 code units. Updates do not rebuild the layout tree.
+---Requires: An open owned view and a text/button/toggle ID; no additional capability.
+---When: Update a text, button or toggle label. The string may be empty and is limited to 8192 UTF-16 code units. Updates do not rebuild the layout tree.
 ---Returns: Nothing.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_text)
 ---@param view Eclipse.UiHandle
@@ -2011,6 +2118,13 @@ function ui.set_visible(view, widget_id, visible) end
 ---@param widget_id string
 ---@param enabled boolean
 function ui.set_enabled(view, widget_id, enabled) end
+
+---Requires: `content.patch`. The target must already be registered in your mod or an explicitly declared dependency. Declare `core` when targeting base quests.
+---When: During registration, before the mod entrypoint returns. Requires API 0.23 or newer. Changes take effect through Apply & Restart, before saved quests resume.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/quests/#sf2questssuppress)
+---@param definition Eclipse.QuestSuppression
+function quests.suppress(definition) end
 
 ---Legacy alias for `sf2.shop.addItem`. Use `addItem` in new scripts.
 ---Requires: `content.register`.
@@ -2342,4 +2456,4 @@ function Fighter:add_damage_shield(key, fraction, frames) end
 ---@param key string
 function Fighter:remove_damage_shield(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, services = services, shop = shop, state = state, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, services = services, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }

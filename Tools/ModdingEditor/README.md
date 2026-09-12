@@ -191,3 +191,45 @@ attack data. The Blender authoring workflow is documented in the wiki's
 module and native assets for your mod. Keep editor-only `sf2.d.lua` outside the mod's
 executable scripts. LuaLS verifies the new example scripts and callback/field
 completion; Blender, native animation reading, and game tests remain separate checks.
+
+
+The primary visual character workflow is now the [Gymnast guide](../../Docs/Modding/src/content/docs/guides/gymnast.md).
+The generated package includes ordinary `scripts/character.lua` and `scripts/main.lua`
+using API 0.22; no new Lua binding or editor schema is introduced. Blender scene
+preparation, node/pose validation and native export tests are separate from editor
+completion and diagnostics. Keep source scenes outside the distributed mod.
+
+
+API 0.23 adds `sf2.quests.suppress { target = "..." }` with `content.patch`.
+Completion uses `QuestSuppression`; core IDs include the original XML source file
+and quest name. Unknown runtime targets and cross-mod conflicts are checked by
+registration, not inferred from editor diagnostics. See the public quests reference.
+
+API 0.24 adds LocationCurve and LocationCurvePoint completion for image motion_x,
+motion_y, rotation and opacity. Points specify period/value and optional ease;
+curves specify points and optional offset. The public location reference documents
+units and bounds. Mods/example.animated-arena is a complete registration example.
+
+API 0.25 includes optional LocationDefinition.music_choices (AudioHandle[]).
+Use it instead of music for native random track selection at fight entry. The
+location guide documents the 16-track limit and mutually exclusive settings.
+
+API 0.26 adds LocationDefinition.dojo and locations.select_dojo/selected_dojo/
+reset_dojo, with presentation.dojo capability diagnostics and completion. The
+Dojo Selector example is validated as a complete mod; callbacks run after profile
+loading, and changes apply on next dojo entry. See the public location guide.
+
+API 0.27 adds profile.level(), profile.item(ItemHandle) and ProfileItemSnapshot
+completion, plus profile.read capability diagnostics. See Player profile queries
+in the wiki for timing and the distinction between item presence and ownership.
+
+API 0.28 adds story.on/off/is_active, typed StoryEvent callback payloads and opaque
+StorySubscription handles, with story.events capability diagnostics. See Story
+events in the wiki for native timing, cancellation and delivery limits.
+
+API 0.29 adds the level_up story event and optional integer previous_level/level
+payload fields. The observer example includes experience-driven level changes.
+
+API 0.30 adds scene_enter with a typed scene field. It observes initialized
+destinations after a deferred frame; it does not grant combat authority or bypass
+native dialogs. Existing UI close callbacks handle scene teardown.

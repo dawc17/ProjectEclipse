@@ -160,8 +160,8 @@ def preview(path, rig, clip):
 <script>const d=__DATA__,c=document.querySelector('canvas'),ctx=c.getContext('2d'),f=document.querySelector('#frame');f.max=d.frames.length-1;
 let running=false,previous=0;document.querySelector('#play').onclick=()=>running=!running;
 let loX=Infinity,hiX=-Infinity,loY=Infinity,hiY=-Infinity;for(const pose of d.frames)for(const p of pose){loX=Math.min(loX,p[0]);hiX=Math.max(hiX,p[0]);loY=Math.min(loY,p[1]);hiY=Math.max(hiY,p[1])}const scale=Math.min(1000/Math.max(1,hiX-loX),500/Math.max(1,hiY-loY));
-function draw(){const pose=d.frames[+f.value],p=Object.fromEntries(d.names.map((n,i)=>[n,pose[i]]));ctx.clearRect(0,0,c.width,c.height);const xy=a=>[50+(a[0]-loX)*scale,550-(a[1]-loY)*scale];ctx.strokeStyle='#302013';ctx.lineWidth=5;for(const [a,b]of d.edges){ctx.beginPath();ctx.moveTo(...xy(p[a]));ctx.lineTo(...xy(p[b]));ctx.stroke()}ctx.fillStyle='#e5bc52';for(const a of pose){ctx.beginPath();ctx.arc(...xy(a),3,0,7);ctx.fill()}document.querySelector('#time').textContent=`Frame ${f.value} / ${f.max} · ${(+f.value/60).toFixed(2)}s`}
-f.oninput=()=>{running=false;draw()};function tick(t){if(running&&t-previous>=1000/60){f.value=(+f.value+1)%d.frames.length;previous=t;draw()}requestAnimationFrame(tick)}draw();requestAnimationFrame(tick);</script>'''
+function draw(){const pose=d.frames[+f.value],p=Object.fromEntries(d.names.map((n,i)=>[n,pose[i]]));ctx.clearRect(0,0,c.width,c.height);const xy=a=>[50+(a[0]-loX)*scale,550-(a[1]-loY)*scale];ctx.strokeStyle='#302013';ctx.lineWidth=5;for(const [a,b]of d.edges){ctx.beginPath();ctx.moveTo(...xy(p[a]));ctx.lineTo(...xy(p[b]));ctx.stroke()}ctx.fillStyle='#e5bc52';for(const a of pose){ctx.beginPath();ctx.arc(...xy(a),3,0,7);ctx.fill()}document.querySelector('#time').textContent=`Frame ${f.value} / ${f.max} · ${(+f.value/d.fps).toFixed(2)}s`}
+f.oninput=()=>{running=false;draw()};function tick(t){if(running&&t-previous>=1000/d.fps){f.value=(+f.value+1)%d.frames.length;previous=t;draw()}requestAnimationFrame(tick)}draw();requestAnimationFrame(tick);</script>'''
     Path(path).write_text(document.replace('__DATA__', payload), encoding='utf-8')
 
 

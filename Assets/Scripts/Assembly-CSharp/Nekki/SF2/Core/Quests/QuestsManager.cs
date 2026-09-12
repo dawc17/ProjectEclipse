@@ -15,6 +15,48 @@ namespace Nekki.SF2.Core.Quests
 
 		private static QuestsManager _instance;
 
+		// Host-only configuration. Keep definitions and roster progress intact so
+		// disabling a content policy restores the original quest identity.
+		private HashSet<string> EclipseSuppressedQuests = new HashSet<string>(System.StringComparer.Ordinal);
+
+		public void SetEclipseSuppressedQuests(IEnumerable<string> names)
+		{
+			if (_isRunActions || DHKJBMDEODI.Count != 0)
+				throw new System.InvalidOperationException("Quest suppression must be configured before queue restoration or execution.");
+			var next = new HashSet<string>(System.StringComparer.Ordinal);
+			if (names != null)
+				foreach (string name in names)
+				{
+					if (string.IsNullOrWhiteSpace(name) || name.IndexOf('#') <= 0 || name.EndsWith("#"))
+						throw new System.ArgumentException("Suppressed quests require source-file#quest-name identities.", "names");
+					next.Add(name);
+				}
+			EclipseSuppressedQuests = next;
+		}
+
+		public void ClearEclipseQuestSuppression()
+		{
+			// Teardown restores eligibility without touching an active native queue.
+			EclipseSuppressedQuests.Clear();
+		}
+
+		private bool IsEclipseSuppressed(QuestStage quest)
+		{
+			return quest != null && EclipseSuppressedQuests.Contains(quest.EclipseSourceFile + "#" + quest.get_Name());
+		}
+
+		public bool IsEclipseQuestSuppressed(string name, string sourceFile = null)
+		{
+			if (name == null || EclipseSuppressedQuests.Count == 0) return false;
+			foreach (QuestStage quest in NCJBGIFHMDK)
+			{
+				if (quest.get_Name() == name && (sourceFile == null ||
+					quest.EPDMGFELIMC().Replace('\\', '/') == sourceFile.Replace('\\', '/')))
+					return IsEclipseSuppressed(quest);
+			}
+			return false;
+		}
+
 		private readonly List<QuestStage> EclipseRaidMapEnter = new List<QuestStage>();
         private readonly List<QuestStage> EclipseRaidFloorChanged = new List<QuestStage>();
         private readonly List<QuestStage> EclipseShowRaidLoot = new List<QuestStage>();
@@ -673,7 +715,7 @@ namespace Nekki.SF2.Core.Quests
 			{
 				foreach (QuestStage item in list)
 				{
-					if (!FJADEODAOFO(item))
+					if (!IsEclipseSuppressed(item) && !FJADEODAOFO(item))
 					{
 						if (item.Compare(QuestParameters))
 						{
@@ -702,6 +744,7 @@ namespace Nekki.SF2.Core.Quests
 
 		public bool AddQuestToStek(QuestStage DOKAIKMLLDK, bool OBJGGIPDKDF = false)
 		{
+			if (DOKAIKMLLDK == null || IsEclipseSuppressed(DOKAIKMLLDK)) return false;
 			DOKAIKMLLDK.MHNEBBGMOLA(QuestParameters);
 			DOKAIKMLLDK.index = DHKJBMDEODI.Count;
 			Add(DOKAIKMLLDK);
@@ -714,9 +757,15 @@ namespace Nekki.SF2.Core.Quests
 
 		public QuestStage GetQuestByName(string name)
 		{
+			return GetQuestByName(name, null);
+		}
+
+		public QuestStage GetQuestByName(string name, string sourceFile)
+		{
 			foreach (QuestStage item in NCJBGIFHMDK)
 			{
-				if (item.get_Name().Equals(name))
+				if (item.get_Name().Equals(name) && (sourceFile == null ||
+					item.EPDMGFELIMC().Replace('\\', '/') == sourceFile.Replace('\\', '/')))
 				{
 					return item;
 				}
@@ -776,6 +825,11 @@ namespace Nekki.SF2.Core.Quests
 
 		public bool AddActionQuest(List<QuestStage> NKNMCOEBMNG)
 		{
+			// Filter before restoring parameters or calling MHNEBBGMOLA: both touch
+			// native quest state. Never remove suppressed entries from the roster.
+			if (EclipseSuppressedQuests.Count != 0)
+				NKNMCOEBMNG = NKNMCOEBMNG.FindAll(quest => !IsEclipseSuppressed(quest));
+			if (NKNMCOEBMNG.Count == 0) return false;
 			ParametersQuest dHLPMNEKHKD = ((NKNMCOEBMNG[0].LBIPHHIJEFP() == null) ? null : NKNMCOEBMNG[0].LBIPHHIJEFP().get_Parameters());
 			if (dHLPMNEKHKD != null)
 			{

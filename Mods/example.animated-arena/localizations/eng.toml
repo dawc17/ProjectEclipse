@@ -1,0 +1,4 @@
+trial="Animated Arena"
+description="The backdrop drifts vertically and fades on a four-second loop. Combat uses normal rules."
+opponent="Arena Guardian"
+zones/trial="Animated Arena"

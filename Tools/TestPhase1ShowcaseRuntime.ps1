@@ -30,6 +30,7 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/LooseModProvider.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScripting.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModUiRuntime.cs',
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModStoryEvents.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScriptingP1C.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModScriptingP1D.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModWarriorTemplates.cs',
@@ -55,7 +56,7 @@ $program = Join-Path $testRoot 'Program.cs'
 $exe = Join-Path $testRoot 'Phase1ShowcaseRuntime.dll'
 $adapterSource = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs')
 $adapterBase = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs')
-$projectionMethods = foreach ($method in @('BuildLocationDocument', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition', 'BuildMoveNode', 'MoveTemplateNames', 'AppendEvents', 'AppendConditions', 'MoveEventElement')) {
+$projectionMethods = foreach ($method in @('BuildLocationDocument', 'AppendLocationCurve', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition', 'BuildMoveNode', 'MoveTemplateNames', 'AppendEvents', 'AppendConditions', 'MoveEventElement')) {
     $match = [regex]::Match($adapterSource, '(?ms)^        private [^\r\n]*\b' + $method + '\(.*?^        \}')
     if (!$match.Success) { throw "Cannot extract production projection: $method" }
     $match.Value

@@ -79,6 +79,7 @@ namespace Nekki.SF2.GUI
 
 		protected override void Awake()
 		{
+			int storyProfile = Eclipse.Modding.ModRuntime.StoryEvents.ProfileGeneration;
 			T val = this as T;
 			if (SceneManagerSF.Init(val.get_SceneId()))
 			{
@@ -95,6 +96,7 @@ namespace Nekki.SF2.GUI
 				{
 					_WideScreenController.Run();
 				}
+				Eclipse.Modding.ModSceneEntry.Schedule(this, get_SceneId(), storyProfile);
 			}
 		}
 

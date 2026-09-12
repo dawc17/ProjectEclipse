@@ -10,6 +10,34 @@ namespace Eclipse.Modding
     // modeled by the public API; this importer must not reconstruct or replace ItemInfo.
     public static partial class CoreContentImporter
     {
+        public static int ImportQuestSources(ModContentCatalog catalog, string xmlRoot)
+        {
+            if (catalog == null) throw new ArgumentNullException(nameof(catalog));
+            string root = Path.GetFullPath(xmlRoot).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            string[] files = Directory.GetFiles(root, "*.xml", SearchOption.AllDirectories);
+            Array.Sort(files, StringComparer.Ordinal);
+            var pending = new Dictionary<DefinitionId, string>();
+            foreach (string file in files)
+            {
+                var document = new XmlDocument { XmlResolver = null };
+                using (var reader = XmlReader.Create(file, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
+                    document.Load(reader);
+                string source = file.Substring(root.Length + 1).Replace('\\', '/');
+                foreach (XmlElement quest in document.SelectNodes("/Quests/Quest | /Root/Quest | /Root/Quests/Quest"))
+                {
+                    string name = quest.GetAttribute("Name");
+                    if (string.IsNullOrWhiteSpace(name) || name.Contains("#") || source.Contains("#"))
+                        throw new ModContentException("Invalid core quest identity in '" + source + "'.");
+                    DefinitionId id = DefinitionId.Parse("core:quests/" + source + "/" + name);
+                    string key = source + "#" + name;
+                    if (pending.TryGetValue(id, out string previous) && previous != key)
+                        throw new ModContentException("Core quest identity collision: '" + id + "'.");
+                    pending[id] = key;
+                }
+            }
+            foreach (var entry in pending) catalog.AddCoreQuestSource(entry.Key, entry.Value);
+            return pending.Count;
+        }
         public static DefinitionId WeaponId(string legacyName)
         {
             return DefinitionId.Parse("core:items/weapon/" + legacyName);

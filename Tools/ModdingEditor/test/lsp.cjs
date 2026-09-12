@@ -240,8 +240,10 @@ async function main() {
     await until(()=>diagnostics.get(seededKey)?.length===0,'cleared seeded mode diagnostics');
     console.log('PASS: random functions complete and seeded trial has no diagnostics');
 
-    for (const name of ['programmable-ai','generated-expedition']) {
-        const source=fs.readFileSync(path.join(root,'templates',name,'scripts/main.lua'),'utf8');
+    for (const name of ['programmable-ai','generated-expedition','animated-arena','dojo-selector']) {
+        const source=fs.readFileSync((name==='animated-arena'||name==='dojo-selector')
+            ? path.join(root,'../../Mods/example.'+name+'/scripts/main.lua')
+            : path.join(root,'templates',name,'scripts/main.lua'),'utf8');
         const uri=open(name+'.lua',source+'\nsf2.price.coins("temporary error")');
         const key=decodeURIComponent(uri).toLowerCase();
         await until(()=>(diagnostics.get(key)?.length??0)>0,name+' temporary diagnostic');
@@ -257,7 +259,22 @@ async function main() {
     await until(async()=>labels(await request('textDocument/completion',body)).some(name=>name.startsWith('body_model')),'character model completion');
     const attack=probe('attack.lua','local sf2=require("sf2")\nsf2.moves.register { intervals={{type="Attack",attack={ | }}} }');
     await until(async()=>labels(await request('textDocument/completion',attack)).some(name=>name.startsWith('edges')),'attack interval completion');
-    console.log('PASS: procedural workflow and AI examples have no diagnostics; character, attack and callback fields complete');
+    const profileProbe=probe('profile-query.lua','local sf2=require("sf2")\nlocal item=sf2.items.get("core:items/weapon/weapon_nunchaku")\nlocal snapshot=sf2.profile.item(item)\nlocal value=snapshot.|');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',profileProbe));
+        return ['present','owned','count','equipped'].every(field=>result.includes(field));
+    },'profile item snapshot fields');
+    const storyProbe=probe('story-event.lua','local sf2=require("sf2")\nsf2.story.on("purchase",function(event)\nlocal value=event.|\nend)');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',storyProbe));
+        return ['kind','item','recipe','previous_level','level','scene'].every(field=>result.includes(field));
+    },'story event callback fields');
+    const curveProbe=probe('location-curve.lua','local sf2=require("sf2")\nsf2.locations.register { layers = { { images = { { motion_y = { points = { { | } } } } } } } }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',curveProbe));
+        return ['period','value','ease'].every(field=>result.some(name=>name === field || name === field + '?' || name.startsWith(field + ' ')));
+    },'location curve point inference');
+    console.log('PASS: procedural workflow and AI examples have no diagnostics; character, attack, location curve and callback fields complete');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

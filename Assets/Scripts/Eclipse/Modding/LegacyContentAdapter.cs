@@ -339,6 +339,7 @@ namespace Eclipse.Modding
             {
                 foreach (QuestDefinition quest in _content.Quests)
                     _externalQuests.Add(list.AddExternalQuest(BuildQuestNode(quest), quest.Id.Namespace.Value));
+                list.SetEclipseSuppressedQuests(_content.SuppressedQuestKeys);
             }
             catch
             {
@@ -468,6 +469,7 @@ namespace Eclipse.Modding
 
         private void RemoveQuests(ListSF list)
         {
+            if (list != null) list.ClearEclipseQuestSuppression();
             if (list != null)
                 for (int i = _externalQuests.Count - 1; i >= 0; i--) list.RemoveExternalQuest(_externalQuests[i]);
             _externalQuests.Clear();

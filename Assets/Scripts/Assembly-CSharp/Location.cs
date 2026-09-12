@@ -125,6 +125,15 @@ public class Location
 		layers = null;
 	}
 
+	// Resolve on entry: the training definition may predate a quest's dojo choice.
+	// Ordinary encounters retain their own location, even while a dojo is selected.
+	public static string ResolveEntryLocation(BattleType type, string encounterLocation)
+	{
+		if (type != BattleType.FightNone) return encounterLocation;
+		string fallback = !string.IsNullOrWhiteSpace(GameUtils.NIPABEEAMHJ) ? GameUtils.NIPABEEAMHJ : encounterLocation;
+		return Eclipse.Modding.ModRuntime.ResolveDojoLocation(fallback);
+	}
+
 	public Location(string JLEKBBJBLOE, string FGCHEGMCGPD, bool preferCustomLayout = false)
 	{
 		_preferCustomLayout = preferCustomLayout;
@@ -181,6 +190,11 @@ public class Location
 		if (hasExternalLocation && !string.IsNullOrEmpty(externalLocation.MusicAsset))
 		{
 			musics.Add(externalLocation.MusicAsset);
+		}
+		else if (hasExternalLocation && !string.IsNullOrEmpty(xmlDocument["Root"].GetAttribute("Music")))
+		{
+			// Mod location choices have the same priority as its single-track setting.
+			musics.AddRange(xmlDocument["Root"].GetAttribute("Music").Split('|'));
 		}
 		else if (PINIIFIOECE != string.Empty)
 		{
@@ -432,6 +446,9 @@ public class Location
 			}
 			fEMGGEAGICG = new ChangingSprite(ChangingSprite.MHDKGPHKHIE.PictureBased);
 			fEMGGEAGICG.LDEAPJCKFMP(text, ODMCNMJPHFJ, IDHKNBECKKO.EMNJEHHOBKG(), pIDBGGLFBCO, node.Attributes["Width"].ParseFloat(), node.Attributes["Height"].ParseFloat());
+			SpriteRenderer renderer = fEMGGEAGICG.NJKCDEJGJLF.GetComponent<SpriteRenderer>();
+			renderer.flipX = node.Attributes["FlipX"].ParseInt() != 0;
+			renderer.flipY = node.Attributes["FlipY"].ParseInt() != 0;
 		}
 		if (text3 == "Sequention")
 		{

@@ -987,6 +987,8 @@ public class Roster : MELBIBHDPCE
 		{
 			return false;
 		}
+		int storyProfile = Eclipse.Modding.ModRuntime.StoryEvents.ProfileGeneration;
+		int previousLevel = PINDEKDNCNL();
 		bool flag = false;
 		uint num = HEOHJNFGEDH();
 		_experience = (ObscuredUInt)(value);
@@ -1031,6 +1033,7 @@ public class Roster : MELBIBHDPCE
 			GameUtils.OFOKPNFGDMD("Level Up");
 		}
 		EMDLLIGKONG("Experience", (ObscuredUInt)(_experience));
+		Eclipse.Modding.ModRuntime.PublishLevelUp(this, previousLevel, storyProfile);
 		return flag;
 	}
 
@@ -1890,6 +1893,7 @@ public class Roster : MELBIBHDPCE
 		List<QuestStage> list = new List<QuestStage>();
 		foreach (RosterQuest item in CNFCPCJPGLM)
 		{
+			if (ListSF.ELEBLBJKDBI().IsEclipseQuestSuppressed(item.Name, item.FileName)) continue;
 			if (item.get_Parameters() == null)
 			{
 				continue;
@@ -1898,7 +1902,8 @@ public class Roster : MELBIBHDPCE
 			{
 				ListSF.ELEBLBJKDBI().PDCHBPKOBFI(item.FileName);
 			}
-			QuestStage mLLKDGBEGJI = ListSF.ELEBLBJKDBI().PBGCEEBDBGG(item.Name);
+			QuestStage mLLKDGBEGJI = ListSF.ELEBLBJKDBI().FindEclipseSavedQuest(item.Name, item.FileName);
+			if (ListSF.ELEBLBJKDBI().IsEclipseQuestSuppressed(item.Name, item.FileName)) continue;
 			if (mLLKDGBEGJI != null)
 			{
 				if (mLLKDGBEGJI.IDGAAJAFCHC())

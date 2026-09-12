@@ -137,10 +137,17 @@ seconds, at close and long distances:
 
 ## 7. Character/animation authoring
 
-Follow `Docs/Modding/src/content/docs/guides/character-authoring.md` to import the
-native rig, edit a motion and optional geometric skin, export, validate and open
-the local preview. Copy generated assets/module into a test mod and use its
-warrior handle in a fight. This workflow is not an automatically installed map trial.
+Follow `Docs/Modding/src/content/docs/guides/gymnast.md` for the prepared Gymnast
+IK body, model export and installable preview package. Use Blender 5.0+ for the
+pinned upstream scenes. The launcher opens the body in Pose Mode with controls
+and registers the supplied add-on only for that process.
+
+- Confirm the prepared body is visible and hand/heel IK controls move it.
+- Export with `--package` and enable the generated mod through Apply & Restart.
+  Find Character Preview using the map-page dots. Its opponent should perform
+  the authored motion when playable. The preview is repeatable and has no rewards.
+- For `mid_frames = 2`, sample spacing is three simulation frames; animation and
+  interval bounds still use stored sample indices. Check timing in combat.
 
 - Confirm the exported body/skin loads without errors, equipment follows the
   rig, and the authored movement is available only to that character.
@@ -153,3 +160,103 @@ warrior handle in a fight. This workflow is not an automatically installed map t
 - Verify another fighter retains its normal controls. Keep the Console visible.
   Blender export and the native animation-reader fixture already pass, but this
   full-game visual/combat acceptance remains necessary.
+
+
+## 8. Quest suppression
+
+Enable `example.quest-suppression`, Apply & Restart, then enter the map. Only
+"Replacement introduction" should appear. Remove the suppression call and restart:
+both introductions should appear. Disable the example and restart: neither appears.
+For actual story replacements, separately test an in-progress saved quest, lazy
+extension loading, direct Run/Foreach references and re-enabling the dependency.
+The automated manager fixture does not prove full-game serialized resume timing.
+
+## 9. Animated Arena
+
+- Enable example.animated-arena, Apply & Restart, and select its map-page dot.
+- Enter the repeatable fight: the battlefield backdrop should fill the arena,
+  drift vertically and fade through a four-second loop. Combat uses normal rules.
+- Pause and resume; record whether the decorative backdrop moves while paused.
+  No pause-safe combat/hazard timing is claimed by this scenery API.
+- Exit/reenter several times: check scale, position, opacity and absence of duplicate
+  layers. Retry after a loss and after a completed fight.
+- Disable the mod and restart: its page should disappear and original arenas
+  should keep their normal appearance.
+
+Lua/projection and native curve checks pass. This checklist is the outstanding
+rendered and full-game acceptance, not a report that it has passed.
+
+For Animated Arena on API 0.25, also listen for Samurai Spirit or Blade Dance.
+A new entry may repeat the same track. Check music volume/mute and menu return;
+there should be no simultaneous leftover fight tracks. This is a random choice
+per entry, not continuous playlist advancement.
+
+## 10. Dojo Selector
+
+- Enable example.dojo-selector, Apply & Restart, and find its map-page entry.
+- Press FIGHT to open the chooser. Select BATTLEFIELD DOJO, then use the normal
+  game menu to enter Dojo. The animated battlefield should replace the backdrop.
+  The chooser must not start a fight or award rewards.
+- Exit/reenter and restart after a normal save; the choice should persist.
+- Disable the mod and restart: the normal dojo returns. Reenable and restart:
+  the saved choice returns without having to choose again.
+- RESTORE DEFAULT returns to the native dojo on next entry. BACK/Escape leaves
+  the choice intact. Reset is disabled for another mod's saved preference.
+- Check a second profile: it must not inherit the first profile's selection.
+- Enter an ordinary story/tournament/raid fight: its own arena must remain.
+- Check keyboard/controller navigation and repeated open/close for stuck input.
+
+These are pending full-game checks. Automated save and Lua UI callback fixtures
+pass, but do not prove visual rendering, actual disk saving or live scene behavior.
+
+## 11. Story notifications (API 0.28)
+
+Enable `example.story-observer`. This example logs to Unity's Console/player log;
+there is no on-screen overlay to look for.
+
+- Make a normal shop purchase: expect one `Story Observer purchase:` message with
+  its qualified item ID. Cancel a purchase: expect no completion message.
+- Complete an enchantment: expect one `Story Observer enchantment:` message with
+  item and recipe identities. Opening or canceling the forge must not emit it.
+- Confirm normal native quests still react, and purchases/enchantments retain
+  their ordinary results and costs.
+- Switch profiles and repeat: no notification from the previous profile should
+  arrive, and each new action should still produce only one observer message.
+- Disable the observer and restart: no new observer messages should appear.
+
+These full-game checks remain pending. The transport, production-method fixtures,
+actual Lua subscriptions and shipped observer script pass automated checks.
+
+### Level notifications (API 0.29)
+
+- With Story Observer enabled, gain a level through normal experience. Expect
+  `Story Observer level: old -> new` once, with the final visible player level.
+- A single reward crossing several level thresholds should produce one message,
+  not one per intermediate level. A gain that reaches the cap must still emit it.
+- Rewards below the next threshold and experience received while already at the
+  cap should not emit level messages.
+- Loading/reloading a profile and opening equipment comparisons must not emit
+  level messages. Disable the observer and confirm messages stop.
+
+These remain full-game acceptance checks. Automated fixtures execute native
+experience processing with controlled inventory/save dependencies and real Lua.
+
+### Scene entry (API 0.30)
+
+- With Story Observer enabled, enter map, shop, profile, dojo and a fight. Expect
+  one `Story Observer scene: name` message after each destination initializes.
+- Loader/preloader/credits should not emit messages. Returning to a previously
+  visited scene should emit once again.
+- Navigate away quickly during loading: no pending entry message should arrive
+  for the abandoned destination. Profile switching must drop old pending entries.
+- Use the scene-enter UI snippet in the public story reference (add `ui.create`).
+  On entering the map, the normal game-styled Back button should appear. Click it,
+  use Escape, and leave/reenter the map: input and UI cleanup should remain normal.
+- Enter a fight with native dialogs/prefight UI: scene entry must not bypass them
+  or grant early combat control.
+
+Native hook/coroutine tests use controlled Unity lifecycle services. In addition,
+an isolated Unity 2022.3.62f3 play-mode fixture now passes
+15 checks covering actual scene unload and helper coroutine lifetime, including
+deactivation/reactivation cancellation. Native full-game scenes, rendered menu
+placement and input still need the manual checks above.

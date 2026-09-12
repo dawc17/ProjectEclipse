@@ -795,6 +795,11 @@ public class QuestActionRun : QuestAction
 	public override void DEJMHFMLKIC(QuestParameters parameters)
 	{
 		base.DEJMHFMLKIC(parameters);
+		if (ListSF.ELEBLBJKDBI().IsEclipseQuestSuppressed(_name))
+		{
+			OGIJONMKABB();
+			return;
+		}
 		_runningQuest = ListSF.ELEBLBJKDBI().PBGCEEBDBGG(_name);
 		if (_runningQuest == null)
 		{

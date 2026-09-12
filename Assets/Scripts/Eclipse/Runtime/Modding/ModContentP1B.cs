@@ -170,6 +170,28 @@ namespace Eclipse.Modding
 
     public sealed partial class ModContentCatalog
     {
+        private readonly Dictionary<DefinitionId, string> _coreQuestSources = new Dictionary<DefinitionId, string>();
+        internal void AddCoreQuestSource(DefinitionId id, string source)
+        {
+            if (_coreQuestSources.TryGetValue(id, out string existing) && existing != source)
+                throw new ModContentException("Core quest identity collision: '" + id + "'.");
+            _coreQuestSources[id] = source;
+        }
+        public bool TryGetQuestSource(DefinitionId id, out string source)
+        {
+            if (_coreQuestSources.TryGetValue(id, out source)) return true;
+            if (_quests.ContainsKey(id)) { source = id.Namespace.Value + "#" + id; return true; }
+            return false;
+        }
+        public IEnumerable<string> SuppressedQuestKeys
+        {
+            get
+            {
+                foreach (ModContentPatchRecord patch in Patches)
+                    if (patch.Field == ModContentPolicies.QuestEnabled && TryGetQuestSource(patch.Target, out string source))
+                        yield return source;
+            }
+        }
         private readonly Dictionary<DefinitionId, QuestDefinition> _quests = new Dictionary<DefinitionId, QuestDefinition>();
         private readonly List<QuestDefinition> _questValues = new List<QuestDefinition>();
         public IReadOnlyList<QuestDefinition> Quests => _questValues.AsReadOnly();
@@ -180,6 +202,22 @@ namespace Eclipse.Modding
 
     public sealed partial class ModRegistrationTransaction
     {
+        public DefinitionId SuppressQuest(string reference)
+        {
+            ThrowIfCompleted();
+            DefinitionId id;
+            try { id = DefinitionId.Parse(reference); }
+            catch (FormatException error) { throw new ModContentException(error.Message, error); }
+            if (id.Category != "quests" || !CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Quest suppression needs a quests target in an owned or declared dependency namespace.");
+            if (!_p1bQuests.ContainsKey(id) && !_catalog.TryGetQuestSource(id, out string ignored))
+                throw new ModContentException("Quest suppression target is not registered: '" + id + "'.");
+            var key = new ModContentPatchKey(id, ModContentPolicies.QuestEnabled);
+            EnsureCapacityForNewRegistration();
+            if (!_patchKeys.Add(key)) throw new ModContentException("Duplicate quest suppression: '" + id + "'.");
+            _collectionPatches.Add(new ModContentPatchRecord(Mod.Id, id, ModContentPolicies.QuestEnabled, ModContentPatchOperation.Remove));
+            return id;
+        }
         private readonly Dictionary<DefinitionId, QuestDefinition> _p1bQuests = new Dictionary<DefinitionId, QuestDefinition>();
         private int P1BRegistrationCount => _p1bQuests.Count;
 

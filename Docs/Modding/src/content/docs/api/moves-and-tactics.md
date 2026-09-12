@@ -45,7 +45,7 @@ Conditions use `type` and optional `["not"] = true` (default `false`). Available
 
 Character and key conditions use string literals, without constant aliases. Combine them with `key_pressed` to bind an authored move to a fighter's controls.
 
-An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices, and optional `attack`. At least one of `type` or `name` must be nonempty. Frame indices are integers from 0 to 100,000; when both are supplied, end must not precede start. Omitted bounds retain the native interval behavior. Use indices within the move's effective frame range, including native interpolation when `mid_frames` is nonzero.
+An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices, and optional `attack`. At least one of `type` or `name` must be nonempty. Frame indices are integers from 0 to 100,000; when both are supplied, end must not precede start. Omitted bounds retain the native interval behavior. Use stored animation sample indices within the move's frame range. `mid_frames` changes interpolation time between samples, not the indices used for these bounds.
 
 `attack` requires `type = "Attack"` and the following fields:
 

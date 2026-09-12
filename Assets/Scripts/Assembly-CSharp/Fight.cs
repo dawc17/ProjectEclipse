@@ -635,7 +635,8 @@ public class Fight
 		MIEPNNMDNBO();
 		Zone locationZone = KGKDKENMAOA.CNAOMDMIGLJ == null ? null : KGKDKENMAOA.CNAOMDMIGLJ.OAEIILGHJMG;
 		bool raidLayout = UnderworldZonePolicy.IsRaidZone(locationZone);
-		_location = new Location(KGKDKENMAOA.JKMJHIIMHPG, KGKDKENMAOA.NPPIFKKLNCN, raidLayout);
+		_location = new Location(Location.ResolveEntryLocation(KGKDKENMAOA.get_Type(), KGKDKENMAOA.JKMJHIIMHPG),
+			KGKDKENMAOA.NPPIFKKLNCN, raidLayout);
 		_location.init();
 		NMNCKBPFCCP.JJCKADKCDIF.Set(_location.JJNMOJLLDEC);
 		AKBNKDBHCEO.JJCKADKCDIF.Set(_location.CLGGLBHOMCE);

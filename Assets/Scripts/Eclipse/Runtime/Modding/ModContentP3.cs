@@ -2,6 +2,25 @@ using System;
 using System.Collections.Generic;
 namespace Eclipse.Modding
 {
+    public sealed class ModProfileItemSnapshot
+    {
+        public bool Present { get; }
+        public int Count { get; }
+        public bool Owned => Present && Count > 0;
+        public bool Equipped { get; }
+        public int? Upgrade { get; }
+        public ModProfileItemSnapshot(bool present, int count, bool equipped, int? upgrade)
+        { Present=present; Count=present?count:0; Equipped=present&&equipped; Upgrade=present?upgrade:null; }
+    }
+
+    // Host-only read services. Lua receives detached values, never the roster.
+    public static class ModProfileAccess
+    {
+        public static Func<int?> Level;
+        public static Func<DefinitionId,ModProfileItemSnapshot> Item;
+        public static void Clear() { Level=null; Item=null; }
+    }
+
     public sealed class ModCounterDefinition
     {
         public DefinitionId Id { get; }

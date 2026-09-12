@@ -336,3 +336,99 @@ list/text-entry controls, custom lobbies/results and general asynchronous servic
 Requests cover mode preparation rather than arbitrary coroutine/network execution.
 The cumulative work log records checks and the manual checklist identifies the
 remaining in-game tests. Phase 4 remains deferred pending collaborator assets.
+
+
+## Visual character authoring follow-up
+
+The primary authoring workflow now prepares Gymnast Tool Suite's supplied visible
+SF2 IK body and packages native exports into a repeatable map preview with authored
+move selection. The point-rig importer remains a low-level tool; its earlier format
+checks did not prove a complete visual creator workflow. Source-pose comparison,
+missing-node rejection, actual model export, Lua registration and native reading
+are verified. Custom controllers/forms, broader motion operations and full-game
+rig/skin/contact acceptance still prevent closing E5. See PRE_DE_WORK_LOG.md and
+the public Gymnast guide for reproducible commands and exact boundaries.
+
+
+API 0.23 publishes source-aware whole-quest suppression, with ownership/conflict
+validation, patch fingerprints and startup application before saved resume.
+The source file remains distinct from the saved loading container. This advances
+E3/E7 and G01/G14; it does not implement individual action editing or programmable
+story subscriptions. Native full-game resume remains an acceptance requirement.
+
+## Animated location pictures (API 0.24)
+
+Typed image curves now project to native picture effects: horizontal/vertical
+motion, rotation and opacity, with phase offsets and bounded points. The shipped
+Animated Arena demonstrates drift/fade using core art. Lua and native interpolation
+fixtures pass; full-game rendering/lifetime acceptance remains. E6 is still open
+for hazards, atlas effects, audio instances/playlists and camera control.
+
+API 0.25 adds typed location music_choices and native random track selection at
+fight entry. Audio choices are validated and fingerprinted; Animated Arena uses two
+core tracks. This advances G10/E6 without claiming sequential playlists or audio
+instance control. Native selection checks pass; audible playback remains unverified.
+
+Dojo host prerequisite: native ChangeDojoLocation now affects the next FightNone
+construction instead of retaining the training definition's cached location.
+Normal encounter locations are unchanged. This is verified by 29 routing checks,
+not a persistent/public dojo selector. G03 still requires choice ownership, profile
+state, menu integration and full scene acceptance.
+
+The dojo preference store now passes 37 save/lifetime checks, including preserved
+selection while its provider mod is absent. It is not connected to catalog/Lua/menu
+or the game profile lifecycle yet. Public selector capability remains pending;
+API stays 0.25 and G03 remains open.
+
+API 0.26 connects dojo opt-in registration, profile binding, select/query/reset Lua
+operations and next-entry native resolution. The Dojo Selector example uses the
+existing game-styled UI through a map preparation callback. G03 is advanced, not
+closed: native menu extension/scene navigation and full-game persistence/render
+acceptance remain. See PRE_DE_WORK_LOG.md for test scope.
+
+API 0.27 adds permission-gated profile level and per-item inventory snapshots.
+These are fresh read-only queries, usable from UI/combat callbacks, advancing G02
+and G13. Full story/query/event coverage remains open, and live profile/inventory
+acceptance is pending. See the work log and public profile reference.
+
+Profile lifecycle follow-up: mod binding now occurs at active roster assignment,
+not shared roster construction. Comparison copies cannot steal the active profile.
+Reset/unload unbind queries, dojo/modes and Lua state without deleting saves.
+Production-method and state fixtures pass; subscriptions remain future work.
+
+The story notification transport now has owned disposable scopes, deterministic
+delivery, callback failure isolation and bounded nested dispatch. Thirty checks
+cover cancellation, profile boundaries, capacity and error handling. It is not
+connected to Lua or native purchase/enchantment sources yet; no public story
+subscription API is available at that foundation checkpoint. See the work log.
+
+API 0.28 connects the transport to native purchases and enchantments, active profile
+lifetime, and Lua story.on/off/is_active subscriptions. Capture happens before
+native quest evaluation and delivery afterward, preserving native results. Owned
+callbacks are bounded and cleaned up on script disposal; stale profile captures
+are rejected. Story Observer is a runnable logging example. Native method/Lua,
+editor and documentation checks pass; full-game acceptance and broader event/query/
+operation coverage keep G02/E3 open.
+
+API 0.29 adds experience-driven level_up subscriptions with original/final level
+snapshots. The native legacy level-up quest event has no dispatch source, so the
+new notification is attached to completed roster experience processing instead.
+Only the active roster can publish, with profile-generation protection. Multi-level
+and capped gains are tested; direct level assignments and profile loading stay
+silent. The legacy scene-loaded event was found to precede asynchronous loading,
+so a usable scene/UI-ready notification still needs a later lifecycle boundary.
+
+API 0.30 adds scene_enter at that later boundary: a scene-owned coroutine is
+scheduled after native Init, module registration and widescreen setup, then yields
+a frame and verifies the active/requested scene and profile generation. Map, shop,
+profile, dojo and fight are supported. This is initialization, not dialog dismissal
+or combat readiness. Existing UI close callbacks retain scene teardown semantics.
+Production-method/coroutine and Lua menu-opening fixtures pass; actual Unity scene
+unloading and full-game input remain unverified. Native menu insertion/navigation,
+broader story operations and the rest of G02/G03/E3/E4 remain open.
+
+Unity scene-lifetime follow-up: 15 isolated play-mode checks now verify real
+deferred delivery, unload, profile replacement and disabled/reactivated owners.
+This found and fixed a pending entry that could revive on reactivation: OnDisable
+now invalidates and removes the helper. Full-game native scenes and custom menu
+rendering/input remain acceptance work; the broader gaps remain open.

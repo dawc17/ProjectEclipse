@@ -145,3 +145,46 @@ test('saved random streams require both capabilities and seeded starter validate
             assert.equal(missing.filter(i=>i.capability===cap).length,held.includes(cap)?0:2);
     }
 });
+
+
+test('quest suppression requires patch capability and example validates', async () => {
+    const mod=await p.indexMod(path.resolve(__dirname,'../../../Mods/example.quest-suppression'));
+    assert.deepEqual(mod.issues,[]);
+    assert.deepEqual(p.analyze(await fs.readFile(path.resolve(__dirname,'../../../Mods/example.quest-suppression/scripts/main.lua'),'utf8'),mod).issues,[]);
+    const starter=await p.indexMod(template);
+    const issues=p.analyze(header+'sf2.quests.suppress { target="core:quests/quests.xml/example" }',starter).issues;
+    assert(issues.some(i=>i.message.includes('content.patch')));
+});
+
+
+test('animated arena validates typed curve authoring', async () => {
+ const dir=path.resolve(__dirname,'../../../Mods/example.animated-arena');
+ const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
+ assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});
+
+test('dojo selector validates presentation capability and owned UI', async () => {
+ const dir=path.resolve(__dirname,'../../../Mods/example.dojo-selector');
+ const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
+ assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
+ const starter=await p.indexMod(template);
+ assert(p.analyze(header+'sf2.locations.reset_dojo()',starter).issues.some(i=>i.message.includes('presentation.dojo')));
+});
+
+test('profile queries require read capability', async () => {
+ const mod=await p.indexMod(template);
+ for(const call of ['sf2.profile.level()','sf2.profile.item(item)'])
+  assert(p.analyze(header+call,mod).issues.some(i=>i.message.includes('profile.read')));
+});
+
+test('story subscriptions require event capability', async () => {
+ const mod=await p.indexMod(template);
+ for(const call of ['sf2.story.on("purchase", function(event) end)','sf2.story.off(subscription)','sf2.story.is_active(subscription)'])
+  assert(p.analyze(header+call,mod).issues.some(i=>i.message.includes('story.events')));
+});
+
+test('story observer example validates', async () => {
+ const dir=path.resolve(__dirname,'../../../Mods/example.story-observer');
+ const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
+ assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});

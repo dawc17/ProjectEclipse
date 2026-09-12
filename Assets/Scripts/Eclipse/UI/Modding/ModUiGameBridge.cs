@@ -25,6 +25,8 @@ namespace Eclipse.UI.Modding
         public static bool BlocksGameplayInput => consumedFrame == Time.frameCount ||
             (current != null && current.coordinator != null && current.coordinator.CapturesInput);
 
+        internal static bool NativeInputBlocked => nativeBlocked || TitleScreen.IsOpen || GameSessionRestart.IsRestarting;
+
         public static void Attach(ModUiSurface surface)
         {
             if (surface == null || surface.IsClosed || surface.IsMounted)
@@ -48,7 +50,7 @@ namespace Eclipse.UI.Modding
         private void RefreshNativeBlock()
         {
             if (coordinator != null)
-                coordinator.SetNativeBlocked(nativeBlocked || TitleScreen.IsOpen || GameSessionRestart.IsRestarting);
+                coordinator.SetNativeBlocked(NativeInputBlocked);
         }
 
         public static bool TryHandleBack()

@@ -1,4 +1,4 @@
-param([Parameter(Mandatory=$true)][string]$Package)
+param([Parameter(Mandatory=$true)][string]$Package, [switch]$Packaged)
 $ErrorActionPreference='Stop'
 $root=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 & (Join-Path $root 'Tools/TestPhase1ShowcaseRuntime.ps1')
@@ -6,7 +6,9 @@ $fixture=Join-Path $root ('Temp/CharacterLua-'+[Guid]::NewGuid().ToString('N'))
 $mod=Join-Path $fixture 'Mods/example.authored'
 New-Item -ItemType Directory -Path (Join-Path $mod 'scripts') -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $Package 'assets') -Destination $mod -Recurse
-Copy-Item -LiteralPath (Join-Path $Package 'character.generated.lua') -Destination (Join-Path $mod 'scripts/character.lua')
+$module = if ($Packaged) { 'scripts/character.lua' } else { 'character.generated.lua' }
+Copy-Item -LiteralPath (Join-Path $Package $module) -Destination (Join-Path $mod 'scripts/character.lua')
+if ($Packaged) { Copy-Item -LiteralPath (Join-Path $Package 'localizations') -Destination $mod -Recurse }
 @'
 schema = 1
 id = "example.authored"
@@ -30,6 +32,7 @@ sf2.moves.register {
     intervals={{type='Attack',start=6,['end']=8,attack={edges={'ECalf_2'},damage=0.12,impulse={x=245,z=350}}}},
 }
 '@ | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $mod 'scripts/main.lua')
+if ($Packaged) { Copy-Item -LiteralPath (Join-Path $Package 'scripts/main.lua') -Destination (Join-Path $mod 'scripts/main.lua') -Force }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidateCharacterLua.cs') -Destination (Join-Path $fixture 'Program.cs')
 $production=[Security.SecurityElement]::Escape((Join-Path $root 'Temp/Phase1ShowcaseRuntime/bin/Debug/net10.0/Phase1ShowcaseRuntime.dll'))
 $moon=[Security.SecurityElement]::Escape((Join-Path $root 'Library/ScriptAssemblies/MoonSharp.Interpreter.dll'))
@@ -39,5 +42,5 @@ $moon=[Security.SecurityElement]::Escape((Join-Path $root 'Library/ScriptAssembl
 <Reference Include="MoonSharp.Interpreter"><HintPath>$moon</HintPath></Reference>
 </ItemGroup></Project>
 "@ | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'CharacterLua.csproj')
-dotnet run --project (Join-Path $fixture 'CharacterLua.csproj') -- (Join-Path $fixture 'Mods') (Join-Path $root 'Assets/vanillaXml/stages.xml')
+dotnet run --project (Join-Path $fixture 'CharacterLua.csproj') -- (Join-Path $fixture 'Mods') (Join-Path $root 'Assets/vanillaXml/stages.xml') $Packaged.IsPresent
 if ($LASTEXITCODE -ne 0) { throw 'Authored character Lua test failed.' }

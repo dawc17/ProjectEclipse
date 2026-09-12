@@ -149,3 +149,8 @@ a save written by a newer schema is not silently downgraded.
 
 Normal game saves persist the state. Disabling or uninstalling a mod preserves
 its saved values so reinstalling the same namespace can restore them.
+
+During profile reset/loading, state is unbound and state operations are unavailable.
+This does not delete saved values or registered field definitions. Activating the
+selected profile binds its own saved values again; internal comparison copies do
+not replace the active state binding.

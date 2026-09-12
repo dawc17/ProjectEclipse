@@ -748,3 +748,517 @@ Full-game generated-fight construction/entry, physical input, AI behavior and
 authored character deformation/contact timing still require manual acceptance.
 Native UI and animation fixtures do not establish those outcomes. No DE assets,
 Unity serialized identities or shipped core content were rewritten.
+
+
+## Gymnast authoring integration and timing correction
+
+The earlier point-rig export proved file compatibility but did not supply an
+approachable visual authoring scene. The primary guide now uses the unchanged
+Gymnast Tool Suite checkout (1.1.5, revision
+b44dea8ae549ff52ec8d08d7d1ad86f53db80702) and its visible SF2 capsule body/IK rig.
+Blender 5.0.1 reads the supplied 405.91 scene cleanly; tested 4.4.3/4.5.3 builds
+warn about possible data loss. The bridge requires 5.0+ and registers the add-on
+only in its process. No upstream source or scenes are vendored.
+
+Added scene preparation/opening, required-node preflight, evaluated-pose export
+comparison and native package generation. Generated Lua connects the warrior,
+move and AI tactic to a repeatable visible map fight. Assets retain exact source
+bytes. Existing outputs are refused. The lower-level point tools remain available.
+Corrected sample-index bounds: interpolation changes sample spacing, not native
+end_frame or interval indices. The HTML preview now respects sample FPS.
+
+Verification: seven Python tests pass. The complete Blender integration authors
+an IK hand motion and skin, rejects a missing wrist binding, compares 60 frames
+of 67 nodes with upstream export, and loads both zero- and two-mid-frame packages
+through production Lua registration and AI selection. The unchanged Unity reader
+passes 16,145 checks. This is not full-game deformation/contact acceptance.
+Updated wiki, tool/editor guides and manual checklist. Wiki build passes 45 pages,
+123 documented bindings and 3,636 local links/assets (existing duplicate-404
+warning remains). Editor generation/check, 16 project tests and LuaLS pass; generation
+also synchronizes existing toggle-label guidance from the public UI reference.
+No new public runtime binding, core asset or Unity GUID changed in this slice.
+E5/E8 are advanced, not closed; broader G01-G14/E1-E8 requirements remain active.
+
+
+## Quest suppression host groundwork
+
+Added an initially empty, ordinal-name suppression policy to QuestsManager.
+Configuration is atomic and rejected while its queue is nonempty or running.
+Suppressed definitions remain discoverable; deleting them would make Roster's
+missing-definition path clear saved parameters. Event dispatch now skips before
+Compare, explicit queue requests skip before preparation, and queue restoration
+filters without mutating the caller's saved list. Clearing the policy restores
+eligibility using the same QuestStage instance.
+
+Source tracing also found direct Run/Foreach execution and pre-queue roster scene
+selection. These paths now consult the same policy before running children,
+clearing delivery collections, resetting unresumable saved quests or selecting a
+resume scene. ResumeQuests counts only eligible records. Default empty policy
+preserves existing behavior; no production suppression is installed yet.
+
+Tools/TestQuestSuppression.ps1 compiles the complete production manager with
+scene/roster stubs and the native event enum. Its 567 assertions cover all 51
+nonempty event types, object/name/saved queue paths, no comparison/preparation
+for suppressed quests, retained definitions/progress, re-enabling, mixed saved
+parameters, ordinal names and atomic/active-queue rejection. Direct action and
+Roster call-site guards are source-inspected and managed-compiled; the fixture
+does not prove a serialized full-game resume or native dialogue completion.
+Underworld's 1,282 runtime assertions pass; its known missing scenery remains.
+
+This is internal groundwork for G01/G02/G14, not a published Lua capability.
+Next: catalog identity/import validation, typed suppression ownership/conflicts,
+transactional registration, startup application before restore, fingerprints,
+Lua/editor/wiki contracts and actual saved-resume/native-action fixtures.
+Do not mark core quest replacement/removal complete on this evidence.
+
+
+## Quest identity correction before public registration
+
+The next public suppression step exposed duplicate names across core extension
+files (including the mini-event families) and a duplicate within dynamic_discounts.
+A name-only policy would silently suppress other sources. Internal policy keys
+now use exact source-file#quest-name identities; repeated records within the same
+source and name intentionally share that suppression identity.
+
+The native loader flattens includes into a root Quests document and historically
+sets each QuestStage.FileName to the loading container. That field must retain
+its saved-file semantics. Added separate EclipseSourceFile provenance: the loader
+stamps each plain quest document before include expansion/promotion and the stage
+retains it separately. Source XML files are unchanged. Native roster restoration
+uses saved container identity to find the stage and then consults its source;
+a second check after lazy file loading protects unresumable state and scene routing.
+
+The complete manager plus actual provenance/condition-merge methods now pass 573
+checks, including same-name/different-source quests, flattened include provenance,
+and unchanged saved loader identity. All four managed builds and Underworld's
+1,282 assertions pass. Public Lua binding, catalog import/conflict validation,
+startup policy installation and full-game save/resume acceptance remain pending.
+The initial name-only host design is superseded by this source-aware contract.
+
+
+## API 0.23: source-aware quest suppression
+
+Published `sf2.quests.suppress { target = "namespace:quests/id" }`, requiring
+content.patch and a registered owned/dependency target. Core targets include
+original source XML path and quest name. The importer indexes 865 source identities
+from canonical XML without altering definitions. Exact duplicates within a source
+share a target; normalized-identity collisions with distinct native keys reject.
+
+Suppression uses the existing Remove patch ledger and transaction capacity,
+dependency, duplicate/conflict and fingerprint contracts. Startup applies source
+keys after owned quests register and before queue restoration. The host gates
+introduced above preserve definitions and saved progress. Mod changes require
+Apply & Restart; live policy replacement is not exposed. The example suppresses
+an owned old introduction while retaining a new native dialog, without core edits.
+
+Verification: 19 actual Lua/catalog assertions cover canonical import, host-key
+projection, fingerprints, missing targets/capabilities/dependencies, duplicate and
+two-mod conflict rollback, owned targets, disable/rebuild identity and the shipped
+example. The 573 production-manager/provenance assertions pass. All four managed
+projects compile. Editor generate/check, 17 project checks and LuaLS pass. Wiki
+build passes 45 pages, 124 documented bindings and 3,640 links/assets; the existing
+duplicate-404 warning remains. Full-game saved interruption/resume, direct native
+action completion and example dialog appearance remain manual acceptance work.
+
+This advances G01/G02/G14. Individual quest action patches, general procedural
+story callbacks/queries, and other core content domains remain open. DE porting
+is still deferred. The earlier work-log statements that no binding exists are
+historical and superseded by this entry.
+
+
+API 0.23 final teardown check: adapter rollback/disposal clears suppression without
+clearing an active native queue, so an unrelated startup failure cannot leave base
+quests disabled after mod shutdown. The manager fixture now passes 574 assertions.
+Managed Assembly-CSharp recompilation passes. All eight real isolated VS Code
+integration checks also pass (invoked directly with node to avoid npm's Windows
+path quoting). Full-game acceptance remains unclaimed.
+
+
+## Saved quest lookup and direct-action verification
+
+Native roster restoration still looked up stages by name alone even after source
+suppression was added. Saved lookup now matches the original loading container
+as well, through FindEclipseSavedQuest; ordinary name-based Run behavior remains
+unchanged. Both Roster.PBOFBNFALNN and ResumeQuests use this lookup. This prevents
+binding a saved record to an earlier-loaded same-name stage from another file.
+The original one-argument GetQuestByName remains available. Missing-file lookup
+returns null rather than choosing an unrelated definition.
+
+Added TestQuestResumeRouting.ps1, which executes the actual recovered Run class,
+Foreach entry method and roster resume method against observable scene/roster
+services. Fifteen assertions prove suppressed children complete without executing,
+all six Foreach collection paths are skipped before side effects, unresumable
+checkpoints are retained, no suppressed resume scene is selected, clearing the
+policy restores execution, source lookup chooses the correct definition and lazy
+loading cannot bypass the gate. The complete manager/provenance fixture now passes
+576 checks. These are production-method tests with host services stubbed, not a
+Unity story playthrough or a complete serialized-profile round trip.
+
+
+## Animated scenery host investigation and vertical phase repair
+
+The native SimpleEffect parser supports Picture and Sequention types, X/Y
+oscillations, transparency and rotation curves plus velocity/wrap fields.
+ChangingSprite.INPLHCAAJKP (vertical phase offset) was an empty method even though
+Location.ParseSimpleEffect invokes it for OscillationY.Offset. It now advances
+the Y interpolator, matching the X/rotation/transparency setters. The native
+parser applies offsets before adding points; that ordering is preserved.
+
+TestLocationOscillation.ps1 executes the unchanged production Interpolator and
+IntervalSet classes plus actual ChangingSprite axis methods. It checks all 18
+arena_new Y curves over 240 steps against horizontal and explicit phase-advanced
+references, including three nonzero offsets, a simple numeric displacement and
+loop continuity. All 13,039 assertions pass. All four managed projects compile.
+This verifies numerical motion, not rendered scenery or a Unity encounter.
+
+Inventory: canonical locations contain 389 Picture and 131 Sequention effects;
+archived DE has 488 Picture and 166 Sequention effects. No effect Point in either
+location tree has a nonpositive Period. The current Interpolator can loop forever
+on an all-zero-period curve, so future public validation must reject those values.
+Do not expose raw native points without finite/size/duration constraints.
+
+Remaining G10/E6 work: typed effect/curve definitions and Lua authoring, asset
+resolution/scale verification, projection/fingerprints/editor/wiki, native render
+and lifetime acceptance, then animation atlases/audio selection/world hazards.
+Scenery currently follows LocationSelector.Render's native clock; this is not
+combat tick authority or proof of pause-safe hazard behavior. No new Lua location
+fields are published by this repair; API remains 0.23.
+
+## API 0.24: animated location pictures
+
+Location images accept motion_x, motion_y, rotation and opacity curves with bounded
+period/value/ease points and phase offsets. Lua validation, native SimpleEffect
+projection and content fingerprints include all four channels. Static image
+projection is retained. Animated masks/opaque images are rejected. Qualified
+picture sprites use their own import density and preserve flip flags.
+
+The Animated Arena example uses the original battlefield backdrop with a four-second
+vertical drift and opacity loop. It is a repeatable normal fight, not a hazard.
+The editor schema and public location guide document limits and native quadratic
+interpolation. These changes advance G10/E6; atlas animations, particles, audio
+instances/playlists, hazards and camera operations remain open.
+
+Verification: 25 real Lua/validation/projection/fingerprint assertions and 13,039
+native interpolation assertions pass. Rendered scale, appearance, pause/resume and
+scene teardown still require Unity/game acceptance; these fixtures do not prove them.
+
+API 0.24 final checks: editor generation/check, all 18 project tests and actual
+LuaLS completion pass (including nested optional curve fields). Wiki build passes
+45 pages, 124 binding sections and 3,643 local links/assets. Assembly-CSharp
+rebuild passes after reviewing qualified sprite-directory routing. The existing
+first-argument import-density check is correct because projection splits the asset
+into qualified directory and leaf; a transient change to check the leaf was reverted.
+No full-game or Unity render result is claimed.
+
+## API 0.25: random location music
+
+Locations accept music_choices: zero to 16 distinct typed audio handles, mutually
+exclusive with nonempty music. Ownership/dependencies and dense arrays are checked;
+choice order is fingerprinted. Projection emits the native Music choice list.
+External choice lists have the same priority as existing external single tracks,
+then normal fight/default fallback applies. Native selection occurs at fight entry
+and loops one track; this is not saved seeded randomness or a sequential playlist.
+
+Animated Arena now uses two existing core fight tracks. The public guide and editor
+schema explain the supported behavior. All four managed builds pass. The extended
+Lua/projection suite passes 34 assertions and actual Location selection code passes
+six precedence/fallback checks. Audible playback, mute/volume and repeated scene
+transitions remain game acceptance work. G10/E6 remains open for controllable audio
+instances, sequential playlists, atlas effects, particles, hazards and camera intent.
+
+API 0.25 editor/wiki acceptance: generation/check and all 18 project tests pass;
+LuaLS also checks the actual Animated Arena script without diagnostics. All eight
+isolated VS Code tests pass after correcting the random-capability test to wait
+for diagnostic publication when a debounced refresh supersedes its explicit call.
+Wiki build passes 45 pages, 124 binding sections and 3,646 local links/assets.
+Both selected core audio files exist. Actual audible playback is still unverified.
+
+## Dojo selection host routing repair
+
+G03 investigation found that QuestActionChangeDojoLocation changes only
+GameUtils.NIPABEEAMHJ. Canonical Training is DUMMY (mapped to FightNone) with
+Location=dojo. DojoScene selects a preloaded Training FightList; Fight previously
+constructed its Location from that cached field, ignoring the changed global.
+The archive reapplies its saved DojoLoader variable at ApplicationStart, so simply
+wrapping the existing action would neither implement persistence nor reliably
+change the rendered dojo on reentry.
+
+Location.ResolveEntryLocation now resolves a nonempty current dojo name for
+FightNone when the fight is constructed. Other battle types retain their explicit
+locations; an unset selection retains the definition fallback. No content/saved
+fight definition is mutated. The normal location loader still handles unavailable
+art. The native quest action remains unchanged. No new Lua API is published here.
+
+TestDojoLocationRouting.ps1 executes the production resolver with the production
+BattleType enum: 29 checks cover selected core/qualified locations, empty defaults,
+all other encounter types and nonmutation. Assembly-CSharp and Editor compile.
+This does not verify rendering, immediate in-place refresh, profile persistence,
+missing-mod restore or the complete selector flow.
+
+Next G03 requirements: register validated choices and explicit ownership/composition;
+bind the selected key to owned profile state after ModRuntime.RecordSaveContext
+and ModScriptSession.BindState; resolve unavailable choices without deleting saves;
+expose safe selection/query operations and a game-themed menu entry; test profile
+switch/restart/disable and repeated scene entry. General story subscriptions and
+scene navigation remain separate G02 work. DE content remains deferred.
+
+Dojo routing final checks: all four managed assemblies pass, Underworld regression
+fixture passes 1,282 assertions, and wiki build passes 45 pages with 3,649 local
+links/assets. No Unity render or full-game dojo acceptance was performed.
+
+## Dojo preference store (internal; API remains 0.25)
+
+Added ModDojoSelection beside existing save services. It maintains an atomic set
+of qualified location choices (maximum 256), binds one profile at a time, records
+explicit selection/reset, and resolves absent choices to a supplied base fallback.
+The stored choice is not erased when a mod disappears. Reintroducing the choice
+restores resolution. Clearing/unbinding never modifies profile XML.
+
+The internal preference node is EclipseMods/DojoSelection with schema=1 and a
+qualified location attribute. Fresh binding is read-only. Unknown schema, duplicate
+nodes and invalid IDs reject without rewriting data, and failed binding cannot
+retain a previous profile. Explicit reset removes only the location attribute;
+unknown attributes and siblings survive. Normal RecordContext preserves the node.
+
+TestDojoSelection.ps1 passes 37 production-runtime assertions including serialized
+roundtrip, two profiles, removal/reinstall, all rejection paths, registration
+rollback, reset and teardown. All four managed assemblies compile; the shared
+Phase 1 runtime regression also passes.
+
+This is internal groundwork, NOT a published save contract or functioning selector.
+It is not yet instantiated by ModRuntime, catalog registration, Lua or a menu.
+Remaining work is to connect validated catalog choices, capability/ownership checks,
+profile binding and native entry resolution; then deliver original-style menu
+interaction and full-game acceptance. Do not claim G03 closed or ask users to test
+an unavailable selector. No DE content port or API version bump occurs here.
+
+## API 0.26: saved dojo selection
+
+Location registration accepts dojo=true to opt in (false by default). The flag
+is fingerprinted; aggregate choice capacity is validated transactionally before
+commit. ModRuntime rebuilds choices only from successful registrations, clears
+bindings on restart/shutdown, and binds the selected profile after save-context
+recording. Failed/unknown profile metadata unbinds the prior profile. Native dojo
+entry resolves the active preference without changing GameUtils or fight data.
+
+Published locations.select_dojo(handle), selected_dojo(), reset_dojo(), gated by
+presentation.dojo. Selection requires the caller's own registered opted-in handle.
+Reset cannot erase another mod's preference. The query reports the saved ID even
+when unavailable. No operation forces disk saving or changes an open scene.
+
+Added example.dojo-selector: a map entry opens a native-themed UI through deferred
+mode preparation. Select/reset/back closes the UI and cancels preparation without
+starting a fight. Enter Dojo using the normal menu to see the chosen backdrop.
+Native menu insertion and automatic scene navigation are not exposed by this slice.
+
+Verification: 10 actual MoonSharp UI callback/registration/capability checks cover
+selection/query/reset, missing capability, no profile, non-dojo handles and foreign
+reset protection. The save service has 37 checks; the shared motion/music fixture
+loads the actual selector script and confirms eligible location/mode registration.
+All four managed assemblies compile. Full-game selector interaction, save flushing,
+visuals, disable/reinstall and profile-switch acceptance remain outstanding. Earlier
+entries describing an unconnected store are superseded by this integration.
+
+API 0.26 final verification: 16 actual Lua checks now include the shipped selector's
+on_prepare/on_click/on_close workflow, select/reset cancellation with no fight plan,
+and ignored stale-request clicks. Location fixture has 36 checks including dojo
+flag fingerprinting and shipped registration. The 29 entry-routing checks pass.
+All four managed builds pass. Editor generation/check, 19 project tests, LuaLS
+(including the selector) and eight isolated VS Code checks pass. Wiki build covers
+127 binding sections, 45 pages and 3,658 local links/assets. Full-game and Unity
+render acceptance is not claimed. Checklist section 10 records those pending checks.
+
+## API 0.27: player profile queries
+
+Published sf2.profile.level() and sf2.profile.item(handle), gated by profile.read.
+Item queries return copied present/owned/count/equipped/upgrade values; ownership
+matches native positive-quantity semantics and absent items use nil upgrade.
+Core names and supported redirects resolve through the content catalog. Arbitrary
+strings/forged handles are rejected; currency and mutations are not exposed.
+
+ModRuntime receives the newly constructed Roster alongside RecordSaveContext.
+It does not consult ListSF's potentially previous roster during profile loading.
+Reads remain unavailable until save-context/state binding has completed. Startup,
+failed profile binding and shutdown drop the reference and host services. Lua
+receives no native objects and modifying a snapshot cannot change inventory.
+
+Verification: 13 actual Lua checks cover current/absent inventory, permission,
+unavailable host, wrong handles and detached tables. Six production host-method
+checks use controlled roster services to verify native core-name mapping, fresh
+values, retained snapshots, changed roster, unknown definition rejection and unbind.
+All four managed builds compile. No full-game UI inventory comparison or live
+profile-switch acceptance is claimed. Public wiki and typed editor schema updated.
+
+This advances G02/G13 queries, not their complete event/predicate requirements.
+Purchase history, item subtype queries, learned perks/tutorial/story state, runtime
+subscriptions and typed story operations remain open. API adds no new events.
+
+API 0.27 final checks: editor generation/check, all 20 project tests, profile
+snapshot LuaLS field inference and all eight real isolated VS Code checks pass.
+Wiki build passes 46 pages, 129 binding sections and 3,773 local links/assets.
+No new game-facing inspector is shipped by this slice; the guide has callback
+examples. Native roster methods were verified with controlled services, not a
+Unity profile playthrough. Story subscriptions and broader queries remain open.
+
+## Active-profile lifecycle correction before story subscriptions
+
+Event-flow investigation found NHAMDLEDOHM is a shared roster constructor, also
+called by JLEMHLLLCLD for a comparison copy. Recording/binding mod save context
+inside it could redirect profile queries, dojo state and Lua state to a nonactive
+roster. It also ran before the active inventory was fully prepared.
+
+Moved RecordSaveContext to PBNNPBEDOOJ immediately after ANEHEDFAPCH is assigned
+and HOMCPNCGPDB finishes inventory preparation. Generic roster construction no
+longer binds or records mod metadata. New ModRuntime.UnbindProfile clears profile
+queries, dojo binding, pending modes and bound Lua state before loading and on
+ListSF.Reset. ModStateRuntime.Unbind preserves definitions and all serialized XML.
+
+TestProfileActivation.ps1 executes the actual loader, constructor and reset methods
+with controlled native services. Seven checks verify activation ordering, comparison
+isolation, two-profile switching, missing-file handling and reset. The state/random
+fixture now passes 129 checks including rejected access while unbound, idempotent
+unbind, unchanged save bytes and restored values on rebind. All four managed
+assemblies compile. No full-game profile switch or live UI verification claimed.
+
+API remains 0.27. This corrects prior profile/dojo lifecycle assumptions and provides
+a reliable activation boundary for forthcoming story subscriptions. No subscription
+binding is published in this change; G02/G13 events remain outstanding.
+
+Activation correction final regression: profile queries (6 host + 13 Lua checks),
+dojo preference store (37 checks), and wiki build (46 pages, 3,773 links/assets)
+pass. Documentation now states reset/loading unavailability and comparison-roster
+isolation. Full-game verification remains pending.
+
+## Story notification transport foundation
+
+Added Runtime/Modding/ModStoryEvents.cs as a main-thread, engine-independent
+transport for detached purchase/enchantment notifications. Scope disposal releases
+callbacks and stops remaining callbacks from that scope during dispatch. Subscriber
+additions become visible on the next notification; nested publication uses FIFO
+delivery. Exceptions cancel only the failing subscription and retain owner-attributed
+diagnostics. Diagnostic failures cannot propagate into a native caller.
+
+Subscriptions are bounded to 64 per mod across scopes and 256 overall. Each root
+dispatch accepts at most 128 notifications and invokes at most 1024 callbacks;
+excess work is dropped with diagnostics. Profile unbinding discards the old queue
+and interrupts the current notification. Subscriptions survive a profile switch,
+and notifications explicitly published after rebinding can run for the new profile.
+Clear cancels all subscriptions and invalidates old scopes, preventing stale owners
+from registering callbacks after a runtime restart.
+
+Tools/TestStoryEvents.ps1 compiles the production transport and identity types into
+an isolated fixture: 30 checks pass, including callback mutation, cross-owner scope
+disposal, recursive publication, both capacity budgets, profile changes, stale scopes,
+failed handlers and failed logging. All four managed assemblies compile. This does
+not yet connect native events, runtime profile binding or script contexts to the
+transport. Lua on/off bindings, native identity projection, integration fixtures,
+public docs/editor contracts and an example remain the next work. API stays 0.27;
+no Unity/gameplay or public story subscription availability is claimed.
+
+## API 0.28: native story subscriptions
+
+Connected the transport to runtime start/shutdown and active-profile binding.
+ListSF.FFBAJNGHGGD captures detached purchase/enchantment identities before native
+quest evaluation, publishes afterward, and preserves the native boolean result
+and exception behavior. A profile-generation check rejects stale captures if native
+processing changes the profile. Unobserved events skip identity projection.
+Core items resolve through the existing catalog adapter; native recipes use their
+forge-profile ID and owned recipe families retain their forge-recipes ID. Unknown
+identities become nil, without dropping the notification.
+
+Published sf2.story.on/off/is_active under story.events. Each script owns a scope,
+with callback instruction limits and opaque weak-key handles. Context disposal
+cancels subscriptions before UI teardown. Registered listeners can wait for profile
+activation; saved state is accessed through the existing profile binding, and no
+event history is stored or replayed. Story Observer logs both supported events.
+
+Verification: 30 transport checks; 13 extracted production native dispatch/capture
+checks with controlled quest processing; 29 actual Lua checks including the shipped
+example, denied capabilities, fabricated handles, unknown event names, no host,
+detached callback tables, repeated cancellation, exception/infinite-loop isolation
+and context teardown. Seven profile activation checks pass. All four managed builds
+pass. Editor generation/check and 22 project tests pass; LuaLS verifies event-field
+inference, and eight isolated VS Code checks pass. Wiki builds 47 pages with 132
+binding sections and 3,894 local links/assets. Full-game purchase/forge playback
+remains pending. This supersedes the unconnected foundation status above; broader
+story events, query coverage and typed story operations still leave G02/E3 open.
+
+## API 0.29: experience-driven level notifications
+
+Native source inspection found no dispatch of QUEST_EVENT_LEVEL_UP. Roster's
+DBPBGBNHAIP performs experience threshold processing, inventory updates, fight
+level refresh and save-field updates. Added a notification after its final
+Experience write, preserving its return value. Host filtering requires the same
+active roster and profile generation as at entry. A single operation emits the
+original/final level pair if it increases, even when native cap handling returns
+false; repeated XP at the cap, comparison rosters and unloaded profiles are silent.
+
+Added level_up to story.on, with optional previous_level/level integer payload
+fields. Other event payloads retain nil level fields; level events have no item or
+recipe. The Story Observer, public reference, manifest guide and editor contracts
+are updated together. Direct level assignments are outside this event contract.
+
+TestLevelUpStory.ps1 extracts the actual production experience, threshold and host
+notification methods: 16 checks pass with controlled save/inventory services.
+Actual Lua subscription checks now total 35, including level payloads and the
+updated shipped observer. Transport validation has 36 checks; the 13 purchase/forge
+native checks still pass. All four managed assemblies compile. Editor generation,
+check, 22 project tests, LuaLS field inference and eight isolated VS Code checks
+pass. Wiki builds 47 pages, 132 binding sections and 3,894 links/assets. Full-game
+level gain and UI acceptance remain pending; the checklist records them.
+
+Scene investigation: Module.OAAFAINKKMI dispatches QUEST_EVENT_SCENE_LOADED directly
+after SceneManagerSF.Load starts LoadSceneAsync(1), before LoaderScene asynchronously
+loads the target scene. This is not evidence of scene readiness, so no scene-loaded
+subscription was exposed at that misleading native boundary. A later initialized
+scene boundary remains needed for reliable custom menu/scene workflows.
+
+## API 0.30: deferred initialized-scene entry
+
+Scene<T>.Awake completes native Init, module registration and widescreen layout
+before scheduling the new owned ModSceneEntry component. Its coroutine yields a
+frame, checks that its object/scene is active and still the requested destination,
+and publishes only for the captured profile generation. It is attached to the
+destination object, so no persistent global coroutine keeps an unloaded scene
+alive. Unobserved/unsupported scenes skip scheduling. Successful or rejected
+delivery destroys the helper component. No legacy SCENE_LOADED semantics changed.
+
+The story scene_enter event carries a typed scene string for map/shop/profile/
+dojo/fight. It grants no fighter authority and does not bypass dialogs or wait
+for every animation. Lua can open the existing game-styled UI here; its existing
+scene-owned rendering and on_close callbacks handle teardown. Story Observer,
+public reference/manifest guide and editor contracts are updated to API 0.30.
+
+Verification: 20 checks execute the extracted native Awake and the production
+helper coroutine with controlled Unity services, including initialization order,
+deferred/once-only delivery, scene replacement, profile switch, inactive objects,
+unsupported scenes and failed/rejected Init. Actual Lua checks total 43, including
+scene payloads, shipped observer logging and UI creation/replacement/button close
+from a scene callback. Transport validation has 41 checks. All four managed builds
+pass. Editor generation/check, 22 project tests, LuaLS scene-field inference and
+eight isolated VS Code checks pass. Wiki builds 47 pages, 132 binding sections and
+3,894 links/assets. Real Unity scene unload/coroutine behavior and rendered menus
+in a full game remain unverified, explicitly listed in the manual checklist.
+
+## Real Unity scene coroutine verification and cancellation repair
+
+Added TestSceneStoryUnity.ps1, ValidateSceneStoryUnity.cs and SceneStoryUnityDriver.cs.
+The isolated Unity 2022.3.62f3 project runs production ModSceneEntry, story transport,
+identity types and the extracted host publisher in play mode. Native Module/profile
+services are controlled, while SceneManager, GameObject lifetime, deferred Start,
+coroutines and component destruction are real Unity behavior.
+
+The initial 12 checks passed unload, once-only deferred delivery, profile replacement,
+superseded destinations and owner destruction. Extending the fixture to reactivate a
+previously disabled owner produced a real failure: Start had never run, so pending
+delivery revived after reactivation. Fixed ModSceneEntry.OnDisable to invalidate
+and remove the helper, and skip scheduling initially inactive objects. Successful
+completion clears configuration before destruction to avoid redundant cancellation.
+
+The expanded fixture passes 15 checks, including reactivation, disabled helper
+components and initially inactive owners. The failing pre-fix evidence is in
+Temp/SceneStoryUnity-a84c6f1ae6b84f239d9592fdfc0cd63b/validation.log; post-fix pass is
+Temp/SceneStoryUnity-b6a9b5fa42874d35990697cd5c8d47d0/validation.log. These generated
+projects/logs remain untracked. This improves scene-entry acceptance without
+claiming full-game native scene or custom UI rendering/input verification. Public
+documentation now states cancellation on deactivation. API remains 0.30.

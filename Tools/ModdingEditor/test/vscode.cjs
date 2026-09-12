@@ -77,7 +77,14 @@ exports.run = async function () {
         await vscode.workspace.applyEdit(randomEdit);
         await extension.exports.refresh();
         for(const cap of ['state.read','state.write']) {
-            const issue=vscode.languages.getDiagnostics(uri).find(d=>d.code===`capability:${cap}`);
+            // A pending document/manifest debounce can supersede refresh here too.
+            let issue;
+            const deadline=Date.now()+10000;
+            do {
+                issue=vscode.languages.getDiagnostics(uri).find(d=>d.code===`capability:${cap}`);
+                if(issue) break;
+                await new Promise(resolve=>setTimeout(resolve,100));
+            } while(Date.now()<deadline);
             assert(issue,`Missing independent random capability diagnostic: ${cap}`);
             const actions=await vscode.commands.executeCommand('vscode.executeCodeActionProvider',uri,issue.range);
             const action=actions.find(f=>f.title===`Declare ${cap} in mod.toml`);

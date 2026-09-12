@@ -1,4 +1,18 @@
-# Tekken 8 to SF2 animation experiment
+# Character and animation tools
+
+For new SF2 characters and motions, start with the [Gymnast workflow](../../Docs/Modding/src/content/docs/guides/gymnast.md).
+`OpenGymnast.ps1` prepares and opens the upstream visible IK body; `GymnastBridge.py`
+validates native node bindings and exports evaluated motion. `PackageCharacter.py`
+packages existing native exports as an installable, repeatable map preview with
+an AI opponent that selects the authored move. The supplied upstream checkout
+is loaded unchanged; no third-party add-on or scene is bundled here.
+
+Run `TestGymnastPipeline.ps1 -Blender <exe> -Suite <checkout>` for the real Blender,
+Lua and Unity-reader integration fixture. Full-game deformation, input and hit
+contact remain separate acceptance checks. The older `BlenderCharacter.py` tool
+is a low-level point-rig workflow, not the primary visual authoring experience.
+
+## Tekken 8 to SF2 animation experiment
 
 The first conversion produced a **format-compatible prototype**, not a finished
 combat move. It uses the user's `grlsu_at_kakato.bin` (identified by the user as

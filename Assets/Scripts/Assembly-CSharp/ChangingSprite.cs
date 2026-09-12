@@ -177,6 +177,12 @@ public class ChangingSprite
 		{
 			vector = new Vector3(JMLAKAKDBBL / num, FEIHFIPFNKF / num2, 1f);
 		}
+		// Location projection places the qualified asset directory in the first argument.
+		if (Eclipse.Modding.AssetId.TryParse(GPNPNHFACPO, out _))
+		{
+			vector.x *= sprite.pixelsPerUnit;
+			vector.y *= sprite.pixelsPerUnit;
+		}
 		NJKCDEJGJLF.transform.localScale = vector;
 	}
 
@@ -226,6 +232,7 @@ public class ChangingSprite
 
 	public void INPLHCAAJKP(float IPCOBJBKNAO)
 	{
+		MCHBNCHNFKE.HJGPLENNFCK(IPCOBJBKNAO);
 	}
 
 	public virtual void KEOBIGPEGEO(float GKIHFPFHKCI, float value, float JENJFNNFGLD)

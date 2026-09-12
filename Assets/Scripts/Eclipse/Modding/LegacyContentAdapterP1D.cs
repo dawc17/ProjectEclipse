@@ -88,9 +88,8 @@ namespace Eclipse.Modding
             Set(root, "MinWidth", F(definition.MinWidth));
             Set(root, "FrictionForce", F(definition.FrictionForce));
             Set(root, "GridSize", definition.GridSize.ToString(CultureInfo.InvariantCulture));
-            // ExternalLocationRuntime supplies music directly, but Location.init expects the
-            // recovered Root attribute to exist on every valid params document.
-            Set(root, "Music", string.Empty);
+            // Single tracks use ExternalLocationRuntime; choices use native random selection.
+            Set(root, "Music", string.Join("|", definition.MusicChoices));
 
             for (int i = 0; i < definition.Layers.Count; i++)
             {
@@ -116,7 +115,15 @@ namespace Eclipse.Modding
                     string imagePath = LocationAssetDirectory(image.Sprite);
                     if (!string.Equals(path, imagePath, StringComparison.Ordinal))
                         throw new ModContentException("All images in one location layer must share an asset directory; split them into separate layers.");
-                    XmlElement imageNode = document.CreateElement(image.IsMask ? "SpriteMask" : "Image");
+                    XmlElement imageNode = document.CreateElement(image.IsAnimated ? "SimpleEffect" : image.IsMask ? "SpriteMask" : "Image");
+                    if (image.IsAnimated)
+                    {
+                        Set(imageNode, "Type", "Picture"); Set(imageNode, "PictureLocation", "local");
+                        AppendLocationCurve(document, imageNode, "OscillationX", image.MotionX);
+                        AppendLocationCurve(document, imageNode, "OscillationY", image.MotionY);
+                        AppendLocationCurve(document, imageNode, "Rotation", image.Rotation);
+                        AppendLocationCurve(document, imageNode, "Transparency", image.Opacity);
+                    }
                     Set(imageNode, "ClassName", LocationAssetLeaf(image.Sprite));
                     Set(imageNode, "X", F(image.X));
                     Set(imageNode, "Y", F(image.Y));
@@ -130,6 +137,19 @@ namespace Eclipse.Modding
                 root.AppendChild(node);
             }
             return document;
+        }
+
+        private static void AppendLocationCurve(XmlDocument document, XmlElement parent, string name, LocationCurveDefinition curve)
+        {
+            if (curve == null) return;
+            XmlElement node = document.CreateElement(name); Set(node, "Offset", F(curve.Offset));
+            foreach (var point in curve.Points)
+            {
+                XmlElement item = document.CreateElement("Point");
+                Set(item, "Period", F(point.Period)); Set(item, "Value", F(point.Value)); Set(item, "Ease", F(point.Ease));
+                node.AppendChild(item);
+            }
+            parent.AppendChild(node);
         }
 
         private void ApplyMoves()

@@ -127,10 +127,12 @@ namespace Eclipse.Modding
         public const string FightRounds = "fight/rounds";
         public const string FightRoundTime = "fight/round-time";
         public const string ZoneBattleChildren = "children/battles/";
+        public const string QuestEnabled = "quest/enabled";
 
         public static ModContentFieldPolicy GetFieldPolicy(DefinitionId target, string field)
         {
             if (string.IsNullOrEmpty(field)) return ModContentFieldPolicy.ReadOnly;
+            if (target.Category == "quests" && field == QuestEnabled) return ModContentFieldPolicy.Removable;
             if (field.StartsWith("economy/", StringComparison.Ordinal)) return ModContentFieldPolicy.BaseOnly;
             if (target.Category == "localization" && field.StartsWith("values/", StringComparison.Ordinal))
                 return ModContentFieldPolicy.Replaceable;

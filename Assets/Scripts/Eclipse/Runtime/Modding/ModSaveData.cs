@@ -7,6 +7,95 @@ using System.Xml;
 
 namespace Eclipse.Modding
 {
+    // Profile-scoped user preference, independent of any mod's live Lua context.
+    // Missing choices are retained in the save and only affect the resolved view.
+    public sealed class ModDojoSelection
+    {
+        private HashSet<DefinitionId> _choices = new HashSet<DefinitionId>();
+        private XmlElement _mods;
+        private XmlElement _selection;
+        public bool IsBound => _mods != null;
+        public string SavedLocation => _selection?.GetAttribute("location") ?? string.Empty;
+
+        public void SetChoices(IEnumerable<DefinitionId> choices)
+        {
+            if (choices == null) throw new ArgumentNullException(nameof(choices));
+            var next = new HashSet<DefinitionId>();
+            foreach (var choice in choices)
+            {
+                if (choice.Category != "locations" || string.IsNullOrEmpty(choice.Namespace.Value))
+                    throw new ModContentException("Dojo choices require qualified location IDs.");
+                if (!next.Add(choice)) throw new ModContentException("Duplicate dojo choice: " + choice);
+                if (next.Count > 256) throw new ModContentException("At most 256 dojo choices may be active.");
+            }
+            _choices = next;
+        }
+
+        public void Bind(XmlNode warrior)
+        {
+            // Never retain the previous profile if the new profile cannot be bound.
+            Unbind();
+            var mods = warrior?["EclipseMods"];
+            if (mods == null || mods.GetAttribute("schema") != "1")
+                throw new ModContentException("Dojo selection requires EclipseMods save schema 1.");
+            XmlElement selection = null;
+            foreach (XmlNode child in mods.ChildNodes)
+                if (child is XmlElement element && element.Name == "DojoSelection")
+                {
+                    if (selection != null || element.GetAttribute("schema") != "1")
+                        throw new ModContentException("Unrecognized or duplicate dojo selection data; preserved unchanged.");
+                    selection = element;
+                }
+            if (selection != null && !string.IsNullOrEmpty(selection.GetAttribute("location")))
+            {
+                DefinitionId id;
+                if (!DefinitionId.TryParse(selection.GetAttribute("location"), out id) || id.Category != "locations")
+                    throw new ModContentException("Invalid saved dojo location; preserved unchanged.");
+            }
+            _mods = mods;
+            _selection = selection;
+        }
+
+        public string Resolve(string fallback)
+        {
+            DefinitionId id;
+            return IsBound && DefinitionId.TryParse(SavedLocation, out id) && _choices.Contains(id)
+                ? id.ToString() : fallback;
+        }
+
+        // Host validates caller capability/ownership before accepting a user selection.
+        public void Select(DefinitionId location)
+        {
+            RequireBound();
+            if (!_choices.Contains(location)) throw new ModContentException("Dojo location is not an active choice: " + location);
+            EnsureSelection().SetAttribute("location", location.ToString());
+        }
+
+        public void Reset()
+        {
+            RequireBound();
+            // Reset is explicit; ordinary resolution never rewrites absent-mod state.
+            _selection?.RemoveAttribute("location");
+        }
+
+        public void Unbind() { _mods = null; _selection = null; }
+        public void Clear() { Unbind(); _choices.Clear(); }
+        private void RequireBound()
+        {
+            if (!IsBound) throw new ModContentException("Dojo selection has no active profile.");
+        }
+        private XmlElement EnsureSelection()
+        {
+            if (_selection == null)
+            {
+                _selection = _mods.OwnerDocument.CreateElement("DojoSelection");
+                _selection.SetAttribute("schema", "1");
+                _mods.AppendChild(_selection);
+            }
+            return _selection;
+        }
+    }
+
     // Operates on the existing save DOM. Missing content must never require decoding,
     // normalizing, moving, or rebuilding its ownership XML.
     public static class ModSaveData
@@ -710,7 +799,14 @@ namespace Eclipse.Modding
                 Append(canonical, location.Wall); Append(canonical, location.Floor); Append(canonical, location.PositionY);
                 Append(canonical, location.Width); Append(canonical, location.Height); Append(canonical, location.MinWidth);
                 Append(canonical, location.FrictionForce); Append(canonical, location.GridSize);
-                Append(canonical, location.HasMusic ? location.Music.ToString() : string.Empty); Append(canonical, location.Layers.Count);
+                if (location.IsDojo) Append(canonical, "dojo-choice-v1");
+                Append(canonical, location.HasMusic ? location.Music.ToString() : string.Empty);
+                if (location.MusicChoices.Count != 0)
+                {
+                    Append(canonical, "location-music-choices-v1"); Append(canonical, location.MusicChoices.Count);
+                    foreach (var choice in location.MusicChoices) Append(canonical, choice.ToString());
+                }
+                Append(canonical, location.Layers.Count);
                 for (int j = 0; j < location.Layers.Count; j++)
                 {
                     LocationLayerDefinition layer = location.Layers[j]; Append(canonical, layer.Type); Append(canonical, layer.Factor);
@@ -725,6 +821,18 @@ namespace Eclipse.Modding
                         LocationImageDefinition image = layer.Images[k]; Append(canonical, image.Sprite.ToString());
                         Append(canonical, image.X); Append(canonical, image.Y); Append(canonical, image.Width); Append(canonical, image.Height);
                         Append(canonical, image.IsOpaque); Append(canonical, image.FlipX); Append(canonical, image.FlipY); Append(canonical, image.IsMask);
+                        if (image.IsAnimated)
+                        {
+                            Append(canonical, "image-motion-v1");
+                            foreach (var curve in new[] { image.MotionX, image.MotionY, image.Rotation, image.Opacity })
+                            {
+                                Append(canonical, curve != null);
+                                if (curve == null) continue;
+                                Append(canonical, curve.Offset); Append(canonical, curve.Points.Count);
+                                foreach (var point in curve.Points)
+                                { Append(canonical, point.Period); Append(canonical, point.Value); Append(canonical, point.Ease); }
+                            }
+                        }
                     }
                 }
             }
@@ -1039,6 +1147,8 @@ namespace Eclipse.Modding
         {
             return _definitions.TryGetValue(owner, out definition);
         }
+
+        public void Unbind() { _bound.Clear(); }
 
         public IReadOnlyList<ModDiagnostic> Bind(XmlNode warrior, IReadOnlyList<IModScriptContext> contexts)
         {

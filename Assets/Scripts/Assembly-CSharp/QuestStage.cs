@@ -45,6 +45,9 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 
 	public bool allowDoubles;
 
+	// Source provenance is separate from FileName, which is a saved loader contract.
+	public string EclipseSourceFile { get; private set; }
+
 	[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 	private string HKGHEJDKCPI;
 
@@ -96,6 +99,7 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 	public QuestStage(XmlNode node, string PMFEIPCHENB)
 	{
 		IMMLGNKJPKA(PMFEIPCHENB);
+		EclipseSourceFile = (node.Attributes?["EclipseSourceFile"]?.Value ?? PMFEIPCHENB).Replace('\\', '/');
 		set_Name(XmlUtils.ParseString(node.Attributes["Name"], string.Empty));
 		FBDKJJBICOK.Add(get_Name());
 		string text = XmlUtils.ParseString(node.Attributes["Group"], string.Empty);

@@ -103,6 +103,17 @@ assert(sf2.state.get('other')==12345)
 sf2.state.set {route=12345}
 assert(sf2.random.number('route')==1200724404/4294967296)"))
             Check(f.View.TryClick("go"),"Lua mixed stream calls or state reset failed: "+f.LastLog);
+        using(var f=new Fixture("")){
+            string before=f.Save.OuterXml;
+            long seed=f.Value();
+            f.State.Unbind();f.State.Unbind();
+            bool rejected=false;
+            try{f.Api.RandomNumber("route");}catch(ModContentException){rejected=true;}
+            Check(rejected,"Unbound profile still allowed state access");
+            Check(f.Save.OuterXml==before,"Unbinding rewrote saved state");
+            Check(f.State.TryGetDefinition(f.Mod.Id,out var retained),"Unbinding removed definitions");
+            f.Bind();Check(f.Value()==seed,"Rebinding lost saved state");
+        }
         foreach(string call in new[]{
             "sf2.random.number('missing')", "sf2.random.number('text')", "sf2.random.number('number')",
             "sf2.random.number('optional')", "sf2.random.number('wide')", "sf2.random.number({})",

@@ -309,6 +309,7 @@ public class ListSF
 
 	public static void Reset()
 	{
+		Eclipse.Modding.ModRuntime.UnbindProfile();
 		if (_instance != null)
 			GlobalTimer.get_Instance().removeEventListener(0, _instance.ILFBDHDMHPD);
 		_instance = null;
@@ -1368,7 +1369,11 @@ public class ListSF
 
 	public bool FFBAJNGHGGD(QuestEvent.PMDPDMFLCIJ LFLGCDNKNJI)
 	{
-		return _QuestsManager.ActionQuest(LFLGCDNKNJI);
+		int storyProfile = Eclipse.Modding.ModRuntime.StoryEvents.ProfileGeneration;
+		var notification = Eclipse.Modding.ModRuntime.CaptureStoryEvent(LFLGCDNKNJI, BNMLDPNCMLB());
+		bool handled = _QuestsManager.ActionQuest(LFLGCDNKNJI);
+		Eclipse.Modding.ModRuntime.PublishStoryEvent(notification, storyProfile);
+		return handled;
 	}
 
 	public void MHHNIPBJNAD()
@@ -1489,6 +1494,26 @@ public class ListSF
 	public QuestStage PBGCEEBDBGG(string name)
 	{
 		return _QuestsManager.GetQuestByName(name);
+	}
+
+	public bool IsEclipseQuestSuppressed(string name, string sourceFile = null)
+	{
+		return _QuestsManager.IsEclipseQuestSuppressed(name, sourceFile);
+	}
+
+	public QuestStage FindEclipseSavedQuest(string name, string sourceFile)
+	{
+		return _QuestsManager.GetQuestByName(name, sourceFile);
+	}
+
+	public void SetEclipseSuppressedQuests(IEnumerable<string> keys)
+	{
+		_QuestsManager.SetEclipseSuppressedQuests(keys);
+	}
+
+	public void ClearEclipseQuestSuppression()
+	{
+		_QuestsManager.ClearEclipseQuestSuppression();
 	}
 
 	public bool AddQuestToStek(string name, bool OBJGGIPDKDF)
@@ -2460,6 +2485,7 @@ public class ListSF
 
 	private void PBNNPBEDOOJ()
 	{
+		Eclipse.Modding.ModRuntime.UnbindProfile();
 		IEDEFCBFJAD = XmlUtils.AIFIAKNJMHG(SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
 		if (IEDEFCBFJAD == null)
 		{
@@ -2481,6 +2507,7 @@ public class ListSF
 				_CurrentUserNode = childNode;
 				ANEHEDFAPCH = NHAMDLEDOHM(_CurrentUserNode);
 				ANEHEDFAPCH.KHCNHPCPFII().HOMCPNCGPDB(DJBOFEEKJMP().HCDLKHKBEPF());
+				Eclipse.Modding.ModRuntime.RecordSaveContext(_CurrentUserNode, ANEHEDFAPCH);
 				break;
 			}
 		}
@@ -2656,7 +2683,6 @@ public class ListSF
 		ModelParameters parameters = IAOBIMJFBMH(equipmentView, null, false);
 		parameters.Node = node;
 		Roster nKGLHEGIKKP = new Roster(node, parameters);
-		Eclipse.Modding.ModRuntime.RecordSaveContext(node);
 		nKGLHEGIKKP.AddEventListener(0, EJANJEEGOOE);
 		return nKGLHEGIKKP;
 	}

@@ -286,7 +286,7 @@ public static class ResourceManager
 				}
 				try
 				{
-					XmlDocument included = LoadPlainXml(includeFile);
+					XmlDocument included = LoadQuestSource(includeFile);
 					ExpandQuestContainer(output, outputRoot, included.DocumentElement, includeConditions, includeStack);
 				}
 				finally
@@ -296,9 +296,20 @@ public static class ResourceManager
 				}
 			}
 
+		private static XmlDocument LoadQuestSource(string file)
+		{
+			XmlDocument document = LoadPlainXml(file);
+			string root = Path.GetFullPath(GetDevXmlRoot()).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+			string path = Path.GetFullPath(file);
+			if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+				throw new InvalidOperationException("Quest source is outside the gameplay XML root.");
+			QuestCompatibility.StampQuestSource(document, path.Substring(root.Length + 1));
+			return document;
+		}
+
 		private static string AdaptQuests(string file)
 		{
-			XmlDocument source = LoadPlainXml(file);
+			XmlDocument source = LoadQuestSource(file);
 			XmlDocument output;
 			if (source.DocumentElement != null && source.DocumentElement.Name == "Root")
 			{
@@ -319,7 +330,7 @@ public static class ResourceManager
 			if (output.DocumentElement != null && File.Exists(eclipseFile))
 			{
 				int promotedEclipseQuests = QuestCompatibility.PromoteLocalQuestExtension(
-					output, LoadPlainXml(eclipseFile));
+					output, LoadQuestSource(eclipseFile));
 				if (promotedEclipseQuests != 0 && _devXmlLogged.Add("local-eclipse-quests"))
 				{
 					Debug.Log("[DevXml] enabled " + promotedEclipseQuests +

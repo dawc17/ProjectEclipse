@@ -454,6 +454,12 @@ namespace Eclipse.Modding
             return RequireRegistration().PatchFightRoundTime(target, value);
         }
 
+        public DefinitionId SuppressQuest(string target)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().SuppressQuest(target);
+        }
+
         public QuestDefinition RegisterQuest(string localId, int priority, bool unresumable, bool allowDoubles,
             ModQuestActionPlace place, string[] groups, string[] marks, ModQuestEventKind[] events,
             ModQuestCondition[] conditions, ModQuestAction[] actions)

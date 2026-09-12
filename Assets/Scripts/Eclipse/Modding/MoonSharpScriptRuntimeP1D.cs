@@ -40,6 +40,9 @@ namespace Eclipse.Modding
                 var locations = new Table(_script);
                 locations.Set("register", DynValue.NewCallback(RegisterLocation));
                 locations.Set("name", DynValue.NewCallback(LocationName));
+                locations.Set("select_dojo", DynValue.NewCallback(SelectDojo));
+                locations.Set("reset_dojo", DynValue.NewCallback(ResetDojo));
+                locations.Set("selected_dojo", DynValue.NewCallback(SelectedDojo));
                 root.Set("locations", DynValue.NewTable(locations));
 
                 var moves = new Table(_script);
@@ -133,7 +136,7 @@ namespace Eclipse.Modding
                 return ApiCall(function, () =>
                 {
                     ValidateFields(table, function, "id", "color", "wall", "floor", "position_y", "width",
-                        "height", "min_width", "friction_force", "grid_size", "music", "layers");
+                        "height", "min_width", "friction_force", "grid_size", "music", "music_choices", "dojo", "layers");
                     float width = OptionalFloat(table, "width", 1936f, function);
                     LocationDefinition value = _api.RegisterLocation(RequiredString(table, "id", function),
                         OptionalString(table, "color", "0x000000", function),
@@ -142,7 +145,9 @@ namespace Eclipse.Modding
                         OptionalFloat(table, "height", 512f, function), OptionalFloat(table, "min_width", width, function),
                         OptionalFloat(table, "friction_force", 0f, function), OptionalInt(table, "grid_size", 0, function),
                         OptionalHandle(table, "music", _audioHandles, "audio", function, default(AssetId)),
-                        ReadLocationLayers(table.Get("layers"), function + ".layers"));
+                        ReadLocationLayers(table.Get("layers"), function + ".layers"),
+                        OptionalHandleArray(table, "music_choices", _audioHandles, "audio", function),
+                        OptionalBool(table, "dojo", false, function));
                     return NewHandle(_locationHandles, value.Id);
                 });
             }
@@ -155,6 +160,49 @@ namespace Eclipse.Modding
                 if (!_locationHandles.TryGetValue(handle, out id))
                     throw new ScriptRuntimeException(function + " expects a location handle created by this mod context.");
                 return DynValue.NewString(id.ToString());
+            }
+
+            private ModDojoSelection RequireDojo(string function)
+            {
+                _api.RequireCapability("presentation.dojo");
+                if (_dojoSelection == null || !_dojoSelection.IsBound)
+                    throw new ModContentException(function + " requires an active game profile.");
+                return _dojoSelection;
+            }
+
+            private DynValue SelectDojo(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.locations.select_dojo";
+                return ApiCall(function, () => {
+                    var selection = RequireDojo(function);
+                    var handle = args.AsType(0, function, DataType.Table, false).Table;
+                    if (!_locationHandles.TryGetValue(handle, out var id) || id.Namespace != Mod.Id)
+                        throw new ModContentException(function + " requires this mod's registered location handle.");
+                    selection.Select(id);
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue ResetDojo(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.locations.reset_dojo";
+                return ApiCall(function, () => {
+                    var selection = RequireDojo(function);
+                    DefinitionId saved;
+                    if (DefinitionId.TryParse(selection.SavedLocation, out saved) && saved.Namespace != Mod.Id)
+                        throw new ModContentException(function + " cannot reset another mod's selected dojo.");
+                    selection.Reset();
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue SelectedDojo(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.locations.selected_dojo";
+                return ApiCall(function, () => {
+                    string saved = RequireDojo(function).SavedLocation;
+                    return string.IsNullOrEmpty(saved) ? DynValue.Nil : DynValue.NewString(saved);
+                });
             }
 
             private LocationLayerDefinition[] ReadLocationLayers(DynValue value, string function)
@@ -204,15 +252,41 @@ namespace Eclipse.Modding
                     string where = function + "[" + i + "]";
                     Table image = entry.Table;
                     ValidateFields(image, where, "sprite", "x", "y", "width", "height", "opaque", "flip_x",
-                        "flip_y", "mask");
+                        "flip_y", "mask", "motion_x", "motion_y", "rotation", "opacity");
                     result.Add(new LocationImageDefinition(RequiredHandle(image, "sprite", _spriteHandles, "sprite", where),
                         OptionalFloat(image, "x", 0f, where), OptionalFloat(image, "y", 0f, where),
                         OptionalFloat(image, "width", 1f, where), OptionalFloat(image, "height", 1f, where),
                         OptionalBool(image, "opaque", false, where), OptionalBool(image, "flip_x", false, where),
-                        OptionalBool(image, "flip_y", false, where), OptionalBool(image, "mask", false, where)));
+                        OptionalBool(image, "flip_y", false, where), OptionalBool(image, "mask", false, where),
+                        ReadLocationCurve(image.Get("motion_x"), where + ".motion_x"),
+                        ReadLocationCurve(image.Get("motion_y"), where + ".motion_y"),
+                        ReadLocationCurve(image.Get("rotation"), where + ".rotation"),
+                        ReadLocationCurve(image.Get("opacity"), where + ".opacity")));
                 }
                 EnsureDenseArray(array, result.Count, function);
                 return result.ToArray();
+            }
+
+            private LocationCurveDefinition ReadLocationCurve(DynValue value, string function)
+            {
+                if (value.IsNil()) return null;
+                if (value.Type != DataType.Table) throw new ModContentException(function + " must be a curve table.");
+                Table curve = value.Table; ValidateFields(curve, function, "offset", "points");
+                Table points = RequireArray(curve.Get("points"), function + ".points");
+                var result = new List<LocationCurvePoint>();
+                for (int i = 1; ; i++)
+                {
+                    DynValue entry = points.Get(i); if (entry.IsNil()) break;
+                    if (entry.Type != DataType.Table || i > 64) throw new ModContentException(function + " requires 2..64 point tables.");
+                    Table point = entry.Table; string where = function + ".points[" + i + "]";
+                    ValidateFields(point, where, "period", "value", "ease");
+                    if (point.Get("period").IsNil() || point.Get("value").IsNil())
+                        throw new ModContentException(where + " requires period and value.");
+                    result.Add(new LocationCurvePoint(OptionalFloat(point, "period", 0, where),
+                        OptionalFloat(point, "value", 0, where), OptionalFloat(point, "ease", 0, where)));
+                }
+                EnsureDenseArray(points, result.Count, function + ".points");
+                return new LocationCurveDefinition(OptionalFloat(curve, "offset", 0, function), result.ToArray());
             }
 
             private DynValue RegisterMoveTemplate(ScriptExecutionContext context, CallbackArguments args)

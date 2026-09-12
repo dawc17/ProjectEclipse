@@ -11,6 +11,7 @@ namespace Eclipse.Modding
         public static Func<ModModeDefinition,int,ModEncounterPlan,FightList> BuildEncounter;
         public static Action<ModModeRequest,Action,Action> SchedulePreparation;
         private static ModModeRequest _pending;
+        internal static bool HasPendingPreparation => _pending != null;
         private static XmlNode _warrior;
         private static string _activeFight;
         private static bool _newReservation;

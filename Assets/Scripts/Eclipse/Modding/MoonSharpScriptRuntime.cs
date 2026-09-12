@@ -23,12 +23,14 @@ namespace Eclipse.Modding
         private readonly Func<string> _language;
         public MoonSharpScriptRuntime() : this(null) { }
         public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi) : this(mountUi, null) { }
-        public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi, Func<string> language) { _mountUi = mountUi; _language = language; }
+        private readonly ModDojoSelection _dojoSelection;
+        private readonly ModStoryEvents _storyEvents;
+        public MoonSharpScriptRuntime(Action<ModUiSurface> mountUi, Func<string> language, ModDojoSelection dojoSelection = null, ModStoryEvents storyEvents = null) { _mountUi = mountUi; _language = language; _dojoSelection = dojoSelection; _storyEvents = storyEvents; }
         public string Name => "MoonSharp " + Script.VERSION;
 
         public IModScriptContext CreateContext(ModDescriptor mod, ModApiFacade api)
         {
-            return new MoonSharpScriptContext(mod, api, _mountUi, _language);
+            return new MoonSharpScriptContext(mod, api, _mountUi, _language, _dojoSelection, _storyEvents);
         }
 
         private sealed partial class MoonSharpScriptContext : IModScriptContext, IModBehaviorScriptContext,
@@ -90,15 +92,19 @@ namespace Eclipse.Modding
 
             private readonly Action<ModUiSurface> _mountUi;
             private readonly Func<string> _language;
-            public MoonSharpScriptContext(ModDescriptor mod, ModApiFacade api, Action<ModUiSurface> mountUi, Func<string> language)
+            private readonly ModDojoSelection _dojoSelection;
+            private readonly ModStoryScope _storyScope;
+            public MoonSharpScriptContext(ModDescriptor mod, ModApiFacade api, Action<ModUiSurface> mountUi, Func<string> language, ModDojoSelection dojoSelection, ModStoryEvents storyEvents)
             {
                 Mod = mod ?? throw new ArgumentNullException(nameof(mod));
                 _api = api ?? throw new ArgumentNullException(nameof(api));
                 UiScope = new ModUiScope(mod.Id, error => api.Log(ModLogLevel.Error, "UI closed: " + error.Message));
                 _mountUi = mountUi;
                 _language = language;
+                _dojoSelection = dojoSelection;
                 if (api.Mod.Id != mod.Id)
                     throw new ArgumentException("Script API facade belongs to another mod.", nameof(api));
+                _storyScope = storyEvents?.CreateScope(mod.Id);
 
                 _script = new Script(CoreModules.Preset_HardSandbox);
                 _script.Options.DebugPrint = message => _api.Log(ModLogLevel.Info, message);
@@ -479,6 +485,7 @@ namespace Eclipse.Modding
             {
                 if (_disposed) return;
                 _disposed = true;
+                _storyScope?.Dispose();
                 UiScope.Dispose();
                 _uiHandles = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface>();
                 _modules.Clear();
@@ -773,6 +780,7 @@ namespace Eclipse.Modding
 
                 var quests = new Table(_script);
                 quests.Set("register", DynValue.NewCallback(RegisterQuest));
+                quests.Set("suppress", DynValue.NewCallback(SuppressQuest));
                 root.Set("quests", DynValue.NewTable(quests));
 
                 var price = new Table(_script);
@@ -1708,6 +1716,18 @@ namespace Eclipse.Modding
                             changed = true;
                         }
                     if (!changed) throw new ModContentException(function + " must patch at least one supported field.");
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue SuppressQuest(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.quests.suppress";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "target");
+                    _api.SuppressQuest(RequiredString(table, "target", function));
                     return DynValue.Nil;
                 });
             }

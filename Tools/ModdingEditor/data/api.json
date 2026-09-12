@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.22.0",
+  "apiVersion": "0.30.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -677,6 +677,60 @@
       "requires": "`content.register`.",
       "when": "During mod loading."
     },
+    "sf2.profile.level": {
+      "params": {},
+      "returns": "The active player's level as an integer.",
+      "capability": "profile.read",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profilelevel",
+      "summary": "",
+      "requires": "`profile.read`.",
+      "when": "After a game profile has loaded."
+    },
+    "sf2.profile.item": {
+      "params": {
+        "item": "Eclipse.ItemHandle"
+      },
+      "returns": "A new snapshot table with these fields:",
+      "capability": "profile.read",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileitem",
+      "summary": "",
+      "requires": "`profile.read` and an item handle obtained by this mod context. Declare dependencies when obtaining another mod's item handle.",
+      "when": "After a game profile has loaded."
+    },
+    "sf2.story.on": {
+      "params": {
+        "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"",
+        "callback": "fun(event: Eclipse.StoryEvent)"
+      },
+      "returns": "An opaque subscription handle.",
+      "capability": "story.events",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon",
+      "summary": "",
+      "requires": "`story.events`, an event name (`purchase`, `enchantment`, `level_up` or `scene_enter`) and a Lua function.",
+      "when": "During mod loading or a callback while the script is active, including before a profile loads."
+    },
+    "sf2.story.off": {
+      "params": {
+        "subscription": "Eclipse.StorySubscription"
+      },
+      "returns": "Nothing. Repeated cancellation is harmless.",
+      "capability": "story.events",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyoff",
+      "summary": "",
+      "requires": "`story.events` and a handle created by this script context. Copied, fabricated or foreign handles are rejected.",
+      "when": "While the script is active, including inside the subscription's callback."
+    },
+    "sf2.story.is_active": {
+      "params": {
+        "subscription": "Eclipse.StorySubscription"
+      },
+      "returns": "`true` while subscribed; `false` after cancellation or callback failure. An active subscription can be waiting for a profile to load.",
+      "capability": "story.events",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyis_active",
+      "summary": "",
+      "requires": "`story.events` and this script context's subscription handle.",
+      "when": "While the script is active."
+    },
     "sf2.locations.register": {
       "params": {
         "definition": "Eclipse.LocationDefinition"
@@ -698,6 +752,35 @@
       "summary": "",
       "requires": "A valid location handle belonging to the current scripting context; no additional capability.",
       "when": "During mod loading, after obtaining the location handle."
+    },
+    "sf2.locations.select_dojo": {
+      "params": {
+        "location": "Eclipse.LocationHandle"
+      },
+      "returns": "`nil`.",
+      "capability": "presentation.dojo",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselect_dojo",
+      "summary": "",
+      "requires": "`presentation.dojo` and this mod's registered location handle with `dojo = true`. UI creation separately requires `ui.create`.",
+      "when": "After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo entry; it does not refresh an open dojo."
+    },
+    "sf2.locations.reset_dojo": {
+      "params": {},
+      "returns": "`nil`.",
+      "capability": "presentation.dojo",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsreset_dojo",
+      "summary": "",
+      "requires": "`presentation.dojo`. The saved choice must belong to this mod or already be empty; another mod's preference cannot be cleared by this function.",
+      "when": "After a game profile has loaded, normally from a reset button."
+    },
+    "sf2.locations.selected_dojo": {
+      "params": {},
+      "returns": "Saved qualified location ID string, or `nil` for the native default.",
+      "capability": "presentation.dojo",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselected_dojo",
+      "summary": "",
+      "requires": "`presentation.dojo`.",
+      "when": "After a game profile has loaded."
     },
     "sf2.moves.register_template": {
       "params": {
@@ -975,8 +1058,8 @@
       "capability": null,
       "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiset_text",
       "summary": "",
-      "requires": "An open owned view and a text/button ID; no additional capability.",
-      "when": "Update a text or button label. The string may be empty and is limited to 8192 UTF-16 code units. Updates do not rebuild the layout tree."
+      "requires": "An open owned view and a text/button/toggle ID; no additional capability.",
+      "when": "Update a text, button or toggle label. The string may be empty and is limited to 8192 UTF-16 code units. Updates do not rebuild the layout tree."
     },
     "sf2.ui.set_value": {
       "params": {
@@ -1035,6 +1118,17 @@
       "summary": "",
       "requires": "An open owned view and a valid widget ID; no additional capability.",
       "when": "Enable/disable interaction using a boolean. A disabled ancestor prevents its descendants from activating. Disabling a root does not close its modal backdrop."
+    },
+    "sf2.quests.suppress": {
+      "params": {
+        "definition": "Eclipse.QuestSuppression"
+      },
+      "returns": "Nothing.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/quests/#sf2questssuppress",
+      "summary": "",
+      "requires": "`content.patch`. The target must already be registered in your mod or an explicitly declared dependency. Declare `core` when targeting base quests.",
+      "when": "During registration, before the mod entrypoint returns. Requires API 0.23 or newer. Changes take effect through Apply & Restart, before saved quests resume."
     }
   },
   "aliases": {
@@ -2117,6 +2211,43 @@
         "fonts?": "Eclipse.Fonts"
       }
     },
+    "LocationCurvePoint": {
+      "fields": {
+        "period": "number",
+        "value": "number",
+        "ease?": "number"
+      }
+    },
+    "LocationCurve": {
+      "fields": {
+        "offset?": "number",
+        "points": "Eclipse.LocationCurvePoint[]"
+      }
+    },
+    "ProfileItemSnapshot": {
+      "fields": {
+        "present": "boolean",
+        "owned": "boolean",
+        "count": "integer",
+        "equipped": "boolean",
+        "upgrade?": "integer"
+      }
+    },
+    "StorySubscription": {
+      "fields": {
+        "private __eclipseStorySubscription": "true"
+      }
+    },
+    "StoryEvent": {
+      "fields": {
+        "kind": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"",
+        "item?": "string",
+        "recipe?": "string",
+        "previous_level?": "integer",
+        "level?": "integer",
+        "scene?": "\"map\"|\"shop\"|\"profile\"|\"dojo\"|\"fight\""
+      }
+    },
     "LocationImage": {
       "fields": {
         "sprite": "Eclipse.SpriteHandle",
@@ -2127,7 +2258,11 @@
         "opaque?": "boolean",
         "flip_x?": "boolean",
         "flip_y?": "boolean",
-        "mask?": "boolean"
+        "mask?": "boolean",
+        "motion_x?": "Eclipse.LocationCurve",
+        "motion_y?": "Eclipse.LocationCurve",
+        "rotation?": "Eclipse.LocationCurve",
+        "opacity?": "Eclipse.LocationCurve"
       }
     },
     "FighterPositions": {
@@ -2160,6 +2295,8 @@
         "friction_force?": "number",
         "grid_size?": "number",
         "music?": "Eclipse.AudioHandle",
+        "music_choices?": "Eclipse.AudioHandle[]",
+        "dojo?": "boolean",
         "layers": "Eclipse.LocationLayer[]"
       }
     },
@@ -2502,6 +2639,11 @@
         "on_change?": "fun(view:Eclipse.UiHandle,widget_id:string,value:boolean|number)",
         "on_click?": "fun(view:Eclipse.UiHandle,widget_id:string)",
         "on_close?": "fun(view:Eclipse.UiHandle,reason:\"script\"|\"back\"|\"scene\"|\"error\"|\"destroyed\")"
+      }
+    },
+    "QuestSuppression": {
+      "fields": {
+        "target": "string"
       }
     }
   }

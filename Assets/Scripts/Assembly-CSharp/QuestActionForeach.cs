@@ -42,6 +42,11 @@ public class QuestActionForeach : QuestAction
 	public override void DEJMHFMLKIC(QuestParameters GFIHPBCEEOB)
 	{
 		base.DEJMHFMLKIC(GFIHPBCEEOB);
+		if (ListSF.ELEBLBJKDBI().IsEclipseQuestSuppressed(name))
+		{
+			OGIJONMKABB();
+			return;
+		}
 		index = -1;
 		PEEOEOMEBFG = 0;
 		NFIKJCJGMBB = GFIHPBCEEOB;

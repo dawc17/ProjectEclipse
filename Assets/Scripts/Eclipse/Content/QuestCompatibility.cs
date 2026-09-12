@@ -533,6 +533,14 @@ namespace Eclipse.Content
 			}
 			outputRoot.AppendChild(importedQuest);
 		}
+
+		public static void StampQuestSource(XmlDocument document, string sourceFile)
+		{
+			if (document == null) throw new ArgumentNullException(nameof(document));
+			if (string.IsNullOrEmpty(sourceFile)) throw new ArgumentException("Quest source file is required.", nameof(sourceFile));
+			foreach (XmlElement quest in document.SelectNodes("//Quest"))
+				quest.SetAttribute("EclipseSourceFile", sourceFile.Replace('\\', '/'));
+		}
 	}
 
 	public sealed class DeferredQuestAction : global::QuestAction

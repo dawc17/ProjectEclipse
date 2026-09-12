@@ -13,11 +13,11 @@ namespace Eclipse.Modding
 
         public LocationDefinition RegisterLocation(string localId, string color, float wall, float floor,
             float positionY, float width, float height, float minWidth, float frictionForce, int gridSize,
-            AssetId music, LocationLayerDefinition[] layers)
+            AssetId music, LocationLayerDefinition[] layers, AssetId[] musicChoices = null, bool dojo = false)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterLocation(localId, color, wall, floor, positionY, width, height,
-                minWidth, frictionForce, gridSize, music, layers);
+                minWidth, frictionForce, gridSize, music, layers, musicChoices, dojo);
         }
 
         public MoveTemplateDefinition RegisterMoveTemplate(string localId, DefinitionId[] templates,
