@@ -4,7 +4,40 @@ using System.Collections.Generic;
 namespace Eclipse.Modding
 {
     // Host transport only. No Lua emit operation or borrowed native objects.
-    public enum ModStoryEventKind { Purchase, Enchantment, LevelUp, SceneEnter }
+    public enum ModStoryEventKind { Purchase, Enchantment, LevelUp, SceneEnter, ItemAcquired, BattleResult }
+
+    public sealed class ModBattleEquipmentSnapshot
+    {
+        public DefinitionId? Item { get; }
+        public string Type { get; }
+        public string Subtype { get; }
+        public ModBattleEquipmentSnapshot(DefinitionId? item, string type, string subtype)
+        {
+            if (item.HasValue && item.Value.Category != "items") throw new ArgumentException("Expected item ID.");
+            Item=item; Type=type; Subtype=subtype;
+        }
+    }
+
+    public sealed class ModBattleResultSnapshot
+    {
+        public DefinitionId? Fight { get; }
+        public string Outcome { get; }
+        public bool Eclipse { get; }
+        public IReadOnlyList<ModBattleEquipmentSnapshot> Equipment { get; }
+        public ModBattleResultSnapshot(DefinitionId? fight, string outcome, bool eclipse, IEnumerable<ModBattleEquipmentSnapshot> equipment = null)
+        {
+            if (fight.HasValue && fight.Value.Category != "fights") throw new ArgumentException("Expected fight ID.");
+            if (outcome!="win" && outcome!="loss" && outcome!="surrender" && outcome!="raid_timeout" && outcome!="raid_round_timeout")
+                throw new ArgumentException("Unsupported battle outcome.");
+            Fight=fight; Outcome=outcome; Eclipse=eclipse;
+            if(equipment!=null)
+            {
+                var copy=new List<ModBattleEquipmentSnapshot>(equipment);
+                if(copy.Exists(item=>item==null))throw new ArgumentException("Null equipment entry.");
+                Equipment=copy.AsReadOnly();
+            }
+        }
+    }
 
     public sealed class ModStoryEvent
     {
@@ -14,11 +47,25 @@ namespace Eclipse.Modding
         public int? PreviousLevel { get; }
         public int? Level { get; }
         public string Scene { get; }
+        public int? PreviousCount { get; }
+        public int? Count { get; }
+        public ModBattleResultSnapshot Battle { get; }
 
         public ModStoryEvent(ModStoryEventKind kind, DefinitionId? item, DefinitionId? recipe = null,
-            int? previousLevel = null, int? level = null, string scene = null)
+            int? previousLevel = null, int? level = null, string scene = null, int? previousCount = null, int? count = null,
+            ModBattleResultSnapshot battle = null)
         {
             if (!Enum.IsDefined(typeof(ModStoryEventKind), kind)) throw new ArgumentOutOfRangeException(nameof(kind));
+            if ((kind == ModStoryEventKind.BattleResult) != (battle != null) ||
+                (kind == ModStoryEventKind.BattleResult && (item.HasValue || recipe.HasValue)))
+                throw new ArgumentException("Battle result requires its own snapshot and no item or recipe.");
+            if (kind == ModStoryEventKind.ItemAcquired)
+            {
+                if (!previousCount.HasValue || !count.HasValue || previousCount < 0 || count <= previousCount)
+                    throw new ArgumentException("Item acquisition requires an increasing nonnegative count pair.");
+            }
+            else if (previousCount.HasValue || count.HasValue)
+                throw new ArgumentException("Item counts require an acquisition notification.");
             if (kind == ModStoryEventKind.SceneEnter)
             {
                 if (item.HasValue || recipe.HasValue ||
@@ -44,7 +91,17 @@ namespace Eclipse.Modding
             PreviousLevel = previousLevel;
             Level = level;
             Scene = scene;
+            PreviousCount = previousCount;
+            Count = count;
+            Battle = battle;
         }
+    }
+
+    // Host-only attempt identity. Never serialized or exposed to Lua.
+    public sealed class ModStoryEncounter
+    {
+        internal int State;
+        internal ModStoryEncounter() { }
     }
 
     // Main-thread service. A profile boundary invalidates in-flight notifications,
@@ -63,7 +120,71 @@ namespace Eclipse.Modding
         private int _generation;
         private int _accepted;
         private int _scopeGeneration;
+        private ModStoryEncounter _encounter;
+        private sealed class DeferredBatch
+        {
+            internal int Generation;
+            internal DeferredBatch Parent;
+            internal readonly List<ModStoryEvent> Events = new List<ModStoryEvent>();
+        }
+        private DeferredBatch _deferred;
         public int ProfileGeneration => _generation;
+
+        // Host-only notification boundary, not an inventory transaction. Failed
+        // operations discard their buffered observations; native mutations remain.
+        public void RunDeferred(Action operation)
+        {
+            if(operation==null)throw new ArgumentNullException(nameof(operation));
+            if(!_bound){operation();return;}
+            if(!_dispatching&&_deferred==null)_accepted=0;
+            var batch=new DeferredBatch{Generation=_generation,Parent=_deferred};
+            _deferred=batch;
+            bool completed=false;
+            try{operation();completed=true;}
+            finally
+            {
+                if(ReferenceEquals(_deferred,batch))_deferred=batch.Parent;
+                if(completed&&_bound&&batch.Generation==_generation)
+                {
+                    if(batch.Parent!=null)batch.Parent.Events.AddRange(batch.Events);
+                    else
+                    {
+                        foreach(var notification in batch.Events)_pending.Enqueue(notification);
+                        if(!_dispatching)Drain();
+                    }
+                }
+            }
+        }
+
+        public ModStoryEncounter BeginEncounter()
+        {
+            if (!_bound) return null;
+            _encounter = new ModStoryEncounter();
+            return _encounter;
+        }
+
+        // Reserve before native result callbacks: a nested/repeated result cannot
+        // claim the same attempt. A failed native operation must cancel, not retry
+        // the observation against potentially partially changed inventory.
+        public bool TryBeginEncounterResult(ModStoryEncounter encounter)
+        {
+            if (!_bound || encounter == null || !ReferenceEquals(_encounter, encounter) || encounter.State != 0) return false;
+            encounter.State = 1;
+            return true;
+        }
+
+        public bool TryCompleteEncounterResult(ModStoryEncounter encounter)
+        {
+            if (!_bound || encounter == null || !ReferenceEquals(_encounter, encounter) || encounter.State != 1) return false;
+            encounter.State = 2;
+            _encounter = null;
+            return true;
+        }
+
+        public void CancelEncounter(ModStoryEncounter encounter)
+        {
+            if (encounter != null && ReferenceEquals(_encounter, encounter)) _encounter = null;
+        }
 
         public bool HasSubscribers(ModStoryEventKind kind)
         {
@@ -84,7 +205,9 @@ namespace Eclipse.Modding
         public void UnbindProfile()
         {
             _bound = false;
+            _encounter = null;
             unchecked { _generation++; }
+            _deferred = null;
             _pending.Clear();
         }
 
@@ -117,15 +240,22 @@ namespace Eclipse.Modding
         {
             if (notification == null) throw new ArgumentNullException(nameof(notification));
             if (!_bound) return false;
-            if (!_dispatching) _accepted = 0;
+            if (!_dispatching && _deferred == null) _accepted = 0;
             if (_accepted >= MaximumEventsPerDispatch)
             {
                 Report(default, "Story event dispatch limit reached; notification dropped.");
                 return false;
             }
             _accepted++;
+            if(_deferred!=null){_deferred.Events.Add(notification);return true;}
             _pending.Enqueue(notification);
             if (_dispatching) return true;
+            Drain();
+            return true;
+        }
+
+        private void Drain()
+        {
             _dispatching = true;
             int callbacks = 0;
             try
@@ -144,7 +274,7 @@ namespace Eclipse.Modding
                         if (callbacks >= MaximumCallbacksPerDispatch)
                         {
                             Report(listener.Owner, "Story callback dispatch limit reached; remaining notifications dropped.");
-                            return true;
+                            return;
                         }
                         callbacks++;
                         try { listener.Invoke(current); }
@@ -155,7 +285,6 @@ namespace Eclipse.Modding
                         }
                     }
                 }
-                return true;
             }
             finally { _pending.Clear(); _dispatching = false; }
         }

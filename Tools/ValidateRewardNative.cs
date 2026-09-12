@@ -31,12 +31,22 @@ public class ItemInfo {
  public string Name,Type="Weapon";public int MHGODOLNDLE=4;public int Upgrade;
  public List<UpgradeData> Upgrades=new List<UpgradeData>(); public ItemInfo LevelVariant;
  public ItemInfo GetUpdateItemByLevel(int level,bool flag)=>LevelVariant;
+ public ItemInfo HIOBANJPMKF(int level)=>Upgrades.Where(u=>u.Number>=level).Select(MPADIPJLMLH).FirstOrDefault();
  public List<UpgradeData> DNFDAGFAANJ(bool flag,int level)=>Upgrades;
  public ItemInfo MPADIPJLMLH(UpgradeData data)=>new ItemInfo{Name=Name,Type=Type,MHGODOLNDLE=MHGODOLNDLE,Upgrade=data.Number};
 }
 public class Result {
+ public long GBGNFPNCGED,PNDAIFALIKF;public uint exp;
+ public List<Rewardable> Other=new List<Rewardable>();
+ public void KFJABAMAKOD(RewardMoney item)=>Other.Add(item);
+ public void KFJABAMAKOD(RewardCurrency item)=>Other.Add(item);
+ public void KFJABAMAKOD(RewardResistance item)=>Other.Add(item);
+ public void KFJABAMAKOD(Rewardable item){if(item is RewardItem value)KFJABAMAKOD(value);else if(item is RewardLottery lottery)KFJABAMAKOD(lottery);else Other.Add(item);}
+
  public struct LJFFIBFBGID { public ItemInfo DLKPBAJDHBO;public RewardItem NAIEGGHELIH;public bool IDGKPLBKDIB; }
  public List<LJFFIBFBGID> HELFDCAIJNE=new List<LJFFIBFBGID>();
+ public RewardLottery FAPDEKOMOGH;
+ /* LOTTERY SELECTION */
  /* ITEM SELECTION */
 }
 public static class GameUtils { public static long GetDenominatedValue(long value,int n)=>value; }
@@ -44,6 +54,8 @@ public static class NekkiMath { public static float Position; public static floa
 public class PerkStruct { public PerkStruct(XmlNode n){} }
 public class RewardItem:Rewardable {
  public string Name; public uint UpgradeNumber; protected string JNPPCEGFJLE;
+ internal string UpgradeLevelExpression {get;private set;}
+ public int EvaluateUpgradeLevel()=>int.Parse(UpgradeLevelExpression);
  public List<PerkStruct> LDLPCOFHFKE=new List<PerkStruct>();
  public int CMEFKONFDKN()=>0;
  /* ITEM CONSTRUCTOR */
@@ -51,13 +63,14 @@ public class RewardItem:Rewardable {
 public class RewardMoney:Rewardable { public RewardMoney(XmlNode n){} }
 public class RewardCurrency:Rewardable { public RewardCurrency(XmlNode n){} }
 public class RewardResistance:Rewardable { public RewardResistance(XmlNode n){} }
-public class MANJCIGJPMK { public int BDJKDCMHEBI, CIKLDJLOFDJ; public MANJCIGJPMK(XmlNode n,ushort a,ushort b){} }
+
 public class Adapter {
  readonly ModContentCatalog _content; public Adapter(ModContentCatalog content){_content=content;}
  public XmlElement Build(XmlDocument doc,RewardDefinition r)=>BuildRewardNode(doc,r);
  /* BUILDERS */
 }
 public static class Program {
+ /* LOTTERY BUILDER */
  static int checks;static void Check(bool ok,string message){checks++;if(!ok)throw new Exception(message);}
  public static void Main(string[] args){
   var catalog=new ModContentCatalog();var itemDoc=new XmlDocument();itemDoc.LoadXml("<Item Type='Weapon' Name='TEST_REWARD' WeaponDamage='1'/>");
@@ -115,13 +128,47 @@ public static class Program {
   Check(ReferenceEquals(result.HELFDCAIJNE[0].NAIEGGHELIH,grant),"Native result detached item grant metadata");
   ListSF.Inventory.Owned.Add(sourceItem.Name);var owned=new Result();owned.KFJABAMAKOD(grant);
   Check(owned.HELFDCAIJNE.Count==0,"Owned equipment was regranted");ListSF.Inventory.Owned.Clear();
-  var missing=new Result();var missingDoc=new XmlDocument();missingDoc.LoadXml("<Item Name='missing'/>");missing.KFJABAMAKOD(new RewardItem(missingDoc.DocumentElement));missing.KFJABAMAKOD(null);
+  var missing=new Result();var missingDoc=new XmlDocument();missingDoc.LoadXml("<Item Name='missing'/>");missing.KFJABAMAKOD(new RewardItem(missingDoc.DocumentElement));missing.KFJABAMAKOD((RewardItem)null);
   Check(missing.HELFDCAIJNE.Count==0,"Missing/null item selected");
   grant.UpgradeNumber=99;var clamped=new Result();clamped.KFJABAMAKOD(grant);
   Check(clamped.HELFDCAIJNE.Single().DLKPBAJDHBO.Upgrade==2,"Native upgrade clamp failed");
+  var encodedDoc=new XmlDocument();encodedDoc.LoadXml("<Item Name='TEST_REWARD' UpgradeLevel='400'/>");
+  sourceItem.Upgrades.Add(new UpgradeData{Number=400});sourceItem.Upgrades.Add(new UpgradeData{Number=401});
+  var encoded=new Result();encoded.KFJABAMAKOD(new RewardItem(encodedDoc.DocumentElement));
+  Check(encoded.HELFDCAIJNE.Single().DLKPBAJDHBO.Upgrade==400,"Encoded level was interpreted as ordinal");
+  encodedDoc.LoadXml("<Item Name='TEST_REWARD' UpgradeLevel='500'/>");
+  var unavailable=new Result();bool rejected=false;try{unavailable.KFJABAMAKOD(new RewardItem(encodedDoc.DocumentElement));}catch(InvalidOperationException){rejected=true;}
+  Check(rejected&&unavailable.HELFDCAIJNE.Count==0,"Unavailable encoded level silently fell back");
+  encodedDoc.LoadXml("<Item Name='TEST_REWARD' UpgradeLevel='-1'/>");rejected=false;
+  try{new Result().KFJABAMAKOD(new RewardItem(encodedDoc.DocumentElement));}catch(InvalidOperationException){rejected=true;}
+  Check(rejected,"Negative encoded level accepted");
+  encodedDoc.LoadXml("<Item Name='TEST_REWARD' UpgradeLevel='400' UpgradeNumber='0'/>");rejected=false;
+  try{new RewardItem(encodedDoc.DocumentElement);}catch(FormatException){rejected=true;}
+  Check(rejected,"Ambiguous upgrade formats accepted");
   var consumeName="example.core-fight:items/consumable/token";ListSF.Catalog.Items.Add(consumeName,new ItemInfo{Name=consumeName,Type="Consumable"});ListSF.Inventory.Owned.Add(consumeName);
   missingDoc.LoadXml("<Item Name='"+consumeName+"' Drop='1'/>");var consumable=new Result();consumable.KFJABAMAKOD(new RewardItem(missingDoc.DocumentElement));
   Check(consumable.HELFDCAIJNE.Count==1,"Owned mod consumable blocked repeat grant");
+  var lotterySourceDoc=new XmlDocument();lotterySourceDoc.LoadXml("<Lottery Type='Gold'><Slot/></Lottery>");
+  var lotterySource=new RewardLottery(lotterySourceDoc.DocumentElement,0,0);
+  var lotteryResult=new Result();var otherResult=new Result();
+  lotteryResult.KFJABAMAKOD(lotterySource);otherResult.KFJABAMAKOD(lotterySource);
+  lotteryResult.KFJABAMAKOD(new RewardLottery(lotterySourceDoc.DocumentElement,0,0));
+  Check(lotteryResult.FAPDEKOMOGH.EDCOGMLOEHE.Count==2,"Lottery result merge lost slots");
+  Check(lotterySource.EDCOGMLOEHE.Count==1&&otherResult.FAPDEKOMOGH.EDCOGMLOEHE.Count==1,"Lottery result merge mutated source or another result");
+  lotteryResult.KFJABAMAKOD((RewardLottery)null);
+  Check(lotteryResult.FAPDEKOMOGH.EDCOGMLOEHE.Count==2,"Null lottery changed result");
+  lotteryResult.FAPDEKOMOGH.EDCOGMLOEHE.Clear();
+  Check(lotterySource.EDCOGMLOEHE.Count==1,"Lottery result collection aliases caller");
+  ListSF.Inventory.Owned.Clear();
+  var slotDoc=new XmlDocument();slotDoc.LoadXml("<Slot Money='23' Bonus='7' Exp='11'><Item Name='TEST_REWARD' UpgradeNumber='1'><Enchantments><Perk Name='test_enchantment'/></Enchantments></Item><Money/><Currency/><Resistance/><Lottery Type='Gold'><Slot Weight='2'/></Lottery></Slot>");
+  var slot=new MANJCIGJPMK(slotDoc.DocumentElement,0,0);
+  var resolvedPrize=BuildLotteryPrize(slot,4);
+  Check(resolvedPrize.GBGNFPNCGED==23&&resolvedPrize.PNDAIFALIKF==7&&resolvedPrize.exp==11,"Selected slot scalar rewards lost");
+  Check(resolvedPrize.Other.Count==3,"Selected non-item rewards not forwarded");
+  Check(resolvedPrize.HELFDCAIJNE.Count==1&&resolvedPrize.HELFDCAIJNE[0].NAIEGGHELIH.LDLPCOFHFKE.Count==1,"Selected enchantment payload lost");
+  Check(resolvedPrize.FAPDEKOMOGH!=null&&resolvedPrize.FAPDEKOMOGH.EDCOGMLOEHE.Count==1,"Nested lottery silently lost");
+  Check(ListSF.Inventory.Owned.Count==0,"Builder mutated inventory");
+  slot.BDJKDCMHEBI=5;bool outOfRange=false;try{BuildLotteryPrize(slot,4);}catch(InvalidOperationException){outOfRange=true;}Check(outOfRange,"Out of range prize built");
   Console.WriteLine("PASS: "+checks+" native reward builder/parser/composition/result-selection checks; controlled host services, no inventory settlement.");
  }
 }

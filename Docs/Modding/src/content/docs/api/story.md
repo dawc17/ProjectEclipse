@@ -7,6 +7,8 @@ Available since API **0.28**. Declare `story.events` in your manifest.
 Other operations performed by your callback still require their own capabilities.
 The `level_up` event requires API **0.29**.
 The `scene_enter` event requires API **0.30**.
+The `item_acquired` event requires API **0.36**.
+The `battle_result` event requires API **0.40**; see Battle results below.
 
 `purchase` observes native purchase processing, not every grant or inventory change.
 `enchantment` observes native forge completion. Callbacks run after native quest
@@ -34,13 +36,15 @@ closed, every animation has finished, or a combat round has started. Use combat
 callbacks for fighter authority. Custom UI opened here retains its normal native
 dialog/input rules and closes with the scene; use its `on_close` callback for cleanup.
 
-Each callback receives a fresh table copied before native quest evaluation:
+Each callback receives a fresh detached table:
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `purchase`, `enchantment`, `level_up` or `scene_enter`. |
+| `kind` | `purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`. |
 | `item` | Qualified item ID, or `nil` when unavailable in the catalog. |
 | `recipe` | Enchantment recipe ID: owned `namespace:forge-recipes/id` or native `core:forge-profiles/id`. `nil` for purchases or unknown recipes. |
+| `previous_count` | Count before `item_acquired`; otherwise `nil`. |
+| `count` | Count after `item_acquired`; otherwise `nil`. |
 | `previous_level` | Original integer level for `level_up`; otherwise `nil`. |
 | `level` | Final integer level for `level_up`; otherwise `nil`. |
 | `scene` | For `scene_enter`: `map`, `shop`, `profile`, `dojo` or `fight`. Otherwise `nil`. |
@@ -75,7 +79,7 @@ API for persistent progress. Losing a handle does not cancel its subscription.
 **When:** During mod loading or a callback while the script is active, including
 before a profile loads.
 
-**Requires:** `story.events`, an event name (`purchase`, `enchantment`, `level_up` or `scene_enter`) and a Lua function.
+**Requires:** `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
 
 ```lua
 local sf2 = require("sf2")
@@ -151,3 +155,99 @@ Enable it, make a shop purchase and finish an enchantment, then inspect Unity's
 Console or the player log for `Story Observer` messages. It has no visual overlay.
 Gain a level through experience to test the level notification.
 Enter the map, shop, profile, dojo and fight scenes to check their entry messages.
+
+
+### Item acquisition timing
+
+`item_acquired` observes a positive inventory count increase through the native
+item-grant routine used by purchases and rewards. It runs after that routine's
+inventory update and optional auto-equip. Counts describe that one operation;
+`count - previous_count` is its increase. Counts are captured at that operation's
+mutation, so a nested native grant is not included again in the outer event.
+Notifications follow successful routine returns: a nested operation can notify
+before its outer operation. The snapshot therefore need not equal the inventory
+count at callback time; use a profile query when you need current ownership. A zero count, removal, unchanged parent
+upgrade or pending delivery with no count increase produces no notification.
+Native exceptions and stale profile generations produce no notification.
+
+```lua
+sf2.story.on("item_acquired", function(event)
+    sf2.log.info((event.item or "Unknown item") .. ": gained "
+        .. (event.count - event.previous_count))
+end)
+```
+
+Since API **0.37**, the native delivery-completion routine also emits acquisition
+when it changes an empty inventory record to count one. Notification follows its
+upgrade/level refresh and native save request. Repeating completion or delivering
+an upgrade without increasing count does not emit acquisition. A grant performed
+by a nested delivery quest is reported by its own grant hook, not counted again
+by delivery completion.
+
+This is not a universal inventory-change event. Direct inventory edits and profile
+loading are outside these hooks. It cannot
+veto a grant. A surrounding reward flow may still apply enchantments or perform
+other work after this routine returns; the event does not certify completion of
+the entire reward transaction or disk save. A purchase may produce both acquisition
+and purchase events: subscribe to the one matching your purpose to avoid counting
+the same acquisition twice. Unknown catalog items carry `item = nil`.
+
+Production-method tests use controlled inventory services and verify count/timing,
+failed grants and profile boundaries. Lua tests cover payloads and detached tables.
+Full-game purchase/reward delivery and inventory persistence remain pending.
+
+
+The bundled `example.story-observer` mod (API 0.37+) logs acquisition identity,
+before/after counts and the delta. Enable it alongside `example.eclipse-reward`
+to observe that example's native grant path. It adds no UI and changes no rewards.
+Its README explains expected messages and the remaining full-game checks.
+
+### Battle results
+
+Since API 0.40, `sf2.story.on("battle_result", callback)` observes successful native
+result processing for encounters launched through `StartFight`. It uses the same
+`story.events` capability, subscription limits, cancellation and profile lifetime
+as other story events. No registration capability or fake equipment perk is needed.
+
+The event has `kind = "battle_result"` and these additional fields:
+
+| Field | Meaning |
+| --- | --- |
+| `fight` | Qualified fight definition ID, or `nil` if the encounter is not in the content catalog. |
+| `outcome` | `"win"`, `"loss"`, `"surrender"`, `"raid_timeout"` or `"raid_round_timeout"`. |
+| `eclipse` | Boolean captured from the active roster when result processing starts. |
+| `equipment` | Array of player model equipment snapshots at result processing entry, or `nil` if no player model parameters were supplied. Each entry has `item` (qualified ID or `nil`), `type` and `subtype` (native strings, or `nil`). |
+
+```lua
+local sf2 = require("sf2")
+sf2.story.on("battle_result", function(event)
+    if event.outcome ~= "win" or not event.equipment then return end
+    for _, item in ipairs(event.equipment) do
+        if item.type == "Weapon" and item.subtype == "Katana" then
+            sf2.log.info("Won with a katana: " .. (event.fight or "unknown encounter"))
+            break
+        end
+    end
+end)
+```
+
+Capture happens before reward/progression callbacks. Delivery happens at the end
+of successful native result processing, after the native presentation calls. It
+is an observation, not authority to change the outcome. A failed launch or a native
+exception does not deliver a successful result notification. Duplicate/reentrant
+processing of the same captured attempt cannot deliver twice; a new encounter or
+profile boundary invalidates the old attempt. Direct native result calls without
+a tracked launch currently do not emit this event.
+
+This does **not** certify all rewards or save I/O have completed. Deferred lottery
+settlement remains unsupported. Equipment can include the native Skeleton slot;
+use types, not array positions. Surrender paths may lack player parameters, so
+`equipment = nil` differs from an empty array. Neither means to substitute the
+profile inventory as historical combat equipment. Each subscriber receives fresh
+Lua tables, including nested equipment entries.
+
+Lua payload, host transport and complete native `EndFight` method fixtures pass.
+The native flow fixture uses controlled reward, quest, presentation and capture
+services to check ordering, repeated/reentrant completion, failure and profile
+replacement. It also verifies outcome delivery while lottery loot remains deferred.
+Full-game launch, result, Eclipse, timeout and settlement acceptance remain pending.

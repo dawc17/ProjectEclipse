@@ -45,6 +45,10 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 
 	public bool allowDoubles;
 
+	internal Eclipse.Modding.ModQuestInvocationLedger EclipseLotteryInvocations;
+	internal bool EclipseResumeActions;
+	internal string EclipseActionsDefinition;
+
 	// Source provenance is separate from FileName, which is a saved loader contract.
 	public string EclipseSourceFile { get; private set; }
 
@@ -108,6 +112,7 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 		DEFHBAPNPHI = XmlUtils.ParseInt(node.Attributes["Priority"]);
 		ABBODBKGCCL = XmlUtils.ParseInt(node.Attributes["Unresumable"]);
 		allowDoubles = XmlUtils.ParseBool(node.Attributes["AllowDoubles"]);
+		EclipseActionsDefinition = node["Actions"]?.OuterXml ?? string.Empty;
 		JBNILFIHMMK(node["Events"], DNBFFLFBDOB, this);
 		DKPIKJMJPPH(node["Conditions"], conditions, this);
 		EFJHONIPBOC(node["Actions"], AFENHJFICNN, this);
@@ -366,6 +371,8 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 
 	public void MHHNIPBJNAD(QuestParameters GFIHPBCEEOB, bool MKBPLLIHMPE)
 	{
+		EclipseLotteryInvocations = null;
+		EclipseResumeActions = MKBPLLIHMPE;
 		if (LogRules.ELEBLBJKDBI().MDKADLMMJLD())
 		{
 			StringBuilder stringBuilder = new StringBuilder();
@@ -411,13 +418,16 @@ public class QuestStage : global::EventDispatcher<object>, IComparable<QuestStag
 
 	public bool AGJGEBBLFGA()
 	{
+		bool saveLotteryRun = Eclipse.Modding.ModRuntime.CompleteQuestLotteryRun(this);
 		GKJHJHMAGLE(HPOLGFKCOOE.QUEST_COMPLETE);
 		if (LBIPHHIJEFP() != null)
 		{
 			LBIPHHIJEFP().LCIHKPPGNPF();
 			ListSF.ELEBLBJKDBI().EJANJEEGOOE();
+			if (saveLotteryRun) ListSF.ELEBLBJKDBI().OnAuthenticate(true);
 			return true;
 		}
+		if (saveLotteryRun) ListSF.ELEBLBJKDBI().OnAuthenticate(true);
 		return false;
 	}
 

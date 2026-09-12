@@ -76,6 +76,20 @@ namespace Eclipse.Modding
                 "' cannot reference undeclared dependency namespace '" + id.Namespace + "'.");
         }
 
+        public DefinitionId ValidateProfileReference(string reference, string category)
+        {
+            RequireCapability("profile.read");
+            if (category != "items" && category != "perks")
+                throw new ModContentException("Unsupported profile reference category.");
+            var id = DefinitionId.Parse(reference);
+            if (id.Category != category)
+                throw new ModContentException("Expected a qualified " + category + " definition ID.");
+            if (id.Namespace == Mod.Id) return id;
+            foreach (ModDependency dependency in Mod.Manifest.Dependencies)
+                if (dependency.Id == id.Namespace) return id;
+            throw new ModContentException("Profile query references undeclared dependency namespace '" + id.Namespace + "'.");
+        }
+
         public bool AssetExists(string reference)
         {
             AssetMetadata metadata;

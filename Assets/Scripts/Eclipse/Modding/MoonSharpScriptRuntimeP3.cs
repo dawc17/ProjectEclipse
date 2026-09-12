@@ -7,6 +7,12 @@ namespace Eclipse.Modding
         private sealed partial class MoonSharpScriptContext
         {
             private readonly Dictionary<Table,DefinitionId> _counterHandles=new Dictionary<Table,DefinitionId>();
+            private DefinitionId ProfileReference(DynValue value, Dictionary<Table,DefinitionId> handles, string category, string function)
+            {
+                if(value.Type==DataType.String) return _api.ValidateProfileReference(value.String,category);
+                if(value.Type==DataType.Table && handles.TryGetValue(value.Table,out var id)) return id;
+                throw new ModContentException(function+" requires a qualified definition ID or a handle from this mod context.");
+            }
             private readonly System.Runtime.CompilerServices.ConditionalWeakTable<Table,ModStorySubscription> _storyHandles =
                 new System.Runtime.CompilerServices.ConditionalWeakTable<Table,ModStorySubscription>();
             private void AddP3Modules(Table root)
@@ -33,6 +39,8 @@ namespace Eclipse.Modding
                     else if(name=="enchantment")kind=ModStoryEventKind.Enchantment;
                     else if(name=="level_up")kind=ModStoryEventKind.LevelUp;
                     else if(name=="scene_enter")kind=ModStoryEventKind.SceneEnter;
+                    else if(name=="item_acquired")kind=ModStoryEventKind.ItemAcquired;
+                    else if(name=="battle_result")kind=ModStoryEventKind.BattleResult;
                     else throw new ModContentException("Unsupported story event: "+name);
                     var callback=args.AsType(1,function,DataType.Function,false);
                     if(_disposed || _storyScope==null)throw new ModContentException("Story subscriptions are unavailable.");
@@ -43,7 +51,29 @@ namespace Eclipse.Modding
                         value.Set("recipe",notification.Recipe.HasValue?DynValue.NewString(notification.Recipe.Value.ToString()):DynValue.Nil);
                         value.Set("previous_level",notification.PreviousLevel.HasValue?DynValue.NewNumber(notification.PreviousLevel.Value):DynValue.Nil);
                         value.Set("level",notification.Level.HasValue?DynValue.NewNumber(notification.Level.Value):DynValue.Nil);
+                        value.Set("previous_count",notification.PreviousCount.HasValue?DynValue.NewNumber(notification.PreviousCount.Value):DynValue.Nil);
+                        value.Set("count",notification.Count.HasValue?DynValue.NewNumber(notification.Count.Value):DynValue.Nil);
                         value.Set("scene",notification.Scene!=null?DynValue.NewString(notification.Scene):DynValue.Nil);
+                        if(notification.Battle!=null)
+                        {
+                            var battle=notification.Battle;
+                            value.Set("fight",battle.Fight.HasValue?DynValue.NewString(battle.Fight.Value.ToString()):DynValue.Nil);
+                            value.Set("outcome",DynValue.NewString(battle.Outcome));
+                            value.Set("eclipse",DynValue.NewBoolean(battle.Eclipse));
+                            if(battle.Equipment!=null)
+                            {
+                                var equipment=new Table(_script);
+                                for(int i=0;i<battle.Equipment.Count;i++)
+                                {
+                                    var item=battle.Equipment[i];var entry=new Table(_script);
+                                    entry.Set("item",item.Item.HasValue?DynValue.NewString(item.Item.Value.ToString()):DynValue.Nil);
+                                    entry.Set("type",item.Type==null?DynValue.Nil:DynValue.NewString(item.Type));
+                                    entry.Set("subtype",item.Subtype==null?DynValue.Nil:DynValue.NewString(item.Subtype));
+                                    equipment.Set(i+1,DynValue.NewTable(entry));
+                                }
+                                value.Set("equipment",DynValue.NewTable(equipment));
+                            }
+                        }
                         RunBounded(callback,Mod.Id+":story/"+name,MaxBehaviorInstructionSlices,new[]{DynValue.NewTable(value)});
                     });
                     var handle=new Table(_script);
@@ -74,9 +104,7 @@ namespace Eclipse.Modding
                 profile.Set("item",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.profile.item",()=>{
                     const string function="sf2.profile.item";
                     _api.RequireCapability("profile.read");
-                    var handle=args.AsType(0,function,DataType.Table,false).Table;
-                    if(!_itemHandles.TryGetValue(handle,out var id))
-                        throw new ModContentException(function+" requires an item handle from this mod context.");
+                    var id=ProfileReference(args[0],_itemHandles,"items",function);
                     var snapshot=ModProfileAccess.Item?.Invoke(id);
                     if(snapshot==null) throw new ModContentException("No active game profile is available.");
                     var result=new Table(_script);
@@ -84,10 +112,41 @@ namespace Eclipse.Modding
                     result.Set("owned",DynValue.NewBoolean(snapshot.Owned));
                     result.Set("count",DynValue.NewNumber(snapshot.Count));
                     result.Set("equipped",DynValue.NewBoolean(snapshot.Equipped));
+                    result.Set("type",snapshot.Type==null?DynValue.Nil:DynValue.NewString(snapshot.Type));
+                    result.Set("subtype",snapshot.Subtype==null?DynValue.Nil:DynValue.NewString(snapshot.Subtype));
                     result.Set("upgrade",snapshot.Upgrade.HasValue?DynValue.NewNumber(snapshot.Upgrade.Value):DynValue.Nil);
                     return DynValue.NewTable(result);
                 })));
                 root.Set("profile",DynValue.NewTable(profile));
+                profile.Set("equipment",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.profile.equipment",()=>{
+                    _api.RequireCapability("profile.read");
+                    var equipment=ModProfileAccess.Equipment?.Invoke();
+                    if(equipment==null)throw new ModContentException("No active game profile is available.");
+                    var result=new Table(_script);
+                    for(int i=0;i<equipment.Count;i++)
+                    {
+                        var entry=equipment[i];var state=entry.State;var value=new Table(_script);
+                        value.Set("item",entry.Item.HasValue?DynValue.NewString(entry.Item.Value.ToString()):DynValue.Nil);
+                        value.Set("count",DynValue.NewNumber(state.Count));
+                        value.Set("owned",DynValue.NewBoolean(state.Owned));
+                        value.Set("upgrade",state.Upgrade.HasValue?DynValue.NewNumber(state.Upgrade.Value):DynValue.Nil);
+                        value.Set("type",state.Type==null?DynValue.Nil:DynValue.NewString(state.Type));
+                        value.Set("subtype",state.Subtype==null?DynValue.Nil:DynValue.NewString(state.Subtype));
+                        result.Set(i+1,DynValue.NewTable(value));
+                    }
+                    return DynValue.NewTable(result);
+                })));
+                profile.Set("perk",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.profile.perk",()=>{
+                    const string function="sf2.profile.perk";
+                    _api.RequireCapability("profile.read");
+                    var id=ProfileReference(args[0],_perkHandles,"perks",function);
+                    var snapshot=ModProfileAccess.Perk?.Invoke(id);
+                    if(snapshot==null)throw new ModContentException("No active game profile is available.");
+                    var result=new Table(_script);
+                    result.Set("learned",DynValue.NewBoolean(snapshot.Learned));
+                    result.Set("upgrade",snapshot.Upgrade.HasValue?DynValue.NewNumber(snapshot.Upgrade.Value):DynValue.Nil);
+                    return DynValue.NewTable(result);
+                })));
                 var counters=new Table(_script);
                 counters.Set("register",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.counters.register",()=>{
                     const string f="sf2.counters.register";

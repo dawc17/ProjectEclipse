@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class FightList
 {
+    // Transient encounter observation identity; never part of the roster save.
+    internal Eclipse.Modding.ModStoryEncounter EclipseStoryEncounter;
 	public FightIDS BCKFACGMOKC = new FightIDS();
 
 	protected BattleType _type;

@@ -308,6 +308,9 @@ public class UserItems
 	{
 		if (NDMCFNGEPOA != null && NDMCFNGEPOA.IJGAOHJNLAH() > 0)
 		{
+			Roster acquisitionRoster = ListSF.CCDKHLAMKKO();
+			int acquisitionProfile = Eclipse.Modding.ModRuntime.StoryEvents.ProfileGeneration;
+			int previousCount = -1;
 			if (NDMCFNGEPOA.DBKKJGBJOEO())
 			{
 				MPACCEAFDOH().Add(NDMCFNGEPOA);
@@ -325,6 +328,7 @@ public class UserItems
 			}
 			if (NDMCFNGEPOA.OFOPFCJNEBL() <= 0)
 			{
+				previousCount = NDMCFNGEPOA.OFOPFCJNEBL();
 				NDMCFNGEPOA.CHILOKHFALD(1);
 				NDMCFNGEPOA.set_DeliveryTime(-1L);
 			}
@@ -335,6 +339,8 @@ public class UserItems
 			}
 			NDMCFNGEPOA.CDFODJBJIPI(ListSF.CCDKHLAMKKO().PINDEKDNCNL());
 			ListSF.CCDKHLAMKKO().GGGEHAGCLGC();
+			if (previousCount >= 0 && ReferenceEquals(this, acquisitionRoster.KHCNHPCPFII()))
+				Eclipse.Modding.ModRuntime.PublishItemAcquired(acquisitionRoster, NDMCFNGEPOA.BHKHOJPANHE(), previousCount, 1, acquisitionProfile);
 		}
 	}
 

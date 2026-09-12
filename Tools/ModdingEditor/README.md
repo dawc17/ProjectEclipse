@@ -241,3 +241,17 @@ UI; native quests can consume a request, and loading completion is asynchronous.
 API 0.32 adds FightPatch.warriors: an optional array of 1–100 unique warrior handles for replacing an existing encounter's opponents. See the fight patch reference for preservation and conflict semantics.
 
 API 0.33 adds FightPatch.reward_drops and typed RewardDropPatch entries for scoped item rewards. Currency and other native reward scopes are preserved; mixed economic choices reject replacement. See the fight patch reference for additive mode and level semantics.
+
+API 0.34 adds profile.perk and a detached learned/upgrade snapshot under profile.read. This queries learned progression, not active combat effects.
+
+API 0.35 adds optional type/subtype fields to profile.item snapshots. Native catalog classification is available independently of ownership; nil indicates missing runtime metadata.
+
+API 0.36 adds item_acquired story notifications with previous_count/count. It observes positive increases through the native grant routine, not all inventory changes.
+
+API 0.37 extends item_acquired to native delivery completion that raises an empty record to count one; upgrade-only deliveries do not emit acquisition.
+
+Profile item/perk queries support qualified ID strings in API 0.38, including IDs received by story callbacks. Completion retains the typed snapshot fields; declare dependencies for queried foreign namespaces.
+
+API 0.39 adds typed equipment-array completion for `sf2.profile.equipment()`.
+
+API 0.40 adds battle_result completion and typed outcome/equipment payload fields.

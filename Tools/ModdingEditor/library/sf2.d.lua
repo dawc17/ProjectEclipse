@@ -806,7 +806,14 @@ local LocationCurvePoint = {}
 ---@field points Eclipse.LocationCurvePoint[]
 local LocationCurve = {}
 
+---@class (exact) Eclipse.ProfilePerkSnapshot
+---@field learned boolean
+---@field upgrade? integer
+local ProfilePerkSnapshot = {}
+
 ---@class (exact) Eclipse.ProfileItemSnapshot
+---@field type? string
+---@field subtype? string
 ---@field present boolean
 ---@field owned boolean
 ---@field count integer
@@ -814,14 +821,26 @@ local LocationCurve = {}
 ---@field upgrade? integer
 local ProfileItemSnapshot = {}
 
+---@class (exact) Eclipse.BattleEquipmentSnapshot
+---@field item? string
+---@field type? string
+---@field subtype? string
+local BattleEquipmentSnapshot = {}
+
 ---@class (exact) Eclipse.StorySubscription
 ---@field private __eclipseStorySubscription true
 local StorySubscription = {}
 
 ---@class (exact) Eclipse.StoryEvent
----@field kind "purchase"|"enchantment"|"level_up"|"scene_enter"
+---@field kind "purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"
+---@field fight? string
+---@field outcome? "win"|"loss"|"surrender"|"raid_timeout"|"raid_round_timeout"
+---@field eclipse? boolean
+---@field equipment? Eclipse.BattleEquipmentSnapshot[]
 ---@field item? string
 ---@field recipe? string
+---@field previous_count? integer
+---@field count? integer
 ---@field previous_level? integer
 ---@field level? integer
 ---@field scene? "map"|"shop"|"profile"|"dojo"|"fight"
@@ -1184,6 +1203,15 @@ local UiDefinition = {}
 ---@class (exact) Eclipse.QuestSuppression
 ---@field target string
 local QuestSuppression = {}
+
+---@class (exact) Eclipse.ProfileEquipmentSnapshot
+---@field item? string
+---@field type? string
+---@field subtype? string
+---@field owned boolean
+---@field count integer
+---@field upgrade? integer
+local ProfileEquipmentSnapshot = {}
 
 ---@class Eclipse.Module_achievements
 local achievements = {}
@@ -1818,6 +1846,15 @@ function forge.register_recipe(definition) end
 ---@return string
 function locales.register(definition) end
 
+---Available since API **0.34**. Read whether the active profile has learned a perk and its stored upgrade number. This queries the learned-perk list, not temporary combat effects, equipment enchantments or whether a trigger is currently active.
+---Requires: `profile.read`. Pass a perk handle acquired in the same script context, or, since API 0.38, a qualified perk ID string. Other namespaces, including `core`, require a declared dependency. Strings need no `content.register` capability. Malformed IDs, wrong categories, unavailable definitions, forged handles and queries without an active profile raise errors.
+---When: After the active game profile has loaded, for example in a UI or story callback. A profile switch or perk upgrade is reflected on the next query.
+---Returns: A fresh table with `learned` (boolean) and `upgrade` (integer when learned; `nil` otherwise). Upgrade zero is a valid stored value; it does not mean unlearned. The number is the native `UpgradeLevel`, not a count of purchases.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileperk)
+---@param perk Eclipse.PerkHandle|string
+---@return Eclipse.ProfilePerkSnapshot
+function profile.perk(perk) end
+
 ---Requires: `profile.read`.
 ---When: After a game profile has loaded.
 ---Returns: The active player's level as an integer.
@@ -1825,19 +1862,19 @@ function locales.register(definition) end
 ---@return integer
 function profile.level() end
 
----Requires: `profile.read` and an item handle obtained by this mod context. Declare dependencies when obtaining another mod's item handle.
+---Requires: `profile.read` and either an item handle obtained by this mod context or, since API 0.38, a qualified item ID string. Other namespaces, including `core`, require a declared dependency. String queries do not require `content.register`.
 ---When: After a game profile has loaded.
 ---Returns: A new snapshot table with these fields:
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileitem)
----@param item Eclipse.ItemHandle
+---@param item Eclipse.ItemHandle|string
 ---@return Eclipse.ProfileItemSnapshot
 function profile.item(item) end
 
----Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up` or `scene_enter`) and a Lua function.
+---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
 ---When: During mod loading or a callback while the script is active, including before a profile loads.
 ---Returns: An opaque subscription handle.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon)
----@param event "purchase"|"enchantment"|"level_up"|"scene_enter"
+---@param event "purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"
 ---@param callback fun(event: Eclipse.StoryEvent)
 ---@return Eclipse.StorySubscription
 function story.on(event, callback) end
@@ -2146,6 +2183,14 @@ function ui.set_enabled(view, widget_id, enabled) end
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/quests/#sf2questssuppress)
 ---@param definition Eclipse.QuestSuppression
 function quests.suppress(definition) end
+
+---Available since API **0.39**. Inspect the active profile's equipped records without knowing their item IDs in advance.
+---Requires: `profile.read`. No item handles or `content.register` capability. An unavailable profile raises an error. Enumeration includes all native equipped records, including records from other mods. Passing a returned ID to a separate `profile.item` query still requires that namespace's declared dependency.
+---When: After an active game profile has loaded, including UI and story callbacks.
+---Returns: A fresh contiguous array of snapshot tables. An empty array means no records are marked equipped. Each record contains:
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileequipment)
+---@return Eclipse.ProfileEquipmentSnapshot[]
+function profile.equipment() end
 
 ---Legacy alias for `sf2.shop.addItem`. Use `addItem` in new scripts.
 ---Requires: `content.register`.

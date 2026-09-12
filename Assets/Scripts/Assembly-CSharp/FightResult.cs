@@ -176,7 +176,7 @@ public class FightResult
 			{
 				if (FAPDEKOMOGH == null)
 				{
-					FAPDEKOMOGH = MIPHAMDMKJB;
+					FAPDEKOMOGH = MIPHAMDMKJB.CloneForRewardComposition();
 				}
 				else
 				{
@@ -205,7 +205,8 @@ public class FightResult
 			{
 				return;
 			}
-			int num = ((JJBPBGKBEED.CMEFKONFDKN() <= 0) ? ListSF.CCDKHLAMKKO().PINDEKDNCNL() : JJBPBGKBEED.CMEFKONFDKN());
+			int requestedLevel = JJBPBGKBEED.CMEFKONFDKN();
+			int num = requestedLevel <= 0 ? ListSF.CCDKHLAMKKO().PINDEKDNCNL() : requestedLevel;
 			ItemInfo dJKEECEOCJB2 = null;
 			if (dJKEECEOCJB.MHGODOLNDLE == num)
 			{
@@ -216,7 +217,17 @@ public class FightResult
 				ItemInfo dJKEECEOCJB3 = dJKEECEOCJB.GetUpdateItemByLevel(num, false);
 				dJKEECEOCJB2 = ((dJKEECEOCJB3 == null) ? dJKEECEOCJB : dJKEECEOCJB3);
 			}
-			if (JJBPBGKBEED.UpgradeNumber != 0)
+			if (!string.IsNullOrEmpty(JJBPBGKBEED.UpgradeLevelExpression))
+			{
+				int upgradeLevel = JJBPBGKBEED.EvaluateUpgradeLevel();
+				if (upgradeLevel < 0)
+					throw new System.InvalidOperationException("Negative reward upgrade level: " + JJBPBGKBEED.Name);
+				// The native quest grant uses this encoded-level lookup, not an ordinal.
+				dJKEECEOCJB2 = dJKEECEOCJB.HIOBANJPMKF(upgradeLevel);
+				if (dJKEECEOCJB2 == null)
+					throw new System.InvalidOperationException("Reward upgrade level is unavailable: " + JJBPBGKBEED.Name + " / " + upgradeLevel);
+			}
+			else if (JJBPBGKBEED.UpgradeNumber != 0)
 			{
 				List<UpgradeData> list = dJKEECEOCJB2.DNFDAGFAANJ(true, dJKEECEOCJB2.MHGODOLNDLE);
 				uint count = (uint)list.Count;

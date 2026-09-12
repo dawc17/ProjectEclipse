@@ -870,6 +870,7 @@ public class ListSF
 
 	public static UserItem GEFDJDIINND(ItemInfo item, int count = 1, long CNIOCCCBDBJ = 0L, bool JBCMFEPAKLK = true, bool KGOIDDCKBKI = true)
 	{
+		int acquisitionProfile = Eclipse.Modding.ModRuntime.StoryEvents.ProfileGeneration;
 		Roster nKGLHEGIKKP = CCDKHLAMKKO();
 		if (item.MDPPNGIEJGD == "UnlimitedEnergy")
 		{
@@ -877,6 +878,8 @@ public class ListSF
 			MenuController.ADPMENDMMKJ();
 		}
 		UserItem dKCHDHMLKHN = CMGOCLGHNLH(item.Name);
+		int previousCount = dKCHDHMLKHN == null ? 0 : dKCHDHMLKHN.OFOPFCJNEBL();
+		int acquiredCount = previousCount;
 		int oMHDLKNHNMJ = nKGLHEGIKKP.PINDEKDNCNL();
 		if (dKCHDHMLKHN == null)
 		{
@@ -885,6 +888,7 @@ public class ListSF
 			UserItem dKCHDHMLKHN2 = new UserItem(fMBDAPOMFGN, item.Name, JBCMFEPAKLK, bLJGEOEHIGP, -1, CNIOCCCBDBJ);
 			dKCHDHMLKHN2.KIGHKCOCJFJ(item);
 			dKCHDHMLKHN = nKGLHEGIKKP.KHCNHPCPFII().GEFDJDIINND(dKCHDHMLKHN2);
+			acquiredCount = dKCHDHMLKHN.OFOPFCJNEBL();
 			dKCHDHMLKHN.CDFODJBJIPI(oMHDLKNHNMJ);
 			dKCHDHMLKHN.IJCEKDCPBAG(false);
 			if (KGOIDDCKBKI)
@@ -901,6 +905,7 @@ public class ListSF
 			if (item.ParentItem == null)
 			{
 				dKCHDHMLKHN.CHILOKHFALD(dKCHDHMLKHN.OFOPFCJNEBL() + count);
+				acquiredCount = dKCHDHMLKHN.OFOPFCJNEBL();
 			}
 			if (CNIOCCCBDBJ <= 0)
 			{
@@ -921,6 +926,7 @@ public class ListSF
 		{
 			AFGHCIDFAHB(dKCHDHMLKHN, true);
 		}
+		Eclipse.Modding.ModRuntime.PublishItemAcquired(nKGLHEGIKKP, item, previousCount, acquiredCount, acquisitionProfile);
 		return dKCHDHMLKHN;
 	}
 
@@ -1290,6 +1296,11 @@ public class ListSF
 
 	public void OnAuthenticate(bool BOFABDEJGFL = false)
 	{
+		if (Eclipse.Modding.ModRuntime.DeferProfileSave())
+		{
+			GJEJCLBAPMP = true;
+			return;
+		}
 		if (GJEJCLBAPMP || BOFABDEJGFL)
 		{
 			CCDKHLAMKKO().KGFJPLKOABI();
@@ -1307,6 +1318,8 @@ public class ListSF
 
 	public static void CELGPFFHLIM()
 	{
+		Eclipse.Modding.ModProfileWriteJournal.Discard(PFMBKJMEDEF());
+		Eclipse.Modding.ModProfileWriteJournal.Discard(IDIFECNLMKO());
 		if (File.Exists(PFMBKJMEDEF()))
 		{
 			File.Delete(PFMBKJMEDEF());
@@ -1333,6 +1346,8 @@ public class ListSF
 
 	public static void SetRosterFileContent(string GHDPPHAAPCA)
 	{
+		Eclipse.Modding.ModProfileWriteJournal.Discard(PFMBKJMEDEF());
+		Eclipse.Modding.ModProfileWriteJournal.Discard(IDIFECNLMKO());
 		if (File.Exists(PFMBKJMEDEF()))
 		{
 			File.Delete(PFMBKJMEDEF());

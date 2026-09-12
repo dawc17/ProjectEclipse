@@ -339,3 +339,104 @@ Actual inventory mutation and persistence remain unverified.
 Runnable fixture: enable example.eclipse-reward, Apply & Restart, and follow its
 README for section 14. Its actual manifest/Lua now passes canonical catalog checks;
 this does not mark the full-game grant and persistence checks complete.
+
+## 15. Learned-perk queries (API 0.34)
+
+In a profile-loaded UI/story callback, query sf2.profile.perk with a registered perk
+handle (for example sf2.perks.get("core:perks/PERK_COBRA") acquired at entrypoint).
+
+- Before learning: learned=false, upgrade=nil.
+- After learning/upgrading: learned=true and the stored native UpgradeLevel.
+  Zero is valid and must not be treated as unlearned.
+- Reset perks or switch profiles: the next query must reflect that profile's list.
+- Save/reload and query again: learned state and upgrade should persist.
+- Applying equipment enchantments or temporary combat effects must not make an
+  otherwise unlearned perk appear learned.
+
+These full-game checks remain pending. Host tests use controlled UserPerks entries;
+Lua tests verify capability/handle rejection and detached snapshots.
+
+## 16. Item classification (API 0.35)
+
+After profile load, query sf2.profile.item with known weapon, armor and consumable
+handles. Compare type/subtype to their native item definitions. Repeat before and
+after acquisition: classification should not depend on ownership. WEAPON_NUNCHAKU
+should report Weapon/Nunchaku. Empty native subtype stays an empty string; missing
+runtime metadata produces nil. Earlier returned tables must remain unchanged.
+
+Controlled host/Lua tests pass; full-game catalog comparisons remain pending.
+
+## 17. Item acquisition events (API 0.36)
+
+Subscribe to item_acquired under story.events and log item, previous_count and count.
+Grant an unowned reward item and increase an existing consumable stack: each positive
+native grant operation should report its before/after counts. Zero/removal operations
+and pending purchases with no count increase should not report acquisition. Compare
+purchase callbacks separately to avoid double-counting. Switch profiles during a
+native dialog: stale notifications must not reach the new profile.
+
+The hook does not cover separate delivery-completion or direct inventory-edit paths.
+An outer reward flow can still add enchantments afterward. Full-game acceptance is
+pending; native/Lua fixtures use controlled services.
+
+API 0.37 delivery follow-up for section 17: complete a pending empty-item delivery.
+Expect one item_acquired notification after completion, and none when checking it
+again. Upgrade-only delivery must remain silent. A delivery quest that grants the
+same item must not cause a second notification for that same increase. These
+full-game checks remain pending; the extracted native fixture passes 20 checks.
+
+For sections 17 and the delivery follow-up, enable the updated example.story-observer
+(API 0.37+) to see acquisition identities, counts and deltas in the Console/player
+log. Its README describes using example.eclipse-reward alongside it. Exact known/
+unknown-item log messages pass automated Lua checks; full-game acceptance is pending.
+
+### Runtime item IDs (API 0.38)
+
+Use the acquisition callback example in the public profile reference with
+`story.events`, `profile.read`, API >=0.38 and a core dependency. No
+`content.register` capability is needed. Acquire a core item and confirm its
+logged current quantity matches inventory. Unknown event items are skipped.
+Nested grants can make current quantity newer than the event snapshot. Verify
+profile switching reads the newly active inventory. Full-game checks pending.
+
+### Equipped profile records (API 0.39)
+
+From an after-load UI/story callback, log sf2.profile.equipment() entries with
+profile.read enabled. Compare item IDs, type/subtype and upgrades to the equipment
+screen. Swap weapons and query again; empty slots should have no equipped record.
+Change profiles and ensure the new equipment appears. Enter a fight with temporary
+rule-imposed equipment and verify the query still represents profile equipment.
+The public profile reference contains a Katana condition example. These full-game
+checks remain pending; no automatic popup is added by the API.
+
+### Battle result observer (API 0.40)
+
+Enable example.story-observer and launch a normal encounter from the map. Finish
+it and inspect the Story Observer battle log: one line with fight ID and outcome.
+Repeat in Eclipse and verify the eclipse marker; surrender should report surrender.
+Try a repeatable owned mode and ensure successive launches each produce one line.
+For equipment predicates, use the public story guide's Katana callback; temporary
+rule equipment should be captured from model parameters when available. Surrender
+may provide no equipment, and no profile-equipment fallback is implied. Native raid
+timeout variants, instant-win path, profile interruption and deferred lottery wins
+still need acceptance testing. This event is not proof that all loot/save work has
+finished, and adds no UI by itself.
+
+### Blade Discipline example
+
+Enable example.katana-achievement with an eligible test profile. Defeat Butcher
+with a katana in normal, Eclipse replay or the intermission gauntlet. Expect one
+Blade Discipline unlocked log and the achievement in Profile; no popup or gems
+are promised. Bodyguard wins, losses and non-katana weapons must not count. After
+unlocking, repeat a qualifying win and confirm no second unlock log. Restart and
+check the achievement persists. These full-game checks remain pending.
+
+## Profile write recovery acceptance (pending)
+
+Use a disposable test profile. Verify ordinary progress and mod-owned inventory
+survive quit/restart with no pending .eclipse-write records after completed saves.
+Verify intentional profile replacement/reset cannot restore an earlier pending
+record. Disk fault/replay behavior is covered by TestProfileWriteJournal.ps1 and
+TestProfileSaveBoundary.ps1; do not interrupt or corrupt a real player's save to
+run these checks. Full-game acceptance does not establish lottery claim recovery,
+which remains unimplemented.

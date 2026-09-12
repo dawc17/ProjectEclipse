@@ -159,6 +159,57 @@ static class Program
         Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.SceneEnter, Purchase.Item, scene:"map"), "scene item rejected");
         Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.SceneEnter, null, null, 1, 2, "map"), "scene level fields rejected");
         Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.Purchase, null, scene:"map"), "purchase destination rejected");
+        var results=new ModStoryEvents();
+        Check(results.BeginEncounter()==null,"unbound encounter creation");
+        Check(!results.TryBeginEncounterResult(null)&&!results.TryCompleteEncounterResult(null),"null encounter accepted");
+        results.BindProfile();var attempt=results.BeginEncounter();
+        Check(!results.TryCompleteEncounterResult(attempt),"unreserved result completed");
+        Check(results.TryBeginEncounterResult(attempt),"result reservation failed");
+        Check(!results.TryBeginEncounterResult(attempt),"reentrant result accepted");
+        Check(results.TryCompleteEncounterResult(attempt),"reserved result not completed");
+        Check(!results.TryCompleteEncounterResult(attempt)&&!results.TryBeginEncounterResult(attempt),"duplicate result accepted");
+        var previous=results.BeginEncounter();var next=results.BeginEncounter();
+        Check(!results.TryBeginEncounterResult(previous),"superseded attempt accepted");
+        results.CancelEncounter(previous);
+        Check(results.TryBeginEncounterResult(next),"old cancellation erased new encounter");
+        results.UnbindProfile();results.BindProfile();
+        Check(!results.TryCompleteEncounterResult(next),"result crossed profile boundary");
+        attempt=results.BeginEncounter();results.TryBeginEncounterResult(attempt);results.CancelEncounter(attempt);
+        Check(!results.TryCompleteEncounterResult(attempt)&&!results.TryBeginEncounterResult(attempt),"failed attempt retried");
+        attempt=results.BeginEncounter();var other=new ModStoryEvents();other.BindProfile();
+        Check(!other.TryBeginEncounterResult(attempt),"foreign service accepted token");
+        Check(results.TryBeginEncounterResult(attempt),"foreign operation consumed token");
+        results.Clear();Check(!results.TryCompleteEncounterResult(attempt),"clear retained attempt");
+        results.BindProfile();attempt=results.BeginEncounter();
+        Check(results.TryBeginEncounterResult(attempt)&&results.TryCompleteEncounterResult(attempt),"new profile encounter unavailable");
+        var deferred=new ModStoryEvents();deferred.BindProfile();var delivered=new List<ModStoryEventKind>();
+        var deferredScope=deferred.CreateScope(A);
+        deferredScope.Subscribe(ModStoryEventKind.Purchase,e=>delivered.Add(e.Kind));
+        deferredScope.Subscribe(ModStoryEventKind.Enchantment,e=>delivered.Add(e.Kind));
+        deferred.RunDeferred(()=>{
+            deferred.Publish(Purchase);
+            deferred.RunDeferred(()=>deferred.Publish(Enchantment));
+            Check(delivered.Count==0,"nested deferral flushed early");
+            deferred.Publish(Purchase);
+        });
+        Check(string.Join(",",delivered)=="Purchase,Enchantment,Purchase","deferred FIFO order");
+        delivered.Clear();
+        Throws<InvalidOperationException>(()=>deferred.RunDeferred(()=>{deferred.Publish(Purchase);throw new InvalidOperationException();}),"failed deferral swallowed exception");
+        Check(delivered.Count==0,"failed deferral delivered");
+        deferred.RunDeferred(()=>{
+            deferred.Publish(Purchase);
+            try{deferred.RunDeferred(()=>{deferred.Publish(Enchantment);throw new InvalidOperationException();});}catch(InvalidOperationException){}
+            deferred.Publish(Purchase);
+        });
+        Check(string.Join(",",delivered)=="Purchase,Purchase","failed child discarded parent notifications");
+        delivered.Clear();
+        deferred.RunDeferred(()=>{deferred.Publish(Purchase);deferred.BindProfile();deferred.Publish(Enchantment);});
+        Check(string.Join(",",delivered)=="Enchantment","deferral crossed profile generation");
+        delivered.Clear();int accepted=0;
+        deferred.RunDeferred(()=>{for(int i=0;i<ModStoryEvents.MaximumEventsPerDispatch+5;i++)if(deferred.Publish(Purchase))accepted++;});
+        Check(accepted==ModStoryEvents.MaximumEventsPerDispatch&&delivered.Count==accepted,"deferred event budget reset per publication");
+        delivered.Clear();deferred.Publish(Enchantment);Check(delivered.Count==1,"deferral retained budget across independent dispatches");
+        Throws<ArgumentNullException>(()=>deferred.RunDeferred(null),"null deferred action accepted");
         Console.WriteLine("PASS: " + checks + " story event transport checks. No Lua or native event delivery claimed.");
     }
 }

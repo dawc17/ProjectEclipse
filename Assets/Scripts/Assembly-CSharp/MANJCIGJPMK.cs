@@ -23,6 +23,20 @@ public struct MANJCIGJPMK
 
 	private string HLBHGHEJBKE;
 
+	internal float Weight { get; private set; }
+	internal string Image => KHPKDMGDMAB;
+	internal string CancellingItem => MHOJBEKALLD;
+	internal string ViewType => HLBHGHEJBKE;
+	internal bool IsAvailableAtLevel(int level) => POHFOGPKMMK != null && GDHOMAGHADB(level);
+
+	internal bool TryEvaluateAtLevel(int level, out RewardPrize prize)
+	{
+		prize = null;
+		if (!IsAvailableAtLevel(level)) return false;
+		prize = POHFOGPKMMK.KOBOIFJNPMO(level);
+		return true;
+	}
+
 	public MANJCIGJPMK(XmlNode node, ushort CDCJKJNGPOE, ushort MCDAHGPLLDO)
 	{
 		POHFOGPKMMK = null;
@@ -32,6 +46,7 @@ public struct MANJCIGJPMK
 		KHPKDMGDMAB = node.Attributes["Image"].CIPOICEEIBK(string.Empty);
 		MHOJBEKALLD = node.Attributes["CancellingItem"].CIPOICEEIBK(string.Empty);
 		HLBHGHEJBKE = node.Attributes["ViewType"].CIPOICEEIBK(string.Empty);
+		Weight = node.Attributes["Weight"].ParseFloat(1f);
 		if (node["Money"] != null)
 		{
 			LJOALDGDOFP = PNMPEPEMDHH.prizeCountMoney;

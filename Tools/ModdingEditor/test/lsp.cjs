@@ -259,15 +259,25 @@ async function main() {
     await until(async()=>labels(await request('textDocument/completion',body)).some(name=>name.startsWith('body_model')),'character model completion');
     const attack=probe('attack.lua','local sf2=require("sf2")\nsf2.moves.register { intervals={{type="Attack",attack={ | }}} }');
     await until(async()=>labels(await request('textDocument/completion',attack)).some(name=>name.startsWith('edges')),'attack interval completion');
-    const profileProbe=probe('profile-query.lua','local sf2=require("sf2")\nlocal item=sf2.items.get("core:items/weapon/weapon_nunchaku")\nlocal snapshot=sf2.profile.item(item)\nlocal value=snapshot.|');
+    const profileProbe=probe('profile-query.lua','local sf2=require("sf2")\nlocal item=sf2.items.get("core:items/weapon/weapon_nunchaku")\nlocal snapshot=sf2.profile.item("core:items/weapon/weapon_nunchaku")\nlocal value=snapshot.|');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',profileProbe));
-        return ['present','owned','count','equipped'].every(field=>result.includes(field));
+        return ['present','owned','count','equipped','type','subtype'].every(field=>result.includes(field));
     },'profile item snapshot fields');
+    const perkProbe=probe('profile-perk.lua','local sf2=require("sf2")\nlocal perk=sf2.perks.get("core:perks/PERK_COBRA")\nlocal snapshot=sf2.profile.perk("core:perks/PERK_COBRA")\nlocal value=snapshot.|');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',perkProbe));
+        return ['learned','upgrade'].every(field=>result.includes(field));
+    },'learned perk snapshot fields');
+    const equipmentProbe=probe('profile-equipment.lua','local sf2=require("sf2")\nlocal items=sf2.profile.equipment()\nlocal value=items[1].|');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',equipmentProbe));
+        return ['item','owned','count','type','subtype','upgrade'].every(field=>result.includes(field));
+    },'equipment array snapshot fields');
     const storyProbe=probe('story-event.lua','local sf2=require("sf2")\nsf2.story.on("purchase",function(event)\nlocal value=event.|\nend)');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',storyProbe));
-        return ['kind','item','recipe','previous_level','level','scene'].every(field=>result.includes(field));
+        return ['kind','item','recipe','previous_level','level','scene','previous_count','count','fight','outcome','eclipse','equipment'].every(field=>result.includes(field));
     },'story event callback fields');
     const curveProbe=probe('location-curve.lua','local sf2=require("sf2")\nsf2.locations.register { layers = { { images = { { motion_y = { points = { { | } } } } } } } }');
     await until(async()=>{

@@ -1045,3 +1045,9 @@ copies and do not mutate inventory. See the public Player profile queries page.
 API 0.33 runnable reward example: [Eclipse Item Reward](example.eclipse-reward/README.md)
 patches the first Lynx Eclipse replay's one-win item scope using core equipment.
 Use an unowned-item test profile; the normal battle is a separate definition.
+
+API 0.38: `sf2.profile.item` and `sf2.profile.perk` accept qualified definition IDs as well as context-owned handles. String queries require `profile.read` and declared foreign dependencies, but no registration capability or live registration transaction. See the public profile reference.
+
+API 0.39: `sf2.profile.equipment()` returns detached equipped-record snapshots for story/UI conditions, including IDs and native type/subtype. Requires `profile.read`; this is profile equipment rather than temporary combat loadouts.
+
+API 0.40 adds `story.on("battle_result", callback)` for tracked native encounter outcomes, with captured fight ID, Eclipse state and available player model equipment. This is not a lottery-settlement guarantee. Story Observer logs the event.

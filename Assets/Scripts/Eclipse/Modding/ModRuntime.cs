@@ -17,6 +17,53 @@ namespace Eclipse.Modding
             (owner, message) => Debug.LogWarning("[ModStory] " + owner + ": " + message));
         private static Roster _profileRoster;
         private static bool _sceneNavigationInProgress;
+        private static XmlNode _lotteryProfileNode;
+        private static int _lotterySaveState; // 0 idle, 1 settling, 2 failed: reload before saving.
+
+        internal static bool DeferProfileSave()
+        {
+            if (_lotterySaveState == 2)
+                throw new InvalidOperationException("Lottery settlement failed. Reload the profile before saving further changes.");
+            return _lotterySaveState == 1;
+        }
+
+        internal static bool IsProfileSnapshotPath(string path)
+        {
+            var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            string full = Path.GetFullPath(path);
+            string directory = SF2Paths.APHDBIBDMDG();
+            return string.Equals(full, Path.GetFullPath(Path.Combine(directory, Constants.OJMIJINKBPJ)), comparison) ||
+                string.Equals(full, Path.GetFullPath(Path.Combine(directory, Constants.GHKPPHAAMBL)), comparison);
+        }
+
+        internal static bool TryWriteProfileSnapshot(XmlDocument document, string path)
+        {
+            if (!IsProfileSnapshotPath(path)) return false;
+            byte[] snapshot;
+            using (var stream = new MemoryStream())
+            {
+                document.Save(stream);
+                snapshot = stream.ToArray();
+            }
+            byte[] hash = GameSettings.HCAJHNKLLGB() ? System.Text.Encoding.UTF8.GetBytes(
+                MD5Utils.INPENHNJBGJ(document.OuterXml, UserDataValidator.GHEHGBBNMNO())) : null;
+            ModProfileWriteJournal.Write(path, snapshot, hash, ValidateProfileSnapshot);
+            return true;
+        }
+
+        internal static void RecoverProfileSnapshot(string path)
+        {
+            if (IsProfileSnapshotPath(path) && File.Exists(path + ".eclipse-write"))
+                ModProfileWriteJournal.Recover(path, ValidateProfileSnapshot);
+        }
+
+        private static void ValidateProfileSnapshot(byte[] snapshot, byte[] hash)
+        {
+            var document = new XmlDocument { XmlResolver = null };
+            using (var stream = new MemoryStream(snapshot, false)) document.Load(stream);
+            UserDataValidator.CheckSnapshotHash(document,
+                hash == null ? null : System.Text.Encoding.UTF8.GetString(hash), "profile write journal");
+        }
         public static string ResolveDojoLocation(string fallback) => DojoSelection.Resolve(fallback);
 
         public static bool IsInitialized => _host != null;
@@ -46,6 +93,8 @@ namespace Eclipse.Modding
             DojoSelection.SetChoices(dojoChoices);
             ModProfileAccess.Level = ReadProfileLevel;
             ModProfileAccess.Item = ReadProfileItem;
+            ModProfileAccess.Perk = ReadProfilePerk;
+            ModProfileAccess.Equipment = ReadProfileEquipment;
             ModSceneAccess.Open = TryNavigateScene;
             ModPolicies.Content = _scripts.Content;
             ModModeRuntime.SchedulePreparation = (request,ready,cancel) =>
@@ -184,6 +233,9 @@ namespace Eclipse.Modding
 
         public static void RecordSaveContext(System.Xml.XmlNode warrior, Roster roster = null)
         {
+            if (_lotterySaveState == 1) throw new InvalidOperationException("Cannot replace the profile during lottery settlement.");
+            _lotteryProfileNode = warrior;
+            _lotterySaveState = 0;
             StoryEvents.UnbindProfile();
             _profileRoster = null;
             DojoSelection.Unbind();
@@ -206,6 +258,9 @@ namespace Eclipse.Modding
 
         public static void UnbindProfile()
         {
+            if (_lotterySaveState == 1) throw new InvalidOperationException("Cannot unload the profile during lottery settlement.");
+            _lotteryProfileNode = null;
+            // Keep a failed settlement's save gate closed until a new profile binds.
             StoryEvents.UnbindProfile();
             _profileRoster = null;
             DojoSelection.Unbind();
@@ -248,6 +303,272 @@ namespace Eclipse.Modding
             finally { _sceneNavigationInProgress = false; }
         }
 
+        // Host-only selection. Eligibility policy and random sampling belong to
+        // the caller; this neither evaluates unselected rewards nor grants loot.
+        internal static bool TrySelectLotterySlot(RewardLottery lottery, int level, double sample,
+            Func<MANJCIGJPMK, bool> eligible, out MANJCIGJPMK selected)
+        {
+            if(lottery==null)throw new ArgumentNullException(nameof(lottery));
+            if(level<1)throw new ArgumentOutOfRangeException(nameof(level));
+            if(double.IsNaN(sample)||sample<0||sample>=1)throw new ArgumentOutOfRangeException(nameof(sample));
+            selected=default(MANJCIGJPMK);
+            var candidates=new List<MANJCIGJPMK>();
+            double total=0;
+            foreach(var slot in lottery.EDCOGMLOEHE.ToArray())
+            {
+                if(float.IsNaN(slot.Weight)||float.IsInfinity(slot.Weight)||slot.Weight<0)
+                    throw new InvalidOperationException("Lottery slot weights must be finite and nonnegative.");
+                if(slot.Weight==0||!slot.IsAvailableAtLevel(level)||(eligible!=null&&!eligible(slot)))continue;
+                candidates.Add(slot);total+=slot.Weight;
+            }
+            if(candidates.Count==0)return false;
+            double cursor=sample*total;
+            foreach(var slot in candidates)
+            {
+                if(cursor<slot.Weight){selected=slot;return true;}
+                cursor-=slot.Weight;
+            }
+            // Multiplication/subtraction can round at the upper boundary.
+            selected=candidates[candidates.Count-1];return true;
+        }
+
+        internal sealed class LotteryClaim
+        {
+            private readonly Roster _owner;
+            private readonly int _generation;
+            private readonly FightResult.ResultPrizeStruct _prize;
+            private bool _consumed;
+            private readonly XmlElement _saved;
+            internal LotteryClaim(Roster owner, int generation, FightResult.ResultPrizeStruct prize, XmlElement saved = null)
+            { _owner=owner; _generation=generation; _prize=prize ?? throw new ArgumentNullException(nameof(prize)); _saved=saved; }
+
+            internal bool TryClaim()
+            {
+                if(_consumed || _owner==null || !ReferenceEquals(_owner,_profileRoster) ||
+                    _generation!=StoryEvents.ProfileGeneration)return false;
+                if(_prize.FAPDEKOMOGH!=null)
+                    throw new InvalidOperationException("Nested lottery rewards must be resolved before claiming.");
+                if (_prize.KBMDJACLAOH.Count != 0)
+                    throw new NotSupportedException("Native resistance reward granting is not implemented.");
+                if (_saved != null && (_saved.ParentNode != _lotteryProfileNode || _saved.GetAttribute("State") != "prepared")) return false;
+                if (_lotterySaveState != 0) throw new InvalidOperationException("Another lottery settlement is active or requires profile reload.");
+                var acknowledge = ResolveLotteryAcknowledgement(_saved);
+                // Consume before callbacks. Exceptions may follow partial native
+                // mutation, so this live claim must never be retried automatically.
+                _consumed=true;
+                StoryEvents.RunDeferred(()=>{
+                    _lotterySaveState = 1;
+                    try
+                    {
+                        ListSF.ELEBLBJKDBI().IMDGMNFHFCN(_prize);
+                        // IMDGMNFHFCN's return value indicates level-up, not grant success.
+                        if(!ReferenceEquals(_owner,_profileRoster) || _generation!=StoryEvents.ProfileGeneration)
+                            throw new InvalidOperationException("Profile changed during lottery grant; the consumed claim cannot be retried.");
+                        _owner.GGGEHAGCLGC(true);
+                        acknowledge?.Invoke();
+                        if (_saved != null) _saved.SetAttribute("State", "claimed");
+                        _lotterySaveState = 0;
+                        if (_saved != null) ListSF.ELEBLBJKDBI().OnAuthenticate(true);
+                    }
+                    catch
+                    {
+                        // Disk retains the prepared snapshot or a recoverable committed
+                        // snapshot. Do not later autosave partial in-memory mutations.
+                        _lotterySaveState = 2;
+                        throw;
+                    }
+                });
+                return true;
+            }
+        }
+
+        internal static ModQuestInvocationLedger GetQuestLotteryInvocation(QuestStage stage)
+        {
+            if (stage == null) throw new NotSupportedException("Lottery actions require a top-level quest stage.");
+            if (_profileRoster == null || _lotteryProfileNode == null || _lotterySaveState != 0)
+                throw new InvalidOperationException("An active, writable profile is required for quest rewards.");
+            if (stage.allowDoubles) throw new NotSupportedException("Concurrent runs of a lottery quest require separate invocation identities.");
+            if (stage.EclipseLotteryInvocations != null)
+            {
+                if (!stage.EclipseLotteryInvocations.BelongsTo(_lotteryProfileNode))
+                    throw new InvalidOperationException("Quest lottery belongs to another profile.");
+                return stage.EclipseLotteryInvocations;
+            }
+            var parent = _lotteryProfileNode["EclipseQuestClaims"];
+            if (parent == null)
+            {
+                parent = _lotteryProfileNode.OwnerDocument.CreateElement("EclipseQuestClaims");
+                _lotteryProfileNode.AppendChild(parent);
+            }
+            XmlElement quest = null;
+            foreach (XmlNode child in parent.ChildNodes)
+            {
+                if (!(child is XmlElement entry)) continue;
+                if (entry.Name != "Quest") throw new InvalidDataException("Invalid quest claim entry.");
+                if (entry.GetAttribute("File") != stage.FileName || entry.GetAttribute("Name") != stage.get_Name()) continue;
+                if (quest != null) throw new InvalidDataException("Duplicate quest claim identity.");
+                quest = entry;
+            }
+            string definition;
+            using (var hash = System.Security.Cryptography.SHA256.Create())
+                definition = Convert.ToBase64String(hash.ComputeHash(System.Text.Encoding.UTF8.GetBytes(stage.EclipseActionsDefinition)));
+            if (quest == null)
+            {
+                quest = parent.OwnerDocument.CreateElement("Quest");
+                quest.SetAttribute("File", stage.FileName);
+                quest.SetAttribute("Name", stage.get_Name());
+                parent.AppendChild(quest);
+            }
+            string state = quest.GetAttribute("State");
+            if (state != string.Empty && state != "active" && state != "completed")
+                throw new InvalidDataException("Invalid quest claim run state.");
+            bool resume = stage.EclipseResumeActions || state == "active";
+            if (resume && quest["EclipseInvocations"] != null && quest.GetAttribute("Definition") != definition)
+                throw new InvalidOperationException("The pending quest definition changed; restore it before resuming its lottery.");
+            quest.SetAttribute("Definition", definition);
+            quest.SetAttribute("State", "active");
+            return stage.EclipseLotteryInvocations = new ModQuestInvocationLedger(quest, resume);
+        }
+
+        internal static bool CompleteQuestLotteryRun(QuestStage stage)
+        {
+            var ledger = stage.EclipseLotteryInvocations;
+            if (ledger == null) return false;
+            if (_lotterySaveState != 0 || !ledger.BelongsTo(_lotteryProfileNode))
+                throw new InvalidOperationException("Quest lottery cannot finish in this profile state.");
+            ledger.CloseRun();
+            return true;
+        }
+
+        internal static LotteryClaim PrepareLotteryClaim(RewardLottery lottery, double sample,
+            Func<MANJCIGJPMK,bool> eligible, ModQuestInvocationLedger invocation = null, int actionIndex = 0)
+        {
+            var owner=_profileRoster;
+            if(owner==null)throw new InvalidOperationException("No active game profile is available.");
+            if (_lotteryProfileNode == null) throw new InvalidOperationException("No profile save node is available.");
+            if (_lotterySaveState != 0) throw new InvalidOperationException("Reload the profile before preparing another lottery.");
+            if (invocation != null && !invocation.BelongsTo(_lotteryProfileNode))
+                throw new InvalidOperationException("Quest invocation belongs to another profile.");
+            if (invocation != null && invocation.IsCompleted(actionIndex)) return null;
+            string invocationKey = invocation?.Operation(actionIndex) ?? string.Empty;
+            var pending = ResumeLotteryClaim();
+            if (pending != null)
+            {
+                if (_lotteryProfileNode["EclipseLotteryClaim"].GetAttribute("Invocation") != invocationKey)
+                    throw new InvalidOperationException("Finish the pending lottery before starting another quest claim.");
+                ListSF.ELEBLBJKDBI().OnAuthenticate(true);
+                return pending;
+            }
+            int generation=StoryEvents.ProfileGeneration;
+            int level=owner.PINDEKDNCNL();
+            if(!TrySelectLotterySlot(lottery,level,sample,eligible,out var selected))return null;
+            var prize=BuildLotteryPrize(selected,level);
+            if (prize.KBMDJACLAOH.Count != 0)
+                throw new NotSupportedException("Native resistance reward granting is not implemented.");
+            if(!ReferenceEquals(owner,_profileRoster)||generation!=StoryEvents.ProfileGeneration)
+                throw new InvalidOperationException("Profile changed while preparing lottery rewards.");
+            var saved = _lotteryProfileNode.OwnerDocument.CreateElement("EclipseLotteryClaim");
+            saved.SetAttribute("Format", "1");
+            saved.SetAttribute("State", "prepared");
+            saved.SetAttribute("Id", Guid.NewGuid().ToString("N"));
+            saved.SetAttribute("Invocation", invocationKey);
+            saved.SetAttribute("Image", selected.Image ?? string.Empty);
+            saved.SetAttribute("ViewType", selected.ViewType ?? string.Empty);
+            saved.AppendChild(ModLotteryPrizeCodec.Write(saved.OwnerDocument, prize));
+            invocation?.BindClaim(actionIndex, saved.GetAttribute("Id"));
+            var previous = _lotteryProfileNode["EclipseLotteryClaim"];
+            if (previous != null) _lotteryProfileNode.ReplaceChild(saved, previous);
+            else _lotteryProfileNode.AppendChild(saved);
+            ListSF.ELEBLBJKDBI().OnAuthenticate(true);
+            return new LotteryClaim(owner,generation,prize,saved);
+        }
+
+        private static Action ResolveLotteryAcknowledgement(XmlElement saved)
+        {
+            string operation = saved?.GetAttribute("Invocation");
+            if (string.IsNullOrEmpty(operation)) return null;
+            string[] parts = operation.Split('/');
+            if (parts.Length != 2 || !Guid.TryParseExact(parts[0], "N", out _) ||
+                !int.TryParse(parts[1], out int index) || index < 0)
+                throw new InvalidDataException("Invalid lottery quest invocation.");
+            foreach (XmlNode node in _lotteryProfileNode.SelectNodes(".//EclipseInvocations"))
+            {
+                if (node.Attributes?["Id"]?.Value != parts[0]) continue;
+                var ledger = new ModQuestInvocationLedger((XmlElement)node.ParentNode, true);
+                if (ledger.IsCompleted(index)) throw new InvalidDataException("Lottery invocation was already acknowledged.");
+                ledger.BindClaim(index, saved.GetAttribute("Id"));
+                return () => ledger.Complete(index, saved.GetAttribute("Id"));
+            }
+            throw new InvalidDataException("Lottery quest invocation is unavailable.");
+        }
+
+        internal static LotteryClaim ResumeLotteryClaim()
+        {
+            var saved = _lotteryProfileNode?["EclipseLotteryClaim"];
+            if (saved == null) return null;
+            if (_profileRoster == null || _lotterySaveState != 0) throw new InvalidOperationException("Profile is unavailable for lottery recovery.");
+            if (saved.GetAttribute("Format") != "1") throw new InvalidDataException("Unknown saved lottery claim format.");
+            if (saved.GetAttribute("State") == "claimed") return null;
+            if (saved.GetAttribute("State") != "prepared") throw new InvalidDataException("Invalid saved lottery claim state.");
+            var prize = ModLotteryPrizeCodec.Read(saved["Prize"], (name, level, upgrade) => {
+                var item = ListSF.DJBOFEEKJMP().KCCDBEEKBCG(name);
+                if (item == null) return null;
+                return item.MHGODOLNDLE == level && item.OBJDGBBFJOO == upgrade ? item : item.HIOBANJPMKF(upgrade);
+            }, name => GameUtils.AJDKHINLIDI.ICFINJLNCPM(name), name => GameUtils.JNIMKHKGPHE.NDMEGBEFBPJ(name));
+            return new LotteryClaim(_profileRoster, StoryEvents.ProfileGeneration, prize, saved);
+        }
+
+        internal static FightResult.ResultPrizeStruct BuildLotteryPrize(MANJCIGJPMK slot, int level)
+        {
+            if(!slot.TryEvaluateAtLevel(level,out var prize))
+                throw new InvalidOperationException("Lottery slot is unavailable at the selected level.");
+            var result=new FightResult.ResultPrizeStruct {
+                GBGNFPNCGED=(long)prize.GBGNFPNCGED,
+                PNDAIFALIKF=(long)prize.PNDAIFALIKF,
+                exp=(uint)prize.exp
+            };
+            foreach(var item in prize.MDJFGLELOBA)result.KFJABAMAKOD(item);
+            foreach(var item in prize.KIMJGOHCCPO)result.KFJABAMAKOD(item);
+            foreach(var item in prize.KBMDJACLAOH)result.KFJABAMAKOD(item);
+            if(prize.FAPDEKOMOGH!=null)result.KFJABAMAKOD(prize.FAPDEKOMOGH);
+            foreach(var item in prize.HELFDCAIJNE)result.KFJABAMAKOD(item);
+            foreach(var choice in prize.PNFMKMLLFHK)result.KFJABAMAKOD(choice.OOOBLJIHBEP());
+            return result;
+        }
+
+        internal static ModStoryEvent CaptureBattleResult(Roster roster, FightList fight, GameOverTypes outcome,
+            ModelParameters first, ModelParameters second)
+        {
+            if (roster == null || !ReferenceEquals(roster, _profileRoster) || _scripts == null ||
+                !StoryEvents.HasSubscribers(ModStoryEventKind.BattleResult)) return null;
+            string result;
+            switch(outcome)
+            {
+                case GameOverTypes.GAME_OVER_WIN: result="win"; break;
+                case GameOverTypes.GAME_OVER_LOSS: result="loss"; break;
+                case GameOverTypes.GAME_OVER_SURRENDER: result="surrender"; break;
+                case GameOverTypes.GAME_OVER_RAID_TIMEOUT: result="raid_timeout"; break;
+                case GameOverTypes.GAME_OVER_RAID_ROUND_TIMEOUT: result="raid_round_timeout"; break;
+                default: return null;
+            }
+            DefinitionId? id=null;
+            foreach(var definition in _scripts.Content.Fights)
+                if(_scripts.Content.RuntimeFightId(definition.Id)==fight.BCKFACGMOKC.ToString()) { id=definition.Id; break; }
+            var player=first!=null&&first.IsPlayer?first:second!=null&&second.IsPlayer?second:null;
+            List<ModBattleEquipmentSnapshot> equipment=null;
+            if(player!=null)
+            {
+                equipment=new List<ModBattleEquipmentSnapshot>();
+                foreach(var item in player.PJNJIJIODHE())
+                {
+                    DefinitionId? itemId=_scripts.Content.TryResolveRuntimeItem(item.Name,item.NodeXML?.OuterXml,out var resolved)?resolved:(DefinitionId?)null;
+                    equipment.Add(new ModBattleEquipmentSnapshot(itemId,item.Type,item.MDPPNGIEJGD));
+                }
+            }
+            return new ModStoryEvent(ModStoryEventKind.BattleResult,null,
+                battle:new ModBattleResultSnapshot(id,result,roster.JPMPIDFGCJL(),equipment));
+        }
+
         internal static void PublishSceneEntry(string scene, int profileGeneration)
         {
             if (_profileRoster == null || StoryEvents.ProfileGeneration != profileGeneration ||
@@ -262,6 +583,16 @@ namespace Eclipse.Modding
             int level = roster.Level;
             if (level > previousLevel)
                 StoryEvents.Publish(new ModStoryEvent(ModStoryEventKind.LevelUp, null, null, previousLevel, level));
+        }
+
+        internal static void PublishItemAcquired(Roster roster, ItemInfo item, int previousCount, int count, int generation)
+        {
+            if (roster == null || !ReferenceEquals(roster, _profileRoster) || _scripts == null || item == null ||
+                previousCount < 0 || count <= previousCount || generation != StoryEvents.ProfileGeneration ||
+                !StoryEvents.HasSubscribers(ModStoryEventKind.ItemAcquired)) return;
+            DefinitionId? id = _scripts.Content.TryResolveRuntimeItem(item.Name, item.NodeXML?.OuterXml, out var resolved)
+                ? resolved : (DefinitionId?)null;
+            StoryEvents.Publish(new ModStoryEvent(ModStoryEventKind.ItemAcquired, id, previousCount: previousCount, count: count));
         }
 
         internal static ModStoryEvent CaptureStoryEvent(QuestEvent.PMDPDMFLCIJ kind, QuestParameters parameters)
@@ -303,6 +634,34 @@ namespace Eclipse.Modding
                 StoryEvents.Publish(notification);
         }
 
+        private static ModProfilePerkSnapshot ReadProfilePerk(DefinitionId id)
+        {
+            if (_profileRoster == null || _scripts == null) return null;
+            if (!_scripts.Content.TryGetPerk(id, out var definition))
+                throw new ModContentException("Profile query references unavailable perk: " + id);
+            string name = definition.IsCore && !string.IsNullOrEmpty(definition.LegacyName)
+                ? definition.LegacyName : definition.Id.ToString();
+            foreach (var perk in _profileRoster.JLBDOBLHHAF().KEHFPLBNDHI())
+                if (string.Equals(perk.get_Name(), name, StringComparison.Ordinal))
+                    return new ModProfilePerkSnapshot(true, perk.DHNNCAEEMLL());
+            return new ModProfilePerkSnapshot(false, null);
+        }
+
+        private static IReadOnlyList<ModProfileEquipmentSnapshot> ReadProfileEquipment()
+        {
+            if (_profileRoster == null || _scripts == null) return null;
+            var result = new List<ModProfileEquipmentSnapshot>();
+            foreach (var item in _profileRoster.KHCNHPCPFII().JCMOHPFKPBO())
+            {
+                var metadata = item.BHKHOJPANHE();
+                DefinitionId? id = _scripts.Content.TryResolveRuntimeItem(item.get_Name(), metadata?.NodeXML?.OuterXml, out var resolved)
+                    ? resolved : (DefinitionId?)null;
+                result.Add(new ModProfileEquipmentSnapshot(id,
+                    new ModProfileItemSnapshot(true, item.Count, true, item.DHNNCAEEMLL(), metadata?.Type, metadata?.MDPPNGIEJGD)));
+            }
+            return result.AsReadOnly();
+        }
+
         private static ModProfileItemSnapshot ReadProfileItem(DefinitionId id)
         {
             if (_profileRoster == null || _scripts == null) return null;
@@ -311,8 +670,9 @@ namespace Eclipse.Modding
             string name = definition.IsCore && !string.IsNullOrEmpty(definition.LegacyName)
                 ? definition.LegacyName : definition.Id.ToString();
             var item = _profileRoster.KHCNHPCPFII().CMGOCLGHNLH(name);
-            return item == null ? new ModProfileItemSnapshot(false, 0, false, null)
-                : new ModProfileItemSnapshot(true, item.Count, item.EFMFGEPDAOP(), item.DHNNCAEEMLL());
+            var metadata = ListSF.DJBOFEEKJMP()?.KCCDBEEKBCG(name);
+            return item == null ? new ModProfileItemSnapshot(false, 0, false, null, metadata?.Type, metadata?.MDPPNGIEJGD)
+                : new ModProfileItemSnapshot(true, item.Count, item.EFMFGEPDAOP(), item.DHNNCAEEMLL(), metadata?.Type, metadata?.MDPPNGIEJGD);
         }
 
         public static bool TryReadSavedEnchantment(XmlNode perkNode, out EnchantmentDefinition enchantment,

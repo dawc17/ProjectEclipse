@@ -206,3 +206,9 @@ test('Eclipse reward example validates its manifest and reward patch', async () 
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
+
+test('katana achievement example validates', async () => {
+ const dir=path.resolve(__dirname,'../../../Mods/example.katana-achievement');
+ const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
+ assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});

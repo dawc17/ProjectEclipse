@@ -43,6 +43,12 @@ public static class UserDataValidator
 			return true;
 		}
 		string text = ReadHash(ONEIGMLOGDC + ".hash");
+		return CheckSnapshotHash(LOBFDOKFJIP, text, ONEIGMLOGDC);
+	}
+
+	internal static bool CheckSnapshotHash(XmlDocument LOBFDOKFJIP, string text, string ONEIGMLOGDC)
+	{
+		if (!GameSettings.HCAJHNKLLGB()) return true;
 		if (string.IsNullOrEmpty(text))
 		{
 			_IsValid = false;

@@ -458,3 +458,75 @@ rewards replace direct drops in one result/mode/level scope while preserving nat
 economy and other scopes. Registration, conflicts, fingerprints, Lua and adapter
 connections are implemented; native settlement/full-game acceptance remain open.
 This advances G01/E7 without closing broad reward acquisition or lottery coverage.
+
+API 0.34 adds learned-perk queries through profile.perk, allowing story and custom
+UI logic to inspect native learned status and upgrade without mutation. Active
+combat effects remain a separate gap. Host/Lua/editor checks pass; full-game perk
+learning/reset/save acceptance remains pending. See PRE_DE_WORK_LOG.md.
+
+API 0.35 adds runtime type/subtype to profile.item snapshots, including unowned
+items. This supports classification in custom story/UI callbacks with known item
+handles. Host/Lua/editor checks pass; full-game item metadata acceptance and broader
+story queries/core metadata editing remain open.
+
+API 0.36 connects item_acquired notifications to native grant count increases.
+This advances G02/G13 for procedural acquisition logic; purchase and acquisition
+notifications are separate observations and may both occur for one purchase.
+Universal inventory events and full-game acceptance remain open.
+
+API 0.38 makes profile item/perk queries accept qualified IDs at runtime, preserving
+capability/dependency checks. This removes the need to preregister handles for
+items discovered by story callbacks. Automated host/Lua/editor checks pass; broader
+query/operation coverage and full-game acceptance keep G02/E3 open.
+
+API 0.39 adds profile.equipment for equipment-sensitive story/UI conditions,
+including unknown native records and their available metadata. It reads profile
+inventory rather than temporary fight equipment. Native-method/Lua checks pass;
+full-game acceptance and broader operations keep G02/G13 open.
+
+API 0.40 adds battle_result story observations with captured encounter identity,
+outcome, Eclipse state and available player model equipment. Tracked encounter
+and profile lifetime guard delivery. It advances G02/G13 without claiming deferred
+lottery settlement, arbitrary result authority or full-game acceptance.
+
+Lottery recovery now preserves the archived slot weights and exposes native
+eligibility/reward/presentation data to host code. The recovered constructor had
+ignored Weight across all 154 archived slots. This is a tested parser prerequisite,
+not a functioning lottery or public loot API; G04 remains open.
+
+Lottery host selection now supports weighted, level-filtered candidates with
+injected randomness and caller exclusions. Tested independently of inventory and
+presentation; no live lottery or Lua binding consumes it yet. Settlement and UI
+remain G04 work.
+
+Selected lottery slots can now build native reward results without granting them,
+preserving item enchantments and nested lottery payloads. Builder tests pass;
+settlement, UI and archived UpgradeLevel expression semantics remain open.
+
+Lottery claims now have tested in-memory draw/claim ownership and profile affinity.
+Duplicate/reentrant claims cannot grant twice, and unresolved nested lotteries are
+rejected before grant. No live UI/quest consumer yet; crash-safe settlement and
+partial native mutation recovery remain open.
+
+Lottery live claims now defer story notifications until their grant/save-request
+boundary succeeds. Nested batches retain FIFO delivery and shared budgets; failed
+or stale batches discard observations. This is not native rollback or disk durability,
+and no lottery UI/quest consumer is enabled yet.
+
+Legacy reward UpgradeLevel expressions now use the native player-level evaluator
+and encoded upgrade lookup, separately from ordinal UpgradeNumber. Native parser
+and selection fixtures pass; actual archived item-table coverage and full-game
+settlement remain unverified. Lottery UI and durable recovery keep G04 open.
+
+Profile writes now use a recoverable snapshot/hash journal, replayed before native
+profile loading and discarded on intentional reset/replacement. Disk and native
+adapter fixtures pass, including recovery in a fresh process. This supplies a
+persisted-write boundary for G04; prepared lottery claims and their UI/quest
+workflow remain unfinished, and full-game restart acceptance remains pending.
+
+Lottery helpers now persist an evaluated pending prize before returning, resume it
+without drawing again, and save completion with the native inventory change.
+Settlement defers native saves; failed grants block later saves until profile
+reload. Native/lifecycle and payload fixtures pass with stated controlled services.
+No live UI/quest consumer exists yet; full-game settlement and recovery remain
+unverified, so G04 remains open.

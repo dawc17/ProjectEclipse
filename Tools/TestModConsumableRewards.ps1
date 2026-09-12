@@ -13,11 +13,13 @@ public class UpgradeData {}
 public class ItemInfo {
     public string Name, Type; public int MHGODOLNDLE = 1;
     public ItemInfo GetUpdateItemByLevel(int level, bool flag) => this;
+    public ItemInfo HIOBANJPMKF(int level) => this;
     public List<UpgradeData> DNFDAGFAANJ(bool flag, int level) => new List<UpgradeData>();
     public ItemInfo MPADIPJLMLH(UpgradeData data) => this;
 }
 public class RewardItem {
     public string Name; public uint UpgradeNumber; public bool IDGKPLBKDIB = true;
+    public string UpgradeLevelExpression; public int EvaluateUpgradeLevel() => 0;
     public int CMEFKONFDKN() => 1;
 }
 public class Roster {

@@ -7,6 +7,8 @@ public class RewardItem : Rewardable
 
 	public uint UpgradeNumber;
 
+	internal string UpgradeLevelExpression { get; private set; }
+
 	protected string JNPPCEGFJLE;
 
 	public List<PerkStruct> LDLPCOFHFKE = new List<PerkStruct>();
@@ -18,6 +20,11 @@ public class RewardItem : Rewardable
 		Name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 		JNPPCEGFJLE = node.Attributes["Level"].CIPOICEEIBK(string.Empty);
 		UpgradeNumber = node.Attributes["UpgradeNumber"].ParseUint();
+		UpgradeLevelExpression = node.Attributes["UpgradeLevel"].CIPOICEEIBK(string.Empty);
+		if (UpgradeLevelExpression.Length != 0 && node.Attributes["UpgradeNumber"] != null)
+		{
+			throw new System.FormatException("Reward item cannot specify both UpgradeLevel and UpgradeNumber: " + Name);
+		}
 		XmlNode xmlNode = node["Enchantments"];
 		if (xmlNode == null)
 		{
@@ -32,12 +39,25 @@ public class RewardItem : Rewardable
 
 	public int CMEFKONFDKN()
 	{
+		return EvaluateLevelExpression(JNPPCEGFJLE).ToInt();
+	}
+
+	internal int EvaluateUpgradeLevel()
+	{
+		int value;
+		if (!int.TryParse(EvaluateLevelExpression(UpgradeLevelExpression), out value))
+			throw new System.FormatException("Reward upgrade level must evaluate to an integer: " + Name);
+		return value;
+	}
+
+	private string EvaluateLevelExpression(string expression)
+	{
 		FunctionExtension oPIFBDJNMKD = new FunctionExtension();
-		oPIFBDJNMKD.Parse(JNPPCEGFJLE);
+		oPIFBDJNMKD.Parse(expression);
 		oPIFBDJNMKD.PBPBNENGLPA(HJFEFJIEINN);
 		oPIFBDJNMKD.DMPCFMACDJM(OKPFNCJFLDL);
 		FunctionResult dEIHAOLOPLC = oPIFBDJNMKD.IBCPKBBAFNH();
-		return dEIHAOLOPLC.DCJLKCFKCOM.ToInt();
+		return dEIHAOLOPLC.DCJLKCFKCOM;
 	}
 
 	public void OKPFNCJFLDL(FunctionExtension.CallbackResult DCJLKCFKCOM)

@@ -418,6 +418,8 @@ public static class XmlUtils
 
 	public static XmlDocument AIFIAKNJMHG(string ONEIGMLOGDC, string LOBFDOKFJIP = "", EBLFEPIOMOL HDCCAKLHKBD = EBLFEPIOMOL.Normal, bool LELJDDBPCNL = true)
 	{
+		if (HDCCAKLHKBD == EBLFEPIOMOL.Normal || HDCCAKLHKBD == EBLFEPIOMOL.ForcedExternal)
+			Eclipse.Modding.ModRuntime.RecoverProfileSnapshot(string.IsNullOrEmpty(LOBFDOKFJIP) ? ONEIGMLOGDC : Path.Combine(ONEIGMLOGDC, LOBFDOKFJIP));
 		XmlDocument xmlDocument = OpenXMLDocument(ONEIGMLOGDC, LOBFDOKFJIP, HDCCAKLHKBD, LELJDDBPCNL);
 		if (xmlDocument != null && (HDCCAKLHKBD == EBLFEPIOMOL.Normal || HDCCAKLHKBD == EBLFEPIOMOL.ForcedExternal))
 		{
@@ -429,6 +431,7 @@ public static class XmlUtils
 
 	public static void ONLDJNLKKAL(XmlDocument JMCOLDENNDH, string KPFELJFPGHJ)
 	{
+		if (Eclipse.Modding.ModRuntime.TryWriteProfileSnapshot(JMCOLDENNDH, KPFELJFPGHJ)) return;
 		JMCOLDENNDH.Save(KPFELJFPGHJ);
 		UserDataValidator.UpdateFileHash(JMCOLDENNDH, KPFELJFPGHJ);
 	}

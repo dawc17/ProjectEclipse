@@ -2,7 +2,7 @@ schema = 1
 id = "example.story-observer"
 name = "Story Observer"
 version = "1.0.0"
-api = ">=0.30 <1.0"
+api = ">=0.40 <1.0"
 entrypoint = "scripts/main.lua"
 authors = ["Eclipse"]
 capabilities = ["story.events"]

@@ -4,6 +4,7 @@ using System.Xml;
 public class RewardLottery : Rewardable
 {
 	private string PBLBEFIGNAG;
+	internal string LotteryType => PBLBEFIGNAG;
 
 	public List<MANJCIGJPMK> EDCOGMLOEHE = new List<MANJCIGJPMK>();
 

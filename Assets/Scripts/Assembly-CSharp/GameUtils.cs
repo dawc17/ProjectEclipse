@@ -2087,6 +2087,9 @@ public static class GameUtils
 			LLLOJBFMONN.Error("0 == fightList");
 		}
 		if (!Eclipse.Modding.ModModeRuntime.CanResolve(KGKDKENMAOA)) return;
+		var eclipseStoryEncounter = KGKDKENMAOA.EclipseStoryEncounter;
+		if (!Eclipse.Modding.ModRuntime.StoryEvents.TryBeginEncounterResult(eclipseStoryEncounter)) eclipseStoryEncounter = null;
+		var eclipseStoryResult = eclipseStoryEncounter == null ? null : Eclipse.Modding.ModRuntime.CaptureBattleResult(nKGLHEGIKKP, KGKDKENMAOA, MHNEKAEGNBO, ABKBEJBICOA, LEBLJJCFKOP);
 		FightResult nHIDAJFLHJN = new FightResult();
 		nHIDAJFLHJN.KGKDKENMAOA = KGKDKENMAOA;
 		nHIDAJFLHJN.LFLGCDNKNJI = KGKDKENMAOA.get_Type();
@@ -2244,6 +2247,8 @@ public static class GameUtils
 		{
 			OFOKPNFGDMD("Stage Failed");
 		}
+		if (Eclipse.Modding.ModRuntime.StoryEvents.TryCompleteEncounterResult(eclipseStoryEncounter) && eclipseStoryResult != null)
+			Eclipse.Modding.ModRuntime.StoryEvents.Publish(eclipseStoryResult);
 	}
 
 	public static void CGFHDKDJCPL()
@@ -2303,6 +2308,8 @@ public static class GameUtils
 			}
 		}
 		if (!Eclipse.Modding.ModModeRuntime.Begin(KGKDKENMAOA)) return false;
+		var eclipseStoryEncounter = Eclipse.Modding.ModRuntime.StoryEvents.BeginEncounter();
+		KGKDKENMAOA.EclipseStoryEncounter = eclipseStoryEncounter;
 		if (KGKDKENMAOA.get_Type() != BattleType.FightPeriodic)
 		{
 			KGKDKENMAOA.FLKFFDLLBKA().CKJFJFPBIFF(ListSF.BLBNJKJKMBM());
@@ -2327,6 +2334,7 @@ public static class GameUtils
 			{
                 if (current != null) current.EnableMapButtons(true);
                 Eclipse.Modding.ModModeRuntime.CancelLaunch(KGKDKENMAOA);
+				Eclipse.Modding.ModRuntime.StoryEvents.CancelEncounter(eclipseStoryEncounter);
                 return false;
 			}
 		}

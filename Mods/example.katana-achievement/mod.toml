@@ -1,0 +1,12 @@
+schema = 1
+id = "example.katana-achievement"
+name = "Katana Achievement"
+version = "1.0.0"
+api = ">=0.40 <1.0"
+authors = ["Eclipse"]
+entrypoint = "scripts/main.lua"
+capabilities = ["content.register", "story.events", "progression.read", "progression.write"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0 <2.0"

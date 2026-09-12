@@ -16,16 +16,36 @@ namespace Eclipse.Modding
         public bool Owned => Present && Count > 0;
         public bool Equipped { get; }
         public int? Upgrade { get; }
-        public ModProfileItemSnapshot(bool present, int count, bool equipped, int? upgrade)
-        { Present=present; Count=present?count:0; Equipped=present&&equipped; Upgrade=present?upgrade:null; }
+        public string Type { get; }
+        public string Subtype { get; }
+        public ModProfileItemSnapshot(bool present, int count, bool equipped, int? upgrade, string type = null, string subtype = null)
+        { Present=present; Count=present?count:0; Equipped=present&&equipped; Upgrade=present?upgrade:null; Type=type; Subtype=subtype; }
     }
 
     // Host-only read services. Lua receives detached values, never the roster.
+    public sealed class ModProfilePerkSnapshot
+    {
+        public bool Learned { get; }
+        public int? Upgrade { get; }
+        public ModProfilePerkSnapshot(bool learned, int? upgrade)
+        { Learned = learned; Upgrade = learned ? upgrade : null; }
+    }
+
+    public sealed class ModProfileEquipmentSnapshot
+    {
+        public DefinitionId? Item { get; }
+        public ModProfileItemSnapshot State { get; }
+        public ModProfileEquipmentSnapshot(DefinitionId? item, ModProfileItemSnapshot state)
+        { Item=item; State=state ?? throw new ArgumentNullException(nameof(state)); }
+    }
+
     public static class ModProfileAccess
     {
         public static Func<int?> Level;
         public static Func<DefinitionId,ModProfileItemSnapshot> Item;
-        public static void Clear() { Level=null; Item=null; }
+        public static Func<DefinitionId,ModProfilePerkSnapshot> Perk;
+        public static Func<IReadOnlyList<ModProfileEquipmentSnapshot>> Equipment;
+        public static void Clear() { Level=null; Item=null; Perk=null; Equipment=null; }
     }
 
     public sealed class ModCounterDefinition

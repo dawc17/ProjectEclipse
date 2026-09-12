@@ -1,5 +1,5 @@
 {
-  "apiVersion": "0.33.0",
+  "apiVersion": "0.40.0",
   "functions": {
     "sf2.items.register_weapon": {
       "params": {
@@ -677,6 +677,17 @@
       "requires": "`content.register`.",
       "when": "During mod loading."
     },
+    "sf2.profile.perk": {
+      "params": {
+        "perk": "Eclipse.PerkHandle|string"
+      },
+      "returns": "A fresh table with `learned` (boolean) and `upgrade` (integer when learned; `nil` otherwise). Upgrade zero is a valid stored value; it does not mean unlearned. The number is the native `UpgradeLevel`, not a count of purchases.",
+      "capability": "profile.read",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileperk",
+      "summary": "Available since API **0.34**. Read whether the active profile has learned a perk and its stored upgrade number. This queries the learned-perk list, not temporary combat effects, equipment enchantments or whether a trigger is currently active.",
+      "requires": "`profile.read`. Pass a perk handle acquired in the same script context, or, since API 0.38, a qualified perk ID string. Other namespaces, including `core`, require a declared dependency. Strings need no `content.register` capability. Malformed IDs, wrong categories, unavailable definitions, forged handles and queries without an active profile raise errors.",
+      "when": "After the active game profile has loaded, for example in a UI or story callback. A profile switch or perk upgrade is reflected on the next query."
+    },
     "sf2.profile.level": {
       "params": {},
       "returns": "The active player's level as an integer.",
@@ -688,25 +699,25 @@
     },
     "sf2.profile.item": {
       "params": {
-        "item": "Eclipse.ItemHandle"
+        "item": "Eclipse.ItemHandle|string"
       },
       "returns": "A new snapshot table with these fields:",
       "capability": "profile.read",
       "url": "https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileitem",
       "summary": "",
-      "requires": "`profile.read` and an item handle obtained by this mod context. Declare dependencies when obtaining another mod's item handle.",
+      "requires": "`profile.read` and either an item handle obtained by this mod context or, since API 0.38, a qualified item ID string. Other namespaces, including `core`, require a declared dependency. String queries do not require `content.register`.",
       "when": "After a game profile has loaded."
     },
     "sf2.story.on": {
       "params": {
-        "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"",
+        "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"item_acquired\"|\"battle_result\"",
         "callback": "fun(event: Eclipse.StoryEvent)"
       },
       "returns": "An opaque subscription handle.",
       "capability": "story.events",
       "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon",
       "summary": "",
-      "requires": "`story.events`, an event name (`purchase`, `enchantment`, `level_up` or `scene_enter`) and a Lua function.",
+      "requires": "`story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.",
       "when": "During mod loading or a callback while the script is active, including before a profile loads."
     },
     "sf2.story.off": {
@@ -1140,6 +1151,15 @@
       "summary": "",
       "requires": "`content.patch`. The target must already be registered in your mod or an explicitly declared dependency. Declare `core` when targeting base quests.",
       "when": "During registration, before the mod entrypoint returns. Requires API 0.23 or newer. Changes take effect through Apply & Restart, before saved quests resume."
+    },
+    "sf2.profile.equipment": {
+      "params": {},
+      "returns": "A fresh contiguous array of snapshot tables. An empty array means no records are marked equipped. Each record contains:",
+      "capability": "profile.read",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileequipment",
+      "summary": "Available since API **0.39**. Inspect the active profile's equipped records without knowing their item IDs in advance.",
+      "requires": "`profile.read`. No item handles or `content.register` capability. An unavailable profile raises an error. Enumeration includes all native equipped records, including records from other mods. Passing a returned ID to a separate `profile.item` query still requires that namespace's declared dependency.",
+      "when": "After an active game profile has loaded, including UI and story callbacks."
     }
   },
   "aliases": {
@@ -2246,13 +2266,28 @@
         "points": "Eclipse.LocationCurvePoint[]"
       }
     },
+    "ProfilePerkSnapshot": {
+      "fields": {
+        "learned": "boolean",
+        "upgrade?": "integer"
+      }
+    },
     "ProfileItemSnapshot": {
       "fields": {
+        "type?": "string",
+        "subtype?": "string",
         "present": "boolean",
         "owned": "boolean",
         "count": "integer",
         "equipped": "boolean",
         "upgrade?": "integer"
+      }
+    },
+    "BattleEquipmentSnapshot": {
+      "fields": {
+        "item?": "string",
+        "type?": "string",
+        "subtype?": "string"
       }
     },
     "StorySubscription": {
@@ -2262,9 +2297,15 @@
     },
     "StoryEvent": {
       "fields": {
-        "kind": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"",
+        "kind": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"item_acquired\"|\"battle_result\"",
+        "fight?": "string",
+        "outcome?": "\"win\"|\"loss\"|\"surrender\"|\"raid_timeout\"|\"raid_round_timeout\"",
+        "eclipse?": "boolean",
+        "equipment?": "Eclipse.BattleEquipmentSnapshot[]",
         "item?": "string",
         "recipe?": "string",
+        "previous_count?": "integer",
+        "count?": "integer",
         "previous_level?": "integer",
         "level?": "integer",
         "scene?": "\"map\"|\"shop\"|\"profile\"|\"dojo\"|\"fight\""
@@ -2666,6 +2707,16 @@
     "QuestSuppression": {
       "fields": {
         "target": "string"
+      }
+    },
+    "ProfileEquipmentSnapshot": {
+      "fields": {
+        "item?": "string",
+        "type?": "string",
+        "subtype?": "string",
+        "owned": "boolean",
+        "count": "integer",
+        "upgrade?": "integer"
       }
     }
   }

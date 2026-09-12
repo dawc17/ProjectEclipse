@@ -192,6 +192,17 @@ nonnegative integer. Weights must be finite and greater than zero. Each group
 selects an item from its candidates. This is a content reward, not arbitrary
 script access to a currency balance.
 
+Legacy XML reward items also support `UpgradeLevel`, which is an encoded native
+upgrade level rather than the ordinal `UpgradeNumber` used by Lua's `upgrade`.
+For example, `UpgradeLevel="?Player[].Level*100"` evaluates through the native
+player-level expression resolver when the reward is selected. Selection uses the
+native quest-grant lookup: the first upgrade entry whose encoded level is at
+least the requested value. Negative values and unavailable upgrades fail reward
+selection; specifying both upgrade attributes fails parsing. Existing
+`UpgradeNumber` selection and clamping are unchanged. This compatibility support
+does not expose XML expressions through the Lua API or provide a complete
+interactive lottery workflow.
+
 ```lua
 local no_reward = sf2.rewards.register { id = "no_reward" }
 local victory_reward = sf2.rewards.register { id = "victory_reward", gems = 5 }
