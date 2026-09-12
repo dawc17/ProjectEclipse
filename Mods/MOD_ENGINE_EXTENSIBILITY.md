@@ -452,3 +452,9 @@ fields. Lua and projection fixtures pass; full-game opponent/progress acceptance
 remains pending. G01/E7 remain open for rewards, other core domains and broader
 composition. See PRE_DE_WORK_LOG.md for verification limits and remaining per-call
 patch rollback hardening.
+
+API 0.33 exposes scoped reward_drops patches for existing fights. Registered item
+rewards replace direct drops in one result/mode/level scope while preserving native
+economy and other scopes. Registration, conflicts, fingerprints, Lua and adapter
+connections are implemented; native settlement/full-game acceptance remain open.
+This advances G01/E7 without closing broad reward acquisition or lottery coverage.

@@ -455,6 +455,13 @@ namespace Eclipse.Modding
             return RequireRegistration().PatchFightWarriors(target, warriors);
         }
 
+        public DefinitionId PatchFightRewardDrops(string target, int wins, ModRuleMode mode,
+            int? minimumLevel, int? maximumLevel, DefinitionId reward)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchFightRewardDrops(target, wins, mode, minimumLevel, maximumLevel, reward);
+        }
+
         public DefinitionId PatchFightRounds(string target, int value)
         {
             RequireCapability("content.patch");

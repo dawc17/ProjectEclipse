@@ -1338,3 +1338,143 @@ builder; it does not prove the complete native warrior construction path. A
 separate remaining hardening issue is per-call rollback when Lua catches a later
 field validation failure with pcall: existing multi-field patch staging needs an
 atomic call boundary, beyond the tested entrypoint/commit transaction rollback.
+
+## Fight patch call rollback and sandbox correction
+
+Added a host-only atomic staging boundary around the Lua fight-patch binding.
+Failed field validation removes only that call's staged fight records and conflict
+keys; previous successful calls remain. Tests cover repeated failures, retry and a
+duplicate field already owned by an earlier call. The fixture now passes 125 checks.
+All four managed builds pass, as do editor generation/check and the wiki build
+(48 pages, 4,010 links/assets).
+
+Correction to the previous entry: production uses MoonSharp Preset_HardSandbox,
+which does not install pcall. An actual Lua regression attempt failed because
+pcall was nil; direct inspection confirmed this, while assert is present. The
+partial-call recovery scenario was therefore not reachable by current mod Lua.
+The new boundary is tested through the host facade, not advertised as working Lua
+pcall recovery. Entrypoint failures still abort the whole registration. The public
+fight reference and generated editor guidance now explain the distinction. No new
+Lua binding or version bump was added.
+
+Reward investigation: RewardPrize.Parse reads Money, Bonus, Exp, PrizeBase plus
+Money/Currency/Resistance/Lottery children; Reward additionally combines matching
+Level children with the base prize. RewardChoice permits mixed item and currency
+choices, so removing an item changes the remaining currency probabilities. The
+owned BuildRewardNode emits only Bonus, Item and item-only Choice entries. Replacing
+an existing native Reward with that output would erase economic and conditional
+semantics. Follow-up must target item grants with explicit result-slot and level
+semantics, preserve economic rows/attributes and mixed choices, and reject unsupported
+edits rather than silently narrowing native rewards. G01 reward editing stays open.
+
+## Targeted reward drop projection prerequisite
+
+Added ModRewardDropProjection in the existing owned runtime content source. This
+is a host helper, not a new public Lua API. It targets an existing zero-based native
+result row, shared/normal/Eclipse scope and optional exact level range. Missing
+mode/range scopes can be created within that row; result slots cannot be invented.
+It replaces direct Item and item-only Choice children while preserving the row's
+other attributes/children, including currency, experience, lottery and other level
+or mode scopes. Mixed choices reject editing because changing their item weights
+would change economic probabilities. Rewards carrying gems are rejected.
+
+Projection works on a detached clone and commits only after validation and builder
+success. Tests cover all six mode/level combinations, new level scope creation,
+ambiguous scopes, currency-bearing choices, nonexistent slots, reversed bounds,
+currency-bearing input, invalid builder output, builder failure and clearing drops.
+The fixture passes 152 checks, including the previous fight-patch coverage; all four
+managed builds pass. Builders and native reward settlement are not exercised by
+this helper fixture. Registration, conflicts, fingerprinting, Lua/editor/wiki,
+production adapter connection and end-to-end native settlement remain necessary
+before announcing supported reward patching. API remains 0.32.
+
+## API 0.33: scoped encounter item reward editing
+
+Connected reward_drops on fights.patch through capability-gated registration,
+immutable fight edits, semantic scope conflicts, content fingerprinting and both
+core/owned native fight adapters. Entries select an existing wins/result slot,
+shared/normal/Eclipse addition and optional exact player-level bounds. Registered
+reward handles provide items/choices; gems are rejected. Validation probes a cloned
+native source before staging succeeds. Later fight-field copies retain the edits.
+Missing mode/level scopes may be created; nonexistent result slots are rejected.
+
+Actual Lua tests cover registration, scope retention through later patches,
+fingerprints, committed projection, conflicts, independent mode edits, malformed
+arrays, invalid handles/bounds, currency rejection and transaction rollback. The
+fixture passes 174 checks. All four managed builds pass. Editor generation/check,
+23 project tests, LuaLS and eight isolated VS Code checks pass. Wiki builds 48 pages
+with 4,013 links/assets; it includes the typed schema, item-grant example, additive
+mode/level semantics and current verification limits. API schema now has 166 types.
+
+The production item builder/native reward parser/settlement combination still
+requires direct verification, followed by full-game reward UI, inventory grants,
+replays and disable/restart acceptance. The fixture's committed projection uses a
+controlled builder and does not prove that complete path. G01 remains open beyond
+this scoped item-drop capability; mixed economic choices, lotteries, enriched item
+metadata and broader content editing remain separate gaps.
+
+## Native item reward composition verification and lottery repairs
+
+Added TestRewardNative.ps1/ValidateRewardNative.cs. The runner reads production
+Reward, RewardStruct, RewardPrize, RewardChoice, RewardLottery and Rewardable,
+plus the exact native RewardItem constructor and adapter reward/item/name builders.
+It replaces anti-cheat numeric storage with primitive aliases and controls profile
+mode, math/scalar conversion, item-level expressions and non-item grant services.
+It does not execute inventory settlement or a full Unity fight.
+
+Initial 45 checks verified normal/Eclipse and level boundaries (2,3,9,10), original
+currency/experience/scaling, native item identity, upgrade/drop flags, item choices
+and repeated evaluation. Adding a shared lottery plus non-lottery Eclipse addition
+reproduced NullReferenceException in RewardPrize.HNJGHOKCDJF at
+Temp/RewardNative-3029d8cd3d8e4024bf0c27ed38923cb0/RewardPrize.cs:101.
+
+Fixed the native merge to inspect the incoming lottery before merging. Added an
+internal RewardLottery.CloneForRewardComposition that copies its slot collection;
+otherwise repeated evaluation mutates the shared source when mode lottery slots
+are appended. Expanded tests cover two lotteries, repeated evaluation, subsequent
+normal-mode evaluation and detached returned lists. All 49 checks pass. Lottery
+slot reward execution remains controlled, and this is not a recovered lottery UI.
+
+All four managed builds pass, editor generation/check passes, and wiki builds
+48 pages with 4,013 links/assets. Public verification notes distinguish this native
+builder/parser/composition evidence from remaining inventory, display, replay and
+save acceptance. No API version change (still 0.33).
+
+## Reward result selection verification
+
+Extended TestRewardNative to extract the exact FightResult item-selection overload.
+Production builder/parser output now reaches that method with controlled item
+catalog, ownership and upgrade services. Six new checks cover upgraded drop flags,
+retained grant metadata, owned equipment rejection, missing/null items, upgrade
+clamping and repeatable owned mod consumables. Total: 55 checks pass. No production
+change was needed. This verifies result selection, not inventory mutation/persistence.
+
+Public guidance now explains that already-owned equipment is skipped by native
+result handling, so acceptance needs an unowned item/test profile. Controlled
+item-level expression/upgrade services are explicitly outside this fixture's
+native coverage. Actual ListSF inventory granting and full-game acceptance remain.
+
+Canonical example correction: stages.xml gives BOSS_LYNX an EclipseToggleName of
+BOSS_LYNX_ECLIPSEMODE; both first fights have two reward rows. Changed the reward
+guide to target core:fights/zone_1/boss_lynx_eclipsemode/1 and explained that reward
+mode scopes do not follow battle links. Corrected opponent/manual instructions
+that previously implied a normal-fight patch would also affect its Eclipse replay.
+The guide's Monk weapon exists in canonical list.xml. This is a documentation and
+acceptance-target correction, not implicit patch propagation.
+
+## Runnable Eclipse reward acceptance example
+
+Added example.eclipse-reward with its own API 0.33 manifest and actual Lua script.
+It adds Monk's Katars to the one-win Eclipse scope of the first BOSS_LYNX_ECLIPSEMODE
+fight. It uses existing assets, adds no UI/map entry and does not unlock encounters.
+README explains owned-equipment suppression, restart restoration and pending
+full-game acceptance. Public examples index links the mod.
+
+Extended TestFightPatches to load the actual manifest and Lua in a separate discovery
+root against canonical stages and weapon records. It verifies the exact replay
+encounter, reward slot/mode, canonical item identity, unchanged other fights and
+unchanged native source/progress fields. Initial test compared a normalized ID's
+string to uppercase input; corrected it to compare parsed DefinitionId values.
+The complete fixture passes 179 checks. Editor check, 24 project tests and LuaLS
+pass; wiki builds 48 pages and validates 4,013 links/assets. No production code or
+API version change. Full-game loot display/grant/persistence remains pending.

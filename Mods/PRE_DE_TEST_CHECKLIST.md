@@ -292,7 +292,8 @@ In a test mod declaring content.register and content.patch, register an opponent
 using a known working template/loadout. Pass its warrior handle as the sole entry
 in warriors to sf2.fights.patch targeting core:fights/zone_1/boss_lynx/1.
 
-- Enter the first Lynx bodyguard fight in normal and Eclipse modes: confirm the
+- Test the normal encounter at that ID. To test the replay in Eclipse mode, also
+  patch core:fights/zone_1/boss_lynx_eclipsemode/1 with the warrior list. Confirm the
   replacement name, portrait, equipment, model and attacks.
 - Confirm the encounter retains its original campaign identity, unlock/progress,
   rules and rewards; replacing opponents must not reset completion.
@@ -303,3 +304,38 @@ in warriors to sf2.fights.patch targeting core:fights/zone_1/boss_lynx/1.
 These full-game checks remain pending. The automated fixture checks Lua validation,
 conflicts, order/fingerprints and XML collection replacement with a controlled
 warrior builder; it does not replace gameplay acceptance.
+
+## 14. Scoped fight item rewards (API 0.33)
+
+Use the item-drop example in the public fight-patch reference on a test profile.
+Its Eclipse target is core:fights/zone_1/boss_lynx_eclipsemode/1; vanilla uses a
+separate battle from BOSS_LYNX. A patch does not follow EclipseToggleName automatically.
+
+- Win the first Lynx bodyguard encounter in Eclipse mode: verify the configured
+  item appears in rewards and reaches inventory through native settlement.
+- Repeat in normal mode: the Eclipse-only addition must not appear.
+- Verify original money, gems, experience and shared rewards remain unchanged.
+- Add min_level/max_level bounds: test below, at and above each inclusive boundary.
+  Other matching native level rows still add their rewards.
+- Replay, save/reload and disable/restart: confirm native eligibility/progress rules
+  remain intact and disabling restores base reward definitions.
+- Test two mods targeting the same scope (conflict) and distinct scopes (coexistence).
+
+These are pending full-game checks. Automated registration/projection coverage does
+not yet verify the complete native item builder, parser and settlement path.
+
+Reward verification follow-up: 49 checks now execute production reward builders,
+item parsing, weighted selection and native mode/level composition with controlled
+host services. They also verify repaired lottery null merging and independent slot
+lists across repeated evaluations. Actual inventory settlement and full-game UI,
+replay eligibility and save/reload checks above remain pending.
+
+Result-selection follow-up: the fixture now passes 55 checks, including the actual
+FightResult item handler with controlled catalog/ownership/upgrade services.
+Already-owned equipment is skipped; use an unowned reward item or fresh test
+profile. Repeatable mod consumables retain their native repeat-grant exception.
+Actual inventory mutation and persistence remain unverified.
+
+Runnable fixture: enable example.eclipse-reward, Apply & Restart, and follow its
+README for section 14. Its actual manifest/Lua now passes canonical catalog checks;
+this does not mark the full-game grant and persistence checks complete.

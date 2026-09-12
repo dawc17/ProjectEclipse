@@ -239,3 +239,5 @@ capability diagnostics. Scene Menu demonstrates native navigation from game-styl
 UI; native quests can consume a request, and loading completion is asynchronous.
 
 API 0.32 adds FightPatch.warriors: an optional array of 1–100 unique warrior handles for replacing an existing encounter's opponents. See the fight patch reference for preservation and conflict semantics.
+
+API 0.33 adds FightPatch.reward_drops and typed RewardDropPatch entries for scoped item rewards. Currency and other native reward scopes are preserved; mixed economic choices reject replacement. See the fight patch reference for additive mode and level semantics.

@@ -1041,3 +1041,7 @@ With profile.read, sf2.profile.level() reads progression and sf2.profile.item(ha
 returns current presence, ownership, count, equipped flag and upgrade index.
 Obtain item handles during loading; query after profile loading. Snapshots are
 copies and do not mutate inventory. See the public Player profile queries page.
+
+API 0.33 runnable reward example: [Eclipse Item Reward](example.eclipse-reward/README.md)
+patches the first Lynx Eclipse replay's one-win item scope using core equipment.
+Use an unowned-item test profile; the normal battle is a separate definition.

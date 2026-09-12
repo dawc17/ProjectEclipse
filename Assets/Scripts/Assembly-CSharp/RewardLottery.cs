@@ -7,6 +7,13 @@ public class RewardLottery : Rewardable
 
 	public List<MANJCIGJPMK> EDCOGMLOEHE = new List<MANJCIGJPMK>();
 
+	internal RewardLottery CloneForRewardComposition()
+	{
+		var clone = (RewardLottery)MemberwiseClone();
+		clone.EDCOGMLOEHE = new List<MANJCIGJPMK>(EDCOGMLOEHE);
+		return clone;
+	}
+
 	public RewardLottery(XmlNode node, ushort CDCJKJNGPOE, ushort MCDAHGPLLDO)
 	{
 		CLOGJMBMMPI = GADCOGHCGDP.REWARD_LOTTERY;

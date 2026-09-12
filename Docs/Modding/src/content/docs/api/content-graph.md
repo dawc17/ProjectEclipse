@@ -247,7 +247,7 @@ to manage sequence progress and entry requirements.
 
 Replace supported fields on an existing registered fight.
 
-**Signature:** `sf2.fights.patch { target, description?, rounds?, round_time?, location?, music?, warriors?, rules?, append_rules? }`
+**Signature:** `sf2.fights.patch { target, description?, rounds?, round_time?, location?, music?, warriors?, reward_drops?, rules?, append_rules? }`
 
 **Requires:** `content.patch`, and a dependency on the target owner.
 
@@ -311,9 +311,15 @@ Competing changes to the same semantic field conflict. Different supported
 fields can coexist. Unsupported fields, missing targets, or undeclared owners
 fail registration.
 
+Fight fields from one call are staged together: a validation failure discards
+that call's fields, preserving earlier successful calls. A conflict discovered
+when committing the mod still rejects the entire registration transaction.
+The current Lua sandbox does not provide `pcall`/`xpcall`; an entrypoint error
+aborts loading rather than letting the script recover and continue.
+
 `rules` and `append_rules` address the same semantic field: competing rule-list
 patches conflict, including two append requests. A conflict rolls back the whole
-registration transaction. Encounter IDs, rewards, and saved campaign
+registration transaction. Encounter IDs and saved campaign
 progress are preserved. The patch is reapplied from base definitions at startup;
 disabling the mod and restarting restores base content. Content fingerprints
 distinguish appended rules from replacement, including an empty replacement.
@@ -330,5 +336,72 @@ sf2.fights.patch {
 
 `my_behavior` above must be a registered behavior handle. The complete
 `Mods/example.core-fight` mod demonstrates a health-dependent guard on an existing
-campaign opponent. These fields do not add reward replacement, a generic
-XML patch interface, or economy overrides.
+campaign opponent. These fields do not provide a generic XML patch interface or
+economy overrides. Reward editing is limited to the item-drop scopes below.
+
+
+### Editing encounter item drops
+
+Since API 0.33, `reward_drops` accepts 1–100 scoped edits. Each edit replaces the
+selected scope's direct item grants and item-only weighted choices. It does not
+replace the entire native reward row.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `wins` | Integer | Required | Existing zero-based reward slot, 0–100. Slot 0 is the zero-win result; slot 1 is one win. The slot must exist on the target fight. |
+| `reward` | Reward handle | Required | Registered reward supplying the replacement items/choices. Its `gems` must be zero. An empty reward clears direct drops. |
+| `mode` | `"all"`, `"normal"`, `"eclipse"` | `"all"` | Select the shared row or a mode-specific addition. |
+| `min_level` | Integer | Omitted | Inclusive lower player-level bound, 1–10,000. |
+| `max_level` | Integer | Omitted | Inclusive upper player-level bound, 1–10,000; must be at least the minimum. |
+
+With neither level bound, only the selected scope's direct drops change. With
+one or both bounds, the edit selects a native level row with exactly those bounds,
+creating it when absent. Omitted bounds stay unbounded. Other level rows remain
+unchanged, including overlapping ranges: native settlement adds every matching
+row. Duplicate matching scopes are rejected as ambiguous.
+
+**Modes are additive.** `"all"` edits the shared reward, which applies in both
+modes. `"eclipse"` edits only the extra Eclipse reward; shared items still apply.
+A missing mode scope is created within the existing result slot.
+
+A mode scope does not select a different battle. Some vanilla encounters use a
+separate Eclipse battle through `EclipseToggleName`. Lynx, for example, links
+`BOSS_LYNX` to `BOSS_LYNX_ECLIPSEMODE`: target the latter for the replay encounter,
+as below. Patching one fight does not automatically patch its linked counterpart.
+
+```lua
+local sf2 = require("sf2")
+local prize = sf2.rewards.register {
+    id = "eclipse_prize",
+    items = {{ item = sf2.items.get("core:items/weapon/WEAPON_C2_Z2_MONK_KATAR") }},
+}
+sf2.fights.patch {
+    target = "core:fights/zone_1/boss_lynx_eclipsemode/1",
+    reward_drops = {{ wins = 1, mode = "eclipse", reward = prize }},
+}
+```
+
+The example requires `content.register` and `content.patch`, plus
+a dependency on `core`. It changes a reward definition, not completion conditions:
+it does not unlock the fight, reset progress or make an item a one-time grant.
+Native repeat/reward settlement rules still apply. The native result handler skips
+equipment the profile already owns; test with an unowned item or a separate test
+profile. Mod-owned consumables retain their supported repeat-grant behavior.
+
+Money, premium currency, experience, reward scaling, lotteries, resistance and
+other scopes are preserved. A choice containing non-item outcomes is rejected:
+changing its item weights would also change currency probabilities. This operation
+does not edit lottery contents or nested item metadata/enchantments.
+
+Edits to the same fight/result/mode/exact-level scope conflict, including repeated
+edits by one mod. Distinct scopes coexist. All edits in one call share its rollback
+boundary. Content fingerprints include the scopes and reward identities; disabling
+the mod and restarting rebuilds the original definitions.
+
+Lua registration, scoped projection and rollback have automated coverage. A native
+fixture also exercises the production item builders, item parser, weighted choice,
+mode/level reward composition, repeated evaluation and native result item selection,
+with controlled profile, inventory lookup, item upgrade and numeric services. It verifies preserved currency values, item upgrade/drop flags
+and independent lottery slot lists. Full-game reward display, inventory granting,
+replay eligibility and save/reload acceptance remain pending; these fixtures alone
+do not establish DE reward parity.

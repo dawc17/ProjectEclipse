@@ -90,8 +90,9 @@ namespace Eclipse.Modding
         public DefinitionId[] Rules { get; }
         public bool AppendRules { get; }
         public DefinitionId[] Warriors { get; }
+        public RewardDropEdit RewardDrop { get; }
 
-        public FightFieldPatch(ModContentPatchRecord record, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false, DefinitionId[] warriors = null)
+        public FightFieldPatch(ModContentPatchRecord record, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false, DefinitionId[] warriors = null, RewardDropEdit rewardDrop = null)
         {
             Record = record ?? throw new ArgumentNullException(nameof(record));
             StringValue = stringValue;
@@ -99,6 +100,7 @@ namespace Eclipse.Modding
             Rules = rules == null ? null : (DefinitionId[])rules.Clone();
             AppendRules = appendRules;
             Warriors = warriors == null ? null : (DefinitionId[])warriors.Clone();
+            RewardDrop = rewardDrop;
         }
     }
 
@@ -141,7 +143,7 @@ namespace Eclipse.Modding
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "fights" &&
                 (field == FightDescription || field == FightRounds || field == FightRoundTime ||
-                 field == FightRules || field == FightLocation || field == FightMusic || field == FightWarriors))
+                 field == FightRules || field == FightLocation || field == FightMusic || field == FightWarriors || field.StartsWith("fight/reward-drops/", StringComparison.Ordinal)))
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "zones" && field.StartsWith(ZoneBattleChildren, StringComparison.Ordinal))
                 return ModContentFieldPolicy.Appendable;
@@ -990,11 +992,12 @@ namespace Eclipse.Modding
         public bool IsCore => Id.Namespace.Value == "core";
         internal string LegacyXml { get; }
         public bool ReplacesLegacyRules { get; }
+        public IReadOnlyList<RewardDropEdit> RewardDrops { get; }
 
         internal FightDefinition(DefinitionId id, DefinitionId battle, string legacyName, int replays,
             int replayInterval, int power, int rounds, int roundTime, string location, string music,
             float evaluatedRating, float healthRecovery, string description, bool locked, string rewardImage,
-            DefinitionId[] warriors, DefinitionId[] rules, DefinitionId[] rewards, string legacyXml = null, bool replacesLegacyRules = false)
+            DefinitionId[] warriors, DefinitionId[] rules, DefinitionId[] rewards, string legacyXml = null, bool replacesLegacyRules = false, RewardDropEdit[] rewardDrops = null)
         {
             if (replays < 0) throw new ModContentException("Fight replays must not be negative.");
             if (replayInterval < 0) throw new ModContentException("Fight replay interval must not be negative.");
@@ -1025,33 +1028,34 @@ namespace Eclipse.Modding
             _rewards = rewards == null ? Array.Empty<DefinitionId>() : (DefinitionId[])rewards.Clone();
             LegacyXml = legacyXml;
             ReplacesLegacyRules = replacesLegacyRules;
+            RewardDrops = Array.AsReadOnly(rewardDrops == null ? Array.Empty<RewardDropEdit>() : (RewardDropEdit[])rewardDrops.Clone());
         }
 
         internal FightDefinition WithDescription(string description)
         {
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, description, Locked, RewardImage,
-                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules, new List<RewardDropEdit>(RewardDrops).ToArray());
         }
 
         internal FightDefinition WithRounds(int rounds)
         {
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, rounds, RoundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
-                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules, new List<RewardDropEdit>(RewardDrops).ToArray());
         }
 
         internal FightDefinition WithRoundTime(int roundTime)
         {
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, roundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
-                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules, new List<RewardDropEdit>(RewardDrops).ToArray());
         }
         internal FightDefinition WithPresentation(string location, string music)
         {
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
                 location, music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
-                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules, new List<RewardDropEdit>(RewardDrops).ToArray());
         }
 
         internal FightDefinition WithRules(DefinitionId[] rules, bool append)
@@ -1065,7 +1069,15 @@ namespace Eclipse.Modding
             if (combined.Count > 100) throw new ModContentException("A patched fight supports at most 100 rule handles.");
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
-                _warriors, combined.ToArray(), _rewards, LegacyXml, ReplacesLegacyRules || !append);
+                _warriors, combined.ToArray(), _rewards, LegacyXml, ReplacesLegacyRules || !append, new List<RewardDropEdit>(RewardDrops).ToArray());
+        }
+
+        internal FightDefinition WithRewardDrop(RewardDropEdit edit)
+        {
+            var edits = new List<RewardDropEdit>(RewardDrops) { edit };
+            return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
+                Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
+                _warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules, edits.ToArray());
         }
 
         internal FightDefinition WithWarriors(DefinitionId[] warriors)
@@ -1074,7 +1086,7 @@ namespace Eclipse.Modding
                 throw new ModContentException("Patched warriors must contain 1..100 handles.");
             return new FightDefinition(Id, Battle, LegacyName, Replays, ReplayInterval, Power, Rounds, RoundTime,
                 Location, Music, EvaluatedRating, HealthRecovery, Description, Locked, RewardImage,
-                warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules);
+                warriors, _rules, _rewards, LegacyXml, ReplacesLegacyRules, new List<RewardDropEdit>(RewardDrops).ToArray());
         }
     }
 
@@ -1083,7 +1095,8 @@ namespace Eclipse.Modding
     {
         public static void Apply(System.Xml.XmlElement node, FightDefinition fight, string field,
             ModContentCatalog content, Func<FightRuleDefinition, System.Xml.XmlElement> buildRule,
-            Func<WarriorDefinition, System.Xml.XmlElement> buildWarrior = null)
+            Func<WarriorDefinition, System.Xml.XmlElement> buildWarrior = null,
+            Func<RewardDefinition, System.Xml.XmlElement> buildReward = null)
         {
             if (node == null || fight == null || content == null) throw new ArgumentNullException(nameof(node));
             if (field == ModContentPolicies.FightDescription) node.SetAttribute("Description", fight.Description);
@@ -1091,6 +1104,12 @@ namespace Eclipse.Modding
             else if (field == ModContentPolicies.FightRoundTime) node.SetAttribute("RoundTime", fight.RoundTime.ToString(System.Globalization.CultureInfo.InvariantCulture));
             else if (field == ModContentPolicies.FightLocation) node.SetAttribute("Location", fight.Location);
             else if (field == ModContentPolicies.FightMusic) node.SetAttribute("Music", fight.Music);
+            else if (field.StartsWith("fight/reward-drops/", StringComparison.Ordinal))
+            {
+                foreach (var edit in fight.RewardDrops)
+                    if (edit.Field == field) { edit.Apply(node, buildReward); return; }
+                throw new ModContentException("Missing committed reward edit.");
+            }
             else if (field == ModContentPolicies.FightWarriors)
             {
                 if (buildWarrior == null) throw new ArgumentNullException(nameof(buildWarrior));
@@ -1132,6 +1151,104 @@ namespace Eclipse.Modding
                 }
             }
             else throw new ModContentException("Unsupported committed fight patch field '" + field + "'.");
+        }
+    }
+
+    public sealed class RewardDropEdit
+    {
+        public int ResultIndex { get; }
+        public ModRuleMode Mode { get; }
+        public int? MinimumLevel { get; }
+        public int? MaximumLevel { get; }
+        public RewardDefinition Reward { get; }
+        public string Field => "fight/reward-drops/" + ResultIndex.ToString(CultureInfo.InvariantCulture) + "/" + Mode + "/" +
+            (MinimumLevel?.ToString(CultureInfo.InvariantCulture) ?? "*") + "/" + (MaximumLevel?.ToString(CultureInfo.InvariantCulture) ?? "*");
+        internal RewardDropEdit(int resultIndex, ModRuleMode mode, int? minimumLevel, int? maximumLevel, RewardDefinition reward)
+        { ResultIndex = resultIndex; Mode = mode; MinimumLevel = minimumLevel; MaximumLevel = maximumLevel; Reward = reward; }
+        public void Apply(System.Xml.XmlElement fight, Func<RewardDefinition, System.Xml.XmlElement> builder)
+        { ModRewardDropProjection.Apply(fight, ResultIndex, Mode, MinimumLevel, MaximumLevel, Reward, builder); }
+    }
+
+    // Shared projection for targeted item rewards; native economic data stays intact.
+    public static class ModRewardDropProjection
+    {
+        public static void Apply(System.Xml.XmlElement fight, int resultIndex, ModRuleMode mode,
+            int? minimumLevel, int? maximumLevel, RewardDefinition reward,
+            Func<RewardDefinition, System.Xml.XmlElement> buildReward)
+        {
+            if (fight == null || reward == null || buildReward == null) throw new ArgumentNullException();
+            if (resultIndex < 0 || resultIndex > 100) throw new ModContentException("Reward result index must be 0..100.");
+            if (mode != ModRuleMode.All && mode != ModRuleMode.Normal && mode != ModRuleMode.Eclipse)
+                throw new ModContentException("Unsupported reward mode.");
+            if (minimumLevel.HasValue && (minimumLevel < 1 || minimumLevel > 10000) ||
+                maximumLevel.HasValue && (maximumLevel < 1 || maximumLevel > 10000) ||
+                minimumLevel.HasValue && maximumLevel.HasValue && minimumLevel > maximumLevel)
+                throw new ModContentException("Reward level bounds must be ordered within 1..10000.");
+            if (reward.Gems != 0) throw new ModContentException("Item reward patches cannot change currency rewards.");
+            var rows = fight.SelectNodes("Rewards/Reward");
+            if (rows.Count <= resultIndex) throw new ModContentException("Reward result slot does not exist.");
+            var original = (System.Xml.XmlElement)rows[resultIndex];
+            var replacement = (System.Xml.XmlElement)original.CloneNode(true);
+            var scope = replacement;
+            if (mode != ModRuleMode.All)
+            {
+                string name = mode == ModRuleMode.Normal ? "NormalModeReward" : "EclipseModeReward";
+                var modes = scope.SelectNodes(name);
+                if (modes.Count > 1) throw new ModContentException("Reward mode scope is ambiguous.");
+                if (modes.Count == 1) scope = (System.Xml.XmlElement)modes[0];
+                else { scope = fight.OwnerDocument.CreateElement(name); replacement.AppendChild(scope); }
+            }
+            if (minimumLevel.HasValue || maximumLevel.HasValue)
+            {
+                System.Xml.XmlElement matching = null;
+                foreach (System.Xml.XmlElement level in scope.SelectNodes("Level"))
+                {
+                    if (ReadBound(level, "Min") != minimumLevel || ReadBound(level, "Max") != maximumLevel) continue;
+                    if (matching != null) throw new ModContentException("Reward level scope is ambiguous.");
+                    matching = level;
+                }
+                if (matching == null)
+                {
+                    matching = fight.OwnerDocument.CreateElement("Level");
+                    if (minimumLevel.HasValue) matching.SetAttribute("Min", minimumLevel.Value.ToString(CultureInfo.InvariantCulture));
+                    if (maximumLevel.HasValue) matching.SetAttribute("Max", maximumLevel.Value.ToString(CultureInfo.InvariantCulture));
+                    scope.AppendChild(matching);
+                }
+                scope = matching;
+            }
+            // A mixed choice's item weights also determine currency odds. Reject it
+            // rather than changing those odds or claiming its items were replaced.
+            foreach (System.Xml.XmlElement choice in scope.SelectNodes("Choice"))
+                RequireItemChoice(choice);
+            var built = buildReward(reward);
+            if (built == null || built.Name != "Reward" || built.Attributes.Count != 0)
+                throw new ModContentException("Item reward builder returned an unsupported payload.");
+            foreach (System.Xml.XmlNode child in built.ChildNodes)
+            {
+                if (!(child is System.Xml.XmlElement element)) continue;
+                if (element.Name == "Choice") RequireItemChoice(element);
+                else if (element.Name != "Item") throw new ModContentException("Item reward builder returned non-item content.");
+            }
+            foreach (System.Xml.XmlNode old in scope.SelectNodes("Item|Choice")) scope.RemoveChild(old);
+            foreach (System.Xml.XmlNode child in built.ChildNodes)
+                if (child is System.Xml.XmlElement) scope.AppendChild(fight.OwnerDocument.ImportNode(child, true));
+            // Commit only after every validation and builder operation succeeds.
+            original.ParentNode.ReplaceChild(replacement, original);
+        }
+
+        private static int? ReadBound(System.Xml.XmlElement element, string name)
+        {
+            if (!element.HasAttribute(name)) return null;
+            if (!int.TryParse(element.GetAttribute(name), NumberStyles.Integer, CultureInfo.InvariantCulture, out int value))
+                throw new ModContentException("Invalid native reward level bound.");
+            return value;
+        }
+
+        private static void RequireItemChoice(System.Xml.XmlElement choice)
+        {
+            foreach (System.Xml.XmlNode child in choice.ChildNodes)
+                if (child is System.Xml.XmlElement && child.Name != "Item")
+                    throw new ModContentException("Cannot replace a reward choice containing non-item outcomes.");
         }
     }
 
@@ -1764,6 +1881,7 @@ namespace Eclipse.Modding
                 else if (record.Field == ModContentPolicies.FightMusic) current = current.WithPresentation(current.Location, patch.StringValue);
                 else if (record.Field == ModContentPolicies.FightRules) current = current.WithRules(patch.Rules, patch.AppendRules);
                 else if (record.Field == ModContentPolicies.FightWarriors) current = current.WithWarriors(patch.Warriors);
+                else if (patch.RewardDrop != null) current = current.WithRewardDrop(patch.RewardDrop);
                 else throw new ModContentException("Unsupported fight patch field '" + record.Field + "'.");
                 replacements[record.Target] = current;
             }
@@ -2995,6 +3113,31 @@ namespace Eclipse.Modding
             }
         }
 
+        public DefinitionId PatchFightRewardDrops(string reference, int resultIndex, ModRuleMode mode,
+            int? minimumLevel, int? maximumLevel, DefinitionId rewardId)
+        {
+            ThrowIfCompleted();
+            ValidateDefinitionReferences(new[] { rewardId }, "rewards", default, "reward");
+            if (!_rewards.TryGetValue(rewardId, out var reward)) _catalog.TryGetReward(rewardId, out reward);
+            var edit = new RewardDropEdit(resultIndex, mode, minimumLevel, maximumLevel, reward);
+            DefinitionId result = default;
+            StageFightPatchCall(() =>
+            {
+                result = StageFightPatch(reference, edit.Field, null, 0, rewardDrop: edit);
+                _catalog.TryGetFight(result, out var fight);
+                var doc = new System.Xml.XmlDocument { XmlResolver = null };
+                if (!string.IsNullOrEmpty(fight.LegacyXml)) doc.LoadXml(fight.LegacyXml);
+                else
+                {
+                    doc.LoadXml("<Fight><Rewards/></Fight>");
+                    for (int i = 0; i < fight.Rewards.Count; i++) doc.DocumentElement["Rewards"].AppendChild(doc.CreateElement("Reward"));
+                }
+                // Validate the native scope without mutating catalog or game data.
+                edit.Apply(doc.DocumentElement, _ => doc.CreateElement("Reward"));
+            });
+            return result;
+        }
+
         public DefinitionId PatchFightWarriors(string reference, DefinitionId[] warriors)
         {
             if (warriors == null || warriors.Length < 1 || warriors.Length > 100)
@@ -3003,7 +3146,7 @@ namespace Eclipse.Modding
             return StageFightPatch(reference, ModContentPolicies.FightWarriors, null, 0, warriors: warriors);
         }
 
-        private DefinitionId StageFightPatch(string reference, string field, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false, DefinitionId[] warriors = null)
+        private DefinitionId StageFightPatch(string reference, string field, string stringValue, int intValue, DefinitionId[] rules = null, bool appendRules = false, DefinitionId[] warriors = null, RewardDropEdit rewardDrop = null)
         {
             ThrowIfCompleted();
             if (string.IsNullOrWhiteSpace(reference)) throw new ModContentException("Fight patch target must not be empty.");
@@ -3020,7 +3163,7 @@ namespace Eclipse.Modding
             EnsureCapacityForNewRegistration();
             if (!_patchKeys.Add(key)) throw new ModContentException("Duplicate fight patch for '" + id + "' field '" + field + "'.");
             var record = new ModContentPatchRecord(Mod.Id, id, field, ModContentPatchOperation.Replace);
-            _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue, rules, appendRules, warriors));
+            _fightPatches.Add(new FightFieldPatch(record, stringValue, intValue, rules, appendRules, warriors, rewardDrop));
             return id;
         }
 

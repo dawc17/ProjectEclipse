@@ -435,7 +435,8 @@ namespace Eclipse.Modding
                     throw new ModContentException("Recovered fight for core patch is unavailable: '" + fight.Id + "'.");
                 ModFightPatchProjection.Apply(fightNode, fight, patch.Field, _content,
                     rule => BuildRuleNode(fightNode.OwnerDocument, rule),
-                    warrior => BuildWarriorNode(fightNode.OwnerDocument, warrior));
+                    warrior => BuildWarriorNode(fightNode.OwnerDocument, warrior),
+                    reward => BuildRewardNode(fightNode.OwnerDocument, reward));
             }
 
             foreach (KeyValuePair<DefinitionId, XmlNode> pair in patched)
@@ -754,6 +755,7 @@ namespace Eclipse.Modding
                     throw new ModContentException("Fight references missing reward '" + fight.Rewards[i] + "'.");
                 rewards.AppendChild(BuildRewardNode(document, reward));
             }
+            foreach (var edit in fight.RewardDrops) edit.Apply(node, reward => BuildRewardNode(document, reward));
             return node;
         }
 

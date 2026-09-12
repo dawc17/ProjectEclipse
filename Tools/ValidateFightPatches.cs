@@ -85,24 +85,129 @@ public static class Program
         .GetProperty("LegacyXml",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).GetValue(fight);
     static void CaughtPatchFailures(string root)
     {
-        foreach (string failure in new[]{"rounds=0", "music=false", "append_rules={'fake'}", "round_time=0"})
+        var content=Catalog();var mod=ModDiscovery.DiscoverLoose(root).Mods.Single();
+        using(var tx=content.BeginRegistration(mod))
         {
-            var content=Catalog();
-            string script="local sf2=require('sf2');local a=sf2.warriors.register{id='a',level=3};"+
-                "sf2.fights.patch{target='"+target+"',round_time=123};"+
-                "local ok=pcall(function() sf2.fights.patch{target='"+target+"',warriors={a},description='leaked',"+failure+"} end);assert(not ok);"+
-                "sf2.fights.patch{target='"+target+"',warriors={a},description='accepted'}";
-            Check(Execute(root,content,script,out var error),"Caught patch validation/retry failed: "+error);
-            content.TryGetFight(DefinitionId.Parse(target),out var fight);
-            Check(content.Patches.Count==3&&fight.RoundTime==123&&fight.Warriors.Count==1&&fight.Description=="accepted","Caught error lost earlier patches or leaked failed fields");
+            var api=new ModApiFacade(mod,new AssetResolver(new IAssetProvider[]{new LooseModProvider(mod)}),tx,new ModStateRuntime(),null);
+            api.PatchFightMusic(target,"original");
+            foreach(var fail in new Action[]{()=>api.PatchFightRounds(target,0),()=>api.PatchFightRoundTime(target,0),()=>api.PatchFightMusic(target,"duplicate")})
+            {
+                bool rejected=false;
+                try { api.StageFightPatchCall(()=>{api.PatchFightDescription(target,"leaked");fail();}); }
+                catch(ModContentException) { rejected=true; }
+                Check(rejected,"Invalid host patch call accepted");
+            }
+            api.StageFightPatchCall(()=>{api.PatchFightDescription(target,"accepted");api.PatchFightRounds(target,3);});
+            tx.Commit();
         }
-        var duplicate=Catalog();
-        Check(Execute(root,duplicate,"local sf2=require('sf2');sf2.fights.patch{target='"+target+"',music='original'};"+
-            "assert(not pcall(function() sf2.fights.patch{target='"+target+"',description='leaked',music='duplicate'} end));"+
-            "sf2.fights.patch{target='"+target+"',description='accepted'}",out var duplicateError),duplicateError);
-        duplicate.TryGetFight(DefinitionId.Parse(target),out var kept);
-        Check(duplicate.Patches.Count==2&&kept.Music=="original"&&kept.Description=="accepted","Caught duplicate removed an earlier patch/key");
+        content.TryGetFight(DefinitionId.Parse(target),out var fight);
+        Check(content.Patches.Count==3&&fight.Music=="original"&&fight.Description=="accepted"&&fight.Rounds==3,
+            "Failed call leaked fields/keys or removed an earlier successful patch");
     }
+    static void RewardProjection(string root)
+    {
+        var content=Catalog();var mod=ModDiscovery.DiscoverLoose(root).Mods.Single();
+        using(var tx=content.BeginRegistration(mod))
+        {
+            var empty=tx.RegisterReward("empty",null,null);
+            var currency=tx.RegisterReward("currency",null,null,1);
+            const string source="<Fight Name='same'><Rewards><Reward Money='10'/><Reward Money='77' Bonus='2' Exp='4' PrizeBase='1'><Item Name='old'/><Choice><Item Name='old-choice'/></Choice><Currency Name='kept'/><Lottery Type='Gold'/><Level Min='3' Max='9' Exp='8'><Item Name='level-old'/></Level><NormalModeReward Money='20'><Item Name='normal-old'/></NormalModeReward><EclipseModeReward Exp='30'><Item Name='eclipse-old'/><Level Min='3' Max='9' Bonus='4'><Item Name='eclipse-level-old'/></Level></EclipseModeReward></Reward></Rewards><Rules><NoMagic/></Rules></Fight>";
+            Func<RewardDefinition,XmlElement> builder=r=>{var d=new XmlDocument();d.LoadXml("<Reward><Item Name='new' Drop='1'/><Choice><Item Name='choice-new' Weight='2'/></Choice></Reward>");return d.DocumentElement;};
+            foreach(var mode in new[]{ModRuleMode.All,ModRuleMode.Normal,ModRuleMode.Eclipse})
+            foreach(bool level in new[]{false,true})
+            {
+                var doc=new XmlDocument();doc.LoadXml(source);
+                ModRewardDropProjection.Apply(doc.DocumentElement,1,mode,level?(int?)3:null,level?(int?)9:null,empty,builder);
+                string path="Rewards/Reward[2]"+(mode==ModRuleMode.Normal?"/NormalModeReward":mode==ModRuleMode.Eclipse?"/EclipseModeReward":"")+(level?"/Level[@Min='3' and @Max='9']":"");
+                Check(doc.SelectSingleNode("Fight/"+path+"/Item").Attributes["Name"].Value=="new","Reward drop scope not replaced");
+                Check(doc.SelectNodes("Fight/"+path+"/Choice/Item[@Name='choice-new']").Count==1,"Reward choices not replaced");
+                // Strip only the two edited drop collections from before/after;
+                // everything else, including other scopes and economic data, must match.
+                var before=new XmlDocument();before.LoadXml(source);
+                var oldScope=before.SelectSingleNode("Fight/"+path);
+                var newScope=doc.SelectSingleNode("Fight/"+path);
+                if(oldScope==null) newScope.ParentNode.RemoveChild(newScope);
+                else
+                {
+                    foreach(XmlNode n in oldScope.SelectNodes("Item|Choice")) oldScope.RemoveChild(n);
+                    foreach(XmlNode n in newScope.SelectNodes("Item|Choice")) newScope.RemoveChild(n);
+                }
+                Check(doc.OuterXml==before.OuterXml,"Reward patch changed another slot, scope, currency, level or rule");
+            }
+            foreach(string bad in new[]{"<Choice><Item Name='a'/><Currency Name='b'/></Choice>","<Level Min='3' Max='9'/><Level Min='3' Max='9'/>","<NormalModeReward/><NormalModeReward/>"})
+            {
+                var doc=new XmlDocument();doc.LoadXml("<Fight><Rewards><Reward>"+bad+"</Reward></Rewards></Fight>");string before=doc.OuterXml;
+                bool rejected=false;try{ModRewardDropProjection.Apply(doc.DocumentElement,0,bad.StartsWith("<Normal")?ModRuleMode.Normal:ModRuleMode.All,bad.StartsWith("<Level")?(int?)3:null,bad.StartsWith("<Level")?(int?)9:null,empty,builder);}catch(ModContentException){rejected=true;}
+                Check(rejected&&doc.OuterXml==before,"Ambiguous/economic reward edit was not atomically rejected");
+            }
+            foreach(int failure in new[]{0,1,2,3,4})
+            {
+                var doc=new XmlDocument();doc.LoadXml(source);string before=doc.OuterXml;bool rejected=false;
+                try { ModRewardDropProjection.Apply(doc.DocumentElement,failure==0?99:1,ModRuleMode.All,failure==1?(int?)9:null,failure==1?(int?)3:null,failure==2?currency:empty,r=>{
+                    if(failure==3)throw new InvalidOperationException("builder failed");
+                    var d=new XmlDocument();d.LoadXml("<Reward><Money Value='99'/></Reward>");return d.DocumentElement;
+                }); } catch(Exception) { rejected=true; }
+                Check(rejected&&doc.OuterXml==before,"Failed reward edit mutated native data");
+            }
+            var clear=new XmlDocument();clear.LoadXml(source);
+            ModRewardDropProjection.Apply(clear.DocumentElement,1,ModRuleMode.All,null,null,empty,r=>clear.CreateElement("Reward"));
+            Check(clear.SelectNodes("Fight/Rewards/Reward[2]/Item|Fight/Rewards/Reward[2]/Choice").Count==0&&clear.SelectSingleNode("Fight/Rewards/Reward[2]/Currency")!=null,"Clear drops erased currency or retained direct drops");
+        }
+    }
+
+    static void RewardRegistration(string root)
+    {
+        const string setupReward="local sf2=require('sf2');local r=sf2.rewards.register{id='drops'};";
+        var content=Catalog();string before=Fingerprint(root,content);
+        Check(Execute(root,content,setupReward+"sf2.fights.patch{target='"+target+"',reward_drops={{wins=0,mode='eclipse',min_level=3,max_level=9,reward=r}},rounds=3}",out var error),error);
+        content.TryGetFight(DefinitionId.Parse(target),out var fight);
+        Check(fight.RewardDrops.Count==1&&fight.Rounds==3&&Fingerprint(root,content)!=before,"Reward edit not retained/fingerprinted with subsequent fields");
+        var doc=new XmlDocument();doc.LoadXml(Legacy(fight));
+        ModFightPatchProjection.Apply(doc.DocumentElement,fight,fight.RewardDrops[0].Field,content,null,null,r=>{
+            var d=new XmlDocument();d.LoadXml("<Reward><Item Name='patched'/></Reward>");return d.DocumentElement;
+        });
+        Check(doc.SelectSingleNode("Fight/Rewards/Reward/EclipseModeReward/Level/Item")!=null&&doc.SelectSingleNode("Fight/Rewards/Reward").Attributes["Coins"].Value=="123","Committed reward projection lost scope or original attributes");
+        string committed=Fingerprint(root,content);
+        Check(!Execute(root,content,"local sf2=require('sf2');local r=sf2.rewards.register{id='other'};sf2.fights.patch{target='"+target+"',reward_drops={{wins=0,mode='eclipse',min_level=3,max_level=9,reward=r}}}",out error),"Same reward scope did not conflict");
+        Check(Fingerprint(root,content)==committed&&content.Rewards.Count==1,"Reward conflict partially committed");
+        Check(Execute(root,content,"local sf2=require('sf2');local r=sf2.rewards.register{id='normal'};sf2.fights.patch{target='"+target+"',reward_drops={{wins=0,mode='normal',reward=r}}}",out error),error);
+        content.TryGetFight(DefinitionId.Parse(target),out fight);
+        Check(fight.RewardDrops.Count==2,"Independent reward scope erased prior edit");
+        foreach(string value in new[]{"{}","{[2]={wins=0,reward=r}}","{{wins=1,reward=r}}","{{wins=0,reward='fake'}}","{{wins=0,reward=r,min_level=10,max_level=3}}","{{wins=0,reward=r,coins=1}}","{{wins=0,reward=r},{wins=0,reward=r}}"})
+        {
+            var invalid=Catalog();
+            Check(!Execute(root,invalid,setupReward+"sf2.fights.patch{target='"+target+"',description='no leak',reward_drops="+value+"}",out error),"Invalid reward edit accepted: "+value);
+            Check(invalid.Rewards.Count==0&&invalid.Patches.Count==0,"Invalid reward edit leaked definitions");
+        }
+        Check(!Execute(root,Catalog(),"local sf2=require('sf2');local r=sf2.rewards.register{id='money',gems=1};sf2.fights.patch{target='"+target+"',reward_drops={{wins=0,reward=r}}}",out error),"Currency mutation through reward edit accepted");
+    }
+
+    static void EclipseRewardExample(string root,string repo)
+    {
+        var content=new ModContentCatalog();var stages=new XmlDocument();stages.Load(Path.Combine(repo,"Assets/vanillaXml/stages.xml"));
+        CoreContentImporter.ImportStages(content,stages.SelectSingleNode("Stages/Zones"));
+        var items=new XmlDocument();items.Load(Path.Combine(repo,"Assets/vanillaXml/list.xml"));
+        CoreContentImporter.ImportWeapons(content,items.SelectNodes("List/Items/Item[@Type='Weapon']").Cast<XmlNode>(),new System.Collections.Generic.Dictionary<string,XmlDocument>());
+        var original=content.Fights.ToDictionary(f=>f.Id);
+        string exampleRoot=Path.Combine(Path.GetDirectoryName(root),"RewardExample");
+        string savedEntry=entry,savedManifest=manifest;
+        entry=Path.Combine(exampleRoot,"example.eclipse-reward/scripts/main.lua");
+        manifest=Path.Combine(exampleRoot,"example.eclipse-reward/mod.toml");
+        Directory.CreateDirectory(Path.GetDirectoryName(entry));
+        File.Copy(Path.Combine(repo,"Mods/example.eclipse-reward/mod.toml"),manifest,true);
+        try
+        {
+            Check(Execute(exampleRoot,content,File.ReadAllText(Path.Combine(repo,"Mods/example.eclipse-reward/scripts/main.lua")),out var error),error);
+            var id=CoreContentImporter.FightId("ZONE_1","BOSS_LYNX_ECLIPSEMODE","1");
+            content.TryGetFight(id,out var fight);
+            Check(fight.RewardDrops.Count==1&&fight.RewardDrops[0].ResultIndex==1&&fight.RewardDrops[0].Mode==ModRuleMode.Eclipse,"Example targets wrong reward slot/mode");
+            Check(fight.RewardDrops[0].Reward.Items.Single().Item==DefinitionId.Parse("core:items/weapon/WEAPON_C2_Z2_MONK_KATAR"),"Example lost canonical item identity");
+            Check(content.Fights.Where(f=>f.Id!=id).All(f=>ReferenceEquals(f,original[f.Id])),"Example changed normal Lynx or another encounter");
+            Check(Legacy(fight)==Legacy(original[id])&&fight.Replays==original[id].Replays&&fight.Power==original[id].Power,"Example changed native reward source or replay/economy data");
+        }
+        finally {entry=savedEntry;manifest=savedManifest;}
+    }
+
     public static void Main(string[] args)
     {
         entry=Path.Combine(args[0],"example.battle-rules/scripts/main.lua");
@@ -167,6 +272,9 @@ public static class Program
         File.WriteAllText(manifest,originalManifest.Replace("\"content.register\"","\"content.register\", \"content.patch\""));
         WarriorPatches(args[0]);
         CaughtPatchFailures(args[0]);
+        RewardProjection(args[0]);
+        RewardRegistration(args[0]);
+        EclipseRewardExample(args[0],args[1]);
         var canonical = new ModContentCatalog(); var stages=new XmlDocument();
         stages.Load(Path.Combine(args[1],"Assets/vanillaXml/stages.xml"));
         Check(CoreContentImporter.ImportStages(canonical,stages.SelectSingleNode("Stages/Zones"))>0,"Canonical stage fixture is empty");

@@ -509,6 +509,14 @@ local RewardDefinition = {}
 ---@field locked? boolean
 local FightDefinition = {}
 
+---@class (exact) Eclipse.RewardDropPatch
+---@field wins integer
+---@field reward Eclipse.RewardHandle
+---@field mode? "all"|"normal"|"eclipse"
+---@field min_level? integer
+---@field max_level? integer
+local RewardDropPatch = {}
+
 ---@class (exact) Eclipse.FightPatch
 ---@field target string
 ---@field description? string
@@ -517,6 +525,7 @@ local FightDefinition = {}
 ---@field location? string
 ---@field music? string
 ---@field warriors? Eclipse.WarriorHandle[]
+---@field reward_drops? Eclipse.RewardDropPatch[]
 ---@field rules? Eclipse.RuleHandle[]
 ---@field append_rules? Eclipse.RuleHandle[]
 local FightPatch = {}

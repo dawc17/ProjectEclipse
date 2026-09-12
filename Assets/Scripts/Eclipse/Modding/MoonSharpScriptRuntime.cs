@@ -1691,13 +1691,40 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "target", "description", "rounds", "round_time", "location", "music", "rules", "append_rules", "warriors");
+                    ValidateFields(table, function, "target", "description", "rounds", "round_time", "location", "music", "rules", "append_rules", "warriors", "reward_drops");
                     if (!table.Get("rules").IsNil() && !table.Get("append_rules").IsNil())
                         throw new ModContentException("Choose either rules or append_rules, not both.");
                     string target = RequiredString(table, "target", function);
                     _api.StageFightPatchCall(() =>
                     {
                     bool changed = false;
+                    if (!table.Get("reward_drops").IsNil())
+                    {
+                        DynValue drops = table.Get("reward_drops");
+                        if (drops.Type != DataType.Table) throw new ModContentException("reward_drops must be an array.");
+                        int count = 0;
+                        foreach (TablePair pair in drops.Table.Pairs)
+                        {
+                            if (pair.Key.Type != DataType.Number || pair.Key.Number < 1 || pair.Key.Number > 100 || pair.Key.Number != Math.Floor(pair.Key.Number))
+                                throw new ModContentException("reward_drops must use contiguous integer keys 1..100.");
+                            count++;
+                        }
+                        if (count < 1 || count > 100) throw new ModContentException("reward_drops must contain 1..100 edits.");
+                        for (int i = 1; i <= count; i++)
+                        {
+                            DynValue entry = drops.Table.Get(i);
+                            if (entry.Type != DataType.Table) throw new ModContentException("reward_drops entries must be contiguous tables.");
+                            Table row = entry.Table;
+                            string where = function + ".reward_drops[" + i + "]";
+                            ValidateFields(row, where, "wins", "mode", "min_level", "max_level", "reward");
+                            _api.PatchFightRewardDrops(target, RequiredInt(row, "wins", where),
+                                ParseRuleMode(OptionalString(row, "mode", "all", where), where),
+                                row.Get("min_level").IsNil() ? (int?)null : RequiredInt(row, "min_level", where),
+                                row.Get("max_level").IsNil() ? (int?)null : RequiredInt(row, "max_level", where),
+                                RequiredHandle(row, "reward", _rewardHandles, "reward", where));
+                        }
+                        changed = true;
+                    }
                     if (!table.Get("warriors").IsNil())
                     {
                         _api.PatchFightWarriors(target, OptionalHandleArray(table, "warriors", _warriorHandles, "warrior", function));

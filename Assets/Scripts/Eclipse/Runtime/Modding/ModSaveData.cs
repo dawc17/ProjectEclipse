@@ -566,6 +566,11 @@ namespace Eclipse.Modding
                 Append(canonical, fight.Description); Append(canonical, fight.Locked);
                 Append(canonical, fight.RewardImage);
                 if (fight.ReplacesLegacyRules) Append(canonical, "replace-legacy-rules");
+                if (fight.RewardDrops.Count > 0)
+                {
+                    Append(canonical, "reward-drop-edits"); Append(canonical, fight.RewardDrops.Count);
+                    foreach (var edit in fight.RewardDrops) { Append(canonical, edit.Field); Append(canonical, edit.Reward.Id.ToString()); }
+                }
                 AppendIds(canonical, fight.Warriors); AppendIds(canonical, fight.Rules); AppendIds(canonical, fight.Rewards);
             }
 
