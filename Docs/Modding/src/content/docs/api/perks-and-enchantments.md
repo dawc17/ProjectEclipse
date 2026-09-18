@@ -56,6 +56,8 @@ Register a new perk backed by your own Lua behavior.
 | `behavior` | Behavior handle | Required. |
 | `kind` | Perk constant | Required: `sf2.perks.SINGLE` or `sf2.perks.COMBO`. |
 | `parameters` | Typed value table | Optional; must satisfy the behavior schema. |
+| `upgrades` | Dense upgrade array | Optional; 1–100 contiguous levels starting at 1. |
+| `initial_upgrade` | Integer | Optional, default `0`. Requires `upgrades`; must be from 0 through the declared upgrade count. |
 
 ```lua
 local focus = sf2.perks.register {
@@ -81,6 +83,13 @@ base description; supplied descriptions must be localization handles owned by
 this mod. An upgrade's parameters override the base independently, not the
 previous upgrade. Parameters use the behavior schema.
 
+`initial_upgrade` controls which declared rank is projected as the native baseline
+for a newly registered learned perk. `0` keeps the base perk plus all declared
+upgrade variants. A value from `1` through the upgrade count selects that rank as
+the initial native variant and omits the lower baseline/variants from the native
+projection. It does not rewrite existing saved learned-perk ranks; saved
+`UpgradeLevel` values keep their normal meaning.
+
 ```lua
 -- Fields to include in sf2.perks.register; Drain must be in the behavior schema.
 upgrades = {
@@ -105,8 +114,9 @@ full Unity profile selection and encounter validation remains pending.
 
 Equipment and warrior callbacks continue to use base parameters; they do not
 inherit the player's learned upgrade level. Disabling a mod removes its native
-variants and leaves its saved learned perk data intact. This API does not provide
-the style/combo/outgoing-damage hooks required to finish the archived DE perks.
+variants and leaves its saved learned perk data intact. Learned behaviors may use
+the documented style, combo and hit-phase callbacks when their archived behavior
+depends on those native events.
 
 ## sf2.enchantments.register
 

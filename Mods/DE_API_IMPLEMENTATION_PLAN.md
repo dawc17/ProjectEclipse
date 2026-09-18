@@ -1744,3 +1744,17 @@ slider widgets. See `PRE_DE_WORK_LOG.md` for exact contracts and verification an
 capabilities, not a DE port or evidence that all legacy parity requirements closed.
 Public usage is documented in the wiki's modes, moves, UI, content-graph and
 character-authoring pages.
+
+## Incremental DE128 production, 2026-09-18
+
+The owner now authorizes the downstream DE mod in bounded steps, entirely through
+Lua, with a report and explicit approval before each subsequent step. This
+supersedes the earlier blanket deferral of P4. `Mods/de128` covers P4.1 and a
+bounded P4.2/P4.3 slice. The owner rejected the Ascension prototype; version 0.5.0
+comments it out and implements Master of Style and Relentless directly from
+archived perk, progression and move XML. Precise hit phases, timed status icons,
+initial learned ranks and targeted move-lock removals support that content.
+The configured Desolator reward and earlier foundations remain.
+See [its production record](de128/PRODUCTION.md) for intent, tests, reward timing
+limits and the remaining pending-order/service-surface gaps. Full content
+conversion and parity acceptance remain open.

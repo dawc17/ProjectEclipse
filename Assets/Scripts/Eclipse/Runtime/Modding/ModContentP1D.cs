@@ -660,7 +660,7 @@ namespace Eclipse.Modding
         private readonly Dictionary<DefinitionId, TacticDefinition> _p1dTactics = new Dictionary<DefinitionId, TacticDefinition>();
 
         private int P1DRegistrationCount => _p1dLocales.Count + _p1dLocations.Count + _p1dMoveTemplates.Count +
-            _p1dMoves.Count + _p1dMoveTriggers.Count + _p1dTactics.Count;
+            _p1dMoves.Count + _p1dMoveTriggers.Count + _p1dTactics.Count + MovePerkLockRegistrationCount;
 
         public LocaleMetadataDefinition RegisterLocaleMetadata(string localId, string name, string locale, string alias,
             string fileIcon, string fileIconSelected, string loaderImage, string preloaderImage, bool isAsian,
@@ -762,6 +762,7 @@ namespace Eclipse.Modding
             MoveTriggerDefinition[] triggers = Values(_p1dMoveTriggers);
             TacticDefinition[] tactics = Values(_p1dTactics);
             _catalog.ValidateP1DCanAdd(locales, locations, templates, moves, triggers, tactics);
+            ValidateMovePerkLockCommit();
             for (int i = 0; i < templates.Length; i++) ValidateTemplateRefs(templates[i]);
             for (int i = 0; i < moves.Length; i++) ValidateTemplateRefs(moves[i]);
             for (int i = 0; i < triggers.Length; i++) ValidateMovePerkRefs(triggers[i].Conditions);
@@ -778,12 +779,14 @@ namespace Eclipse.Modding
         {
             _catalog.AddP1D(Values(_p1dLocales), Values(_p1dLocations), Values(_p1dMoveTemplates),
                 Values(_p1dMoves), Values(_p1dMoveTriggers), Values(_p1dTactics));
+            ApplyMovePerkLockCommit();
         }
 
         private void ClearP1DPending()
         {
             _p1dLocales.Clear(); _p1dLocations.Clear(); _p1dMoveTemplates.Clear(); _p1dMoves.Clear();
             _p1dMoveTriggers.Clear(); _p1dTactics.Clear();
+            ClearMovePerkLockPending();
         }
 
         private void ValidateTemplateRefs(MoveNodeDefinition node)

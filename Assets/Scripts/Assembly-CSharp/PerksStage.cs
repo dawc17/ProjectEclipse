@@ -30,7 +30,11 @@ public class PerksStage : global::EventDispatcher<PerksStage.PerkEventStruct>
 
 		public bool FLNCPBKBJBL;
 
-		public int MGDCIODPHCH;
+			public int MGDCIODPHCH;
+
+			// Eclipse-authored status icons use this because the recovered ApplyModEffect
+			// parser omitted DE's XML StackCount handling.
+			public int EclipseStackCount;
 
 		public ItemInfo PreviousMagic;
         public Dictionary<string, int> AppliedAttributes;
@@ -66,7 +70,8 @@ public class PerksStage : global::EventDispatcher<PerksStage.PerkEventStruct>
 			NHKMCLPOMFK = IBODMPMJELJ.NHKMCLPOMFK;
 			GJONJADIAJM = IBODMPMJELJ.GJONJADIAJM;
 			FLNCPBKBJBL = IBODMPMJELJ.FLNCPBKBJBL;
-			MGDCIODPHCH = IBODMPMJELJ.MGDCIODPHCH;
+				MGDCIODPHCH = IBODMPMJELJ.MGDCIODPHCH;
+				EclipseStackCount = IBODMPMJELJ.EclipseStackCount;
 			PreviousMagic = IBODMPMJELJ.PreviousMagic;
             AppliedAttributes = IBODMPMJELJ.AppliedAttributes == null ? null :
                 new Dictionary<string, int>(IBODMPMJELJ.AppliedAttributes);

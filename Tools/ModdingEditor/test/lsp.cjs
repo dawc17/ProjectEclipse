@@ -201,9 +201,29 @@ async function main() {
         return ['level','description','parameters'].every(name=>found.some(value=>value.startsWith(name)));
     },'perk upgrade entry fields');
     console.log('PASS: perk upgrade entries complete');
+    const rewardContext=probe('reward-configure-context.lua','local sf2=require("sf2")\nsf2.rewards.register { id="reward",items={{item=sf2.items.get("core:items/weapon/WEAPON_KNIVES"),configure=function(context)\n local value=context.|\n return {}\nend}} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',rewardContext));
+        return ['player_level','item_id'].every(name=>found.includes(name));
+    },'reward configure context fields');
+    const rewardGrant=probe('reward-configure-grant.lua','local sf2=require("sf2")\nsf2.rewards.register { id="reward",items={{ | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',rewardGrant));
+        return ['item','upgrade','configure'].every(name=>found.some(value=>value===name||value===name+'?'||value.startsWith(name+' ')));
+    },'reward grant fields');
+    console.log('PASS: reward grant configure completes and callback context is inferred');
     const outgoing=probe('outgoing.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="test",on_damage_dealing=function(_,fighter,event)\n fighter:|\nend }');
-    await until(async()=>labels(await request('textDocument/completion',outgoing)).some(name=>name.startsWith('scale_outgoing_damage')),'outgoing fighter method inference');
+    await until(async()=>{const found=labels(await request('textDocument/completion',outgoing));return ['scale_outgoing_damage','add_outgoing_damage'].every(method=>found.some(name=>name.startsWith(method)));},'outgoing fighter method inference');
     console.log('PASS: outgoing damage callbacks infer the scoped modifier');
+    for (const callback of ['on_hit_post_crit','on_post_hit']) {
+        const hit=probe(callback+'-event.lua',`local sf2=require("sf2")\nsf2.behaviors.register { id="test",${callback}=function(_,fighter,event)\n local value=event.|\nend }`);
+        await until(async()=>{const found=labels(await request('textDocument/completion',hit));return ['damage','blocked','critical','target','weapon','unarmed','ranged','magic'].every(field=>found.includes(field));},callback+' event fields');
+    }
+    const postHit=probe('post-hit-fighter.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="test",on_post_hit=function(_,fighter,event)\n fighter:|\nend }');
+    await until(async()=>{const found=labels(await request('textDocument/completion',postHit));return ['scale_outgoing_damage','add_outgoing_damage','show_status_icon','clear_status_icon'].every(method=>found.some(name=>name.startsWith(method)));},'post-hit fighter methods');
+    const postCrit=probe('post-crit-fighter.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="test",on_hit_post_crit=function(_,fighter,event)\n fighter:|\nend }');
+    await until(async()=>{const found=labels(await request('textDocument/completion',postCrit));return !found.some(name=>name.startsWith('add_outgoing_damage'));},'post-crit remains read-only for pending hit');
+    console.log('PASS: native hit-phase callbacks and scoped outgoing operations complete');
     for (const [callback,field] of [['on_combo_changed','last_combo'],['on_style_changed','style_rank'],['on_tick','delta_frames']]) {
         const position=probe(callback+'.lua',`local sf2=require("sf2")\nsf2.behaviors.register { id="test",${callback}=function(_,fighter,event)\n local value=event.|\nend }`);
         await until(async()=>labels(await request('textDocument/completion',position)).includes(field),callback+' event inference');
@@ -282,6 +302,31 @@ async function main() {
     await until(async()=>labels(await request('textDocument/completion',aiDecision)).includes('actions'),'AI decision completion');
     const prepare=probe('prepare.lua','local sf2=require("sf2")\nsf2.modes.register { id="mode",fights={},on_prepare=function(request,event)\n local value=event.|\nend }');
     await until(async()=>labels(await request('textDocument/completion',prepare)).includes('step'),'mode preparation completion');
+    const encounterPlan=probe('encounter-plan.lua','local sf2=require("sf2")\nsf2.modes.register { id="mode",fights={},on_prepare=function(request)\n sf2.modes.resolve(request, { | })\nend }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',encounterPlan));
+        return ['rules','description'].every(field=>found.some(name=>name===field||name===field+'?'||name.startsWith(field+' ')));
+    },'encounter plan dynamic rule fields');
+    const hotGround=probe('hot-ground.lua','local sf2=require("sf2")\nsf2.rules.hot_ground { | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',hotGround));
+        return ['id','frames','nodes','animations','target','mode','rounds'].every(field=>found.some(name=>name===field||name===field+'?'||name.startsWith(field+' ')));
+    },'hot ground rule fields');
+    const hotGroundNode=probe('hot-ground-node.lua','local sf2=require("sf2")\nsf2.rules.hot_ground { id="floor",frames=300,nodes={{ | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',hotGroundNode));
+        return ['name','axis','min','max'].every(field=>found.some(name=>name===field||name===field+'?'||name.startsWith(field+' ')));
+    },'hot ground node fields');
+    const nativeRule=probe('native-rule.lua','local sf2=require("sf2")\nsf2.rules.|');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',nativeRule));
+        return ['hot_ground','ring_out','regeneration','no_animation','remove_interval'].every(field=>found.some(name=>name.startsWith(field)));
+    },'native challenge rule functions');
+    const movePatch=probe('move-perk-lock.lua','local sf2=require("sf2")\nsf2.moves.remove_perk_lock { | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',movePatch));
+        return ['move','perk'].every(field=>found.some(name=>name===field||name.startsWith(field+' ')));
+    },'move perk-lock removal fields');
     const body=probe('body.lua','local sf2=require("sf2")\nsf2.warriors.register { | }');
     await until(async()=>labels(await request('textDocument/completion',body)).some(name=>name.startsWith('body_model')),'character model completion');
     const attack=probe('attack.lua','local sf2=require("sf2")\nsf2.moves.register { intervals={{type="Attack",attack={ | }}} }');

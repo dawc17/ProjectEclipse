@@ -1,8 +1,13 @@
 # Roadmap status and measurement
 
-Last reconciled: 2026-09-12. Scope remains **G01–G14 plus E1–E8**. The DE port is
-excluded until separately authorized. This document does not replace or reduce
-the requirements in the two source roadmaps.
+Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
+On 2026-09-18 the owner separately authorized incremental DE128 production, one
+approved step at a time. Its policies, Desolator reward, XML-evidenced combat perks and gaps
+are tracked in [the DE128 production record](de128/PRODUCTION.md). This does not
+close the engine roadmap or reduce either source roadmap's requirements.
+
+The owner rejected the Ascension prototype on 2026-09-18. It is commented out;
+its earlier fixture results are historical and do not count as active DE content.
 
 ## Reporting rule
 

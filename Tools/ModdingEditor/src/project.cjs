@@ -38,8 +38,27 @@ function manifest(text){
 }
 async function walk(root){const files=[],pending=[root];while(pending.length){let entries;const folder=pending.pop();try{entries=await fs.readdir(folder,{withFileTypes:true});}catch(e){if(e.code==='ENOENT')continue;throw e;}for(const entry of entries){if(entry.isSymbolicLink())continue;const file=path.join(folder,entry.name);if(entry.isDirectory())pending.push(file);else if(entry.isFile())files.push(file);if(files.length>MAX_FILES)throw new Error(`Mod contains more than ${MAX_FILES} indexed files.`);}}return files;}
 function assetKind(relative){const ext=path.extname(relative).toLowerCase(),id=slash(relative).toLowerCase();if(ext==='.asset')return 'sprite';if(ext==='.png')return 'texture';if(ext==='.xml'&&id.startsWith('models/'))return 'model';if(ext==='.wav')return 'audio';if(['.ogg','.mp3'].includes(ext))return 'unsupported-audio';if(['.xml','.toml','.json','.txt','.lua'].includes(ext))return 'text';return 'binary';}
+function canonicalModuleName(module){
+    if(typeof module!=='string'||!module.length||module.trim()!==module||module.includes('/')||module.includes('\\')||module.includes(':')||module.startsWith('.')||module.endsWith('.')||module.includes('..'))return null;
+    return /^[A-Za-z0-9_.-]+$/.test(module)?module.toLowerCase():null;
+}
+function literalRequires(text){
+    const ast=parse(text),modules=[];if(!ast)return modules;
+    const visit=n=>{if(!n||typeof n!=='object')return;if(['CallExpression','TableCallExpression','StringCallExpression'].includes(n.type)&&n.base?.type==='Identifier'&&n.base.name==='require'){
+        const args=Array.isArray(n.arguments)?n.arguments:n.arguments?[n.arguments]:n.argument?[n.argument]:[],module=literal(args[0]);
+        if(typeof module==='string'&&module!=='sf2'){const canonical=canonicalModuleName(module);if(canonical)modules.push(canonical);}
+    }for(const [key,value] of Object.entries(n)){if(['loc','range','comments'].includes(key))continue;if(Array.isArray(value))for(const child of value)visit(child);else if(value&&typeof value==='object')visit(value);}};
+    visit(ast);return modules;
+}
 async function indexMod(root,read=async f=>fs.readFile(f,'utf8')){
     const parsed=manifest(await read(path.join(root,'mod.toml'))),assets=new Map(),localizations=new Map(),issues=[];
+    const addLocalization=(id,language,value,file,line)=>{
+        const normalized=normalizeLocalizationLanguage(language);
+        if(!normalized){issues.push({file,line,message:`Unsafe localization language: ${language}.`});return;}
+        const record=localizations.get(id)??{id,translations:[]};
+        if(record.translations.some(t=>t.language===normalized)){issues.push({file,line,message:`Duplicate localization '${id}' for language '${normalized}'.`});return;}
+        record.translations.push({language:normalized,value,file,line});localizations.set(id,record);
+    };
     for(const file of await walk(path.join(root,'assets'))){
         const relative=slash(path.relative(path.join(root,'assets'),file));
         const id=relative.slice(0,path.extname(relative)?-path.extname(relative).length:undefined).toLowerCase(),kind=assetKind(relative);
@@ -61,12 +80,29 @@ async function indexMod(root,read=async f=>fs.readFile(f,'utf8')){
             const m=/^([^=]+)=\s*(.+)$/.exec(clean);if(!m){issues.push({file,line,message:'Expected localization key = "text".'});return;}
             const id=m[1].trim();let value;try{value=parseValue(m[2].trim());if(typeof value!=='string')throw Error();}catch{issues.push({file,line,message:'Localization values must be quoted strings.'});return;}
             if(seen.has(id))issues.push({file,line,message:`Duplicate localization key: ${id}.`});seen.add(id);
-            const record=localizations.get(id)??{id,translations:[]};record.translations.push({language,value,file,line});localizations.set(id,record);
+            addLocalization(id,language,value,file,line);
         });
     }
-    if(safe(parsed.data.entrypoint))try{await fs.access(path.join(root,parsed.data.entrypoint));}catch{parsed.issues.push({line:parsed.positions.entrypoint??0,message:`Entrypoint file is missing: ${parsed.data.entrypoint}.`});}
+    if(safe(parsed.data.entrypoint)){
+        const entrypoint=path.join(root,parsed.data.entrypoint);
+        try{
+            await fs.access(entrypoint);
+            const pending=[entrypoint],visited=new Set(),temporary={root,...parsed,assets,localizations,issues:[]};
+            while(pending.length){
+                const file=pending.pop(),key=path.resolve(file).toLowerCase();if(visited.has(key))continue;visited.add(key);
+                let source;try{source=await read(file);}catch(e){if(e.code==='ENOENT')continue;throw e;}
+                for(const call of analyze(source,temporary).calls.filter(c=>c.name==='sf2.localization.register')){
+                    const definition=fields(call.args[0]),id=literal(definition.id),language=literal(definition.language),value=literal(definition.value);
+                    if(typeof id==='string'&&id.length&&typeof language==='string'&&typeof value==='string'&&value.length)
+                        addLocalization(id,language,value,file,call.node.loc?.start?.line?call.node.loc.start.line-1:undefined);
+                }
+                for(const module of literalRequires(source))pending.push(path.join(root,'scripts',...module.split('.'))+'.lua');
+            }
+        }catch(e){if(e.code==='ENOENT')parsed.issues.push({line:parsed.positions.entrypoint??0,message:`Entrypoint file is missing: ${parsed.data.entrypoint}.`});else throw e;}
+    }
     return {root,...parsed,assets,localizations,issues:[...issues,...parsed.issues.map(x=>({...x,file:path.join(root,'mod.toml')}))]};
 }
+function normalizeLocalizationLanguage(language){if(typeof language!=='string'||!language.trim())return null;const value=language.trim().toLowerCase();return /^[a-z0-9_-]+$/.test(value)?value:null;}
 const literal=n=>n?.type==='UnaryExpression'&&n.operator==='-'?-literal(n.argument):n?.type==='StringLiteral'?(n.value??n.raw.slice(1,-1).replace(/\\(["'\\])/g,'$1')):n?.type==='NumericLiteral'||n?.type==='BooleanLiteral'?n.value:undefined;
 const fields=n=>Object.fromEntries((n?.fields??[]).filter(f=>f.type==='TableKeyString'||f.type==='TableKey').map(f=>[f.key.name??literal(f.key),f.value]));
 function parse(text){try{return lua.parse(text,{luaVersion:'5.2',locations:true,ranges:true,comments:false});}catch{return null;}}
@@ -82,6 +118,12 @@ function analyze(text,mod){
             const symbol=resolve(n.base,env),args=Array.isArray(n.arguments)?n.arguments:n.arguments?[n.arguments]:n.argument?[n.argument]:[];
             const name=api.aliases[symbol]??symbol,info=api.functions[name];
             if(info){calls.push({name,node:n,args});required(n,info.capability);
+                if(name==='sf2.localization.register'){
+                    const definition=fields(args[0]),id=literal(definition.id),language=literal(definition.language),value=literal(definition.value);
+                    if(typeof id==='string'&&(!id.trim()||id.includes(':')))add(definition.id,'localization-id','id must be a nonempty local localization key, without a namespace.');
+                    if(typeof language==='string'&&!normalizeLocalizationLanguage(language))add(definition.language,'localization-language','language must contain only letters, digits, underscores or hyphens.');
+                    if(typeof value==='string'&&!value.length)add(definition.value,'localization-value','value must be a nonempty string.');
+                }
                 if(info.referenceKind&&typeof literal(args[0])==='string'){
                     const reference=literal(args[0]),colon=reference.indexOf(':'),owner=colon<0?mod.data.id:reference.slice(0,colon),id=colon<0?reference:reference.slice(colon+1);
                     if(owner!==mod.data.id&&!dependencies.has(owner))add(args[0],'dependency',`Declare dependency "${owner}" before referencing its content.`);
@@ -124,4 +166,4 @@ function completionContext(text,offset,mod){
     }
     if(!result)return null;return {name:result.name,kind:api.functions[result.name]?.referenceKind,start,prefix:match[2]};
 }
-module.exports={manifest,indexMod,walk,assetKind,analyze,completionContext,literal,fields,safe,stripComment,parseValue};
+module.exports={manifest,indexMod,walk,assetKind,analyze,completionContext,literal,fields,safe,stripComment,parseValue,normalizeLocalizationLanguage,canonicalModuleName,literalRequires};

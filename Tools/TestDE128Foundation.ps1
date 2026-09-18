@@ -1,0 +1,48 @@
+$ErrorActionPreference = 'Stop'
+$root = Split-Path -Parent $PSScriptRoot
+$modSource = Join-Path $root 'Mods/de128'
+$moon = Join-Path $root 'Library/ScriptAssemblies/MoonSharp.Interpreter.dll'
+if (!(Test-Path -LiteralPath $moon -PathType Leaf)) {
+    throw "Missing project MoonSharp assembly: $moon. Import the project in Unity first."
+}
+if (!(Test-Path -LiteralPath (Join-Path $modSource 'mod.toml') -PathType Leaf)) {
+    throw "Missing DE128 package: $modSource"
+}
+
+# Each run owns a fresh directory. Existing fixtures and player saves are untouched.
+$fixture = Join-Path $root ('Temp/DE128Foundation-' + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $fixture | Out-Null
+$runtimeSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding') -Filter '*.cs' -File
+$bindingSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding') -Filter 'MoonSharpScriptRuntime*.cs' -File
+$compileFiles = @($runtimeSources.FullName) + @($bindingSources.FullName) + @(
+    (Join-Path $PSScriptRoot 'DE128FoundationTests.cs'),
+    (Join-Path $PSScriptRoot 'DECombatPerksTests.cs'))
+$compileXml = ($compileFiles | Sort-Object | ForEach-Object {
+    '    <Compile Include="' + [Security.SecurityElement]::Escape($_) + '" />'
+}) -join "`n"
+$moonXml = [Security.SecurityElement]::Escape($moon)
+$project = Join-Path $fixture 'DE128Foundation.csproj'
+@"
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <Nullable>disable</Nullable>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+$compileXml
+    <Reference Include="MoonSharp.Interpreter">
+      <HintPath>$moonXml</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>
+"@ | Set-Content -Encoding UTF8 -LiteralPath $project
+
+Write-Output "DE128 fixture: $fixture"
+dotnet build $project --nologo --verbosity quiet
+if ($LASTEXITCODE -ne 0) { throw "DE128 fixture compilation failed: $LASTEXITCODE" }
+dotnet (Join-Path $fixture 'bin/Debug/net10.0/DE128Foundation.dll') $modSource $fixture $root
+if ($LASTEXITCODE -ne 0) { throw "DE128 foundation checks failed: $LASTEXITCODE" }

@@ -187,6 +187,17 @@ local DamageEvent = {}
 ---@field critical boolean
 local IncomingDamageEvent = {}
 
+---@class (exact) Eclipse.HitPhaseEvent: Eclipse.CombatEvent
+---@field damage number
+---@field blocked boolean
+---@field critical boolean
+---@field target "self"|"opponent"
+---@field weapon boolean
+---@field unarmed boolean
+---@field ranged boolean
+---@field magic boolean
+local HitPhaseEvent = {}
+
 ---@class (exact) Eclipse.ComboEvent: Eclipse.CombatEvent
 ---@field combo integer
 ---@field last_combo integer
@@ -220,6 +231,8 @@ local FightEndEvent = {}
 ---@field on_tick? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)
 ---@field on_damage_resolving? fun(parameters:table<string,any>, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_dealing? fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)
+---@field on_hit_post_crit? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.HitPhaseEvent)
+---@field on_post_hit? fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.HitPhaseEvent)
 ---@field on_damage_received? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_damage_dealt? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_block? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
@@ -239,6 +252,8 @@ local BehaviorDefinition = {}
 ---@field on_tick? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)
 ---@field on_damage_resolving? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)
 ---@field on_damage_dealing? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)
+---@field on_hit_post_crit? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.HitPhaseEvent)
+---@field on_post_hit? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.HitPhaseEvent)
 ---@field on_damage_received? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_damage_dealt? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
 ---@field on_block? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)
@@ -383,6 +398,12 @@ local Availability = {}
 ---@field replacement string
 local AssetReplacement = {}
 
+---@class (exact) Eclipse.LocalizationDefinition
+---@field id string
+---@field language string
+---@field value string
+local LocalizationDefinition = {}
+
 ---@class (exact) Eclipse.LocalizationPatch
 ---@field target string
 ---@field language string
@@ -404,6 +425,7 @@ local PerkUpgrade = {}
 ---@field kind "single"|"combo"
 ---@field parameters? table<string,any>
 ---@field upgrades? Eclipse.PerkUpgrade[]
+---@field initial_upgrade? integer
 local PerkDefinition = {}
 
 ---@class (exact) Eclipse.TemplatePerk
@@ -414,6 +436,7 @@ local PerkDefinition = {}
 ---@field template Eclipse.PerkHandle
 ---@field parameters? table<string,any>
 ---@field upgrades? Eclipse.PerkUpgrade[]
+---@field initial_upgrade? integer
 local TemplatePerk = {}
 
 ---@class (exact) Eclipse.EnchantmentDefinition
@@ -486,15 +509,32 @@ local AttributeAlignment = {}
 ---@field health_bars? integer 0 inherits the template; 1-10000 is the total number of health bars.
 local WarriorDefinition = {}
 
+---@class (exact) Eclipse.RewardGrantContext
+---@field player_level integer
+---@field item_id string
+local RewardGrantContext = {}
+
+---@class (exact) Eclipse.RewardGrantEnchantment
+---@field perk Eclipse.PerkHandle
+---@field aspect? number
+local RewardGrantEnchantment = {}
+
+---@class (exact) Eclipse.RewardGrantConfiguration
+---@field level? integer
+---@field enchantments? Eclipse.RewardGrantEnchantment[]
+local RewardGrantConfiguration = {}
+
 ---@class (exact) Eclipse.ItemGrant
 ---@field item Eclipse.ItemHandle
 ---@field upgrade? integer
+---@field configure? fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration
 local ItemGrant = {}
 
 ---@class (exact) Eclipse.RewardCandidate
 ---@field item Eclipse.ItemHandle
 ---@field upgrade? integer
 ---@field weight? number
+---@field configure? fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration
 local RewardCandidate = {}
 
 ---@class (exact) Eclipse.RewardChoice
@@ -548,6 +588,13 @@ local RewardDropPatch = {}
 ---@field rules? Eclipse.RuleHandle[]
 ---@field append_rules? Eclipse.RuleHandle[]
 local FightPatch = {}
+
+---@class (exact) Eclipse.HotGroundNode
+---@field name string
+---@field axis "X"|"Y"
+---@field min? number
+---@field max? number
+local HotGroundNode = {}
 
 ---@class (exact) Eclipse.Rule_no_perks
 ---@field id string
@@ -604,6 +651,7 @@ local Rule_no_button = {}
 ---@field mode? "normal"|"eclipse"|"all"
 ---@field rounds? integer[]
 ---@field perk Eclipse.PerkHandle
+---@field aspect? number
 local Rule_perk = {}
 
 ---@class (exact) Eclipse.Rule_behavior
@@ -629,6 +677,51 @@ local Rule_recharge_magic_each_round = {}
 ---@field rounds? integer[]
 ---@field values table<string,number>
 local Rule_attributes = {}
+
+---@class (exact) Eclipse.Rule_hot_ground
+---@field id string
+---@field target? "player"|"opponent"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+---@field frames integer
+---@field nodes Eclipse.HotGroundNode[]
+---@field animations? string[]
+local Rule_hot_ground = {}
+
+---@class (exact) Eclipse.Rule_ring_out
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+---@field node string
+---@field axis "X"|"Y"
+---@field min number
+---@field max number
+local Rule_ring_out = {}
+
+---@class (exact) Eclipse.Rule_regeneration
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+---@field rate number
+---@field frames_after_hit integer
+local Rule_regeneration = {}
+
+---@class (exact) Eclipse.Rule_remove_interval
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+---@field type "Attack"|"Block"|"Invulnerable"|"SelfUninterrupt"|"Uninterrupt"|"Unstable"
+local Rule_remove_interval = {}
+
+---@class (exact) Eclipse.Rule_no_animation
+---@field id string
+---@field name string
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+local Rule_no_animation = {}
 
 ---@class (exact) Eclipse.VariableOperand
 ---@field kind "variable"
@@ -1058,6 +1151,11 @@ local MoveTemplateDefinition = {}
 ---@field animation Eclipse.BinaryHandle
 local MoveDefinition = {}
 
+---@class (exact) Eclipse.MovePerkLockRemoval
+---@field move string
+---@field perk Eclipse.PerkHandle
+local MovePerkLockRemoval = {}
+
 ---@class (exact) Eclipse.SoundAction
 ---@field type "sound"
 ---@field audio Eclipse.AudioHandle
@@ -1173,6 +1271,8 @@ local ModeRequest = {}
 ---@field level? integer
 ---@field rounds? integer
 ---@field round_time? integer
+---@field rules? Eclipse.RuleHandle[]
+---@field description? string
 local EncounterPlan = {}
 
 ---@class (exact) Eclipse.ModePreparation
@@ -1602,7 +1702,7 @@ function assets.replace(definition) end
 
 ---Get the typed localization handle used by item names, perks, and achievements.
 ---Requires: `content.register`; other owners must be declared dependencies.
----When: Entrypoint, after localization files have been discovered by the host.
+---When: Entrypoint, after the key has been registered by Lua or discovered from localization files.
 ---Returns: A localization handle. Missing keys raise an error.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationkey)
 ---@param key string
@@ -1617,6 +1717,15 @@ function localization.key(key) end
 ---@param language? string
 ---@return string
 function localization.text(key, language) end
+
+---Register one translation owned by your mod and get its localization handle.
+---Requires: `content.register`.
+---When: Entrypoint.
+---Returns: A localization handle for the registered key.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationregister)
+---@param definition Eclipse.LocalizationDefinition
+---@return Eclipse.LocalizationHandle
+function localization.register(definition) end
 
 ---Replace one language value of an existing localization definition.
 ---Requires: `content.patch`, plus a dependency on the target's owner.
@@ -1877,6 +1986,51 @@ function rules.recharge_magic_each_round(definition) end
 ---@return Eclipse.RuleHandle
 function rules.attributes(definition) end
 
+---Create the native timed hot-ground rule used by challenge fights.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight or encounter plan.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2ruleshot_ground)
+---@param definition Eclipse.Rule_hot_ground
+---@return Eclipse.RuleHandle
+function rules.hot_ground(definition) end
+
+---Create a native ring-out boundary rule.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight or encounter plan.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesring_out)
+---@param definition Eclipse.Rule_ring_out
+---@return Eclipse.RuleHandle
+function rules.ring_out(definition) end
+
+---Create the native regeneration or degeneration rule.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight or encounter plan.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesregeneration)
+---@param definition Eclipse.Rule_regeneration
+---@return Eclipse.RuleHandle
+function rules.regeneration(definition) end
+
+---Remove one native animation interval class from the selected target.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight or encounter plan.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesremove_interval)
+---@param definition Eclipse.Rule_remove_interval
+---@return Eclipse.RuleHandle
+function rules.remove_interval(definition) end
+
+---Disable one named native animation for both fighters.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight or encounter plan.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesno_animation)
+---@param definition Eclipse.Rule_no_animation
+---@return Eclipse.RuleHandle
+function rules.no_animation(definition) end
+
 ---Create a quest that responds to selected game events.
 ---Requires: `content.register`, plus dependencies for referenced content.
 ---When: Entrypoint, after the battle/fight/item definitions used by the quest.
@@ -2068,6 +2222,14 @@ function moves.register_template(definition) end
 ---@param definition Eclipse.MoveDefinition
 ---@return Eclipse.MoveHandle
 function moves.register(definition) end
+
+---Remove one exact direct perk lock from an existing native move.
+---Requires: `content.patch`, plus access to the referenced perk through core or a declared dependency.
+---When: During mod registration. The patch is applied when the active content set is projected into the recovered move runtime and is restored when that overlay is removed or rolled back.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesremove_perk_lock)
+---@param definition Eclipse.MovePerkLockRemoval
+function moves.remove_perk_lock(definition) end
 
 ---Requires: `content.register`.
 ---When: During mod loading.
@@ -2595,11 +2757,19 @@ function Opponent:add_magic_charge(amount) end
 
 ---Scale the current attacker's pending hit.
 ---Requires: `combat.modify_outgoing_hit`.
----When: Only inside `on_damage_dealing`. It is absent from other callbacks.
+---When: Inside `on_damage_dealing`, and inside attacker-side `on_post_hit` where `event.target == "opponent"`. It is absent from `on_hit_post_crit` and incoming `on_post_hit` callbacks.
 ---Returns: `nil` on success; invalid values, missing capability, unavailable hit or expired references raise a Lua error.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterscale_outgoing_damage)
 ---@param multiplier number
 function OutgoingFighter:scale_outgoing_damage(multiplier) end
+
+---Add normalized health damage to the current attacker's pending hit.
+---Requires: `combat.modify_outgoing_hit`.
+---When: Inside `on_damage_dealing`, and inside attacker-side `on_post_hit` where `event.target == "opponent"`. It is absent from `on_hit_post_crit` and incoming post-hit callbacks.
+---Returns: `nil` on success; invalid values, missing capability, unavailable hit or expired references raise a Lua error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighteradd_outgoing_damage)
+---@param amount number
+function OutgoingFighter:add_outgoing_damage(amount) end
 
 ---Multiply this fighter's pending incoming damage before it is applied.
 ---Requires: `combat.modify_hit`.
@@ -2626,5 +2796,24 @@ function Fighter:add_damage_shield(key, fraction, frames) end
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterremove_damage_shield)
 ---@param key string
 function Fighter:remove_damage_shield(key) end
+
+---Show or refresh a transient status icon owned by this behavior instance.
+---Requires: `combat.effects`.
+---When: A supported behavior callback with a live fighter capability.
+---Returns: `nil`; invalid arguments, unavailable native support or an expired fighter method raise a Lua error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fightershow_status_icon)
+---@param key string
+---@param sprite Eclipse.SpriteHandle
+---@param frames integer
+---@param stacks? integer
+function Fighter:show_status_icon(key, sprite, frames, stacks?) end
+
+---Clear a status icon addressed by this behavior instance.
+---Requires: `combat.effects`.
+---When: A supported behavior callback with a live fighter capability.
+---Returns: `nil`; invalid keys, unavailable native support or expired references raise a Lua error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterclear_status_icon)
+---@param key string
+function Fighter:clear_status_icon(key) end
 
 return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }

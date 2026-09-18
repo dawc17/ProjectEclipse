@@ -56,6 +56,21 @@ public static class Program {
             bool duplicate=false;try{perks.AddExternalPerkUpgrades(owned,source);}catch(InvalidOperationException){duplicate=true;}
             Check(duplicate && perks.GAEHBOAPMLI(owned).Count==6,"Duplicate install changed progression");
             Check(perks.RemoveExternalBasePerk(owned) && perks.GAEHBOAPMLI(owned).Count==0,"External variants survived removal");
+
+            string rankOne=owned+"_rank1";
+            perks.AddExternalBasePerk(Node("<Perk Name='"+rankOne+"' Description='base'><Set Unchanged='17'/></Perk>"));
+            perks.AddExternalPerkUpgrades(rankOne,source,1);
+            var rankOneVariants=perks.GAEHBOAPMLI(rankOne);
+            Check(rankOneVariants.Count==5 && rankOneVariants[0].AKKLOMFOLNO==1 && perks.LAAJJBEEDKL(rankOne,0)==null,
+                "Initial upgrade 1 did not publish exactly native ranks 1..5");
+            for(int rank=1;rank<=5;rank++) Check(perks.LAAJJBEEDKL(rankOne,rank)!=null,"Missing native rank "+rank);
+            Check(perks.RemoveExternalBasePerk(rankOne) && perks.GAEHBOAPMLI(rankOne).Count==0,"Rank-one variants survived removal");
+
+            string missing=owned+"_missing";
+            perks.AddExternalBasePerk(Node("<Perk Name='"+missing+"' Description='base'><Set Unchanged='17'/></Perk>"));
+            bool missingRejected=false;try{perks.AddExternalPerkUpgrades(missing,source,6);}catch(InvalidOperationException){missingRejected=true;}
+            Check(missingRejected && perks.GAEHBOAPMLI(missing).Count==0,"Missing initial rank partially published progression");
+            Check(perks.RemoveExternalBasePerk(missing),"Missing-rank base cleanup failed");
             Check(ReferenceEquals(original,perks.LAAJJBEEDKL("vanilla")),"Removal changed vanilla progression");
         }
         Console.WriteLine("PASS: "+checks+" native-source perk upgrade checks; production PerkItems and Clone, archive payloads, descriptions, isolation and teardown.");

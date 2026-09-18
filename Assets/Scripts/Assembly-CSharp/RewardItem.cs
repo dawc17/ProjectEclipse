@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.Xml;
 
 public class RewardItem : Rewardable
@@ -8,6 +9,30 @@ public class RewardItem : Rewardable
 	public uint UpgradeNumber;
 
 	internal string UpgradeLevelExpression { get; private set; }
+
+	internal string EclipseRewardId { get; private set; }
+
+	internal int EclipseGrantIndex { get; private set; } = -1;
+
+	internal bool HasEclipseGrantConfiguration => !string.IsNullOrEmpty(EclipseRewardId);
+
+	private XmlElement _sourceNode;
+
+	internal sealed class ConfiguredGrantEnchantment
+	{
+		internal string Name { get; }
+
+		internal string Aspect { get; }
+
+		internal string EclipseKind { get; }
+
+		internal ConfiguredGrantEnchantment(string name, string aspect, string eclipseKind)
+		{
+			Name = name;
+			Aspect = aspect;
+			EclipseKind = eclipseKind;
+		}
+	}
 
 	protected string JNPPCEGFJLE;
 
@@ -21,6 +46,13 @@ public class RewardItem : Rewardable
 		JNPPCEGFJLE = node.Attributes["Level"].CIPOICEEIBK(string.Empty);
 		UpgradeNumber = node.Attributes["UpgradeNumber"].ParseUint();
 		UpgradeLevelExpression = node.Attributes["UpgradeLevel"].CIPOICEEIBK(string.Empty);
+		EclipseRewardId = node.Attributes["EclipseReward"].CIPOICEEIBK(string.Empty);
+		int grantIndex;
+		if (!string.IsNullOrEmpty(EclipseRewardId) &&
+			int.TryParse(node.Attributes["EclipseGrant"].CIPOICEEIBK(string.Empty), NumberStyles.None,
+				CultureInfo.InvariantCulture, out grantIndex)) EclipseGrantIndex = grantIndex;
+		if (HasEclipseGrantConfiguration && node is XmlElement sourceElement)
+			_sourceNode = (XmlElement)sourceElement.CloneNode(true);
 		if (UpgradeLevelExpression.Length != 0 && node.Attributes["UpgradeNumber"] != null)
 		{
 			throw new System.FormatException("Reward item cannot specify both UpgradeLevel and UpgradeNumber: " + Name);
@@ -35,6 +67,35 @@ public class RewardItem : Rewardable
 			PerkStruct item = new PerkStruct(childNode);
 			LDLPCOFHFKE.Add(item);
 		}
+	}
+
+	internal RewardItem CloneForConfiguredGrant(int level, IReadOnlyList<ConfiguredGrantEnchantment> enchantments)
+	{
+		if (_sourceNode == null) throw new System.InvalidOperationException("Reward item source XML is unavailable: " + Name);
+		XmlElement item = (XmlElement)_sourceNode.CloneNode(true);
+		item.SetAttribute("Level", level.ToString(CultureInfo.InvariantCulture));
+		XmlNode oldEnchantments = item["Enchantments"];
+		if (oldEnchantments != null) item.RemoveChild(oldEnchantments);
+		if (enchantments != null && enchantments.Count != 0)
+		{
+			XmlElement enchantmentsNode = item.OwnerDocument.CreateElement("Enchantments");
+			for (int i = 0; i < enchantments.Count; i++)
+			{
+				XmlElement perk = item.OwnerDocument.CreateElement("Perk");
+				perk.SetAttribute("Name", enchantments[i].Name);
+				if (!string.IsNullOrEmpty(enchantments[i].EclipseKind))
+					perk.SetAttribute(PerkStruct.EclipseKindAttribute, enchantments[i].EclipseKind);
+				if (!string.IsNullOrEmpty(enchantments[i].Aspect))
+				{
+					XmlElement set = item.OwnerDocument.CreateElement("Set");
+					set.SetAttribute("Aspect", enchantments[i].Aspect);
+					perk.AppendChild(set);
+				}
+				enchantmentsNode.AppendChild(perk);
+			}
+			item.AppendChild(enchantmentsNode);
+		}
+		return new RewardItem(item);
 	}
 
 	public int CMEFKONFDKN()

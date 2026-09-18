@@ -115,7 +115,9 @@ Scale the current attacker's pending hit.
 **Returns:** `nil` on success; invalid values, missing capability, unavailable hit
 or expired references raise a Lua error.
 
-**When:** Only inside `on_damage_dealing`. It is absent from other callbacks.
+**When:** Inside `on_damage_dealing`, and inside attacker-side `on_post_hit` where
+`event.target == "opponent"`. It is absent from `on_hit_post_crit` and incoming
+`on_post_hit` callbacks.
 
 **Requires:** `combat.modify_outgoing_hit`.
 
@@ -132,6 +134,30 @@ current value; zero remains zero. Invulnerability, shields, incoming modifiers,
 and the normal health path run afterward. This does not bypass defense or change
 the shared weapon/stat economy. Earlier successful operations remain applied if
 a later handler fails. Retained methods cannot modify a later hit.
+
+## fighter:add_outgoing_damage
+
+Add normalized health damage to the current attacker's pending hit.
+
+**Signature:** `fighter:add_outgoing_damage(amount)`
+
+**Requires:** `combat.modify_outgoing_hit`.
+
+**When:** Inside `on_damage_dealing`, and inside attacker-side `on_post_hit` where
+`event.target == "opponent"`. It is absent from `on_hit_post_crit` and incoming
+post-hit callbacks.
+
+**Returns:** `nil` on success; invalid values, missing capability, unavailable hit
+or expired references raise a Lua error.
+
+`amount` must be finite and from `0` through `1` normalized health units. It is
+added to the current pending damage value; the resulting value must remain finite,
+nonnegative and representable as a single-precision number. Defender rules and
+normal health application still run afterward.
+
+```lua
+fighter:add_outgoing_damage(0.04)
+```
 
 ## fighter:change_health
 
@@ -283,3 +309,53 @@ behavior identity; this does not remove arbitrary native effects.
 ```lua
 fighter:remove_damage_shield("opening_ward")
 ```
+
+## fighter:show_status_icon
+
+Show or refresh a transient status icon owned by this behavior instance.
+
+**Signature:** `fighter:show_status_icon(key, sprite, frames, stacks?)`
+
+**Requires:** `combat.effects`.
+
+**When:** A supported behavior callback with a live fighter capability.
+
+**Returns:** `nil`; invalid arguments, unavailable native support or an expired
+fighter method raise a Lua error.
+
+| Argument | Type and bounds | Meaning |
+| --- | --- | --- |
+| `key` | Valid behavior field name | Local key used to refresh or clear this behavior instance's icon. |
+| `sprite` | Sprite handle | Captured sprite handle from the current mod context. |
+| `frames` | Integer, 1–3600 | Native-frame lifetime. `0` is rejected. |
+| `stacks` | Integer, 0–10000 | Optional stack count; defaults to `0`. |
+
+```lua
+local icon = sf2.assets.sprite("core:ui/skills/IconCrackedApple_Blue")
+fighter:show_status_icon("relentless", icon, 300, 5)
+```
+
+The native key includes the behavior instance identity, so matching Lua keys from
+different behavior instances are isolated. The method expires when the callback
+returns. This documents the scripting contract only; it does not claim rendered
+HUD acceptance for a particular sprite.
+
+## fighter:clear_status_icon
+
+Clear a status icon addressed by this behavior instance.
+
+**Signature:** `fighter:clear_status_icon(key)`
+
+**Requires:** `combat.effects`.
+
+**When:** A supported behavior callback with a live fighter capability.
+
+**Returns:** `nil`; invalid keys, unavailable native support or expired references
+raise a Lua error.
+
+```lua
+fighter:clear_status_icon("relentless")
+```
+
+The key uses the same validation and behavior-instance isolation as
+`show_status_icon`; it does not clear arbitrary status entries owned elsewhere.

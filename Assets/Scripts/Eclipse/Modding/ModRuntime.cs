@@ -124,6 +124,81 @@ namespace Eclipse.Modding
         public static ModHost Host => _host ?? InitializeDefault();
         public static ModScriptSession Scripts => _scripts;
 
+        internal static bool TryConfigureRewardGrant(RewardItem source, int playerLevel,
+            out RewardItem configured, out string error)
+        {
+            configured = null;
+            error = string.Empty;
+            if (source == null) { error = "Reward item is missing."; return false; }
+            if (!source.HasEclipseGrantConfiguration) { configured = source; return true; }
+            if (_scripts == null) { error = "Mod scripts are not active."; return false; }
+            if (playerLevel < 1 || playerLevel > 10000) { error = "Reward player level must be 1..10000."; return false; }
+
+            DefinitionId rewardId;
+            if (!DefinitionId.TryParse(source.EclipseRewardId, out rewardId) || rewardId.Category != "rewards" ||
+                source.EclipseGrantIndex < 0)
+            { error = "Configured reward marker is invalid."; return false; }
+            RewardDefinition reward;
+            RewardItemGrant grant;
+            if (!_scripts.Content.TryGetReward(rewardId, out reward) ||
+                !reward.TryGetGrant(source.EclipseGrantIndex, out grant) || grant == null || !grant.UsesConfiguration)
+            { error = "Configured reward grant is unavailable: '" + rewardId + "'."; return false; }
+
+            ItemDefinition item;
+            if (!_scripts.Content.TryResolveItem(grant.Item, out item))
+            { error = "Configured reward item is unavailable: '" + grant.Item + "'."; return false; }
+            string runtimeItemName = item.IsCore ? item.LegacyName : item.Id.ToString();
+            if (string.IsNullOrEmpty(runtimeItemName) || !string.Equals(source.Name, runtimeItemName, StringComparison.Ordinal))
+            { error = "Configured reward item does not match its committed grant."; return false; }
+
+            ModDescriptor owner = null;
+            for (int i = 0; i < _scripts.ActiveMods.Count; i++)
+                if (_scripts.ActiveMods[i].Id == rewardId.Namespace) { owner = _scripts.ActiveMods[i]; break; }
+            if (owner == null) { error = "Configured reward owner mod is not active: '" + rewardId.Namespace + "'."; return false; }
+
+            RewardGrantConfiguration configuration;
+            try { configuration = grant.Configure(playerLevel); }
+            catch (Exception exception) { error = "Reward configure callback failed: " + exception.Message; return false; }
+            if (configuration == null) { error = "Reward configure callback returned no configuration."; return false; }
+
+            var resolvedEnchantments = new List<RewardItem.ConfiguredGrantEnchantment>(configuration.Enchantments.Count);
+            for (int i = 0; i < configuration.Enchantments.Count; i++)
+            {
+                RewardGrantEnchantment requested = configuration.Enchantments[i];
+                PerkDefinition perk;
+                if (requested == null || !_scripts.Content.TryGetPerk(requested.Perk, out perk))
+                { error = "Configured reward references an unavailable perk."; return false; }
+                if (requested.Perk.Namespace.Value != "core" && requested.Perk.Namespace != rewardId.Namespace &&
+                    !IsActiveRewardDependency(owner, requested.Perk.Namespace))
+                { error = "Configured reward perk namespace is not an active dependency: '" + requested.Perk.Namespace + "'."; return false; }
+                string runtimePerkName = perk.IsCore ? perk.LegacyName : perk.Id.ToString();
+                if (string.IsNullOrEmpty(runtimePerkName))
+                { error = "Configured reward perk has no runtime identity: '" + requested.Perk + "'."; return false; }
+                string aspect = requested.Aspect.HasValue
+                    ? requested.Aspect.Value.ToString("R", System.Globalization.CultureInfo.InvariantCulture)
+                    : null;
+                string eclipseKind = perk.IsCore ? null :
+                    (perk.Kind == ModPerkKind.Combo ? "Combo" : "Single");
+                resolvedEnchantments.Add(new RewardItem.ConfiguredGrantEnchantment(runtimePerkName, aspect, eclipseKind));
+            }
+
+            int level = configuration.Level ?? playerLevel;
+            try { configured = source.CloneForConfiguredGrant(level, resolvedEnchantments); }
+            catch (Exception exception) { error = "Could not materialize configured reward: " + exception.Message; return false; }
+            return true;
+        }
+
+        private static bool IsActiveRewardDependency(ModDescriptor owner, ModId dependencyId)
+        {
+            bool declared = false, active = false;
+            for (int i = 0; i < owner.Manifest.Dependencies.Count; i++)
+                if (owner.Manifest.Dependencies[i].Id == dependencyId) { declared = true; break; }
+            if (!declared) return false;
+            for (int i = 0; i < _scripts.ActiveMods.Count; i++)
+                if (_scripts.ActiveMods[i].Id == dependencyId) { active = true; break; }
+            return active;
+        }
+
         public static ModScriptSession StartScripts()
         {
             StoryEvents.Clear();
@@ -985,7 +1060,8 @@ namespace Eclipse.Modding
             ModEffectEvent effectEvent, IModFighterOperations fighter)
         {
             if (_scripts == null || fighter == null) return;
-            foreach (var rule in instances.Applicable(_scripts.Content, runtimeFightId, player, round, eclipse))
+            foreach (var rule in instances.Applicable(_scripts.Content, runtimeFightId, player, round, eclipse,
+                ModModeRuntime.ActiveRules(runtimeFightId)))
             {
                 if (!_scripts.HasBehaviorHandler(rule.Behavior, effectEvent)) continue;
                 try

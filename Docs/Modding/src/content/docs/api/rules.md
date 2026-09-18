@@ -150,7 +150,7 @@ Core rules use `"Punch"` and `"Kick"` as button identifiers.
 
 Apply a perk rule to the selected target.
 
-**Signature:** `sf2.rules.perk { id, perk, target?, mode?, rounds? }`
+**Signature:** `sf2.rules.perk { id, perk, aspect?, target?, mode?, rounds? }`
 
 **Requires:** `content.register`.
 
@@ -158,13 +158,142 @@ Apply a perk rule to the selected target.
 
 **Returns:** A rule handle.
 
-`perk` must be a perk handle, not a behavior or enchantment handle. Common field defaults are listed above.
+`perk` must be a perk handle, not a behavior or enchantment handle. `aspect` is an
+optional finite number from `0` through `2147483647`; omit it to keep the native
+perk rule's normal aspect/default behavior. Common field defaults are listed above.
 
 ```lua
 local rule = sf2.rules.perk {
-    id = "opponent_perk", perk = perk, target = sf2.rules.OPPONENT,
+    id = "opponent_perk", perk = perk, aspect = 100000,
+    target = sf2.rules.OPPONENT,
 }
 ```
+
+## sf2.rules.hot_ground
+
+Create the native timed hot-ground rule used by challenge fights.
+
+**Signature:** `sf2.rules.hot_ground { id, frames, nodes, animations?, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight or encounter plan.
+
+**Returns:** A rule handle.
+
+`frames` is required and must be an integer from `1` through `216000`. `target`
+defaults to `sf2.rules.PLAYER`; only `PLAYER` or `OPPONENT` are valid for this
+rule. `ALL` is rejected because the recovered native copy path loses the
+hot-ground runtime rule type when applying it to both sides. `nodes` is
+a required dense array of 1–32 tables. Each node requires a nonempty native node
+`name` of at most 128 characters and `axis = "X"` or `"Y"`. At least one of
+`min` or `max` is required; supplied bounds are finite single-precision numbers,
+and when both are present they must satisfy `min < max`. Duplicate `name` + `axis`
+pairs are rejected. `animations` is optional and defaults to an empty list; when
+supplied it is a dense array of at most 64 distinct nonempty native animation
+names, each at most 128 characters.
+
+```lua
+local rule = sf2.rules.hot_ground {
+    id = "burning_floor",
+    frames = 300,
+    nodes = {
+        { name = "root", axis = "Y", max = 0 },
+    },
+    target = sf2.rules.PLAYER,
+}
+```
+
+## sf2.rules.ring_out
+
+Create a native ring-out boundary rule.
+
+**Signature:** `sf2.rules.ring_out { id, node, axis, min, max, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight or encounter plan.
+
+**Returns:** A rule handle.
+
+`node` is a required nonempty native node name of at most 128 characters. `axis`
+is exactly `"X"` or `"Y"`. `min` and `max` are required finite single-precision
+numbers and must satisfy `min < max`. Shared target/mode/round filters use the
+defaults above.
+
+```lua
+local rule = sf2.rules.ring_out {
+    id = "ring_out", node = "root", axis = "X", min = -180, max = 180,
+}
+```
+
+## sf2.rules.regeneration
+
+Create the native regeneration or degeneration rule.
+
+**Signature:** `sf2.rules.regeneration { id, rate, frames_after_hit, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight or encounter plan.
+
+**Returns:** A rule handle.
+
+`rate` is a required finite number from `-1` through `1`. Negative values retain
+their native negative behavior rather than being clamped away. `frames_after_hit`
+is a required integer from `0` through `216000`.
+
+```lua
+local rule = sf2.rules.regeneration {
+    id = "enemy_regen", rate = 0.001, frames_after_hit = 180,
+    target = sf2.rules.OPPONENT,
+}
+```
+
+## sf2.rules.no_animation
+
+Disable one named native animation for both fighters.
+
+**Signature:** `sf2.rules.no_animation { id, name, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight or encounter plan.
+
+**Returns:** A rule handle.
+
+`name` is a required nonempty native animation name of at most 128 characters.
+This rule intentionally has no `target` field: the native rule applies to both
+fighters. `mode` and `rounds` use the shared defaults.
+
+```lua
+local rule = sf2.rules.no_animation { id = "no_jump", name = "Jump" }
+```
+
+## sf2.rules.remove_interval
+
+Remove one native animation interval class from the selected target.
+
+**Signature:** `sf2.rules.remove_interval { id, type, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight or encounter plan.
+
+**Returns:** A rule handle.
+
+`type` is required and is exactly one of `Attack`, `Block`, `Invulnerable`,
+`SelfUninterrupt`, `Uninterrupt`, or `Unstable`.
+
+```lua
+local rule = sf2.rules.remove_interval {
+    id = "no_block", type = "Block", target = sf2.rules.PLAYER,
+}
+```
+
+These native rule constructors expose typed, evidence-backed challenge payloads.
+They do not expose raw XML or arbitrary rule names. Use them in a fight's `rules`
+array or in an encounter plan's dynamic `rules` replacement.
 
 ## sf2.rules.recharge_magic_each_round
 

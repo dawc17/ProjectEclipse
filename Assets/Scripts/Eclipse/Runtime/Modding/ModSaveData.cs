@@ -301,6 +301,11 @@ namespace Eclipse.Modding
                 Append(canonical, perk.LegacyName ?? string.Empty);
                 Append(canonical, perk.LegacyPerkXml ?? string.Empty);
                 AppendParameterValues(canonical, perk.InitialParameters);
+                if (perk.InitialUpgradeLevel != 0)
+                {
+                    Append(canonical, "initial-perk-upgrade-v1");
+                    Append(canonical, perk.InitialUpgradeLevel);
+                }
                 if (perk.Upgrades.Count > 0)
                 {
                     Append(canonical, "upgrades"); Append(canonical, perk.Upgrades.Count);
@@ -611,6 +616,27 @@ namespace Eclipse.Modding
                 for (int j = 0; j < rule.Rounds.Count; j++) Append(canonical, rule.Rounds[j]);
                 Append(canonical, rule.Name); Append(canonical, rule.HasItem ? rule.Item.ToString() : string.Empty);
                 Append(canonical, rule.MinimumLevel); Append(canonical, rule.HasPerk ? rule.Perk.ToString() : string.Empty);
+                if (rule.PerkAspect.HasValue)
+                {
+                    Append(canonical,"rule-perk-aspect-v1");
+                    Append(canonical,rule.PerkAspect.Value.ToString("R",CultureInfo.InvariantCulture));
+                }
+                if (rule.Trial != null)
+                {
+                    var trial = rule.Trial;
+                    Append(canonical,"trial-rule-v1"); Append(canonical,(int)trial.Kind);
+                    Append(canonical,trial.Frames); Append(canonical,trial.Nodes.Count);
+                    foreach (var node in trial.Nodes)
+                    {
+                        Append(canonical,node.Name); Append(canonical,(int)node.Axis);
+                        Append(canonical,node.Minimum.HasValue); if (node.Minimum.HasValue) Append(canonical,node.Minimum.Value);
+                        Append(canonical,node.Maximum.HasValue); if (node.Maximum.HasValue) Append(canonical,node.Maximum.Value);
+                    }
+                    AppendStrings(canonical,trial.Animations);
+                    Append(canonical,trial.Node); Append(canonical,(int)trial.Axis);
+                    Append(canonical,trial.Minimum); Append(canonical,trial.Maximum);
+                    Append(canonical,trial.Rate); Append(canonical,trial.FramesAfterHit); Append(canonical,(int)trial.IntervalType);
+                }
                 if (rule.Kind == ModFightRuleKind.Behavior)
                 {
                     Append(canonical, rule.Behavior.ToString());
@@ -648,6 +674,7 @@ namespace Eclipse.Modding
         private static void AppendRewardGrant(StringBuilder canonical, RewardItemGrant grant)
         {
             Append(canonical, grant.Item.ToString()); Append(canonical, grant.UpgradeNumber);
+            if (grant.UsesConfiguration) Append(canonical, "reward-configure-v1");
         }
 
         private static void AppendQuests(StringBuilder canonical, ModContentCatalog content)
@@ -897,6 +924,21 @@ namespace Eclipse.Modding
             moves.Sort((left, right) => CompareIds(left.Id, right.Id));
             Append(canonical, "moves"); Append(canonical, moves.Count);
             for (int i = 0; i < moves.Count; i++) AppendMoveNode(canonical, moves[i], moves[i].Animation.ToString());
+
+            if (content.MovePerkLockRemovals.Count > 0)
+            {
+                var removals = new List<MovePerkLockRemoval>(content.MovePerkLockRemovals);
+                removals.Sort((left, right) =>
+                {
+                    int move = string.CompareOrdinal(left.MoveName, right.MoveName);
+                    return move != 0 ? move : CompareIds(left.Perk, right.Perk);
+                });
+                Append(canonical, "move-perk-lock-removals-v1"); Append(canonical, removals.Count);
+                foreach (var removal in removals)
+                {
+                    Append(canonical, removal.MoveName); Append(canonical, removal.Perk.ToString());
+                }
+            }
 
             var triggers = new List<MoveTriggerDefinition>(content.MoveTriggers);
             triggers.Sort((left, right) => CompareIds(left.Id, right.Id));

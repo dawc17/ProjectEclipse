@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\VersionRange.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModPurchaseLedger.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModMovePerkLocks.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\SemanticVersion.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModDiscovery.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModUiRuntime.cs" />
@@ -78,6 +79,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModManifestReader.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1B.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\AssetProvider.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModTrialRules.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP3.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModManifest.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContent.cs" />
@@ -723,6 +725,10 @@
       <HintPath>Assets\Plugins\Vectrosity.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityPipeline.Microsoft.CodeAnalysis.CSharp">
+      <HintPath>Library\PackageCache\com.unity.pipeline@ab05e9cd7f74\Runtime\Plugins\CodeAnalysis\UnityPipeline.Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>Library\PackageCache\com.unity.ext.nunit@0198eae3b53e\net472\unity-custom\nunit.framework.dll</HintPath>
       <Private>False</Private>
@@ -751,12 +757,36 @@
       <HintPath>Assets\Plugins\Mono.Data.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityPipeline.System.Runtime.CompilerServices.Unsafe">
+      <HintPath>Library\PackageCache\com.unity.pipeline@ab05e9cd7f74\Runtime\Plugins\CodeAnalysis\UnityPipeline.System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityPipeline.System.Collections.Immutable">
+      <HintPath>Library\PackageCache\com.unity.pipeline@ab05e9cd7f74\Runtime\Plugins\CodeAnalysis\UnityPipeline.System.Collections.Immutable.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@4dfd81071c64\Runtime\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@ecb9724e46ff\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="TcpClientImplementation">
       <HintPath>Assets\Plugins\TcpClientImplementation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.EnterpriseServices">
       <HintPath>Assets\Plugins\System.EnterpriseServices.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityPipeline.System.Reflection.Metadata">
+      <HintPath>Library\PackageCache\com.unity.pipeline@ab05e9cd7f74\Runtime\Plugins\CodeAnalysis\UnityPipeline.System.Reflection.Metadata.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityPipeline.Microsoft.CodeAnalysis">
+      <HintPath>Library\PackageCache\com.unity.pipeline@ab05e9cd7f74\Runtime\Plugins\CodeAnalysis\UnityPipeline.Microsoft.CodeAnalysis.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.Android.Types">

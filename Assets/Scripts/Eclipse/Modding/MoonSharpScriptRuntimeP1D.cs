@@ -67,6 +67,7 @@ namespace Eclipse.Modding
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));
                 moves.Set("register", DynValue.NewCallback(RegisterMove));
                 moves.Set("register_trigger", DynValue.NewCallback(RegisterMoveTrigger));
+                moves.Set("remove_perk_lock", DynValue.NewCallback(RemoveMovePerkLock));
                 root.Set("moves", DynValue.NewTable(moves));
 
                 var tactics = new Table(_script);
@@ -584,6 +585,19 @@ namespace Eclipse.Modding
                     candidates[i] = new ModAiActionSnapshot(actions[i]);
                 }
                 return TryDecideAi(tactic, instance, snapshot, candidates, out selection, out error);
+            }
+
+            private DynValue RemoveMovePerkLock(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.moves.remove_perk_lock";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "move", "perk");
+                    DefinitionId perk = RequiredHandle(table, "perk", _perkHandles, "perk", function);
+                    _api.RemoveMovePerkLock(RequiredString(table, "move", function), perk);
+                    return DynValue.Nil;
+                });
             }
 
             public bool TryDecideAi(string tactic, object instance, ModCombatSnapshot snapshot, IReadOnlyList<ModAiActionSnapshot> actions,

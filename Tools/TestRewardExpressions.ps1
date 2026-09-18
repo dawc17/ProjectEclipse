@@ -12,7 +12,7 @@ public static class Scalars {
 }
 public enum GADCOGHCGDP {REWARD_ITEM}
 public class Rewardable {protected GADCOGHCGDP CLOGJMBMMPI;protected void Parse(XmlNode n){}}
-public class PerkStruct {public PerkStruct(XmlNode n){}}
+public class PerkStruct {public const string EclipseKindAttribute="EclipseKind";public PerkStruct(XmlNode n){}}
 public class ListSF {public static int Level;public static ListSF CCDKHLAMKKO()=>new ListSF();public int PINDEKDNCNL()=>Level;}
 class Program {
  static void Main(){int checks=0;

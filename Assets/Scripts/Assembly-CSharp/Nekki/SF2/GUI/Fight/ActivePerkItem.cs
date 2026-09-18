@@ -12,6 +12,8 @@ namespace Nekki.SF2.GUI.Fight
 		[SerializeField]
 		private ResolutionImage _expiration;
 
+		private global::Nekki.SF2.GUI.LabelAlias _eclipseStackCount;
+
 		private const float NAKDPGBCFCD = 1f;
 
 		private const float AIGOJMDDPDE = 0f;
@@ -382,6 +384,7 @@ namespace Nekki.SF2.GUI.Fight
 			OBPMKMGNABJ(0f);
 			LKHJKOOFAAN(PerkGUI.OOAHAJJKHKI());
 			set_ShowExpiration(IBODMPMJELJ.FLNCPBKBJBL);
+			SetEclipseStackCount(IBODMPMJELJ.EclipseStackCount);
 			RectTransform rectTransform = base.transform as RectTransform;
 			if (rectTransform == null)
 			{
@@ -399,6 +402,41 @@ namespace Nekki.SF2.GUI.Fight
 				_expiration.set_Alpha(OOAHAJJKHKI());
 				_expiration.fillAmount = 0f;
 			}
+		}
+
+		public void SetEclipseStackCount(int count)
+		{
+			if (count <= 0)
+			{
+				if (_eclipseStackCount != null) _eclipseStackCount.gameObject.SetActive(false);
+				return;
+			}
+			if (_eclipseStackCount == null)
+			{
+				var badge = new GameObject("EclipseStackCount", typeof(RectTransform), typeof(CanvasRenderer),
+					typeof(global::Nekki.SF2.GUI.LabelAlias));
+				badge.layer = gameObject.layer;
+				var rect = badge.GetComponent<RectTransform>();
+				rect.SetParent(transform, false);
+				rect.anchorMin = Vector2.zero;
+				rect.anchorMax = Vector2.one;
+				rect.offsetMin = new Vector2(4f, 2f);
+				rect.offsetMax = new Vector2(-4f, -2f);
+				_eclipseStackCount = badge.GetComponent<global::Nekki.SF2.GUI.LabelAlias>();
+				_eclipseStackCount.FontType = global::Nekki.SF2.GUI.LabelAlias.LGEOOHJJOPP.Content;
+				_eclipseStackCount.UseLocalizationFont = true;
+				_eclipseStackCount.UseLabelFontSize = false;
+				_eclipseStackCount.fontSize = 26;
+				_eclipseStackCount.alignment = TextAnchor.LowerRight;
+				_eclipseStackCount.horizontalOverflow = HorizontalWrapMode.Overflow;
+				_eclipseStackCount.verticalOverflow = VerticalWrapMode.Overflow;
+				_eclipseStackCount.raycastTarget = false;
+				var outline = badge.AddComponent<UnityEngine.UI.Outline>();
+				outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+				outline.effectDistance = new Vector2(1f, -1f);
+			}
+			_eclipseStackCount.gameObject.SetActive(true);
+			_eclipseStackCount.set_text(count.ToString(System.Globalization.CultureInfo.InvariantCulture));
 		}
 
 		private void BBEMBELMEGP()

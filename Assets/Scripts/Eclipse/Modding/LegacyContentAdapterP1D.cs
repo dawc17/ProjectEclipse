@@ -9,6 +9,7 @@ namespace Eclipse.Modding
     {
         private readonly List<string> _p1dLocations = new List<string>();
         private readonly List<string> _p1dTactics = new List<string>();
+        private ExternalCombatContentRuntime.MovePerkLockRollback _p1dMovePerkLockRollback;
         private bool _p1dApplied;
 
         public void ApplyP1DContent()
@@ -154,9 +155,12 @@ namespace Eclipse.Modding
 
         private void ApplyMoves()
         {
-            if (_content.MoveTemplates.Count == 0 && _content.Moves.Count == 0 && _content.MoveTriggers.Count == 0)
+            if (_content.MoveTemplates.Count == 0 && _content.Moves.Count == 0 && _content.MoveTriggers.Count == 0 &&
+                _content.MovePerkLockRemovals.Count == 0)
                 return;
-            ExternalCombatContentRuntime.ApplyMoves(BuildMovesDocument());
+            _p1dMovePerkLockRollback = ExternalCombatContentRuntime.ApplyMovePerkLocks(_content.MovePerkLockRemovals);
+            if (_content.MoveTemplates.Count != 0 || _content.Moves.Count != 0 || _content.MoveTriggers.Count != 0)
+                ExternalCombatContentRuntime.ApplyMoves(BuildMovesDocument());
         }
 
         private XmlDocument BuildMovesDocument()
@@ -447,6 +451,8 @@ namespace Eclipse.Modding
         {
             for (int i = _p1dTactics.Count - 1; i >= 0; i--) ExternalCombatContentRuntime.RemoveTactic(_p1dTactics[i]);
             _p1dTactics.Clear();
+            ExternalCombatContentRuntime.RemoveMovePerkLocks(_p1dMovePerkLockRollback);
+            _p1dMovePerkLockRollback = null;
             for (int i = _p1dLocations.Count - 1; i >= 0; i--) ExternalLocationRuntime.Remove(_p1dLocations[i]);
             _p1dLocations.Clear();
             ExternalLocaleRuntime.Clear();

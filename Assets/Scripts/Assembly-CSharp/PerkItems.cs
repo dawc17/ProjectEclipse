@@ -13,17 +13,28 @@ public class PerkItems
 	private HashSet<string> externalBasePerkNames = new HashSet<string>(StringComparer.Ordinal);
 	private readonly HashSet<PerkInfoItem> externalUpgradeVariants = new HashSet<PerkInfoItem>();
 
-	public void AddExternalPerkUpgrades(string name, XmlNode upgrades)
+    public void AddExternalPerkUpgrades(string name, XmlNode upgrades, int initialUpgradeLevel = 0)
 	{
 		if (!externalBasePerkNames.Contains(name)) throw new InvalidOperationException("Upgrade owner is not an external perk: " + name);
 		if (GAEHBOAPMLI(name).Count != 0) throw new InvalidOperationException("Progression variants already exist: " + name);
 		PerkInfoItem original = ABAGJKMKCBA(name);
 		var variants = new List<PerkInfoItem>();
-		var baseline = original.Clone(null, null);
-		baseline.AKKLOMFOLNO = 0;
-		variants.Add(baseline);
-		foreach (XmlNode node in upgrades.ChildNodes)
-			if (node.Name == "UpgradeLevel") variants.Add(HDIPMKIGKDA(original, node));
+        if (upgrades == null || initialUpgradeLevel < 0)
+            throw new ArgumentException("Perk upgrades require a nonnegative initial level and a table.");
+        if (initialUpgradeLevel == 0)
+        {
+            var baseline = original.Clone(null, null);
+            baseline.AKKLOMFOLNO = 0;
+            variants.Add(baseline);
+        }
+        foreach (XmlNode node in upgrades.ChildNodes)
+            if (node.Name == "UpgradeLevel")
+            {
+                var variant = HDIPMKIGKDA(original, node);
+                if (variant.AKKLOMFOLNO >= initialUpgradeLevel) variants.Add(variant);
+            }
+        if (variants.Count == 0 || variants[0].AKKLOMFOLNO != initialUpgradeLevel)
+            throw new InvalidOperationException("Initial perk upgrade is unavailable: " + name + "/" + initialUpgradeLevel);
 		foreach (var variant in variants)
 		{
 			variant.GDCBBAHKCIE = false;

@@ -541,11 +541,110 @@ namespace Eclipse.Modding
 
     internal static class ExternalCombatContentRuntime
     {
+        internal sealed class MovePerkLockRollback
+        {
+            internal sealed class Snapshot
+            {
+                internal readonly InfoAnimation Move;
+                internal readonly ConditionAnimation[] Locks;
+                internal Snapshot(InfoAnimation move, ConditionAnimation[] locks) { Move = move; Locks = locks; }
+            }
+
+            internal readonly List<Snapshot> Snapshots = new List<Snapshot>();
+        }
+
         internal static int ApplyMoves(XmlDocument document)
         {
             if (document == null || document["Movesxml"] == null)
                 throw new InvalidOperationException("External moves overlay requires a Movesxml root.");
             return AnimationData.AddExternalMoves(document);
+        }
+
+        internal static MovePerkLockRollback ApplyMovePerkLocks(IReadOnlyList<MovePerkLockRemoval> removals)
+        {
+            if (removals == null || removals.Count == 0) return null;
+            XmlDocument source = XmlUtils.OpenXMLDocument(SF2Paths.MCFPDHOLNGB() + "/moves.xml", string.Empty);
+            XmlNode sourceMoves = source?["Movesxml"]?["Moves"];
+            if (sourceMoves == null) throw new InvalidOperationException("Recovered animations/moves.xml is unavailable.");
+
+            var liveByName = new Dictionary<string, InfoAnimation>(StringComparer.Ordinal);
+            foreach (InfoAnimation move in AnimationData.KGPMGOBAOFG)
+                if (move != null && !string.IsNullOrEmpty(move.Name)) liveByName[move.Name] = move;
+
+            var sourceByName = new Dictionary<string, XmlNode>(StringComparer.Ordinal);
+            foreach (XmlNode move in sourceMoves.ChildNodes)
+            {
+                if (move.NodeType != XmlNodeType.Element || move.Name != "Move") continue;
+                string name = move.Attributes?["Name"]?.Value;
+                if (!string.IsNullOrEmpty(name)) sourceByName[name] = move;
+            }
+
+            var removalsByMove = new Dictionary<InfoAnimation, HashSet<int>>();
+            var rollback = new MovePerkLockRollback();
+            foreach (MovePerkLockRemoval removal in removals)
+            {
+                if (!sourceByName.TryGetValue(removal.MoveName, out XmlNode sourceMove))
+                    throw new InvalidOperationException("Move perk-lock removal references missing base move '" + removal.MoveName + "'.");
+                if (!liveByName.TryGetValue(removal.MoveName, out InfoAnimation liveMove) || liveMove.ODACDCDONJE == null)
+                    throw new InvalidOperationException("Move perk-lock removal references unavailable live move '" + removal.MoveName + "'.");
+
+                XmlNode locksNode = sourceMove["Locks"];
+                if (locksNode == null)
+                    throw new InvalidOperationException("Move '" + removal.MoveName + "' has no direct Locks block.");
+                string perkName = removal.RuntimePerkName;
+                int parsedIndex = 0, targetIndex = -1;
+                foreach (XmlNode lockNode in locksNode.ChildNodes)
+                {
+                    if (lockNode.NodeType != XmlNodeType.Element) continue;
+                    ConditionAnimation parsed = ConditionsParser.Create(lockNode);
+                    if (parsed == null) continue;
+                    if (lockNode.Name == "Perk" && string.Equals(lockNode.Attributes?["Name"]?.Value, perkName, StringComparison.Ordinal))
+                    {
+                        if (targetIndex >= 0)
+                            throw new InvalidOperationException("Move '" + removal.MoveName + "' contains duplicate direct perk lock '" + perkName + "'.");
+                        targetIndex = parsedIndex;
+                    }
+                    parsedIndex++;
+                }
+                if (targetIndex < 0)
+                    throw new InvalidOperationException("Move '" + removal.MoveName + "' has no direct perk lock '" + perkName + "'.");
+
+                List<ConditionAnimation> liveLocks = liveMove.ODACDCDONJE.HIFPHBNGIPO;
+                if (targetIndex >= liveLocks.Count || !(liveLocks[targetIndex] is ConditionPerk livePerk) ||
+                    !string.Equals(livePerk.get_Name(), perkName, StringComparison.Ordinal))
+                    throw new InvalidOperationException("Live move lock layout does not match recovered XML for '" + removal.MoveName + "'.");
+                if (!removalsByMove.TryGetValue(liveMove, out HashSet<int> indices))
+                {
+                    indices = new HashSet<int>();
+                    removalsByMove.Add(liveMove, indices);
+                    rollback.Snapshots.Add(new MovePerkLockRollback.Snapshot(liveMove, liveLocks.ToArray()));
+                }
+                if (!indices.Add(targetIndex))
+                    throw new InvalidOperationException("Duplicate live move perk-lock removal for '" + removal.MoveName + "' and '" + perkName + "'.");
+            }
+
+            foreach (MovePerkLockRollback.Snapshot snapshot in rollback.Snapshots)
+            {
+                HashSet<int> indices = removalsByMove[snapshot.Move];
+                List<ConditionAnimation> liveLocks = snapshot.Move.ODACDCDONJE.HIFPHBNGIPO;
+                liveLocks.Clear();
+                for (int i = 0; i < snapshot.Locks.Length; i++) if (!indices.Contains(i)) liveLocks.Add(snapshot.Locks[i]);
+            }
+            return rollback;
+        }
+
+        internal static void RemoveMovePerkLocks(MovePerkLockRollback rollback)
+        {
+            if (rollback == null) return;
+            for (int i = rollback.Snapshots.Count - 1; i >= 0; i--)
+            {
+                MovePerkLockRollback.Snapshot snapshot = rollback.Snapshots[i];
+                if (snapshot.Move?.ODACDCDONJE == null) continue;
+                List<ConditionAnimation> locks = snapshot.Move.ODACDCDONJE.HIFPHBNGIPO;
+                locks.Clear();
+                locks.AddRange(snapshot.Locks);
+            }
+            rollback.Snapshots.Clear();
         }
 
         internal static int ApplyTactics(XmlDocument overlay)

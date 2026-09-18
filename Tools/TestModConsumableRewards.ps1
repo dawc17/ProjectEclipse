@@ -19,6 +19,7 @@ public class ItemInfo {
 }
 public class RewardItem {
     public string Name; public uint UpgradeNumber; public bool IDGKPLBKDIB = true;
+    public bool HasEclipseGrantConfiguration => false;
     public string UpgradeLevelExpression; public int EvaluateUpgradeLevel() => 0;
     public int CMEFKONFDKN() => 1;
 }
@@ -29,12 +30,19 @@ public class Roster {
     public UserItem CMGOCLGHNLH(string name) => Owned.Contains(name) ? new UserItem() : null;
     public ItemInfo GetItemByName(string name) => Items.TryGetValue(name, out var item) ? item : null;
     public int PINDEKDNCNL() => 1;
+    public int Level => 1;
 }
 public static class ListSF {
     public static Roster Value = new Roster();
     public static Roster CCDKHLAMKKO() => Value;
     public static Roster GetItems() => Value;
 }
+namespace Eclipse.Modding {
+    public static class ModRuntime {
+        public static bool TryConfigureRewardGrant(global::RewardItem source, int playerLevel, out global::RewardItem configured, out string error) { configured = source; error = string.Empty; return true; }
+    }
+}
+namespace UnityEngine { public static class Debug { public static void LogWarning(object message) {} } }
 public class Result {
     public class LJFFIBFBGID { public ItemInfo DLKPBAJDHBO; public RewardItem NAIEGGHELIH; public bool IDGKPLBKDIB; }
     public List<LJFFIBFBGID> HELFDCAIJNE = new List<LJFFIBFBGID>();

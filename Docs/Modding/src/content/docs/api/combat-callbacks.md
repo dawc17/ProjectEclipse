@@ -212,8 +212,8 @@ state, `on_damage_dealing = function(self, fighter, event)`.
 entry to this handler. Zero-damage hits can still reach the callback. Direct
 health changes do not synthesize a strike or recursively invoke this event.
 
-**Requires:** No additional capability to observe. Scaling requires
-`combat.modify_outgoing_hit`.
+**Requires:** No additional capability to observe. Scaling or adding normalized
+damage requires `combat.modify_outgoing_hit`.
 
 ```lua
 on_damage_dealing = function(parameters, fighter, event)
@@ -228,6 +228,69 @@ in dispatch order. Your event table remains a snapshot. Normal defender rules
 still apply afterward. This hook cannot set critical/block flags, create a hit,
 or supply style/combo events. It is distinct from `on_damage_dealt`, which observes
 health already lost. Callback-scoped methods expire on return, including errors.
+
+`fighter:add_outgoing_damage(amount)` is also available here. It adds normalized
+health units to the current pending outgoing hit instead of multiplying it.
+
+## on_hit_post_crit
+
+Observe the recovered native hit immediately after block/critical classification.
+
+**Signature:** `on_hit_post_crit = function(parameters, fighter, event)`; with
+state, `on_hit_post_crit = function(self, fighter, event)`.
+
+**Returns:** Nothing; returned values are ignored.
+
+**When:** For a native hit-phase snapshot on either side. `event.target` is
+`"self"` when this fighter is the hit target and `"opponent"` when this fighter
+is the attacker. `weapon`, `unarmed`, `ranged` and `magic` reproduce the recovered
+native animation-category predicates for `Weapon`, `Unarmed`, `RangedMissile` and
+`MagicMissile`. The booleans are observations, not editable flags.
+
+**Requires:** No additional capability to observe. This callback is read-only for
+the current pending hit.
+
+```lua
+on_hit_post_crit = function(self, fighter, event)
+    if event.target == "opponent" and (event.ranged or event.magic) then
+        self.state.armed = false
+    end
+end
+```
+
+The event contains `damage`, `blocked`, `critical`, `target`, `weapon`, `unarmed`,
+`ranged` and `magic`. Pending-hit mutation methods are not supplied here, including
+for the fighter's own incoming hit.
+
+## on_post_hit
+
+Observe the later native post-hit phase and, for the attacking side only, modify
+the still-pending outgoing hit.
+
+**Signature:** `on_post_hit = function(parameters, fighter, event)`; with state,
+`on_post_hit = function(self, fighter, event)`.
+
+**Returns:** Nothing; returned values are ignored.
+
+**When:** For the same detached hit-phase fields as `on_hit_post_crit`. When
+`event.target == "opponent"`, this fighter is the attacker and receives
+`scale_outgoing_damage` and `add_outgoing_damage`. When `event.target == "self"`,
+those pending-outgoing methods are absent.
+
+**Requires:** No capability to observe. Attacker-side pending-hit modification
+requires `combat.modify_outgoing_hit`.
+
+```lua
+on_post_hit = function(self, fighter, event)
+    if event.target == "opponent" and not event.blocked and
+        (event.weapon or event.unarmed) then
+        fighter:add_outgoing_damage(self.params.bonus)
+    end
+end
+```
+
+The attacker-side methods expire when the callback returns. This callback cannot
+modify the fighter's own pending incoming hit.
 
 ## on_damage_resolving
 

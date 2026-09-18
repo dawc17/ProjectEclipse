@@ -26,16 +26,17 @@ type('BehaviorSelf', { params:values, state:values });
 type('CombatEvent', { type:'string', 'round?':'integer', 'damage?':'number', 'health_before?':'number', 'health_after?':'number', 'blocked?':'boolean', 'critical?':'boolean', 'won?':'boolean' });
 type('DamageEvent',{damage:'number',health_before:'number',health_after:'number',blocked:'boolean',critical:'boolean',round:'integer'},'CombatEvent');
 type('IncomingDamageEvent',{damage:'number',blocked:'boolean',critical:'boolean'},'CombatEvent');
+type('HitPhaseEvent',{damage:'number',blocked:'boolean',critical:'boolean',target:enumOf('self','opponent'),weapon:'boolean',unarmed:'boolean',ranged:'boolean',magic:'boolean'},'CombatEvent');
 type('ComboEvent',{combo:'integer',last_combo:'integer'},'CombatEvent');
 type('StyleEvent',{style_rank:'integer',style_name:'string',style_gain:'number',is_hit:'boolean'},'CombatEvent');
 type('TickEvent',{frame:'integer',seconds:'number',delta_frames:'integer',delta_seconds:'number'},'CombatEvent');
 type('FightEndEvent',{won:'boolean',player_result:enumOf('win','loss','surrender','timeout')},'CombatEvent');
-const callbacks = ['on_fight_begin','on_round_begin','on_tick','on_damage_resolving','on_damage_dealing','on_damage_received','on_damage_dealt','on_block','on_critical','on_combo_changed','on_style_changed','on_round_end','on_fight_end'];
+const callbacks = ['on_fight_begin','on_round_begin','on_tick','on_damage_resolving','on_damage_dealing','on_hit_post_crit','on_post_hit','on_damage_received','on_damage_dealt','on_block','on_critical','on_combo_changed','on_style_changed','on_round_end','on_fight_end'];
 for (const stateful of [false,true]) {
     const fields = { id:'string', 'parameters?':schema, ...(stateful ? { state:E('BehaviorState') } : { 'state?':'nil' }) };
     for (const name of callbacks) {
-        const event=name==='on_tick'?'TickEvent':name==='on_combo_changed'?'ComboEvent':name==='on_style_changed'?'StyleEvent':['on_damage_resolving','on_damage_dealing'].includes(name)?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
-        fields[`${name}?`] = `fun(${stateful ? 'self:'+E('BehaviorSelf') : 'parameters:'+values}, fighter:${E(name==='on_damage_resolving'?'ResolvingFighter':name==='on_damage_dealing'?'OutgoingFighter':'Fighter')}, event:${E(event)})`;
+        const event=name==='on_tick'?'TickEvent':name==='on_combo_changed'?'ComboEvent':name==='on_style_changed'?'StyleEvent':['on_hit_post_crit','on_post_hit'].includes(name)?'HitPhaseEvent':['on_damage_resolving','on_damage_dealing'].includes(name)?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
+        fields[`${name}?`] = `fun(${stateful ? 'self:'+E('BehaviorSelf') : 'parameters:'+values}, fighter:${E(name==='on_damage_resolving'?'ResolvingFighter':['on_damage_dealing','on_post_hit'].includes(name)?'OutgoingFighter':'Fighter')}, event:${E(event)})`;
     }
     type(stateful ? 'StatefulBehavior' : 'BehaviorDefinition', fields);
 }
@@ -54,9 +55,12 @@ const fighterMethods = {
     change_health:{params:{amount:'number'},capability:'combat.change_life'},
     add_magic_charge:{params:{amount:'number'},capability:'combat.magic_charge'},
     scale_outgoing_damage:{params:{multiplier:'number'},capability:'combat.modify_outgoing_hit'},
+    add_outgoing_damage:{params:{amount:'number'},capability:'combat.modify_outgoing_hit'},
     scale_incoming_damage:{params:{multiplier:'number'},capability:'combat.modify_hit'},
     add_damage_shield:{params:{key:'string',fraction:'number',frames:'integer'},capability:'combat.effects'},
     remove_damage_shield:{params:{key:'string'},capability:'combat.effects'},
+    show_status_icon:{params:{key:'string',sprite:H('Sprite'),frames:'integer','stacks?':'integer'},capability:'combat.effects'},
+    clear_status_icon:{params:{key:'string'},capability:'combat.effects'},
 };
 type('FormRequest',{status:enumOf('queued','applied','failed'),'error?':'string'});
 const equipment = { id:'string', display_name:H('Localization'), icon:H('Sprite'), model:H('Model') };
@@ -79,6 +83,7 @@ fn('assets.exists',{reference:'string'},'boolean',null);
 type('AssetReplacement',{target:'string',replacement:'string'}); reg('assets.replace','AssetReplacement',null,'assets.replace');
 fn('localization.key',{key:'string'},H('Localization'),'content.register',{referenceKind:'localization'});
 fn('localization.text',{key:H('Localization'),'language?':'string'},'string',null);
+type('LocalizationDefinition',{id:'string',language:'string',value:'string'});reg('localization.register','LocalizationDefinition','Localization');
 type('LocalizationPatch',{target:'string',language:'string',value:'string'});reg('localization.patch','LocalizationPatch',null,'content.patch');
 reg('state.register','StateDefinition',null,'state.write');
 fn('state.get',{name:'string'},`${primitive}|nil`,'state.read');
@@ -90,8 +95,8 @@ reg('behaviors.register','BehaviorDefinition','Behavior');
 functions['sf2.behaviors.register'].overload = `fun(definition:${E('StatefulBehavior')}):${H('Behavior')}`;
 lookup('perks.get','Perk');
 type('PerkUpgrade',{level:'integer','description?':H('Localization'),'parameters?':values});
-type('PerkDefinition',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),behavior:H('Behavior'),kind:enumOf('single','combo'),'parameters?':values,'upgrades?':E('PerkUpgrade')+'[]'});
-type('TemplatePerk',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),template:H('Perk'),'parameters?':values,'upgrades?':E('PerkUpgrade')+'[]'});
+type('PerkDefinition',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),behavior:H('Behavior'),kind:enumOf('single','combo'),'parameters?':values,'upgrades?':E('PerkUpgrade')+'[]','initial_upgrade?':'integer'});
+type('TemplatePerk',{id:'string',display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),template:H('Perk'),'parameters?':values,'upgrades?':E('PerkUpgrade')+'[]','initial_upgrade?':'integer'});
 fn('perks.register',{definition:`${E('PerkDefinition')}|${E('TemplatePerk')}`},H('Perk'));
 const equipmentKinds=enumOf('weapon','armor','helm','ranged','magic');
 type('EnchantmentDefinition',{id:'string',recipe:enumOf('simple','medium','complex'),item_types:`(${equipmentKinds})[]`,behavior:H('Behavior'),display_name:H('Localization'),description:H('Localization'),'icon?':H('Sprite'),'parameters?':values});
@@ -102,16 +107,23 @@ type('BattleDefinition',{id:'string',zone:H('Zone'),type:'string','x?':'integer'
 type('AttributeAlignment',{factor:'number',shift:'number','priority?':'integer','mode?':enumOf('all','normal','eclipse')});
 type('WarriorDefinition',{id:'string','template?':H('WarriorTemplate'),...Object.fromEntries(['first_name','last_name','avatar','voice','group'].map(k=>[k+'?','string'])),'level?':'integer','tactic?':`${H('Tactic')}|string`,'random?':'integer','items?':H('Item')+'[]','perks?':H('Perk')+'[]','attributes?':'table<string,number>','attribute_alignments?':E('AttributeAlignment')+'[]','body_model?':H('Model'),'skin_models?':H('Model')+'[]','health_bars?':['integer','0 inherits the template; 1-10000 is the total number of health bars.']});
 lookup('warriors.get_template','WarriorTemplate');reg('warriors.register','WarriorDefinition','Warrior');
-type('ItemGrant',{item:H('Item'),'upgrade?':'integer'});type('RewardCandidate',{item:H('Item'),'upgrade?':'integer','weight?':'number'});type('RewardChoice',{items:E('RewardCandidate')+'[]'});
+type('RewardGrantContext',{player_level:'integer',item_id:'string'});
+type('RewardGrantEnchantment',{perk:H('Perk'),'aspect?':'number'});
+type('RewardGrantConfiguration',{'level?':'integer','enchantments?':E('RewardGrantEnchantment')+'[]'});
+const rewardConfigure=`fun(context:${E('RewardGrantContext')}):${E('RewardGrantConfiguration')}`;
+type('ItemGrant',{item:H('Item'),'upgrade?':'integer','configure?':rewardConfigure});type('RewardCandidate',{item:H('Item'),'upgrade?':'integer','weight?':'number','configure?':rewardConfigure});type('RewardChoice',{items:E('RewardCandidate')+'[]'});
 type('RewardDefinition',{id:'string','items?':E('ItemGrant')+'[]','choices?':E('RewardChoice')+'[]','gems?':'integer'});reg('rewards.register','RewardDefinition','Reward');
 type('FightDefinition',{id:'string',battle:H('Battle'),'warriors?':H('Warrior')+'[]','rules?':H('Rule')+'[]','rewards?':[H('Reward')+'[]','First slot is the zero-win result; second slot is one win.'],...Object.fromEntries(['rounds','round_time','replays','replay_interval','power'].map(k=>[k+'?','integer'])),...Object.fromEntries(['location','music','description','reward_image'].map(k=>[k+'?','string'])),'evaluated_rating?':'number','health_recovery?':'number','locked?':'boolean'});reg('fights.register','FightDefinition','Fight');
 type('RewardDropPatch',{wins:'integer',reward:H('Reward'),'mode?':enumOf('all','normal','eclipse'),'min_level?':'integer','max_level?':'integer'});
 type('FightPatch',{target:'string','description?':'string','rounds?':'integer','round_time?':'integer','location?':'string','music?':'string','warriors?':H('Warrior')+'[]','reward_drops?':E('RewardDropPatch')+'[]','rules?':H('Rule')+'[]','append_rules?':H('Rule')+'[]'});reg('fights.patch','FightPatch',null,'content.patch');
 const rule={id:'string','target?':enumOf('player','opponent','all'),'mode?':enumOf('normal','eclipse','all'),'rounds?':'integer[]'};
-for (const [name,extra] of Object.entries({no_perks:{'name?':'string'},require_item:{item:H('Item'),'minimum_level?':'integer'},equip_item:{item:H('Item'),'minimum_level?':'integer'},avatar:{name:'string'},name:{name:'string'},no_button:{name:'string'},perk:{perk:H('Perk')},behavior:{behavior:H('Behavior'),'parameters?':values},recharge_magic_each_round:{},attributes:{values:'table<string,number>'}})) {
+type('HotGroundNode',{name:'string',axis:enumOf('X','Y'),'min?':'number','max?':'number'});
+for (const [name,extra] of Object.entries({no_perks:{'name?':'string'},require_item:{item:H('Item'),'minimum_level?':'integer'},equip_item:{item:H('Item'),'minimum_level?':'integer'},avatar:{name:'string'},name:{name:'string'},no_button:{name:'string'},perk:{perk:H('Perk'),'aspect?':'number'},behavior:{behavior:H('Behavior'),'parameters?':values},recharge_magic_each_round:{},attributes:{values:'table<string,number>'},hot_ground:{frames:'integer',nodes:E('HotGroundNode')+'[]','animations?':'string[]'},ring_out:{node:'string',axis:enumOf('X','Y'),min:'number',max:'number'},regeneration:{rate:'number',frames_after_hit:'integer'},remove_interval:{type:enumOf('Attack','Block','Invulnerable','SelfUninterrupt','Uninterrupt','Unstable')}})) {
     const fields={...rule,...extra};if(name==='require_item') delete fields['target?'];
+    if(name==='hot_ground') fields['target?']=enumOf('player','opponent');
     const shape='Rule_'+name;type(shape,fields);reg('rules.'+name,shape,'Rule');
 }
+type('Rule_no_animation',{id:'string',name:'string','mode?':enumOf('normal','eclipse','all'),'rounds?':'integer[]'});reg('rules.no_animation','Rule_no_animation','Rule');
 const questEvents=['session','activate','fight_enter','fight_end','raid_fight_enter','raid_fight_end','raid_enter','raid_end','reset_mode','raid_map_enter','raid_floor_changed','show_raid_loot','level_up','got_item','set_item_acquired','purchase','delivery','timer_end','enchantment','activate_perk','deactivate_perk','dialog','map_button','scene_loaded','shop_enter'];
 type('VariableOperand',{kind:'"variable"',name:'string'});type('EventOperand',{kind:enumOf('event_fight','fight_result','current_battle')});type('FightOperand',{kind:enumOf('fight_wins','fight_id'),fight:H('Fight')});
 const operand=`${primitive}|${E('VariableOperand')}|${E('EventOperand')}|${E('FightOperand')}`;
@@ -156,10 +168,11 @@ type('MoveAttack',{edges:'string[]','damage?':'number','damage_type?':enumOf('Un
 type('MoveInterval',{'type?':'string','name?':'string','start?':'integer','end?':'integer','attack?':E('MoveAttack')});
 const move={id:'string','templates?':H('MoveTemplate')+'[]','core_templates?':'string[]','events?':`(${moveEvent}|${E('MoveEvent')})[]`,'conditions?':`(${moveCondition})[]`,'intervals?':E('MoveInterval')+'[]',...Object.fromEntries(['type','mirror_node','tactic_equivalent','tactic_weapon'].map(k=>[k+'?','string'])),...Object.fromEntries(['priority','mid_frames','first_frame','end_frame'].map(k=>[k+'?','integer'])),'looped?':'boolean','ends_stage?':'boolean'};
 type('MoveTemplateDefinition',move);type('MoveDefinition',{...move,animation:H('Binary')});reg('moves.register_template','MoveTemplateDefinition','MoveTemplate');reg('moves.register','MoveDefinition','Move');
+type('MovePerkLockRemoval',{move:'string',perk:H('Perk')});reg('moves.remove_perk_lock','MovePerkLockRemoval',null,'content.patch');
 type('SoundAction',{type:'"sound"',audio:H('Audio'),'volume?':'number','looped?':'boolean'});type('HitEffectAction',{type:'"hit_effect"',name:'string'});type('TriggerDefinition',{id:'string','events?':move['events?'],'conditions?':move['conditions?'],'actions?':`(${E('SoundAction')}|${E('HitEffectAction')})[]`});reg('moves.register_trigger','TriggerDefinition','Trigger');
 type('TacticValue',{...Object.fromEntries(['base','counter_factor','damage_factor','health_factor','enemy_health_factor','animation_frames_factor','child_frames_factor','magic_bullet_factor','missile_bullet_factor','hit_factor','distance_factor','shift','limit','anti_limit'].map(k=>[k+'?','number'])),'factor_type?':enumOf('linear','exponential')});type('TacticMemory',{'strikes?':'integer','round_factor?':'number'});type('TacticWeight',{'move?':H('Move'),'animation?':'string','value?':E('TacticValue')});type('AiActionTiming',{first_sample:'integer',last_sample:'integer',mid_frames:'integer',nominal_frames:'integer',nominal_seconds:'number',looped:'boolean'});type('AiActionInput',{control:enumOf('Up','Up-Forward','Forward','Down-Forward','Down','Down-Back','Back','Up-Back','Punch','Kick','Ranged','Magic','RaidCharge','Super','Unknown'),press:enumOf('tap','hold','release')});type('AiAction',{name:'string',type:enumOf('none','move','attack'),priority:'integer','timing?':E('AiActionTiming'),inputs:E('AiActionInput')+'[]'});type('AiDecision',{self:E('FighterSnapshot'),opponent:E('FighterSnapshot')+'?',frame:'integer',seconds:'number',actions:E('AiAction')+'[]'});type('TacticDefinition',{id:'string','on_decide?':`fun(memory:table,event:${E('AiDecision')}): ${E('AiAction')}|"wait"|nil`,'type?':enumOf('tabular','random'),'template?':'string','memory?':E('TacticMemory'),...Object.fromEntries(['counter_attack','dodge','block','safe_attack','table_attack','cautious_movement','dodge_missiles','dodge_magic'].map(k=>[k+'?',E('TacticValue')])),...Object.fromEntries(['animation_weights','quick_attacks','evades','expected_wait'].map(k=>[k+'?',E('TacticWeight')+'[]']))});reg('tactics.register','TacticDefinition','Tactic');fn('tactics.name',{tactic:H('Tactic')},'string',null);
 type('ModeResult',{won:'boolean',step:'integer',total:'integer',completions:'integer',fight_id:'string'});
-type('ModeRequest',{'private __eclipseModeRequest':'true'});type('EncounterPlan',{'warriors?':H('Warrior')+'[]','level?':'integer','rounds?':'integer','round_time?':'integer'});type('ModePreparation',{step:'integer',total:'integer',completions:'integer',fight_id:'string'});
+type('ModeRequest',{'private __eclipseModeRequest':'true'});type('EncounterPlan',{'warriors?':H('Warrior')+'[]','level?':'integer','rounds?':'integer','round_time?':'integer','rules?':H('Rule')+'[]','description?':'string'});type('ModePreparation',{step:'integer',total:'integer',completions:'integer',fight_id:'string'});
 const mode={'on_prepare?':`fun(request:${E('ModeRequest')},event:${E('ModePreparation')}):${E('EncounterPlan')}|nil`,id:'string',fights:H('Fight')+'[]','repeatable?':'boolean','reset_on_loss?':'boolean','minimum_level?':'integer','starts_at?':'integer','ends_at?':'integer','entry_item?':H('Item'),'entry_count?':'integer','on_result?':`fun(result:${E('ModeResult')}):${H('Fight')}|"complete"|nil`};
 type('ModeDefinition',mode);type('RaidDefinition',{...mode,'hard_mode?':'boolean'});for(const name of ['modes','events','raids']) reg(name+'.register',name==='raids'?'RaidDefinition':'ModeDefinition');
 fn('modes.resolve',{request:E('ModeRequest'),plan:E('EncounterPlan')},'nil',null);fn('modes.cancel',{request:E('ModeRequest')},'nil',null);fn('modes.is_pending',{request:E('ModeRequest')},'boolean',null);

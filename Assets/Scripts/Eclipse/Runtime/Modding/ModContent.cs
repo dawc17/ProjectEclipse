@@ -705,14 +705,19 @@ namespace Eclipse.Modding
         public string LegacyName { get; }
         public string LegacyPerkXml { get; }
         public IReadOnlyList<PerkUpgradeDefinition> Upgrades { get; }
+        public int InitialUpgradeLevel { get; }
         public bool IsCore => Id.Namespace.Value == "core";
 
         internal PerkDefinition(DefinitionId id, DefinitionId displayName, DefinitionId description,
             AssetId icon, ModPerkKind kind, string legacyName = null, string legacyPerkXml = null,
             DefinitionId behavior = default,
-            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null, PerkUpgradeDefinition[] upgrades = null)
+            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null, PerkUpgradeDefinition[] upgrades = null,
+            int initialUpgradeLevel = 0)
         {
             Upgrades = Array.AsReadOnly(upgrades == null ? Array.Empty<PerkUpgradeDefinition>() : (PerkUpgradeDefinition[])upgrades.Clone());
+            if (initialUpgradeLevel < 0 || initialUpgradeLevel > Upgrades.Count)
+                throw new ModContentException("Initial perk upgrade must be 0 or a declared upgrade level.");
+            InitialUpgradeLevel = initialUpgradeLevel;
             Id = id;
             Behavior = behavior;
             HasBehavior = !string.IsNullOrEmpty(behavior.Category);
@@ -727,9 +732,9 @@ namespace Eclipse.Modding
             LegacyName = legacyName;
             LegacyPerkXml = legacyPerkXml;
         }
-        internal PerkDefinition WithUpgrades(PerkUpgradeDefinition[] upgrades) => new PerkDefinition(
+        internal PerkDefinition WithUpgrades(PerkUpgradeDefinition[] upgrades, int initialUpgradeLevel = 0) => new PerkDefinition(
             Id, DisplayName, Description, Icon, Kind, LegacyName, LegacyPerkXml, Behavior,
-            InitialParameters, upgrades);
+            InitialParameters, upgrades, initialUpgradeLevel);
 
         public Dictionary<string, ModParameterValue> ResolveSavedUpgradeParameters(System.Xml.XmlNode node,
             IReadOnlyDictionary<string, ModParameterValue> saved)
@@ -834,6 +839,11 @@ namespace Eclipse.Modding
         Attributes = 7,
         NoButton = 8,
         Behavior = 9,
+        HotGround = 10,
+        RingOut = 11,
+        Regeneration = 12,
+        NoAnimation = 13,
+        RemoveInterval = 14,
     }
 
     public enum ModRuleTarget
@@ -1298,6 +1308,8 @@ namespace Eclipse.Modding
         public int MinimumLevel { get; }
         public DefinitionId Perk { get; }
         public bool HasPerk { get; }
+        public double? PerkAspect { get; }
+        public ModTrialRulePayload Trial { get; }
         private readonly Dictionary<string, float> _attributes;
         public IReadOnlyDictionary<string, float> Attributes => _attributes;
 
@@ -1305,7 +1317,8 @@ namespace Eclipse.Modding
             int[] rounds, string name, DefinitionId item, bool hasItem, int minimumLevel,
             DefinitionId perk = default(DefinitionId), bool hasPerk = false,
             IReadOnlyDictionary<string, float> attributes = null, DefinitionId behavior = default,
-            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null)
+            IReadOnlyDictionary<string, ModParameterValue> initialParameters = null,
+            double? perkAspect = null, ModTrialRulePayload trial = null)
         {
             Behavior = behavior;
             var parameterCopy = new Dictionary<string, ModParameterValue>();
@@ -1329,6 +1342,16 @@ namespace Eclipse.Modding
             MinimumLevel = minimumLevel;
             Perk = perk;
             HasPerk = hasPerk;
+            if (perkAspect.HasValue && (kind != ModFightRuleKind.Perk || double.IsNaN(perkAspect.Value) ||
+                double.IsInfinity(perkAspect.Value) || perkAspect.Value < 0 || perkAspect.Value > int.MaxValue))
+                throw new ModContentException("Perk rule aspect must be finite and 0..2147483647.");
+            PerkAspect = perkAspect;
+            bool trialKind = kind == ModFightRuleKind.HotGround || kind == ModFightRuleKind.RingOut ||
+                kind == ModFightRuleKind.Regeneration || kind == ModFightRuleKind.NoAnimation ||
+                kind == ModFightRuleKind.RemoveInterval;
+            if (trialKind != (trial != null) || trial != null && trial.Kind != kind)
+                throw new ModContentException("Trial rule payload does not match rule kind '" + kind + "'.");
+            Trial = trial;
             _attributes = new Dictionary<string, float>(StringComparer.Ordinal);
             if (attributes != null)
             {
@@ -1361,15 +1384,61 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class RewardGrantEnchantment
+    {
+        public DefinitionId Perk { get; }
+        public double? Aspect { get; }
+
+        public RewardGrantEnchantment(DefinitionId perk, double? aspect = null)
+        {
+            if (perk.Category != "perks")
+                throw new ModContentException("Reward enchantment must reference a perk definition.");
+            if (aspect.HasValue && (double.IsNaN(aspect.Value) || double.IsInfinity(aspect.Value) ||
+                aspect.Value < 0 || aspect.Value > int.MaxValue))
+                throw new ModContentException("Reward enchantment aspect must be finite and 0..2147483647.");
+            Perk = perk;
+            Aspect = aspect;
+        }
+    }
+
+    public sealed class RewardGrantConfiguration
+    {
+        public int? Level { get; }
+        public IReadOnlyList<RewardGrantEnchantment> Enchantments { get; }
+
+        public RewardGrantConfiguration(int? level = null, RewardGrantEnchantment[] enchantments = null)
+        {
+            if (level.HasValue && (level.Value < 1 || level.Value > 10000))
+                throw new ModContentException("Reward equipment level must be 1..10000.");
+            var entries = enchantments == null ? Array.Empty<RewardGrantEnchantment>() :
+                (RewardGrantEnchantment[])enchantments.Clone();
+            if (entries.Length > 64)
+                throw new ModContentException("Reward enchantments support at most 64 entries.");
+            var seen = new HashSet<DefinitionId>();
+            foreach (var entry in entries)
+                if (entry == null || !seen.Add(entry.Perk))
+                    throw new ModContentException("Reward enchantments contain a null or duplicate perk.");
+            Level = level;
+            Enchantments = Array.AsReadOnly(entries);
+        }
+    }
+
     public sealed class RewardItemGrant
     {
         public DefinitionId Item { get; }
         public uint UpgradeNumber { get; }
-        public RewardItemGrant(DefinitionId item, uint upgradeNumber = 0)
+        // Held by the committed grant, so failed transactions never install callbacks.
+        // The script wrapper checks its own disposed lifetime on every invocation.
+        public Func<int, RewardGrantConfiguration> Configure { get; }
+        public bool UsesConfiguration => Configure != null;
+
+        public RewardItemGrant(DefinitionId item, uint upgradeNumber = 0,
+            Func<int, RewardGrantConfiguration> configure = null)
         {
             if (item.Category != "items") throw new ModContentException("Reward item must reference an item definition.");
             Item = item;
             UpgradeNumber = upgradeNumber;
+            Configure = configure;
         }
     }
 
@@ -1416,6 +1485,21 @@ namespace Eclipse.Modding
             _choices = choices == null ? Array.Empty<RewardChoiceDefinition>() : (RewardChoiceDefinition[])choices.Clone();
             // Empty slots are meaningful: recovered fights index rewards by wins,
             // including a zero-win slot that commonly grants nothing.
+        }
+
+        // Adapter markers use one zero-based index across direct items and choices.
+        public bool TryGetGrant(int index, out RewardItemGrant grant)
+        {
+            grant = null;
+            if (index < 0) return false;
+            if (index < _items.Length) { grant = _items[index]; return true; }
+            index -= _items.Length;
+            foreach (var choice in _choices)
+            {
+                if (index < choice.Items.Count) { grant = choice.Items[index].Grant; return true; }
+                index -= choice.Items.Count;
+            }
+            return false;
         }
     }
 
@@ -1935,6 +2019,14 @@ namespace Eclipse.Modding
             if (!TryGetPendingItem(grant.Item, weapons, armors, helms, ranged, magic, nonEquipmentItems, out item) &&
                 !TryResolveItem(grant.Item, out item))
                 throw new ModContentException("Reward '" + rewardId + "' references missing item '" + grant.Item + "'.");
+            ValidateConfiguredRewardEquipment(grant, item);
+        }
+
+        internal static void ValidateConfiguredRewardEquipment(RewardItemGrant grant, ItemDefinition item)
+        {
+            if (grant.UsesConfiguration && !(item is WeaponDefinition || item is ArmorDefinition ||
+                item is HelmDefinition || item is RangedDefinition || item is MagicDefinition))
+                throw new ModContentException("Reward configure callbacks require equipment: '" + grant.Item + "'.");
         }
 
         private Dictionary<DefinitionId, LocalizationDefinition> PrepareLocalizationPatches(
@@ -2301,7 +2393,22 @@ namespace Eclipse.Modding
         public DefinitionId GetLocalization(string key)
         {
             ThrowIfCompleted();
-            DefinitionId id = Qualify("localization", key);
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ModContentException("Localization key must not be empty.");
+            DefinitionId id;
+            try
+            {
+                id = key.IndexOf(':') >= 0 ? DefinitionId.Parse(key) : Qualify("localization", key);
+            }
+            catch (FormatException exception)
+            {
+                throw new ModContentException(exception.Message, exception);
+            }
+            if (id.Category != "localization")
+                throw new ModContentException("Localization key must use the 'localization' definition category: '" + id + "'.");
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Mod '" + Mod.Id + "' cannot reference undeclared namespace '" +
+                    id.Namespace + "'. Declare it as a dependency first.");
             if (_localizations.ContainsKey(id)) return id;
             LocalizationDefinition ignored;
             if (_catalog.TryGetLocalization(id, out ignored)) return id;
@@ -2577,7 +2684,7 @@ namespace Eclipse.Modding
             return definition;
         }
 
-        public PerkDefinition SetPerkUpgrades(DefinitionId id, PerkUpgradeDefinition[] upgrades)
+        public PerkDefinition SetPerkUpgrades(DefinitionId id, PerkUpgradeDefinition[] upgrades, int initialUpgradeLevel = 0)
         {
             ThrowIfCompleted();
             if (id.Namespace != Mod.Id || !_perks.TryGetValue(id, out var perk))
@@ -2594,7 +2701,7 @@ namespace Eclipse.Modding
                 foreach (var pair in upgrade.TypedParameters) combined[pair.Key] = pair.Value;
                 RequirePendingBehavior(perk.Behavior, "Perk upgrade").Parameters.ResolveValues(combined);
             }
-            var definition = perk.WithUpgrades(upgrades);
+            var definition = perk.WithUpgrades(upgrades, initialUpgradeLevel);
             _perks[id] = definition;
             return definition;
         }
@@ -2797,7 +2904,7 @@ namespace Eclipse.Modding
         }
 
         public FightRuleDefinition RegisterPerkRule(string localId, DefinitionId perk, ModRuleTarget target,
-            ModRuleMode mode, int[] rounds)
+            ModRuleMode mode, int[] rounds, double? aspect = null)
         {
             ThrowIfCompleted();
             PerkDefinition perkDefinition;
@@ -2805,7 +2912,7 @@ namespace Eclipse.Modding
                 (!_perks.TryGetValue(perk, out perkDefinition) && !_catalog.TryGetPerk(perk, out perkDefinition)))
                 throw new ModContentException("Perk rule references an unavailable perk '" + perk + "'.");
             return RegisterExtendedRule(localId, ModFightRuleKind.Perk, target, mode, rounds, string.Empty,
-                default(DefinitionId), false, 0, perk, true, null);
+                default(DefinitionId), false, 0, perk, true, null, aspect);
         }
 
         public FightRuleDefinition RegisterRechargeMagicRule(string localId, ModRuleTarget target, ModRuleMode mode,
@@ -2824,7 +2931,8 @@ namespace Eclipse.Modding
 
         private FightRuleDefinition RegisterExtendedRule(string localId, ModFightRuleKind kind, ModRuleTarget target,
             ModRuleMode mode, int[] rounds, string name, DefinitionId item, bool hasItem, int minimumLevel,
-            DefinitionId perk, bool hasPerk, IReadOnlyDictionary<string, float> attributes)
+            DefinitionId perk, bool hasPerk, IReadOnlyDictionary<string, float> attributes,
+            double? perkAspect = null, ModTrialRulePayload trial = null)
         {
             ThrowIfCompleted();
             ValidateRuleEnums(target, mode);
@@ -2832,7 +2940,7 @@ namespace Eclipse.Modding
             if (_fightRules.ContainsKey(id)) throw new ModContentException("Duplicate fight rule definition: '" + id + "'.");
             EnsureCapacityForNewRegistration();
             var definition = new FightRuleDefinition(id, kind, target, mode, rounds, name, item, hasItem,
-                minimumLevel, perk, hasPerk, attributes);
+                minimumLevel, perk, hasPerk, attributes, perkAspect: perkAspect, trial: trial);
             _fightRules.Add(id, definition);
             return definition;
         }
@@ -3259,11 +3367,13 @@ namespace Eclipse.Modding
 
         private void ValidateRewardItem(RewardItemGrant grant)
         {
+            if (grant == null) throw new ModContentException("Reward item must not be null.");
             if (!CanReferenceNamespace(grant.Item.Namespace))
                 throw new ModContentException("Reward item belongs to undeclared namespace '" + grant.Item.Namespace + "'.");
             ItemDefinition item;
             if (!TryGetPendingItem(grant.Item, out item) && !_catalog.TryResolveItem(grant.Item, out item))
                 throw new ModContentException("Reward references missing item '" + grant.Item + "'.");
+            ModContentCatalog.ValidateConfiguredRewardEquipment(grant, item);
         }
 
         private void ValidateDefinitionReferences(DefinitionId[] references, string category, DefinitionId owner,

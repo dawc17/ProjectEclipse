@@ -24,6 +24,76 @@ test('clean starter indexes and validates, including table-call syntax', async (
     assert.equal(mod.localizations.get('weapon.training_blade').translations[0].language, 'eng');
     assert.deepEqual(p.analyze(await fs.readFile(path.join(template, 'scripts/main.lua'), 'utf8'), mod).issues, []);
 });
+test('Lua localization registration is typed, indexed, capability checked, and immediately key-addressable', async t => {
+    const root=await fs.mkdtemp(path.join(os.tmpdir(),'eclipse-localization-'));
+    t.after(()=>fs.rm(root,{recursive:true,force:true}));
+    await fs.mkdir(path.join(root,'scripts'),{recursive:true});
+    await fs.writeFile(path.join(root,'mod.toml'),[
+        'schema = 1','id = "lua.locale"','name = "Lua Locale"','version = "1.0.0"',
+        'authors = ["Test"]','entrypoint = "scripts/main.lua"','capabilities = ["content.register"]',''
+    ].join('\n'));
+    const source=header+[
+        'local name = sf2.localization.register { id="item.desolator", language=" ENG ", value="Desolator" }',
+        'sf2.localization.register { id="item.desolator", language="pol", value="Desolator" }',
+        'local same = sf2.localization.key("item.desolator")',
+        'local text = sf2.localization.text(name, "eng")',''
+    ].join('\n');
+    await fs.writeFile(path.join(root,'scripts/main.lua'),source);
+    const mod=await p.indexMod(root);
+    assert.deepEqual(mod.issues,[]);
+    assert.deepEqual(mod.localizations.get('item.desolator').translations.map(x=>x.language),['eng','pol']);
+    assert.deepEqual(p.analyze(source,mod).issues,[]);
+    const api=require('../data/api.json'),schema=require('../scripts/api-schema.cjs');
+    assert.equal(schema.functions['sf2.localization.register'].returns,'Eclipse.LocalizationHandle');
+    assert.equal(api.functions['sf2.localization.register'].capability,'content.register');
+    assert.deepEqual(api.types.LocalizationDefinition.fields,{id:'string',language:'string',value:'string'});
+    const withoutCapability={...mod,data:{...mod.data,capabilities:[]}};
+    assert(p.analyze(source,withoutCapability).issues.some(i=>i.capability==='content.register'));
+});
+
+test('Lua and TOML localization registrations share normalized duplicate validation', async t => {
+    const root=await fs.mkdtemp(path.join(os.tmpdir(),'eclipse-localization-duplicate-'));
+    t.after(()=>fs.rm(root,{recursive:true,force:true}));
+    await fs.mkdir(path.join(root,'scripts'),{recursive:true});
+    await fs.mkdir(path.join(root,'localizations'),{recursive:true});
+    await fs.writeFile(path.join(root,'mod.toml'),[
+        'schema = 1','id = "lua.locale"','name = "Lua Locale"','version = "1.0.0"',
+        'authors = ["Test"]','entrypoint = "scripts/main.lua"','capabilities = ["content.register"]',''
+    ].join('\n'));
+    await fs.writeFile(path.join(root,'localizations/eng.toml'),'item.desolator = "From TOML"\n');
+    await fs.writeFile(path.join(root,'scripts/main.lua'),header+'sf2.localization.register { id="item.desolator", language="ENG", value="From Lua" }\n');
+    const mod=await p.indexMod(root);
+    assert(mod.issues.some(i=>i.message.includes("Duplicate localization 'item.desolator' for language 'eng'")));
+});
+test('Lua localization indexing follows reachable literal local require modules once', async t => {
+    const root=await fs.mkdtemp(path.join(os.tmpdir(),'eclipse-localization-module-'));
+    t.after(()=>fs.rm(root,{recursive:true,force:true}));
+    await fs.mkdir(path.join(root,'scripts/content'),{recursive:true});
+    await fs.writeFile(path.join(root,'mod.toml'),[
+        'schema = 1','id = "lua.module"','name = "Lua Module"','version = "1.0.0"',
+        'authors = ["Test"]','entrypoint = "scripts/main.lua"','capabilities = ["content.register"]',''
+    ].join('\n'));
+    await fs.writeFile(path.join(root,'scripts/main.lua'),header+'require("content.equipment")\nrequire("content.equipment")\n');
+    await fs.writeFile(path.join(root,'scripts/content/equipment.lua'),header+[
+        'sf2.localization.register { id="item.required", language="eng", value="Required" }',
+        'require("content.nested")',''
+    ].join('\n'));
+    await fs.writeFile(path.join(root,'scripts/content/nested.lua'),header+'sf2.localization.register { id="item.nested", language="eng", value="Nested" }\n');
+    await fs.writeFile(path.join(root,'scripts/content/unreferenced.lua'),header+'sf2.localization.register { id="item.unreferenced", language="eng", value="Unreferenced" }\n');
+    const mod=await p.indexMod(root);
+    assert.deepEqual(mod.issues,[]);
+    assert(mod.localizations.has('item.required'));
+    assert(mod.localizations.has('item.nested'));
+    assert(!mod.localizations.has('item.unreferenced'));
+    assert.equal(mod.localizations.get('item.required').translations.length,1);
+});
+
+test('actual DE128 reachable Lua localization is indexed', async () => {
+    const mod=await p.indexMod(path.resolve(__dirname,'../../../Mods/de128'));
+    assert.deepEqual(mod.issues,[]);
+    assert(mod.localizations.has('item.titans_desolator'));
+    assert(mod.localizations.get('item.titans_desolator').translations.some(x=>x.language==='eng'&&x.value==="Titan's Desolator"));
+});
 test('references, dependencies, capability requirements, and numeric limits', async () => {
     const mod = await p.indexMod(template);
     const result = p.analyze(header + `
@@ -103,6 +173,53 @@ test('core fight patch example validates with registered rule handles', async ()
     assert(api.types.FightPatch.fields['warriors?']);
     assert(api.types.FightPatch.fields['reward_drops?']);
     assert(api.types.RewardDropPatch.fields.reward);
+});
+
+test('reward grant configure callback has typed context and result contract', () => {
+    const api=require('../scripts/api-schema.cjs');
+    assert.deepEqual(api.types.RewardGrantContext.fields,{player_level:'integer',item_id:'string'});
+    assert.deepEqual(api.types.RewardGrantEnchantment.fields,{perk:'Eclipse.PerkHandle','aspect?':'number'});
+    assert.deepEqual(api.types.RewardGrantConfiguration.fields,{'level?':'integer','enchantments?':'Eclipse.RewardGrantEnchantment[]'});
+    assert.equal(api.types.ItemGrant.fields['configure?'],'fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration');
+    assert.equal(api.types.RewardCandidate.fields['configure?'],'fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration');
+});
+
+test('Ascension encounter planning and native challenge rules have typed contracts', () => {
+    const api=require('../scripts/api-schema.cjs');
+    assert.equal(api.types.EncounterPlan.fields['rules?'],'Eclipse.RuleHandle[]');
+    assert.equal(api.types.EncounterPlan.fields['description?'],'string');
+    assert.deepEqual(api.types.HotGroundNode.fields,{name:'string',axis:'"X"|"Y"','min?':'number','max?':'number'});
+    assert.deepEqual(api.types.Rule_hot_ground.fields,{id:'string','target?':'"player"|"opponent"','mode?':'"normal"|"eclipse"|"all"','rounds?':'integer[]',frames:'integer',nodes:'Eclipse.HotGroundNode[]','animations?':'string[]'});
+    assert.equal(api.types.Rule_ring_out.fields.axis,'"X"|"Y"');
+    assert.equal(api.types.Rule_regeneration.fields.frames_after_hit,'integer');
+    assert.equal(api.types.Rule_remove_interval.fields.type,'"Attack"|"Block"|"Invulnerable"|"SelfUninterrupt"|"Uninterrupt"|"Unstable"');
+    assert.deepEqual(api.types.Rule_no_animation.fields,{id:'string',name:'string','mode?':'"normal"|"eclipse"|"all"','rounds?':'integer[]'});
+    assert.equal(api.types.Rule_perk.fields['aspect?'],'number');
+    for (const name of ['hot_ground','ring_out','regeneration','no_animation','remove_interval'])
+        assert(api.functions['sf2.rules.'+name],name);
+});
+
+test('DE combat perk callbacks and fighter operations are typed', () => {
+    const api=require('../scripts/api-schema.cjs');
+    assert.deepEqual(api.types.HitPhaseEvent.fields,{
+        damage:'number',blocked:'boolean',critical:'boolean',target:'"self"|"opponent"',
+        weapon:'boolean',unarmed:'boolean',ranged:'boolean',magic:'boolean'
+    });
+    assert(api.callbacks.includes('on_hit_post_crit'));
+    assert(api.callbacks.includes('on_post_hit'));
+    assert(api.types.StatefulBehavior.fields['on_hit_post_crit?'].includes('Eclipse.HitPhaseEvent'));
+    assert(api.types.StatefulBehavior.fields['on_post_hit?'].includes('Eclipse.OutgoingFighter'));
+    assert.deepEqual(api.fighterMethods.add_outgoing_damage,{params:{amount:'number'},capability:'combat.modify_outgoing_hit'});
+    assert.deepEqual(api.fighterMethods.show_status_icon,{params:{key:'string',sprite:'Eclipse.SpriteHandle',frames:'integer','stacks?':'integer'},capability:'combat.effects'});
+    assert.deepEqual(api.fighterMethods.clear_status_icon,{params:{key:'string'},capability:'combat.effects'});
+});
+
+test('move perk-lock removal and initial perk rank are typed', () => {
+    const api=require('../scripts/api-schema.cjs');
+    assert.deepEqual(api.types.MovePerkLockRemoval.fields,{move:'string',perk:'Eclipse.PerkHandle'});
+    assert.equal(api.functions['sf2.moves.remove_perk_lock'].capability,'content.patch');
+    assert.equal(api.types.PerkDefinition.fields['initial_upgrade?'],'integer');
+    assert.equal(api.types.TemplatePerk.fields['initial_upgrade?'],'integer');
 });
 
 test('perk upgrade example and starter validate assets, localization and branch definitions', async () => {

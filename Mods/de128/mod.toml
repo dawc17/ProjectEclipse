@@ -1,0 +1,11 @@
+schema = 1
+id = "de128"
+name = "DE128 - Definitive Edition"
+version = "0.5.0"
+authors = ["Dawid Czaplicki"]
+entrypoint = "scripts/main.lua"
+capabilities = ["policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects"]
+
+[[dependencies]]
+id = "core"
+version = ">=1.0 <2.0"

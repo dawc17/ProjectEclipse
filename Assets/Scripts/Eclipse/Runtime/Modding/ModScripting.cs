@@ -39,6 +39,30 @@ namespace Eclipse.Modding
         public ModRegistrationTransaction Registration { get; }
         public ModStateRuntime State { get; }
 
+        public bool IsRewardConfigurationActive { get; private set; }
+
+        // Host-only scope. A reward calculation may run during a preview and must
+        // not write state, navigate, or mutate a live fighter through captured APIs.
+        public IDisposable EnterRewardConfiguration()
+        {
+            if (IsRewardConfigurationActive)
+                throw new ModContentException("Reward configuration cannot be re-entered.");
+            IsRewardConfigurationActive = true;
+            return new RewardConfigurationScope(this);
+        }
+
+        private sealed class RewardConfigurationScope : IDisposable
+        {
+            private ModApiFacade _owner;
+            public RewardConfigurationScope(ModApiFacade owner) { _owner = owner; }
+            public void Dispose()
+            {
+                if (_owner == null) return;
+                _owner.IsRewardConfigurationActive = false;
+                _owner = null;
+            }
+        }
+
         public ModApiFacade(ModDescriptor mod, AssetResolver assets, Action<ModLogEntry> logger)
             : this(mod, assets, null, new ModStateRuntime(), logger)
         {
@@ -112,6 +136,12 @@ namespace Eclipse.Modding
         {
             RequireCapability("content.register");
             return RequireRegistration().GetLocalization(key);
+        }
+
+        public DefinitionId RegisterLocalization(string id, string language, string value)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().AddLocalization(id, language, value);
         }
 
         public string ReadLocalization(DefinitionId id, string language) => RequireRegistration().ReadLocalization(id, language);
@@ -281,10 +311,10 @@ namespace Eclipse.Modding
             return RequireRegistration().RegisterBehavior(localId, parameters, state, lifetime, version);
         }
 
-        public PerkDefinition SetPerkUpgrades(DefinitionId id, PerkUpgradeDefinition[] upgrades)
+        public PerkDefinition SetPerkUpgrades(DefinitionId id, PerkUpgradeDefinition[] upgrades, int initialUpgradeLevel = 0)
         {
             RequireCapability("content.register");
-            return RequireRegistration().SetPerkUpgrades(id, upgrades);
+            return RequireRegistration().SetPerkUpgrades(id, upgrades, initialUpgradeLevel);
         }
 
         public PerkDefinition RegisterScriptedPerk(string localId, DefinitionId displayName,
@@ -499,6 +529,8 @@ namespace Eclipse.Modding
 
         public void RequireCapability(string capability)
         {
+            if (IsRewardConfigurationActive)
+                throw new ModContentException("Reward configure callbacks only calculate a result; host capabilities are unavailable.");
             if (!HasCapability(capability))
                 throw new ModContentException("Mod '" + Mod.Id + "' did not declare required capability '" +
                     capability + "'.");
@@ -614,7 +646,9 @@ namespace Eclipse.Modding
         DamageDealing = 9,
         ComboChanged = 10,
         StyleChanged = 11,
-        Tick = 12
+        Tick = 12,
+        HitPostCrit = 13,
+        PostHit = 14
     }
 
     public interface IModScriptContext : IDisposable
@@ -780,7 +814,7 @@ namespace Eclipse.Modding
         private bool _initialized;
 
         public IEnumerable<FightRuleDefinition> Applicable(ModContentCatalog content, string runtimeFightId,
-            bool player, int round, bool eclipse)
+            bool player, int round, bool eclipse, IReadOnlyList<DefinitionId> encounterRules = null)
         {
             if (!_initialized)
             {
@@ -789,7 +823,7 @@ namespace Eclipse.Modding
                 {
                     if (content.RuntimeFightId(fight.Id) != runtimeFightId) continue;
                     var seen = new HashSet<DefinitionId>();
-                    foreach (var id in fight.Rules)
+                    foreach (var id in encounterRules ?? fight.Rules)
                         if (seen.Add(id) && content.TryGetFightRule(id, out var rule) && rule.Kind == ModFightRuleKind.Behavior)
                             _rules.Add(rule);
                     break;
@@ -832,6 +866,28 @@ namespace Eclipse.Modding
         bool TrySetDamageShield(object key, double fraction, int frames, out string error);
         bool TryRemoveDamageShield(object key, out string error);
     }
+    public interface IModFighterStatusIcons
+    {
+        bool TryShowStatusIcon(object key, AssetId sprite, int frames, int stacks, out string error);
+        bool TryClearStatusIcon(object key, out string error);
+    }
+
+    // Matches the recovered animation-category predicates, including overlapping tags.
+    // Incoming means this fighter is the target; otherwise its opponent is the target.
+    public sealed class ModHitEvent
+    {
+        public bool Incoming { get; }
+        public bool Weapon { get; }
+        public bool Unarmed { get; }
+        public bool Ranged { get; }
+        public bool Magic { get; }
+
+        public ModHitEvent(bool incoming, bool weapon, bool unarmed, bool ranged, bool magic)
+        {
+            Incoming = incoming; Weapon = weapon; Unarmed = unarmed; Ranged = ranged; Magic = magic;
+        }
+    }
+
     public interface IModIncomingHitSource { ModIncomingHit IncomingHit { get; } }
     public sealed class ModIncomingHit
     {
@@ -840,8 +896,10 @@ namespace Eclipse.Modding
         public double Damage => _read();
         public bool Blocked { get; }
         public bool Critical { get; }
-        public ModIncomingHit(Func<double> read, Action<double> write, bool blocked = false, bool critical = false)
-        { _read = read; _write = write; Blocked = blocked; Critical = critical; }
+        public ModHitEvent HitEvent { get; }
+        public ModIncomingHit(Func<double> read, Action<double> write, bool blocked = false, bool critical = false,
+            ModHitEvent hitEvent = null)
+        { _read = read; _write = write; Blocked = blocked; Critical = critical; HitEvent = hitEvent; }
         public bool TryScale(double scale, out string error)
         {
             error = "";
@@ -858,6 +916,17 @@ namespace Eclipse.Modding
             { error = "Outgoing damage must remain a finite nonnegative single-precision value."; return false; }
             _write(value); return true;
         }
+
+        public bool TryAddOutgoing(double amount, out string error)
+        {
+            error = "";
+            if (double.IsNaN(amount) || double.IsInfinity(amount) || amount < 0 || amount > 1)
+            { error = "Added outgoing damage must be finite and 0..1 normalized health units."; return false; }
+            double value = Damage + amount;
+            if (double.IsNaN(value) || double.IsInfinity(value) || value < 0 || value > float.MaxValue)
+            { error = "Outgoing damage must remain a finite nonnegative single-precision value."; return false; }
+            _write(value); return true;
+        }
     }
     public interface IModFighterTargets
     {
@@ -865,7 +934,7 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons
     {
         private readonly IModFighterOperations _inner;
         public bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error)
@@ -889,6 +958,18 @@ namespace Eclipse.Modding
         {
             if (SavedInstance != null && _inner is IModFighterEffects effects) return effects.TryRemoveDamageShield((SavedInstance, key), out error);
             error = "Timed effects are unavailable."; return false;
+        }
+        public bool TryShowStatusIcon(object key, AssetId sprite, int frames, int stacks, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterStatusIcons icons)
+                return icons.TryShowStatusIcon((SavedInstance, key), sprite, frames, stacks, out error);
+            error = "Status icons are unavailable."; return false;
+        }
+        public bool TryClearStatusIcon(object key, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterStatusIcons icons)
+                return icons.TryClearStatusIcon((SavedInstance, key), out error);
+            error = "Status icons are unavailable."; return false;
         }
         public ModInstanceFighter(IModFighterOperations inner, System.Xml.XmlNode node) { _inner = inner; SavedInstance = node; }
         public bool TryChangeHealth(double amount, out string error)

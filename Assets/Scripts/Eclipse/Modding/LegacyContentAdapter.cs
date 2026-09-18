@@ -46,11 +46,8 @@ namespace Eclipse.Modding
             if (_itemsApplied) throw new InvalidOperationException("Legacy items are already applied.");
             _items = items ?? throw new ArgumentNullException(nameof(items));
 
-            foreach (ShopListingDefinition listing in _content.ShopListings)
+            foreach (ItemDefinition definition in ExternalEquipment())
             {
-                ItemDefinition definition;
-                if (!_content.TryGetItem(listing.Item, out definition))
-                    throw new InvalidOperationException("Committed shop listing has no item: " + listing.Item);
                 if (_items.GetItemByName(definition.Id.ToString()) != null)
                     throw new InvalidOperationException("Legacy item already exists: " + definition.Id);
             }
@@ -65,10 +62,12 @@ namespace Eclipse.Modding
                     ItemInfo item = _items.AddExternalItem(BuildNonEquipmentItemNode(definition));
                     _itemNames.Add(item.Name);
                 }
+                var listings = new Dictionary<DefinitionId, ShopListingDefinition>();
                 foreach (ShopListingDefinition listing in _content.ShopListings)
+                    listings.Add(listing.Item, listing);
+                foreach (ItemDefinition definition in ExternalEquipment())
                 {
-                    ItemDefinition definition;
-                    if (!_content.TryGetItem(listing.Item, out definition)) continue;
+                    listings.TryGetValue(definition.Id, out ShopListingDefinition listing);
                     XmlElement node = BuildItemNode(definition, listing);
                     ItemInfo item = _items.AddExternalItem(node);
                     _itemNames.Add(item.Name);
@@ -131,10 +130,8 @@ namespace Eclipse.Modding
             // Recovered shop/item UI usually localizes an ItemInfo by ItemInfo.Name rather than
             // by its optional Text/TextButton fields. Keep the canonical namespaced localization
             // definition available, but also publish the display string under the legacy item id.
-            foreach (ShopListingDefinition listing in _content.ShopListings)
+            foreach (ItemDefinition item in ExternalEquipment())
             {
-                ItemDefinition item;
-                if (!_content.TryGetItem(listing.Item, out item)) continue;
                 LocalizationDefinition displayName;
                 if (!_content.TryGetLocalization(item.DisplayName, out displayName)) continue;
                 string value = displayName.GetOrEnglish(language);
@@ -238,7 +235,7 @@ namespace Eclipse.Modding
                         node.SetAttribute("Description", upgrade.Description.ToString());
                         node.AppendChild(document.CreateElement("Set")); root.AppendChild(node);
                     }
-                    _perks.AddExternalPerkUpgrades(RuntimePerkName(perk), root);
+                    _perks.AddExternalPerkUpgrades(RuntimePerkName(perk), root, perk.InitialUpgradeLevel);
                 }
 
                 foreach (ProgressionBranchOverlayDefinition overlay in GetProgressionOverlays())
@@ -770,6 +767,19 @@ namespace Eclipse.Modding
                 foreach (XmlElement warrior in warriors.ChildNodes) warrior.SetAttribute("Level",plan.Level.Value.ToString(CultureInfo.InvariantCulture));
             if (plan.Rounds.HasValue) node.SetAttribute("Rounds",plan.Rounds.Value.ToString(CultureInfo.InvariantCulture));
             if (plan.RoundTime.HasValue) node.SetAttribute("RoundTime",plan.RoundTime.Value.ToString(CultureInfo.InvariantCulture));
+            if (plan.Description != null) node.SetAttribute("Description",plan.Description);
+            if (plan.Rules != null)
+            {
+                var rules = node["Rules"];
+                if (rules == null) { rules = document.CreateElement("Rules"); node.AppendChild(rules); }
+                else rules.RemoveAll();
+                foreach (var id in plan.Rules)
+                {
+                    if (id.Namespace != fight.Id.Namespace || !_content.TryGetFightRule(id,out var rule))
+                        throw new ModContentException("Generated encounter references an unavailable or foreign rule: " + id);
+                    if (rule.Kind != ModFightRuleKind.Behavior) rules.AppendChild(BuildRuleNode(document,rule));
+                }
+            }
             return node;
         }
 
@@ -895,6 +905,12 @@ namespace Eclipse.Modding
                 node = document.CreateElement("Perk");
                 node.SetAttribute("Name", LegacyPerkName(rule.Perk));
                 node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
+                if (rule.PerkAspect.HasValue)
+                {
+                    XmlElement set = document.CreateElement("Set");
+                    set.SetAttribute("Aspect", rule.PerkAspect.Value.ToString("R", CultureInfo.InvariantCulture));
+                    node.AppendChild(set);
+                }
             }
             else if (rule.Kind == ModFightRuleKind.RechargeMagicEachRound)
             {
@@ -907,6 +923,54 @@ namespace Eclipse.Modding
                 node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
                 foreach (KeyValuePair<string, float> pair in rule.Attributes)
                     node.SetAttribute(pair.Key, pair.Value.ToString(CultureInfo.InvariantCulture));
+            }
+            else if (rule.Kind == ModFightRuleKind.HotGround)
+            {
+                node = document.CreateElement("HotGround");
+                node.SetAttribute("Frames", rule.Trial.Frames.ToString(CultureInfo.InvariantCulture));
+                node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
+                foreach (ModTrialNodeLimit limit in rule.Trial.Nodes)
+                {
+                    XmlElement child = document.CreateElement("Node");
+                    child.SetAttribute("Name", limit.Name);
+                    child.SetAttribute("Axis", limit.Axis.ToString());
+                    if (limit.Minimum.HasValue) child.SetAttribute("Min", limit.Minimum.Value.ToString("R", CultureInfo.InvariantCulture));
+                    if (limit.Maximum.HasValue) child.SetAttribute("Max", limit.Maximum.Value.ToString("R", CultureInfo.InvariantCulture));
+                    node.AppendChild(child);
+                }
+                foreach (string animation in rule.Trial.Animations)
+                {
+                    XmlElement child = document.CreateElement("Animation");
+                    child.SetAttribute("Name", animation);
+                    node.AppendChild(child);
+                }
+            }
+            else if (rule.Kind == ModFightRuleKind.RingOut)
+            {
+                node = document.CreateElement("Ringout");
+                node.SetAttribute("Node", rule.Trial.Node);
+                node.SetAttribute("Axis", rule.Trial.Axis.ToString());
+                node.SetAttribute("Min", rule.Trial.Minimum.ToString("R", CultureInfo.InvariantCulture));
+                node.SetAttribute("Max", rule.Trial.Maximum.ToString("R", CultureInfo.InvariantCulture));
+                node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
+            }
+            else if (rule.Kind == ModFightRuleKind.Regeneration)
+            {
+                node = document.CreateElement("Regeneration");
+                node.SetAttribute("Rate", rule.Trial.Rate.ToString("R", CultureInfo.InvariantCulture));
+                node.SetAttribute("FramesAfterHit", rule.Trial.FramesAfterHit.ToString(CultureInfo.InvariantCulture));
+                node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
+            }
+            else if (rule.Kind == ModFightRuleKind.NoAnimation)
+            {
+                node = document.CreateElement("NoAnimation");
+                node.SetAttribute("Name", rule.Trial.Node);
+            }
+            else if (rule.Kind == ModFightRuleKind.RemoveInterval)
+            {
+                node = document.CreateElement("RemoveInterval");
+                node.SetAttribute("Type", rule.Trial.IntervalType.ToString());
+                node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
             }
             else throw new ModContentException("Unsupported typed fight rule '" + rule.Kind + "'.");
             if (rule.Mode == ModRuleMode.Normal) node.SetAttribute("Eclipse", "Normal");
@@ -924,22 +988,24 @@ namespace Eclipse.Modding
         {
             XmlElement node = document.CreateElement("Reward");
             if (reward.Gems > 0) node.SetAttribute("Bonus", reward.Gems.ToString(CultureInfo.InvariantCulture));
+            int grantIndex = 0;
             for (int i = 0; i < reward.Items.Count; i++)
-                node.AppendChild(BuildRewardItemNode(document, reward.Items[i], null));
+                node.AppendChild(BuildRewardItemNode(document, reward, reward.Items[i], null, grantIndex++));
             for (int i = 0; i < reward.Choices.Count; i++)
             {
                 XmlElement choice = document.CreateElement("Choice");
                 for (int j = 0; j < reward.Choices[i].Items.Count; j++)
                 {
                     RewardChoiceItem item = reward.Choices[i].Items[j];
-                    choice.AppendChild(BuildRewardItemNode(document, item.Grant, item.Weight));
+                    choice.AppendChild(BuildRewardItemNode(document, reward, item.Grant, item.Weight, grantIndex++));
                 }
                 node.AppendChild(choice);
             }
             return node;
         }
 
-        private XmlElement BuildRewardItemNode(XmlDocument document, RewardItemGrant grant, float? weight)
+        private XmlElement BuildRewardItemNode(XmlDocument document, RewardDefinition reward, RewardItemGrant grant,
+            float? weight, int grantIndex)
         {
             XmlElement item = document.CreateElement("Item");
             item.SetAttribute("Name", LegacyItemName(grant.Item));
@@ -948,6 +1014,11 @@ namespace Eclipse.Modding
             if (grant.UpgradeNumber != 0)
                 item.SetAttribute("UpgradeNumber", grant.UpgradeNumber.ToString(CultureInfo.InvariantCulture));
             if (weight.HasValue) item.SetAttribute("Weight", weight.Value.ToString(CultureInfo.InvariantCulture));
+            if (grant.UsesConfiguration)
+            {
+                item.SetAttribute("EclipseReward", reward.Id.ToString());
+                item.SetAttribute("EclipseGrant", grantIndex.ToString(CultureInfo.InvariantCulture));
+            }
             return item;
         }
 
@@ -1340,6 +1411,20 @@ namespace Eclipse.Modding
             return set;
         }
 
+        private IEnumerable<ItemDefinition> ExternalEquipment()
+        {
+            foreach (WeaponDefinition item in _content.Weapons)
+                if (!item.IsCore) yield return item;
+            foreach (ArmorDefinition item in _content.Armors)
+                if (!item.IsCore) yield return item;
+            foreach (HelmDefinition item in _content.Helms)
+                if (!item.IsCore) yield return item;
+            foreach (RangedDefinition item in _content.Ranged)
+                if (!item.IsCore) yield return item;
+            foreach (MagicDefinition item in _content.Magic)
+                if (!item.IsCore) yield return item;
+        }
+
         private XmlElement BuildItemNode(ItemDefinition definition, ShopListingDefinition listing)
         {
             if (definition.Progression != ItemProgressionKind.Vanilla)
@@ -1354,8 +1439,14 @@ namespace Eclipse.Modding
             Set(item, "Model", definition.Model.ToString());
             Set(item, "Text", definition.DisplayName.ToString());
             Set(item, "TextButton", definition.DisplayName.ToString());
-            Set(item, "Level", listing.Level.ToString(CultureInfo.InvariantCulture));
-            Set(item, "UpgradeLevel", (listing.Level * 100).ToString(CultureInfo.InvariantCulture));
+            // Equipment can be acquired through rewards or used by warriors without a
+            // shop listing. Start it at the category's canonical first playable level;
+            // native acquisition/upgrades continue to own its subsequent progression.
+            int level = listing != null ? listing.Level :
+                definition is WeaponDefinition ? 1 :
+                definition is ArmorDefinition || definition is HelmDefinition ? 2 : 6;
+            Set(item, "Level", level.ToString(CultureInfo.InvariantCulture));
+            Set(item, "UpgradeLevel", (level * 100).ToString(CultureInfo.InvariantCulture));
 
             string upgradeTemplate;
             if (definition is WeaponDefinition weapon)
@@ -1364,23 +1455,23 @@ namespace Eclipse.Modding
                 Set(item, "SubType", weapon.SubType);
                 if (weapon.TacticSubtype != null) Set(item, "TacticSubtype", weapon.TacticSubtype);
                 upgradeTemplate = "Weapon_Bonus";
-                Set(item, "WeaponDamage", ResolveVanillaStat(upgradeTemplate, listing.Level, "WeaponDamage")
+                Set(item, "WeaponDamage", ResolveVanillaStat(upgradeTemplate, level, "WeaponDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is ArmorDefinition)
             {
                 Set(item, "Type", "Armor");
                 upgradeTemplate = "Armor_Bonus";
-                Set(item, "BodyDefense", ResolveVanillaStat(upgradeTemplate, listing.Level, "BodyDefense")
+                Set(item, "BodyDefense", ResolveVanillaStat(upgradeTemplate, level, "BodyDefense")
                     .ToString(CultureInfo.InvariantCulture));
-                Set(item, "UnarmedDamage", ResolveVanillaStat(upgradeTemplate, listing.Level, "UnarmedDamage")
+                Set(item, "UnarmedDamage", ResolveVanillaStat(upgradeTemplate, level, "UnarmedDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is HelmDefinition)
             {
                 Set(item, "Type", "Helm");
                 upgradeTemplate = "Helm_Bonus";
-                Set(item, "HeadDefense", ResolveVanillaStat(upgradeTemplate, listing.Level, "HeadDefense")
+                Set(item, "HeadDefense", ResolveVanillaStat(upgradeTemplate, level, "HeadDefense")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is RangedDefinition ranged)
@@ -1388,7 +1479,7 @@ namespace Eclipse.Modding
                 Set(item, "Type", "Ranged");
                 Set(item, "SubType", ranged.SubType);
                 upgradeTemplate = "Ranged_Bonus";
-                Set(item, "RangedDamage", ResolveVanillaStat(upgradeTemplate, listing.Level, "RangedDamage")
+                Set(item, "RangedDamage", ResolveVanillaStat(upgradeTemplate, level, "RangedDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is MagicDefinition magic)
@@ -1396,12 +1487,14 @@ namespace Eclipse.Modding
                 Set(item, "Type", "Magic");
                 Set(item, "SubType", magic.SubType);
                 upgradeTemplate = "Magic_Bonus";
-                Set(item, "MagicDamage", ResolveVanillaStat(upgradeTemplate, listing.Level, "MagicDamage")
+                Set(item, "MagicDamage", ResolveVanillaStat(upgradeTemplate, level, "MagicDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else throw new InvalidOperationException("Unsupported external item definition: " + definition.Id);
 
-            if (listing.Price.Currency == ModPriceCurrency.Coins)
+            if (listing == null)
+                Set(item, "ShopHide", "1");
+            else if (listing.Price.Currency == ModPriceCurrency.Coins)
                 Set(item, "Price", listing.Price.Amount.ToString(CultureInfo.InvariantCulture));
             else
                 Set(item, "BonusPrice", listing.Price.Amount.ToString(CultureInfo.InvariantCulture));

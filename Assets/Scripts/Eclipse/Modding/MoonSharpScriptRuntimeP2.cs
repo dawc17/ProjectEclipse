@@ -17,6 +17,7 @@ namespace Eclipse.Modding
                 { "on_damage_resolving", ModEffectEvent.DamageResolving }, { "on_damage_dealing", ModEffectEvent.DamageDealing },
                 { "on_combo_changed", ModEffectEvent.ComboChanged }, { "on_style_changed", ModEffectEvent.StyleChanged },
                 { "on_tick", ModEffectEvent.Tick },
+                { "on_hit_post_crit", ModEffectEvent.HitPostCrit }, { "on_post_hit", ModEffectEvent.PostHit },
                 { "on_block", ModEffectEvent.Block }, { "on_critical", ModEffectEvent.Critical }
             };
             private sealed class BehaviorState
@@ -184,7 +185,7 @@ namespace Eclipse.Modding
             {
                 if (value.Type != DataType.Table) throw new ModContentException("Encounter plan must be a table.");
                 var table = value.Table;
-                ValidateFields(table,"encounter plan","warriors","level","rounds","round_time");
+                ValidateFields(table,"encounter plan","warriors","level","rounds","round_time","rules","description");
                 var warriors = new List<DefinitionId>();
                 var list = table.Get("warriors");
                 if (!list.IsNil())
@@ -206,10 +207,25 @@ namespace Eclipse.Modding
                         warriors.Add(id);
                     }
                 }
+                List<DefinitionId> rules = null;
+                var ruleList = table.Get("rules");
+                if (!ruleList.IsNil())
+                {
+                    int length = RewardArrayLength(ruleList, "encounter plan.rules", 100);
+                    rules = new List<DefinitionId>();
+                    for (int i = 1; i <= length; i++)
+                    {
+                        var wrapper = new Table(_script); wrapper.Set("rule",ruleList.Table.Get(i));
+                        var id = RequiredHandle(wrapper,"rule",_ruleHandles,"rule","encounter plan");
+                        if (id.Namespace != Mod.Id) throw new ModContentException("Generated encounters require owned rules.");
+                        rules.Add(id);
+                    }
+                }
                 return new ModEncounterPlan(warriors,
                     table.Get("level").IsNil() ? (int?)null : RequiredInt(table,"level","encounter plan"),
                     table.Get("rounds").IsNil() ? (int?)null : RequiredInt(table,"rounds","encounter plan"),
-                    table.Get("round_time").IsNil() ? (int?)null : RequiredInt(table,"round_time","encounter plan"));
+                    table.Get("round_time").IsNil() ? (int?)null : RequiredInt(table,"round_time","encounter plan"), rules,
+                    table.Get("description").IsNil() ? null : OptionalStringAllowEmpty(table,"description",null,"encounter plan"));
             }
 
             public bool TryPrepareMode(ModModeDefinition mode, int step, int completions, ModModeRequest request, out string error)

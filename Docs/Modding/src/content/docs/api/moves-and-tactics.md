@@ -145,6 +145,45 @@ local sound_trigger = sf2.moves.register_trigger {
 }
 ```
 
+## sf2.moves.remove_perk_lock
+
+Remove one exact direct perk lock from an existing native move.
+
+**Signature:** `sf2.moves.remove_perk_lock { move, perk }`
+
+**Returns:** Nothing.
+
+**When:** During mod registration. The patch is applied when the active content
+set is projected into the recovered move runtime and is restored when that overlay
+is removed or rolled back.
+
+**Requires:** `content.patch`, plus access to the referenced perk through core or
+a declared dependency.
+
+```lua
+local old_unlock = sf2.perks.get("core:perks/PERK_DOUBLE_JUMP_KICK")
+
+sf2.moves.remove_perk_lock {
+    move = "DoubleJumpKick",
+    perk = old_unlock,
+}
+```
+
+`move` is the canonical native move `Name` and is case-sensitive. `perk` is a
+resolved perk handle; raw perk-name strings are not accepted. Duplicate patches
+for the same move/perk pair are rejected.
+
+This is deliberately narrower than a general move or XML patch. The host verifies
+that the recovered base move contains that exact **direct**
+`<Locks><Perk Name="...">` condition and removes only that one parsed lock. Other
+locks on the move, including item, screen/profile, operator and inherited template
+locks, remain untouched. Missing moves, missing direct perk locks, case mismatches,
+or a live parser layout that does not match the recovered XML fail explicitly.
+
+Use this when archival content replaces an old learned-perk gate but keeps the move
+itself available. It does not grant the obsolete perk, remove arbitrary conditions,
+rename moves or expose raw XML to Lua.
+
 Triggers use these supported native actions. For procedural gameplay logic, use a supported combat callback and its typed fighter methods.
 
 ## sf2.tactics.register

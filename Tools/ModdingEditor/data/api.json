@@ -268,7 +268,7 @@
       "url": "https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationkey",
       "summary": "Get the typed localization handle used by item names, perks, and achievements.",
       "requires": "`content.register`; other owners must be declared dependencies.",
-      "when": "Entrypoint, after localization files have been discovered by the host."
+      "when": "Entrypoint, after the key has been registered by Lua or discovered from localization files."
     },
     "sf2.localization.text": {
       "params": {
@@ -281,6 +281,17 @@
       "summary": "",
       "requires": "A localization handle created by this script context; no additional capability for reading. Creating the handle requires `content.register` and the usual dependency declaration when referencing another owner.",
       "when": "Entrypoint or later callbacks. Obtain the handle with `key` during registration and retain it for later reads. Each call reads current content, including committed localization patches; it does not freeze a translation at registration time. A patch made in the current transaction is also readable before commit."
+    },
+    "sf2.localization.register": {
+      "params": {
+        "definition": "Eclipse.LocalizationDefinition"
+      },
+      "returns": "A localization handle for the registered key.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/localization-patches/#sf2localizationregister",
+      "summary": "Register one translation owned by your mod and get its localization handle.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint."
     },
     "sf2.localization.patch": {
       "params": {
@@ -610,6 +621,61 @@
       "requires": "`content.register`.",
       "when": "Entrypoint, before attaching the rule to a fight."
     },
+    "sf2.rules.hot_ground": {
+      "params": {
+        "definition": "Eclipse.Rule_hot_ground"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2ruleshot_ground",
+      "summary": "Create the native timed hot-ground rule used by challenge fights.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight or encounter plan."
+    },
+    "sf2.rules.ring_out": {
+      "params": {
+        "definition": "Eclipse.Rule_ring_out"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesring_out",
+      "summary": "Create a native ring-out boundary rule.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight or encounter plan."
+    },
+    "sf2.rules.regeneration": {
+      "params": {
+        "definition": "Eclipse.Rule_regeneration"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesregeneration",
+      "summary": "Create the native regeneration or degeneration rule.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight or encounter plan."
+    },
+    "sf2.rules.remove_interval": {
+      "params": {
+        "definition": "Eclipse.Rule_remove_interval"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesremove_interval",
+      "summary": "Remove one native animation interval class from the selected target.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight or encounter plan."
+    },
+    "sf2.rules.no_animation": {
+      "params": {
+        "definition": "Eclipse.Rule_no_animation"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesno_animation",
+      "summary": "Disable one named native animation for both fighters.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight or encounter plan."
+    },
     "sf2.quests.register": {
       "params": {
         "definition": "Eclipse.QuestDefinition"
@@ -879,6 +945,17 @@
       "summary": "",
       "requires": "`content.register`, plus dependencies for external templates or assets.",
       "when": "During mod loading."
+    },
+    "sf2.moves.remove_perk_lock": {
+      "params": {
+        "definition": "Eclipse.MovePerkLockRemoval"
+      },
+      "returns": "Nothing.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesremove_perk_lock",
+      "summary": "Remove one exact direct perk lock from an existing native move.",
+      "requires": "`content.patch`, plus access to the referenced perk through core or a declared dependency.",
+      "when": "During mod registration. The patch is applied when the active content set is projected into the recovered move runtime and is restored when that overlay is removed or rolled back."
     },
     "sf2.moves.register_trigger": {
       "params": {
@@ -1314,6 +1391,8 @@
     "on_tick",
     "on_damage_resolving",
     "on_damage_dealing",
+    "on_hit_post_crit",
+    "on_post_hit",
     "on_damage_received",
     "on_damage_dealt",
     "on_block",
@@ -1366,6 +1445,12 @@
       },
       "capability": "combat.modify_outgoing_hit"
     },
+    "add_outgoing_damage": {
+      "params": {
+        "amount": "number"
+      },
+      "capability": "combat.modify_outgoing_hit"
+    },
     "scale_incoming_damage": {
       "params": {
         "multiplier": "number"
@@ -1381,6 +1466,21 @@
       "capability": "combat.effects"
     },
     "remove_damage_shield": {
+      "params": {
+        "key": "string"
+      },
+      "capability": "combat.effects"
+    },
+    "show_status_icon": {
+      "params": {
+        "key": "string",
+        "sprite": "Eclipse.SpriteHandle",
+        "frames": "integer",
+        "stacks?": "integer"
+      },
+      "capability": "combat.effects"
+    },
+    "clear_status_icon": {
       "params": {
         "key": "string"
       },
@@ -1619,6 +1719,19 @@
       },
       "parent": "CombatEvent"
     },
+    "HitPhaseEvent": {
+      "fields": {
+        "damage": "number",
+        "blocked": "boolean",
+        "critical": "boolean",
+        "target": "\"self\"|\"opponent\"",
+        "weapon": "boolean",
+        "unarmed": "boolean",
+        "ranged": "boolean",
+        "magic": "boolean"
+      },
+      "parent": "CombatEvent"
+    },
     "ComboEvent": {
       "fields": {
         "combo": "integer",
@@ -1661,6 +1774,8 @@
         "on_tick?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)",
         "on_damage_resolving?": "fun(parameters:table<string,any>, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_dealing?": "fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)",
+        "on_hit_post_crit?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.HitPhaseEvent)",
+        "on_post_hit?": "fun(parameters:table<string,any>, fighter:Eclipse.OutgoingFighter, event:Eclipse.HitPhaseEvent)",
         "on_damage_received?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_damage_dealt?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_block?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
@@ -1681,6 +1796,8 @@
         "on_tick?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)",
         "on_damage_resolving?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.ResolvingFighter, event:Eclipse.IncomingDamageEvent)",
         "on_damage_dealing?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.IncomingDamageEvent)",
+        "on_hit_post_crit?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.HitPhaseEvent)",
+        "on_post_hit?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.OutgoingFighter, event:Eclipse.HitPhaseEvent)",
         "on_damage_received?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_damage_dealt?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
         "on_block?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.DamageEvent)",
@@ -1855,6 +1972,13 @@
         "replacement": "string"
       }
     },
+    "LocalizationDefinition": {
+      "fields": {
+        "id": "string",
+        "language": "string",
+        "value": "string"
+      }
+    },
     "LocalizationPatch": {
       "fields": {
         "target": "string",
@@ -1878,7 +2002,8 @@
         "behavior": "Eclipse.BehaviorHandle",
         "kind": "\"single\"|\"combo\"",
         "parameters?": "table<string,any>",
-        "upgrades?": "Eclipse.PerkUpgrade[]"
+        "upgrades?": "Eclipse.PerkUpgrade[]",
+        "initial_upgrade?": "integer"
       }
     },
     "TemplatePerk": {
@@ -1889,7 +2014,8 @@
         "icon?": "Eclipse.SpriteHandle",
         "template": "Eclipse.PerkHandle",
         "parameters?": "table<string,any>",
-        "upgrades?": "Eclipse.PerkUpgrade[]"
+        "upgrades?": "Eclipse.PerkUpgrade[]",
+        "initial_upgrade?": "integer"
       }
     },
     "EnchantmentDefinition": {
@@ -1971,17 +2097,37 @@
         ]
       }
     },
+    "RewardGrantContext": {
+      "fields": {
+        "player_level": "integer",
+        "item_id": "string"
+      }
+    },
+    "RewardGrantEnchantment": {
+      "fields": {
+        "perk": "Eclipse.PerkHandle",
+        "aspect?": "number"
+      }
+    },
+    "RewardGrantConfiguration": {
+      "fields": {
+        "level?": "integer",
+        "enchantments?": "Eclipse.RewardGrantEnchantment[]"
+      }
+    },
     "ItemGrant": {
       "fields": {
         "item": "Eclipse.ItemHandle",
-        "upgrade?": "integer"
+        "upgrade?": "integer",
+        "configure?": "fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration"
       }
     },
     "RewardCandidate": {
       "fields": {
         "item": "Eclipse.ItemHandle",
         "upgrade?": "integer",
-        "weight?": "number"
+        "weight?": "number",
+        "configure?": "fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration"
       }
     },
     "RewardChoice": {
@@ -2042,6 +2188,14 @@
         "reward_drops?": "Eclipse.RewardDropPatch[]",
         "rules?": "Eclipse.RuleHandle[]",
         "append_rules?": "Eclipse.RuleHandle[]"
+      }
+    },
+    "HotGroundNode": {
+      "fields": {
+        "name": "string",
+        "axis": "\"X\"|\"Y\"",
+        "min?": "number",
+        "max?": "number"
       }
     },
     "Rule_no_perks": {
@@ -2105,7 +2259,8 @@
         "target?": "\"player\"|\"opponent\"|\"all\"",
         "mode?": "\"normal\"|\"eclipse\"|\"all\"",
         "rounds?": "integer[]",
-        "perk": "Eclipse.PerkHandle"
+        "perk": "Eclipse.PerkHandle",
+        "aspect?": "number"
       }
     },
     "Rule_behavior": {
@@ -2133,6 +2288,56 @@
         "mode?": "\"normal\"|\"eclipse\"|\"all\"",
         "rounds?": "integer[]",
         "values": "table<string,number>"
+      }
+    },
+    "Rule_hot_ground": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "frames": "integer",
+        "nodes": "Eclipse.HotGroundNode[]",
+        "animations?": "string[]"
+      }
+    },
+    "Rule_ring_out": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "node": "string",
+        "axis": "\"X\"|\"Y\"",
+        "min": "number",
+        "max": "number"
+      }
+    },
+    "Rule_regeneration": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "rate": "number",
+        "frames_after_hit": "integer"
+      }
+    },
+    "Rule_remove_interval": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "type": "\"Attack\"|\"Block\"|\"Invulnerable\"|\"SelfUninterrupt\"|\"Uninterrupt\"|\"Unstable\""
+      }
+    },
+    "Rule_no_animation": {
+      "fields": {
+        "id": "string",
+        "name": "string",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]"
       }
     },
     "VariableOperand": {
@@ -2624,6 +2829,12 @@
         "animation": "Eclipse.BinaryHandle"
       }
     },
+    "MovePerkLockRemoval": {
+      "fields": {
+        "move": "string",
+        "perk": "Eclipse.PerkHandle"
+      }
+    },
     "SoundAction": {
       "fields": {
         "type": "\"sound\"",
@@ -2752,7 +2963,9 @@
         "warriors?": "Eclipse.WarriorHandle[]",
         "level?": "integer",
         "rounds?": "integer",
-        "round_time?": "integer"
+        "round_time?": "integer",
+        "rules?": "Eclipse.RuleHandle[]",
+        "description?": "string"
       }
     },
     "ModePreparation": {

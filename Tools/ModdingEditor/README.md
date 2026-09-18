@@ -184,6 +184,14 @@ Adds typed `placement` completion for UI anchors and offsets. The Charged Strike
 
 Adds `sf2.localization.text(key, language?)` for translated strings. Charged Strike includes English and Polish translation files and refreshes localized labels using Lua.
 
+Lua-only mods can use `sf2.localization.register { id, language, value }`. The
+project indexer treats registrations in the entrypoint and its reachable literal
+local `require("module.name")` chain like localization files, so
+`sf2.localization.key` completion/validation resolves them without a TOML file.
+The indexer follows the runtime's safe dotted module-name form and visits each
+resolved module once. Dynamic requires and missing/unresolvable modules are not
+guessed, and unrelated scripts that are never required are not indexed.
+
 Adds typed UI style fields. Defaults reuse the game font, parchment, beveled buttons and combat bar textures; styles provide limited explicit overrides.
 
 Adds mode/event/raid `on_result` completion and result types. The `templates/branching-trial` starter demonstrates saved alternating routes with original game assets.

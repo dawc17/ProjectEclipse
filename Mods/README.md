@@ -12,6 +12,15 @@ DE parity or Mod API expansion must read both parity documents before editing.
 
 ## Recent additions
 
+DE production in [de128](de128/README.md) now implements the archived Master of
+Style and Relentless perks, their five ranks and level-4/8/11/14/17 progression
+slots. Version 0.5.0 comments out the rejected Ascension prototype. Precise hit
+phases, additive hit damage, status icons, initial perk ranks and targeted move
+perk-lock removals are generic engine features. Existing forge/service policies
+and the configured Desolator reward are retained.
+[Production notes](de128/PRODUCTION.md) track source evidence, API gaps and the
+next approval boundary.
+
 Adds result-driven mode branching through `on_result`, preserving native settlement. See [Branching Trial](example.branching-trial/README.md).
 
 Adds bounded UI `on_close` notification after input/renderer teardown. Charged Strike now cancels its armed bonus when its HUD closes.

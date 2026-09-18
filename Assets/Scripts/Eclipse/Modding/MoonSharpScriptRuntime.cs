@@ -275,6 +275,40 @@ namespace Eclipse.Modding
                             return DynValue.Nil;
                         }));
                     }
+                    if (fighter is IModFighterStatusIcons icons)
+                    {
+                        fighterTable.Set("show_status_icon", DynValue.NewCallback((ctx, args) =>
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Status icon operations have expired.");
+                            _api.RequireCapability("combat.effects");
+                            int offset = args[0].Type == DataType.Table && args[0].Table == fighterTable ? 1 : 0;
+                            string key = args.AsType(offset, "show_status_icon", DataType.String, false).String;
+                            ModParameterDefinition.ValidateName(key);
+                            DynValue spriteValue = args[offset + 1];
+                            if (spriteValue.Type != DataType.Table || !_spriteHandles.TryGetValue(spriteValue.Table, out var sprite))
+                                throw new ScriptRuntimeException("show_status_icon requires a sprite handle from this mod context.");
+                            double frames = args.AsType(offset + 2, "show_status_icon", DataType.Number, false).Number;
+                            DynValue stackValue = args[offset + 3];
+                            double stacks = stackValue.IsNil() ? 0 : args.AsType(offset + 3, "show_status_icon", DataType.Number, false).Number;
+                            if (double.IsNaN(frames) || frames != Math.Floor(frames) || frames < 1 || frames > 3600 ||
+                                double.IsNaN(stacks) || stacks != Math.Floor(stacks) || stacks < 0 || stacks > 10000)
+                                throw new ScriptRuntimeException("Status icons require frames 1..3600 and stacks 0..10000 as integers.");
+                            if (!icons.TryShowStatusIcon(behaviorId.ToString() + ":" + key, sprite, (int)frames, (int)stacks, out var failure))
+                                throw new ScriptRuntimeException(failure);
+                            return DynValue.Nil;
+                        }));
+                        fighterTable.Set("clear_status_icon", DynValue.NewCallback((ctx, args) =>
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Status icon operations have expired.");
+                            _api.RequireCapability("combat.effects");
+                            int offset = args[0].Type == DataType.Table && args[0].Table == fighterTable ? 1 : 0;
+                            string key = args.AsType(offset, "clear_status_icon", DataType.String, false).String;
+                            ModParameterDefinition.ValidateName(key);
+                            if (!icons.TryClearStatusIcon(behaviorId.ToString() + ":" + key, out var failure))
+                                throw new ScriptRuntimeException(failure);
+                            return DynValue.Nil;
+                        }));
+                    }
                     var eventTable = new Table(_script);
                     if (context != null && context.TryGetValue("round", out var roundText) && int.TryParse(roundText, out var roundNumber))
                         eventTable.Set("round", DynValue.NewNumber(roundNumber));
@@ -296,17 +330,33 @@ namespace Eclipse.Modding
                         eventTable.Set("critical", DynValue.NewBoolean(damage.Critical));
                     }
                     var incoming = (fighter as IModIncomingHitSource)?.IncomingHit;
-                    if (incoming != null && (effectEvent == ModEffectEvent.DamageDealing || effectEvent == ModEffectEvent.DamageResolving))
+                    if (incoming != null && (effectEvent == ModEffectEvent.DamageDealing || effectEvent == ModEffectEvent.DamageResolving ||
+                        effectEvent == ModEffectEvent.HitPostCrit || effectEvent == ModEffectEvent.PostHit))
                     {
                         eventTable.Set("blocked", DynValue.NewBoolean(incoming.Blocked));
                         eventTable.Set("critical", DynValue.NewBoolean(incoming.Critical));
                     }
-                    if (effectEvent == ModEffectEvent.DamageDealing)
+                    if (effectEvent == ModEffectEvent.HitPostCrit || effectEvent == ModEffectEvent.PostHit)
+                    {
+                        ModHitEvent hit = incoming?.HitEvent;
+                        if (hit == null) throw new ModContentException("Native hit-phase snapshot is unavailable.");
+                        eventTable.Set("damage", DynValue.NewNumber(incoming.Damage));
+                        eventTable.Set("target", DynValue.NewString(hit.Incoming ? "self" : "opponent"));
+                        eventTable.Set("weapon", DynValue.NewBoolean(hit.Weapon));
+                        eventTable.Set("unarmed", DynValue.NewBoolean(hit.Unarmed));
+                        eventTable.Set("ranged", DynValue.NewBoolean(hit.Ranged));
+                        eventTable.Set("magic", DynValue.NewBoolean(hit.Magic));
+                    }
+                    if (effectEvent == ModEffectEvent.DamageDealing ||
+                        effectEvent == ModEffectEvent.PostHit && incoming?.HitEvent?.Incoming == false)
                     {
                         if (incoming == null) throw new ModContentException("Outgoing hit capability is unavailable.");
                         eventTable.Set("damage", DynValue.NewNumber(incoming.Damage));
                         fighterTable.Set("scale_outgoing_damage", DynValue.NewCallback((ctx, args) =>
                             invocationActive ? FighterOperation("fighter:scale_outgoing_damage", "combat.modify_outgoing_hit", args, incoming.TryScaleOutgoing) :
+                                throw new ScriptRuntimeException("Outgoing hit operations have expired.")));
+                        fighterTable.Set("add_outgoing_damage", DynValue.NewCallback((ctx, args) =>
+                            invocationActive ? FighterOperation("fighter:add_outgoing_damage", "combat.modify_outgoing_hit", args, incoming.TryAddOutgoing) :
                                 throw new ScriptRuntimeException("Outgoing hit operations have expired.")));
                     }
                     if (effectEvent == ModEffectEvent.DamageResolving)
@@ -674,6 +724,7 @@ namespace Eclipse.Modding
                         throw new ModContentException("Localization language must be a string.");
                     return DynValue.NewString(_api.ReadLocalization(id, language.IsNil() ? (_language?.Invoke() ?? "eng") : language.String));
                 })));
+                localization.Set("register", DynValue.NewCallback(LocalizationRegister));
                 localization.Set("patch", DynValue.NewCallback(LocalizationPatch));
                 root.Set("localization", DynValue.NewTable(localization));
 
@@ -811,6 +862,11 @@ namespace Eclipse.Modding
                 rules.Set("recharge_magic_each_round", DynValue.NewCallback(RegisterRechargeMagicRule));
                 rules.Set("attributes", DynValue.NewCallback(RegisterAttributesRule));
                 rules.Set("no_button", DynValue.NewCallback(RegisterNoButtonRule));
+                rules.Set("hot_ground", DynValue.NewCallback(RegisterHotGroundRule));
+                rules.Set("ring_out", DynValue.NewCallback(RegisterRingOutRule));
+                rules.Set("regeneration", DynValue.NewCallback(RegisterRegenerationRule));
+                rules.Set("no_animation", DynValue.NewCallback(RegisterNoAnimationRule));
+                rules.Set("remove_interval", DynValue.NewCallback(RegisterRemoveIntervalRule));
                 root.Set("rules", DynValue.NewTable(rules));
 
                 var rewards = new Table(_script);
@@ -918,6 +974,20 @@ namespace Eclipse.Modding
                 string key = args.AsType(0, "sf2.localization.key", DataType.String, false).String;
                 return ApiCall("sf2.localization.key", () =>
                     NewHandle(_localizationHandles, _api.GetLocalization(key)));
+            }
+
+            private DynValue LocalizationRegister(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.localization.register";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "language", "value");
+                    string id = RequiredString(table, "id", function);
+                    string language = RequiredString(table, "language", function);
+                    string value = RequiredString(table, "value", function);
+                    return NewHandle(_localizationHandles, _api.RegisterLocalization(id, language, value));
+                });
             }
 
             private DynValue LocalizationPatch(ScriptExecutionContext context, CallbackArguments args)
@@ -1401,7 +1471,7 @@ namespace Eclipse.Modding
                 return ApiCall(function, () =>
                 {
                     ValidateFields(table, function, "id", "behavior", "display_name", "description",
-                        "icon", "parameters", "kind", "upgrades");
+                        "icon", "parameters", "kind", "upgrades", "initial_upgrade");
                     string id = RequiredString(table, "id", function);
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", function);
@@ -1447,8 +1517,11 @@ namespace Eclipse.Modding
                             upgrades[i - 1] = new PerkUpgradeDefinition(level, upgradeDescription,
                                 OptionalTypedParameterMap(upgrade, "parameters", behavior.Parameters, function));
                         }
-                        definition = _api.SetPerkUpgrades(definition.Id, upgrades);
+                        definition = _api.SetPerkUpgrades(definition.Id, upgrades,
+                            OptionalInt(table, "initial_upgrade", 0, function));
                     }
+                    else if (!table.Get("initial_upgrade").IsNil())
+                        throw new ModContentException(function + " initial_upgrade requires an upgrades table.");
                     return NewHandle(_perkHandles, definition.Id);
                 });
             }
@@ -1705,13 +1778,22 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "perk", "target", "mode", "rounds");
+                    ValidateFields(table, function, "id", "perk", "aspect", "target", "mode", "rounds");
+                    DynValue aspectValue = table.Get("aspect");
+                    double? aspect = null;
+                    if (!aspectValue.IsNil())
+                    {
+                        if (aspectValue.Type != DataType.Number || double.IsNaN(aspectValue.Number) ||
+                            double.IsInfinity(aspectValue.Number) || aspectValue.Number < 0 || aspectValue.Number > int.MaxValue)
+                            throw new ModContentException(function + " field 'aspect' must be finite and 0..2147483647.");
+                        aspect = aspectValue.Number;
+                    }
                     return NewHandle(_ruleHandles, _api.RegisterPerkRule(
                         RequiredString(table, "id", function),
                         RequiredHandle(table, "perk", _perkHandles, "perk", function),
                         ParseRuleTarget(OptionalString(table, "target", "all", function), function),
                         ParseRuleMode(OptionalString(table, "mode", "all", function), function),
-                        OptionalIntArray(table, "rounds", function)).Id);
+                        OptionalIntArray(table, "rounds", function), aspect).Id);
                 });
             }
 
@@ -2107,53 +2189,114 @@ namespace Eclipse.Modding
             private RewardItemGrant[] ReadRewardItems(DynValue value, string function, bool weighted)
             {
                 if (value.IsNil()) return Array.Empty<RewardItemGrant>();
-                if (value.Type != DataType.Table) throw new ModContentException(function + " must be an array table.");
+                int length = RewardArrayLength(value, function, 100);
                 var result = new List<RewardItemGrant>();
-                for (int i = 1; ; i++)
+                for (int i = 1; i <= length; i++)
                 {
                     DynValue entry = value.Table.Get(i);
-                    if (entry.IsNil()) break;
                     if (entry.Type != DataType.Table) throw new ModContentException(function + " entries must be tables.");
-                    Table item = entry.Table;
-                    ValidateFields(item, function + "[" + i + "]", weighted ? new[] { "item", "upgrade", "weight" } : new[] { "item", "upgrade" });
-                    DefinitionId id = RequiredHandle(item, "item", _itemHandles, "item", function + "[" + i + "]");
-                    int upgrade = OptionalInt(item, "upgrade", 0, function + "[" + i + "]");
-                    if (upgrade < 0) throw new ModContentException(function + " upgrade must not be negative.");
-                    result.Add(new RewardItemGrant(id, (uint)upgrade));
+                    result.Add(ReadRewardGrant(entry.Table, function + "[" + i + "]", weighted));
                 }
                 return result.ToArray();
+            }
+
+            private RewardItemGrant ReadRewardGrant(Table item, string function, bool weighted)
+            {
+                ValidateFields(item, function, weighted ? new[] { "item", "upgrade", "weight", "configure" } :
+                    new[] { "item", "upgrade", "configure" });
+                DefinitionId id = RequiredHandle(item, "item", _itemHandles, "item", function);
+                int upgrade = OptionalInt(item, "upgrade", 0, function);
+                if (upgrade < 0) throw new ModContentException(function + " upgrade must not be negative.");
+                DynValue callback = item.Get("configure");
+                if (callback.IsNil()) return new RewardItemGrant(id, (uint)upgrade);
+                if (callback.Type != DataType.Function)
+                    throw new ModContentException(function + " configure must be a Lua function.");
+                return new RewardItemGrant(id, (uint)upgrade, playerLevel =>
+                {
+                    ThrowIfDisposed();
+                    if (playerLevel < 1 || playerLevel > 10000)
+                        throw new ModContentException("Reward player level must be 1..10000.");
+                    using (_api.EnterRewardConfiguration())
+                    {
+                        var snapshot = new Table(_script);
+                        snapshot.Set("player_level", DynValue.NewNumber(playerLevel));
+                        snapshot.Set("item_id", DynValue.NewString(id.ToString()));
+                        DynValue result = RunBounded(callback, Mod.Id + ":" + function + ".configure",
+                            MaxBehaviorInstructionSlices, new[] { DynValue.NewTable(snapshot) }).ToScalar();
+                        return ReadRewardConfiguration(result, function + ".configure result");
+                    }
+                });
+            }
+
+            private RewardGrantConfiguration ReadRewardConfiguration(DynValue value, string function)
+            {
+                if (value.Type != DataType.Table)
+                    throw new ModContentException(function + " must be a table.");
+                ValidateFields(value.Table, function, "level", "enchantments");
+                int? level = value.Table.Get("level").IsNil() ? (int?)null : RequiredInt(value.Table, "level", function);
+                DynValue enchantments = value.Table.Get("enchantments");
+                var entries = new List<RewardGrantEnchantment>();
+                if (!enchantments.IsNil())
+                {
+                    int length = RewardArrayLength(enchantments, function + ".enchantments", 64);
+                    for (int i = 1; i <= length; i++)
+                    {
+                        DynValue entry = enchantments.Table.Get(i);
+                        string where = function + ".enchantments[" + i + "]";
+                        if (entry.Type != DataType.Table) throw new ModContentException(where + " must be a table.");
+                        ValidateFields(entry.Table, where, "perk", "aspect");
+                        DefinitionId perk = RequiredHandle(entry.Table, "perk", _perkHandles, "perk", where);
+                        DynValue aspect = entry.Table.Get("aspect");
+                        if (!aspect.IsNil() && aspect.Type != DataType.Number)
+                            throw new ModContentException(where + " aspect must be a number.");
+                        entries.Add(new RewardGrantEnchantment(perk, aspect.IsNil() ? (double?)null : aspect.Number));
+                    }
+                }
+                return new RewardGrantConfiguration(level, entries.ToArray());
+            }
+
+            private static int RewardArrayLength(DynValue value, string function, int maximum)
+            {
+                if (value.Type != DataType.Table) throw new ModContentException(function + " must be an array table.");
+                int length = value.Table.Length, count = 0;
+                if (length > maximum) throw new ModContentException(function + " exceeds " + maximum + " entries.");
+                foreach (TablePair pair in value.Table.Pairs)
+                {
+                    count++;
+                    if (count > maximum || pair.Key.Type != DataType.Number || pair.Key.Number < 1 ||
+                        pair.Key.Number > length || pair.Key.Number != Math.Truncate(pair.Key.Number))
+                        throw new ModContentException(function + " must be a dense array of at most " + maximum + " entries.");
+                }
+                if (count != length) throw new ModContentException(function + " must be a dense array.");
+                return length;
             }
 
             private RewardChoiceDefinition[] ReadRewardChoices(DynValue value, string function)
             {
                 if (value.IsNil()) return Array.Empty<RewardChoiceDefinition>();
-                if (value.Type != DataType.Table) throw new ModContentException(function + " must be an array table.");
+                int length = RewardArrayLength(value, function, 100);
                 var result = new List<RewardChoiceDefinition>();
-                for (int i = 1; ; i++)
+                for (int i = 1; i <= length; i++)
                 {
                     DynValue entry = value.Table.Get(i);
-                    if (entry.IsNil()) break;
                     if (entry.Type != DataType.Table) throw new ModContentException(function + " entries must be tables.");
                     Table choice = entry.Table;
                     ValidateFields(choice, function + "[" + i + "]", "items");
                     DynValue itemsValue = choice.Get("items");
                     if (itemsValue.Type != DataType.Table)
                         throw new ModContentException(function + "[" + i + "].items must be an array table.");
+                    int itemCount = RewardArrayLength(itemsValue, function + "[" + i + "].items", 100);
                     var items = new List<RewardChoiceItem>();
-                    for (int j = 1; ; j++)
+                    for (int j = 1; j <= itemCount; j++)
                     {
                         DynValue itemValue = itemsValue.Table.Get(j);
-                        if (itemValue.IsNil()) break;
                         if (itemValue.Type != DataType.Table)
                             throw new ModContentException(function + "[" + i + "].items entries must be tables.");
                         Table item = itemValue.Table;
                         string itemFunction = function + "[" + i + "].items[" + j + "]";
-                        ValidateFields(item, itemFunction, "item", "upgrade", "weight");
-                        DefinitionId id = RequiredHandle(item, "item", _itemHandles, "item", itemFunction);
-                        int upgrade = OptionalInt(item, "upgrade", 0, itemFunction);
-                        if (upgrade < 0) throw new ModContentException(itemFunction + " upgrade must not be negative.");
+                        RewardItemGrant grant = ReadRewardGrant(item, itemFunction, true);
                         float weight = OptionalFloat(item, "weight", 1f, itemFunction);
-                        items.Add(new RewardChoiceItem(new RewardItemGrant(id, (uint)upgrade), weight));
+                        items.Add(new RewardChoiceItem(grant, weight));
                     }
                     result.Add(new RewardChoiceDefinition(items.ToArray()));
                 }
@@ -2807,9 +2950,14 @@ namespace Eclipse.Modding
                 }
             }
 
-            private static DynValue ApiCall(string function, Func<DynValue> action)
+            private DynValue ApiCall(string function, Func<DynValue> action)
             {
-                try { return action(); }
+                try
+                {
+                    if (_api.IsRewardConfigurationActive)
+                        throw new ModContentException("Reward configure callbacks only calculate a result; sf2 operations are unavailable.");
+                    return action();
+                }
                 catch (Exception exception) when (exception is ModContentException || exception is FormatException ||
                     exception is InvalidOperationException || exception is ArgumentException)
                 {

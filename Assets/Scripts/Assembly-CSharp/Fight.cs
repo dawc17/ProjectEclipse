@@ -350,7 +350,7 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-	private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
@@ -401,12 +401,26 @@ public class Fight
             if (!_fight._eclipseShields.TryGetValue(_model, out var shields)) _fight._eclipseShields[_model] = shields = new ModDamageShields();
             return shields.TrySet(key, fraction, frames, _fight.fightTimeInFrame, out error);
         }
-        public bool TryRemoveDamageShield(object key, out string error)
+		public bool TryRemoveDamageShield(object key, out string error)
         {
             error = "";
             if (_fight != null && _model != null && _fight._eclipseShields.TryGetValue(_model, out var shields)) shields.Remove(key);
             return true;
         }
+
+		public bool TryShowStatusIcon(object key, AssetId sprite, int frames, int stacks, out string error)
+		{
+			if (_fight == null || _model == null || key == null || string.IsNullOrEmpty(sprite.Path) ||
+				frames < 1 || frames > 3600 || stacks < 0 || stacks > 10000)
+			{ error = "Invalid or unavailable status icon."; return false; }
+			return _fight.TryShowEclipseStatusIcon(_model, key, sprite, frames, stacks, out error);
+		}
+
+		public bool TryClearStatusIcon(object key, out string error)
+		{
+			if (_fight == null || _model == null || key == null) { error = "Fighter is unavailable."; return false; }
+			return _fight.TryClearEclipseStatusIcon(_model, key, out error);
+		}
 
 		public bool TryChangeHealth(double amount, out string error)
 		{
@@ -566,6 +580,13 @@ public class Fight
 	private bool FJHJNOFPABO;
 
 	private readonly Dictionary<Model, ModDamageShields> _eclipseShields = new Dictionary<Model, ModDamageShields>();
+	private sealed class EclipseStatusIcon
+	{
+		public PerksStage.ActionPerk Action;
+		public int ExpiresAt;
+	}
+	private readonly Dictionary<(Model, object), EclipseStatusIcon> _eclipseStatusIcons =
+		new Dictionary<(Model, object), EclipseStatusIcon>();
 	private bool _eclipseFightBeginDispatched;
 	private string _eclipsePlayerResult = "none";
 	private string _eclipseFightId = Guid.NewGuid().ToString("N");
@@ -1511,12 +1532,13 @@ public class Fight
 		frame++;
 	}
 
-	private void RenderFight()
-	{
-		if (round.processing)
+		private void RenderFight()
 		{
-			fightTimeInFrame++;
-            // Simulation time only: pause disables RenderFight, and round boundaries
+			if (round.processing)
+			{
+				fightTimeInFrame++;
+				UpdateEclipseStatusIcons();
+	            // Simulation time only: pause disables RenderFight, and round boundaries
             // disable processing. Run before model/collision updates for this frame.
             if (_eclipseFightBeginDispatched && ModRuntime.Scripts != null &&
                 ModRuntime.Scripts.HasHandlers(ModEffectEvent.Tick))
@@ -1795,6 +1817,68 @@ public class Fight
 		}
 	}
 
+	private bool TryShowEclipseStatusIcon(Model model, object key, AssetId sprite, int frames, int stacks, out string error)
+	{
+		error = string.Empty;
+		if (model == null || key == null || string.IsNullOrEmpty(sprite.Path) || frames < 1 || frames > 3600 || stacks < 0 || stacks > 10000)
+		{ error = "Invalid status icon request."; return false; }
+		TryClearEclipseStatusIcon(model, key, out _);
+		var action = new PerksStage.ActionPerk
+		{
+			KJDFJPBIGJC = model,
+			BIKLKJMNGKP = model,
+			NHKMCLPOMFK = sprite.ToString(),
+			FLNCPBKBJBL = true,
+			KGNDJOLBBJF = 0,
+			FLNLMIHEDCI = frames,
+			EclipseStackCount = stacks
+		};
+		CKCCBJKIGIO(model, action, false);
+		_eclipseStatusIcons[(model, key)] = new EclipseStatusIcon
+		{
+			Action = action,
+			ExpiresAt = checked(fightTimeInFrame + frames)
+		};
+		return true;
+	}
+
+	private bool TryClearEclipseStatusIcon(Model model, object key, out string error)
+	{
+		error = string.Empty;
+		if (model == null || key == null) { error = "Invalid status icon request."; return false; }
+		if (_eclipseStatusIcons.TryGetValue((model, key), out var entry))
+		{
+			CKCCBJKIGIO(model, entry.Action, true);
+			_eclipseStatusIcons.Remove((model, key));
+		}
+		return true;
+	}
+
+	private void UpdateEclipseStatusIcons()
+	{
+		if (_eclipseStatusIcons.Count == 0) return;
+		var expired = new List<(Model, object)>();
+		foreach (var pair in _eclipseStatusIcons)
+		{
+			var entry = pair.Value;
+			entry.Action.KGNDJOLBBJF = Math.Min(entry.Action.FLNLMIHEDCI,
+				Math.Max(0, entry.Action.FLNLMIHEDCI - (entry.ExpiresAt - fightTimeInFrame)));
+			if (fightTimeInFrame >= entry.ExpiresAt) expired.Add(pair.Key);
+		}
+		foreach (var key in expired)
+		{
+			if (_eclipseStatusIcons.TryGetValue(key, out var entry)) CKCCBJKIGIO(key.Item1, entry.Action, true);
+			_eclipseStatusIcons.Remove(key);
+		}
+	}
+
+	private void ClearEclipseStatusIcons()
+	{
+		if (_eclipseStatusIcons.Count == 0) return;
+		foreach (var pair in _eclipseStatusIcons) CKCCBJKIGIO(pair.Key.Item1, pair.Value.Action, true);
+		_eclipseStatusIcons.Clear();
+	}
+
 	public void OGIFEKGLKDK(Model ACENLMONNPA, PerkInfoItem AEFFHJGMNFI)
 	{
 	}
@@ -1875,6 +1959,7 @@ public class Fight
 	{
 		Model.StrikeResult gHHCDAFIKJE = EGHPHELLOGO.KJDFJPBIGJC.GHHCDAFIKJE;
 		LNKBHDFPODI(EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE, PerkEvent.KNKIIEPDCPN.EVENT_HIT_POSTCRIT);
+		DispatchEclipseHitPhase(EGHPHELLOGO, gHHCDAFIKJE, ModEffectEvent.HitPostCrit);
 	}
 
 	public void OnModelHit(Model.EventModel EGHPHELLOGO)
@@ -1886,6 +1971,7 @@ public class Fight
 			gHHCDAFIKJE.DNGKOMPMPCD = false;
 		}
 		LNKBHDFPODI(EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE, PerkEvent.KNKIIEPDCPN.EVENT_POST_HIT);
+		DispatchEclipseHitPhase(EGHPHELLOGO, gHHCDAFIKJE, ModEffectEvent.PostHit);
 		if (hFIIPNLCIEE.HPLOFLKCLHG())
 		{
 			gHHCDAFIKJE.DNGKOMPMPCD = false;
@@ -2856,9 +2942,29 @@ public class Fight
 		GC.Collect();
 	}
 
-    private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseOpponentInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();
-    private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseInnateInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();
-    private bool _eclipseOpponentDispatching;
+	private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseOpponentInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();
+	private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseInnateInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();
+	private void DispatchEclipseHitPhase(Model.EventModel eventModel, Model.StrikeResult strike, ModEffectEvent effectEvent)
+	{
+		if (IsLocalVersus || !_eclipseFightBeginDispatched || eventModel == null || strike == null || ModRuntime.Scripts == null) return;
+		Model target = eventModel.KJDFJPBIGJC;
+		Model attacker = eventModel.GAIBPAGPEGK ?? strike.GAIBPAGPEGK;
+		InfoAnimation animation = strike.PBPDKJNKFCJ;
+		bool weapon = animation != null && animation.CNPFHBMGDFP("Weapon");
+		bool unarmed = animation != null && animation.CNPFHBMGDFP("Unarmed");
+		bool ranged = animation != null && animation.CNPFHBMGDFP("RangedMissile");
+		bool magic = animation != null && animation.CNPFHBMGDFP("MagicMissile");
+		var attackerHit = new ModIncomingHit(() => strike.EEDJBBOCFNL, amount => strike.EEDJBBOCFNL = (float)amount,
+			strike.DFOHNJEBDED, strike.DNGKOMPMPCD, new ModHitEvent(false, weapon, unarmed, ranged, magic));
+		var targetHit = new ModIncomingHit(() => strike.EEDJBBOCFNL, amount => strike.EEDJBBOCFNL = (float)amount,
+			strike.DFOHNJEBDED, strike.DNGKOMPMPCD, new ModHitEvent(true, weapon, unarmed, ranged, magic));
+		if (attacker == _playerModel) DispatchEclipseCombatEvent(effectEvent, null, attackerHit);
+		else if (attacker == CKNCPOABFBO) DispatchEclipseOpponent(effectEvent, null, attackerHit);
+		if (target == _playerModel) DispatchEclipseCombatEvent(effectEvent, null, targetHit);
+		else if (target == CKNCPOABFBO) DispatchEclipseOpponent(effectEvent, null, targetHit);
+	}
+
+	private bool _eclipseOpponentDispatching;
     private void DispatchEclipseOpponent(ModEffectEvent effectEvent, ModDamageEvent damage = null, ModIncomingHit incoming = null, ModCombatActivityEvent activity = null)
     {
         if (IsLocalVersus) return;
@@ -4203,6 +4309,7 @@ public class Fight
             DispatchEclipseCombatEvent(ModEffectEvent.FightEnd);
             DispatchEclipseOpponent(ModEffectEvent.FightEnd);
             _eclipseShields.Clear();
+			ClearEclipseStatusIcons();
         }
 		Sound.StopLoopedSounds();
 		MOBFFOHPCOE.Complete(round.roundTotal, true);
@@ -4461,6 +4568,7 @@ public class Fight
 			DispatchEclipseCombatEvent(ModEffectEvent.FightEnd);
             DispatchEclipseOpponent(ModEffectEvent.FightEnd);
             _eclipseShields.Clear();
+			ClearEclipseStatusIcons();
 		}
 		Sound.StopLoopedSounds();
 		if (MNEOALEBNNA)

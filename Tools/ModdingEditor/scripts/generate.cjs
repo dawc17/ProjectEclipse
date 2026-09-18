@@ -58,7 +58,7 @@ for(const [name,f] of Object.entries(schema.fighterMethods))for(const opponent o
     out+=comment(symbol);
     for(const [p,t] of Object.entries(f.params))out+=`---@param ${p} ${t}\n`;
     if(f.returns)out+=`---@return ${f.returns}\n`;
-    out+=`function ${opponent?'Opponent':name==='scale_incoming_damage'?'ResolvingFighter':name==='scale_outgoing_damage'?'OutgoingFighter':'Fighter'}:${name}(${Object.keys(f.params).join(', ')}) end\n\n`;
+    out+=`function ${opponent?'Opponent':name==='scale_incoming_damage'?'ResolvingFighter':['scale_outgoing_damage','add_outgoing_damage'].includes(name)?'OutgoingFighter':'Fighter'}:${name}(${Object.keys(f.params).join(', ')}) end\n\n`;
 }
 out+=`return { ${modules.map(m=>`${m} = ${m}`).join(', ')} }\n`;
 const metadata={functions:Object.fromEntries(Object.entries(schema.functions).map(([n,f])=>[n,{...f,...docs[n]}])),aliases:schema.aliases,constants,callbacks:schema.callbacks,modeCallbacks:schema.modeCallbacks,uiCallbacks:schema.uiCallbacks,aiCallbacks:schema.aiCallbacks,fighterMethods:schema.fighterMethods,types:schema.types};

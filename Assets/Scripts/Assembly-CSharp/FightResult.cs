@@ -205,6 +205,21 @@ public class FightResult
 			{
 				return;
 			}
+			bool configuredRewardGrant = JJBPBGKBEED.HasEclipseGrantConfiguration;
+			if (configuredRewardGrant)
+			{
+				int playerLevelSnapshot = ListSF.CCDKHLAMKKO().Level;
+				RewardItem configuredReward;
+				string configurationError;
+				if (!Eclipse.Modding.ModRuntime.TryConfigureRewardGrant(JJBPBGKBEED, playerLevelSnapshot,
+					out configuredReward, out configurationError))
+				{
+					UnityEngine.Debug.LogWarning("[ModReward] Skipping configured item reward '" + JJBPBGKBEED.Name +
+						"': " + configurationError);
+					return;
+				}
+				JJBPBGKBEED = configuredReward;
+			}
 			int requestedLevel = JJBPBGKBEED.CMEFKONFDKN();
 			int num = requestedLevel <= 0 ? ListSF.CCDKHLAMKKO().PINDEKDNCNL() : requestedLevel;
 			ItemInfo dJKEECEOCJB2 = null;
@@ -215,6 +230,12 @@ public class FightResult
 			else
 			{
 				ItemInfo dJKEECEOCJB3 = dJKEECEOCJB.GetUpdateItemByLevel(num, false);
+				if (dJKEECEOCJB3 == null && configuredRewardGrant)
+				{
+					UnityEngine.Debug.LogWarning("[ModReward] Skipping configured item reward '" + JJBPBGKBEED.Name +
+						"': exact level " + num + " is unavailable.");
+					return;
+				}
 				dJKEECEOCJB2 = ((dJKEECEOCJB3 == null) ? dJKEECEOCJB : dJKEECEOCJB3);
 			}
 			if (!string.IsNullOrEmpty(JJBPBGKBEED.UpgradeLevelExpression))

@@ -8,7 +8,7 @@ using Eclipse.Modding;
 // Controlled engine boundaries: numeric anti-cheat storage, profile mode, math,
 // XML scalar conversion and non-item reward implementations. Native reward
 // parsing/composition/choice and item constructor code are loaded by the runner.
-namespace UnityEngine { public static class Mathf { public static float Pow(float x,float y)=>(float)Math.Pow(x,y); } }
+namespace UnityEngine { public static class Mathf { public static float Pow(float x,float y)=>(float)Math.Pow(x,y); } public static class Debug { public static void LogWarning(object message){} } }
 public static class Scalars {
  public static int ParseInt(this XmlNode n,int fallback=0)=>n==null?fallback:int.Parse(n.Value,CultureInfo.InvariantCulture);
  public static uint ParseUint(this XmlNode n)=>n==null?0:uint.Parse(n.Value,CultureInfo.InvariantCulture);
@@ -19,9 +19,9 @@ public static class Scalars {
  public static void GMCADPGOCHM<T>(this T n){}
 }
 public class ListSF {
- public static bool Eclipse; public static int Level=4;public static Inventory Inventory=new Inventory();public static ItemCatalog Catalog=new ItemCatalog();
+ public static bool Eclipse; public static int CurrentLevel=4;public static Inventory Inventory=new Inventory();public static ItemCatalog Catalog=new ItemCatalog();
  public static ListSF CCDKHLAMKKO()=>new ListSF();public bool JPMPIDFGCJL()=>Eclipse;
- public int PINDEKDNCNL()=>Level;public Inventory KHCNHPCPFII()=>Inventory;public static ItemCatalog GetItems()=>Catalog;
+ public int PINDEKDNCNL()=>CurrentLevel;public int Level=>CurrentLevel;public Inventory KHCNHPCPFII()=>Inventory;public static ItemCatalog GetItems()=>Catalog;
 }
 public class UserItem {}
 public class Inventory { public HashSet<string> Owned=new HashSet<string>(); public UserItem CMGOCLGHNLH(string name)=>Owned.Contains(name)?new UserItem():null; }
@@ -55,10 +55,17 @@ public class PerkStruct { public PerkStruct(XmlNode n){} }
 public class RewardItem:Rewardable {
  public string Name; public uint UpgradeNumber; protected string JNPPCEGFJLE;
  internal string UpgradeLevelExpression {get;private set;}
+ internal string EclipseRewardId {get;private set;} internal int EclipseGrantIndex {get;private set;}=-1;
+ internal bool HasEclipseGrantConfiguration=>!string.IsNullOrEmpty(EclipseRewardId); private XmlElement _sourceNode;
  public int EvaluateUpgradeLevel()=>int.Parse(UpgradeLevelExpression);
  public List<PerkStruct> LDLPCOFHFKE=new List<PerkStruct>();
  public int CMEFKONFDKN()=>0;
  /* ITEM CONSTRUCTOR */
+}
+namespace Eclipse.Modding {
+ public static partial class ModRuntime {
+  public static bool TryConfigureRewardGrant(global::RewardItem source,int playerLevel,out global::RewardItem configured,out string error){configured=source;error=string.Empty;return true;}
+ }
 }
 public class RewardMoney:Rewardable { public RewardMoney(XmlNode n){} }
 public class RewardCurrency:Rewardable { public RewardCurrency(XmlNode n){} }
@@ -118,7 +125,7 @@ public static class Program {
   first.FAPDEKOMOGH.EDCOGMLOEHE.Clear();
   Check(second.FAPDEKOMOGH.EDCOGMLOEHE.Count==2&&repeat.KOBOIFJNPMO(4).FAPDEKOMOGH.EDCOGMLOEHE.Count==1,"Returned lottery collections alias source/other results");
   // Feed actual builder/parser output into the production result item selector.
-  ListSF.Level=4;ListSF.Eclipse=true;
+  ListSF.CurrentLevel=4;ListSF.Eclipse=true;
   var selectedPrize=new RewardStruct(doc.SelectSingleNode("Fight/Rewards/Reward[2]"),0,0).KOBOIFJNPMO(4);
   var grant=selectedPrize.HELFDCAIJNE.Single(i=>i.Name=="TEST_REWARD");
   var sourceItem=new ItemInfo{Name="TEST_REWARD",Upgrades=new List<UpgradeData>{new UpgradeData{Number=0},new UpgradeData{Number=1},new UpgradeData{Number=2}}};

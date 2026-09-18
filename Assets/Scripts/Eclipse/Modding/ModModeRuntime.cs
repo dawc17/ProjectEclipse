@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace Eclipse.Modding
@@ -14,6 +15,9 @@ namespace Eclipse.Modding
         internal static bool HasPendingPreparation => _pending != null;
         private static XmlNode _warrior;
         private static string _activeFight;
+        private static IReadOnlyList<DefinitionId> _activeRules;
+        public static IReadOnlyList<DefinitionId> ActiveRules(string runtimeFightId) =>
+            _activeFight == runtimeFightId ? _activeRules : null;
         private static bool _newReservation;
         private static bool _completedMode;
         private static bool _resetMode;
@@ -33,7 +37,7 @@ namespace Eclipse.Modding
             if (list != null && list.FFBAJNGHGGD(kind)) list.MHHNIPBJNAD();
         }
         public static void Bind(XmlNode warrior) { if (_warrior != warrior) Clear(); _warrior = warrior; }
-        public static void Clear() { _pending?.Invalidate(); _pending = null; _warrior = null; _activeFight = null; _raidResult = null; _raidResultShown = false; _newReservation = false; _completedMode = false; _resetMode = false; }
+        public static void Clear() { _pending?.Invalidate(); _pending = null; _warrior = null; _activeFight = null; _activeRules = null; _raidResult = null; _raidResultShown = false; _newReservation = false; _completedMode = false; _resetMode = false; }
         public static bool TryFind(string runtimeId, out ModModeDefinition mode)
         {
             var content = ModPolicies.Content;
@@ -184,6 +188,7 @@ namespace Eclipse.Modding
                 if (_activeFight != null && _activeFight != fight.FightId.ToString()) return false;
                 _newReservation = _activeFight == fight.FightId.ToString() ? _newReservation : !progress.Entered;
                 if (progress.Step >= mode.Fights.Count || ModPolicies.Content.RuntimeFightId(mode.Fights[progress.Step]) != fight.FightId.ToString()) return false;
+                var selectedRules = progress.ReadPlan()?.Rules;
                 if (!progress.Entered)
                 {
                     if (mode.HasEntryItem)
@@ -195,6 +200,7 @@ namespace Eclipse.Modding
                     progress.Enter();
                     ListSF.CCDKHLAMKKO().GGGEHAGCLGC(true);
                 }
+                _activeRules = selectedRules;
                 _activeFight = fight.FightId.ToString(); return true;
             }
             catch (Exception exception) { return Reject(exception.Message); }
@@ -215,7 +221,7 @@ namespace Eclipse.Modding
                     progress.CancelEnter(); ListSF.CCDKHLAMKKO().GGGEHAGCLGC(true);
                 }
             }
-            _activeFight = null; _newReservation = false;
+            _activeFight = null; _activeRules = null; _newReservation = false;
         }
         public static void NotifyEntry(FightList fight)
         {
@@ -236,6 +242,7 @@ namespace Eclipse.Modding
         {
             if (fight == null || _activeFight != fight.FightId.ToString() || !TryFind(_activeFight, out var mode)) return;
             _activeFight = null;
+            _activeRules = null;
             try
             {
                 var progress = new ModModeProgress(_warrior, mode);

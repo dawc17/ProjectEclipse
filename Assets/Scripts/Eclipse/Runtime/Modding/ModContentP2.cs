@@ -257,16 +257,36 @@ namespace Eclipse.Modding
             if (plans.Count > 1) throw new ModContentException("Duplicate saved encounter; data preserved.");
             if (plans.Count == 0) return null;
             var plan = (XmlElement)plans[0];
-            if (plan.GetAttribute("Version") != "1" || plan.GetAttribute("Step") != Step.ToString(CultureInfo.InvariantCulture))
+            string version = plan.GetAttribute("Version");
+            if ((version != "1" && version != "2") || plan.GetAttribute("Step") != Step.ToString(CultureInfo.InvariantCulture))
                 throw new ModContentException("Unsupported or stale saved encounter; data preserved.");
             var warriors = new List<DefinitionId>();
+            List<DefinitionId> rules = null;
             foreach (XmlNode node in plan.ChildNodes)
             {
-                if (!(node is XmlElement child) || child.Name != "Warrior") throw new ModContentException("Invalid saved encounter child.");
-                warriors.Add(DefinitionId.Parse(child.GetAttribute("Id")));
-                if (warriors.Count > 64) throw new ModContentException("Saved encounter exceeds 64 warriors.");
+                if (!(node is XmlElement child)) throw new ModContentException("Invalid saved encounter child.");
+                if (child.Name == "Warrior")
+                {
+                    warriors.Add(DefinitionId.Parse(child.GetAttribute("Id")));
+                    if (warriors.Count > 64) throw new ModContentException("Saved encounter exceeds 64 warriors.");
+                }
+                else if (version == "2" && child.Name == "Rules" && rules == null)
+                {
+                    rules = new List<DefinitionId>();
+                    foreach (XmlNode ruleNode in child.ChildNodes)
+                    {
+                        if (!(ruleNode is XmlElement rule) || rule.Name != "Rule")
+                            throw new ModContentException("Invalid saved encounter rule.");
+                        rules.Add(DefinitionId.Parse(rule.GetAttribute("Id")));
+                        if (rules.Count > 100) throw new ModContentException("Saved encounter exceeds 100 rules.");
+                    }
+                }
+                else throw new ModContentException("Invalid or duplicate saved encounter child.");
             }
-            return new ModEncounterPlan(warriors, PlanNumber(plan,"Level"), PlanNumber(plan,"Rounds"), PlanNumber(plan,"RoundTime"));
+            if (version == "1" && plan.HasAttribute("Description"))
+                throw new ModContentException("Encounter description requires save version 2.");
+            return new ModEncounterPlan(warriors, PlanNumber(plan,"Level"), PlanNumber(plan,"Rounds"),
+                PlanNumber(plan,"RoundTime"), rules, plan.HasAttribute("Description") ? plan.GetAttribute("Description") : null);
         }
         private static int? PlanNumber(XmlElement node, string name)
         {
@@ -279,11 +299,22 @@ namespace Eclipse.Modding
         {
             if (Entered || ReadPlan() != null) throw new ModContentException("An encounter is already prepared or entered.");
             var node = _node.OwnerDocument.CreateElement("Encounter");
-            node.SetAttribute("Version","1"); node.SetAttribute("Step",Step.ToString(CultureInfo.InvariantCulture));
+            node.SetAttribute("Version",plan.Rules != null || plan.Description != null ? "2" : "1");
+            node.SetAttribute("Step",Step.ToString(CultureInfo.InvariantCulture));
             if (plan.Level.HasValue) node.SetAttribute("Level",plan.Level.Value.ToString(CultureInfo.InvariantCulture));
             if (plan.Rounds.HasValue) node.SetAttribute("Rounds",plan.Rounds.Value.ToString(CultureInfo.InvariantCulture));
             if (plan.RoundTime.HasValue) node.SetAttribute("RoundTime",plan.RoundTime.Value.ToString(CultureInfo.InvariantCulture));
             foreach (var id in plan.Warriors) { var child = node.OwnerDocument.CreateElement("Warrior"); child.SetAttribute("Id",id.ToString()); node.AppendChild(child); }
+            if (plan.Rules != null)
+            {
+                var rules = node.OwnerDocument.CreateElement("Rules");
+                foreach (var id in plan.Rules)
+                {
+                    var rule = node.OwnerDocument.CreateElement("Rule"); rule.SetAttribute("Id",id.ToString()); rules.AppendChild(rule);
+                }
+                node.AppendChild(rules);
+            }
+            if (plan.Description != null) node.SetAttribute("Description",plan.Description);
             _node.AppendChild(node);
         }
         public void Complete(ModModeDefinition mode, bool won)
@@ -313,12 +344,31 @@ namespace Eclipse.Modding
         public int? Level { get; }
         public int? Rounds { get; }
         public int? RoundTime { get; }
-        public ModEncounterPlan(IEnumerable<DefinitionId> warriors = null, int? level = null, int? rounds = null, int? roundTime = null)
+        // Null inherits the blueprint; an explicit empty list removes its rules.
+        public IReadOnlyList<DefinitionId> Rules { get; }
+        public string Description { get; }
+        public ModEncounterPlan(IEnumerable<DefinitionId> warriors = null, int? level = null, int? rounds = null,
+            int? roundTime = null, IEnumerable<DefinitionId> rules = null, string description = null)
         {
             var copy = warriors == null ? new List<DefinitionId>() : new List<DefinitionId>(warriors);
             if (copy.Count > 64 || level < 1 || level > 1000 || rounds < 1 || rounds > 99 || roundTime < 1 || roundTime > 3600)
                 throw new ModContentException("Encounter permits up to 64 warriors, level 1..1000, rounds 1..99 and round_time 1..3600.");
+            foreach (var warrior in copy)
+                if (warrior.Category != "warriors") throw new ModContentException("Encounter requires warrior definition IDs.");
+            if (rules != null)
+            {
+                var ruleCopy = new List<DefinitionId>(rules);
+                if (ruleCopy.Count > 100) throw new ModContentException("Encounter permits at most 100 rules.");
+                var seen = new HashSet<DefinitionId>();
+                foreach (var rule in ruleCopy)
+                    if (rule.Category != "rules" || !seen.Add(rule))
+                        throw new ModContentException("Encounter rules must be distinct rule definition IDs.");
+                Rules = ruleCopy.AsReadOnly();
+            }
+            if (description != null && description.Length > 1024)
+                throw new ModContentException("Encounter description must be at most 1024 characters.");
             Warriors = copy.AsReadOnly(); Level = level; Rounds = rounds; RoundTime = roundTime;
+            Description = description;
         }
     }
 

@@ -3,8 +3,9 @@ title: Localization
 description: Give items readable names in different languages and patch existing translations.
 ---
 
-Put your mod's translated text in `localizations/<language>.toml`. For example,
-`localizations/eng.toml` can contain:
+You can register translations directly from the Lua entrypoint or keep them in
+`localizations/<language>.toml`. TOML remains useful for larger translation sets.
+For example, `localizations/eng.toml` can contain:
 
 ```toml
 item.training_blade = "Training Blade"
@@ -17,6 +18,51 @@ is what the player reads. This is a simple key/value format; keep entries on
 single lines and use double-quoted values. See the [manifest guide](../../guides/manifest/)
 for the surrounding folder layout.
 
+## sf2.localization.register
+
+Register one translation owned by your mod and get its localization handle.
+
+**Signature:** `sf2.localization.register { id, language, value }`
+
+**Returns:** A localization handle for the registered key.
+
+**When:** Entrypoint.
+
+**Requires:** `content.register`.
+
+| Field | Type | Required? | Meaning |
+| --- | --- | --- | --- |
+| `id` | String | Yes | Local localization key owned by this mod, such as `item.desolator`. Do not qualify it with a namespace. |
+| `language` | String | Yes | Language code such as `eng` or `pol`. It is trimmed and lowercased and may contain only letters, digits, underscores, or hyphens. |
+| `value` | Nonempty string | Yes | Text for that language. |
+
+Call the function once per language for the same `id`. The new key is available
+immediately through `sf2.localization.key` and `sf2.localization.text`, including
+before the registration transaction commits. Registration is transactional, so a
+failed or rolled-back mod load does not leave the translation behind.
+
+```lua
+local desolatorName = sf2.localization.register {
+    id = "item.desolator",
+    language = "eng",
+    value = "Desolator",
+}
+
+sf2.localization.register {
+    id = "item.desolator",
+    language = "pol",
+    value = "Desolator",
+}
+
+local sameKey = sf2.localization.key("item.desolator")
+```
+
+Lua registration and TOML loading use the same ownership and duplicate rules.
+Registering the same key and normalized language twice fails, including when one
+copy comes from Lua and the other from a TOML file. There is no separate English
+requirement for this function beyond the host's existing localization fallback
+rules.
+
 ## sf2.localization.key
 
 Get the typed localization handle used by item names, perks, and achievements.
@@ -25,7 +71,7 @@ Get the typed localization handle used by item names, perks, and achievements.
 
 **Requires:** `content.register`; other owners must be declared dependencies.
 
-**When:** Entrypoint, after localization files have been discovered by the host.
+**When:** Entrypoint, after the key has been registered by Lua or discovered from localization files.
 
 **Returns:** A localization handle. Missing keys raise an error.
 

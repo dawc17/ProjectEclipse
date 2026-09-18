@@ -7,6 +7,12 @@ An **item handle** identifies an item definition. It does not represent an item
 already owned by the player. Registering equipment does not give it to the
 player or automatically put it in the shop; use a listing or a reward next.
 
+Equipment without a shop listing is still created in the native item catalog,
+including its localized name. It has no purchase price and is hidden until
+acquired. Its initial level is 1 for weapons, 2 for armor/helms, and 6 for
+ranged/magic. It uses the same canonical stats and upgrade templates as normal
+equipment. Registration alone does not scale a reward to the player's level.
+
 All registration functions below run in the entrypoint and require
 `content.register`. Unknown fields, duplicate IDs, wrong handle types, and
 missing dependencies are errors. Examples assume `local sf2 = require("sf2")`.
@@ -24,8 +30,11 @@ missing dependencies are errors. Examples assume `local sf2 = require("sf2")`.
 Normal equipment takes no raw damage or defense field. Its initial power is
 calculated from the category and shop listing's starting level. See
 [shops and prices](../shop/) for section constants and allowed levels.
-Create the referenced localization key in `localizations/eng.toml` before using
-these examples. Core model/icon references require the `core` dependency.
+When there is no listing, the category baseline described above applies.
+Create the referenced mod-owned localization key in `localizations/eng.toml` or
+with [`sf2.localization.register`](../localization-patches/#sf2localizationregister)
+before registering equipment. Core model/icon references require the `core`
+dependency.
 
 ## sf2.items.register_weapon
 

@@ -183,14 +183,87 @@ Create a reward that a fight can grant through its normal result/save flow.
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `id` | String | Required | Local reward ID. |
-| `items` | Grant array | Empty | Guaranteed item grants: `{ item = handle, upgrade = 0 }`. |
+| `items` | Grant array | Empty | Guaranteed item grants: `{ item = handle, upgrade = 0, configure? = function }`. |
 | `choices` | Choice-group array | Empty | Each group has `items`, a weighted candidate array. |
 | `gems` | Integer, 0–1,000,000 | `0` | Fixed gem reward through normal acquisition. |
 
-A candidate row is `{ item = handle, upgrade = 0, weight = 1 }`. Upgrade is a
+A candidate row is `{ item = handle, upgrade = 0, weight = 1, configure = function(context) ... end }`. Upgrade is a
 nonnegative integer. Weights must be finite and greater than zero. Each group
 selects an item from its candidates. This is a content reward, not arbitrary
 script access to a currency balance.
+
+### Grant-time equipment configuration
+
+Equipment grants may include `configure`, a bounded Lua callback evaluated when
+the host composes that reward result. It is available on both direct `items` and
+weighted choice candidates. Consumable, free and seal grants cannot use it.
+
+```lua
+local precision = sf2.perks.get("core:perks/PERK_ITEM_SPECIAL_PRECISION_WEAPON")
+
+local titan_reward = sf2.rewards.register {
+    id = "titan_reward",
+    items = {
+        {
+            item = desolator,
+            configure = function(context)
+                return {
+                    level = context.player_level,
+                    enchantments = {
+                        { perk = precision, aspect = 1940.5 },
+                    },
+                }
+            end,
+        },
+    },
+}
+```
+
+The callback receives a fresh calculation snapshot:
+
+| Context field | Type | Meaning |
+| --- | --- | --- |
+| `player_level` | Integer | Player level captured before reward XP is applied. |
+| `item_id` | String | Qualified ID of the item being granted. |
+
+Return a table with either or both of these optional fields:
+
+| Result field | Type | Meaning |
+| --- | --- | --- |
+| `level` | Integer, 1–10,000 | Equipment level for this grant snapshot. Defaults to `context.player_level`. |
+| `enchantments` | Dense array, at most 64 entries | Grant-time enchantments. Each entry is `{ perk = perk_handle, aspect? = number }`. Duplicate perk IDs are rejected. |
+
+`aspect` must be finite and from `0` through `2147483647`; decimal values are
+accepted. Perk handles must already have been looked up or registered during mod
+registration and captured by the callback. An explicit empty `enchantments = {}`
+adds no grant-time enchantments and still preserves the item's normal acquisition
+defaults. Omitting `enchantments` also preserves those defaults. The existing
+`upgrade` field remains a separate nonnegative ordinal and is not derived from the
+returned `level`.
+
+The selected level must exist in that item's native progression. An unavailable
+level skips the configured grant with a diagnostic instead of lowering its level.
+
+The callback is a calculation hook, not a general event handler. It runs with a
+200,000-instruction budget and may also run for previews, so it must return the
+same result for the same context. Do not retain or mutate the context, mutate Lua
+captured state, or depend on call count. Capability-backed `sf2` operations are
+blocked while the callback is running, so profile/state access, UI, navigation,
+content mutation and similar operations are unavailable. Logging remains allowed.
+The pure asset identity/existence helpers `sf2.assets.qualify` and
+`sf2.assets.exists` also remain available because they do not pass through the
+capability gate. Prefer captured handles plus ordinary Lua math for the result.
+
+The host evaluates configuration after owned/missing-item filtering and makes a
+fresh native grant copy for the result. A thrown error, invalid return value,
+instruction-budget failure or disposed callback skips that item and reports a
+diagnostic. Other reward items and base currencies remain intact. The host does
+not silently fall back to the unconfigured item. Successful configuration then
+continues through the existing settlement and save path.
+
+This is typed grant configuration only. It does not expose raw XML, expression
+strings or arbitrary item metadata. Static editor checks validate the callback
+shape and handles; they do not establish runtime rendering or art correctness.
 
 Legacy XML reward items also support `UpgradeLevel`, which is an encoded native
 upgrade level rather than the ordinal `UpgradeNumber` used by Lua's `upgrade`.
@@ -402,7 +475,9 @@ profile. Mod-owned consumables retain their supported repeat-grant behavior.
 Money, premium currency, experience, reward scaling, lotteries, resistance and
 other scopes are preserved. A choice containing non-item outcomes is rejected:
 changing its item weights would also change currency probabilities. This operation
-does not edit lottery contents or nested item metadata/enchantments.
+does not edit lottery contents. Nested equipment configuration is available only
+through the reward grant's typed `configure` callback described above, rather than
+through arbitrary metadata or XML edits.
 
 Edits to the same fight/result/mode/exact-level scope conflict, including repeated
 edits by one mod. Distinct scopes coexist. All edits in one call share its rollback

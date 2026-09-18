@@ -71,7 +71,7 @@ if (!$encounter.Success) { throw 'Cannot extract production encounter projection
 $projectionMethods += $encounter.Value
 $projection = Join-Path $testRoot 'Projection.cs'
 Set-Content -Encoding UTF8 $projection ('using System; using System.Collections.Generic; using System.Globalization; using System.Xml; using Eclipse.Modding; internal sealed class Projection {' +
-    'private ModContentCatalog _content; public XmlElement Reward(ModContentCatalog catalog, RewardItemGrant grant) { _content = catalog; return BuildRewardItemNode(new XmlDocument(), grant, null); }' +
+    'private ModContentCatalog _content; public XmlElement Reward(ModContentCatalog catalog, RewardItemGrant grant) { _content = catalog; var reward = new RewardDefinition(DefinitionId.Parse("core:rewards/fixture"), new[] { grant }, Array.Empty<RewardChoiceDefinition>()); return BuildRewardItemNode(new XmlDocument(), reward, grant, null, 0); }' +
     'public XmlDocument Location(LocationDefinition value) => BuildLocationDocument(value);' +
     'public XmlElement Condition(ModMoveCondition value) => BuildMoveCondition(new XmlDocument(), value);' +
     'public XmlElement Move(MoveDefinition value) => BuildMoveNode(new XmlDocument(), "Move", value, value.Animation);' +

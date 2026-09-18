@@ -237,19 +237,25 @@ fight blueprint. All fields are optional:
 | `level` | Integer 1–1000 applied to the encounter's warriors. Omit to retain their declared levels. |
 | `rounds` | Integer 1–99; omit to inherit. |
 | `round_time` | Integer 1–3600 seconds; omit to inherit. |
+| `rules` | Dense array of 0–100 distinct owned rule handles. Omit to inherit the blueprint rule list; an explicit empty array removes all blueprint rules for this prepared encounter. |
+| `description` | String up to 1024 characters. Omit to inherit the blueprint description; an explicit empty string clears it for this prepared encounter. |
 
-The blueprint supplies location, music, rules and rewards. Native reward
-settlement and entry tickets remain under host control. Only the generated
-instance changes; definitions and other fights keep their values. The host
-validates native construction before saving the plan and entering combat.
+The blueprint supplies location, music and rewards. Rules and description inherit
+from it unless the plan supplies replacements. Dynamic behavior rules in a plan
+run through the same active-encounter dispatch as behavior rules declared on the
+fight. Native reward settlement and entry tickets remain under host control. Only
+the generated instance changes; definitions and other fights keep their values.
+The host validates native construction before saving the plan and entering combat.
 
-Completed plans are stored with the mode's step in the player save. Reload and
-failed scene-launch retries reuse the same plan without running `on_prepare` or
-drawing random numbers again. Resolving a fight consumes its plan, including a
-loss that retries the same step. Pending UI/closures are not saved: leaving the
-scene, changing profile or disabling scripts cancels preparation. Press Fight
-again to recreate a pending choice. Unknown plan save versions, changed rosters
-or missing owned content are rejected with saved data preserved.
+Completed plans are stored with the mode's step in the player save, including
+rule selections and the description override. Reload and failed scene-launch
+retries reuse the same plan without running `on_prepare` or drawing random numbers
+again. Resolving a fight consumes its plan, including a loss that retries the same
+step. Pending UI/closures are not saved: leaving the scene, changing profile or
+disabling scripts cancels preparation. Press Fight again to recreate a pending
+choice. The host reads older version-1 encounter plans that predate rules and
+description. Unknown newer versions, changed rosters/rules or missing owned
+content are rejected with saved data preserved.
 
 Random draws and other state writes made by Lua are not rolled back if a later
 callback or scene launch fails. Draw after the player commits a choice when
