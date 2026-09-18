@@ -46,9 +46,9 @@ public class Bezier
 			num2 -= OKEMEKMBMPF - num;
 			num3 += OKEMEKMBMPF - num - num;
 			num4 += num;
-			item.JPFALPBDBAP(num2 * HAEJICBDOKC.GILCBJJPKBK() + num3 * MILMANCOCLK.GILCBJJPKBK() + num4 * DMECFLFKOPA.GILCBJJPKBK());
-			item.IBNFLLGPOLD(num2 * HAEJICBDOKC.OBIMBNIBEFG() + num3 * MILMANCOCLK.OBIMBNIBEFG() + num4 * DMECFLFKOPA.OBIMBNIBEFG());
-			item.set_Z(num2 * HAEJICBDOKC.KMFEKANLCFO() + num3 * MILMANCOCLK.KMFEKANLCFO() + num4 * DMECFLFKOPA.KMFEKANLCFO());
+			item.SetX(num2 * HAEJICBDOKC.GetX() + num3 * MILMANCOCLK.GetX() + num4 * DMECFLFKOPA.GetX());
+			item.SetY(num2 * HAEJICBDOKC.GetY() + num3 * MILMANCOCLK.GetY() + num4 * DMECFLFKOPA.GetY());
+			item.SetZ(num2 * HAEJICBDOKC.GetZ() + num3 * MILMANCOCLK.GetZ() + num4 * DMECFLFKOPA.GetZ());
 		}
 	}
 

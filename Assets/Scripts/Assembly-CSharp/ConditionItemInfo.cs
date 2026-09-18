@@ -17,7 +17,7 @@ public class ConditionItemInfo : ConditionAnimation
 	}
 
 	public ConditionItemInfo(XmlNode node)
-		: base(DGAGKLODADD.ITEM)
+		: base(ConditionType.ITEM)
 	{
 		KCIIELDOBOM = node.Attributes["Type"].CIPOICEEIBK(string.Empty);
 		LOKOGOFENFO = node.Attributes["SubType"].CIPOICEEIBK(string.Empty);

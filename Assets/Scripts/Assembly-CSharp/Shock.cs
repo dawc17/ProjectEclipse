@@ -36,8 +36,8 @@ public class Shock
 		ADAOLENDOME = node["CriticalHitChance"].Attributes["Attribute"].CIPOICEEIBK(string.Empty);
 		PAKGFJEEJLD = node["HeadHitChance"].Attributes["Base"].ParseFloat();
 		POJAOGMJBDC = node["HeadHitChance"].Attributes["Attribute"].CIPOICEEIBK(string.Empty);
-		IIIDIKABLOJ.JPFALPBDBAP(node["Impulse"].Attributes["X"].ParseFloat());
-		IIIDIKABLOJ.IBNFLLGPOLD(node["Impulse"].Attributes["Y"].ParseFloat());
-		IIIDIKABLOJ.set_Z(node["Impulse"].Attributes["Z"].ParseFloat());
+		IIIDIKABLOJ.SetX(node["Impulse"].Attributes["X"].ParseFloat());
+		IIIDIKABLOJ.SetY(node["Impulse"].Attributes["Y"].ParseFloat());
+		IIIDIKABLOJ.SetZ(node["Impulse"].Attributes["Z"].ParseFloat());
 	}
 }

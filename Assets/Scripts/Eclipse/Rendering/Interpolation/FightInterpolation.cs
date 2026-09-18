@@ -44,11 +44,11 @@ namespace Eclipse.Rendering.Interpolation
 
 		public static void SamplePosition(ModelNode node, float alpha, out float x, out float y, out float z)
 		{
-			Vector3f current = node.ICLEOFDKDIF();
-			Vector3f previous = node.FOGHEPNAPLC();
-			x = Mathf.Lerp(previous.GILCBJJPKBK(), current.GILCBJJPKBK(), alpha);
-			y = Mathf.Lerp(previous.OBIMBNIBEFG(), current.OBIMBNIBEFG(), alpha);
-			z = Mathf.Lerp(previous.KMFEKANLCFO(), current.KMFEKANLCFO(), alpha);
+			Vector3f current = node.GetStart();
+			Vector3f previous = node.GetEnd();
+			x = Mathf.Lerp(previous.GetX(), current.GetX(), alpha);
+			y = Mathf.Lerp(previous.GetY(), current.GetY(), alpha);
+			z = Mathf.Lerp(previous.GetZ(), current.GetZ(), alpha);
 		}
 
 		public static void SamplePosition(ModelNode node, float alpha, Vector3f result)
@@ -57,9 +57,9 @@ namespace Eclipse.Rendering.Interpolation
 			float y;
 			float z;
 			SamplePosition(node, alpha, out x, out y, out z);
-			result.JPFALPBDBAP(x);
-			result.IBNFLLGPOLD(y);
-			result.set_Z(z);
+			result.SetX(x);
+			result.SetY(y);
+			result.SetZ(z);
 		}
 	}
 }

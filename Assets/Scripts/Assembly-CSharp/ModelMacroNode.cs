@@ -17,14 +17,14 @@ public class ModelMacroNode : ModelNode
 	public ModelMacroNode(string name, Vector3f OBLEMIHLFII)
 		: base(name, OBLEMIHLFII)
 	{
-		set_Type(KOJNBGALAHM.MacroNode);
+		SetType(NodeType.MacroNode);
 	}
 
 	public ModelMacroNode(ModelMacroNode AHJOLBKABMC)
 		: base(AHJOLBKABMC)
 	{
 		LKBADGFHJHK = new List<global::Pair<ModelNode, float>>(AHJOLBKABMC.LKBADGFHJHK);
-		set_Type(KOJNBGALAHM.MacroNode);
+		SetType(NodeType.MacroNode);
 	}
 
 	public List<global::Pair<ModelNode, float>> LDEBJOPLCKO()
@@ -44,14 +44,14 @@ public class ModelMacroNode : ModelNode
 			BCIPCPOJJGN = false;
 			return;
 		}
-		BMCBFGEKMPP.Set(_Current);
-		_Current.Reset();
+		_End.Set(_Start);
+		_Start.Reset();
 		global::Pair<ModelNode, float> cCKLNOPEKHO = null;
 		int count = LKBADGFHJHK.Count;
 		for (int i = 0; i < count; i++)
 		{
 			cCKLNOPEKHO = LKBADGFHJHK[i];
-			_Current.GLGNIMKANCA(cCKLNOPEKHO.First.ICLEOFDKDIF(), cCKLNOPEKHO.Second);
+			_Start.GLGNIMKANCA(cCKLNOPEKHO.First.GetStart(), cCKLNOPEKHO.Second);
 		}
 	}
 }

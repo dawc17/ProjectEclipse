@@ -22,7 +22,7 @@ public class ConditionList : ConditionAnimation
 	}
 
 	public ConditionList(XmlNode node, List<ConditionAnimation> conditions)
-		: base(DGAGKLODADD.LIST)
+		: base(ConditionType.LIST)
 	{
 		string text = XmlUtils.ParseString(node.Attributes["Type"]);
 		DGHJEHMPAOP = ((text == "Or") ? PJDDCKKJBNB.OR : PJDDCKKJBNB.AND);
@@ -56,7 +56,7 @@ public class ConditionList : ConditionAnimation
 		foreach (ConditionAnimation item in KEJBANPKCFA)
 		{
 			bool flag = false;
-			if (item.Type == DGAGKLODADD.EVENT && ACENLMONNPA != null)
+			if (item.Type == ConditionType.EVENT && ACENLMONNPA != null)
 			{
 				ModelType.KEIDBIOIFGA lFLGCDNKNJI = item.FHBAPKNECOM();
 				Model fGCODGKLHED = item.DKDAKGDMHAL(ACENLMONNPA, lFLGCDNKNJI);

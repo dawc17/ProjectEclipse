@@ -16,7 +16,7 @@ public class ConditionModExists : ConditionAnimation
 	}
 
 	public ConditionModExists(XmlNode node)
-		: base(DGAGKLODADD.MOD_EXISTS)
+		: base(ConditionType.MOD_EXISTS)
 	{
 		_Name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 		LJMGGAJCOBF = node.Attributes["Perk"].CIPOICEEIBK(string.Empty);

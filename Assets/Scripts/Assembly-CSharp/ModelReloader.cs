@@ -62,24 +62,24 @@ public static class ModelReloader
 
 	private static void GLNMJNFLLIN(ModelObject ACENLMONNPA, ModelNode NPDJNAMFIKD, XmlNode EABJIAHGLEO)
 	{
-		if (NPDJNAMFIKD.get_Name() != EABJIAHGLEO.Name)
+		if (NPDJNAMFIKD.GetName() != EABJIAHGLEO.Name)
 		{
-			LLLOJBFMONN.Error("Model reload: {0} -- {1}", NPDJNAMFIKD.get_Name(), EABJIAHGLEO.Name);
+			LLLOJBFMONN.Error("Model reload: {0} -- {1}", NPDJNAMFIKD.GetName(), EABJIAHGLEO.Name);
 		}
 		float lHNJJFDIJKK = EABJIAHGLEO.Attributes["X"].ParseFloat();
 		float fFFHIOALHGM = 0f - EABJIAHGLEO.Attributes["Y"].ParseFloat();
 		float pDCENMEKIAP = EABJIAHGLEO.Attributes["Z"].ParseFloat();
 		Vector3f bAINMLLIKOL = new Vector3f(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
 		string text = EABJIAHGLEO.Attributes["Type"].CIPOICEEIBK();
-		NPDJNAMFIKD.AMPCKAIPIHH(bAINMLLIKOL);
-		NPDJNAMFIKD.LAHLFIKENPP(bAINMLLIKOL);
+		NPDJNAMFIKD.SetStart(bAINMLLIKOL);
+		NPDJNAMFIKD.SetEnd(bAINMLLIKOL);
 		if (text == "Node")
 		{
-			NPDJNAMFIKD.CNNKFMNKDNE(EABJIAHGLEO.Attributes["Cloth"].ParseBool());
-			NPDJNAMFIKD.BDFIDDLGDNM(EABJIAHGLEO.Attributes["Attenuation"].ParseFloat());
+			NPDJNAMFIKD.SetCloth(EABJIAHGLEO.Attributes["Cloth"].ParseBool());
+			NPDJNAMFIKD.SetAttenuation(EABJIAHGLEO.Attributes["Attenuation"].ParseFloat());
 		}
-		NPDJNAMFIKD.NPKACGCHOLK(EABJIAHGLEO.Attributes["Mass"].ParseFloat());
-		NPDJNAMFIKD.MGPLABIFCAH(EABJIAHGLEO.Attributes["Fixed"].ParseBool());
-		NPDJNAMFIKD.NNHPOJFKEID(EABJIAHGLEO.Attributes["Visible"].ParseBool());
+		NPDJNAMFIKD.SetMass(EABJIAHGLEO.Attributes["Mass"].ParseFloat());
+		NPDJNAMFIKD.SetFixed(EABJIAHGLEO.Attributes["Fixed"].ParseBool());
+		NPDJNAMFIKD.SetVisible(EABJIAHGLEO.Attributes["Visible"].ParseBool());
 	}
 }

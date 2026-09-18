@@ -380,7 +380,7 @@ public class Fight
             if (position == null) return null;
             var parameters = model.Parameters;
             return new ModFighterSnapshot(model.KKMCHCNOHMB(), parameters.CIDCNCDFONA,
-                parameters.HealthBarCount, position.GILCBJJPKBK(), position.OBIMBNIBEFG(), position.KMFEKANLCFO(),
+                parameters.HealthBarCount, position.GetX(), position.GetY(), position.GetZ(),
                 ModRuntime.CaptureAnimationSnapshot(model));
         }
         public double Health => _model == null ? 0 : _model.KKMCHCNOHMB();
@@ -1924,12 +1924,12 @@ public class Fight
 		gHHCDAFIKJE.LOONMILKCFK = !isFirstStrike;
 		if (gHHCDAFIKJE.ALIHGFIJEDN != null)
 		{
-			ModelNode lCDGOCIAIDK = gHHCDAFIKJE.ALIHGFIJEDN.OGLAOHGLBHI();
-			ModelNode lCDGOCIAIDK2 = gHHCDAFIKJE.ALIHGFIJEDN.KMHHBEKNHCJ();
-			Vector3f nBMEGFBPGFE = lCDGOCIAIDK.ICLEOFDKDIF();
-			Vector3f aKKEJFKBIHF = lCDGOCIAIDK.FOGHEPNAPLC();
-			Vector3f nBMEGFBPGFE2 = lCDGOCIAIDK2.ICLEOFDKDIF();
-			Vector3f aKKEJFKBIHF2 = lCDGOCIAIDK2.FOGHEPNAPLC();
+			ModelNode lCDGOCIAIDK = gHHCDAFIKJE.ALIHGFIJEDN.GetStartNode();
+			ModelNode lCDGOCIAIDK2 = gHHCDAFIKJE.ALIHGFIJEDN.GetEndNode();
+			Vector3f nBMEGFBPGFE = lCDGOCIAIDK.GetStart();
+			Vector3f aKKEJFKBIHF = lCDGOCIAIDK.GetEnd();
+			Vector3f nBMEGFBPGFE2 = lCDGOCIAIDK2.GetStart();
+			Vector3f aKKEJFKBIHF2 = lCDGOCIAIDK2.GetEnd();
 			float num = 1f / 120f;
 			Vector3f kKIKIDNALOL = Vector3f.PHEFFKMOOCM(Vector3f.MJOKEBGPHKB(nBMEGFBPGFE, aKKEJFKBIHF), Vector3f.MJOKEBGPHKB(nBMEGFBPGFE2, aKKEJFKBIHF2));
 			IntervalAttack hFIIPNLCIEE2 = EGHPHELLOGO.GAIBPAGPEGK.OCPMJKIEPIG().HDJBHPOGKNJ(IntervalAnimation.NGAJJDIEDGF.INTERVAL_ATTACK) as IntervalAttack;
@@ -2679,8 +2679,8 @@ public class Fight
 
 	private void GFBIBGIOBND(Model ACENLMONNPA)
 	{
-		float num = ACENLMONNPA.CLDMEJKGLBA().CJELIBMCCMA().ICLEOFDKDIF()
-			.GILCBJJPKBK();
+		float num = ACENLMONNPA.CLDMEJKGLBA().CJELIBMCCMA().GetStart()
+			.GetX();
 		if (!ACENLMONNPA.MBCLINNCNAL())
 		{
 			if (NCAEOKCFBFD && num >= ICDHAHADCEH && num <= JCCDMOJKANN)
@@ -4438,9 +4438,9 @@ public class Fight
 		}
 		eMAFACPEPDK.Multiply(1f / num);
 		Vector3f eMAFACPEPDK3 = new Vector3f(_Camera.NPJHOCJIPDL());
-		eMAFACPEPDK3.EHGLHOGAIDI(eMAFACPEPDK);
-		eMAFACPEPDK3.IBNFLLGPOLD(0f);
-		eMAFACPEPDK3.set_Z(0f);
+		eMAFACPEPDK3.Subtract(eMAFACPEPDK);
+		eMAFACPEPDK3.SetY(0f);
+		eMAFACPEPDK3.SetZ(0f);
 		foreach (Model item2 in INNLAFHKJNI)
 		{
 			item2.ShiftModelPosition(eMAFACPEPDK3, true);

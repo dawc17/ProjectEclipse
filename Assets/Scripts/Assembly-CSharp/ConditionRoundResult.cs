@@ -22,7 +22,7 @@ public class ConditionRoundResult : ConditionAnimation
 	private DBLIMJMOEPB GPOHKJPLLGH;
 
 	public ConditionRoundResult(XmlNode node)
-		: base(DGAGKLODADD.ROUND_RESULT)
+		: base(ConditionType.ROUND_RESULT)
 	{
 		string text = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 		string text2 = node.Attributes["Type"].CIPOICEEIBK(string.Empty);

@@ -87,8 +87,8 @@ public class ViewerModel
 				JMHBCFGBHIP = ACENLMONNPA;
 			}
 		}
-		ACENLMONNPA.get_Model().MJNPBMOAFML().transform.SetParent(_UnityObject.transform, false);
-		ACENLMONNPA.get_Model().set_color(color);
+		ACENLMONNPA.GetModel().MJNPBMOAFML().transform.SetParent(_UnityObject.transform, false);
+		ACENLMONNPA.GetModel().set_color(color);
 		INNLAFHKJNI.Add(ACENLMONNPA);
 		return 0;
 	}
@@ -112,8 +112,8 @@ public class ViewerModel
         if (expected == null || replacement == null || index < 0 || index >= INNLAFHKJNI.Count ||
             INNLAFHKJNI[index] != expected || INNLAFHKJNI.Contains(replacement)) return false;
         // Prepare render parenting before changing either primary fighter reference.
-        replacement.get_Model().MJNPBMOAFML().transform.SetParent(_UnityObject.transform, false);
-        replacement.get_Model().set_color(color);
+        replacement.GetModel().MJNPBMOAFML().transform.SetParent(_UnityObject.transform, false);
+        replacement.GetModel().set_color(color);
         INNLAFHKJNI[index] = replacement;
         if (PHJPLPPEPJN == expected) PHJPLPPEPJN = replacement;
         if (JMHBCFGBHIP == expected) JMHBCFGBHIP = replacement;
@@ -126,7 +126,7 @@ public class ViewerModel
 		{
 			if (item == ACENLMONNPA)
 			{
-				item.get_Model().MJNPBMOAFML().SetActive(value);
+				item.GetModel().MJNPBMOAFML().SetActive(value);
 				break;
 			}
 		}

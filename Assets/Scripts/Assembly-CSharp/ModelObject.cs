@@ -94,11 +94,11 @@ public class ModelObject
 	{
 		get
 		{
-			return EDJFLMILEBA();
+			return IsShock();
 		}
 		set
 		{
-			set_IsShock(value);
+			SetShock(value);
 		}
 	}
 
@@ -106,11 +106,11 @@ public class ModelObject
 	{
 		get
 		{
-			return get_Model();
+			return GetModel();
 		}
 		set
 		{
-			set_Model(value);
+			SetModel(value);
 		}
 	}
 
@@ -265,29 +265,29 @@ public class ModelObject
 		_NodesCount = value;
 	}
 
-	public bool EDJFLMILEBA()
+	public bool IsShock()
 	{
 		return _IsShock;
 	}
 
-	public void set_IsShock(bool value)
+	public void SetShock(bool value)
 	{
 		_IsShock = value;
 	}
 
-	public Model get_Model()
+	public Model GetModel()
 	{
 		return _Model;
 	}
 
-	public void set_Model(Model value)
+	public void SetModel(Model value)
 	{
 		_Model = value;
 	}
 
 	public Vector3f PLBNCDCFPML()
 	{
-		return HOFFDCFEBGA().ICLEOFDKDIF();
+		return HOFFDCFEBGA().GetStart();
 	}
 
 	public ModelNode CJELIBMCCMA()
@@ -357,7 +357,7 @@ public class ModelObject
 
 	public static Vector3f MHFFCMKNIKM(ModelNode LHBNIMGFKIB, ModelNode AAOIAEJJINO)
 	{
-		return Vector3f.Middle(LHBNIMGFKIB.ICLEOFDKDIF(), AAOIAEJJINO.ICLEOFDKDIF());
+		return Vector3f.Middle(LHBNIMGFKIB.GetStart(), AAOIAEJJINO.GetStart());
 	}
 
 	public int GetNodeIDByPairName(int index)
@@ -384,7 +384,7 @@ public class ModelObject
 		List<ModelNode> list = NAMKCLGOPDD();
 		foreach (ModelNode item in list)
 		{
-			Vector3f lHBNIMGFKIB = item.ICLEOFDKDIF();
+			Vector3f lHBNIMGFKIB = item.GetStart();
 			if (Vector2f.LDKCDLFIDHL(lHBNIMGFKIB, MGMMDGFPBLP) < PKFOEAEPOAF)
 			{
 				result = item;
@@ -419,9 +419,9 @@ public class ModelObject
 		{
 			return lCDGOCIAIDK;
 		}
-		if (get_Model() != null && get_Model().NJDJHGDMCIJ() != null)
+		if (GetModel() != null && GetModel().NJDJHGDMCIJ() != null)
 		{
-			lCDGOCIAIDK = get_Model().NJDJHGDMCIJ().CLDMEJKGLBA().EGHIDHMENEF(name);
+			lCDGOCIAIDK = GetModel().NJDJHGDMCIJ().CLDMEJKGLBA().EGHIDHMENEF(name);
 		}
 		return lCDGOCIAIDK;
 	}
@@ -430,7 +430,7 @@ public class ModelObject
 	{
 		for (int i = 0; i < CEHJGIHMKFF.OEAFIMFONDL.Count; i++)
 		{
-			if (name == CEHJGIHMKFF.OEAFIMFONDL[i].get_Name())
+			if (name == CEHJGIHMKFF.OEAFIMFONDL[i].GetName())
 			{
 				return i;
 			}
@@ -456,7 +456,7 @@ public class ModelObject
 		List<ModelNode> list = JEGHCCFLAIF();
 		foreach (ModelNode item in list)
 		{
-			_ModelWeight += item.FJJFKAJOFNJ();
+			_ModelWeight += item.GetWeight();
 		}
 	}
 
@@ -464,23 +464,23 @@ public class ModelObject
 	{
 		Vector3f eMAFACPEPDK = new Vector3f();
 		Vector3f eMAFACPEPDK2 = new Vector3f();
-		Vector3f bAINMLLIKOL = new Vector3f(CNCJJDEJBNK.ICLEOFDKDIF());
+		Vector3f bAINMLLIKOL = new Vector3f(CNCJJDEJBNK.GetStart());
 		List<ModelNode> list = JEGHCCFLAIF();
-		CNCJJDEJBNK.ICLEOFDKDIF().Reset();
+		CNCJJDEJBNK.GetStart().Reset();
 		foreach (ModelNode item in list)
 		{
-			eMAFACPEPDK2.Set(item.ICLEOFDKDIF());
-			eMAFACPEPDK2.Multiply(item.FJJFKAJOFNJ());
+			eMAFACPEPDK2.Set(item.GetStart());
+			eMAFACPEPDK2.Multiply(item.GetWeight());
 			eMAFACPEPDK.Add(eMAFACPEPDK2);
 		}
 		eMAFACPEPDK.Multiply(1f / _ModelWeight);
-		CNCJJDEJBNK.AMPCKAIPIHH(eMAFACPEPDK);
-		CNCJJDEJBNK.LAHLFIKENPP(bAINMLLIKOL);
+		CNCJJDEJBNK.SetStart(eMAFACPEPDK);
+		CNCJJDEJBNK.SetEnd(bAINMLLIKOL);
 	}
 
 	public Vector3f BEFMLJFBPGN()
 	{
-		return CNCJJDEJBNK.FOGHEPNAPLC();
+		return CNCJJDEJBNK.GetEnd();
 	}
 
 	public void SetModelPosition(Vector3f MGMMDGFPBLP, ModelNode NFADOLIKJEA = null)
@@ -493,40 +493,40 @@ public class ModelObject
 		{
 			return;
 		}
-		Vector3f bEHOPOPCJGB = new Vector3f(Vector3f.MJOKEBGPHKB(MGMMDGFPBLP, NFADOLIKJEA.ICLEOFDKDIF()));
-		Vector3f bEHOPOPCJGB2 = new Vector3f(Vector3f.MJOKEBGPHKB(MGMMDGFPBLP, NFADOLIKJEA.FOGHEPNAPLC()));
+		Vector3f bEHOPOPCJGB = new Vector3f(Vector3f.MJOKEBGPHKB(MGMMDGFPBLP, NFADOLIKJEA.GetStart()));
+		Vector3f bEHOPOPCJGB2 = new Vector3f(Vector3f.MJOKEBGPHKB(MGMMDGFPBLP, NFADOLIKJEA.GetEnd()));
 		foreach (ModelNode item in CEHJGIHMKFF.OEAFIMFONDL)
 		{
-			item.ICLEOFDKDIF().Add(bEHOPOPCJGB);
-			item.FOGHEPNAPLC().Add(bEHOPOPCJGB2);
+			item.GetStart().Add(bEHOPOPCJGB);
+			item.GetEnd().Add(bEHOPOPCJGB2);
 		}
 	}
 
 	public void MNHAGALCNFB(List<Vector3f> KPLANIHPMED)
 	{
 		int index = GetNodeIDByName(_PivotName);
-		Vector3f nBMEGFBPGFE = CJELIBMCCMA().ICLEOFDKDIF();
+		Vector3f nBMEGFBPGFE = CJELIBMCCMA().GetStart();
 		Vector3f eMAFACPEPDK = Vector3f.MJOKEBGPHKB(nBMEGFBPGFE, KPLANIHPMED[index]);
-		eMAFACPEPDK.IBNFLLGPOLD(0f);
+		eMAFACPEPDK.SetY(0f);
 		int i = 0;
 		for (int count = KPLANIHPMED.Count; i < count; i++)
 		{
-			CEHJGIHMKFF.OEAFIMFONDL[i].AMPCKAIPIHH(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
-			CEHJGIHMKFF.OEAFIMFONDL[i].LAHLFIKENPP(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
+			CEHJGIHMKFF.OEAFIMFONDL[i].SetStart(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
+			CEHJGIHMKFF.OEAFIMFONDL[i].SetEnd(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
 		}
 	}
 
 	public void MNHAGALCNFB(List<Vector3f> KPLANIHPMED, ModelNode AECCPADGGPG)
 	{
-		int index = AECCPADGGPG.ANAECCFDHMI();
-		Vector3f nBMEGFBPGFE = AECCPADGGPG.ICLEOFDKDIF();
+		int index = AECCPADGGPG.GetID();
+		Vector3f nBMEGFBPGFE = AECCPADGGPG.GetStart();
 		Vector3f eMAFACPEPDK = Vector3f.MJOKEBGPHKB(nBMEGFBPGFE, KPLANIHPMED[index]);
-		eMAFACPEPDK.IBNFLLGPOLD(0f);
+		eMAFACPEPDK.SetY(0f);
 		int i = 0;
 		for (int count = KPLANIHPMED.Count; i < count; i++)
 		{
-			CEHJGIHMKFF.OEAFIMFONDL[i].AMPCKAIPIHH(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
-			CEHJGIHMKFF.OEAFIMFONDL[i].LAHLFIKENPP(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
+			CEHJGIHMKFF.OEAFIMFONDL[i].SetStart(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
+			CEHJGIHMKFF.OEAFIMFONDL[i].SetEnd(Vector3f.PHEFFKMOOCM(KPLANIHPMED[i], eMAFACPEPDK));
 		}
 	}
 
@@ -534,8 +534,8 @@ public class ModelObject
 	{
 		foreach (ModelNode item in CEHJGIHMKFF.OEAFIMFONDL)
 		{
-			item.ICLEOFDKDIF().Add(OPNPKNEOALJ);
-			item.FOGHEPNAPLC().Add(OPNPKNEOALJ);
+			item.GetStart().Add(OPNPKNEOALJ);
+			item.GetEnd().Add(OPNPKNEOALJ);
 		}
 		NDDMFBCIHPC();
 	}
@@ -573,7 +573,7 @@ public class ModelObject
 					gDNAJOODAGP.DNCHNPNABFH(lCDGOCIAIDK, item.Second);
 					continue;
 				}
-				LLLOJBFMONN.Error("Nodes '{0}' for macronode '{1}' was not found", item.First, gDNAJOODAGP.get_Name());
+				LLLOJBFMONN.Error("Nodes '{0}' for macronode '{1}' was not found", item.First, gDNAJOODAGP.GetName());
 			}
 			gDNAJOODAGP.LMPPCKACMNB = null;
 		}
@@ -609,7 +609,7 @@ public class ModelObject
 
 	public void Reset()
 	{
-		set_IsShock(false);
+		SetShock(false);
 		ModelReloader.NPMIHDFCBBH(this, DCFPONJAING.FileNames);
 	}
 
@@ -617,7 +617,7 @@ public class ModelObject
 	{
 		foreach (ModelNode item in CEHJGIHMKFF.OEAFIMFONDL)
 		{
-			item.OIEPNGBEECN();
+			item.SetEnd();
 		}
 	}
 
@@ -652,7 +652,7 @@ public class ModelObject
 		OEMALIFPGPO.Clear();
 		foreach (ModelNode item in nodes)
 		{
-			string text = item.get_Name();
+			string text = item.GetName();
 			string text2 = text.Substring(0, text.Length - 2);
 			string text3 = text.Substring(text.Length - 2, 2);
 			if (!(text3 == "_1"))
@@ -662,14 +662,14 @@ public class ModelObject
 			string text4 = text2 + "_2";
 			foreach (ModelNode item2 in nodes)
 			{
-				string text5 = item2.get_Name();
+				string text5 = item2.GetName();
 				if (text5 == text4)
 				{
-					int gBCLEDJAOBM = item.ANAECCFDHMI();
-					int pOFHDGJAFMP = item2.ANAECCFDHMI();
+					int gBCLEDJAOBM = item.GetID();
+					int pOFHDGJAFMP = item2.GetID();
 					OEMALIFPGPO.Add(new global::Pair<int, int>(gBCLEDJAOBM, pOFHDGJAFMP));
-					item.set_PairNode(item2);
-					item2.set_PairNode(item);
+					item.SetPairNode(item2);
+					item2.SetPairNode(item);
 					break;
 				}
 			}

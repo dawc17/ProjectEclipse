@@ -476,8 +476,8 @@ public class InfoPerk
 		if (enemy == null)
 			return;
 		Vector3f position = new Vector3f(target.PLBNCDCFPML());
-		float direction = enemy.PLBNCDCFPML().GILCBJJPKBK() >= position.GILCBJJPKBK() ? 1f : -1f;
-		position.JPFALPBDBAP(position.GILCBJJPKBK() + direction * offset);
+		float direction = enemy.PLBNCDCFPML().GetX() >= position.GetX() ? 1f : -1f;
+		position.SetX(position.GetX() + direction * offset);
 		target.SetModelPosition(position);
 	}
 

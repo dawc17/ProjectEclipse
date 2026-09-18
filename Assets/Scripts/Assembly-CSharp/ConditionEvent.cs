@@ -5,7 +5,7 @@ public class ConditionEvent : ConditionAnimation
 	private EventAnimation MHPOELBJAIJ;
 
 	public ConditionEvent(XmlNode node)
-		: base(DGAGKLODADD.EVENT)
+		: base(ConditionType.EVENT)
 	{
 		MHPOELBJAIJ = EventParser.Create(node);
 		MHPOELBJAIJ.Init(node);

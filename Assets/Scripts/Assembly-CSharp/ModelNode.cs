@@ -1,6 +1,6 @@
 public class ModelNode
 {
-	public enum KOJNBGALAHM
+	public enum NodeType
 	{
 		Node = 0,
 		MacroNode = 1
@@ -8,45 +8,49 @@ public class ModelNode
 
 	private ModelNode _PairNode;
 
-	protected Vector3f _Current = new Vector3f();
+	protected Vector3f _Start = new Vector3f();
 
-	protected Vector3f BMCBFGEKMPP = new Vector3f();
+	protected Vector3f _End = new Vector3f();
 
 	private string _Name;
 
-	private KOJNBGALAHM KCIIELDOBOM;
+	private NodeType _Type;
 
 	private int _Id;
 
-	private float LLOFPDMCAPF;
+	private float _Weight;
 
-	private float IPEIKBGLNKG;
+	private float _Attenuation;
 
-	private bool MKCBIMJMGOE;
+	private bool _IsNode;
 
-	private bool OBCDNOHNEEM;
+	private bool _IsFixed;
 
-	private bool KMKJFLHJDAF;
+	private bool _IsCloth;
 
-	private bool DIKFELJPJOB;
+	private bool _IsPhysics;
 
 	private bool PALHLKDCAAC;
 
-	private bool KPCBFAAPCNF;
+    // Evidence Points that this is a Fixed Boolean but OBCDNOHNEEM is directly set from the model loader as Fixed so I have no clue which one is which
+	// so I temporarily named it from the conditional statement.
+    private bool _IsFixedAndNotNode;
 
-	private bool IMAAMJJPIJB;
+	private bool _Visible;
 
+	// No Clue what this is...
 	private bool JLDCCMPMAAB;
 
 	private bool _IsShock;
 
-	private bool LHHBNHAAIND;
+	private bool _Collisible;
 
-	private bool PJJPOAEPOKJ;
+	private bool _Weak;
 
+	// no clue what this is either
 	protected bool BCIPCPOJJGN;
 
-	private static Vector3f CANBEOHLBMH = new Vector3f();
+	private static Vector3f _TimeStepVector = new Vector3f();
 
 	public ModelNode KOBMPGDHMIM
 	{
@@ -56,7 +60,7 @@ public class ModelNode
 		}
 		set
 		{
-			set_PairNode(value);
+			SetPairNode(value);
 		}
 	}
 
@@ -64,11 +68,11 @@ public class ModelNode
 	{
 		get
 		{
-			return ICLEOFDKDIF();
+			return GetStart();
 		}
 		set
 		{
-			AMPCKAIPIHH(value);
+			SetStart(value);
 		}
 	}
 
@@ -76,11 +80,11 @@ public class ModelNode
 	{
 		get
 		{
-			return FOGHEPNAPLC();
+			return GetEnd();
 		}
 		set
 		{
-			LAHLFIKENPP(value);
+			SetEnd(value);
 		}
 	}
 
@@ -88,11 +92,11 @@ public class ModelNode
 	{
 		get
 		{
-			return ANAECCFDHMI();
+			return GetID();
 		}
 		set
 		{
-			set_ID(value);
+			SetID(value);
 		}
 	}
 
@@ -100,11 +104,11 @@ public class ModelNode
 	{
 		get
 		{
-			return FJJFKAJOFNJ();
+			return GetWeight();
 		}
 		set
 		{
-			NPKACGCHOLK(value);
+			SetMass(value);
 		}
 	}
 
@@ -112,11 +116,11 @@ public class ModelNode
 	{
 		get
 		{
-			return MMDLMJJHBJL();
+			return GetAttenuation();
 		}
 		set
 		{
-			BDFIDDLGDNM(value);
+			SetAttenuation(value);
 		}
 	}
 
@@ -124,11 +128,11 @@ public class ModelNode
 	{
 		get
 		{
-			return MNFDCLJNFEJ();
+			return IsNode();
 		}
 		set
 		{
-			OIBBADHKLNM(value);
+			SetIsNode(value);
 		}
 	}
 
@@ -136,11 +140,11 @@ public class ModelNode
 	{
 		get
 		{
-			return DDBDJCHOKGJ();
+			return IsFixed();
 		}
 		set
 		{
-			MGPLABIFCAH(value);
+			SetFixed(value);
 		}
 	}
 
@@ -148,11 +152,11 @@ public class ModelNode
 	{
 		get
 		{
-			return IDDNPDPEFOF();
+			return IsCloth();
 		}
 		set
 		{
-			CNNKFMNKDNE(value);
+			SetCloth(value);
 		}
 	}
 
@@ -160,7 +164,7 @@ public class ModelNode
 	{
 		get
 		{
-			return NLHFJIEHKMM();
+			return IsPhysics();
 		}
 	}
 
@@ -168,7 +172,7 @@ public class ModelNode
 	{
 		get
 		{
-			return BPJFABOAFJK();
+			return IsFixedAndIsNotNode();
 		}
 	}
 
@@ -176,11 +180,11 @@ public class ModelNode
 	{
 		get
 		{
-			return PKIFBKHKBPO();
+			return IsVisible();
 		}
 		set
 		{
-			NNHPOJFKEID(value);
+			SetVisible(value);
 		}
 	}
 
@@ -200,11 +204,11 @@ public class ModelNode
 	{
 		get
 		{
-			return EDJFLMILEBA();
+			return IsShock();
 		}
 		set
 		{
-			set_IsShock(value);
+			SetIsShock(value);
 		}
 	}
 
@@ -212,11 +216,11 @@ public class ModelNode
 	{
 		get
 		{
-			return PENPLGPDNIF();
+			return IsCollisible();
 		}
 		set
 		{
-			KMBHEMMJACN(value);
+			SetCollisible(value);
 		}
 	}
 
@@ -224,11 +228,11 @@ public class ModelNode
 	{
 		get
 		{
-			return FJIJJNLLDPM();
+			return IsWeak();
 		}
 		set
 		{
-			LBLPDPJGPHL(value);
+			SetWeak(value);
 		}
 	}
 
@@ -251,32 +255,32 @@ public class ModelNode
 
 	public ModelNode(string name, Vector3f PBOCEHNJDMI)
 	{
-		_Current.Set(PBOCEHNJDMI);
-		BMCBFGEKMPP.Set(PBOCEHNJDMI);
+		_Start.Set(PBOCEHNJDMI);
+		_End.Set(PBOCEHNJDMI);
 		_Name = name;
 		_Id = 0;
-		LLOFPDMCAPF = 0f;
-		IPEIKBGLNKG = 0f;
+		_Weight = 0f;
+		_Attenuation = 0f;
 		_PairNode = null;
-		OBCDNOHNEEM = true;
-		KMKJFLHJDAF = false;
-		IMAAMJJPIJB = false;
+		_IsFixed = true;
+		_IsCloth = false;
+		_Visible = false;
 		JLDCCMPMAAB = false;
 		PALHLKDCAAC = false;
 		BCIPCPOJJGN = false;
-		set_Type(KOJNBGALAHM.Node);
+		SetType(NodeType.Node);
 	}
 
 	public ModelNode(ModelNode NPDJNAMFIKD)
 	{
 		_Name = NPDJNAMFIKD._Name;
 		_Id = 0;
-		LLOFPDMCAPF = 0f;
-		IPEIKBGLNKG = 0f;
+		_Weight = 0f;
+		_Attenuation = 0f;
 		_PairNode = null;
-		OBCDNOHNEEM = true;
-		KMKJFLHJDAF = false;
-		IMAAMJJPIJB = false;
+		_IsFixed = true;
+		_IsCloth = false;
+		_Visible = false;
 		JLDCCMPMAAB = false;
 		PALHLKDCAAC = false;
 		BCIPCPOJJGN = false;
@@ -288,134 +292,134 @@ public class ModelNode
 		return _PairNode;
 	}
 
-	public void set_PairNode(ModelNode value)
+	public void SetPairNode(ModelNode value)
 	{
 		_PairNode = value;
 	}
 
-	public Vector3f ICLEOFDKDIF()
+	public Vector3f GetStart()
 	{
-		return _Current;
+		return _Start;
 	}
 
-	public void AMPCKAIPIHH(Vector3f value)
+	public void SetStart(Vector3f value)
 	{
-		_Current.Set(value);
+		_Start.Set(value);
 	}
 
-	public Vector3f FOGHEPNAPLC()
+	public Vector3f GetEnd()
 	{
-		return BMCBFGEKMPP;
+		return _End;
 	}
 
-	public void LAHLFIKENPP(Vector3f value)
+	public void SetEnd(Vector3f value)
 	{
-		BMCBFGEKMPP.Set(value);
+		_End.Set(value);
 	}
 
-	public string get_Name()
+	public string GetName()
 	{
 		return _Name;
 	}
 
-	public KOJNBGALAHM get_Type()
+	public NodeType GetNodeType()
 	{
-		return KCIIELDOBOM;
+		return _Type;
 	}
 
-	protected void set_Type(KOJNBGALAHM value)
+	protected void SetType(NodeType value)
 	{
-		KCIIELDOBOM = value;
-		MKCBIMJMGOE = value == KOJNBGALAHM.Node;
-		DIKFELJPJOB = KMKJFLHJDAF && MKCBIMJMGOE;
-		KPCBFAAPCNF = OBCDNOHNEEM || !MKCBIMJMGOE;
+		_Type = value;
+		_IsNode = value == NodeType.Node;
+		_IsPhysics = _IsCloth && _IsNode;
+		_IsFixedAndNotNode = _IsFixed || !_IsNode;
 	}
 
-	public int ANAECCFDHMI()
+	public int GetID()
 	{
 		return _Id;
 	}
 
-	public void set_ID(int value)
+	public void SetID(int value)
 	{
 		_Id = value;
 	}
 
-	public float FJJFKAJOFNJ()
+	public float GetWeight()
 	{
-		return LLOFPDMCAPF;
+		return _Weight;
 	}
 
-	public void NPKACGCHOLK(float value)
+	public void SetMass(float value)
 	{
-		LLOFPDMCAPF = value;
+		_Weight = value;
 	}
 
-	public float MMDLMJJHBJL()
+	public float GetAttenuation()
 	{
-		return IPEIKBGLNKG;
+		return _Attenuation;
 	}
 
-	public void BDFIDDLGDNM(float value)
+	public void SetAttenuation(float value)
 	{
-		IPEIKBGLNKG = value;
+		_Attenuation = value;
 	}
 
-	public bool MNFDCLJNFEJ()
+	public bool IsNode()
 	{
-		return MKCBIMJMGOE;
+		return _IsNode;
 	}
 
-	public void OIBBADHKLNM(bool value)
+	public void SetIsNode(bool value)
 	{
-		MKCBIMJMGOE = value;
+		_IsNode = value;
 	}
 
-	public bool DDBDJCHOKGJ()
+	public bool IsFixed()
 	{
-		return OBCDNOHNEEM;
+		return _IsFixed;
 	}
 
-	public void MGPLABIFCAH(bool value)
+	public void SetFixed(bool value)
 	{
-		OBCDNOHNEEM = value;
-		KPCBFAAPCNF = OBCDNOHNEEM || !MKCBIMJMGOE;
+		_IsFixed = value;
+		_IsFixedAndNotNode = _IsFixed || !_IsNode;
 	}
 
-	public bool IDDNPDPEFOF()
+	public bool IsCloth()
 	{
-		return KMKJFLHJDAF;
+		return _IsCloth;
 	}
 
-	public void CNNKFMNKDNE(bool value)
+	public void SetCloth(bool value)
 	{
-		KMKJFLHJDAF = value;
+		_IsCloth = value;
 		if (value)
 		{
-			DIKFELJPJOB = KMKJFLHJDAF && MKCBIMJMGOE;
+			_IsPhysics = _IsCloth && _IsNode;
 		}
-		DIKFELJPJOB = KMKJFLHJDAF && MKCBIMJMGOE;
-		PALHLKDCAAC = DIKFELJPJOB;
+		_IsPhysics = _IsCloth && _IsNode;
+		PALHLKDCAAC = _IsPhysics;
 	}
 
-	public bool NLHFJIEHKMM()
+	public bool IsPhysics()
 	{
-		return DIKFELJPJOB;
+		return _IsPhysics;
 	}
 
-	public bool BPJFABOAFJK()
+	public bool IsFixedAndIsNotNode()
 	{
-		return KPCBFAAPCNF;
+		return _IsFixedAndNotNode;
 	}
 
-	public bool PKIFBKHKBPO()
+	public bool IsVisible()
 	{
-		return IMAAMJJPIJB;
+		return _Visible;
 	}
 
-	public void NNHPOJFKEID(bool value)
+	public void SetVisible(bool value)
 	{
-		IMAAMJJPIJB = true;
+		_Visible = true;
 	}
 
 	public bool NEEJAPDCCMJ()
@@ -428,34 +432,34 @@ public class ModelNode
 		JLDCCMPMAAB = value;
 	}
 
-	public bool EDJFLMILEBA()
+	public bool IsShock()
 	{
 		return _IsShock;
 	}
 
-	public void set_IsShock(bool value)
+	public void SetIsShock(bool value)
 	{
 		_IsShock = value;
 	}
 
-	public bool PENPLGPDNIF()
+	public bool IsCollisible()
 	{
-		return LHHBNHAAIND;
+		return _Collisible;
 	}
 
-	public void KMBHEMMJACN(bool value)
+	public void SetCollisible(bool value)
 	{
-		LHHBNHAAIND = value;
+		_Collisible = value;
 	}
 
-	public bool FJIJJNLLDPM()
+	public bool IsWeak()
 	{
-		return PJJPOAEPOKJ;
+		return _Weak;
 	}
 
-	public void LBLPDPJGPHL(bool value)
+	public void SetWeak(bool value)
 	{
-		PJJPOAEPOKJ = value;
+		_Weak = value;
 	}
 
 	public bool GGIDOLBCAMN()
@@ -470,73 +474,73 @@ public class ModelNode
 
 	public void CopyFrom(ModelNode NPDJNAMFIKD)
 	{
-		_Current.Set(NPDJNAMFIKD._Current);
-		BMCBFGEKMPP.Set(NPDJNAMFIKD.BMCBFGEKMPP);
-		KCIIELDOBOM = NPDJNAMFIKD.KCIIELDOBOM;
+		_Start.Set(NPDJNAMFIKD._Start);
+		_End.Set(NPDJNAMFIKD._End);
+		_Type = NPDJNAMFIKD._Type;
 		_Id = NPDJNAMFIKD._Id;
-		LLOFPDMCAPF = NPDJNAMFIKD.LLOFPDMCAPF;
-		IPEIKBGLNKG = NPDJNAMFIKD.IPEIKBGLNKG;
-		MKCBIMJMGOE = NPDJNAMFIKD.MKCBIMJMGOE;
-		OBCDNOHNEEM = NPDJNAMFIKD.OBCDNOHNEEM;
-		KMKJFLHJDAF = NPDJNAMFIKD.KMKJFLHJDAF;
-		DIKFELJPJOB = NPDJNAMFIKD.DIKFELJPJOB;
-		KPCBFAAPCNF = NPDJNAMFIKD.KPCBFAAPCNF;
-		IMAAMJJPIJB = NPDJNAMFIKD.IMAAMJJPIJB;
+		_Weight = NPDJNAMFIKD._Weight;
+		_Attenuation = NPDJNAMFIKD._Attenuation;
+		_IsNode = NPDJNAMFIKD._IsNode;
+		_IsFixed = NPDJNAMFIKD._IsFixed;
+		_IsCloth = NPDJNAMFIKD._IsCloth;
+		_IsPhysics = NPDJNAMFIKD._IsPhysics;
+		_IsFixedAndNotNode = NPDJNAMFIKD._IsFixedAndNotNode;
+		_Visible = NPDJNAMFIKD._Visible;
 		JLDCCMPMAAB = NPDJNAMFIKD.JLDCCMPMAAB;
 	}
 
 	public void HBPBKNDPBMG()
 	{
-		if (MKCBIMJMGOE)
+		if (_IsNode)
 		{
-			if (DIKFELJPJOB != PALHLKDCAAC)
+			if (_IsPhysics != PALHLKDCAAC)
 			{
 				int num = 0;
 				num++;
 			}
-			DIKFELJPJOB = PALHLKDCAAC;
+			_IsPhysics = PALHLKDCAAC;
 		}
 	}
 
 	public void KCDIAMOLAKB()
 	{
-		if (MKCBIMJMGOE)
+		if (_IsNode)
 		{
-			DIKFELJPJOB = false;
+			_IsPhysics = false;
 		}
 	}
 
-	public void OIEPNGBEECN()
+	public void SetEnd()
 	{
-		BMCBFGEKMPP.Set(_Current);
+		_End.Set(_Start);
 	}
 
 	public void ChangeSpeed(float ELDDBMFEFIP)
 	{
-		Vector3f aKKEJFKBIHF = Vector3f.MJOKEBGPHKB(_Current, BMCBFGEKMPP);
-		if (DIKFELJPJOB)
+		Vector3f aKKEJFKBIHF = Vector3f.MJOKEBGPHKB(_Start, _End);
+		if (_IsPhysics)
 		{
 		}
-		BMCBFGEKMPP.Set(Vector3f.MJOKEBGPHKB(_Current, aKKEJFKBIHF));
+		_End.Set(Vector3f.MJOKEBGPHKB(_Start, aKKEJFKBIHF));
 	}
 
-	public void TimeStep(float HCNEFANPGCK)
+	public void TimeStep(float gravity)
 	{
-		CANBEOHLBMH.Set(_Current);
-		CANBEOHLBMH.EHGLHOGAIDI(BMCBFGEKMPP);
-		if (DIKFELJPJOB)
+		_TimeStepVector.Set(_Start);
+		_TimeStepVector.Subtract(_End);
+		if (_IsPhysics)
 		{
-			CANBEOHLBMH.Multiply(1f - IPEIKBGLNKG);
+			_TimeStepVector.Multiply(1f - _Attenuation);
 		}
-		CANBEOHLBMH.Add(_Current);
-		Vector3f cANBEOHLBMH = CANBEOHLBMH;
-		cANBEOHLBMH.IBNFLLGPOLD(cANBEOHLBMH.OBIMBNIBEFG() + HCNEFANPGCK);
-		BMCBFGEKMPP.Set(_Current);
-		_Current.Set(CANBEOHLBMH);
+		_TimeStepVector.Add(_Start);
+		Vector3f cANBEOHLBMH = _TimeStepVector;
+		cANBEOHLBMH.SetY(cANBEOHLBMH.GetY() + gravity);
+		_End.Set(_Start);
+		_Start.Set(_TimeStepVector);
 	}
 
 	public override string ToString()
 	{
-		return string.Format("ModelNode(name = [{0}] c_pos= [{1}])", _Name, _Current);
+		return string.Format("ModelNode(name = [{0}] c_pos= [{1}])", _Name, _Start);
 	}
 }

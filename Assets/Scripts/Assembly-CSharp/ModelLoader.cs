@@ -189,42 +189,42 @@ public class ModelLoader
 
 	private static void GLNMJNFLLIN(ModelObject ACENLMONNPA, XmlNode node, List<global::Pair<string, float>> MFIEGKAMKNJ)
 	{
-		ModelNode lCDGOCIAIDK = null;
-		Vector3f eMAFACPEPDK = new Vector3f(node.Attributes["X"].ParseFloat(), 0f - node.Attributes["Y"].ParseFloat(), node.Attributes["Z"].ParseFloat());
+		ModelNode Node = null;
+		Vector3f Position = new Vector3f(node.Attributes["X"].ParseFloat(), 0f - node.Attributes["Y"].ParseFloat(), node.Attributes["Z"].ParseFloat());
 		string value = node.Attributes["Type"].Value;
 		string name = node.Name;
 		bool flag = value == "CenterOfMass";
 		if (value == "Node" || flag)
 		{
-			lCDGOCIAIDK = new ModelNode(name, eMAFACPEPDK);
-			lCDGOCIAIDK.CNNKFMNKDNE(node.Attributes["Cloth"].ParseBool());
-			lCDGOCIAIDK.BDFIDDLGDNM(node.Attributes["Attenuation"].ParseFloat());
+			Node = new ModelNode(name, Position);
+			Node.SetCloth(node.Attributes["Cloth"].ParseBool());
+			Node.SetAttenuation(node.Attributes["Attenuation"].ParseFloat());
 			if (flag)
 			{
 				MFIEGKAMKNJ.Clear();
 				DPMFEKBBPIL(MFIEGKAMKNJ, node, false);
 			}
-			ACENLMONNPA.LMBNDIPLBJA().Add(lCDGOCIAIDK);
+			ACENLMONNPA.LMBNDIPLBJA().Add(Node);
 		}
 		else if (value == "MacroNode")
 		{
-			eMAFACPEPDK.JPFALPBDBAP(eMAFACPEPDK.GILCBJJPKBK() * -1f);
-			ModelMacroNode gDNAJOODAGP = new ModelMacroNode(name, eMAFACPEPDK);
-			lCDGOCIAIDK = gDNAJOODAGP;
+			Position.SetX(Position.GetX() * -1f);
+			ModelMacroNode gDNAJOODAGP = new ModelMacroNode(name, Position);
+			Node = gDNAJOODAGP;
 			EADLCHAFKDC(gDNAJOODAGP, node);
 			ACENLMONNPA.BLFJJAEFKKP().Add(gDNAJOODAGP);
 		}
-		if (lCDGOCIAIDK != null)
+		if (Node != null)
 		{
-			lCDGOCIAIDK.set_ID(ACENLMONNPA.NAMKCLGOPDD().Count);
-			lCDGOCIAIDK.NPKACGCHOLK(node.Attributes["Mass"].ParseFloat());
-			lCDGOCIAIDK.MGPLABIFCAH(node.Attributes["Fixed"].ParseBool());
-			lCDGOCIAIDK.NNHPOJFKEID(node.Attributes["Visible"].ParseBool());
-			lCDGOCIAIDK.set_IsShock(node.Attributes["Shock"].ParseBool());
-			lCDGOCIAIDK.KMBHEMMJACN(node.Attributes["Collisible"].ParseBool());
-			lCDGOCIAIDK.LBLPDPJGPHL(node.Attributes["Weak"].ParseBool());
-			ACENLMONNPA.NAMKCLGOPDD().Add(lCDGOCIAIDK);
-			ACENLMONNPA.HKCFFKKFFFE().Add(lCDGOCIAIDK.get_Name(), lCDGOCIAIDK);
+			Node.SetID(ACENLMONNPA.NAMKCLGOPDD().Count);
+			Node.SetMass(node.Attributes["Mass"].ParseFloat());
+			Node.SetFixed(node.Attributes["Fixed"].ParseBool());
+			Node.SetVisible(node.Attributes["Visible"].ParseBool());
+			Node.SetIsShock(node.Attributes["Shock"].ParseBool());
+			Node.SetCollisible(node.Attributes["Collisible"].ParseBool());
+			Node.SetWeak(node.Attributes["Weak"].ParseBool());
+			ACENLMONNPA.NAMKCLGOPDD().Add(Node);
+			ACENLMONNPA.HKCFFKKFFFE().Add(Node.GetName(), Node);
 		}
 	}
 
@@ -257,7 +257,7 @@ public class ModelLoader
 		nAKBKCDKEHF.EJIOOIMBAEA(bAINMLLIKOL4);
 		if (text == "Edge")
 		{
-			nAKBKCDKEHF.set_Type(EdgeType.Edge);
+			nAKBKCDKEHF.SetType(EdgeType.Edge);
 			ACENLMONNPA.HABIIJGLCMA().Add(nAKBKCDKEHF);
 			if (num > 0)
 			{
@@ -271,7 +271,7 @@ public class ModelLoader
 				LLLOJBFMONN.Error("Wring type edge: {0}", text);
 				return;
 			}
-			nAKBKCDKEHF.set_Type(EdgeType.Muscle);
+			nAKBKCDKEHF.SetType(EdgeType.Muscle);
 			ACENLMONNPA.EKOGCJAAKDN().Add(nAKBKCDKEHF);
 		}
 		if (text2 == "None")
@@ -298,7 +298,7 @@ public class ModelLoader
 			cOGLBFKLNFC.GKBFHLAHCFG(node.Attributes["Margin1"].ParseFloat());
 			cOGLBFKLNFC.HCCIGEIFEOF(node.Attributes["Margin2"].ParseFloat());
 			cOGLBFKLNFC.IJIGFKFDKGM(node.Attributes["Radius1"].ParseFloat() * 2f);
-			cOGLBFKLNFC.CreateUI(ACENLMONNPA.get_Model().MJNPBMOAFML().transform).Render();
+			cOGLBFKLNFC.CreateUI(ACENLMONNPA.GetModel().MJNPBMOAFML().transform).Render();
 			ACENLMONNPA.DPIFMDIKDBC().Add(cOGLBFKLNFC);
 		}
 	}
@@ -321,14 +321,14 @@ public class ModelLoader
 			{
 				Triangle item = new Triangle(lCDGOCIAIDK, lCDGOCIAIDK2, lCDGOCIAIDK3, node.Name);
 				ACENLMONNPA.ELOGKMHEBGA().Add(item);
-				ACENLMONNPA.get_Model()._MeshRender.get_Base().LPEPFNNPCBK(lCDGOCIAIDK, lCDGOCIAIDK2, lCDGOCIAIDK3);
+				ACENLMONNPA.GetModel()._MeshRender.get_Base().LPEPFNNPCBK(lCDGOCIAIDK, lCDGOCIAIDK2, lCDGOCIAIDK3);
 			}
 		}
 	}
 
 	private static void EADLCHAFKDC(ModelMacroNode AHJOLBKABMC, XmlNode node)
 	{
-		if (AHJOLBKABMC.get_Type() == ModelNode.KOJNBGALAHM.MacroNode)
+		if (AHJOLBKABMC.GetNodeType() == ModelNode.NodeType.MacroNode)
 		{
 			DPMFEKBBPIL(AHJOLBKABMC.LMPPCKACMNB, node, true);
 		}
@@ -369,8 +369,8 @@ public class ModelLoader
 		{
 			ModelNode lCDGOCIAIDK = list[item.First];
 			ModelNode lCDGOCIAIDK2 = list[item.Second];
-			lCDGOCIAIDK.set_PairNode(lCDGOCIAIDK2);
-			lCDGOCIAIDK2.set_PairNode(lCDGOCIAIDK);
+			lCDGOCIAIDK.SetPairNode(lCDGOCIAIDK2);
+			lCDGOCIAIDK2.SetPairNode(lCDGOCIAIDK);
 		}
 	}
 }

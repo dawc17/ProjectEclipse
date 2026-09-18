@@ -5,7 +5,7 @@ public class ConditionPerk : ConditionAnimation
 	private string _Name;
 
 	public ConditionPerk(XmlNode node)
-		: base(DGAGKLODADD.PERK)
+		: base(ConditionType.PERK)
 	{
 		_Name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 	}

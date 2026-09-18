@@ -6,7 +6,7 @@ namespace Eclipse.Modding
     public sealed class ModCharacterCondition : ConditionAnimation
     {
         private readonly string character;
-        public ModCharacterCondition(string character) : base(DGAGKLODADD.ECLIPSE_CHARACTER) { this.character=character; }
+        public ModCharacterCondition(string character) : base(ConditionType.ECLIPSE_CHARACTER) { this.character=character; }
         public override bool IsEqual(ModelConditions conditions)
         {
             bool matches=!string.IsNullOrEmpty(character) && conditions != null && conditions.EclipseCharacterId==character;
@@ -107,7 +107,7 @@ namespace Eclipse.Modding
             if (model == null || model.Parameters == null || model.PLBNCDCFPML() == null) return null;
             var position = model.PLBNCDCFPML();
             return new ModFighterSnapshot(model.KKMCHCNOHMB(), model.Parameters.CIDCNCDFONA,
-                model.Parameters.HealthBarCount, position.GILCBJJPKBK(),position.OBIMBNIBEFG(),position.KMFEKANLCFO(),
+                model.Parameters.HealthBarCount, position.GetX(),position.GetY(),position.GetZ(),
                 CaptureAnimationSnapshot(model));
         }
 

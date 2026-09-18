@@ -9,7 +9,7 @@ public class ConditionBullets : ConditionAnimation
 	private int BCMMPCOHJNF;
 
 	public ConditionBullets(XmlNode node)
-		: base(DGAGKLODADD.BULLETS)
+		: base(ConditionType.BULLETS)
 	{
 		string text = node.Attributes["Type"].CIPOICEEIBK(string.Empty);
 		if (text == "MagicBullet")

@@ -71,7 +71,7 @@ public class EffectsRunning
 		dGJJDPIAEAO.PCAOCHAIBJC = ACENLMONNPA.OCPMJKIEPIG().KFCNPADAMHA();
 		Vector3f eMAFACPEPDK = Vector3f.op_Implicit(IBODMPMJELJ.ECJPLFFAMJO().EMGKDOAMBOH(dGJJDPIAEAO));
 		GameObject gameObject = new GameObject(IBODMPMJELJ.get_Name());
-		gameObject.transform.localPosition = new Vector3(eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG(), eMAFACPEPDK.KMFEKANLCFO());
+		gameObject.transform.localPosition = new Vector3(eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
 		Vector3 localScale = new Vector3((float)dGJJDPIAEAO.PCAOCHAIBJC * IBODMPMJELJ.GetScaleX(), 0f - IBODMPMJELJ.GetScaleY(), 1f);
 		gameObject.transform.localScale = localScale;
 		gameObject.transform.localEulerAngles = new Vector3(0f, 0f, IBODMPMJELJ.GetStartRotation());

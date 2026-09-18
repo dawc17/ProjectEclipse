@@ -5,7 +5,7 @@ public class ConditionPlayer : ConditionAnimation
 	private bool APFFAGBOCAP;
 
 	public ConditionPlayer(XmlNode node)
-		: base(DGAGKLODADD.PLAYER)
+		: base(ConditionType.PLAYER)
 	{
 		APFFAGBOCAP = node.Attributes["Number"].ParseInt(1) == 1;
 	}

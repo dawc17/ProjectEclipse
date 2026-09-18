@@ -117,7 +117,7 @@ public class KeyFrames
 			for (int j = 0; j < DCFPONJAING[i].Size; j++)
 			{
 				Vector3f eMAFACPEPDK = DCFPONJAING[i].Data[j];
-				eMAFACPEPDK.JPFALPBDBAP(eMAFACPEPDK.GILCBJJPKBK() * -1f);
+				eMAFACPEPDK.SetX(eMAFACPEPDK.GetX() * -1f);
 			}
 		}
 	}

@@ -187,12 +187,12 @@ public class Camera : global::EventDispatcher<object>
 
 	private void UpdateCameraPosition()
 	{
-		NGOEHKEKBIL.OIEPNGBEECN();
+		NGOEHKEKBIL.SetEnd();
 		ModelObject oIEODIEHJMH = BMBGCIEFJGB.FPNKBJPKKGB().KBMBCHDBMML();
 		ModelObject oIEODIEHJMH2 = BMBGCIEFJGB.FPNKBJPKKGB().BNGBCPKIHPD();
 		if (oIEODIEHJMH != null && oIEODIEHJMH2 != null)
 		{
-			NGOEHKEKBIL.AMPCKAIPIHH(Model.MHFFCMKNIKM(oIEODIEHJMH, oIEODIEHJMH2));
+			NGOEHKEKBIL.SetStart(Model.MHFFCMKNIKM(oIEODIEHJMH, oIEODIEHJMH2));
 		}
 	}
 
@@ -201,17 +201,17 @@ public class Camera : global::EventDispatcher<object>
 		if (PMJCGFONEPA)
 		{
 			JNBAHPMBLOL.TimeStep(0f);
-			Vector3f eMAFACPEPDK = new Vector3f(NGOEHKEKBIL.FOGHEPNAPLC());
-			Vector3f eMAFACPEPDK2 = new Vector3f(NGOEHKEKBIL.ICLEOFDKDIF());
-			Vector3f eMAFACPEPDK3 = new Vector3f(JNBAHPMBLOL.FOGHEPNAPLC());
-			Vector3f eMAFACPEPDK4 = new Vector3f(JNBAHPMBLOL.ICLEOFDKDIF());
+			Vector3f eMAFACPEPDK = new Vector3f(NGOEHKEKBIL.GetEnd());
+			Vector3f eMAFACPEPDK2 = new Vector3f(NGOEHKEKBIL.GetStart());
+			Vector3f eMAFACPEPDK3 = new Vector3f(JNBAHPMBLOL.GetEnd());
+			Vector3f eMAFACPEPDK4 = new Vector3f(JNBAHPMBLOL.GetStart());
 			float num = 0f;
-			eMAFACPEPDK4.set_Z(num);
+			eMAFACPEPDK4.SetZ(num);
 			num = num;
-			eMAFACPEPDK3.set_Z(num);
+			eMAFACPEPDK3.SetZ(num);
 			num = num;
-			eMAFACPEPDK2.set_Z(num);
-			eMAFACPEPDK.set_Z(num);
+			eMAFACPEPDK2.SetZ(num);
+			eMAFACPEPDK.SetZ(num);
 			Vector3f aKKEJFKBIHF = Vector3f.MJOKEBGPHKB(eMAFACPEPDK2, eMAFACPEPDK);
 			Vector3f nBMEGFBPGFE = Vector3f.PHEFFKMOOCM(eMAFACPEPDK3, aKKEJFKBIHF);
 			Vector3f nBMEGFBPGFE2 = Vector3f.MJOKEBGPHKB(nBMEGFBPGFE, eMAFACPEPDK4);
@@ -231,21 +231,21 @@ public class Camera : global::EventDispatcher<object>
 				eMAFACPEPDK7.Multiply(50f / num2);
 				eMAFACPEPDK4 = Vector3f.PHEFFKMOOCM(eMAFACPEPDK3, eMAFACPEPDK7);
 			}
-			JNBAHPMBLOL.AMPCKAIPIHH(eMAFACPEPDK4);
+			JNBAHPMBLOL.SetStart(eMAFACPEPDK4);
 		}
 	}
 
 	private void DrawPosition()
 	{
-		Vector3f jEBIHODAIKM = NGOEHKEKBIL.ICLEOFDKDIF();
-		Vector3f eMAFACPEPDK = CIJJBMDDAFL.ICLEOFDKDIF();
+		Vector3f jEBIHODAIKM = NGOEHKEKBIL.GetStart();
+		Vector3f eMAFACPEPDK = CIJJBMDDAFL.GetStart();
 		if (NOLKMEPOJIE)
 		{
-			BMBGCIEFJGB.UpdatePosition(JNBAHPMBLOL.ICLEOFDKDIF(), jEBIHODAIKM, eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG(), OOFFFLEFKFA.ALOKJEILMLK);
+			BMBGCIEFJGB.UpdatePosition(JNBAHPMBLOL.GetStart(), jEBIHODAIKM, eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), OOFFFLEFKFA.ALOKJEILMLK);
 		}
 		else
 		{
-			BMBGCIEFJGB.UpdatePosition(JNBAHPMBLOL.ICLEOFDKDIF(), jEBIHODAIKM, eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG());
+			BMBGCIEFJGB.UpdatePosition(JNBAHPMBLOL.GetStart(), jEBIHODAIKM, eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY());
 		}
 	}
 
@@ -262,8 +262,8 @@ public class Camera : global::EventDispatcher<object>
 			BMBGCIEFJGB.UpdatePosition(
 				_RenderInterpolation.CameraPosition,
 				_RenderInterpolation.CameraTarget,
-				_RenderInterpolation.FocusPosition.GILCBJJPKBK(),
-				_RenderInterpolation.FocusPosition.OBIMBNIBEFG(),
+				_RenderInterpolation.FocusPosition.GetX(),
+				_RenderInterpolation.FocusPosition.GetY(),
 				zoomScale);
 		}
 		else
@@ -271,8 +271,8 @@ public class Camera : global::EventDispatcher<object>
 			BMBGCIEFJGB.UpdatePosition(
 				_RenderInterpolation.CameraPosition,
 				_RenderInterpolation.CameraTarget,
-				_RenderInterpolation.FocusPosition.GILCBJJPKBK(),
-				_RenderInterpolation.FocusPosition.OBIMBNIBEFG());
+				_RenderInterpolation.FocusPosition.GetX(),
+				_RenderInterpolation.FocusPosition.GetY());
 		}
 	}
 
@@ -396,15 +396,15 @@ public class Camera : global::EventDispatcher<object>
 	public virtual void Init(Location LPJNEDFCBOI)
 	{
 		BMBGCIEFJGB = new Render(_UnityObject);
-		JNBAHPMBLOL.BDFIDDLGDNM(0f);
-		NGOEHKEKBIL.BDFIDDLGDNM(0f);
+		JNBAHPMBLOL.SetAttenuation(0f);
+		NGOEHKEKBIL.SetAttenuation(0f);
 		_location = LPJNEDFCBOI;
 		BMBGCIEFJGB.Init(_location);
 		Vector3f bAINMLLIKOL = _location.GOEOFEIOAPC();
-		JNBAHPMBLOL.AMPCKAIPIHH(bAINMLLIKOL);
-		JNBAHPMBLOL.LAHLFIKENPP(bAINMLLIKOL);
-		NGOEHKEKBIL.AMPCKAIPIHH(bAINMLLIKOL);
-		NGOEHKEKBIL.LAHLFIKENPP(bAINMLLIKOL);
+		JNBAHPMBLOL.SetStart(bAINMLLIKOL);
+		JNBAHPMBLOL.SetEnd(bAINMLLIKOL);
+		NGOEHKEKBIL.SetStart(bAINMLLIKOL);
+		NGOEHKEKBIL.SetEnd(bAINMLLIKOL);
 		BIPHAGJDGOL = 0f;
 		OHNBKMHOMJI = false;
 		LLLNHELEKNF = 0f;
@@ -591,7 +591,7 @@ public class Camera : global::EventDispatcher<object>
 
 	public Vector3f HOKLGMEOMEI()
 	{
-		return CIJJBMDDAFL.ICLEOFDKDIF();
+		return CIJJBMDDAFL.GetStart();
 	}
 
 	public void OMPFAMELAII()
@@ -621,12 +621,12 @@ public class Camera : global::EventDispatcher<object>
 
 	public Vector3f NPJHOCJIPDL()
 	{
-		return NGOEHKEKBIL.ICLEOFDKDIF();
+		return NGOEHKEKBIL.GetStart();
 	}
 
 	public void MHKHHEMJFOK(Vector3f value)
 	{
-		NGOEHKEKBIL.AMPCKAIPIHH(value);
+		NGOEHKEKBIL.SetStart(value);
 	}
 
 	public void JMGBMIDNCFP()

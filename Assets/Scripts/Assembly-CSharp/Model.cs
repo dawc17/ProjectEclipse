@@ -1996,7 +1996,7 @@ public class Model : global::EventDispatcher<object>
 				int i = 0;
 				for (int num2 = count; i < num2; i++)
 				{
-					list.Add(new Vector3f(0f - KPLANIHPMED[i].GILCBJJPKBK(), KPLANIHPMED[i].OBIMBNIBEFG(), KPLANIHPMED[i].KMFEKANLCFO()));
+					list.Add(new Vector3f(0f - KPLANIHPMED[i].GetX(), KPLANIHPMED[i].GetY(), KPLANIHPMED[i].GetZ()));
 				}
 				_ModelObject.MNHAGALCNFB(list);
 			}
@@ -2020,7 +2020,7 @@ public class Model : global::EventDispatcher<object>
 			int i = 0;
 			for (int num = count; i < num; i++)
 			{
-				list.Add(new Vector3f(0f - KPLANIHPMED[i].GILCBJJPKBK(), KPLANIHPMED[i].OBIMBNIBEFG(), KPLANIHPMED[i].KMFEKANLCFO()));
+				list.Add(new Vector3f(0f - KPLANIHPMED[i].GetX(), KPLANIHPMED[i].GetY(), KPLANIHPMED[i].GetZ()));
 			}
 			_ModelObject.MNHAGALCNFB(list, AECCPADGGPG);
 		}
@@ -2299,7 +2299,7 @@ public class Model : global::EventDispatcher<object>
 		_ModelObject.OBFONONKIAN();
 		if (LFFNFGOECLB)
 		{
-			_Animation.ShiftSequence(OPNPKNEOALJ.GILCBJJPKBK(), OPNPKNEOALJ.OBIMBNIBEFG(), OPNPKNEOALJ.KMFEKANLCFO());
+			_Animation.ShiftSequence(OPNPKNEOALJ.GetX(), OPNPKNEOALJ.GetY(), OPNPKNEOALJ.GetZ());
 			_Animation.ShiftBuffer(OPNPKNEOALJ);
 		}
 	}
@@ -2446,10 +2446,10 @@ public class Model : global::EventDispatcher<object>
 	{
 		Model result = null;
 		float num = float.MaxValue;
-		float num2 = _ModelObject.CJELIBMCCMA().ICLEOFDKDIF().GILCBJJPKBK();
+		float num2 = _ModelObject.CJELIBMCCMA().GetStart().GetX();
 		foreach (Model item in _Enemies)
 		{
-			float num3 = num2 - item._ModelObject.CJELIBMCCMA().ICLEOFDKDIF().GILCBJJPKBK();
+			float num3 = num2 - item._ModelObject.CJELIBMCCMA().GetStart().GetX();
 			if (num3 < num)
 			{
 				num = num3;
@@ -2466,7 +2466,7 @@ public class Model : global::EventDispatcher<object>
 			Model fGCODGKLHED = EGGEACCDAEK();
 			if (fGCODGKLHED != null)
 			{
-				NFOOGKCGFAB = ((!(_ModelObject.CJELIBMCCMA().ICLEOFDKDIF().GILCBJJPKBK() > fGCODGKLHED._ModelObject.CJELIBMCCMA().ICLEOFDKDIF().GILCBJJPKBK())) ? 1 : (-1));
+				NFOOGKCGFAB = ((!(_ModelObject.CJELIBMCCMA().GetStart().GetX() > fGCODGKLHED._ModelObject.CJELIBMCCMA().GetStart().GetX())) ? 1 : (-1));
 			}
 			else
 			{
@@ -2486,13 +2486,13 @@ public class Model : global::EventDispatcher<object>
 
 	public void SetDistanceToEnemy(Model HFGPAELCNMF)
 	{
-		float num = _ModelObject.CJELIBMCCMA().ICLEOFDKDIF().GILCBJJPKBK() - HFGPAELCNMF._ModelObject.CJELIBMCCMA().ICLEOFDKDIF().GILCBJJPKBK();
+		float num = _ModelObject.CJELIBMCCMA().GetStart().GetX() - HFGPAELCNMF._ModelObject.CJELIBMCCMA().GetStart().GetX();
 		PJLKIEDMDOG = ((!(num < 0f)) ? num : (0f - num));
 	}
 
 	public void SetDistanceToNearestWall()
 	{
-		float num = _ModelObject.CJELIBMCCMA().ICLEOFDKDIF().GILCBJJPKBK();
+		float num = _ModelObject.CJELIBMCCMA().GetStart().GetX();
 		DOEPGPAMEEA = ((KFCNPADAMHA() != -1) ? (num - LBOLAOBGDEH.EDCHBILGFLD) : (LBOLAOBGDEH.NNCHJCLKHHA - num));
 	}
 
@@ -2500,7 +2500,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		Clear();
 		_ModelObject = new ModelObject();
-		_ModelObject.set_Model(this);
+		_ModelObject.SetModel(this);
 		ModelLoader.Load(_ModelObject, NIKHAICFGNM);
 		_Physics = new ModelPhysics(_ModelObject);
 		_Strike = new ModelStrike(_ModelObject);
@@ -2663,7 +2663,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		bool traceMagicAnimation = CMGIPKIPIPA != null &&
 			CMGIPKIPIPA.Name != null && CMGIPKIPIPA.Name.IndexOf("Magic") >= 0;
-		if (JGAOCNLLDFG() && !_Physics.EGNOOKHNFLK())
+		if (JGAOCNLLDFG() && !_Physics.IsPhysics())
 		{
 			if (AOJJBKLCHJO == 0)
 			{
@@ -2735,7 +2735,7 @@ public class Model : global::EventDispatcher<object>
 		Vector3f eMAFACPEPDK = new Vector3f(CMGIPKIPIPA.LBJFGCFGMDI());
 		if (!eMAFACPEPDK.IsEqual(0f, 0f, 0f))
 		{
-			eMAFACPEPDK.JPFALPBDBAP(eMAFACPEPDK.GILCBJJPKBK() * (float)AOJJBKLCHJO);
+			eMAFACPEPDK.SetX(eMAFACPEPDK.GetX() * (float)AOJJBKLCHJO);
 			_Animation.MoveByVelocity(eMAFACPEPDK);
 		}
 	}
@@ -2768,7 +2768,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		if (IBIDGACDJNF())
 		{
-			if (_Physics.EGNOOKHNFLK())
+			if (_Physics.IsPhysics())
 			{
 				_Physics.Stop();
 			}
@@ -2881,10 +2881,10 @@ public class Model : global::EventDispatcher<object>
 	{
 		ModelCollision.StrikeHit dEJLIPMOIHC = _Collision.Strike;
 		Vector3f eMAFACPEPDK = new Vector3f(CHCGJBLDPML.GIFLLJFAJCO());
-		eMAFACPEPDK.JPFALPBDBAP(eMAFACPEPDK.GILCBJJPKBK() * (float)_Animation.KFCNPADAMHA());
-		eMAFACPEPDK.JPFALPBDBAP(eMAFACPEPDK.GILCBJJPKBK() * ODCOKJKEDOJ.GILCBJJPKBK());
-		eMAFACPEPDK.IBNFLLGPOLD(eMAFACPEPDK.OBIMBNIBEFG() * ODCOKJKEDOJ.OBIMBNIBEFG());
-		eMAFACPEPDK.set_Z(eMAFACPEPDK.KMFEKANLCFO() * ODCOKJKEDOJ.KMFEKANLCFO());
+		eMAFACPEPDK.SetX(eMAFACPEPDK.GetX() * (float)_Animation.KFCNPADAMHA());
+		eMAFACPEPDK.SetX(eMAFACPEPDK.GetX() * ODCOKJKEDOJ.GetX());
+		eMAFACPEPDK.SetY(eMAFACPEPDK.GetY() * ODCOKJKEDOJ.GetY());
+		eMAFACPEPDK.SetZ(eMAFACPEPDK.GetZ() * ODCOKJKEDOJ.GetZ());
 		HIGBAPPOOKJ = CHCGJBLDPML.KCBHAMHLGBC();
 		HFGPAELCNMF.Strike(dEJLIPMOIHC.CMGLHHEJEBN, dEJLIPMOIHC.ALIHGFIJEDN, dEJLIPMOIHC.EGCPOJIDHKK(), dEJLIPMOIHC.OJOMOLOIAOJ(), this, eMAFACPEPDK);
 	}
@@ -3078,7 +3078,7 @@ public class Model : global::EventDispatcher<object>
 
 	public bool NLHFJIEHKMM()
 	{
-		return _Physics.EGNOOKHNFLK();
+		return _Physics.IsPhysics();
 	}
 
 	public List<string> KGHDFCKGAEO()
@@ -3297,9 +3297,9 @@ public class Model : global::EventDispatcher<object>
 		List<ModelNode> list = _ModelObject.NAMKCLGOPDD();
 		foreach (ModelNode item in list)
 		{
-			if (item.FJIJJNLLDPM())
+			if (item.IsWeak())
 			{
-				item.MGPLABIFCAH(false);
+				item.SetFixed(false);
 			}
 		}
 	}
@@ -3307,7 +3307,7 @@ public class Model : global::EventDispatcher<object>
 	public bool SetPain(float CKKFKEIELCP)
 	{
 		FJKIGPFIEDN += CKKFKEIELCP;
-		if (!_ModelObject.EDJFLMILEBA() && FJKIGPFIEDN > GameUtils.APCAKCCOMLO.LILMAHHANIL)
+		if (!_ModelObject.IsShock() && FJKIGPFIEDN > GameUtils.APCAKCCOMLO.LILMAHHANIL)
 		{
 			return true;
 		}
@@ -3652,7 +3652,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		if (NLHFJIEHKMM())
 		{
-			return _Physics.PGOFHCBPLOE();
+			return _Physics.GetFrame();
 		}
 		InfoAnimation pJAHIOELGGD = FHBLLPCEAHG();
 		if (pJAHIOELGGD != null)
@@ -3666,7 +3666,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		if (NLHFJIEHKMM())
 		{
-			return _Physics.PGOFHCBPLOE();
+			return _Physics.GetFrame();
 		}
 		InfoAnimation pJAHIOELGGD = FHBLLPCEAHG();
 		if (pJAHIOELGGD != null)
@@ -4009,7 +4009,7 @@ public class Model : global::EventDispatcher<object>
 
 	public void SetImpulseFactor(Vector3f OLOAPIIOBKK)
 	{
-		SetImpulseFactor(OLOAPIIOBKK.GILCBJJPKBK(), OLOAPIIOBKK.OBIMBNIBEFG(), OLOAPIIOBKK.KMFEKANLCFO());
+		SetImpulseFactor(OLOAPIIOBKK.GetX(), OLOAPIIOBKK.GetY(), OLOAPIIOBKK.GetZ());
 	}
 
 	public void SetImpulseFactor(float DHDMNHCIPEH, float BGEEALIPKCC, float LKPCKJOLJDO)
@@ -4103,7 +4103,7 @@ public class Model : global::EventDispatcher<object>
 
 	protected void DIIIIDDKHNG()
 	{
-		if (_Physics.EGNOOKHNFLK())
+		if (_Physics.IsPhysics())
 		{
 			return;
 		}
@@ -4114,7 +4114,7 @@ public class Model : global::EventDispatcher<object>
 		List<ModelNode> list = _ModelObject.NAMKCLGOPDD();
 		for (int i = 0; i < list.Count; i++)
 		{
-			float num3 = list[i].ICLEOFDKDIF().GILCBJJPKBK();
+			float num3 = list[i].GetStart().GetX();
 			if (num3 < num && num3 < eDCHBILGFLD)
 			{
 				num = num3;
@@ -4212,7 +4212,7 @@ public class Model : global::EventDispatcher<object>
 
 	protected void DIDBGCFDKGD()
 	{
-		if (_ModelObject.EDJFLMILEBA())
+		if (_ModelObject.IsShock())
 		{
 			return;
 		}
@@ -4223,17 +4223,17 @@ public class Model : global::EventDispatcher<object>
 			return;
 		}
 		EEDJEDBMIMI(dJKEECEOCJB, true, true, false);
-		_ModelObject.set_IsShock(true);
+		_ModelObject.SetShock(true);
 		Parameters.AHMMOKMGICA();
 		List<ModelNode> list = _ModelObject.NAMKCLGOPDD();
 		foreach (ModelNode item in list)
 		{
-			if (item.EDJFLMILEBA())
+			if (item.IsShock())
 			{
-				float lHNJJFDIJKK = GameUtils.APCAKCCOMLO.IIIDIKABLOJ.GILCBJJPKBK() / item.FJJFKAJOFNJ();
-				float fFFHIOALHGM = GameUtils.APCAKCCOMLO.IIIDIKABLOJ.OBIMBNIBEFG() / item.FJJFKAJOFNJ();
-				float pDCENMEKIAP = GameUtils.APCAKCCOMLO.IIIDIKABLOJ.KMFEKANLCFO() / item.FJJFKAJOFNJ();
-				item.ICLEOFDKDIF().Add(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
+				float lHNJJFDIJKK = GameUtils.APCAKCCOMLO.IIIDIKABLOJ.GetX() / item.GetWeight();
+				float fFFHIOALHGM = GameUtils.APCAKCCOMLO.IIIDIKABLOJ.GetY() / item.GetWeight();
+				float pDCENMEKIAP = GameUtils.APCAKCCOMLO.IIIDIKABLOJ.GetZ() / item.GetWeight();
+				item.GetStart().Add(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
 			}
 		}
 		Model fGCODGKLHED = EGGEACCDAEK();
@@ -4249,7 +4249,7 @@ public class Model : global::EventDispatcher<object>
 
 	protected void GBGJIOLEEJK()
 	{
-		if (!_ModelObject.EDJFLMILEBA() && FJGNHALJJFF >= 0)
+		if (!_ModelObject.IsShock() && FJGNHALJJFF >= 0)
 		{
 			if (FJGNHALJJFF == 0)
 			{

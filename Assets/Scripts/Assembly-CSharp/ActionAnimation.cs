@@ -120,7 +120,7 @@ public class ActionAnimation
 		foreach (ConditionAnimation condition in _Conditions)
 		{
 			bool matches;
-			if (condition.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			if (condition.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList list = condition as ConditionList;
 				matches = list != null && list.DJEJMGCMPPH(modelConditions, model, null);

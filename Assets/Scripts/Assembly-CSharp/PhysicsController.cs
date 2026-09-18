@@ -2,19 +2,21 @@ using System.Xml;
 
 public static class PhysicsController
 {
-	private static float LMKIAHKHELF;
+	private static float _Friction;
 
-	private static float KFLFCNCNGLK;
+	private static float _Gravity;
 
 	private static int _IterativeProcess;
 
-	private static float APBHHHNNIFD;
+	private static float _FrictionForce;
+
+	//Friction and FrictionForce seems to be the same value??
 
 	public static float OCIFDDGOJBH
 	{
 		get
 		{
-			return EOBGEGHEPOA();
+			return GetFriction();
 		}
 	}
 
@@ -22,7 +24,7 @@ public static class PhysicsController
 	{
 		get
 		{
-			return KKAJIHOJMPN();
+			return GetGravity();
 		}
 	}
 
@@ -30,7 +32,7 @@ public static class PhysicsController
 	{
 		get
 		{
-			return HDEOPNEEMBJ();
+			return GetIterativeProcess();
 		}
 	}
 
@@ -38,43 +40,43 @@ public static class PhysicsController
 	{
 		get
 		{
-			return ECOHOOEMDNH();
+			return GetFrictionForce();
 		}
 		set
 		{
-			set_FrictionForce(value);
+			SetFrictionForce(value);
 		}
 	}
 
-	public static float EOBGEGHEPOA()
+	public static float GetFriction()
 	{
-		return LMKIAHKHELF;
+		return _Friction;
 	}
 
-	public static float KKAJIHOJMPN()
+	public static float GetGravity()
 	{
-		return KFLFCNCNGLK;
+		return _Gravity;
 	}
 
-	public static int HDEOPNEEMBJ()
+	public static int GetIterativeProcess()
 	{
 		return _IterativeProcess;
 	}
 
-	public static float ECOHOOEMDNH()
+	public static float GetFrictionForce()
 	{
-		return APBHHHNNIFD;
+		return _FrictionForce;
 	}
 
-	public static void set_FrictionForce(float value)
+	public static void SetFrictionForce(float value)
 	{
-		APBHHHNNIFD = value;
+		_FrictionForce = value;
 	}
 
 	public static void Parse(XmlNode node)
 	{
-		LMKIAHKHELF = node["FrictionForce"].Attributes["Value"].ParseFloat(0.2f);
-		KFLFCNCNGLK = node["Gravitation"].Attributes["Value"].ParseFloat(0.4f);
+		_Friction = node["FrictionForce"].Attributes["Value"].ParseFloat(0.2f);
+		_Gravity = node["Gravitation"].Attributes["Value"].ParseFloat(0.4f);
 		_IterativeProcess = node["IterativeProcess"].Attributes["Value"].ParseInt(2);
 	}
 }

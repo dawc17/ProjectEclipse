@@ -23,7 +23,7 @@ public class ConditionDistance : ConditionAnimation
 	private DistancePoint LEAEOECEOPG = new DistancePoint();
 
 	public ConditionDistance(XmlNode node)
-		: base(DGAGKLODADD.DISTANCE)
+		: base(ConditionType.DISTANCE)
 	{
 		XmlAttribute xmlAttribute = node.Attributes["Axis"];
 		MKNFOOEOMAO = ((xmlAttribute == null) ? HENHJEAEGLG.LENGTH_FULL : ((!(xmlAttribute.Value == "X")) ? HENHJEAEGLG.LENGTH_Y : HENHJEAEGLG.LENGTH_X));
@@ -49,7 +49,7 @@ public class ConditionDistance : ConditionAnimation
 		{
 			Vector3f eMAFACPEPDK = Vector3f.op_Implicit(LEAEOECEOPG.EMGKDOAMBOH(conditions));
 			Vector3f eMAFACPEPDK2 = Vector3f.op_Implicit(PNFEMBMAEGA.EMGKDOAMBOH(conditions));
-			num = Mathf.Sqrt((eMAFACPEPDK.GILCBJJPKBK() - eMAFACPEPDK2.GILCBJJPKBK()) * (eMAFACPEPDK.GILCBJJPKBK() - eMAFACPEPDK2.GILCBJJPKBK()) + (eMAFACPEPDK.OBIMBNIBEFG() - eMAFACPEPDK2.OBIMBNIBEFG()) * (eMAFACPEPDK.OBIMBNIBEFG() - eMAFACPEPDK2.OBIMBNIBEFG()));
+			num = Mathf.Sqrt((eMAFACPEPDK.GetX() - eMAFACPEPDK2.GetX()) * (eMAFACPEPDK.GetX() - eMAFACPEPDK2.GetX()) + (eMAFACPEPDK.GetY() - eMAFACPEPDK2.GetY()) * (eMAFACPEPDK.GetY() - eMAFACPEPDK2.GetY()));
 			break;
 		}
 		}

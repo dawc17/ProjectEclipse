@@ -7,7 +7,7 @@ public class ConditionKeys : ConditionAnimation
 	public KeyData GNNEIPGALBE;
 
 	public ConditionKeys(XmlNode node)
-		: base(DGAGKLODADD.KEYS)
+		: base(ConditionType.KEYS)
 	{
 		foreach (XmlNode childNode in node.ChildNodes)
 		{

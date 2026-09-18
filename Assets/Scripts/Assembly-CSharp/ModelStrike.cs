@@ -2,58 +2,58 @@ using System.Collections.Generic;
 
 public class ModelStrike
 {
-	private ModelObject HMLPCBNDLJI;
+	private ModelObject _ModelObject;
 
-	public ModelStrike(ModelObject OECPEDPMKCD)
+	public ModelStrike(ModelObject Object)
 	{
-		HMLPCBNDLJI = OECPEDPMKCD;
+		_ModelObject = Object;
 	}
 
-	public void Strike(ModelEdge ADFIIAJCBHA, Vector3f NAAPALOFBCI, Vector3f KKIKIDNALOL)
+	public void Strike(ModelEdge Edge, Vector3f Point, Vector3f Impulse)
 	{
-		if (ADFIIAJCBHA == null)
+		if (Edge == null)
 		{
 			return;
 		}
 		Decrease();
-		ModelNode lCDGOCIAIDK = ADFIIAJCBHA.OGLAOHGLBHI();
-		ModelNode lCDGOCIAIDK2 = ADFIIAJCBHA.KMHHBEKNHCJ();
-		if (!lCDGOCIAIDK.DDBDJCHOKGJ() || !lCDGOCIAIDK2.DDBDJCHOKGJ())
+		ModelNode Start = Edge.GetStartNode();
+		ModelNode End = Edge.GetEndNode();
+		if (!Start.IsFixed() || !End.IsFixed())
 		{
-			Vector3f bEHOPOPCJGB = lCDGOCIAIDK.ICLEOFDKDIF();
-			Vector3f bEHOPOPCJGB2 = lCDGOCIAIDK2.ICLEOFDKDIF();
-			float num = ADFIIAJCBHA.LDKFFINHBOH();
-			float num2 = Vector2f.JOIHAKCICMP(lCDGOCIAIDK.ICLEOFDKDIF(), NAAPALOFBCI);
+			Vector3f startVector = Start.GetStart();
+			Vector3f endVector = End.GetStart();
+			float num = Edge.LDKFFINHBOH();
+			float num2 = Vector2f.JOIHAKCICMP(Start.GetStart(), Point);
 			float num3 = ((!(num < num2)) ? (num2 / num) : 1f);
-			if (!lCDGOCIAIDK.BPJFABOAFJK())
+			if (!Start.IsFixedAndIsNotNode())
 			{
-				float lIAILCGJBDK = (1f - num3) / lCDGOCIAIDK.FJJFKAJOFNJ();
-				Vector3f eMAFACPEPDK = new Vector3f(KKIKIDNALOL);
-				eMAFACPEPDK.Multiply(lIAILCGJBDK);
-				eMAFACPEPDK.Add(bEHOPOPCJGB);
-				ADFIIAJCBHA.OGLAOHGLBHI().AMPCKAIPIHH(eMAFACPEPDK);
+				float mass = (1f - num3) / Start.GetWeight();
+				Vector3f vector = new Vector3f(Impulse);
+				vector.Multiply(mass);
+				vector.Add(startVector);
+				Edge.GetStartNode().SetStart(vector);
 			}
-			if (!lCDGOCIAIDK2.BPJFABOAFJK())
+			if (!End.IsFixedAndIsNotNode())
 			{
-				float lIAILCGJBDK2 = num3 / lCDGOCIAIDK2.FJJFKAJOFNJ();
-				Vector3f eMAFACPEPDK2 = new Vector3f(KKIKIDNALOL);
-				eMAFACPEPDK2.Multiply(lIAILCGJBDK2);
-				eMAFACPEPDK2.Add(bEHOPOPCJGB2);
-				ADFIIAJCBHA.KMHHBEKNHCJ().AMPCKAIPIHH(eMAFACPEPDK2);
+				float force = num3 / End.GetWeight();
+				Vector3f vector = new Vector3f(Impulse);
+				vector.Multiply(force);
+				vector.Add(endVector);
+				Edge.GetEndNode().SetStart(vector);
 			}
 		}
 	}
 
 	private void Decrease()
 	{
-		List<ModelNode> list = HMLPCBNDLJI.NAMKCLGOPDD();
+		List<ModelNode> list = _ModelObject.NAMKCLGOPDD();
 		foreach (ModelNode item in list)
 		{
-			Vector3f eMAFACPEPDK = item.FOGHEPNAPLC();
-			Vector3f eMAFACPEPDK2 = item.ICLEOFDKDIF();
-			eMAFACPEPDK.JPFALPBDBAP((eMAFACPEPDK.GILCBJJPKBK() + eMAFACPEPDK2.GILCBJJPKBK()) * 0.5f);
-			eMAFACPEPDK.IBNFLLGPOLD((eMAFACPEPDK.OBIMBNIBEFG() + eMAFACPEPDK2.OBIMBNIBEFG()) * 0.5f);
-			eMAFACPEPDK.set_Z((eMAFACPEPDK.KMFEKANLCFO() + eMAFACPEPDK2.KMFEKANLCFO()) * 0.5f);
+			Vector3f end = item.GetEnd();
+			Vector3f start = item.GetStart();
+			end.SetX((end.GetX() + start.GetX()) * 0.5f);
+			end.SetY((end.GetY() + start.GetY()) * 0.5f);
+			end.SetZ((end.GetZ() + start.GetZ()) * 0.5f);
 		}
 	}
 }

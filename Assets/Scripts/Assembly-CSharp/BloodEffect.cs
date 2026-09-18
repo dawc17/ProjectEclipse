@@ -29,8 +29,8 @@ internal class BloodEffect
 		int min2 = -60;
 		int max2 = 20;
 		float num = 200f;
-		KKIKIDNALOL.JPFALPBDBAP(JLHLMAFLMFO.GILCBJJPKBK() / num + (float)UnityEngine.Random.Range(min, max) / 10f);
-		KKIKIDNALOL.IBNFLLGPOLD(JLHLMAFLMFO.OBIMBNIBEFG() / num + (float)UnityEngine.Random.Range(min2, max2) / 10f);
+		KKIKIDNALOL.SetX(JLHLMAFLMFO.GetX() / num + (float)UnityEngine.Random.Range(min, max) / 10f);
+		KKIKIDNALOL.SetY(JLHLMAFLMFO.GetY() / num + (float)UnityEngine.Random.Range(min2, max2) / 10f);
 	}
 
 	public void CreateSprite(string ONEIGMLOGDC, Color OHJKNABLCMF)
@@ -48,12 +48,12 @@ internal class BloodEffect
 	public void Render()
 	{
 		Vector3 localPosition = _Interpolation.CurrentPosition;
-		localPosition.x += KKIKIDNALOL.GILCBJJPKBK();
-		localPosition.y += KKIKIDNALOL.OBIMBNIBEFG();
+		localPosition.x += KKIKIDNALOL.GetX();
+		localPosition.y += KKIKIDNALOL.GetY();
 		Vector3f kKIKIDNALOL = KKIKIDNALOL;
-		kKIKIDNALOL.IBNFLLGPOLD(kKIKIDNALOL.OBIMBNIBEFG() + 0.2f);
-		int num = ((!(KKIKIDNALOL.GILCBJJPKBK() < 0f)) ? 1 : (-1));
-		float z = Mathf.Atan((0f - KKIKIDNALOL.OBIMBNIBEFG()) / KKIKIDNALOL.GILCBJJPKBK()) / (float)Math.PI * 180f - 90f * (float)num + 180f;
+		kKIKIDNALOL.SetY(kKIKIDNALOL.GetY() + 0.2f);
+		int num = ((!(KKIKIDNALOL.GetX() < 0f)) ? 1 : (-1));
+		float z = Mathf.Atan((0f - KKIKIDNALOL.GetY()) / KKIKIDNALOL.GetX()) / (float)Math.PI * 180f - 90f * (float)num + 180f;
 		Quaternion worldRotation = Quaternion.Euler(0f, 0f, z);
 		Quaternion localRotation = (_UnityObject.transform.parent == null) ? worldRotation : Quaternion.Inverse(_UnityObject.transform.parent.rotation) * worldRotation;
 		_Interpolation.Push(localPosition, localRotation);
@@ -61,7 +61,7 @@ internal class BloodEffect
 
 	public void SetPosition(Vector3f NAAPALOFBCI)
 	{
-		_Interpolation.Snap(new Vector3(NAAPALOFBCI.GILCBJJPKBK(), NAAPALOFBCI.OBIMBNIBEFG(), 0f), _Interpolation.CurrentRotation);
+		_Interpolation.Snap(new Vector3(NAAPALOFBCI.GetX(), NAAPALOFBCI.GetY(), 0f), _Interpolation.CurrentRotation);
 	}
 
 	public void SetScale(float JDCCBCNFENK)

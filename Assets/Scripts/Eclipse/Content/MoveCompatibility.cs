@@ -136,7 +136,7 @@ namespace Eclipse.Content
 		private readonly bool _hasExpectedType;
 
 		public BattleTypeMoveCondition(XmlNode node)
-			: base(DGAGKLODADD.BATTLE_TYPE)
+			: base(ConditionType.BATTLE_TYPE)
 		{
 			string value = node == null || node.Attributes == null
 				? string.Empty
@@ -157,7 +157,7 @@ namespace Eclipse.Content
 		private readonly int _expectedState;
 
 		public BossAbilityStateMoveCondition(XmlNode node)
-			: base(DGAGKLODADD.BOSS_ABILITY_STATE)
+			: base(ConditionType.BOSS_ABILITY_STATE)
 		{
 			_expectedState = node == null || node.Attributes == null
 				? 0

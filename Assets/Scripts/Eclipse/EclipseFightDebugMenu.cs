@@ -328,8 +328,8 @@ namespace Eclipse.Diagnostics
 
 			Vector3f start = edge.CCMHKFHDFNM;
 			Vector3f end = edge.MBLICPBLEFC;
-			line.SetPosition(0, new Vector3(start.GILCBJJPKBK(), start.OBIMBNIBEFG(), depth));
-			line.SetPosition(1, new Vector3(end.GILCBJJPKBK(), end.OBIMBNIBEFG(), depth));
+			line.SetPosition(0, new Vector3(start.GetX(), start.GetY(), depth));
+			line.SetPosition(1, new Vector3(end.GetX(), end.GetY(), depth));
 			float width = Mathf.Max(0.04f, edge.AGODBAOHPJC * 2f);
 			line.startWidth = width;
 			line.endWidth = width;
@@ -355,7 +355,7 @@ namespace Eclipse.Diagnostics
 				}
 
 				Vector3f center = model.BPPINEHFOBB;
-				Vector3 localCenter = new Vector3(center.GILCBJJPKBK(), center.OBIMBNIBEFG(), center.KMFEKANLCFO());
+				Vector3 localCenter = new Vector3(center.GetX(), center.GetY(), center.GetZ());
 				Vector3 screen = camera.WorldToScreenPoint(model.ICDCIANNAAI.transform.TransformPoint(localCenter));
 				if (screen.z < 0f)
 				{

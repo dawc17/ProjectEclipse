@@ -41,14 +41,14 @@ public class CurrentEffect
 		int num = ACENLMONNPA.KFCNPADAMHA();
 		ModelConditions kDOGKKGDOBK = ACENLMONNPA.EBABHGHPLFK();
 		Vector3f eMAFACPEPDK = Vector3f.op_Implicit(LLOLBKJMKNC.ECJPLFFAMJO().EMGKDOAMBOH(kDOGKKGDOBK));
-		Vector3 anchor = new Vector3(eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG(), eMAFACPEPDK.KMFEKANLCFO());
+		Vector3 anchor = new Vector3(eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
 		_Diagnostics.Observe(ACENLMONNPA, LLOLBKJMKNC, anchor, num);
 		Quaternion rotation = _Interpolation.CurrentRotation;
 		Vector2f hEJKLMNOLLG = LLOLBKJMKNC.MABFDDNEOGO().HLBBNCBJHGB(kDOGKKGDOBK);
-		if (hEJKLMNOLLG.GILCBJJPKBK() != 0f || hEJKLMNOLLG.OBIMBNIBEFG() != 0f)
+		if (hEJKLMNOLLG.GetX() != 0f || hEJKLMNOLLG.GetY() != 0f)
 		{
-			hEJKLMNOLLG.JPFALPBDBAP(hEJKLMNOLLG.GILCBJJPKBK() * (float)num);
-			hEJKLMNOLLG.IBNFLLGPOLD(hEJKLMNOLLG.OBIMBNIBEFG() * (float)num);
+			hEJKLMNOLLG.SetX(hEJKLMNOLLG.GetX() * (float)num);
+			hEJKLMNOLLG.SetY(hEJKLMNOLLG.GetY() * (float)num);
 			float z = Vector2f.GetAngle2DDegreeSigned(hEJKLMNOLLG, new Vector2f(1f));
 			rotation = Quaternion.Euler(0f, 0f, z);
 		}

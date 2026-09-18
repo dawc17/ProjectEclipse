@@ -206,7 +206,7 @@ public class Location
 			musics = new List<string>(collection);
 		}
 		XmlAttribute cJBEMNNNHDM = xmlDocument["Root"].Attributes["FrictionForce"];
-		PhysicsController.set_FrictionForce(cJBEMNNNHDM.ParseFloat(PhysicsController.EOBGEGHEPOA()));
+		PhysicsController.SetFrictionForce(cJBEMNNNHDM.ParseFloat(PhysicsController.GetFriction()));
 		MFAPMDDJBBL = xmlDocument["Root"].Attributes["Wall"].ParseFloat();
 		GBNPHCHGKDO = xmlDocument["Root"].Attributes["Floor"].ParseFloat();
 		JMBOGPILDNM = xmlDocument["Root"].Attributes["PositionY"].ParseFloat();

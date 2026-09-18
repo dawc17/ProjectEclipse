@@ -5,7 +5,7 @@ public class ConditionName : ConditionAnimation
 	private string _Name;
 
 	public ConditionName(XmlNode node)
-		: base(DGAGKLODADD.NAME)
+		: base(ConditionType.NAME)
 	{
 		_Name = node.Attributes["Value"].CIPOICEEIBK(string.Empty);
 	}

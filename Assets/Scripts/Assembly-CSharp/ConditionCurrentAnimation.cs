@@ -10,7 +10,7 @@ public class ConditionCurrentAnimation : ConditionAnimation
 	private bool KMKJFLHJDAF;
 
 	public ConditionCurrentAnimation(XmlNode node)
-		: base(DGAGKLODADD.CURRENT_ANIMATION)
+		: base(ConditionType.CURRENT_ANIMATION)
 	{
 		if (node.Attributes["Name"] != null)
 		{

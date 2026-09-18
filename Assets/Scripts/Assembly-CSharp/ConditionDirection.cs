@@ -5,7 +5,7 @@ public class ConditionDirection : ConditionAnimation
 	public InfoAnimation.MoveInside.Direction HFOEHJIMGPI;
 
 	public ConditionDirection(XmlNode node)
-		: base(DGAGKLODADD.DIRECTION)
+		: base(ConditionType.DIRECTION)
 	{
 		HFOEHJIMGPI = MovesParser.JOLJIHDPADK(node);
 	}

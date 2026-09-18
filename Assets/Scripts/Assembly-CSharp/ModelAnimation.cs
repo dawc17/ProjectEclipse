@@ -415,7 +415,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 		PAICIELHBHA = null;
 		MIDMNJKJOFO = 0;
 		INFAGPDFGNL = false;
-		KGIEFJNJFOH = ACENLMONNPA.get_Model().NJDJHGDMCIJ() != null;
+		KGIEFJNJFOH = ACENLMONNPA.GetModel().NJDJHGDMCIJ() != null;
 		GLOJGJIBABF = 1f;
 		NBLBKLANDNC = 0f;
 		ONHMMDAOGIM = false;
@@ -770,13 +770,13 @@ public class ModelAnimation : global::EventDispatcher<object>
 					switch (c)
 					{
 					case '1':
-						if (lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK() < lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK())
+						if (lCDGOCIAIDK.GetStart().GetX() < lCDGOCIAIDK2.GetStart().GetX())
 						{
 							return lCDGOCIAIDK2;
 						}
 						return lCDGOCIAIDK;
 					case '2':
-						if (lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK() < lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK())
+						if (lCDGOCIAIDK.GetStart().GetX() < lCDGOCIAIDK2.GetStart().GetX())
 						{
 							return lCDGOCIAIDK;
 						}
@@ -787,13 +787,13 @@ public class ModelAnimation : global::EventDispatcher<object>
 					switch (c)
 					{
 					case '1':
-						if (lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK() < lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK())
+						if (lCDGOCIAIDK.GetStart().GetX() < lCDGOCIAIDK2.GetStart().GetX())
 						{
 							return lCDGOCIAIDK;
 						}
 						return lCDGOCIAIDK2;
 					case '2':
-						if (lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK() < lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK())
+						if (lCDGOCIAIDK.GetStart().GetX() < lCDGOCIAIDK2.GetStart().GetX())
 						{
 							return lCDGOCIAIDK2;
 						}
@@ -906,11 +906,11 @@ public class ModelAnimation : global::EventDispatcher<object>
 			{
 				AGAFKHLPLCA.Set(BAOONIGFBMB.LBJFGCFGMDI());
 				Vector3f aGAFKHLPLCA = AGAFKHLPLCA;
-				aGAFKHLPLCA.JPFALPBDBAP(aGAFKHLPLCA.GILCBJJPKBK() * (float)KFCNPADAMHA());
+				aGAFKHLPLCA.SetX(aGAFKHLPLCA.GetX() * (float)KFCNPADAMHA());
 			}
 			DBCBOPONOBE.Set(BAOONIGFBMB.NCENGIOMKOF());
 			Vector3f dBCBOPONOBE = DBCBOPONOBE;
-			dBCBOPONOBE.JPFALPBDBAP(dBCBOPONOBE.GILCBJJPKBK() * (float)KFCNPADAMHA());
+			dBCBOPONOBE.SetX(dBCBOPONOBE.GetX() * (float)KFCNPADAMHA());
 			SetDistanceAlign();
 			PAMICDLAMHC(BAOONIGFBMB);
 			GJGDKFAAGOD = null;
@@ -1133,8 +1133,8 @@ public class ModelAnimation : global::EventDispatcher<object>
 		List<ModelNode> list = _Model.NAMKCLGOPDD();
 		foreach (ModelNode item in list)
 		{
-			item.OIEPNGBEECN();
-			item.ICLEOFDKDIF().Add(BLPIMOCGMKJ);
+			item.SetEnd();
+			item.GetStart().Add(BLPIMOCGMKJ);
 		}
 	}
 
@@ -1156,13 +1156,13 @@ public class ModelAnimation : global::EventDispatcher<object>
 		{
 			Util.Swap(ref NMBEADHHHFH, ref OKCKNALOCCK);
 		}
-		int FBENKEEDIKJ = NMBEADHHHFH.ANAECCFDHMI();
-		int PGKPNBGIGEI = OKCKNALOCCK.ANAECCFDHMI();
+		int FBENKEEDIKJ = NMBEADHHHFH.GetID();
+		int PGKPNBGIGEI = OKCKNALOCCK.GetID();
 		if (!AAGPPKAOHGI && AOJJBKLCHJO == -1)
 		{
 			Util.Swap(ref FBENKEEDIKJ, ref PGKPNBGIGEI);
 		}
-		return NMBEADHHHFH.ICLEOFDKDIF().GILCBJJPKBK() >= OKCKNALOCCK.ICLEOFDKDIF().GILCBJJPKBK() != MCPABOHDBLO[FBENKEEDIKJ].x >= MCPABOHDBLO[PGKPNBGIGEI].x;
+		return NMBEADHHHFH.GetStart().GetX() >= OKCKNALOCCK.GetStart().GetX() != MCPABOHDBLO[FBENKEEDIKJ].x >= MCPABOHDBLO[PGKPNBGIGEI].x;
 	}
 
 	public static bool CalcIsMirror(ModelObject IPKAHIMPMEG, string PCAMJGFDBID, int AOJJBKLCHJO, List<Vector3f> MCPABOHDBLO, bool AAGPPKAOHGI = true)
@@ -1183,13 +1183,13 @@ public class ModelAnimation : global::EventDispatcher<object>
 		{
 			Util.Swap(ref NMBEADHHHFH, ref OKCKNALOCCK);
 		}
-		int FBENKEEDIKJ = NMBEADHHHFH.ANAECCFDHMI();
-		int PGKPNBGIGEI = OKCKNALOCCK.ANAECCFDHMI();
+		int FBENKEEDIKJ = NMBEADHHHFH.GetID();
+		int PGKPNBGIGEI = OKCKNALOCCK.GetID();
 		if (!AAGPPKAOHGI && AOJJBKLCHJO == -1)
 		{
 			Util.Swap(ref FBENKEEDIKJ, ref PGKPNBGIGEI);
 		}
-		return NMBEADHHHFH.ICLEOFDKDIF().GILCBJJPKBK() >= OKCKNALOCCK.ICLEOFDKDIF().GILCBJJPKBK() != MCPABOHDBLO[FBENKEEDIKJ].GILCBJJPKBK() >= MCPABOHDBLO[PGKPNBGIGEI].GILCBJJPKBK();
+		return NMBEADHHHFH.GetStart().GetX() >= OKCKNALOCCK.GetStart().GetX() != MCPABOHDBLO[FBENKEEDIKJ].GetX() >= MCPABOHDBLO[PGKPNBGIGEI].GetX();
 	}
 
 	private void SetDistanceAlign()
@@ -1206,7 +1206,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 			if (ANHGOGDEFCO())
 			{
 				ModelNode lCDGOCIAIDK2 = lCDGOCIAIDK.PKOPJAHFNJG();
-				num3 = ((lCDGOCIAIDK2 == null) ? BOIDEOFKBMK() : lCDGOCIAIDK2.ANAECCFDHMI());
+				num3 = ((lCDGOCIAIDK2 == null) ? BOIDEOFKBMK() : lCDGOCIAIDK2.GetID());
 			}
 			else
 			{
@@ -1237,14 +1237,14 @@ public class ModelAnimation : global::EventDispatcher<object>
 		Vector3f eMAFACPEPDK = new Vector3f();
 		for (int i = 0; i < AHOBIIMFNEP.Count; i++)
 		{
-			ModelNode lCDGOCIAIDK = list[i];
-			if (!_Model.EDJFLMILEBA() || (_Model.EDJFLMILEBA() && !lCDGOCIAIDK.EDJFLMILEBA()))
+			ModelNode Node = list[i];
+			if (!_Model.IsShock() || (_Model.IsShock() && !Node.IsShock()))
 			{
-				lCDGOCIAIDK.OIEPNGBEECN();
+				Node.SetEnd();
 				eMAFACPEPDK.Set(AHOBIIMFNEP[i][PLLOJCCNDOH]);
 				eMAFACPEPDK.Add(BFDLFAHGKHP);
-				lCDGOCIAIDK.AMPCKAIPIHH(eMAFACPEPDK);
-				lCDGOCIAIDK.OHMNDOKBGGA(true);
+				Node.SetStart(eMAFACPEPDK);
+				Node.OHMNDOKBGGA(true);
 			}
 		}
 		if (BAOONIGFBMB.NBOLIGLFFEL() != 0f)
@@ -1284,13 +1284,13 @@ public class ModelAnimation : global::EventDispatcher<object>
 		List<ModelNode> list = _Model.NAMKCLGOPDD();
 		for (int i = 0; i < cJMFONMNFBI.Size; i++)
 		{
-			Vector3f eMAFACPEPDK = list[i].ICLEOFDKDIF();
-			Vector3f eMAFACPEPDK2 = list[i].FOGHEPNAPLC();
-			float lHNJJFDIJKK = (eMAFACPEPDK.GILCBJJPKBK() - eMAFACPEPDK2.GILCBJJPKBK()) * (float)num;
-			float fFFHIOALHGM = (eMAFACPEPDK.OBIMBNIBEFG() - eMAFACPEPDK2.OBIMBNIBEFG()) * (float)num;
-			float pDCENMEKIAP = (eMAFACPEPDK.KMFEKANLCFO() - eMAFACPEPDK2.KMFEKANLCFO()) * (float)num;
+			Vector3f eMAFACPEPDK = list[i].GetStart();
+			Vector3f eMAFACPEPDK2 = list[i].GetEnd();
+			float lHNJJFDIJKK = (eMAFACPEPDK.GetX() - eMAFACPEPDK2.GetX()) * (float)num;
+			float fFFHIOALHGM = (eMAFACPEPDK.GetY() - eMAFACPEPDK2.GetY()) * (float)num;
+			float pDCENMEKIAP = (eMAFACPEPDK.GetZ() - eMAFACPEPDK2.GetZ()) * (float)num;
 			cJMFONMNFBI.Data[i].Set(eMAFACPEPDK);
-			cJMFONMNFBI.Data[i].EHGLHOGAIDI(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
+			cJMFONMNFBI.Data[i].Subtract(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
 			cJMFONMNFBI2.Data[i].Set(eMAFACPEPDK);
 			cJMFONMNFBI2.Data[i].Add(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
 		}
@@ -1324,7 +1324,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 			break;
 		case InfoAnimation.DOLCEABGNGA.ObjectWall:
 			eMAFACPEPDK.Reset();
-			eMAFACPEPDK.JPFALPBDBAP((KFCNPADAMHA() == 1 != (iLOEBFFAEAN.BLODCIGDJFK == "Back")) ? (0f - DPEOGNBGKML) : (0f - DNOJAJNAFAF));
+			eMAFACPEPDK.SetX((KFCNPADAMHA() == 1 != (iLOEBFFAEAN.BLODCIGDJFK == "Back")) ? (0f - DPEOGNBGKML) : (0f - DNOJAJNAFAF));
 			break;
 		}
 		switch (iLOEBFFAEAN.HHPAGAOGGLP)
@@ -1332,13 +1332,13 @@ public class ModelAnimation : global::EventDispatcher<object>
 		case InfoAnimation.DOLCEABGNGA.ObjectPivot:
 			if (oJIEPADIEDE2.PKKDMELGFBE() != null)
 			{
-				eMAFACPEPDK2.Set(oJIEPADIEDE2.PKKDMELGFBE().ICLEOFDKDIF());
+				eMAFACPEPDK2.Set(oJIEPADIEDE2.PKKDMELGFBE().GetStart());
 			}
 			break;
 		case InfoAnimation.DOLCEABGNGA.ObjectNodes:
 		{
 			int oKNNNLIPODI = ((!oJIEPADIEDE2.ANHGOGDEFCO() || iLOEBFFAEAN.KFMGKDOLKGN <= -1) ? iLOEBFFAEAN.JPKDOHPGEBA : iLOEBFFAEAN.KFMGKDOLKGN);
-			eMAFACPEPDK2.Set(oJIEPADIEDE2.AAPLMJGHIGI(oKNNNLIPODI).ICLEOFDKDIF());
+			eMAFACPEPDK2.Set(oJIEPADIEDE2.AAPLMJGHIGI(oKNNNLIPODI).GetStart());
 			break;
 		}
 		case InfoAnimation.DOLCEABGNGA.ObjectAnimation:
@@ -1346,45 +1346,45 @@ public class ModelAnimation : global::EventDispatcher<object>
 			break;
 		case InfoAnimation.DOLCEABGNGA.ObjectWall:
 			eMAFACPEPDK2.Reset();
-			eMAFACPEPDK2.JPFALPBDBAP((KFCNPADAMHA() == 1 != (iLOEBFFAEAN.PMILDGBBLMF == "Back")) ? DPEOGNBGKML : DNOJAJNAFAF);
+			eMAFACPEPDK2.SetX((KFCNPADAMHA() == 1 != (iLOEBFFAEAN.PMILDGBBLMF == "Back")) ? DPEOGNBGKML : DNOJAJNAFAF);
 			break;
 		}
-		eMAFACPEPDK2.JPFALPBDBAP(eMAFACPEPDK2.GILCBJJPKBK() + (float)KFCNPADAMHA() * iLOEBFFAEAN.LDNPHPGEOPJ.GILCBJJPKBK());
-		eMAFACPEPDK2.IBNFLLGPOLD(eMAFACPEPDK2.OBIMBNIBEFG() + iLOEBFFAEAN.LDNPHPGEOPJ.OBIMBNIBEFG());
-		BDHBFDMBMFM = eMAFACPEPDK2.GILCBJJPKBK();
+		eMAFACPEPDK2.SetX(eMAFACPEPDK2.GetX() + (float)KFCNPADAMHA() * iLOEBFFAEAN.LDNPHPGEOPJ.GetX());
+		eMAFACPEPDK2.SetY(eMAFACPEPDK2.GetY() + iLOEBFFAEAN.LDNPHPGEOPJ.GetY());
+		BDHBFDMBMFM = eMAFACPEPDK2.GetX();
 		JCLKMEAJOLO.Set(Vector3f.MJOKEBGPHKB(eMAFACPEPDK2, eMAFACPEPDK));
-		ShiftSequence((!iLOEBFFAEAN.HNDMMOGMOAN) ? 0f : JCLKMEAJOLO.GILCBJJPKBK(), (!iLOEBFFAEAN.IMCDDINEFKC) ? 0f : JCLKMEAJOLO.OBIMBNIBEFG(), (!iLOEBFFAEAN.GHKGPDMMHHK) ? 0f : JCLKMEAJOLO.KMFEKANLCFO());
+		ShiftSequence((!iLOEBFFAEAN.HNDMMOGMOAN) ? 0f : JCLKMEAJOLO.GetX(), (!iLOEBFFAEAN.IMCDDINEFKC) ? 0f : JCLKMEAJOLO.GetY(), (!iLOEBFFAEAN.GHKGPDMMHHK) ? 0f : JCLKMEAJOLO.GetZ());
 		if (string.IsNullOrEmpty(iLOEBFFAEAN.BONDKHGGCDD))
 		{
 			return;
 		}
 		ModelNode lCDGOCIAIDK = _Model.EGHIDHMENEF(iLOEBFFAEAN.BONDKHGGCDD);
-		int index = lCDGOCIAIDK.ANAECCFDHMI();
+		int index = lCDGOCIAIDK.GetID();
 		eMAFACPEPDK = _Frames.KLNOLPIADNN(2).Data[index];
-		Vector3f bEHOPOPCJGB = new Vector3f(Vector3f.MJOKEBGPHKB(eMAFACPEPDK, lCDGOCIAIDK.ICLEOFDKDIF()));
-		Vector3f bEHOPOPCJGB2 = new Vector3f(Vector3f.MJOKEBGPHKB(eMAFACPEPDK, lCDGOCIAIDK.FOGHEPNAPLC()));
+		Vector3f bEHOPOPCJGB = new Vector3f(Vector3f.MJOKEBGPHKB(eMAFACPEPDK, lCDGOCIAIDK.GetStart()));
+		Vector3f bEHOPOPCJGB2 = new Vector3f(Vector3f.MJOKEBGPHKB(eMAFACPEPDK, lCDGOCIAIDK.GetEnd()));
 		List<ModelNode> list = _Model.NAMKCLGOPDD();
 		int count = list.Count;
 		foreach (ModelNode item in list)
 		{
-			item.ICLEOFDKDIF().Add(bEHOPOPCJGB);
-			item.FOGHEPNAPLC().Add(bEHOPOPCJGB2);
+			item.GetStart().Add(bEHOPOPCJGB);
+			item.GetEnd().Add(bEHOPOPCJGB2);
 		}
 	}
 
 	private float IHPGHCDAHKF(List<Vector3f> frame)
 	{
-		return KFGEBGBEJBC.ICLEOFDKDIF().GILCBJJPKBK() - frame[LBHPMJDHAEM].GILCBJJPKBK();
+		return KFGEBGBEJBC.GetStart().GetX() - frame[LBHPMJDHAEM].GetX();
 	}
 
 	private float EDJHNDGAFMJ(List<Vector3f> frame)
 	{
-		return KFGEBGBEJBC.ICLEOFDKDIF().OBIMBNIBEFG() - frame[LBHPMJDHAEM].OBIMBNIBEFG();
+		return KFGEBGBEJBC.GetStart().GetY() - frame[LBHPMJDHAEM].GetY();
 	}
 
 	private Vector3f ONFBGCBIFJL(List<Vector3f> frame)
 	{
-		return Vector3f.MJOKEBGPHKB(KFGEBGBEJBC.ICLEOFDKDIF(), frame[LBHPMJDHAEM]);
+		return Vector3f.MJOKEBGPHKB(KFGEBGBEJBC.GetStart(), frame[LBHPMJDHAEM]);
 	}
 
 	private Vector3f ONFBGCBIFJL()
@@ -1457,8 +1457,8 @@ public class ModelAnimation : global::EventDispatcher<object>
 		}
 		int num3 = ((JMKAHNADIOI != -1) ? ALKLIKKIDCM : NINBIDKEHKD);
 		int num4 = ((JMKAHNADIOI != 1) ? ALKLIKKIDCM : NINBIDKEHKD);
-		int index = ((_Model.CJELIBMCCMA() == null) ? _Model.NAMKCLGOPDD()[0].ANAECCFDHMI() : _Model.CJELIBMCCMA().ANAECCFDHMI());
-		float num5 = _Frames.KLNOLPIADNN(num2).Data[index].GILCBJJPKBK();
+		int index = ((_Model.CJELIBMCCMA() == null) ? _Model.NAMKCLGOPDD()[0].GetID() : _Model.CJELIBMCCMA().GetID());
+		float num5 = _Frames.KLNOLPIADNN(num2).Data[index].GetX();
 		if (BAOONIGFBMB.HFBOLCPHMBB && !flag)
 		{
 			return;
@@ -1483,7 +1483,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 			for (int j = 0; j < cJMFONMNFBI.Size; j++)
 			{
 				Vector3f eMAFACPEPDK = cJMFONMNFBI.Data[j];
-				eMAFACPEPDK.JPFALPBDBAP(eMAFACPEPDK.GILCBJJPKBK() - num5);
+				eMAFACPEPDK.SetX(eMAFACPEPDK.GetX() - num5);
 			}
 		}
 	}

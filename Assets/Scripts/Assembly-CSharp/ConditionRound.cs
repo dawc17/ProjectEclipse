@@ -5,7 +5,7 @@ public class ConditionRound : ConditionAnimation
 	private string KECJIFJANEO;
 
 	public ConditionRound(XmlNode node)
-		: base(DGAGKLODADD.ROUND)
+		: base(ConditionType.ROUND)
 	{
 		KECJIFJANEO = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 	}

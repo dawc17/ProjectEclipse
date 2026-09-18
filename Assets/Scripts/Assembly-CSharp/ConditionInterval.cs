@@ -8,7 +8,7 @@ public class ConditionInterval : ConditionAnimation
 	private string _Name;
 
 	public ConditionInterval(XmlNode node)
-		: base(DGAGKLODADD.CURRENT_INTERVAL)
+		: base(ConditionType.CURRENT_INTERVAL)
 	{
 		_Name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 		if (node.Attributes["Type"] != null)

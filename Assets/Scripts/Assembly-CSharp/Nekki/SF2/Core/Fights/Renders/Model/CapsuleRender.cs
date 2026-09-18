@@ -118,8 +118,8 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 			{
 				Vector3f eMAFACPEPDK = _Base.NDCACMDFLJN();
 				Vector3f eMAFACPEPDK2 = _Base.MINOGAHDDHA();
-				Vector3 rawStart = new Vector3(eMAFACPEPDK.GILCBJJPKBK(), eMAFACPEPDK.OBIMBNIBEFG(), eMAFACPEPDK.KMFEKANLCFO());
-				Vector3 rawEnd = new Vector3(eMAFACPEPDK2.GILCBJJPKBK(), eMAFACPEPDK2.OBIMBNIBEFG(), eMAFACPEPDK2.KMFEKANLCFO());
+				Vector3 rawStart = new Vector3(eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
+				Vector3 rawEnd = new Vector3(eMAFACPEPDK2.GetX(), eMAFACPEPDK2.GetY(), eMAFACPEPDK2.GetZ());
 				Vector3 start;
 				Vector3 end;
 				_Interpolation.Sample(rawStart, rawEnd, out start, out end);

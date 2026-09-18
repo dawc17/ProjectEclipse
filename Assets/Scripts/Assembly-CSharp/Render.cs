@@ -266,7 +266,7 @@ public class Render
 		PHKBOGAICCI.set_Iterations(1);
 		PHKBOGAICCI.set_ChangeSpriteTime(time);
 		PHKBOGAICCI.set_Autoplay(true);
-		KPBKKJLLKIE.transform.localPosition = new Vector3(NAAPALOFBCI.GILCBJJPKBK(), NAAPALOFBCI.OBIMBNIBEFG(), 0f);
+		KPBKKJLLKIE.transform.localPosition = new Vector3(NAAPALOFBCI.GetX(), NAAPALOFBCI.GetY(), 0f);
 		KPBKKJLLKIE.transform.localScale = new Vector3(NOOOCHHKECH, NOOOCHHKECH, NOOOCHHKECH);
 		// The fight render root is mirrored vertically (localScale.y = -1).
 		// A reflection reverses rotation handedness, so compensate here or an
@@ -284,7 +284,7 @@ public class Render
 	public void UpdatePosition(Vector3f GJKIKGKCGIA, Vector3f JEBIHODAIKM, float DHDMNHCIPEH, float BGEEALIPKCC, float JPJGNKGEHPI = 0f)
 	{
 		RefreshViewportMetrics();
-		JALEODAIDEO = _location.JMLAKAKDBBL / 2f - GJKIKGKCGIA.GILCBJJPKBK();
+		JALEODAIDEO = _location.JMLAKAKDBBL / 2f - GJKIKGKCGIA.GetX();
 		NIKDOKGPFOI = ((!(JPJGNKGEHPI > 0f)) ? KMMOLDBJBIG() : JPJGNKGEHPI);
 		float num = 1f;
 		if (GameUtils.LEPANPKBBKI().IMHPAHJDAFP > 0f)

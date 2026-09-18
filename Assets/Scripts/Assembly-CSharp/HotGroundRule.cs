@@ -232,9 +232,9 @@ public class HotGroundRule : AnimationListRule
 	{
 		foreach (LimitedNode item in CFPIOKDFJCH)
 		{
-			Vector3f eMAFACPEPDK = item.node.ICLEOFDKDIF();
-			eMAFACPEPDK = new Vector3f(eMAFACPEPDK.GILCBJJPKBK() + GNBJFBPFAMM, 0f - eMAFACPEPDK.OBIMBNIBEFG(), eMAFACPEPDK.KMFEKANLCFO());
-			if (!(eMAFACPEPDK.GILCBJJPKBK() >= item.MMIKMPNLJGN) && !(eMAFACPEPDK.GILCBJJPKBK() <= item.HPIKHPEIJHM) && !(eMAFACPEPDK.OBIMBNIBEFG() >= item.GGINDPCJGEI) && !(eMAFACPEPDK.OBIMBNIBEFG() <= item.JELMLMPIGHN))
+			Vector3f eMAFACPEPDK = item.node.GetStart();
+			eMAFACPEPDK = new Vector3f(eMAFACPEPDK.GetX() + GNBJFBPFAMM, 0f - eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
+			if (!(eMAFACPEPDK.GetX() >= item.MMIKMPNLJGN) && !(eMAFACPEPDK.GetX() <= item.HPIKHPEIJHM) && !(eMAFACPEPDK.GetY() >= item.GGINDPCJGEI) && !(eMAFACPEPDK.GetY() <= item.JELMLMPIGHN))
 			{
 				return false;
 			}

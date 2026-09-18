@@ -858,7 +858,7 @@ public class PerkInfoItem
 		DistancePoint oGHICEHKFOL = new DistancePoint();
 		oGHICEHKFOL.Create(mJOCMMIBOGJ, mJOCMMIBOGJ2, text);
 		float num = 0f;
-		if (oGHICEHKFOL.HLGJJGHDEAP != DistancePoint.JJIAEPLMBFF.OBJECT_NODES)
+		if (oGHICEHKFOL.HLGJJGHDEAP != DistancePoint.Object.OBJECT_NODES)
 		{
 			num = oGHICEHKFOL.ILIKNABGPNK(ACENLMONNPA.EBABHGHPLFK());
 		}
@@ -867,12 +867,12 @@ public class PerkInfoItem
 			if (oGHICEHKFOL.OOFFOILONLO == ModelType.KEIDBIOIFGA.MODEL_THIS)
 			{
 				ModelNode lCDGOCIAIDK = ACENLMONNPA.CLDMEJKGLBA().EGHIDHMENEF(text);
-				num = lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK();
+				num = lCDGOCIAIDK.GetStart().GetX();
 			}
 			if (oGHICEHKFOL.OOFFOILONLO == ModelType.KEIDBIOIFGA.MODEL_OTHER)
 			{
 				ModelNode lCDGOCIAIDK2 = ACENLMONNPA.EGGEACCDAEK().CLDMEJKGLBA().EGHIDHMENEF(text);
-				num = lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK();
+				num = lCDGOCIAIDK2.GetStart().GetX();
 			}
 		}
 		DCJLKCFKCOM.DCJLKCFKCOM = num.ToString();
@@ -895,7 +895,7 @@ public class PerkInfoItem
 		DistancePoint oGHICEHKFOL = new DistancePoint();
 		oGHICEHKFOL.Create(mJOCMMIBOGJ, mJOCMMIBOGJ2, text);
 		float num = 0f;
-		if (oGHICEHKFOL.HLGJJGHDEAP != DistancePoint.JJIAEPLMBFF.OBJECT_NODES)
+		if (oGHICEHKFOL.HLGJJGHDEAP != DistancePoint.Object.OBJECT_NODES)
 		{
 			num = oGHICEHKFOL.MJPKHPNIJGK(ACENLMONNPA.EBABHGHPLFK());
 		}
@@ -904,12 +904,12 @@ public class PerkInfoItem
 			if (oGHICEHKFOL.OOFFOILONLO == ModelType.KEIDBIOIFGA.MODEL_THIS)
 			{
 				ModelNode lCDGOCIAIDK = ACENLMONNPA.CLDMEJKGLBA().EGHIDHMENEF(text);
-				num = lCDGOCIAIDK.ICLEOFDKDIF().OBIMBNIBEFG();
+				num = lCDGOCIAIDK.GetStart().GetY();
 			}
 			if (oGHICEHKFOL.OOFFOILONLO == ModelType.KEIDBIOIFGA.MODEL_OTHER)
 			{
 				ModelNode lCDGOCIAIDK2 = ACENLMONNPA.EGGEACCDAEK().CLDMEJKGLBA().EGHIDHMENEF(text);
-				num = lCDGOCIAIDK2.ICLEOFDKDIF().OBIMBNIBEFG();
+				num = lCDGOCIAIDK2.GetStart().GetY();
 			}
 		}
 		DCJLKCFKCOM.DCJLKCFKCOM = num.ToString();
@@ -932,7 +932,7 @@ public class PerkInfoItem
 		DistancePoint oGHICEHKFOL = new DistancePoint();
 		oGHICEHKFOL.Create(mJOCMMIBOGJ, mJOCMMIBOGJ2, text);
 		float num = 0f;
-		if (oGHICEHKFOL.HLGJJGHDEAP != DistancePoint.JJIAEPLMBFF.OBJECT_NODES)
+		if (oGHICEHKFOL.HLGJJGHDEAP != DistancePoint.Object.OBJECT_NODES)
 		{
 			num = oGHICEHKFOL.CHBKDOCBKFJ(ACENLMONNPA.EBABHGHPLFK());
 		}
@@ -941,12 +941,12 @@ public class PerkInfoItem
 			if (oGHICEHKFOL.OOFFOILONLO == ModelType.KEIDBIOIFGA.MODEL_THIS)
 			{
 				ModelNode lCDGOCIAIDK = ACENLMONNPA.CLDMEJKGLBA().EGHIDHMENEF(text);
-				num = lCDGOCIAIDK.ICLEOFDKDIF().KMFEKANLCFO();
+				num = lCDGOCIAIDK.GetStart().GetZ();
 			}
 			if (oGHICEHKFOL.OOFFOILONLO == ModelType.KEIDBIOIFGA.MODEL_OTHER)
 			{
 				ModelNode lCDGOCIAIDK2 = ACENLMONNPA.EGGEACCDAEK().CLDMEJKGLBA().EGHIDHMENEF(text);
-				num = lCDGOCIAIDK2.ICLEOFDKDIF().KMFEKANLCFO();
+				num = lCDGOCIAIDK2.GetStart().GetZ();
 			}
 		}
 		DCJLKCFKCOM.DCJLKCFKCOM = num.ToString();

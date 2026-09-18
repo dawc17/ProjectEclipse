@@ -7,7 +7,7 @@ public class ConditionHealth : ConditionAnimation
 	public float IJEKNNPOBJD;
 
 	public ConditionHealth(XmlNode node)
-		: base(DGAGKLODADD.HEALTH)
+		: base(ConditionType.HEALTH)
 	{
 		HIKKOHGMFDO = node.Attributes["Min"].ParseFloat();
 		IJEKNNPOBJD = node.Attributes["Max"].ParseFloat();

@@ -3,7 +3,7 @@ using System.Xml;
 
 public class ConditionAnimation
 {
-	public enum DGAGKLODADD
+	public enum ConditionType
 	{
 		NONE = 0,
 		ROUND = 1,
@@ -35,7 +35,7 @@ public class ConditionAnimation
 
 	protected ModelType.KEIDBIOIFGA OOFFOILONLO;
 
-	public DGAGKLODADD Type;
+	public ConditionType Type;
 
 	public bool IsNot;
 
@@ -51,7 +51,7 @@ public class ConditionAnimation
 		}
 	}
 
-	public ConditionAnimation(DGAGKLODADD LFLGCDNKNJI)
+	public ConditionAnimation(ConditionType LFLGCDNKNJI)
 	{
 		Type = LFLGCDNKNJI;
 		IsNot = false;
@@ -89,7 +89,7 @@ public class ConditionAnimation
 		Init();
 	}
 
-	private static int IOFDJJIABEO(List<ConditionAnimation> BBNKIBKPBLO, DGAGKLODADD KLFPAELMPJL, List<ConditionAnimation> GKHEPKGMEFI)
+	private static int IOFDJJIABEO(List<ConditionAnimation> BBNKIBKPBLO, ConditionType KLFPAELMPJL, List<ConditionAnimation> GKHEPKGMEFI)
 	{
 		int count = GKHEPKGMEFI.Count;
 		foreach (ConditionAnimation item in BBNKIBKPBLO)
@@ -98,7 +98,7 @@ public class ConditionAnimation
 			{
 				GKHEPKGMEFI.Add(item);
 			}
-			if (item.Type == DGAGKLODADD.LIST)
+			if (item.Type == ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)

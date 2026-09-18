@@ -10,80 +10,80 @@ public class ConditionsParser
         if (name == "EclipseCharacter") return new Eclipse.Modding.ModCharacterCondition(node.Attributes["Name"]?.Value);
 		switch (MovesMaps.MHKNIEBONKD(name))
 		{
-		case ConditionAnimation.DGAGKLODADD.ROUND:
+		case ConditionAnimation.ConditionType.ROUND:
 			result = new ConditionRound(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.KEYS:
+		case ConditionAnimation.ConditionType.KEYS:
 			result = new ConditionKeys(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.LIST:
+		case ConditionAnimation.ConditionType.LIST:
 		{
 			List<ConditionAnimation> list = new List<ConditionAnimation>();
 			ParseInside(list, node);
 			result = new ConditionList(node, list);
 			break;
 		}
-		case ConditionAnimation.DGAGKLODADD.CURRENT_INTERVAL:
+		case ConditionAnimation.ConditionType.CURRENT_INTERVAL:
 			result = new ConditionInterval(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.CURRENT_ANIMATION:
+		case ConditionAnimation.ConditionType.CURRENT_ANIMATION:
 			result = new ConditionCurrentAnimation(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.PLAYER:
+		case ConditionAnimation.ConditionType.PLAYER:
 			result = new ConditionPlayer(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.PHYSICS_FRAME:
+		case ConditionAnimation.ConditionType.PHYSICS_FRAME:
 			result = new ConditionPhysics(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.HEALTH:
+		case ConditionAnimation.ConditionType.HEALTH:
 			result = new ConditionHealth(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.ROUND_RESULT:
+		case ConditionAnimation.ConditionType.ROUND_RESULT:
 			result = new ConditionRoundResult(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.ANIMATION:
+		case ConditionAnimation.ConditionType.ANIMATION:
 			result = new ConditionCurrentAnimation(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.DISTANCE:
+		case ConditionAnimation.ConditionType.DISTANCE:
 			result = new ConditionDistance(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.DIRECTION:
+		case ConditionAnimation.ConditionType.DIRECTION:
 			result = new ConditionDirection(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.ITEM:
+		case ConditionAnimation.ConditionType.ITEM:
 			result = new ConditionItemInfo(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.PERK:
+		case ConditionAnimation.ConditionType.PERK:
 			result = new ConditionPerk(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.WEAPONS:
+		case ConditionAnimation.ConditionType.WEAPONS:
 			result = new ConditionWeapon(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.BULLETS:
+		case ConditionAnimation.ConditionType.BULLETS:
 			result = new ConditionBullets(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.BIRTH:
+		case ConditionAnimation.ConditionType.BIRTH:
 			result = new ConditionBirth(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.NAME:
+		case ConditionAnimation.ConditionType.NAME:
 			result = new ConditionName(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.SCREEN:
+		case ConditionAnimation.ConditionType.SCREEN:
 			result = new ConditionScene(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.MIRROR:
+		case ConditionAnimation.ConditionType.MIRROR:
 			result = new ConditionModelMirrored(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.MOD_EXISTS:
+		case ConditionAnimation.ConditionType.MOD_EXISTS:
 			result = new ConditionModExists(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.EVENT:
+		case ConditionAnimation.ConditionType.EVENT:
 			result = new ConditionEvent(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.BATTLE_TYPE:
+		case ConditionAnimation.ConditionType.BATTLE_TYPE:
 			result = new Eclipse.Content.BattleTypeMoveCondition(node);
 			break;
-		case ConditionAnimation.DGAGKLODADD.BOSS_ABILITY_STATE:
+		case ConditionAnimation.ConditionType.BOSS_ABILITY_STATE:
 			result = new Eclipse.Content.BossAbilityStateMoveCondition(node);
 			break;
 		default:

@@ -787,7 +787,7 @@ public class InfoAnimation
 			}
 			iIDOLPHMOGA.MJFKNEHGNMB(ModelType.KEIDBIOIFGA.MODEL_THIS);
 			bool flag = false;
-			if (iIDOLPHMOGA.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			if (iIDOLPHMOGA.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = iIDOLPHMOGA as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -1011,7 +1011,7 @@ public class InfoAnimation
 	{
 		foreach (ConditionAnimation item in conditions)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.DISTANCE)
+			if (item.Type == ConditionAnimation.ConditionType.DISTANCE)
 			{
 				ConditionDistance jNPIBKBDJAN = item as ConditionDistance;
 				if (jNPIBKBDJAN != null)
@@ -1023,7 +1023,7 @@ public class InfoAnimation
 					LLLOJBFMONN.Error("subcondition is null");
 				}
 			}
-			if (item.Type == ConditionAnimation.DGAGKLODADD.DIRECTION)
+			if (item.Type == ConditionAnimation.ConditionType.DIRECTION)
 			{
 				ConditionDirection cFCGJLJBOKI = item as ConditionDirection;
 				if (cFCGJLJBOKI != null)
@@ -1035,7 +1035,7 @@ public class InfoAnimation
 					LLLOJBFMONN.Error("subcondition is null");
 				}
 			}
-			else if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			else if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -1055,7 +1055,7 @@ public class InfoAnimation
 	{
 		foreach (ConditionAnimation item in AIDMEPEKEOL)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.DISTANCE)
+			if (item.Type == ConditionAnimation.ConditionType.DISTANCE)
 			{
 				ConditionDistance jNPIBKBDJAN = item as ConditionDistance;
 				if (jNPIBKBDJAN != null)
@@ -1067,7 +1067,7 @@ public class InfoAnimation
 					LLLOJBFMONN.Error("conditionDistance is null");
 				}
 			}
-			else if (item.Type == ConditionAnimation.DGAGKLODADD.DIRECTION)
+			else if (item.Type == ConditionAnimation.ConditionType.DIRECTION)
 			{
 				ConditionDirection cFCGJLJBOKI = item as ConditionDirection;
 				if (cFCGJLJBOKI != null)
@@ -1079,7 +1079,7 @@ public class InfoAnimation
 					LLLOJBFMONN.Error("conditionDistance is null");
 				}
 			}
-			else if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			else if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -1157,7 +1157,7 @@ public class InfoAnimation
 		List<ConditionAnimation> hIFPHBNGIPO = ODACDCDONJE.HIFPHBNGIPO;
 		foreach (ConditionAnimation item in hIFPHBNGIPO)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.ITEM && !item.IsNot)
+			if (item.Type == ConditionAnimation.ConditionType.ITEM && !item.IsNot)
 			{
 				ConditionItemInfo kOOGCJOEANH = item as ConditionItemInfo;
 				if (LMNNBBKHMEI == kOOGCJOEANH.get_Type() && OCOEFJAMFCG == kOOGCJOEANH.EAIMKPPOODM())
@@ -1167,7 +1167,7 @@ public class InfoAnimation
 			}
 			else
 			{
-				if (item.Type != ConditionAnimation.DGAGKLODADD.LIST || item.IsNot)
+				if (item.Type != ConditionAnimation.ConditionType.LIST || item.IsNot)
 				{
 					continue;
 				}
@@ -1180,7 +1180,7 @@ public class InfoAnimation
 				List<ConditionAnimation> list = eLFKOGJJNMN.KJILOMLMMEN();
 				foreach (ConditionAnimation item2 in list)
 				{
-					if (item2.Type == ConditionAnimation.DGAGKLODADD.ITEM && !item2.IsNot)
+					if (item2.Type == ConditionAnimation.ConditionType.ITEM && !item2.IsNot)
 					{
 						ConditionItemInfo kOOGCJOEANH2 = item2 as ConditionItemInfo;
 						if (LMNNBBKHMEI == kOOGCJOEANH2.get_Type() && OCOEFJAMFCG == kOOGCJOEANH2.EAIMKPPOODM())
@@ -1232,7 +1232,7 @@ public class InfoAnimation
 	{
 		foreach (ConditionAnimation item in conditions)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -1272,7 +1272,7 @@ public class InfoAnimation
 	{
 		foreach (ConditionAnimation item in conditions)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -1298,7 +1298,7 @@ public class InfoAnimation
 
 	public static ConditionKeys JEELAPHJLOE(ConditionAnimation IOFGGOCEIAM)
 	{
-		if (IOFGGOCEIAM.Type == ConditionAnimation.DGAGKLODADD.KEYS)
+		if (IOFGGOCEIAM.Type == ConditionAnimation.ConditionType.KEYS)
 		{
 			return IOFGGOCEIAM as ConditionKeys;
 		}

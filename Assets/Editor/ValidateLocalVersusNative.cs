@@ -120,8 +120,8 @@ public static class ValidateLocalVersusNative
                         "Exactly one fight EventSystem");
                     Check(ProfileXml() == baseline, "Constructing native local fighters preserves campaign XML");
                     ExerciseRouting(fight);
-                    firstX = fight.GetPlayerModel().PLBNCDCFPML().GILCBJJPKBK();
-                    secondX = fight.GetEnemyModel().PLBNCDCFPML().GILCBJJPKBK();
+                    firstX = fight.GetPlayerModel().PLBNCDCFPML().GetX();
+                    secondX = fight.GetEnemyModel().PLBNCDCFPML().GetX();
                     SendControl(0, FightCID.QuadrantForward, true);
                     SendControl(1, FightCID.QuadrantBack, true);
                     movementFrame = fight.get_FightTimeInFrames();
@@ -131,8 +131,8 @@ public static class ValidateLocalVersusNative
                     if (!Ready(fight) || fight.get_FightTimeInFrames() < movementFrame + 60) return;
                     SendControl(0, FightCID.QuadrantForward, false);
                     SendControl(1, FightCID.QuadrantBack, false);
-                    Check(fight.GetPlayerModel().PLBNCDCFPML().GILCBJJPKBK() > firstX &&
-                        fight.GetEnemyModel().PLBNCDCFPML().GILCBJJPKBK() < secondX,
+                    Check(fight.GetPlayerModel().PLBNCDCFPML().GetX() > firstX &&
+                        fight.GetEnemyModel().PLBNCDCFPML().GetX() < secondX,
                         "Both native fighters move toward each other from their own controls");
                     Capture("hud");
                     step = 12;

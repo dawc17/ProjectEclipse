@@ -117,7 +117,7 @@ public class Trigger
 			}
 			item.MJFKNEHGNMB(ModelType.KEIDBIOIFGA.MODEL_THIS);
 			bool flag = false;
-			if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -158,7 +158,7 @@ public class Trigger
 
 	public static ConditionKeys JEELAPHJLOE(ConditionAnimation IOFGGOCEIAM)
 	{
-		if (IOFGGOCEIAM.Type == ConditionAnimation.DGAGKLODADD.KEYS)
+		if (IOFGGOCEIAM.Type == ConditionAnimation.ConditionType.KEYS)
 		{
 			return IOFGGOCEIAM as ConditionKeys;
 		}
@@ -220,7 +220,7 @@ public class Trigger
 	{
 		foreach (ConditionAnimation item in AIDMEPEKEOL)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.DISTANCE)
+			if (item.Type == ConditionAnimation.ConditionType.DISTANCE)
 			{
 				ConditionDistance jNPIBKBDJAN = item as ConditionDistance;
 				if (jNPIBKBDJAN != null)
@@ -232,7 +232,7 @@ public class Trigger
 					LLLOJBFMONN.Error("conditionDistance is null");
 				}
 			}
-			else if (item.Type == ConditionAnimation.DGAGKLODADD.DIRECTION)
+			else if (item.Type == ConditionAnimation.ConditionType.DIRECTION)
 			{
 				ConditionDirection cFCGJLJBOKI = item as ConditionDirection;
 				if (cFCGJLJBOKI != null)
@@ -244,7 +244,7 @@ public class Trigger
 					LLLOJBFMONN.Error("conditionDistance is null");
 				}
 			}
-			else if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			else if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -294,7 +294,7 @@ public class Trigger
 	{
 		foreach (ConditionAnimation item in conditions)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -327,7 +327,7 @@ public class Trigger
 	{
 		foreach (ConditionAnimation item in conditions)
 		{
-			if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
@@ -359,7 +359,7 @@ public class Trigger
 			{
 				continue;
 			}
-			if (item.Type == ConditionAnimation.DGAGKLODADD.DISTANCE)
+			if (item.Type == ConditionAnimation.ConditionType.DISTANCE)
 			{
 				ConditionDistance jNPIBKBDJAN = ((item == null) ? null : (item as ConditionDistance));
 				if (jNPIBKBDJAN != null)
@@ -371,7 +371,7 @@ public class Trigger
 					LLLOJBFMONN.Error("subcondition is null");
 				}
 			}
-			if (item.Type == ConditionAnimation.DGAGKLODADD.DIRECTION)
+			if (item.Type == ConditionAnimation.ConditionType.DIRECTION)
 			{
 				ConditionDirection cFCGJLJBOKI = item as ConditionDirection;
 				if (cFCGJLJBOKI != null)
@@ -383,7 +383,7 @@ public class Trigger
 					LLLOJBFMONN.Error("subcondition is null");
 				}
 			}
-			else if (item.Type == ConditionAnimation.DGAGKLODADD.LIST)
+			else if (item.Type == ConditionAnimation.ConditionType.LIST)
 			{
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)

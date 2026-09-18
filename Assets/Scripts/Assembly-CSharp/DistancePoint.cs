@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DistancePoint
 {
-	public enum JJIAEPLMBFF
+	public enum Object
 	{
 		OBJECT_NULL = 0,
 		OBJECT_NODES = 1,
@@ -49,7 +49,7 @@ public class DistancePoint
 
 	public ModelType.KEIDBIOIFGA OOFFOILONLO;
 
-	public JJIAEPLMBFF HLGJJGHDEAP;
+	public Object HLGJJGHDEAP;
 
 	public PCEPIHHGDJC Frame;
 
@@ -73,7 +73,7 @@ public class DistancePoint
 	{
 		IsBackWall = false;
 		OOFFOILONLO = ModelType.KEIDBIOIFGA.MODEL_NULL;
-		HLGJJGHDEAP = JJIAEPLMBFF.OBJECT_NULL;
+		HLGJJGHDEAP = Object.OBJECT_NULL;
 		Frame = PCEPIHHGDJC.DISTANCE_FRAME_NULL;
 		GEHDIPOGEOL = (KLGJPPOOBFF = 0f);
 	}
@@ -82,7 +82,7 @@ public class DistancePoint
 	{
 		IsBackWall = false;
 		OOFFOILONLO = ModelType.KEIDBIOIFGA.MODEL_NULL;
-		HLGJJGHDEAP = JJIAEPLMBFF.OBJECT_NULL;
+		HLGJJGHDEAP = Object.OBJECT_NULL;
 		Frame = PCEPIHHGDJC.DISTANCE_FRAME_NULL;
 		GEHDIPOGEOL = (KLGJPPOOBFF = 0f);
 		Create(node);
@@ -93,10 +93,10 @@ public class DistancePoint
 		OOFFOILONLO = ModelType.EHFNOBFLAHI((node == null) ? "Null" : node.Attributes["Player"].CIPOICEEIBK("Null"));
 		XmlAttribute cJBEMNNNHDM = ((node == null) ? null : node.Attributes["Object"]);
 		string bAINMLLIKOL = cJBEMNNNHDM.CIPOICEEIBK(string.Empty);
-		HLGJJGHDEAP = (JJIAEPLMBFF)MovesMaps.HHBMBMNLJIE(MovesMaps.NHKAHBBOIHG.DISTANCE_OBJECT_TYPE, bAINMLLIKOL);
+		HLGJJGHDEAP = (Object)MovesMaps.HHBMBMNLJIE(MovesMaps.NHKAHBBOIHG.DISTANCE_OBJECT_TYPE, bAINMLLIKOL);
 		cJBEMNNNHDM = ((node == null) ? null : node.Attributes["Part"]);
 		Part = cJBEMNNNHDM.CIPOICEEIBK(string.Empty);
-		if (HLGJJGHDEAP == JJIAEPLMBFF.OBJECT_WALL)
+		if (HLGJJGHDEAP == Object.OBJECT_WALL)
 		{
 			IsBackWall = Part == "Back";
 		}
@@ -113,8 +113,8 @@ public class DistancePoint
 	public void Create(string ENAEDFEDNGI, string HIPONJCKJEH, string BOLAFILGINF)
 	{
 		OOFFOILONLO = ModelType.EHFNOBFLAHI(ENAEDFEDNGI);
-		HLGJJGHDEAP = (JJIAEPLMBFF)MovesMaps.HHBMBMNLJIE(MovesMaps.NHKAHBBOIHG.DISTANCE_OBJECT_TYPE, HIPONJCKJEH);
-		if (HLGJJGHDEAP == JJIAEPLMBFF.OBJECT_WALL)
+		HLGJJGHDEAP = (Object)MovesMaps.HHBMBMNLJIE(MovesMaps.NHKAHBBOIHG.DISTANCE_OBJECT_TYPE, HIPONJCKJEH);
+		if (HLGJJGHDEAP == Object.OBJECT_WALL)
 		{
 			IsBackWall = BOLAFILGINF == "Back";
 		}
@@ -150,7 +150,7 @@ public class DistancePoint
 		Vector3 result = default(Vector3);
 		switch (HLGJJGHDEAP)
 		{
-		case JJIAEPLMBFF.OBJECT_NODES:
+		case Object.OBJECT_NODES:
 		{
 			lCDGOCIAIDK = GetNode(conditions);
 			if (lCDGOCIAIDK != null)
@@ -161,7 +161,7 @@ public class DistancePoint
 			float y = result.y - KLGJPPOOBFF;
 			return new Vector3(x, y);
 		}
-		case JJIAEPLMBFF.OBJECT_PIVOT:
+		case Object.OBJECT_PIVOT:
 			lCDGOCIAIDK = EJKAMJPJKMF(conditions);
 			if (lCDGOCIAIDK != null)
 			{
@@ -170,16 +170,16 @@ public class DistancePoint
 			result.x += GEHDIPOGEOL * (float)conditions.PCAOCHAIBJC;
 			result.y -= KLGJPPOOBFF;
 			return result;
-		case JJIAEPLMBFF.OBJECT_WALL:
+		case Object.OBJECT_WALL:
 		{
 			Vector2 vector = NONAHPKMDMA(conditions, dFKJGDBENAL);
 			vector.x += GEHDIPOGEOL * (float)conditions.GFHOIKMBNHF;
 			vector.y -= KLGJPPOOBFF;
 			return Vector3f.op_Implicit(new Vector3f(vector));
 		}
-		case JJIAEPLMBFF.OBJECT_FLOOR:
+		case Object.OBJECT_FLOOR:
 			return Vector3f.op_Implicit(new Vector3f(GEHDIPOGEOL, 0f - KLGJPPOOBFF));
-		case JJIAEPLMBFF.OBJECT_COM:
+		case Object.OBJECT_COM:
 			lCDGOCIAIDK = dFKJGDBENAL.CBAECAAKAIA.HOFFDCFEBGA();
 			result = Vector3f.op_Implicit(KEFNOMIKGEN(lCDGOCIAIDK));
 			result.x += GEHDIPOGEOL * (float)conditions.GFHOIKMBNHF;
@@ -194,7 +194,7 @@ public class DistancePoint
 	public void UpdateNode(ModelObject OECPEDPMKCD, bool EKBOGDKIHIH, ModelNode AECCPADGGPG, bool PHADJMAONJG, ModelObject MJCGOJBGFIE)
 	{
         ModelNode resolved = null;
-        if (HLGJJGHDEAP == JJIAEPLMBFF.OBJECT_NODES)
+        if (HLGJJGHDEAP == Object.OBJECT_NODES)
         {
             // Binding visits both fighters' candidate moves before selection.
             // Equipment/child nodes can be absent on this body. Preserve the
@@ -226,7 +226,7 @@ public class DistancePoint
 		{
 			bKHJJICJODB = ((!EKBOGDKIHIH) ? ABDKBCLJAME : IHJJBIDMEMB);
 		}
-		if (HLGJJGHDEAP == JJIAEPLMBFF.OBJECT_NODES)
+		if (HLGJJGHDEAP == Object.OBJECT_NODES)
 		{
 			bKHJJICJODB.Node = resolved;
 		}
@@ -266,8 +266,8 @@ public class DistancePoint
 			{
 				int pCAOCHAIBJC = conditions.PCAOCHAIBJC;
 				int fOIHIKCEBJF = conditions.FOIHIKCEBJF;
-				float num = lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK() * (float)pCAOCHAIBJC;
-				float num2 = lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK() * (float)pCAOCHAIBJC;
+				float num = lCDGOCIAIDK.GetStart().GetX() * (float)pCAOCHAIBJC;
+				float num2 = lCDGOCIAIDK2.GetStart().GetX() * (float)pCAOCHAIBJC;
 				bool flag = num > num2;
 				if ((fOIHIKCEBJF == 1 && !flag) || (fOIHIKCEBJF == 2 && flag))
 				{
@@ -326,12 +326,12 @@ public class DistancePoint
 		switch (Frame)
 		{
 		case PCEPIHHGDJC.DISTANCE_FRAME_CURRENT:
-			return node.ICLEOFDKDIF();
+			return node.GetStart();
 		case PCEPIHHGDJC.DISTANCE_FRAME_PREVIOUS:
-			return node.FOGHEPNAPLC();
+			return node.GetEnd();
 		default:
 			LLLOJBFMONN.Error("DistancePoint: getPositionFrame - unknown frame: {0}", Frame);
-			return node.ICLEOFDKDIF();
+			return node.GetStart();
 		}
 	}
 

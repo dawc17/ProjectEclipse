@@ -646,8 +646,8 @@ public static class MovesParser
 		jKHNOAFIHKP.EDBLMNIEKBD = ModelType.EHFNOBFLAHI(lFLGCDNKNJI2);
 		jKHNOAFIHKP.BLODCIGDJFK = xmlNode.Attributes["Part"].CIPOICEEIBK(string.Empty);
 		jKHNOAFIHKP.PMILDGBBLMF = xmlNode2.Attributes["Part"].CIPOICEEIBK(string.Empty);
-		jKHNOAFIHKP.LDNPHPGEOPJ.JPFALPBDBAP(xmlNode2.Attributes["ShiftX"].ParseFloat());
-		jKHNOAFIHKP.LDNPHPGEOPJ.IBNFLLGPOLD(xmlNode2.Attributes["ShiftY"].ParseFloat());
+		jKHNOAFIHKP.LDNPHPGEOPJ.SetX(xmlNode2.Attributes["ShiftX"].ParseFloat());
+		jKHNOAFIHKP.LDNPHPGEOPJ.SetY(xmlNode2.Attributes["ShiftY"].ParseFloat());
 		switch (text)
 		{
 		case "Nodes":

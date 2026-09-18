@@ -17,7 +17,7 @@ public class ConditionWeapon : ConditionAnimation
 	}
 
 	public ConditionWeapon(XmlNode node)
-		: base(DGAGKLODADD.WEAPONS)
+		: base(ConditionType.WEAPONS)
 	{
 		KCIIELDOBOM = node.Attributes["Type"].CIPOICEEIBK(string.Empty);
 		LOKOGOFENFO = node.Attributes["SubType"].CIPOICEEIBK(string.Empty);

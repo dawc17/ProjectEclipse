@@ -11,13 +11,13 @@ public class ModelEdge : Segment3D
 
 	private string DJAKNGMKAAL;
 
-	private EdgeType KCIIELDOBOM;
+	private EdgeType _Type;
 
 	private EdgeSubType GPOHKJPLLGH;
 
-	private ModelNode HAGFLLCANLE;
+	private ModelNode StartNode;
 
-	private ModelNode NCCGHLOIJKI;
+	private ModelNode EndNode;
 
 	private float NBPKNIADCFH;
 
@@ -77,7 +77,7 @@ public class ModelEdge : Segment3D
 	{
 		get
 		{
-			return OGLAOHGLBHI();
+			return GetStartNode();
 		}
 	}
 
@@ -85,7 +85,7 @@ public class ModelEdge : Segment3D
 	{
 		get
 		{
-			return KMHHBEKNHCJ();
+			return GetEndNode();
 		}
 	}
 
@@ -249,14 +249,14 @@ public class ModelEdge : Segment3D
 		DJAKNGMKAAL = value;
 	}
 
-	public EdgeType get_Type()
+	public EdgeType GetEdgeType()
 	{
-		return KCIIELDOBOM;
+		return _Type;
 	}
 
-	public void set_Type(EdgeType value)
+	public void SetType(EdgeType value)
 	{
-		KCIIELDOBOM = value;
+		_Type = value;
 	}
 
 	public EdgeSubType DDFEOAHFFLO()
@@ -269,14 +269,14 @@ public class ModelEdge : Segment3D
 		GPOHKJPLLGH = value;
 	}
 
-	public ModelNode OGLAOHGLBHI()
+	public ModelNode GetStartNode()
 	{
-		return HAGFLLCANLE;
+		return StartNode;
 	}
 
-	public ModelNode KMHHBEKNHCJ()
+	public ModelNode GetEndNode()
 	{
-		return NCCGHLOIJKI;
+		return EndNode;
 	}
 
 	public float KLIOMCPELLF()
@@ -382,40 +382,40 @@ public class ModelEdge : Segment3D
 
 	public void Iterative(Vector3f MGMMDGFPBLP)
 	{
-		float num = HAGFLLCANLE.FJJFKAJOFNJ();
-		float num2 = NCCGHLOIJKI.FJJFKAJOFNJ();
-		Vector3f eMAFACPEPDK = HAGFLLCANLE.ICLEOFDKDIF();
-		Vector3f eMAFACPEPDK2 = NCCGHLOIJKI.ICLEOFDKDIF();
+		float num = StartNode.GetWeight();
+		float num2 = EndNode.GetWeight();
+		Vector3f eMAFACPEPDK = StartNode.GetStart();
+		Vector3f eMAFACPEPDK2 = EndNode.GetStart();
 		float num3 = NBPKNIADCFH / Vector3f.Distance(eMAFACPEPDK, eMAFACPEPDK2);
 		float num4 = (1f - num3) / (num + num2);
 		float num5 = num * num4;
 		float num6 = num2 * num4;
-		MGMMDGFPBLP.JPFALPBDBAP(MGMMDGFPBLP.GILCBJJPKBK() * num3 + eMAFACPEPDK.GILCBJJPKBK() * num5 + eMAFACPEPDK2.GILCBJJPKBK() * num6);
-		MGMMDGFPBLP.IBNFLLGPOLD(MGMMDGFPBLP.OBIMBNIBEFG() * num3 + eMAFACPEPDK.OBIMBNIBEFG() * num5 + eMAFACPEPDK2.OBIMBNIBEFG() * num6);
-		MGMMDGFPBLP.set_Z(MGMMDGFPBLP.KMFEKANLCFO() * num3 + eMAFACPEPDK.KMFEKANLCFO() * num5 + eMAFACPEPDK2.KMFEKANLCFO() * num6);
+		MGMMDGFPBLP.SetX(MGMMDGFPBLP.GetX() * num3 + eMAFACPEPDK.GetX() * num5 + eMAFACPEPDK2.GetX() * num6);
+		MGMMDGFPBLP.SetY(MGMMDGFPBLP.GetY() * num3 + eMAFACPEPDK.GetY() * num5 + eMAFACPEPDK2.GetY() * num6);
+		MGMMDGFPBLP.SetZ(MGMMDGFPBLP.GetZ() * num3 + eMAFACPEPDK.GetZ() * num5 + eMAFACPEPDK2.GetZ() * num6);
 	}
 
 	public void Iterative()
 	{
-		if (HAGFLLCANLE.NEEJAPDCCMJ() || NCCGHLOIJKI.NEEJAPDCCMJ())
+		if (StartNode.NEEJAPDCCMJ() || EndNode.NEEJAPDCCMJ())
 		{
-			float num = HAGFLLCANLE.FJJFKAJOFNJ();
-			float num2 = NCCGHLOIJKI.FJJFKAJOFNJ();
-			Vector3f eMAFACPEPDK = HAGFLLCANLE.ICLEOFDKDIF();
-			Vector3f eMAFACPEPDK2 = NCCGHLOIJKI.ICLEOFDKDIF();
+			float num = StartNode.GetWeight();
+			float num2 = EndNode.GetWeight();
+			Vector3f eMAFACPEPDK = StartNode.GetStart();
+			Vector3f eMAFACPEPDK2 = EndNode.GetStart();
 			float num3 = NBPKNIADCFH / Vector3f.Distance(eMAFACPEPDK, eMAFACPEPDK2);
 			float num4 = (1f - num3) / (num + num2);
 			float num5 = num * num4;
 			float num6 = num2 * num4;
-			float lHNJJFDIJKK = eMAFACPEPDK.GILCBJJPKBK() * num5 + eMAFACPEPDK2.GILCBJJPKBK() * num6;
-			float fFFHIOALHGM = eMAFACPEPDK.OBIMBNIBEFG() * num5 + eMAFACPEPDK2.OBIMBNIBEFG() * num6;
-			float pDCENMEKIAP = eMAFACPEPDK.KMFEKANLCFO() * num5 + eMAFACPEPDK2.KMFEKANLCFO() * num6;
-			if (HAGFLLCANLE.NEEJAPDCCMJ())
+			float lHNJJFDIJKK = eMAFACPEPDK.GetX() * num5 + eMAFACPEPDK2.GetX() * num6;
+			float fFFHIOALHGM = eMAFACPEPDK.GetY() * num5 + eMAFACPEPDK2.GetY() * num6;
+			float pDCENMEKIAP = eMAFACPEPDK.GetZ() * num5 + eMAFACPEPDK2.GetZ() * num6;
+			if (StartNode.NEEJAPDCCMJ())
 			{
 				eMAFACPEPDK.Multiply(num3);
 				eMAFACPEPDK.Add(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
 			}
-			if (NCCGHLOIJKI.NEEJAPDCCMJ())
+			if (EndNode.NEEJAPDCCMJ())
 			{
 				eMAFACPEPDK2.Multiply(num3);
 				eMAFACPEPDK2.Add(lHNJJFDIJKK, fFFHIOALHGM, pDCENMEKIAP);
@@ -425,7 +425,7 @@ public class ModelEdge : Segment3D
 
 	public new float GLOLKEBFFEG()
 	{
-		return Vector3f.Distance(HAGFLLCANLE.ICLEOFDKDIF(), NCCGHLOIJKI.ICLEOFDKDIF());
+		return Vector3f.Distance(StartNode.GetStart(), EndNode.GetStart());
 	}
 
 	public void AGMHEHLBFCG()
@@ -444,33 +444,33 @@ public class ModelEdge : Segment3D
 
 	public Vector3f FHGNPPBLIIL()
 	{
-		return HAGFLLCANLE.ICLEOFDKDIF();
+		return StartNode.GetStart();
 	}
 
 	public Vector3f FLCHIAEKIOO()
 	{
-		return NCCGHLOIJKI.ICLEOFDKDIF();
+		return EndNode.GetStart();
 	}
 
 	private void EMGJLKDNNMM(ModelNode node)
 	{
-		HAGFLLCANLE = node;
-		LCFIDBHFBOO(node.ICLEOFDKDIF());
+		StartNode = node;
+		LCFIDBHFBOO(node.GetStart());
 	}
 
 	private void MCAEBMFHCIN(ModelNode node)
 	{
-		NCCGHLOIJKI = node;
-		PMGPGDDPOBB(node.ICLEOFDKDIF());
+		EndNode = node;
+		PMGPGDDPOBB(node.GetStart());
 	}
 
 	private void CGHDODPMAOD()
 	{
-		HAGFLLCANLE = null;
+		StartNode = null;
 	}
 
 	private void OACACMPBJFO()
 	{
-		NCCGHLOIJKI = null;
+		EndNode = null;
 	}
 }

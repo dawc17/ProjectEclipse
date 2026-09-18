@@ -7,7 +7,7 @@ public class ConditionPhysics : ConditionAnimation
 	private float EBDBPJNBHGI;
 
 	public ConditionPhysics(XmlNode node)
-		: base(DGAGKLODADD.PHYSICS_FRAME)
+		: base(ConditionType.PHYSICS_FRAME)
 	{
 		DPGMCKCDMBC = node.Attributes["Min"].ParseFloat(-1f);
 		EBDBPJNBHGI = node.Attributes["Max"].ParseFloat(-1f);

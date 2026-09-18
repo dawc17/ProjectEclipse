@@ -45,9 +45,9 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 			float x;
 			float y;
 			float z;
-			FightInterpolation.SamplePosition(JJNIIAEBGIA.OGLAOHGLBHI(), alpha, out x, out y, out z);
+			FightInterpolation.SamplePosition(JJNIIAEBGIA.GetStartNode(), alpha, out x, out y, out z);
 			_Line.SetPosition(0, new Vector3(x, y, -1f));
-			FightInterpolation.SamplePosition(JJNIIAEBGIA.KMHHBEKNHCJ(), alpha, out x, out y, out z);
+			FightInterpolation.SamplePosition(JJNIIAEBGIA.GetEndNode(), alpha, out x, out y, out z);
 			_Line.SetPosition(1, new Vector3(x, y, -1f));
 		}
 	}

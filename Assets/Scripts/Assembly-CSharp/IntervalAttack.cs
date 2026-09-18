@@ -403,9 +403,9 @@ public class IntervalAttack : IntervalAnimation
 		}
 		if (NodeInterval["Impulse"] != null)
 		{
-			FCFLHDNEICG.JPFALPBDBAP(NodeInterval["Impulse"].Attributes["X"].ParseFloat());
-			FCFLHDNEICG.IBNFLLGPOLD(NodeInterval["Impulse"].Attributes["Y"].ParseFloat());
-			FCFLHDNEICG.set_Z(NodeInterval["Impulse"].Attributes["Z"].ParseFloat());
+			FCFLHDNEICG.SetX(NodeInterval["Impulse"].Attributes["X"].ParseFloat());
+			FCFLHDNEICG.SetY(NodeInterval["Impulse"].Attributes["Y"].ParseFloat());
+			FCFLHDNEICG.SetZ(NodeInterval["Impulse"].Attributes["Z"].ParseFloat());
 		}
 		_ComboTime = ((NodeInterval["Combo"] != null) ? NodeInterval["Combo"].Attributes["Time"].ParseInt() : 0);
 		XmlNode xmlNode6 = NodeInterval["Damage"];

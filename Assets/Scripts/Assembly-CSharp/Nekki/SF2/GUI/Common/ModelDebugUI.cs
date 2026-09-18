@@ -73,7 +73,7 @@ namespace Nekki.SF2.GUI.Common
 			int num = -1;
 			if (ACENLMONNPA.NLHFJIEHKMM())
 			{
-				num = ACENLMONNPA.COBOFMDFLJO().PGOFHCBPLOE();
+				num = ACENLMONNPA.COBOFMDFLJO().GetFrame();
 				List<string> list = ACENLMONNPA.KGHDFCKGAEO();
 				int count = list.Count;
 				for (int i = 0; i < count; i++)

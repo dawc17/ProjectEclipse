@@ -854,9 +854,9 @@ public class ModelAi
 		{
 			if (item.OCPMJKIEPIG() != null && (item.OCPMJKIEPIG() == null || item.OCPMJKIEPIG().JJBEAOPDGCO() != null) && (IsMissileAnimation(item.OCPMJKIEPIG().NNMAFFCCMHC()) || LFLGCDNKNJI != MFHIONPNAGO.SimpleMissile) && (IsMagicAnimation(item.OCPMJKIEPIG().NNMAFFCCMHC()) || LFLGCDNKNJI != MFHIONPNAGO.MagicMissile))
 			{
-				float num2 = _Model.CLDMEJKGLBA().CJELIBMCCMA().ICLEOFDKDIF()
-					.GILCBJJPKBK();
-				float num3 = item.CLDMEJKGLBA().NAMKCLGOPDD()[0].ICLEOFDKDIF().GILCBJJPKBK();
+				float num2 = _Model.CLDMEJKGLBA().CJELIBMCCMA().GetStart()
+					.GetX();
+				float num3 = item.CLDMEJKGLBA().NAMKCLGOPDD()[0].GetStart().GetX();
 				int num4 = ((num2 - num3 < 0f) ? 1 : (-1));
 				int num5 = item.OCPMJKIEPIG().KFCNPADAMHA();
 				if (num4 * num5 < 0)
@@ -903,7 +903,7 @@ public class ModelAi
 		ModelNode lCDGOCIAIDK = ACENLMONNPA.OCPMJKIEPIG().EGHIDHMENEF(IMGCANJHPND, aOJJBKLCHJO);
 		if (lCDGOCIAIDK != null)
 		{
-			return lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK();
+			return lCDGOCIAIDK.GetStart().GetX();
 		}
 		return float.MaxValue;
 	}
@@ -1054,7 +1054,7 @@ public class ModelAi
 		{
 			return 0f;
 		}
-		float num = lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK() - lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK();
+		float num = lCDGOCIAIDK.GetStart().GetX() - lCDGOCIAIDK2.GetStart().GetX();
 		if (num >= 0f)
 		{
 			return 1f;
@@ -2036,9 +2036,9 @@ public class ModelAi
 		{
 			return 0;
 		}
-		return (ACENLMONNPA.CLDMEJKGLBA().CJELIBMCCMA().ICLEOFDKDIF()
-			.GILCBJJPKBK() < FNKFIMEDNLP.CLDMEJKGLBA().CJELIBMCCMA().ICLEOFDKDIF()
-			.GILCBJJPKBK()) ? 1 : (-1);
+		return (ACENLMONNPA.CLDMEJKGLBA().CJELIBMCCMA().GetStart()
+			.GetX() < FNKFIMEDNLP.CLDMEJKGLBA().CJELIBMCCMA().GetStart()
+			.GetX()) ? 1 : (-1);
 	}
 
 	private List<Decision> Intersection(List<Decision> JOJBDADJOAP, List<Decision> DLADGODCJMD)
@@ -2071,10 +2071,10 @@ public class ModelAi
 
 	private bool TestBack(InfoAnimation DBOLBEOCEME, Model ACENLMONNPA, Model FNKFIMEDNLP, string name, string ODEADGPBDEM)
 	{
-		float num = ACENLMONNPA.CLDMEJKGLBA().EGHIDHMENEF(name).ICLEOFDKDIF()
-			.GILCBJJPKBK();
-		float num2 = FNKFIMEDNLP.CLDMEJKGLBA().EGHIDHMENEF(ODEADGPBDEM).ICLEOFDKDIF()
-			.GILCBJJPKBK();
+		float num = ACENLMONNPA.CLDMEJKGLBA().EGHIDHMENEF(name).GetStart()
+			.GetX();
+		float num2 = FNKFIMEDNLP.CLDMEJKGLBA().EGHIDHMENEF(ODEADGPBDEM).GetStart()
+			.GetX();
 		int num3 = DBOLBEOCEME.IKFCNCLKDGD(true);
 		if (num3 < 0)
 		{
@@ -2094,8 +2094,8 @@ public class ModelAi
 		}
 		else
 		{
-			num8 = FNKFIMEDNLP.CLDMEJKGLBA().EGHIDHMENEF(ODEADGPBDEM).ICLEOFDKDIF()
-				.GILCBJJPKBK();
+			num8 = FNKFIMEDNLP.CLDMEJKGLBA().EGHIDHMENEF(ODEADGPBDEM).GetStart()
+				.GetX();
 		}
 		if ((num - num2) * (num5 - num8) < 0f)
 		{
@@ -2111,8 +2111,8 @@ public class ModelAi
 		{
 			num = 0;
 		}
-		float num2 = ACENLMONNPA.CLDMEJKGLBA().EGHIDHMENEF(name).ICLEOFDKDIF()
-			.GILCBJJPKBK();
+		float num2 = ACENLMONNPA.CLDMEJKGLBA().EGHIDHMENEF(name).GetStart()
+			.GetX();
 		float num3 = DBOLBEOCEME.OBIBINIEJJE.GetDistance(num, name);
 		float num4 = num2 + (float)GetModelDirection(ACENLMONNPA, FNKFIMEDNLP) * num3;
 		float num5 = ACENLMONNPA.OCPMJKIEPIG().KJFIBMMOEPI();
@@ -2195,7 +2195,7 @@ public class ModelAi
 			.EGHIDHMENEF(AiData.get_DistanceNode(), aOJJBKLCHJO2);
 		if (lCDGOCIAIDK != null && lCDGOCIAIDK2 != null)
 		{
-			float f = lCDGOCIAIDK.ICLEOFDKDIF().GILCBJJPKBK() - lCDGOCIAIDK2.ICLEOFDKDIF().GILCBJJPKBK();
+			float f = lCDGOCIAIDK.GetStart().GetX() - lCDGOCIAIDK2.GetStart().GetX();
 			return Mathf.Abs(f);
 		}
 		return 0f;

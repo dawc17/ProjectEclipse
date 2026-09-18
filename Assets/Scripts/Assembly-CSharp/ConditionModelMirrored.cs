@@ -3,7 +3,7 @@ using System.Xml;
 public class ConditionModelMirrored : ConditionAnimation
 {
 	public ConditionModelMirrored(XmlNode node)
-		: base(DGAGKLODADD.MIRROR)
+		: base(ConditionType.MIRROR)
 	{
 	}
 

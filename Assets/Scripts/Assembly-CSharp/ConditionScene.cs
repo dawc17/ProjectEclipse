@@ -7,7 +7,7 @@ public class ConditionScene : ConditionAnimation
 	private string _Name;
 
 	public ConditionScene(XmlNode node)
-		: base(DGAGKLODADD.SCREEN)
+		: base(ConditionType.SCREEN)
 	{
 		_Name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 		KCIIELDOBOM = get_Type();
