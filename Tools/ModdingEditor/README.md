@@ -1,7 +1,13 @@
 # Eclipse Modding for VS Code
 
+Warrior loadouts accept a mix of perk handles and `WarriorPerk` settings rows.
+Rows expose `perk`, optional `aspect` (0–2,147,483,647), and optional
+`chance_factor` (0–10,000). Both numbers must be finite; overrides are supported
+only for core perks and apply to that opponent. LuaLS provides nested field
+completion; the game checks ranges, duplicate perks and ownership at registration.
+
 Editor support for all 36 public Eclipse API modules: 158 functions, aliases, and
-callbacks; 76 constants; and 227 typed structures. Version 0.1.0 retains the ID
+callbacks; 76 constants; and 228 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 Move authoring now completes `damage_terms = { { type, shift } }`, the native

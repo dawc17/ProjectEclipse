@@ -612,6 +612,13 @@ namespace Eclipse.Modding
                     Append(canonical, alignment.Priority); Append(canonical, (int)alignment.Mode);
                 }
                 AppendIds(canonical, warrior.Items); AppendIds(canonical, warrior.Perks);
+                foreach (var entry in warrior.PerkLoadout)
+                {
+                    if (!entry.HasSettings) continue;
+                    Append(canonical, "warrior-perk-settings-v1"); Append(canonical, entry.Perk.ToString());
+                    Append(canonical, entry.Aspect.HasValue); if (entry.Aspect.HasValue) Append(canonical, entry.Aspect.Value.ToString("R", CultureInfo.InvariantCulture));
+                    Append(canonical, entry.ChanceFactor.HasValue); if (entry.ChanceFactor.HasValue) Append(canonical, entry.ChanceFactor.Value.ToString("R", CultureInfo.InvariantCulture));
+                }
             }
 
             var rules = new List<FightRuleDefinition>(content.FightRules);

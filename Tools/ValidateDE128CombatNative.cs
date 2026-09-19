@@ -83,6 +83,7 @@ public static class ValidateDE128CombatNative
                 CheckSharedMovePatches();
                 CheckRestoredWeapons();
                 CheckRestoredEquipment();
+                CheckWarriorPerkLoadouts();
                 var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/" + (Spell == "Sphere1" ? "jian" : Spell.ToLowerInvariant()));
                 if (definition == null) throw new Exception("Fixture fight missing; check mod initialization errors.");
                 var encounter = ListSF.CHMCKGCDGCM(new FightIDS(ModRuntime.Scripts.Content.RuntimeFightId(definition.Id)));
@@ -265,6 +266,43 @@ public static class ValidateDE128CombatNative
         var delete = actions.OfType<ActionDelete>().Single();
         if (!delete.NeedStart(EventAnimation.EECEJKADLCK.EVENT_STRIKE)) throw new Exception("Projectile delete event differs.");
         Debug.Log("[DE128Native] Lua projectile actions match archived native equipment inheritance, owned start move, charge and deletion scheduling. Parsing only; no live projectile claim.");
+    }
+
+    static void CheckWarriorPerkLoadouts()
+    {
+        var catalog = ModRuntime.Scripts.Content;
+        var adapter = new LegacyContentAdapter(catalog);
+        int checkedPerks = 0;
+        foreach (var warrior in catalog.Warriors.Where(value => value.Id.ToString().StartsWith("fixture.de128-combat:warriors/sensei_act_one_lynx", StringComparison.Ordinal)))
+        {
+            var document = new System.Xml.XmlDocument();
+            var node = (System.Xml.XmlElement)typeof(LegacyContentAdapter).GetMethod("BuildWarriorNode", Hidden).Invoke(adapter, new object[] { document, warrior });
+            foreach (System.Xml.XmlElement perk in node.SelectNodes("Perks/Perk"))
+            {
+                var baseline = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(perk.GetAttribute("Name"));
+                if (baseline == null) throw new Exception("Missing native perk " + perk.GetAttribute("Name"));
+                string originalAspect = baseline.EPBADFHIJAH().GetValue("Aspect");
+                string originalChance = baseline.EPBADFHIJAH().GetValue("ChanceFactor");
+                var native = baseline.Clone(perk["Set"], null);
+                if (native.EPBADFHIJAH().GetValue("Aspect") != "100000" ||
+                    native.EPBADFHIJAH().GetValue("ChanceFactor") != perk["Set"].GetAttribute("ChanceFactor"))
+                    throw new Exception("Native clone lost warrior perk settings: " + perk.GetAttribute("Name"));
+                var secondSettings = document.CreateElement("Set");
+                secondSettings.SetAttribute("Aspect", "0");
+                var second = baseline.Clone(secondSettings, null);
+                var inherited = baseline.Clone(null, null);
+                if (second.EPBADFHIJAH().GetValue("Aspect") != "0" ||
+                    second.EPBADFHIJAH().GetValue("ChanceFactor") != originalChance ||
+                    inherited.EPBADFHIJAH().GetValue("Aspect") != originalAspect ||
+                    baseline.EPBADFHIJAH().GetValue("Aspect") != originalAspect ||
+                    baseline.EPBADFHIJAH().GetValue("ChanceFactor") != originalChance ||
+                    native.EPBADFHIJAH().GetValue("Aspect") != "100000")
+                    throw new Exception("Native warrior perk clones leaked settings between instances.");
+                checkedPerks++;
+            }
+        }
+        if (checkedPerks != 8) throw new Exception("Expected eight pending young Lynx perk instances, got " + checkedPerks);
+        Debug.Log("[DE128Native] PASS eight warrior perk clones: Aspect/ChanceFactor, omitted defaults, explicit zero and instance isolation. Pending story is not activated.");
     }
 
     static void CheckSharedMovePatches()

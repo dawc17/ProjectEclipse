@@ -1266,6 +1266,28 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class WarriorPerkDefinition
+    {
+        public DefinitionId Perk { get; }
+        public double? Aspect { get; }
+        public double? ChanceFactor { get; }
+        public bool HasSettings => Aspect.HasValue || ChanceFactor.HasValue;
+
+        public WarriorPerkDefinition(DefinitionId perk, double? aspect = null, double? chanceFactor = null)
+        {
+            if (perk.Category != "perks") throw new ModContentException("Warrior loadout requires a perk reference.");
+            Validate(aspect, int.MaxValue, "aspect");
+            Validate(chanceFactor, 10000, "chance_factor");
+            Perk = perk; Aspect = aspect; ChanceFactor = chanceFactor;
+        }
+
+        private static void Validate(double? value, double maximum, string field)
+        {
+            if (value.HasValue && (double.IsNaN(value.Value) || double.IsInfinity(value.Value) || value < 0 || value > maximum))
+                throw new ModContentException("Warrior perk " + field + " must be finite and in 0.." + maximum + ".");
+        }
+    }
+
     public sealed class WarriorDefinition
     {
         public AssetId BodyModel { get; }
@@ -1291,13 +1313,14 @@ namespace Eclipse.Modding
             Array.AsReadOnly(_attributeAlignments);
         public IReadOnlyList<DefinitionId> Items => Array.AsReadOnly(_items);
         public IReadOnlyList<DefinitionId> Perks => Array.AsReadOnly(_perks);
+        public IReadOnlyList<WarriorPerkDefinition> PerkLoadout { get; }
 
         internal WarriorDefinition(DefinitionId id, string firstName, string lastName, string avatar, string voice,
             int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
             WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0,
-            AssetId bodyModel = default, AssetId[] skinModels = null)
+            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null)
         {
             if (level < 0 || level > 10000) throw new ModContentException("Warrior level must be 0..10000.");
             Id = id;
@@ -1328,6 +1351,9 @@ namespace Eclipse.Modding
                 (WarriorAttributeAlignmentDefinition[])attributeAlignments.Clone();
             _items = items == null ? Array.Empty<DefinitionId>() : (DefinitionId[])items.Clone();
             _perks = perks == null ? Array.Empty<DefinitionId>() : (DefinitionId[])perks.Clone();
+            var entries = new WarriorPerkDefinition[_perks.Length];
+            for (int i = 0; i < entries.Length; i++) entries[i] = perkLoadout == null ? new WarriorPerkDefinition(_perks[i]) : perkLoadout[i];
+            PerkLoadout = Array.AsReadOnly(entries);
         }
     }
 
@@ -2846,7 +2872,7 @@ namespace Eclipse.Modding
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
             WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0,
-            AssetId bodyModel = default, AssetId[] skinModels = null)
+            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("warriors", localId);
@@ -2865,6 +2891,17 @@ namespace Eclipse.Modding
                 if (string.IsNullOrEmpty(model.Path) || !CanReferenceNamespace(model.Namespace)) throw new ModContentException("Invalid skin model reference.");
             items = items ?? Array.Empty<DefinitionId>();
             perks = perks ?? Array.Empty<DefinitionId>();
+            if (perkLoadout != null)
+            {
+                if (perks.Length != 0) throw new ModContentException("Supply warrior perks or a configured loadout, not both.");
+                if (perkLoadout.Length > 64) throw new ModContentException("Warrior perk loadout permits at most 64 entries.");
+                perks = new DefinitionId[perkLoadout.Length];
+                for (int i = 0; i < perkLoadout.Length; i++)
+                {
+                    if (perkLoadout[i] == null) throw new ModContentException("Warrior perk entries cannot be null.");
+                    perks[i] = perkLoadout[i].Perk;
+                }
+            }
             var seenItems = new HashSet<DefinitionId>();
             for (int i = 0; i < items.Length; i++)
             {
@@ -2884,10 +2921,12 @@ namespace Eclipse.Modding
                 if (!_perks.TryGetValue(perks[i], out perk) && !_catalog.TryGetPerk(perks[i], out perk))
                     throw new ModContentException("Warrior references missing perk '" + perks[i] + "'.");
                 if (!seenPerks.Add(perks[i])) throw new ModContentException("Duplicate warrior perk '" + perks[i] + "'.");
+                if (perkLoadout != null && perkLoadout[i].HasSettings && !perk.IsCore)
+                    throw new ModContentException("Warrior aspect/chance_factor settings require a core perk; configure Lua behaviors on their own definitions.");
             }
             EnsureCapacityForNewRegistration();
             var definition = new WarriorDefinition(id, firstName, lastName, avatar, voice, level, tactic, items, perks,
-                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels);
+                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels, perkLoadout);
             _warriors.Add(id, definition);
             return definition;
         }

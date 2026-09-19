@@ -47,6 +47,10 @@ def main():
         (fixture / 'de128-native-fixture.marker').write_text('Isolated DE128 native combat acceptance\n', encoding='utf-8')
         evidence = fixture
     pairs = [(ROOT / 'Tools/ValidateDE128CombatNative.cs', Path('Assets/Editor/ValidateDE128CombatNative.cs'))]
+    # Exercise the single authored pending module under fixture ownership. This
+    # does not enable Sensei's Story or alter the production DE entrypoint.
+    pairs.append((ROOT / 'Mods/de128/scripts/content/sensei_act_one_opponents.lua',
+                  Path('Mods/fixture.de128-combat/scripts/content/sensei_act_one_opponents.lua')))
     pairs += [(path, Path('Mods/fixture.de128-combat') / path.relative_to(ROOT / 'Tools/Fixtures/de128-combat'))
               for path in (ROOT / 'Tools/Fixtures/de128-combat').rglob('*') if path.is_file()]
     for name in args.sync_native_source:

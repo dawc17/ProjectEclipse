@@ -14,6 +14,13 @@ saved, already-paid forge orders without waiting. Ascension remains disabled; Ma
 Style and Relentless follow the archived DE XML.
 Definitions, translations and behavior are authored through the public Lua API.
 
+Pending `scripts/content/sensei_act_one_opponents.lua` ports normal/eclipse young
+Lynx, including encounter-specific enchantment strength/chance settings. It is
+**not loaded by the entrypoint**. Act I references `Guard_Girl` and `Guard_Man`
+templates absent from the historical XML available here; no substitutes have
+been invented. Story gates, rewards, presentation and live encounter acceptance
+also remain unfinished. See Step 32 in `PRODUCTION.md`.
+
 `scripts/content/chinese_swords.lua` registers both moves and Jian's subtype;
 `chinese_swords_data.lua` contains their typed combat/presentation data. The mod
 bundles the unchanged recovered animation binary, with no runtime XML dependency.

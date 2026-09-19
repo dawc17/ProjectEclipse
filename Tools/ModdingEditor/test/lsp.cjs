@@ -518,6 +518,12 @@ async function main() {
         return ['axis','from','to','minimum','maximum','not'].every(field=>result.some(value=>value.startsWith(field)));
     },'spell distance condition fields');
 
+    const warriorPerkProbe=probe('warrior-perk.lua','local sf2=require("sf2")\nsf2.warriors.register {id="opponent",perks={{ | }}}');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',warriorPerkProbe));
+        return ['perk','aspect','chance_factor'].every(name=>found.some(value=>value.startsWith(name)));
+    },'warrior perk settings fields');
+
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',
         'sf2.items.register_weapon {',

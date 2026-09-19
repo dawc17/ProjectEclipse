@@ -1,4 +1,5 @@
 local sf2 = require("sf2")
+require("content.sensei_act_one_opponents") -- Copied from the authored pending DE module by the runner.
 local function animation_probe(_, fighter, event)
     if event.animation_name:sub(1, 12) ~= "de128:moves/" then return end
     if event.type == "AnimationStart" then

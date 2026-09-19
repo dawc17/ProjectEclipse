@@ -528,6 +528,12 @@ local BattleDefinition = {}
 ---@field mode? "all"|"normal"|"eclipse"
 local AttributeAlignment = {}
 
+---@class (exact) Eclipse.WarriorPerk
+---@field perk Eclipse.PerkHandle
+---@field aspect? number Core perks only; finite 0..2147483647. Omit to inherit.
+---@field chance_factor? number Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit.
+local WarriorPerk = {}
+
 ---@class (exact) Eclipse.WarriorDefinition
 ---@field id string
 ---@field template? Eclipse.WarriorTemplateHandle
@@ -540,7 +546,7 @@ local AttributeAlignment = {}
 ---@field tactic? Eclipse.TacticHandle|string
 ---@field random? integer
 ---@field items? Eclipse.ItemHandle[]
----@field perks? Eclipse.PerkHandle[]
+---@field perks? (Eclipse.PerkHandle|Eclipse.WarriorPerk)[]
 ---@field attributes? table<string,number>
 ---@field attribute_alignments? Eclipse.AttributeAlignment[]
 ---@field body_model? Eclipse.ModelHandle

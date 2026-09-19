@@ -1744,7 +1744,7 @@ namespace Eclipse.Modding
                         "tactic", "group", "random", "attributes", "attribute_alignments", "items", "perks", "health_bars", "body_model", "skin_models");
                     string id = RequiredString(table, "id", function);
                     DefinitionId[] items = OptionalHandleArray(table, "items", _itemHandles, "item", function);
-                    DefinitionId[] perks = OptionalHandleArray(table, "perks", _perkHandles, "perk", function);
+                    WarriorPerkDefinition[] perks = ReadWarriorPerks(table.Get("perks"), function + ".perks");
                     DynValue templateValue = table.Get("template");
                     DefinitionId template = default(DefinitionId);
                     bool hasTemplate = !templateValue.IsNil();
@@ -1785,13 +1785,45 @@ namespace Eclipse.Modding
                         OptionalStringAllowEmpty(table, "last_name", string.Empty, function),
                         OptionalStringAllowEmpty(table, "avatar", string.Empty, function),
                         OptionalStringAllowEmpty(table, "voice", string.Empty, function),
-                        OptionalInt(table, "level", 0, function), tactic, items, perks,
+                        OptionalInt(table, "level", 0, function), tactic, items, null,
                         template, hasTemplate, OptionalStringAllowEmpty(table, "group", string.Empty, function),
                         OptionalInt(table, "random", 0, function), attributes, alignments, OptionalInt(table, "health_bars", 0, function),
                         OptionalHandle(table,"body_model",_modelHandles,"model",function,default(AssetId)),
-                        OptionalHandleArray(table,"skin_models",_modelHandles,"model",function));
+                        OptionalHandleArray(table,"skin_models",_modelHandles,"model",function), perks);
                     return NewHandle(_warriorHandles, definition.Id);
                 });
+            }
+
+            private WarriorPerkDefinition[] ReadWarriorPerks(DynValue value, string function)
+            {
+                if (value.IsNil()) return null;
+                if (value.Type != DataType.Table) throw new ModContentException(function + " must be a dense array.");
+                var result = new List<WarriorPerkDefinition>();
+                for (int i = 1; ; i++)
+                {
+                    var entry = value.Table.Get(i);
+                    if (entry.IsNil()) break;
+                    if (i > 64) throw new ModContentException(function + " permits at most 64 entries.");
+                    if (entry.Type != DataType.Table) throw new ModContentException(function + " entries require a perk handle or a settings table.");
+                    if (_perkHandles.TryGetValue(entry.Table, out var perk)) result.Add(new WarriorPerkDefinition(perk));
+                    else
+                    {
+                        string row = function + "[" + i + "]";
+                        ValidateFields(entry.Table, row, "perk", "aspect", "chance_factor");
+                        result.Add(new WarriorPerkDefinition(RequiredHandle(entry.Table, "perk", _perkHandles, "perk", row),
+                            ReadWarriorPerkNumber(entry.Table.Get("aspect"), row + ".aspect"),
+                            ReadWarriorPerkNumber(entry.Table.Get("chance_factor"), row + ".chance_factor")));
+                    }
+                }
+                EnsureDenseArray(value.Table, result.Count, function);
+                return result.ToArray();
+            }
+
+            private static double? ReadWarriorPerkNumber(DynValue value, string field)
+            {
+                if (value.IsNil()) return null;
+                if (value.Type != DataType.Number) throw new ModContentException(field + " must be a number.");
+                return value.Number;
             }
 
             private DynValue GetWarriorTemplate(ScriptExecutionContext context, CallbackArguments args)

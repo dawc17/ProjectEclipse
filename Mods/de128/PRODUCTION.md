@@ -1,6 +1,8 @@
 # DE128 production record
 
-Current package: **0.9.0**. Step 12 activates both ChineseSwords moves, ten lock
+Current package: **0.18.0**. Latest completed content is recorded in Step 31;
+Step 32 adds encounter perk settings and pending Sensei Act I opponent data.
+The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
 move APIs and verified graph data; Step 13 adds passing isolated live input/animation
 acceptance. Step 8 adds four evidence-backed combat subtype changes
@@ -1865,3 +1867,53 @@ This establishes the native graph/behavior handoff, not complete gameplay parity
 Numerical damage, other stances, visual/audio output, shop preview, purchase/equip
 and save/reload still need acceptance. The user's running editor and save were
 not used by the isolated checks.
+
+## Step 32: opponent enchantment settings and pending young Lynx
+
+The generic C# warrior API now accepts a mixed dense array of bare perk handles
+and typed `{ perk, aspect?, chance_factor? }` rows. Settings are restricted to
+core native perks, finite and bounded (Aspect 0–2147483647, ChanceFactor
+0–10000). Each warrior projects its own native `<Set>` overrides. No shared
+perk or item definition is changed. Owned Lua behaviors retain their own
+configuration contract. Duplicate IDs, sparse arrays, malformed rows and
+unknown fields fail registration. Configured settings enter the content
+fingerprint; bare handles and empty settings retain the old representation.
+
+The pending Lua module `scripts/content/sensei_act_one_opponents.lua` ports both
+normal and eclipse young Lynx from ZONE_1. It preserves the four ordered innate
+enchantments, Aspect 100000, ChanceFactor 2.69/2.75, attributes, shurikens,
+portrait/name/tactic and the normal source's repeated alignment row. It is not
+required by `main.lua`; the shipped package remains 0.18.0. Native test fixtures
+copy this single authored module under fixture ownership, not into the active
+DE entrypoint. Neither full story activation nor an extra shipped fight is claimed.
+
+Evidence and checks:
+
+- `pwsh -NoProfile -File Tools/TestWarriorPerkLoadouts.ps1`: 71 checks using actual
+  MoonSharp and the production adapter. Complete historical opponent projections
+  match (apart from the runtime character ID and explicit default perk Level 1).
+  Checks cover invalid input/rollback, mixed rows, zero/default inheritance,
+  core immutability, number formatting, determinism and fingerprint changes.
+  Evidence: `Temp/WarriorPerks-44a2d76b59c446f5b2844511ffba125c`.
+- `Tools/TestDE128Foundation.ps1`: all 2638 existing package checks pass.
+- Managed editor build passes with zero errors. Isolated Unity native run
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-edhd8hcy` exits 0. The actual native
+  `PerkInfoItem.Clone` path consumes all eight projected perk instances and
+  preserves default inheritance, explicit zero and isolation between clones.
+  Existing Jian and MindThrow contact/follow-up acceptance also passes.
+- Editor schema/generated definitions, editor guide and public wiki are updated.
+  Generation/check, project tests, LuaLS (including nested warrior perk
+  completion) and VS Code integration pass. The VS Code runner was invoked
+  directly with Code.exe after npm's Windows argument escaping mangled its path.
+  Wiki builds 47 pages and checks 4075 local links/assets with zero Astro
+  diagnostics; the pre-existing duplicate-404 warning remains.
+
+Act I is still incomplete. Its Savage and Philosopher opponents reference
+`Guard_Girl` and `Guard_Man`, with no matching template definitions found in
+available archived DE or vanilla XML. No replacement templates or assets were
+invented. Story availability/quest progression, rule conditions, native XP/reward
+semantics, portraits, other opponents and live encounter/save acceptance need
+implementation or verification before activation. The owner-supplied corpus is
+still deferred; the historical XML comparison must be reconciled when it becomes
+available. This step validates native perk consumption, not young Lynx combat
+balance or complete Sensei's Story parity.

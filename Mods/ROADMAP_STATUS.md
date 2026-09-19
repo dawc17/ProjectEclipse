@@ -226,3 +226,11 @@ caster follow-up and final direct attack interval. The initial crouched fists
 stance can duck the recovered projectile; broader stance/presentation/damage and
 purchase/save acceptance remain open. Source-corpus reconciliation is still
 deferred at the owner's request. See Step 31 in de128/PRODUCTION.md.
+
+Step 32 adds generic per-warrior native enchantment settings, documented Lua/editor
+contracts and pending normal/eclipse young Lynx definitions. Actual Lua projection
+matches historical Act I XML; isolated native perk cloning confirms the eight
+instances, inheritance and isolation. The DE entrypoint remains 0.18.0 without
+Sensei's Story: referenced Guard_Girl/Guard_Man templates are absent from available
+XML, and story gates/rewards/presentation/encounter acceptance remain open.
+The deferred complete corpus must still be reconciled. See de128/PRODUCTION.md.

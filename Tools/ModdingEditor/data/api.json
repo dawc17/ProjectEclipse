@@ -2216,6 +2216,19 @@
         "mode?": "\"all\"|\"normal\"|\"eclipse\""
       }
     },
+    "WarriorPerk": {
+      "fields": {
+        "perk": "Eclipse.PerkHandle",
+        "aspect?": [
+          "number",
+          "Core perks only; finite 0..2147483647. Omit to inherit."
+        ],
+        "chance_factor?": [
+          "number",
+          "Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit."
+        ]
+      }
+    },
     "WarriorDefinition": {
       "fields": {
         "id": "string",
@@ -2229,7 +2242,7 @@
         "tactic?": "Eclipse.TacticHandle|string",
         "random?": "integer",
         "items?": "Eclipse.ItemHandle[]",
-        "perks?": "Eclipse.PerkHandle[]",
+        "perks?": "(Eclipse.PerkHandle|Eclipse.WarriorPerk)[]",
         "attributes?": "table<string,number>",
         "attribute_alignments?": "Eclipse.AttributeAlignment[]",
         "body_model?": "Eclipse.ModelHandle",

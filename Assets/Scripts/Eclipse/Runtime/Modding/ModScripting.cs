@@ -363,11 +363,11 @@ namespace Eclipse.Modding
             DefinitionId template, bool hasTemplate, string group, int random,
             System.Collections.Generic.IReadOnlyDictionary<string, float> attributes,
             WarriorAttributeAlignmentDefinition[] attributeAlignments, int healthBars = 0,
-            AssetId bodyModel = default, AssetId[] skinModels = null)
+            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterWarrior(localId, firstName, lastName, avatar, voice, level,
-                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels);
+                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels, perkLoadout);
         }
 
         public WarriorTemplateDefinition GetWarriorTemplate(string reference)

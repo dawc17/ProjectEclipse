@@ -855,6 +855,14 @@ namespace Eclipse.Modding
                     XmlElement perk = document.CreateElement("Perk");
                     perk.SetAttribute("Name", LegacyPerkName(warrior.Perks[i]));
                     perk.SetAttribute("Level", "1");
+                    var settings = warrior.PerkLoadout[i];
+                    if (settings.HasSettings)
+                    {
+                        var set = document.CreateElement("Set");
+                        if (settings.Aspect.HasValue) set.SetAttribute("Aspect", settings.Aspect.Value.ToString("R", CultureInfo.InvariantCulture));
+                        if (settings.ChanceFactor.HasValue) set.SetAttribute("ChanceFactor", settings.ChanceFactor.Value.ToString("R", CultureInfo.InvariantCulture));
+                        perk.AppendChild(set);
+                    }
                     perks.AppendChild(perk);
                 }
             }

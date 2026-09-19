@@ -139,7 +139,7 @@ Define an opponent, optionally inheriting from a core template.
 | `group` | String | `""` | Opponent content group. |
 | `random` | Integer | `0` | Native random-selection setting. |
 | `items` | Item-handle array | Empty | Equipment/content loadout. |
-| `perks` | Perk-handle array | Empty | Active opponent perks. |
+| `perks` | Array of perk handles or settings rows | Empty | Up to 64 active opponent perks; see below. |
 | `attributes` | Name-to-number table | Empty | Finite native attribute values. |
 | `attribute_alignments` | Alignment array | Empty | Rows described below. |
 | `body_model` | Model handle | Inherit skeleton | Native body model, including its ordered point rig. |
@@ -161,6 +161,35 @@ to `0` and `mode` to `"all"` (`"normal"` and `"eclipse"` are also accepted).
 Use documented native attributes for the relevant content; adding a made-up
 attribute name does not create a new mechanic. Template inheritance and native
 attribute handling can affect the result, so test custom balance in a fight.
+
+Each `perks` entry can be a handle or `{ perk = handle, aspect = number,
+chance_factor = number }`. You may mix these forms in a dense array. Settings
+apply only to that warrior's **core** perk instance; they do not change the core
+definition or other opponents. Configure owned Lua perks through their behavior
+definitions instead. Duplicate perks are rejected even when their settings differ.
+
+Both settings are optional. `aspect` accepts finite numbers from 0 to
+2,147,483,647. `chance_factor` accepts finite numbers from 0 to 10,000; it is a
+native multiplier, **not** a 0–1 probability or guaranteed activation rate.
+Their effects depend on the selected native perk. Omitted fields inherit its
+defaults; explicit zero overrides a default. Changes to either setting change
+the saved content fingerprint. A bare handle and `{ perk = handle }` are equivalent.
+
+```lua
+local opponent = sf2.warriors.register {
+    id = "enchanted_partner",
+    template = sf2.warriors.get_template("core:warrior-templates/default"),
+    level = 1,
+    tactic = "Standard",
+    perks = {
+        {
+            perk = sf2.perks.get("core:perks/PERK_ITEM_SPECIAL_TIME_BOMB_WEAPON"),
+            aspect = 100000,
+            chance_factor = 2.69,
+        },
+    },
+}
+```
 
 For a Blender import, animation bake, geometric skin export and playable move example, follow [Character authoring](../../guides/character-authoring/). Body and skin assets must satisfy the native point-rig contract; these fields do not load arbitrary FBX files. The warrior handle also scopes moves through a `character` condition. Changing model bindings changes the saved content fingerprint.
 
