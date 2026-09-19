@@ -7,9 +7,9 @@ using Eclipse.Modding;
 internal static class DE128EquipmentTests
 {
     internal static readonly string[] Ids = { "armor/dragon_carapace", "armor/old_legionnaire_armour", "armor/samurai_armour",
-        "helm/gabled_helm", "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc" };
+        "helm/gabled_helm", "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc", "magic/minor_charge_of_darkness" };
     internal static readonly string[] Names = { "ARMOR_C2_Z5_DRAGON", "ARMOR_OLD_LEGIONER", "ARMOR_BIG_SHOGUN_OLD",
-        "HELM_GABLED_OLD", "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING" };
+        "HELM_GABLED_OLD", "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING", "Sphere1" };
 
     internal static void Run(ModDescriptor mod, ModContentCatalog catalog, string repository, Action<bool, string> check)
     {
@@ -17,7 +17,7 @@ internal static class DE128EquipmentTests
         var vanilla = new XmlDocument(); vanilla.Load(Path.Combine(repository, "Assets/vanillaXml/list.xml"));
         var language = new XmlDocument(); language.Load(Path.Combine(repository, "Assets/DExml/localizations/eng.xml"));
         check(catalog.Armors.Count(item => !item.IsCore) == 3 && catalog.Helms.Count(item => !item.IsCore) == 2 &&
-            catalog.Ranged.Count(item => !item.IsCore) == 1 && catalog.Magic.Count(item => !item.IsCore) == 2,
+            catalog.Ranged.Count(item => !item.IsCore) == 1 && catalog.Magic.Count(item => !item.IsCore) == 3,
             "Restored equipment inventory changed or unfinished/NPC equipment leaked.");
         for (int i = 0; i < Ids.Length; i++)
         {

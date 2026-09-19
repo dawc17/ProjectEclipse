@@ -1,6 +1,6 @@
 # DE128 - Definitive Edition
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.13.0` restores ten missing weapon listings, eight other equipment
+DE128 is an ordinary downstream Eclipse mod. Version `0.14.0` restores ten missing weapon listings, nine other equipment
 listings, and enables the archived
 ChineseSwords combat/preview graph for Jian alongside four earlier equipment
 combat-family corrections through Lua. It includes shop availability
@@ -35,7 +35,7 @@ The three ranged/magic families use base moves. `shared_moves.lua` now applies
 five guarded changes: the heavy ranged uninterrupt end, Chakram hit reaction,
 heavy ranged preview sound timing, and not-Stun conditions for MassBomb and
 LightningArrow. Remaining preview/presentation differences and five absent spell
-graphs are still pending. Hidden NPC equipment remains unregistered. See Steps
+graphs were pending at that checkpoint. Sphere1 now has nine Lua-authored moves and the Minor Charge of Darkness listing, but live flight acceptance remains unresolved. Four other graphs remain pending. Hidden NPC equipment remains unregistered. See Steps
 16-17 for the audit and verification scope. Step 18 traces the 32 missing spell
 moves and adds generic effect authoring support; complete spell graphs remain
 under development.

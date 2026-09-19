@@ -187,7 +187,7 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 2 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 5,
+        Check(catalog.Moves.Count == 11 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 5,
             "Chinese swords combat/preview registrations or lock extensions are incomplete.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
@@ -196,7 +196,7 @@ internal static class DE128FoundationTests
         Check(slash.Animation.ToString() == "de128:animations/chinese_swords_super_slash_old" &&
             catalog.ItemCombatSubtypes.Any(patch => patch.Item == CoreContentImporter.WeaponId("WEAPON_CHNY21_JIAN") && patch.Subtype == "ChineseSwords"),
             "Chinese swords binary/subtype registration changed.");
-        Check(catalog.ItemAvailabilityPolicies.Count() == 43 &&
+        Check(catalog.ItemAvailabilityPolicies.Count() == 44 &&
             catalog.ItemAvailabilityPolicies.Where(policy => policy.Item.Namespace.Value == "core").All(policy => policy.Owner.Value == "de128" &&
                 policy.Visibility == ModItemVisibility.ForceVisible && policy.MinimumLevel >= 15),
             "DE shop policies are incomplete after registration/rebuild/conflict.");
@@ -208,7 +208,7 @@ internal static class DE128FoundationTests
             "Desolator lost its move family or canonical progression profile.");
         Check(weapon.Icon.ToString() == "core:ui/items/weapon17.img_weapon_boss_giant_sword" &&
             weapon.Model.ToString() == "core:gamedata/models/mdl_weapon_giant_sword", "Desolator art IDs changed.");
-        Check(catalog.Weapons.Count(item => !item.IsCore) == 11 && catalog.ShopListings.Count == 18,
+        Check(catalog.Weapons.Count(item => !item.IsCore) == 11 && catalog.ShopListings.Count == 19,
             "DE128 restored weapon/listing inventory is incomplete.");
         Check(catalog.ItemInnatePerks.Count == 1 && catalog.ItemInnatePerks[0].Item == Sword &&
             catalog.ItemInnatePerks[0].Entries.Select(entry => entry.Perk).SequenceEqual(new[] {
@@ -220,7 +220,7 @@ internal static class DE128FoundationTests
         Check(catalog.Rewards.Count == 1 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
             reward.Items.Count == 1 && reward.Items[0].Item == Sword && reward.Items[0].UsesConfiguration &&
-            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 18 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
+            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 19 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
             "Desolator must use one configured reward without changing equipment defaults or currencies.");
         Check(catalog.TryGetFight(DefinitionId.Parse("core:fights/zone_7/c3_boss_titan_eclipsemode/6"), out var titan) &&
             titan.RewardDrops.Count == 1 && catalog.Fights.Count(fight => fight.RewardDrops.Count != 0) == 1,
@@ -641,8 +641,8 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 2 &&
-                catalog.Moves.All(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 11 &&
+                catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,
                 "Patched subtype has no complete registered move family: " + patch.Subtype);
@@ -792,7 +792,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             CheckBase(rejected);
         }
 
-        foreach (string module in new[] { "timers", "equipment", "combat_equipment", "chinese_swords", "chinese_swords_data", "restored_weapons", "restored_equipment", "shared_moves", "shop", "rewards", "combat_perks", "progression" })
+        foreach (string module in new[] { "timers", "equipment", "combat_equipment", "chinese_swords", "chinese_swords_data", "restored_weapons", "restored_equipment", "sphere1", "shared_moves", "shop", "rewards", "combat_perks", "progression" })
         {
             var incomplete = CopyPackage(source, fixture, "missing-module-" + module, omit: "scripts/content/" + module + ".lua");
             var partial = new ModContentCatalog();

@@ -68,7 +68,7 @@ Check ($null -ne $actual -and $null -ne $expected) 'Missing authored/archive mov
 function Shape([Xml.XmlNode]$node) {
     $attrs = @($node.Attributes | Where-Object { !($_.Name -eq 'ID' -and $_.Value -eq '0') } | Sort-Object Name | ForEach-Object {$_.Name+'='+$_.Value}) -join ';'
     $children = @($node.ChildNodes | Where-Object {$_.NodeType -eq 'Element'} | ForEach-Object {Shape $_}) -join ''
-    return '<'+$node.Name+' '+$attrs+'>'+$children+'</'+$node.Name+'>'
+    return '<'+$node.LocalName+' '+$attrs+'>'+$children+'</'+$node.LocalName+'>'
 }
 foreach($section in @('Conditions','Intervals')) { Check ((Shape $actual[$section]) -ceq (Shape $expected[$section])) "$section differs from archived move." }
 Check ((Shape $projected.SelectSingleNode('//Template[contains(@Name,"preview")]/Conditions/Screen')) -ceq (Shape $archive.SelectSingleNode('//Move[@Name="ShopChineseSwordsSuperSlash"]/Locks/Screen'))) 'Preview screen differs from archive.'

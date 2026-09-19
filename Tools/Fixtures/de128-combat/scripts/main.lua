@@ -14,7 +14,8 @@ local location = sf2.locations.name(arena)
 local opponent = sf2.warriors.register {
     id = "jian", template = sf2.warriors.get_template("core:warrior-templates/man_staff"),
     tactic = "Standard", first_name = "DE128 acceptance", last_name = "", level = 1,
-    items = { sf2.items.get("core:items/weapon/WEAPON_CHNY21_JIAN") },
+    items = { sf2.items.get("core:items/weapon/WEAPON_CHNY21_JIAN"),
+        sf2.items.get("de128:items/magic/minor_charge_of_darkness") },
 }
 local zone = sf2.zones.register { id = "trial", file = "Map1.1", start = false }
 local battle = sf2.battles.register { id = "trial", zone = zone, type = sf2.battles.STORY,

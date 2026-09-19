@@ -65,3 +65,17 @@ The inert child move now also supplies actor-name and charge conditions, velocit
 acceleration, velocity preservation and no-recharge flags. The harness evaluates
 matching/nonmatching conditions and checks parsed motion/flag values. It still does
 not select or simulate this child move, so trajectory/contact acceptance is separate.
+
+## Sphere1 integration checkpoint (in progress)
+
+Version 0.14.0 adds Minor Charge of Darkness and nine Lua-authored Sphere1 combat
+and shop moves, with three unchanged recovered animation binaries. No runtime XML
+loader is used. Complete archive comparisons passed (1,004 combined move checks),
+and 2,509 foundation checks passed.
+
+The latest isolated Unity run, Run-cdsq9ulc, exited 1: native casting, inherited
+projectile equipment, charge consumption and deletion were observed, but the
+harness did not observe the middle-flight phase. This is an unresolved acceptance
+failure, not a completed spell integration. Numerical damage, visible effects,
+shop preview and purchase/save acceptance remain open. Four other missing spell
+graphs also remain pending. This checkpoint is committed at the user's request.

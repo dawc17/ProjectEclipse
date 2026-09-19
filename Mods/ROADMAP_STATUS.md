@@ -192,3 +192,7 @@ critical/effect suppression, block and named invulnerability bypass. Sphere1 par
 comparisons and signed predicate tests pass. The next content step is the complete
 Sphere1 Lua graph and live acceptance; later spells' additional reaction/edge-free
 attack requirements remain explicit. Package version is still 0.13.0.
+
+DE128 0.14.0 Sphere1 integration is an unfinished checkpoint: all nine move
+declarations pass archive comparison, but live native acceptance failed to observe
+the middle-flight phase. See the production record; this does not close spell parity.
