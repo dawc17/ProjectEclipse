@@ -59,6 +59,15 @@ local locked_battle = sf2.battles.register { id = "lock_check", zone = zone, typ
 sf2.fights.register { id = "lock_check", battle = locked_battle, location = location,
     warriors = { opponent }, rewards = { loss, win }, rounds = 1, round_time = 99 }
 local reveal_zone = sf2.zones.register { id = "reveal_check", file = "Map2.1", start = false }
+local pair_normal = sf2.battles.register { id = "pair_normal", zone = zone, type = sf2.battles.STORY,
+    icon = "tournament", icon_atlas = "BattleBtnStart", title = "Pair lock check", x = -200, y = 0, location = location,
+    eclipse_toggle_name = sf2.mod.id .. ":battles/pair_eclipse" }
+local pair_eclipse = sf2.battles.register { id = "pair_eclipse", zone = zone, type = sf2.battles.FINAL,
+    icon = "tournament", icon_atlas = "BattleBtnStart", title = "Pair Eclipse check", x = -200, y = 0, location = location }
+for index, entry in ipairs({ pair_normal, pair_eclipse }) do
+    sf2.fights.register { id = "pair_" .. index, battle = entry, location = location,
+        warriors = { opponent }, rewards = { loss, win }, rounds = 1, round_time = 99 }
+end
 local reveal_battle = sf2.battles.register { id = "reveal_check", zone = reveal_zone, type = sf2.battles.STORY,
     icon = "tournament", icon_atlas = "BattleBtnStart", title = "Reveal check", x = 0, y = 0, location = location }
 sf2.fights.register { id = "reveal_check", battle = reveal_battle, location = location,

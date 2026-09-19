@@ -32,15 +32,17 @@ if ($null -eq $mod) { throw 'Fixture discovery failed.' }
 [xml]$stages = Get-Content -Raw (Join-Path $root 'Assets/vanillaXml/stages.xml')
 $script:checks = 0
 function Check([bool]$ok, [string]$message) { if (!$ok) { throw $message }; $script:checks++ }
-function Load-Lua([string]$scriptText, [Xml.XmlNode]$additionalTemplates = $null, [Xml.XmlNode[]]$additionalRanged = @()) {
+function Load-Lua([string]$scriptText, [Xml.XmlNode]$additionalTemplates = $null, [Xml.XmlNode[]]$additionalRanged = @(), [Xml.XmlNode]$zones = $null) {
     Set-Content -LiteralPath (Join-Path $package 'scripts/main.lua') -Value ('local sf2=require("sf2")' + "`n" + $scriptText)
     $catalog = [Eclipse.Modding.ModContentCatalog]::new()
+    if ($null -ne $zones) { $null = [Eclipse.Modding.CoreContentImporter]::ImportStages($catalog, $zones) }
     $null = [Eclipse.Modding.CoreContentImporter]::ImportPerks($catalog, [Xml.XmlNode[]]@($perks.DocumentElement.ChildNodes))
     $null = [Eclipse.Modding.CoreContentImporter]::ImportWarriorTemplates($catalog, $stages.SelectSingleNode('Stages/Warriors/Templates'))
     if ($null -ne $additionalTemplates) { $null = [Eclipse.Modding.CoreContentImporter]::ImportWarriorTemplates($catalog, $additionalTemplates) }
     $null = [Eclipse.Modding.CoreContentImporter]::ImportWeapons($catalog, [Xml.XmlNode[]]@($items.SelectNodes('/List/Items/Item')), $null)
     $null = [Eclipse.Modding.CoreContentImporter]::ImportArmors($catalog, [Xml.XmlNode[]]@($items.SelectNodes('/List/Items/Item')), $null)
     $null = [Eclipse.Modding.CoreContentImporter]::ImportHelms($catalog, [Xml.XmlNode[]]@($items.SelectNodes('/List/Items/Item')), $null)
+    $null = [Eclipse.Modding.CoreContentImporter]::ImportMagic($catalog, [Xml.XmlNode[]]@($items.SelectNodes('/List/Items/Item')), $null)
     $null = [Eclipse.Modding.CoreContentImporter]::ImportRanged($catalog, [Xml.XmlNode[]]@($items.SelectNodes('/List/Items/Item')), $null)
     if ($additionalRanged.Count -gt 0) { $null = [Eclipse.Modding.CoreContentImporter]::ImportRanged($catalog, $additionalRanged, $null) }
     $tx = $catalog.BeginRegistration($mod)

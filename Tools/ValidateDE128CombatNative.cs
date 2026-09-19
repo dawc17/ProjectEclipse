@@ -108,6 +108,7 @@ public static class ValidateDE128CombatNative
                     if (!CheckMapBattleLock()) return;
                     CheckMapBattleReveal();
                     CheckEclipseModeSwitch();
+                    CheckLockedEclipsePair();
                     mapLockChecked = true;
                 }
                 CheckProjectileActionParsing();
@@ -518,6 +519,59 @@ public static class ValidateDE128CombatNative
         if (restored.IsLocked() || !restored.GetBattleId().Equals(nativeId))
             throw new Exception("Revealed record failed native serialization roundtrip.");
         Debug.Log("[DE128Native] PASS reveal/focus: fresh saved zone entry, native button, blocked/missing guards, no duplicate/reset, hidden-state preservation, current map and saved focus, native record roundtrip. No full profile reload claim.");
+    }
+
+    static void CheckLockedEclipsePair()
+    {
+        var roster = ListSF.CCDKHLAMKKO();
+        var map = Nekki.SF2.GUI.Scene<Nekki.SF2.GUI.Map.MapScene>.get_Current();
+        const string zone = "fixture.de128-combat:zones/trial";
+        const string normalName = "fixture.de128-combat:battles/pair_normal";
+        const string eclipseName = "fixture.de128-combat:battles/pair_eclipse";
+        var normal = ListSF.GetInstance().FindBattleForModding(zone, normalName);
+        var eclipse = ListSF.GetInstance().FindBattleForModding(zone, eclipseName);
+        var normalId = DefinitionId.Parse(normalName);
+        // Reset only this isolated fixture pair, preserving the user's editor/save.
+        roster.HEHJKDPAPLA(new FightIDS(zone + "|" + normalName + "|"));
+        roster.HEHJKDPAPLA(new FightIDS(zone + "|" + eclipseName + "|"));
+        normal.IsMapVisible = false; eclipse.IsMapVisible = false;
+        map.ReloadZones();
+        if (!ModBattleAccess.Reveal(normalId, true) || !ModBattleAccess.Focus(normalId))
+            throw new Exception("Could not reveal/focus locked fixture pair.");
+        var action = new QuestActionUpdateEclipseBattles();
+        var actionDocument = new System.Xml.XmlDocument();
+        actionDocument.LoadXml("<UpdateEclipseBattles />");
+        action.Parse(actionDocument.DocumentElement);
+        void Update(bool mode) { roster.SetEclipseMode(mode); action.DEJMHFMLKIC(ListSF.GetInstance().BNMLDPNCMLB()); }
+        bool IsHidden(Battle value) => value.NNPNEABKHPP()?.KAPIELMDIIK() ?? true;
+        foreach (bool mode in new[] { false, true, false, true })
+        {
+            Update(mode);
+            if (eclipse.NNPNEABKHPP() != null || IsHidden(normal) || !normal.NNPNEABKHPP().IsLocked())
+                throw new Exception("Mode switch bypassed locked native pair.");
+        }
+        if (!ModBattleAccess.SetLocked(normalId, false)) throw new Exception("Native pair unlock failed.");
+        Update(true);
+        if (eclipse.NNPNEABKHPP() == null || IsHidden(eclipse) || !IsHidden(normal))
+            throw new Exception("Unlock did not introduce Eclipse counterpart.");
+        var eclipseRecord = eclipse.NNPNEABKHPP();
+        eclipseRecord.FHCHCHPPMEI(7);
+        map.SelectBattle(eclipse, 0f);
+        normal.NNPNEABKHPP().SetLocked(true);
+        Update(true);
+        if (IsHidden(normal) || !IsHidden(eclipse) || eclipseRecord.IsLocked() || ((System.Xml.XmlNode)typeof(RosterBattle).GetField("_node", Hidden).GetValue(eclipseRecord)).Attributes["ReplayCount"].Value != "7")
+            throw new Exception("Relock failed visibility or reset counterpart history.");
+        var selected = map.GetCurrentZone()?.get_LastBattle();
+        if (selected != normal) throw new Exception("Relock left a hidden Eclipse preview selected.");
+        // Direct saved lock writes above intentionally exercise the update action;
+        // rebuild the panel before inspecting lock presentation.
+        map.ReloadZones();
+        var button = map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapPanel>(true)
+            .SelectMany(panel => panel.GetZones()).Select(item => item.GetButtonByBattle(normal)).FirstOrDefault(value => value != null);
+        if (button == null || !button.Locked || !button.gameObject.activeSelf)
+            throw new Exception("Locked normal replacement was not rendered.");
+        Update(false);
+        Debug.Log("[DE128Native] PASS paired battle locks: locked reveal cannot introduce Eclipse counterpart, unlock introduces it, old counterpart is hidden on relock, selected preview repaired and replay count preserved. Isolated profile only.");
     }
 
     static void CheckEclipseModeSwitch()

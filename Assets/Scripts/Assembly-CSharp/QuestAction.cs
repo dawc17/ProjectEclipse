@@ -881,6 +881,21 @@ public class QuestActionUpdateEclipseBattles : QuestAction
 			{
 				continue;
 			}
+			// An active intermission entry owns the shared counterpart, including
+			// its visibility. An obsolete base lock must not hide that counterpart.
+			if (HasActiveIntermissionSource(normalBattle, zone, eclipseBattleName))
+			{
+				continue;
+			}
+			if (normalBattle.NNPNEABKHPP().IsLocked())
+			{
+				// Revealed future story entries are still gated. Do not introduce
+				// an unlocked replay or expose one left behind by an older save.
+				SetBattleHidden(normalBattle, false, changedBattles);
+				SetBattleHidden(eclipseBattle, true, changedBattles);
+				if (selectedBattle == eclipseBattle) selectedReplacement = normalBattle;
+				continue;
+			}
 			if (eclipseBattle.NNPNEABKHPP() == null)
 			{
 				// The newer UpdateEclipseBattles action also introduces the replay
@@ -895,14 +910,6 @@ public class QuestActionUpdateEclipseBattles : QuestAction
 					continue;
 				}
 				changedBattles.Add(eclipseBattle);
-			}
-			// Base and intermission entries share an Eclipse replacement.  Normal
-			// progression removes the base roster entry before it adds the
-			// intermission one, but old saves can contain both.  In that case only
-			// the current intermission entry may drive the shared replacement.
-			if (HasActiveIntermissionSource(normalBattle, zone, eclipseBattleName))
-			{
-				continue;
 			}
 			// Run on fight return, mode switches and session initialization so
 			// completed Eclipse segments (including old saves) remain replayable.

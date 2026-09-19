@@ -97,6 +97,21 @@ service or arbitrary game mode; use the supported offline mode APIs.
 Create a fight for the battle and reveal it through a quest or `sf2.battles.reveal`. Merely registering
 an entry does not guarantee that an existing story save will display it.
 
+To pair a normal battle with an Eclipse variant, register both in the same zone.
+Set only the normal entry's `eclipse_toggle_name` to the variant's full runtime
+name: for an owned battle with local ID `training_eclipse`, that is
+`sf2.mod.id .. ":battles/training_eclipse"`. This string is not a localization key.
+Give each entry its own fights; the field does not create the variant or copy
+opponents and rewards. The native mode-update action resolves the name within
+that zone, so a missing or misspelled target cannot switch.
+
+A revealed but locked normal entry remains visible and locked in either mode.
+The native mode update does not introduce its Eclipse counterpart and hides a
+counterpart already present in an older save. Once the normal entry is unlocked,
+the next mode update can introduce/show the variant. Existing variant locks and
+fight history are preserved. These checks run at native mode-update boundaries,
+not as a general rule for custom encounter-launch code.
+
 ## sf2.battles.set_locked
 
 Change the saved lock of a revealed battle owned by this mod.

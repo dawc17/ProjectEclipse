@@ -2,6 +2,14 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-09-20 continuation (Step 41): pending Lua assembly now connects twelve
+normal/Eclipse Sensei battles, 23 fights, 34 loadouts, 57 reward slots and 56 map
+translations. A generic native map fix prevents locked normal entries from
+exposing unlocked Eclipse counterparts and preserves active intermission pairing.
+Conditional RaidCharge behavior and missing guard/prince dependencies are still
+explicit required inputs; controlled graph checks do not activate the story or
+establish native model/AI/gameplay parity. Active DE128 remains 0.18.0.
+
 2026-09-20 continuation (Step 40): the pending Sensei opponent factory now covers
 all 22 normal/Eclipse guard and prince loadouts and returns complete ordered
 rosters together with the twelve boss definitions. All 34 source rows across 23

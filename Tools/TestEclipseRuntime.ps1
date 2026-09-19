@@ -254,4 +254,61 @@ foreach ($mode in @($false, $true, $false, $true)) {
     Assert-True ($eclipse.FBFHBKPFLJC().Index -eq 1) 'Mode toggle lost bodyguard progress'
     Assert-True ($eclipse.KBPNDJPMCCG() -eq !$mode) 'Eclipse visibility did not follow mode'
 }
-Write-Output "PASS: $checks Eclipse assertions across $($definitions.Count) replay segments (three cycles each, saved progress, action integration and map refresh)."
+# Revealing a future story entry must not unlock its Eclipse counterpart.
+$savedCounterpart=$eclipse.NNPNEABKHPP()
+$adds=[EclipseRuntimeTest.ListSF]::Roster.Adds
+$eclipse.FOMHAGJJCLJ($null)
+$normal.NNPNEABKHPP().SetLocked($true)
+foreach($mode in @($false,$true,$false,$true)) {
+    [EclipseRuntimeTest.ListSF]::Roster.EclipseMode=$mode
+    $normal.NNPNEABKHPP().HCEOCBOFIGC($true)
+    $map.Zone.Selected=$normal
+    $update.DEJMHFMLKIC($null)
+    Assert-True ([EclipseRuntimeTest.ListSF]::Roster.Adds -eq $adds) 'Locked source introduced an unlocked counterpart'
+    Assert-True ($null -eq $eclipse.NNPNEABKHPP()) 'Locked source acquired a saved counterpart'
+    Assert-True (!$normal.KBPNDJPMCCG() -and $normal.NNPNEABKHPP().IsLocked()) 'Locked source disappeared or unlocked on mode switch'
+}
+# Old saves may already contain an exposed counterpart. Hide it without resetting
+# its own lock, completed rounds or replay history, and repair selected preview.
+$eclipse.FOMHAGJJCLJ($savedCounterpart)
+$savedCounterpart.SetLocked($false)
+$savedCounterpart.HCEOCBOFIGC($false)
+$map.Zone.Selected=$eclipse
+$roundBefore=$eclipse.FBFHBKPFLJC().Index
+$replayBefore=$eclipse.HLBOMMKJAAO()
+$update.DEJMHFMLKIC($null)
+Assert-True ($eclipse.KBPNDJPMCCG() -and !$normal.KBPNDJPMCCG()) 'Locked source left old Eclipse counterpart visible'
+Assert-True ([object]::ReferenceEquals($map.Zone.Selected,$normal)) 'Hidden Eclipse selection did not return to locked normal entry'
+Assert-True (!$savedCounterpart.IsLocked() -and $eclipse.HLBOMMKJAAO() -eq $replayBefore -and $eclipse.FBFHBKPFLJC().Index -eq $roundBefore) 'Lock gate reset counterpart progress'
+$savesBefore=[EclipseRuntimeTest.ListSF]::Instance.Saves
+$update.DEJMHFMLKIC($null)
+Assert-True ([EclipseRuntimeTest.ListSF]::Instance.Saves -eq $savesBefore) 'Repeated locked update rewrote profile'
+$normal.NNPNEABKHPP().SetLocked($false)
+$savedCounterpart.SetLocked($true)
+$update.DEJMHFMLKIC($null)
+Assert-True (!$eclipse.KBPNDJPMCCG() -and $normal.KBPNDJPMCCG() -and $savedCounterpart.IsLocked()) 'Unlocked source overwrote independently locked counterpart'
+Assert-True ($eclipse.HLBOMMKJAAO() -eq $replayBefore -and $eclipse.FBFHBKPFLJC().Index -eq $roundBefore) 'Unlock reset counterpart history'
+
+# A saved intermission source owns a shared counterpart even if the obsolete base
+# source remains locked. Exercise both enumeration orders.
+$intermissionNode=$stages.SelectSingleNode('//Zone[@Name="ZONE_2"]/Battle[@Name="BOSS_HERMIT"]').CloneNode($true)
+$intermissionNode.SetAttribute('Name','BOSS_HERMIT_INTERMISSION')
+$intermission=New-BattleFixture $intermissionNode 1
+$intermission.EENNGGIMMMI($zone)
+$zone.LGIIBNJFADA.Add($intermission)
+$normal.NNPNEABKHPP().SetLocked($true)
+foreach($reverse in @($false,$true)) {
+    [EclipseRuntimeTest.ListSF]::Instance.Battles.Clear()
+    $ordered=if($reverse){@($intermission,$normal,$eclipse)}else{@($normal,$eclipse,$intermission)}
+    foreach($entry in $ordered){[EclipseRuntimeTest.ListSF]::Instance.Battles.Add($entry)}
+    foreach($locked in @($false,$true)) {
+        $intermission.NNPNEABKHPP().SetLocked($locked)
+        foreach($mode in @($false,$true)) {
+            [EclipseRuntimeTest.ListSF]::Roster.EclipseMode=$mode
+            $update.DEJMHFMLKIC($null)
+            Assert-True ($eclipse.KBPNDJPMCCG() -eq ($locked -or !$mode)) 'Obsolete base lock overrode intermission visibility'
+            Assert-True ($intermission.KBPNDJPMCCG() -eq (!$locked -and $mode)) 'Intermission source visibility differs'
+        }
+    }
+}
+Write-Output "PASS: $checks Eclipse assertions across $($definitions.Count) replay segments (three cycles each, saved progress, action integration, locked pairs, intermission ownership and map refresh)."

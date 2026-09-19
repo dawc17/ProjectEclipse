@@ -46,6 +46,16 @@ the recovered conditional wrapper ignores its condition, so the encounter
 assembler must wait for faithful runtime support. This module also stays outside
 main.lua (Step 39).
 
+Pending `scripts/content/sensei_encounters.lua` assembles all twelve normal/Eclipse
+battle entries and 23 fights from the opponent, rule and reward modules. It takes
+complete opponent rosters and a separately implemented conditional RaidCharge
+rule; it does not implement that condition. `sensei_battles.lua` pairs entries on
+the six existing map pages, and `sensei_battle_text.lua` supplies 56 translated
+labels. The returned normal battle handles and five prior-act final fight handles
+can feed the notification coordinator. These factories remain outside main.lua;
+source comparisons use controlled missing identities and a no-op conditional rule
+only in tests. See Step 41 for the native locked-pair fix and acceptance limits.
+
 Pending `scripts/content/sensei_rewards.lua` contains all 57 normal/eclipse
 reward slots across the six acts, including experience, gems and performance
 bonus bases. It also stays outside the active entrypoint until the story is ready.

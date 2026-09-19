@@ -1,8 +1,8 @@
 # DE128 production record
 
 Current package: **0.18.0**. Latest activated content is recorded in Step 31;
-Steps 32–40 add encounter perk settings, reward economy, saved fight queries,
-map/notification support, rule enforcement and pending Sensei Story rosters.
+Steps 32–41 add encounter perk settings, reward economy, saved fight queries,
+map/notification support, rule enforcement and pending Sensei Story assembly.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
 move APIs and verified graph data; Step 13 adds passing isolated live input/animation
@@ -2381,3 +2381,72 @@ includes the verified template bodies and prince item mapping, perk/control
 lifecycle, battle pairing/registration, narrative sequences, complete save/reload
 and native combat acceptance. Authoritative asset-corpus reconciliation is still
 explicitly deferred.
+
+## Step 41 — Pending encounter assembly and locked Eclipse pairs (2026-09-20)
+
+New pending Lua modules connect the existing pieces:
+
+- `sensei_battles.lua` registers twelve normal/Eclipse entries in the six canonical
+  zones, preserving archived position, category, arena, preview and music. Each
+  normal entry points to its own fully qualified Eclipse counterpart name.
+- `sensei_battle_text.lua` authors four battle labels in fourteen languages (56
+  strings), preserving source text and markup under mod-owned localization IDs.
+- `sensei_encounters.lua` assembles 17 normal fights and six Eclipse gauntlets from
+  the 34 warrior loadouts, 57 reward slots and ordered static rules. Round counts,
+  time limits, replays, power and evaluated ratings match the archive. It returns
+  both battle arrays, fight arrays and the five previous-act finals needed by the
+  notification coordinator. It copies rule arrays rather than mutating cached
+  definitions.
+
+The assembler requires complete opponent rosters and a separately implemented
+conditional RaidCharge rule. It inserts that handle at the historical wrapper's
+position, including before Ronin's later Eclipse attribute rules. Supplying a
+static NoButton rule is not faithful conditional support. Missing prerequisites
+are rejected; these modules remain outside main.lua and do not reveal battles.
+
+Native map inspection exposed a real progression bypass: UpdateEclipseBattles
+created an unlocked counterpart for any revealed normal entry, including locked
+future acts. The generic C# action now leaves locked normal entries visible and
+hides any existing counterpart without creating a new one. Unlocking allows the
+ordinary mode update to introduce/show it. Existing counterpart locks and fight/
+replay history are preserved, and an exposed old-save selection returns to the
+locked normal entry. Intermission ownership is resolved first, so an obsolete
+locked base entry cannot override its active intermission counterpart. No DE
+policy or names are embedded in C#.
+
+Verification:
+
+- `TestSenseiEncounters.ps1`: 870 graph checks, after 139 warrior/perk and 73 roster
+  checks. Actual Lua registration/production projection covers all battle fields,
+  ordered opponents/rules/rewards, counterpart resolution in the same zone,
+  conditional dependency position, prior-act final handles, translation values,
+  and invalid-input rollback. Evidence:
+  `Temp/WarriorPerks-0011eb1c014e47208961279326437727`.
+- Guard templates and Sphere1 remain identity-only fixtures. The conditional rule
+  is an explicitly inert behavior fixture; these checks establish assembly and
+  ordering, not condition execution or native template/charge correctness.
+- `TestEclipseRuntime.ps1`: 853 assertions across 21 replay segments, including
+  fresh locked pairs, old saved counterparts, idempotence, preserved locks and
+  partial replay history, and both enumeration orders of shared intermission
+  sources. It executes the production action with native battle/save objects and
+  controlled external services.
+- Managed editor build passes. The native driver now has its own managed compile
+  preflight before clone creation/Unity launch; two driver compilation errors
+  and an omitted native action Parse call encountered during development are
+  fixed. Existing failed-run evidence is kept.
+- Isolated Unity 6000.6.0f1
+  `Temp/FormNative-e8siuj3b/DE128Runs/Run-9koznqb3` exits 0. Actual map/roster
+  acceptance verifies that locked revealed entries cannot introduce an Eclipse
+  counterpart, unlocking introduces it, relocking hides an existing counterpart,
+  the selected preview returns to normal, the locked normal button renders, and
+  saved replay count survives. Previous map, boss perk/reward, profile queries,
+  Jian/MindThrow and five NoButton control checks remain green. This uses ordinary
+  fixture opponents and core art, not the pending Sensei guard templates or story.
+  No owner profile/editor was touched; no clean-log claim is made.
+- All 2638 active DE128 foundation checks pass. Wiki builds 47 pages and checks
+  4099 links/assets with zero Astro diagnostics (existing duplicate-404 warning).
+
+Active DE128 stays 0.18.0. Real guard templates, prince charge mapping and perk/
+control lifecycle are still required before activation, alongside narrative and
+complete story/profile acceptance. The source corpus remains deferred. This
+assembly does not claim that the referenced art/music or full story plays in Unity.

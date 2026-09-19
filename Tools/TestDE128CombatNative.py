@@ -31,6 +31,8 @@ def main():
         parser.error('--sync-native-source requires --reuse-native')
     if args.mindthrow_wall_miss and args.spell != 'MindThrowNormal':
         parser.error('--mindthrow-wall-miss requires --spell MindThrowNormal')
+    subprocess.run(['pwsh', '-NoProfile', '-File', str(ROOT / 'Tools/TestDE128NativeCompile.ps1')],
+                   cwd=ROOT, check=True)
     if args.reuse_native:
         fixture = owned_native_fixture(args.reuse_native)
         marker = fixture / 'de128-native-fixture.marker'
