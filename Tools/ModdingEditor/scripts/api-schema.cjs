@@ -114,7 +114,7 @@ type('AttributeAlignment',{factor:'number',shift:'number','priority?':'integer',
 fn('battles.set_locked',{battle:H('Battle'),locked:'boolean'},'boolean','story.progression');
 fn('battles.reveal',{battle:H('Battle'),locked:'boolean'},'boolean','story.progression');
 fn('battles.focus',{battle:H('Battle')},'boolean','story.progression');
-type('WarriorPerk',{perk:H('Perk'),'aspect?':['number','Core perks only; finite 0..2147483647. Omit to inherit.'],'chance_factor?':['number','Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit.']});
+type('WarriorPerk',{perk:H('Perk'),'aspect?':['number','Core perks only; finite 0..2147483647. Omit to inherit.'],'chance_factor?':['number','Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit.'],'chance?':['number','Core perks only; finite probability 0..1. Omit to inherit.'],'frames?':['integer','Core perks only; 0..2147483647 native frame duration. Omit to inherit.']});
 type('WarriorDefinition',{id:'string','template?':H('WarriorTemplate'),...Object.fromEntries(['first_name','last_name','avatar','voice','group'].map(k=>[k+'?','string'])),'level?':'integer','tactic?':`${H('Tactic')}|string`,'random?':'integer','items?':H('Item')+'[]','perks?':`(${H('Perk')}|${E('WarriorPerk')})[]`,'attributes?':'table<string,number>','attribute_alignments?':E('AttributeAlignment')+'[]','body_model?':H('Model'),'skin_models?':H('Model')+'[]','health_bars?':['integer','0 inherits the template; 1-10000 is the total number of health bars.']});
 lookup('warriors.get_template','WarriorTemplate');reg('warriors.register','WarriorDefinition','Warrior');
 type('RewardGrantContext',{player_level:'integer',item_id:'string'});

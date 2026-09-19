@@ -257,16 +257,21 @@ attribute name does not create a new mechanic. Template inheritance and native
 attribute handling can affect the result, so test custom balance in a fight.
 
 Each `perks` entry can be a handle or `{ perk = handle, aspect = number,
-chance_factor = number }`. You may mix these forms in a dense array. Settings
+chance_factor = number, chance = number, frames = integer }`. You may mix these forms in a dense array. Settings
 apply only to that warrior's **core** perk instance; they do not change the core
 definition or other opponents. Configure owned Lua perks through their behavior
 definitions instead. Duplicate perks are rejected even when their settings differ.
 
-Both settings are optional. `aspect` accepts finite numbers from 0 to
+All settings are optional. `aspect` accepts finite numbers from 0 to
 2,147,483,647. `chance_factor` accepts finite numbers from 0 to 10,000; it is a
 native multiplier, **not** a 0–1 probability or guaranteed activation rate.
+`chance` is a finite probability from 0 to 1. `frames` is an integer duration from
+0 to 2,147,483,647 in native simulation frames; it is not a wall-clock timeout.
+These override the native perk's `Chance` and `Frames` parameters only where that
+perk uses them. They do not bypass the perk's other activation conditions or
+change a perk that does not consume those parameters.
 Their effects depend on the selected native perk. Omitted fields inherit its
-defaults; explicit zero overrides a default. Changes to either setting change
+defaults; explicit zero overrides a default. Changes to any setting change
 the saved content fingerprint. A bare handle and `{ perk = handle }` are equivalent.
 
 ```lua
@@ -281,6 +286,12 @@ local opponent = sf2.warriors.register {
             aspect = 100000,
             chance_factor = 2.69,
         },
+        {
+            perk = sf2.perks.get("core:perks/PERK_ITEM_SPECIAL_ENFEEBLE_RANGED"),
+            aspect = 100000,
+            chance = 0.26,
+        },
+        { perk = sf2.perks.get("core:perks/PERK_HERMITSTORM"), frames = 300 },
     },
 }
 ```

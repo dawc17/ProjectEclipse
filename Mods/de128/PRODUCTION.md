@@ -2212,3 +2212,61 @@ encounter assembler must call install once with six battles and five prior-act
 final fights, and merge its state fields if another DE schema is added first.
 Native multilingual dialog layout, complete profile reload/story playback,
 encounter assembly and missing guard templates remain acceptance/production work.
+
+## Step 38 — Six young boss loadouts and missing perk parameters (2026-09-20)
+
+Encounter assembly exposed settings unavailable through the existing warrior
+API: explicit `Chance` values on several boss enchantments and Hermit's `Frames`
+override. These cannot be replaced by ChanceFactor without changing semantics.
+The generic C# `WarriorPerkDefinition` and Lua binding now accept optional `chance`
+(finite 0..1) and `frames` (integer 0..2,147,483,647). The existing core-perk-only
+constraint still applies. Owned procedural perks remain Lua behaviors.
+
+The production adapter projects supplied fields into that warrior's native perk
+clone; omission inherits defaults and zero is explicit. Fingerprinting includes
+each new field's presence/value. Existing entries without these fields retain
+their previous encoding, avoiding an unrelated saved-content identity change.
+
+New pending `scripts/content/sensei_boss_opponents.lua` registers Hermit, Butcher,
+Wasp, Widow and Shogun in normal/Eclipse variants and reuses the two existing Lynx
+definitions. Its six-element result exposes normal/eclipse handles for the future
+encounter assembler. All 12 warriors retain historical template identity, tactic,
+name, avatar, native attributes, ranged item, complete perk order/settings and
+alignment rows, including duplicate normal-mode alignments. There is no runtime
+XML read and no invented substitute template.
+
+Verification:
+
+- `TestWarriorPerkLoadouts.ps1`: 139 checks. Full projected rows for all 12 bosses
+  compare to independent historical stages.xml rows; setting validation rejects
+  invalid probabilities, fractional/out-of-range durations, nonnumeric values and
+  overrides on owned Lua perks. Explicit zero/default omission, transactional
+  rejection and presence/value fingerprint changes pass. Evidence:
+  `Temp/WarriorPerks-e4aae405b8b1417ba63dd15b59bd84d0`.
+- Isolated Unity 6000.6.0f1
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-7q2drxnx` exits 0. All 50 native perk
+  clones across the 12 pending bosses preserve Aspect, ChanceFactor, Chance and
+  Frames, inherit omitted parameters, accept explicit zero and leave baseline/
+  sibling clones unchanged. Previous map progression, reward-slot, saved-fight
+  and Jian/MindThrow acceptance remains green. This tests native perk parameter
+  binding, not boss AI, activation statistics, storm timing in combat or a full
+  story playthrough. No owner profile/editor was touched.
+- Managed editor build and 2638 active DE128 foundation checks pass. Wiki and
+  editor schema/generated definitions document both optional fields; generation,
+  check, 37 project tests, LuaLS field completion and real VS Code integration
+  pass. Wiki builds 47 pages, checks 4099 links/assets and has zero Astro
+  diagnostics (existing duplicate-404 warning remains).
+
+Encounter diagnosis: Guard_Girl and Guard_Man are still absent from both current
+vanilla and historical DE template collections. The final prince additionally
+names an item `Sphere1` absent from the canonical item list; its relationship to
+the restored charge equipment must be verified before mapping it. Every Sensei
+fight has a conditional RaidCharge button rule based on native availability;
+this needs a typed runtime route or faithful Lua condition, not arbitrary native
+variable access. Battle pairing, player equipment/identity rules, narrative
+sequences and full encounter assembly remain to be connected and tested.
+
+Package remains 0.18.0 with the boss module outside main.lua. Complete-corpus
+acquisition/reconciliation remains deferred; these comparisons use historical
+repository evidence only. Native portrait/model rendering and complete story
+save/reload remain acceptance work.

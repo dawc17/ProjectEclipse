@@ -522,7 +522,7 @@ async function main() {
     const warriorPerkProbe=probe('warrior-perk.lua','local sf2=require("sf2")\nsf2.warriors.register {id="opponent",perks={{ | }}}');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',warriorPerkProbe));
-        return ['perk','aspect','chance_factor'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['perk','aspect','chance_factor','chance','frames'].every(name=>found.some(value=>value.startsWith(name)));
     },'warrior perk settings fields');
     const rewardEconomyProbe=probe('reward-economy.lua','local sf2=require("sf2")\nsf2.rewards.register {id="victory", | }');
     await until(async()=>{

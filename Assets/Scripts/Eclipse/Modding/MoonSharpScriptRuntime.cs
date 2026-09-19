@@ -1839,10 +1839,12 @@ namespace Eclipse.Modding
                     else
                     {
                         string row = function + "[" + i + "]";
-                        ValidateFields(entry.Table, row, "perk", "aspect", "chance_factor");
+                        ValidateFields(entry.Table, row, "perk", "aspect", "chance_factor", "chance", "frames");
                         result.Add(new WarriorPerkDefinition(RequiredHandle(entry.Table, "perk", _perkHandles, "perk", row),
                             ReadWarriorPerkNumber(entry.Table.Get("aspect"), row + ".aspect"),
-                            ReadWarriorPerkNumber(entry.Table.Get("chance_factor"), row + ".chance_factor")));
+                            ReadWarriorPerkNumber(entry.Table.Get("chance_factor"), row + ".chance_factor"),
+                            ReadWarriorPerkNumber(entry.Table.Get("chance"), row + ".chance"),
+                            entry.Table.Get("frames").IsNil() ? (int?)null : OptionalInt(entry.Table, "frames", 0, row)));
                     }
                 }
                 EnsureDenseArray(value.Table, result.Count, function);

@@ -11,6 +11,7 @@ $fixture = Join-Path $root ('Temp/WarriorPerks-' + [Guid]::NewGuid().ToString('N
 $package = Join-Path $fixture 'Mods/fixture.warriors'
 $null = New-Item -ItemType Directory -Force (Join-Path $package 'scripts/content')
 Copy-Item -LiteralPath (Join-Path $root 'Mods/de128/scripts/content/sensei_act_one_opponents.lua') -Destination (Join-Path $package 'scripts/content/sensei_act_one_opponents.lua')
+Copy-Item -LiteralPath (Join-Path $root 'Mods/de128/scripts/content/sensei_boss_opponents.lua') -Destination (Join-Path $package 'scripts/content/sensei_boss_opponents.lua')
 @'
 schema = 1
 id = "fixture.warriors"
@@ -87,12 +88,14 @@ try {
     Check ((Project $config (First-Warrior $config)).OuterXml -ceq $node.OuterXml) 'Locale changed native numbers.'
     Check ((Fingerprint $config) -ceq (Fingerprint (Load-Lua $configured))) 'Locale changed settings fingerprint.'
 } finally { [Threading.Thread]::CurrentThread.CurrentCulture = $culture }
-foreach($good in @('aspect=0','aspect=2147483647','aspect=0.5','chance_factor=0','chance_factor=10000')) {
+foreach($good in @('aspect=0','aspect=2147483647','aspect=0.5','chance_factor=0','chance_factor=10000','chance=0','chance=1','chance=0.42','frames=0','frames=300','frames=2147483647')) {
     $null = Load-Lua ($prefix + 'sf2.warriors.register {id="test",perks={{perk=p,'+$good+'}}}')
     Check $true ('Valid setting rejected: '+$good)
 }
 foreach($bad in @('aspect=-1','aspect=2147483648','aspect=1/0','aspect=0/0','aspect="12"','aspect=false',
-    'chance_factor=-1','chance_factor=10001','chance_factor=1/0','chance_factor=0/0','chance_factor="2"','unknown=1')) {
+    'chance_factor=-1','chance_factor=10001','chance_factor=1/0','chance_factor=0/0','chance_factor="2"','unknown=1',
+    'chance=-0.1','chance=1.01','chance=1/0','chance=0/0','chance="0.42"','chance=false',
+    'frames=-1','frames=0.5','frames=2147483648','frames=1/0','frames=0/0','frames="300"','frames=false')) {
     $failed=$false
     try { $null=Load-Lua ($prefix+'sf2.warriors.register {id="prior"}; sf2.warriors.register {id="test",perks={{perk=p,'+$bad+'}}}') } catch { $failed=$true }
     Check $failed ('Invalid setting accepted: '+$bad)
@@ -115,6 +118,22 @@ $null=Load-Lua $owned
 $failed=$false
 try { $null=Load-Lua $owned.Replace('perks={p}','perks={{perk=p,aspect=2}}') } catch { $failed=$true }
 Check $failed 'Native overrides accepted on an owned Lua perk.'
+foreach($setting in @('chance=0.42','frames=300')) {
+    $failed=$false
+    try { $null=Load-Lua $owned.Replace('perks={p}',('perks={{perk=p,'+$setting+'}}')) } catch { $failed=$true }
+    Check $failed ('Native override accepted on an owned Lua perk: '+$setting)
+}
+$complete=$prefix+'sf2.warriors.register{id="test",perks={{perk=p,aspect=0,chance_factor=0,chance=0.42,frames=300}}}'
+$completeCatalog=Load-Lua $complete
+$completeNode=Project $completeCatalog (First-Warrior $completeCatalog)
+Check ($completeNode.SelectSingleNode('Perks/Perk/Set').GetAttribute('Chance') -ceq '0.42') 'Explicit probability not projected.'
+Check ($completeNode.SelectSingleNode('Perks/Perk/Set').GetAttribute('Frames') -ceq '300') 'Explicit duration not projected.'
+foreach($variant in @($complete.Replace('chance=0.42','chance=0.43'),$complete.Replace('frames=300','frames=301'),$complete.Replace(',chance=0.42',''),$complete.Replace(',frames=300',''))) {
+    Check ((Fingerprint $completeCatalog) -cne (Fingerprint (Load-Lua $variant))) 'Probability/duration missing from fingerprint.'
+}
+$zero=Load-Lua ($prefix+'sf2.warriors.register{id="test",perks={{perk=p,chance=0,frames=0}}}')
+$zeroSet=(Project $zero (First-Warrior $zero)).SelectSingleNode('Perks/Perk/Set')
+Check ($zeroSet.GetAttribute('Chance') -ceq '0' -and $zeroSet.GetAttribute('Frames') -ceq '0' -and !$zeroSet.HasAttribute('Aspect')) 'Explicit zero/default inheritance was lost.'
 
 # Compare pending DE Lua opponents to the historical XML, not to a duplicated fixture.
 $catalog = Load-Lua 'require("content.sensei_act_one_opponents")'
@@ -132,5 +151,19 @@ foreach($warrior in $catalog.Warriors) {
     $actual=Project $catalog $warrior
     $actual.OuterXml | Set-Content (Join-Path $fixture ($battle+'.xml'))
     Check ((Shape $actual) -ceq (Shape $expected)) ('Young Lynx differs from archive: '+$battle+"`n"+$actual.OuterXml+"`n"+$expected.OuterXml)
+}
+
+# All six bosses, both modes: compare complete native projection to source rows.
+$catalog=Load-Lua 'require("content.sensei_boss_opponents")'
+Check ($catalog.Warriors.Count -eq 12) 'Expected twelve normal/eclipse boss loadouts.'
+foreach($warrior in $catalog.Warriors) {
+    $local=$warrior.Id.LocalId
+    $act=if($local.StartsWith('sensei_act_one_')){1}else{[int]([regex]::Match($local,'sensei_act_([2-6])_').Groups[1].Value)}
+    $battle=if($local.EndsWith('_eclipse')){'SENSEI_MEMORIES_ECLIPSEMODE'}else{'SENSEI_MEMORIES'}
+    $boss=@($archive.SelectNodes('//Zone[@Name="ZONE_'+$act+'"]/Battle[@Name="'+$battle+'"]//Warrior') | Where-Object {!$_.GetAttribute('Template').StartsWith('Guard_')})
+    Check ($boss.Count -eq 1) ('Expected unique boss source in act '+$act)
+    $actual=Project $catalog $warrior
+    $actual.OuterXml | Set-Content (Join-Path $fixture ($local+'.xml'))
+    Check ((Shape $actual) -ceq (Shape $boss[0])) ('Boss differs from archive: '+$local+"`n"+$actual.OuterXml+"`n"+$boss[0].OuterXml)
 }
 Write-Output "PASS: $script:checks warrior loadout checks. Projection evidence: $fixture. Native combat is not exercised."

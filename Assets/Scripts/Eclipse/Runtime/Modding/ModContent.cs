@@ -1271,14 +1271,19 @@ namespace Eclipse.Modding
         public DefinitionId Perk { get; }
         public double? Aspect { get; }
         public double? ChanceFactor { get; }
-        public bool HasSettings => Aspect.HasValue || ChanceFactor.HasValue;
+        public double? Chance { get; }
+        public int? Frames { get; }
+        public bool HasSettings => Aspect.HasValue || ChanceFactor.HasValue || Chance.HasValue || Frames.HasValue;
 
-        public WarriorPerkDefinition(DefinitionId perk, double? aspect = null, double? chanceFactor = null)
+        public WarriorPerkDefinition(DefinitionId perk, double? aspect = null, double? chanceFactor = null,
+            double? chance = null, int? frames = null)
         {
             if (perk.Category != "perks") throw new ModContentException("Warrior loadout requires a perk reference.");
             Validate(aspect, int.MaxValue, "aspect");
             Validate(chanceFactor, 10000, "chance_factor");
-            Perk = perk; Aspect = aspect; ChanceFactor = chanceFactor;
+            Validate(chance, 1, "chance");
+            if (frames < 0) throw new ModContentException("Warrior perk frames must be a nonnegative integer.");
+            Perk = perk; Aspect = aspect; ChanceFactor = chanceFactor; Chance = chance; Frames = frames;
         }
 
         private static void Validate(double? value, double maximum, string field)

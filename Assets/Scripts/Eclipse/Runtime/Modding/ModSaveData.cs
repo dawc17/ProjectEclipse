@@ -618,6 +618,13 @@ namespace Eclipse.Modding
                     Append(canonical, "warrior-perk-settings-v1"); Append(canonical, entry.Perk.ToString());
                     Append(canonical, entry.Aspect.HasValue); if (entry.Aspect.HasValue) Append(canonical, entry.Aspect.Value.ToString("R", CultureInfo.InvariantCulture));
                     Append(canonical, entry.ChanceFactor.HasValue); if (entry.ChanceFactor.HasValue) Append(canonical, entry.ChanceFactor.Value.ToString("R", CultureInfo.InvariantCulture));
+                    // Preserve existing fingerprints when these optional overrides are absent.
+                    if (entry.Chance.HasValue || entry.Frames.HasValue)
+                    {
+                        Append(canonical, "warrior-perk-probability-duration-v1");
+                        Append(canonical, entry.Chance.HasValue); if (entry.Chance.HasValue) Append(canonical, entry.Chance.Value.ToString("R", CultureInfo.InvariantCulture));
+                        Append(canonical, entry.Frames.HasValue); if (entry.Frames.HasValue) Append(canonical, entry.Frames.Value);
+                    }
                 }
             }
 

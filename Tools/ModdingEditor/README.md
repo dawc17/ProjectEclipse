@@ -24,6 +24,11 @@ Rows expose `perk`, optional `aspect` (0–2,147,483,647), and optional
 only for core perks and apply to that opponent. LuaLS provides nested field
 completion; the game checks ranges, duplicate perks and ownership at registration.
 
+Warrior perk entries also support optional `chance` (finite probability 0–1) and
+`frames` (integer 0–2,147,483,647). These override parameters on that warrior's
+core perk clone; omitted values inherit and explicit zero remains meaningful.
+Owned Lua perks use their behavior definitions instead.
+
 `sf2.profile.set_eclipse_mode(enabled)` requests the native story-map switch with
 `story.progression`. Its boolean result says whether the requested mode and map
 are ready; native tutorials can defer completion. UI definitions now accept

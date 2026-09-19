@@ -861,6 +861,8 @@ namespace Eclipse.Modding
                         var set = document.CreateElement("Set");
                         if (settings.Aspect.HasValue) set.SetAttribute("Aspect", settings.Aspect.Value.ToString("R", CultureInfo.InvariantCulture));
                         if (settings.ChanceFactor.HasValue) set.SetAttribute("ChanceFactor", settings.ChanceFactor.Value.ToString("R", CultureInfo.InvariantCulture));
+                        if (settings.Chance.HasValue) set.SetAttribute("Chance", settings.Chance.Value.ToString("R", CultureInfo.InvariantCulture));
+                        if (settings.Frames.HasValue) set.SetAttribute("Frames", settings.Frames.Value.ToString(CultureInfo.InvariantCulture));
                         perk.AppendChild(set);
                     }
                     perks.AppendChild(perk);

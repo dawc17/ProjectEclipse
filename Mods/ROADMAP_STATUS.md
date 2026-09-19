@@ -2,6 +2,14 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-09-20 continuation (Step 38): pending Sensei loadouts now cover six young
+bosses in both modes. Generic warrior perk settings gain explicit probability
+and frame-duration overrides with validation, projection and content fingerprint
+support. Twelve Lua warrior definitions match historical rows; 50 native perk
+clone checks pass. This does not activate the story or prove boss AI/trigger
+gameplay. Guard templates, conditional encounter rules and full assembly remain
+unfinished; active DE128 stays 0.18.0.
+
 2026-09-20 continuation (Step 37): the pending DE Sensei coordinator now sequences
 six-act notifications and saves pending/opened flags through Lua. Generic C#
 runtime support adds guarded native Eclipse-mode requests and an optional UI

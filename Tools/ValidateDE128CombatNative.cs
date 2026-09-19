@@ -306,7 +306,9 @@ public static class ValidateDE128CombatNative
         var catalog = ModRuntime.Scripts.Content;
         var adapter = new LegacyContentAdapter(catalog);
         int checkedPerks = 0;
-        foreach (var warrior in catalog.Warriors.Where(value => value.Id.ToString().StartsWith("fixture.de128-combat:warriors/sensei_act_one_lynx", StringComparison.Ordinal)))
+        var bosses=catalog.Warriors.Where(value => value.Id.ToString().StartsWith("fixture.de128-combat:warriors/sensei_act_", StringComparison.Ordinal)).ToArray();
+        if(bosses.Length!=12)throw new Exception("Expected twelve pending boss loadouts.");
+        foreach (var warrior in bosses)
         {
             var document = new System.Xml.XmlDocument();
             var node = (System.Xml.XmlElement)typeof(LegacyContentAdapter).GetMethod("BuildWarriorNode", Hidden).Invoke(adapter, new object[] { document, warrior });
@@ -314,28 +316,27 @@ public static class ValidateDE128CombatNative
             {
                 var baseline = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(perk.GetAttribute("Name"));
                 if (baseline == null) throw new Exception("Missing native perk " + perk.GetAttribute("Name"));
-                string originalAspect = baseline.EPBADFHIJAH().GetValue("Aspect");
-                string originalChance = baseline.EPBADFHIJAH().GetValue("ChanceFactor");
+                var originals=new[]{"Aspect","ChanceFactor","Chance","Frames"}.ToDictionary(field=>field,field=>baseline.EPBADFHIJAH().GetValue(field));
                 var native = baseline.Clone(perk["Set"], null);
-                if (native.EPBADFHIJAH().GetValue("Aspect") != "100000" ||
-                    native.EPBADFHIJAH().GetValue("ChanceFactor") != perk["Set"].GetAttribute("ChanceFactor"))
-                    throw new Exception("Native clone lost warrior perk settings: " + perk.GetAttribute("Name"));
                 var secondSettings = document.CreateElement("Set");
                 secondSettings.SetAttribute("Aspect", "0");
+                secondSettings.SetAttribute("Chance", "0");
+                secondSettings.SetAttribute("Frames", "0");
                 var second = baseline.Clone(secondSettings, null);
                 var inherited = baseline.Clone(null, null);
-                if (second.EPBADFHIJAH().GetValue("Aspect") != "0" ||
-                    second.EPBADFHIJAH().GetValue("ChanceFactor") != originalChance ||
-                    inherited.EPBADFHIJAH().GetValue("Aspect") != originalAspect ||
-                    baseline.EPBADFHIJAH().GetValue("Aspect") != originalAspect ||
-                    baseline.EPBADFHIJAH().GetValue("ChanceFactor") != originalChance ||
-                    native.EPBADFHIJAH().GetValue("Aspect") != "100000")
-                    throw new Exception("Native warrior perk clones leaked settings between instances.");
+                foreach(string field in new[]{"Aspect","ChanceFactor","Chance","Frames"})
+                {
+                    string original=originals[field];
+                    string expected=perk["Set"].HasAttribute(field)?perk["Set"].GetAttribute(field):original;
+                    if(baseline.EPBADFHIJAH().GetValue(field)!=original || native.EPBADFHIJAH().GetValue(field)!=expected || inherited.EPBADFHIJAH().GetValue(field)!=original ||
+                        second.EPBADFHIJAH().GetValue(field)!=(secondSettings.HasAttribute(field)?"0":original))
+                        throw new Exception("Native warrior clone lost settings/defaults or leaked between instances: "+warrior.Id+" "+field);
+                }
                 checkedPerks++;
             }
         }
-        if (checkedPerks != 8) throw new Exception("Expected eight pending young Lynx perk instances, got " + checkedPerks);
-        Debug.Log("[DE128Native] PASS eight warrior perk clones: Aspect/ChanceFactor, omitted defaults, explicit zero and instance isolation. Pending story is not activated.");
+        if (checkedPerks != bosses.Sum(value=>value.PerkLoadout.Count)) throw new Exception("Missing native boss perk instances.");
+        Debug.Log("[DE128Native] PASS "+checkedPerks+" perk clones across twelve boss loadouts: Aspect/ChanceFactor/Chance/Frames, omitted defaults, explicit zero and instance isolation. Pending story is not activated; no boss AI/trigger playtest claim.");
     }
 
     static bool CheckMapBattleLock()

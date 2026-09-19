@@ -532,6 +532,8 @@ local AttributeAlignment = {}
 ---@field perk Eclipse.PerkHandle
 ---@field aspect? number Core perks only; finite 0..2147483647. Omit to inherit.
 ---@field chance_factor? number Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit.
+---@field chance? number Core perks only; finite probability 0..1. Omit to inherit.
+---@field frames? integer Core perks only; 0..2147483647 native frame duration. Omit to inherit.
 local WarriorPerk = {}
 
 ---@class (exact) Eclipse.WarriorDefinition

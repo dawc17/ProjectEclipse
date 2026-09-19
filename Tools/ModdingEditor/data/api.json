@@ -2284,6 +2284,14 @@
         "chance_factor?": [
           "number",
           "Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit."
+        ],
+        "chance?": [
+          "number",
+          "Core perks only; finite probability 0..1. Omit to inherit."
+        ],
+        "frames?": [
+          "integer",
+          "Core perks only; 0..2147483647 native frame duration. Omit to inherit."
         ]
       }
     },

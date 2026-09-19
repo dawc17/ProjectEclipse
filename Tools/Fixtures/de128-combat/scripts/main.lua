@@ -1,7 +1,7 @@
 local sf2 = require("sf2")
 -- This isolated acceptance profile exercises map locks/combat, not the dojo tutorial.
 sf2.quests.suppress { target = "core:quests/quest_extensions/tutorial_quests.xml/storytutorialwelcome" }
-require("content.sensei_act_one_opponents") -- Copied from the authored pending DE module by the runner.
+require("content.sensei_boss_opponents") -- Copied from the authored pending DE modules by the runner.
 require("content.sensei_rewards")
 local function animation_probe(_, fighter, event)
     if event.animation_name:sub(1, 12) ~= "de128:moves/" then return end

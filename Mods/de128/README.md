@@ -21,6 +21,14 @@ templates absent from the historical XML available here; no substitutes have
 been invented. Story gates, rewards, presentation and live encounter acceptance
 also remain unfinished. See Step 32 in `PRODUCTION.md`.
 
+Pending `scripts/content/sensei_boss_opponents.lua` extends those loadouts to all
+six young bosses in normal and Eclipse variants (12 warriors, 50 perk instances).
+It preserves archived equipment, tactics, attributes, alignment rows and perk
+settings, including explicit activation probabilities and Hermit's storm duration.
+All rows match historical XML through the production adapter; native perk clone
+checks pass. It remains outside main.lua, with guard templates, encounter rules,
+boss AI/trigger playtests and full story acceptance unfinished (Step 38).
+
 Pending `scripts/content/sensei_rewards.lua` contains all 57 normal/eclipse
 reward slots across the six acts, including experience, gems and performance
 bonus bases. It also stays outside the active entrypoint until the story is ready.
