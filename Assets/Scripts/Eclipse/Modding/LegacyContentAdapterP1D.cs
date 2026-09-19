@@ -338,6 +338,15 @@ namespace Eclipse.Modding
 
         private static void AppendMovePresentation(XmlDocument document, XmlElement node, ModMovePresentation value)
         {
+            if (value.NoMagicRecharge) Set(node, "NoMagicRecharge", "1");
+            if (value.Velocity != null)
+            {
+                var motion = value.Velocity; var velocity = document.CreateElement("Velocity"); node.AppendChild(velocity);
+                string[] names = { "X", "Y", "Z", "Ax", "Ay", "Az" };
+                double[] values = { motion.X, motion.Y, motion.Z, motion.Ax, motion.Ay, motion.Az };
+                for (int i = 0; i < names.Length; i++) if (values[i] != 0) Set(velocity, names[i], values[i].ToString("R", CultureInfo.InvariantCulture));
+                if (motion.SaveVelocity) Set(velocity, "SaveVelocity", "1");
+            }
             if (value.NoWallRepulsion) Set(node, "NoWallRepulsion", "1");
             if (value.NoInterpolationFrames) Set(node, "NoInterpolationFrames", "1");
             if (value.Profile != null)
@@ -435,6 +444,8 @@ namespace Eclipse.Modding
                 return op;
             }
             string element = value.Kind == ModMoveConditionKind.CurrentAnimation ? "CurrentAnimation" :
+                value.Kind == ModMoveConditionKind.ActorName ? "Name" :
+                value.Kind == ModMoveConditionKind.Bullets ? "Bullets" :
                 value.Kind == ModMoveConditionKind.RoundStage ? "RoundStage" :
                 value.Kind == ModMoveConditionKind.ModExists ? "ModExists" :
                 value.Kind == ModMoveConditionKind.Screen ? "Screen" :
@@ -442,7 +453,13 @@ namespace Eclipse.Modding
                 value.Kind == ModMoveConditionKind.CurrentInterval ? "CurrentInterval" :
                 value.Kind == ModMoveConditionKind.Perk ? "Perk" : "Item";
             XmlElement node = document.CreateElement(element);
-            if (value.Name.Length != 0) Set(node, "Name", value.Name);
+            if (value.Name.Length != 0) Set(node, value.Kind == ModMoveConditionKind.ActorName ? "Value" : "Name", value.Name);
+            if (value.Bullets != null)
+            {
+                Set(node, "Type", value.Bullets.Type);
+                Set(node, "Min", value.Bullets.Minimum.ToString(CultureInfo.InvariantCulture));
+                if (value.Bullets.Maximum != int.MaxValue) Set(node, "Max", value.Bullets.Maximum.ToString(CultureInfo.InvariantCulture));
+            }
             if (value.Player.Length != 0) Set(node, "Player", value.Player);
             if (value.ItemType.Length != 0) Set(node, "Type", value.ItemType);
             if (value.ItemSubType.Length != 0) Set(node, "SubType", value.ItemSubType);

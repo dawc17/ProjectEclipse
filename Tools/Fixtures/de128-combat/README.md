@@ -60,3 +60,8 @@ boot, the harness compares native CreatePlayer equipment-copy records, charge an
 delete scheduling against Sphere1 archive entries and checks an owned starting-move
 handle. These definitions are never selected in the Jian fight. This is actual
 Unity parsing, not a live projectile lifetime/contact test.
+
+The inert child move now also supplies actor-name and charge conditions, velocity,
+acceleration, velocity preservation and no-recharge flags. The harness evaluates
+matching/nonmatching conditions and checks parsed motion/flag values. It still does
+not select or simulate this child move, so trajectory/contact acceptance is separate.

@@ -179,3 +179,9 @@ Step 19 adds generic scheduled projectile creation with inherited equipment,
 optional owned start moves, charge changes and actor deletion. Actual Unity parsing
 matches the archived Sphere1 action data; live projectile lifecycle acceptance and
 full spell graph registration remain open. DE128 stays at 0.13.0 pending those graphs.
+
+
+Step 20 adds native actor-name/charge selection conditions and move velocity,
+acceleration, velocity preservation and magic-recharge suppression. Predicate tests
+and real Unity move parsing pass; live projectile/spell acceptance is still open.
+Wall-distance conditions and spell attack options remain before graph integration.

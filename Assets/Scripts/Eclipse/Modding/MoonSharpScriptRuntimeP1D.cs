@@ -376,7 +376,7 @@ namespace Eclipse.Modding
                 var fields = new List<string> { "id", "templates", "core_templates", "events", "conditions", "intervals",
                     "type", "priority", "mid_frames", "first_frame", "end_frame", "mirror_node", "tactic_equivalent",
                     "tactic_weapon", "looped", "ends_stage", "locks", "align", "direction" };
-                if (animation) { fields.AddRange(new[] { "animation", "transitions", "actions", "profile", "tactic_distance", "no_wall_repulsion", "no_interpolation_frames" }); }
+                if (animation) { fields.AddRange(new[] { "animation", "transitions", "actions", "profile", "tactic_distance", "no_wall_repulsion", "no_interpolation_frames", "no_magic_recharge", "velocity" }); }
                 ValidateFields(table, function, fields.ToArray());
             }
 
@@ -501,8 +501,19 @@ namespace Eclipse.Modding
                         OptionalFloat(entry, "minimum", -1000000, function), OptionalFloat(entry, "maximum", 1000000, function),
                         ReadMovePoint(entry.Get("from"), function), ReadMovePoint(entry.Get("to"), function));
                 }
+                ModMoveVelocity velocity = null;
+                if (!table.Get("velocity").IsNil())
+                {
+                    if (table.Get("velocity").Type != DataType.Table) throw new ModContentException("Velocity requires a table.");
+                    var entry = table.Get("velocity").Table;
+                    ValidateFields(entry, function + ".velocity", "x", "y", "z", "ax", "ay", "az", "save_velocity");
+                    velocity = new ModMoveVelocity(OptionalFloat(entry, "x", 0, function), OptionalFloat(entry, "y", 0, function), OptionalFloat(entry, "z", 0, function),
+                        OptionalFloat(entry, "ax", 0, function), OptionalFloat(entry, "ay", 0, function), OptionalFloat(entry, "az", 0, function),
+                        OptionalBool(entry, "save_velocity", false, function));
+                }
                 return new ModMovePresentation(actions.ToArray(), profile, distance,
-                    OptionalBool(table, "no_wall_repulsion", false, function), OptionalBool(table, "no_interpolation_frames", false, function));
+                    OptionalBool(table, "no_wall_repulsion", false, function), OptionalBool(table, "no_interpolation_frames", false, function),
+                    OptionalBool(table, "no_magic_recharge", false, function), velocity);
             }
 
             private DynValue RegisterMoveTrigger(ScriptExecutionContext context, CallbackArguments args)
@@ -566,6 +577,16 @@ namespace Eclipse.Modding
             {
                 string type = RequiredString(table, "type", function);
                 ModMoveConditionKind kind = ParseMoveConditionKind(type, function);
+                if (kind == ModMoveConditionKind.ActorName || kind == ModMoveConditionKind.Bullets)
+                {
+                    if (kind == ModMoveConditionKind.ActorName) ValidateFields(table, function, "type", "name", "player", "not");
+                    else ValidateFields(table, function, "type", "bullet_type", "minimum", "maximum", "player", "not");
+                    return new ModMoveCondition(kind, kind == ModMoveConditionKind.ActorName ? RequiredString(table, "name", function) : null,
+                        OptionalStringAllowEmpty(table, "player", string.Empty, function), not: OptionalBool(table, "not", false, function),
+                        bullets: kind == ModMoveConditionKind.Bullets ? new ModMoveBulletRange(RequiredString(table, "bullet_type", function),
+                            table.Get("minimum").IsNil() ? 0 : RequiredInt(table, "minimum", function),
+                            table.Get("maximum").IsNil() ? int.MaxValue : RequiredInt(table, "maximum", function)) : null);
+                }
                 if (kind == ModMoveConditionKind.Character)
                 {
                     ValidateFields(table,function,"type","warrior","not");
@@ -936,6 +957,8 @@ namespace Eclipse.Modding
                     case "mod_exists": return ModMoveConditionKind.ModExists;
                     case "screen": return ModMoveConditionKind.Screen;
                     case "character": return ModMoveConditionKind.Character;
+                    case "actor_name": return ModMoveConditionKind.ActorName;
+                    case "bullets": return ModMoveConditionKind.Bullets;
                     case "current_animation": return ModMoveConditionKind.CurrentAnimation;
                     case "current_interval": return ModMoveConditionKind.CurrentInterval;
                     case "item": return ModMoveConditionKind.Item;

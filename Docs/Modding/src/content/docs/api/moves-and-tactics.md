@@ -49,6 +49,24 @@ Conditions use `type` and optional `["not"] = true` (default `false`). Available
 
 Character and key conditions use string literals, without constant aliases. Combine them with `key_pressed` to bind an authored move to a fighter's controls.
 
+Spell and projectile selection also supports:
+
+- `{ type = "actor_name", name = "Sphere1" }` tests the native model's exact,
+  case-sensitive actor name (for example, the name supplied by `create_projectile`).
+  It does not test a warrior content ID; use `character` for that.
+- `{ type = "bullets", bullet_type = "MagicBullet", minimum = 1 }` tests the
+  selected model's native charge count. `bullet_type` is required and accepts
+  `MagicBullet` or `RaidChargeBullet`. Bounds are inclusive integers in
+  0–2,147,483,647; minimum defaults to 0 and maximum to 2,147,483,647. Minimum must
+  not exceed maximum. This is a condition only; use the scheduled `add_bullets`
+  action to consume charge.
+
+Both types accept `["not"] = true` and `player` (`Me`, `Enemy`, `Parent`, `Child`,
+`EnemyChild`, or `Both`, default `Me`) through native condition targeting. The actor
+name follows the scheduled-action symbol rules. Conditions can be nested in
+`all`/`any` groups and used wherever typed move conditions are accepted. Native
+charge overrides still apply; declaring a condition does not change recharge rules.
+
 Arrays must have consecutive integer indices starting at 1. Building an array with `table.remove` or deleting unused fields with `nil` is supported; live holes, fractional/zero/negative indices, and extra named entries are rejected.
 
 Repeated keys are preserved: two `{ key = "Punch", press = "Tap" }` entries require the native double-tap sequence. Entries are passed to the native Tap/Hold/Release groups in authored order; this is not a general timing or input-history scripting language.
@@ -120,6 +138,22 @@ rejects them. They require the same `content.register` capability as the move.
 | `tactic_distance` | Optional native AI distance requirement with required `axis`, `from`, and `to`. `axis` is `X`, `Y`, or `Full` (planar distance). `minimum`/`maximum` default to −1,000,000/+1,000,000, must be finite within those bounds, and minimum must not exceed maximum. Points use the table format below, require explicit players and cannot use `Animation`. This restricts native tactic eligibility; it does not itself configure an AI tactic table. |
 | `no_wall_repulsion` | Boolean, default false. Uses the native move flag to suppress wall repulsion. |
 | `no_interpolation_frames` | Boolean, default false. Uses the native move flag to suppress interpolation frames. |
+| `no_magic_recharge` | Boolean, default false. Sets the native per-move flag preventing magic recharge during that move; useful for projectile actors. |
+| `velocity` | Optional native motion table: `x`, `y`, `z`, `ax`, `ay`, `az` default to 0; `save_velocity` defaults to false. Components are finite numbers in −100,000..100,000. The first three are velocity, the last three acceleration, in native simulation units. `save_velocity` preserves native existing velocity on move entry. Omit the table to retain existing motion parsing behavior. These fields belong on moves, not templates. |
+
+For example, a projectile flight move can declare:
+
+```lua
+-- Fields inside sf2.moves.register:
+conditions = { { type = "actor_name", name = "Sphere1" } },
+velocity = { x = 30 },
+no_magic_recharge = true,
+```
+
+Motion does not supply a rig, collider, attack interval or projectile lifecycle.
+Its fields and the recharge flag participate in content fingerprints. Native
+parser and predicate tests cover these declarations; live trajectory/contact
+acceptance remains separate.
 
 Each action requires `type` and **exactly one** of integer `frame` (0–100,000)
 or `event`. Frames are native animation sample indices, not elapsed milliseconds.

@@ -145,6 +145,20 @@ public static class ValidateDE128CombatNative
         var preview = actions.OfType<ActionCreateModel>().Last();
         if (preview.StartAnimation != "fixture.de128-combat:moves/projectile_child" || !preview.NeedStart(3))
             throw new Exception("Owned projectile start_move did not reach native parser.");
+        var child = AnimationData.Animations.Single(value => value.Name == preview.StartAnimation);
+        var state = new ModelConditions { ModelName = "FixtureSphere", JJDNDOLCMMN = 1 };
+        var nameCondition = child.SelectionConditions.OfType<ConditionName>().Single();
+        var chargeCondition = child.SelectionConditions.OfType<ConditionBullets>().Single();
+        if (!nameCondition.IsEqual(state) || !chargeCondition.IsEqual(state)) throw new Exception("Native spell conditions rejected matching state.");
+        state.ModelName = "Other"; state.JJDNDOLCMMN = 0;
+        if (nameCondition.IsEqual(state) || chargeCondition.IsEqual(state)) throw new Exception("Native spell conditions accepted invalid state.");
+        var velocity = (Vector3f)typeof(InfoAnimation).GetField("KACPFNLDNND", Hidden).GetValue(child);
+        var acceleration = (Vector3f)typeof(InfoAnimation).GetField("KNBDGOJAIAF", Hidden).GetValue(child);
+        if (velocity.GetX() != 30 || acceleration.GetY() != -2 ||
+            !(bool)typeof(InfoAnimation).GetField("AEDIIEEJKHE", Hidden).GetValue(child) ||
+            !(bool)typeof(InfoAnimation).GetField("JCIKOMAMJDI", Hidden).GetValue(child))
+            throw new Exception("Native projectile velocity/acceleration/recharge flags differ.");
+        Debug.Log("[DE128Native] Authored actor/charge predicates and velocity, acceleration, preservation and no-recharge flags passed actual move parsing.");
         var bullets = actions.OfType<ActionAddBullets>().Single();
         var expectedBullets = new ActionAddBullets(doc.SelectSingleNode("//Move[@Name='Sphere1Player']/Actions/AddBullets"));
         if (bullets.Value != expectedBullets.Value || bullets.Value != -1 || !bullets.NeedStart(7))

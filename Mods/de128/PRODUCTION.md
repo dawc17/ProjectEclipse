@@ -1436,3 +1436,44 @@ No live projectile creation/contact/deletion acceptance is claimed: the new fixt
 moves were inspected, not selected. Next work remains bullet/actor-name selection
 conditions, remaining move flags/velocity/damage details, then complete Lua spell
 graph translation and live acceptance. Full DE128 production remains active.
+
+## Step 20 - charge/name selection and projectile motion
+
+Generic Lua move conditions now support `actor_name` (exact, case-sensitive native
+actor identity) and `bullets` (inclusive MagicBullet/RaidChargeBullet bounds).
+Both support native target selection and negation, and can appear in typed groups,
+locks or other existing condition consumers. New enum entries are appended to
+preserve previous fingerprint identities. Optional range payloads are immutable
+and reject malformed or unrelated fields.
+
+Moves now accept native velocity and acceleration on all three axes, the native
+velocity-preservation flag and `no_magic_recharge`. These fields are move-only;
+the recovered parser does not correctly inherit velocity from templates, so the
+API does not promise unsupported template behavior. Optional fingerprints preserve
+old declarations. No DE content policy or runtime archive reading was added.
+
+Verification:
+
+- **857 combined move checks passed**, including actual Lua projection and a native
+  actor-name/charge predicate matrix (case sensitivity, both charge types, inclusive
+  bounds and negation). Native velocity/acceleration parsing matches Sphere1;
+  individual axes, preservation, validation and fingerprint changes are checked.
+- **2,482 DE128 foundation checks passed**; managed editor build passed with zero
+  errors (2,739 warnings on rebuilt dependencies).
+- Isolated Unity 6000.6.0f1 **passed, terminal exit 0**, including real parsed
+  conditions, velocity/acceleration, preservation and no-recharge flags, prior
+  projectile parsing, equipment comparisons, shared patches and live Jian checks.
+  Evidence: `Temp/FormNative-qpsmkaqv/DE128Runs/Run-8zc147wi/de128-validation.log`.
+- Editor generation/check, 36 tests, LuaLS completion and real VS Code integration
+  passed. Contracts now
+  contain 153 functions, 76 constants and 221 typed structures. The API reference,
+  authoring snippet and native fixture guide are updated in this step.
+- Wiki build passed: 47 pages, 4,052 links/assets, with the existing duplicate 404
+  warning. Whitespace checks passed, with line-ending conversion warnings.
+
+The new native fixture moves remain inert, so this is not live projectile
+trajectory/contact/recharge acceptance. All five spell item registrations remain
+pending their complete graphs; package version stays 0.13.0. Next work needs
+wall-distance cleanup conditions and attack options (defense contribution,
+critical suppression, block/invulnerability exceptions and attack-effect flags),
+then exact Lua spell graph authoring and live verification. Production remains active.

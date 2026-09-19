@@ -484,6 +484,17 @@ async function main() {
         return ['type','value'].every(field=>result.some(value=>value.startsWith(field)));
     },'scheduled charge fields');
 
+    const spellMotionProbe=probe('spell-motion.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", velocity={ | } }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',spellMotionProbe));
+        return ['x','y','z','ax','ay','az','save_velocity'].every(field=>result.some(value=>value.startsWith(field)));
+    },'spell velocity fields');
+    const chargeConditionProbe=probe('spell-condition.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ type="bullets", | }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',chargeConditionProbe));
+        return ['bullet_type','minimum','maximum','player','not'].every(field=>result.some(value=>value.startsWith(field)));
+    },'spell charge condition fields');
+
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',
         'sf2.items.register_weapon {',

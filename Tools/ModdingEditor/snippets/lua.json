@@ -153,5 +153,14 @@
       "{ type = \"add_bullets\", frame = ${4:7}, bullets = { type = \"MagicBullet\", value = -1 } },"
     ],
     "description": "Inside a caster move actions array; requires a complete compatible projectile graph."
+  },
+  "Eclipse projectile flight fields": {
+    "prefix": "eclipse-projectile-flight",
+    "body": [
+      "conditions = { { type = \"actor_name\", name = \"${1:Sphere1}\" } },",
+      "velocity = { x = ${2:30} },",
+      "no_magic_recharge = true,"
+    ],
+    "description": "Fields inside a projectile move definition; requires its remaining graph and compatible animation."
   }
 }

@@ -1070,6 +1070,14 @@ namespace Eclipse.Modding
         private static void AppendMovePresentation(StringBuilder canonical, ModMovePresentation value)
         {
             if (!value.HasContent) return;
+            if (value.NoMagicRecharge) Append(canonical, "no-magic-recharge-v1");
+            if (value.Velocity != null)
+            {
+                var motion = value.Velocity; Append(canonical, "move-velocity-v1");
+                foreach (var number in new[] { motion.X, motion.Y, motion.Z, motion.Ax, motion.Ay, motion.Az })
+                    Append(canonical, number.ToString("R", CultureInfo.InvariantCulture));
+                Append(canonical, motion.SaveVelocity);
+            }
             Append(canonical, "move-presentation-v1");
             Append(canonical, value.NoWallRepulsion); Append(canonical, value.NoInterpolationFrames);
             Append(canonical, value.Profile != null);
@@ -1138,6 +1146,11 @@ namespace Eclipse.Modding
             Append(canonical, condition.ItemType); Append(canonical, condition.ItemSubType); Append(canonical, condition.Not);
             Append(canonical, condition.Children.Count);
             for (int i = 0; i < condition.Children.Count; i++) AppendMoveCondition(canonical, condition.Children[i]);
+            if (condition.Bullets != null)
+            {
+                Append(canonical, "move-bullet-range-v1"); Append(canonical, condition.Bullets.Type);
+                Append(canonical, condition.Bullets.Minimum); Append(canonical, condition.Bullets.Maximum);
+            }
             if(condition.Keys.Count > 0)
             {
                 Append(canonical,"keys-v1"); Append(canonical,condition.Keys.Count);

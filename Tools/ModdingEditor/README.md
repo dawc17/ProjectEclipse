@@ -361,3 +361,8 @@ Scheduled `create_projectile`, `add_bullets`, and `delete_actor` actions have ty
 nested tables. Projectile completion includes copied parent equipment and optional
 owned start-move handles. The `eclipse-move-projectile` snippet supplies cast actions;
 it does not provide the required projectile animation/selection/cleanup graph.
+
+Spell move declarations support typed `actor_name` and `bullets` conditions,
+`velocity`/acceleration components and `no_magic_recharge`. LuaLS tests check nested
+motion and charge-condition completion. Native simulation units and inclusive
+charge bounds are documented in the move API reference.

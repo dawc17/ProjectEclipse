@@ -1084,6 +1084,32 @@ local LocationDefinition = {}
 ---@field player? string
 local MoveEvent = {}
 
+---@class (exact) Eclipse.MoveActorCondition
+---@field type "actor_name"
+---@field name string
+---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"|"Both"
+---@field not? boolean
+local MoveActorCondition = {}
+
+---@class (exact) Eclipse.MoveBulletsCondition
+---@field type "bullets"
+---@field bullet_type "MagicBullet"|"RaidChargeBullet"
+---@field minimum? integer
+---@field maximum? integer
+---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"|"Both"
+---@field not? boolean
+local MoveBulletsCondition = {}
+
+---@class (exact) Eclipse.MoveVelocity
+---@field x? number
+---@field y? number
+---@field z? number
+---@field ax? number
+---@field ay? number
+---@field az? number
+---@field save_velocity? boolean
+local MoveVelocity = {}
+
 ---@class (exact) Eclipse.MovePerkCondition
 ---@field type "perk"
 ---@field perk Eclipse.PerkHandle
@@ -1102,7 +1128,7 @@ local MoveNamedCondition = {}
 
 ---@class (exact) Eclipse.MoveConditionGroup
 ---@field type "all"|"any"
----@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field not? boolean
 local MoveConditionGroup = {}
 
@@ -1193,7 +1219,7 @@ local MoveAlignment = {}
 local MoveDirection = {}
 
 ---@class (exact) Eclipse.MoveTransition
----@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field frame_shift? integer
 ---@field first_frame? integer
 local MoveTransition = {}
@@ -1252,9 +1278,9 @@ local MoveTacticDistance = {}
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
 ---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field intervals? Eclipse.MoveInterval[]
----@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field align? Eclipse.MoveAlignment
 ---@field direction? Eclipse.MoveDirection
 ---@field type? string
@@ -1274,9 +1300,9 @@ local MoveTemplateDefinition = {}
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
 ---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field intervals? Eclipse.MoveInterval[]
----@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field align? Eclipse.MoveAlignment
 ---@field direction? Eclipse.MoveDirection
 ---@field type? string
@@ -1296,6 +1322,8 @@ local MoveTemplateDefinition = {}
 ---@field tactic_distance? Eclipse.MoveTacticDistance
 ---@field no_wall_repulsion? boolean
 ---@field no_interpolation_frames? boolean
+---@field no_magic_recharge? boolean
+---@field velocity? Eclipse.MoveVelocity
 local MoveDefinition = {}
 
 ---@class (exact) Eclipse.MoveItemLockExtension
@@ -1324,7 +1352,7 @@ local MoveSoundFramePatch = {}
 
 ---@class (exact) Eclipse.MovePatch
 ---@field move string
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field interval_end? Eclipse.MoveIntervalEndPatch
 ---@field hit? Eclipse.MoveHitPatch
 ---@field sound_frame? Eclipse.MoveSoundFramePatch
@@ -1350,7 +1378,7 @@ local HitEffectAction = {}
 ---@class (exact) Eclipse.TriggerDefinition
 ---@field id string
 ---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition)[]
 ---@field actions? (Eclipse.SoundAction|Eclipse.HitEffectAction)[]
 local TriggerDefinition = {}
 

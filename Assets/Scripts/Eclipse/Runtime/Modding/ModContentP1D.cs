@@ -284,7 +284,7 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets }
 
     public sealed class ModMoveKey
     {
@@ -295,6 +295,19 @@ namespace Eclipse.Modding
             if (Array.IndexOf(new[]{"Up","Up-Forward","Forward","Down-Forward","Down","Down-Back","Back","Up-Back","Punch","Kick","Ranged","Magic","RaidCharge","Super"},key)<0 ||
                 (press!="Tap" && press!="Hold" && press!="Release")) throw new ModContentException("Invalid move key or press type.");
             Key=key; Press=press;
+        }
+    }
+
+    public sealed class ModMoveBulletRange
+    {
+        public string Type { get; }
+        public int Minimum { get; }
+        public int Maximum { get; }
+        public ModMoveBulletRange(string type, int minimum = 0, int maximum = int.MaxValue)
+        {
+            if (type != "MagicBullet" && type != "RaidChargeBullet") throw new ModContentException("Unsupported condition bullet type.");
+            if (minimum < 0 || maximum < minimum) throw new ModContentException("Bullet bounds must be ordered nonnegative integers.");
+            Type = type; Minimum = minimum; Maximum = maximum;
         }
     }
 
@@ -309,9 +322,10 @@ namespace Eclipse.Modding
         public bool Not { get; }
         public IReadOnlyList<ModMoveCondition> Children => _children;
         public IReadOnlyList<ModMoveKey> Keys { get; }
+        public ModMoveBulletRange Bullets { get; }
 
         public ModMoveCondition(ModMoveConditionKind kind, string name = null, string player = null,
-            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null, ModMoveKey[] keys = null)
+            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null, ModMoveKey[] keys = null, ModMoveBulletRange bullets = null)
         {
             Kind = kind;
             Name = name ?? string.Empty;
@@ -319,6 +333,16 @@ namespace Eclipse.Modding
             ItemType = itemType ?? string.Empty;
             ItemSubType = itemSubType ?? string.Empty;
             Not = not;
+            if ((kind == ModMoveConditionKind.Bullets) != (bullets != null)) throw new ModContentException("Only bullets conditions require a bullet range.");
+            Bullets = bullets;
+            if (kind == ModMoveConditionKind.ActorName || kind == ModMoveConditionKind.Bullets)
+            {
+                if (kind == ModMoveConditionKind.ActorName) ModMoveScheduledAction.ValidateSymbol(Name, "actor");
+                else if (Name.Length != 0) throw new ModContentException("Bullets condition does not accept name.");
+                if (Player != "" && Array.IndexOf(new[] { "Me", "Enemy", "Parent", "Child", "EnemyChild", "Both" }, Player) < 0)
+                    throw new ModContentException("Unsupported condition player.");
+                if (ItemType.Length != 0 || ItemSubType.Length != 0) throw new ModContentException("Actor/bullets conditions do not accept item fields.");
+            }
             Keys=Array.AsReadOnly(keys == null ? Array.Empty<ModMoveKey>() : (ModMoveKey[])keys.Clone());
             if ((kind==ModMoveConditionKind.Keys && (Keys.Count<1 || Keys.Count>14)) || (kind!=ModMoveConditionKind.Keys && Keys.Count!=0))
                 throw new ModContentException("A keys condition requires 1..14 keys.");
@@ -649,6 +673,24 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModMoveVelocity
+    {
+        public double X { get; }
+        public double Y { get; }
+        public double Z { get; }
+        public double Ax { get; }
+        public double Ay { get; }
+        public double Az { get; }
+        public bool SaveVelocity { get; }
+        public ModMoveVelocity(double x = 0, double y = 0, double z = 0, double ax = 0, double ay = 0, double az = 0, bool saveVelocity = false)
+        {
+            foreach (var value in new[] { x, y, z, ax, ay, az })
+                if (double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value) > 100000)
+                    throw new ModContentException("Move velocity/acceleration must be finite in -100000..100000.");
+            X = x; Y = y; Z = z; Ax = ax; Ay = ay; Az = az; SaveVelocity = saveVelocity;
+        }
+    }
+
     public sealed class ModMovePresentation
     {
         public IReadOnlyList<ModMoveScheduledAction> Actions { get; }
@@ -656,15 +698,18 @@ namespace Eclipse.Modding
         public ModMoveTacticDistance TacticDistance { get; }
         public bool NoWallRepulsion { get; }
         public bool NoInterpolationFrames { get; }
-        public bool HasContent => Actions.Count != 0 || Profile != null || TacticDistance != null || NoWallRepulsion || NoInterpolationFrames;
+        public bool NoMagicRecharge { get; }
+        public ModMoveVelocity Velocity { get; }
+        public bool HasContent => Actions.Count != 0 || Profile != null || TacticDistance != null || NoWallRepulsion || NoInterpolationFrames || NoMagicRecharge || Velocity != null;
         public ModMovePresentation(ModMoveScheduledAction[] actions = null, ModMoveProfile profile = null,
-            ModMoveTacticDistance tacticDistance = null, bool noWallRepulsion = false, bool noInterpolationFrames = false)
+            ModMoveTacticDistance tacticDistance = null, bool noWallRepulsion = false, bool noInterpolationFrames = false, bool noMagicRecharge = false, ModMoveVelocity velocity = null)
         {
             actions = actions ?? Array.Empty<ModMoveScheduledAction>();
             if (actions.Length > 64) throw new ModContentException("At most 64 scheduled move actions are supported.");
             foreach (var action in actions) if (action == null) throw new ModContentException("Null scheduled action.");
             Actions = Array.AsReadOnly((ModMoveScheduledAction[])actions.Clone()); Profile = profile; TacticDistance = tacticDistance;
             NoWallRepulsion = noWallRepulsion; NoInterpolationFrames = noInterpolationFrames;
+            NoMagicRecharge = noMagicRecharge; Velocity = velocity;
         }
     }
 

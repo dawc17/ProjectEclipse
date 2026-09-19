@@ -27,7 +27,12 @@ sf2.modes.register { id = "trial", fights = { fight }, repeatable = true }
 
 -- Inert move definitions used to inspect actual native action parsing after boot.
 local fixture_animation = sf2.assets.binary("de128:animations/chinese_swords_super_slash_old")
-local child = sf2.moves.register { id = "projectile_child", animation = fixture_animation }
+local child = sf2.moves.register { id = "projectile_child", animation = fixture_animation,
+    conditions = {
+        { type = "actor_name", name = "FixtureSphere" },
+        { type = "bullets", bullet_type = "MagicBullet", minimum = 1, maximum = 2 },
+    }, velocity = { x = 30, ay = -2, save_velocity = true }, no_magic_recharge = true,
+}
 sf2.moves.register { id = "projectile_actions", animation = fixture_animation, actions = {
     { type = "create_projectile", frame = 2, projectile = {
         name = "Sphere1", core_skeleton = "SkeletonMagic", copy_parent_type = "Magic",
