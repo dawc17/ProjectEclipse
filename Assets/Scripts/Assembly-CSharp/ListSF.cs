@@ -1204,10 +1204,10 @@ public class ListSF
 		ConditionSubType dCJPHFALIND = IOFGGOCEIAM.DCJPHFALIND;
 		if (dCJPHFALIND == ConditionSubType.ConditionSubTypeFight)
 		{
-			RosterFight pIGKOIFBOME = CCDKHLAMKKO().DBMHOBPNIIA(IOFGGOCEIAM.CCILLAHEENI());
+			RosterFight pIGKOIFBOME = CCDKHLAMKKO().FindSavedFightRecord(IOFGGOCEIAM.CCILLAHEENI());
 			if (pIGKOIFBOME != null)
 			{
-				num = pIGKOIFBOME.JAJNIKDMPPO();
+				num = pIGKOIFBOME.GetWinCount();
 			}
 		}
 		else
@@ -1267,7 +1267,7 @@ public class ListSF
 		BattleType pJMEMGHKKBM = fight.get_Type();
 		if (eJGGHHEOGPG > 0 && pIGKOIFBOME != null)
 		{
-			if (pJMEMGHKKBM != BattleType.FightPeriodic && pJMEMGHKKBM != BattleType.FightAscension && pIGKOIFBOME.JAJNIKDMPPO() >= eJGGHHEOGPG)
+			if (pJMEMGHKKBM != BattleType.FightPeriodic && pJMEMGHKKBM != BattleType.FightAscension && pIGKOIFBOME.GetWinCount() >= eJGGHHEOGPG)
 			{
 				if (pJMEMGHKKBM == BattleType.FightReplayable || pJMEMGHKKBM == BattleType.FightBossesReplayable || pJMEMGHKKBM == BattleType.FightFinalReplayable)
 				{
@@ -2876,7 +2876,7 @@ public class ListSF
 			Battle cNAOMDMIGLJ = item.Battle;
 			Zone pKCPOJKLMOK = cNAOMDMIGLJ.LKDFFCADHNO();
 			item.FightId.SetFightIDSByZBF(string.Copy(pKCPOJKLMOK.get_Name()), string.Copy(cNAOMDMIGLJ.get_Name()), string.Copy(item.Name));
-			RosterFight pIGKOIFBOME = ANEHEDFAPCH.DBMHOBPNIIA(item.FightId);
+			RosterFight pIGKOIFBOME = ANEHEDFAPCH.FindSavedFightRecord(item.FightId);
 			if (pIGKOIFBOME != null)
 			{
 				item.SetRosterFight(pIGKOIFBOME);
@@ -3010,7 +3010,7 @@ public class ListSF
 		Battle cNAOMDMIGLJ = KGKDKENMAOA.Battle;
 		Zone pKCPOJKLMOK = cNAOMDMIGLJ.LKDFFCADHNO();
 		KGKDKENMAOA.FightId.SetFightIDSByZBF(string.Copy(pKCPOJKLMOK.get_Name()), string.Copy(cNAOMDMIGLJ.get_Name()), string.Copy(KGKDKENMAOA.Name));
-		RosterFight pIGKOIFBOME = ANEHEDFAPCH.DBMHOBPNIIA(KGKDKENMAOA.FightId);
+		RosterFight pIGKOIFBOME = ANEHEDFAPCH.FindSavedFightRecord(KGKDKENMAOA.FightId);
 		if (pIGKOIFBOME != null)
 		{
 			KGKDKENMAOA.SetRosterFight(pIGKOIFBOME);

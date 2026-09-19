@@ -27,6 +27,43 @@ sf2.ui.set_text(view, "level", "Player level: " .. sf2.profile.level())
 This is a fresh read of profile progression. It neither changes the level nor
 reports a mode's generated opponent level.
 
+## sf2.profile.fight
+
+Read saved progress for a fight without creating or changing its save record.
+
+**Signature:** `sf2.profile.fight(fight)`
+
+**Returns:** A fresh table with `present` (boolean), `wins` (integer) and `losses`
+(integer). A known fight with no saved record returns `false`, `0`, `0`.
+
+**When:** After a profile loads, for example inside a `battle_result` callback.
+The host must have an active content catalog. An unavailable profile or unknown
+fight raises an error; it is not reported as an unwon fight.
+
+**Requires:** `profile.read`. Pass a qualified fight ID string or a fight handle
+created in this script context. Other namespaces, including `core`, require a
+declared dependency. String queries do not require `content.register`.
+
+```lua
+local sf2 = require("sf2")
+-- Also declare story.events and a dependency on core.
+sf2.story.on("battle_result", function(event)
+    if event.outcome == "win" then
+        local progress = sf2.profile.fight("core:fights/zone_1/tournament/3")
+        if progress.wins >= 1 then
+            sf2.log.info("The first tournament prerequisite is complete.")
+        end
+    end
+end)
+```
+
+These are the native `WinCount`/`LossCount` quest counters, stored as
+`CompletedCount`/`LossCount`. They do not select the separate eclipse counters
+based on the current mode, or count rounds. Query a distinct eclipse fight ID
+when that content has its own record. Native resets can change these counts;
+they are not an immutable lifetime history. Editing the returned table has no
+effect on saved progress. A new query reads the currently bound profile.
+
 ## sf2.profile.item
 
 **Signature:** `sf2.profile.item(item)`

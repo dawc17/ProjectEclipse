@@ -484,10 +484,10 @@ public class QuestCondition : ConditionExtension
 			BMDEBHIHIAJ.resultSTR = ListSF.GetInstance().ADHNLNFEOKN(jDIPBIHBGPF.get_Type());
 			break;
 		case "LossCount":
-			BMDEBHIHIAJ.resultNumber = ((jDIPBIHBGPF.FLKFFDLLBKA() != null) ? jDIPBIHBGPF.FLKFFDLLBKA().HCMBHIGGMDF() : 0);
+			BMDEBHIHIAJ.resultNumber = ((jDIPBIHBGPF.FLKFFDLLBKA() != null) ? jDIPBIHBGPF.FLKFFDLLBKA().GetLossCount() : 0);
 			break;
 		case "WinCount":
-			BMDEBHIHIAJ.resultNumber = ((jDIPBIHBGPF.FLKFFDLLBKA() != null) ? jDIPBIHBGPF.FLKFFDLLBKA().JAJNIKDMPPO() : 0);
+			BMDEBHIHIAJ.resultNumber = ((jDIPBIHBGPF.FLKFFDLLBKA() != null) ? jDIPBIHBGPF.FLKFFDLLBKA().GetWinCount() : 0);
 			break;
 		case "TimeLeft":
 			BMDEBHIHIAJ.resultNumber = jDIPBIHBGPF.HHJHCLBCEEA();

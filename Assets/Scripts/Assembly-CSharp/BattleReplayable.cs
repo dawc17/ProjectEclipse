@@ -47,7 +47,7 @@ public class BattleReplayable : Battle
 			{
 				return false;
 			}
-			completedCycles = System.Math.Min(completedCycles, rosterFight.JAJNIKDMPPO() / fight.EJGGHHEOGPG);
+			completedCycles = System.Math.Min(completedCycles, rosterFight.GetWinCount() / fight.EJGGHHEOGPG);
 		}
 		if (completedCycles <= HLBOMMKJAAO())
 		{
@@ -68,7 +68,7 @@ public class BattleReplayable : Battle
 		int eJGGHHEOGPG = KGKDKENMAOA.EJGGHHEOGPG;
 		if (pIGKOIFBOME != null)
 		{
-			if (pIGKOIFBOME.JAJNIKDMPPO() >= eJGGHHEOGPG * (num + 1))
+			if (pIGKOIFBOME.GetWinCount() >= eJGGHHEOGPG * (num + 1))
 			{
 				KGKDKENMAOA.Status = ConditionStatus.StatusComplete;
 			}

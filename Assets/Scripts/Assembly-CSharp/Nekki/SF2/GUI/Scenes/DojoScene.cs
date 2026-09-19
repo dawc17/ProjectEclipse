@@ -52,7 +52,7 @@ namespace Nekki.SF2.GUI.Scenes
 			_mainMenu.Init();
 			FightList jDIPBIHBGPF = ListSF.MGABNFOMDGB().NIAMMNJLEFI(BattleType.FightNone)[0].OAJCBGAKHJJ(0);
 			jDIPBIHBGPF = GameUtils.HIPIGHPMBIJ(jDIPBIHBGPF);
-			RosterFight pIGKOIFBOME = ListSF.CCDKHLAMKKO().DBMHOBPNIIA(jDIPBIHBGPF.FightId);
+			RosterFight pIGKOIFBOME = ListSF.CCDKHLAMKKO().FindSavedFightRecord(jDIPBIHBGPF.FightId);
 			if (pIGKOIFBOME == null)
 			{
 				pIGKOIFBOME = ListSF.CCDKHLAMKKO().OBAFPDGJHNN(jDIPBIHBGPF.FightId);

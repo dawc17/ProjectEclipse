@@ -103,7 +103,7 @@ namespace Eclipse.Modding
         public DefinitionId ValidateProfileReference(string reference, string category)
         {
             RequireCapability("profile.read");
-            if (category != "items" && category != "perks")
+            if (category != "items" && category != "perks" && category != "fights")
                 throw new ModContentException("Unsupported profile reference category.");
             var id = DefinitionId.Parse(reference);
             if (id.Category != category)

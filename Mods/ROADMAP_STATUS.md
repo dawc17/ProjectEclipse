@@ -242,3 +242,10 @@ FightResult calculations at two scales, alongside existing package/engine checks
 The story remains outside the entrypoint; guard templates, progression, encounter
 assembly and settlement/save/reload acceptance remain open. See Step 33 in
 de128/PRODUCTION.md for evidence and limits.
+
+Step 34 adds read-only saved fight progress and pending six-act Lua unlock
+decisions. All 2048 prerequisite histories are checked against archived quest
+conditions; production native roster tests verify counters, freshness, no write
+on read and profile unavailability. Notification ordering, map lock changes and
+opened-state persistence remain to be connected before story activation. See
+Step 34 in de128/PRODUCTION.md.

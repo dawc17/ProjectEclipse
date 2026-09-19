@@ -1,5 +1,10 @@
 # Eclipse Modding for VS Code
 
+`sf2.profile.fight(fight)` reads a detached `{ present, wins, losses }` snapshot.
+It accepts a fight handle or qualified ID and requires `profile.read` plus any
+referenced namespace dependency. LuaLS completes the snapshot fields; diagnostics
+check the capability. Unknown fights and unavailable profiles raise runtime errors.
+
 Reward definitions include `experience` (integer 0–1,000,000, default 0) and
 optional `prize_base` (finite 0–1,000,000). The latter feeds native performance
 coin calculations and is not a fixed coin award. Nested field completion and
@@ -11,8 +16,8 @@ Rows expose `perk`, optional `aspect` (0–2,147,483,647), and optional
 only for core perks and apply to that opponent. LuaLS provides nested field
 completion; the game checks ranges, duplicate perks and ownership at registration.
 
-Editor support for all 36 public Eclipse API modules: 158 functions, aliases, and
-callbacks; 76 constants; and 228 typed structures. Version 0.1.0 retains the ID
+Editor support for all 36 public Eclipse API modules: 159 functions, aliases, and
+callbacks; 76 constants; and 229 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 Move authoring now completes `damage_terms = { { type, shift } }`, the native

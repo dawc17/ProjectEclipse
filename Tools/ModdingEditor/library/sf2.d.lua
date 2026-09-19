@@ -1023,6 +1023,12 @@ local ProfilePerkSnapshot = {}
 ---@field upgrade? integer
 local ProfileItemSnapshot = {}
 
+---@class (exact) Eclipse.ProfileFightSnapshot
+---@field present boolean
+---@field wins integer
+---@field losses integer
+local ProfileFightSnapshot = {}
+
 ---@class (exact) Eclipse.BattleEquipmentSnapshot
 ---@field item? string
 ---@field type? string
@@ -2415,6 +2421,15 @@ function profile.level() end
 ---@param item Eclipse.ItemHandle|string
 ---@return Eclipse.ProfileItemSnapshot
 function profile.item(item) end
+
+---Read saved progress for a fight without creating or changing its save record.
+---Requires: `profile.read`. Pass a qualified fight ID string or a fight handle created in this script context. Other namespaces, including `core`, require a declared dependency. String queries do not require `content.register`.
+---When: After a profile loads, for example inside a `battle_result` callback. The host must have an active content catalog. An unavailable profile or unknown fight raises an error; it is not reported as an unwon fight.
+---Returns: A fresh table with `present` (boolean), `wins` (integer) and `losses` (integer). A known fight with no saved record returns `false`, `0`, `0`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profilefight)
+---@param fight Eclipse.FightHandle|string
+---@return Eclipse.ProfileFightSnapshot
+function profile.fight(fight) end
 
 ---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
 ---When: During mod loading or a callback while the script is active, including before a profile loads.

@@ -85,6 +85,7 @@ public static class ValidateDE128CombatNative
                 CheckRestoredEquipment();
                 CheckWarriorPerkLoadouts();
                 CheckSenseiRewards();
+                CheckProfileFightProgress();
                 var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/" + (Spell == "Sphere1" ? "jian" : Spell.ToLowerInvariant()));
                 if (definition == null) throw new Exception("Fixture fight missing; check mod initialization errors.");
                 var encounter = ListSF.CHMCKGCDGCM(new FightIDS(ModRuntime.Scripts.Content.RuntimeFightId(definition.Id)));
@@ -304,6 +305,46 @@ public static class ValidateDE128CombatNative
         }
         if (checkedPerks != 8) throw new Exception("Expected eight pending young Lynx perk instances, got " + checkedPerks);
         Debug.Log("[DE128Native] PASS eight warrior perk clones: Aspect/ChanceFactor, omitted defaults, explicit zero and instance isolation. Pending story is not activated.");
+    }
+
+    static void CheckProfileFightProgress()
+    {
+        var id = CoreContentImporter.FightId("ZONE_1", "Tournament", "3");
+        string nativeId = ModRuntime.Scripts.Content.RuntimeFightId(id);
+        var roster = ListSF.CCDKHLAMKKO();
+        var records = roster.NIDBIFOJMAP();
+        var before = records.ToArray();
+        var profileField = typeof(ModRuntime).GetField("_profileRoster", BindingFlags.Static | BindingFlags.NonPublic);
+        var bound = profileField.GetValue(null);
+        try
+        {
+            records.Clear();
+            var absent = ModProfileAccess.Fight(id);
+            if (absent.Present || absent.Wins != 0 || absent.Losses != 0 || records.Count != 0)
+                throw new Exception("Read-only fight query created missing progress.");
+            var document = new System.Xml.XmlDocument();
+            document.LoadXml("<Fight IDS='" + nativeId + "' CompletedCount='7' LossCount='3' EclipseCompletedCount='99' EclipseLossCount='88'/>");
+            var record = new RosterFight(document.DocumentElement);
+            records.Add(record);
+            string saved = document.OuterXml;
+            var snapshot = ModProfileAccess.Fight(id);
+            if (!snapshot.Present || snapshot.Wins != 7 || snapshot.Losses != 3 || document.OuterXml != saved || records.Count != 1)
+                throw new Exception("Fight snapshot differs from saved native counters or mutates save data.");
+            record.OBFNFKPHJIN(8);
+            if (ModProfileAccess.Fight(id).Wins != 8 || snapshot.Wins != 7)
+                throw new Exception("Fight snapshot is cached or mutable.");
+            bool rejected = false;
+            try { ModProfileAccess.Fight(DefinitionId.Parse("core:fights/missing")); } catch (ModContentException) { rejected = true; }
+            if (!rejected) throw new Exception("Missing catalog fight returned fabricated zero progress.");
+            profileField.SetValue(null, null);
+            if (ModProfileAccess.Fight(id) != null) throw new Exception("Unbound profile exposed progress.");
+        }
+        finally
+        {
+            profileField.SetValue(null, bound);
+            records.Clear(); records.AddRange(before);
+        }
+        Debug.Log("[DE128Native] PASS profile fight queries: actual native roster lookup, absent/no mutation, saved normal counters, fresh detached values, unknown fight and unbound profile. Original records restored.");
     }
 
     static void CheckSenseiRewards()

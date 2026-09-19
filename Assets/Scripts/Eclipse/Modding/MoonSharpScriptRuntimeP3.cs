@@ -95,6 +95,18 @@ namespace Eclipse.Modding
                 })));
                 root.Set("story",DynValue.NewTable(story));
                 var profile=new Table(_script);
+                profile.Set("fight",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.profile.fight",()=>{
+                    const string function="sf2.profile.fight";
+                    _api.RequireCapability("profile.read");
+                    var id=ProfileReference(args[0],_fightHandles,"fights",function);
+                    var snapshot=ModProfileAccess.Fight?.Invoke(id);
+                    if(snapshot==null)throw new ModContentException("No active game profile is available.");
+                    var result=new Table(_script);
+                    result.Set("present",DynValue.NewBoolean(snapshot.Present));
+                    result.Set("wins",DynValue.NewNumber(snapshot.Wins));
+                    result.Set("losses",DynValue.NewNumber(snapshot.Losses));
+                    return DynValue.NewTable(result);
+                })));
                 profile.Set("level",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.profile.level",()=>{
                     _api.RequireCapability("profile.read");
                     int? level=ModProfileAccess.Level?.Invoke();

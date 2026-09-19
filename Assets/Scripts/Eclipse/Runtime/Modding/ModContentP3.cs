@@ -41,11 +41,21 @@ namespace Eclipse.Modding
 
     public static class ModProfileAccess
     {
+        public static Func<DefinitionId,ModProfileFightSnapshot> Fight;
         public static Func<int?> Level;
         public static Func<DefinitionId,ModProfileItemSnapshot> Item;
         public static Func<DefinitionId,ModProfilePerkSnapshot> Perk;
         public static Func<IReadOnlyList<ModProfileEquipmentSnapshot>> Equipment;
-        public static void Clear() { Level=null; Item=null; Perk=null; Equipment=null; }
+        public static void Clear() { Level=null; Item=null; Perk=null; Equipment=null; Fight=null; }
+    }
+
+    public sealed class ModProfileFightSnapshot
+    {
+        public bool Present { get; }
+        public int Wins { get; }
+        public int Losses { get; }
+        public ModProfileFightSnapshot(bool present, int wins, int losses)
+        { Present=present; Wins=present?wins:0; Losses=present?losses:0; }
     }
 
     public sealed class ModCounterDefinition

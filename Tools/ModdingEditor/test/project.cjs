@@ -301,7 +301,7 @@ test('dojo selector validates presentation capability and owned UI', async () =>
 
 test('profile queries require read capability', async () => {
  const mod=await p.indexMod(template);
- for(const call of ['sf2.profile.level()','sf2.profile.item(item)'])
+ for(const call of ['sf2.profile.level()','sf2.profile.item(item)','sf2.profile.fight("core:fights/zone_1/tournament/3")'])
   assert(p.analyze(header+call,mod).issues.some(i=>i.message.includes('profile.read')));
 });
 

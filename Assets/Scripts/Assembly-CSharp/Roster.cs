@@ -1509,7 +1509,8 @@ public class Roster : MELBIBHDPCE
 		return list;
 	}
 
-	public RosterFight DBMHOBPNIIA(FightIDS JFIIJBAOOIK)
+	// best guess for name
+	public RosterFight FindSavedFightRecord(FightIDS JFIIJBAOOIK)
 	{
 		foreach (RosterFight item in JNPMCNMEOLE)
 		{
@@ -1523,7 +1524,7 @@ public class Roster : MELBIBHDPCE
 
 	public RosterFight JJHCGOIKBCP(FightIDS DIAIIPCBMFL)
 	{
-		RosterFight pIGKOIFBOME = DBMHOBPNIIA(DIAIIPCBMFL);
+		RosterFight pIGKOIFBOME = FindSavedFightRecord(DIAIIPCBMFL);
 		pIGKOIFBOME.GICDABHEMML();
 		if (JPMPIDFGCJL())
 		{
@@ -1534,7 +1535,7 @@ public class Roster : MELBIBHDPCE
 
 	public RosterFight NALCLBDLBKN(FightIDS DIAIIPCBMFL)
 	{
-		RosterFight pIGKOIFBOME = DBMHOBPNIIA(DIAIIPCBMFL);
+		RosterFight pIGKOIFBOME = FindSavedFightRecord(DIAIIPCBMFL);
 		if (pIGKOIFBOME != null)
 		{
 			pIGKOIFBOME.ICAKCDMOMDF();

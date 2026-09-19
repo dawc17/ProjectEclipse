@@ -284,8 +284,8 @@ public static class StatisticsGeter
 			if (dictionary.ContainsKey(text))
 			{
 				IECDAEPLNEP iECDAEPLNEP = dictionary[text];
-				iECDAEPLNEP.OONPNMEPOCC += item.JAJNIKDMPPO();
-				iECDAEPLNEP.FPGNLGFKJAP += item.HCMBHIGGMDF();
+				iECDAEPLNEP.OONPNMEPOCC += item.GetWinCount();
+				iECDAEPLNEP.FPGNLGFKJAP += item.GetLossCount();
 				iECDAEPLNEP.FIMCLKNJDGM += item.PEHLNNEFFLI();
 				iECDAEPLNEP.HMNNFOAPIHD += item.PHKCBMAOHIF();
 			}
@@ -293,8 +293,8 @@ public static class StatisticsGeter
 			{
 				IECDAEPLNEP iECDAEPLNEP2 = new IECDAEPLNEP();
 				iECDAEPLNEP2.Name = text;
-				iECDAEPLNEP2.OONPNMEPOCC = item.JAJNIKDMPPO();
-				iECDAEPLNEP2.FPGNLGFKJAP = item.HCMBHIGGMDF();
+				iECDAEPLNEP2.OONPNMEPOCC = item.GetWinCount();
+				iECDAEPLNEP2.FPGNLGFKJAP = item.GetLossCount();
 				iECDAEPLNEP2.FIMCLKNJDGM = item.PEHLNNEFFLI();
 				iECDAEPLNEP2.HMNNFOAPIHD = item.PHKCBMAOHIF();
 				IECDAEPLNEP value = iECDAEPLNEP2;

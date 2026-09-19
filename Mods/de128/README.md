@@ -27,6 +27,12 @@ bonus bases. It also stays outside the active entrypoint until the story is read
 Native parsing and detached result calculations are checked against historical
 XML; profile settlement and the full story remain unverified (Step 33).
 
+Pending `scripts/content/sensei_progression.lua` computes the six acts eligible
+to unlock after a victory, using saved tournament/prior-act wins and supplied
+opened flags. It does not yet show notifications, change map locks or persist
+those flags. All 2048 prerequisite histories are compared with archived quest
+conditions; the generic `sf2.profile.fight` query supplies the saved counters.
+
 `scripts/content/chinese_swords.lua` registers both moves and Jian's subtype;
 `chinese_swords_data.lua` contains their typed combat/presentation data. The mod
 bundles the unchanged recovered animation binary, with no runtime XML dependency.

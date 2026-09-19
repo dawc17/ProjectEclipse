@@ -528,6 +528,11 @@ async function main() {
         const found=labels(await request('textDocument/completion',rewardEconomyProbe));
         return ['experience','prize_base'].every(name=>found.some(value=>value.startsWith(name)));
     },'reward experience and performance base fields');
+    const progressProbe=probe('fight-progress.lua','local sf2=require("sf2")\nlocal progress=sf2.profile.fight("core:fights/zone_1/tournament/3")\nprogress.|');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',progressProbe));
+        return ['present','wins','losses'].every(name=>found.some(value=>value.startsWith(name)));
+    },'saved fight progress snapshot fields');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

@@ -50,7 +50,7 @@ public class RosterFight
 	{
 		get
 		{
-			return HCMBHIGGMDF();
+			return GetLossCount();
 		}
 		set
 		{
@@ -62,7 +62,7 @@ public class RosterFight
 	{
 		get
 		{
-			return JAJNIKDMPPO();
+			return GetWinCount();
 		}
 		set
 		{
@@ -285,7 +285,8 @@ public class RosterFight
 		return _node;
 	}
 
-	public int HCMBHIGGMDF()
+	// best guess for name
+	public int GetLossCount()
 	{
 		return JOBFHJKBJKN;
 	}
@@ -296,7 +297,8 @@ public class RosterFight
 		_node.Attributes["LossCount"].Value = JOBFHJKBJKN.ToString();
 	}
 
-	public int JAJNIKDMPPO()
+	// best guess for name
+	public int GetWinCount()
 	{
 		return GDFACJKNGCB;
 	}

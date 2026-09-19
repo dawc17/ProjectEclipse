@@ -221,6 +221,7 @@ namespace Eclipse.Modding
                 if (location.IsDojo) dojoChoices.Add(location.Id);
             DojoSelection.SetChoices(dojoChoices);
             ModProfileAccess.Level = ReadProfileLevel;
+            ModProfileAccess.Fight = ReadProfileFight;
             ModProfileAccess.Item = ReadProfileItem;
             ModProfileAccess.Perk = ReadProfilePerk;
             ModProfileAccess.Equipment = ReadProfileEquipment;
@@ -989,6 +990,16 @@ namespace Eclipse.Modding
                     new ModProfileItemSnapshot(true, item.Count, true, item.DHNNCAEEMLL(), metadata?.Type, metadata?.SubType)));
             }
             return result.AsReadOnly();
+        }
+
+        private static ModProfileFightSnapshot ReadProfileFight(DefinitionId id)
+        {
+            if (_profileRoster == null || _scripts == null) return null;
+            // Resolve through the active catalog, never create a roster record.
+            string runtimeId = _scripts.Content.RuntimeFightId(id);
+            var record = _profileRoster.FindSavedFightRecord(new FightIDS(runtimeId));
+            return record == null ? new ModProfileFightSnapshot(false, 0, 0)
+                : new ModProfileFightSnapshot(true, record.GetWinCount(), record.GetLossCount());
         }
 
         private static ModProfileItemSnapshot ReadProfileItem(DefinitionId id)

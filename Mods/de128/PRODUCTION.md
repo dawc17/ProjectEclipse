@@ -1,8 +1,8 @@
 # DE128 production record
 
 Current package: **0.18.0**. Latest completed content is recorded in Step 31;
-Steps 32–33 add encounter perk settings, reward economy support and pending
-Sensei Story data.
+Steps 32–34 add encounter perk settings, reward economy, saved fight queries and
+pending Sensei Story data/decisions.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
 move APIs and verified graph data; Step 13 adds passing isolated live input/animation
@@ -1969,3 +1969,58 @@ missing guard templates, visuals and complete profile settlement/save/reload
 acceptance remain open. Native result comparisons do not establish end-to-end
 story rewards or exact asset-corpus parity. Acquisition/reconciliation of the
 owner's complete archive remains deferred.
+
+## Step 34: saved fight queries and six-act unlock decisions
+
+Added generic `sf2.profile.fight(fight)` under `profile.read`. Qualified strings
+respect dependencies; handles must belong to the script context. The host resolves
+the active content graph, reads the bound profile's existing record and returns
+detached `present`, `wins`, `losses` values. A known fight without a record returns
+false/zero/zero without creating a record. Unknown fights and unavailable profiles
+raise errors. Counts match the native WinCount/LossCount quest values, not the
+separate eclipse counters or round wins. Host teardown clears the new service.
+
+The required native methods were given narrowly scoped inferred names:
+`Roster.FindSavedFightRecord`, `RosterFight.GetWinCount` and `GetLossCount`, with
+the exact best-guess comment. Their implementations and save field names are
+unchanged; existing call sites were updated. The evidence is the non-creating
+roster lookup and getters/setters backed by CompletedCount/LossCount, plus the
+quest-condition consumers. No matching serialized references or name collisions
+were found. These guesses are not confirmed deobfuscation mappings.
+
+Pending `scripts/content/sensei_progression.lua` computes acts eligible to unlock
+after any victory. Each act requires its third tournament fight; acts II–VI also
+require the previous act's final normal fight. Already opened acts and non-win
+outcomes produce no notification candidates. Saved prerequisites earned before
+the current event count, matching the archive. Callers supply boolean opened
+flags and the five prior-act final fight identities. This is ordinary Lua logic,
+not an XML interpreter or an operation DSL. The module is outside the entrypoint.
+
+Verification:
+
+- `Tools/TestFightProgress.ps1` passes 2119 checks through actual Lua bindings and the authored
+  module against all 2048 combinations of six tournament/five previous-act wins.
+  Expected gates come from historical quest conditions; the fixture also checks
+  their event, outcome and opened-flag conditions. It verifies no duplicate
+  candidates for opened acts, loss/surrender/timeouts, detached tables, missing
+  records, ownership/capability errors and host cleanup.
+  Evidence: `Temp/FightProgress-6fa7fbebbb9a44828cd0ab3fcb406a5a`.
+- `Tools/TestProfileApi.ps1`: existing 18 production-method and 57 Lua profile
+  tests pass; the Phase 1 showcase runtime also passes. All 2638 DE128 package
+  foundation checks pass. Managed editor build succeeds (existing warnings remain).
+- Isolated Unity 6000.6.0f1 run
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-siw3k4tu` exits 0. The production query
+  reads an actual native roster, creates no absent records, distinguishes saved
+  normal counts from different eclipse counts, does not mutate save XML, refreshes
+  values between reads and rejects missing fights/unbound profiles. Fixture
+  records and the original profile binding are restored in finally. Existing
+  young Lynx perk, 57 reward-slot and Jian/MindThrow checks remain green.
+- Wiki/API and generated editor contracts cover all 159 functions, 76 constants
+  and 229 structures. Editor generation/check, project tests, LuaLS snapshot
+  completion and VS Code integration pass. Wiki builds 47 pages and checks 4079
+  links/assets; zero Astro diagnostics, existing duplicate-404 warning remains.
+
+No map lock, notification or persistent opened flag is changed yet. Those need a
+Lua presentation/progression coordinator that preserves native dialog ordering
+and profile lifetime. Missing guard templates, fight assembly, full story
+playback/save/reload and corpus reconciliation remain open. Package stays 0.18.0.

@@ -2306,7 +2306,7 @@ public static class GameUtils
 			return false;
 		}
 		Roster nKGLHEGIKKP = ListSF.CCDKHLAMKKO();
-		RosterFight pIGKOIFBOME = nKGLHEGIKKP.DBMHOBPNIIA(KGKDKENMAOA.FightId);
+		RosterFight pIGKOIFBOME = nKGLHEGIKKP.FindSavedFightRecord(KGKDKENMAOA.FightId);
 		if (pIGKOIFBOME == null)
 		{
 			pIGKOIFBOME = nKGLHEGIKKP.OBAFPDGJHNN(KGKDKENMAOA.FightId);
@@ -2367,7 +2367,7 @@ public static class GameUtils
 		else
 		{
 			HHKHINLNCJB = false;
-			RosterFight pIGKOIFBOME2 = nKGLHEGIKKP.DBMHOBPNIIA(KGKDKENMAOA.FightId);
+			RosterFight pIGKOIFBOME2 = nKGLHEGIKKP.FindSavedFightRecord(KGKDKENMAOA.FightId);
 			if (pIGKOIFBOME2 == null)
 			{
 				pIGKOIFBOME2 = nKGLHEGIKKP.OBAFPDGJHNN(KGKDKENMAOA.FightId);
