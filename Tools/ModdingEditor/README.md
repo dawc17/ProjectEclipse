@@ -370,3 +370,7 @@ charge bounds are documented in the move API reference.
 Distance conditions and `attack.options` have nested completion for signed bounds,
 point endpoints, native defense attributes and block/invulnerability exceptions.
 The sphere attack snippet shows options only; it is not a complete projectile.
+
+Attack and guarded hit-patch completion also accept `Physycal`, the native
+physical-fall reaction spelling. Preserve that spelling; `Physical` is a different
+name and is rejected. Existing reaction defaults are unchanged.

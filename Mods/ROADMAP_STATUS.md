@@ -203,3 +203,7 @@ record. This does not close spell parity.
 DE128 0.15.0 adds all nine Sphere2 moves and Medium Charge of Darkness through Lua.
 Full graph comparisons and native casting/flight/charge/deletion pass. Three spell
 graphs and broader presentation/damage/save acceptance remain open; see Step 23.
+
+DE128 0.16.0 adds Sphere3 and Large Charge of Darkness in Lua. Generic native
+Physycal reaction support, complete graph comparisons and native cast/middle/charge/
+cleanup pass. ComboSphere3 and MindThrowNormal remain; Step 24 records limits.

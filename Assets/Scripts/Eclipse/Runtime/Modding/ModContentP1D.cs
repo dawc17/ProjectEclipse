@@ -462,7 +462,7 @@ namespace Eclipse.Modding
             foreach (var term in terms)
                 if (term == null || !types.Add(term.Type)) throw new ModContentException("Duplicate/null damage term.");
             DamageTerms = Array.AsReadOnly(terms);
-            if (Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus"},hit)<0)
+            if (Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal"},hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
             Options = options ?? new ModMoveAttackOptions();

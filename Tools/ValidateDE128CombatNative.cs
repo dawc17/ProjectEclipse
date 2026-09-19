@@ -22,7 +22,7 @@ public static class ValidateDE128CombatNative
     static Model sphere;
     static bool spellRequested, spellSelected, spellReleased, sphereMiddle, sphereDeleted, chargeConsumed;
     static int spellFrame, sphereCount;
-    static readonly string Spell = Environment.GetEnvironmentVariable("ECLIPSE_DE128_TEST_SPELL") == "Sphere2" ? "Sphere2" : "Sphere1";
+    static readonly string Spell = Environment.GetEnvironmentVariable("ECLIPSE_DE128_TEST_SPELL") ?? "Sphere1";
     static string SpellMove => "de128:moves/" + Spell.ToLowerInvariant() + "_player";
     static string SpellMiddle => "de128:moves/" + Spell.ToLowerInvariant() + "_middle";
     static readonly HashSet<int> AttackFrames = new HashSet<int>();
@@ -73,7 +73,7 @@ public static class ValidateDE128CombatNative
                 CheckSharedMovePatches();
                 CheckRestoredWeapons();
                 CheckRestoredEquipment();
-                var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/" + (Spell == "Sphere2" ? "sphere2" : "jian"));
+                var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/" + (Spell == "Sphere1" ? "jian" : Spell.ToLowerInvariant()));
                 if (definition == null) throw new Exception("Fixture fight missing; check mod initialization errors.");
                 var encounter = ListSF.CHMCKGCDGCM(new FightIDS(ModRuntime.Scripts.Content.RuntimeFightId(definition.Id)));
                 entered = GameUtils.StartFight(encounter, false, null, true, false);
@@ -155,7 +155,7 @@ public static class ValidateDE128CombatNative
         {
             if (sphereCount != 1 || !sphereMiddle || !chargeConsumed || actor.KGGIDBLBMDJ().Contains(sphere as WeaponModel))
                 throw new Exception("Incomplete live Sphere1: count=" + sphereCount + " middle=" + sphereMiddle + " consumed=" + chargeConsumed);
-            Debug.Log("[DE128Native] PASS: prior Jian acceptance plus " + Spell + " native Magic-input selection, one inherited-equipment projectile, middle-flight selection, charge consumption and child deletion. No numerical damage, audible-output or shop-preview claim.");
+            Debug.Log("[DE128Native] PASS: prior Jian acceptance plus " + Spell + " native Magic-input selection, one inherited-equipment projectile, middle-phase selection, charge consumption and child deletion. No numerical damage, audible-output or shop-preview claim.");
             Finish(0);
         }
     }
@@ -283,9 +283,9 @@ public static class ValidateDE128CombatNative
     static void CheckRestoredEquipment()
     {
         string[] ids = { "armor/dragon_carapace", "armor/old_legionnaire_armour", "armor/samurai_armour", "helm/gabled_helm",
-            "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc", "magic/minor_charge_of_darkness", "magic/medium_charge_of_darkness" };
+            "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc", "magic/minor_charge_of_darkness", "magic/medium_charge_of_darkness", "magic/large_charge_of_darkness" };
         string[] names = { "ARMOR_C2_Z5_DRAGON", "ARMOR_OLD_LEGIONER", "ARMOR_BIG_SHOGUN_OLD", "HELM_GABLED_OLD",
-            "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING", "Sphere1", "Sphere2" };
+            "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING", "Sphere1", "Sphere2", "Sphere3" };
         var archive = new System.Xml.XmlDocument(); archive.Load("Assets/DExml/list.xml");
         for (int i = 0; i < ids.Length; i++)
         {
@@ -318,7 +318,7 @@ public static class ValidateDE128CombatNative
                 throw new Exception("Native equipment art missing " + id);
             Debug.Log("[DE128Native] Restored equipment matches archive and loads art: " + id);
         }
-        Debug.Log("[DE128Native] Ten restored equipment definitions passed native stat-presence, listing, upgrade, enchantment and asset checks. Shared DE move deltas remain pending.");
+        Debug.Log("[DE128Native] Eleven restored equipment definitions passed native stat-presence, listing, upgrade, enchantment and asset checks. Shared DE move deltas remain pending.");
     }
     static void CheckRestoredWeapons()
     {

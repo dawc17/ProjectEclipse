@@ -1585,3 +1585,41 @@ still need complete graphs; their distinct reactions/edge-free attacks must not
 be approximated. Production remains active.
 
 Sphere1 regression with the updated package/harness also passed: Run-8n0gxe37 exited 0, retaining native input selection, startup/flight, charge and deletion evidence. No Unity assets or engine source were changed in this step.
+
+## Step 24 - Sphere3 and native physical-fall reaction (0.16.0)
+
+Sphere3's five archived moves are authored in Lua, with unchanged recovered
+big_sphere_player and magic_fire_aura_bullet binaries. The graph preserves its
+spawn frame 5, charge frame 7, enemy-centered startup, short startup range,
+frame-22 middle attack, five ordered edges (including repeated edge names),
+0.6 mixed damage, downward impulse -1000, effects and both shop actions.
+Large Charge of Darkness retains level 42, 159 gems, INTERMISSION, MagicDamage
+1076 through native progression and Lifesteal enchantment aspect 1511.
+
+Generic C# attack and guarded hit-patch validation now accept `Physycal`, the
+existing native physical-fall reaction spelling. The recovered parser passes the
+name to hit conditions; vanilla PhysicalFall already recognizes that contract.
+No recovered game code or Unity identities changed. All spell behavior remains
+in Lua; XML is used only by authoring verification, never loaded by the mod.
+Wiki and editor schema/generated definitions/completion coverage changed together.
+
+Verification:
+- 992 combined move checks passed: all five complete archived graphs, template
+  equivalence, binary identity, native attack parsing, exact Physycal spelling,
+  repeated edges, fingerprint change and rejection of unsupported spellings.
+- 2,563 actual-package foundation checks passed. 45 controlled production
+  move-patch checks passed, including Physycal apply/rollback before and after
+  native-container initialization.
+- Isolated Unity run Run-3mi0pvne exited 0: Jian input/attack checks, restored
+  equipment/art checks, Sphere3 Magic-input selection, one inherited-equipment
+  child, startup and middle selection, charge consumption and child removal.
+- Editor generation/check, 36 tests, LuaLS (including Physycal completion) and
+  real VS Code integration passed. Contracts remain 153 functions, 76 constants,
+  223 typed structures. Managed compile passed with no errors.
+
+The native test does not prove numerical damage, the victim's fall animation,
+audible/visual effects, shop previews or purchase/save continuity. ComboSphere3
+and MindThrowNormal remain incomplete and require their exact reactions and
+edge-free attack support. Production remains active.
+
+Wiki build passed: 47 pages and 4,052 links/assets, with the existing duplicate-404 warning. Whitespace checks passed.

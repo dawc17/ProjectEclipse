@@ -56,6 +56,17 @@ internal static class MoveCombatPatchTests
             if (initialized || consume) Check(interval.EndFrame==42 && attack.HitReactions.Single().Name=="High","Post-init rollback failed.");
             else Check(ReferenceEquals(interval.NodeInterval,source)&&ReferenceEquals(attack.NodeInterval,hitSource),"Pre-init rollback failed.");
         }
+        foreach (bool initialized in new[] { false, true })
+        {
+            var move = Move(initialized: initialized);
+            var attack = (IntervalAttack)move.MoveData.Intervals[1];
+            using (Apply(new[] { move }, new MoveCombatPatch(Owner, "Test", hit: new ModMoveHitPatch("High", "Physycal"))))
+            {
+                if (!initialized) attack.Init();
+                Check(attack.HitReactions.Single().Name == "Physycal", "Physical-fall patch changed native spelling.");
+            }
+            Check(attack.HitReactions.Single().Name == "High", "Physical-fall patch rollback failed.");
+        }
         var first=Move("First"); var second=Move("Second"); var firstNode=first.MoveData.Intervals[0].NodeInterval;
         Reject(new[]{first,second},new[]{Patch("First"),new MoveCombatPatch(Owner,"Second",intervalEnd:new ModMoveFramePatch("Uninterrupt",41,40))},"Wrong expected value accepted.");
         Check(ReferenceEquals(first.MoveData.Intervals[0].NodeInterval,firstNode) && first.SelectionConditions.Count==1 && first.ScheduledActions[0].ScheduledFrame==18,"Late validation failure partially applied batch.");

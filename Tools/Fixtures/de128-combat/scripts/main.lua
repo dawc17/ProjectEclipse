@@ -37,6 +37,18 @@ local sphere2_fight = sf2.fights.register { id = "sphere2", battle = sphere2_bat
 sf2.modes.register { id = "trial", fights = { fight }, repeatable = true }
 sf2.modes.register { id = "sphere2", fights = { sphere2_fight }, repeatable = true }
 
+local sphere3_opponent = sf2.warriors.register {
+    id = "sphere3", template = sf2.warriors.get_template("core:warrior-templates/man_staff"),
+    tactic = "Standard", first_name = "Sphere3 acceptance", last_name = "", level = 1,
+    items = { sf2.items.get("core:items/weapon/WEAPON_CHNY21_JIAN"),
+        sf2.items.get("de128:items/magic/large_charge_of_darkness") },
+}
+local sphere3_battle = sf2.battles.register { id = "sphere3", zone = zone, type = sf2.battles.STORY,
+    x = 0, y = 0, alias = "Sphere3 acceptance", title = "Sphere3 acceptance", description = "", location = location }
+local sphere3_fight = sf2.fights.register { id = "sphere3", battle = sphere3_battle, location = location,
+    warriors = { sphere3_opponent }, rewards = { loss, win }, rounds = 1, round_time = 99 }
+sf2.modes.register { id = "sphere3", fights = { sphere3_fight }, repeatable = true }
+
 -- Inert move definitions used to inspect actual native action parsing after boot.
 local fixture_animation = sf2.assets.binary("de128:animations/chinese_swords_super_slash_old")
 local child = sf2.moves.register { id = "projectile_child", animation = fixture_animation,

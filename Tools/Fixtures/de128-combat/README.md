@@ -107,3 +107,8 @@ records the spell choice in `spell.json`; production package definitions are use
 Sphere2 run `Run-yedgzocr` passed casting, inherited equipment, startup-to-flight,
 charge consumption and child deletion. This does not validate numerical damage,
 wall-miss cleanup, audible/visual output or shop previews.
+
+`--spell Sphere3` selects its independent Large Charge of Darkness encounter.
+Run-3mi0pvne passed native input, startup/middle selection, charge and child removal.
+Sphere3 centers on the opponent rather than flying horizontally; the shared check
+therefore reports middle-phase selection. It does not assert victim reaction or damage.

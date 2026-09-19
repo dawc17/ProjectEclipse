@@ -109,7 +109,7 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 | `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
 | `damage_terms` | Optional array of 1–4 `{ type, shift = 0 }` tables. `type` uses the same four attribute names, each at most once. `shift` must be finite in −1,000…1,000. |
-| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, or `MiddleShortPlus`. |
+| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, or `Physycal` (the native spelling for physical fall). |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
 
@@ -501,7 +501,7 @@ dots or hyphens. At least one nonempty operation is required.
 | --- | --- |
 | `conditions` | Up to 32 additional typed move conditions, using the same records as `moves.register`. They are appended as extra requirements; existing conditions remain. |
 | `interval_end` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
-| `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`. |
+| `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`. |
 | `sound_frame` | `{ name, expected, value }`. Requires exactly one native direct Sound action with this clip name, scheduled at `expected`. Moves it to `value`. Event-driven and RandomSound actions are not supported by this selector. |
 
 Frame values must be distinct integers from 0 through 100000. Reaction names

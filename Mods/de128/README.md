@@ -1,6 +1,6 @@
 # DE128 - Definitive Edition
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.15.0` restores ten missing weapon listings, ten other equipment
+DE128 is an ordinary downstream Eclipse mod. Version `0.16.0` restores ten missing weapon listings, eleven other equipment
 listings, and enables the archived
 ChineseSwords combat/preview graph for Jian alongside four earlier equipment
 combat-family corrections through Lua. It includes shop availability
@@ -29,16 +29,19 @@ limits. Purchase/equip/save/reload acceptance remains open.
 
 The additional equipment is Dragon Carapace, Old Legionnaire Armour, Samurai
 Armour, Gabled Helm, Dragon Helm, Dragon Boomerangs, Dragon's Breath and Lightning
-Arc, plus Minor and Medium Charge of Darkness. Stats, prices, group/level gates and default enchantments match archived
+Arc, plus Minor, Medium and Large Charge of Darkness. Stats, prices, group/level gates and default enchantments match archived
 item definitions. Samurai Armour deliberately retains only head defense (914).
 The three ranged/magic families use base moves. `shared_moves.lua` now applies
 five guarded changes: the heavy ranged uninterrupt end, Chakram hit reaction,
 heavy ranged preview sound timing, and not-Stun conditions for MassBomb and
 LightningArrow. Sphere1 and Sphere2 each have nine Lua-authored combat and shop
-moves and reuse three unchanged recovered animation binaries. Complete archive
+moves and reuse three unchanged recovered animation binaries. Sphere3 adds five
+more moves and two unchanged binaries, retaining enemy-centered placement,
+five ordered attack edges (including the archived repetitions), downward impulse,
+and the native `Physycal` hit reaction. Complete archive
 comparisons cover their different attack edges, effects, alignments and conditions.
 Sphere2 retains its Stun restriction and three attack edges; it is not a recolored
-Sphere1. Three missing spell graphs remain: Sphere3, ComboSphere3 and MindThrowNormal.
+Sphere1. Two missing spell graphs remain: ComboSphere3 and MindThrowNormal.
 Hidden NPC equipment remains unregistered. Numerical damage, wall-miss cleanup,
 visual/audio output and shop-preview acceptance remain open. See `PRODUCTION.md`
 for the native lifecycle evidence and its limits.
