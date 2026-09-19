@@ -187,7 +187,7 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 29 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 5,
+        Check(catalog.Moves.Count == 35 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 5,
             "Chinese swords combat/preview registrations or lock extensions are incomplete.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
@@ -196,7 +196,7 @@ internal static class DE128FoundationTests
         Check(slash.Animation.ToString() == "de128:animations/chinese_swords_super_slash_old" &&
             catalog.ItemCombatSubtypes.Any(patch => patch.Item == CoreContentImporter.WeaponId("WEAPON_CHNY21_JIAN") && patch.Subtype == "ChineseSwords"),
             "Chinese swords binary/subtype registration changed.");
-        Check(catalog.ItemAvailabilityPolicies.Count() == 47 &&
+        Check(catalog.ItemAvailabilityPolicies.Count() == 48 &&
             catalog.ItemAvailabilityPolicies.Where(policy => policy.Item.Namespace.Value == "core").All(policy => policy.Owner.Value == "de128" &&
                 policy.Visibility == ModItemVisibility.ForceVisible && policy.MinimumLevel >= 15),
             "DE shop policies are incomplete after registration/rebuild/conflict.");
@@ -208,9 +208,9 @@ internal static class DE128FoundationTests
             "Desolator lost its move family or canonical progression profile.");
         Check(weapon.Icon.ToString() == "core:ui/items/weapon17.img_weapon_boss_giant_sword" &&
             weapon.Model.ToString() == "core:gamedata/models/mdl_weapon_giant_sword", "Desolator art IDs changed.");
-        Check(catalog.Weapons.Count(item => !item.IsCore) == 11 && catalog.ShopListings.Count == 22,
+        Check(catalog.Weapons.Count(item => !item.IsCore) == 11 && catalog.ShopListings.Count == 23,
             "DE128 restored weapon/listing inventory is incomplete.");
-        Check(catalog.ItemInnatePerks.Count == 1 && catalog.ItemInnatePerks[0].Item == Sword &&
+        Check(catalog.ItemInnatePerks.Count == 2 && catalog.ItemInnatePerks[0].Item == Sword &&
             catalog.ItemInnatePerks[0].Entries.Select(entry => entry.Perk).SequenceEqual(new[] {
                 CoreContentImporter.PerkId("PERK_TITAN"), CoreContentImporter.PerkId("PERK_ANTI_SHOCK") }),
             "Desolator innate loadout changed.");
@@ -220,7 +220,7 @@ internal static class DE128FoundationTests
         Check(catalog.Rewards.Count == 1 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
             reward.Items.Count == 1 && reward.Items[0].Item == Sword && reward.Items[0].UsesConfiguration &&
-            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 22 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
+            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 23 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
             "Desolator must use one configured reward without changing equipment defaults or currencies.");
         Check(catalog.TryGetFight(DefinitionId.Parse("core:fights/zone_7/c3_boss_titan_eclipsemode/6"), out var titan) &&
             titan.RewardDrops.Count == 1 && catalog.Fights.Count(fight => fight.RewardDrops.Count != 0) == 1,
@@ -235,7 +235,10 @@ internal static class DE128FoundationTests
         Check(!catalog.Localizations.Any(value => value.Id.Namespace.Value == "de128" &&
             (value.Id.LocalId.StartsWith("ascension") || value.Id.LocalId == "zones/ascension")),
             "Disabled Ascension registered live localization.");
-        Check(catalog.Perks.Count(perk => !perk.IsCore) == 2 && catalog.Behaviors.Count == 2,
+        var mindInnate=catalog.ItemInnatePerks.Single(value=>value.Item.ToString()=="de128:items/magic/mind_throw");
+        Check(mindInnate.Entries.Count==1 && mindInnate.Entries[0].Perk.ToString()=="de128:perks/mind_throw",
+            "MindThrow lost its innate Lua behavior");
+        Check(catalog.Perks.Count(perk => !perk.IsCore) == 3 && catalog.Behaviors.Count == 3,
             "DE combat perk definitions are missing or unexpected behaviors were registered.");
         foreach (int level in new[] { 4, 8, 11, 14, 17 })
             Check(catalog.TryGetProgressionBranch(level, out var branch) && branch.Entries.Count == 2,
@@ -641,7 +644,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 29 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 35 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,

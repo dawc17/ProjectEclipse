@@ -5,7 +5,7 @@ The owner-supplied archive is now the source of truth for DE content. See
 The download is currently blocked by Google Drive quota; prior archive comparisons
 below refer to the historical repository XML until reconciliation is performed.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.17.0` restores ten missing weapon listings, twelve other equipment
+DE128 is an ordinary downstream Eclipse mod. Version `0.18.0` restores ten missing weapon listings, thirteen other equipment
 listings, and enables the archived
 ChineseSwords combat/preview graph for Jian alongside four earlier equipment
 combat-family corrections through Lua. It includes shop availability
@@ -34,7 +34,8 @@ limits. Purchase/equip/save/reload acceptance remains open.
 
 The additional equipment is Dragon Carapace, Old Legionnaire Armour, Samurai
 Armour, Gabled Helm, Dragon Helm, Dragon Boomerangs, Dragon's Breath and Lightning
-Arc, plus Minor, Medium and Large Charge of Darkness and Blast of the Void. Stats, prices, group/level gates and default enchantments match archived
+Arc, plus Minor, Medium and Large Charge of Darkness, Blast of the Void and Mind
+Throw. Stats, prices, group/level gates and default enchantments match archived
 item definitions. Samurai Armour deliberately retains only head defense (914).
 The three ranged/magic families use base moves. `shared_moves.lua` now applies
 five guarded changes: the heavy ranged uninterrupt end, Chakram hit reaction,
@@ -47,8 +48,16 @@ and the native `Physycal` hit reaction. Complete archive
 comparisons cover their different attack edges, effects, alignments and conditions.
 Sphere2 retains its Stun restriction and three attack edges; it is not a recolored
 Sphere1. ComboSphere3 adds four moves and Blast of the Void, retaining its bounded attack
-window, `HighLong` reaction and archived placeholder icon. MindThrowNormal is the
-remaining missing spell graph.
+window, `HighLong` reaction and archived placeholder icon. MindThrowNormal adds six
+moves, five unchanged recovered binaries and the Mind Throw shop listing. Its
+innate Lua perk sets an instance-owned flag on casting and clears it on the victim
+reaction or wall cleanup; native ModExpires selects the caster's follow-up.
+Complete move/template comparisons and the three archived perk trigger traces pass.
+An isolated Unity fight passed native contact in the normal idle stance, the owned
+victim reaction, one innate flag expiry, caster follow-up and final attack interval.
+The recovered projectile passes above the crouched fists idle pose in the native
+fixture. Contact across other stances and reconciliation with the deferred
+owner-supplied corpus remain open; see Step 31 in `PRODUCTION.md`.
 Hidden NPC equipment remains unregistered. Numerical damage, wall-miss cleanup,
 visual/audio output and shop-preview acceptance remain open. See `PRODUCTION.md`
 for the native lifecycle evidence and its limits.

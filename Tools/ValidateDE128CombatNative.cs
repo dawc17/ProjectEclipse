@@ -22,12 +22,17 @@ public static class ValidateDE128CombatNative
     static Model sphere;
     static bool spellRequested, spellSelected, spellReleased, sphereMiddle, sphereDeleted, chargeConsumed;
     static int spellFrame, sphereCount;
+    static bool mindHit, mindFollowup, mindFinalAttack;
+    static bool mindWall;
+    static readonly bool WallMiss = Environment.GetEnvironmentVariable("ECLIPSE_DE128_TEST_WALL_MISS") == "1";
+    static int mindExpiries;
+    static bool targetStepped, targetReleased;
     const string FlagName = "fixture.de128-combat:behaviors/animation_lifecycle:cast";
     static int flagExpiries;
     static bool flagSetChecked, flagClearChecked;
     static readonly HashSet<string> Lifecycle = new HashSet<string>();
     static readonly string Spell = Environment.GetEnvironmentVariable("ECLIPSE_DE128_TEST_SPELL") ?? "Sphere1";
-    static string SpellPrefix => "de128:moves/" + (Spell == "ComboSphere3" ? "combo_sphere3" : Spell.ToLowerInvariant());
+    static string SpellPrefix => "de128:moves/" + (Spell == "MindThrowNormal" ? "mind_throw" : Spell == "ComboSphere3" ? "combo_sphere3" : Spell.ToLowerInvariant());
     static string SpellMove => SpellPrefix + "_player";
     static string SpellMiddle => SpellPrefix + (Spell == "ComboSphere3" ? "_start" : "_middle");
     static readonly HashSet<int> AttackFrames = new HashSet<int>();
@@ -100,6 +105,10 @@ public static class ValidateDE128CombatNative
                 actor = enemy; attached = true;
                 fight.IEEGPNLEKHH().AddEventListener((int)PerkEvent.KNKIIEPDCPN.EVENT_MOD_EXPIRES, value => {
                     if ((value?.Data as string) == FlagName) flagExpiries++;
+                    if ((value?.Data as string) == "de128:behaviors/mind_throw:pending") mindExpiries++;
+                });
+                player.OCPMJKIEPIG().AddEventListener(0, value => {
+                    if ((value as InfoAnimation)?.Name == "de128:moves/mind_throw_hit") mindHit = true;
                 });
                 var animation = actor.OCPMJKIEPIG();
                 animation.AddEventListener(0, OnAnimation);
@@ -156,26 +165,43 @@ public static class ValidateDE128CombatNative
         if (!spellSelected && frame > spellFrame + 30) throw new Exception(Spell + " native input selection failed; current=" + actor.OCPMJKIEPIG().NNMAFFCCMHC()?.Name);
         if (spellSelected && !spellReleased) { actor.PlayAnimation(new KeyData()); spellReleased = true; }
         if (spellSelected && actor.JJDNDOLCMMN == 0) chargeConsumed = true;
+        // Leave the initial crouched fists stance through normal movement input.
+        if (Spell == "MindThrowNormal" && !WallMiss && !targetStepped && frame >= spellFrame + 1) {
+            target.PressAnyKey(FightCID.QuadrantForward); targetStepped = true;
+        }
+        if (targetStepped && !targetReleased && frame >= spellFrame + 10) {
+            target.ReleaseAnyKey(FightCID.QuadrantForward); targetReleased = true;
+        }
         if (sphere != null && sphere.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name == SpellMiddle) sphereMiddle = true;
         if (frame > spellFrame + 360 && !sphereDeleted)
             throw new Exception(Spell + " cleanup failed; count=" + sphereCount + " child=" + sphere?.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name);
         if (sphereDeleted && frame > spellFrame + 240)
         {
-            if (sphereCount != 1 || !sphereMiddle || !chargeConsumed || actor.KGGIDBLBMDJ().Contains(sphere as WeaponModel))
+            if (sphereCount != 1 || (!sphereMiddle && Spell != "MindThrowNormal") || !chargeConsumed || actor.KGGIDBLBMDJ().Contains(sphere as WeaponModel))
                 throw new Exception("Incomplete live Sphere1: count=" + sphereCount + " middle=" + sphereMiddle + " consumed=" + chargeConsumed);
             Debug.Log("[DE128Native] PASS: prior Jian acceptance plus " + Spell + " native Magic-input selection, one inherited-equipment projectile, attack-phase selection, charge consumption and child deletion. No numerical damage, audible-output or shop-preview claim.");
             foreach (var phase in new[] { "AnimationStart", "AnimationEnd" })
             {
+                // Successful MindThrow contact interrupts the initial cast;
+                // the native callback contract reports natural ends only.
+                if (Spell == "MindThrowNormal" && !WallMiss && phase == "AnimationEnd") continue;
                 if (!Lifecycle.Contains(phase + "|player|opponent|" + SpellMove) ||
                     !Lifecycle.Contains(phase + "|opponent|self|" + SpellMove))
                     throw new Exception("Missing Lua caster lifecycle callback: " + phase);
             }
-            if (!Lifecycle.Contains("AnimationStart|player|other|" + SpellMiddle) ||
-                !Lifecycle.Contains("AnimationStart|opponent|other|" + SpellMiddle))
+            if (Spell != "MindThrowNormal" && (!Lifecycle.Contains("AnimationStart|player|other|" + SpellMiddle) ||
+                !Lifecycle.Contains("AnimationStart|opponent|other|" + SpellMiddle)))
                 throw new Exception("Missing Lua projectile lifecycle callback.");
             if (!flagSetChecked || !flagClearChecked || flagExpiries != 1)
                 throw new Exception("Lua/native flag handoff incomplete: set=" + flagSetChecked + " clear=" + flagClearChecked + " expiries=" + flagExpiries);
-            Debug.Log("[DE128Native] PASS: real Lua animation start/end, caster perspectives, projectile notifications and native ModExists/ModExpires flag handoff.");
+            Debug.Log("[DE128Native] PASS: real Lua caster lifecycle perspectives and native ModExists/ModExpires flag handoff.");
+            if (Spell == "MindThrowNormal") {
+                bool route = WallMiss ? mindWall && !mindHit && !mindFollowup && !mindFinalAttack : mindHit && mindFollowup && mindFinalAttack && !mindWall;
+                if (!route || mindExpiries != 1)
+                    throw new Exception("MindThrow handoff incomplete: hit="+mindHit+" followup="+mindFollowup+" final="+mindFinalAttack+" expiry="+mindExpiries);
+                Debug.Log(WallMiss ? "[DE128Native] PASS: MindThrow wall deletion clears its innate Lua flag exactly once without a caster follow-up."
+                    : "[DE128Native] PASS: MindThrow owned victim reaction, innate Lua flag expiry, caster follow-up selection and final direct attack interval.");
+            }
             Finish(0);
         }
     }
@@ -186,6 +212,7 @@ public static class ValidateDE128CombatNative
         sphere = child; sphereCount++;
         child.OCPMJKIEPIG().AddEventListener(0, animation => {
             var name = (animation as InfoAnimation)?.Name;
+            if (name == "de128:moves/mind_throw_wall") mindWall = true;
             if (name == SpellMiddle) sphereMiddle = true;
             Debug.Log("[DE128Native] " + Spell + " selected " + name);
         });
@@ -303,9 +330,9 @@ public static class ValidateDE128CombatNative
     static void CheckRestoredEquipment()
     {
         string[] ids = { "armor/dragon_carapace", "armor/old_legionnaire_armour", "armor/samurai_armour", "helm/gabled_helm",
-            "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc", "magic/minor_charge_of_darkness", "magic/medium_charge_of_darkness", "magic/large_charge_of_darkness", "magic/blast_of_the_void" };
+            "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc", "magic/minor_charge_of_darkness", "magic/medium_charge_of_darkness", "magic/large_charge_of_darkness", "magic/blast_of_the_void", "magic/mind_throw" };
         string[] names = { "ARMOR_C2_Z5_DRAGON", "ARMOR_OLD_LEGIONER", "ARMOR_BIG_SHOGUN_OLD", "HELM_GABLED_OLD",
-            "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING", "Sphere1", "Sphere2", "Sphere3", "ComboSphere3" };
+            "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING", "Sphere1", "Sphere2", "Sphere3", "ComboSphere3", "MAGIC_MIND_THROW_NORMAL" };
         var archive = new System.Xml.XmlDocument(); archive.Load("Assets/DExml/list.xml");
         for (int i = 0; i < ids.Length; i++)
         {
@@ -338,7 +365,7 @@ public static class ValidateDE128CombatNative
                 throw new Exception("Native equipment art missing " + id);
             Debug.Log("[DE128Native] Restored equipment matches archive and loads art: " + id);
         }
-        Debug.Log("[DE128Native] Twelve restored equipment definitions passed native stat-presence, listing, upgrade, enchantment and asset checks. Shared DE move deltas remain pending.");
+        Debug.Log("[DE128Native] Thirteen restored equipment definitions passed native stat-presence, listing, upgrade, enchantment and asset checks.");
     }
     static void CheckRestoredWeapons()
     {
@@ -399,6 +426,7 @@ public static class ValidateDE128CombatNative
     }
     static void OnAnimation(object value)
     {
+        if ((value as InfoAnimation)?.Name == "de128:moves/mind_throw_player2") { mindFollowup = true; Debug.Log("[DE128Native] MindThrow follow-up selected."); }
         if ((value as InfoAnimation)?.Name == SpellMove)
         {
             if (spellSelected) { failure = Spell + " selected repeatedly after input release."; return; }
@@ -412,6 +440,7 @@ public static class ValidateDE128CombatNative
     static void OnAnimationEnd(object value) { if ((value as InfoAnimation)?.Name == Move) finished = true; }
     static void OnInterval(object value)
     {
+        if (actor.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "de128:moves/mind_throw_player2" && value is IntervalAttack final && final.Start == 48) mindFinalAttack = true;
         if (actor.OCPMJKIEPIG().NNMAFFCCMHC()?.Name != Move || !(value is IntervalAttack attack)) return;
         var edges = (System.Collections.ICollection)typeof(ModelAnimation).GetField("ECNLLKIJIGP", Hidden).GetValue(actor.OCPMJKIEPIG());
         if (edges.Count != attack.IKPJJAEIOCG().Count) failure = "Attack edge binding failed at sample " + attack.Start + ": " + edges.Count + "/" + attack.IKPJJAEIOCG().Count;

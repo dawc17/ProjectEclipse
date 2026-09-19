@@ -1814,3 +1814,54 @@ Verification:
 MindThrow's six move definitions, innate Lua perk, item and full native spell
 acceptance are still to be integrated. This step verifies the flag bridge, not
 MindThrow damage or follow-up selection. Package version remains 0.17.0.
+
+## Step 31 - MindThrowNormal Lua graph and innate behavior
+
+Version 0.18.0 supplies all six historical moves in `content/mind_throw.lua`,
+including the owned victim reaction and final direct attack. The three native
+perk triggers are implemented as Lua decisions in `content/mind_throw_perk.lua`:
+casting sets an instance-owned pending flag; an opposing victim reaction or the
+wall move clears it. Native ModExpires selects the follow-up only while the
+opponent is playing the owned victim reaction. The generic C# APIs from the prior
+steps are reused unchanged; DE policy stays in Lua, with no runtime XML loading.
+
+Mind Throw is a level-45, ACT_7_1 listing costing 181 gems. Its native projected
+damage, upgrade level, Frenzy enchantment/aspect, icon and model match historical
+`MAGIC_MIND_THROW_NORMAL`. Five binaries are copied unchanged from recovered
+Resources: `mind_throw_1_normal`, `mind_throw_2_normal`, `mind_suffocation`,
+`mind_suffocation_start` and `mind_suffocation_middle`. The designated complete
+corpus remains deferred, so these sources still require reconciliation.
+
+Verification:
+- 984 combined Lua/native declaration checks compare all six moves and recursive
+  core template dependencies to the historical XML, normalize only native-equivalent
+  defaults/float precision, verify binary hashes and check deterministic fingerprints.
+- 2,638 foundation checks execute the actual package, including equipment values,
+  innate loadout, rollback/rebuild and MindThrow flag trigger traces.
+- Unity 6000.6 isolated run `Run-g4ttg7td` exited 0. Native Magic input selected the
+  cast, created one inherited-equipment projectile, consumed charge, hit a grounded
+  target in the normal idle stance, selected the owned victim reaction, expired
+  the innate flag exactly once, selected the caster follow-up and reached its
+  final frame-48 direct attack interval. Existing Jian acceptance stayed green.
+- Separate wall-miss run `Run-f91mb12c` exited 0: the projectile selected its wall
+  move, deleted itself, cleared the innate flag exactly once and did not select
+  a caster follow-up. Use `--spell MindThrowNormal --mindthrow-wall-miss` to repeat.
+  Final harness contact rerun `Run-a346vpq7` also exited 0.
+- The wiki builds 47 pages with 4,075 checked local links/assets, zero Astro
+  diagnostics and the existing duplicate-404 warning. Whitespace checks pass.
+  Unity compiled the native harness; no engine/API source changed in this step.
+
+Earlier native attempts are retained as diagnostic evidence. The recovered
+projectile passes above `FistsStartStanceIdle-Left`; it reaches wall cleanup with
+one flag expiry. Jumping into it selects the native priority-600 PhysicalFall
+because the jump is Unstable, overriding the priority-500 MindThrow reaction.
+A short ordinary movement input leaves the initial crouched stance for normal
+`StanceIdle`, where contact and follow-up pass. No production geometry, damage,
+priority or timing was changed to satisfy the fixture. The initial cast is
+interrupted by the successful follow-up, so no natural AnimationEnd is expected
+for that cast (the lifecycle callback contract excludes interruptions).
+
+This establishes the native graph/behavior handoff, not complete gameplay parity.
+Numerical damage, other stances, visual/audio output, shop preview, purchase/equip
+and save/reload still need acceptance. The user's running editor and save were
+not used by the isolated checks.

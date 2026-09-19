@@ -2,9 +2,9 @@ local sf2 = require("sf2")
 
 -- Missing purchasable equipment whose base move families and art are available.
 -- Preserve Samurai Armour's head-only initial stat snapshot from the archive.
--- MindThrowNormal still needs its missing move graph.
 -- shared_moves.lua applies supported DE move deltas; remaining preview differences are pending.
 local definitions = {
+    { "mind_throw", "Mind Throw", "magic", "Magic13.img_magic_mind_throw", "mdl_magic_fireball", "MindThrowNormal", 45, 181, "ACT_7_1", "PERK_ITEM_SPECIAL_FRENZY_MAGIC", 1622 },
     { "blast_of_the_void", "Blast of the Void", "magic", "UnknownItems.img_magic_unknown", "mdl_acid_cloud", "ComboSphere3", 27, 82, "ACT_5", "PERK_ITEM_SPECIAL_ENFEEBLE_MAGIC", 944 },
     { "large_charge_of_darkness", "Large Charge of Darkness", "magic", "RaidItems1.sphere3", "mdl_acid_cloud", "Sphere3", 42, 159, "INTERMISSION", "PERK_ITEM_SPECIAL_LIFESTEAL_MAGIC", 1511 },
     { "medium_charge_of_darkness", "Medium Charge of Darkness", "magic", "RaidItems1.sphere2", "mdl_acid_cloud", "Sphere2", 37, 127, "GATES_OF_SHADOWS", "PERK_ITEM_SPECIAL_STUN_MAGIC", 1306 },
@@ -43,4 +43,5 @@ for _, row in ipairs(definitions) do
     }
     equipment[row[1]] = item
 end
+sf2.items.set_innate_perks { item = equipment.mind_throw, entries = { { perk = require("content.mind_throw_perk") } } }
 return equipment

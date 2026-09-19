@@ -86,6 +86,17 @@ local combosphere3_fight = sf2.fights.register { id = "combosphere3", battle = c
     warriors = { combosphere3_opponent }, rewards = { loss, win }, rules = { lifecycle_rule }, rounds = 1, round_time = 99 }
 sf2.modes.register { id = "combosphere3", fights = { combosphere3_fight }, repeatable = true }
 
+local mind_opponent = sf2.warriors.register {
+    id = "mindthrownormal", template = sf2.warriors.get_template("core:warrior-templates/man_staff"),
+    tactic = "Standard", first_name = "MindThrow acceptance", last_name = "", level = 1,
+    items = { sf2.items.get("core:items/weapon/WEAPON_CHNY21_JIAN"), sf2.items.get("de128:items/magic/mind_throw") },
+}
+local mind_battle = sf2.battles.register { id = "mindthrownormal", zone = zone, type = sf2.battles.STORY,
+    x = 0, y = 0, alias = "MindThrow acceptance", title = "MindThrow acceptance", description = "", location = location }
+local mind_fight = sf2.fights.register { id = "mindthrownormal", battle = mind_battle, location = location,
+    warriors = { mind_opponent }, rewards = { loss, win }, rules = { lifecycle_rule }, rounds = 1, round_time = 99 }
+sf2.modes.register { id = "mindthrownormal", fights = { mind_fight }, repeatable = true }
+
 -- Inert move definitions used to inspect actual native action parsing after boot.
 local fixture_animation = sf2.assets.binary("de128:animations/chinese_swords_super_slash_old")
 local child = sf2.moves.register { id = "projectile_child", animation = fixture_animation,

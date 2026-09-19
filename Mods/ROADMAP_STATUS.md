@@ -217,3 +217,12 @@ The owner-supplied complete DE corpus now supersedes repository DExml as content
 authority; acquisition is blocked by Drive quota. See de128/SOURCE_CORPUS.md.
 MindThrow direct attacks, NoReaction, voice sounds and camera-shake primitives
 are implemented; its graph and corpus reconciliation remain open (Step 26).
+
+DE128 0.18.0 adds the six-move MindThrowNormal graph, its innate Lua behavior,
+five unchanged recovered animation binaries and Mind Throw shop listing. Full
+graph/template comparisons and actual-package checks pass. An isolated Unity
+fight passed grounded contact, the owned victim reaction, innate flag expiry,
+caster follow-up and final direct attack interval. The initial crouched fists
+stance can duck the recovered projectile; broader stance/presentation/damage and
+purchase/save acceptance remain open. Source-corpus reconciliation is still
+deferred at the owner's request. See Step 31 in de128/PRODUCTION.md.

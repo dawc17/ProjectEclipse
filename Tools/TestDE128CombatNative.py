@@ -19,7 +19,8 @@ from TestCharacterForms import ROOT, prepare_native, owned_native_fixture
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--unity-editor', type=Path, required=True)
-    parser.add_argument('--spell', choices=('Sphere1', 'Sphere2', 'Sphere3', 'ComboSphere3'), default='Sphere1', help='Native spell lifecycle to exercise after Jian.')
+    parser.add_argument('--spell', choices=('Sphere1', 'Sphere2', 'Sphere3', 'ComboSphere3', 'MindThrowNormal'), default='Sphere1', help='Native spell lifecycle to exercise after Jian.')
+    parser.add_argument('--mindthrow-wall-miss', action='store_true', help='Keep the low initial fists stance and require MindThrow wall cleanup instead of contact.')
     parser.add_argument('--timeout', type=int, default=1200)
     parser.add_argument('--reuse-native', type=Path, help='Stopped marked DE128 clone; preserve prior logs and back up synced inputs.')
     parser.add_argument('--sync-native-source', action='append', default=[], help='Repository-relative Assets or Mods/de128 file to refresh in a reused clone.')
@@ -28,6 +29,8 @@ def main():
         parser.error('An installed Unity executable and positive timeout are required.')
     if args.sync_native_source and not args.reuse_native:
         parser.error('--sync-native-source requires --reuse-native')
+    if args.mindthrow_wall_miss and args.spell != 'MindThrowNormal':
+        parser.error('--mindthrow-wall-miss requires --spell MindThrowNormal')
     if args.reuse_native:
         fixture = owned_native_fixture(args.reuse_native)
         marker = fixture / 'de128-native-fixture.marker'
@@ -70,10 +73,11 @@ def main():
     log = evidence / 'de128-validation.log'
     command = [str(args.unity_editor.resolve()), '-batchmode', '-projectPath', str(fixture),
                '-executeMethod', 'ValidateDE128CombatNative.RunEditor', '-logFile', str(log)]
-    (evidence / 'spell.json').write_text(json.dumps({'spell': args.spell}), encoding='utf-8')
+    (evidence / 'spell.json').write_text(json.dumps({'spell': args.spell, 'mindthrow_wall_miss': args.mindthrow_wall_miss}), encoding='utf-8')
     (evidence / 'de128-command.json').write_text(json.dumps(command, indent=2), encoding='utf-8')
     with (evidence / 'de128-launcher.log').open('x', encoding='utf-8') as output:
-        environment = dict(os.environ, ECLIPSE_DE128_TEST_SPELL=args.spell)
+        environment = dict(os.environ, ECLIPSE_DE128_TEST_SPELL=args.spell,
+                           ECLIPSE_DE128_TEST_WALL_MISS='1' if args.mindthrow_wall_miss else '0')
         process = subprocess.Popen(command, cwd=fixture, stdout=output, stderr=subprocess.STDOUT, env=environment,
                                    creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         print(f'DE128 native process {process.pid}; log: {log}', flush=True)

@@ -12,8 +12,14 @@ using Eclipse.Modding;
 internal static class DECombatPerksTests
 {
     private sealed class Fighter : IModFighterOperations, IModIncomingHitSource,
-        IModCombatSnapshotSource, IModCombatActivitySource, IModFighterStatusIcons
+        IModCombatSnapshotSource, IModCombatActivitySource, IModFighterStatusIcons, IModFighterFlags, IModAnimationLifecycleSource
     {
+        public ModAnimationLifecycleEvent AnimationEvent { get; set; }
+        internal readonly HashSet<string> Flags = new HashSet<string>();
+        internal int Sets, Clears;
+        public bool TrySetFlag(object owner,string behavior,string name,out string error) { error="";Sets++;Flags.Add(name);return true; }
+        public bool TryClearFlag(object owner,string behavior,string name,out string error) {error="";Clears++;Flags.Remove(name);return true;}
+        public bool TryHasFlag(object owner,string behavior,string name,out bool exists,out string error) {error="";exists=Flags.Contains(name);return true;}
         internal int Frame = 10;
         internal double Damage;
         internal readonly Dictionary<object, (AssetId Sprite, int Frames, int Stacks)> Icons =
@@ -103,6 +109,24 @@ internal static class DECombatPerksTests
         var catalog = new ModContentCatalog();
         using (var script = load(mod, catalog))
         {
+            var mind=new Trace(script,catalog,"mind_throw",0,check);
+            Action<string,string> animation=(target,name)=> {
+                mind.Fighter.AnimationEvent=new ModAnimationLifecycleEvent(ModEffectEvent.AnimationStart,name,target,10);
+                mind.Call(ModEffectEvent.AnimationStart);
+            };
+            check(xmlPerks.SelectNodes("//Perk[@Name='MindThrowNormal']/Trigger").Count==3,"Archived MindThrow trigger count changed");
+            animation("opponent","de128:moves/mind_throw_player");
+            check(mind.Fighter.Flags.Count==0,"Opponent cast set own flag");
+            animation("self","de128:moves/mind_throw_player");animation("self","de128:moves/mind_throw_player");
+            check(mind.Fighter.Sets==1 && mind.Fighter.Flags.Contains("de128:behaviors/mind_throw:pending"),"Cast flag duplicated or wrong name");
+            animation("self","de128:moves/mind_throw_hit");
+            check(mind.Fighter.Flags.Count==1,"Own hit cleared caster flag");
+            animation("opponent","de128:moves/mind_throw_hit");animation("opponent","de128:moves/mind_throw_hit");
+            check(mind.Fighter.Clears==1 && mind.Fighter.Flags.Count==0,"Victim reaction handoff differs");
+            animation("self","de128:moves/mind_throw_player");animation("other","de128:moves/mind_throw_wall");
+            check(mind.Fighter.Clears==2 && mind.Fighter.Flags.Count==0,"Projectile wall cleanup differs");
+            animation("other","de128:moves/mind_throw_wall");
+            check(mind.Fighter.Clears==3,"Archived unconditional wall clear lost");
             check(catalog.Modes.Count == 0 && catalog.Quests.Count == 0 && catalog.Warriors.Count == 0,
                 "Ascension remains active while loading the replacement package.");
             var ids = new[] { "master_of_style", "relentless" };
