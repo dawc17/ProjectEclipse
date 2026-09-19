@@ -22,6 +22,7 @@ public static class ValidateDE128CombatNative
     static Model sphere;
     static bool spellRequested, spellSelected, spellReleased, sphereMiddle, sphereDeleted, chargeConsumed;
     static int spellFrame, sphereCount;
+    static readonly HashSet<string> Lifecycle = new HashSet<string>();
     static readonly string Spell = Environment.GetEnvironmentVariable("ECLIPSE_DE128_TEST_SPELL") ?? "Sphere1";
     static string SpellPrefix => "de128:moves/" + (Spell == "ComboSphere3" ? "combo_sphere3" : Spell.ToLowerInvariant());
     static string SpellMove => SpellPrefix + "_player";
@@ -157,6 +158,16 @@ public static class ValidateDE128CombatNative
             if (sphereCount != 1 || !sphereMiddle || !chargeConsumed || actor.KGGIDBLBMDJ().Contains(sphere as WeaponModel))
                 throw new Exception("Incomplete live Sphere1: count=" + sphereCount + " middle=" + sphereMiddle + " consumed=" + chargeConsumed);
             Debug.Log("[DE128Native] PASS: prior Jian acceptance plus " + Spell + " native Magic-input selection, one inherited-equipment projectile, attack-phase selection, charge consumption and child deletion. No numerical damage, audible-output or shop-preview claim.");
+            foreach (var phase in new[] { "AnimationStart", "AnimationEnd" })
+            {
+                if (!Lifecycle.Contains(phase + "|player|opponent|" + SpellMove) ||
+                    !Lifecycle.Contains(phase + "|opponent|self|" + SpellMove))
+                    throw new Exception("Missing Lua caster lifecycle callback: " + phase);
+            }
+            if (!Lifecycle.Contains("AnimationStart|player|other|" + SpellMiddle) ||
+                !Lifecycle.Contains("AnimationStart|opponent|other|" + SpellMiddle))
+                throw new Exception("Missing Lua projectile lifecycle callback.");
+            Debug.Log("[DE128Native] PASS: real Lua animation start/end, caster perspectives and projectile notifications.");
             Finish(0);
         }
     }
@@ -407,6 +418,15 @@ public static class ValidateDE128CombatNative
     }
     static void Capture(string message, string stack, LogType type)
     {
+        int lifecycle = message.IndexOf("[DE128Lifecycle] ", StringComparison.Ordinal);
+        if (lifecycle >= 0)
+        {
+            string[] fields = message.Substring(lifecycle + "[DE128Lifecycle] ".Length).Trim().Split('|');
+            if (fields.Length != 5 || !int.TryParse(fields[4], out int frame) || frame < 0)
+                failure = "Malformed Lua lifecycle event: " + message;
+            else Lifecycle.Add(string.Join("|", fields.Take(4)));
+        }
+        if (attached && message.Contains("[ModCombat]") && message.Contains("Animation")) failure = message;
         if (attached && type == LogType.Exception && failure == null) failure = message + "\n" + stack;
     }
     static void Finish(int code)

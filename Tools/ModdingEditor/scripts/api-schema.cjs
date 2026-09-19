@@ -29,13 +29,14 @@ type('IncomingDamageEvent',{damage:'number',blocked:'boolean',critical:'boolean'
 type('HitPhaseEvent',{damage:'number',blocked:'boolean',critical:'boolean',target:enumOf('self','opponent'),weapon:'boolean',unarmed:'boolean',ranged:'boolean',magic:'boolean'},'CombatEvent');
 type('ComboEvent',{combo:'integer',last_combo:'integer'},'CombatEvent');
 type('StyleEvent',{style_rank:'integer',style_name:'string',style_gain:'number',is_hit:'boolean'},'CombatEvent');
+type('AnimationLifecycleEvent',{animation_name:'string',target:enumOf('self','opponent','other'),frame:'integer'},'CombatEvent');
 type('TickEvent',{frame:'integer',seconds:'number',delta_frames:'integer',delta_seconds:'number'},'CombatEvent');
 type('FightEndEvent',{won:'boolean',player_result:enumOf('win','loss','surrender','timeout')},'CombatEvent');
-const callbacks = ['on_fight_begin','on_round_begin','on_tick','on_damage_resolving','on_damage_dealing','on_hit_post_crit','on_post_hit','on_damage_received','on_damage_dealt','on_block','on_critical','on_combo_changed','on_style_changed','on_round_end','on_fight_end'];
+const callbacks = ['on_animation_start','on_animation_end','on_fight_begin','on_round_begin','on_tick','on_damage_resolving','on_damage_dealing','on_hit_post_crit','on_post_hit','on_damage_received','on_damage_dealt','on_block','on_critical','on_combo_changed','on_style_changed','on_round_end','on_fight_end'];
 for (const stateful of [false,true]) {
     const fields = { id:'string', 'parameters?':schema, ...(stateful ? { state:E('BehaviorState') } : { 'state?':'nil' }) };
     for (const name of callbacks) {
-        const event=name==='on_tick'?'TickEvent':name==='on_combo_changed'?'ComboEvent':name==='on_style_changed'?'StyleEvent':['on_hit_post_crit','on_post_hit'].includes(name)?'HitPhaseEvent':['on_damage_resolving','on_damage_dealing'].includes(name)?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
+        const event=['on_animation_start','on_animation_end'].includes(name)?'AnimationLifecycleEvent':name==='on_tick'?'TickEvent':name==='on_combo_changed'?'ComboEvent':name==='on_style_changed'?'StyleEvent':['on_hit_post_crit','on_post_hit'].includes(name)?'HitPhaseEvent':['on_damage_resolving','on_damage_dealing'].includes(name)?'IncomingDamageEvent':name==='on_fight_end'?'FightEndEvent':['on_damage_received','on_damage_dealt','on_block','on_critical'].includes(name)?'DamageEvent':'CombatEvent';
         fields[`${name}?`] = `fun(${stateful ? 'self:'+E('BehaviorSelf') : 'parameters:'+values}, fighter:${E(name==='on_damage_resolving'?'ResolvingFighter':['on_damage_dealing','on_post_hit'].includes(name)?'OutgoingFighter':'Fighter')}, event:${E(event)})`;
     }
     type(stateful ? 'StatefulBehavior' : 'BehaviorDefinition', fields);

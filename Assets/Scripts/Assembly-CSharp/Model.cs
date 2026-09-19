@@ -236,6 +236,9 @@ public class Model : global::EventDispatcher<object>
 	{
 		public Model KJDFJPBIGJC;
 
+        // best guess for name
+        public Model SourceModel => KJDFJPBIGJC;
+
 		public Model GAIBPAGPEGK;
 
 		public object Data;

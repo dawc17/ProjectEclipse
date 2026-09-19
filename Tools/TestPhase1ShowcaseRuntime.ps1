@@ -59,7 +59,7 @@ $program = Join-Path $testRoot 'Program.cs'
 $exe = Join-Path $testRoot 'Phase1ShowcaseRuntime.dll'
 $adapterSource = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs')
 $adapterBase = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs')
-$projectionMethods = foreach ($method in @('BuildLocationDocument', 'AppendLocationCurve', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition', 'BuildMoveNode', 'MoveTemplateNames', 'AppendEvents', 'AppendConditions', 'MoveEventElement')) {
+$projectionMethods = foreach ($method in @('BuildLocationDocument', 'AppendLocationCurve', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition', 'BuildMovePoint', 'AppendMovePresentation', 'BuildMoveNode', 'MoveTemplateNames', 'AppendEvents', 'AppendConditions', 'MoveEventElement')) {
     $match = [regex]::Match($adapterSource, '(?ms)^        private [^\r\n]*\b' + $method + '\(.*?^        \}')
     if (!$match.Success) { throw "Cannot extract production projection: $method" }
     $match.Value

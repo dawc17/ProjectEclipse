@@ -648,7 +648,9 @@ namespace Eclipse.Modding
         StyleChanged = 11,
         Tick = 12,
         HitPostCrit = 13,
-        PostHit = 14
+        PostHit = 14,
+        AnimationStart = 15,
+        AnimationEnd = 16
     }
 
     public interface IModScriptContext : IDisposable
@@ -678,6 +680,31 @@ namespace Eclipse.Modding
     public interface IModFighterForms
     {
         bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error);
+    }
+
+    // The event's animation is captured at notification time, not queried later
+    // from a controller which may already have selected the next move.
+    public sealed class ModAnimationLifecycleEvent
+    {
+        public ModEffectEvent Type { get; }
+        public string AnimationName { get; }
+        public string Target { get; }
+        public int Frame { get; }
+        public ModAnimationLifecycleEvent(ModEffectEvent type, string animationName, string target, int frame)
+        {
+            if (type != ModEffectEvent.AnimationStart && type != ModEffectEvent.AnimationEnd)
+                throw new ArgumentException("Expected an animation lifecycle event.");
+            if (string.IsNullOrEmpty(animationName)) throw new ArgumentException("Animation name is required.");
+            if (target != "self" && target != "opponent" && target != "other")
+                throw new ArgumentException("Unknown animation actor relationship.");
+            if (frame < 0) throw new ArgumentOutOfRangeException(nameof(frame));
+            Type = type; AnimationName = animationName; Target = target; Frame = frame;
+        }
+    }
+
+    public interface IModAnimationLifecycleSource
+    {
+        ModAnimationLifecycleEvent AnimationEvent { get; }
     }
 
     // Immutable observations of a resolved hit, never a live engine object.
@@ -934,9 +961,10 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource
     {
         private readonly IModFighterOperations _inner;
+        public ModAnimationLifecycleEvent AnimationEvent => (_inner as IModAnimationLifecycleSource)?.AnimationEvent;
         public bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error)
         {
             if (_inner is IModFighterForms forms) return forms.TryChangeForm(character, complete, out error);

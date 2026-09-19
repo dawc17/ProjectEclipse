@@ -1419,6 +1419,8 @@
     "sf2.tactics.EXPONENTIAL": "exponential"
   },
   "callbacks": [
+    "on_animation_start",
+    "on_animation_end",
     "on_fight_begin",
     "on_round_begin",
     "on_tick",
@@ -1781,6 +1783,14 @@
       },
       "parent": "CombatEvent"
     },
+    "AnimationLifecycleEvent": {
+      "fields": {
+        "animation_name": "string",
+        "target": "\"self\"|\"opponent\"|\"other\"",
+        "frame": "integer"
+      },
+      "parent": "CombatEvent"
+    },
     "TickEvent": {
       "fields": {
         "frame": "integer",
@@ -1802,6 +1812,8 @@
         "id": "string",
         "parameters?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
         "state?": "nil",
+        "on_animation_start?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)",
+        "on_animation_end?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)",
         "on_fight_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_round_begin?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_tick?": "fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)",
@@ -1824,6 +1836,8 @@
         "id": "string",
         "parameters?": "table<string,Eclipse.FieldSchema|\"number\"|\"integer\"|\"boolean\"|\"string\">",
         "state": "Eclipse.BehaviorState",
+        "on_animation_start?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)",
+        "on_animation_end?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)",
         "on_fight_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_round_begin?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)",
         "on_tick?": "fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)",

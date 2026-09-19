@@ -18,7 +18,8 @@ namespace Eclipse.Modding
                 { "on_combo_changed", ModEffectEvent.ComboChanged }, { "on_style_changed", ModEffectEvent.StyleChanged },
                 { "on_tick", ModEffectEvent.Tick },
                 { "on_hit_post_crit", ModEffectEvent.HitPostCrit }, { "on_post_hit", ModEffectEvent.PostHit },
-                { "on_block", ModEffectEvent.Block }, { "on_critical", ModEffectEvent.Critical }
+                { "on_block", ModEffectEvent.Block }, { "on_critical", ModEffectEvent.Critical },
+                { "on_animation_start", ModEffectEvent.AnimationStart }, { "on_animation_end", ModEffectEvent.AnimationEnd }
             };
             private sealed class BehaviorState
             {

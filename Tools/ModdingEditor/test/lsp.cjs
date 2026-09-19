@@ -303,7 +303,7 @@ async function main() {
     const postCrit=probe('post-crit-fighter.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="test",on_hit_post_crit=function(_,fighter,event)\n fighter:|\nend }');
     await until(async()=>{const found=labels(await request('textDocument/completion',postCrit));return !found.some(name=>name.startsWith('add_outgoing_damage'));},'post-crit remains read-only for pending hit');
     console.log('PASS: native hit-phase callbacks and scoped outgoing operations complete');
-    for (const [callback,field] of [['on_combo_changed','last_combo'],['on_style_changed','style_rank'],['on_tick','delta_frames']]) {
+    for (const [callback,field] of [['on_combo_changed','last_combo'],['on_style_changed','style_rank'],['on_tick','delta_frames'],['on_animation_start','animation_name'],['on_animation_end','target']]) {
         const position=probe(callback+'.lua',`local sf2=require("sf2")\nsf2.behaviors.register { id="test",${callback}=function(_,fighter,event)\n local value=event.|\nend }`);
         await until(async()=>labels(await request('textDocument/completion',position)).includes(field),callback+' event inference');
     }

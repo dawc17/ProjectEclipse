@@ -394,6 +394,15 @@ namespace Eclipse.Modding
                             eventTable.Set("is_hit", DynValue.NewBoolean(activity.IsHit));
                         }
                     }
+                    if (effectEvent == ModEffectEvent.AnimationStart || effectEvent == ModEffectEvent.AnimationEnd)
+                    {
+                        var animation = (fighter as IModAnimationLifecycleSource)?.AnimationEvent;
+                        if (animation == null || animation.Type != effectEvent)
+                            throw new ModContentException("Animation lifecycle snapshot is unavailable.");
+                        eventTable.Set("animation_name", DynValue.NewString(animation.AnimationName));
+                        eventTable.Set("target", DynValue.NewString(animation.Target));
+                        eventTable.Set("frame", DynValue.NewNumber(animation.Frame));
+                    }
                     if (effectEvent == ModEffectEvent.Tick)
                     {
                         var clock = (fighter as IModCombatSnapshotSource)?.CaptureCombatSnapshot();

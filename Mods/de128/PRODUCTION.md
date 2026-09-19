@@ -1743,3 +1743,37 @@ in addition to five spell moves and the owned victim reaction. That procedural
 handoff still needs generic runtime capabilities and Lua implementation before
 the full spell can be registered faithfully. Package version remains 0.17.0;
 this step does not claim complete MindThrow or DE parity.
+
+## Step 29 - native animation lifecycle callbacks
+
+Added `on_animation_start` and `on_animation_end` for Lua behaviors. Generic C#
+hooks run after native perk notification during active combat. Immutable event
+data records the exact animation name, simulation frame and actor relationship
+(`self`, `opponent`, or `other`, including projectiles) for each recipient. This
+avoids polling the current animation and missing transitions. No DE spell policy
+was added to the engine. Nested events queue in order; round changes and bounded
+queue/cascade limits prevent stale or unbounded dispatch. Public callback docs,
+editor schemas and LuaLS completion were updated together.
+
+Verification:
+- 12 production-dispatch checks cover nested FIFO order, both perspectives,
+  detached event data, subscription/lifecycle guards, round changes and limits.
+- 221 battle-rule checks pass through actual MoonSharp bindings, including both
+  callback payloads, instance forwarding, missing/mismatched observations and
+  subscription disposal. The older showcase fixture now extracts the current
+  move point/presentation helpers needed by its production projection methods.
+- FightBegin source/provenance/reentry checks and all 2,590 DE128 foundation
+  checks pass. Managed editor compilation passed with zero errors and existing
+  warnings.
+- Isolated Unity 6000.6 run `Run-8b7olbuw` exited 0. Actual Lua rules received
+  Sphere1 caster start/end on both sides and projectile animation starts, with
+  correct actor relationships. Jian and Sphere1 native combat acceptance also
+  remained green. No new numerical damage, audio or shop-preview claim.
+- Editor generation/check, 36 tests, LuaLS and real VS Code integration pass:
+  155 functions/aliases/callbacks, 76 constants, 227 structures. Wiki build passed
+  47 pages and 4,063 links/assets, with the existing duplicate-404 warning.
+
+The native ModFlag/ModExpires handoff still needs an owner-scoped fighter
+capability before MindThrow's innate Lua behavior and full spell can ship.
+Package version remains 0.17.0. Corpus acquisition/reconciliation remains deferred
+at the owner's request; production continues against historical repository data.

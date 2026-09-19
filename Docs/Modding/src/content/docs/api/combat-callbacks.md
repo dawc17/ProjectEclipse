@@ -139,6 +139,76 @@ when the handler returns, and pending-hit modifiers are unavailable. A handler
 error is isolated using the normal callback policy; it does not unsubscribe the
 handler. Mod authors should avoid repeated failing work or per-frame logging.
 
+## on_animation_start
+
+Observe an animation entering its native start notification.
+
+**Signature:** `on_animation_start = function(parameters, fighter, event)`;
+stateful behaviors receive `self` instead of `parameters`.
+
+**Returns:** Nothing; return values are ignored.
+
+**When:** During an active round, immediately after native animation-start perk
+notification. Both sides receive the event: player callbacks first, then opponent
+callbacks, with rules before equipment/perks on each side. Events raised inside
+another Lua combat callback wait until that dispatch returns; nested animation
+events are delivered in order after both sides of the current animation event.
+Round transitions, completed fights and Local Versus do not deliver these events.
+
+**Requires:** `content.register` to register the behavior; no extra capability
+to observe. Fighter operations retain their own capability requirements.
+
+| Event field | Meaning |
+| --- | --- |
+| `animation_name` | Exact native animation name at notification time; owned moves use their qualified move ID. This is not a template-name matcher. |
+| `target` | `"self"` for this fighter, `"opponent"` for the opposing fighter, or `"other"` for another actor, including projectiles. Relative to the callback recipient. |
+| `frame` | Combat simulation frame when the event was raised. |
+
+```lua
+on_animation_start = function(parameters, fighter, event)
+    if event.target == "self"
+        and event.animation_name == sf2.mod.id .. ":moves/cast" then
+        sf2.log.info("Cast started")
+    end
+end,
+```
+
+The event is detached data; changing its fields cannot change combat. A current
+`fighter:snapshot()` may describe a later animation if dispatch was deferred.
+`other` does not identify a projectile's owner and does not expose an actor
+mutation capability. Filter the exact move name and relationship you need.
+The host bounds each pending queue and delivery cascade to 256 events; overflow
+is logged and discarded. Events queued for a round that has ended are discarded.
+
+## on_animation_end
+
+Observe the animation supplied by the native end notification.
+
+**Signature:** `on_animation_end = function(parameters, fighter, event)`;
+stateful behaviors receive `self` instead of `parameters`.
+
+**Returns:** Nothing; return values are ignored.
+
+**When:** After native animation-end perk notification during active combat.
+It uses the same dispatch ordering, nested-event queue, limits and round filtering
+as `on_animation_start`. This reports native notifications, not a guarantee that
+every interrupted, deleted or replaced actor emits a matching end event.
+
+**Requires:** `content.register` to register the behavior; no extra capability
+to observe. Fighter operations keep their normal requirements.
+
+The event has `animation_name`, `target` and `frame` with the same meanings as
+the start callback; `event.type` is `"AnimationEnd"`.
+
+```lua
+on_animation_end = function(parameters, fighter, event)
+    if event.target == "other"
+        and event.animation_name == sf2.mod.id .. ":moves/projectile_flight" then
+        sf2.log.info("Projectile flight animation ended")
+    end
+end,
+```
+
 ## on_combo_changed
 
 Observe the native combo counter for the fighter receiving this callback.

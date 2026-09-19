@@ -44,6 +44,7 @@ namespace Eclipse.Modding
     public sealed class ModDamageEvent {}
     public sealed class ModIncomingHit {}
     public sealed class ModCombatActivityEvent {}
+    public sealed class ModAnimationLifecycleEvent {}
     public sealed class ModBattleRuleInstances {}
     public interface IModFighterOperations
     {
@@ -244,7 +245,7 @@ public sealed class FightHarness
     private bool IsLocalVersus => false;
     private sealed class EclipseFighterOperations : Eclipse.Modding.IModFighterOperations
     {
-        public EclipseFighterOperations(FightHarness fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null) { }
+        public EclipseFighterOperations(FightHarness fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null) { }
         public bool TryChangeHealth(double amount, out string error) { error = string.Empty; return true; }
         public bool TryAddMagicCharge(double amount, out string error) { error = string.Empty; return true; }
     }
@@ -258,6 +259,7 @@ public sealed class FightHarness
     private string _eclipseFightId = "fixture";
     private string _eclipsePlayerResult = "none";
     private bool _eclipseCombatDispatching;
+    private void DrainEclipseAnimationEvents() {}
     private readonly RoundStub round = new RoundStub();
     private readonly ModelParameters NMNCKBPFCCP;
     private readonly Model _playerModel = new Model();

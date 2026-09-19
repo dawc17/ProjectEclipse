@@ -350,7 +350,7 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
@@ -365,6 +365,7 @@ public class Fight
 		public ModDamageEvent DamageEvent { get; }
         public ModIncomingHit IncomingHit { get; }
         public ModCombatActivityEvent ActivityEvent { get; }
+        public ModAnimationLifecycleEvent AnimationEvent { get; }
         public ModCombatSnapshot CaptureCombatSnapshot()
         {
             if (_fight == null || _model == null || _model.Parameters == null) return null;
@@ -386,13 +387,14 @@ public class Fight
         public double Health => _model == null ? 0 : _model.KKMCHCNOHMB();
         public IModFighterOperations Opponent => _fight == null ? null :
             new EclipseFighterOperations(_fight, _model == _fight._playerModel ? _fight.CKNCPOABFBO : _fight._playerModel);
-		public EclipseFighterOperations(Fight fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null)
+		public EclipseFighterOperations(Fight fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null)
 		{
 			_fight = fight;
 			_model = model;
 			DamageEvent = damageEvent;
             IncomingHit = incomingHit;
             ActivityEvent = activity;
+            AnimationEvent = animation;
 		}
 
 		public bool TrySetDamageShield(object key, double fraction, int frames, out string error)
@@ -1422,6 +1424,7 @@ public class Fight
 		InfoAnimation value = (InfoAnimation)oJDOHGBGPFK.Data;
 		EPBDEDGLHJE.OFKIKABKDFD()["Animation"] = value;
 		EPBDEDGLHJE.JALOHCICLGN(oJDOHGBGPFK.KJDFJPBIGJC, PerkEvent.KNKIIEPDCPN.EVENT_ANIMATION_START, true);
+        NotifyEclipseAnimation(oJDOHGBGPFK.SourceModel, value, ModEffectEvent.AnimationStart);
 		CheckFightRules(FightEvent.AnimationStartEvent, ((Model.EventModel)data).KJDFJPBIGJC.EPCNJLEHJCB() ? RuleAppliance.AppliancePlayer : RuleAppliance.ApplianceOpponent);
 		if (!oJDOHGBGPFK.KJDFJPBIGJC.NMPHACPBHKO())
 		{
@@ -1436,6 +1439,7 @@ public class Fight
 		InfoAnimation value = (InfoAnimation)oJDOHGBGPFK.Data;
 		EPBDEDGLHJE.OFKIKABKDFD()["Animation"] = value;
 		EPBDEDGLHJE.JALOHCICLGN(oJDOHGBGPFK.KJDFJPBIGJC, PerkEvent.KNKIIEPDCPN.EVENT_ANIMATION_END, true);
+        NotifyEclipseAnimation(oJDOHGBGPFK.SourceModel, value, ModEffectEvent.AnimationEnd);
 		Model fGCODGKLHED = oJDOHGBGPFK.KJDFJPBIGJC.EGGEACCDAEK();
 		bool flag = oJDOHGBGPFK.KJDFJPBIGJC.CDMBCHOJKPH() && fGCODGKLHED != null && fGCODGKLHED.CDMBCHOJKPH();
 		if (stageType == StageType.FDBBPEGEGMK.STAGE_START_STANCE && flag)
@@ -2966,7 +2970,56 @@ public class Fight
 	}
 
 	private bool _eclipseOpponentDispatching;
-    private void DispatchEclipseOpponent(ModEffectEvent effectEvent, ModDamageEvent damage = null, ModIncomingHit incoming = null, ModCombatActivityEvent activity = null)
+    private readonly Queue<(int Round, ModAnimationLifecycleEvent Player, ModAnimationLifecycleEvent Opponent)> _eclipseAnimationEvents =
+        new Queue<(int, ModAnimationLifecycleEvent, ModAnimationLifecycleEvent)>();
+    private bool _drainingEclipseAnimationEvents;
+
+    private void NotifyEclipseAnimation(Model actor, InfoAnimation animation, ModEffectEvent kind)
+    {
+        if (IsLocalVersus || !_eclipseFightBeginDispatched || _eclipseFightEndDispatched ||
+            !round.processing || actor == null || string.IsNullOrEmpty(animation?.Name) ||
+            ModRuntime.Scripts == null || !ModRuntime.Scripts.HasHandlers(kind)) return;
+        // Capture both perspectives now: a callback can replace a fighter's body.
+        var player = new ModAnimationLifecycleEvent(kind, animation.Name,
+            actor == _playerModel ? "self" : actor == CKNCPOABFBO ? "opponent" : "other", fightTimeInFrame);
+        var opponent = new ModAnimationLifecycleEvent(kind, animation.Name,
+            actor == CKNCPOABFBO ? "self" : actor == _playerModel ? "opponent" : "other", fightTimeInFrame);
+        if (_eclipseAnimationEvents.Count >= 256)
+        {
+            UnityEngine.Debug.LogWarning("[ModCombat] Animation callback queue limit reached; event discarded.");
+            return;
+        }
+        _eclipseAnimationEvents.Enqueue((round.round, player, opponent));
+        DrainEclipseAnimationEvents();
+    }
+
+    private void DrainEclipseAnimationEvents()
+    {
+        if (_drainingEclipseAnimationEvents || _eclipseCombatDispatching || _eclipseOpponentDispatching ||
+            _eclipseAnimationEvents.Count == 0) return;
+        _drainingEclipseAnimationEvents = true;
+        try
+        {
+            int delivered = 0;
+            while (_eclipseAnimationEvents.Count != 0)
+            {
+                if (++delivered > 256)
+                {
+                    _eclipseAnimationEvents.Clear();
+                    UnityEngine.Debug.LogWarning("[ModCombat] Animation callback cascade limit reached; remaining events discarded.");
+                    break;
+                }
+                var next = _eclipseAnimationEvents.Dequeue();
+                if (!round.processing || _eclipseFightEndDispatched || next.Round != round.round) continue;
+                DispatchEclipseCombatEvent(next.Player.Type, animation: next.Player);
+                if (round.processing && !_eclipseFightEndDispatched && next.Round == round.round)
+                    DispatchEclipseOpponent(next.Opponent.Type, animation: next.Opponent);
+            }
+        }
+        finally { _drainingEclipseAnimationEvents = false; }
+    }
+
+    private void DispatchEclipseOpponent(ModEffectEvent effectEvent, ModDamageEvent damage = null, ModIncomingHit incoming = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null)
     {
         if (IsLocalVersus) return;
         if (_eclipseOpponentDispatching || _eclipseCombatDispatching || CKNCPOABFBO == null || ModRuntime.Scripts == null) return;
@@ -2977,7 +3030,7 @@ public class Fight
             var scripts = ModRuntime.Scripts;
             ModRuntime.DispatchBattleRules(_eclipseBattleRules, FightDefinition.FightId.ToString(), false,
                 round.round, ListSF.CCDKHLAMKKO().JPMPIDFGCJL(), _eclipseFightId, _eclipsePlayerResult, effectEvent,
-                new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming, activity));
+                new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming, activity, animation));
             var active = new HashSet<DefinitionId>();
             foreach (var runtimePerk in CKNCPOABFBO.Parameters.Perks)
             {
@@ -2995,18 +3048,18 @@ public class Fight
                     { "fight_id", _eclipseFightId }, { "round", round.round.ToString() }, { "player_result", _eclipsePlayerResult }
                 };
                 scripts.Content.TryGetBehavior(perk.Behavior, out var behavior);
-                var fighter = new ModInstanceFighter(new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming, activity), node);
+                var fighter = new ModInstanceFighter(new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming, activity, animation), node);
                 if (!scripts.TryInvokeBehavior(perk.Behavior, effectEvent, behavior.Parameters.ResolveValues(perk.InitialParameters), context, fighter, out var error))
                     UnityEngine.Debug.LogWarning("[ModCombat] " + effectEvent + " failed for opponent perk " + id + ": " + error);
             }
         }
         catch (Exception exception) { UnityEngine.Debug.LogWarning("[ModCombat] Opponent dispatch failed: " + exception.Message); }
-        finally { _eclipseOpponentDispatching = false; }
+        finally { _eclipseOpponentDispatching = false; DrainEclipseAnimationEvents(); }
     }
 
 	private ModBattleRuleInstances _eclipseBattleRules = new ModBattleRuleInstances();
 	private bool _eclipseCombatDispatching;
-	private void DispatchEclipseCombatEvent(ModEffectEvent effectEvent = ModEffectEvent.FightBegin, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null)
+	private void DispatchEclipseCombatEvent(ModEffectEvent effectEvent = ModEffectEvent.FightBegin, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null)
 	{
 		if (IsLocalVersus) return;
 		if (_eclipseCombatDispatching || _eclipseOpponentDispatching) return;
@@ -3021,7 +3074,7 @@ public class Fight
 		{
 				ModScriptSession scripts = ModRuntime.Scripts;
 				if (scripts == null || NMNCKBPFCCP == null || !NMNCKBPFCCP.IsPlayer || _playerModel == null) return;
-				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent, incomingHit, activity);
+				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent, incomingHit, activity, animation);
                 ModRuntime.DispatchBattleRules(_eclipseBattleRules, FightDefinition.FightId.ToString(), true,
                     round.round, ListSF.CCDKHLAMKKO().JPMPIDFGCJL(), _eclipseFightId, _eclipsePlayerResult, effectEvent, fighterOperations);
 
@@ -3172,7 +3225,7 @@ public class Fight
 			// Mod combat dispatch must never break the recovered fight state machine.
 			UnityEngine.Debug.LogWarning("[ModCombat] " + effectEvent + " dispatch failed: " + exception);
 		}
-		finally { _eclipseCombatDispatching = false; }
+		finally { _eclipseCombatDispatching = false; DrainEclipseAnimationEvents(); }
 	}
 
 	private void StartStance()

@@ -210,6 +210,12 @@ local ComboEvent = {}
 ---@field is_hit boolean
 local StyleEvent = {}
 
+---@class (exact) Eclipse.AnimationLifecycleEvent: Eclipse.CombatEvent
+---@field animation_name string
+---@field target "self"|"opponent"|"other"
+---@field frame integer
+local AnimationLifecycleEvent = {}
+
 ---@class (exact) Eclipse.TickEvent: Eclipse.CombatEvent
 ---@field frame integer
 ---@field seconds number
@@ -226,6 +232,8 @@ local FightEndEvent = {}
 ---@field id string
 ---@field parameters? table<string,Eclipse.FieldSchema|"number"|"integer"|"boolean"|"string">
 ---@field state? nil
+---@field on_animation_start? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)
+---@field on_animation_end? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)
 ---@field on_fight_begin? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_round_begin? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_tick? fun(parameters:table<string,any>, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)
@@ -247,6 +255,8 @@ local BehaviorDefinition = {}
 ---@field id string
 ---@field parameters? table<string,Eclipse.FieldSchema|"number"|"integer"|"boolean"|"string">
 ---@field state Eclipse.BehaviorState
+---@field on_animation_start? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)
+---@field on_animation_end? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.AnimationLifecycleEvent)
 ---@field on_fight_begin? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_round_begin? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.CombatEvent)
 ---@field on_tick? fun(self:Eclipse.BehaviorSelf, fighter:Eclipse.Fighter, event:Eclipse.TickEvent)

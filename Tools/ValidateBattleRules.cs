@@ -19,8 +19,9 @@ public sealed class Core : IAssetProvider {
         metadata = new AssetMetadata(id, AssetKind.Sprite, AssetSourceKind.Core, "", -1, "fixture"); return true;
     }
 }
-public sealed class Fighter : IModFighterOperations, IModIncomingHitSource, IModCombatSnapshotSource, IModCombatActivitySource {
+public sealed class Fighter : IModFighterOperations, IModIncomingHitSource, IModCombatSnapshotSource, IModCombatActivitySource, IModAnimationLifecycleSource {
     public ModCombatActivityEvent ActivityEvent { get; set; }
+    public ModAnimationLifecycleEvent AnimationEvent { get; set; }
     public Func<ModCombatSnapshot> Capture;
     public ModCombatSnapshot CaptureCombatSnapshot() => Capture?.Invoke();
     public ModIncomingHit IncomingHit { get; set; }
@@ -37,6 +38,21 @@ public static class Program {
         File.WriteAllText(testManifest,File.ReadAllText(testManifest).Replace("\"content.register\"","\"content.register\", \"combat.modify_outgoing_hit\""));
         // Public Lua validation, not direct construction of internal DTOs.
         string probes = @"
+local saved_animation
+sf2.behaviors.register {
+    id='animation_probe',
+    on_animation_start=function(_,fighter,event)
+        assert(event.type=='AnimationStart' and event.frame==42)
+        assert(event.animation_name=='fixture:move' and event.target=='self')
+        assert(fighter.scale_incoming_damage==nil and fighter.scale_outgoing_damage==nil)
+        saved_animation=event;event.animation_name='changed'
+    end,
+    on_animation_end=function(_,fighter,event)
+        assert(event.type=='AnimationEnd' and event.frame==43)
+        assert(event.animation_name=='fixture:move' and event.target=='other')
+        assert(saved_animation.animation_name=='changed')
+    end,
+}
 local tick_reader
 sf2.behaviors.register {
     id='tick_probe',
@@ -219,6 +235,7 @@ sf2.behaviors.register {
             Check(upgraded.ResolveSavedUpgradeParameters(savedPerk.DocumentElement,saved)["every"].Integer==9,"Missing level must use base saved parameters");
             if (filters) SnapshotChecks(interactive, mod.Id);
             if (filters) ActivityChecks(interactive,mod.Id);
+            if (filters) AnimationChecks(interactive,mod.Id);
             if (filters) TickChecks(interactive,mod.Id);
             if (filters) SubscriptionChecks(mod,assets);
             if (filters || outgoingDenied) OutgoingChecks(interactive, mod.Id,outgoingDenied);
@@ -271,8 +288,30 @@ sf2.behaviors.register {
         Check(session.HasHandlers(ModEffectEvent.Tick) && session.HasBehaviorHandler(id,ModEffectEvent.Tick),"Tick subscription missing");
         Check(!session.HasBehaviorHandler(id,ModEffectEvent.DamageDealing),"Unregistered callback subscribed");
         Check(!session.HasBehaviorHandler(DefinitionId.Parse("missing:behaviors/probe"),ModEffectEvent.Tick),"Inactive owner subscribed");
+        Check(session.HasHandlers(ModEffectEvent.AnimationStart) && session.HasHandlers(ModEffectEvent.AnimationEnd),"Lifecycle subscription missing");
         session.Dispose();
+        Check(!session.HasHandlers(ModEffectEvent.AnimationStart) && !session.HasHandlers(ModEffectEvent.AnimationEnd),"Disposed lifecycle retained");
         Check(!session.HasHandlers(ModEffectEvent.Tick) && !session.HasBehaviorHandler(id,ModEffectEvent.Tick),"Disposed subscription retained");
+    }
+    static void AnimationChecks(IModInteractiveBehaviorScriptContext context, ModId mod) {
+        var id=DefinitionId.Parse(mod+":behaviors/animation_probe");
+        var fighter=new Fighter { AnimationEvent=new ModAnimationLifecycleEvent(ModEffectEvent.AnimationStart,"fixture:move","self",42) };
+        var wrapped=new ModInstanceFighter(fighter,new XmlDocument().CreateElement("Perk"));
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.AnimationStart,null,null,wrapped,out var error),error);
+        Check(fighter.AnimationEvent.AnimationName=="fixture:move","Lua mutated engine animation event");
+        Check(!context.TryInvokeBehavior(id,ModEffectEvent.AnimationEnd,null,null,wrapped,out error),"Mismatched lifecycle accepted");
+        fighter.AnimationEvent=new ModAnimationLifecycleEvent(ModEffectEvent.AnimationEnd,"fixture:move","other",43);
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.AnimationEnd,null,null,wrapped,out error),error);
+        fighter.AnimationEvent=null;
+        Check(!context.TryInvokeBehavior(id,ModEffectEvent.AnimationStart,null,null,wrapped,out error),"Missing lifecycle accepted");
+        foreach(var invalid in new Action[]{
+            ()=>new ModAnimationLifecycleEvent(ModEffectEvent.Tick,"move","self",0),
+            ()=>new ModAnimationLifecycleEvent(ModEffectEvent.AnimationStart,"","self",0),
+            ()=>new ModAnimationLifecycleEvent(ModEffectEvent.AnimationEnd,"move","enemy",0),
+            ()=>new ModAnimationLifecycleEvent(ModEffectEvent.AnimationEnd,"move","self",-1)}) {
+            bool rejected=false;try{invalid();}catch(ArgumentException){rejected=true;}
+            Check(rejected,"Invalid lifecycle observation accepted");
+        }
     }
     static void TickChecks(IModInteractiveBehaviorScriptContext context, ModId mod) {
         var id=DefinitionId.Parse(mod+":behaviors/tick_probe");

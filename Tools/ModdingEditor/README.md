@@ -1,7 +1,7 @@
 # Eclipse Modding for VS Code
 
-Editor support for all 36 public Eclipse API modules: 152 functions, aliases, and
-callbacks; 76 constants; and 206 typed structures. Version 0.1.0 retains the ID
+Editor support for all 36 public Eclipse API modules: 155 functions, aliases, and
+callbacks; 76 constants; and 227 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 Move authoring now completes `damage_terms = { { type, shift } }`, the native
@@ -387,3 +387,10 @@ native frame timing. These fields expose native behavior, not arbitrary Lua exec
 `direction.impulse.reverse` completes as a boolean, default false, and cannot be
 combined with `from`/`to`. These use native hit selection and facing; they do not
 force an animation past its conditions or apply an impulse.
+
+## Animation lifecycle completion
+
+Behavior definitions include `on_animation_start` and `on_animation_end` with
+typed `animation_name`, `target` (`self`, `opponent`, `other`) and `frame` fields.
+These observe native combat notifications; `other` includes projectiles and does
+not imply projectile ownership. See the combat callback wiki for timing and limits.
