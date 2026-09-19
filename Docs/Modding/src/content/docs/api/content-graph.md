@@ -210,6 +210,14 @@ local template = sf2.warriors.get_template("core:warrior-templates/default")
 Template handles differ from warrior handles; pass this one to the `template`
 field of `sf2.warriors.register`.
 
+A template lookup requires a definition already present in the catalog. Naming a
+missing template does not restore its skeleton, inherited equipment, voice or
+other native settings. For reusable opponent modules, pass verified template and
+item handles into a registration function and check its required inputs before
+registering variants. Leave incomplete modules outside the entrypoint until their
+dependencies are available. A successful comparison of projected loadout fields
+does not establish that the inherited template or equipment works in combat.
+
 ## sf2.warriors.register
 
 Define an opponent, optionally inheriting from a core template.

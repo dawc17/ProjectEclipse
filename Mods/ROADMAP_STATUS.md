@@ -2,6 +2,15 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-09-20 continuation (Step 40): the pending Sensei opponent factory now covers
+all 22 normal/Eclipse guard and prince loadouts and returns complete ordered
+rosters together with the twelve boss definitions. All 34 source rows across 23
+encounters match through actual Lua registration/projection. Guard template and
+Sphere1 identities are controlled fixtures only; actual missing dependencies,
+conditional controls and complete story acceptance remain open. Active DE128 is
+still 0.18.0. Purchase/upgrade delivery was inspected and is already immediate in
+the base runtime; no redundant policy or behavioral change was made.
+
 2026-09-20 continuation (Step 39): pending Lua rules cover the unconditional
 portions of all 23 Sensei fights. Generic C# fixes enforce all five NoButton
 actions through shared input and preserve normal/Eclipse rule modes in native

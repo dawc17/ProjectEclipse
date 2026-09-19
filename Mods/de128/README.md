@@ -29,6 +29,15 @@ All rows match historical XML through the production adapter; native perk clone
 checks pass. It remains outside main.lua, with guard templates, encounter rules,
 boss AI/trigger playtests and full story acceptance unfinished (Step 38).
 
+Pending `scripts/content/sensei_guard_opponents.lua` supplies the other 22
+normal/Eclipse loadouts, including the prince, and combines them with the bosses
+in the archived encounter order. Call its `register` function only after resolving
+verified `guard_girl`, `guard_man` template handles and the `sphere1` item handle.
+It provides no substitute for those missing inputs and has no registration side
+effects when merely required. Complete ordered projections cover 34 loadouts in
+23 encounters, with identity-only test fixtures for the unresolved inputs; this
+does not validate their models, AI or charge behavior (Step 40).
+
 Pending `scripts/content/sensei_fight_rules.lua` provides the unconditional rule
 lists for all 23 Sensei fights: player equipment/identity, opponent anti-shock and
 Ronin's Eclipse-only damage modifiers. Historical ordered rows and native mode

@@ -1,8 +1,8 @@
 # DE128 production record
 
-Current package: **0.18.0**. Latest completed content is recorded in Step 31;
-Steps 32–34 add encounter perk settings, reward economy, saved fight queries and
-pending Sensei Story data/decisions.
+Current package: **0.18.0**. Latest activated content is recorded in Step 31;
+Steps 32–40 add encounter perk settings, reward economy, saved fight queries,
+map/notification support, rule enforcement and pending Sensei Story rosters.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
 move APIs and verified graph data; Step 13 adds passing isolated live input/animation
@@ -2322,3 +2322,62 @@ player equipment/identity gameplay, story save/reload and deferred source-corpus
 reconciliation remain outstanding. No owner profile/editor was modified. An old
 fixture lockfile cleanup was rejected by automatic approval review; that fixture
 was preserved and acceptance ran in a fresh isolated copy.
+
+## Step 40 — Complete pending Sensei opponent rosters (2026-09-20)
+
+New `scripts/content/sensei_guard_opponents.lua` authors all 22 normal/Eclipse
+non-boss loadouts: Savage, Philosopher, Asian, Ronin, Sadist, Fanatic, Pirate,
+Indean, Sister, Blind and the prince. Archived names/spelling, portrait references,
+ordered equipment, attribute omission versus explicit values, prince enchantments
+and repeated normal alignment rows are preserved. The prince has shift 8 in
+normal mode and 7 in Eclipse; ordinary guards use 6 and 7 respectively.
+
+The module exports a registration factory. It requires verified Guard_Girl and
+Guard_Man template handles plus the unresolved Sphere1 item handle. It never
+creates substitute templates or silently maps Sphere1 to a different charge.
+Merely requiring the module registers nothing. When called with valid inputs, it
+reuses the pending boss factory and returns normal/Eclipse arrays for all six
+acts: guards then boss in I–V, Shogun then prince in VI. Normal slots correspond
+to separate fights; Eclipse slots form one ordered gauntlet per act.
+
+Verification:
+
+- `TestSenseiOpponents.ps1`: 73 checks after the existing 139 warrior/perk checks.
+  Actual MoonSharp registration and the production adapter compare complete ordered
+  Warriors nodes for all 23 encounters (17 normal opponents and 17 Eclipse
+  opponents). This includes omitted attributes, equipment order, all prince
+  perk overrides, boss placement and alignment multiplicity. Missing inputs fail
+  before registration; wrong handle types roll back previously registered bosses.
+- The test explicitly verifies the two absent templates in both available source
+  collections and the missing canonical Sphere1 identity. It supplies only
+  identity metadata for these dependencies in a temporary test catalog. Those
+  are not restored body templates or evidence of an equipment category/mapping.
+  No fixture definitions enter Assets or the DE package. Evidence:
+  `Temp/WarriorPerks-8c0b010f839f48248c3dcad3bc390008`.
+- Managed game assembly build passes. No Unity playtest is claimed: loading
+  invented template bodies would not validate the unresolved actual inputs.
+- All 2638 active DE128 foundation checks pass. Wiki build passes with 47 pages,
+  4099 links/assets checked and no Astro diagnostics; the existing duplicate-404
+  route warning remains. No public API signatures or editor schemas changed.
+
+Dependency diagnosis from current C# and historical quests:
+
+- RaidChargeButton is written by ShowRaidChargeButton/HideRaidChargeButton in
+  response to thirteen named perk activation/deactivation events, and reset by
+  four set-chest purchase quests. It is not simply an inventory/charge-count test.
+- Quest event enum/parser/manager support exists, but searches found no C# writer
+  for QuestParameters.NJDDPMPFCGB and no activation/deactivation event producer.
+  A subscription binding alone would therefore not supply the missing behavior.
+  Recovery must establish the real lifecycle, then expose safe typed Lua hooks;
+  the ignored legacy conditional wrapper remains unsuitable for this port.
+- A separate check of the no-wait requirement found that ItemBuyHelper already
+  completes coin/gem purchases and upgrades immediately, and UserItems completes
+  saved deliveries on its next tick. This step changes neither that baseline nor
+  shared costs. General purchase/upgrade timer authoring remains an API gap,
+  distinct from whether DE currently waits for those operations.
+
+Package remains 0.18.0 with both opponent factories pending. Remaining story work
+includes the verified template bodies and prince item mapping, perk/control
+lifecycle, battle pairing/registration, narrative sequences, complete save/reload
+and native combat acceptance. Authoritative asset-corpus reconciliation is still
+explicitly deferred.
