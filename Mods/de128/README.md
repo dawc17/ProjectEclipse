@@ -43,7 +43,7 @@ lists for all 23 Sensei fights: player equipment/identity, opponent anti-shock a
 Ronin's Eclipse-only damage modifiers. Historical ordered rows and native mode
 parsing are checked. The conditional RaidCharge rule is separate and unattached;
 the recovered conditional wrapper ignores its condition, so the encounter
-assembler must wait for faithful runtime support. This module also stays outside
+assembler uses a separate Lua behavior. This module also stays outside
 main.lua (Step 39).
 
 Pending `scripts/content/sensei_encounters.lua` assembles all twelve normal/Eclipse
@@ -53,8 +53,16 @@ rule; it does not implement that condition. `sensei_battles.lua` pairs entries o
 the six existing map pages, and `sensei_battle_text.lua` supplies 56 translated
 labels. The returned normal battle handles and five prior-act final fight handles
 can feed the notification coordinator. These factories remain outside main.lua;
-source comparisons use controlled missing identities and a no-op conditional rule
-only in tests. See Step 41 for the native locked-pair fix and acceptance limits.
+source comparisons use controlled missing identities and a controlled availability
+reader only in tests. See Step 41 for the native locked-pair fix and acceptance limits.
+
+Pending `scripts/content/sensei_raid_charge.lua` supplies that conditional behavior
+through `register(is_available)`. Its caller must supply a verified boolean reader
+for the archived perk-dependent availability; no inventory/loadout approximation
+is supplied. It reapplies the block each round using the generic C# control hook,
+which composes with native rules and other behavior instances. Lua and isolated
+Unity checks exercise the condition, but the real perk-state producer and ability
+button availability remain unresolved. It is not loaded by main.lua (Step 42).
 
 Pending `scripts/content/sensei_rewards.lua` contains all 57 normal/eclipse
 reward slots across the six acts, including experience, gems and performance

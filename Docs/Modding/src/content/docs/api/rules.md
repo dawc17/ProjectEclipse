@@ -418,3 +418,10 @@ the rules of existing encounters through [fight patches](../content-graph/#sf2fi
 
 Attacker-side scaling is available through `on_damage_dealing` and
 `fighter:scale_outgoing_damage` with `combat.modify_outgoing_hit`.
+
+For conditional action restrictions, attach a player-targeted behavior and call
+[`fighter:set_control_blocked`](../fighter/#fighterset_control_blocked) from
+`on_round_begin` after reading your mod's condition. This requires `combat.effects`.
+The claim belongs to that rule instance; releasing it cannot undo native
+`no_button` rules or another instance's restrictions. It does not grant equipment,
+charges or an ability button, and must be reapplied each round.

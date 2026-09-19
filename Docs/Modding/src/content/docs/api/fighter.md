@@ -398,6 +398,49 @@ Clearing one instance emits its expiry even if another instance retains a flag
 with the same qualified name. For purely Lua bookkeeping with no native move
 interaction, prefer declared behavior state.
 
+## fighter:set_control_blocked
+
+Restrict one player action for this behavior instance.
+
+**Signature:** `fighter:set_control_blocked(control, blocked)`
+
+**Returns:** `nil`. Invalid arguments, expired references, unavailable support,
+or exceeding the source limit raise a Lua error.
+
+**When:** A behavior callback for the player during an active round, including
+`on_fight_begin` and `on_round_begin` setup before combat starts. Unavailable for
+opponents, after a round ends, and in local versus.
+
+**Requires:** `combat.effects`.
+
+`control` is one of the case-sensitive strings `"punch"`, `"kick"`, `"ranged"`,
+`"magic"`, or `"raid_charge"`. `blocked` must be a boolean.
+
+```lua
+local restriction = sf2.behaviors.register {
+    id = "restricted_magic",
+    on_round_begin = function(parameters, fighter)
+        fighter:set_control_blocked("magic", true)
+    end,
+}
+sf2.rules.behavior {
+    id = "restricted_magic", behavior = restriction, target = sf2.rules.PLAYER,
+}
+-- Attach the returned rule to a fight's rules list to apply it.
+```
+
+`true` hides and blocks the action through the shared touch, keyboard and gamepad
+gate. Blocking a held action releases it; resuming requires neutral input followed
+by a fresh press. `false` releases only this behavior instance's restriction. It
+cannot override another instance, a native `no_button` rule, or ordinary equipment
+and charge availability, and does not force a hidden ability button to appear.
+
+Restrictions persist across callbacks and pause/resume. They clear when the next
+round is prepared or the fight ends; reapply them in `on_round_begin` when needed.
+Repeated calls are idempotent. Ownership includes the behavior and its attached
+perk/rule instance. At most 256 instances can hold restrictions per controller;
+each can block all five actions. Releasing an instance's last block frees its slot.
+
 ## fighter:show_status_icon
 
 Show or refresh a transient status icon owned by this behavior instance.

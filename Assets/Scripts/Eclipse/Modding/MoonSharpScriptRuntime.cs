@@ -234,6 +234,22 @@ namespace Eclipse.Modding
                             fighterTable.Set("opponent", DynValue.NewTable(targetTable));
                         }
                     }
+                    if (fighter is IModFighterControls controls)
+                    {
+                        fighterTable.Set("set_control_blocked", DynValue.NewCallback((ctx, args) =>
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Control operations have expired.");
+                            _api.RequireCapability("combat.effects");
+                            int offset = args[0].Type == DataType.Table && args[0].Table == fighterTable ? 1 : 0;
+                            string control = args.AsType(offset, "set_control_blocked", DataType.String, false).String;
+                            if (control != "punch" && control != "kick" && control != "ranged" && control != "magic" && control != "raid_charge")
+                                throw new ScriptRuntimeException("Unknown combat control.");
+                            if (args[offset + 1].Type != DataType.Boolean) throw new ScriptRuntimeException("blocked must be a boolean.");
+                            bool blocked = args[offset + 1].Boolean;
+                            if (!controls.TrySetControlBlocked(behaviorId, control, blocked, out var failure)) throw new ScriptRuntimeException(failure);
+                            return DynValue.Nil;
+                        }));
+                    }
                     if (fighter is IModFighterFlags flags)
                     {
                         string FlagName(CallbackArguments args, string function)

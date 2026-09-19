@@ -1,7 +1,7 @@
 # Executes actual pending Lua. Missing templates/item use the explicit identity
-# fixtures from TestSenseiOpponents; conditional behavior is deliberately a no-op.
+# fixtures from TestSenseiOpponents; conditional behavior uses an explicit controlled availability reader.
 . (Join-Path $PSScriptRoot 'TestSenseiOpponents.ps1')
-foreach($name in @('sensei_battles','sensei_battle_text','sensei_encounters','sensei_rewards','sensei_fight_rules')) {
+foreach($name in @('sensei_battles','sensei_battle_text','sensei_encounters','sensei_rewards','sensei_fight_rules','sensei_raid_charge')) {
     Copy-Item (Join-Path $root "Mods/de128/scripts/content/$name.lua") (Join-Path $package 'scripts/content')
 }
 $script:checks=0
@@ -13,8 +13,7 @@ for($act=1;$act -le 6;$act++) {
 $prefix=$pending+$dependencies+@'
 local factory=require("content.sensei_encounters")
 local opponents=pending.register(deps)
-local behavior=sf2.behaviors.register{id="condition_fixture",on_round_begin=function() end}
-local conditional=sf2.rules.behavior{id="condition_fixture",behavior=behavior,target=sf2.rules.PLAYER}
+local conditional=require("content.sensei_raid_charge").register(function() return false end)
 '@
 $entry=$prefix+@'
 local graph=factory.register(opponents,conditional)
@@ -92,7 +91,7 @@ foreach($battle in $catalog.Battles) {
         $definition=@($catalog.Fights | Where-Object {$_.LegacyName -ceq $a.GetAttribute('Name')})[0]
         $position=0
         foreach($rule in $e.SelectNodes('Rules/*')){if($rule.LocalName -eq 'RulesWithConditions'){break};$position++}
-        Check ($definition.Rules[$position].LocalId -ceq 'condition_fixture') 'Conditional dependency attached at wrong position.'
+        Check ($definition.Rules[$position].LocalId -ceq 'sensei_raid_charge_conditional') 'Conditional dependency attached at wrong position.'
         Check ($definition.Rules.Count -eq $expectedRules.Count+1) 'Conditional dependency duplicated or omitted.'
         $ar=$a.SelectNodes('Rewards/Reward');$er=$e.SelectNodes('Rewards/Reward')
         Check ($ar.Count -eq $er.Count) 'Reward slot count differs.'
@@ -107,4 +106,4 @@ foreach($bad in @('factory.register(opponents,nil)','opponents[4].normal[3]=nil;
     try{$null=Load-Lua ($prefix+$bad) $identities.DocumentElement @($charge.DocumentElement) $zones}catch{$failed=$true}
     Check $failed ('Invalid assembler dependency accepted: '+$bad)
 }
-Write-Output "PASS: $script:checks Sensei graph checks: 12 paired battles, 23 fights, 34 loadouts, 57 reward slots and 56 translations. Evidence: $fixture. Conditional callback is a no-op fixture; missing template/item identities remain controlled. No complete story/asset/gameplay claim."
+Write-Output "PASS: $script:checks Sensei graph checks: 12 paired battles, 23 fights, 34 loadouts, 57 reward slots and 56 translations. Evidence: $fixture. Conditional callback uses a controlled availability reader; missing template/item identities remain controlled. No complete story/asset/gameplay claim."

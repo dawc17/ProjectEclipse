@@ -60,6 +60,7 @@ const fighterMethods = {
     scale_incoming_damage:{params:{multiplier:'number'},capability:'combat.modify_hit'},
     add_damage_shield:{params:{key:'string',fraction:'number',frames:'integer'},capability:'combat.effects'},
     remove_damage_shield:{params:{key:'string'},capability:'combat.effects'},
+    set_control_blocked:{params:{control:enumOf('punch','kick','ranged','magic','raid_charge'),blocked:'boolean'},capability:'combat.effects'},
     set_flag:{params:{key:'string'},returns:'string',capability:'combat.effects'},
     clear_flag:{params:{key:'string'},capability:'combat.effects'},
     has_flag:{params:{key:'string'},returns:'boolean',capability:'combat.effects'},

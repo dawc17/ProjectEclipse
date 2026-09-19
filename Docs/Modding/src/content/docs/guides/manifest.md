@@ -66,7 +66,7 @@ A capability permits an operation; a dependency permits references to another ow
 | `assets.replace` | Explicit replacement of an existing asset. |
 | `state.read`, `state.write` | Read and write mod-owned profile state. |
 | `combat.change_life`, `combat.magic_charge` | Supported health and magic-charge methods. |
-| `combat.modify_hit`, `combat.effects` | Damage scaling and temporary shields. |
+| `combat.modify_hit`, `combat.effects` | Incoming damage scaling; temporary shields, flags, status icons and player control restrictions, respectively. |
 | `combat.modify_outgoing_hit` | Scale an attacker's pending hit during `on_damage_dealing`. |
 | `presentation.dojo` | Select, inspect or reset the saved dojo preference after profile loading. Selection is limited to the mod's own opted-in locations. |
 | `profile.read` | Read the active player's level and item ownership/equipped snapshots. |

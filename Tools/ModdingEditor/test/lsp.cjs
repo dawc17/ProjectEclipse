@@ -173,7 +173,7 @@ async function main() {
     }, 'snapshot return type inference');
     console.log('PASS: combat snapshot return type and fighter fields complete');
     const flagMethods=probe('flag-methods.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="flags",on_animation_start=function(_,fighter)\n fighter:|\nend }');
-    await until(async()=>{const found=labels(await request('textDocument/completion',flagMethods));return ['set_flag','has_flag','clear_flag'].every(key=>found.some(name=>name.startsWith(key)));},'scoped combat flag methods');
+    await until(async()=>{const found=labels(await request('textDocument/completion',flagMethods));return ['set_flag','has_flag','clear_flag','set_control_blocked'].every(key=>found.some(name=>name.startsWith(key)));},'scoped combat flag methods');
     const formReceipt = probe('form-receipt.lua', 'local sf2=require("sf2")\nlocal form=sf2.warriors.register { id="form" }\nsf2.behaviors.register { id="shift", on_tick=function(_, fighter)\n local result=fighter:change_form(form)\n local value=result.|\nend }');
     await until(async () => {
         const found=labels(await request('textDocument/completion',formReceipt));

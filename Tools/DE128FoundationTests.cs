@@ -694,6 +694,72 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
     private static XmlElement ReadElement(string xml)
     { var document = new XmlDocument { XmlResolver = null }; document.LoadXml(xml); return document.DocumentElement; }
 
+    private sealed class ControlFighter : IModFighterOperations, IModFighterControls
+    {
+        internal readonly List<(object Owner, string Control, bool Blocked)> Calls = new List<(object, string, bool)>();
+        internal bool Refuse;
+        public bool TrySetControlBlocked(object owner, string control, bool blocked, out string error)
+        {
+            error = Refuse ? "fixture unavailable" : "";
+            if (Refuse) return false;
+            Calls.Add((owner, control, blocked)); return true;
+        }
+        public bool TryChangeHealth(double amount, out string error) { error="unexpected health"; return false; }
+        public bool TryAddMagicCharge(double amount, out string error) { error="unexpected magic"; return false; }
+    }
+
+    private static void CheckControlCallbacks(string source, string fixture)
+    {
+        var peer = Peer(fixture, "fixture.controls", "content.register", @"
+local pending=require('content.sensei_raid_charge')
+local count=0
+pending.register(function() count=count+1; return count%2==0 end)
+local saved
+sf2.behaviors.register{id='expired',on_round_begin=function(_,fighter)
+ if saved then saved('kick',true) else saved=fighter.set_control_blocked end
+end}
+", "combat.effects");
+        Directory.CreateDirectory(Path.Combine(peer.RootPath,"scripts/content"));
+        File.Copy(Path.Combine(source,"scripts/content/sensei_raid_charge.lua"),Path.Combine(peer.RootPath,"scripts/content/sensei_raid_charge.lua"));
+        var catalog=new ModContentCatalog();var fighter=new ControlFighter();
+        var saved=new XmlDocument();saved.LoadXml("<Rule/>");
+        var other=new XmlDocument();other.LoadXml("<Rule/>");
+        var parameters=new Dictionary<string,ModParameterValue>();var context=new Dictionary<string,string>{{"side","player"},{"round","1"}};
+        using(var live=LoadLive(peer,catalog)) {
+            var interactive=(IModInteractiveBehaviorScriptContext)live;
+            bool Call(string id, XmlNode node, out string error)=>interactive.TryInvokeBehavior(DefinitionId.Parse("fixture.controls:behaviors/"+id),ModEffectEvent.RoundBegin,parameters,context,new ModInstanceFighter(fighter,node),out error);
+            Check(Call("sensei_raid_charge",saved.DocumentElement,out var error),error);
+            Check(Call("sensei_raid_charge",saved.DocumentElement,out error),error);
+            Check(Call("sensei_raid_charge",other.DocumentElement,out error),error);
+            Check(fighter.Calls.Count==3&&fighter.Calls[0].Control=="raid_charge"&&fighter.Calls[0].Blocked&&!fighter.Calls[1].Blocked&&fighter.Calls[2].Blocked,"Actual DE condition did not alternate block/release from boolean availability.");
+            Check(Equals(fighter.Calls[0].Owner,fighter.Calls[1].Owner)&&!Equals(fighter.Calls[0].Owner,fighter.Calls[2].Owner),"Control ownership lost instance provenance.");
+            Check(Call("expired",saved.DocumentElement,out error),error);
+            Check(!Call("expired",saved.DocumentElement,out error)&&error.Contains("expired"),"Escaped control callback remained usable.");
+            fighter.Refuse=true;
+            Check(!Call("sensei_raid_charge",saved.DocumentElement,out error)&&error.Contains("fixture unavailable"),"Native refusal was swallowed.");
+            Check(fighter.Calls.Count==3,"Failed callbacks mutated controls.");
+        }
+        fighter.Refuse=false;
+        int index=0;
+        foreach(var body in new[]{"fighter:set_control_blocked('Punch',true)","fighter:set_control_blocked('kick',1)","fighter:set_control_blocked('kick',nil)","fighter:set_control_blocked('move',true)"}) {
+            var invalid=Peer(fixture,"fixture.control-invalid-"+index++,"content.register","sf2.behaviors.register{id='invalid',on_round_begin=function(_,fighter) "+body+" end}","combat.effects");
+            using(var live=LoadLive(invalid,new ModContentCatalog())) {
+                Check(!((IModInteractiveBehaviorScriptContext)live).TryInvokeBehavior(DefinitionId.Parse(invalid.Id+":behaviors/invalid"),ModEffectEvent.RoundBegin,parameters,context,fighter,out _),"Invalid control argument accepted.");
+                Check(fighter.Calls.Count==3,"Invalid argument reached native mutation.");
+            }
+        }
+        fighter.Refuse=false;
+        var denied=Peer(fixture,"fixture.controls-denied","content.register","sf2.behaviors.register{id='denied',on_round_begin=function(_,fighter) fighter:set_control_blocked('kick',true) end}");
+        using(var live=LoadLive(denied,new ModContentCatalog()))
+            Check(!((IModInteractiveBehaviorScriptContext)live).TryInvokeBehavior(DefinitionId.Parse(denied.Id+":behaviors/denied"),ModEffectEvent.RoundBegin,parameters,context,fighter,out var error)&&error.Contains("combat.effects")&&fighter.Calls.Count==3,"Missing capability allowed control mutation.");
+        Check(!new ModInstanceFighter(fighter,null).TrySetControlBlocked(new object(),"kick",true,out _),"Missing instance allowed control mutation.");
+        var invalidReader=Peer(fixture,"fixture.controls-reader","content.register","require('content.sensei_raid_charge').register(function() return 0 end)","combat.effects");
+        Directory.CreateDirectory(Path.Combine(invalidReader.RootPath,"scripts/content"));
+        File.Copy(Path.Combine(source,"scripts/content/sensei_raid_charge.lua"),Path.Combine(invalidReader.RootPath,"scripts/content/sensei_raid_charge.lua"));
+        using(var live=LoadLive(invalidReader,new ModContentCatalog()))
+            Check(!((IModInteractiveBehaviorScriptContext)live).TryInvokeBehavior(DefinitionId.Parse(invalidReader.Id+":behaviors/sensei_raid_charge"),ModEffectEvent.RoundBegin,parameters,context,fighter,out var error)&&error.Contains("must be boolean")&&fighter.Calls.Count==3,"Invalid availability reader mutated controls.");
+    }
+
     private static void Run(string source, string fixture, string repository)
     {
         _items = ReadXml(Path.Combine(repository, "Assets/vanillaXml/list.xml"));
@@ -821,6 +887,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
         CheckTrialFingerprints(fixture);
         CheckInitialStats(fixture);
         DECombatPerksTests.Run(mod, repository, (descriptor, content) => LoadLive(descriptor, content), Check);
+        CheckControlCallbacks(source, fixture);
         var forceDisabled = CopyPackage(source, fixture, "explicit-disabled-require");
         File.AppendAllText(Path.Combine(forceDisabled.RootPath, "scripts/main.lua"),
             "\nrequire('content.ascension')\nrequire('content.ascension_rules')\n", Utf8);

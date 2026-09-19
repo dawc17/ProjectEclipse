@@ -212,6 +212,7 @@ test('DE combat perk callbacks and fighter operations are typed', () => {
     assert.deepEqual(api.fighterMethods.add_outgoing_damage,{params:{amount:'number'},capability:'combat.modify_outgoing_hit'});
     assert.deepEqual(api.fighterMethods.show_status_icon,{params:{key:'string',sprite:'Eclipse.SpriteHandle',frames:'integer','stacks?':'integer'},capability:'combat.effects'});
     assert.deepEqual(api.fighterMethods.clear_status_icon,{params:{key:'string'},capability:'combat.effects'});
+    assert.deepEqual(api.fighterMethods.set_control_blocked,{params:{control:'"punch"|"kick"|"ranged"|"magic"|"raid_charge"',blocked:'boolean'},capability:'combat.effects'});
 });
 
 test('move perk-lock removal and initial perk rank are typed', () => {

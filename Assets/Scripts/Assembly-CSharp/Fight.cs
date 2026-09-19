@@ -350,16 +350,42 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
+        private readonly bool _controlSetup;
         public bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error)
         {
             if (_fight == null || _model == null || complete == null)
             { error = "Fighter is unavailable."; return false; }
             return _fight.TryQueueCharacterForm(_model, character,
                 failure => complete(failure == null, failure?.Message ?? string.Empty), out error);
+        }
+
+        public bool TrySetControlBlocked(object owner, string control, bool blocked, out string error)
+        {
+            try
+            {
+                if (_fight == null || _model == null || _model != _fight._playerModel ||
+                    _fight.IsLocalVersus || (!_fight.round.processing && !_controlSetup) ||
+                    _fight._eclipseEndedRound == _fight.round.round || _fight._eclipseFightEndDispatched || _fight.Controller == null)
+                    throw new InvalidOperationException("Control restrictions require the player during an active round.");
+                FightCID action;
+                switch (control)
+                {
+                    case "punch": action = FightCID.Punch; break;
+                    case "kick": action = FightCID.Kick; break;
+                    case "ranged": action = FightCID.MissileButton; break;
+                    case "magic": action = FightCID.MagicButton; break;
+                    case "raid_charge": action = FightCID.RaidChargeButton; break;
+                    default: throw new ArgumentException("Unknown combat control.", nameof(control));
+                }
+                _fight.Controller.SetScriptControlBlocked(owner, action, blocked);
+                error = string.Empty;
+                return true;
+            }
+            catch (Exception exception) { error = exception.Message; return false; }
         }
 
         private InfoPerk FlagContainer(object owner, string behavior, bool create)
@@ -410,10 +436,11 @@ public class Fight
         public double Health => _model == null ? 0 : _model.KKMCHCNOHMB();
         public IModFighterOperations Opponent => _fight == null ? null :
             new EclipseFighterOperations(_fight, _model == _fight._playerModel ? _fight.CKNCPOABFBO : _fight._playerModel);
-		public EclipseFighterOperations(Fight fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null)
+		public EclipseFighterOperations(Fight fight, Model model, ModDamageEvent damageEvent = null, ModIncomingHit incomingHit = null, ModCombatActivityEvent activity = null, ModAnimationLifecycleEvent animation = null, bool controlSetup = false)
 		{
 			_fight = fight;
 			_model = model;
+            _controlSetup = controlSetup;
 			DamageEvent = damageEvent;
             IncomingHit = incomingHit;
             ActivityEvent = activity;
@@ -3097,7 +3124,8 @@ public class Fight
 		{
 				ModScriptSession scripts = ModRuntime.Scripts;
 				if (scripts == null || NMNCKBPFCCP == null || !NMNCKBPFCCP.IsPlayer || _playerModel == null) return;
-				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent, incomingHit, activity, animation);
+				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent, incomingHit, activity, animation,
+                    effectEvent == ModEffectEvent.FightBegin || effectEvent == ModEffectEvent.RoundBegin);
                 ModRuntime.DispatchBattleRules(_eclipseBattleRules, FightDefinition.FightId.ToString(), true,
                     round.round, ListSF.CCDKHLAMKKO().IsEclipseMode(), _eclipseFightId, _eclipsePlayerResult, effectEvent, fighterOperations);
 
@@ -4387,6 +4415,7 @@ public class Fight
             DispatchEclipseOpponent(ModEffectEvent.FightEnd);
             _eclipseShields.Clear();
 			ClearEclipseStatusIcons();
+			Controller?.ClearScriptControlBlocks();
         }
 		Sound.StopLoopedSounds();
 		MOBFFOHPCOE.Complete(round.roundTotal, true);
@@ -4646,6 +4675,7 @@ public class Fight
             DispatchEclipseOpponent(ModEffectEvent.FightEnd);
             _eclipseShields.Clear();
 			ClearEclipseStatusIcons();
+			Controller?.ClearScriptControlBlocks();
 		}
 		Sound.StopLoopedSounds();
 		if (MNEOALEBNNA)

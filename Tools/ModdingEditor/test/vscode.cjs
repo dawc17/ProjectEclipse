@@ -38,6 +38,19 @@ exports.run = async function () {
         assert(found, 'VS Code did not offer register_weapon through the installed Lua extension');
         passed.push('PASS: real VS Code Lua extension provides weapon completion after enabling the preview');
 
+        const controlUri=vscode.Uri.joinPath(folder.uri,'scripts','control-completion.lua');
+        fs.writeFileSync(controlUri.fsPath,'local sf2=require("sf2")\nsf2.behaviors.register { id="controls",on_round_begin=function(_,fighter)\n fighter:\nend }');
+        await vscode.workspace.openTextDocument(controlUri);
+        let controlFound=false;
+        const controlDeadline=Date.now()+30000;
+        while(Date.now()<controlDeadline) {
+            const result=await vscode.commands.executeCommand('vscode.executeCompletionItemProvider',controlUri,new vscode.Position(2,9));
+            if(result?.items.some(item=>String(typeof item.label==='string'?item.label:item.label.label).startsWith('set_control_blocked'))){controlFound=true;break;}
+            await new Promise(resolve=>setTimeout(resolve,500));
+        }
+        assert(controlFound,'Player control restriction completion missing');
+        passed.push('PASS: fighter control restriction completion');
+
         const uri = vscode.Uri.joinPath(folder.uri, 'scripts', 'editor-test.lua');
         fs.writeFileSync(uri.fsPath, 'local sf2 = require("sf2")\nsf2.assets.sprite("sprites/weapon")\nsf2.localization.key("weapon.training_blade")\n');
         const modDoc = await vscode.workspace.openTextDocument(uri);

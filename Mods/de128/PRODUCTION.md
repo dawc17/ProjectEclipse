@@ -1,7 +1,7 @@
 # DE128 production record
 
 Current package: **0.18.0**. Latest activated content is recorded in Step 31;
-Steps 32–41 add encounter perk settings, reward economy, saved fight queries,
+Steps 32–42 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement and pending Sensei Story assembly.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
@@ -2450,3 +2450,61 @@ Active DE128 stays 0.18.0. Real guard templates, prince charge mapping and perk/
 control lifecycle are still required before activation, alongside narrative and
 complete story/profile acceptance. The source corpus remains deferred. This
 assembly does not claim that the referenced art/music or full story plays in Unity.
+
+## Step 42 — Scoped player controls and pending conditional RaidCharge (2026-09-20)
+
+Added the reusable C# `fighter:set_control_blocked(control, blocked)` binding under
+`combat.effects`. Each attached behavior instance owns its claims on punch, kick,
+ranged, magic and raid-charge controls. Claims compose with native NoButton rules
+and other instances, preserve underlying action availability, and use the same
+input/visibility gate for touch, keyboard and gamepad. Releasing a held block
+requires neutral input and a fresh press. Script claims clear on round preparation
+and fight completion; pause/resume retains them. The controller bounds active
+script owners at 256 and frees an owner's slot after its last claim is released.
+
+The native bridge admits only the player during round-start setup or active
+combat. Opponent, inactive/ended-round and completed-fight operations are rejected;
+local versus remains excluded. Lua methods expire with their callback and require
+a strict boolean. Native testing caught that round-begin dispatch precedes the
+native processing flag: setup authorization is now limited to fight/round-begin
+callback handles rather than assuming processing has already started.
+
+Pending `sensei_raid_charge.lua` registers the conditional player behavior and its
+rule. It requires a caller-supplied boolean availability reader, checks its result
+before mutation, and reapplies the restriction each round. The encounter assembler
+accepts this real rule in its archived position. No module was added to main.lua.
+The archived perk-dependent `_RaidChargeButton` producer is still unresolved;
+charge inventory or forced encounter equipment are not substituted. This hook
+also does not grant an ability button which the native game considers unavailable.
+
+Verification:
+
+- Managed editor/native-driver preflight builds pass with zero errors.
+- `TestLocalVersusInput.ps1`: 92 production input/gate checks, including native and
+  multiple-script composition, cleanup, owner limits and slot reclamation.
+- `TestDE128Foundation.ps1`: 2672 checks. Actual pending Lua and MoonSharp bindings
+  cover true/false availability, invalid reader results, strict arguments, missing
+  capability, callback expiry, native refusal and attached-instance isolation.
+  Evidence: `Temp/DE128Foundation-e28d8b7a8e0b42158e10127b037e96ab`.
+- `TestSenseiEncounters.ps1`: 870 graph checks after 139 warrior/perk and 73 roster
+  checks, now using the actual conditional factory with a controlled reader.
+  Missing guard templates and Sphere1 remain identity-only test inputs.
+- Isolated Unity 6000.6.0f1 run
+  `Temp/FormNative-e8siuj3b/DE128Runs/Run-i8foy1ki` exits 0. It executes the actual
+  pending Lua on round begin, verifies the native control claim, player/opponent
+  and inactive/ended-round guards, five-control composition, availability
+  preservation and native round-preparation cleanup. Earlier map, boss/reward,
+  Jian and MindThrow checks remain green. No physical input-device test, complete
+  Sensei story playthrough or owner-profile mutation was performed. Existing
+  unrelated boot diagnostics remain; this is not a clean-log claim.
+- Wiki builds 47 pages with zero Astro diagnostics and validates 4104 links/assets
+  (existing duplicate-404 warning). Public reference and capability guidance,
+  authored editor schema, generated Lua definitions and editor guide are updated.
+- Editor generation/check, all 37 unit tests, real LuaLS integration and isolated
+  VS Code integration pass, including the new fighter completion. The npm wrapper
+  mangled the spaced Code.exe argument; the same runner passed when called through
+  Node directly after its normal build.
+
+Active package remains 0.18.0. The source-corpus download is deferred as requested.
+Real guard templates, prince charge mapping, perk activation/state and ability
+availability, narrative integration and complete story acceptance remain open.

@@ -1564,6 +1564,13 @@
       },
       "capability": "combat.effects"
     },
+    "set_control_blocked": {
+      "params": {
+        "control": "\"punch\"|\"kick\"|\"ranged\"|\"magic\"|\"raid_charge\"",
+        "blocked": "boolean"
+      },
+      "capability": "combat.effects"
+    },
     "set_flag": {
       "params": {
         "key": "string"

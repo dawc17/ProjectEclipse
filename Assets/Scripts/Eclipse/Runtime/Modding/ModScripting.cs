@@ -689,6 +689,11 @@ namespace Eclipse.Modding
         bool TryHasFlag(object owner, string behavior, string name, out bool exists, out string error);
     }
 
+    public interface IModFighterControls
+    {
+        bool TrySetControlBlocked(object owner, string control, bool blocked, out string error);
+    }
+
     // The event's animation is captured at notification time, not queried later
     // from a controller which may already have selected the next move.
     public sealed class ModAnimationLifecycleEvent
@@ -968,9 +973,15 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags, IModFighterControls
     {
         private readonly IModFighterOperations _inner;
+        public bool TrySetControlBlocked(object owner, string control, bool blocked, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterControls controls)
+                return controls.TrySetControlBlocked((SavedInstance, owner), control, blocked, out error);
+            error = "Control restrictions are unavailable."; return false;
+        }
         public bool TrySetFlag(object owner, string behavior, string name, out string error)
         {
             if (SavedInstance != null && _inner is IModFighterFlags flags)

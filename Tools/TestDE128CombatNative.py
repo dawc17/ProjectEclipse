@@ -59,6 +59,8 @@ def main():
                   Path('Mods/fixture.de128-combat/scripts/content/sensei_boss_opponents.lua')))
     pairs.append((ROOT / 'Mods/de128/scripts/content/sensei_fight_rules.lua',
                   Path('Mods/fixture.de128-combat/scripts/content/sensei_fight_rules.lua')))
+    pairs.append((ROOT / 'Mods/de128/scripts/content/sensei_raid_charge.lua',
+                  Path('Mods/fixture.de128-combat/scripts/content/sensei_raid_charge.lua')))
     pairs += [(path, Path('Mods/fixture.de128-combat') / path.relative_to(ROOT / 'Tools/Fixtures/de128-combat'))
               for path in (ROOT / 'Tools/Fixtures/de128-combat').rglob('*') if path.is_file()]
     for name in args.sync_native_source:

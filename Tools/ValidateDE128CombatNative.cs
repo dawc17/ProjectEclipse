@@ -261,6 +261,30 @@ public static class ValidateDE128CombatNative
     static void CheckButtonRuleControls(Fight fight)
     {
         var controller=fight.Controller;
+        var restrictions=(Eclipse.Input.FightControlRestrictions)controller.GetType().GetField("_controlRestrictions",Hidden).GetValue(controller);
+        if(!restrictions.IsBlocked(FightCID.RaidChargeButton)) throw new Exception("Actual pending Sensei Lua condition did not block the native RaidCharge control.");
+        controller.ClearScriptControlBlocks();
+        if(restrictions.IsBlocked(FightCID.RaidChargeButton))throw new Exception("Script cleanup retained the pending condition.");
+        var operations=typeof(Fight).GetNestedType("EclipseFighterOperations",BindingFlags.NonPublic);
+        IModFighterControls Controls(Model model)=>(IModFighterControls)Activator.CreateInstance(operations,new object[]{fight,model,null,null,null,null,false});
+        var player=(Model)typeof(Fight).GetField("_playerModel",Hidden).GetValue(fight);
+        var opponent=(Model)typeof(Fight).GetField("CKNCPOABFBO",Hidden).GetValue(fight);
+        var owner=new object();
+        if(!Controls(player).TrySetControlBlocked(owner,"kick",true,out var error)||!restrictions.IsBlocked(FightCID.Kick))throw new Exception("Native player control bridge refused: "+error);
+        if(Controls(opponent).TrySetControlBlocked(owner,"kick",false,out _)||!restrictions.IsBlocked(FightCID.Kick))throw new Exception("Opponent changed player control claims.");
+        if(Controls(player).TrySetControlBlocked(owner,"move",true,out _))throw new Exception("Unknown native action accepted.");
+        if(!Controls(player).TrySetControlBlocked(owner,"kick",false,out error)||restrictions.IsBlocked(FightCID.Kick))throw new Exception("Native player release failed: "+error);
+        var round=(Round)typeof(Fight).GetField("round",Hidden).GetValue(fight);
+        bool processing=round.processing;
+        try {
+            round.processing=false;
+            if(Controls(player).TrySetControlBlocked(owner,"kick",true,out _))throw new Exception("Inactive round accepted control mutation.");
+        } finally {round.processing=processing;}
+        var ended=typeof(Fight).GetField("_eclipseEndedRound",Hidden);int previousEnded=(int)ended.GetValue(fight);
+        try {
+            ended.SetValue(fight,round.round);
+            if(Controls(player).TrySetControlBlocked(owner,"kick",true,out _))throw new Exception("Ended round accepted control mutation.");
+        } finally {ended.SetValue(fight,previousEnded);}
         var buttons=controller.GetActionButtons();
         var inspector=new RulesInspector(fight,(FightList)typeof(Fight).GetField("FightDefinition",Hidden).GetValue(fight));
         var emit=controller.GetType().GetMethod("EmitControl",Hidden);
@@ -300,11 +324,29 @@ public static class ValidateDE128CombatNative
                 if(presses!=beforePress+2||releases!=beforeRelease+2)throw new Exception("NoButton did not restore a fresh press/release.");
                 controller.SetButtonRuleEnabled(pair.Item2,false);Show(false);controller.SetButtonRuleEnabled(pair.Item2,true);
                 if(button.gameObject.activeSelf)throw new Exception("Rule removal exposed an unavailable action.");
+                Show(true);
+                var first=new object();var second=new object();
+                controller.SetScriptControlBlocked(first,pair.Item2,true);
+                controller.SetScriptControlBlocked(second,pair.Item2,true);
+                controller.SetScriptControlBlocked(first,pair.Item2,false);
+                if(button.gameObject.activeSelf)throw new Exception("One script released another's control block.");
+                controller.SetButtonRuleEnabled(pair.Item2,false);
+                controller.SetScriptControlBlocked(second,pair.Item2,false);
+                if(button.gameObject.activeSelf)throw new Exception("Script release bypassed NoButton.");
+                controller.SetScriptControlBlocked(first,pair.Item2,true);
+                controller.SetButtonRuleEnabled(pair.Item2,true);
+                if(button.gameObject.activeSelf)throw new Exception("Native rule release bypassed script block.");
+                Show(false);controller.ClearScriptControlBlocks();
+                if(button.gameObject.activeSelf)throw new Exception("Script cleanup exposed unavailable action.");
                 Show(wasVisible);
             }
         }
         finally {controller.RemoveEventListener(0,down);controller.RemoveEventListener(1,up);}
+        controller.SetScriptControlBlocked(owner,FightCID.Kick,true);
+        controller.ClearButtonsAppearance();
+        if(restrictions.IsBlocked(FightCID.Kick))throw new Exception("Native round preparation retained a script claim.");
         Debug.Log("[DE128Native] PASS five NoButton controls: native rule application, held-input release, shared input gate, neutral recovery, availability refresh and hidden unavailable actions. No physical-device claim.");
+        Debug.Log("[DE128Native] PASS actual pending Sensei Lua condition, player-only bridge, scoped control composition, native rule precedence and script cleanup.");
     }
 
     static void CheckSenseiRuleModes()

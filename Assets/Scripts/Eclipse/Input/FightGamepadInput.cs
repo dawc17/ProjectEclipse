@@ -3,6 +3,40 @@ using UnityEngine;
 
 namespace Eclipse.Input
 {
+    // Native restrictions and each script instance compose; clearing one source
+    // never grants an action still blocked by another source.
+    public sealed class FightControlRestrictions
+    {
+        public const int MaximumScriptSources = 256;
+        private readonly System.Collections.Generic.HashSet<FightCID> native = new System.Collections.Generic.HashSet<FightCID>();
+        private readonly System.Collections.Generic.Dictionary<object, System.Collections.Generic.HashSet<FightCID>> scripts =
+            new System.Collections.Generic.Dictionary<object, System.Collections.Generic.HashSet<FightCID>>();
+        public void SetNative(FightCID control, bool blocked)
+        {
+            if (blocked) native.Add(control); else native.Remove(control);
+        }
+        public void SetScript(object owner, FightCID control, bool blocked)
+        {
+            if (owner == null) throw new System.ArgumentNullException(nameof(owner));
+            if (!scripts.TryGetValue(owner, out var controls))
+            {
+                if (!blocked) return;
+                if (scripts.Count >= MaximumScriptSources) throw new System.InvalidOperationException("Too many control restriction sources in this round.");
+                controls = new System.Collections.Generic.HashSet<FightCID>();
+                scripts.Add(owner, controls);
+            }
+            if (blocked) controls.Add(control); else controls.Remove(control);
+            if (controls.Count == 0) scripts.Remove(owner);
+        }
+        public bool IsBlocked(FightCID control)
+        {
+            if (native.Contains(control)) return true;
+            foreach (var controls in scripts.Values) if (controls.Contains(control)) return true;
+            return false;
+        }
+        public void ClearScripts() => scripts.Clear();
+    }
+
     // Rule suppression is independent of touch visibility and physical input source.
     public sealed class FightControlRuleGate
     {

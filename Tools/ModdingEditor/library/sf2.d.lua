@@ -3144,6 +3144,15 @@ function Fighter:add_damage_shield(key, fraction, frames) end
 ---@param key string
 function Fighter:remove_damage_shield(key) end
 
+---Restrict one player action for this behavior instance.
+---Requires: `combat.effects`.
+---When: A behavior callback for the player during an active round, including `on_fight_begin` and `on_round_begin` setup before combat starts. Unavailable for opponents, after a round ends, and in local versus.
+---Returns: `nil`. Invalid arguments, expired references, unavailable support, or exceeding the source limit raise a Lua error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterset_control_blocked)
+---@param control "punch"|"kick"|"ranged"|"magic"|"raid_charge"
+---@param blocked boolean
+function Fighter:set_control_blocked(control, blocked) end
+
 ---Create a native combat flag owned by this behavior instance.
 ---Requires: `combat.effects`.
 ---When: A supported callback during an active round, with a currently registered fighter. The method expires when the callback returns.

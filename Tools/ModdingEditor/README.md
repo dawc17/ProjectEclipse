@@ -437,3 +437,10 @@ not imply projectile ownership. See the combat callback wiki for timing and limi
 Fighter completion includes `set_flag(key)`, `has_flag(key)` and `clear_flag(key)`.
 These require `combat.effects` and address only the current behavior instance.
 `set_flag` returns the qualified native name, and `has_flag` returns a boolean.
+
+`fighter:set_control_blocked(control, blocked)` completes five control names:
+`punch`, `kick`, `ranged`, `magic`, and `raid_charge`; `blocked` is a boolean.
+It requires `combat.effects` and a player callback during an active round.
+Restrictions belong to the attached behavior instance and clear at round setup
+or fight end. Releasing one does not override other restrictions or grant an
+unavailable action. Reapply persistent conditions in `on_round_begin`.

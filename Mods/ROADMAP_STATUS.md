@@ -305,3 +305,10 @@ Pending Sensei Lua sequences all six first-act reveals and subsequent act unlock
 and focus; refusal/retry and archived action ordering are checked. Native Unity
 acceptance covers the APIs and prior combat checks. Dialog ordering, Eclipse-mode
 transition, opened-state persistence and story assembly remain open (0.18.0).
+
+Step 42 adds per-behavior player control restrictions in the C# runtime and the
+pending Sensei conditional RaidCharge Lua factory. Claims compose with native
+rules, cannot grant unavailable actions, and clear at round setup/fight end.
+Actual Lua, native Unity and editor contract checks pass. The real perk-state
+reader and native ability availability remain unresolved, so this does not
+activate the Sensei story; DE128 stays 0.18.0. See the production record.

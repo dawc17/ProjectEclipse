@@ -62,12 +62,33 @@ namespace Nekki.SF2.Core.Fights.Controller
         private readonly Eclipse.Modding.ModUiControlGate<(FightCID, int)> _modUiControls =
             new Eclipse.Modding.ModUiControlGate<(FightCID, int)>();
         private readonly FightControlRuleGate _ruleControls = new FightControlRuleGate();
+        private readonly FightControlRestrictions _controlRestrictions = new FightControlRestrictions();
+        private static readonly FightCID[] RestrictedActions = { FightCID.Punch, FightCID.Kick, FightCID.MissileButton, FightCID.MagicButton, FightCID.RaidChargeButton };
 
         public void SetButtonRuleEnabled(FightCID control, bool enabled)
         {
-            if (_ruleControls.SetBlocked(control, !enabled))
+            _controlRestrictions.SetNative(control, !enabled);
+            RefreshControlRestriction(control);
+        }
+
+        public void SetScriptControlBlocked(object owner, FightCID control, bool blocked)
+        {
+            _controlRestrictions.SetScript(owner, control, blocked);
+            RefreshControlRestriction(control);
+        }
+
+        public void ClearScriptControlBlocks()
+        {
+            _controlRestrictions.ClearScripts();
+            foreach (var control in RestrictedActions) RefreshControlRestriction(control);
+        }
+
+        private void RefreshControlRestriction(FightCID control)
+        {
+            bool blocked = _controlRestrictions.IsBlocked(control);
+            if (_ruleControls.SetBlocked(control, blocked))
                 EmitAvailableControl(1, new CBBEIGACPPD { Index = 0, KMOPCKPBHIA = control });
-            _actionButtons.SetRuleBlocked(control, !enabled);
+            _actionButtons.SetRuleBlocked(control, blocked);
         }
 
 		public static GameController BLOOLFFMKFI
@@ -302,7 +323,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		public void ClearButtonsAppearance()
 		{
-            foreach (var control in new[] { FightCID.Punch, FightCID.Kick, FightCID.MissileButton, FightCID.MagicButton, FightCID.RaidChargeButton })
+            ClearScriptControlBlocks();
+            foreach (var control in RestrictedActions)
                 SetButtonRuleEnabled(control, true);
 			if (AssemblyController.PGFJMOGKEID())
 			{

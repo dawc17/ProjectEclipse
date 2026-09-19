@@ -51,6 +51,24 @@ class Program {
    rules.SetBlocked(control,false);Check(rules.Press(control)&&rules.Release(control),"Released control remained blocked");
    Check(rules.Press(FightCID.QuadrantForward)&&rules.Release(FightCID.QuadrantForward),"Button rule gated movement");
   }
+  foreach(var control in new[]{FightCID.Punch,FightCID.Kick,FightCID.MissileButton,FightCID.MagicButton,FightCID.RaidChargeButton}) {
+   var restrictions=new FightControlRestrictions(); var first=new object(); var second=new object();
+   restrictions.SetScript(first,control,false);Check(!restrictions.IsBlocked(control),"Absent release created a block");
+   restrictions.SetScript(first,control,true);restrictions.SetScript(first,control,true);restrictions.SetScript(second,control,true);
+   restrictions.SetScript(first,control,false);Check(restrictions.IsBlocked(control),"One source released another source's block");
+   restrictions.SetNative(control,true);restrictions.SetScript(second,control,false);Check(restrictions.IsBlocked(control),"Script release overrode native restriction");
+   restrictions.SetScript(first,control,true);restrictions.SetNative(control,false);Check(restrictions.IsBlocked(control),"Native release overrode script restriction");
+   restrictions.ClearScripts();Check(!restrictions.IsBlocked(control),"Round reset retained script restriction");
+   restrictions.SetNative(control,true);restrictions.ClearScripts();Check(restrictions.IsBlocked(control),"Script reset cleared native restriction");
+  }
+  var bounded=new FightControlRestrictions();var owners=new object[FightControlRestrictions.MaximumScriptSources];
+  for(int i=0;i<owners.Length;i++){owners[i]=new object();bounded.SetScript(owners[i],FightCID.Punch,true);}
+  bool rejected=false;try{bounded.SetScript(new object(),FightCID.Kick,true);}catch(InvalidOperationException){rejected=true;}
+  Check(rejected&&!bounded.IsBlocked(FightCID.Kick),"Owner budget failed atomically");
+  bounded.SetScript(owners[0],FightCID.Kick,true);bounded.SetScript(owners[0],FightCID.Punch,false);
+  Check(bounded.IsBlocked(FightCID.Kick),"Clearing one control removed another owned control");
+  bounded.SetScript(owners[0],FightCID.Kick,false);bounded.SetScript(new object(),FightCID.MagicButton,true);
+  Check(bounded.IsBlocked(FightCID.MagicButton),"Empty owner did not release its budget slot");
   Console.WriteLine("PASS: "+checks+" production FightGamepadInput routing/state and button-rule gate checks.");
  }
 }
