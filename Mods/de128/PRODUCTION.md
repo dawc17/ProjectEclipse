@@ -1551,3 +1551,37 @@ remain open; this is not full spell parity. The mod continues to author its grap
 in Lua and does not load archived XML at runtime.
 
 Follow-up verification: 1,004 combined move checks and 2,509 foundation checks passed; wiki build passed (47 pages, 4,052 links/assets), with the existing duplicate-404 warning. The move checks require pwsh; the initial Windows PowerShell invocation rejected that unsupported host before running assertions. Whitespace checks passed.
+
+## Step 23 - Sphere2 and Medium Charge of Darkness (0.15.0)
+
+Added all nine archived Sphere2 moves as Lua declarations: cast, startup, flight,
+wall cleanup, shop preview and try-on. The graph shares the existing three
+unchanged fireball animation binaries. It retains three ordered attack edges,
+600 impulse, ShroudInterval exception in both attacks, the casting Stun exclusion,
+X/Z startup alignment, and distinct Energyball effect sequences/timing/positions.
+No new API or production C# changes were required; the mod loads no archived XML.
+
+Medium Charge of Darkness retains level 37, 127 gems, GATES_OF_SHADOWS,
+MagicDamage 921 through native progression, and the Stun enchantment at aspect
+1306. The production package now registers 20 moves and 20 equipment listings.
+
+Verification: 1,004 combined move checks passed, including full normalized
+comparison of all nine declarations and inherited templates against the archive,
+actual native attack parsing, unchanged binary hashes and reload fingerprints.
+The actual package passed 2,536 foundation checks including the new item/gates.
+The wiki built 47 pages and validated 4,052 links/assets (existing duplicate-404
+warning). Native Unity run Run-yedgzocr exited 0: Jian input/attack checks, all
+restored equipment definitions/art, Sphere2 Magic-input selection, one child with
+inherited equipment, startup-to-flight selection, charge consumption and deletion.
+
+The first native attempt was stopped after the fixture's second sequential fight
+was rejected. Both spells now have independent battles/modes, and the harness
+fails immediately on rejected entry. `--spell Sphere1|Sphere2` selects the native
+fixture and records the choice in the run evidence.
+
+Numerical damage, wall-miss cleanup, audible/visual effects, shop-preview and
+purchase/save acceptance remain open. Sphere3, ComboSphere3 and MindThrowNormal
+still need complete graphs; their distinct reactions/edge-free attacks must not
+be approximated. Production remains active.
+
+Sphere1 regression with the updated package/harness also passed: Run-8n0gxe37 exited 0, retaining native input selection, startup/flight, charge and deletion evidence. No Unity assets or engine source were changed in this step.

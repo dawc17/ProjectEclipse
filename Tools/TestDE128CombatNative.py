@@ -8,6 +8,7 @@ or cleanup of prior evidence. Requires the project's exact Unity version.
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import time
@@ -18,6 +19,7 @@ from TestCharacterForms import ROOT, prepare_native, owned_native_fixture
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--unity-editor', type=Path, required=True)
+    parser.add_argument('--spell', choices=('Sphere1', 'Sphere2'), default='Sphere1', help='Native spell lifecycle to exercise after Jian.')
     parser.add_argument('--timeout', type=int, default=1200)
     parser.add_argument('--reuse-native', type=Path, help='Stopped marked DE128 clone; preserve prior logs and back up synced inputs.')
     parser.add_argument('--sync-native-source', action='append', default=[], help='Repository-relative Assets or Mods/de128 file to refresh in a reused clone.')
@@ -68,9 +70,11 @@ def main():
     log = evidence / 'de128-validation.log'
     command = [str(args.unity_editor.resolve()), '-batchmode', '-projectPath', str(fixture),
                '-executeMethod', 'ValidateDE128CombatNative.RunEditor', '-logFile', str(log)]
+    (evidence / 'spell.json').write_text(json.dumps({'spell': args.spell}), encoding='utf-8')
     (evidence / 'de128-command.json').write_text(json.dumps(command, indent=2), encoding='utf-8')
     with (evidence / 'de128-launcher.log').open('x', encoding='utf-8') as output:
-        process = subprocess.Popen(command, cwd=fixture, stdout=output, stderr=subprocess.STDOUT,
+        environment = dict(os.environ, ECLIPSE_DE128_TEST_SPELL=args.spell)
+        process = subprocess.Popen(command, cwd=fixture, stdout=output, stderr=subprocess.STDOUT, env=environment,
                                    creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         print(f'DE128 native process {process.pid}; log: {log}', flush=True)
         start = time.monotonic()

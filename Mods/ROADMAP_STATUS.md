@@ -199,3 +199,7 @@ deletion. The earlier flight check failed because startup contact deleted the
 projectile; restored test spacing resolved it without gameplay changes. Numerical
 damage, wall-miss cleanup and presentation acceptance remain open; see the production
 record. This does not close spell parity.
+
+DE128 0.15.0 adds all nine Sphere2 moves and Medium Charge of Darkness through Lua.
+Full graph comparisons and native casting/flight/charge/deletion pass. Three spell
+graphs and broader presentation/damage/save acceptance remain open; see Step 23.

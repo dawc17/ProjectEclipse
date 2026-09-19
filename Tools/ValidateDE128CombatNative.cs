@@ -22,7 +22,9 @@ public static class ValidateDE128CombatNative
     static Model sphere;
     static bool spellRequested, spellSelected, spellReleased, sphereMiddle, sphereDeleted, chargeConsumed;
     static int spellFrame, sphereCount;
-    const string SpellMove = "de128:moves/sphere1_player";
+    static readonly string Spell = Environment.GetEnvironmentVariable("ECLIPSE_DE128_TEST_SPELL") == "Sphere2" ? "Sphere2" : "Sphere1";
+    static string SpellMove => "de128:moves/" + Spell.ToLowerInvariant() + "_player";
+    static string SpellMiddle => "de128:moves/" + Spell.ToLowerInvariant() + "_middle";
     static readonly HashSet<int> AttackFrames = new HashSet<int>();
     static readonly HashSet<int> SoundFrames = new HashSet<int>();
 
@@ -71,11 +73,12 @@ public static class ValidateDE128CombatNative
                 CheckSharedMovePatches();
                 CheckRestoredWeapons();
                 CheckRestoredEquipment();
-                var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/jian");
+                var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/" + (Spell == "Sphere2" ? "sphere2" : "jian"));
                 if (definition == null) throw new Exception("Fixture fight missing; check mod initialization errors.");
                 var encounter = ListSF.CHMCKGCDGCM(new FightIDS(ModRuntime.Scripts.Content.RuntimeFightId(definition.Id)));
                 entered = GameUtils.StartFight(encounter, false, null, true, false);
                 Debug.Log("[DE128Native] StartFight=" + entered);
+                if (!entered) throw new Exception("Fixture fight rejected by native availability: " + definition.Id);
                 return;
             }
             var fight = Fight.GetCurrentFight(); if (fight == null) return;
@@ -129,7 +132,7 @@ public static class ValidateDE128CombatNative
     {
         if (!spellRequested)
         {
-            if (actor.Parameters.Magic?.SubType != "Sphere1") throw new Exception("Fixture Sphere1 equipment missing.");
+            if (actor.Parameters.Magic?.SubType != Spell) throw new Exception("Fixture " + Spell + " equipment missing.");
             // The preceding Jian move closes the gap. Restore long-range spacing
             // so the projectile can finish its damaging startup before contact.
             actor.ShiftModelPosition(new Vector3f(400, 0, 0), true);
@@ -140,35 +143,35 @@ public static class ValidateDE128CombatNative
             var keys = new KeyData(cast.MOPMGFIIFGA().Single().FONEJOKEIEN);
             keys.Reverse(actor.KFCNPADAMHA());
             spellRequested = true; spellFrame = frame; actor.PlayAnimation(keys);
-            Debug.Log("[DE128Native] Requested Sphere1 through native Magic input at " + frame);
+            Debug.Log("[DE128Native] Requested " + Spell + " through native Magic input at " + frame);
         }
-        if (!spellSelected && frame > spellFrame + 30) throw new Exception("Sphere1 native input selection failed; current=" + actor.OCPMJKIEPIG().NNMAFFCCMHC()?.Name);
+        if (!spellSelected && frame > spellFrame + 30) throw new Exception(Spell + " native input selection failed; current=" + actor.OCPMJKIEPIG().NNMAFFCCMHC()?.Name);
         if (spellSelected && !spellReleased) { actor.PlayAnimation(new KeyData()); spellReleased = true; }
         if (spellSelected && actor.JJDNDOLCMMN == 0) chargeConsumed = true;
-        if (sphere != null && sphere.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name == "de128:moves/sphere1_middle") sphereMiddle = true;
+        if (sphere != null && sphere.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name == SpellMiddle) sphereMiddle = true;
         if (frame > spellFrame + 360 && !sphereDeleted)
-            throw new Exception("Sphere1 cleanup failed; count=" + sphereCount + " child=" + sphere?.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name);
+            throw new Exception(Spell + " cleanup failed; count=" + sphereCount + " child=" + sphere?.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name);
         if (sphereDeleted && frame > spellFrame + 240)
         {
             if (sphereCount != 1 || !sphereMiddle || !chargeConsumed || actor.KGGIDBLBMDJ().Contains(sphere as WeaponModel))
                 throw new Exception("Incomplete live Sphere1: count=" + sphereCount + " middle=" + sphereMiddle + " consumed=" + chargeConsumed);
-            Debug.Log("[DE128Native] PASS: prior Jian acceptance plus Sphere1 native Magic-input selection, one inherited-equipment projectile, middle-flight selection, charge consumption and child deletion. No numerical damage, audible-output or shop-preview claim.");
+            Debug.Log("[DE128Native] PASS: prior Jian acceptance plus " + Spell + " native Magic-input selection, one inherited-equipment projectile, middle-flight selection, charge consumption and child deletion. No numerical damage, audible-output or shop-preview claim.");
             Finish(0);
         }
     }
     static void OnSphereCreated(object value)
     {
         var child = value as Model;
-        if (child?.get_Name() != "Sphere1") return;
+        if (child?.get_Name() != Spell) return;
         sphere = child; sphereCount++;
         child.OCPMJKIEPIG().AddEventListener(0, animation => {
             var name = (animation as InfoAnimation)?.Name;
-            if (name == "de128:moves/sphere1_middle") sphereMiddle = true;
-            Debug.Log("[DE128Native] Sphere1 selected " + name);
+            if (name == SpellMiddle) sphereMiddle = true;
+            Debug.Log("[DE128Native] " + Spell + " selected " + name);
         });
-        if (child.Parameters.Weapon?.SubType != "Sphere1") { failure = "Sphere1 projectile did not inherit magic equipment."; return; }
-        child.AddEventListener(5, ignored => { sphereDeleted = true; Debug.Log("[DE128Native] Sphere1 native deletion event."); });
-        Debug.Log("[DE128Native] Sphere1 native child created with inherited equipment.");
+        if (child.Parameters.Weapon?.SubType != Spell) { failure = Spell + " projectile did not inherit magic equipment."; return; }
+        child.AddEventListener(5, ignored => { sphereDeleted = true; Debug.Log("[DE128Native] " + Spell + " native deletion event."); });
+        Debug.Log("[DE128Native] " + Spell + " native child created with inherited equipment.");
     }
 
     static void CheckProjectileActionParsing()
@@ -280,9 +283,9 @@ public static class ValidateDE128CombatNative
     static void CheckRestoredEquipment()
     {
         string[] ids = { "armor/dragon_carapace", "armor/old_legionnaire_armour", "armor/samurai_armour", "helm/gabled_helm",
-            "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc", "magic/minor_charge_of_darkness" };
+            "helm/dragon_helm", "ranged/dragon_boomerangs", "magic/dragons_breath", "magic/lightning_arc", "magic/minor_charge_of_darkness", "magic/medium_charge_of_darkness" };
         string[] names = { "ARMOR_C2_Z5_DRAGON", "ARMOR_OLD_LEGIONER", "ARMOR_BIG_SHOGUN_OLD", "HELM_GABLED_OLD",
-            "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING", "Sphere1" };
+            "HELM_C2_Z5_DRAGON", "RANGED_C2_Z5_DRAGON_BOOMERANG", "MAGIC_C2_Z5_DRAGON_EARTHQUAKE", "MAGIC_LIGHTNING", "Sphere1", "Sphere2" };
         var archive = new System.Xml.XmlDocument(); archive.Load("Assets/DExml/list.xml");
         for (int i = 0; i < ids.Length; i++)
         {
@@ -315,7 +318,7 @@ public static class ValidateDE128CombatNative
                 throw new Exception("Native equipment art missing " + id);
             Debug.Log("[DE128Native] Restored equipment matches archive and loads art: " + id);
         }
-        Debug.Log("[DE128Native] Nine restored equipment definitions passed native stat-presence, listing, upgrade, enchantment and asset checks. Shared DE move deltas remain pending.");
+        Debug.Log("[DE128Native] Ten restored equipment definitions passed native stat-presence, listing, upgrade, enchantment and asset checks. Shared DE move deltas remain pending.");
     }
     static void CheckRestoredWeapons()
     {
@@ -378,8 +381,8 @@ public static class ValidateDE128CombatNative
     {
         if ((value as InfoAnimation)?.Name == SpellMove)
         {
-            if (spellSelected) { failure = "Sphere1 selected repeatedly after input release."; return; }
-            spellSelected = true; Debug.Log("[DE128Native] Sphere1 cast selected."); return;
+            if (spellSelected) { failure = Spell + " selected repeatedly after input release."; return; }
+            spellSelected = true; Debug.Log("[DE128Native] " + Spell + " cast selected."); return;
         }
         if ((value as InfoAnimation)?.Name != Move) return;
         if (selected) { failure = "Unexpected repeated selection after input release."; return; }

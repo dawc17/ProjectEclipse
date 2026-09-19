@@ -96,3 +96,14 @@ passed. This resolves the preceding failed middle-flight check. Numerical damage
 wall-miss cleanup, audible/visual output, shop previews and purchase/save acceptance
 remain open; this is not full spell parity. The mod continues to author its graph
 in Lua and does not load archived XML at runtime.
+
+## Choosing the spell lifecycle
+
+Pass `--spell Sphere1` (default) or `--spell Sphere2` to
+`Tools/TestDE128CombatNative.py`. Each has an independent fixture battle/mode so
+it can enter without completing another encounter. Both first verify Jian input
+and then cast the selected equipped spell through native Magic input. The runner
+records the spell choice in `spell.json`; production package definitions are used.
+Sphere2 run `Run-yedgzocr` passed casting, inherited equipment, startup-to-flight,
+charge consumption and child deletion. This does not validate numerical damage,
+wall-miss cleanup, audible/visual output or shop previews.
