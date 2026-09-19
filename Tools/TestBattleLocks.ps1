@@ -59,6 +59,13 @@ local zone=sf2.zones.register{id="test"}
 local battle=sf2.battles.register{id="test",zone=zone,type=sf2.battles.STORY}
 '@
 try {
+    [Eclipse.Modding.ModBattleAccess]::Reveal=[Eclipse.Modding.ModBattleAccess]::SetLocked
+    [Eclipse.Modding.ModBattleAccess]::Focus=[Func[Eclipse.Modding.DefinitionId,bool]] {
+        param($id)
+        Check ($id.ToString() -ceq 'fixture.locks:battles/test') 'Wrong focus identity.'
+        $script:calls++
+        return $script:accept
+    }
     $null=Load-Lua ($prefix+'assert(sf2.battles.set_locked(battle,false))')
     Check (!$script:locked -and $script:calls -eq 1) 'Accepted unlock did not reach host.'
     $null=Load-Lua ($prefix+'assert(sf2.battles.set_locked(battle,true))')
@@ -66,8 +73,16 @@ try {
     $script:accept=$false
     $null=Load-Lua ($prefix+'assert(not sf2.battles.set_locked(battle,false))')
     Check $script:locked 'Rejected change mutated host state.'
+    $null=Load-Lua ($prefix+'assert(not sf2.battles.reveal(battle,false)); assert(not sf2.battles.focus(battle))')
+    Check $script:locked 'Rejected reveal mutated host state.'
+    $script:accept=$true
+    $null=Load-Lua ($prefix+'assert(sf2.battles.reveal(battle,false)); assert(sf2.battles.focus(battle))')
+    Check (!$script:locked) 'Reveal initial lock did not reach host.'
     foreach($call in @('sf2.battles.set_locked({},false)','sf2.battles.set_locked("core:battles/zone_1/tournament",false)',
-        'sf2.battles.set_locked(zone,false)','sf2.battles.set_locked(battle,0)','sf2.battles.set_locked(battle,"false")','sf2.battles.set_locked(battle)')) {
+        'sf2.battles.set_locked(zone,false)','sf2.battles.set_locked(battle,0)','sf2.battles.set_locked(battle,"false")','sf2.battles.set_locked(battle)',
+        'sf2.battles.reveal({},false)','sf2.battles.reveal("core:battles/zone_1/tournament",false)',
+        'sf2.battles.reveal(zone,false)','sf2.battles.reveal(battle,0)','sf2.battles.reveal(battle,"false")','sf2.battles.reveal(battle)',
+        'sf2.battles.focus({})','sf2.battles.focus("core:battles/zone_1/tournament")','sf2.battles.focus(zone)')) {
         $before=$script:calls; $failed=$false
         try {$null=Load-Lua ($prefix+$call)}catch{$failed=$true}
         Check ($failed -and $before -eq $script:calls) ('Invalid request reached host: '+$call)
@@ -75,13 +90,17 @@ try {
     $saved=$mod; $manifest=Join-Path $package 'mod.toml'; $original=Get-Content -Raw $manifest
     $original.Replace(', "story.progression"','') | Set-Content $manifest
     $mod=[Eclipse.Modding.ModDiscovery]::DiscoverLoose((Join-Path $fixture 'Mods')).Mods[0]
-    $before=$script:calls; $failed=$false
-    try {$null=Load-Lua ($prefix+'sf2.battles.set_locked(battle,false)')}catch{$failed=$true}
-    Check ($failed -and $before -eq $script:calls) 'Missing capability reached host.'
+    foreach($call in @('sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)')) {
+        $before=$script:calls; $failed=$false
+        try {$null=Load-Lua ($prefix+$call)}catch{$failed=$true}
+        Check ($failed -and $before -eq $script:calls) 'Missing capability reached host.'
+    }
     $mod=$saved; $original | Set-Content $manifest
     [Eclipse.Modding.ModBattleAccess]::Clear()
-    $failed=$false
-    try {$null=Load-Lua ($prefix+'sf2.battles.set_locked(battle,false)')}catch{$failed=$true}
-    Check $failed 'Missing host service silently accepted request.'
+    foreach($call in @('sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)')) {
+        $failed=$false
+        try {$null=Load-Lua ($prefix+$call)}catch{$failed=$true}
+        Check $failed 'Missing host service silently accepted request.'
+    }
 } finally {[Eclipse.Modding.ModBattleAccess]::Clear()}
-Write-Output "PASS: $script:checks Lua battle lock checks. Controlled host; native map verification is separate. Evidence: $fixture"
+Write-Output "PASS: $script:checks Lua battle progression checks. Controlled host; native map verification is separate. Evidence: $fixture"

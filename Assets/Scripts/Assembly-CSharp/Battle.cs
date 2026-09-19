@@ -53,7 +53,8 @@ public class Battle
 
 	protected DeflatedString CMDDPMAAJOF = new DeflatedString();
 
-	public bool DCHJDPCEODD;
+	// best guess for name
+	public bool IsMapVisible;
 
 	protected bool NLLECKHLMAN;
 
@@ -219,7 +220,7 @@ public class Battle
 		MINCIJJDCCF = LHCFHAIDNDP;
 		_description = EMDJGBHIAIA;
 		GIKMINGBAAK = null;
-		DCHJDPCEODD = false;
+		IsMapVisible = false;
 		MEOMPEEPCJJ = null;
 		BELONIAAIEP = CDCJKJNGPOE;
 		JPMGAALMFKI = MCDAHGPLLDO;

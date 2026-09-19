@@ -32,7 +32,7 @@ namespace Eclipse.Underworld
 				}
 				foreach (Battle battle in zone.LGIIBNJFADA)
 				{
-					battle.DCHJDPCEODD = true;
+					battle.IsMapVisible = true;
 				}
 			}
 		}

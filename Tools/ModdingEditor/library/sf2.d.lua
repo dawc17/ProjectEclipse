@@ -2128,7 +2128,7 @@ function zones.get(reference) end
 function battles.register(definition) end
 
 ---Change the saved lock of a revealed battle owned by this mod.
----Requires: `story.progression`, this script's own battle handle and a boolean `locked`. Strings, forged handles, core battles and other mods' battles are not accepted. Register/reveal initial entries declaratively before changing locks.
+---Requires: `story.progression`, this script's own battle handle and a boolean `locked`. Strings, forged handles, core battles and other mods' battles are not accepted. Register entries first, then reveal them before changing locks.
 ---When: On an initialized map, such as a normal UI `on_click` callback after story presentation. Calls during UI `on_close` cleanup raise an error; cleanup may run because the scene/profile is being replaced. Do not retry in a tight loop.
 ---Returns: `true` when applied or already in the requested state. `false` when the profile/map is unavailable, native input is blocked, a transition or encounter preparation is pending, or the battle has no saved revealed entry.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesset_locked)
@@ -2136,6 +2136,25 @@ function battles.register(definition) end
 ---@param locked boolean
 ---@return boolean
 function battles.set_locked(battle, locked) end
+
+---Create the saved map entry for a battle owned by this mod, then refresh the map.
+---Requires: `story.progression`, this script's own registered battle handle, and a strict boolean `locked`. Strings, foreign/core handles and forged handles are rejected. Register the battle's fights during loading.
+---When: On an initialized map, usually from an ordinary UI `on_click` after story presentation. UI `on_close` cleanup calls raise an error. Do not retry in a tight loop. Several reveals may be followed by a focus in the same callback.
+---Returns: `true` when the entry exists or was created; `false` when the profile, map or native battle is unavailable, input is blocked, or a transition, encounter preparation or settlement prevents progression.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesreveal)
+---@param battle Eclipse.BattleHandle
+---@param locked boolean
+---@return boolean
+function battles.reveal(battle, locked) end
+
+---Select an owned battle already represented on the current map.
+---Requires: `story.progression` and this script's own battle handle.
+---When: On an initialized map, including after reveal in the same UI callback. Calls from UI `on_close` cleanup raise an error.
+---Returns: `true` when focus is applied; `false` when the entry is absent, hidden, outside the current map mode, or blocked by the same lifecycle/input guards as reveal.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesfocus)
+---@param battle Eclipse.BattleHandle
+---@return boolean
+function battles.focus(battle) end
 
 ---Get an existing opponent template as the starting point for a new warrior.
 ---Requires: `content.register` and the template owner's dependency.

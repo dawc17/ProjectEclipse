@@ -178,7 +178,7 @@ namespace EclipseRuntimeTest {
         public bool EclipseMode = true;
 		public int Adds;
         public bool JPMPIDFGCJL() { return EclipseMode; }
-		public void KJIMPNEGNAN(Battle battle, bool unique, bool show, bool locked, bool hidden, int replayCount) {
+		public void AddBattle(Battle battle, bool unique, bool show, bool locked, bool hidden, int replayCount) {
 			XmlDocument save = new XmlDocument();
 			save.LoadXml("<Battle Name='test' Locked='0' Hidden='0' ReplayCount='0' />");
 			RosterBattle roster = new RosterBattle(save.DocumentElement);

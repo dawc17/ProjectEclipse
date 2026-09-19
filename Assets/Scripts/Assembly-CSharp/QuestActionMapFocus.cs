@@ -22,7 +22,7 @@ public class QuestActionMapFocus : QuestAction
 		QuestCondition kKDGLNECFHA = new QuestCondition();
 		kKDGLNECFHA.LIMHBJBEEIA(PAJDEKLLFNJ);
 		kKDGLNECFHA.MCPIOGALBMK(_BattleName, lNIDLHOIHIM);
-		ListSF.CCDKHLAMKKO().NDFLHPGHKMP(lNIDLHOIHIM.ToString());
+		ListSF.CCDKHLAMKKO().SetMapFocus(lNIDLHOIHIM.ToString());
 		FightIDS dIAIIPCBMFL = ListSF.CCDKHLAMKKO().KNJNHKDCINB();
 		MapScene current = Scene<MapScene>.get_Current();
 		if (current != null)

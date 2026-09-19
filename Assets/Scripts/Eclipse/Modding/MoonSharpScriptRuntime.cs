@@ -930,15 +930,23 @@ namespace Eclipse.Modding
                 battles.Set("register", DynValue.NewCallback(RegisterBattle));
                 battles.Set("set_locked", DynValue.NewCallback((ctx,args)=>ApiCall("sf2.battles.set_locked",()=>{
                     const string function="sf2.battles.set_locked";
-                    _api.RequireCapability("story.progression");
-                    if(_uiCloseDepth!=0)throw new ModContentException("Battle progression is unavailable during UI cleanup.");
-                    var handle=args.AsType(0,function,DataType.Table,false).Table;
-                    if(!_battleHandles.TryGetValue(handle,out var battle) || battle.Namespace!=_api.Mod.Id)
-                        throw new ModContentException("Battle progression requires this mod's own battle handle.");
+                    var battle=ReadProgressionBattle(args,function);
                     if(args[1].Type!=DataType.Boolean)throw new ModContentException(function+" requires a boolean locked value.");
                     bool locked=args[1].Boolean;
                     if(ModBattleAccess.SetLocked==null)throw new ModContentException("Battle progression is unavailable in this host.");
                     return DynValue.NewBoolean(ModBattleAccess.SetLocked(battle,locked));
+                })));
+                battles.Set("reveal", DynValue.NewCallback((ctx,args)=>ApiCall("sf2.battles.reveal",()=>{
+                    const string function="sf2.battles.reveal";
+                    var battle=ReadProgressionBattle(args,function);
+                    if(args[1].Type!=DataType.Boolean)throw new ModContentException(function+" requires a boolean initial locked value.");
+                    if(ModBattleAccess.Reveal==null)throw new ModContentException("Battle progression is unavailable in this host.");
+                    return DynValue.NewBoolean(ModBattleAccess.Reveal(battle,args[1].Boolean));
+                })));
+                battles.Set("focus", DynValue.NewCallback((ctx,args)=>ApiCall("sf2.battles.focus",()=>{
+                    var battle=ReadProgressionBattle(args,"sf2.battles.focus");
+                    if(ModBattleAccess.Focus==null)throw new ModContentException("Battle progression is unavailable in this host.");
+                    return DynValue.NewBoolean(ModBattleAccess.Focus(battle));
                 })));
                 root.Set("battles", DynValue.NewTable(battles));
 
@@ -1715,6 +1723,16 @@ namespace Eclipse.Modding
                 const string function = "sf2.zones.get";
                 string reference = args.AsType(0, function, DataType.String, false).String;
                 return ApiCall(function, () => NewHandle(_zoneHandles, _api.GetZone(reference).Id));
+            }
+
+            private DefinitionId ReadProgressionBattle(CallbackArguments args, string function)
+            {
+                _api.RequireCapability("story.progression");
+                if (_uiCloseDepth != 0) throw new ModContentException("Battle progression is unavailable during UI cleanup.");
+                var handle = args.AsType(0, function, DataType.Table, false).Table;
+                if (!_battleHandles.TryGetValue(handle, out var battle) || battle.Namespace != _api.Mod.Id)
+                    throw new ModContentException("Battle progression requires this mod's own battle handle.");
+                return battle;
             }
 
             private DynValue RegisterBattle(ScriptExecutionContext context, CallbackArguments args)

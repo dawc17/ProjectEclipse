@@ -887,8 +887,8 @@ public class QuestActionUpdateEclipseBattles : QuestAction
 				// counterpart for every battle that has already been unlocked.  The
 				// recovered stub only toggled pre-existing roster entries, so a normal
 				// playthrough never acquired any Eclipse tournament/challenge entries.
-				roster.KJIMPNEGNAN(eclipseBattle, true, true, false, !eclipseMode, 0);
-				eclipseBattle.DCHJDPCEODD = true;
+				roster.AddBattle(eclipseBattle, true, true, false, !eclipseMode, 0);
+				eclipseBattle.IsMapVisible = true;
 				if (eclipseBattle.NNPNEABKHPP() == null)
 				{
 					SetBattleHidden(normalBattle, false, changedBattles);

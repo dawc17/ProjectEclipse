@@ -97,12 +97,16 @@ public static class ValidateDE128CombatNative
                     {
                         if (ModBattleAccess.SetLocked(DefinitionId.Parse("fixture.de128-combat:battles/lock_check"), false))
                             throw new Exception("Battle progression accepted outside map.");
+                        if (ModBattleAccess.Reveal(DefinitionId.Parse("fixture.de128-combat:battles/reveal_check"), false) ||
+                            ModBattleAccess.Focus(DefinitionId.Parse("fixture.de128-combat:battles/reveal_check")))
+                            throw new Exception("Reveal/focus accepted outside map.");
                         // This fixture tests map progression, not campaign tab gates.
                         // The ordinary scene loader still initializes the actual map.
                         Module.DLOKJOHNDID(ScreenType.ModuleMap, null, null, false);
                         return;
                     }
                     if (!CheckMapBattleLock()) return;
+                    CheckMapBattleReveal();
                     mapLockChecked = true;
                 }
                 CheckProjectileActionParsing();
@@ -347,8 +351,8 @@ public static class ValidateDE128CombatNative
             // Controlled pre-existing map entry: this check is about changing a
             // lock, not native quest/session timing or initial story revelation.
             if (ModBattleAccess.SetLocked(id, false)) throw new Exception("Missing map entry was fabricated by a lock query.");
-            roster.KJIMPNEGNAN(nativeId, true, true, true, false, 7);
-            ListSF.MKHAAGMJOPG(nativeId).DCHJDPCEODD = true;
+            roster.AddBattle(nativeId, true, true, true, false, 7);
+            ListSF.MKHAAGMJOPG(nativeId).IsMapVisible = true;
             record = roster.GetSavedBattles().Single(value => value.GetBattleId().Equals(nativeId));
         }
         var nodeField = typeof(RosterBattle).GetField("_node", Hidden);
@@ -388,6 +392,64 @@ public static class ValidateDE128CombatNative
         if (!ModBattleAccess.SetLocked(id, true) || node.OuterXml != relocked) throw new Exception("Repeated lock changed saved data.");
         Debug.Log("[DE128Native] PASS battle lock: map/input/settlement gates, native save flag and rendered button unlock/relock, unrelated fields preserved, idempotent repeat, obsolete zones inactive. Isolated fixture save only.");
         return true;
+    }
+
+    static void CheckMapBattleReveal()
+    {
+        var id = DefinitionId.Parse("fixture.de128-combat:battles/reveal_check");
+        var catalog = ModRuntime.Scripts.Content;
+        var definition = catalog.Battles.Single(value => value.Id == id);
+        var zone = catalog.Zones.Single(value => value.Id == definition.Zone);
+        var nativeId = new FightIDS(zone.LegacyName + "|" + definition.LegacyName + "|");
+        var roster = ListSF.CCDKHLAMKKO();
+        var native = ListSF.GetInstance().FindBattleForModding(zone.LegacyName, definition.LegacyName);
+        var map = Nekki.SF2.GUI.Scene<Nekki.SF2.GUI.Map.MapScene>.get_Current();
+        // Repeatable isolated fixture: remove this test entry, never an owner save.
+        roster.HEHJKDPAPLA(nativeId);
+        native.IsMapVisible = false;
+        map.ReloadZones();
+        int before = roster.GetSavedBattles().Count;
+        if (ModBattleAccess.Focus(id) || ModBattleAccess.SetLocked(id, false) || roster.GetSavedBattles().Count != before)
+            throw new Exception("Missing entry was created by focus/lock.");
+        Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(true);
+        try
+        {
+            if (ModBattleAccess.Reveal(id, true) || roster.GetSavedBattles().Count != before)
+                throw new Exception("Blocked reveal mutated profile.");
+        }
+        finally { Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(false); }
+        if (!ModBattleAccess.Reveal(id, true)) throw new Exception("Fresh reveal failed.");
+        var record = roster.GetSavedBattles().Single(value => value.GetBattleId().Equals(nativeId));
+        if (roster.GetSavedBattles().Count != before + 1 || !record.IsLocked() || !native.IsMapVisible)
+            throw new Exception("Fresh reveal did not create exactly one locked, visible entry.");
+        Func<Nekki.SF2.GUI.Map.BattleButton> currentButton = () => map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapPanel>(true)
+            .SelectMany(panel => panel.GetZones()).Select(item => item.GetButtonByBattle(native)).FirstOrDefault(value => value != null);
+        if (currentButton() == null || !currentButton().Locked || !currentButton().gameObject.activeSelf)
+            throw new Exception("Fresh zone/battle not rendered after reveal.");
+        record.FHCHCHPPMEI(7);
+        var node = (System.Xml.XmlNode)typeof(RosterBattle).GetField("_node", Hidden).GetValue(record);
+        string saved = node.OuterXml;
+        if (!ModBattleAccess.Reveal(id, false) || node.OuterXml != saved || roster.GetSavedBattles().Count != before + 1)
+            throw new Exception("Repeated reveal reset an existing lock/replay count or duplicated it.");
+        if (!ModBattleAccess.Focus(id)) throw new Exception("Visible locked entry could not be focused.");
+        var focus = roster.KNJNHKDCINB();
+        if (focus.PELHCAEAOFE() != zone.LegacyName || focus.CPHDPCAECJN() != definition.LegacyName)
+            throw new Exception("Focus did not update native profile selection.");
+        if (!map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapPanel>(true).Any(panel => panel.GetCurrentZone()?.get_LastBattle() == native))
+            throw new Exception("Focus did not select the live map entry.");
+        record.HCEOCBOFIGC(true);
+        map.ReloadZones();
+        saved = node.OuterXml;
+        if (ModBattleAccess.Focus(id) || !ModBattleAccess.Reveal(id, false) || node.OuterXml != saved)
+            throw new Exception("Focus/reveal bypassed existing hidden state.");
+        record.HCEOCBOFIGC(false);
+        map.ReloadZones();
+        if (!ModBattleAccess.SetLocked(id, false) || !ModBattleAccess.Reveal(id, true) || record.IsLocked())
+            throw new Exception("Initial lock value was reapplied after progression.");
+        var restored = new RosterBattle(node.CloneNode(true));
+        if (restored.IsLocked() || !restored.GetBattleId().Equals(nativeId))
+            throw new Exception("Revealed record failed native serialization roundtrip.");
+        Debug.Log("[DE128Native] PASS reveal/focus: fresh saved zone entry, native button, blocked/missing guards, no duplicate/reset, hidden-state preservation, current map and saved focus, native record roundtrip. No full profile reload claim.");
     }
 
     static void CheckProfileFightProgress()

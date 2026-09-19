@@ -94,7 +94,7 @@ Constants on `sf2.battles` are `DUMMY`, `TUTORIAL`, `CHALLENGE`, `BOSSES`,
 registered offline raids. A category constant does not implement an online
 service or arbitrary game mode; use the supported offline mode APIs.
 
-Create a fight for the battle and reveal it through a quest. Merely registering
+Create a fight for the battle and reveal it through a quest or `sf2.battles.reveal`. Merely registering
 an entry does not guarantee that an existing story save will display it.
 
 ## sf2.battles.set_locked
@@ -113,7 +113,7 @@ run because the scene/profile is being replaced. Do not retry in a tight loop.
 
 **Requires:** `story.progression`, this script's own battle handle and a boolean
 `locked`. Strings, forged handles, core battles and other mods' battles are not
-accepted. Register/reveal initial entries declaratively before changing locks.
+accepted. Register entries first, then reveal them before changing locks.
 
 ```lua
 -- battle was registered by this mod. In a normal map UI button callback:
@@ -128,6 +128,68 @@ state, reset replay counts or clear fight history. Unlocking does not override
 other native fight conditions. Repeating the same value is harmless. A return
 value is not a guarantee that a disk write has completed. Use declared mod state
 for your own notification flags, and mark them only after accepting the change.
+
+## sf2.battles.reveal
+
+Create the saved map entry for a battle owned by this mod, then refresh the map.
+
+**Signature:** `sf2.battles.reveal(battle, locked)`
+
+**Returns:** `true` when the entry exists or was created; `false` when the profile,
+map or native battle is unavailable, input is blocked, or a transition, encounter
+preparation or settlement prevents progression.
+
+**When:** On an initialized map, usually from an ordinary UI `on_click` after
+story presentation. UI `on_close` cleanup calls raise an error. Do not retry in
+a tight loop. Several reveals may be followed by a focus in the same callback.
+
+**Requires:** `story.progression`, this script's own registered battle handle,
+and a strict boolean `locked`. Strings, foreign/core handles and forged handles
+are rejected. Register the battle's fights during loading.
+
+```lua
+-- Inside a normal map callback, using a battle registered during loading:
+if sf2.battles.reveal(battle, true) then
+    -- Later progression can call sf2.battles.set_locked(battle, false).
+end
+```
+
+`locked` is the initial value for a new entry only. Repeating a reveal preserves
+an existing lock, hidden flag, replay count and fight history. It can restore the
+entry's native visibility, but never overrides an existing hidden flag or the
+current story/raid map mode. A new entry is not hidden and starts at replay count
+zero. Reveal neither starts a fight nor bypasses its conditions. The host requests
+a normal save when it changes the entry; success does not guarantee completed disk
+I/O. This operation is idempotent, not an atomic transaction across several battles.
+
+## sf2.battles.focus
+
+Select an owned battle already represented on the current map.
+
+**Signature:** `sf2.battles.focus(battle)`
+
+**Returns:** `true` when focus is applied; `false` when the entry is absent,
+hidden, outside the current map mode, or blocked by the same lifecycle/input
+guards as reveal.
+
+**When:** On an initialized map, including after reveal in the same UI callback.
+Calls from UI `on_close` cleanup raise an error.
+
+**Requires:** `story.progression` and this script's own battle handle.
+
+```lua
+if sf2.battles.set_locked(battle, false) then
+    if sf2.battles.focus(battle) then
+        -- The caller can now record its own notification-completed flag.
+    end
+end
+```
+
+Focus uses immediate native map selection, updates the relevant story/raid saved
+focus, and requests a normal save. Locked visible entries may be focused. It does
+not reveal entries, change lock/hidden state, switch map modes, or start combat.
+Native selection can subsequently choose a fight within that battle. The API
+does not guarantee that the save is already durable on disk.
 
 ## sf2.warriors.get_template
 

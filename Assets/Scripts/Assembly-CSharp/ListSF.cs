@@ -2843,7 +2843,7 @@ public class ListSF
 		FightIDS ids = new FightIDS(string.Copy(zone.get_Name()), string.Copy(battle.get_Name()), string.Empty);
 		bool available = CCDKHLAMKKO().HAMPNCKAJKD(ids);
 		if (battle.get_Type() == BattleType.FightRaid) available = true;
-		battle.DCHJDPCEODD = available;
+		battle.IsMapVisible = available;
 		zone.LGIIBNJFADA.Add(battle);
 		return battle;
 	}
@@ -2907,7 +2907,7 @@ public class ListSF
 			{
 				dCHJDPCEODD = true;
 			}
-			cGJCGEBPCAF.DCHJDPCEODD = dCHJDPCEODD;
+			cGJCGEBPCAF.IsMapVisible = dCHJDPCEODD;
 			pKCPOJKLMOK.LGIIBNJFADA.Add(cGJCGEBPCAF);
 		}
 		return pKCPOJKLMOK;

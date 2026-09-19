@@ -311,9 +311,10 @@ test('story subscriptions require event capability', async () => {
   assert(p.analyze(header+call,mod).issues.some(i=>i.message.includes('story.events')));
 });
 
-test('battle lock changes require story progression capability', async () => {
+test('battle progression operations require story progression capability', async () => {
  const mod=await p.indexMod(template);
- assert(p.analyze(header+'sf2.battles.set_locked(battle,false)',mod).issues.some(i=>i.message.includes('story.progression')));
+ for(const call of ['sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)'])
+  assert(p.analyze(header+call,mod).issues.some(i=>i.message.includes('story.progression')));
 });
 
 test('story observer example validates', async () => {

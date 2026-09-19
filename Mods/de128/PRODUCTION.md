@@ -2082,3 +2082,68 @@ The pending Sensei Lua coordinator has not been activated. Initial revelation,
 notification ordering, persistent opened flags, missing guard templates, encounter
 assembly and full story/save/reload acceptance remain open. Package remains
 0.18.0; the owner's full asset archive remains deferred.
+
+## Step 36: initial map revelation and six-act map effects
+
+Historical notification actions show that the first act must reveal all six
+entries, unlock Act I and focus it, after its dialog and Eclipse-mode transition.
+Later acts unlock/focus their own entry. Lock mutation alone could not express
+initial revelation, so the generic C# runtime now exposes `sf2.battles.reveal`
+and `sf2.battles.focus` under `story.progression`. Both require an owned handle
+and share the profile, scene, settlement, input and cleanup guards from lock
+updates. Reveal's strict boolean sets the initial lock only; retries preserve
+existing lock/hidden/replay fields and fight history. Focus requires a visible
+entry in the current map mode and updates normal native selection/save focus.
+Neither API starts fights, switches modes or overrides native fight conditions.
+
+The native test found that immediate map selection after a rebuild read the old
+selected zone until the following Update. Focus now flushes canvas layout and
+MapPanel publishes selection synchronously for zero-duration scrolling, before
+MapScene consumes it. Animated selection keeps its existing update path. Native
+saved focus is written explicitly, including visible locked entries without an
+eligible current fight. This is reusable C# behavior rather than DE policy.
+
+Pending `scripts/content/sensei_map.lua` is ordinary Lua calling these APIs, with
+no XML loading or operation interpreter. It reveals six entries only for Act I,
+then unlocks/focuses the requested act. It returns false at the first refusal;
+idempotent reveal allows retry after a partial sequence. The future coordinator
+must finish presentation and Act I's Eclipse-mode transition before calling it,
+and persist opened flags only on success. It remains outside the entrypoint.
+
+New engine uses prompted narrowly inferred names: Roster.AddBattle (its existing
+overloads), SetMapFocus and SetRaidMapFocus, and Battle.IsMapVisible. Evidence is
+their native roster/MapFocus/RaidMapFocus backing and map display consumers.
+Declarations have the required best-guess comments. Only Battle references to the
+shared obfuscated visibility token changed; ItemInfo and other unrelated types
+retain their symbols. No matching serialized asset references were found; Unity
+GUIDs and save field names are unchanged. These are not confirmed recovery maps.
+
+Verification:
+
+- `Tools/TestBattleLocks.ps1`: 54 actual MoonSharp binding/capability/ownership,
+  strict argument, rejection and host-clear checks.
+- `Tools/TestSenseiMap.ps1`: 132 checks executing the authored module. All six
+  acts match archived map action order/states; every first-act failure position
+  stops and retries successfully. Later acts cannot fabricate initial entries.
+  These use controlled host services, not story playback. Combined evidence:
+  `Temp/BattleLocks-8700aefe2a374a5fa5833e2f3da2054d`.
+- Isolated Unity 6000.6.0f1 run
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-wk2vo31i` exits 0. New native acceptance
+  covers a fresh saved entry and zone/button, map/input guards, absent entry
+  refusal, no duplicates or lock/replay reset, hidden-state preservation,
+  immediate native selection and saved focus, and RosterBattle serialization
+  roundtrip. Earlier lock, saved fight query, reward-slot, perk, Jian and MindThrow
+  checks remain green. Only the isolated acceptance profile is used. No full
+  profile reload, raid-focus playthrough, complete campaign or clean-log claim.
+- Managed editor build passes; 819 Eclipse assertions across 21 replay segments,
+  2638 DE128 foundation checks and 1282 Underworld checks pass. The Underworld
+  audit exits 0 while retaining its missing raid-image findings.
+- Wiki and generated editor contracts cover 162 functions, 76 constants and 229
+  structures. Generation/check, project tests, LuaLS and VS Code integration pass.
+  Wiki builds 47 pages and checks 4091 local links/assets, with zero Astro
+  diagnostics and the existing duplicate-404 warning.
+
+Package stays 0.18.0. Notification presentation, safe Eclipse-mode switching,
+opened-state persistence, battle/encounter assembly, missing guard templates and
+full story/save/reload acceptance remain open. Complete asset-corpus acquisition
+and reconciliation remain deferred at the owner's request.

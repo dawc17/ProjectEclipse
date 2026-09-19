@@ -117,7 +117,7 @@ namespace Nekki.SF2.GUI.Map
 			int num = 0;
 			foreach (Battle item in lGIIBNJFADA)
 			{
-				if (item.DCHJDPCEODD && UnderworldMapBattlePresentation.IsBattleVisible(item, CODCAENBFHK, _raidPowerMode))
+				if (item.IsMapVisible && UnderworldMapBattlePresentation.IsBattleVisible(item, CODCAENBFHK, _raidPowerMode))
 				{
 					flag = true;
 					break;
@@ -129,7 +129,7 @@ namespace Nekki.SF2.GUI.Map
 
 		public void SelectBattle()
 		{
-			if (MMDKAHMBPHH == null || !MMDKAHMBPHH.DCHJDPCEODD || !UnderworldMapBattlePresentation.IsBattleVisible(MMDKAHMBPHH, CODCAENBFHK, _raidPowerMode))
+			if (MMDKAHMBPHH == null || !MMDKAHMBPHH.IsMapVisible || !UnderworldMapBattlePresentation.IsBattleVisible(MMDKAHMBPHH, CODCAENBFHK, _raidPowerMode))
 			{
 				SelectFirstBattle();
 			}
@@ -192,7 +192,7 @@ namespace Nekki.SF2.GUI.Map
 			foreach (BattleButton button in _buttons)
 			{
 				Battle battle = button.get_Battle();
-				button.gameObject.SetActive(battle.DCHJDPCEODD && !battle.KBPNDJPMCCG() &&
+				button.gameObject.SetActive(battle.IsMapVisible && !battle.KBPNDJPMCCG() &&
 					UnderworldMapBattlePresentation.IsBattleVisible(battle, CODCAENBFHK, _raidPowerMode));
 			}
 			if (MMDKAHMBPHH == null || !UnderworldMapBattlePresentation.IsBattleVisible(MMDKAHMBPHH, CODCAENBFHK, _raidPowerMode))
@@ -269,7 +269,7 @@ namespace Nekki.SF2.GUI.Map
 				{
 					battleButton = HPCGCHGGAGC(HHMPCKCPOEA);
 				}
-				HHMPCKCPOEA.DCHJDPCEODD = PEJELKNFEKJ;
+				HHMPCKCPOEA.IsMapVisible = PEJELKNFEKJ;
 				if (PEJELKNFEKJ)
 				{
 					if (battleButton != null)
@@ -348,7 +348,7 @@ namespace Nekki.SF2.GUI.Map
 				{
 					item.set_Hidden(flag);
 				}
-				item.gameObject.SetActive(item.get_Battle().DCHJDPCEODD && !flag &&
+				item.gameObject.SetActive(item.get_Battle().IsMapVisible && !flag &&
 					UnderworldMapBattlePresentation.IsBattleVisible(item.get_Battle(), CODCAENBFHK, _raidPowerMode));
 				bool activeBattle = item.get_Battle() == MMDKAHMBPHH;
 				item.SetActiveBattle(activeBattle);
@@ -436,7 +436,7 @@ namespace Nekki.SF2.GUI.Map
 			BattleButton battleButton = null;
 			foreach (BattleButton item in _buttons)
 			{
-				if (item.get_Battle().DCHJDPCEODD && !item.get_Battle().KBPNDJPMCCG())
+				if (item.get_Battle().IsMapVisible && !item.get_Battle().KBPNDJPMCCG())
 				{
 					float x2 = item.transform.position.x;
 					float y2 = item.transform.position.y;

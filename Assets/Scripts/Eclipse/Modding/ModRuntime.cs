@@ -224,6 +224,8 @@ namespace Eclipse.Modding
             ModProfileAccess.Level = ReadProfileLevel;
             ModProfileAccess.Fight = ReadProfileFight;
             ModBattleAccess.SetLocked = TrySetBattleLocked;
+            ModBattleAccess.Reveal = TryRevealBattle;
+            ModBattleAccess.Focus = TryFocusBattle;
             ModProfileAccess.Item = ReadProfileItem;
             ModProfileAccess.Perk = ReadProfilePerk;
             ModProfileAccess.Equipment = ReadProfileEquipment;
@@ -412,29 +414,90 @@ namespace Eclipse.Modding
 
         private static int? ReadProfileLevel() => _profileRoster == null ? (int?)null : _profileRoster.Level;
 
-        internal static bool TrySetBattleLocked(DefinitionId id, bool locked)
+        private static Nekki.SF2.GUI.Map.MapScene ReadyProgressionMap()
         {
             if (_profileRoster == null || _scripts == null || _profileMutationState != 0 ||
                 _sceneNavigationInProgress || ModModeRuntime.HasPendingPreparation ||
-                Eclipse.UI.Modding.ModUiGameBridge.NativeInputBlocked) return false;
+                Eclipse.UI.Modding.ModUiGameBridge.NativeInputBlocked) return null;
             var lockScreen = Nekki.SF2.GUI.LockScreen.get_Instance();
-            if (lockScreen != null && lockScreen.gameObject.activeInHierarchy) return false;
+            if (lockScreen != null && lockScreen.gameObject.activeInHierarchy) return null;
             var map = Nekki.SF2.GUI.Scene<Nekki.SF2.GUI.Map.MapScene>.get_Current();
             if (map == null || !map.gameObject.activeInHierarchy ||
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != (int)ScreenType.ModuleMap) return false;
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != (int)ScreenType.ModuleMap) return null;
+            return map;
+        }
+
+        private static FightIDS ResolveProgressionBattle(DefinitionId id, out Battle native)
+        {
             if (!_scripts.Content.TryGetBattle(id, out var battle) || id.Namespace.Value == "core" ||
                 !_scripts.Content.TryGetZone(battle.Zone, out var zone))
                 throw new ModContentException("Battle progression references unavailable owned content: " + id);
-            var nativeId = new FightIDS(zone.LegacyName + "|" + battle.LegacyName + "|");
-            RosterBattle record = null;
+            native = ListSF.GetInstance().FindBattleForModding(zone.LegacyName, battle.LegacyName);
+            return new FightIDS(zone.LegacyName + "|" + battle.LegacyName + "|");
+        }
+
+        private static RosterBattle SavedBattle(FightIDS nativeId)
+        {
             foreach (var candidate in _profileRoster.GetSavedBattles())
-                if (candidate.GetBattleId().Equals(nativeId)) { record=candidate; break; }
-            if (record == null) return false; // Reveal through declarative content first.
+                if (candidate.GetBattleId().Equals(nativeId)) return candidate;
+            return null;
+        }
+
+        internal static bool TrySetBattleLocked(DefinitionId id, bool locked)
+        {
+            var map = ReadyProgressionMap();
+            if (map == null) return false;
+            var nativeId = ResolveProgressionBattle(id, out var native);
+            if (native == null) return false;
+            var record = SavedBattle(nativeId);
+            if (record == null) return false; // Reveal the entry first.
             if (record.IsLocked() == locked) return true;
             record.SetLocked(locked);
             map.ReloadZones();
             ListSF.GetInstance().OnAuthenticate(true);
             return true;
+        }
+
+        internal static bool TryRevealBattle(DefinitionId id, bool locked)
+        {
+            var map = ReadyProgressionMap();
+            if (map == null) return false;
+            var nativeId = ResolveProgressionBattle(id, out var native);
+            if (native == null) return false;
+            bool exists = SavedBattle(nativeId) != null;
+            if (exists && native.IsMapVisible) return true;
+            // Never run the native updating overload on an existing entry:
+            // it also resets Hidden and ReplayCount. Initial lock applies once.
+            if (!exists) _profileRoster.AddBattle(nativeId, false, true, locked, false, 0);
+            native.IsMapVisible = true;
+            map.ReloadZones();
+            ListSF.GetInstance().OnAuthenticate(true);
+            return true;
+        }
+
+        internal static bool TryFocusBattle(DefinitionId id)
+        {
+            var map = ReadyProgressionMap();
+            if (map == null) return false;
+            var nativeId = ResolveProgressionBattle(id, out var native);
+            if (native == null || SavedBattle(nativeId) == null || !native.IsMapVisible) return false;
+            // Only focus a represented, visible entry in the current map mode.
+            // Do not reveal hidden entries or switch story/raid maps as a side effect.
+            foreach (var panel in map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapPanel>(true))
+                foreach (var zone in panel.GetZones())
+                {
+                    var button = zone.GetButtonByBattle(native);
+                    if (button == null || !button.gameObject.activeSelf) continue;
+                    // A reveal can have rebuilt the map earlier in this callback.
+                    Canvas.ForceUpdateCanvases();
+                    map.SelectBattle(native, 0f);
+                    if (map.GetCurrentState() == Nekki.SF2.GUI.Map.MapScene.NMFLNANKNOJ.RaidMode)
+                        _profileRoster.SetRaidMapFocus(nativeId.ToString());
+                    else _profileRoster.SetMapFocus(nativeId.ToString());
+                    ListSF.GetInstance().OnAuthenticate(true);
+                    return true;
+                }
+            return false;
         }
 
         internal static bool TryNavigateScene(string destination)

@@ -717,9 +717,9 @@ public class Roster : MELBIBHDPCE
 		GKLJJHLFACI = node.Attributes["LastDumpTime"].ParseInt();
 		IGBNKIKIDII(node.Attributes["FightIDS"].CIPOICEEIBK(string.Empty));
 		HPAHCBILEOE = node.Attributes["MapFocus"];
-		NDFLHPGHKMP(node.Attributes["MapFocus"].CIPOICEEIBK(string.Empty));
+		SetMapFocus(node.Attributes["MapFocus"].CIPOICEEIBK(string.Empty));
 		AALOLMPMCDH = node.Attributes["RaidMapFocus"];
-		EOPPBJKPKGD(node.Attributes["RaidMapFocus"].CIPOICEEIBK(string.Empty));
+		SetRaidMapFocus(node.Attributes["RaidMapFocus"].CIPOICEEIBK(string.Empty));
 		COKACMKOIGD(node.Attributes["Language"].CIPOICEEIBK(string.Empty));
 		AJGEKAADGEJ = node.Attributes["ShowUpgrades"].ParseBool();
 		NPEENBBIFFB = node.Attributes["ShowForge"].ParseBool();
@@ -733,7 +733,7 @@ public class Roster : MELBIBHDPCE
 		IOFKIODDAMJ = node["Battles"];
 		foreach (XmlNode childNode in IOFKIODDAMJ.ChildNodes)
 		{
-			KJIMPNEGNAN(new RosterBattle(childNode));
+			AddBattle(new RosterBattle(childNode));
 		}
 		JADHFPKIHDF = node["Fights"];
 		if (JADHFPKIHDF != null)
@@ -1220,10 +1220,11 @@ public class Roster : MELBIBHDPCE
 
 	public void KPDHMBIDAHA(FightIDS value)
 	{
-		NDFLHPGHKMP(value.ToString());
+		SetMapFocus(value.ToString());
 	}
 
-	public void NDFLHPGHKMP(string JFIIJBAOOIK)
+	// best guess for name
+	public void SetMapFocus(string JFIIJBAOOIK)
 	{
 		if (!FHJHPGDPNBH.OLAJNGPILGL(JFIIJBAOOIK))
 		{
@@ -1254,10 +1255,11 @@ public class Roster : MELBIBHDPCE
 
 	public void AEGEEMMBLDF(FightIDS value)
 	{
-		EOPPBJKPKGD(value.ToString());
+		SetRaidMapFocus(value.ToString());
 	}
 
-	public void EOPPBJKPKGD(string JFIIJBAOOIK)
+	// best guess for name
+	public void SetRaidMapFocus(string JFIIJBAOOIK)
 	{
 		if (!LINHCAGANFC.OLAJNGPILGL(JFIIJBAOOIK))
 		{
@@ -1617,7 +1619,8 @@ public class Roster : MELBIBHDPCE
 		return value;
 	}
 
-	public void KJIMPNEGNAN(FightIDS DIAIIPCBMFL, bool EFCPLDABOIF = false, bool PEJELKNFEKJ = true, bool NIBIMBDBPMI = false, bool MDEHPLPLNNF = false, int OAHPBDFKJOK = 0)
+	// best guess for name
+	public void AddBattle(FightIDS DIAIIPCBMFL, bool EFCPLDABOIF = false, bool PEJELKNFEKJ = true, bool NIBIMBDBPMI = false, bool MDEHPLPLNNF = false, int OAHPBDFKJOK = 0)
 	{
 		if (DIAIIPCBMFL == null)
 		{
@@ -1658,7 +1661,8 @@ public class Roster : MELBIBHDPCE
 		}
 	}
 
-	public void KJIMPNEGNAN(RosterBattle ELBLEPOEKIL)
+	// best guess for name
+	public void AddBattle(RosterBattle ELBLEPOEKIL)
 	{
 		foreach (RosterBattle item in HLHEFIKFBHH)
 		{
@@ -1671,10 +1675,11 @@ public class Roster : MELBIBHDPCE
 		HLHEFIKFBHH.Add(ELBLEPOEKIL);
 	}
 
-	public void KJIMPNEGNAN(Battle DPOOIONCEOA, bool EFCPLDABOIF = false, bool PEJELKNFEKJ = true, bool NIBIMBDBPMI = false, bool MDEHPLPLNNF = false, int OAHPBDFKJOK = 0)
+	// best guess for name
+	public void AddBattle(Battle DPOOIONCEOA, bool EFCPLDABOIF = false, bool PEJELKNFEKJ = true, bool NIBIMBDBPMI = false, bool MDEHPLPLNNF = false, int OAHPBDFKJOK = 0)
 	{
 		FightIDS dIAIIPCBMFL = new FightIDS(DPOOIONCEOA.LKDFFCADHNO().get_Name(), DPOOIONCEOA.get_Name(), string.Empty);
-		KJIMPNEGNAN(dIAIIPCBMFL, EFCPLDABOIF, PEJELKNFEKJ, NIBIMBDBPMI, MDEHPLPLNNF, OAHPBDFKJOK);
+		AddBattle(dIAIIPCBMFL, EFCPLDABOIF, PEJELKNFEKJ, NIBIMBDBPMI, MDEHPLPLNNF, OAHPBDFKJOK);
 	}
 
 	public void HEHJKDPAPLA(RosterBattle ELBLEPOEKIL)

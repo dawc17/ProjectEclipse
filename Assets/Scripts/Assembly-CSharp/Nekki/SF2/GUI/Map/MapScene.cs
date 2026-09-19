@@ -353,7 +353,7 @@ namespace Nekki.SF2.GUI.Map
 				{
 					bool flag = cGJCGEBPCAF.MNHLGELMOEJ() == ConditionStatus.StatusOpen;
 					bool flag2 = !cGJCGEBPCAF.BACJPLBBCKL();
-					bool dCHJDPCEODD = cGJCGEBPCAF.DCHJDPCEODD;
+					bool dCHJDPCEODD = cGJCGEBPCAF.IsMapVisible;
 					if (flag && flag2 && dCHJDPCEODD)
 					{
 						return true;
@@ -369,15 +369,15 @@ namespace Nekki.SF2.GUI.Map
 			{
 				return false;
 			}
-			if (HLJKOKMKMLM.LGIIBNJFADA.Exists(battle => battle.DCHJDPCEODD && Eclipse.Modding.ModModeRuntime.OwnsBattle(battle))) return true;
+			if (HLJKOKMKMLM.LGIIBNJFADA.Exists(battle => battle.IsMapVisible && Eclipse.Modding.ModModeRuntime.OwnsBattle(battle))) return true;
 			if (UnderworldZonePolicy.IsRaidZone(HLJKOKMKMLM))
-				return HLJKOKMKMLM.LGIIBNJFADA.Exists(battle => battle.DCHJDPCEODD);
+				return HLJKOKMKMLM.LGIIBNJFADA.Exists(battle => battle.IsMapVisible);
 			List<Battle> list = HLJKOKMKMLM.LGIIBNJFADA.FindAll(battle =>
 				battle.get_Type() == BattleType.FightBosses || battle.get_Type() == BattleType.FightFinalTitan ||
 				battle.get_Type() == BattleType.FightBossesIntermission);
 			for (int i = 0; i < list.Count; i++)
 			{
-				if (list[i].DCHJDPCEODD)
+				if (list[i].IsMapVisible)
 				{
 					return true;
 				}
@@ -438,11 +438,11 @@ namespace Nekki.SF2.GUI.Map
 				string jFIIJBAOOIK = currentFight.FightId.ToString();
 				if (LDOJANLOFHI != NMFLNANKNOJ.RaidMode)
 				{
-					ListSF.CCDKHLAMKKO().NDFLHPGHKMP(jFIIJBAOOIK);
+					ListSF.CCDKHLAMKKO().SetMapFocus(jFIIJBAOOIK);
 				}
 				else
 				{
-					ListSF.CCDKHLAMKKO().EOPPBJKPKGD(jFIIJBAOOIK);
+					ListSF.CCDKHLAMKKO().SetRaidMapFocus(jFIIJBAOOIK);
 				}
 				return;
 			}
@@ -452,11 +452,11 @@ namespace Nekki.SF2.GUI.Map
 				string jFIIJBAOOIK2 = jDIPBIHBGPF.FightId.ToString();
 				if (LDOJANLOFHI != NMFLNANKNOJ.RaidMode)
 				{
-					ListSF.CCDKHLAMKKO().NDFLHPGHKMP(jFIIJBAOOIK2);
+					ListSF.CCDKHLAMKKO().SetMapFocus(jFIIJBAOOIK2);
 				}
 				else
 				{
-					ListSF.CCDKHLAMKKO().EOPPBJKPKGD(jFIIJBAOOIK2);
+					ListSF.CCDKHLAMKKO().SetRaidMapFocus(jFIIJBAOOIK2);
 				}
 			}
 		}

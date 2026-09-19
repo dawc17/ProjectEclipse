@@ -57,6 +57,11 @@ local locked_battle = sf2.battles.register { id = "lock_check", zone = zone, typ
     icon = "tournament", icon_atlas = "BattleBtnStart", title = "Lock check", x = 200, y = 0, location = location }
 sf2.fights.register { id = "lock_check", battle = locked_battle, location = location,
     warriors = { opponent }, rewards = { loss, win }, rounds = 1, round_time = 99 }
+local reveal_zone = sf2.zones.register { id = "reveal_check", file = "Map2.1", start = false }
+local reveal_battle = sf2.battles.register { id = "reveal_check", zone = reveal_zone, type = sf2.battles.STORY,
+    icon = "tournament", icon_atlas = "BattleBtnStart", title = "Reveal check", x = 0, y = 0, location = location }
+sf2.fights.register { id = "reveal_check", battle = reveal_battle, location = location,
+    warriors = { opponent }, rewards = { loss, win }, rounds = 1, round_time = 99 }
 local sphere2_opponent = sf2.warriors.register {
     id = "sphere2", template = sf2.warriors.get_template("core:warrior-templates/man_staff"),
     tactic = "Standard", first_name = "Sphere2 acceptance", last_name = "", level = 1,

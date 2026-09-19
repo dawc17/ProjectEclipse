@@ -12,7 +12,9 @@ namespace Eclipse.Modding
     public static class ModBattleAccess
     {
         public static Func<DefinitionId,bool,bool> SetLocked;
-        public static void Clear() { SetLocked=null; }
+        public static Func<DefinitionId,bool,bool> Reveal;
+        public static Func<DefinitionId,bool> Focus;
+        public static void Clear() { SetLocked=null; Reveal=null; Focus=null; }
     }
 
     public sealed class ModProfileItemSnapshot

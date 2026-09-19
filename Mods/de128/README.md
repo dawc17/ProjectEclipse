@@ -38,6 +38,12 @@ battle on an unblocked map without resetting replay counts or fight history.
 The Sensei coordinator still needs initial revelation, notification ordering and
 opened-state persistence before activation. See Step 35 in `PRODUCTION.md`.
 
+Pending `scripts/content/sensei_map.lua` now sequences the six initial reveals,
+per-act unlock and map focus through public APIs. It stops on refusal and can be
+retried without resetting existing progress. These map effects are tested against
+the historical notification actions; dialogs, Act I's Eclipse-mode transition,
+opened-state persistence and encounter assembly still precede activation (Step 36).
+
 `scripts/content/chinese_swords.lua` registers both moves and Jian's subtype;
 `chinese_swords_data.lua` contains their typed combat/presentation data. The mod
 bundles the unchanged recovered animation binary, with no runtime XML dependency.

@@ -65,7 +65,7 @@ namespace Nekki.SF2.GUI.Map
 		public void set_Hidden(bool value)
 		{
 			INMFGOMPJEO = value;
-			base.gameObject.SetActive(get_Battle().DCHJDPCEODD && !INMFGOMPJEO);
+			base.gameObject.SetActive(get_Battle().IsMapVisible && !INMFGOMPJEO);
 		}
 
 		public void Init(string LPCAHLHLBJE, string KEIJPCJFLEO, string HHBECAKNFHD, string NGHGFJCOMIP, bool NIBIMBDBPMI, string iconAtlas = "")

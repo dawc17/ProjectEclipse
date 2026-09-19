@@ -256,3 +256,10 @@ buttons. Map reloads now retire old zone objects instead of leaving duplicate
 buttons active. Lua, native map and existing combat checks cover this foundation;
 initial revelation, notifications, persistent opened flags and full Sensei story
 assembly remain unfinished. DE128 stays 0.18.0; see the production record.
+
+Step 36 adds generic owned-battle reveal and focus APIs, including native saved
+entry creation, preservation on repeated reveal and immediate map selection.
+Pending Sensei Lua sequences all six first-act reveals and subsequent act unlocks
+and focus; refusal/retry and archived action ordering are checked. Native Unity
+acceptance covers the APIs and prior combat checks. Dialog ordering, Eclipse-mode
+transition, opened-state persistence and story assembly remain open (0.18.0).

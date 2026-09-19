@@ -465,8 +465,31 @@
       "capability": "story.progression",
       "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesset_locked",
       "summary": "Change the saved lock of a revealed battle owned by this mod.",
-      "requires": "`story.progression`, this script's own battle handle and a boolean `locked`. Strings, forged handles, core battles and other mods' battles are not accepted. Register/reveal initial entries declaratively before changing locks.",
+      "requires": "`story.progression`, this script's own battle handle and a boolean `locked`. Strings, forged handles, core battles and other mods' battles are not accepted. Register entries first, then reveal them before changing locks.",
       "when": "On an initialized map, such as a normal UI `on_click` callback after story presentation. Calls during UI `on_close` cleanup raise an error; cleanup may run because the scene/profile is being replaced. Do not retry in a tight loop."
+    },
+    "sf2.battles.reveal": {
+      "params": {
+        "battle": "Eclipse.BattleHandle",
+        "locked": "boolean"
+      },
+      "returns": "`true` when the entry exists or was created; `false` when the profile, map or native battle is unavailable, input is blocked, or a transition, encounter preparation or settlement prevents progression.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesreveal",
+      "summary": "Create the saved map entry for a battle owned by this mod, then refresh the map.",
+      "requires": "`story.progression`, this script's own registered battle handle, and a strict boolean `locked`. Strings, foreign/core handles and forged handles are rejected. Register the battle's fights during loading.",
+      "when": "On an initialized map, usually from an ordinary UI `on_click` after story presentation. UI `on_close` cleanup calls raise an error. Do not retry in a tight loop. Several reveals may be followed by a focus in the same callback."
+    },
+    "sf2.battles.focus": {
+      "params": {
+        "battle": "Eclipse.BattleHandle"
+      },
+      "returns": "`true` when focus is applied; `false` when the entry is absent, hidden, outside the current map mode, or blocked by the same lifecycle/input guards as reveal.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesfocus",
+      "summary": "Select an owned battle already represented on the current map.",
+      "requires": "`story.progression` and this script's own battle handle.",
+      "when": "On an initialized map, including after reveal in the same UI callback. Calls from UI `on_close` cleanup raise an error."
     },
     "sf2.warriors.get_template": {
       "params": {

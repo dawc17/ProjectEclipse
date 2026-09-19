@@ -65,7 +65,7 @@ public class QuestActionUnlockBattle : QuestAction
 		FightIDS mOCEDDJOAEB = new FightIDS();
 		mOCEDDJOAEB.SetFightIDSByString(lNIDLHOIHIM.resultSTR);
 		Roster nKGLHEGIKKP = ListSF.CCDKHLAMKKO();
-		nKGLHEGIKKP.KJIMPNEGNAN(mOCEDDJOAEB, true, _toggle, LNKJGCAAJHN, INMFGOMPJEO, oAHPBDFKJOK);
+		nKGLHEGIKKP.AddBattle(mOCEDDJOAEB, true, _toggle, LNKJGCAAJHN, INMFGOMPJEO, oAHPBDFKJOK);
 		ListSF.GetInstance().EJANJEEGOOE();
 		ListSF.CGJCKGAFPED();
 		Zone pKCPOJKLMOK = ListSF.CFEDCFACBLE(mOCEDDJOAEB.PELHCAEAOFE());
@@ -73,7 +73,7 @@ public class QuestActionUnlockBattle : QuestAction
 		Battle cGJCGEBPCAF = ((pKCPOJKLMOK == null) ? null : pKCPOJKLMOK.MJINKOFNIAE(mOCEDDJOAEB.CPHDPCAECJN()));
 		if (cGJCGEBPCAF != null)
 		{
-			cGJCGEBPCAF.DCHJDPCEODD = _toggle;
+			cGJCGEBPCAF.IsMapVisible = _toggle;
 		}
 		bool flag2 = JLIJLEGKEJA(pKCPOJKLMOK);
 		MapScene current = Scene<MapScene>.get_Current();
@@ -97,7 +97,7 @@ public class QuestActionUnlockBattle : QuestAction
 		List<Battle> lGIIBNJFADA = HLJKOKMKMLM.LGIIBNJFADA;
 		for (int i = 0; i < lGIIBNJFADA.Count; i++)
 		{
-			if (lGIIBNJFADA[i].DCHJDPCEODD)
+			if (lGIIBNJFADA[i].IsMapVisible)
 			{
 				return true;
 			}

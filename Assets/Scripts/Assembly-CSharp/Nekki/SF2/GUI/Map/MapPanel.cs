@@ -143,6 +143,9 @@ namespace Nekki.SF2.GUI.Map
 					{
 						LJOBLDELNGD.ScrollToItem(item, _Duration);
 					}
+					// Instant focus must publish selection before MapScene reads it.
+					// The regular Update will handle animated scrolling as before.
+					if (_Duration == 0f) _baseScrollContent.Update();
 					break;
 				}
 			}
@@ -249,7 +252,7 @@ namespace Nekki.SF2.GUI.Map
 				for (int i = 0; i < lGIIBNJFADA.Count; i++)
 				{
 					Battle cGJCGEBPCAF = lGIIBNJFADA[i];
-					bool dCHJDPCEODD = cGJCGEBPCAF.DCHJDPCEODD;
+					bool dCHJDPCEODD = cGJCGEBPCAF.IsMapVisible;
 					flag &= !dCHJDPCEODD;
 				}
 				if (!flag)
