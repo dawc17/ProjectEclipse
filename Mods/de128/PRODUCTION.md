@@ -1532,3 +1532,22 @@ harness did not observe the middle-flight phase. This is an unresolved acceptanc
 failure, not a completed spell integration. Numerical damage, visible effects,
 shop preview and purchase/save acceptance remain open. Four other missing spell
 graphs also remain pending. This checkpoint is committed at the user's request.
+
+## Sphere1 native lifecycle follow-up
+
+The failed flight expectation was caused by the preceding Jian attack closing the
+fighters' gap: the projectile hit during its damaging startup and executed its
+Strike deletion action before reaching flight. The harness now restores long-range
+spacing before casting and listens to native animation-selection events rather
+than relying solely on editor-update polling. No production graph or engine
+behavior was changed to force a pass.
+
+Isolated Unity run `Run-kejilqi4` exited 0. It observed native Magic-input selection,
+exactly one inherited-equipment child, Sphere1Start then Sphere1Middle, one consumed
+charge and child deletion/removal. The prior Jian and restored-equipment checks also
+passed. This resolves the preceding failed middle-flight check. Numerical damage,
+wall-miss cleanup, audible/visual output, shop previews and purchase/save acceptance
+remain open; this is not full spell parity. The mod continues to author its graph
+in Lua and does not load archived XML at runtime.
+
+Follow-up verification: 1,004 combined move checks and 2,509 foundation checks passed; wiki build passed (47 pages, 4,052 links/assets), with the existing duplicate-404 warning. The move checks require pwsh; the initial Windows PowerShell invocation rejected that unsupported host before running assertions. Whitespace checks passed.

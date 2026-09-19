@@ -35,10 +35,11 @@ The three ranged/magic families use base moves. `shared_moves.lua` now applies
 five guarded changes: the heavy ranged uninterrupt end, Chakram hit reaction,
 heavy ranged preview sound timing, and not-Stun conditions for MassBomb and
 LightningArrow. Remaining preview/presentation differences and five absent spell
-graphs were pending at that checkpoint. Sphere1 now has nine Lua-authored moves and the Minor Charge of Darkness listing, but live flight acceptance remains unresolved. Four other graphs remain pending. Hidden NPC equipment remains unregistered. See Steps
+graphs were pending at that checkpoint. Sphere1 now has nine Lua-authored moves and the Minor Charge of Darkness listing, and native Magic-input selection, startup-to-flight transition, charge consumption and child deletion now pass. Four other graphs remain pending. Hidden NPC equipment remains unregistered. See Steps
 16-17 for the audit and verification scope. Step 18 traces the 32 missing spell
-moves and adds generic effect authoring support; complete spell graphs remain
-under development.
+moves and adds generic effect authoring support; the remaining spell graphs are under development. Sphere1 has complete declaration
+comparisons and native lifecycle evidence; numerical damage, visual effects and
+shop-preview acceptance remain open. See the Sphere1 integration record.
 
 ## What this version does
 

@@ -120,16 +120,20 @@ public static class ValidateDE128CombatNative
                 if (!finished || attacks != 4 || swishes != 4 || !AttackFrames.SetEquals(new[] { 11, 19, 27, 32 }) || !SoundFrames.SetEquals(new[] { 8, 17, 28, 33 }))
                     throw new Exception("Incomplete animation: ended=" + finished + " attacks=" + attacks + " swishes=" + swishes);
                 if (actor.CLDMEJKGLBA() == null || actor.MJNPBMOAFML() == null || !actor.MJNPBMOAFML().activeInHierarchy) throw new Exception("Fighter lost active native rig.");
-                CheckLiveSphere(frame);
+                CheckLiveSphere(frame, player);
             }
         }
         catch (Exception error) { Debug.LogError("[DE128Native] FAIL: " + error); Finish(1); }
     }
-    static void CheckLiveSphere(int frame)
+    static void CheckLiveSphere(int frame, Model target)
     {
         if (!spellRequested)
         {
             if (actor.Parameters.Magic?.SubType != "Sphere1") throw new Exception("Fixture Sphere1 equipment missing.");
+            // The preceding Jian move closes the gap. Restore long-range spacing
+            // so the projectile can finish its damaging startup before contact.
+            actor.ShiftModelPosition(new Vector3f(400, 0, 0), true);
+            target.ShiftModelPosition(new Vector3f(-200, 0, 0), true);
             actor.JJDNDOLCMMN = 1;
             actor.AddEventListener(6, OnSphereCreated);
             var cast = AnimationData.Animations.Single(value => value.Name == SpellMove);
@@ -157,6 +161,11 @@ public static class ValidateDE128CombatNative
         var child = value as Model;
         if (child?.get_Name() != "Sphere1") return;
         sphere = child; sphereCount++;
+        child.OCPMJKIEPIG().AddEventListener(0, animation => {
+            var name = (animation as InfoAnimation)?.Name;
+            if (name == "de128:moves/sphere1_middle") sphereMiddle = true;
+            Debug.Log("[DE128Native] Sphere1 selected " + name);
+        });
         if (child.Parameters.Weapon?.SubType != "Sphere1") { failure = "Sphere1 projectile did not inherit magic equipment."; return; }
         child.AddEventListener(5, ignored => { sphereDeleted = true; Debug.Log("[DE128Native] Sphere1 native deletion event."); });
         Debug.Log("[DE128Native] Sphere1 native child created with inherited equipment.");
