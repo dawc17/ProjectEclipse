@@ -19,7 +19,11 @@ public sealed class Core : IAssetProvider {
         metadata = new AssetMetadata(id, AssetKind.Sprite, AssetSourceKind.Core, "", -1, "fixture"); return true;
     }
 }
-public sealed class Fighter : IModFighterOperations, IModIncomingHitSource, IModCombatSnapshotSource, IModCombatActivitySource, IModAnimationLifecycleSource {
+public sealed class Fighter : IModFighterOperations, IModIncomingHitSource, IModCombatSnapshotSource, IModCombatActivitySource, IModAnimationLifecycleSource, IModFighterFlags {
+    public readonly HashSet<(object,string)> Flags = new HashSet<(object,string)>();
+    public bool TrySetFlag(object owner,string behavior,string name,out string error) { error=""; Flags.Add((owner,name));return true; }
+    public bool TryClearFlag(object owner,string behavior,string name,out string error) { error="";Flags.Remove((owner,name));return true; }
+    public bool TryHasFlag(object owner,string behavior,string name,out bool exists,out string error) {error="";exists=Flags.Contains((owner,name));return true;}
     public ModCombatActivityEvent ActivityEvent { get; set; }
     public ModAnimationLifecycleEvent AnimationEvent { get; set; }
     public Func<ModCombatSnapshot> Capture;
@@ -35,9 +39,25 @@ public static class Program {
         string entry=Path.Combine(args[0],"example.battle-rules/scripts/main.lua");
         string original=File.ReadAllText(entry);
         string testManifest=Path.Combine(args[0],"example.battle-rules/mod.toml");
-        File.WriteAllText(testManifest,File.ReadAllText(testManifest).Replace("\"content.register\"","\"content.register\", \"combat.modify_outgoing_hit\""));
+        File.WriteAllText(testManifest,File.ReadAllText(testManifest).Replace("\"content.register\"","\"content.register\", \"combat.modify_outgoing_hit\", \"combat.effects\""));
         // Public Lua validation, not direct construction of internal DTOs.
         string probes = @"
+local retained_flag
+sf2.behaviors.register {
+    id='flag_probe',
+    on_round_begin=function(_,fighter)
+        assert(not fighter:has_flag('cast'))
+        assert(fighter:set_flag('cast')=='example.battle-rules:behaviors/flag_probe:cast')
+        fighter:set_flag('cast');assert(fighter:has_flag('cast'))
+        retained_flag=fighter.clear_flag
+    end,
+    on_round_end=function(_,fighter)
+        assert(fighter:has_flag('cast'));fighter:clear_flag('cast')
+        assert(not fighter:has_flag('cast'));fighter:clear_flag('cast')
+    end,
+    on_damage_received=function(_,fighter) fighter:set_flag('../bad') end,
+    on_fight_end=function() retained_flag('cast') end,
+}
 local saved_animation
 sf2.behaviors.register {
     id='animation_probe',
@@ -164,6 +184,8 @@ sf2.behaviors.register {
         Run(args[0],false,3,true);
         File.WriteAllText(manifest,File.ReadAllText(manifest).Replace("\"combat.modify_outgoing_hit\"","\"combat.modify_hit\""));
         Run(args[0],false,outgoingDenied:true);
+        File.WriteAllText(manifest,File.ReadAllText(manifest).Replace(", \"combat.effects\"",""));
+        Run(args[0],false,flagsDenied:true);
         Console.WriteLine("PASS: "+checks+" battle-rule checks; real Lua registration, filtering, per-rule/side/round/fight isolation, damage mutation, fingerprint, capability rejection.");
     }
     static void Reject(string mods) {
@@ -182,7 +204,7 @@ sf2.behaviors.register {
         }
         Check(rejected && catalog.FightRules.Count==0,"Invalid rule committed partial content");
     }
-    static string Run(string mods,bool filters,int every=3,bool forbidden=false,bool filtersOnly=false,bool outgoingDenied=false) {
+    static string Run(string mods,bool filters,int every=3,bool forbidden=false,bool filtersOnly=false,bool outgoingDenied=false,bool flagsDenied=false) {
         var discovery=ModDiscovery.DiscoverLoose(mods);
         Check(!discovery.HasErrors && discovery.Mods.Count==1,"Discovery");
         var mod=discovery.Mods[0];var catalog=new ModContentCatalog();
@@ -236,6 +258,13 @@ sf2.behaviors.register {
             if (filters) SnapshotChecks(interactive, mod.Id);
             if (filters) ActivityChecks(interactive,mod.Id);
             if (filters) AnimationChecks(interactive,mod.Id);
+            if (filters) FlagChecks(interactive,mod.Id);
+            if (flagsDenied) {
+                var flagFighter=new Fighter();
+                var flagWrapper=new ModInstanceFighter(flagFighter,new XmlDocument().CreateElement("Perk"));
+                Check(!interactive.TryInvokeBehavior(DefinitionId.Parse(mod.Id+":behaviors/flag_probe"),ModEffectEvent.RoundBegin,null,null,flagWrapper,out var flagError)
+                    && flagError.Contains("combat.effects") && flagFighter.Flags.Count==0,"Missing flag capability accepted");
+            }
             if (filters) TickChecks(interactive,mod.Id);
             if (filters) SubscriptionChecks(mod,assets);
             if (filters || outgoingDenied) OutgoingChecks(interactive, mod.Id,outgoingDenied);
@@ -292,6 +321,23 @@ sf2.behaviors.register {
         session.Dispose();
         Check(!session.HasHandlers(ModEffectEvent.AnimationStart) && !session.HasHandlers(ModEffectEvent.AnimationEnd),"Disposed lifecycle retained");
         Check(!session.HasHandlers(ModEffectEvent.Tick) && !session.HasBehaviorHandler(id,ModEffectEvent.Tick),"Disposed subscription retained");
+    }
+    static void FlagChecks(IModInteractiveBehaviorScriptContext context, ModId mod) {
+        var id=DefinitionId.Parse(mod+":behaviors/flag_probe");
+        var fighter=new Fighter();
+        var xml=new XmlDocument();
+        var a=new ModInstanceFighter(fighter,xml.CreateElement("A"));
+        var b=new ModInstanceFighter(fighter,xml.CreateElement("B"));
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.RoundBegin,null,null,a,out var error),error);
+        Check(fighter.Flags.Count==1,"Setting a flag twice duplicated it");
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.RoundBegin,null,null,b,out error),error);
+        Check(fighter.Flags.Count==2,"Separate instances shared flag ownership");
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.RoundEnd,null,null,a,out error),error);
+        Check(fighter.Flags.Count==1,"Clearing one instance cleared another");
+        Check(context.TryInvokeBehavior(id,ModEffectEvent.RoundEnd,null,null,b,out error),error);
+        Check(fighter.Flags.Count==0,"Flag failed to clear");
+        Check(!context.TryInvokeBehavior(id,ModEffectEvent.DamageReceived,null,null,b,out error) && fighter.Flags.Count==0,"Invalid flag key accepted");
+        Check(!context.TryInvokeBehavior(id,ModEffectEvent.FightEnd,null,null,b,out error) && error.Contains("expired"),"Retained flag capability survived callback");
     }
     static void AnimationChecks(IModInteractiveBehaviorScriptContext context, ModId mod) {
         var id=DefinitionId.Parse(mod+":behaviors/animation_probe");

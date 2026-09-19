@@ -1,6 +1,20 @@
 local sf2 = require("sf2")
 local function animation_probe(_, fighter, event)
     if event.animation_name:sub(1, 12) ~= "de128:moves/" then return end
+    if event.type == "AnimationStart" then
+        if event.target == "self" and event.animation_name:sub(-7) == "_player" then
+            assert(not fighter:has_flag("cast"))
+            local flag = fighter:set_flag("cast")
+            fighter:set_flag("cast") -- idempotent: no duplicate native modifier
+            assert(fighter:has_flag("cast"))
+            sf2.log.info("[DE128Flag] set|" .. flag)
+        elseif event.target == "other" and fighter:has_flag("cast") then
+            fighter:clear_flag("cast")
+            assert(not fighter:has_flag("cast"))
+            fighter:clear_flag("cast") -- absent clear must not emit another expiry
+            sf2.log.info("[DE128Flag] cleared")
+        end
+    end
     sf2.log.info("[DE128Lifecycle] " .. event.type .. "|" .. fighter.side .. "|"
         .. event.target .. "|" .. event.animation_name .. "|" .. tostring(event.frame))
 end

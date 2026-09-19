@@ -682,6 +682,13 @@ namespace Eclipse.Modding
         bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error);
     }
 
+    public interface IModFighterFlags
+    {
+        bool TrySetFlag(object owner, string behavior, string name, out string error);
+        bool TryClearFlag(object owner, string behavior, string name, out string error);
+        bool TryHasFlag(object owner, string behavior, string name, out bool exists, out string error);
+    }
+
     // The event's animation is captured at notification time, not queried later
     // from a controller which may already have selected the next move.
     public sealed class ModAnimationLifecycleEvent
@@ -961,9 +968,27 @@ namespace Eclipse.Modding
         IModFighterOperations Opponent { get; }
     }
 
-    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource
+    public sealed class ModInstanceFighter : IModFighterOperations, IModDamageEventSource, IModBehaviorInstanceSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags
     {
         private readonly IModFighterOperations _inner;
+        public bool TrySetFlag(object owner, string behavior, string name, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterFlags flags)
+                return flags.TrySetFlag((SavedInstance, owner), behavior, name, out error);
+            error = "Combat flags are unavailable."; return false;
+        }
+        public bool TryClearFlag(object owner, string behavior, string name, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterFlags flags)
+                return flags.TryClearFlag((SavedInstance, owner), behavior, name, out error);
+            error = "Combat flags are unavailable."; return false;
+        }
+        public bool TryHasFlag(object owner, string behavior, string name, out bool exists, out string error)
+        {
+            if (SavedInstance != null && _inner is IModFighterFlags flags)
+                return flags.TryHasFlag((SavedInstance, owner), behavior, name, out exists, out error);
+            exists = false; error = "Combat flags are unavailable."; return false;
+        }
         public ModAnimationLifecycleEvent AnimationEvent => (_inner as IModAnimationLifecycleSource)?.AnimationEvent;
         public bool TryChangeForm(DefinitionId character, Action<bool, string> complete, out string error)
         {

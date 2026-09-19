@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public class PerksStage : global::EventDispatcher<PerksStage.PerkEventStruct>
+public partial class PerksStage : global::EventDispatcher<PerksStage.PerkEventStruct>
 {
 	public enum CECEBJIFBHD
 	{

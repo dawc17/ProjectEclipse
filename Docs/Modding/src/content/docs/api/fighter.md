@@ -10,7 +10,8 @@ fighter as the method's first argument. They are not global `sf2` functions.
 The examples below run **inside a callback**. A fighter reference must not be
 saved and used after that callback returns. Missing capability declarations,
 expired references, invalid values, or an unavailable fighter raise Lua errors.
-Mutation methods return `nil` on success. Observation methods return detached data.
+Most mutation methods return `nil` on success; exceptions are documented below.
+Observation methods return detached data.
 
 ## fighter:snapshot
 
@@ -309,6 +310,93 @@ behavior identity; this does not remove arbitrary native effects.
 ```lua
 fighter:remove_damage_shield("opening_ward")
 ```
+
+## fighter:set_flag
+
+Create a native combat flag owned by this behavior instance.
+
+**Signature:** `fighter:set_flag(key)`
+
+**Requires:** `combat.effects`.
+
+**When:** A supported callback during an active round, with a currently registered
+fighter. The method expires when the callback returns.
+
+**Returns:** The qualified native flag name as a string. Setting an existing key
+does nothing and returns the same name. Invalid input or unavailable support raises
+a Lua error.
+
+`key` is 1–64 ASCII letters, digits or underscores. The native name is
+`<qualified behavior ID>:<key>` and must fit within 128 characters in total.
+For behavior `example.spell:behaviors/cast`, key `pending` becomes
+`example.spell:behaviors/cast:pending`.
+
+```lua
+on_animation_start = function(parameters, fighter, event)
+    if event.target == "self"
+        and event.animation_name == sf2.mod.id .. ":moves/cast" then
+        fighter:set_flag("pending")
+    end
+end,
+```
+
+Flags have no timer. Clear them explicitly or let native round/fight cleanup
+remove them; they are not saved in the profile. They participate in native
+modifier lists, `mod_exists` conditions, expiry notifications and fighter form
+transfers. There are at most 64 flag-owning instances per fighter registration
+and 64 active flags per instance; exceeding either limit raises an error.
+
+Ownership includes both behavior identity and equipped/rule instance. One instance
+cannot clear another instance's flags, even if both use the same key. Native move
+conditions see the qualified name, so they match any active instance using that
+name. This method cannot create or overwrite a core flag such as `Stun`.
+
+## fighter:has_flag
+
+Check this behavior instance's flag without changing it.
+
+**Signature:** `fighter:has_flag(key)`
+
+**Requires:** `combat.effects`.
+
+**When:** A supported callback during an active round with a registered fighter.
+
+**Returns:** `true` if this instance owns the flag, otherwise `false`. Invalid
+keys, expired callback references or unavailable support raise a Lua error.
+
+```lua
+if fighter:has_flag("pending") then
+    sf2.log.info("This cast still owns its pending flag")
+end
+```
+
+The key and length rules are the same as `set_flag`. This does not query arbitrary
+native modifiers or another instance's state.
+
+## fighter:clear_flag
+
+Remove this behavior instance's flag through native modifier expiry handling.
+
+**Signature:** `fighter:clear_flag(key)`
+
+**Requires:** `combat.effects`.
+
+**When:** A supported callback during an active round with a registered fighter.
+
+**Returns:** `nil`. Clearing an absent key succeeds without emitting another
+expiry event. Invalid keys, expired methods or unavailable support raise an error.
+
+```lua
+fighter:clear_flag("pending")
+```
+
+Clearing an existing flag removes it from `mod_exists` observations and emits the
+native `ModExpires` event for its qualified name. A move can listen using
+`events = { { type = "mod_expires", name = "example.spell:behaviors/cast:pending" } }`.
+Normal move conditions, locks and priority still decide whether that move runs.
+Clearing one instance emits its expiry even if another instance retains a flag
+with the same qualified name. For purely Lua bookkeeping with no native move
+interaction, prefer declared behavior state.
 
 ## fighter:show_status_icon
 

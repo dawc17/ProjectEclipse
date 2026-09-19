@@ -3,6 +3,8 @@ using System.Diagnostics;
 
 public class PerkModelStruct
 {
+    // best guess for name
+    internal List<InfoPerk> ActivePerkEffects => HIPOGANEPMI();
 	[DebuggerBrowsable(DebuggerBrowsableState.Never)]
 	private Model JNPEKAFCGNO;
 

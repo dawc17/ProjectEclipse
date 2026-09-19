@@ -60,6 +60,9 @@ const fighterMethods = {
     scale_incoming_damage:{params:{multiplier:'number'},capability:'combat.modify_hit'},
     add_damage_shield:{params:{key:'string',fraction:'number',frames:'integer'},capability:'combat.effects'},
     remove_damage_shield:{params:{key:'string'},capability:'combat.effects'},
+    set_flag:{params:{key:'string'},returns:'string',capability:'combat.effects'},
+    clear_flag:{params:{key:'string'},capability:'combat.effects'},
+    has_flag:{params:{key:'string'},returns:'boolean',capability:'combat.effects'},
     show_status_icon:{params:{key:'string',sprite:H('Sprite'),frames:'integer','stacks?':'integer'},capability:'combat.effects'},
     clear_status_icon:{params:{key:'string'},capability:'combat.effects'},
 };

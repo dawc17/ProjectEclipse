@@ -3080,6 +3080,32 @@ function Fighter:add_damage_shield(key, fraction, frames) end
 ---@param key string
 function Fighter:remove_damage_shield(key) end
 
+---Create a native combat flag owned by this behavior instance.
+---Requires: `combat.effects`.
+---When: A supported callback during an active round, with a currently registered fighter. The method expires when the callback returns.
+---Returns: The qualified native flag name as a string. Setting an existing key does nothing and returns the same name. Invalid input or unavailable support raises a Lua error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterset_flag)
+---@param key string
+---@return string
+function Fighter:set_flag(key) end
+
+---Remove this behavior instance's flag through native modifier expiry handling.
+---Requires: `combat.effects`.
+---When: A supported callback during an active round with a registered fighter.
+---Returns: `nil`. Clearing an absent key succeeds without emitting another expiry event. Invalid keys, expired methods or unavailable support raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterclear_flag)
+---@param key string
+function Fighter:clear_flag(key) end
+
+---Check this behavior instance's flag without changing it.
+---Requires: `combat.effects`.
+---When: A supported callback during an active round with a registered fighter.
+---Returns: `true` if this instance owns the flag, otherwise `false`. Invalid keys, expired callback references or unavailable support raise a Lua error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/fighter/#fighterhas_flag)
+---@param key string
+---@return boolean
+function Fighter:has_flag(key) end
+
 ---Show or refresh a transient status icon owned by this behavior instance.
 ---Requires: `combat.effects`.
 ---When: A supported behavior callback with a live fighter capability.

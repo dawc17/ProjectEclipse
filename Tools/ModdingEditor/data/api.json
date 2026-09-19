@@ -1506,6 +1506,26 @@
       },
       "capability": "combat.effects"
     },
+    "set_flag": {
+      "params": {
+        "key": "string"
+      },
+      "returns": "string",
+      "capability": "combat.effects"
+    },
+    "clear_flag": {
+      "params": {
+        "key": "string"
+      },
+      "capability": "combat.effects"
+    },
+    "has_flag": {
+      "params": {
+        "key": "string"
+      },
+      "returns": "boolean",
+      "capability": "combat.effects"
+    },
     "show_status_icon": {
       "params": {
         "key": "string",

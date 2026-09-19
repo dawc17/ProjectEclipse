@@ -1,6 +1,6 @@
 using System.Xml;
 
-public class PerkActionFlag : PerkActionModificator
+public partial class PerkActionFlag : PerkActionModificator
 {
 	public PerkActionFlag()
 	{

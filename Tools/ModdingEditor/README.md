@@ -1,6 +1,6 @@
 # Eclipse Modding for VS Code
 
-Editor support for all 36 public Eclipse API modules: 155 functions, aliases, and
+Editor support for all 36 public Eclipse API modules: 158 functions, aliases, and
 callbacks; 76 constants; and 227 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
@@ -394,3 +394,7 @@ Behavior definitions include `on_animation_start` and `on_animation_end` with
 typed `animation_name`, `target` (`self`, `opponent`, `other`) and `frame` fields.
 These observe native combat notifications; `other` includes projectiles and does
 not imply projectile ownership. See the combat callback wiki for timing and limits.
+
+Fighter completion includes `set_flag(key)`, `has_flag(key)` and `clear_flag(key)`.
+These require `combat.effects` and address only the current behavior instance.
+`set_flag` returns the qualified native name, and `has_flag` returns a boolean.

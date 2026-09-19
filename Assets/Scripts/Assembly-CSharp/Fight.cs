@@ -350,7 +350,7 @@ public class Fight
 		public int OGOLNFLBLBD;
 	}
 
-		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource
+		private sealed class EclipseFighterOperations : IModFighterOperations, IModDamageEventSource, IModFighterTargets, IModIncomingHitSource, IModFighterEffects, IModCombatSnapshotSource, IModCombatActivitySource, IModFighterForms, IModFighterStatusIcons, IModAnimationLifecycleSource, IModFighterFlags
 	{
 		private readonly Fight _fight;
 		private readonly Model _model;
@@ -360,6 +360,29 @@ public class Fight
             { error = "Fighter is unavailable."; return false; }
             return _fight.TryQueueCharacterForm(_model, character,
                 failure => complete(failure == null, failure?.Message ?? string.Empty), out error);
+        }
+
+        private InfoPerk FlagContainer(object owner, string behavior, bool create)
+        {
+            if (_fight == null || _model == null || !_fight.round.processing || _fight._eclipseFightEndDispatched ||
+                (_model != _fight._playerModel && _model != _fight.CKNCPOABFBO))
+                throw new InvalidOperationException("Flags require an active fighter and round.");
+            return _fight.EPBDEDGLHJE.GetScriptFlagContainer(_model, owner, behavior, create);
+        }
+        public bool TrySetFlag(object owner, string behavior, string name, out string error)
+        {
+            try { FlagContainer(owner, behavior, true).SetScriptFlag(_model, name); error = string.Empty; return true; }
+            catch (Exception exception) { error = exception.Message; return false; }
+        }
+        public bool TryClearFlag(object owner, string behavior, string name, out string error)
+        {
+            try { FlagContainer(owner, behavior, false)?.ClearScriptFlag(name); error = string.Empty; return true; }
+            catch (Exception exception) { error = exception.Message; return false; }
+        }
+        public bool TryHasFlag(object owner, string behavior, string name, out bool exists, out string error)
+        {
+            try { exists = FlagContainer(owner, behavior, false)?.HasScriptFlag(name) ?? false; error = string.Empty; return true; }
+            catch (Exception exception) { exists = false; error = exception.Message; return false; }
         }
 
 		public ModDamageEvent DamageEvent { get; }

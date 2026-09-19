@@ -22,6 +22,9 @@ public static class ValidateDE128CombatNative
     static Model sphere;
     static bool spellRequested, spellSelected, spellReleased, sphereMiddle, sphereDeleted, chargeConsumed;
     static int spellFrame, sphereCount;
+    const string FlagName = "fixture.de128-combat:behaviors/animation_lifecycle:cast";
+    static int flagExpiries;
+    static bool flagSetChecked, flagClearChecked;
     static readonly HashSet<string> Lifecycle = new HashSet<string>();
     static readonly string Spell = Environment.GetEnvironmentVariable("ECLIPSE_DE128_TEST_SPELL") ?? "Sphere1";
     static string SpellPrefix => "de128:moves/" + (Spell == "ComboSphere3" ? "combo_sphere3" : Spell.ToLowerInvariant());
@@ -95,6 +98,9 @@ public static class ValidateDE128CombatNative
                 var weapon = enemy.Parameters.DGMDEDKLGMB().FirstOrDefault(item => item.Type == "Weapon");
                 if (weapon == null || weapon.Name != "WEAPON_CHNY21_JIAN" || weapon.SubType != "ChineseSwords") throw new Exception("Jian runtime equipment/subtype incorrect: " + weapon?.Name + "/" + weapon?.SubType);
                 actor = enemy; attached = true;
+                fight.IEEGPNLEKHH().AddEventListener((int)PerkEvent.KNKIIEPDCPN.EVENT_MOD_EXPIRES, value => {
+                    if ((value?.Data as string) == FlagName) flagExpiries++;
+                });
                 var animation = actor.OCPMJKIEPIG();
                 animation.AddEventListener(0, OnAnimation);
                 animation.AddEventListener(1, OnAnimationEnd);
@@ -167,7 +173,9 @@ public static class ValidateDE128CombatNative
             if (!Lifecycle.Contains("AnimationStart|player|other|" + SpellMiddle) ||
                 !Lifecycle.Contains("AnimationStart|opponent|other|" + SpellMiddle))
                 throw new Exception("Missing Lua projectile lifecycle callback.");
-            Debug.Log("[DE128Native] PASS: real Lua animation start/end, caster perspectives and projectile notifications.");
+            if (!flagSetChecked || !flagClearChecked || flagExpiries != 1)
+                throw new Exception("Lua/native flag handoff incomplete: set=" + flagSetChecked + " clear=" + flagClearChecked + " expiries=" + flagExpiries);
+            Debug.Log("[DE128Native] PASS: real Lua animation start/end, caster perspectives, projectile notifications and native ModExists/ModExpires flag handoff.");
             Finish(0);
         }
     }
@@ -418,6 +426,34 @@ public static class ValidateDE128CombatNative
     }
     static void Capture(string message, string stack, LogType type)
     {
+        if (message.Contains("[DE128Flag]"))
+        {
+            try
+            {
+                var stage = Fight.GetCurrentFight().IEEGPNLEKHH();
+                var state = new ModelConditions();
+                stage.AINGCNFDFMM(actor, state.LPGJIICFIKF);
+                var doc = new System.Xml.XmlDocument();
+                doc.LoadXml("<ModExists Player='Me' Name='" + FlagName + "'/>");
+                var condition = new ConditionModExists(doc.DocumentElement);
+                condition.Parse(doc.DocumentElement);
+                bool exists = condition.IsEqual(state);
+                if (message.Contains("set|"))
+                {
+                    if (!exists || state.LPGJIICFIKF.Count(value => value.DDBPICENEJE() == FlagName) != 1)
+                        throw new Exception("Lua set_flag did not create exactly one native flag.");
+                    flagSetChecked = true;
+                }
+                else
+                {
+                    stage.KCEBAJBMJGF(actor, state.FPFKABHOEHP);
+                    if (exists || flagExpiries != 1 || state.FPFKABHOEHP.Count(value => value.DDBPICENEJE() == FlagName) != 1)
+                        throw new Exception("Lua clear_flag did not record exactly one native expiry.");
+                    flagClearChecked = true;
+                }
+            }
+            catch (Exception exception) { failure = exception.ToString(); }
+        }
         int lifecycle = message.IndexOf("[DE128Lifecycle] ", StringComparison.Ordinal);
         if (lifecycle >= 0)
         {

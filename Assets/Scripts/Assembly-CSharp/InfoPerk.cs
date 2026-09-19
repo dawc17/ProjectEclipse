@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using CodeStage.AntiCheat.ObscuredTypes;
 
-public class InfoPerk
+public partial class InfoPerk
 {
 	public enum HDDACJNDLEE
 	{

@@ -1777,3 +1777,40 @@ The native ModFlag/ModExpires handoff still needs an owner-scoped fighter
 capability before MindThrow's innate Lua behavior and full spell can ship.
 Package version remains 0.17.0. Corpus acquisition/reconciliation remains deferred
 at the owner's request; production continues against historical repository data.
+
+## Step 30 - instance-owned native combat flags
+
+Added `fighter:set_flag`, `fighter:has_flag` and `fighter:clear_flag` behind
+`combat.effects`. The typed C# bridge creates native modifier containers owned
+by the behavior and its equipped/rule instance. Lua decides when to set/clear;
+the recovered modifier path maintains ModExists observations, removal history,
+ModExpires notification, round reset and form-transfer behavior. No mod XML,
+native-trigger DSL or DE-specific engine policy was introduced.
+
+Repeated sets are idempotent. Clearing an absent key emits no expiry. Qualified
+names preserve behavior identity and fit native move selectors; one instance
+cannot remove another's flags. Operations expire at callback return and require
+an active registered fighter. Limits are 64 owners per fighter registration and
+64 active flags per owner. Flags are combat state, not profile state. Documentation
+and editor contracts explain names, limits, returns and selector behavior.
+
+Verification:
+- 268 battle-rule checks pass through current MoonSharp bindings, including
+  flag instance isolation, repeated calls, malformed keys, capability denial and
+  expired references. All 2,590 actual-package foundation checks pass.
+- 160 existing production flag/variable lifetime and form-transfer checks pass.
+  These exercise native modifier copying, reset/expiry, namespace tracking and
+  transfer; they are controlled fixtures, not a new transformed-fighter playtest.
+- Isolated Unity run `Run-5bgiel3n` exited 0: real Lua created exactly one native
+  flag, ModExists observed it, clearing removed it and emitted/recorded exactly
+  one ModExpires event. A repeated clear emitted none. Jian, Sphere1 and animation
+  lifecycle acceptance remained green. The preceding failed run exposed a missing
+  Parse call in the test's native condition probe; the corrected probe passed.
+- Managed editor compilation passed. Editor generation/check, 36 tests, LuaLS
+  and real VS Code integration passed (158 functions/aliases/callbacks, 76 constants,
+  227 structures). Wiki build passed 47 pages and 4,075 links/assets, with the
+  existing duplicate-404 warning. Whitespace checks passed.
+
+MindThrow's six move definitions, innate Lua perk, item and full native spell
+acceptance are still to be integrated. This step verifies the flag bridge, not
+MindThrow damage or follow-up selection. Package version remains 0.17.0.

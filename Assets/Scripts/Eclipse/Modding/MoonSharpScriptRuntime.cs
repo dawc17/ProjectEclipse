@@ -234,6 +234,38 @@ namespace Eclipse.Modding
                             fighterTable.Set("opponent", DynValue.NewTable(targetTable));
                         }
                     }
+                    if (fighter is IModFighterFlags flags)
+                    {
+                        string FlagName(CallbackArguments args, string function)
+                        {
+                            if (!invocationActive) throw new ScriptRuntimeException("Flag operations have expired.");
+                            _api.RequireCapability("combat.effects");
+                            int offset = args[0].Type == DataType.Table && args[0].Table == fighterTable ? 1 : 0;
+                            string key = args.AsType(offset, function, DataType.String, false).String;
+                            ModParameterDefinition.ValidateName(key);
+                            string name = behaviorId.ToString() + ":" + key;
+                            if (name.Length > 128) throw new ScriptRuntimeException("Qualified flag names must not exceed 128 characters.");
+                            return name;
+                        }
+                        fighterTable.Set("set_flag", DynValue.NewCallback((ctx, args) =>
+                        {
+                            string name = FlagName(args, "set_flag");
+                            if (!flags.TrySetFlag(behaviorId, behaviorId.ToString(), name, out var failure)) throw new ScriptRuntimeException(failure);
+                            return DynValue.NewString(name);
+                        }));
+                        fighterTable.Set("clear_flag", DynValue.NewCallback((ctx, args) =>
+                        {
+                            string name = FlagName(args, "clear_flag");
+                            if (!flags.TryClearFlag(behaviorId, behaviorId.ToString(), name, out var failure)) throw new ScriptRuntimeException(failure);
+                            return DynValue.Nil;
+                        }));
+                        fighterTable.Set("has_flag", DynValue.NewCallback((ctx, args) =>
+                        {
+                            string name = FlagName(args, "has_flag");
+                            if (!flags.TryHasFlag(behaviorId, behaviorId.ToString(), name, out var exists, out var failure)) throw new ScriptRuntimeException(failure);
+                            return DynValue.NewBoolean(exists);
+                        }));
+                    }
                     if (fighter is IModFighterForms forms)
                     {
                         fighterTable.Set("change_form", DynValue.NewCallback((ctx, args) =>
