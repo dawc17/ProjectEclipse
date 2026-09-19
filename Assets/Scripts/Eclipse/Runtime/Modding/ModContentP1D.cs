@@ -446,11 +446,12 @@ namespace Eclipse.Modding
         public string DamageType { get; }
         public IReadOnlyList<ModMoveDamageTerm> DamageTerms { get; }
         public string Hit { get; }
+        public DefinitionId? HitMove { get; }
         public double X { get; }
         public double Y { get; }
         public double Z { get; }
-        public ModMoveAttack(string[] edges, double damage, string damageType=null, string hit="High", int id=0, double x=0,double y=0,double z=0,
-            ModMoveDamageTerm[] damageTerms = null, ModMoveAttackOptions options = null, bool direct = false)
+        public ModMoveAttack(string[] edges, double damage, string damageType=null, string hit=null, int id=0, double x=0,double y=0,double z=0,
+            ModMoveDamageTerm[] damageTerms = null, ModMoveAttackOptions options = null, bool direct = false, DefinitionId? hitMove = null)
         {
             if (edges==null || (direct ? edges.Length != 0 : edges.Length<1 || edges.Length>64) || id<0 || id>999 || double.IsNaN(damage) || double.IsInfinity(damage) || damage<0 || damage>16)
                 throw new ModContentException("Attack needs 1..64 edges or direct=true with no edges, damage 0..16 and id 0..999.");
@@ -463,7 +464,10 @@ namespace Eclipse.Modding
             foreach (var term in terms)
                 if (term == null || !types.Add(term.Type)) throw new ModContentException("Duplicate/null damage term.");
             DamageTerms = Array.AsReadOnly(terms);
-            if (Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction"},hit)<0)
+            if (hitMove.HasValue && (hit != null || hitMove.Value.Category != "moves"))
+                throw new ModContentException("Attack accepts hit or a moves-category hit_move, not both.");
+            HitMove = hitMove; hit = hit ?? (hitMove.HasValue ? string.Empty : "High");
+            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction"},hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
             Direct = direct; Options = options ?? new ModMoveAttackOptions();
@@ -568,6 +572,12 @@ namespace Eclipse.Modding
     {
         public ModMovePoint From { get; }
         public ModMovePoint To { get; }
+        public bool UsesImpulse { get; }
+        public bool ReverseImpulse { get; }
+        public ModMoveDirection(bool reverseImpulse)
+        {
+            UsesImpulse = true; ReverseImpulse = reverseImpulse;
+        }
         public ModMoveDirection(ModMovePoint from,ModMovePoint to)
         {
             if(from==null||to==null) throw new ModContentException("Direction requires from and to points.");
@@ -1230,6 +1240,14 @@ namespace Eclipse.Modding
                 if (!CanReferenceNamespace(id.Namespace) ||
                     (!_p1dMoves.ContainsKey(id) && !_catalog.TryGetMove(id, out MoveDefinition ignored)))
                     throw new ModContentException("Projectile references missing or inaccessible start_move: " + id);
+            }
+            foreach (var interval in node.Intervals)
+            {
+                if (interval.Attack?.HitMove == null) continue;
+                var id = interval.Attack.HitMove.Value;
+                if (!CanReferenceNamespace(id.Namespace) ||
+                    (!_p1dMoves.ContainsKey(id) && !_catalog.TryGetMove(id, out MoveDefinition ignored)))
+                    throw new ModContentException("Attack references missing or inaccessible hit_move: " + id);
             }
             ValidateMovePerkRefs(node.Conditions);
             ValidateMovePerkRefs(node.Graph.Locks);

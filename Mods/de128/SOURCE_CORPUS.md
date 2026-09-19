@@ -28,6 +28,10 @@ Keep the original archive permanently with its SHA-256 and inventory after a
 successful download. Extract into a separate directory under this storage root;
 do not bulk-copy the corpus into Unity's `Assets` or overwrite existing GUIDs.
 
+The owner subsequently requested continuing production from the available repository
+data while deferring this download. Historical XML may be used for continued work,
+but reconciliation against the designated corpus remains required when accessible.
+
 ## Reconciliation requirements
 
 - Treat `Assets/DExml` and earlier production comparisons as historical evidence,

@@ -176,11 +176,12 @@ type('MoveModCondition',{type:'"mod_exists"',name:'string','player?':enumOf('Me'
 type('MoveDamageTerm',{type:enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'shift?':'number'});
 type('MoveImpulse',{'x?':'number','y?':'number','z?':'number'});
 type('MoveAttackOptions',{'no_effect?':'boolean','no_critical?':'boolean','ignores_block?':'boolean','body_part?':enumOf('Body','Head'),'defense_types?':'('+enumOf('BodyDefense','HeadDefense')+')[]','ignores_invulnerable?':'string[]'});
-type('MoveAttack',{'edges?':'string[]','direct?':'boolean','damage?':'number','damage_type?':enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'damage_terms?':E('MoveDamageTerm')+'[]','hit?':enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal','HighLong','NoReaction'),'id?':'integer','impulse?':E('MoveImpulse'),'options?':E('MoveAttackOptions')});
+type('MoveAttack',{'edges?':'string[]','direct?':'boolean','hit_move?':H('Move'),'damage?':'number','damage_type?':enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'damage_terms?':E('MoveDamageTerm')+'[]','hit?':enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal','HighLong','NoReaction'),'id?':'integer','impulse?':E('MoveImpulse'),'options?':E('MoveAttackOptions')});
 type('MoveInterval',{'type?':'string','name?':'string','start?':'integer','end?':'integer','attack?':E('MoveAttack')});
 type('MovePoint',{object:enumOf('Nodes','Pivot','Wall','Animation','Floor','COM'),'player?':enumOf('Me','Enemy','Parent','Child','EnemyChild'),'part?':'string','shift_x?':'number','shift_y?':'number'});
 type('MoveAlignment',{axes:'('+enumOf('X','Y','Z')+')[]',pivot:E('MovePoint'),position:E('MovePoint')});
-type('MoveDirection',{from:E('MovePoint'),to:E('MovePoint')});
+type('MoveImpulseDirection',{'reverse?':'boolean'});
+type('MoveDirection',{'from?':E('MovePoint'),'to?':E('MovePoint'),'impulse?':E('MoveImpulseDirection')});
 type('MoveTransition',{conditions:`(${moveCondition})[]`,'frame_shift?':'integer','first_frame?':'integer'});
 const move={id:'string','templates?':H('MoveTemplate')+'[]','core_templates?':'string[]','events?':`(${moveEvent}|${E('MoveEvent')})[]`,'conditions?':`(${moveCondition})[]`,'intervals?':E('MoveInterval')+'[]','locks?':`(${moveCondition})[]`,'align?':E('MoveAlignment'),'direction?':E('MoveDirection'),...Object.fromEntries(['type','mirror_node','tactic_equivalent','tactic_weapon'].map(k=>[k+'?','string'])),...Object.fromEntries(['priority','mid_frames','first_frame','end_frame'].map(k=>[k+'?','integer'])),'looped?':'boolean','ends_stage?':'boolean'};
 type('MoveEffect',{name:'string',core_sequence:'string','scale?':'number','time_scale?':'number','looped?':'boolean','position?':E('MovePoint'),'follow?':'boolean'});

@@ -111,6 +111,7 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
 | `damage_terms` | Optional array of 1–4 `{ type, shift = 0 }` tables. `type` uses the same four attribute names, each at most once. `shift` must be finite in −1,000…1,000. |
 | `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, or `NoReaction`. |
+| `hit_move` | Optional move handle selecting an authored hit reaction. Mutually exclusive with `hit`. The referenced move must exist and be accessible when registration commits. |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
 
@@ -169,6 +170,33 @@ sf2.moves.register_template {
 This registers a reusable template, not a complete selectable move. Attach it to a compatible animation and rig through `sf2.moves.register`. Extended reaction names select native hit reactions; they do not supply new reaction animations. All terms, shifts and repeated key entries participate in content fingerprints. Existing single-attribute definitions retain their previous fingerprint and native projection; an explicit one-term zero-shift list is equivalent to `damage_type`.
 
 See [Character authoring](../../guides/character-authoring/) for a complete exported character module and input/attack example. The registration API validates structure and bounds; verify edge names, contact timing, mirroring and damage in a fight.
+
+### Authored hit reactions
+
+Use a move handle in `attack.hit_move` to select a reaction you registered, rather
+than adding a mod-specific name to the engine's `hit` list. Define the victim's
+move before the attack. Give that move a `hit` event whose `name` is its complete
+namespaced ID. Normal victim locks, conditions and priorities still apply: the
+reference does not force an ineligible animation. References to missing moves or
+inaccessible dependencies reject the entire registration transaction.
+
+```lua
+local reaction = sf2.moves.register {
+    id = "recoil", animation = sf2.assets.binary("animations/recoil"),
+    core_templates = { "Recoil", "Hit" },
+    events = {{ type = "hit", name = sf2.mod.id .. ":moves/recoil" }},
+    direction = { impulse = { reverse = true } },
+}
+local strike = sf2.moves.register {
+    id = "strike", animation = sf2.assets.binary("animations/strike"),
+    intervals = {{ type = "Attack", start = 10, ["end"] = 12,
+        attack = { edges = { "Weapon-Edge1" }, damage = 0.3, hit_move = reaction } }},
+}
+```
+
+Supply compatible animation binaries and rig edges, plus the input conditions,
+locks and other move fields your combat design requires. This fragment only
+shows the reaction link; it is not a complete playable weapon.
 
 ### Scheduled actions and move presentation
 
@@ -393,7 +421,7 @@ direction = {
 Point tables have required `object`, optional `player` and `part`, and optional finite `shift_x`/`shift_y` offsets in −100,000…100,000 (default 0). `Nodes` requires an exact nonempty part name of at most 128 characters. Supported players are `Me`, `Enemy`, `Parent`, `Child`, and `EnemyChild`; availability of those model relationships is a separate runtime requirement.
 
 - `align` requires 1–3 unique `axes` (`X`, `Y`, `Z`) plus `pivot` and `position` points. Alignment supports `Nodes`, `Pivot`, `Animation`, and `Wall` objects; omitted players default to `Me` in the native parser. Only the **position** may have nonzero offsets; pivot offsets and `shift_z` are rejected because the recovered parser does not apply them.
-- `direction` requires `from` and `to` points with explicit players. These support `Nodes`, `Pivot`, `Wall`, `Floor`, and `COM` objects. `Animation` is not a native direction point and is rejected. Direction uses the existing native facing calculation; it does not move the character.
+- `direction` accepts either `from` and `to` points with explicit players, or `impulse = { reverse = false }`. The two forms are mutually exclusive. Impulse mode uses the native incoming-impulse facing calculation; `reverse` is a boolean and defaults to false. With true it faces against the incoming impulse. No impulse is applied. Point-based directions require both points. These support `Nodes`, `Pivot`, `Wall`, `Floor`, and `COM` objects. `Animation` is not a native direction point and is rejected. Direction uses the existing native facing calculation; it does not move the character.
 
 Names and points are not asset lookups at registration. A valid declaration can still reference an absent rig node. Test contact, mirroring, position and transitions in a fight. Graph fields are fingerprinted; omitted/empty graph fields retain existing fingerprints. Lists are copied at registration, so later Lua table edits do not mutate registered content.
 

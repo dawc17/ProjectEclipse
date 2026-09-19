@@ -382,3 +382,8 @@ Move completion includes explicit `attack.direct`, `NoReaction`, voice-filtered
 `sound` actions and `shake_screen` payloads. Direct attacks require no edges;
 normal attacks still require 1–64. See the move reference for camera bounds and
 native frame timing. These fields expose native behavior, not arbitrary Lua execution.
+
+`attack.hit_move` accepts a registered Move handle (exclusive with `hit`).
+`direction.impulse.reverse` completes as a boolean, default false, and cannot be
+combined with `from`/`to`. These use native hit selection and facing; they do not
+force an animation past its conditions or apply an impulse.

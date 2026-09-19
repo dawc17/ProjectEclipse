@@ -236,7 +236,11 @@ namespace Eclipse.Modding
             if(definition.Graph.Direction!=null)
             {
                 var direction=definition.Graph.Direction;var entry=document.CreateElement("SetDirection");node.AppendChild(entry);
-                entry.AppendChild(BuildMovePoint(document,"From",direction.From));entry.AppendChild(BuildMovePoint(document,"To",direction.To));
+                if (direction.UsesImpulse)
+                {
+                    var impulse=document.CreateElement("Impulse"); Set(impulse,"Reverse",direction.ReverseImpulse ? "1" : "0"); entry.AppendChild(impulse);
+                }
+                else { entry.AppendChild(BuildMovePoint(document,"From",direction.From));entry.AppendChild(BuildMovePoint(document,"To",direction.To)); }
             }
             if (definition.Intervals.Count != 0)
             {
@@ -280,7 +284,7 @@ namespace Eclipse.Modding
                         }
                         var impulse=document.CreateElement("Impulse"); item.AppendChild(impulse);
                         Set(impulse,"X",attack.X.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Y",attack.Y.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Z",attack.Z.ToString("R",CultureInfo.InvariantCulture));
-                        var hit=document.CreateElement("Hit"); Set(hit,"Name",attack.Hit); item.AppendChild(hit);
+                        var hit=document.CreateElement("Hit"); Set(hit,"Name",attack.HitMove?.ToString() ?? attack.Hit); item.AppendChild(hit);
                     }
                     intervals.AppendChild(item);
                 }

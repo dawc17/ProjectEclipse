@@ -1203,6 +1203,7 @@ local MoveAttackOptions = {}
 ---@class (exact) Eclipse.MoveAttack
 ---@field edges? string[]
 ---@field direct? boolean
+---@field hit_move? Eclipse.MoveHandle
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
 ---@field damage_terms? Eclipse.MoveDamageTerm[]
@@ -1234,9 +1235,14 @@ local MovePoint = {}
 ---@field position Eclipse.MovePoint
 local MoveAlignment = {}
 
+---@class (exact) Eclipse.MoveImpulseDirection
+---@field reverse? boolean
+local MoveImpulseDirection = {}
+
 ---@class (exact) Eclipse.MoveDirection
----@field from Eclipse.MovePoint
----@field to Eclipse.MovePoint
+---@field from? Eclipse.MovePoint
+---@field to? Eclipse.MovePoint
+---@field impulse? Eclipse.MoveImpulseDirection
 local MoveDirection = {}
 
 ---@class (exact) Eclipse.MoveTransition

@@ -1033,6 +1033,7 @@ namespace Eclipse.Modding
                     {
                         var attack=interval.Attack;
                         if (attack.Direct) Append(canonical,"move-direct-attack-v1");
+                        if (attack.HitMove.HasValue) { Append(canonical,"move-hit-reference-v1"); Append(canonical,attack.HitMove.Value.ToString()); }
                         AppendStrings(canonical,attack.Edges); Append(canonical,attack.Id);
                         Append(canonical,attack.Damage.ToString("R",CultureInfo.InvariantCulture)); Append(canonical,attack.DamageType); Append(canonical,attack.Hit);
                         foreach(var impulse in new[]{attack.X,attack.Y,attack.Z}) Append(canonical,impulse.ToString("R",CultureInfo.InvariantCulture));
@@ -1071,7 +1072,12 @@ namespace Eclipse.Modding
                     AppendStrings(canonical,node.Graph.Align.Axes);AppendMovePoint(canonical,node.Graph.Align.Pivot);AppendMovePoint(canonical,node.Graph.Align.Position);
                 }
                 Append(canonical,node.Graph.Direction!=null);
-                if(node.Graph.Direction!=null) { AppendMovePoint(canonical,node.Graph.Direction.From);AppendMovePoint(canonical,node.Graph.Direction.To); }
+                if(node.Graph.Direction!=null)
+                {
+                    var direction=node.Graph.Direction;
+                    if(direction.UsesImpulse) { Append(canonical,"move-impulse-direction-v1");Append(canonical,direction.ReverseImpulse); }
+                    else { AppendMovePoint(canonical,direction.From);AppendMovePoint(canonical,direction.To); }
+                }
             }
         }
 

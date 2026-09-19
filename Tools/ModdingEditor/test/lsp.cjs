@@ -506,6 +506,10 @@ async function main() {
         const point=probe('move-'+kind+'.lua',`local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="${kind}",frame=1,${field}={ | }}} }`);
         await until(async()=>{ const found=labels(await request('textDocument/completion',point)); return expected.every(name=>found.some(value=>value.startsWith(name))); },kind+' nested fields');
     }
+    const hitMoveProbe=probe('owned-hit.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="attack",intervals={{type="Attack",attack={ | }}} }');
+    await until(async()=>labels(await request('textDocument/completion',hitMoveProbe)).some(value=>value.startsWith('hit_move')),'owned hit move field');
+    const impulseDirectionProbe=probe('impulse-direction.lua','local sf2=require("sf2")\nsf2.moves.register { id="reaction",animation=sf2.assets.binary("animations/test"),direction={impulse={ | }} }');
+    await until(async()=>labels(await request('textDocument/completion',impulseDirectionProbe)).some(value=>value.startsWith('reverse')),'impulse direction reverse field');
     const distanceConditionProbe=probe('spell-distance.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ type="distance", | }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',distanceConditionProbe));

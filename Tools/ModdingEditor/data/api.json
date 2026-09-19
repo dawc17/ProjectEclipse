@@ -2971,6 +2971,7 @@
       "fields": {
         "edges?": "string[]",
         "direct?": "boolean",
+        "hit_move?": "Eclipse.MoveHandle",
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
         "damage_terms?": "Eclipse.MoveDamageTerm[]",
@@ -3005,10 +3006,16 @@
         "position": "Eclipse.MovePoint"
       }
     },
+    "MoveImpulseDirection": {
+      "fields": {
+        "reverse?": "boolean"
+      }
+    },
     "MoveDirection": {
       "fields": {
-        "from": "Eclipse.MovePoint",
-        "to": "Eclipse.MovePoint"
+        "from?": "Eclipse.MovePoint",
+        "to?": "Eclipse.MovePoint",
+        "impulse?": "Eclipse.MoveImpulseDirection"
       }
     },
     "MoveTransition": {

@@ -419,8 +419,20 @@ namespace Eclipse.Modding
                 if(!table.Get("direction").IsNil())
                 {
                     var value=table.Get("direction");if(value.Type!=DataType.Table) throw new ModContentException("Direction requires a table.");
-                    var entry=value.Table;ValidateFields(entry,function+".direction","from","to");
-                    direction=new ModMoveDirection(ReadMovePoint(entry.Get("from"),function+".direction.from"),ReadMovePoint(entry.Get("to"),function+".direction.to"));
+                    var entry=value.Table;
+                    if (!entry.Get("impulse").IsNil())
+                    {
+                        ValidateFields(entry,function+".direction","impulse");
+                        if (entry.Get("impulse").Type != DataType.Table) throw new ModContentException("Direction impulse requires a table.");
+                        var impulse=entry.Get("impulse").Table;
+                        ValidateFields(impulse,function+".direction.impulse","reverse");
+                        direction=new ModMoveDirection(OptionalBool(impulse,"reverse",false,function));
+                    }
+                    else
+                    {
+                        ValidateFields(entry,function+".direction","from","to");
+                        direction=new ModMoveDirection(ReadMovePoint(entry.Get("from"),function+".direction.from"),ReadMovePoint(entry.Get("to"),function+".direction.to"));
+                    }
                 }
                 return new ModMoveGraph(ReadMoveConditions(table.Get("locks"),function+".locks"),transitions.ToArray(),align,direction,ReadMovePresentation(table,function));
             }
@@ -687,7 +699,7 @@ namespace Eclipse.Modding
                 if(value.IsNil()) return null;
                 if(value.Type!=DataType.Table) throw new ModContentException(function+" must be a table.");
                 var table=value.Table;
-                ValidateFields(table,function,"direct","edges","damage","damage_type","damage_terms","hit","id","impulse","options");
+                ValidateFields(table,function,"direct","edges","damage","damage_type","damage_terms","hit","hit_move","id","impulse","options");
                 ModMoveDamageTerm[] terms = null;
                 if (!table.Get("damage_terms").IsNil())
                 {
@@ -724,7 +736,8 @@ namespace Eclipse.Modding
                 }
                 return new ModMoveAttack(OptionalStringArray(table,"edges",function),UiNumber(table,"damage"),
                     table.Get("damage_type").IsNil() ? null : RequiredString(table,"damage_type",function),
-                    OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z,terms,options,OptionalBool(table,"direct",false,function));
+                    table.Get("hit").IsNil() ? null : RequiredString(table,"hit",function),OptionalInt(table,"id",0,function),x,y,z,terms,options,OptionalBool(table,"direct",false,function),
+                    table.Get("hit_move").IsNil() ? (DefinitionId?)null : RequiredHandle(table,"hit_move",_moveHandles,"move",function));
             }
 
             private ModMoveAction[] ReadMoveActions(DynValue value, string function)

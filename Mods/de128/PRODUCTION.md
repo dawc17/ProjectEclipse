@@ -1713,3 +1713,33 @@ returned 2,009-byte Quota exceeded HTML without a 7z signature. No new DE conten
 or parity assertion was made from the historical source. An accessible archive or
 local path remains necessary for the owner's reconciliation and asset-expansion
 request. Source instructions and the audit command are in SOURCE_CORPUS.md.
+
+## Step 28 - owned hit reactions and impulse facing
+
+The owner deferred corpus acquisition and authorized continued work with the
+historical repository data. Reconciliation with the complete archive remains
+pending; no newly available assets are assumed.
+
+Added generic C# runtime support for `attack.hit_move`, a typed Move handle,
+and `direction = { impulse = { reverse = true } }`. Owned reactions preserve
+namespaced move identity through native attack and hit-event parsing. Commit
+validation rejects missing/inaccessible targets atomically. Core `hit` and
+`hit_move` are mutually exclusive, as are point-based and impulse-based facing.
+Both additions participate in save fingerprints without changing the encoding
+of existing definitions. Lua definitions, editor completion and the public wiki
+describe the implemented contracts.
+
+Verification: 1,074 combined reaction checks passed, including native impulse
+direction for negative/zero/positive impulses, archive comparison, malformed
+payloads, fingerprints and transaction rollback. All 2,590 package foundation
+checks passed. Managed editor compilation passed with existing warnings.
+Editor generation/check, 36 tests, LuaLS and real VS Code integration passed
+(153 functions, 76 constants, 226 structures). Wiki build passed: 47 pages and
+4,055 links/assets, with the existing duplicate-404 warning. Whitespace checks
+passed. No Unity playtest or visible victim-animation acceptance was performed.
+
+MindThrow also depends on its intrinsic perk's animation-event/ModFlag handoff,
+in addition to five spell moves and the owned victim reaction. That procedural
+handoff still needs generic runtime capabilities and Lua implementation before
+the full spell can be registered faithfully. Package version remains 0.17.0;
+this step does not claim complete MindThrow or DE parity.
