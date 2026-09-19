@@ -676,6 +676,12 @@ namespace Eclipse.Modding
             for (int i = 0; i < rewards.Count; i++)
             {
                 RewardDefinition reward = rewards[i]; Append(canonical, reward.Id.ToString()); Append(canonical, reward.Gems);
+                if (reward.Experience != 0 || reward.PrizeBase.HasValue)
+                {
+                    Append(canonical, "reward-economy-v1"); Append(canonical, reward.Experience);
+                    Append(canonical, reward.PrizeBase.HasValue);
+                    if (reward.PrizeBase.HasValue) Append(canonical, reward.PrizeBase.Value);
+                }
                 Append(canonical, reward.Items.Count);
                 for (int j = 0; j < reward.Items.Count; j++) AppendRewardGrant(canonical, reward.Items[j]);
                 Append(canonical, reward.Choices.Count);

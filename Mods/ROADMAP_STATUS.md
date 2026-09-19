@@ -234,3 +234,11 @@ instances, inheritance and isolation. The DE entrypoint remains 0.18.0 without
 Sensei's Story: referenced Guard_Girl/Guard_Man templates are absent from available
 XML, and story gates/rewards/presentation/encounter acceptance remain open.
 The deferred complete corpus must still be reconciled. See de128/PRODUCTION.md.
+
+Step 33 closes the reward representation gap with generic experience and native
+performance-base fields. Pending Lua data covers all 57 Sensei reward slots over
+six acts. Historical-source comparison passes both recovered parsing and native
+FightResult calculations at two scales, alongside existing package/engine checks.
+The story remains outside the entrypoint; guard templates, progression, encounter
+assembly and settlement/save/reload acceptance remain open. See Step 33 in
+de128/PRODUCTION.md for evidence and limits.

@@ -591,6 +591,8 @@ local RewardChoice = {}
 ---@field items? Eclipse.ItemGrant[]
 ---@field choices? Eclipse.RewardChoice[]
 ---@field gems? integer
+---@field experience? integer 0..1000000 experience points; default 0.
+---@field prize_base? number Finite 0..1000000 native performance-bonus base; omitted keeps fallback. Not a fixed coin award.
 local RewardDefinition = {}
 
 ---@class (exact) Eclipse.FightDefinition

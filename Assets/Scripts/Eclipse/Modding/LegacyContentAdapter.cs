@@ -998,6 +998,8 @@ namespace Eclipse.Modding
         {
             XmlElement node = document.CreateElement("Reward");
             if (reward.Gems > 0) node.SetAttribute("Bonus", reward.Gems.ToString(CultureInfo.InvariantCulture));
+            if (reward.Experience > 0) node.SetAttribute("Exp", reward.Experience.ToString(CultureInfo.InvariantCulture));
+            if (reward.PrizeBase.HasValue) node.SetAttribute("PrizeBase", reward.PrizeBase.Value.ToString("R", CultureInfo.InvariantCulture));
             int grantIndex = 0;
             for (int i = 0; i < reward.Items.Count; i++)
                 node.AppendChild(BuildRewardItemNode(document, reward, reward.Items[i], null, grantIndex++));

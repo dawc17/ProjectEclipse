@@ -2296,7 +2296,15 @@
         "id": "string",
         "items?": "Eclipse.ItemGrant[]",
         "choices?": "Eclipse.RewardChoice[]",
-        "gems?": "integer"
+        "gems?": "integer",
+        "experience?": [
+          "integer",
+          "0..1000000 experience points; default 0."
+        ],
+        "prize_base?": [
+          "number",
+          "Finite 0..1000000 native performance-bonus base; omitted keeps fallback. Not a fixed coin award."
+        ]
       }
     },
     "FightDefinition": {

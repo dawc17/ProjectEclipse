@@ -84,6 +84,7 @@ public static class ValidateDE128CombatNative
                 CheckRestoredWeapons();
                 CheckRestoredEquipment();
                 CheckWarriorPerkLoadouts();
+                CheckSenseiRewards();
                 var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/" + (Spell == "Sphere1" ? "jian" : Spell.ToLowerInvariant()));
                 if (definition == null) throw new Exception("Fixture fight missing; check mod initialization errors.");
                 var encounter = ListSF.CHMCKGCDGCM(new FightIDS(ModRuntime.Scripts.Content.RuntimeFightId(definition.Id)));
@@ -303,6 +304,52 @@ public static class ValidateDE128CombatNative
         }
         if (checkedPerks != 8) throw new Exception("Expected eight pending young Lynx perk instances, got " + checkedPerks);
         Debug.Log("[DE128Native] PASS eight warrior perk clones: Aspect/ChanceFactor, omitted defaults, explicit zero and instance isolation. Pending story is not activated.");
+    }
+
+    static void CheckSenseiRewards()
+    {
+        var catalog = ModRuntime.Scripts.Content;
+        var adapter = new LegacyContentAdapter(catalog);
+        var archive = new System.Xml.XmlDocument(); archive.Load("Assets/DExml/stages.xml");
+        int count = 0;
+        foreach (System.Xml.XmlElement zone in archive.SelectNodes("/Stages/Zones/Zone"))
+        foreach (System.Xml.XmlElement battle in zone.SelectNodes("Battle[@Name='SENSEI_MEMORIES' or @Name='SENSEI_MEMORIES_ECLIPSEMODE']"))
+        foreach (System.Xml.XmlElement fight in battle.SelectNodes("Fight"))
+        {
+            int wins = 0;
+            foreach (System.Xml.XmlElement expected in fight.SelectNodes("Rewards/Reward"))
+            {
+                string suffix = battle.GetAttribute("Name") == "SENSEI_MEMORIES" ? "normal_" + fight.GetAttribute("Name") + "_" + wins : "eclipse_" + wins;
+                string id = "fixture.de128-combat:rewards/sensei_act_" + zone.GetAttribute("Name").Replace("ZONE_", "") + "_" + suffix;
+                var definition = catalog.Rewards.Single(value => value.Id.ToString() == id);
+                var actual = (System.Xml.XmlElement)typeof(LegacyContentAdapter).GetMethod("BuildRewardNode", Hidden).Invoke(adapter, new object[] { new System.Xml.XmlDocument(), definition });
+                foreach (ushort exponent in new ushort[] { 0, 2 })
+                {
+                    var result = EvaluateReward(actual, exponent);
+                    var baseline = EvaluateReward(expected, exponent);
+                    if (result.PMIHPJFAJIO.exp != baseline.PMIHPJFAJIO.exp || result.KMGLLBMIDHJ() != baseline.KMGLLBMIDHJ() ||
+                        result.BNILCODHHKC() != baseline.BNILCODHHKC() ||
+                        result.AIOMDIAFHGB.ECOOCLMNFJM.PJBCIEMHPNN != baseline.AIOMDIAFHGB.ECOOCLMNFJM.PJBCIEMHPNN)
+                        throw new Exception("Sensei native result differs from archive: " + id);
+                    if ((uint)result.PMIHPJFAJIO.exp != definition.Experience || result.BNILCODHHKC() != definition.Gems ||
+                        result.AIOMDIAFHGB.ECOOCLMNFJM.PJBCIEMHPNN != (long)(definition.PrizeBase.Value * Mathf.Pow(10, exponent)))
+                        throw new Exception("Sensei native result lost configured scalar: " + id);
+                }
+                wins++; count++;
+            }
+        }
+        if (count != 57) throw new Exception("Expected 57 Sensei reward slots, got " + count);
+        Debug.Log("[DE128Native] PASS all 57 Sensei slots: native FightResult experience, gems and performance coins match archive at two scales. No profile settlement or story activation.");
+    }
+
+    static FightResult EvaluateReward(System.Xml.XmlNode node, ushort exponent)
+    {
+        // Detached native results exercise the actual bonus calculation without
+        // awarding currency/experience to any profile or starting story fights.
+        var result = new FightResult();
+        var statistics = new ComboStatistic { JDKFHFOJKPI = 2, MOLDOOIJELI = 1, KKJHBKBMPGN = 3, OGMOILIMCOM = 1 };
+        result.BDLLAEPPAKL(new Reward(node, 0, exponent), -1, statistics, new ComboStatistic(), false);
+        return result;
     }
 
     static void CheckSharedMovePatches()

@@ -1997,10 +1997,12 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "items", "choices", "gems");
+                    ValidateFields(table, function, "id", "items", "choices", "gems", "experience", "prize_base");
                     RewardItemGrant[] items = ReadRewardItems(table.Get("items"), function + ".items", false);
                     RewardChoiceDefinition[] choices = ReadRewardChoices(table.Get("choices"), function + ".choices");
-                    RewardDefinition definition = _api.RegisterReward(RequiredString(table, "id", function), items, choices, OptionalInt(table, "gems", 0, function));
+                    RewardDefinition definition = _api.RegisterReward(RequiredString(table, "id", function), items, choices,
+                        OptionalInt(table, "gems", 0, function), OptionalInt(table, "experience", 0, function),
+                        table.Get("prize_base").IsNil() ? (float?)null : OptionalFloat(table, "prize_base", 0, function));
                     return NewHandle(_rewardHandles, definition.Id);
                 });
             }

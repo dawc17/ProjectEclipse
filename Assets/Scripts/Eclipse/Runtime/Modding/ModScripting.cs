@@ -433,10 +433,10 @@ namespace Eclipse.Modding
         }
 
         public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items,
-            RewardChoiceDefinition[] choices, int gems = 0)
+            RewardChoiceDefinition[] choices, int gems = 0, int experience = 0, float? prizeBase = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterReward(localId, items, choices, gems);
+            return RequireRegistration().RegisterReward(localId, items, choices, gems, experience, prizeBase);
         }
 
         public FightDefinition RegisterFight(string localId, DefinitionId battle, int replays, int replayInterval,

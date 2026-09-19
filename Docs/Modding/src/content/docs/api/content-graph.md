@@ -201,7 +201,7 @@ shields. Duplicate loadout items or perks are rejected.
 
 Create a reward that a fight can grant through its normal result/save flow.
 
-**Signature:** `sf2.rewards.register { id, items?, choices?, gems? }`
+**Signature:** `sf2.rewards.register { id, items?, choices?, gems?, experience?, prize_base? }`
 
 **Requires:** `content.register`.
 
@@ -215,6 +215,29 @@ Create a reward that a fight can grant through its normal result/save flow.
 | `items` | Grant array | Empty | Guaranteed item grants: `{ item = handle, upgrade = 0, configure? = function }`. |
 | `choices` | Choice-group array | Empty | Each group has `items`, a weighted candidate array. |
 | `gems` | Integer, 0–1,000,000 | `0` | Fixed gem reward through normal acquisition. |
+| `experience` | Integer, 0–1,000,000 | `0` | Experience points added by normal fight-result processing. |
+| `prize_base` | Finite number, 0–1,000,000 | Omitted | Native performance-bonus base, explained below. |
+
+`experience` is an absolute point count, not a level or percentage. Registering a
+reward does not grant it: the fight's selected reward slot must reach the normal
+result/settlement flow. Native level caps and experience processing still apply.
+
+`prize_base` supplies the native base used to calculate performance coin bonuses
+(such as critical hits and fighting style). It is **not** a fixed coin award.
+The native reward parser applies the encounter's prize denomination scale. The
+result calculation then uses the base with its usual performance coefficients.
+Omitting the field preserves native fallback selection. A positive value selects
+this reward's base; zero is preserved but still follows native fallback rules
+and does not guarantee zero coin bonuses. The API does not modify global reward
+coefficients or bypass settlement. Changing either field changes the saved
+content fingerprint; explicit zero experience is equivalent to omission.
+
+```lua
+local victory = sf2.rewards.register {
+    id = "story_victory", experience = 2, gems = 8, prize_base = 1,
+}
+-- Use victory in the appropriate wins slot of sf2.fights.register.rewards.
+```
 
 A candidate row is `{ item = handle, upgrade = 0, weight = 1, configure = function(context) ... end }`. Upgrade is a
 nonnegative integer. Weights must be finite and greater than zero. Each group

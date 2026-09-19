@@ -1539,15 +1539,23 @@ namespace Eclipse.Modding
         private readonly RewardChoiceDefinition[] _choices;
         public DefinitionId Id { get; }
         public int Gems { get; }
+        public int Experience { get; }
+        public float? PrizeBase { get; }
         public IReadOnlyList<RewardItemGrant> Items => Array.AsReadOnly(_items);
         public IReadOnlyList<RewardChoiceDefinition> Choices => Array.AsReadOnly(_choices);
 
-        internal RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0)
+        internal RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0,
+            int experience = 0, float? prizeBase = null)
         {
             Id = id;
             _items = items == null ? Array.Empty<RewardItemGrant>() : (RewardItemGrant[])items.Clone();
             if (gems < 0 || gems > 1000000) throw new ModContentException("Reward gems must be 0..1000000.");
             Gems = gems;
+            if (experience < 0 || experience > 1000000) throw new ModContentException("Reward experience must be 0..1000000.");
+            if (prizeBase.HasValue && (float.IsNaN(prizeBase.Value) || float.IsInfinity(prizeBase.Value) || prizeBase < 0 || prizeBase > 1000000))
+                throw new ModContentException("Reward prize_base must be finite and in 0..1000000.");
+            Experience = experience;
+            PrizeBase = prizeBase;
             _choices = choices == null ? Array.Empty<RewardChoiceDefinition>() : (RewardChoiceDefinition[])choices.Clone();
             // Empty slots are meaningful: recovered fights index rewards by wins,
             // including a zero-win slot that commonly grants nothing.
@@ -3050,12 +3058,13 @@ namespace Eclipse.Modding
             return rule;
         }
 
-        public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0)
+        public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0,
+            int experience = 0, float? prizeBase = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("rewards", localId);
             if (_rewards.ContainsKey(id)) throw new ModContentException("Duplicate reward definition: '" + id + "'.");
-            var definition = new RewardDefinition(id, items, choices, gems);
+            var definition = new RewardDefinition(id, items, choices, gems, experience, prizeBase);
             ValidateRewardReferences(definition);
             EnsureCapacityForNewRegistration();
             _rewards.Add(id, definition);

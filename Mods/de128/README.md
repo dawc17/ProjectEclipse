@@ -21,6 +21,12 @@ templates absent from the historical XML available here; no substitutes have
 been invented. Story gates, rewards, presentation and live encounter acceptance
 also remain unfinished. See Step 32 in `PRODUCTION.md`.
 
+Pending `scripts/content/sensei_rewards.lua` contains all 57 normal/eclipse
+reward slots across the six acts, including experience, gems and performance
+bonus bases. It also stays outside the active entrypoint until the story is ready.
+Native parsing and detached result calculations are checked against historical
+XML; profile settlement and the full story remain unverified (Step 33).
+
 `scripts/content/chinese_swords.lua` registers both moves and Jian's subtype;
 `chinese_swords_data.lua` contains their typed combat/presentation data. The mod
 bundles the unchanged recovered animation binary, with no runtime XML dependency.

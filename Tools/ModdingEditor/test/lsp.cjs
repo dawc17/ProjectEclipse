@@ -523,6 +523,11 @@ async function main() {
         const found=labels(await request('textDocument/completion',warriorPerkProbe));
         return ['perk','aspect','chance_factor'].every(name=>found.some(value=>value.startsWith(name)));
     },'warrior perk settings fields');
+    const rewardEconomyProbe=probe('reward-economy.lua','local sf2=require("sf2")\nsf2.rewards.register {id="victory", | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',rewardEconomyProbe));
+        return ['experience','prize_base'].every(name=>found.some(value=>value.startsWith(name)));
+    },'reward experience and performance base fields');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

@@ -1,7 +1,8 @@
 # DE128 production record
 
 Current package: **0.18.0**. Latest completed content is recorded in Step 31;
-Step 32 adds encounter perk settings and pending Sensei Act I opponent data.
+Steps 32–33 add encounter perk settings, reward economy support and pending
+Sensei Story data.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
 move APIs and verified graph data; Step 13 adds passing isolated live input/animation
@@ -1917,3 +1918,54 @@ implementation or verification before activation. The owner-supplied corpus is
 still deferred; the historical XML comparison must be reconciled when it becomes
 available. This step validates native perk consumption, not young Lynx combat
 balance or complete Sensei's Story parity.
+
+## Step 33: native reward economy and all Sensei reward slots
+
+The generic C# reward definition/binding/adapter now supports `experience`
+(integer 0–1000000, default 0) and nullable `prize_base` (finite 0–1000000).
+Experience is an absolute count. PrizeBase is the recovered performance-bonus
+base, not a fixed coin grant: denomination scaling and native performance
+coefficients still apply. Positive values select the reward's base; zero and
+omission retain their distinct native representations/fallback handling.
+Existing item/choice/gem rewards retain their projection and fingerprint when
+the new fields are unused. Configured values enter the content fingerprint.
+No new API writes directly to profile currency or experience.
+
+Pending `scripts/content/sensei_rewards.lua` authors all 57 slots across six
+normal/eclipsed story acts: 17 two-slot normal fights and six gauntlets with
+four slots each except Act VI's three slots. It preserves partial-gauntlet
+results, the normal two-point experience awards, archived gem amounts and bases
+1/5/100/100/500/2000 (normal) and 1 (eclipse). The module returns ordered reward
+handle tables for future fight composition. It uses no XML at runtime and is
+not loaded by the DE entrypoint; the package remains 0.18.0.
+
+Verification:
+
+- `Tools/TestSenseiRewards.ps1`: 727 checks through actual Lua registration,
+  production projection and recovered Reward/RewardPrize parsing at two scales.
+  All 57 slots match historical XML. Missing Money/Exp/Bonus are compared using
+  their native zero defaults; unknown attributes, nested rewards or nonzero
+  unsupported fixed money fail the oracle. Bounds, invalid values/rollback,
+  locale formatting, default compatibility and fingerprints are also checked.
+  Evidence: `Temp/SenseiRewards-6ecee72348bd469c8bb279fc721eea41`.
+- Isolated Unity 6000.6.0f1 run
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-zz8iypk0` exits 0. All 57 projected
+  rewards match historical-source rewards through actual native FightResult
+  calculations at scales 0 and 2 with nonzero performance statistics. Experience,
+  gems, performance coins and the selected bonus base match. The results are
+  detached and are not awarded to a profile. Existing young Lynx perk, Jian
+  input and MindThrow contact/follow-up checks remain green. The editor's Search
+  index startup exception also occurs in the prior run; it is not a clean-log
+  claim or an observed reward failure.
+- All 2638 actual-package foundation and 71 warrior-loadout checks pass. Managed
+  editor build succeeds with zero errors (existing warnings remain).
+- Public wiki, editor schema/generated definitions and editor guide are updated.
+  Generation/check, project tests, LuaLS nested-field completion and the VS Code
+  integration runner pass. Wiki builds 47 pages with 4075 checked local
+  links/assets and zero Astro diagnostics; existing duplicate-404 warning remains.
+
+The reward representation gap is closed. Fight assembly, story progression,
+missing guard templates, visuals and complete profile settlement/save/reload
+acceptance remain open. Native result comparisons do not establish end-to-end
+story rewards or exact asset-corpus parity. Acquisition/reconciliation of the
+owner's complete archive remains deferred.
