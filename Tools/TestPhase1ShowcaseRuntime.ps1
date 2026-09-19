@@ -50,6 +50,9 @@ $sources = @(
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs'
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP3.cs'
+    'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeTrialRules.cs'
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModTrialRules.cs'
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModMovePerkLocks.cs'
 ) | ForEach-Object { Join-Path $root $_ }
 
 $program = Join-Path $testRoot 'Program.cs'

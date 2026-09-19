@@ -169,11 +169,12 @@ namespace Nekki.SF2.GUI
 
 		public void set_text(string value)
 		{
-			string text = value;
+			string text = value ?? string.Empty;
 			foreach (Match item in BPNAJICGHEH.Matches(text))
 			{
 				string valueText = item.Groups[1].Value;
 				Sprite sprite = ResolutionImage.GetSprite(string.Empty, valueText);
+                if (sprite == null) continue;
 				string newValue = Regex.Replace(item.ToString(), "size=(\\d*\\.?\\d+%?)", "size=" + sprite.rect.width);
 				text = text.Replace(item.ToString(), newValue);
 			}

@@ -2314,7 +2314,9 @@ public class Fight
 		}
 	}
 
-	public void BPFBPOCPPCB()
+	// best guess for name
+
+	public void RefreshControllerLayout()
 	{
 		_Camera.NPFMKCHKGND();
 	}
@@ -2882,7 +2884,7 @@ public class Fight
 	private void NextRound()
 	{
         _eclipseShields.Clear();
-		GC.Collect();
+		// Let the runtime schedule collection; forcing it here stalls the round transition.
 		JEBNOLKKCIK.PPFGEADDLNN = (ObscuredFloat)(NMNCKBPFCCP.KKMCHCNOHMB());
 		JEBNOLKKCIK.BNMFCPPJIAG = _playerModel.EKAFGLHNMCN();
 		JEBNOLKKCIK.CPOOPPKHFHB = _playerModel.LPOJKGLFMAL();
@@ -2939,7 +2941,6 @@ public class Fight
         DispatchEclipseOpponent(ModEffectEvent.RoundBegin);
 		IFKFINOGOLC(false);
 		_isRoundOver = false;
-		GC.Collect();
 	}
 
 	private readonly Dictionary<(Model, DefinitionId), System.Xml.XmlNode> _eclipseOpponentInstances = new Dictionary<(Model, DefinitionId), System.Xml.XmlNode>();

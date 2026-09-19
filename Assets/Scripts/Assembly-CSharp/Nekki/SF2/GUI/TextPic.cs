@@ -120,8 +120,10 @@ namespace Nekki.SF2.GUI
 			PHPKKMKLNOA.Clear();
 			foreach (Match item2 in BPNAJICGHEH.Matches(AIBLJIIKGIG))
 			{
-				int index = item2.Index;
-				int item = index * 4 + 3;
+				string prefix = AIBLJIIKGIG.Substring(0, item2.Index);
+                prefix = BPNAJICGHEH.Replace(prefix, "\uFFFC");
+                prefix = Regex.Replace(prefix, "</?(?:b|i|size|color|material)(?:=[^>]*)?>", "", RegexOptions.IgnoreCase);
+                int item = prefix.Length * 4 + 3;
 				PHPKKMKLNOA.Add(item);
 				FFCOKBMOANO.RemoveAll((ResolutionImage KHPKDMGDMAB) => KHPKDMGDMAB == null);
 				if (FFCOKBMOANO.Count == 0)
@@ -147,13 +149,18 @@ namespace Nekki.SF2.GUI
 					FFCOKBMOANO.Add(resolutionImage);
 				}
 				string value = item2.Groups[1].Value;
-				float num = float.Parse(item2.Groups[2].Value);
+				float num;
+                string size = item2.Groups[2].Value;
+                bool percent = size.EndsWith("%");
+                if (!float.TryParse(size.TrimEnd('%'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out num)) num = fontSize;
+                if (percent) num = num * fontSize / 100f;
 				ResolutionImage resolutionImage2 = FFCOKBMOANO[PHPKKMKLNOA.Count - 1];
-				if (resolutionImage2.sprite == null || resolutionImage2.sprite.name != value)
+				if (resolutionImage2.get_SpriteName() != value)
 				{
 					resolutionImage2.set_SpriteName(value);
 				}
-				resolutionImage2.rectTransform.sizeDelta = new Vector2(num, num * resolutionImage2.sprite.rect.height / resolutionImage2.sprite.rect.width);
+				if (resolutionImage2.sprite == null) { resolutionImage2.enabled = false; continue; }
+                resolutionImage2.rectTransform.sizeDelta = new Vector2(num, num * resolutionImage2.sprite.rect.height / resolutionImage2.sprite.rect.width);
 				resolutionImage2.enabled = true;
 				if (MDBELBGHDFP.Count == FFCOKBMOANO.Count)
 				{
@@ -161,7 +168,7 @@ namespace Nekki.SF2.GUI
 					resolutionImage2.transform.BGNJGIACJBG(MDBELBGHDFP[PHPKKMKLNOA.Count - 1].y - resolutionImage2.rectTransform.rect.height / 2f + (float)(base.fontSize / 4));
 				}
 			}
-			for (int num2 = PHPKKMKLNOA.Count; num2 < FFCOKBMOANO.Count; num2++)
+			for (int num2 = FFCOKBMOANO.Count - 1; num2 >= PHPKKMKLNOA.Count; num2--)
 			{
 				if ((bool)FFCOKBMOANO[num2])
 				{
@@ -171,7 +178,7 @@ namespace Nekki.SF2.GUI
 					FFCOKBMOANO.Remove(FFCOKBMOANO[num2]);
 				}
 			}
-			if (ECKINFOPDPD.Count > 1)
+			if (ECKINFOPDPD.Count > 0)
 			{
 				JJLEJDCGDNL = true;
 			}

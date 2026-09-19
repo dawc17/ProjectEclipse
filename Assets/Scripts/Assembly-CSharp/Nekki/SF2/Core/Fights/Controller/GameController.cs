@@ -419,7 +419,14 @@ namespace Nekki.SF2.Core.Fights.Controller
         private void SyncModUiCapture()
         {
             foreach (var control in _modUiControls.SetCaptured(Eclipse.UI.Modding.ModUiGameBridge.BlocksGameplayInput))
+            {
+                if (control.Item2 == 0)
+                {
+                    _actionButtons.SetInputPressedVisual(control.Item1, false);
+                    _joystick.SetInputDirectionVisual(control.Item1, false);
+                }
                 CallEvent(1, new CBBEIGACPPD { Index = control.Item2, KMOPCKPBHIA = control.Item1 });
+            }
         }
 
         private void EmitControl(int eventType, CBBEIGACPPD data)
@@ -427,7 +434,14 @@ namespace Nekki.SF2.Core.Fights.Controller
             SyncModUiCapture();
             var key = (data.KMOPCKPBHIA, data.Index);
             if (eventType == 0 ? _modUiControls.Press(key) : _modUiControls.Release(key))
+            {
+                if (data.Index == 0)
+                {
+                    _actionButtons.SetInputPressedVisual(data.KMOPCKPBHIA, eventType == 0);
+                    _joystick.SetInputDirectionVisual(data.KMOPCKPBHIA, eventType == 0);
+                }
                 CallEvent(eventType, data);
+            }
         }
 
 		private void KJJNFLFLNHB(object data)

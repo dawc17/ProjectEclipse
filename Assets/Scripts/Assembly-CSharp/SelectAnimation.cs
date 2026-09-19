@@ -446,6 +446,12 @@ public class SelectAnimation
 			}
 			ACENLMONNPA.DFLPNNBIFFN = nKDNDLNDFJH.FGICHADOEHF.Type;
 			ACENLMONNPA.KMDKCFHMECJ = nKDNDLNDFJH.DJPLGDJCMPI;
+            if (nKDNDLNDFJH.IsHit && ACENLMONNPA.Parameters.RemainingHealthBars == 0)
+            {
+                // The round-end path runs later in this same simulation step.
+                // Commit the selected hit reaction before it changes the stage.
+                if (!ACENLMONNPA.RenderStrikeDelay()) ACENLMONNPA.RenderAnimationDelay();
+            }
 		}
 	}
 

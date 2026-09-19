@@ -2548,6 +2548,7 @@ public class Roster : MELBIBHDPCE
 			Sound.OAFCOFNOIJK(1f);
 			Sound.FMLHEDIPGAF(false);
 		}
+		SoundController.ApplySavedVolumes();
 	}
 
 	private void BCLGMKICMJM(XmlNode HBKKCEFLPPE)

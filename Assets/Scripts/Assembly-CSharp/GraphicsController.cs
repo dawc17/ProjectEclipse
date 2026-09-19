@@ -2,20 +2,27 @@ public static class GraphicsController
 {
 	private static string IFOOEAMIMGM = string.Empty;
 
-	public static void JLDMJOEGJLF()
+	// best guess for name
+
+	public static void ToggleControlSize()
 	{
-		bool flag = OPEHHMBJABL();
+		bool flag = LargeControlsEnabled();
 		SetIsBigController(!flag);
 	}
 
 	public static void SetIsBigController(bool value)
 	{
+		UnityEngine.PlayerPrefs.SetInt("Eclipse.LargeControls", value ? 1 : 0);
+		UnityEngine.PlayerPrefs.Save();
 		Roster nKGLHEGIKKP = ListSF.CCDKHLAMKKO();
+		if (nKGLHEGIKKP == null) return;
 		nKGLHEGIKKP.SessionSettings("ControllerScale", value.ToString());
 		ListSF.GetInstance().EJANJEEGOOE();
 	}
 
-	public static bool OPEHHMBJABL()
+	// best guess for name
+
+	public static bool LargeControlsEnabled()
 	{
 		return ELILPDACMDJ();
 	}
@@ -126,9 +133,11 @@ public static class GraphicsController
 
 	private static bool ELILPDACMDJ()
 	{
+		if (UnityEngine.PlayerPrefs.HasKey("Eclipse.LargeControls"))
+			return UnityEngine.PlayerPrefs.GetInt("Eclipse.LargeControls") != 0;
 		bool result = !SystemProperties.FBGNIKBPCFB();
 		Roster nKGLHEGIKKP = ListSF.CCDKHLAMKKO();
-		if (nKGLHEGIKKP.FJGCOOAACLD("ControllerScale"))
+		if (nKGLHEGIKKP != null && nKGLHEGIKKP.FJGCOOAACLD("ControllerScale"))
 		{
 			result = nKGLHEGIKKP.GetSettingsXML("ControllerScale") == "True" || nKGLHEGIKKP.GetSettingsXML("ControllerScale") == "1";
 		}

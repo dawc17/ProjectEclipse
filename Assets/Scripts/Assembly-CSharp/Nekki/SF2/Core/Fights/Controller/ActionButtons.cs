@@ -78,7 +78,21 @@ namespace Nekki.SF2.Core.Fights.Controller
 			_btnMagic.SetPercentage(100f, 1f);
 		}
 
-		public List<ProgressButton> GetButtons()
+        public void SetInputPressedVisual(FightCID control, bool pressed)
+        {
+            ProgressButton button = null;
+            switch (control)
+            {
+                case FightCID.Punch: button = _btnPunch; break;
+                case FightCID.Kick: button = _btnKick; break;
+                case FightCID.MissileButton: button = _btnMissile; break;
+                case FightCID.MagicButton: button = _btnMagic; break;
+                case FightCID.RaidChargeButton: button = _btnRaidCharge; break;
+            }
+            if (button != null) button.SetInputPressedVisual(pressed);
+        }
+
+        public List<ProgressButton> GetButtons()
 		{
 			List<ProgressButton> list = new List<ProgressButton>();
 			list.Add(_btnKick);

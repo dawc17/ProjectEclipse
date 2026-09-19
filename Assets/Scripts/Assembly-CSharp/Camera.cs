@@ -178,7 +178,7 @@ public class Camera : global::EventDispatcher<object>
 	private float FGLAIPPLINB()
 	{
 		float result = 1f;
-		if (!GraphicsController.OPEHHMBJABL())
+		if (!GraphicsController.LargeControlsEnabled())
 		{
 			result = 25f / 33f;
 		}
@@ -282,8 +282,9 @@ public class Camera : global::EventDispatcher<object>
 		{
 			float ePIPOLDCCHD = EPIPOLDCCHD;
 			float num = EPIPOLDCCHD - BIPHAGJDGOL;
-			float fMICELIGLPG = IONLHJIDACJ.FMICELIGLPG;
-			float pPKAMOILNLN = IONLHJIDACJ.PPKAMOILNLN;
+			float strength = IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalShake : 1f;
+			float fMICELIGLPG = IONLHJIDACJ.FMICELIGLPG * strength;
+			float pPKAMOILNLN = IONLHJIDACJ.PPKAMOILNLN * strength;
 			float kFEMKHHANDC = IONLHJIDACJ.KFEMKHHANDC;
 			float gGJBPLHAHFH = IONLHJIDACJ.GGJBPLHAHFH;
 			float num2 = Mathf.Sin(kFEMKHHANDC * num) * fMICELIGLPG * (ePIPOLDCCHD - num) / ePIPOLDCCHD;
@@ -302,7 +303,8 @@ public class Camera : global::EventDispatcher<object>
 			float elapsed = Mathf.Max(0f, EPIPOLDCCHD - BIPHAGJDGOL - (1f - alpha));
 			float x = Mathf.Sin(IONLHJIDACJ.KFEMKHHANDC * elapsed) * IONLHJIDACJ.FMICELIGLPG * (duration - elapsed) / duration;
 			float y = Mathf.Sin(IONLHJIDACJ.GGJBPLHAHFH * elapsed) * IONLHJIDACJ.PPKAMOILNLN * (duration - elapsed) / duration;
-			BMBGCIEFJGB.PGJEGJKFHND(x * SystemProperties.NHIDNIPGCPC, y * SystemProperties.NHIDNIPGCPC);
+			float strength = IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalShake : 1f;
+			BMBGCIEFJGB.PGJEGJKFHND(x * SystemProperties.NHIDNIPGCPC * strength, y * SystemProperties.NHIDNIPGCPC * strength);
 		}
 	}
 
@@ -561,12 +563,14 @@ public class Camera : global::EventDispatcher<object>
 		if (HJLADIDMFOM != null)
 		{
 			IONLHJIDACJ = HJLADIDMFOM;
-			HLDMKKKKAMI = true;
-			LLLNHELEKNF = IONLHJIDACJ.NHKPODHHDPF;
+			bool wasPaused = HLDMKKKKAMI;
+			LLLNHELEKNF = IONLHJIDACJ.NHKPODHHDPF * (IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalPause : 1f);
 			OHNBKMHOMJI = true;
 			BIPHAGJDGOL = IONLHJIDACJ.OFJCKMNLAEP;
 			EPIPOLDCCHD = IONLHJIDACJ.OFJCKMNLAEP;
-			CallEvent(0, null);
+            HLDMKKKKAMI = LLLNHELEKNF > 0f;
+            if (HLDMKKKKAMI) CallEvent(0, null);
+            else if (wasPaused) HOGCLFMOHLE();
 		}
 	}
 

@@ -39,9 +39,9 @@ namespace Nekki.SF2.GUI
 		{
 			if (NDIOMHCLPEP == TableViewOrientation.Horizontal)
 			{
-				return get_content().sizeDelta.y;
+				return get_content().sizeDelta.x;
 			}
-			return get_content().sizeDelta.x;
+			return get_content().sizeDelta.y;
 		}
 
 		public void set_SizeDelta(float value)
@@ -101,7 +101,14 @@ namespace Nekki.SF2.GUI
 			get_content().gameObject.AddComponent<NonDrawingGraphic>();
 		}
 
-		public override void OnBeginDrag(PointerEventData BHOLFGOGPCP)
+        public UnityEvent onWheel = new UnityEvent();
+        public override void OnScroll(PointerEventData data)
+        {
+            onWheel.Invoke();
+            base.OnScroll(data);
+        }
+
+        public override void OnBeginDrag(PointerEventData BHOLFGOGPCP)
 		{
 			base.OnBeginDrag(BHOLFGOGPCP);
 			onDragBegin.Invoke();

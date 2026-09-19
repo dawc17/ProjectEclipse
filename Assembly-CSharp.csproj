@@ -147,6 +147,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Trigger.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Attributes.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Scene.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\SplitImageLayout.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionSetModEffect.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Modding\LegacyContentAdapterP3.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionName.cs" />
@@ -529,6 +530,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionMenuBtnFlashing.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionUpgrades.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShop.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\DesktopScrollbars.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AssemblyController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\LampsPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LifeStealRule.cs" />
@@ -636,6 +638,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Rule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DrawFunctions.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionAddBullets.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\AccessibilitySettings.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CreditsScreen.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\LoseFallRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemBuyHelper.cs" />

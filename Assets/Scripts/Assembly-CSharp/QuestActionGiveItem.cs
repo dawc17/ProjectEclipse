@@ -52,6 +52,7 @@ public class QuestActionGiveItem : QuestAction
 			return;
 		}
 		bool flag = false;
+        bool grantedItem = false;
 		kKDGLNECFHA.MCPIOGALBMK(JKFHICPKOPA, lNIDLHOIHIM);
 		bool flag2 = lNIDLHOIHIM.resultNumber > 0.0;
 		kKDGLNECFHA.MCPIOGALBMK(ICAGIOIDCBL, lNIDLHOIHIM);
@@ -65,6 +66,7 @@ public class QuestActionGiveItem : QuestAction
 		{
 			Roster nKGLHEGIKKP = ListSF.CCDKHLAMKKO();
 			UserItem dKCHDHMLKHN = ListSF.GEFDJDIINND(dJKEECEOCJB, num2, 0L, flag2);
+            grantedItem = dKCHDHMLKHN != null;
 			if (dJKEECEOCJB2 != null)
 			{
 				dKCHDHMLKHN.HJONIDFKNJH("Upgrade");
@@ -97,7 +99,7 @@ public class QuestActionGiveItem : QuestAction
 				ItemAction pCKPFBFHKJH = ItemAction.Item_Equip;
 			}
 		}
-		if (num2 <= 0 && !flag2)
+		if (num2 <= 0 && !flag2 && !grantedItem)
 		{
 			UserItem dKCHDHMLKHN2 = ListSF.CMGOCLGHNLH(dJKEECEOCJB.Name);
 			if (dKCHDHMLKHN2 != null)
@@ -107,6 +109,11 @@ public class QuestActionGiveItem : QuestAction
 			}
 		}
 		ListSF.GetInstance().JLCGOODFKAK(dJKEECEOCJB2);
+        if (grantedItem)
+        {
+            var menu = Nekki.SF2.GUI.Menu.MainMenu.get_Instance();
+            if (menu != null) menu.UpdateNewItems();
+        }
 		OGIJONMKABB();
 	}
 }

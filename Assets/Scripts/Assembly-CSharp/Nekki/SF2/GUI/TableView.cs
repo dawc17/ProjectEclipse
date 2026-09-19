@@ -311,6 +311,8 @@ namespace Nekki.SF2.GUI
 			tableViewScroll.set_scrollSensitivity(scrollSensitivity);
 			tableViewScroll.get_onValueChanged().AddListener(ScrollViewValueChanged);
 			tableViewScroll.onDragBegin.AddListener(CDILOAACHKK);
+            tableViewScroll.onWheel.AddListener(KillTween);
+            Eclipse.UI.DesktopScrollbars.Attach(tableViewScroll, KillTween);
 			tableViewScroll.onDragEnd.AddListener(CPEGCBHNHLH);
 			HAHLEDMDEOD = (int)(OKIBKGLCGMG() / 2f);
 			MINGJPDNIIK = (int)(OKIBKGLCGMG() / 2f);
@@ -795,8 +797,9 @@ namespace Nekki.SF2.GUI
 				{
 					iBAKGENOEPH = GetNearestCellRow(num);
 				}
-				tableViewScroll.set_velocity(default(Vector2));
-				float aFHNFJLOGIC = Mathf.Min(0.5f, Mathf.Abs(Mathf.Ceil(num / tableViewScroll.get_velocity().magnitude)));
+				float speed = tableViewScroll.get_velocity().magnitude;
+                tableViewScroll.set_velocity(default(Vector2));
+				float aFHNFJLOGIC = Mathf.Clamp(Mathf.Abs(num) / speed, .1f, .5f);
 				ScrollToCell(iBAKGENOEPH, aFHNFJLOGIC);
 			}
 		}

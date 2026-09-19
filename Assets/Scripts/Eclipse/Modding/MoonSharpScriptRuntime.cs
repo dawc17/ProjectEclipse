@@ -40,6 +40,16 @@ namespace Eclipse.Modding
 
             private readonly ModApiFacade _api;
             private readonly Script _script;
+            private readonly Stack<CallbackWorker> _callbackWorkers = new Stack<CallbackWorker>();
+            private DynValue _callbackWorkerFactory;
+
+            private sealed class CallbackWorker
+            {
+                public Coroutine Coroutine;
+                public DynValue Function;
+                public DynValue[] Arguments;
+                public bool Completed;
+            }
             private readonly Dictionary<string, DynValue> _modules =
                 new Dictionary<string, DynValue>(StringComparer.Ordinal);
             private readonly HashSet<string> _loading = new HashSet<string>(StringComparer.Ordinal);
@@ -576,6 +586,7 @@ namespace Eclipse.Modding
             public void Dispose()
             {
                 if (_disposed) return;
+                _callbackWorkers.Clear();
                 _disposed = true;
                 _storyScope?.Dispose();
                 UiScope.Dispose();
@@ -662,28 +673,65 @@ namespace Eclipse.Modding
 
             private DynValue RunBounded(DynValue function, string sourceName, int maxSlices, DynValue[] args)
             {
-                DynValue coroutineValue = _script.CreateCoroutine(function);
-                Coroutine coroutine = coroutineValue.Coroutine;
-                coroutine.AutoYieldCounter = InstructionSlice;
-
-                int forcedYields = 0;
-                bool firstResume = true;
-                while (true)
+                // Each new MoonSharp coroutine allocates two 1 MiB stacks. Keep a
+                // private worker suspended between successful calls instead of
+                // allocating those stacks on every combat tick. Nested callbacks
+                // borrow another worker; a running worker is never in the pool.
+                CallbackWorker worker = _callbackWorkers.Count > 0 ? _callbackWorkers.Pop() : CreateCallbackWorker();
+                worker.Function = function;
+                worker.Arguments = args;
+                worker.Completed = false;
+                worker.Coroutine.AutoYieldCounter = InstructionSlice;
+                try
                 {
-                    DynValue result = firstResume ? coroutine.Resume(args) : coroutine.Resume();
-                    firstResume = false;
-                    if (coroutine.State == CoroutineState.Dead) return result;
-                    if (coroutine.State == CoroutineState.ForceSuspended)
+                    int forcedYields = 0;
+                    while (true)
                     {
-                        forcedYields++;
-                        if (forcedYields >= maxSlices)
-                            throw new ScriptRuntimeException("Execution instruction budget exceeded in '" +
-                                sourceName + "' (limit " + (InstructionSlice * maxSlices) + ").");
-                        continue;
+                        DynValue result = worker.Coroutine.Resume();
+                        if (worker.Completed && worker.Coroutine.State == CoroutineState.Suspended)
+                        {
+                            if (!_disposed && _callbackWorkers.Count < 4) _callbackWorkers.Push(worker);
+                            return result;
+                        }
+                        if (worker.Coroutine.State == CoroutineState.ForceSuspended)
+                        {
+                            forcedYields++;
+                            if (forcedYields >= maxSlices)
+                                throw new ScriptRuntimeException("Execution instruction budget exceeded in '" +
+                                    sourceName + "' (limit " + (InstructionSlice * maxSlices) + ").");
+                            continue;
+                        }
+                        throw new ScriptRuntimeException("Unexpected Lua yield in '" + sourceName + "'.");
                     }
-
-                    throw new ScriptRuntimeException("Unexpected Lua yield in '" + sourceName + "'.");
                 }
+                finally
+                {
+                    // Do not retain combat contexts through the idle worker. Failed
+                    // or budget-exhausted workers never return to the pool.
+                    worker.Function = null;
+                    worker.Arguments = null;
+                }
+            }
+
+            private CallbackWorker CreateCallbackWorker()
+            {
+                if (_callbackWorkerFactory == null)
+                    _callbackWorkerFactory = _script.LoadString(
+                        "local invoke, complete = ...; return function() while true do complete(invoke()) end end",
+                        null, "Eclipse callback worker");
+                var worker = new CallbackWorker();
+                DynValue invoke = DynValue.NewCallback((context, arguments) =>
+                    DynValue.NewTailCallReq(worker.Function, worker.Arguments));
+                DynValue complete = DynValue.NewCallback((context, arguments) =>
+                {
+                    worker.Completed = true;
+                    return DynValue.NewYieldReq(arguments.GetArray());
+                });
+                // Only this fixed, private factory runs outside the instruction
+                // budget. User callbacks always run inside the bounded coroutine.
+                DynValue loop = _script.Call(_callbackWorkerFactory, invoke, complete);
+                worker.Coroutine = _script.CreateCoroutine(loop).Coroutine;
+                return worker;
             }
 
             private DynValue GetSf2Module()

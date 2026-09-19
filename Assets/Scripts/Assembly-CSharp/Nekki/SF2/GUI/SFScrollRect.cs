@@ -827,8 +827,11 @@ namespace Nekki.SF2.GUI
 				scrollDelta.y = 0f;
 			}
 			Vector2 anchoredPosition = m_Content.anchoredPosition;
-			anchoredPosition += scrollDelta * m_ScrollSensitivity;
-			if (m_MovementType == MDMLKCMBBPA.Clamped)
+			// Recovered prefabs use 1 canvas unit per notch, imperceptible at the
+            // authored 2048px UI scale. Keep configured sensitivity as a multiplier.
+            StopMovement();
+            anchoredPosition += scrollDelta * m_ScrollSensitivity * 100f;
+			if (m_MovementType != MDMLKCMBBPA.Unrestricted)
 			{
 				anchoredPosition += CalculateOffset(anchoredPosition - m_Content.anchoredPosition);
 			}
@@ -944,7 +947,7 @@ namespace Nekki.SF2.GUI
 						BKHKAOENMIG[i] = 0f;
 					}
 				}
-				if (BKHKAOENMIG != Vector2.zero)
+				if (BKHKAOENMIG != Vector2.zero || vector != Vector2.zero)
 				{
 					if (m_MovementType == MDMLKCMBBPA.Clamped)
 					{
@@ -993,7 +996,7 @@ namespace Nekki.SF2.GUI
 				{
 					m_HorizontalScrollbar.size = 1f;
 				}
-				m_HorizontalScrollbar.value = get_horizontalNormalizedPosition();
+				m_HorizontalScrollbar.SetValueWithoutNotify(get_horizontalNormalizedPosition());
 			}
 			if ((bool)m_VerticalScrollbar)
 			{
@@ -1005,7 +1008,7 @@ namespace Nekki.SF2.GUI
 				{
 					m_VerticalScrollbar.size = 1f;
 				}
-				m_VerticalScrollbar.value = get_verticalNormalizedPosition();
+				m_VerticalScrollbar.SetValueWithoutNotify(get_verticalNormalizedPosition());
 			}
 		}
 

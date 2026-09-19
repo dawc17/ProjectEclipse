@@ -1,4 +1,6 @@
 using System;
+using Nekki.SF2.GUI;
+using Nekki.SF2.GUI.Scenes;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -36,6 +38,8 @@ namespace Eclipse.UI
         private int selected;
         private bool rebuilding;
         private bool leaving;
+        private Action optionsClosed;
+        private bool optionsOnly;
         private float enterAt;
         private Vector2Int resolution;
         private FullScreenMode mode;
@@ -68,11 +72,21 @@ namespace Eclipse.UI
             new GameObject("Eclipse Title Screen", typeof(RectTransform)).AddComponent<TitleScreen>();
         }
 
+        public static void ShowOptions(Action closed)
+        {
+            if (IsOpen) return;
+            var screen = new GameObject("Eclipse Options", typeof(RectTransform)).AddComponent<TitleScreen>();
+            screen.optionsOnly = true;
+            screen.optionsClosed = closed;
+            screen.Settings("Display");
+        }
+
         public static void PrepareForRestart() { enteredCampaign = false; }
 
         private void Awake()
         {
             IsOpen = true;
+            SoundController.ApplySavedVolumes();
             font = Resources.Load<Font>("ui/fonts/AGOpusBold");
             if (font == null) font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             var inkShader = Resources.Load<Shader>("shaders/EclipseTitleInk");
@@ -240,11 +254,11 @@ namespace Eclipse.UI
         {
             Clear(tab);
             Label(page, "Options", 76, 96, 550, 64, 46, Ink);
-            string[] tabs = { "Display", "Controls", "Controller" };
+            string[] tabs = { "Display", "Controls", "Controller", "Audio", "Accessibility" };
             for (int i = 0; i < tabs.Length; i++)
             {
                 string target = tabs[i];
-                var button = Button(page, target, 76 + i * 232, 180, 216, 48, () => { if (currentPage != target) Settings(target); });
+                var button = Button(page, target, 76 + i * 224, 180, 216, 48, () => { if (currentPage != target) Settings(target); });
                 if (tab == target) { var tint = button.colors; tint.normalColor = Red; button.colors = tint; }
             }
             if (tab == "Display")
@@ -262,6 +276,24 @@ namespace Eclipse.UI
                 var apply = Button(page, "Apply display", 852, 568, 340, 48, ApplyDisplay);
                 apply.interactable = !Application.isMobilePlatform;
                 Label(page, "Window and resolution changes require confirmation. Rendering options save immediately.", 76, 544, 1120, 24, 15, Ink);
+            }
+            else if (tab == "Accessibility")
+            {
+                OptionSlider("Critical hit pause", 290, AccessibilitySettings.CriticalPause, AccessibilitySettings.SetCriticalPause);
+                OptionSlider("Critical hit shake", 390, AccessibilitySettings.CriticalShake, AccessibilitySettings.SetCriticalShake);
+                Row("Control size", () => GraphicsController.LargeControlsEnabled() ? "Large" : "Small", 490, () =>
+                {
+                    GraphicsController.ToggleControlSize();
+                    var dojo = Scene<DojoScene>.get_Current();
+                    if (dojo != null) dojo.fight.RefreshControllerLayout();
+                });
+                Label(page, "0% disables the effect. 100% restores the original intensity. Changes save immediately.", 76, 550, 1120, 40, 17, Ink);
+            }
+            else if (tab == "Audio")
+            {
+                OptionSlider("Music volume", 290, SoundController.GetMusicVolume(), SoundController.SetMusicVolume);
+                OptionSlider("Sound volume", 390, SoundController.GetSoundVolume(), SoundController.SetSoundVolume);
+
             }
             else
             {
@@ -432,6 +464,7 @@ namespace Eclipse.UI
         {
             PlayerPrefs.Save();
             if (currentPage == "Confirm") RevertDisplay();
+            else if (optionsOnly) { IsOpen = false; Destroy(gameObject); }
             else if (currentPage == "Home") QuitPrompt();
             else if (currentPage == "Mod details") DrawMods();
             else Home();
@@ -489,10 +522,28 @@ namespace Eclipse.UI
             }
         }
 
+        private void OptionSlider(string title, float y, float value, UnityEngine.Events.UnityAction<float> changed)
+        {
+            var label = Label(page, title + "  " + Mathf.RoundToInt(value * 100) + "%", 76, y, 480, 40, 24, Ink);
+            var track = Box(page, title, 580, y, 580, 40, new Color32(120, 105, 84, 255));
+            var handle = Box(track, "Handle", 0, 0, 24, 40, Red);
+            var slider = track.gameObject.AddComponent<Slider>();
+            slider.targetGraphic = handle.GetComponent<Image>();
+            slider.handleRect = handle;
+            slider.minValue = 0; slider.maxValue = 1; slider.value = value;
+            slider.onValueChanged.AddListener(v => { changed(v); label.text = title + "  " + Mathf.RoundToInt(v * 100) + "%"; });
+            controls.Add(slider);
+        }
+
         private void FocusFirst()
         {
             rebuilding = false;
-            if (controls.Count > 0) controls[0].Select();
+            if (controls.Count > 0)
+            {
+                int tabIndex = Array.IndexOf(new[] { "Display", "Controls", "Controller", "Audio", "Accessibility" }, currentPage);
+                selected = Mathf.Max(0, tabIndex);
+                controls[selected].Select();
+            }
         }
 
         private void OnDestroy()
@@ -508,6 +559,7 @@ namespace Eclipse.UI
                 EventSystem.current.SetSelectedGameObject(previousSelection);
             }
             if (ownedEventSystem != null) Destroy(ownedEventSystem.gameObject);
+            optionsClosed?.Invoke();
         }
 
         private static RectTransform Rect(Transform parent, string name, float x, float y, float w, float h)

@@ -104,7 +104,13 @@ public class SFButton : Button, global::IEventDispatcher<object>
 		return NBKJBIIPPNB.RemoveEventListener(name, ODDEOFKLIAG);
 	}
 
-	public override void OnPointerDown(PointerEventData BHOLFGOGPCP)
+    public void SetInputPressedVisual(bool pressed)
+    {
+        DoStateTransition(!interactable ? SelectionState.Disabled :
+            pressed ? SelectionState.Pressed : SelectionState.Normal, true);
+    }
+
+    public override void OnPointerDown(PointerEventData BHOLFGOGPCP)
 	{
 		base.OnPointerDown(BHOLFGOGPCP);
 		CallEvent(0, ButtonId);

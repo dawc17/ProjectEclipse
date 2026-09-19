@@ -1,5 +1,37 @@
 public class SoundController
 {
+    private static void SaveMusicSettings()
+    {
+        UnityEngine.PlayerPrefs.SetFloat("Eclipse.MusicVolume", Sound.EAIGFAPKILL());
+        UnityEngine.PlayerPrefs.SetInt("Eclipse.MusicMuted", Sound.ELHMADOKHHE() ? 1 : 0);
+        UnityEngine.PlayerPrefs.Save();
+        ListSF.CCDKHLAMKKO()?.APDCCIEJLMD();
+    }
+
+    private static void SaveSoundSettings()
+    {
+        UnityEngine.PlayerPrefs.SetFloat("Eclipse.SoundVolume", Sound.NBHPABEBLOP());
+        UnityEngine.PlayerPrefs.SetInt("Eclipse.SoundMuted", Sound.AAFLCDKJEPL() ? 1 : 0);
+        UnityEngine.PlayerPrefs.Save();
+        ListSF.CCDKHLAMKKO()?.ABODKHDPHMI();
+    }
+
+    internal static void ApplySavedVolumes()
+    {
+        // Title-screen settings exist before a roster and take precedence once it loads.
+        if (UnityEngine.PlayerPrefs.HasKey("Eclipse.MusicVolume"))
+        {
+            Sound.OAFCOFNOIJK(UnityEngine.PlayerPrefs.GetFloat("Eclipse.MusicVolume"));
+            Sound.FMLHEDIPGAF(UnityEngine.PlayerPrefs.GetInt("Eclipse.MusicMuted") != 0);
+            ListSF.GKAOOOICJAI = Sound.ELHMADOKHHE();
+        }
+        if (UnityEngine.PlayerPrefs.HasKey("Eclipse.SoundVolume"))
+        {
+            Sound.JOFLPDCONNC(UnityEngine.PlayerPrefs.GetFloat("Eclipse.SoundVolume"));
+            Sound.FLOFHMBDHNM(UnityEngine.PlayerPrefs.GetInt("Eclipse.SoundMuted") != 0);
+        }
+    }
+
 	public const string MUSIC_MENU = "menu";
 
 	public static bool IsBackgroundMusicIntro;
@@ -8,11 +40,11 @@ public class SoundController
 	{
 		get
 		{
-			return FGFHCAAFODL();
+			return GetMusicVolume();
 		}
 		set
 		{
-			IDLBNOCKEBK(value);
+			SetMusicVolume(value);
 		}
 	}
 
@@ -20,11 +52,11 @@ public class SoundController
 	{
 		get
 		{
-			return LOLBPMLPBGL();
+			return GetSoundVolume();
 		}
 		set
 		{
-			EDPABAPLCGN(value);
+			SetSoundVolume(value);
 		}
 	}
 
@@ -67,12 +99,16 @@ public class SoundController
 		Sound.FAJONFGJBPD();
 	}
 
-	public static float FGFHCAAFODL()
+	// best guess for name
+
+	public static float GetMusicVolume()
 	{
 		return (!Sound.ELHMADOKHHE()) ? Sound.EAIGFAPKILL() : 0f;
 	}
 
-	public static void IDLBNOCKEBK(float value)
+	// best guess for name
+
+	public static void SetMusicVolume(float value)
 	{
 		Sound.OAFCOFNOIJK(value);
 		bool flag = value <= 0f;
@@ -87,31 +123,35 @@ public class SoundController
 		}
 		else
 		{
-			ListSF.CCDKHLAMKKO().APDCCIEJLMD();
+			SaveMusicSettings();
 		}
 	}
 
-	public static float LOLBPMLPBGL()
+	// best guess for name
+
+	public static float GetSoundVolume()
 	{
 		return (!Sound.AAFLCDKJEPL()) ? Sound.NBHPABEBLOP() : 0f;
 	}
 
-	public static void EDPABAPLCGN(float value)
+	// best guess for name
+
+	public static void SetSoundVolume(float value)
 	{
 		Sound.JOFLPDCONNC(value);
 		bool flag = value <= 0f;
 		bool flag2 = Sound.AAFLCDKJEPL();
 		if (flag && !flag2)
 		{
-			Sound.FLOFHMBDHNM(true);
+			FLOFHMBDHNM(true);
 		}
 		else if (!flag && flag2)
 		{
-			Sound.FLOFHMBDHNM(false);
+			FLOFHMBDHNM(false);
 		}
 		else
 		{
-			ListSF.CCDKHLAMKKO().ABODKHDPHMI();
+			SaveSoundSettings();
 		}
 	}
 
@@ -130,7 +170,7 @@ public class SoundController
 			}
 			Sound.FMLHEDIPGAF(value);
 			ListSF.GKAOOOICJAI = value;
-			ListSF.CCDKHLAMKKO().APDCCIEJLMD();
+			SaveMusicSettings();
 		}
 	}
 
@@ -148,7 +188,7 @@ public class SoundController
 				Sound.JOFLPDCONNC(1f);
 			}
 			Sound.FLOFHMBDHNM(value);
-			ListSF.CCDKHLAMKKO().ABODKHDPHMI();
+			SaveSoundSettings();
 		}
 	}
 }

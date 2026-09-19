@@ -146,7 +146,8 @@ public class TacticsArchiver
 		{
 			LLLOJBFMONN.Write("file {0} not unzip", OEMALIFPGPO);
 		}
-		GC.Collect();
+		// Several archives load together at a round boundary. Do not force a
+		// full-heap collection after each one; the runtime schedules collection.
 	}
 
 	public static void MFMGMPPALEG(string NDAJLDOMNLK, string AFKFIEAMFKG)
@@ -193,7 +194,6 @@ public class TacticsArchiver
 		{
 			LLLOJBFMONN.Write("file {0} not unzip", OEMALIFPGPO);
 		}
-		GC.Collect();
 	}
 
 	private static void AddTable(string LGCMGHAFEDD, ref byte[] LHJNAJKAFIK)

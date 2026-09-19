@@ -413,7 +413,17 @@ public class Location
 			vector.x *= sprite.pixelsPerUnit;
 			vector.y *= sprite.pixelsPerUnit;
 		}
-		gameObject.transform.localScale = vector;
+		if (PPAJIHNNNDG.Replace('\\', '/').TrimEnd('/').EndsWith("/dojo", System.StringComparison.OrdinalIgnoreCase) &&
+            (ODMCNMJPHFJ == "background_1" || ODMCNMJPHFJ == "background_2"))
+        {
+            float width = flag ? sprite.bounds.size.y * vector.y : sprite.bounds.size.x * vector.x;
+            if (width > 0f && num5 > 0f)
+            {
+                if (flag) vector.y *= num5 / width;
+                else vector.x *= num5 / width;
+            }
+        }
+        gameObject.transform.localScale = vector;
 		gameObject.transform.localPosition = new Vector3(num + num3 * vector.x, num2 + num4 * vector.y, 0f);
 		IDHKNBECKKO.GDEDCJGMFDK(gameObject, EELGIMCJLAI);
 	}

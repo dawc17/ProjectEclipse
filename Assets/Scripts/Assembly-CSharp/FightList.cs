@@ -217,11 +217,10 @@ public class FightList
 
 	public string GJOAJAIJHOE()
 	{
-		if (DGIJOJONCFO == null)
-		{
-			return _description;
-		}
-		return DGIJOJONCFO.MIDPFGENBCF();
+		// Map previews request descriptions before fight initialization populates
+        // the selected rule. Resolve the active rule for the preview as well.
+        DescriptionRule description = DGIJOJONCFO ?? IOMIAAJBPAA();
+        return description == null ? _description : description.MIDPFGENBCF();
 	}
 
 	public void set_Description(string value)

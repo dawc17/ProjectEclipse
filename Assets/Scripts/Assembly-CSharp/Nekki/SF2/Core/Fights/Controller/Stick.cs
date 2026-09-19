@@ -257,7 +257,24 @@ namespace Nekki.SF2.Core.Fights.Controller
 			}
 		}
 
-		public void OnPointerDown(PointerEventData BHOLFGOGPCP)
+        private FightCID visualDirection;
+        public void SetInputDirectionVisual(FightCID direction, bool pressed)
+        {
+            if (direction < FightCID.QuadrantUp || direction > FightCID.QuadrantUpBack) return;
+            if (pressed) visualDirection = direction;
+            else if (visualDirection == direction) visualDirection = FightCID.QuadrantZero;
+            bool active = visualDirection != FightCID.QuadrantZero;
+            _normalTexture.gameObject.SetActive(!active);
+            _selectedTexture.gameObject.SetActive(active);
+            _normalController.gameObject.SetActive(!active);
+            _selectedController.gameObject.SetActive(active);
+            float angle = (int)visualDirection * Mathf.PI / 4f - Mathf.PI / 4f;
+            float radius = ((RectTransform)_normalTexture.transform).rect.width * .2f;
+            _selectedController.transform.localPosition = active
+                ? new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0) * radius : Vector3.zero;
+        }
+
+        public void OnPointerDown(PointerEventData BHOLFGOGPCP)
 		{
 			Vector2 localPoint;
 			RectTransformUtility.ScreenPointToLocalPointInRectangle(GetComponent<RectTransform>(), BHOLFGOGPCP.position, BHOLFGOGPCP.pressEventCamera, out localPoint);

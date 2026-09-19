@@ -62,7 +62,7 @@ namespace Eclipse.Underworld.UI
 
 			if (_remainingBars != remainingHealthBars)
 			{
-				if (healthBarCount > 1 && remainingHealthBars < _remainingBars)
+				if (remainingHealthBars < _remainingBars)
 				{
 					return StartTransition(targetFraction, remainingHealthBars);
 				}

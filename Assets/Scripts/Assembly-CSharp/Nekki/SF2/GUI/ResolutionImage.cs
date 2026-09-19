@@ -180,6 +180,7 @@ namespace Nekki.SF2.GUI
 			// resolved, retaining the old Sprite makes icons appear to loop as the
 			// user scrolls through content whose atlases are not installed.
 			base.sprite = sprite;
+            Eclipse.UI.SplitImageLayout.Apply(this, _SpriteName);
 		}
 
 		public static Sprite GetSprite(string texturePath, string JGIGOMLGLPN)
@@ -205,7 +206,7 @@ namespace Nekki.SF2.GUI
 			// root, bypassing both the exact skill assets and their compatibility
 			// fallback, which leaves the icon as a white/blank image.
 			string normalizedName = JGIGOMLGLPN.Replace('\\', '/');
-			if (string.IsNullOrEmpty(texturePath))
+			if (normalizedName.IndexOf('/') >= 0)
 			{
 				int num = normalizedName.LastIndexOf('/');
 				if (num >= 0)

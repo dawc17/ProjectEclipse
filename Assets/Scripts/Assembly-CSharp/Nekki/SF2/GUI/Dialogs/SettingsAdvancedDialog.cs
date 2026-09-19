@@ -144,7 +144,7 @@ namespace Nekki.SF2.GUI.Dialogs
 				}
 				else
 				{
-					soundTrackBar.value = SoundController.LOLBPMLPBGL();
+					soundTrackBar.value = SoundController.GetSoundVolume();
 				}
 				AOFFEDGGNMN();
 				break;
@@ -156,12 +156,12 @@ namespace Nekki.SF2.GUI.Dialogs
 				}
 				else
 				{
-					musicTrackBar.value = SoundController.FGFHCAAFODL();
+					musicTrackBar.value = SoundController.GetMusicVolume();
 				}
 				IHPJIBKOPDL();
 				break;
 			case AHDEAELNGBD.BTN_CONTROLLER:
-				GraphicsController.JLDMJOEGJLF();
+				GraphicsController.ToggleControlSize();
 				AABJCHNIDJP();
 				DEMCCCLKNEM();
 				break;
@@ -219,8 +219,8 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected void AABKDFHHFOF()
 		{
-			PGOGAGFHNFK(soundTrackBar, SoundController.LOLBPMLPBGL(), new Vector2(50f, btnSoundAdv.transform.localPosition.y), OEBEMLDGNDB);
-			PGOGAGFHNFK(musicTrackBar, SoundController.FGFHCAAFODL(), new Vector2(50f, btnMusicAdv.transform.localPosition.y), IMJLOABEMOL);
+			PGOGAGFHNFK(soundTrackBar, SoundController.GetSoundVolume(), new Vector2(50f, btnSoundAdv.transform.localPosition.y), OEBEMLDGNDB);
+			PGOGAGFHNFK(musicTrackBar, SoundController.GetMusicVolume(), new Vector2(50f, btnMusicAdv.transform.localPosition.y), IMJLOABEMOL);
 		}
 
 		protected override void LOFKNKHJEDJ()
@@ -253,7 +253,7 @@ namespace Nekki.SF2.GUI.Dialogs
 		protected void OEBEMLDGNDB(float JIJAJFEJJHK)
 		{
 			bool flag = SoundController.AAFLCDKJEPL();
-			SoundController.EDPABAPLCGN(JIJAJFEJJHK);
+			SoundController.SetSoundVolume(JIJAJFEJJHK);
 			if (flag != SoundController.AAFLCDKJEPL())
 			{
 				AOFFEDGGNMN();
@@ -263,7 +263,7 @@ namespace Nekki.SF2.GUI.Dialogs
 		protected void IMJLOABEMOL(float JIJAJFEJJHK)
 		{
 			bool flag = SoundController.ELHMADOKHHE();
-			SoundController.IDLBNOCKEBK(JIJAJFEJJHK);
+			SoundController.SetMusicVolume(JIJAJFEJJHK);
 			if (flag != SoundController.ELHMADOKHHE())
 			{
 				IHPJIBKOPDL();
@@ -336,7 +336,7 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected string HHBPNDNGFAM()
 		{
-			return (!GraphicsController.OPEHHMBJABL()) ? "Settings_Controller_Small" : "Settings_Controller_Large";
+			return (!GraphicsController.LargeControlsEnabled()) ? "Settings_Controller_Small" : "Settings_Controller_Large";
 		}
 
 		protected string BPBKNHEDMKI()
@@ -395,7 +395,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			DojoScene current = Scene<DojoScene>.get_Current();
 			if (current != null)
 			{
-				current.fight.BPFBPOCPPCB();
+				current.fight.RefreshControllerLayout();
 			}
 		}
 	}

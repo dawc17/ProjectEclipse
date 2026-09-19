@@ -83,7 +83,7 @@ namespace Nekki.SF2.GUI.Map
 					BIEHOAACFGA = 255f;
 					JEJJAFNDNJP = 255f;
 				}
-				_lblDescription.HNIHBGAOAIH(JEJJAFNDNJP);
+				_lblDescription.HNIHBGAOAIH(JEJJAFNDNJP / 255f);
 			}
 			else
 			{

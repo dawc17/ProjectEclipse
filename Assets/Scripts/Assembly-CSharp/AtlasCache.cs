@@ -21,7 +21,8 @@ public static class AtlasCache
 				_CachedAtlases.Add(ONNKJLOGHGH, array2);
 				return array2;
 			}
-			return array;
+			_CachedAtlases[ONNKJLOGHGH] = array2 ?? new Sprite[0];
+            return _CachedAtlases[ONNKJLOGHGH];
 		}
 		return _CachedAtlases[ONNKJLOGHGH];
 	}
@@ -39,7 +40,7 @@ public static class AtlasCache
 		}
 		if (array == null || array.Length == 0)
 		{
-			array = ENFOJMFEGJH("ui/atlases");
+			return ResourcesAndBundles.Load<Sprite>("ui/atlases/" + CMMPHNJDOCF);
 		}
 		Sprite[] array2 = array;
 		foreach (Sprite sprite in array2)

@@ -888,13 +888,11 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		protected void MFIGCNECAAN(object data)
 		{
-			EBBGCLGJBBC = DialogsOpener.CLOCBDBIAEF();
-			if (EBBGCLGJBBC != null)
-			{
-				EBBGCLGJBBC.AddEventListener(0, FDJDPMIKIHN);
-				EBBGCLGJBBC.AddEventListener(2, OnClose);
-				base.gameObject.SetActive(false);
-			}
+            base.gameObject.SetActive(false);
+            Eclipse.UI.TitleScreen.ShowOptions(() =>
+            {
+                if (this != null) base.gameObject.SetActive(true);
+            });
 		}
 
 		protected void FDJDPMIKIHN(object data)

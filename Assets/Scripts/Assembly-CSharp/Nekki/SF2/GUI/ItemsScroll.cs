@@ -179,7 +179,14 @@ namespace Nekki.SF2.GUI
 			ScrollToItem(item, 1f);
 		}
 
-		public override void OnBeginDrag(PointerEventData BHOLFGOGPCP)
+        public override void OnScroll(PointerEventData data)
+        {
+            KillTween();
+            base.OnScroll(data);
+            onScrollEnd.Invoke();
+        }
+
+        public override void OnBeginDrag(PointerEventData BHOLFGOGPCP)
 		{
 			base.OnBeginDrag(BHOLFGOGPCP);
 			KillTween();
@@ -217,6 +224,7 @@ namespace Nekki.SF2.GUI
 				Vector2 vector = KMCOHAGCFBN(item);
 				if (_Duration == 0f)
 				{
+                    KillTween();
 					SetContentPosition(vector);
 					onScrollEnd.Invoke();
 					StopMovement();
