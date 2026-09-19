@@ -249,3 +249,10 @@ conditions; production native roster tests verify counters, freshness, no write
 on read and profile unavailability. Notification ordering, map lock changes and
 opened-state persistence remain to be connected before story activation. See
 Step 34 in de128/PRODUCTION.md.
+
+Step 35 implements owned battle lock updates through `story.progression` on an
+unblocked map. It preserves other saved battle fields and refreshes native lock
+buttons. Map reloads now retire old zone objects instead of leaving duplicate
+buttons active. Lua, native map and existing combat checks cover this foundation;
+initial revelation, notifications, persistent opened flags and full Sensei story
+assembly remain unfinished. DE128 stays 0.18.0; see the production record.

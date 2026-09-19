@@ -97,6 +97,38 @@ service or arbitrary game mode; use the supported offline mode APIs.
 Create a fight for the battle and reveal it through a quest. Merely registering
 an entry does not guarantee that an existing story save will display it.
 
+## sf2.battles.set_locked
+
+Change the saved lock of a revealed battle owned by this mod.
+
+**Signature:** `sf2.battles.set_locked(battle, locked)`
+
+**Returns:** `true` when applied or already in the requested state. `false` when
+the profile/map is unavailable, native input is blocked, a transition or encounter
+preparation is pending, or the battle has no saved revealed entry.
+
+**When:** On an initialized map, such as a normal UI `on_click` callback after
+story presentation. Calls during UI `on_close` cleanup raise an error; cleanup may
+run because the scene/profile is being replaced. Do not retry in a tight loop.
+
+**Requires:** `story.progression`, this script's own battle handle and a boolean
+`locked`. Strings, forged handles, core battles and other mods' battles are not
+accepted. Register/reveal initial entries declaratively before changing locks.
+
+```lua
+-- battle was registered by this mod. In a normal map UI button callback:
+if sf2.battles.set_locked(battle, false) then
+    sf2.ui.close(view) -- also requires ui.create
+end
+```
+
+This changes only the native saved lock flag, refreshes map presentation and
+requests a normal profile save. It does not reveal a missing entry, change hidden
+state, reset replay counts or clear fight history. Unlocking does not override
+other native fight conditions. Repeating the same value is harmless. A return
+value is not a guarantee that a disk write has completed. Use declared mod state
+for your own notification flags, and mark them only after accepting the change.
+
 ## sf2.warriors.get_template
 
 Get an existing opponent template as the starting point for a new warrior.

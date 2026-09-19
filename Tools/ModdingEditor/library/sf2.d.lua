@@ -2127,6 +2127,16 @@ function zones.get(reference) end
 ---@return Eclipse.BattleHandle
 function battles.register(definition) end
 
+---Change the saved lock of a revealed battle owned by this mod.
+---Requires: `story.progression`, this script's own battle handle and a boolean `locked`. Strings, forged handles, core battles and other mods' battles are not accepted. Register/reveal initial entries declaratively before changing locks.
+---When: On an initialized map, such as a normal UI `on_click` callback after story presentation. Calls during UI `on_close` cleanup raise an error; cleanup may run because the scene/profile is being replaced. Do not retry in a tight loop.
+---Returns: `true` when applied or already in the requested state. `false` when the profile/map is unavailable, native input is blocked, a transition or encounter preparation is pending, or the battle has no saved revealed entry.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlesset_locked)
+---@param battle Eclipse.BattleHandle
+---@param locked boolean
+---@return boolean
+function battles.set_locked(battle, locked) end
+
 ---Get an existing opponent template as the starting point for a new warrior.
 ---Requires: `content.register` and the template owner's dependency.
 ---When: Entrypoint.

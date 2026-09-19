@@ -35,11 +35,11 @@ public class RosterBattle
 	{
 		get
 		{
-			return NLIJBCHAEBK();
+			return IsLocked();
 		}
 		set
 		{
-			HLNEICNJDCF(value);
+			SetLocked(value);
 		}
 	}
 
@@ -59,7 +59,7 @@ public class RosterBattle
 	{
 		get
 		{
-			return KHGCEFNBDDG();
+			return GetBattleId();
 		}
 		set
 		{
@@ -182,12 +182,14 @@ public class RosterBattle
 		}
 	}
 
-	public bool NLIJBCHAEBK()
+	// best guess for name
+	public bool IsLocked()
 	{
 		return LNKJGCAAJHN;
 	}
 
-	public void HLNEICNJDCF(bool value)
+	// best guess for name
+	public void SetLocked(bool value)
 	{
 		LNKJGCAAJHN = value;
 		_node.Attributes["Locked"].Value = Convert.ToInt32(LNKJGCAAJHN).ToString();
@@ -208,7 +210,8 @@ public class RosterBattle
 		_node.Attributes["Hidden"].Value = Convert.ToInt32(FMFGNJBDGKG).ToString();
 	}
 
-	public FightIDS KHGCEFNBDDG()
+	// best guess for name
+	public FightIDS GetBattleId()
 	{
 		return FMOAFHBHOJD;
 	}

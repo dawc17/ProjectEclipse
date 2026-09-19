@@ -222,7 +222,7 @@ namespace Nekki.SF2.GUI.Map
 					_btnRemoveFight.gameObject.SetActive(false);
 				}
 			}
-			if ((dDNLCGOPAGC != null && dDNLCGOPAGC.NLIJBCHAEBK()) || DPOOIONCEOA.get_Type() == BattleType.FightFake)
+			if ((dDNLCGOPAGC != null && dDNLCGOPAGC.IsLocked()) || DPOOIONCEOA.get_Type() == BattleType.FightFake)
 			{
 				_contentClosed.Init(DPOOIONCEOA.GJOAJAIJHOE());
 				MHPKMPKPBPG = _contentClosed;

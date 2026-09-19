@@ -27,7 +27,7 @@ public class BattleReplayable : Battle
 
 	public bool TryStartNextReplay()
 	{
-		if (MEOMPEEPCJJ == null || MEOMPEEPCJJ.NLIJBCHAEBK())
+		if (MEOMPEEPCJJ == null || MEOMPEEPCJJ.IsLocked())
 		{
 			return false;
 		}

@@ -542,7 +542,7 @@ public class Battle
 		{
 			return false;
 		}
-		return MEOMPEEPCJJ.NLIJBCHAEBK();
+		return MEOMPEEPCJJ.IsLocked();
 	}
 
 	public void JNPDHAFMKID()

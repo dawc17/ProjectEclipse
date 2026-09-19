@@ -205,6 +205,7 @@ namespace Eclipse.Modding
             _profileRoster = null;
             ModProfileAccess.Clear();
             ModSceneAccess.Clear();
+            ModBattleAccess.Clear();
             DojoSelection.Clear();
             _legacyContent?.Dispose();
             _legacyContent = null;
@@ -222,6 +223,7 @@ namespace Eclipse.Modding
             DojoSelection.SetChoices(dojoChoices);
             ModProfileAccess.Level = ReadProfileLevel;
             ModProfileAccess.Fight = ReadProfileFight;
+            ModBattleAccess.SetLocked = TrySetBattleLocked;
             ModProfileAccess.Item = ReadProfileItem;
             ModProfileAccess.Perk = ReadProfilePerk;
             ModProfileAccess.Equipment = ReadProfileEquipment;
@@ -409,6 +411,31 @@ namespace Eclipse.Modding
         }
 
         private static int? ReadProfileLevel() => _profileRoster == null ? (int?)null : _profileRoster.Level;
+
+        internal static bool TrySetBattleLocked(DefinitionId id, bool locked)
+        {
+            if (_profileRoster == null || _scripts == null || _profileMutationState != 0 ||
+                _sceneNavigationInProgress || ModModeRuntime.HasPendingPreparation ||
+                Eclipse.UI.Modding.ModUiGameBridge.NativeInputBlocked) return false;
+            var lockScreen = Nekki.SF2.GUI.LockScreen.get_Instance();
+            if (lockScreen != null && lockScreen.gameObject.activeInHierarchy) return false;
+            var map = Nekki.SF2.GUI.Scene<Nekki.SF2.GUI.Map.MapScene>.get_Current();
+            if (map == null || !map.gameObject.activeInHierarchy ||
+                UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != (int)ScreenType.ModuleMap) return false;
+            if (!_scripts.Content.TryGetBattle(id, out var battle) || id.Namespace.Value == "core" ||
+                !_scripts.Content.TryGetZone(battle.Zone, out var zone))
+                throw new ModContentException("Battle progression references unavailable owned content: " + id);
+            var nativeId = new FightIDS(zone.LegacyName + "|" + battle.LegacyName + "|");
+            RosterBattle record = null;
+            foreach (var candidate in _profileRoster.GetSavedBattles())
+                if (candidate.GetBattleId().Equals(nativeId)) { record=candidate; break; }
+            if (record == null) return false; // Reveal through declarative content first.
+            if (record.IsLocked() == locked) return true;
+            record.SetLocked(locked);
+            map.ReloadZones();
+            ListSF.GetInstance().OnAuthenticate(true);
+            return true;
+        }
 
         internal static bool TryNavigateScene(string destination)
         {
@@ -1360,6 +1387,7 @@ namespace Eclipse.Modding
             _profileRoster = null;
             ModProfileAccess.Clear();
             ModSceneAccess.Clear();
+            ModBattleAccess.Clear();
             DojoSelection.Clear();
             ModModeRuntime.Clear();
             ModModeRuntime.SelectNext = null;

@@ -1,4 +1,6 @@
 local sf2 = require("sf2")
+-- This isolated acceptance profile exercises map locks/combat, not the dojo tutorial.
+sf2.quests.suppress { target = "core:quests/quest_extensions/tutorial_quests.xml/storytutorialwelcome" }
 require("content.sensei_act_one_opponents") -- Copied from the authored pending DE module by the runner.
 require("content.sensei_rewards")
 local function animation_probe(_, fighter, event)
@@ -51,6 +53,10 @@ local loss = sf2.rewards.register { id = "loss", items = {} }
 local win = sf2.rewards.register { id = "win", items = {} }
 local fight = sf2.fights.register { id = "jian", battle = battle, location = location,
     warriors = { opponent }, rewards = { loss, win }, rules = { lifecycle_rule }, rounds = 1, round_time = 99 }
+local locked_battle = sf2.battles.register { id = "lock_check", zone = zone, type = sf2.battles.STORY,
+    icon = "tournament", icon_atlas = "BattleBtnStart", title = "Lock check", x = 200, y = 0, location = location }
+sf2.fights.register { id = "lock_check", battle = locked_battle, location = location,
+    warriors = { opponent }, rewards = { loss, win }, rounds = 1, round_time = 99 }
 local sphere2_opponent = sf2.warriors.register {
     id = "sphere2", template = sf2.warriors.get_template("core:warrior-templates/man_staff"),
     tactic = "Standard", first_name = "Sphere2 acceptance", last_name = "", level = 1,

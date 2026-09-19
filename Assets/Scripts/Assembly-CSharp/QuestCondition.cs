@@ -943,7 +943,7 @@ public class QuestCondition : ConditionExtension
 			bool flag2 = true;
 			if (cGJCGEBPCAF5 != null)
 			{
-				flag2 = cGJCGEBPCAF5.NNPNEABKHPP() == null || cGJCGEBPCAF5.NNPNEABKHPP().NLIJBCHAEBK();
+				flag2 = cGJCGEBPCAF5.NNPNEABKHPP() == null || cGJCGEBPCAF5.NNPNEABKHPP().IsLocked();
 			}
 			BMDEBHIHIAJ.resultNumber = (flag2 ? 1 : 0);
 			break;

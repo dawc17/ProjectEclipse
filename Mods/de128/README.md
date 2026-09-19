@@ -33,6 +33,11 @@ opened flags. It does not yet show notifications, change map locks or persist
 those flags. All 2048 prerequisite histories are compared with archived quest
 conditions; the generic `sf2.profile.fight` query supplies the saved counters.
 
+The generic `sf2.battles.set_locked` API can now update an owned, already revealed
+battle on an unblocked map without resetting replay counts or fight history.
+The Sensei coordinator still needs initial revelation, notification ordering and
+opened-state persistence before activation. See Step 35 in `PRODUCTION.md`.
+
 `scripts/content/chinese_swords.lua` registers both moves and Jian's subtype;
 `chinese_swords_data.lua` contains their typed combat/presentation data. The mod
 bundles the unchanged recovered animation binary, with no runtime XML dependency.

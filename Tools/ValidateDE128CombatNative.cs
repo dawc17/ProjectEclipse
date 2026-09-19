@@ -16,6 +16,7 @@ public static class ValidateDE128CombatNative
     static readonly BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
     static double started, reported;
     static bool campaign, entered, attached, requested, selected, released, finished;
+    static bool mapLockChecked;
     static string failure;
     static int requestedAt, selectedAt, attacks, swishes;
     static Model actor;
@@ -67,6 +68,17 @@ public static class ValidateDE128CombatNative
             {
                 reported = EditorApplication.timeSinceStartup;
                 Debug.Log("[DE128Native] Waiting campaign=" + campaign + " entered=" + entered + " selected=" + selected + " actions=" + swishes);
+                if (!mapLockChecked && ModRuntime.Scripts != null)
+                {
+                    var flags = BindingFlags.Static | BindingFlags.NonPublic;
+                    var blocker = typeof(Eclipse.UI.Modding.ModUiGameBridge).GetProperty("NativeInputBlocked", flags);
+                    var lockScreen = Nekki.SF2.GUI.LockScreen.get_Instance();
+                    Debug.Log("[DE128Native] Map gates: scene=" + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name +
+                        " module=" + Module.GetInstance()?.NMCNDOPKFJD() +
+                        " input=" + blocker?.GetValue(null) + " lock=" + (lockScreen != null && lockScreen.gameObject.activeInHierarchy) +
+                        " mutation=" + typeof(ModRuntime).GetField("_profileMutationState", flags).GetValue(null) +
+                        " quest=" + Nekki.SF2.Core.Quests.QuestsManager.get_Instance()?.CurrentQuestName);
+                }
             }
             if (!campaign && Eclipse.UI.TitleScreen.IsOpen)
             {
@@ -79,6 +91,20 @@ public static class ValidateDE128CombatNative
                 if (ModRuntime.Scripts == null || ListSF.CCDKHLAMKKO() == null || Module.GetInstance() == null) return;
                 var screen = Module.GetInstance().NMCNDOPKFJD();
                 if (screen != ScreenType.ModuleDojo && screen != ScreenType.ModuleMap) return;
+                if (!mapLockChecked)
+                {
+                    if (screen != ScreenType.ModuleMap)
+                    {
+                        if (ModBattleAccess.SetLocked(DefinitionId.Parse("fixture.de128-combat:battles/lock_check"), false))
+                            throw new Exception("Battle progression accepted outside map.");
+                        // This fixture tests map progression, not campaign tab gates.
+                        // The ordinary scene loader still initializes the actual map.
+                        Module.DLOKJOHNDID(ScreenType.ModuleMap, null, null, false);
+                        return;
+                    }
+                    if (!CheckMapBattleLock()) return;
+                    mapLockChecked = true;
+                }
                 CheckProjectileActionParsing();
                 CheckSharedMovePatches();
                 CheckRestoredWeapons();
@@ -305,6 +331,63 @@ public static class ValidateDE128CombatNative
         }
         if (checkedPerks != 8) throw new Exception("Expected eight pending young Lynx perk instances, got " + checkedPerks);
         Debug.Log("[DE128Native] PASS eight warrior perk clones: Aspect/ChanceFactor, omitted defaults, explicit zero and instance isolation. Pending story is not activated.");
+    }
+
+    static bool CheckMapBattleLock()
+    {
+        var id = DefinitionId.Parse("fixture.de128-combat:battles/lock_check");
+        var catalog = ModRuntime.Scripts.Content;
+        var definition = catalog.Battles.Single(value => value.Id == id);
+        var zone = catalog.Zones.Single(value => value.Id == definition.Zone);
+        var nativeId = new FightIDS(zone.LegacyName + "|" + definition.LegacyName + "|");
+        var roster = ListSF.CCDKHLAMKKO();
+        var record = roster.GetSavedBattles().SingleOrDefault(value => value.GetBattleId().Equals(nativeId));
+        if (record == null)
+        {
+            // Controlled pre-existing map entry: this check is about changing a
+            // lock, not native quest/session timing or initial story revelation.
+            if (ModBattleAccess.SetLocked(id, false)) throw new Exception("Missing map entry was fabricated by a lock query.");
+            roster.KJIMPNEGNAN(nativeId, true, true, true, false, 7);
+            ListSF.MKHAAGMJOPG(nativeId).DCHJDPCEODD = true;
+            record = roster.GetSavedBattles().Single(value => value.GetBattleId().Equals(nativeId));
+        }
+        var nodeField = typeof(RosterBattle).GetField("_node", Hidden);
+        var node = (System.Xml.XmlNode)nodeField.GetValue(record);
+        string original = node.OuterXml;
+        if (!ModBattleAccess.SetLocked(id, false)) return false; // Scene/quest initialization may still block input.
+        if (record.IsLocked()) throw new Exception("Native roster stayed locked.");
+        Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(true);
+        try
+        {
+            if (ModBattleAccess.SetLocked(id, true) || record.IsLocked()) throw new Exception("Native input block did not protect progression.");
+        }
+        finally { Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(false); }
+        var mutation = typeof(ModRuntime).GetField("_profileMutationState", BindingFlags.Static | BindingFlags.NonPublic);
+        mutation.SetValue(null, 1);
+        try
+        {
+            if (ModBattleAccess.SetLocked(id, true) || record.IsLocked()) throw new Exception("Settlement did not protect progression.");
+        }
+        finally { mutation.SetValue(null, 0); }
+        var expected = new System.Xml.XmlDocument(); expected.LoadXml(original);
+        expected.DocumentElement.SetAttribute("Locked", "0");
+        if (node.OuterXml != expected.DocumentElement.OuterXml) throw new Exception("Lock update changed unrelated battle save fields.");
+        var map = Nekki.SF2.GUI.Scene<Nekki.SF2.GUI.Map.MapScene>.get_Current();
+        var nativeBattle = ListSF.MKHAAGMJOPG(nativeId);
+        Func<Nekki.SF2.GUI.Map.BattleButton> currentButton = () => map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapPanel>(true)
+            .SelectMany(panel => panel.GetZones()).Select(item => item.GetButtonByBattle(nativeBattle)).FirstOrDefault(value => value != null);
+        var button = currentButton();
+        if (button == null || button.Locked) throw new Exception("Native map button did not unlock.");
+        if (!ModBattleAccess.SetLocked(id, true) || !record.IsLocked()) throw new Exception("Native relock failed.");
+        button = currentButton();
+        if (button == null || !button.Locked) throw new Exception("Native map button did not relock.");
+        var registeredZones = new HashSet<Nekki.SF2.GUI.Map.ZoneScrollItem>(map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapPanel>(true).SelectMany(panel => panel.GetZones()));
+        if (map.GetComponentsInChildren<Nekki.SF2.GUI.Map.ZoneScrollItem>(true).Any(item => item.gameObject.activeSelf && !registeredZones.Contains(item)))
+            throw new Exception("Map reload left obsolete zones and buttons active.");
+        string relocked = node.OuterXml;
+        if (!ModBattleAccess.SetLocked(id, true) || node.OuterXml != relocked) throw new Exception("Repeated lock changed saved data.");
+        Debug.Log("[DE128Native] PASS battle lock: map/input/settlement gates, native save flag and rendered button unlock/relock, unrelated fields preserved, idempotent repeat, obsolete zones inactive. Isolated fixture save only.");
+        return true;
     }
 
     static void CheckProfileFightProgress()

@@ -1,5 +1,10 @@
 # Eclipse Modding for VS Code
 
+`sf2.battles.set_locked(battle, locked)` requires `story.progression` and an owned
+battle handle. It changes a revealed entry on an initialized, unblocked map and
+returns whether the request was accepted. The boolean argument is strict; see the
+content graph reference for scene/profile guards and persistence limits.
+
 `sf2.profile.fight(fight)` reads a detached `{ present, wins, losses }` snapshot.
 It accepts a fight handle or qualified ID and requires `profile.read` plus any
 referenced namespace dependency. LuaLS completes the snapshot fields; diagnostics
@@ -16,7 +21,7 @@ Rows expose `perk`, optional `aspect` (0–2,147,483,647), and optional
 only for core perks and apply to that opponent. LuaLS provides nested field
 completion; the game checks ranges, duplicate perks and ownership at registration.
 
-Editor support for all 36 public Eclipse API modules: 159 functions, aliases, and
+Editor support for all 36 public Eclipse API modules: 160 functions, aliases, and
 callbacks; 76 constants; and 229 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 

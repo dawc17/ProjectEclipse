@@ -9,6 +9,12 @@ namespace Eclipse.Modding
         public static void Clear() { Open=null; }
     }
 
+    public static class ModBattleAccess
+    {
+        public static Func<DefinitionId,bool,bool> SetLocked;
+        public static void Clear() { SetLocked=null; }
+    }
+
     public sealed class ModProfileItemSnapshot
     {
         public bool Present { get; }

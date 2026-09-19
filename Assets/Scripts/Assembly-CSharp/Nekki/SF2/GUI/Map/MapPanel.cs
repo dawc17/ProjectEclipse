@@ -196,7 +196,9 @@ namespace Nekki.SF2.GUI.Map
 
 		public void Clear()
 		{
-			LJOBLDELNGD.ClearItems();
+			// A zone reload replaces its objects, not just the scroll registry.
+			// Otherwise old battle buttons remain visible and keep receiving clicks.
+			_baseScrollContent.Clear();
 		}
 
 		private void IDCFACEODIF()

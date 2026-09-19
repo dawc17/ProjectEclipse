@@ -147,7 +147,7 @@ $battle.MJJFFAOLCCK($battle.GetFights()[0])
 Assert-True (!$battle.TryStartNextReplay()) 'Partially replayed bodyguards reset'
 Assert-True ($battle.FBFHBKPFLJC().Index -eq 1) 'Partial replay lost its next opponent'
 $battle = New-BattleFixture $hermit 1
-$battle.NNPNEABKHPP().HLNEICNJDCF($true)
+$battle.NNPNEABKHPP().SetLocked($true)
 Assert-True (!$battle.TryStartNextReplay()) 'Explicitly locked battle was reopened'
 $battle = New-BattleFixture $hermit 1
 Set-BattleField $battle 'MEOMPEEPCJJ' $null

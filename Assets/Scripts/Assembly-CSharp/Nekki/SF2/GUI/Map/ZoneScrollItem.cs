@@ -391,7 +391,7 @@ namespace Nekki.SF2.GUI.Map
 		private BattleButton EEECOHBLFAO(Battle DPOOIONCEOA)
 		{
 			RosterBattle dDNLCGOPAGC = DPOOIONCEOA.NNPNEABKHPP();
-			bool flag = dDNLCGOPAGC != null && dDNLCGOPAGC.NLIJBCHAEBK();
+			bool flag = dDNLCGOPAGC != null && dDNLCGOPAGC.IsLocked();
 			bool hidden = dDNLCGOPAGC != null && dDNLCGOPAGC.KAPIELMDIIK();
 			string iconAtlas = UnderworldMapBattlePresentation.ResolveBattleIconAtlas(
 				CODCAENBFHK, DPOOIONCEOA.GetIconAtlas());

@@ -2024,3 +2024,61 @@ No map lock, notification or persistent opened flag is changed yet. Those need a
 Lua presentation/progression coordinator that preserves native dialog ordering
 and profile lifetime. Missing guard templates, fight assembly, full story
 playback/save/reload and corpus reconciliation remain open. Package stays 0.18.0.
+
+## Step 35: owned map battle lock updates
+
+Added generic `sf2.battles.set_locked(battle, locked)` under `story.progression`.
+The Lua binding accepts only this script's own registered battle handle and a
+strict boolean. It rejects forged/foreign identities, missing capabilities and
+UI cleanup calls. The C# host requires a bound profile and an active, unblocked
+map; settlement, scene navigation and pending encounter preparation refuse the
+change. Missing saved entries return false without creating them. Existing
+entries change only Locked, refresh native map presentation and request a normal
+save. An identical request returns true without rebuilding or saving again.
+This is not an initial reveal/hide or replay-reset API.
+
+Native map verification exposed a pre-existing refresh defect: MapPanel.Clear
+cleared the scroll registry but left the old zone objects and buttons active.
+It now uses BaseScrollContent.Clear to deactivate and destroy those objects as
+well. The fix is shared C# runtime behavior, with no DE-specific branch.
+
+The used roster methods have narrowly inferred names and the required best-guess
+comments: GetSavedBattles, GetBattleId, IsLocked and SetLocked. Their existing
+callers were updated; save attribute names and method behavior are unchanged.
+The evidence is their roster list, FightIDS and Locked-backed implementations
+and native quest/map consumers. These are not confirmed recovery mappings.
+
+Verification:
+
+- `Tools/TestBattleLocks.ps1`: 22 actual MoonSharp checks covering lock/unlock,
+  refused changes, strict argument types, handle/capability rejection, registration
+  rollback and cleared host service. Evidence:
+  `Temp/BattleLocks-7bfe3e90cf45485fad355e0db25f0a66`.
+- Isolated Unity 6000.6.0f1 run
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-ts3hf7dl` exits 0. It verifies native
+  map unlock/relock and button state, unrelated saved fields preserved, identical
+  requests unchanged, input/settlement guards, and obsolete zones inactive after
+  refresh. Existing roster-query, young Lynx perk, 57 reward-slot, Jian input and
+  MindThrow contact/follow-up checks also pass. This is not a full campaign or
+  save/reload acceptance run, nor a clean Unity log claim.
+- `Tools/TestEclipseRuntime.ps1`: 819 assertions and 21 replay segments pass;
+  all 2638 DE128 foundation checks pass. Managed editor build succeeds with zero
+  errors; existing warnings remain.
+- Underworld runtime checks pass 1282 assertions. The asset audit exits 0 but
+  still reports missing raid image references; this is not complete asset parity.
+- Wiki and editor contracts cover 160 functions, 76 constants and 229 structures.
+  Generation/check, project tests, LuaLS and VS Code integration pass. Wiki builds
+  47 pages with 4083 checked links/assets and zero Astro diagnostics; the existing
+  duplicate-404 warning remains.
+
+The isolated native fixture suppresses the welcome tutorial using the existing
+quest API and creates a controlled revealed battle with replay count 7. Initial
+attempts encountered the tutorial's input block; forcing its continuation outside
+the dojo is not a valid campaign test. The final fixture tests map lock changes
+and existing combat acceptance, not tutorial completion or Lua initial revelation.
+Only the isolated acceptance profile is written; owner saves are untouched.
+
+The pending Sensei Lua coordinator has not been activated. Initial revelation,
+notification ordering, persistent opened flags, missing guard templates, encounter
+assembly and full story/save/reload acceptance remain open. Package remains
+0.18.0; the owner's full asset archive remains deferred.

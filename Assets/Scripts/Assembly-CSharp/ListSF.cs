@@ -3052,10 +3052,10 @@ public class ListSF
 			LLLOJBFMONN.Error("ListSF::setRosterBattle - battle is NULL");
 			return;
 		}
-		List<RosterBattle> list = ANEHEDFAPCH.IEANNFIECJA();
+		List<RosterBattle> list = ANEHEDFAPCH.GetSavedBattles();
 		foreach (RosterBattle item in list)
 		{
-			FightIDS mOCEDDJOAEB = new FightIDS(item.KHGCEFNBDDG());
+			FightIDS mOCEDDJOAEB = new FightIDS(item.GetBattleId());
 			Zone pKCPOJKLMOK = DPOOIONCEOA.LKDFFCADHNO();
 			if (mOCEDDJOAEB.PELHCAEAOFE() == pKCPOJKLMOK.get_Name() && mOCEDDJOAEB.CPHDPCAECJN() == DPOOIONCEOA.get_Name())
 			{

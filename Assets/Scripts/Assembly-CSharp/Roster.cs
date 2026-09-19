@@ -232,7 +232,7 @@ public class Roster : MELBIBHDPCE
 	{
 		get
 		{
-			return IEANNFIECJA();
+			return GetSavedBattles();
 		}
 	}
 
@@ -847,7 +847,8 @@ public class Roster : MELBIBHDPCE
 		return ABBGMNHDECI;
 	}
 
-	public List<RosterBattle> IEANNFIECJA()
+	// best guess for name
+	public List<RosterBattle> GetSavedBattles()
 	{
 		return HLHEFIKFBHH;
 	}
@@ -1391,7 +1392,7 @@ public class Roster : MELBIBHDPCE
 	{
 		foreach (RosterBattle item in HLHEFIKFBHH)
 		{
-			if (item.KHGCEFNBDDG().Equals(DIAIIPCBMFL.ToString()))
+			if (item.GetBattleId().Equals(DIAIIPCBMFL.ToString()))
 			{
 				return true;
 			}
@@ -1634,10 +1635,10 @@ public class Roster : MELBIBHDPCE
 		{
 			foreach (RosterBattle item in HLHEFIKFBHH)
 			{
-				if (item.KHGCEFNBDDG().Equals(DIAIIPCBMFL))
+				if (item.GetBattleId().Equals(DIAIIPCBMFL))
 				{
 					item.GEGKFFGACDI(DIAIIPCBMFL);
-					item.HLNEICNJDCF(NIBIMBDBPMI);
+					item.SetLocked(NIBIMBDBPMI);
 					item.HCEOCBOFIGC(MDEHPLPLNNF);
 					item.FHCHCHPPMEI(OAHPBDFKJOK);
 					return;
@@ -1645,7 +1646,7 @@ public class Roster : MELBIBHDPCE
 			}
 		}
 		RosterBattle dDNLCGOPAGC = MKGLPNLDDKF(DIAIIPCBMFL);
-		dDNLCGOPAGC.HLNEICNJDCF(NIBIMBDBPMI);
+		dDNLCGOPAGC.SetLocked(NIBIMBDBPMI);
 		dDNLCGOPAGC.HCEOCBOFIGC(MDEHPLPLNNF);
 		dDNLCGOPAGC.FHCHCHPPMEI(OAHPBDFKJOK);
 		Battle cGJCGEBPCAF = ListSF.MKHAAGMJOPG(DIAIIPCBMFL);
@@ -1661,9 +1662,9 @@ public class Roster : MELBIBHDPCE
 	{
 		foreach (RosterBattle item in HLHEFIKFBHH)
 		{
-			if (item.KHGCEFNBDDG().Equals(ELBLEPOEKIL.KHGCEFNBDDG()))
+			if (item.GetBattleId().Equals(ELBLEPOEKIL.GetBattleId()))
 			{
-				LLLOJBFMONN.Error("Battle already exists: " + item.KHGCEFNBDDG().CPHDPCAECJN());
+				LLLOJBFMONN.Error("Battle already exists: " + item.GetBattleId().CPHDPCAECJN());
 				return;
 			}
 		}
@@ -1678,7 +1679,7 @@ public class Roster : MELBIBHDPCE
 
 	public void HEHJKDPAPLA(RosterBattle ELBLEPOEKIL)
 	{
-		string text = ELBLEPOEKIL.KHGCEFNBDDG().ToString();
+		string text = ELBLEPOEKIL.GetBattleId().ToString();
 		XmlNode xmlNode = _node["Battles"];
 		foreach (XmlNode childNode in xmlNode.ChildNodes)
 		{
@@ -1706,7 +1707,7 @@ public class Roster : MELBIBHDPCE
 	{
 		foreach (RosterBattle item in HLHEFIKFBHH)
 		{
-			if (item.KHGCEFNBDDG().Equals(DIAIIPCBMFL))
+			if (item.GetBattleId().Equals(DIAIIPCBMFL))
 			{
 				HEHJKDPAPLA(item);
 				break;
@@ -1719,7 +1720,7 @@ public class Roster : MELBIBHDPCE
 		List<RosterBattle> list = new List<RosterBattle>();
 		foreach (RosterBattle item in HLHEFIKFBHH)
 		{
-			if (item.KHGCEFNBDDG().PELHCAEAOFE() == PPBIPCKMFKB)
+			if (item.GetBattleId().PELHCAEAOFE() == PPBIPCKMFKB)
 			{
 				list.Add(item);
 			}
@@ -2461,14 +2462,14 @@ public class Roster : MELBIBHDPCE
 		int num = 0;
 		foreach (RosterBattle item in HLHEFIKFBHH)
 		{
-			if (item.NLIJBCHAEBK())
+			if (item.IsLocked())
 			{
 				continue;
 			}
 			bool flag = false;
 			foreach (RosterFight item2 in JNPMCNMEOLE)
 			{
-				if (item2.GIDNOKCJLPL() == item.KHGCEFNBDDG().CPHDPCAECJN())
+				if (item2.GIDNOKCJLPL() == item.GetBattleId().CPHDPCAECJN())
 				{
 					flag = true;
 					int num2 = item.EDHMHFONDAI.LKDFFCADHNO().KDJNDHLHAFH();
