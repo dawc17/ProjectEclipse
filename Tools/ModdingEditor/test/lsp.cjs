@@ -329,6 +329,7 @@ async function main() {
     await until(async()=>labels(await request('textDocument/completion',uiNode)).includes('kind'),'recursive UI node completion');
     const uiImage=probe('ui-image.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ id="art",kind="image",width=64,height=64, | } }');
     await until(async()=>labels(await request('textDocument/completion',uiImage)).some(label=>label==='sprite'||label==='sprite?'),'image sprite completion');
+    await until(async()=>labels(await request('textDocument/completion',uiImage)).some(label=>label==='mirrored'||label==='mirrored?'),'image mirroring completion');
     const uiGrid=probe('ui-grid.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ id="grid",kind="grid",width=300,height=200, | } }');
     for (const field of ['columns','cell_width','cell_height'])
         await until(async()=>labels(await request('textDocument/completion',uiGrid)).some(label=>label===field||label===field+'?'),'grid '+field+' completion');

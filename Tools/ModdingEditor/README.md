@@ -444,3 +444,7 @@ It requires `combat.effects` and a player callback during an active round.
 Restrictions belong to the attached behavior instance and clear at round setup
 or fight end. Releasing one does not override other restrictions or grant an
 unavailable action. Reapply persistent conditions in `on_round_begin`.
+
+Image nodes accept `mirrored = true` to reflect a portrait horizontally. The
+boolean defaults to false and is fixed for the view's lifetime. It changes
+neither layout size nor the sprite asset; `sf2.ui.set_sprite` preserves it.

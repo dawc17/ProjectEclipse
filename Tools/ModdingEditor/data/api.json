@@ -3557,6 +3557,10 @@
         "children?": "Eclipse.UiNode[]",
         "style?": "Eclipse.UiStyle",
         "sprite?": "Eclipse.SpriteHandle",
+        "mirrored?": [
+          "boolean",
+          "Image only. Defaults to false; horizontally reflects the artwork without changing layout size."
+        ],
         "columns?": "integer",
         "cell_width?": "number",
         "cell_height?": "number"

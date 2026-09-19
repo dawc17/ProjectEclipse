@@ -312,3 +312,10 @@ rules, cannot grant unavailable actions, and clear at round setup/fight end.
 Actual Lua, native Unity and editor contract checks pass. The real perk-state
 reader and native ability availability remain unresolved, so this does not
 activate the Sensei story; DE128 stays 0.18.0. See the production record.
+
+Step 43 ports the six pending post-victory Sensei sequences (23 cards, 448
+translations) into Lua with saved cursors, completion flags and notification
+ordering. Reusable C# image mirroring preserves Widow's presentation. Actual Lua
+and isolated Unity UI checks pass; portrait assets and the final timed ActScreen
+remain explicit unverified dependencies, and intro/defeat/full-story integration
+is unfinished. Active DE128 remains 0.18.0; see its production record.

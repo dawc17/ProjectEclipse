@@ -149,6 +149,7 @@ namespace Eclipse.UI.Modding
                 var artwork = rect.gameObject.AddComponent<Image>();
                 artwork.preserveAspect = true;
                 artwork.raycastTarget = false;
+                rect.localScale = new Vector3(node.Mirrored ? -1 : 1, 1, 1);
                 view.Artwork = artwork;
             }
             if (node.Kind == ModUiKind.Button)

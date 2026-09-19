@@ -225,7 +225,7 @@ type('UiStyle', { 'font_size?':'integer','text_align?':enumOf('left','center','r
     'text_color?':'string','background_color?':'string','fill_color?':'string' });
 type('UiNode', { id:'string', kind:enumOf('stack','row','column','scroll','text','button','progress','toggle','slider','image','grid'),
     'width?':'number','height?':'number','gap?':'number','text?':'string','value?':'number','checked?':'boolean',
-    'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]','style?':E('UiStyle'),'sprite?':H('Sprite'),
+    'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]','style?':E('UiStyle'),'sprite?':H('Sprite'),'mirrored?':['boolean','Image only. Defaults to false; horizontally reflects the artwork without changing layout size.'],
     'columns?':'integer','cell_width?':'number','cell_height?':'number' });
 type('UiPlacement', { 'anchor?':enumOf('top_left','top','top_right','left','center','right','bottom_left','bottom','bottom_right'),'x?':'number','y?':'number' });
 type('UiDefinition', { id:'string',mount:enumOf('menu','modal','hud'),root:E('UiNode'),'placement?':E('UiPlacement'),

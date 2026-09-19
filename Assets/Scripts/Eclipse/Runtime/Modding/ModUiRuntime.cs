@@ -134,6 +134,7 @@ namespace Eclipse.Modding
         public double CellHeight { get; }
         public string Text { get; }
         public AssetId? Sprite { get; }
+        public bool Mirrored { get; }
         public double Value { get; }
         public bool Visible { get; }
         public bool Enabled { get; }
@@ -143,7 +144,7 @@ namespace Eclipse.Modding
         public ModUiNode(string id, ModUiKind kind, double width, double height,
             string text = "", double value = 0, bool visible = true, bool enabled = true,
             double gap = 0, IEnumerable<ModUiNode> children = null, ModUiStyle style = null, AssetId? sprite = null,
-            int columns = 0, double cellWidth = 0, double cellHeight = 0)
+            int columns = 0, double cellWidth = 0, double cellHeight = 0, bool mirrored = false)
         {
             ValidateId(id);
             if (!Enum.IsDefined(typeof(ModUiKind), kind)) throw new ArgumentOutOfRangeException(nameof(kind));
@@ -167,6 +168,8 @@ namespace Eclipse.Modding
                 if (width <= 0 || height <= 0) throw new ArgumentException("Image widgets require positive width and height.");
             }
             else if (sprite.HasValue) throw new ArgumentException("Only image widgets accept a sprite.");
+            if (mirrored && kind != ModUiKind.Image) throw new ArgumentException("Only image widgets can be mirrored.");
+            Mirrored = mirrored;
             var copy = new List<ModUiNode>();
             if (children != null)
                 foreach (var child in children)

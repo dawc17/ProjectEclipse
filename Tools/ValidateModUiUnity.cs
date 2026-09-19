@@ -19,9 +19,11 @@ public static class ValidateModUiUnity
     static int checks;
     static ValidateModUiUnity()
     {
-        EditorApplication.playModeStateChanged += state => {
-            if (state == PlayModeStateChange.EnteredPlayMode && SessionState.GetBool(Pending, false))
-                EditorApplication.delayCall += Run;
+        // A Unity startup delay callback can throw before later callbacks run.
+        // Observe the requested play-mode state on update instead of losing the
+        // one-shot validator behind an unrelated editor indexing failure.
+        EditorApplication.update += () => {
+            if (Application.isPlaying && !EditorApplication.isCompiling && SessionState.GetBool(Pending, false)) Run();
         };
     }
     public static void RunEditor()
@@ -58,14 +60,16 @@ public static class ValidateModUiUnity
             var artTexture=new Texture2D(32,16);
             var artSprite=Sprite.Create(artTexture,new Rect(0,0,32,16),new Vector2(.5f,.5f));
             ModRuntime.Host.TypedAssets.Sprite=artSprite;
-            var artSurface=scope.Open("art",ModUiMount.CombatHud,new ModUiNode("art",ModUiKind.Image,100,100,sprite:AssetId.Parse("example.ui:sprites/art")));
+            var artSurface=scope.Open("art",ModUiMount.CombatHud,new ModUiNode("art",ModUiKind.Image,100,100,sprite:AssetId.Parse("example.ui:sprites/art"),mirrored:true));
             var artView=ModUiView.Attach(artSurface,canvas.GetComponent<RectTransform>());
             var artImage=artView.transform.Find("art").GetComponent<Image>();
             Check(artImage.sprite==artSprite&&artImage.preserveAspect&&!artImage.raycastTarget,"Image lost sprite/aspect/noninteractive presentation");
+            Check(artImage.rectTransform.localScale==new Vector3(-1,1,1),"Image did not mirror horizontally");
             var replacementSprite=Sprite.Create(artTexture,new Rect(0,0,16,16),new Vector2(.5f,.5f));
             ModRuntime.Host.TypedAssets.Sprite=replacementSprite;
             artSurface.SetSprite("art",AssetId.Parse("example.ui:sprites/replacement"));
             Check(artImage.sprite==replacementSprite&&artImage.preserveAspect&&!artImage.raycastTarget,"Live sprite replacement lost presentation");
+            Check(artImage.rectTransform.localScale==new Vector3(-1,1,1),"Sprite replacement reset mirroring");
             Check(artView.transform.Find("art").GetComponent<Image>()==artImage&&artSprite!=null,"Sprite replacement rebuilt widget or destroyed shared sprite");
             ModRuntime.Host.TypedAssets.Sprite=null;
             artSurface.SetVisible("art",false);artSurface.SetVisible("art",true);

@@ -1635,6 +1635,7 @@ local UiStyle = {}
 ---@field children? Eclipse.UiNode[]
 ---@field style? Eclipse.UiStyle
 ---@field sprite? Eclipse.SpriteHandle
+---@field mirrored? boolean Image only. Defaults to false; horizontally reflects the artwork without changing layout size.
 ---@field columns? integer
 ---@field cell_width? number
 ---@field cell_height? number

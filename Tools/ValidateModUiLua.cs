@@ -76,6 +76,10 @@ static class Program
                 "type=sprite\ntexture=sprites/"+name+"-texture.png\n");
         }
         const string imageView="local view=sf2.ui.open{id='art',mount='menu',root={id='art',kind='image',width=160,height=80,sprite=icon}}\n";
+        Run(prefix+imageSource+imageView.Replace("sprite=icon", "sprite=icon,mirrored=true"),false,
+            (ctx,cat,views)=>Check(views.Single().Root.Mirrored,"Lua image mirror was lost"));
+        Run(prefix+imageSource+imageView.Replace("sprite=icon", "sprite=icon,mirrored=1"),true);
+        Run(prefix+"sf2.ui.open{id='bad',mount='menu',root={id='text',kind='text',width=160,height=80,mirrored=false}}",true);
         Run(prefix+imageSource+imageView+"sf2.ui.set_sprite(view,'art',sf2.assets.sprite('example.charge-ui:sprites/ui-other'))",false,
             (ctx,cat,views)=>Check(views.Single().Read("art").Sprite==AssetId.Parse("example.charge-ui:sprites/ui-other"),"Lua live image update failed"));
         foreach(string invalidSprite in new[]{"{}","'example.charge-ui:sprites/ui-other'","nil","sf2.localization.key('charge.arm')"})

@@ -37,6 +37,8 @@ static class Program
         var icon = AssetId.Parse("example.ui:sprites/reward");
         var image = new ModUiNode("art", ModUiKind.Image, 160, 80, sprite: icon);
         Check(image.Sprite == icon, "Image lost its typed asset identity");
+        Check(!image.Mirrored && new ModUiNode("mirror",ModUiKind.Image,160,80,sprite:icon,mirrored:true).Mirrored,"Image mirror default/override lost");
+        Reject(() => new ModUiNode("text",ModUiKind.Text,160,80,mirrored:true),"Text accepted mirroring");
         Reject(() => new ModUiNode("art", ModUiKind.Image, 160, 80), "Image accepted no sprite");
         Reject(() => new ModUiNode("art", ModUiKind.Image, 0, 80, sprite: icon), "Image accepted undefined size");
         Reject(() => new ModUiNode("art", ModUiKind.Text, 160, 80, sprite: icon), "Text accepted artwork");

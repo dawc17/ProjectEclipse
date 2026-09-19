@@ -156,7 +156,7 @@ namespace Eclipse.Modding
                 if (value.Type != DataType.Table) throw new ModContentException("UI nodes must be tables.");
                 const string function = "UI node";
                 var node = value.Table;
-                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "checked", "visible", "enabled", "children", "style", "sprite", "columns", "cell_width", "cell_height");
+                ValidateFields(node, function, "id", "kind", "width", "height", "gap", "text", "value", "checked", "visible", "enabled", "children", "style", "sprite", "columns", "cell_width", "cell_height", "mirrored");
                 ModUiKind kind;
                 switch (RequiredString(node, "kind", function))
                 {
@@ -177,6 +177,7 @@ namespace Eclipse.Modding
                 if (kind == ModUiKind.Toggle && !node.Get("value").IsNil()) throw new ModContentException("Use checked for a toggle.");
                 if (kind != ModUiKind.Image && !node.Get("sprite").IsNil()) throw new ModContentException("Only image widgets accept a sprite.");
                 AssetId? sprite = kind == ModUiKind.Image ? RequiredHandle(node,"sprite",_spriteHandles,"sprite",function) : (AssetId?)null;
+                if (kind != ModUiKind.Image && !node.Get("mirrored").IsNil()) throw new ModContentException("Only image widgets accept mirrored.");
                 if (kind != ModUiKind.Grid && (!node.Get("columns").IsNil() || !node.Get("cell_width").IsNil() || !node.Get("cell_height").IsNil()))
                     throw new ModContentException("Only grids accept columns and cell dimensions.");
                 double columns = UiNumber(node,"columns");
@@ -202,7 +203,7 @@ namespace Eclipse.Modding
                     UiNumber(node,"width"), UiNumber(node,"height"), OptionalStringAllowEmpty(node,"text","",function),
                     kind == ModUiKind.Toggle ? (OptionalBool(node,"checked",false,function) ? 1 : 0) : UiNumber(node,"value"), OptionalBool(node,"visible",true,function), OptionalBool(node,"enabled",true,function),
                     UiNumber(node,"gap"), children, ReadUiStyle(node.Get("style")), sprite,
-                    (int)columns, UiNumber(node,"cell_width"), UiNumber(node,"cell_height"));
+                    (int)columns, UiNumber(node,"cell_width"), UiNumber(node,"cell_height"), OptionalBool(node,"mirrored",false,function));
             }
 
             private static ModUiNode FindUiNode(ModUiNode node, string id)

@@ -65,6 +65,7 @@ Each node is a table:
 | `value` | `0` | Progress/slider fraction, finite 0–1. Toggles reject this field; other kinds require zero. |
 | `checked` | `false` | Boolean, toggles only. |
 | `sprite` | Required for image | Typed handle from `sf2.assets.sprite`. Only image widgets accept this field. Images require positive width and height, preserve aspect ratio, and do not receive clicks. |
+| `mirrored` | `false` | Boolean, images only. Reflects artwork horizontally around its center without changing layout dimensions, aspect ratio or the shared sprite asset. Fixed for the view's lifetime; sprite replacement preserves it. |
 | `visible`, `enabled` | `true` | Widget state; hidden/disabled ancestors also prevent button activation. |
 | `style` | Game defaults | Optional style table; see below. |
 

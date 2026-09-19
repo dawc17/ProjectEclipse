@@ -17,12 +17,12 @@ namespace Eclipse.UI {
     public static class GameSessionRestart { public static bool IsRestarting; }
 }
 public static class GamePad {
-    public enum LCNPGEANNDP { Dpad, LeftStick }
-    public enum GGAKHLLMPMM { One }
-    public enum PFENLAPGKFM { A, B }
-    public static Vector2 CNNMBBLLGNE(LCNPGEANNDP source, GGAKHLLMPMM player, bool raw) => Vector2.zero;
-    public static bool NFCGBMHPKMA(PFENLAPGKFM button, GGAKHLLMPMM player) => false;
-    public static bool JAHEECFCLHN(PFENLAPGKFM button, GGAKHLLMPMM player) => false;
+    public enum Stick { Dpad, LeftStick }
+    public enum Player { One }
+    public enum Button { A, B }
+    public static Vector2 GetStick(Stick source, Player player, bool raw) => Vector2.zero;
+    public static bool GetButton(Button button, Player player) => false;
+    public static bool GetButtonDown(Button button, Player player) => false;
 }
 public static class ResourcesAndBundles
 {

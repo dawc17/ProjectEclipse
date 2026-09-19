@@ -23,6 +23,7 @@ foreach ($example in @('example.pulse-guardian','example.tactic-gallery','exampl
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidateVisualExamples.cs') -Destination (Join-Path $fixture 'Assets/Editor')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/vanillaXml/stages.xml') -Destination (Join-Path $fixture 'FixtureData')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUiView.cs') -Destination (Join-Path $fixture 'Assets')
+Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/SplitImageLayout.cs') -Destination (Join-Path $fixture 'Assets')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUiCoordinator.cs') -Destination (Join-Path $fixture 'Assets')
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/UI/Modding/ModUiGameBridge.cs') -Destination (Join-Path $fixture 'Assets')
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ModUiBridgeFixtureStubs.cs') -Destination (Join-Path $fixture 'Assets')

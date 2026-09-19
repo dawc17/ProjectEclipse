@@ -70,6 +70,20 @@ bonus bases. It also stays outside the active entrypoint until the story is read
 Native parsing and detached result calculations are checked against historical
 XML; profile settlement and the full story remain unverified (Step 33).
 
+Pending `scripts/content/sensei_victory.lua` implements the six post-victory
+sequences with 23 dialogue cards and 448 translations. Call
+`install(final_ids, portraits, present_outro)` before installing notifications:
+`final_ids` contains the six qualified normal final-fight IDs; `portraits` maps
+the seven names in `sensei_victory_data.lua` to verified sprite handles.
+`present_outro(text_handle, frames, done)` must implement the final silent-lock
+ActScreen, return false when unavailable, and call `done` only on completion.
+It must cancel on scene/profile teardown. No substitute outro is supplied.
+The shared `sensei_state.lua` registers both coordinators' saved fields once.
+Cards resume after interruption, and pending dialogue delays unlock notifications.
+The last act completes only after its 180-frame outro callback. Real portrait
+and timed-screen acceptance remains open; none of this is loaded by main.lua.
+See Step 43 for tests and remaining story work.
+
 Pending `scripts/content/sensei_progression.lua` computes the six acts eligible
 to unlock after a victory, using saved tournament/prior-act wins and supplied
 opened flags. Notification and persistence are handled by the pending coordinator

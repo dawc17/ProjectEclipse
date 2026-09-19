@@ -1,7 +1,7 @@
 # DE128 production record
 
 Current package: **0.18.0**. Latest activated content is recorded in Step 31;
-Steps 32–42 add encounter perk settings, reward economy, saved fight queries,
+Steps 32–43 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement and pending Sensei Story assembly.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
@@ -2508,3 +2508,68 @@ Verification:
 Active package remains 0.18.0. The source-corpus download is deferred as requested.
 Real guard templates, prince charge mapping, perk activation/state and ability
 availability, narrative integration and complete story acceptance remain open.
+
+## Step 43 — Post-victory dialogue and reusable portrait mirroring (2026-09-20)
+
+Ported all six `Sensei_zone*_guards_beaten` narrative sequences into pending Lua:
+23 ordered dialogue cards, seven portrait identities, and 32 localized keys in
+14 languages (448 values). Historical XML is used only by offline source audits;
+no XML, native expression strings or native variable names execute in the mod.
+The caller supplies verified portrait handles and the six normal final-fight IDs.
+Only a victory in a supplied final queues that act; losses, unrelated fights and
+already completed acts do not. Repeated victories do not reset the saved cursor.
+
+The coordinator waits for the map, presents cards in archived order, treats
+Back/OK as acknowledgement, saves each acknowledged position, and marks an act
+complete only after its last action. Shared state registration composes it with
+the earlier notification coordinator. Install victory handling first so its
+higher-priority narrative delays unlock notifications; completion wakes the
+notification queue. Scene/profile teardown preserves pending state without
+acknowledging cards. Profile switching and serialized pending/completed state
+are exercised through the actual state runtime.
+
+Act VI's final silent-lock, 180-frame ActScreen remains an explicit presenter
+dependency. The factory accepts a completion callback but does not fake the
+screen with an OK box. Refusal retains pending state; scene changes invalidate
+old completions, and completion is idempotent. The supplied presenter must also
+cancel on profile teardown. This dependency is controlled in tests, not a new
+claim that the native timed-screen API or full story is ready.
+
+Added generic C# image-node `mirrored` support for the two archived Widow cards.
+It is an optional strict boolean (default false), rejected on non-image nodes,
+fixed for the view lifetime and preserved on sprite replacement. The native view
+reflects only the image transform; layout size, aspect ratio, noninteractive
+behavior and loader-owned sprite identity remain unchanged. No DE policy is
+embedded in the engine.
+
+Verification:
+
+- Managed editor build: zero errors.
+- `TestSenseiVictory.ps1`: 656 actual Lua/source/state/UI checks, covering all 23
+  cards and 448 values, portrait identity/mirroring, ignored outcomes, repeated
+  victories, blocked input, interrupted/save-resumed cards, profile separation,
+  deferred notification ordering, refused/cancelled/stale outro callbacks and
+  completion roundtrips. Evidence: `Temp/SenseiVictory-f8ed8ca685c643d48f66d6b26e8c4e3f`.
+  Artwork metadata and the timed presenter are controlled fixtures.
+- Existing `TestSenseiNotifications.ps1`: 114 checks after shared-schema changes.
+- `TestModUiRuntime.ps1`: 154 checks; `TestModUiLua.ps1`: 871 checks, including
+  Lua mirroring, non-boolean rejection and rejection on text nodes.
+- Isolated Unity 6000.6.0f1 UI fixture
+  `Temp/ModUiUnity-6f8c5a297a164b5e872eb3ba96f46a4e`: 249 native UI checks, exit 0.
+  Mirroring and sprite replacement use the production renderer with controlled
+  texture/sprite inputs. This is not native DE portrait or story acceptance.
+  The fixture's stale GamePad stubs/dependency copy were updated. Its old delayed
+  validator could be lost behind Unity's unrelated startup indexing exception;
+  it now observes play-mode readiness on editor update. Failed/stalled fixture
+  evidence was retained; the stalled process was verified as the owned isolated
+  validator before stopping it. The owner's editor/profile was not touched.
+- Editor generation/check, 37 unit tests, real LuaLS image-field completion and
+  isolated VS Code integration pass. Wiki builds 47 pages with zero Astro
+  diagnostics and checks 4104 links/assets (existing duplicate-404 warning).
+
+Active DE128 remains 0.18.0; these modules stay outside main.lua. Intro/pre-fight
+sequences, defeat dialogue, native timed screens, verified portrait assets and
+complete story playthrough remain unfinished, alongside the guard/prince and
+perk-activation gaps. The perk-event producer remains absent from recovered C#;
+no profile/equipment approximation was introduced. The corpus download stays
+explicitly deferred.
