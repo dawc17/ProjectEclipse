@@ -61,6 +61,14 @@ namespace Nekki.SF2.Core.Fights.Controller
 			private bool _hasFocus = true;
         private readonly Eclipse.Modding.ModUiControlGate<(FightCID, int)> _modUiControls =
             new Eclipse.Modding.ModUiControlGate<(FightCID, int)>();
+        private readonly FightControlRuleGate _ruleControls = new FightControlRuleGate();
+
+        public void SetButtonRuleEnabled(FightCID control, bool enabled)
+        {
+            if (_ruleControls.SetBlocked(control, !enabled))
+                EmitAvailableControl(1, new CBBEIGACPPD { Index = 0, KMOPCKPBHIA = control });
+            _actionButtons.SetRuleBlocked(control, !enabled);
+        }
 
 		public static GameController BLOOLFFMKFI
 		{
@@ -294,6 +302,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		public void ClearButtonsAppearance()
 		{
+            foreach (var control in new[] { FightCID.Punch, FightCID.Kick, FightCID.MissileButton, FightCID.MagicButton, FightCID.RaidChargeButton })
+                SetButtonRuleEnabled(control, true);
 			if (AssemblyController.PGFJMOGKEID())
 			{
 				SetKickEnabled(true);
@@ -430,6 +440,12 @@ namespace Nekki.SF2.Core.Fights.Controller
         }
 
         private void EmitControl(int eventType, CBBEIGACPPD data)
+        {
+            if (data.Index == 0 && !(eventType == 0 ? _ruleControls.Press(data.KMOPCKPBHIA) : _ruleControls.Release(data.KMOPCKPBHIA))) return;
+            EmitAvailableControl(eventType, data);
+        }
+
+        private void EmitAvailableControl(int eventType, CBBEIGACPPD data)
         {
             SyncModUiCapture();
             var key = (data.KMOPCKPBHIA, data.Index);

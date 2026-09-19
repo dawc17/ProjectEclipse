@@ -3,6 +3,37 @@ using UnityEngine;
 
 namespace Eclipse.Input
 {
+    // Rule suppression is independent of touch visibility and physical input source.
+    public sealed class FightControlRuleGate
+    {
+        private readonly System.Collections.Generic.HashSet<FightCID> blocked = new System.Collections.Generic.HashSet<FightCID>();
+        private readonly System.Collections.Generic.HashSet<FightCID> held = new System.Collections.Generic.HashSet<FightCID>();
+        private readonly System.Collections.Generic.HashSet<FightCID> suppressed = new System.Collections.Generic.HashSet<FightCID>();
+
+        public bool SetBlocked(FightCID control, bool value)
+        {
+            if (!value) { blocked.Remove(control); return false; }
+            blocked.Add(control);
+            if (!held.Remove(control)) return false;
+            suppressed.Add(control);
+            return true; // The caller must release the previously accepted press.
+        }
+
+        public bool Press(FightCID control)
+        {
+            if (blocked.Contains(control)) { suppressed.Add(control); return false; }
+            if (suppressed.Contains(control)) return false;
+            held.Add(control);
+            return true;
+        }
+
+        public bool Release(FightCID control)
+        {
+            held.Remove(control);
+            return !suppressed.Remove(control);
+        }
+    }
+
 	public sealed class FightGamepadInput
 	{
 		private const float DeadZone = 0.35f;

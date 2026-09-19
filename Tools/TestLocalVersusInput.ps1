@@ -39,7 +39,19 @@ class Program {
   Clear(); var rel=new FightGamepadInput(c=>enabled,(t,c)=>Emit(A,t,c));GamePad.Buttons.Add((GamePad.Player.One,0));rel.Poll(false,false,true);rel.ReleaseAll();int n=A.Count;rel.ReleaseAll();Check(A.Count==n&&A[n-1]=="1:Punch","ReleaseAll not idempotent");
   Clear(); var gate=new FightGamepadInput(c=>enabled,(t,c)=>Emit(A,t,c));GamePad.Buttons.Add((GamePad.Player.One,0));gate.Poll(false,false,true);enabled=false;gate.Poll(false,false,true);Check(A.Count==2&&A[1]=="1:Punch","enabled gate did not release active control");
   Clear(); var keyup=new FightGamepadInput(c=>true,(t,c)=>Emit(A,t,c));Input.Keys.Add(KeyCode.O);keyup.Poll(true,true,false);keyup.Poll(true,true,false);Input.Keys.Clear();keyup.Poll(true,true,false);Check(A.Count==2&&A[0]=="0:Punch"&&A[1]=="1:Punch","keyboard hold/up transitions failed");
-  Console.WriteLine("PASS: "+checks+" production FightGamepadInput routing/state checks.");
+  foreach(var control in new[]{FightCID.Punch,FightCID.Kick,FightCID.MissileButton,FightCID.MagicButton,FightCID.RaidChargeButton}) {
+   var rules=new FightControlRuleGate();
+   Check(rules.Press(control),"Available rule control refused");
+   Check(rules.SetBlocked(control,true),"Blocking a held control did not request release");
+   Check(!rules.SetBlocked(control,true)&&!rules.Press(control),"Repeated block/press escaped gate");
+   rules.SetBlocked(control,false);Check(!rules.Press(control),"Held input replayed when rule ended");
+   Check(!rules.Release(control)&&rules.Press(control)&&rules.Release(control),"Neutral did not restore control or repeated release leaked");
+   rules.SetBlocked(control,true);Check(!rules.Press(control),"New blocked input accepted");
+   Check(!rules.Release(control),"Blocked press generated unmatched release");
+   rules.SetBlocked(control,false);Check(rules.Press(control)&&rules.Release(control),"Released control remained blocked");
+   Check(rules.Press(FightCID.QuadrantForward)&&rules.Release(FightCID.QuadrantForward),"Button rule gated movement");
+  }
+  Console.WriteLine("PASS: "+checks+" production FightGamepadInput routing/state and button-rule gate checks.");
  }
 }
 '@

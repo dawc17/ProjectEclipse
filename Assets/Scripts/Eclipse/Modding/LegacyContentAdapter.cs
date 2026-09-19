@@ -985,8 +985,8 @@ namespace Eclipse.Modding
                 node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
             }
             else throw new ModContentException("Unsupported typed fight rule '" + rule.Kind + "'.");
-            if (rule.Mode == ModRuleMode.Normal) node.SetAttribute("Eclipse", "Normal");
-            else if (rule.Mode == ModRuleMode.Eclipse) node.SetAttribute("Eclipse", "Eclipse");
+            if (rule.Mode == ModRuleMode.Normal) node.SetAttribute("Eclipse", "0");
+            else if (rule.Mode == ModRuleMode.Eclipse) node.SetAttribute("Eclipse", "1");
             if (rule.Rounds.Count != 0)
             {
                 var rounds = new string[rule.Rounds.Count];

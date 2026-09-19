@@ -382,10 +382,19 @@ public class RulesInspector : global::EventDispatcher<object>
 		switch (HNBFMAKFJAM.KBINIBAGEFM())
 		{
 		case NoButtonRule.AHIDMNNEAEC.ButtonTypePunch:
-			LPGANKOAPJL.SetPunchEnabled(false);
+			LPGANKOAPJL.SetButtonRuleEnabled(FightCID.Punch, false);
 			break;
 		case NoButtonRule.AHIDMNNEAEC.ButtonTypeKick:
-			LPGANKOAPJL.SetKickEnabled(false);
+			LPGANKOAPJL.SetButtonRuleEnabled(FightCID.Kick, false);
+			break;
+        case NoButtonRule.AHIDMNNEAEC.ButtonTypeRanged:
+            LPGANKOAPJL.SetButtonRuleEnabled(FightCID.MissileButton, false);
+            break;
+        case NoButtonRule.AHIDMNNEAEC.ButtonTypeMagic:
+            LPGANKOAPJL.SetButtonRuleEnabled(FightCID.MagicButton, false);
+            break;
+        case NoButtonRule.AHIDMNNEAEC.ButtonTypeRaidCharge:
+            LPGANKOAPJL.SetButtonRuleEnabled(FightCID.RaidChargeButton, false);
 			break;
 		}
 	}

@@ -2270,3 +2270,55 @@ Package remains 0.18.0 with the boss module outside main.lua. Complete-corpus
 acquisition/reconciliation remains deferred; these comparisons use historical
 repository evidence only. Native portrait/model rendering and complete story
 save/reload remain acceptance work.
+
+## Step 39 — Sensei fight rules and native rule enforcement (2026-09-20)
+
+Pending `scripts/content/sensei_fight_rules.lua` authors the unconditional rule
+lists for all 23 archived Sensei fights through the existing typed Lua API.
+These cover player equipment, avatar/name, opponent anti-shock and the two
+Eclipse-only Ronin damage modifiers. Each list records the insertion position of
+its conditional RaidCharge rule, whose handle remains separate and unattached.
+The recovered RulesWithConditions parser currently flattens its body without
+checking the condition. This milestone does not use that behavior or replace the
+condition with unconditional suppression. A faithful typed runtime/Lua route is
+still needed before encounter activation.
+
+Two generic C# runtime defects surfaced and are repaired:
+
+- NoButton previously hid only Punch/Kick and allowed keyboard/gamepad input.
+  All five native action identifiers now suppress shared player input and button
+  presentation. Applying a rule releases accepted held input; a fresh press after
+  neutral is required when the rule ends. Availability refresh cannot reshow a
+  blocked button, and ending a rule preserves unavailable actions. Opponent AI
+  and local-versus player-two input are not redirected through player rules.
+- Typed normal/Eclipse rules projected words into the native numeric boolean
+  field. The adapter now emits 0/1, preserving Eclipse-only rules as Eclipse-only.
+  Both-mode omission and native round filtering remain intact.
+
+Verification:
+
+- `TestSenseiFightRules.ps1`: 252 checks through actual MoonSharp registration,
+  production projection, ordered historical comparisons for all 23 lists and
+  native mode/round parsing. Evidence: `Temp/SenseiRules-67d31279ea344cf39a8111ab6c353b94`.
+- `TestLocalVersusInput.ps1`: 59 checks including all five rule gates and held-input
+  recovery. Battle rules: 268; trial rules: 43; UI runtime: 152; local-versus rules:
+  38. The trial test source list was repaired to include existing ModMovePerkLocks.
+- Isolated Unity 6000.6.0f1
+  `Temp/FormNative-9kwp94a2/DE128Runs/Run-4wt7w3i_` exits 0. Actual native rule
+  application, synthetic release, shared input suppression, neutral recovery,
+  visibility/availability and both Ronin attribute modes pass. Prior boss perk,
+  reward, map, saved-fight and Jian/MindThrow checks also pass. This is controlled
+  native acceptance, not physical-device or complete Sensei gameplay verification.
+- Managed editor build passes; 2638 DE128 foundation checks and 1282 Underworld
+  assertions pass. Underworld audit exits 0 with existing missing raid-image
+  findings. Wiki builds 47 pages, validates 4099 links/assets and reports no Astro
+  diagnostics; its existing duplicate-404 warning remains. Public rules reference
+  and editor guide describe the corrected input behavior; API signatures and
+  editor schemas are unchanged.
+
+Package stays 0.18.0; the new module is not loaded by main.lua. Conditional
+RaidCharge behavior, guard templates, prince charge mapping, encounter assembly,
+player equipment/identity gameplay, story save/reload and deferred source-corpus
+reconciliation remain outstanding. No owner profile/editor was modified. An old
+fixture lockfile cleanup was rejected by automatic approval review; that fixture
+was preserved and acceptance ran in a fresh isolated copy.

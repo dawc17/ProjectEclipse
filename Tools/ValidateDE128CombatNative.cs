@@ -115,6 +115,7 @@ public static class ValidateDE128CombatNative
                 CheckRestoredWeapons();
                 CheckRestoredEquipment();
                 CheckWarriorPerkLoadouts();
+                CheckSenseiRuleModes();
                 CheckSenseiRewards();
                 CheckProfileFightProgress();
                 var definition = ModRuntime.Scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == "fixture.de128-combat:fights/" + (Spell == "Sphere1" ? "jian" : Spell.ToLowerInvariant()));
@@ -236,6 +237,7 @@ public static class ValidateDE128CombatNative
                 Debug.Log(WallMiss ? "[DE128Native] PASS: MindThrow wall deletion clears its innate Lua flag exactly once without a caster follow-up."
                     : "[DE128Native] PASS: MindThrow owned victim reaction, innate Lua flag expiry, caster follow-up selection and final direct attack interval.");
             }
+            CheckButtonRuleControls(Fight.GetCurrentFight());
             Finish(0);
         }
     }
@@ -253,6 +255,70 @@ public static class ValidateDE128CombatNative
         if (child.Parameters.Weapon?.SubType != Spell) { failure = Spell + " projectile did not inherit magic equipment."; return; }
         child.AddEventListener(5, ignored => { sphereDeleted = true; Debug.Log("[DE128Native] " + Spell + " native deletion event."); });
         Debug.Log("[DE128Native] " + Spell + " native child created with inherited equipment.");
+    }
+
+    static void CheckButtonRuleControls(Fight fight)
+    {
+        var controller=fight.Controller;
+        var buttons=controller.GetActionButtons();
+        var inspector=new RulesInspector(fight,(FightList)typeof(Fight).GetField("FightDefinition",Hidden).GetValue(fight));
+        var emit=controller.GetType().GetMethod("EmitControl",Hidden);
+        int presses=0,releases=0;
+        System.Action<object> down=_=>presses++;
+        System.Action<object> up=_=>releases++;
+        controller.AddEventListener(0,down);controller.AddEventListener(1,up);
+        try
+        {
+            foreach(var pair in new[]{("Punch",FightCID.Punch,"_btnPunch"),("Kick",FightCID.Kick,"_btnKick"),
+                ("Ranged",FightCID.MissileButton,"_btnMissile"),("Magic",FightCID.MagicButton,"_btnMagic"),("RaidCharge",FightCID.RaidChargeButton,"_btnRaidCharge")})
+            {
+                var button=(ProgressButton)buttons.GetType().GetField(pair.Item3,Hidden).GetValue(buttons);
+                bool wasVisible=button.gameObject.activeSelf;
+                void Show(bool value) {
+                    switch(pair.Item2) {
+                        case FightCID.Punch: buttons.SetPunchEnabled(value);break;
+                        case FightCID.Kick: buttons.SetKickEnabled(value);break;
+                        case FightCID.MissileButton: buttons.ShowRanged(value);break;
+                        case FightCID.MagicButton: buttons.ShowMagic(value);break;
+                        default: buttons.ShowRaidCharge(value);break;
+                    }
+                }
+                void Input(int kind)=>emit.Invoke(controller,new object[]{kind,new CBBEIGACPPD{Index=0,KMOPCKPBHIA=pair.Item2}});
+                controller.SetButtonRuleEnabled(pair.Item2,true);Show(true);
+                int beforePress=presses,beforeRelease=releases;
+                Input(0);
+                var doc=new System.Xml.XmlDocument();doc.LoadXml("<NoButton Name='"+pair.Item1+"'/>");
+                inspector.ApplyButtonRule(new NoButtonRule(doc.DocumentElement),controller);
+                if(presses!=beforePress+1||releases!=beforeRelease+1||button.gameObject.activeSelf)
+                    throw new Exception("NoButton failed held-input release or native visibility: "+pair.Item1);
+                Show(true);Input(0);
+                if(button.gameObject.activeSelf||presses!=beforePress+1)throw new Exception("Availability refresh or input bypassed NoButton: "+pair.Item1);
+                controller.SetButtonRuleEnabled(pair.Item2,true);Input(0);
+                if(!button.gameObject.activeSelf||presses!=beforePress+1)throw new Exception("NoButton restored held input before neutral.");
+                Input(1);Input(0);Input(1);
+                if(presses!=beforePress+2||releases!=beforeRelease+2)throw new Exception("NoButton did not restore a fresh press/release.");
+                controller.SetButtonRuleEnabled(pair.Item2,false);Show(false);controller.SetButtonRuleEnabled(pair.Item2,true);
+                if(button.gameObject.activeSelf)throw new Exception("Rule removal exposed an unavailable action.");
+                Show(wasVisible);
+            }
+        }
+        finally {controller.RemoveEventListener(0,down);controller.RemoveEventListener(1,up);}
+        Debug.Log("[DE128Native] PASS five NoButton controls: native rule application, held-input release, shared input gate, neutral recovery, availability refresh and hidden unavailable actions. No physical-device claim.");
+    }
+
+    static void CheckSenseiRuleModes()
+    {
+        var catalog=ModRuntime.Scripts.Content;
+        var adapter=new LegacyContentAdapter(catalog);
+        var build=typeof(LegacyContentAdapter).GetMethod("BuildRuleNode",Hidden);
+        foreach(string suffix in new[]{"player","enemy"})
+        {
+            var definition=catalog.FightRules.Single(rule=>rule.Id.ToString()=="fixture.de128-combat:rules/sensei_ronin_"+suffix);
+            var node=(System.Xml.XmlElement)build.Invoke(adapter,new object[]{new System.Xml.XmlDocument(),definition});
+            var native=RuleParser.LBDEIDNPJMO(node);
+            if(native.PGOPBNMFAAG!=Rule.DIMPPDKCBLE.MODE_ECLIPSE)throw new Exception("Lua Eclipse rule parsed in the wrong native mode.");
+        }
+        Debug.Log("[DE128Native] PASS Sensei Ronin attribute rules retain Eclipse-only native mode.");
     }
 
     static void CheckProjectileActionParsing()

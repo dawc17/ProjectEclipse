@@ -24,6 +24,10 @@ Rows expose `perk`, optional `aspect` (0–2,147,483,647), and optional
 only for core perks and apply to that opponent. LuaLS provides nested field
 completion; the game checks ranges, duplicate perks and ownership at registration.
 
+`sf2.rules.no_button` supports Punch, Kick, Ranged, Magic and RaidCharge. Runtime
+rules hide and suppress player-one controls across touch, keyboard and gamepad;
+they do not restrict AI move selection. Use `target = sf2.rules.PLAYER`.
+
 Warrior perk entries also support optional `chance` (finite probability 0–1) and
 `frames` (integer 0–2,147,483,647). These override parameters on that warrior's
 core perk clone; omitted values inherit and explicit zero remains meaningful.

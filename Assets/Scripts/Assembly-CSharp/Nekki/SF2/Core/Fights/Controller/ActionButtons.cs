@@ -32,6 +32,41 @@ namespace Nekki.SF2.Core.Fights.Controller
 		[SerializeField]
 		private ProgressButton _btnRaidCharge;
 
+        private readonly HashSet<FightCID> _ruleHidden = new HashSet<FightCID>();
+        private readonly Dictionary<FightCID, bool> _requestedVisibility = new Dictionary<FightCID, bool>();
+
+        private ProgressButton RuleButton(FightCID control)
+        {
+            switch (control)
+            {
+                case FightCID.Punch: return _btnPunch;
+                case FightCID.Kick: return _btnKick;
+                case FightCID.MissileButton: return _btnMissile;
+                case FightCID.MagicButton: return _btnMagic;
+                case FightCID.RaidChargeButton: return _btnRaidCharge;
+                default: return null;
+            }
+        }
+
+        public void SetRuleBlocked(FightCID control, bool blocked)
+        {
+            var button = RuleButton(control);
+            if (button == null) return;
+            if (!_requestedVisibility.ContainsKey(control)) _requestedVisibility[control] = button.gameObject.activeSelf;
+            if (blocked) _ruleHidden.Add(control); else _ruleHidden.Remove(control);
+            SetRequestedVisibility(control, _requestedVisibility[control]);
+        }
+
+        private void SetRequestedVisibility(FightCID control, bool visible)
+        {
+            _requestedVisibility[control] = visible;
+            visible = visible && !_ruleHidden.Contains(control);
+            var button = RuleButton(control);
+            if (button != null) button.gameObject.SetActive(visible);
+            if (control == FightCID.RaidChargeButton && _lblRaidChargeCount != null)
+                _lblRaidChargeCount.gameObject.SetActive(visible);
+        }
+
 		private void Start()
 		{
 		}
@@ -123,28 +158,27 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		public void SetPunchEnabled(bool value)
 		{
-			_btnPunch.gameObject.SetActive(value);
+			SetRequestedVisibility(FightCID.Punch, value);
 		}
 
 		public void SetKickEnabled(bool value)
 		{
-			_btnKick.gameObject.SetActive(value);
+			SetRequestedVisibility(FightCID.Kick, value);
 		}
 
 		public void ShowMagic(bool HFIIEPMEMFF)
 		{
-			_btnMagic.gameObject.SetActive(HFIIEPMEMFF);
+			SetRequestedVisibility(FightCID.MagicButton, HFIIEPMEMFF);
 		}
 
 		public void ShowRanged(bool GKGKKCLPGBB)
 		{
-			_btnMissile.gameObject.SetActive(GKGKKCLPGBB);
+			SetRequestedVisibility(FightCID.MissileButton, GKGKKCLPGBB);
 		}
 
 		public void ShowRaidCharge(bool OPPBHOOBHOE)
 		{
-			_btnRaidCharge.gameObject.SetActive(OPPBHOOBHOE);
-			_lblRaidChargeCount.gameObject.SetActive(OPPBHOOBHOE);
+			SetRequestedVisibility(FightCID.RaidChargeButton, OPPBHOOBHOE);
 		}
 
 		public void SetNeededPercentageToActBtn(FightCID DGECPBJDPNL, float NDFGBDLLMGB, float _Duration = 0.5f)

@@ -2,6 +2,14 @@
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
 
+2026-09-20 continuation (Step 39): pending Lua rules cover the unconditional
+portions of all 23 Sensei fights. Generic C# fixes enforce all five NoButton
+actions through shared input and preserve normal/Eclipse rule modes in native
+projection. Ordered source comparisons and isolated Unity checks pass. The
+conditional RaidCharge rule remains unattached because the recovered conditional
+wrapper ignores its test. Full encounter assembly, missing templates and story
+acceptance remain open; active DE128 stays 0.18.0.
+
 2026-09-20 continuation (Step 38): pending Sensei loadouts now cover six young
 bosses in both modes. Generic warrior perk settings gain explicit probability
 and frame-duration overrides with validation, projection and content fingerprint

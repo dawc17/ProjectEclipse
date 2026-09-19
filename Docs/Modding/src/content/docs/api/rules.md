@@ -144,7 +144,16 @@ local rule = sf2.rules.no_button {
 }
 ```
 
-Core rules use `"Punch"` and `"Kick"` as button identifiers.
+Supported native identifiers are `"Punch"`, `"Kick"`, `"Ranged"`, `"Magic"`, and
+`"RaidCharge"`. Active rules hide the relevant control and reject player-one
+touch, keyboard and gamepad presses through their shared input path. A held
+control is released when blocked and must return to neutral before a fresh press
+can work after the rule ends. Availability refreshes cannot show a blocked button;
+removing a rule does not make unavailable equipment usable.
+
+This native rule controls the player's input, not AI move selection. The recovered
+runtime does not interpret its `target` as an opponent-input restriction; use
+`PLAYER` for clarity. Round changes clear and reapply the active restrictions.
 
 ## sf2.rules.perk
 

@@ -29,6 +29,14 @@ All rows match historical XML through the production adapter; native perk clone
 checks pass. It remains outside main.lua, with guard templates, encounter rules,
 boss AI/trigger playtests and full story acceptance unfinished (Step 38).
 
+Pending `scripts/content/sensei_fight_rules.lua` provides the unconditional rule
+lists for all 23 Sensei fights: player equipment/identity, opponent anti-shock and
+Ronin's Eclipse-only damage modifiers. Historical ordered rows and native mode
+parsing are checked. The conditional RaidCharge rule is separate and unattached;
+the recovered conditional wrapper ignores its condition, so the encounter
+assembler must wait for faithful runtime support. This module also stays outside
+main.lua (Step 39).
+
 Pending `scripts/content/sensei_rewards.lua` contains all 57 normal/eclipse
 reward slots across the six acts, including experience, gems and performance
 bonus bases. It also stays outside the active entrypoint until the story is ready.
