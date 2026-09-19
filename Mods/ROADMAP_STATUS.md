@@ -1,6 +1,15 @@
 # Roadmap status and measurement
 
 Last broad reconciliation: 2026-09-12. Scope remains **G01–G14 plus E1–E8**.
+
+2026-09-20 continuation (Step 37): the pending DE Sensei coordinator now sequences
+six-act notifications and saves pending/opened flags through Lua. Generic C#
+runtime support adds guarded native Eclipse-mode requests and an optional UI
+Back callback distinct from cleanup. Controlled notification/save roundtrips,
+all 56 historical translations and isolated native mode-off acceptance pass.
+The package remains 0.18.0 with the coordinator outside its entrypoint. Full
+dialog rendering, encounter assembly, missing guard templates, complete story
+acceptance and deferred corpus reconciliation remain open.
 On 2026-09-18 the owner separately authorized incremental DE128 production, one
 approved step at a time. Its policies, Desolator reward, XML-evidenced combat perks and gaps
 are tracked in [the DE128 production record](de128/PRODUCTION.md). This does not

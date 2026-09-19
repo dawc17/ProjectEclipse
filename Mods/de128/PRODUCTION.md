@@ -2147,3 +2147,68 @@ Package stays 0.18.0. Notification presentation, safe Eclipse-mode switching,
 opened-state persistence, battle/encounter assembly, missing guard templates and
 full story/save/reload acceptance remain open. Complete asset-corpus acquisition
 and reconciliation remain deferred at the owner's request.
+
+## Step 37 — Pending Sensei notification coordinator (2026-09-20)
+
+`scripts/content/sensei_notifications.lua` now joins the pending eligibility and
+map modules. It queues eligible acts after victories, presents the first pending
+act on map entry, and saves twelve mod-owned boolean fields (pending/opened for
+each act). Back and OK acknowledge the same sequence. Act I requests normal
+mode before revealing/unlocking/focusing; refusal preserves the open dialog and
+pending flag. An interrupted scene/profile leaves the notification pending.
+Opened flags are written only after the map sequence succeeds. Repeated wins
+do not duplicate completed notifications.
+
+`sensei_notification_text.lua` authors the 56 existing translations of
+characterSensei and Sensei_remembers0/1/2 from historical DE localization XML.
+The coordinator references the existing shared core Sensei portrait. No XML is
+loaded by the mod. This content still awaits reconciliation with the complete
+owner-supplied corpus, whose acquisition remains deferred.
+
+Reusable C# runtime support:
+
+- `sf2.profile.set_eclipse_mode(boolean)`, requiring `story.progression`, requests
+  the active native map-button quest, including tint/button/replay/tutorial policy.
+  It refuses unavailable or blocked story maps and missing switches. A yielded
+  native action returns false until the requested mode and map are ready; false
+  does not imply that no part of the native transition ran.
+- `sf2.ui.open { on_back = function(view) ... end }` replaces default Back close
+  for the input-owning menu/modal. It can retain the dialog for retry, is bounded
+  and non-reentrant, and never runs for scene/profile cleanup. `on_close` remains
+  cleanup and cannot request the progression mutation. Views without on_back
+  retain their previous behavior.
+
+The new roster query uses inferred `Roster.IsEclipseMode`, backed by the same
+boolean as existing SetEclipseMode and native Eclipse quest conditions. Its
+declaration carries `// best guess for name`; owning callers and test stubs were
+updated. No old-token serialized references remain, no save fields or GUIDs
+changed, and no confirmed deobfuscation mapping was added.
+
+Verification:
+
+- `TestSenseiNotifications.ps1`: 114 actual Lua checks, including all 56 source
+  translations, six-act order, win prerequisites, Back, blocked input, refusal and
+  retry, scene cleanup, distinct profiles, pending and completed state XML
+  roundtrips. Host progression and portrait metadata are controlled fixtures.
+- `TestSenseiMap.ps1`: 67 binding checks plus 132 archived map-sequence checks.
+- `TestModUiRuntime.ps1`: 152 UI model checks plus native bridge source contracts.
+  `TestModUiLua.ps1`: 864 checks including real Lua Back lifetime/budget and cleanup guards. Its
+  previously stale PNG fixture now uses explicit sprite descriptors.
+- Isolated Unity 6000.6.0f1 `Temp/FormNative-qpsmkaqv/DE128Runs/Run-sa4746z5`
+  exits 0: missing/blocked mode switch refusal, actual native mode-off quest,
+  replacement switch, white map tint and repeat request. Existing map, rewards,
+  saved-fight queries and Jian/MindThrow combat checks remain green. Only the
+  isolated acceptance profile is touched; no clean-log or complete-story claim.
+- Managed editor build passes; 819 Eclipse assertions/21 segments, 2638 DE128
+  foundation checks and 1282 Underworld assertions pass. Underworld audit exits
+  0 with its existing missing raid-image findings.
+- Wiki/editor contracts cover 164 functions/aliases/callbacks, 76 constants and
+  229 structures. Generate/check, 37 project tests, LuaLS and real VS Code
+  integration pass. Wiki builds 47 pages with 4099 links/assets checked, no Astro
+  diagnostics and the existing duplicate-404 warning.
+
+Package remains 0.18.0; neither new module is loaded by main.lua. The eventual
+encounter assembler must call install once with six battles and five prior-act
+final fights, and merge its state fields if another DE schema is added first.
+Native multilingual dialog layout, complete profile reload/story playback,
+encounter assembly and missing guard templates remain acceptance/production work.

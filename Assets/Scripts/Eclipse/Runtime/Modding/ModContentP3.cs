@@ -49,12 +49,13 @@ namespace Eclipse.Modding
 
     public static class ModProfileAccess
     {
+        public static Func<bool,bool> SetEclipseMode;
         public static Func<DefinitionId,ModProfileFightSnapshot> Fight;
         public static Func<int?> Level;
         public static Func<DefinitionId,ModProfileItemSnapshot> Item;
         public static Func<DefinitionId,ModProfilePerkSnapshot> Perk;
         public static Func<IReadOnlyList<ModProfileEquipmentSnapshot>> Equipment;
-        public static void Clear() { Level=null; Item=null; Perk=null; Equipment=null; Fight=null; }
+        public static void Clear() { Level=null; Item=null; Perk=null; Equipment=null; Fight=null; SetEclipseMode=null; }
     }
 
     public sealed class ModProfileFightSnapshot

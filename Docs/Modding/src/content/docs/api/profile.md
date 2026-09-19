@@ -1,13 +1,45 @@
 ---
-title: Player profile queries
-description: Read the active player's level, inventory and learned perks without changing game state.
+title: Player profile
+description: Read player progression and request the native Eclipse map switch.
 ---
 
-These queries read the active player's profile.
+The query functions read the active player's profile.
 They do not describe an opponent, temporary fight equipment, or an item preview.
 Declare `profile.read` and call after profile loading, such as inside a UI or
 combat callback. Calling during mod loading or without an active profile raises
 an error.
+
+## sf2.profile.set_eclipse_mode
+
+Request the existing Eclipse switch on the story map, including its native button,
+map tint, replay battles and tutorial behavior.
+
+**Signature:** `sf2.profile.set_eclipse_mode(enabled)`
+
+**Returns:** A boolean: `true` if the requested mode is active and the story map
+is ready after the request (including when already in that mode). `false` if the
+map is unavailable, blocked, not in story mode, the native switch is absent, or
+its quest has not finished. A false result can follow a partial native transition;
+retry from a later user action instead of assuming the mode is unchanged.
+
+**When:** From a user or story callback with an active profile on the ready map.
+Do not call from `on_close` cleanup, which rejects progression changes.
+
+**Requires:** `story.progression`. `enabled` must be a boolean. Missing capability,
+wrong argument types or an unavailable host service raise errors.
+
+```lua
+-- Call from a map notification's button or on_back callback.
+local function continue_in_normal_mode(view)
+    if sf2.profile.set_eclipse_mode(false) then
+        sf2.ui.close(view)
+    end
+end
+```
+
+This request follows the native switch policy; it does not unlock Eclipse mode,
+bypass its tutorial, or write arbitrary profile variables. A refused request can
+leave your view open until the player can try again.
 
 ## sf2.profile.level
 

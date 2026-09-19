@@ -20,7 +20,7 @@ for(const s of sources){
     for(const [,v,n,value] of s.matchAll(/(\w+)\.Set\("([A-Z][A-Z_0-9]*)"\s*,\s*DynValue\.NewString\("([^"]*)"\)/g))for(const m of tables.get(v)??[])constants[`sf2.${m}.${n}`]=value;
 }
 if(sources.some(s=>/table\.Get\("on_result"\)/.test(s)))exported.add('on_result');
-for(const name of ['on_click','on_close','on_change','on_decide','on_prepare'])if(sources.some(s=>s.includes(`table.Get("${name}")`)))exported.add(name);
+for(const name of ['on_click','on_close','on_change','on_back','on_decide','on_prepare'])if(sources.some(s=>s.includes(`table.Get("${name}")`)))exported.add(name);
 const covered=new Set(['require',...Object.keys(schema.functions),...Object.keys(schema.aliases),...schema.callbacks,...schema.modeCallbacks,...schema.uiCallbacks,...schema.aiCallbacks,...Object.keys(schema.fighterMethods).map(n=>'fighter:'+n),'fighter.opponent:change_health','fighter.opponent:add_magic_charge']);
 assert.deepEqual([...covered].sort(),[...exported].sort(),'LuaLS schema must cover every runtime function, alias and callback exactly.');
 const docs={};

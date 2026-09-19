@@ -161,6 +161,7 @@ type('LocationCurvePoint',{period:'number',value:'number','ease?':'number'});typ
 type('ProfilePerkSnapshot',{learned:'boolean','upgrade?':'integer'});fn('profile.perk',{perk:H('Perk')+'|string'},E('ProfilePerkSnapshot'),'profile.read');
 type('ProfileItemSnapshot',{'type?':'string','subtype?':'string',present:'boolean',owned:'boolean',count:'integer',equipped:'boolean','upgrade?':'integer'});fn('profile.level',{},'integer','profile.read');fn('profile.item',{item:H('Item')+'|string'},E('ProfileItemSnapshot'),'profile.read');
 type('ProfileFightSnapshot',{present:'boolean',wins:'integer',losses:'integer'});fn('profile.fight',{fight:H('Fight')+'|string'},E('ProfileFightSnapshot'),'profile.read');
+fn('profile.set_eclipse_mode',{enabled:'boolean'},'boolean','story.progression');
 type('BattleEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string'});
 type('StorySubscription',{'private __eclipseStorySubscription':'true'});type('StoryEvent',{kind:'"purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"','fight?':'string','outcome?':'"win"|"loss"|"surrender"|"raid_timeout"|"raid_round_timeout"','eclipse?':'boolean','equipment?':E('BattleEquipmentSnapshot')+'[]','item?':'string','recipe?':'string','previous_count?':'integer','count?':'integer','previous_level?':'integer','level?':'integer','scene?':'"map"|"shop"|"profile"|"dojo"|"fight"'});
 fn('story.on',{event:'"purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"',callback:'fun(event: Eclipse.StoryEvent)'},E('StorySubscription'),'story.events');
@@ -227,6 +228,7 @@ type('UiNode', { id:'string', kind:enumOf('stack','row','column','scroll','text'
     'columns?':'integer','cell_width?':'number','cell_height?':'number' });
 type('UiPlacement', { 'anchor?':enumOf('top_left','top','top_right','left','center','right','bottom_left','bottom','bottom_right'),'x?':'number','y?':'number' });
 type('UiDefinition', { id:'string',mount:enumOf('menu','modal','hud'),root:E('UiNode'),'placement?':E('UiPlacement'),
+    'on_back?':`fun(view:${H('Ui')})`,
     'on_change?':`fun(view:${H('Ui')},widget_id:string,value:boolean|number)`,
     'on_click?':`fun(view:${H('Ui')},widget_id:string)`,
     'on_close?':`fun(view:${H('Ui')},reason:${enumOf('script','back','scene','error','destroyed')})` });
@@ -241,4 +243,4 @@ fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',nu
 fn('ui.set_enabled',{view:H('Ui'),widget_id:'string',enabled:'boolean'},'nil',null);
 type("QuestSuppression",{target:"string"});reg("quests.suppress","QuestSuppression",null,"content.patch");
 type('ProfileEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string',owned:'boolean',count:'integer','upgrade?':'integer'});fn('profile.equipment',{},E('ProfileEquipmentSnapshot')+'[]','profile.read');
-module.exports={types,functions,aliases,callbacks,modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_click','on_close','on_change'],aiCallbacks:['on_decide'],fighterMethods};
+module.exports={types,functions,aliases,callbacks,modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};

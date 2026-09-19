@@ -1649,6 +1649,7 @@ local UiPlacement = {}
 ---@field mount "menu"|"modal"|"hud"
 ---@field root Eclipse.UiNode
 ---@field placement? Eclipse.UiPlacement
+---@field on_back? fun(view:Eclipse.UiHandle)
 ---@field on_change? fun(view:Eclipse.UiHandle,widget_id:string,value:boolean|number)
 ---@field on_click? fun(view:Eclipse.UiHandle,widget_id:string)
 ---@field on_close? fun(view:Eclipse.UiHandle,reason:"script"|"back"|"scene"|"error"|"destroyed")
@@ -2459,6 +2460,15 @@ function profile.item(item) end
 ---@param fight Eclipse.FightHandle|string
 ---@return Eclipse.ProfileFightSnapshot
 function profile.fight(fight) end
+
+---Request the existing Eclipse switch on the story map, including its native button, map tint, replay battles and tutorial behavior.
+---Requires: `story.progression`. `enabled` must be a boolean. Missing capability, wrong argument types or an unavailable host service raise errors.
+---When: From a user or story callback with an active profile on the ready map. Do not call from `on_close` cleanup, which rejects progression changes.
+---Returns: A boolean: `true` if the requested mode is active and the story map is ready after the request (including when already in that mode). `false` if the map is unavailable, blocked, not in story mode, the native switch is absent, or its quest has not finished. A false result can follow a partial native transition; retry from a later user action instead of assuming the mode is unchanged.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/profile/#sf2profileset_eclipse_mode)
+---@param enabled boolean
+---@return boolean
+function profile.set_eclipse_mode(enabled) end
 
 ---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
 ---When: During mod loading or a callback while the script is active, including before a profile loads.

@@ -313,7 +313,7 @@ test('story subscriptions require event capability', async () => {
 
 test('battle progression operations require story progression capability', async () => {
  const mod=await p.indexMod(template);
- for(const call of ['sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)'])
+ for(const call of ['sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)','sf2.profile.set_eclipse_mode(false)'])
   assert(p.analyze(header+call,mod).issues.some(i=>i.message.includes('story.progression')));
 });
 

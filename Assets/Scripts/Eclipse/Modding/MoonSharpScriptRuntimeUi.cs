@@ -78,7 +78,7 @@ namespace Eclipse.Modding
                 if (_mountUi == null) throw new ModContentException("Custom UI rendering is unavailable in this host.");
                 const string function = "sf2.ui.open";
                 var table = args.AsType(0, function, DataType.Table, false).Table;
-                ValidateFields(table, function, "id", "mount", "root", "on_click", "on_close", "on_change", "placement");
+                ValidateFields(table, function, "id", "mount", "root", "on_click", "on_close", "on_change", "on_back", "placement");
                 string id = RequiredString(table, "id", function);
                 ModUiMount mount;
                 switch (RequiredString(table, "mount", function))
@@ -92,6 +92,9 @@ namespace Eclipse.Modding
                 if (!callback.IsNil() && callback.Type != DataType.Function)
                     throw new ModContentException("UI on_click must be a Lua function.");
                 var onClose = table.Get("on_close");
+                var onBack = table.Get("on_back");
+                if (!onBack.IsNil() && onBack.Type != DataType.Function)
+                    throw new ModContentException("UI on_back must be a Lua function.");
                 if (!onClose.IsNil() && onClose.Type != DataType.Function)
                     throw new ModContentException("UI on_close must be a Lua function.");
                 var onChange = table.Get("on_change");
@@ -131,6 +134,10 @@ namespace Eclipse.Modding
                     var definition = FindUiNode(node, widget);
                     RunBounded(onChange, Mod.Id + ":ui/" + id + ":on_change", MaxBehaviorInstructionSlices,
                         new[] { handle, DynValue.NewString(widget), definition.Kind == ModUiKind.Toggle ? DynValue.NewBoolean(number != 0) : DynValue.NewNumber(number) });
+                }, onBack.IsNil() ? (Action)null : () => {
+                    ThrowIfDisposed();
+                    if (!ready) throw new ModContentException("UI input arrived before mounting completed.");
+                    RunBounded(onBack, Mod.Id + ":ui/" + id + ":on_back", MaxBehaviorInstructionSlices, new[] { handle });
                 });
                 try
                 {

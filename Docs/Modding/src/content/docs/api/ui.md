@@ -458,6 +458,40 @@ inside the callback is supported. Use normal Lua state to pass a choice to a
 later supported gameplay callback. This callback cannot itself launch fights
 or acquire a fighter handle.
 
+## on_back
+
+**Signature:** `on_back = function(view) ... end`
+
+**Returns:** Nothing; callback return values are ignored.
+
+**When:** The user presses Back/Escape on the foreground menu or modal while
+native input is available. This replaces the default Back close. Close the view
+explicitly on success; leave it open if an operation must be retried. HUD views
+do not receive Back. Scene changes, profile replacement, script unload and other
+cleanup never invoke this callback.
+
+**Requires:** `ui.create` to open the view, plus any capabilities used inside the
+callback. It uses the same bounded execution and reentrancy guards as `on_click`.
+A callback error or instruction-budget overrun closes the view with `error`.
+
+```lua
+local function acknowledge(view)
+    -- Requires story.progression; this notification belongs on the story map.
+    if sf2.profile.set_eclipse_mode(false) then sf2.ui.close(view) end
+end
+sf2.ui.open {
+    id = "map_notice", mount = "modal",
+    root = { id = "ok", kind = "button", width = 240, height = 60, text = "OK" },
+    on_click = function(view) acknowledge(view) end,
+    on_back = acknowledge,
+}
+```
+
+Omitting `on_back` keeps the default close with reason `back`. Calling
+`sf2.ui.close` inside the callback closes with reason `script`. Use `on_close`
+for releasing references; keep acknowledgments in user-input callbacks so
+navigation or profile teardown cannot accidentally advance a quest.
+
 ## on_close
 
 Clear pending choices or Lua references when a view closes. Set this optional function in the table passed to `sf2.ui.open`.

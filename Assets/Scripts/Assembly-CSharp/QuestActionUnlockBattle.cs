@@ -53,7 +53,7 @@ public class QuestActionUnlockBattle : QuestAction
 			if (_hidden.Trim() == "1 - _$InEclipseMode")
 			{
 				Roster roster = ListSF.CCDKHLAMKKO();
-				INMFGOMPJEO = roster == null || !roster.JPMPIDFGCJL();
+				INMFGOMPJEO = roster == null || !roster.IsEclipseMode();
 			}
 			else
 			{

@@ -3052,7 +3052,7 @@ public class Fight
         {
             var scripts = ModRuntime.Scripts;
             ModRuntime.DispatchBattleRules(_eclipseBattleRules, FightDefinition.FightId.ToString(), false,
-                round.round, ListSF.CCDKHLAMKKO().JPMPIDFGCJL(), _eclipseFightId, _eclipsePlayerResult, effectEvent,
+                round.round, ListSF.CCDKHLAMKKO().IsEclipseMode(), _eclipseFightId, _eclipsePlayerResult, effectEvent,
                 new EclipseFighterOperations(this, CKNCPOABFBO, damage, incoming, activity, animation));
             var active = new HashSet<DefinitionId>();
             foreach (var runtimePerk in CKNCPOABFBO.Parameters.Perks)
@@ -3099,7 +3099,7 @@ public class Fight
 				if (scripts == null || NMNCKBPFCCP == null || !NMNCKBPFCCP.IsPlayer || _playerModel == null) return;
 				var fighterOperations = new EclipseFighterOperations(this, _playerModel, damageEvent, incomingHit, activity, animation);
                 ModRuntime.DispatchBattleRules(_eclipseBattleRules, FightDefinition.FightId.ToString(), true,
-                    round.round, ListSF.CCDKHLAMKKO().JPMPIDFGCJL(), _eclipseFightId, _eclipsePlayerResult, effectEvent, fighterOperations);
+                    round.round, ListSF.CCDKHLAMKKO().IsEclipseMode(), _eclipseFightId, _eclipsePlayerResult, effectEvent, fighterOperations);
 
 				var activeRuntimePerks = new HashSet<string>(StringComparer.Ordinal);
 			foreach (PerkInfoItem perk in NMNCKBPFCCP.Perks)

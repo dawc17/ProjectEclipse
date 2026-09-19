@@ -856,7 +856,7 @@ public class QuestActionUpdateEclipseBattles : QuestAction
 			OGIJONMKABB();
 			return;
 		}
-		bool eclipseMode = roster.JPMPIDFGCJL();
+		bool eclipseMode = roster.IsEclipseMode();
 		MapScene current = Scene<MapScene>.get_Current();
 		Battle selectedBattle = GetSelectedBattle(current);
 		Battle selectedReplacement = null;

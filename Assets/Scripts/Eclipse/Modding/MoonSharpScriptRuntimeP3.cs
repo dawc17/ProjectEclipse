@@ -95,6 +95,13 @@ namespace Eclipse.Modding
                 })));
                 root.Set("story",DynValue.NewTable(story));
                 var profile=new Table(_script);
+                profile.Set("set_eclipse_mode",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.profile.set_eclipse_mode",()=>{
+                    _api.RequireCapability("story.progression");
+                    if(_uiCloseDepth!=0)throw new ModContentException("Mode changes are unavailable during UI cleanup.");
+                    if(args[0].Type!=DataType.Boolean)throw new ModContentException("Eclipse mode requires a boolean enabled value.");
+                    if(ModProfileAccess.SetEclipseMode==null)throw new ModContentException("Mode changes are unavailable in this host.");
+                    return DynValue.NewBoolean(ModProfileAccess.SetEclipseMode(args[0].Boolean));
+                })));
                 profile.Set("fight",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.profile.fight",()=>{
                     const string function="sf2.profile.fight";
                     _api.RequireCapability("profile.read");

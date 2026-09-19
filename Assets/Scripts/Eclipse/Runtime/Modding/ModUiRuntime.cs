@@ -240,14 +240,14 @@ namespace Eclipse.Modding
         { if (string.IsNullOrEmpty(owner.Value)) throw new ArgumentException("UI scope requires a mod owner."); Owner = owner; this.report = report; }
 
         public ModUiSurface Open(string id, ModUiMount mount, ModUiNode root, Action<string> onClick = null, ModUiPlacement placement = null,
-            Action<ModUiCloseReason> onClose = null, Action<string, double> onChange = null)
+            Action<ModUiCloseReason> onClose = null, Action<string, double> onChange = null, Action onBack = null)
         {
             if (closed) throw new ObjectDisposedException(nameof(ModUiScope));
             ModUiNode.ValidateId(id);
             if (!Enum.IsDefined(typeof(ModUiMount), mount)) throw new ArgumentOutOfRangeException(nameof(mount));
             if (surfaces.ContainsKey(id)) throw new InvalidOperationException("UI surface is already open: " + id);
             if (surfaces.Count >= 8) throw new InvalidOperationException("A scope permits at most eight open surfaces.");
-            var surface = new ModUiSurface(this, id, mount, root, onClick, placement, onClose, onChange);
+            var surface = new ModUiSurface(this, id, mount, root, onClick, placement, onClose, onChange, onBack);
             surfaces.Add(id, surface);
             return surface;
         }
@@ -277,6 +277,7 @@ namespace Eclipse.Modding
         private Action<string> click;
         private Action<string, double> change;
         private Action<ModUiCloseReason> close;
+        private Action back;
         private bool dispatching;
         private bool inputAllowed = true;
         internal ModUiLayerStack LayerOwner { get; set; }
@@ -292,7 +293,7 @@ namespace Eclipse.Modding
         public event Action Closed;
 
         internal ModUiSurface(ModUiScope scope, string id, ModUiMount mount, ModUiNode root, Action<string> onClick, ModUiPlacement placement,
-            Action<ModUiCloseReason> onClose, Action<string, double> onChange)
+            Action<ModUiCloseReason> onClose, Action<string, double> onChange, Action onBack)
         {
             this.scope = scope; Id = id; Mount = mount;
             Root = root ?? throw new ArgumentNullException(nameof(root));
@@ -302,6 +303,7 @@ namespace Eclipse.Modding
             click = onClick;
             close = onClose;
             change = onChange;
+            back = onBack;
         }
 
         private void Index(ModUiNode node, Widget parent, int depth)
@@ -424,6 +426,16 @@ namespace Eclipse.Modding
 
         public void Close() => Close(ModUiCloseReason.Script);
 
+        public bool TryBack()
+        {
+            if (IsClosed || !inputAllowed || dispatching || Mount == ModUiMount.CombatHud) return false;
+            if (back == null) { Close(ModUiCloseReason.Back); return true; }
+            dispatching = true;
+            try { back(); return true; }
+            catch (Exception error) { Close(ModUiCloseReason.Error); scope.Report(error); return false; }
+            finally { dispatching = false; }
+        }
+
         public void Close(ModUiCloseReason reason)
         {
             if (IsClosed) return;
@@ -432,6 +444,7 @@ namespace Eclipse.Modding
             scope.Remove(this);
             click = null;
             change = null;
+            back = null;
             widgets.Clear();
             var listeners = Closed;
             var notification = close;
@@ -505,7 +518,7 @@ namespace Eclipse.Modding
         public bool Back()
         {
             if (!HasExclusiveInput) return false;
-            Foreground.Close(ModUiCloseReason.Back); return true;
+            Foreground.TryBack(); return true;
         }
 
         public void Dispose()

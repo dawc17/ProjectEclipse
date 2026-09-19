@@ -346,6 +346,7 @@ async function main() {
     const closeDefinition=probe('ui-close.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu", | }');
     await until(async()=>labels(await request('textDocument/completion',closeDefinition)).some(name=>name.startsWith('on_close')),'UI close callback completion');
     await until(async()=>labels(await request('textDocument/completion',closeDefinition)).some(name=>name.startsWith('on_change')),'UI change callback completion');
+    await until(async()=>labels(await request('textDocument/completion',closeDefinition)).some(name=>name.startsWith('on_back')),'UI Back callback completion');
     const checkedSetter=probe('ui-checked.lua','local sf2=require("sf2")\nsf2.ui.|');
     await until(async()=>labels(await request('textDocument/completion',checkedSetter)).some(name=>name.startsWith('set_checked')),'UI checked setter completion');
     await until(async()=>labels(await request('textDocument/completion',checkedSetter)).some(name=>name.startsWith('set_sprite')),'UI sprite setter completion');

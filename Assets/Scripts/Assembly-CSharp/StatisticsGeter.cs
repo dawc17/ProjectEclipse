@@ -159,7 +159,7 @@ public static class StatisticsGeter
 
 	public static void IFKJOJGPEHM(JSONClass MEEAKLDGLDF)
 	{
-		MEEAKLDGLDF["eclipse"] = (ListSF.CCDKHLAMKKO().JPMPIDFGCJL() ? 1 : 0);
+		MEEAKLDGLDF["eclipse"] = (ListSF.CCDKHLAMKKO().IsEclipseMode() ? 1 : 0);
 	}
 
 	public static void KOOBIPOFAEF(JSONClass MEEAKLDGLDF, ArgsDict PCJAKPJMKGN)

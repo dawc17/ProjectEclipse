@@ -59,6 +59,14 @@ local zone=sf2.zones.register{id="test"}
 local battle=sf2.battles.register{id="test",zone=zone,type=sf2.battles.STORY}
 '@
 try {
+    [Eclipse.Modding.ModProfileAccess]::SetEclipseMode=[Func[bool,bool]] {
+        param($enabled)
+        $script:calls++
+        return !$enabled
+    }
+    $null=Load-Lua 'assert(sf2.profile.set_eclipse_mode(false)); assert(not sf2.profile.set_eclipse_mode(true))'
+    Check ($script:calls -eq 2) 'Mode request did not preserve host result.'
+    $script:calls=0
     [Eclipse.Modding.ModBattleAccess]::Reveal=[Eclipse.Modding.ModBattleAccess]::SetLocked
     [Eclipse.Modding.ModBattleAccess]::Focus=[Func[Eclipse.Modding.DefinitionId,bool]] {
         param($id)
@@ -82,7 +90,8 @@ try {
         'sf2.battles.set_locked(zone,false)','sf2.battles.set_locked(battle,0)','sf2.battles.set_locked(battle,"false")','sf2.battles.set_locked(battle)',
         'sf2.battles.reveal({},false)','sf2.battles.reveal("core:battles/zone_1/tournament",false)',
         'sf2.battles.reveal(zone,false)','sf2.battles.reveal(battle,0)','sf2.battles.reveal(battle,"false")','sf2.battles.reveal(battle)',
-        'sf2.battles.focus({})','sf2.battles.focus("core:battles/zone_1/tournament")','sf2.battles.focus(zone)')) {
+        'sf2.battles.focus({})','sf2.battles.focus("core:battles/zone_1/tournament")','sf2.battles.focus(zone)',
+        'sf2.profile.set_eclipse_mode()','sf2.profile.set_eclipse_mode(0)','sf2.profile.set_eclipse_mode("false")','sf2.profile.set_eclipse_mode({})')) {
         $before=$script:calls; $failed=$false
         try {$null=Load-Lua ($prefix+$call)}catch{$failed=$true}
         Check ($failed -and $before -eq $script:calls) ('Invalid request reached host: '+$call)
@@ -90,17 +99,18 @@ try {
     $saved=$mod; $manifest=Join-Path $package 'mod.toml'; $original=Get-Content -Raw $manifest
     $original.Replace(', "story.progression"','') | Set-Content $manifest
     $mod=[Eclipse.Modding.ModDiscovery]::DiscoverLoose((Join-Path $fixture 'Mods')).Mods[0]
-    foreach($call in @('sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)')) {
+    foreach($call in @('sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)','sf2.profile.set_eclipse_mode(false)')) {
         $before=$script:calls; $failed=$false
         try {$null=Load-Lua ($prefix+$call)}catch{$failed=$true}
         Check ($failed -and $before -eq $script:calls) 'Missing capability reached host.'
     }
     $mod=$saved; $original | Set-Content $manifest
     [Eclipse.Modding.ModBattleAccess]::Clear()
-    foreach($call in @('sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)')) {
+    [Eclipse.Modding.ModProfileAccess]::Clear()
+    foreach($call in @('sf2.battles.set_locked(battle,false)','sf2.battles.reveal(battle,false)','sf2.battles.focus(battle)','sf2.profile.set_eclipse_mode(false)')) {
         $failed=$false
         try {$null=Load-Lua ($prefix+$call)}catch{$failed=$true}
         Check $failed 'Missing host service silently accepted request.'
     }
-} finally {[Eclipse.Modding.ModBattleAccess]::Clear()}
+} finally {[Eclipse.Modding.ModBattleAccess]::Clear(); [Eclipse.Modding.ModProfileAccess]::Clear()}
 Write-Output "PASS: $script:checks Lua battle progression checks. Controlled host; native map verification is separate. Evidence: $fixture"

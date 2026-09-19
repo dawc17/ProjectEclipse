@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using Eclipse.Modding;
 class Program {
  public enum GameOverTypes {GAME_OVER_NONE,GAME_OVER_WIN,GAME_OVER_LOSS,GAME_OVER_SURRENDER,GAME_OVER_RAID_TIMEOUT,GAME_OVER_RAID_ROUND_TIMEOUT}
- public class Roster {public bool Eclipse=true;public bool JPMPIDFGCJL()=>Eclipse;}
+ public class Roster {public bool Eclipse=true;public bool IsEclipseMode()=>Eclipse;}
  public class FightList {public string FightId="zone|boss|1";}
  public class Item {public string Name="katana",Type="Weapon",SubType="Katana";public System.Xml.XmlNode NodeXML;}
  public class ModelParameters {public bool IsPlayer;public List<Item> Items=new List<Item>();public List<Item> PJNJIJIODHE()=>Items;}

@@ -222,6 +222,7 @@ namespace Eclipse.Modding
                 if (location.IsDojo) dojoChoices.Add(location.Id);
             DojoSelection.SetChoices(dojoChoices);
             ModProfileAccess.Level = ReadProfileLevel;
+            ModProfileAccess.SetEclipseMode = TrySetEclipseMode;
             ModProfileAccess.Fight = ReadProfileFight;
             ModBattleAccess.SetLocked = TrySetBattleLocked;
             ModBattleAccess.Reveal = TryRevealBattle;
@@ -434,6 +435,26 @@ namespace Eclipse.Modding
                 throw new ModContentException("Battle progression references unavailable owned content: " + id);
             native = ListSF.GetInstance().FindBattleForModding(zone.LegacyName, battle.LegacyName);
             return new FightIDS(zone.LegacyName + "|" + battle.LegacyName + "|");
+        }
+
+        internal static bool TrySetEclipseMode(bool enabled)
+        {
+            var map = ReadyProgressionMap();
+            if (map == null || map.GetCurrentState() != Nekki.SF2.GUI.Map.MapScene.NMFLNANKNOJ.StoryMode) return false;
+            if (_profileRoster.IsEclipseMode() == enabled) return true;
+            var roster = _profileRoster;
+            string action = enabled ? "EclipseModeOn" : "EclipseModeOff";
+            foreach (var button in map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapButton>())
+            {
+                if (!button.isActiveAndEnabled || button.get_MapButtonInfo()?.Name != action) continue;
+                if (!button.ActivateAction()) return false;
+                // Native quests may yield for presentation. The caller can retry
+                // after it ends, but never proceed on a stale or blocked profile.
+                if (_profileRoster != roster || ReadyProgressionMap() != map || roster.IsEclipseMode() != enabled) return false;
+                ListSF.GetInstance().OnAuthenticate(true);
+                return true;
+            }
+            return false;
         }
 
         private static RosterBattle SavedBattle(FightIDS nativeId)
@@ -986,7 +1007,7 @@ namespace Eclipse.Modding
                 }
             }
             return new ModStoryEvent(ModStoryEventKind.BattleResult,null,
-                battle:new ModBattleResultSnapshot(id,result,roster.JPMPIDFGCJL(),equipment));
+                battle:new ModBattleResultSnapshot(id,result,roster.IsEclipseMode(),equipment));
         }
 
         internal static void PublishSceneEntry(string scene, int profileGeneration)

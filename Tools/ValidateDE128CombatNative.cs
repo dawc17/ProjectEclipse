@@ -107,6 +107,7 @@ public static class ValidateDE128CombatNative
                     }
                     if (!CheckMapBattleLock()) return;
                     CheckMapBattleReveal();
+                    CheckEclipseModeSwitch();
                     mapLockChecked = true;
                 }
                 CheckProjectileActionParsing();
@@ -450,6 +451,28 @@ public static class ValidateDE128CombatNative
         if (restored.IsLocked() || !restored.GetBattleId().Equals(nativeId))
             throw new Exception("Revealed record failed native serialization roundtrip.");
         Debug.Log("[DE128Native] PASS reveal/focus: fresh saved zone entry, native button, blocked/missing guards, no duplicate/reset, hidden-state preservation, current map and saved focus, native record roundtrip. No full profile reload claim.");
+    }
+
+    static void CheckEclipseModeSwitch()
+    {
+        var roster=ListSF.CCDKHLAMKKO();
+        var map=Nekki.SF2.GUI.Scene<Nekki.SF2.GUI.Map.MapScene>.get_Current();
+        var buttons=MapButtonController.ELEBLBJKDBI();
+        // Controlled native initial state in this isolated acceptance profile only.
+        roster.SetEclipseMode(true);
+        buttons.DMCBGLJHBPA("EclipseModeOff");buttons.DMCBGLJHBPA("EclipseModeOn");
+        if(ModProfileAccess.SetEclipseMode(false)||!roster.IsEclipseMode())throw new Exception("Missing switch bypassed native availability.");
+        buttons.GKIOOABOBFL(new MapButtonInfo("EclipseModeOff","eclipse","",new Vector2(-876,432),anchorMinX:1,anchorMaxX:1));
+        Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(true);
+        try { if(ModProfileAccess.SetEclipseMode(false)||!roster.IsEclipseMode())throw new Exception("Blocked switch changed mode."); }
+        finally { Eclipse.UI.Modding.ModUiGameBridge.SetNativeBlocked(false); }
+        if(!ModProfileAccess.SetEclipseMode(false)||roster.IsEclipseMode())throw new Exception("Native mode-off request failed.");
+        var active=map.GetComponentsInChildren<Nekki.SF2.GUI.Map.MapButton>().Where(button=>button.isActiveAndEnabled).ToArray();
+        if(!active.Any(button=>button.get_MapButtonInfo().Name=="EclipseModeOn") || active.Any(button=>button.get_MapButtonInfo().Name=="EclipseModeOff"))
+            throw new Exception("Native mode quest did not replace switch artwork/action.");
+        if(roster.EPEDEDLCAJF()!=Color.white)throw new Exception("Native mode quest did not reset map tint.");
+        if(!ModProfileAccess.SetEclipseMode(false))throw new Exception("Repeated mode request failed.");
+        Debug.Log("[DE128Native] PASS Eclipse mode request: missing/blocked switch refused, actual map-button quest changed mode, replacement button and white map tint, idempotent repeat. Isolated profile only.");
     }
 
     static void CheckProfileFightProgress()

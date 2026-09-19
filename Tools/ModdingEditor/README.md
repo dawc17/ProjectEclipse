@@ -24,7 +24,13 @@ Rows expose `perk`, optional `aspect` (0–2,147,483,647), and optional
 only for core perks and apply to that opponent. LuaLS provides nested field
 completion; the game checks ranges, duplicate perks and ownership at registration.
 
-Editor support for all 36 public Eclipse API modules: 162 functions, aliases, and
+`sf2.profile.set_eclipse_mode(enabled)` requests the native story-map switch with
+`story.progression`. Its boolean result says whether the requested mode and map
+are ready; native tutorials can defer completion. UI definitions now accept
+`on_back(view)` to acknowledge or retain a foreground menu/modal on user Back.
+Scene/profile cleanup continues to invoke only `on_close`.
+
+Editor support for all 36 public Eclipse API modules: 164 functions, aliases, and
 callbacks; 76 constants; and 229 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 

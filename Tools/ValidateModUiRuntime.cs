@@ -188,6 +188,7 @@ static class Program
         Layers();
         Controls();
         CloseNotifications();
+        BackNotifications();
         Console.WriteLine("PASS: " + checks + " UI ownership, validation, state, input and teardown checks; no Unity renderer or Lua API claimed.");
     }
 
@@ -210,6 +211,38 @@ static class Program
         Check(!gate.Release("left"), "Initially held control lost suppression");
         gate.SetCaptured(false);
         Check(gate.Press("left"), "Released direction remained suppressed");
+    }
+
+    static void BackNotifications()
+    {
+        var failures=new List<Exception>();
+        using(var scope=new ModUiScope(ModId.Parse("example.back"),failures.Add))
+        using(var layers=new ModUiLayerStack())
+        {
+            int calls=0;
+            ModUiSurface view=null;
+            view=scope.Open("retry",ModUiMount.Modal,Root(),onBack:()=>{
+                calls++;
+                Check(!view.TryBack() && !view.TryClick("button"),"Reentrant Back input escaped dispatch guard");
+                if(calls==2)view.Close();
+            });
+            layers.Add(view);
+            layers.SetBlocked(true);
+            Check(!layers.Back() && !view.TryBack() && calls==0,"Native blocker allowed Back callback");
+            layers.SetBlocked(false);
+            Check(layers.Back() && !view.IsClosed && calls==1,"Back callback could not retain its modal");
+            var overlay=scope.Open("overlay",ModUiMount.Modal,Root());layers.Add(overlay);
+            Check(!view.TryBack(),"Background view accepted Back");
+            Check(layers.Back() && overlay.IsClosed && calls==1,"Back reached the wrong modal");
+            Check(layers.Back() && view.IsClosed && calls==2 && !view.TryBack(),"Back callback close/lifetime failed");
+            var cleanup=scope.Open("cleanup",ModUiMount.Menu,Root(),onBack:()=>calls++);layers.Add(cleanup);
+            cleanup.Close(ModUiCloseReason.Scene);
+            Check(calls==2,"Scene cleanup invoked user Back callback");
+            var hud=scope.Open("hud",ModUiMount.CombatHud,Root(),onBack:()=>calls++);layers.Add(hud);
+            Check(!hud.TryBack() && !layers.Back() && calls==2,"HUD consumed Back");
+            var error=scope.Open("error",ModUiMount.Menu,Root(),onBack:()=>throw new Exception("Back failure"));layers.Add(error);
+            Check(layers.Back() && error.IsClosed && failures.Count==1,"Failed Back was not consumed and cleaned up");
+        }
     }
 
     static void CloseNotifications()

@@ -194,7 +194,7 @@ public sealed class UserItems
 
 public sealed class RosterStub
 {
-    public bool JPMPIDFGCJL() => false;
+    public bool IsEclipseMode() => false;
     public UserItems UserItems = new UserItems();
     public UserPerks UserPerks = new UserPerks();
     public UserItems KHCNHPCPFII() { return UserItems; }

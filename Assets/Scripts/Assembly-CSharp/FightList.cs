@@ -415,7 +415,7 @@ public class FightList
 
 	public List<Rule> BONNMLEJBJH()
 	{
-		return (!ListSF.CCDKHLAMKKO().JPMPIDFGCJL()) ? _rules : IACOELKGMAA;
+		return (!ListSF.CCDKHLAMKKO().IsEclipseMode()) ? _rules : IACOELKGMAA;
 	}
 
 	public bool MeetsPlayerItemRequirements(ModelParameters parameters)

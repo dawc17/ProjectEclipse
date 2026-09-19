@@ -20,7 +20,7 @@ public static class Scalars {
 }
 public class ListSF {
  public static bool Eclipse; public static int CurrentLevel=4;public static Inventory Inventory=new Inventory();public static ItemCatalog Catalog=new ItemCatalog();
- public static ListSF CCDKHLAMKKO()=>new ListSF();public bool JPMPIDFGCJL()=>Eclipse;
+ public static ListSF CCDKHLAMKKO()=>new ListSF();public bool IsEclipseMode()=>Eclipse;
  public int PINDEKDNCNL()=>CurrentLevel;public int Level=>CurrentLevel;public Inventory KHCNHPCPFII()=>Inventory;public static ItemCatalog GetItems()=>Catalog;
 }
 public class UserItem {}

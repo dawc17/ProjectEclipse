@@ -111,6 +111,11 @@ namespace Nekki.SF2.GUI.Map
 		public override void OnPointerClick(PointerEventData BHOLFGOGPCP)
 		{
 			base.OnPointerClick(BHOLFGOGPCP);
+			ActivateAction();
+		}
+
+		public bool ActivateAction()
+		{
 			if (get_MapButtonInfo() != null)
 			{
 				QuestParameters hHKLFIIBIFF = ListSF.GetInstance().BNMLDPNCMLB();
@@ -124,7 +129,9 @@ namespace Nekki.SF2.GUI.Map
 				{
 					ListSF.GetInstance().MHHNIPBJNAD();
 				}
+				return handled;
 			}
+			return false;
 		}
 	}
 }

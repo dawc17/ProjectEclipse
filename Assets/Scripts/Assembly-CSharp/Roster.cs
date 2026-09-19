@@ -572,7 +572,7 @@ public class Roster : MELBIBHDPCE
 	{
 		get
 		{
-			return JPMPIDFGCJL();
+			return IsEclipseMode();
 		}
 	}
 
@@ -1306,7 +1306,8 @@ public class Roster : MELBIBHDPCE
 		return GNOMNIKGAPE;
 	}
 
-	public bool JPMPIDFGCJL()
+	// best guess for name
+	public bool IsEclipseMode()
 	{
 		return JHJLHNHCPMP;
 	}
@@ -1529,7 +1530,7 @@ public class Roster : MELBIBHDPCE
 	{
 		RosterFight pIGKOIFBOME = FindSavedFightRecord(DIAIIPCBMFL);
 		pIGKOIFBOME.GICDABHEMML();
-		if (JPMPIDFGCJL())
+		if (IsEclipseMode())
 		{
 			pIGKOIFBOME.LOEBHEODPAH();
 		}
@@ -1542,7 +1543,7 @@ public class Roster : MELBIBHDPCE
 		if (pIGKOIFBOME != null)
 		{
 			pIGKOIFBOME.ICAKCDMOMDF();
-			if (JPMPIDFGCJL())
+			if (IsEclipseMode())
 			{
 				pIGKOIFBOME.HBIAOHGMLDK();
 			}

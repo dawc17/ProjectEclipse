@@ -429,7 +429,7 @@ public static class GameUtils
 			{
 				return EJBPPKHILBF;
 			}
-			Counter.NENOEMHAEFH nMMPBADCFHK = ((!ListSF.CCDKHLAMKKO().JPMPIDFGCJL()) ? Counter.NENOEMHAEFH.NORMAL_MODE : Counter.NENOEMHAEFH.ECLIPSE_MODE);
+			Counter.NENOEMHAEFH nMMPBADCFHK = ((!ListSF.CCDKHLAMKKO().IsEclipseMode()) ? Counter.NENOEMHAEFH.NORMAL_MODE : Counter.NENOEMHAEFH.ECLIPSE_MODE);
 			return ECMIANLOLHM(nMMPBADCFHK);
 		}
 
@@ -1622,7 +1622,7 @@ public static class GameUtils
 				num11 = float.MaxValue;
 				foreach (AttributesAlign item in list)
 				{
-					bool flag = ListSF.CCDKHLAMKKO().JPMPIDFGCJL();
+					bool flag = ListSF.CCDKHLAMKKO().IsEclipseMode();
 					bool flag2 = QuestUtils.DPLFDKODKIC().NCPKGHDFOFL();
 					if ((flag && item.KONCHIPGFGO == ModelParameters.IHFKGJLIPGH.DFHard) || (!flag && item.KONCHIPGFGO == ModelParameters.IHFKGJLIPGH.DFNormal) || item.KONCHIPGFGO == ModelParameters.IHFKGJLIPGH.DFBoth || flag2)
 					{
@@ -1643,7 +1643,7 @@ public static class GameUtils
 				num11 = float.MinValue;
 				foreach (AttributesAlign item2 in list)
 				{
-					bool flag3 = ListSF.CCDKHLAMKKO().JPMPIDFGCJL();
+					bool flag3 = ListSF.CCDKHLAMKKO().IsEclipseMode();
 					bool flag4 = QuestUtils.DPLFDKODKIC().NCPKGHDFOFL();
 					if ((flag3 && item2.KONCHIPGFGO == ModelParameters.IHFKGJLIPGH.DFHard) || (!flag3 && item2.KONCHIPGFGO == ModelParameters.IHFKGJLIPGH.DFNormal) || item2.KONCHIPGFGO == ModelParameters.IHFKGJLIPGH.DFBoth || flag4)
 					{

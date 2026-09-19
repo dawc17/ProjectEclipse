@@ -68,6 +68,13 @@ static class Program
         File.WriteAllBytes(spritePath,Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aD2sAAAAASUVORK5CYII="));
         const string imageSource="local icon=sf2.assets.sprite('example.charge-ui:sprites/ui-test')\n";
         File.Copy(spritePath,Path.Combine(Path.GetDirectoryName(spritePath),"ui-other.png"),true);
+        // PNGs are textures; the current asset contract requires explicit sprite descriptors.
+        foreach (string name in new[]{"ui-test", "ui-other"})
+        {
+            File.Move(Path.Combine(Path.GetDirectoryName(spritePath),name+".png"),Path.Combine(Path.GetDirectoryName(spritePath),name+"-texture.png"));
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(spritePath),name+".asset"),
+                "type=sprite\ntexture=sprites/"+name+"-texture.png\n");
+        }
         const string imageView="local view=sf2.ui.open{id='art',mount='menu',root={id='art',kind='image',width=160,height=80,sprite=icon}}\n";
         Run(prefix+imageSource+imageView+"sf2.ui.set_sprite(view,'art',sf2.assets.sprite('example.charge-ui:sprites/ui-other'))",false,
             (ctx,cat,views)=>Check(views.Single().Read("art").Sprite==AssetId.Parse("example.charge-ui:sprites/ui-other"),"Lua live image update failed"));
@@ -137,6 +144,25 @@ sf2.ui.open{id='closer',mount='menu',root="+root+"}",false);
 on_close=function(view,reason)assert(reason=='script' and not sf2.ui.is_open(view))end}",false,
             (ctx,cat,views)=>Check(views[0].TryClick("go") && views[0].IsClosed,"Nested close callback in click failed"));
         Run(prefix+"sf2.ui.open{id='bad',mount='menu',root="+root+",on_close=3}",true);
+        Run(prefix+"sf2.ui.open{id='bad',mount='menu',root="+root+",on_back=3}",true);
+        Run(prefix+"local attempts=0; sf2.ui.open{id='back',mount='menu',root="+root+@",on_back=function(view)
+            attempts=attempts+1
+            if attempts==1 then sf2.ui.set_text(view,'label','retry') else sf2.ui.close(view) end
+        end}",false,(ctx,cat,views)=>{
+            Check(views[0].TryBack() && !views[0].IsClosed && views[0].Read("label").Text=="retry","Back callback could not defer dismissal");
+            Check(views[0].TryBack() && views[0].IsClosed,"Back callback could not finish dismissal");
+        });
+        Run(prefix+"sf2.ui.open{id='back',mount='menu',root="+root+",on_back=function() while true do end end}",false,
+            (ctx,cat,views)=>Check(!views[0].TryBack() && views[0].IsClosed,"Unbounded Back callback escaped budget"));
+        File.WriteAllText(manifest,originalManifest.Replace("capabilities = [","capabilities = [\"story.progression\", "));
+        int modeCalls=0;
+        ModProfileAccess.SetEclipseMode=enabled=>{modeCalls++;return true;};
+        Run(prefix+"local view=sf2.ui.open{id='mode',mount='modal',root="+root+@",
+            on_back=function(view) assert(sf2.profile.set_eclipse_mode(false)); sf2.ui.close(view) end,
+            on_close=function() assert(not pcall(sf2.profile.set_eclipse_mode,false)) end}",false,
+            (ctx,cat,views)=>Check(views[0].TryBack() && views[0].IsClosed && modeCalls==1,"Mode request escaped cleanup guard or failed from Back"));
+        ModProfileAccess.Clear();
+        File.WriteAllText(manifest,originalManifest);
         foreach(string closeBody in new[]{"while true do end","error('close failed')","sf2.ui.set_text(view,'label','stale')","sf2.ui.open{id='escape',mount='menu',root="+root+"}"}) {
             var logs=new List<ModLogEntry>();
             Run(prefix+"sf2.ui.open{id='closer',mount='menu',root="+root+",on_close=function(view) "+closeBody+" end}",false,

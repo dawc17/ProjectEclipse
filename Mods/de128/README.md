@@ -29,20 +29,26 @@ XML; profile settlement and the full story remain unverified (Step 33).
 
 Pending `scripts/content/sensei_progression.lua` computes the six acts eligible
 to unlock after a victory, using saved tournament/prior-act wins and supplied
-opened flags. It does not yet show notifications, change map locks or persist
-those flags. All 2048 prerequisite histories are compared with archived quest
+opened flags. Notification and persistence are handled by the pending coordinator
+below. All 2048 prerequisite histories are compared with archived quest
 conditions; the generic `sf2.profile.fight` query supplies the saved counters.
 
 The generic `sf2.battles.set_locked` API can now update an owned, already revealed
 battle on an unblocked map without resetting replay counts or fight history.
-The Sensei coordinator still needs initial revelation, notification ordering and
-opened-state persistence before activation. See Step 35 in `PRODUCTION.md`.
+See Step 35 in `PRODUCTION.md` for its native map acceptance.
 
 Pending `scripts/content/sensei_map.lua` now sequences the six initial reveals,
 per-act unlock and map focus through public APIs. It stops on refusal and can be
 retried without resetting existing progress. These map effects are tested against
-the historical notification actions; dialogs, Act I's Eclipse-mode transition,
-opened-state persistence and encounter assembly still precede activation (Step 36).
+the historical notification actions (Step 36).
+
+Pending `scripts/content/sensei_notifications.lua` now coordinates ordered map
+notifications, all 56 historical translations, Back/OK acknowledgment, Act I's
+native Eclipse-mode exit, retry on refused actions, and persisted pending/opened
+flags. Scene/profile cleanup never acknowledges. Controlled Lua/save checks pass;
+the mode switch passes isolated native Unity acceptance. Full dialog rendering,
+encounter assembly, missing guard templates and complete story/save acceptance
+remain open. The coordinator is **not loaded by the entrypoint** (Step 37).
 
 `scripts/content/chinese_swords.lua` registers both moves and Jian's subtype;
 `chinese_swords_data.lua` contains their typed combat/presentation data. The mod
