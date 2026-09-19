@@ -12,15 +12,15 @@ function Check([bool]$condition,[string]$message) { $script:checks++; if (!$cond
 function Parse([string]$text) { [xml]$xml=$text; $item=[ItemInfo]::new($null); [ItemInfo].GetMethod('ReadCombatClassification',$flags).Invoke($item,@($xml.DocumentElement)) | Out-Null; return $item }
 $mace=Parse '<Item Name="test_mace" Type="Weapon" SubType="TwoHandedBlunt" TacticSubtype="TwoHanded"/>'
 Check ($effective.GetValue($mace) -eq 'TwoHanded') 'Explicit tactic grouping was ignored.'
-Check ($mace.MDPPNGIEJGD -eq 'TwoHandedBlunt') 'AI grouping changed animation/condition subtype.'
+Check ($mace.SubType -eq 'TwoHandedBlunt') 'AI grouping changed animation/condition subtype.'
 $copy=$mace.Clone()
-Check ($effective.GetValue($copy) -eq 'TwoHanded' -and $copy.MDPPNGIEJGD -eq 'TwoHandedBlunt') 'Clone lost separate subtype/group.'
+Check ($effective.GetValue($copy) -eq 'TwoHanded' -and $copy.SubType -eq 'TwoHandedBlunt') 'Clone lost separate subtype/group.'
 $normal=Parse '<Item Name="test_sword" Type="Weapon" SubType="OneHandedSword"/>'
 Check ($effective.GetValue($normal) -eq 'OneHandedSword') 'Absent tactic subtype did not fall back.'
-$normal.MDPPNGIEJGD='Barehand'
+$normal.SubType='Barehand'
 Check ($effective.GetValue($normal) -eq 'Barehand') 'Fallback retained a stale subtype.'
 $normal.MergeWithItem($mace)
-Check ($effective.GetValue($normal) -eq 'TwoHanded' -and $normal.MDPPNGIEJGD -eq 'TwoHandedBlunt') 'Item merge lost explicit grouping.'
+Check ($effective.GetValue($normal) -eq 'TwoHanded' -and $normal.SubType -eq 'TwoHandedBlunt') 'Item merge lost explicit grouping.'
 $empty=Parse '<Item Name="empty" Type="Weapon"/>'
 $normal.MergeWithItem($empty)
 Check ($effective.GetValue($normal) -eq 'TwoHanded') 'Absent merge grouping erased template metadata.'
@@ -52,7 +52,7 @@ function ApplyGroup($target,$group) {
 $beforeXml=$mace.NodeXML
 $scope=ApplyGroup $mace 'Staff'
 Check $scope.Success 'Valid scoped AI group rejected.'
-Check ($effective.GetValue($mace) -eq 'Staff' -and $mace.MDPPNGIEJGD -eq 'TwoHandedBlunt') 'Scoped group changed physical subtype.'
+Check ($effective.GetValue($mace) -eq 'Staff' -and $mace.SubType -eq 'TwoHandedBlunt') 'Scoped group changed physical subtype.'
 Check ([object]::ReferenceEquals($beforeXml,$mace.NodeXML)) 'Scoped group changed archival item XML.'
 $snapshot=$mace.Clone()
 Check ($effective.GetValue($snapshot) -eq 'Staff') 'Fight copy lost active group.'

@@ -7,6 +7,8 @@ public class Trick : IComparable<Trick>
 
 	public string Name;
 
+	public string DisplayName { get; private set; }
+
 	public string COJPEGLPGDF;
 
 	public string HIAMFGEIGDP;
@@ -24,6 +26,7 @@ public class Trick : IComparable<Trick>
 		COJPEGLPGDF = BHBHAOJHABE.Attributes["KeysDescription"].CIPOICEEIBK(string.Empty);
 		HIAMFGEIGDP = BHBHAOJHABE.Attributes["EffectDescription"].CIPOICEEIBK(string.Empty);
 		Name = KJHGIKMFJOB.Name;
+		DisplayName = BHBHAOJHABE.Attributes["DisplayName"].CIPOICEEIBK(Name);
 		KJHMOGGECBN = KJHGIKMFJOB;
 		IsNew = false;
 	}
@@ -32,6 +35,7 @@ public class Trick : IComparable<Trick>
 	{
 		NHKMCLPOMFK = NCKCDCODNHA;
 		Name = _name;
+		DisplayName = _name;
 		KJHMOGGECBN = KJHGIKMFJOB;
 		Rank = HEIBENBPNLN;
 		COJPEGLPGDF = PHDCIEGEKBC;

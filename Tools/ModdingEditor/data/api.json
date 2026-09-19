@@ -742,6 +742,17 @@
       "requires": "`content.patch`; item lookup also requires `content.register`. Declare dependencies for referenced namespaces.",
       "when": "During entrypoint registration. The override applies when content is loaded, before subsequent fights are constructed."
     },
+    "sf2.items.set_subtype": {
+      "params": {
+        "definition": "Eclipse.ItemCombatSubtype"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_subtype",
+      "summary": "Change the combat family of an existing weapon, ranged item or magic definition. Native animation conditions and projectile selection use this subtype.",
+      "requires": "`content.patch`; obtaining an item handle also requires `content.register`. Declare a dependency on the item's owner.",
+      "when": "During mod loading, before profile equipment and fighters are built."
+    },
     "sf2.items.set_default_enchantments": {
       "params": {
         "definition": "Eclipse.ItemDefaultEnchantments"
@@ -946,6 +957,28 @@
       "requires": "`content.register`, plus dependencies for external templates or assets.",
       "when": "During mod loading."
     },
+    "sf2.moves.extend_item_lock": {
+      "params": {
+        "definition": "Eclipse.MoveItemLockExtension"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesextend_item_lock",
+      "summary": "",
+      "requires": "`content.patch`.",
+      "when": "During registration. Applied to already-loaded native moves before external moves and fighters are built. Requires Apply & Restart when changing enabled content; it does not rebuild already-created fighter snapshots in place."
+    },
+    "sf2.moves.patch": {
+      "params": {
+        "definition": "Eclipse.MovePatch"
+      },
+      "returns": "Nothing.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movespatch",
+      "summary": "",
+      "requires": "`content.patch` and any dependencies required by referenced conditions.",
+      "when": "Entrypoint. Registration records the patch; native application validates its target after base animations are available, before a fight starts."
+    },
     "sf2.moves.remove_perk_lock": {
       "params": {
         "definition": "Eclipse.MovePerkLockRemoval"
@@ -1064,7 +1097,7 @@
       "returns": "`nil`.",
       "capability": "policy.timers",
       "url": "https://dawc17.github.io/ProjectEclipse/api/timers-and-services/#sf2timersset",
-      "summary": "Set the delivery duration and early-skip policy for new forge orders.",
+      "summary": "Set the delivery duration and early-skip policy for new forge orders, optionally making already-paid pending orders eligible for immediate normal completion.",
       "requires": "`policy.timers`.",
       "when": "Entrypoint."
     },
@@ -1875,12 +1908,24 @@
         "error?": "string"
       }
     },
+    "WeaponInitialStats": {
+      "fields": {
+        "weapon_damage?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ]
+      }
+    },
     "WeaponDefinition": {
       "fields": {
         "id": "string",
         "display_name": "Eclipse.LocalizationHandle",
         "icon": "Eclipse.SpriteHandle",
         "model": "Eclipse.ModelHandle",
+        "initial_stats?": [
+          "Eclipse.WeaponInitialStats",
+          "Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged."
+        ],
         "subtype?": [
           "string",
           "Defaults to Katana. Match the model and move family."
@@ -1891,12 +1936,40 @@
         ]
       }
     },
+    "ArmorInitialStats": {
+      "fields": {
+        "body_defense?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ],
+        "head_defense?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ],
+        "unarmed_damage?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ]
+      }
+    },
     "ArmorDefinition": {
       "fields": {
         "id": "string",
         "display_name": "Eclipse.LocalizationHandle",
         "icon": "Eclipse.SpriteHandle",
-        "model": "Eclipse.ModelHandle"
+        "model": "Eclipse.ModelHandle",
+        "initial_stats?": [
+          "Eclipse.ArmorInitialStats",
+          "Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged."
+        ]
+      }
+    },
+    "HelmInitialStats": {
+      "fields": {
+        "head_defense?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ]
       }
     },
     "HelmDefinition": {
@@ -1904,7 +1977,23 @@
         "id": "string",
         "display_name": "Eclipse.LocalizationHandle",
         "icon": "Eclipse.SpriteHandle",
-        "model": "Eclipse.ModelHandle"
+        "model": "Eclipse.ModelHandle",
+        "initial_stats?": [
+          "Eclipse.HelmInitialStats",
+          "Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged."
+        ]
+      }
+    },
+    "RangedInitialStats": {
+      "fields": {
+        "ranged_damage?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ],
+        "weapon_damage?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ]
       }
     },
     "RangedDefinition": {
@@ -1913,7 +2002,19 @@
         "display_name": "Eclipse.LocalizationHandle",
         "icon": "Eclipse.SpriteHandle",
         "model": "Eclipse.ModelHandle",
+        "initial_stats?": [
+          "Eclipse.RangedInitialStats",
+          "Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged."
+        ],
         "subtype": "string"
+      }
+    },
+    "MagicInitialStats": {
+      "fields": {
+        "magic_damage?": [
+          "integer",
+          "0-1000000. Unspecified stats remain absent in an explicit snapshot."
+        ]
       }
     },
     "MagicDefinition": {
@@ -1922,6 +2023,10 @@
         "display_name": "Eclipse.LocalizationHandle",
         "icon": "Eclipse.SpriteHandle",
         "model": "Eclipse.ModelHandle",
+        "initial_stats?": [
+          "Eclipse.MagicInitialStats",
+          "Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged."
+        ],
         "subtype": "string"
       }
     },
@@ -1963,7 +2068,11 @@
       "fields": {
         "item": "Eclipse.ItemHandle",
         "visibility?": "\"inherit\"|\"force_visible\"|\"force_hidden\"",
-        "required_group?": "string"
+        "required_group?": [
+          "string",
+          "Player-group prerequisite; also the native unlock-notification pack label for mod-owned equipment. Core labels stay unchanged."
+        ],
+        "minimum_level?": "integer"
       }
     },
     "AssetReplacement": {
@@ -2522,6 +2631,15 @@
         ]
       }
     },
+    "ItemCombatSubtype": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "subtype": [
+          "string",
+          "Case-sensitive native combat family; requires matching moves/projectile support."
+        ]
+      }
+    },
     "DefaultEnchantment": {
       "fields": {
         "perk": "Eclipse.PerkHandle",
@@ -2738,7 +2856,7 @@
     "MoveConditionGroup": {
       "fields": {
         "type": "\"all\"|\"any\"",
-        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
+        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
         "not?": "boolean"
       }
     },
@@ -2762,6 +2880,36 @@
         "not?": "boolean"
       }
     },
+    "MoveStageCondition": {
+      "fields": {
+        "type": "\"round_stage\"",
+        "name": "\"StartStance\"|\"Fight\"|\"EndStance\"|\"TryOn\"",
+        "player?": "\"Me\"|\"Enemy\"|\"Both\"",
+        "not?": "boolean"
+      }
+    },
+    "MoveScreenCondition": {
+      "fields": {
+        "type": "\"screen\"",
+        "name": "\"ShopArmor\"|\"ShopWeapon\"|\"ShopHelm\"|\"ShopMissile\"|\"ShopMagic\"|\"ShopRuby\"|\"ShopFree\"|\"ShopRaidItemPack\"|\"Profile\"|\"Fight\"",
+        "player?": "\"Me\"|\"Enemy\"|\"Both\"",
+        "not?": "boolean"
+      }
+    },
+    "MoveModCondition": {
+      "fields": {
+        "type": "\"mod_exists\"",
+        "name": "string",
+        "player?": "\"Me\"|\"Enemy\"|\"Both\"",
+        "not?": "boolean"
+      }
+    },
+    "MoveDamageTerm": {
+      "fields": {
+        "type": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
+        "shift?": "number"
+      }
+    },
     "MoveImpulse": {
       "fields": {
         "x?": "number",
@@ -2774,7 +2922,8 @@
         "edges": "string[]",
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
-        "hit?": "\"High\"|\"Middle\"|\"Low\"",
+        "damage_terms?": "Eclipse.MoveDamageTerm[]",
+        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse"
       }
@@ -2788,14 +2937,101 @@
         "attack?": "Eclipse.MoveAttack"
       }
     },
+    "MovePoint": {
+      "fields": {
+        "object": "\"Nodes\"|\"Pivot\"|\"Wall\"|\"Animation\"|\"Floor\"|\"COM\"",
+        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
+        "part?": "string",
+        "shift_x?": "number",
+        "shift_y?": "number"
+      }
+    },
+    "MoveAlignment": {
+      "fields": {
+        "axes": "(\"X\"|\"Y\"|\"Z\")[]",
+        "pivot": "Eclipse.MovePoint",
+        "position": "Eclipse.MovePoint"
+      }
+    },
+    "MoveDirection": {
+      "fields": {
+        "from": "Eclipse.MovePoint",
+        "to": "Eclipse.MovePoint"
+      }
+    },
+    "MoveTransition": {
+      "fields": {
+        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
+        "frame_shift?": "integer",
+        "first_frame?": "integer"
+      }
+    },
+    "MoveEffect": {
+      "fields": {
+        "name": "string",
+        "core_sequence": "string",
+        "scale?": "number",
+        "time_scale?": "number",
+        "looped?": "boolean",
+        "position?": "Eclipse.MovePoint",
+        "follow?": "boolean"
+      }
+    },
+    "MoveProjectile": {
+      "fields": {
+        "name": "string",
+        "core_skeleton": "string",
+        "copy_parent_type": "\"Weapon\"|\"Ranged\"|\"Magic\"",
+        "core_start_animation?": "string",
+        "start_move?": "Eclipse.MoveHandle"
+      }
+    },
+    "MoveBulletChange": {
+      "fields": {
+        "type": "\"MagicBullet\"|\"RaidChargeBullet\"",
+        "value": "integer"
+      }
+    },
+    "MoveScheduledAction": {
+      "fields": {
+        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"",
+        "frame?": "integer",
+        "event?": "\"RoundStage\"|\"KeyPressed\"|\"KeyReleased\"|\"RoundStart\"|\"RoundEnd\"|\"Hit\"|\"Strike\"|\"WallHit\"|\"AnimationStart\"|\"AnimationEnd\"|\"IntervalStart\"|\"IntervalEnd\"|\"EveryFrame\"|\"Birth\"|\"ModExpires\"",
+        "core_sounds?": "string[]",
+        "effect?": "Eclipse.MoveEffect",
+        "effect_name?": "string",
+        "projectile?": "Eclipse.MoveProjectile",
+        "bullets?": "Eclipse.MoveBulletChange",
+        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\""
+      }
+    },
+    "MoveProfile": {
+      "fields": {
+        "rank": "integer",
+        "core_icon": "string",
+        "display_name?": "Eclipse.LocalizationHandle"
+      }
+    },
+    "MoveTacticDistance": {
+      "fields": {
+        "axis": "\"X\"|\"Y\"|\"Full\"",
+        "minimum?": "number",
+        "maximum?": "number",
+        "from": "Eclipse.MovePoint",
+        "to": "Eclipse.MovePoint"
+      }
+    },
     "MoveTemplateDefinition": {
       "fields": {
         "id": "string",
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
         "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
         "intervals?": "Eclipse.MoveInterval[]",
+        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
+        "align?": "Eclipse.MoveAlignment",
+        "direction?": "Eclipse.MoveDirection",
         "type?": "string",
         "mirror_node?": "string",
         "tactic_equivalent?": "string",
@@ -2814,8 +3050,11 @@
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
         "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
         "intervals?": "Eclipse.MoveInterval[]",
+        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
+        "align?": "Eclipse.MoveAlignment",
+        "direction?": "Eclipse.MoveDirection",
         "type?": "string",
         "mirror_node?": "string",
         "tactic_equivalent?": "string",
@@ -2826,7 +3065,50 @@
         "end_frame?": "integer",
         "looped?": "boolean",
         "ends_stage?": "boolean",
-        "animation": "Eclipse.BinaryHandle"
+        "animation": "Eclipse.BinaryHandle",
+        "transitions?": "Eclipse.MoveTransition[]",
+        "actions?": "Eclipse.MoveScheduledAction[]",
+        "profile?": "Eclipse.MoveProfile",
+        "tactic_distance?": "Eclipse.MoveTacticDistance",
+        "no_wall_repulsion?": "boolean",
+        "no_interpolation_frames?": "boolean"
+      }
+    },
+    "MoveItemLockExtension": {
+      "fields": {
+        "move": "string",
+        "item_type": "\"Weapon\"|\"Ranged\"|\"Magic\"|\"Armor\"|\"Helm\"|\"Skeleton\"",
+        "source_subtype": "string",
+        "subtype": "string"
+      }
+    },
+    "MoveIntervalEndPatch": {
+      "fields": {
+        "name": "\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"",
+        "expected": "integer",
+        "value": "integer"
+      }
+    },
+    "MoveHitPatch": {
+      "fields": {
+        "expected": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"",
+        "value": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\""
+      }
+    },
+    "MoveSoundFramePatch": {
+      "fields": {
+        "name": "string",
+        "expected": "integer",
+        "value": "integer"
+      }
+    },
+    "MovePatch": {
+      "fields": {
+        "move": "string",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
+        "interval_end?": "Eclipse.MoveIntervalEndPatch",
+        "hit?": "Eclipse.MoveHitPatch",
+        "sound_frame?": "Eclipse.MoveSoundFramePatch"
       }
     },
     "MovePerkLockRemoval": {
@@ -2853,7 +3135,7 @@
       "fields": {
         "id": "string",
         "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]",
         "actions?": "(Eclipse.SoundAction|Eclipse.HitEffectAction)[]"
       }
     },
@@ -3011,7 +3293,8 @@
       "fields": {
         "subsystem": "\"forge\"",
         "seconds": "integer",
-        "skip_enabled?": "boolean"
+        "skip_enabled?": "boolean",
+        "complete_pending?": "boolean"
       }
     },
     "CounterDefinition": {

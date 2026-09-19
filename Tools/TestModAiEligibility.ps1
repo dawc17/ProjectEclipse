@@ -16,9 +16,9 @@ public class ModelConditions {
  public object PDKPGKPBBIL; public int PCAOCHAIBJC, FOIHIKCEBJF;
 }
 public class ConditionAnimation {
- public enum DGAGKLODADD { ECLIPSE_CHARACTER }
+ public enum ConditionType { ECLIPSE_CHARACTER }
  public bool IsNot;
- public ConditionAnimation(DGAGKLODADD kind){}
+ public ConditionAnimation(ConditionType kind){}
  public virtual bool IsEqual(ModelConditions conditions){return true;}
 }
 namespace Eclipse.Modding { /* CHARACTER */ }
@@ -30,7 +30,7 @@ public class InfoAnimation {
  public class CapabilityTable { public List<InfoAnimation> NINJLLDJLFI=new List<InfoAnimation>(); }
  public class Properties { public Directions ILOEBFFAEAN=new Directions(); }
  public class Directions { public int OLBDPMKCJIF; }
- public Properties ODACDCDONJE=new Properties();
+ public Properties MoveData=new Properties();
  public CapabilityTable ICANLHJKKNE=new CapabilityTable();
  public object ILBCHANCOBP(){return HasKeys ? this : null;}
  public object FOLOOGCLPNE(){return Name;}

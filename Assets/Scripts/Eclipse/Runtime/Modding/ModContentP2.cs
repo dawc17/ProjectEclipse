@@ -72,11 +72,14 @@ namespace Eclipse.Modding
         public string Subsystem { get; }
         public int Seconds { get; }
         public bool SkipEnabled { get; }
-        internal ModTimerPolicy(ModId owner, string subsystem, int seconds, bool skipEnabled)
+        public bool CompletePending { get; }
+        internal ModTimerPolicy(ModId owner, string subsystem, int seconds, bool skipEnabled, bool completePending = false)
         {
             if (subsystem != "forge") throw new ModContentException("Unsupported timer subsystem: " + subsystem);
             if (seconds < 0 || seconds > 31536000) throw new ModContentException("Timer seconds must be 0..31536000.");
+            if (completePending && seconds != 0) throw new ModContentException("complete_pending requires seconds = 0.");
             Owner = owner; Subsystem = subsystem; Seconds = seconds; SkipEnabled = skipEnabled;
+            CompletePending = completePending;
         }
     }
 
@@ -111,11 +114,11 @@ namespace Eclipse.Modding
             if (_modes.ContainsKey(mode.Id)) throw new ModContentException("Duplicate mode: " + mode.Id);
             _modes.Add(mode.Id, mode); return mode;
         }
-        public void SetTimer(string subsystem, int seconds, bool skipEnabled)
+        public void SetTimer(string subsystem, int seconds, bool skipEnabled, bool completePending = false)
         {
             ThrowIfCompleted(); EnsureCapacityForNewRegistration();
             if (_timers.ContainsKey(subsystem)) throw new ModContentException("Duplicate timer policy: " + subsystem);
-            _timers.Add(subsystem, new ModTimerPolicy(Mod.Id, subsystem, seconds, skipEnabled));
+            _timers.Add(subsystem, new ModTimerPolicy(Mod.Id, subsystem, seconds, skipEnabled, completePending));
         }
         public void DisableFeature(string feature)
         {
@@ -183,7 +186,7 @@ namespace Eclipse.Modding
             RequireCapability("content.register");
             return RequireRegistration().RegisterMode(id, fights, repeatable, resetOnLoss, raid, hardMode, level, starts, ends, item, count, usesResultCallback, usesPrepareCallback);
         }
-        public void SetTimer(string subsystem, int seconds, bool skip) { RequireCapability("policy.timers"); RequireRegistration().SetTimer(subsystem, seconds, skip); }
+        public void SetTimer(string subsystem, int seconds, bool skip, bool completePending = false) { RequireCapability("policy.timers"); RequireRegistration().SetTimer(subsystem, seconds, skip, completePending); }
         public void DisableFeature(string feature) { RequireCapability("policy.services"); RequireRegistration().DisableFeature(feature); }
     }
 
@@ -193,6 +196,7 @@ namespace Eclipse.Modding
         public static ModContentCatalog Content { get; set; }
         public static int DeliverySeconds(string subsystem, int original) => Content != null && Content.TryGetTimer(subsystem, out var policy) ? policy.Seconds : original;
         public static bool SkipEnabled(string subsystem) => Content == null || !Content.TryGetTimer(subsystem, out var policy) || policy.SkipEnabled;
+        public static bool CompletePending(string subsystem) => Content != null && Content.TryGetTimer(subsystem, out var policy) && policy.CompletePending;
         public static bool FeatureEnabled(string feature) => Content == null || Content.FeatureEnabled(feature);
         public static bool TryRaidBattle(string name, out bool hardMode)
         {

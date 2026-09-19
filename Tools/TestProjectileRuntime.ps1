@@ -107,8 +107,8 @@ Assert-True ($byName.EnergyballStart.IsItemRequired('Weapon','EnergyBall')) 'Ene
 Assert-True ($byName.IceballStart.IsItemRequired('Weapon','IceBall')) 'Iceball lost its inherited weapon lock'
 foreach ($name in @('EnergyballStart','IceballStart','HermitStormStart')) {
     $move = $byName[$name]
-    Assert-True ($move.ODACDCDONJE.HIFPHBNGIPO.Count -gt 0) ($name + ' is unrestricted')
-    Assert-True ($move.ODACDCDONJE.JIFAHHGNPFH.Count -gt 0) ($name + ' lost inherited conditions')
+    Assert-True ($move.MoveData.Locks.Count -gt 0) ($name + ' is unrestricted')
+    Assert-True ($move.MoveData.JIFAHHGNPFH.Count -gt 0) ($name + ' lost inherited conditions')
 }
 # Original template membership is a runtime contract for CurrentAnimation
 # conditions and AI queries; do not replace it with renamed template tags.
@@ -116,8 +116,8 @@ $originalParsed = Parse-Moves $baseline @('EnergyballStart','IceballStart','Herm
 foreach ($original in $originalParsed) {
     $move = $byName[$original.Name]
     Assert-True (($move.FOLOOGCLPNE() -join '|') -ceq ($original.FOLOOGCLPNE() -join '|')) ($original.Name + ' template membership changed')
-    foreach ($field in @('HIFPHBNGIPO','JIFAHHGNPFH','DJBAIAKOIHM','AJCMBMJGJEG')) {
-        Assert-True ($move.ODACDCDONJE.$field.Count -eq $original.ODACDCDONJE.$field.Count) ($original.Name + ' inherited rule count changed: ' + $field)
+    foreach ($field in @('Locks','JIFAHHGNPFH','DJBAIAKOIHM','AJCMBMJGJEG')) {
+        Assert-True ($move.MoveData.$field.Count -eq $original.MoveData.$field.Count) ($original.Name + ' inherited rule count changed: ' + $field)
     }
 }
 
@@ -129,18 +129,18 @@ foreach ($subtype in @('Shuriken','Kunai','Chakram')) {
     foreach ($spec in @(@('Weapon',$subtype),@('Skeleton','SkeletonMissile'))) {
         $item = New-Object ItemInfo -ArgumentList @($null)
         $item.Type = $spec[0]
-        $item.MDPPNGIEJGD = $spec[1]
+        $item.SubType = $spec[1]
         $item.Name = if ($spec[0] -eq 'Weapon') { 'RANGED_BP_S5_TIME_SHIFTER' } else { 'SkeletonMissile' }
         $conditions.OJIAKDDCGLB.Add($item)
     }
     foreach ($name in @('EnergyballStart','IceballStart','HermitStormStart')) {
         $move = $byName[$name]
-        Assert-True (!$move.HPPGNJJCEGF($conditions, $move.ODACDCDONJE.HIFPHBNGIPO)) ($subtype + ' can select ' + $name)
+        Assert-True (!$move.HPPGNJJCEGF($conditions, $move.MoveData.Locks)) ($subtype + ' can select ' + $name)
     }
     $launch = if ($subtype -eq 'Chakram') { 'RangedHeavyWeapon' } else { 'Ranged' + $subtype + 'Weapon' }
     foreach ($name in @($launch, ($subtype + 'Fly'))) {
         $move = $byName[$name]
-        Assert-True ($move.HPPGNJJCEGF($conditions, $move.ODACDCDONJE.HIFPHBNGIPO)) ($subtype + ' cannot select ' + $name)
+        Assert-True ($move.HPPGNJJCEGF($conditions, $move.MoveData.Locks)) ($subtype + ' cannot select ' + $name)
     }
 }
 foreach ($case in @(@('EnergyballStart','EnergyBall','MAGIC_ENERGY_BALL'),@('IceballStart','IceBall','MAGIC_BP_S5_TIME_SHIFTER'),@('HermitStormStart','','HERMIT_STORM'))) {
@@ -148,15 +148,15 @@ foreach ($case in @(@('EnergyballStart','EnergyBall','MAGIC_ENERGY_BALL'),@('Ice
     $conditions.OJIAKDDCGLB = New-Object 'System.Collections.Generic.List[ItemInfo]'
     $item = New-Object ItemInfo -ArgumentList @($null)
     $item.Type = 'Weapon'
-    $item.MDPPNGIEJGD = $case[1]
+    $item.SubType = $case[1]
     $item.Name = $case[2]
     $conditions.OJIAKDDCGLB.Add($item)
     $skeleton = New-Object ItemInfo -ArgumentList @($null)
     $skeleton.Type = 'Skeleton'
-    $skeleton.MDPPNGIEJGD = 'SkeletonMagic'
+    $skeleton.SubType = 'SkeletonMagic'
     $conditions.OJIAKDDCGLB.Add($skeleton)
     $move = $byName[$case[0]]
-    Assert-True ($move.HPPGNJJCEGF($conditions, $move.ODACDCDONJE.HIFPHBNGIPO)) ($case[0] + ' rejects its intended magic item')
+    Assert-True ($move.HPPGNJJCEGF($conditions, $move.MoveData.Locks)) ($case[0] + ' rejects its intended magic item')
 }
 # Exercise the actual block-removal branch from Model.Strike with compiled
 # IntervalAttack/Model/ModelAnimation objects. Only unrelated AI, collision,

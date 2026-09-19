@@ -735,7 +735,7 @@ public class QuestCondition : ConditionExtension
 			BMDEBHIHIAJ.resultSTR = dJKEECEOCJB.Type;
 			break;
 		case "SubType":
-			BMDEBHIHIAJ.resultSTR = dJKEECEOCJB.MDPPNGIEJGD;
+			BMDEBHIHIAJ.resultSTR = dJKEECEOCJB.SubType;
 			break;
 		case "Availability":
 		{

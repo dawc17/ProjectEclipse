@@ -3,13 +3,14 @@ using System.Xml;
 
 public class ConditionList : ConditionAnimation
 {
-	public enum PJDDCKKJBNB
+	// best guess for name
+	public enum OperatorType
 	{
 		AND = 0,
 		OR = 1
 	}
 
-	private PJDDCKKJBNB DGHJEHMPAOP;
+	private OperatorType DGHJEHMPAOP;
 
 	private List<ConditionAnimation> KEJBANPKCFA = new List<ConditionAnimation>();
 
@@ -17,7 +18,7 @@ public class ConditionList : ConditionAnimation
 	{
 		get
 		{
-			return KJILOMLMMEN();
+			return GetConditions();
 		}
 	}
 
@@ -25,16 +26,17 @@ public class ConditionList : ConditionAnimation
 		: base(ConditionType.LIST)
 	{
 		string text = XmlUtils.ParseString(node.Attributes["Type"]);
-		DGHJEHMPAOP = ((text == "Or") ? PJDDCKKJBNB.OR : PJDDCKKJBNB.AND);
+		DGHJEHMPAOP = ((text == "Or") ? OperatorType.OR : OperatorType.AND);
 		KEJBANPKCFA = conditions;
 	}
 
-	public PJDDCKKJBNB get_Type()
+	public OperatorType get_Type()
 	{
 		return DGHJEHMPAOP;
 	}
 
-	public List<ConditionAnimation> KJILOMLMMEN()
+	// best guess for name
+	public List<ConditionAnimation> GetConditions()
 	{
 		return KEJBANPKCFA;
 	}
@@ -72,15 +74,15 @@ public class ConditionList : ConditionAnimation
 			{
 				flag = item.IsEqual(conditions);
 			}
-			if (flag && DGHJEHMPAOP == PJDDCKKJBNB.OR)
+			if (flag && DGHJEHMPAOP == OperatorType.OR)
 			{
 				return true;
 			}
-			if (!flag && DGHJEHMPAOP == PJDDCKKJBNB.AND)
+			if (!flag && DGHJEHMPAOP == OperatorType.AND)
 			{
 				return false;
 			}
 		}
-		return PJDDCKKJBNB.AND == DGHJEHMPAOP;
+		return OperatorType.AND == DGHJEHMPAOP;
 	}
 }

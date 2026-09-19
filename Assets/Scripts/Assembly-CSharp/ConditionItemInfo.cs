@@ -12,7 +12,7 @@ public class ConditionItemInfo : ConditionAnimation
 	{
 		get
 		{
-			return EAIMKPPOODM();
+			return GetSubType();
 		}
 	}
 
@@ -29,7 +29,8 @@ public class ConditionItemInfo : ConditionAnimation
 		return KCIIELDOBOM;
 	}
 
-	public string EAIMKPPOODM()
+	// best guess for name
+	public string GetSubType()
 	{
 		return LOKOGOFENFO;
 	}
@@ -45,7 +46,7 @@ public class ConditionItemInfo : ConditionAnimation
 			return IsNot;
 		foreach (ItemInfo item in conditions.OJIAKDDCGLB)
 		{
-			if ((string.IsNullOrEmpty(KCIIELDOBOM) || KCIIELDOBOM == item.Type) && (string.IsNullOrEmpty(LOKOGOFENFO) || LOKOGOFENFO == item.MDPPNGIEJGD) && (string.IsNullOrEmpty(_Name) || _Name == item.Name))
+			if ((string.IsNullOrEmpty(KCIIELDOBOM) || KCIIELDOBOM == item.Type) && (string.IsNullOrEmpty(LOKOGOFENFO) || LOKOGOFENFO == item.SubType) && (string.IsNullOrEmpty(_Name) || _Name == item.Name))
 			{
 				return !IsNot;
 			}

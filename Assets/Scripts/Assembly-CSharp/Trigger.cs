@@ -249,7 +249,7 @@ public class Trigger
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> aIDMEPEKEOL = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> aIDMEPEKEOL = eLFKOGJJNMN.GetConditions();
 					CJAPHCKAOIE(aIDMEPEKEOL);
 				}
 				else
@@ -299,7 +299,7 @@ public class Trigger
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.GetConditions();
 					ConditionKeys bHDEBDIHDFM = DHBACBKLADO(kDOGKKGDOBK);
 					if (bHDEBDIHDFM != null)
 					{
@@ -332,7 +332,7 @@ public class Trigger
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.GetConditions();
 					CIEHMPCOKGK(kDOGKKGDOBK, GKHEPKGMEFI);
 				}
 				else
@@ -388,7 +388,7 @@ public class Trigger
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.GetConditions();
 					UpdateConditions(kDOGKKGDOBK, OECPEDPMKCD, EKBOGDKIHIH, PHADJMAONJG, MJCGOJBGFIE, AECCPADGGPG);
 				}
 				else

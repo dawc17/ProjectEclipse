@@ -4,6 +4,12 @@ namespace Eclipse.Modding
 {
     public sealed partial class ModApiFacade
     {
+        public void SetCombatSubtype(DefinitionId item, string subtype)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().SetCombatSubtype(item, subtype);
+        }
+
         public void SetTacticSubtype(DefinitionId item, string group)
         {
             RequireCapability("content.patch");
@@ -32,10 +38,10 @@ namespace Eclipse.Modding
         }
 
         public ItemAvailabilityPolicyDefinition SetItemAvailability(DefinitionId item, ModItemVisibility visibility,
-            string requiredGroup)
+            string requiredGroup, int minimumLevel = 0)
         {
             RequireCapability("content.patch");
-            return RequireRegistration().SetItemAvailability(item, visibility, requiredGroup);
+            return RequireRegistration().SetItemAvailability(item, visibility, requiredGroup, minimumLevel);
         }
 
         public ItemSetDefinition RegisterItemSet(string localId, DefinitionId title, DefinitionId text,

@@ -67,9 +67,43 @@ public static class RewardOnlyEquipmentTests
             type + " reward-only equipment lost its vanilla upgrade template.");
     }
 
+    private static void CheckInitialStatProjection(string projectRoot)
+    {
+        var mod = ModDiscovery.DiscoverLoose(Path.Combine(projectRoot, "Mods")).Mods.First(value => value.Id.Value == "example.charge-ui");
+        foreach (bool empty in new[] { true, false })
+        {
+            var catalog = new ModContentCatalog();
+            using (var tx = catalog.BeginRegistration(mod))
+            {
+                var title = tx.AddLocalization("stats", "eng", "Stats");
+                tx.RegisterWeapon("stats", title, default(AssetId), default(AssetId), "Katana", initialStats: empty ? new ModEquipmentInitialStats() : new ModEquipmentInitialStats(weaponDamage: 0));
+                tx.RegisterArmor("stats", title, default(AssetId), default(AssetId), empty ? new ModEquipmentInitialStats() : new ModEquipmentInitialStats(bodyDefense: 17));
+                tx.RegisterHelm("stats", title, default(AssetId), default(AssetId), empty ? new ModEquipmentInitialStats() : new ModEquipmentInitialStats(headDefense: 13));
+                tx.RegisterRanged("stats", title, default(AssetId), default(AssetId), "Needle", empty ? new ModEquipmentInitialStats() : new ModEquipmentInitialStats(rangedDamage: 29, weaponDamage: 7));
+                tx.RegisterMagic("stats", title, default(AssetId), default(AssetId), "MindThrow", empty ? new ModEquipmentInitialStats() : new ModEquipmentInitialStats(magicDamage: 31));
+                tx.Commit();
+            }
+            catalog.Freeze(); var items = new Items(); var adapter = new LegacyContentAdapter(catalog); adapter.ApplyItems(items);
+            foreach (string category in new[] { "weapon", "armor", "helm", "ranged", "magic" })
+            {
+                var id = DefinitionId.Parse(mod.Id + ":items/" + category + "/stats"); catalog.TryGetItem(id, out var definition);
+                var node = (XmlElement)items.GetItemByName(id.ToString()).NodeXML;
+                foreach (string stat in new[] { "WeaponDamage", "BodyDefense", "HeadDefense", "UnarmedDamage", "RangedDamage", "MagicDamage" })
+                {
+                    bool present = definition.InitialStats.Values.TryGetValue(stat, out int expected);
+                    Check(node.HasAttribute(stat) == present && (!present || node.GetAttribute(stat) == expected.ToString()),
+                        "Initial snapshot did not replace derived stat: " + category + "/" + stat);
+                }
+                Check(node["Upgrades"] != null, "Explicit initial stats removed vanilla upgrades.");
+            }
+            adapter.RemoveTestContent(); Check(items.Count == 0, "Explicit stats left native definitions after cleanup.");
+        }
+    }
+
     public static void Main(string[] args)
     {
         string projectRoot = args[0];
+        CheckInitialStatProjection(projectRoot);
         Items items = CreateNativeItems(projectRoot);
         ModContentCatalog catalog = CreateCatalog(projectRoot, false);
         var adapter = new LegacyContentAdapter(catalog);

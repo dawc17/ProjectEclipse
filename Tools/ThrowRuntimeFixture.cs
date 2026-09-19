@@ -111,7 +111,7 @@ public static class ThrowRuntimeFixture
         animation.set_Sign(sign);
         animation.SetAligns(-2000, 2000, 0, 0);
         Set(fighter, typeof(Model), "_Animation", animation);
-        InfoAnimation.MovePivot align = move.ODACDCDONJE.ILOEBFFAEAN;
+        InfoAnimation.MovePivot align = move.MoveData.ILOEBFFAEAN;
         if (align.CKBGFODEBAJ == InfoAnimation.DOLCEABGNGA.ObjectNodes)
         {
             align.CLIPMJNJDKI = model.GetNodeIDByName(align.BLODCIGDJFK);
@@ -194,7 +194,7 @@ public static class ThrowRuntimeFixture
                 // Explicit caller directions must still override XML.
                 Check(v.PlayAnimation(victim.Name, -sign), "Explicit direction failed");
                 Check(v.PlayedSign == -sign, "Explicit direction was overridden");
-                victim.ODACDCDONJE.IHJEKBAEIKK.IsExists = false;
+                victim.MoveData.IHJEKBAEIKK.IsExists = false;
                 Check(v.PlayAnimation(victim.Name), "Move without SetDirection failed");
                 Check(v.PlayedSign == -sign, "Move without SetDirection changed facing");
             }

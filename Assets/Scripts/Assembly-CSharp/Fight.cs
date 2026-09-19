@@ -2544,9 +2544,9 @@ public class Fight
 		for (int i = 0; i < list.Count; i++)
 		{
 			InfoAnimation pJAHIOELGGD = list[i];
-			for (int j = 0; j < pJAHIOELGGD.ODACDCDONJE.DJBAIAKOIHM.Count; j++)
+			for (int j = 0; j < pJAHIOELGGD.MoveData.DJBAIAKOIHM.Count; j++)
 			{
-				ActionAnimation gELPMIAIGDF = pJAHIOELGGD.ODACDCDONJE.DJBAIAKOIHM[j];
+				ActionAnimation gELPMIAIGDF = pJAHIOELGGD.MoveData.DJBAIAKOIHM[j];
 				if (gELPMIAIGDF.get_Type() == ActionAnimation.FADAJCEEKIO.CREATE_MODEL)
 				{
 					ActionCreateModel kPFLDMNAFAP = (ActionCreateModel)gELPMIAIGDF;
@@ -4730,14 +4730,14 @@ public class Fight
 		ItemInfo jGMLKIPCFII = _playerModel.Parameters.Weapon;
 		if (jGMLKIPCFII != null)
 		{
-			string mDPPNGIEJGD = jGMLKIPCFII.MDPPNGIEJGD;
+			string mDPPNGIEJGD = jGMLKIPCFII.SubType;
 			list.AddIfNotExist(mDPPNGIEJGD);
 			list2.AddIfNotExist(mDPPNGIEJGD);
 		}
 		ItemInfo jGMLKIPCFII2 = CKNCPOABFBO.Parameters.Weapon;
 		if (jGMLKIPCFII2 != null)
 		{
-			string mDPPNGIEJGD2 = jGMLKIPCFII2.MDPPNGIEJGD;
+			string mDPPNGIEJGD2 = jGMLKIPCFII2.SubType;
 			list.AddIfNotExist(mDPPNGIEJGD2);
 			if (list2.Contains(mDPPNGIEJGD2))
 			{

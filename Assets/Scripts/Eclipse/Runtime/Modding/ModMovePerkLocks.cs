@@ -97,3 +97,164 @@ namespace Eclipse.Modding
         }
     }
 }
+
+namespace Eclipse.Modding
+{
+    public sealed class MoveItemLockExtension
+    {
+        public string MoveName { get; }
+        public string ItemType { get; }
+        public string SourceSubtype { get; }
+        public string Subtype { get; }
+        public MoveItemLockExtension(string moveName, string itemType, string sourceSubtype, string subtype)
+        {
+            foreach (var value in new[]{moveName,itemType,sourceSubtype,subtype})
+                if (string.IsNullOrWhiteSpace(value) || value != value.Trim() || value.Length > 128 || value.IndexOf('\n') >= 0 || value.IndexOf('\r') >= 0)
+                    throw new ModContentException("Item lock extension requires exact names of 1..128 characters.");
+            if (Array.IndexOf(new[]{"Weapon","Ranged","Magic","Armor","Helm","Skeleton"}, itemType) < 0)
+                throw new ModContentException("Unsupported item lock type.");
+            if (sourceSubtype == subtype) throw new ModContentException("Item lock extension must add a different subtype.");
+            MoveName=moveName; ItemType=itemType; SourceSubtype=sourceSubtype; Subtype=subtype;
+        }
+        internal string ConflictKey => MoveName + "\n" + ItemType + "\n" + Subtype;
+    }
+
+    public sealed partial class ModContentCatalog
+    {
+        private readonly List<MoveItemLockExtension> _moveItemLockExtensions = new List<MoveItemLockExtension>();
+        public IReadOnlyList<MoveItemLockExtension> MoveItemLockExtensions => _moveItemLockExtensions.AsReadOnly();
+        internal void ValidateItemLockExtensions(IReadOnlyList<MoveItemLockExtension> extensions)
+        {
+            var keys = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var entry in _moveItemLockExtensions) keys.Add(entry.ConflictKey);
+            foreach (var entry in extensions)
+                if (!keys.Add(entry.ConflictKey)) throw new ModContentException("Duplicate item lock extension for '" + entry.MoveName + "'.");
+        }
+        internal void AddItemLockExtensions(IEnumerable<MoveItemLockExtension> extensions) => _moveItemLockExtensions.AddRange(extensions);
+    }
+
+    public sealed partial class ModRegistrationTransaction
+    {
+        private readonly List<MoveItemLockExtension> _moveItemLockExtensions = new List<MoveItemLockExtension>();
+        public void ExtendMoveItemLock(string moveName, string itemType, string sourceSubtype, string subtype)
+        {
+            ThrowIfCompleted();
+            var value = new MoveItemLockExtension(moveName,itemType,sourceSubtype,subtype);
+            foreach (var prior in _moveItemLockExtensions)
+                if (prior.ConflictKey == value.ConflictKey) throw new ModContentException("Duplicate item lock extension for '" + moveName + "'.");
+            EnsureCapacityForNewRegistration();
+            _moveItemLockExtensions.Add(value);
+        }
+    }
+
+    public sealed partial class ModApiFacade
+    {
+        public void ExtendMoveItemLock(string moveName, string itemType, string sourceSubtype, string subtype)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().ExtendMoveItemLock(moveName,itemType,sourceSubtype,subtype);
+        }
+    }
+}
+
+namespace Eclipse.Modding
+{
+    public sealed class ModMoveFramePatch
+    {
+        public string Name { get; }
+        public int Expected { get; }
+        public int Value { get; }
+        public ModMoveFramePatch(string name, int expected, int value)
+        {
+            MoveCombatPatch.ValidateName(name);
+            if (expected < 0 || expected > 100000 || value < 0 || value > 100000 || expected == value)
+                throw new ModContentException("Move frame patches require distinct expected/value integers in 0..100000.");
+            Name = name; Expected = expected; Value = value;
+        }
+    }
+
+    public sealed class ModMoveHitPatch
+    {
+        public string Expected { get; }
+        public string Value { get; }
+        public ModMoveHitPatch(string expected, string value)
+        {
+            var names = new[] { "High", "Middle", "Low", "Spinning", "HighHeavy", "MiddleShortPlus" };
+            if (Array.IndexOf(names, expected) < 0 || Array.IndexOf(names, value) < 0 || expected == value)
+                throw new ModContentException("Move hit patch requires distinct supported expected/value reactions.");
+            Expected = expected; Value = value;
+        }
+    }
+
+    public sealed class MoveCombatPatch
+    {
+        public ModId Owner { get; }
+        public string MoveName { get; }
+        public IReadOnlyList<ModMoveCondition> Conditions { get; }
+        public ModMoveFramePatch IntervalEnd { get; }
+        public ModMoveHitPatch Hit { get; }
+        public ModMoveFramePatch SoundFrame { get; }
+        public MoveCombatPatch(ModId owner, string moveName, ModMoveCondition[] conditions = null,
+            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null)
+        {
+            ValidateName(moveName);
+            conditions = conditions ?? new ModMoveCondition[0];
+            if (conditions.Length > 32) throw new ModContentException("Move patch accepts at most 32 added conditions.");
+            foreach (var condition in conditions)
+                if (condition == null) throw new ModContentException("Move patch conditions cannot contain null.");
+            if (conditions.Length == 0 && intervalEnd == null && hit == null && soundFrame == null)
+                throw new ModContentException("Move patch must change at least one supported field.");
+            if (intervalEnd != null && Array.IndexOf(new[] { "Uninterrupt", "SelfUninterrupt", "Unstable" }, intervalEnd.Name) < 0)
+                throw new ModContentException("interval_end requires Uninterrupt, SelfUninterrupt or Unstable.");
+            Owner = owner; MoveName = moveName; Conditions = Array.AsReadOnly((ModMoveCondition[])conditions.Clone());
+            IntervalEnd = intervalEnd; Hit = hit; SoundFrame = soundFrame;
+        }
+        internal static void ValidateName(string name)
+        {
+            if (string.IsNullOrEmpty(name) || name.Length > 128)
+                throw new ModContentException("Move patch names require 1..128 ASCII letters, digits, underscores, dots or hyphens.");
+            foreach (char c in name)
+                if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '.' || c == '-'))
+                    throw new ModContentException("Move patch requires an exact native name, not a content ID or pattern.");
+        }
+    }
+
+    public sealed partial class ModContentCatalog
+    {
+        private readonly List<MoveCombatPatch> _moveCombatPatches = new List<MoveCombatPatch>();
+        public IReadOnlyList<MoveCombatPatch> MoveCombatPatches => _moveCombatPatches.AsReadOnly();
+        internal void ValidateCombatPatches(IReadOnlyList<MoveCombatPatch> patches)
+        {
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var patch in _moveCombatPatches) names.Add(patch.MoveName);
+            foreach (var patch in patches)
+                if (!names.Add(patch.MoveName)) throw new ModContentException("Move combat patch already owned: " + patch.MoveName);
+        }
+        internal void AddCombatPatches(IEnumerable<MoveCombatPatch> patches) => _moveCombatPatches.AddRange(patches);
+    }
+
+    public sealed partial class ModRegistrationTransaction
+    {
+        private readonly List<MoveCombatPatch> _moveCombatPatches = new List<MoveCombatPatch>();
+        public void PatchMove(string moveName, ModMoveCondition[] conditions = null,
+            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null)
+        {
+            ThrowIfCompleted();
+            var patch = new MoveCombatPatch(Mod.Id, moveName, conditions, intervalEnd, hit, soundFrame);
+            foreach (var prior in _moveCombatPatches)
+                if (prior.MoveName == patch.MoveName) throw new ModContentException("Duplicate move combat patch: " + moveName);
+            EnsureCapacityForNewRegistration();
+            _moveCombatPatches.Add(patch);
+        }
+    }
+
+    public sealed partial class ModApiFacade
+    {
+        public void PatchMove(string moveName, ModMoveCondition[] conditions = null,
+            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().PatchMove(moveName, conditions, intervalEnd, hit, soundFrame);
+        }
+    }
+}

@@ -94,11 +94,44 @@ public class ItemInfo
 
 	public string Type = string.Empty;
 
-	public string MDPPNGIEJGD = string.Empty;
+	// best guess for name
+	public string SubType = string.Empty;
+
+	private CombatSubtypeOverride _combatSubtypeOverride;
+	private sealed class CombatSubtypeOverride : System.IDisposable
+	{
+		private ItemInfo _item;
+		private readonly string _previous;
+		public CombatSubtypeOverride(ItemInfo item) { _item = item; _previous = item.SubType; }
+		public void Dispose()
+		{
+			ItemInfo item = _item;
+			if (item == null) return;
+			_item = null;
+			if (!object.ReferenceEquals(item._combatSubtypeOverride, this)) return;
+			item.SubType = _previous;
+			item._combatSubtypeOverride = null;
+		}
+	}
+
+	// Apply before profile/fight copies are built. Existing copies keep their snapshot.
+	internal bool TryOverrideCombatSubtype(string subtype, out System.IDisposable lifetime)
+	{
+		lifetime = null;
+		if ((Type != "Weapon" && Type != "Ranged" && Type != "Magic") ||
+			_combatSubtypeOverride != null || string.IsNullOrEmpty(subtype) || subtype.Length > 128) return false;
+		foreach (char c in subtype)
+			if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_')) return false;
+		var replacement = new CombatSubtypeOverride(this);
+		SubType = subtype;
+		_combatSubtypeOverride = replacement;
+		lifetime = replacement;
+		return true;
+	}
 
 	// AI table grouping may differ from the subtype used by animations and conditions.
 	internal string TacticSubtype { get; private set; } = string.Empty;
-	internal string EffectiveTacticSubtype => string.IsNullOrEmpty(TacticSubtype) ? MDPPNGIEJGD : TacticSubtype;
+	internal string EffectiveTacticSubtype => string.IsNullOrEmpty(TacticSubtype) ? SubType : TacticSubtype;
 	private TacticSubtypeOverride _tacticSubtypeOverride;
 
 	private sealed class TacticSubtypeOverride : System.IDisposable
@@ -386,7 +419,7 @@ public class ItemInfo
 		FileName = item.FileName;
 		KJDFJPBIGJC = item.KJDFJPBIGJC;
 		Type = item.Type;
-		MDPPNGIEJGD = item.MDPPNGIEJGD;
+		SubType = item.SubType;
 		TacticSubtype = item.TacticSubtype;
 		IDFNCLPIIMA = item.IDFNCLPIIMA;
 		HBCNKNFPAIM = item.HBCNKNFPAIM;
@@ -552,7 +585,7 @@ public class ItemInfo
 		}
 		if (!node.Attributes["SubType"].Empty())
 		{
-			MDPPNGIEJGD = node.Attributes["SubType"].CIPOICEEIBK(string.Empty);
+			SubType = node.Attributes["SubType"].CIPOICEEIBK(string.Empty);
 		}
 		if (!node.Attributes["TacticSubtype"].Empty())
 		{
@@ -752,9 +785,9 @@ public class ItemInfo
 		{
 			Type = item.Type;
 		}
-		if (!string.IsNullOrEmpty(item.MDPPNGIEJGD))
+		if (!string.IsNullOrEmpty(item.SubType))
 		{
-			MDPPNGIEJGD = item.MDPPNGIEJGD;
+			SubType = item.SubType;
 		}
 		if (!string.IsNullOrEmpty(item.TacticSubtype))
 		{

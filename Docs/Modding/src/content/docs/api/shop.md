@@ -45,6 +45,9 @@ local listing_id = sf2.shop.addItem {
 
 Wrong categories, unsupported levels, duplicate listings, or another mod's item
 are errors. This API does not change the prices of existing core items.
+An equipment definition's explicit [`initial_stats`](../equipment-shop-logging/#explicit-initial-stats)
+replaces its initial level-derived power; the listing still sets its level, price
+and starting upgrade level.
 
 ## sf2.price.coins
 
@@ -87,7 +90,7 @@ This describes your new listing's cost. It is not a currency balance operation.
 
 Apply a non-economic visibility policy to an existing item.
 
-**Signature:** `sf2.shop.set_availability { item, visibility?, required_group? }`
+**Signature:** `sf2.shop.set_availability { item, visibility?, required_group?, minimum_level? }`
 
 **Requires:** `content.patch`; a declared dependency when targeting another owner.
 Obtaining an item handle with `sf2.items.get` also requires `content.register`.
@@ -101,14 +104,33 @@ Obtaining an item handle with `sf2.items.get` also requires `content.register`.
 | `item` | Item handle | Required | Item whose visibility is controlled. |
 | `visibility` | Constant | `sf2.shop.INHERIT` | Preserve existing visibility, force visible, or force hidden. |
 | `required_group` | String | `""` | Optional player-group prerequisite. |
+| `minimum_level` | Integer 0–52 | `0` | Player level needed for shop availability; zero adds no level restriction. |
 
 ```lua
 sf2.shop.set_availability {
     item = weapon,
     visibility = sf2.shop.FORCE_VISIBLE,
+    minimum_level = 15,
 }
 ```
 
 Other choices are `sf2.shop.FORCE_HIDDEN` and `sf2.shop.INHERIT`. The shop and
 availability checks share this policy. Competing policies for the same item are
 errors; the API cannot modify price, currency, or progression formulas.
+
+The level requirement applies to all visibility modes. `FORCE_VISIBLE` bypasses
+the item's original hidden and group restrictions, but still requires this
+policy's `required_group` and `minimum_level`. `INHERIT` retains the original
+restrictions and adds these requirements. `FORCE_HIDDEN` always hides the item.
+The shop list and native item-availability queries use the same policy.
+
+For mod-owned equipment, a nonempty `required_group` also supplies its native
+shop pack label. Quest actions that unlock that group can therefore mark the
+new equipment for shop notifications. Core items retain their recovered labels;
+this policy does not rewrite them.
+
+This controls listing eligibility and group-unlock notification membership only. It does not change the item's own level,
+power, upgrade rules, price, ownership or equipment use, and does not grant an
+item. An already-owned item stays owned. Removing the mod through Apply & Restart
+restores the base visibility rules. The policy's level is included in the content
+fingerprint; existing declarations that omit it retain their previous behavior.

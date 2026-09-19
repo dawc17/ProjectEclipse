@@ -239,38 +239,38 @@ namespace Eclipse.Modding
         }
 
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType, string tacticSubtype = null)
+            AssetId model, string subType, string tacticSubtype = null, ModEquipmentInitialStats initialStats = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterWeapon(localId, displayName, icon, model, subType, tacticSubtype);
+            return RequireRegistration().RegisterWeapon(localId, displayName, icon, model, subType, tacticSubtype, initialStats);
         }
 
         public ArmorDefinition RegisterArmor(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model)
+            AssetId model, ModEquipmentInitialStats initialStats = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterArmor(localId, displayName, icon, model);
+            return RequireRegistration().RegisterArmor(localId, displayName, icon, model, initialStats);
         }
 
         public HelmDefinition RegisterHelm(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model)
+            AssetId model, ModEquipmentInitialStats initialStats = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterHelm(localId, displayName, icon, model);
+            return RequireRegistration().RegisterHelm(localId, displayName, icon, model, initialStats);
         }
 
         public RangedDefinition RegisterRanged(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType)
+            AssetId model, string subType, ModEquipmentInitialStats initialStats = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterRanged(localId, displayName, icon, model, subType);
+            return RequireRegistration().RegisterRanged(localId, displayName, icon, model, subType, initialStats);
         }
 
         public MagicDefinition RegisterMagic(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType)
+            AssetId model, string subType, ModEquipmentInitialStats initialStats = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterMagic(localId, displayName, icon, model, subType);
+            return RequireRegistration().RegisterMagic(localId, displayName, icon, model, subType, initialStats);
         }
 
         public ItemDefinition GetItem(string reference)

@@ -425,7 +425,7 @@ public class ListSF
 			{
 				MainMenu.get_Instance().UpdateMoney();
 			}
-			switch (FAKOMBAIFPP.MDPPNGIEJGD)
+			switch (FAKOMBAIFPP.SubType)
 			{
 			case "StarterPack":
 				GEFDJDIINND(FAKOMBAIFPP, 1, 0L, false);
@@ -804,7 +804,7 @@ public class ListSF
 			return;
 		}
 		string kKJHFNGGFCG = item.Type;
-		string mDPPNGIEJGD = item.MDPPNGIEJGD;
+		string mDPPNGIEJGD = item.SubType;
 		switch (kKJHFNGGFCG)
 		{
 		case "Weapon":
@@ -912,7 +912,7 @@ public class ListSF
 	{
 		int acquisitionProfile = Eclipse.Modding.ModRuntime.StoryEvents.ProfileGeneration;
 		Roster nKGLHEGIKKP = CCDKHLAMKKO();
-		if (item.MDPPNGIEJGD == "UnlimitedEnergy")
+		if (item.SubType == "UnlimitedEnergy")
 		{
 			nKGLHEGIKKP.ADKHNLAMDJP = true;
 			MenuController.ADPMENDMMKJ();
@@ -1925,7 +1925,7 @@ public class ListSF
 		{
 			text = GameUtils.GetDefaultItem("Magic");
 		}
-		else if (item.Type == "RaidConsumable" && item.MDPPNGIEJGD == "RaidCharge")
+		else if (item.Type == "RaidConsumable" && item.SubType == "RaidCharge")
 		{
 			text = GameUtils.GetDefaultItem("RaidCharge");
 		}
@@ -3133,7 +3133,7 @@ public class ListSF
 		List<RecipeItemInfo> list = ANEHEDFAPCH.KHCNHPCPFII().PHKEAPFEOLP();
 		foreach (RecipeItemInfo item in list)
 		{
-			if (item != null && item.HGDELDFDFNH() > 0L && item.HGDELDFDFNH() <= time)
+			if (item != null && item.IsReadyForDelivery(time))
 			{
 				ApplyRecipeToItem(item);
 			}

@@ -44,6 +44,16 @@ public class ActionAnimation
 
 	private ActionStartParameters GANELHAJFAO = new ActionStartParameters();
 
+	// best guess for name
+	public int? ScheduledFrame => GANELHAJFAO.CGEPLPNFABA == JKEBPJCEEKM.START_FRAME ? (int?)GANELHAJFAO.Frame : null;
+
+	public void SetScheduledFrame(int frame)
+	{
+		if (!ScheduledFrame.HasValue) throw new System.InvalidOperationException("Event-driven actions have no scheduled frame.");
+		GANELHAJFAO.Frame = frame;
+	}
+
+
 	private Model _Model;
 
 	private ModelType.KEIDBIOIFGA OOFFOILONLO;

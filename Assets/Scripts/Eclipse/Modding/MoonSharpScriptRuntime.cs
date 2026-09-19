@@ -800,6 +800,7 @@ namespace Eclipse.Modding
                 items.Set("set_default_enchantments", DynValue.NewCallback(SetDefaultEnchantments));
                 items.Set("set_innate_perks", DynValue.NewCallback(SetInnatePerks));
                 items.Set("set_tactic_subtype", DynValue.NewCallback(SetTacticSubtype));
+                items.Set("set_subtype", DynValue.NewCallback(SetCombatSubtype));
                 items.Set("register_armor", DynValue.NewCallback(RegisterArmor));
                 items.Set("register_helm", DynValue.NewCallback(RegisterHelm));
                 items.Set("register_ranged", DynValue.NewCallback(RegisterRanged));
@@ -1118,6 +1119,19 @@ namespace Eclipse.Modding
                 });
             }
 
+            private DynValue SetCombatSubtype(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.set_subtype";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "item", "subtype");
+                    _api.SetCombatSubtype(RequiredHandle(table, "item", _itemHandles, "item", function),
+                        RequiredString(table, "subtype", function));
+                    return DynValue.Nil;
+                });
+            }
+
             private DynValue SetTacticSubtype(ScriptExecutionContext context, CallbackArguments args)
             {
                 const string function = "sf2.items.set_tactic_subtype";
@@ -1202,13 +1216,30 @@ namespace Eclipse.Modding
                 });
             }
 
+            private ModEquipmentInitialStats ReadInitialStats(Table definition, string function)
+            {
+                DynValue value = definition.Get("initial_stats");
+                if (value.IsNil()) return null;
+                if (value.Type != DataType.Table) throw new ScriptRuntimeException(function + ": initial_stats must be a table.");
+                Table table = value.Table;
+                ValidateFields(table, function + ".initial_stats", "weapon_damage", "body_defense", "head_defense",
+                    "unarmed_damage", "ranged_damage", "magic_damage");
+                int? Read(string name)
+                {
+                    if (table.Get(name).IsNil()) return null;
+                    return RequiredInt(table, name, function + ".initial_stats");
+                }
+                return new ModEquipmentInitialStats(Read("weapon_damage"), Read("body_defense"), Read("head_defense"),
+                    Read("unarmed_damage"), Read("ranged_damage"), Read("magic_damage"));
+            }
+
             private DynValue RegisterWeapon(ScriptExecutionContext context, CallbackArguments args)
             {
                 Table table = args.AsType(0, "sf2.items.register_weapon", DataType.Table, false).Table;
                 return ApiCall("sf2.items.register_weapon", () =>
                 {
                     ValidateFields(table, "sf2.items.register_weapon", "id", "display_name", "icon", "model",
-                        "subtype", "tactic_subtype");
+                        "subtype", "tactic_subtype", "initial_stats");
                     string id = RequiredString(table, "id", "sf2.items.register_weapon");
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", "sf2.items.register_weapon");
@@ -1219,7 +1250,7 @@ namespace Eclipse.Modding
                     string subType = OptionalString(table, "subtype", "Katana", "sf2.items.register_weapon");
                     string tacticSubtype = table.Get("tactic_subtype").IsNil() ? null :
                         RequiredString(table, "tactic_subtype", "sf2.items.register_weapon");
-                    WeaponDefinition definition = _api.RegisterWeapon(id, displayName, icon, model, subType, tacticSubtype);
+                    WeaponDefinition definition = _api.RegisterWeapon(id, displayName, icon, model, subType, tacticSubtype, ReadInitialStats(table, "sf2.items.register_weapon"));
                     return NewHandle(_itemHandles, definition.Id);
                 });
             }
@@ -1230,13 +1261,13 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "display_name", "icon", "model");
+                    ValidateFields(table, function, "id", "display_name", "icon", "model", "initial_stats");
                     string id = RequiredString(table, "id", function);
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", function);
                     AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
                     AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
-                    ArmorDefinition definition = _api.RegisterArmor(id, displayName, icon, model);
+                    ArmorDefinition definition = _api.RegisterArmor(id, displayName, icon, model, ReadInitialStats(table, function));
                     return NewHandle(_itemHandles, definition.Id);
                 });
             }
@@ -1247,13 +1278,13 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "display_name", "icon", "model");
+                    ValidateFields(table, function, "id", "display_name", "icon", "model", "initial_stats");
                     string id = RequiredString(table, "id", function);
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", function);
                     AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
                     AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
-                    HelmDefinition definition = _api.RegisterHelm(id, displayName, icon, model);
+                    HelmDefinition definition = _api.RegisterHelm(id, displayName, icon, model, ReadInitialStats(table, function));
                     return NewHandle(_itemHandles, definition.Id);
                 });
             }
@@ -1264,14 +1295,14 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "display_name", "icon", "model", "subtype");
+                    ValidateFields(table, function, "id", "display_name", "icon", "model", "subtype", "initial_stats");
                     string id = RequiredString(table, "id", function);
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", function);
                     AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
                     AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
                     string subType = RequiredString(table, "subtype", function);
-                    RangedDefinition definition = _api.RegisterRanged(id, displayName, icon, model, subType);
+                    RangedDefinition definition = _api.RegisterRanged(id, displayName, icon, model, subType, ReadInitialStats(table, function));
                     return NewHandle(_itemHandles, definition.Id);
                 });
             }
@@ -1282,14 +1313,14 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "display_name", "icon", "model", "subtype");
+                    ValidateFields(table, function, "id", "display_name", "icon", "model", "subtype", "initial_stats");
                     string id = RequiredString(table, "id", function);
                     DefinitionId displayName = RequiredHandle(table, "display_name", _localizationHandles,
                         "localization", function);
                     AssetId icon = RequiredHandle(table, "icon", _spriteHandles, "sprite", function);
                     AssetId model = RequiredHandle(table, "model", _modelHandles, "model", function);
                     string subType = RequiredString(table, "subtype", function);
-                    MagicDefinition definition = _api.RegisterMagic(id, displayName, icon, model, subType);
+                    MagicDefinition definition = _api.RegisterMagic(id, displayName, icon, model, subType, ReadInitialStats(table, function));
                     return NewHandle(_itemHandles, definition.Id);
                 });
             }
@@ -1412,7 +1443,7 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "item", "visibility", "required_group");
+                    ValidateFields(table, function, "item", "visibility", "required_group", "minimum_level");
                     DefinitionId item = RequiredHandle(table, "item", _itemHandles, "item", function);
                     string visibilityValue = OptionalString(table, "visibility", "inherit", function);
                     ModItemVisibility visibility;
@@ -1424,7 +1455,8 @@ namespace Eclipse.Modding
                         default: throw new ModContentException(function + " field 'visibility' is not supported.");
                     }
                     _api.SetItemAvailability(item, visibility,
-                        OptionalStringAllowEmpty(table, "required_group", string.Empty, function));
+                        OptionalStringAllowEmpty(table, "required_group", string.Empty, function),
+                        OptionalInt(table, "minimum_level", 0, function));
                     return DynValue.Nil;
                 });
             }
@@ -2714,7 +2746,11 @@ namespace Eclipse.Modding
                 int entries = 0;
                 foreach (TablePair pair in table.Pairs)
                 {
-                    if (pair.Key.Type != DataType.Number)
+                    // MoonSharp can retain nil tombstones after table.remove or
+                    // assigning nil. Lua no longer considers these entries present.
+                    if (pair.Value.IsNil()) continue;
+                    if (pair.Key.Type != DataType.Number || pair.Key.Number < 1 || pair.Key.Number > count ||
+                        pair.Key.Number != Math.Truncate(pair.Key.Number))
                         throw new ModContentException(function + " must be a dense array table.");
                     entries++;
                 }

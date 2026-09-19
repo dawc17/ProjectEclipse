@@ -34,14 +34,18 @@ namespace Eclipse.Modding
         public DefinitionId Item { get; }
         public ModItemVisibility Visibility { get; }
         public string RequiredGroup { get; }
+        public int MinimumLevel { get; }
 
         internal ItemAvailabilityPolicyDefinition(ModId owner, DefinitionId item, ModItemVisibility visibility,
-            string requiredGroup)
+            string requiredGroup, int minimumLevel = 0)
         {
+            if (minimumLevel < 0 || minimumLevel > 52)
+                throw new ModContentException("Availability minimum_level must be 0..52.");
             Owner = owner;
             Item = item;
             Visibility = visibility;
             RequiredGroup = requiredGroup ?? string.Empty;
+            MinimumLevel = minimumLevel;
         }
     }
 
@@ -147,6 +151,15 @@ namespace Eclipse.Modding
             }
             Parameters = new System.Collections.ObjectModel.ReadOnlyDictionary<string, float>(copy);
         }
+    }
+
+    public sealed class ItemCombatSubtypeDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Item { get; }
+        public string Subtype { get; }
+        internal ItemCombatSubtypeDefinition(ModId owner, DefinitionId item, string subtype)
+        { Owner = owner; Item = item; Subtype = subtype; }
     }
 
     public sealed class ItemTacticSubtypeDefinition
@@ -283,6 +296,23 @@ namespace Eclipse.Modding
         private readonly List<ItemDefaultEnchantmentsDefinition> _itemDefaultEnchantments = new List<ItemDefaultEnchantmentsDefinition>();
         private readonly List<ItemInnatePerksDefinition> _itemInnatePerks = new List<ItemInnatePerksDefinition>();
         private readonly List<ItemTacticSubtypeDefinition> _itemTacticSubtypes = new List<ItemTacticSubtypeDefinition>();
+        private readonly List<ItemCombatSubtypeDefinition> _itemCombatSubtypes = new List<ItemCombatSubtypeDefinition>();
+        public IReadOnlyList<ItemCombatSubtypeDefinition> ItemCombatSubtypes => _itemCombatSubtypes.AsReadOnly();
+        internal void ValidateItemCombatSubtypes(IEnumerable<ItemCombatSubtypeDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(definition.Item, "combat-subtype"), out var existing))
+                    throw new ModContentException("Combat subtype already patched by '" + existing.Owner + "': " + definition.Item);
+        }
+        internal void CommitItemCombatSubtypes(IEnumerable<ItemCombatSubtypeDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+            {
+                var record = new ModContentPatchRecord(definition.Owner, definition.Item, "combat-subtype", ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+                _patches.Add(record); _itemCombatSubtypes.Add(definition);
+            }
+        }
         public IReadOnlyList<ItemTacticSubtypeDefinition> ItemTacticSubtypes => _itemTacticSubtypes.AsReadOnly();
         internal void ValidateItemTacticSubtypes(IEnumerable<ItemTacticSubtypeDefinition> definitions)
         {
@@ -570,6 +600,24 @@ namespace Eclipse.Modding
         }
 
         private readonly Dictionary<DefinitionId, ItemTacticSubtypeDefinition> _p1cTacticSubtypes = new Dictionary<DefinitionId, ItemTacticSubtypeDefinition>();
+        private readonly Dictionary<DefinitionId, ItemCombatSubtypeDefinition> _p1cCombatSubtypes = new Dictionary<DefinitionId, ItemCombatSubtypeDefinition>();
+        public void SetCombatSubtype(DefinitionId item, string subtype)
+        {
+            ThrowIfCompleted();
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("Combat subtype item requires a declared dependency.");
+            if (!TryGetPendingItem(item, out var target) && !_catalog.TryResolveItem(item, out target))
+                throw new ModContentException("Unknown combat subtype item: " + item);
+            if (!(target is WeaponDefinition || target is RangedDefinition || target is MagicDefinition))
+                throw new ModContentException("Combat subtype requires a weapon, ranged item or magic.");
+            if (string.IsNullOrEmpty(subtype) || subtype.Length > 128)
+                throw new ModContentException("Combat subtype requires 1..128 ASCII letters, digits or underscores.");
+            foreach (char c in subtype)
+                if (!(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_'))
+                    throw new ModContentException("Combat subtype requires 1..128 ASCII letters, digits or underscores.");
+            if (_p1cCombatSubtypes.ContainsKey(target.Id)) throw new ModContentException("Duplicate combat subtype: " + target.Id);
+            EnsureCapacityForNewRegistration();
+            _p1cCombatSubtypes.Add(target.Id, new ItemCombatSubtypeDefinition(Mod.Id, target.Id, subtype));
+        }
         public void SetTacticSubtype(DefinitionId item, string group)
         {
             ThrowIfCompleted();
@@ -586,7 +634,7 @@ namespace Eclipse.Modding
             _p1cTacticSubtypes.Add(target.Id, new ItemTacticSubtypeDefinition(Mod.Id, target.Id, group));
         }
 
-        private int P1CRegistrationCount => _p1cTacticSubtypes.Count + _p1cInnatePerks.Count + _p1cDefaultEnchantments.Count + _p1cItems.Count + _p1cSets.Count + _p1cForgeRecipes.Count +
+        private int P1CRegistrationCount => _p1cCombatSubtypes.Count + _p1cTacticSubtypes.Count + _p1cInnatePerks.Count + _p1cDefaultEnchantments.Count + _p1cItems.Count + _p1cSets.Count + _p1cForgeRecipes.Count +
             _p1cAvailability.Count + _p1cProgression.Count + _p1cForgeExclusions.Count + _p1cForgeDeviations.Count;
 
         private readonly Dictionary<ModContentPatchKey, ForgeDeviationDefinition> _p1cForgeDeviations =
@@ -646,9 +694,11 @@ namespace Eclipse.Modding
         }
 
         public ItemAvailabilityPolicyDefinition SetItemAvailability(DefinitionId item, ModItemVisibility visibility,
-            string requiredGroup = null)
+            string requiredGroup = null, int minimumLevel = 0)
         {
             ThrowIfCompleted();
+            if (minimumLevel < 0 || minimumLevel > 52)
+                throw new ModContentException("Availability minimum_level must be 0..52.");
             if (!Enum.IsDefined(typeof(ModItemVisibility), visibility))
                 throw new ModContentException("Unsupported item visibility policy: " + visibility + ".");
             if (!CanReferenceNamespace(item.Namespace))
@@ -660,7 +710,7 @@ namespace Eclipse.Modding
             var key = new ModContentPatchKey(item, "item/availability");
             if (!_patchKeys.Add(key)) throw new ModContentException("Duplicate availability patch for '" + item + "'.");
             EnsureCapacityForNewRegistration();
-            var policy = new ItemAvailabilityPolicyDefinition(Mod.Id, item, visibility, requiredGroup);
+            var policy = new ItemAvailabilityPolicyDefinition(Mod.Id, item, visibility, requiredGroup, minimumLevel);
             _p1cAvailability.Add(item, policy);
             return policy;
         }
@@ -780,6 +830,7 @@ namespace Eclipse.Modding
         {
             _catalog.ValidateItemInnatePerks(_p1cInnatePerks.Values);
             _catalog.ValidateItemTacticSubtypes(_p1cTacticSubtypes.Values);
+            _catalog.ValidateItemCombatSubtypes(_p1cCombatSubtypes.Values);
             _catalog.ValidateItemDefaultEnchantments(_p1cDefaultEnchantments.Values);
             foreach (DefinitionId id in _p1cItems.Keys)
                 if (_catalog.TryGetItem(id, out ItemDefinition ignored)) throw new ModContentException("Duplicate item definition: '" + id + "'.");
@@ -800,6 +851,7 @@ namespace Eclipse.Modding
         {
             _catalog.CommitItemInnatePerks(_p1cInnatePerks.Values);
             _catalog.CommitItemTacticSubtypes(_p1cTacticSubtypes.Values);
+            _catalog.CommitItemCombatSubtypes(_p1cCombatSubtypes.Values);
             _catalog.CommitItemDefaultEnchantments(_p1cDefaultEnchantments.Values);
             _catalog.CommitP1C(_p1cItems.Values, _p1cSets.Values, _p1cForgeRecipes.Values,
                 _p1cAvailability.Values, _p1cProgression.Values, _p1cForgeExclusions.Values, _p1cForgeDeviations.Values);
@@ -809,6 +861,7 @@ namespace Eclipse.Modding
         {
             _p1cInnatePerks.Clear();
             _p1cTacticSubtypes.Clear();
+            _p1cCombatSubtypes.Clear();
             _p1cDefaultEnchantments.Clear();
             _p1cItems.Clear();
             _p1cSets.Clear();

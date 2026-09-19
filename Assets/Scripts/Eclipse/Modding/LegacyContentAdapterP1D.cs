@@ -10,6 +10,8 @@ namespace Eclipse.Modding
         private readonly List<string> _p1dLocations = new List<string>();
         private readonly List<string> _p1dTactics = new List<string>();
         private ExternalCombatContentRuntime.MovePerkLockRollback _p1dMovePerkLockRollback;
+        private ExternalCombatContentRuntime.MoveItemLockRollback _moveItemLockRollback;
+        private MoveCombatPatchRuntime.Lifetime _moveCombatPatchLifetime;
         private bool _p1dApplied;
 
         public void ApplyP1DContent()
@@ -156,9 +158,18 @@ namespace Eclipse.Modding
         private void ApplyMoves()
         {
             if (_content.MoveTemplates.Count == 0 && _content.Moves.Count == 0 && _content.MoveTriggers.Count == 0 &&
-                _content.MovePerkLockRemovals.Count == 0)
+                _content.MovePerkLockRemovals.Count == 0 && _content.MoveItemLockExtensions.Count == 0 && _content.MoveCombatPatches.Count == 0)
                 return;
+            _moveCombatPatchLifetime = MoveCombatPatchRuntime.Apply(AnimationData.Animations,_content.MoveCombatPatches,
+                condition =>
+                {
+                    var node = BuildMoveCondition(new XmlDocument { XmlResolver = null },condition);
+                    var parsed = ConditionsParser.Create(node);
+                    parsed?.Parse(node);
+                    return parsed;
+                });
             _p1dMovePerkLockRollback = ExternalCombatContentRuntime.ApplyMovePerkLocks(_content.MovePerkLockRemovals);
+            _moveItemLockRollback = ExternalCombatContentRuntime.ApplyItemLockExtensions(AnimationData.Animations,_content.MoveItemLockExtensions);
             if (_content.MoveTemplates.Count != 0 || _content.Moves.Count != 0 || _content.MoveTriggers.Count != 0)
                 ExternalCombatContentRuntime.ApplyMoves(BuildMovesDocument());
         }
@@ -202,7 +213,31 @@ namespace Eclipse.Modding
             if (definition.Looped) Set(node, "Looped", "1");
             if (definition.EndsStage) Set(node, "EndsStage", "1");
             AppendEvents(document, node, definition.Events);
+            AppendMovePresentation(document, node, definition.Graph.Presentation);
             AppendConditions(document, node, definition.Conditions, "Conditions");
+            AppendConditions(document,node,definition.Graph.Locks,"Locks");
+            if(definition.Graph.Transitions.Count!=0)
+            {
+                var transitions=document.CreateElement("Transitions");node.AppendChild(transitions);
+                foreach(var transition in definition.Graph.Transitions)
+                {
+                    var entry=document.CreateElement("Transition");transitions.AppendChild(entry);
+                    if(transition.FrameShift.HasValue) Set(entry,"FrameShift",transition.FrameShift.Value.ToString(CultureInfo.InvariantCulture));
+                    if(transition.FirstFrame.HasValue) Set(entry,"FirstFrame",transition.FirstFrame.Value.ToString(CultureInfo.InvariantCulture));
+                    AppendConditions(document,entry,transition.Conditions,"Conditions");
+                }
+            }
+            if(definition.Graph.Align!=null)
+            {
+                var align=definition.Graph.Align;var entry=document.CreateElement("Align");node.AppendChild(entry);
+                Set(entry,"Axis",string.Join("|",align.Axes));
+                entry.AppendChild(BuildMovePoint(document,"Pivot",align.Pivot));entry.AppendChild(BuildMovePoint(document,"Position",align.Position));
+            }
+            if(definition.Graph.Direction!=null)
+            {
+                var direction=definition.Graph.Direction;var entry=document.CreateElement("SetDirection");node.AppendChild(entry);
+                entry.AppendChild(BuildMovePoint(document,"From",direction.From));entry.AppendChild(BuildMovePoint(document,"To",direction.To));
+            }
             if (definition.Intervals.Count != 0)
             {
                 XmlElement intervals = document.CreateElement("Intervals");
@@ -220,7 +255,12 @@ namespace Eclipse.Modding
                         var parts=document.CreateElement("AttackingParts"); item.AppendChild(parts);
                         foreach(var edge in attack.Edges) { var part=document.CreateElement("Edge"); Set(part,"Name",edge); parts.AppendChild(part); }
                         var damage=document.CreateElement("Damage"); Set(damage,"Value",attack.Damage.ToString("R",CultureInfo.InvariantCulture)); item.AppendChild(damage);
-                        var attribute=document.CreateElement("Damage"); Set(attribute,"Type",attack.DamageType); damage.AppendChild(attribute);
+                        foreach (var term in attack.DamageTerms)
+                        {
+                            var attribute=document.CreateElement("Damage"); Set(attribute,"Type",term.Type);
+                            if (term.Shift != 0) Set(attribute,"Shift",term.Shift.ToString("R",CultureInfo.InvariantCulture));
+                            damage.AppendChild(attribute);
+                        }
                         var impulse=document.CreateElement("Impulse"); item.AppendChild(impulse);
                         Set(impulse,"X",attack.X.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Y",attack.Y.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Z",attack.Z.ToString("R",CultureInfo.InvariantCulture));
                         var hit=document.CreateElement("Hit"); Set(hit,"Name",attack.Hit); item.AppendChild(hit);
@@ -296,6 +336,87 @@ namespace Eclipse.Modding
             parent.AppendChild(conditions);
         }
 
+        private static void AppendMovePresentation(XmlDocument document, XmlElement node, ModMovePresentation value)
+        {
+            if (value.NoWallRepulsion) Set(node, "NoWallRepulsion", "1");
+            if (value.NoInterpolationFrames) Set(node, "NoInterpolationFrames", "1");
+            if (value.Profile != null)
+            {
+                var profile = document.CreateElement("Profile"); Set(profile, "Show", "1");
+                Set(profile, "Rank", value.Profile.Rank.ToString(CultureInfo.InvariantCulture)); Set(profile, "Icon", value.Profile.CoreIcon);
+                if (value.Profile.DisplayName.HasValue) Set(profile, "DisplayName", value.Profile.DisplayName.Value.ToString());
+                node.AppendChild(profile);
+            }
+            if (value.TacticDistance != null)
+            {
+                var distance = value.TacticDistance;
+                var tactics = document.CreateElement("Tactics"); node.AppendChild(tactics);
+                var conditions = document.CreateElement("Conditions"); tactics.AppendChild(conditions);
+                var entry = document.CreateElement("Distance"); conditions.AppendChild(entry);
+                if (distance.Axis != "Full") Set(entry, "Axis", distance.Axis);
+                Set(entry, "Min", distance.Minimum.ToString("R", CultureInfo.InvariantCulture));
+                Set(entry, "Max", distance.Maximum.ToString("R", CultureInfo.InvariantCulture));
+                entry.AppendChild(BuildMovePoint(document, "From", distance.Points.From));
+                entry.AppendChild(BuildMovePoint(document, "To", distance.Points.To));
+            }
+            if (value.Actions.Count == 0) return;
+            var actions = document.CreateElement("Actions"); node.AppendChild(actions);
+            foreach (var action in value.Actions)
+            {
+                string tag = action.Kind == "random_sound" ? "RandomSound" : action.Kind == "effect" ? "Effect"
+                    : action.Kind == "create_projectile" ? "CreatePlayer" : action.Kind == "add_bullets" ? "AddBullets"
+                    : action.Kind == "delete_actor" ? "Delete" : action.Kind == "stop_effect" ? "StopEffect" : action.Kind == "stop_follow_effect" ? "StopFollowEffect" : "TryOnEnd";
+                var entry = document.CreateElement(tag); actions.AppendChild(entry);
+                if (action.DeletePlayer.Length != 0) Set(entry, "Player", action.DeletePlayer);
+                if (action.Bullets != null)
+                {
+                    Set(entry, "Type", action.Bullets.Type);
+                    Set(entry, "Value", action.Bullets.Value.ToString(CultureInfo.InvariantCulture));
+                }
+                if (action.Projectile != null)
+                {
+                    var projectile = action.Projectile;
+                    Set(entry, "Name", projectile.Name);
+                    string start = projectile.StartMove.HasValue ? projectile.StartMove.Value.ToString() : projectile.CoreStartAnimation;
+                    if (start.Length != 0) Set(entry, "StartAnimation", start);
+                    var skeleton = document.CreateElement("Item"); Set(skeleton, "Type", "Skeleton");
+                    Set(skeleton, "Name", projectile.CoreSkeleton); entry.AppendChild(skeleton);
+                    var weapon = document.CreateElement("Item"); Set(weapon, "Type", "Weapon");
+                    Set(weapon, "CopyParentType", projectile.CopyParentType); entry.AppendChild(weapon);
+                }
+                if (action.EffectName.Length != 0) Set(entry, "Name", action.EffectName);
+                if (action.Effect != null)
+                {
+                    var effect = action.Effect;
+                    Set(entry, "Name", effect.Name); Set(entry, "Sequence", effect.CoreSequence);
+                    Set(entry, "Scale", effect.Scale.ToString("R", CultureInfo.InvariantCulture));
+                    Set(entry, "TimeScale", effect.TimeScale.ToString("R", CultureInfo.InvariantCulture));
+                    Set(entry, "Looped", effect.Looped ? "1" : "0");
+                    if (effect.Position != null)
+                    {
+                        var position = BuildMovePoint(document, "Position", effect.Position);
+                        Set(position, "Follow", effect.Follow ? "1" : "0"); entry.AppendChild(position);
+                    }
+                }
+                if (action.Frame.HasValue) Set(entry, "Frame", action.Frame.Value.ToString(CultureInfo.InvariantCulture));
+                else Set(entry, "Event", action.Event);
+                foreach (var name in action.CoreSounds)
+                {
+                    var sound = document.CreateElement("Sound"); Set(sound, "Name", name); entry.AppendChild(sound);
+                }
+            }
+        }
+
+        private static XmlElement BuildMovePoint(XmlDocument document,string name,ModMovePoint point)
+        {
+            var node=document.CreateElement(name);Set(node,"Object",point.Object);
+            if(point.Player.Length!=0) Set(node,"Player",point.Player);
+            if(point.Part.Length!=0) Set(node,"Part",point.Part);
+            if(point.ShiftX!=0) Set(node,"ShiftX",point.ShiftX.ToString("R",CultureInfo.InvariantCulture));
+            if(point.ShiftY!=0) Set(node,"ShiftY",point.ShiftY.ToString("R",CultureInfo.InvariantCulture));
+            return node;
+        }
+
         private XmlElement BuildMoveCondition(XmlDocument document, ModMoveCondition value)
         {
             if(value.Kind==ModMoveConditionKind.Keys)
@@ -314,6 +435,9 @@ namespace Eclipse.Modding
                 return op;
             }
             string element = value.Kind == ModMoveConditionKind.CurrentAnimation ? "CurrentAnimation" :
+                value.Kind == ModMoveConditionKind.RoundStage ? "RoundStage" :
+                value.Kind == ModMoveConditionKind.ModExists ? "ModExists" :
+                value.Kind == ModMoveConditionKind.Screen ? "Screen" :
                 value.Kind == ModMoveConditionKind.Character ? "EclipseCharacter" :
                 value.Kind == ModMoveConditionKind.CurrentInterval ? "CurrentInterval" :
                 value.Kind == ModMoveConditionKind.Perk ? "Perk" : "Item";
@@ -451,6 +575,10 @@ namespace Eclipse.Modding
         {
             for (int i = _p1dTactics.Count - 1; i >= 0; i--) ExternalCombatContentRuntime.RemoveTactic(_p1dTactics[i]);
             _p1dTactics.Clear();
+            _moveCombatPatchLifetime?.Dispose();
+            _moveCombatPatchLifetime = null;
+            _moveItemLockRollback?.Dispose();
+            _moveItemLockRollback = null;
             ExternalCombatContentRuntime.RemoveMovePerkLocks(_p1dMovePerkLockRollback);
             _p1dMovePerkLockRollback = null;
             for (int i = _p1dLocations.Count - 1; i >= 0; i--) ExternalLocationRuntime.Remove(_p1dLocations[i]);

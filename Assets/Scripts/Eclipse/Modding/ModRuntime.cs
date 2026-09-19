@@ -891,7 +891,7 @@ namespace Eclipse.Modding
                 foreach(var item in player.PJNJIJIODHE())
                 {
                     DefinitionId? itemId=_scripts.Content.TryResolveRuntimeItem(item.Name,item.NodeXML?.OuterXml,out var resolved)?resolved:(DefinitionId?)null;
-                    equipment.Add(new ModBattleEquipmentSnapshot(itemId,item.Type,item.MDPPNGIEJGD));
+                    equipment.Add(new ModBattleEquipmentSnapshot(itemId,item.Type,item.SubType));
                 }
             }
             return new ModStoryEvent(ModStoryEventKind.BattleResult,null,
@@ -986,7 +986,7 @@ namespace Eclipse.Modding
                 DefinitionId? id = _scripts.Content.TryResolveRuntimeItem(item.get_Name(), metadata?.NodeXML?.OuterXml, out var resolved)
                     ? resolved : (DefinitionId?)null;
                 result.Add(new ModProfileEquipmentSnapshot(id,
-                    new ModProfileItemSnapshot(true, item.Count, true, item.DHNNCAEEMLL(), metadata?.Type, metadata?.MDPPNGIEJGD)));
+                    new ModProfileItemSnapshot(true, item.Count, true, item.DHNNCAEEMLL(), metadata?.Type, metadata?.SubType)));
             }
             return result.AsReadOnly();
         }
@@ -1000,8 +1000,8 @@ namespace Eclipse.Modding
                 ? definition.LegacyName : definition.Id.ToString();
             var item = _profileRoster.KHCNHPCPFII().CMGOCLGHNLH(name);
             var metadata = ListSF.GetItems()?.GetItemByName(name);
-            return item == null ? new ModProfileItemSnapshot(false, 0, false, null, metadata?.Type, metadata?.MDPPNGIEJGD)
-                : new ModProfileItemSnapshot(true, item.Count, item.EFMFGEPDAOP(), item.DHNNCAEEMLL(), metadata?.Type, metadata?.MDPPNGIEJGD);
+            return item == null ? new ModProfileItemSnapshot(false, 0, false, null, metadata?.Type, metadata?.SubType)
+                : new ModProfileItemSnapshot(true, item.Count, item.EFMFGEPDAOP(), item.DHNNCAEEMLL(), metadata?.Type, metadata?.SubType);
         }
 
         public static bool TryReadSavedEnchantment(XmlNode perkNode, out EnchantmentDefinition enchantment,

@@ -13,7 +13,7 @@ class Program {
  public enum GameOverTypes {GAME_OVER_NONE,GAME_OVER_WIN,GAME_OVER_LOSS,GAME_OVER_SURRENDER,GAME_OVER_RAID_TIMEOUT,GAME_OVER_RAID_ROUND_TIMEOUT}
  public class Roster {public bool Eclipse=true;public bool JPMPIDFGCJL()=>Eclipse;}
  public class FightList {public string FightId="zone|boss|1";}
- public class Item {public string Name="katana",Type="Weapon",MDPPNGIEJGD="Katana";public System.Xml.XmlNode NodeXML;}
+ public class Item {public string Name="katana",Type="Weapon",SubType="Katana";public System.Xml.XmlNode NodeXML;}
  public class ModelParameters {public bool IsPlayer;public List<Item> Items=new List<Item>();public List<Item> PJNJIJIODHE()=>Items;}
  public class Definition {public DefinitionId Id=DefinitionId.Parse("core:fights/zone/boss/1");}
  public class Catalog {
@@ -36,7 +36,7 @@ class Program {
    Check(captured.Outcome==names[i]&&captured.Eclipse&&captured.Fight==_scripts.Content.Fights[0].Id,"Outcome/identity mapping");
   }
   var first=CaptureBattleResult(_profileRoster,fight,outcomes[0],player,null).Battle;
-  player.Items[0].Name="unknown";player.Items[0].MDPPNGIEJGD="Changed";_profileRoster.Eclipse=false;
+  player.Items[0].Name="unknown";player.Items[0].SubType="Changed";_profileRoster.Eclipse=false;
   var next=CaptureBattleResult(_profileRoster,fight,outcomes[0],player,null).Battle;
   Check(first.Equipment[0].Subtype=="Katana"&&first.Eclipse&&first.Equipment[0].Item.HasValue,"Snapshot aliased native state");
   Check(next.Equipment[0].Item==null&&next.Equipment[0].Subtype=="Changed"&&!next.Eclipse,"Unknown item metadata lost");

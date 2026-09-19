@@ -36,6 +36,7 @@ public sealed class QuestParameters {}
 public class QuestAction { public string EFJMDEMAGIM; public virtual void DEJMHFMLKIC(QuestParameters p) {} public void OGIJONMKABB() {} }
 public sealed class QuestActionOpenUrl : QuestAction {}
 public sealed class QuestActionSwitchToRaidsMap : QuestAction {}
+namespace Eclipse.Modding { public sealed class OfflineRaidQuestAction : QuestAction { public OfflineRaidQuestAction(string operation) { throw new NotSupportedException("Offline raid actions are outside this fixture."); } } }
 public static class GameCenterController { public static bool OBDJPKOJADA() => false; }
 public sealed class ConditionKeys {}
 public sealed class LocationPathFixture {
@@ -66,7 +67,7 @@ public sealed class InfoAnimation {
     public sealed class CapabilityTable { public List<InfoAnimation> NINJLLDJLFI = new List<InfoAnimation>(); }
     public ConditionKeys Keys;
     public bool Allowed = true;
-    public Inside ODACDCDONJE = new Inside();
+    public Inside MoveData = new Inside();
     public CapabilityTable ICANLHJKKNE = new CapabilityTable();
     public ConditionKeys ILBCHANCOBP() => Keys;
     public int FOLOOGCLPNE() => 0;

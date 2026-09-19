@@ -10,8 +10,8 @@ player or automatically put it in the shop; use a listing or a reward next.
 Equipment without a shop listing is still created in the native item catalog,
 including its localized name. It has no purchase price and is hidden until
 acquired. Its initial level is 1 for weapons, 2 for armor/helms, and 6 for
-ranged/magic. It uses the same canonical stats and upgrade templates as normal
-equipment. Registration alone does not scale a reward to the player's level.
+ranged/magic. By default it uses the same canonical stats and upgrade templates as normal
+equipment. `initial_stats` can replace only its initial stat snapshot. Registration alone does not scale a reward to the player's level.
 
 All registration functions below run in the entrypoint and require
 `content.register`. Unknown fields, duplicate IDs, wrong handle types, and
@@ -26,9 +26,9 @@ missing dependencies are errors. Examples assume `local sf2 = require("sf2")`.
 | `icon` | Sprite handle | Yes | Shop/inventory icon from `sf2.assets.sprite`. |
 | `model` | Model handle | Yes | Equipped appearance from `sf2.assets.model`. |
 | `subtype` | String | Category-dependent | Combat family; see each function below. |
+| `initial_stats` | Category-specific table | No | Exact initial stats. Omit to derive normal power; `{}` leaves all initial stats absent. |
 
-Normal equipment takes no raw damage or defense field. Its initial power is
-calculated from the category and shop listing's starting level. See
+By default, initial power is calculated from the category and shop listing's starting level. Top-level damage/defense fields are not accepted. See
 [shops and prices](../shop/) for section constants and allowed levels.
 When there is no listing, the category baseline described above applies.
 Create the referenced mod-owned localization key in `localizations/eng.toml` or
@@ -36,11 +36,54 @@ with [`sf2.localization.register`](../localization-patches/#sf2localizationregis
 before registering equipment. Core model/icon references require the `core`
 dependency.
 
+### Explicit initial stats
+
+All five equipment registration functions accept `initial_stats`. Its values must
+be integers from **0 to 1,000,000**, inclusive. Wrong-category fields, unknown
+fields, arrays, strings, fractions, negative values, infinity and NaN are errors.
+
+| Registration | Allowed fields inside `initial_stats` |
+| --- | --- |
+| `register_weapon` | `weapon_damage` |
+| `register_armor` | `body_defense`, `head_defense`, `unarmed_damage` |
+| `register_helm` | `head_defense` |
+| `register_ranged` | `ranged_damage`, `weapon_damage` |
+| `register_magic` | `magic_damage` |
+
+Omitting `initial_stats` (or setting it to `nil`) keeps the normal level-derived
+stats. Supplying a table replaces the complete initial snapshot: unspecified
+stats remain absent, rather than falling back to normal values. An empty table
+preserves an item with no initial stats. Explicit zero stores a present stat with
+value zero; it is different from an absent attribute.
+
+```lua
+local weapon = sf2.items.register_weapon {
+    id = "practice_weapon",
+    display_name = sf2.localization.register {
+        id = "item.practice_weapon", language = "eng", value = "Practice Weapon",
+    },
+    icon = sf2.assets.sprite("sprites/weapon"),
+    model = sf2.assets.model("core:gamedata/models/mdl_weapon_katana_ritual"),
+    subtype = "Katana",
+    initial_stats = { weapon_damage = 0 },
+}
+-- Use initial_stats = {} instead to omit the initial damage attribute entirely.
+```
+
+This changes the catalog definition's initial attributes only. Level, price,
+upgrade level and the vanilla upgrade template keep their normal rules. Upgrades
+and level-scaled acquisition may replace these values through native progression;
+this is not a permanent damage override or a custom upgrade curve. It does not
+rewrite equipment already saved in a player's inventory. Initial snapshots are
+immutable and included in compatibility fingerprints. Mods that omit the field
+retain their previous fingerprint representation; adding or changing it requires
+the normal content compatibility handling on reload.
+
 ## sf2.items.register_weapon
 
 Create a new weapon definition owned by your mod.
 
-**Signature:** `sf2.items.register_weapon { id, display_name, icon, model, subtype?, tactic_subtype? }`
+**Signature:** `sf2.items.register_weapon { id, display_name, icon, model, subtype?, tactic_subtype?, initial_stats? }`
 
 **Requires:** `content.register` and dependencies for referenced content.
 
@@ -69,7 +112,7 @@ at level 1 or later, up to level 52.
 
 Create a new armor definition owned by your mod.
 
-**Signature:** `sf2.items.register_armor { id, display_name, icon, model }`
+**Signature:** `sf2.items.register_armor { id, display_name, icon, model, initial_stats? }`
 
 **Requires:** `content.register` and dependencies for referenced content.
 
@@ -95,7 +138,7 @@ at level 2 or later, up to level 52.
 
 Create a new helm definition owned by your mod.
 
-**Signature:** `sf2.items.register_helm { id, display_name, icon, model }`
+**Signature:** `sf2.items.register_helm { id, display_name, icon, model, initial_stats? }`
 
 **Requires:** `content.register` and dependencies for referenced content.
 
@@ -121,7 +164,7 @@ at level 2 or later, up to level 52.
 
 Create a new ranged definition owned by your mod.
 
-**Signature:** `sf2.items.register_ranged { id, display_name, icon, model, subtype }`
+**Signature:** `sf2.items.register_ranged { id, display_name, icon, model, subtype, initial_stats? }`
 
 **Requires:** `content.register` and dependencies for referenced content.
 
@@ -148,7 +191,7 @@ at level 6 or later, up to level 52.
 
 Create a new magic definition owned by your mod.
 
-**Signature:** `sf2.items.register_magic { id, display_name, icon, model, subtype }`
+**Signature:** `sf2.items.register_magic { id, display_name, icon, model, subtype, initial_stats? }`
 
 **Requires:** `content.register` and dependencies for referenced content.
 

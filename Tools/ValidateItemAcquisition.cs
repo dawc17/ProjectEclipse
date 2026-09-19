@@ -2,7 +2,7 @@ using System;
 using System.Xml;
 using System.Collections.Generic;
 using Eclipse.Modding;
-public class ItemInfo {public string Name="TEST_ITEM",MDPPNGIEJGD="";public ItemInfo ParentItem;public int OBJDGBBFJOO;public XmlNode NodeXML;}
+public class ItemInfo {public string Name="TEST_ITEM",SubType="";public ItemInfo ParentItem;public int OBJDGBBFJOO;public XmlNode NodeXML;}
 public class UserItem {
  public ItemInfo Definition=new ItemInfo();public int PendingUpgrade,Upgrade;
  public long IJGAOHJNLAH()=>Delivery;public bool DBKKJGBJOEO()=>false;public ItemInfo BHKHOJPANHE()=>Definition;public int EIMMBNNMBCN()=>PendingUpgrade;public int DHNNCAEEMLL()=>Upgrade;
@@ -30,7 +30,7 @@ public class QuestParameters {public ItemInfo DLKPBAJDHBO;}
 public class QuestEvent {public enum PMDPDMFLCIJ{QUEST_EVENT_DELIVERY}}
 public class Quests {public Action OnDelivery;public bool Fail;public QuestParameters BNMLDPNCMLB()=>new QuestParameters();public bool FFBAJNGHGGD(QuestEvent.PMDPDMFLCIJ kind){if(Fail)throw new Exception("quest failure");OnDelivery?.Invoke();return false;}public void MHHNIPBJNAD(){}}
 public static class ListSF {
- public static Quests Quests=new Quests();public static Quests ELEBLBJKDBI()=>Quests;
+ public static Quests Quests=new Quests();public static Quests GetInstance()=>Quests;
 
  public static Roster Active;public static Action OnEquip;
  public static Roster CCDKHLAMKKO()=>Active;

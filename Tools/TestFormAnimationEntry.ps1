@@ -56,14 +56,17 @@ class EventAnimation {
 }
 class EventModelDelayed { public EventAnimation.EECEJKADLCK Type; public object Data; public Model KJDFJPBIGJC,GAIBPAGPEGK; public bool IsRandom; }
 class IntervalAnimation { }
-class ItemInfo { public string MDPPNGIEJGD; }
+class ItemInfo { public string SubType; }
 class ModelParameters {
+    public int RemainingHealthBars=1;
     public bool IsPlayer,AiControlled=true,KMNLACDHAFE;
     public float CIDCNCDFONA=100;
     public float KKMCHCNOHMB()=>100;
     public ItemInfo KDABEFBJMOD(string type)=>null;
 }
 class Vector3f {
+    public float GetX()=>X;
+    public void SetX(float value){X=value;}
     public float X,Y,Z;
     public Vector3f(float x=0,float y=0,float z=0){X=x;Y=y;Z=z;}
     public Vector3f(Vector3f value){X=value.X;Y=value.Y;Z=value.Z;}
@@ -91,7 +94,7 @@ class InfoAnimation {
     public enum MGHNBEPCKIF { AnimationNone,AnimationAttack,AnimationIdle }
     public string Name; public int Priority,Sign=1; public bool Eligible=true,FBKGDALBNDJ;
     public MGHNBEPCKIF Type=MGHNBEPCKIF.AnimationIdle;
-    public AnimationDefinition ODACDCDONJE=new AnimationDefinition();
+    public AnimationDefinition MoveData=new AnimationDefinition();
     public InfoAnimation Equivalent; public Vector3f Velocity=new Vector3f();
     public int ConditionCalls;
     public InfoAnimation IMFGMAAEMIC()=>Equivalent;
@@ -116,7 +119,7 @@ class PendingAnimation {
     public bool KLNLNKBIDGD()=>FGICHADOEHF==null;
     public void Clear(){FGICHADOEHF=null;}
 }
-class Physics { public bool Running;public int Stops;public bool EGNOOKHNFLK()=>Running;public void Stop(){Stops++;Running=false;} }
+class Physics { public bool Running;public int Stops;public bool IsPhysics()=>Running;public bool EGNOOKHNFLK()=>Running;public void Stop(){Stops++;Running=false;} }
 class ModelAnimation {
     public InfoAnimation Current; public bool Playing=true;public Vector3f Moved;
     public InfoAnimation NNMAFFCCMHC()=>Current;
@@ -136,6 +139,7 @@ class Statistics {
     }
 }
 class Model {
+    public bool RenderStrikeDelay()=>false;
     DELAY_METHODS
     public readonly ModelParameters Parameters=new ModelParameters();
     public readonly ModelConditions Conditions=new ModelConditions();
@@ -221,7 +225,7 @@ static class ValidateFormAnimationEntry {
     static void Check(bool value,string why){checks++;if(!value)throw new Exception(why);}
     static void Reject(Action operation,string why){bool failed=false;try{operation();}catch(InvalidOperationException){failed=true;}Check(failed,why);}
     static InfoAnimation Move(string name,int priority,EventAnimation.EECEJKADLCK kind=EventAnimation.EECEJKADLCK.EVENT_ANIMATION_END){
-        var move=new InfoAnimation{Name=name,Priority=priority};move.ODACDCDONJE.AJCMBMJGJEG.Add(new EventAnimation{Type=kind});return move;
+        var move=new InfoAnimation{Name=name,Priority=priority};move.MoveData.AJCMBMJGJEG.Add(new EventAnimation{Type=kind});return move;
     }
     static void Selection(){
         foreach(bool player in new[]{false,true})foreach(int sign in new[]{-1,1}){
@@ -233,11 +237,11 @@ static class ValidateFormAnimationEntry {
             selector._ExplicitBirthModels.Add(other);selector.HKOBFBADDJN.Add(other);
             var idle=Move("generic idle",0);var transition=Move("arbitrary mod entry",7);transition.Sign=sign;
             transition.Velocity=new Vector3f(2,3,0);
-            transition.ODACDCDONJE.ELFBPNOBDKC.Add(new TransitionAnimation{Matches=false,FrameShift=91});
-            transition.ODACDCDONJE.ELFBPNOBDKC.Add(new TransitionAnimation{Matches=true,IsFrameShift=true,FrameShift=6});
+            transition.MoveData.ELFBPNOBDKC.Add(new TransitionAnimation{Matches=false,FrameShift=91});
+            transition.MoveData.ELFBPNOBDKC.Add(new TransitionAnimation{Matches=true,IsFrameShift=true,FrameShift=6});
             var denied=Move("ineligible high priority",99);denied.Eligible=false;
-            var otherEvent=Move("opponent only",100);otherEvent.ODACDCDONJE.AJCMBMJGJEG[0].IHJJBIDMEMB=ModelType.KEIDBIOIFGA.MODEL_OTHER;
-            var namedEnd=Move("unrelated animation end",101);namedEnd.ODACDCDONJE.AJCMBMJGJEG[0].LJICHLHMBFA="missing old animation";
+            var otherEvent=Move("opponent only",100);otherEvent.MoveData.AJCMBMJGJEG[0].IHJJBIDMEMB=ModelType.KEIDBIOIFGA.MODEL_OTHER;
+            var namedEnd=Move("unrelated animation end",101);namedEnd.MoveData.AJCMBMJGJEG[0].LJICHLHMBFA="missing old animation";
             var birth=Move("helper birth",102,EventAnimation.EECEJKADLCK.EVENT_BIRTH);
             form.CEOOLFLLIMC.Values.AddRange(new[]{idle,transition,transition,denied,otherEvent,namedEnd,birth});
             selector.PrepareFormAnimation(form);

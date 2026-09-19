@@ -84,11 +84,11 @@ class ModelParameters
     PARAMETER_METHODS
 }
 class ConditionAnimation { }
-class ConditionTable { public List<ConditionAnimation> HIFPHBNGIPO = new List<ConditionAnimation>(); }
+class ConditionTable { public List<ConditionAnimation> Locks = new List<ConditionAnimation>(); }
 class InfoAnimation
 {
     public string Name;
-    public ConditionTable ODACDCDONJE = new ConditionTable();
+    public ConditionTable MoveData = new ConditionTable();
     public bool HPPGNJJCEGF(ModelConditions conditions, List<ConditionAnimation> required) => true;
     public bool CheckAnimationName(List<string> names) => names.Contains(Name);
 }

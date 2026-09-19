@@ -18,6 +18,7 @@ namespace Eclipse.Modding
         private readonly List<IDisposable> _defaultEnchantmentLifetimes = new List<IDisposable>();
         private readonly List<IDisposable> _innatePerkLifetimes = new List<IDisposable>();
         private readonly List<IDisposable> _tacticSubtypeLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _combatSubtypeLifetimes = new List<IDisposable>();
         private readonly List<ProgressionBranchBinding> _progressionBindings = new List<ProgressionBranchBinding>();
         private readonly List<string> _externalZoneNames = new List<string>();
         private readonly List<ExternalBattleBinding> _externalBattles = new List<ExternalBattleBinding>();
@@ -189,6 +190,7 @@ namespace Eclipse.Modding
                 ApplyDefaultEnchantments();
                 ApplyInnatePerks();
                 ApplyTacticSubtypes();
+                ApplyCombatSubtypes();
 
                 foreach (ForgeRecipeFamilyDefinition definition in _content.ForgeRecipeFamilies)
                 {
@@ -1170,6 +1172,22 @@ namespace Eclipse.Modding
             return result;
         }
 
+        private void ApplyCombatSubtypes()
+        {
+            foreach (var definition in _content.ItemCombatSubtypes)
+            {
+                if (_items == null || !_content.TryGetItem(definition.Item, out var target))
+                    throw new InvalidOperationException("Combat subtype requires applied items: " + definition.Item);
+                // Resolve the original node identity as well as its name: recovered
+                // ranged definitions can share a legacy name (e.g. GlaivebowArrow).
+                var item = _items.AllItems.Find(candidate => candidate != null &&
+                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                if (item == null || !item.TryOverrideCombatSubtype(definition.Subtype, out var lifetime))
+                    throw new InvalidOperationException("Could not apply combat subtype for '" + definition.Owner + "': " + definition.Item);
+                _combatSubtypeLifetimes.Add(lifetime);
+            }
+        }
+
         private void ApplyTacticSubtypes()
         {
             foreach (var definition in _content.ItemTacticSubtypes)
@@ -1276,6 +1294,8 @@ namespace Eclipse.Modding
             for (int i = _innatePerkLifetimes.Count - 1; i >= 0; i--) _innatePerkLifetimes[i].Dispose();
             for (int i = _tacticSubtypeLifetimes.Count - 1; i >= 0; i--) _tacticSubtypeLifetimes[i].Dispose();
             _tacticSubtypeLifetimes.Clear();
+            for (int i = _combatSubtypeLifetimes.Count - 1; i >= 0; i--) _combatSubtypeLifetimes[i].Dispose();
+            _combatSubtypeLifetimes.Clear();
             _innatePerkLifetimes.Clear();
             for (int i = _defaultEnchantmentLifetimes.Count - 1; i >= 0; i--) _defaultEnchantmentLifetimes[i].Dispose();
             _defaultEnchantmentLifetimes.Clear();
@@ -1439,6 +1459,11 @@ namespace Eclipse.Modding
             Set(item, "Model", definition.Model.ToString());
             Set(item, "Text", definition.DisplayName.ToString());
             Set(item, "TextButton", definition.DisplayName.ToString());
+            // Owned equipment has no recovered pack metadata. Share the explicit
+            // shop group with native quest unlock/new-item notification paths.
+            if (_content.TryGetItemAvailability(definition.Id, out var availability) &&
+                !string.IsNullOrEmpty(availability.RequiredGroup))
+                Set(item, "PackLabel", availability.RequiredGroup);
             // Equipment can be acquired through rewards or used by warriors without a
             // shop listing. Start it at the category's canonical first playable level;
             // native acquisition/upgrades continue to own its subsequent progression.
@@ -1455,23 +1480,23 @@ namespace Eclipse.Modding
                 Set(item, "SubType", weapon.SubType);
                 if (weapon.TacticSubtype != null) Set(item, "TacticSubtype", weapon.TacticSubtype);
                 upgradeTemplate = "Weapon_Bonus";
-                Set(item, "WeaponDamage", ResolveVanillaStat(upgradeTemplate, level, "WeaponDamage")
+                if (definition.InitialStats == null) Set(item, "WeaponDamage", ResolveVanillaStat(upgradeTemplate, level, "WeaponDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is ArmorDefinition)
             {
                 Set(item, "Type", "Armor");
                 upgradeTemplate = "Armor_Bonus";
-                Set(item, "BodyDefense", ResolveVanillaStat(upgradeTemplate, level, "BodyDefense")
+                if (definition.InitialStats == null) Set(item, "BodyDefense", ResolveVanillaStat(upgradeTemplate, level, "BodyDefense")
                     .ToString(CultureInfo.InvariantCulture));
-                Set(item, "UnarmedDamage", ResolveVanillaStat(upgradeTemplate, level, "UnarmedDamage")
+                if (definition.InitialStats == null) Set(item, "UnarmedDamage", ResolveVanillaStat(upgradeTemplate, level, "UnarmedDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is HelmDefinition)
             {
                 Set(item, "Type", "Helm");
                 upgradeTemplate = "Helm_Bonus";
-                Set(item, "HeadDefense", ResolveVanillaStat(upgradeTemplate, level, "HeadDefense")
+                if (definition.InitialStats == null) Set(item, "HeadDefense", ResolveVanillaStat(upgradeTemplate, level, "HeadDefense")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is RangedDefinition ranged)
@@ -1479,7 +1504,7 @@ namespace Eclipse.Modding
                 Set(item, "Type", "Ranged");
                 Set(item, "SubType", ranged.SubType);
                 upgradeTemplate = "Ranged_Bonus";
-                Set(item, "RangedDamage", ResolveVanillaStat(upgradeTemplate, level, "RangedDamage")
+                if (definition.InitialStats == null) Set(item, "RangedDamage", ResolveVanillaStat(upgradeTemplate, level, "RangedDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else if (definition is MagicDefinition magic)
@@ -1487,10 +1512,14 @@ namespace Eclipse.Modding
                 Set(item, "Type", "Magic");
                 Set(item, "SubType", magic.SubType);
                 upgradeTemplate = "Magic_Bonus";
-                Set(item, "MagicDamage", ResolveVanillaStat(upgradeTemplate, level, "MagicDamage")
+                if (definition.InitialStats == null) Set(item, "MagicDamage", ResolveVanillaStat(upgradeTemplate, level, "MagicDamage")
                     .ToString(CultureInfo.InvariantCulture));
             }
             else throw new InvalidOperationException("Unsupported external item definition: " + definition.Id);
+
+            if (definition.InitialStats != null)
+                foreach (var stat in definition.InitialStats.Values)
+                    Set(item, stat.Key, stat.Value.ToString(CultureInfo.InvariantCulture));
 
             if (listing == null)
                 Set(item, "ShopHide", "1");

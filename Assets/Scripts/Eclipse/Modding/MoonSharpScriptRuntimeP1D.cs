@@ -64,6 +64,42 @@ namespace Eclipse.Modding
                 moves.Set("ANY", DynValue.NewString("any"));
                 moves.Set("SOUND", DynValue.NewString("sound"));
                 moves.Set("HIT_EFFECT", DynValue.NewString("hit_effect"));
+                moves.Set("extend_item_lock", DynValue.NewCallback((context, args) =>
+                {
+                    const string function = "sf2.moves.extend_item_lock";
+                    Table table = args.AsType(0,function,DataType.Table,false).Table;
+                    return ApiCall(function, () =>
+                    {
+                        ValidateFields(table,function,"move","item_type","source_subtype","subtype");
+                        _api.ExtendMoveItemLock(RequiredString(table,"move",function),RequiredString(table,"item_type",function),
+                            RequiredString(table,"source_subtype",function),RequiredString(table,"subtype",function));
+                        return DynValue.Nil;
+                    });
+                }));
+                moves.Set("patch", DynValue.NewCallback((context, args) => ApiCall("sf2.moves.patch", () =>
+                {
+                    const string function = "sf2.moves.patch";
+                    Table table = args.AsType(0, function, DataType.Table, false).Table;
+                    ValidateFields(table, function, "move", "conditions", "interval_end", "hit", "sound_frame");
+                    ModMoveFramePatch Frame(string key)
+                    {
+                        DynValue value = table.Get(key); if (value.IsNil()) return null;
+                        if (value.Type != DataType.Table) throw new ModContentException(function + "." + key + " must be a table.");
+                        ValidateFields(value.Table, function + "." + key, "name", "expected", "value");
+                        return new ModMoveFramePatch(RequiredString(value.Table,"name",function),
+                            RequiredInt(value.Table,"expected",function),RequiredInt(value.Table,"value",function));
+                    }
+                    ModMoveHitPatch hit = null; DynValue rawHit = table.Get("hit");
+                    if (!rawHit.IsNil())
+                    {
+                        if (rawHit.Type != DataType.Table) throw new ModContentException(function + ".hit must be a table.");
+                        ValidateFields(rawHit.Table,function + ".hit","expected","value");
+                        hit = new ModMoveHitPatch(RequiredString(rawHit.Table,"expected",function),RequiredString(rawHit.Table,"value",function));
+                    }
+                    _api.PatchMove(RequiredString(table,"move",function),ReadMoveConditions(table.Get("conditions"),function + ".conditions"),
+                        Frame("interval_end"), hit, Frame("sound_frame"));
+                    return DynValue.Nil;
+                })));
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));
                 moves.Set("register", DynValue.NewCallback(RegisterMove));
                 moves.Set("register_trigger", DynValue.NewCallback(RegisterMoveTrigger));
@@ -307,7 +343,7 @@ namespace Eclipse.Modding
                         OptionalInt(table, "end_frame", 0, function), OptionalStringAllowEmpty(table, "mirror_node", string.Empty, function),
                         OptionalStringAllowEmpty(table, "tactic_equivalent", string.Empty, function),
                         OptionalStringAllowEmpty(table, "tactic_weapon", string.Empty, function),
-                        OptionalBool(table, "looped", false, function), OptionalBool(table, "ends_stage", false, function));
+                        OptionalBool(table, "looped", false, function), OptionalBool(table, "ends_stage", false, function), ReadMoveGraph(table,function));
                     return NewHandle(_moveTemplateHandles, value.Id);
                 });
             }
@@ -330,7 +366,7 @@ namespace Eclipse.Modding
                         OptionalInt(table, "end_frame", 0, function), OptionalStringAllowEmpty(table, "mirror_node", string.Empty, function),
                         OptionalStringAllowEmpty(table, "tactic_equivalent", string.Empty, function),
                         OptionalStringAllowEmpty(table, "tactic_weapon", string.Empty, function),
-                        OptionalBool(table, "looped", false, function), OptionalBool(table, "ends_stage", false, function));
+                        OptionalBool(table, "looped", false, function), OptionalBool(table, "ends_stage", false, function), ReadMoveGraph(table,function));
                     return NewHandle(_moveHandles, value.Id);
                 });
             }
@@ -339,9 +375,134 @@ namespace Eclipse.Modding
             {
                 var fields = new List<string> { "id", "templates", "core_templates", "events", "conditions", "intervals",
                     "type", "priority", "mid_frames", "first_frame", "end_frame", "mirror_node", "tactic_equivalent",
-                    "tactic_weapon", "looped", "ends_stage" };
-                if (animation) fields.Add("animation");
+                    "tactic_weapon", "looped", "ends_stage", "locks", "align", "direction" };
+                if (animation) { fields.AddRange(new[] { "animation", "transitions", "actions", "profile", "tactic_distance", "no_wall_repulsion", "no_interpolation_frames" }); }
                 ValidateFields(table, function, fields.ToArray());
+            }
+
+            private ModMovePoint ReadMovePoint(DynValue value,string function)
+            {
+                if(value.Type!=DataType.Table) throw new ModContentException(function+" requires a point table.");
+                var table=value.Table;
+                ValidateFields(table,function,"object","player","part","shift_x","shift_y");
+                return new ModMovePoint(RequiredString(table,"object",function),
+                    table.Get("player").IsNil()?null:RequiredString(table,"player",function),
+                    table.Get("part").IsNil()?null:RequiredString(table,"part",function),UiNumber(table,"shift_x"),UiNumber(table,"shift_y"));
+            }
+
+            private ModMoveGraph ReadMoveGraph(Table table,string function)
+            {
+                var transitions=new List<ModMoveTransition>();
+                if(!table.Get("transitions").IsNil())
+                {
+                    var array=RequireArray(table.Get("transitions"),function+".transitions");
+                    if(array.Length>32) throw new ModContentException("At most 32 move transitions are supported.");
+                    for(int i=1;i<=array.Length;i++)
+                    {
+                        var value=array.Get(i);if(value.Type!=DataType.Table) throw new ModContentException("Transitions require tables.");
+                        var entry=value.Table;ValidateFields(entry,function+".transitions","conditions","frame_shift","first_frame");
+                        transitions.Add(new ModMoveTransition(ReadMoveConditions(entry.Get("conditions"),function+".transitions.conditions"),
+                            entry.Get("frame_shift").IsNil()?(int?)null:RequiredInt(entry,"frame_shift",function),
+                            entry.Get("first_frame").IsNil()?(int?)null:RequiredInt(entry,"first_frame",function)));
+                    }
+                    EnsureDenseArray(array,transitions.Count,function+".transitions");
+                }
+                ModMoveAlignment align=null;
+                if(!table.Get("align").IsNil())
+                {
+                    var value=table.Get("align");if(value.Type!=DataType.Table) throw new ModContentException("Align requires a table.");
+                    var entry=value.Table;ValidateFields(entry,function+".align","axes","pivot","position");
+                    align=new ModMoveAlignment(OptionalStringArray(entry,"axes",function),ReadMovePoint(entry.Get("pivot"),function+".align.pivot"),
+                        ReadMovePoint(entry.Get("position"),function+".align.position"));
+                }
+                ModMoveDirection direction=null;
+                if(!table.Get("direction").IsNil())
+                {
+                    var value=table.Get("direction");if(value.Type!=DataType.Table) throw new ModContentException("Direction requires a table.");
+                    var entry=value.Table;ValidateFields(entry,function+".direction","from","to");
+                    direction=new ModMoveDirection(ReadMovePoint(entry.Get("from"),function+".direction.from"),ReadMovePoint(entry.Get("to"),function+".direction.to"));
+                }
+                return new ModMoveGraph(ReadMoveConditions(table.Get("locks"),function+".locks"),transitions.ToArray(),align,direction,ReadMovePresentation(table,function));
+            }
+
+            private ModMovePresentation ReadMovePresentation(Table table, string function)
+            {
+                var actions = new List<ModMoveScheduledAction>();
+                if (!table.Get("actions").IsNil())
+                {
+                    var array = RequireArray(table.Get("actions"), function + ".actions");
+                    if (array.Length > 64) throw new ModContentException("At most 64 scheduled move actions are supported.");
+                    for (int i = 1; i <= array.Length; i++)
+                    {
+                        if (array.Get(i).Type != DataType.Table) throw new ModContentException("Move actions require tables.");
+                        var entry = array.Get(i).Table;
+                        string kind = RequiredString(entry, "type", function);
+                        if (kind == "random_sound") ValidateFields(entry, function, "type", "frame", "event", "core_sounds");
+                        else if (kind == "effect") ValidateFields(entry, function, "type", "frame", "event", "effect");
+                        else if (kind == "stop_effect" || kind == "stop_follow_effect") ValidateFields(entry, function, "type", "frame", "event", "effect_name");
+                        else if (kind == "create_projectile") ValidateFields(entry, function, "type", "frame", "event", "projectile");
+                        else if (kind == "add_bullets") ValidateFields(entry, function, "type", "frame", "event", "bullets");
+                        else if (kind == "delete_actor") ValidateFields(entry, function, "type", "frame", "event", "player");
+                        else ValidateFields(entry, function, "type", "frame", "event");
+                        ModMoveProjectile projectile = null;
+                        if (kind == "create_projectile")
+                        {
+                            if (entry.Get("projectile").Type != DataType.Table) throw new ModContentException("Projectile action requires a projectile table.");
+                            var spec = entry.Get("projectile").Table;
+                            ValidateFields(spec, function + ".projectile", "name", "core_skeleton", "copy_parent_type", "core_start_animation", "start_move");
+                            projectile = new ModMoveProjectile(RequiredString(spec, "name", function), RequiredString(spec, "core_skeleton", function),
+                                RequiredString(spec, "copy_parent_type", function), spec.Get("core_start_animation").IsNil() ? null : RequiredString(spec, "core_start_animation", function),
+                                spec.Get("start_move").IsNil() ? (DefinitionId?)null : RequiredHandle(spec, "start_move", _moveHandles, "move", function));
+                        }
+                        ModMoveBulletChange bullets = null;
+                        if (kind == "add_bullets")
+                        {
+                            if (entry.Get("bullets").Type != DataType.Table) throw new ModContentException("Bullet action requires a bullets table.");
+                            var spec = entry.Get("bullets").Table;
+                            ValidateFields(spec, function + ".bullets", "type", "value");
+                            bullets = new ModMoveBulletChange(RequiredString(spec, "type", function), RequiredInt(spec, "value", function));
+                        }
+                        ModMoveEffect effect = null;
+                        if (kind == "effect")
+                        {
+                            if (entry.Get("effect").Type != DataType.Table) throw new ModContentException("Effect action requires an effect table.");
+                            var spec = entry.Get("effect").Table;
+                            ValidateFields(spec, function + ".effect", "name", "core_sequence", "scale", "time_scale", "looped", "position", "follow");
+                            effect = new ModMoveEffect(RequiredString(spec, "name", function), RequiredString(spec, "core_sequence", function),
+                                OptionalFloat(spec, "scale", 1, function), OptionalFloat(spec, "time_scale", 1, function),
+                                OptionalBool(spec, "looped", false, function), spec.Get("position").IsNil() ? null : ReadMovePoint(spec.Get("position"), function + ".effect.position"),
+                                OptionalBool(spec, "follow", false, function));
+                        }
+                        actions.Add(new ModMoveScheduledAction(kind,
+                            entry.Get("frame").IsNil() ? (int?)null : RequiredInt(entry, "frame", function),
+                            entry.Get("event").IsNil() ? null : RequiredString(entry, "event", function),
+                            OptionalStringArray(entry, "core_sounds", function), effect,
+                            kind == "stop_effect" || kind == "stop_follow_effect" ? RequiredString(entry, "effect_name", function) : null, projectile, bullets,
+                            kind == "delete_actor" ? RequiredString(entry, "player", function) : null));
+                    }
+                    EnsureDenseArray(array, actions.Count, function + ".actions");
+                }
+                ModMoveProfile profile = null;
+                if (!table.Get("profile").IsNil())
+                {
+                    if (table.Get("profile").Type != DataType.Table) throw new ModContentException("Profile requires a table.");
+                    var entry = table.Get("profile").Table;
+                    ValidateFields(entry, function, "rank", "core_icon", "display_name");
+                    profile = new ModMoveProfile(RequiredInt(entry, "rank", function), RequiredString(entry, "core_icon", function),
+                        entry.Get("display_name").IsNil() ? (DefinitionId?)null : RequiredHandle(entry, "display_name", _localizationHandles, "localization", function));
+                }
+                ModMoveTacticDistance distance = null;
+                if (!table.Get("tactic_distance").IsNil())
+                {
+                    if (table.Get("tactic_distance").Type != DataType.Table) throw new ModContentException("Tactic distance requires a table.");
+                    var entry = table.Get("tactic_distance").Table;
+                    ValidateFields(entry, function, "axis", "minimum", "maximum", "from", "to");
+                    distance = new ModMoveTacticDistance(RequiredString(entry, "axis", function),
+                        OptionalFloat(entry, "minimum", -1000000, function), OptionalFloat(entry, "maximum", 1000000, function),
+                        ReadMovePoint(entry.Get("from"), function), ReadMovePoint(entry.Get("to"), function));
+                }
+                return new ModMovePresentation(actions.ToArray(), profile, distance,
+                    OptionalBool(table, "no_wall_repulsion", false, function), OptionalBool(table, "no_interpolation_frames", false, function));
             }
 
             private DynValue RegisterMoveTrigger(ScriptExecutionContext context, CallbackArguments args)
@@ -410,6 +571,12 @@ namespace Eclipse.Modding
                     ValidateFields(table,function,"type","warrior","not");
                     return new ModMoveCondition(kind,RequiredHandle(table,"warrior",_warriorHandles,"warrior",function).ToString(),not:OptionalBool(table,"not",false,function));
                 }
+                if (kind == ModMoveConditionKind.RoundStage || kind == ModMoveConditionKind.ModExists || kind == ModMoveConditionKind.Screen)
+                {
+                    ValidateFields(table, function, "type", "name", "player", "not");
+                    return new ModMoveCondition(kind, RequiredString(table, "name", function),
+                        OptionalStringAllowEmpty(table, "player", string.Empty, function), not: OptionalBool(table, "not", false, function));
+                }
                 if (kind == ModMoveConditionKind.Keys)
                 {
                     ValidateFields(table,function,"type","keys","not");
@@ -472,7 +639,23 @@ namespace Eclipse.Modding
                 if(value.IsNil()) return null;
                 if(value.Type!=DataType.Table) throw new ModContentException(function+" must be a table.");
                 var table=value.Table;
-                ValidateFields(table,function,"edges","damage","damage_type","hit","id","impulse");
+                ValidateFields(table,function,"edges","damage","damage_type","damage_terms","hit","id","impulse");
+                ModMoveDamageTerm[] terms = null;
+                if (!table.Get("damage_terms").IsNil())
+                {
+                    if (!table.Get("damage_type").IsNil()) throw new ModContentException("Use damage_type or damage_terms, not both.");
+                    var array = RequireArray(table.Get("damage_terms"), function + ".damage_terms");
+                    if (array.Length < 1 || array.Length > 4) throw new ModContentException("damage_terms requires 1..4 terms.");
+                    terms = new ModMoveDamageTerm[array.Length];
+                    for (int i = 1; i <= array.Length; i++)
+                    {
+                        var entry = array.Get(i);
+                        if (entry.Type != DataType.Table) throw new ModContentException("Damage terms require tables.");
+                        ValidateFields(entry.Table, function + ".damage_terms", "type", "shift");
+                        terms[i-1] = new ModMoveDamageTerm(RequiredString(entry.Table, "type", function), UiNumber(entry.Table, "shift"));
+                    }
+                    EnsureDenseArray(array, terms.Length, function + ".damage_terms");
+                }
                 double x=0,y=0,z=0;
                 var impulse=table.Get("impulse");
                 if(!impulse.IsNil())
@@ -482,7 +665,8 @@ namespace Eclipse.Modding
                     x=UiNumber(impulse.Table,"x"); y=UiNumber(impulse.Table,"y"); z=UiNumber(impulse.Table,"z");
                 }
                 return new ModMoveAttack(OptionalStringArray(table,"edges",function),UiNumber(table,"damage"),
-                    OptionalString(table,"damage_type","UnarmedDamage",function),OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z);
+                    table.Get("damage_type").IsNil() ? null : RequiredString(table,"damage_type",function),
+                    OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z,terms);
             }
 
             private ModMoveAction[] ReadMoveActions(DynValue value, string function)
@@ -748,6 +932,9 @@ namespace Eclipse.Modding
                 {
                     case "perk": return ModMoveConditionKind.Perk;
                     case "keys": return ModMoveConditionKind.Keys;
+                    case "round_stage": return ModMoveConditionKind.RoundStage;
+                    case "mod_exists": return ModMoveConditionKind.ModExists;
+                    case "screen": return ModMoveConditionKind.Screen;
                     case "character": return ModMoveConditionKind.Character;
                     case "current_animation": return ModMoveConditionKind.CurrentAnimation;
                     case "current_interval": return ModMoveConditionKind.CurrentInterval;

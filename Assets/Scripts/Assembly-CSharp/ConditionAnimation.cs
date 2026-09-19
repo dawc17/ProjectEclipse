@@ -103,7 +103,7 @@ public class ConditionAnimation
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> bBNKIBKPBLO = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> bBNKIBKPBLO = eLFKOGJJNMN.GetConditions();
 					IOFDJJIABEO(bBNKIBKPBLO, KLFPAELMPJL, GKHEPKGMEFI);
 				}
 			}

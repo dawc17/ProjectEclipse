@@ -81,7 +81,7 @@ public class ItemRule : Rule
 		{
 			return false;
 		}
-		if (dJKEECEOCJB.MDPPNGIEJGD != string.Empty && dJKEECEOCJB.MDPPNGIEJGD == dJKEECEOCJB2.MDPPNGIEJGD)
+		if (dJKEECEOCJB.SubType != string.Empty && dJKEECEOCJB.SubType == dJKEECEOCJB2.SubType)
 		{
 			return false;
 		}
@@ -124,7 +124,7 @@ public class ItemRule : Rule
 		{
 			return false;
 		}
-		if (!string.IsNullOrEmpty(required.MDPPNGIEJGD) && required.MDPPNGIEJGD != equipped.MDPPNGIEJGD)
+		if (!string.IsNullOrEmpty(required.SubType) && required.SubType != equipped.SubType)
 		{
 			return false;
 		}

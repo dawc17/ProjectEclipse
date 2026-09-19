@@ -41,7 +41,7 @@ namespace Nekki.SF2.GUI.Profile
 			CDNOKAKOLMP = ProfileGUI.OJEAKFALOGE.DPGMCKCDMBC / 255f;
 			MIIEANDEPHO = DGDDKFKEDNO != null && DGDDKFKEDNO.IsNew;
 			BJONHDGCNFE = JECLDALKMKA.KJHMOGGECBN;
-			NFJICFOAOPH = new TrickInfo(DGDDKFKEDNO.Name, JECLDALKMKA.KJHMOGGECBN, KNLJDIPLOIA(), NFNAOFAKEJK, DGDDKFKEDNO.HIAMFGEIGDP);
+			NFJICFOAOPH = new TrickInfo(DGDDKFKEDNO.DisplayName, JECLDALKMKA.KJHMOGGECBN, KNLJDIPLOIA(), NFNAOFAKEJK, DGDDKFKEDNO.HIAMFGEIGDP);
 			Data = NFJICFOAOPH;
 			UpdateIcon();
 			SetActive(true);
@@ -173,7 +173,7 @@ namespace Nekki.SF2.GUI.Profile
 			List<float> list = new List<float>();
 			if (BJONHDGCNFE != null)
 			{
-				List<IntervalAnimation> cAANBJEPGAA = BJONHDGCNFE.ODACDCDONJE.Intervals;
+				List<IntervalAnimation> cAANBJEPGAA = BJONHDGCNFE.MoveData.Intervals;
 				for (int i = 0; i < cAANBJEPGAA.Count; i++)
 				{
 					if (cAANBJEPGAA[i].Type == IntervalAnimation.NGAJJDIEDGF.INTERVAL_ATTACK)

@@ -119,5 +119,39 @@
       "}",
       "$0"
     ]
+  },
+  "Eclipse guarded native move patch": {
+    "prefix": "eclipse-move-patch",
+    "description": "Patch a named native interval with an expected-value guard. Requires content.patch.",
+    "body": [
+      "-- Requires content.patch in mod.toml.",
+      "sf2.moves.patch {",
+      "    move = \"${1:RangedHeavyPlayer}\",",
+      "    interval_end = { name = \"${2:Uninterrupt}\", expected = ${3:42}, value = ${4:40} },",
+      "}",
+      "$0"
+    ]
+  },
+  "Eclipse scheduled native effect": {
+    "prefix": "eclipse-move-effect",
+    "body": [
+      "{ type = \"effect\", frame = ${1:2}, effect = {",
+      "    name = \"${2:SmallSphereStart}\", core_sequence = \"${3:mgc_magic_small_sphere_start}\",",
+      "    scale = 0.75, time_scale = 1.45,",
+      "    position = { player = \"Me\", object = \"Nodes\", part = \"${4:Magic-Node2_1}\", shift_y = 80 },",
+      "    follow = true,",
+      "} },"
+    ],
+    "description": "Inside a move actions array; requires content.register and a compatible core effect/rig."
+  },
+  "Eclipse scheduled projectile": {
+    "prefix": "eclipse-move-projectile",
+    "body": [
+      "{ type = \"create_projectile\", frame = ${1:2}, projectile = {",
+      "    name = \"${2:Sphere1}\", core_skeleton = \"${3:SkeletonMagic}\", copy_parent_type = \"Magic\",",
+      "} },",
+      "{ type = \"add_bullets\", frame = ${4:7}, bullets = { type = \"MagicBullet\", value = -1 } },"
+    ],
+    "description": "Inside a caster move actions array; requires a complete compatible projectile graph."
   }
 }

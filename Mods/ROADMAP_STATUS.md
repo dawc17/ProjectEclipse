@@ -6,6 +6,62 @@ approved step at a time. Its policies, Desolator reward, XML-evidenced combat pe
 are tracked in [the DE128 production record](de128/PRODUCTION.md). This does not
 close the engine roadmap or reduce either source roadmap's requirements.
 
+2026-09-19 continuation: DE128 0.6.0 also opts saved pending forge orders into
+normal instant settlement through `sf2.timers.set.complete_pending`. Package and
+controlled native lifecycle checks pass; live forge/save acceptance and non-forge
+delivery timers remain open. See Step 6 in the production record.
+
+DE128 0.7.0 adds the five archived battle-pass collections (25 existing items) to
+shop availability at archived player-level gates. The generic `minimum_level`
+availability field is implemented; canonical prices, item power and upgrade rules
+remain untouched. All 25 native icons and model texts loaded successfully. Shop
+purchase/equip/save acceptance and full equipment/set parity remain open (Step 7).
+
+DE128 0.8.0 applies four archived combat-family corrections using the generic
+`sf2.items.set_subtype` API. Native move eligibility, snapshot copying and adapter
+rollback are tested. ChineseSwords exposed missing move-authoring fields and
+remains pending; the existing animation binary is present, so this is an API/
+content-graph gap, not a missing-art excuse. See Step 8 for precise dependencies.
+
+Step 9 implements mixed/shifted attack attributes, repeated native input sequences,
+`Spinning`/`HighHeavy` reactions and native stage/effect/screen conditions. Chinese
+swords combat sections are now authored in a pending Lua module and compared to
+the archive through the production adapter and native parser. The shared dense
+array validator also accepts nil tombstones after Lua `table.remove`. Package
+behavior remains 0.8.0 until the rest of the move graph is connected; this is not
+completed ChineseSwords gameplay parity.
+
+Step 10 adds scoped item-lock alternatives, move locks, transitions, alignment
+and facing through generic C# APIs. The pending Lua module now matches the ten
+archived Sai lock extensions and the ChineseSwords combat/preview graph sections.
+Native eligibility, projection, rollback and parser checks pass (364 combined
+authoring checks). Sounds, profile/tactics metadata, preview completion and
+remaining animation flags still precede activation. Active package stays 0.8.0;
+live combat and preview acceptance remain open.
+
+Step 11 closes the remaining ChineseSwords presentation authoring gaps: scheduled
+native sounds, shop completion, moves-list profile, tactic distance and preview
+flags. The pending Lua declarations match archived sections, and Unity loaded all
+nine sound clips plus the profile icon. Complete registrations and inherited
+template/native integration checks precede activation; these checks do not prove
+live combat, audible playback, AI or shop-preview acceptance.
+
+Step 12 activates DE128 **0.9.0**: both complete ChineseSwords registrations,
+ten item-lock extensions and Jian's subtype change. Eleven inherited templates
+match the archive; native Unity parsing and unchanged binary decoding pass.
+Generic optional profile localization preserves namespaced move identity.
+The 38-sample binary contains all attacks/sounds; native recovery-end clamping
+matches the archived overlong interval. Full fight/AI/preview/save acceptance and
+the separate archived ChineseSwords equipment item remain open.
+
+Step 13 adds a repeatable isolated Unity fight acceptance harness and passes
+actual DE128 initialization, Jian equipment/subtype, native double-tap/Forward
+selection, all four attack intervals with bound weapon edges, all four timed
+sound actions, animation completion and continued simulation. It injects native
+input data and disables opponent AI to isolate the case; physical device input,
+AI choice, hit contact, audible output, shop completion and save continuity are
+not covered. The package remains 0.9.0.
+
 The owner rejected the Ascension prototype on 2026-09-18. It is commented out;
 its earlier fixture results are historical and do not count as active DE content.
 
@@ -75,3 +131,51 @@ rule-perk inheritance, player forms and broader rig/effect acceptance remain ope
 Sources: `DE_XML_API_GAP_AUDIT.md`, `MOD_ENGINE_EXTENSIBILITY.md`,
 `PRE_DE_TEST_CHECKLIST.md`, actual bindings and native adapters. Historical work-log
 entries locate evidence; they do not by themselves prove current completion.
+
+DE128 0.10.0 restores nine missing archived weapon listings through Lua, with
+archive-matched act/level gates, prices and default enchantments. The generic
+owned-equipment adapter now projects `required_group` into the native quest
+notification pack label. Native boot/stat/enchantment/art checks and the existing
+Jian combat acceptance pass. Moon Fans remains pending: the archive omits its
+damage attribute, whereas current vanilla progression assigns 760. Initial-stat
+authoring, purchases/equipping/save acceptance and full equipment parity remain
+open. See Step 14 in the DE128 production record.
+
+DE128 0.11.0 closes the initial-stat gap identified in Step 14 and restores Moon
+Fans, completing the ten missing archived weapon definitions. All five equipment
+registration functions now accept typed `initial_stats`: omitted derives normal
+power, an empty table preserves absence, and populated tables supply exact values.
+Native Moon Fans comparison preserves missing damage and its normal first upgrade
+(766 damage). This does not close purchase/equip/save acceptance or full DE parity.
+The next equipment audit covers 12 missing armor, 15 helms, two ranged items and
+seven magic items, including hidden NPC equipment that must not become shop stock.
+
+DE128 0.12.0 adds eight missing non-weapon shop definitions through Lua: three
+armors, two helms, Dragon Boomerangs, Dragon's Breath and Lightning Arc. Native
+stat-presence/listing/enchantment/asset checks pass, including Samurai Armour's
+head-only stats. Shared Chakram/MassBomb/LightningArrow move changes remain open;
+an authored audit records those differences. Five other spells have available
+assets but missing move graphs, while hidden NPC equipment remains unregistered.
+See Step 16 for the full acceptance boundary and evidence.
+
+
+DE128 0.13.0 adds five Lua-authored shared move changes through the generic typed
+`sf2.moves.patch` API: ranged uninterrupt duration, Chakram reaction, preview sound
+timing and two not-Stun conditions. Native condition evaluation and patch rollback
+before/after initialization pass, alongside existing equipment and Jian acceptance.
+Remaining presentation differences and five absent spell graphs are still open;
+this does not close combat, purchase or save-continuity acceptance. See Step 17.
+
+
+The next DE128 production step audits all 32 missing spell moves and their
+transitive template/resource sources. Generic scheduled effect start, stop and
+stop-follow actions are now Lua-authorable with native parser tests, fingerprints
+and editor/wiki support. Spell registrations remain pending projectile creation,
+charge handling and graph requirements; package version remains 0.13.0. Source
+file presence and parser checks do not prove rendered gameplay. See Step 18.
+
+
+Step 19 adds generic scheduled projectile creation with inherited equipment,
+optional owned start moves, charge changes and actor deletion. Actual Unity parsing
+matches the archived Sphere1 action data; live projectile lifecycle acceptance and
+full spell graph registration remain open. DE128 stays at 0.13.0 pending those graphs.

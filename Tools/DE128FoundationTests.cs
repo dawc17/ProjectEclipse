@@ -20,6 +20,7 @@ internal static class DE128FoundationTests
     private static XmlDocument _stages;
     private static Dictionary<string, XmlDocument> _languages;
     private static int _checks;
+    private static readonly Dictionary<string, AssetKind> RestoredAssets = new Dictionary<string, AssetKind>();
 
     // Resolves only the declared core references. Native art decoding is a
     // separate check; arbitrary or misspelled asset IDs must not pass this fixture.
@@ -37,7 +38,7 @@ internal static class DE128FoundationTests
             else if (id.Path == "ui/items/weapon17.img_weapon_boss_giant_sword") kind = AssetKind.Sprite;
             else if (id.Path == "ui/skills/iconmasterofstyle" || id.Path == "ui/skills/iconmasterofstyle_blue" ||
                 id.Path == "ui/skills/iconcrackedapple" || id.Path == "ui/skills/iconcrackedapple_blue") kind = AssetKind.Sprite;
-            else return false;
+            else if (!RestoredAssets.TryGetValue(id.Path, out kind)) return false;
             metadata = new AssetMetadata(id, kind, AssetSourceKind.Core, string.Empty, -1, "DE128 metadata fixture");
             return true;
         }
@@ -56,7 +57,10 @@ internal static class DE128FoundationTests
     {
         if (catalog.TryGetItem(CoreSword, out _)) return;
         CoreContentImporter.ImportWeapons(catalog, _items.SelectNodes("/List/Items/Item").Cast<XmlNode>(), _languages);
+        CoreContentImporter.ImportArmors(catalog, _items.SelectNodes("/List/Items/Item").Cast<XmlNode>(), _languages);
+        CoreContentImporter.ImportHelms(catalog, _items.SelectNodes("/List/Items/Item").Cast<XmlNode>(), _languages);
         CoreContentImporter.ImportRanged(catalog, _items.SelectNodes("/List/Items/Item").Cast<XmlNode>(), _languages);
+        CoreContentImporter.ImportMagic(catalog, _items.SelectNodes("/List/Items/Item").Cast<XmlNode>(), _languages);
         CoreContentImporter.ImportPerks(catalog, _perks.DocumentElement.ChildNodes.Cast<XmlNode>());
         CoreContentImporter.ImportStages(catalog, _stages.DocumentElement["Zones"]);
         CoreContentImporter.ImportWarriorTemplates(catalog, _stages.SelectSingleNode("Stages/Warriors/Templates"));
@@ -102,7 +106,7 @@ internal static class DE128FoundationTests
         return Discover(modsRoot, "de128");
     }
 
-    private static ModDescriptor Peer(string fixture, string id, string capability, string script)
+    private static ModDescriptor Peer(string fixture, string id, string capability, string script, string extraCapability = null)
     {
         string modsRoot = Path.Combine(fixture, "peers", id, "Mods");
         string directory = Path.Combine(modsRoot, id);
@@ -110,7 +114,7 @@ internal static class DE128FoundationTests
         File.WriteAllText(Path.Combine(directory, "mod.toml"),
             "schema = 1\nid = \"" + id + "\"\nname = \"Foundation test peer\"\n" +
             "version = \"1.0.0\"\nauthors = [\"Eclipse tests\"]\nentrypoint = \"scripts/main.lua\"\n" +
-            "capabilities = [\"" + capability + "\"]\n\n[[dependencies]]\nid = \"core\"\nversion = \">=1.0 <2.0\"\n", Utf8);
+            "capabilities = [\"" + capability + "\"" + (extraCapability == null ? "" : ", \"" + extraCapability + "\"") + "]\n\n[[dependencies]]\nid = \"core\"\nversion = \">=1.0 <2.0\"\n", Utf8);
         File.WriteAllText(Path.Combine(directory, "scripts", "main.lua"), "local sf2 = require(\"sf2\")\n" + script, Utf8);
         return Discover(modsRoot, id);
     }
@@ -154,12 +158,20 @@ internal static class DE128FoundationTests
         ModPolicies.Content = catalog;
         Check(ModPolicies.DeliverySeconds("forge", 120) == 120, "Base forge duration was not restored.");
         Check(ModPolicies.SkipEnabled("forge"), "Base forge skipping was not restored.");
+        Check(!ModPolicies.CompletePending("forge"), "Base pending orders were accelerated.");
         Check(Services.All(ModPolicies.FeatureEnabled), "A failed or absent mod left service disables behind.");
         if (catalog != null)
         {
             Check(!catalog.TryGetItem(Sword, out _), "Failed or absent DE128 left its weapon registered.");
+            Check(!catalog.Weapons.Cast<ItemDefinition>().Concat(catalog.Armors).Concat(catalog.Helms).Concat(catalog.Ranged).Concat(catalog.Magic).Any(item => !item.IsCore) && catalog.ShopListings.Count == 0 &&
+                catalog.ItemDefaultEnchantments.Count == 0, "Failed or absent DE128 left restored equipment behind.");
             Check(catalog.ItemInnatePerks.Count == 0, "Failed or absent DE128 left innate perks registered.");
             Check(catalog.Patches.Count == 0, "Failed or absent DE128 left content patches registered.");
+            Check(!catalog.ItemAvailabilityPolicies.Any(), "Failed or absent DE128 left shop policies registered.");
+            Check(catalog.ItemCombatSubtypes.Count == 0 && catalog.ItemTacticSubtypes.Count == 0,
+                "Failed or absent DE128 left combat classification patches.");
+            Check(catalog.Moves.Count == 0 && catalog.MoveItemLockExtensions.Count == 0 && catalog.MoveCombatPatches.Count == 0,
+                "Failed or absent DE128 left moves or item-lock extensions.");
         }
     }
 
@@ -170,8 +182,24 @@ internal static class DE128FoundationTests
             timer.Owner.Value == "de128", "The forge policy is not exclusively owned by DE128.");
         Check(ModPolicies.DeliverySeconds("forge", 120) == 0, "New forge orders are not instant.");
         Check(ModPolicies.SkipEnabled("forge"), "Already-pending orders lost their normal skip path.");
+        Check(ModPolicies.CompletePending("forge"), "DE pending orders are not eligible for normal settlement.");
         Check(Services.All(service => !ModPolicies.FeatureEnabled(service)), "A DE service gate is missing.");
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
+        Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
+            "DE combat classification patches are incomplete.");
+        Check(catalog.Moves.Count == 2 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 5,
+            "Chinese swords combat/preview registrations or lock extensions are incomplete.");
+        var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
+        Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
+            catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&
+            moveTitle.GetOrEnglish("eng") == "Super Slash", "Chinese swords profile title is not localized.");
+        Check(slash.Animation.ToString() == "de128:animations/chinese_swords_super_slash_old" &&
+            catalog.ItemCombatSubtypes.Any(patch => patch.Item == CoreContentImporter.WeaponId("WEAPON_CHNY21_JIAN") && patch.Subtype == "ChineseSwords"),
+            "Chinese swords binary/subtype registration changed.");
+        Check(catalog.ItemAvailabilityPolicies.Count() == 43 &&
+            catalog.ItemAvailabilityPolicies.Where(policy => policy.Item.Namespace.Value == "core").All(policy => policy.Owner.Value == "de128" &&
+                policy.Visibility == ModItemVisibility.ForceVisible && policy.MinimumLevel >= 15),
+            "DE shop policies are incomplete after registration/rebuild/conflict.");
         Check(ModPolicies.DeliverySeconds("shop", 120) == 120, "An unrelated timer was modified.");
         Check(catalog.TryGetItem(Sword, out var definition) && definition is WeaponDefinition,
             "The actual package did not register Desolator.");
@@ -180,8 +208,8 @@ internal static class DE128FoundationTests
             "Desolator lost its move family or canonical progression profile.");
         Check(weapon.Icon.ToString() == "core:ui/items/weapon17.img_weapon_boss_giant_sword" &&
             weapon.Model.ToString() == "core:gamedata/models/mdl_weapon_giant_sword", "Desolator art IDs changed.");
-        Check(catalog.Weapons.Count(item => !item.IsCore) == 1 && catalog.ShopListings.Count == 0,
-            "DE128 added unexpected equipment or a purchasable listing.");
+        Check(catalog.Weapons.Count(item => !item.IsCore) == 11 && catalog.ShopListings.Count == 18,
+            "DE128 restored weapon/listing inventory is incomplete.");
         Check(catalog.ItemInnatePerks.Count == 1 && catalog.ItemInnatePerks[0].Item == Sword &&
             catalog.ItemInnatePerks[0].Entries.Select(entry => entry.Perk).SequenceEqual(new[] {
                 CoreContentImporter.PerkId("PERK_TITAN"), CoreContentImporter.PerkId("PERK_ANTI_SHOCK") }),
@@ -192,7 +220,7 @@ internal static class DE128FoundationTests
         Check(catalog.Rewards.Count == 1 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
             reward.Items.Count == 1 && reward.Items[0].Item == Sword && reward.Items[0].UsesConfiguration &&
-            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 0,
+            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 18 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
             "Desolator must use one configured reward without changing equipment defaults or currencies.");
         Check(catalog.TryGetFight(DefinitionId.Parse("core:fights/zone_7/c3_boss_titan_eclipsemode/6"), out var titan) &&
             titan.RewardDrops.Count == 1 && catalog.Fights.Count(fight => fight.RewardDrops.Count != 0) == 1,
@@ -212,6 +240,121 @@ internal static class DE128FoundationTests
         foreach (int level in new[] { 4, 8, 11, 14, 17 })
             Check(catalog.TryGetProgressionBranch(level, out var branch) && branch.Entries.Count == 2,
                 "XML-evidenced DE perk branch is missing at " + level);
+    }
+
+    private static void CheckSharedMovePatches(ModDescriptor mod, ModContentCatalog catalog, string fixture, string repository)
+    {
+        var archive = ReadXml(Path.Combine(repository,"Assets/DExml/animations/moves.xml"));
+        var vanilla = ReadXml(Path.Combine(repository,"Assets/vanillaXml/animations/moves.xml"));
+        foreach (var patch in catalog.MoveCombatPatches)
+        {
+            var oldMove = (XmlElement)vanilla.SelectSingleNode("//Moves/Move[@Name='"+patch.MoveName+"']");
+            var newMove = (XmlElement)archive.SelectSingleNode("//Moves/Move[@Name='"+patch.MoveName+"']");
+            Check(oldMove != null && newMove != null && patch.Owner == mod.Id,"Move patch source/owner missing.");
+            if (patch.IntervalEnd != null)
+            {
+                var value=patch.IntervalEnd;
+                Check(oldMove.SelectSingleNode("Intervals/Interval[@Name='"+value.Name+"']").Attributes["End"].Value == value.Expected.ToString() &&
+                    newMove.SelectSingleNode("Intervals/Interval[@Name='"+value.Name+"']").Attributes["End"].Value == value.Value.ToString(),"Move end patch differs from archive.");
+            }
+            if (patch.Hit != null)
+                Check(oldMove.SelectSingleNode("Intervals/Interval/Hit").Attributes["Name"].Value == patch.Hit.Expected &&
+                    newMove.SelectSingleNode("Intervals/Interval/Hit").Attributes["Name"].Value == patch.Hit.Value,"Move reaction patch differs from archive.");
+            if (patch.SoundFrame != null)
+            {
+                var value=patch.SoundFrame;
+                Check(oldMove.SelectSingleNode("Actions/Sound[@Name='"+value.Name+"']").Attributes["Frame"].Value == value.Expected.ToString() &&
+                    newMove.SelectSingleNode("Actions/RandomSound[Sound/@Name='"+value.Name+"']").Attributes["Frame"].Value == value.Value.ToString(),"Sound frame patch differs from archive.");
+            }
+            foreach (var condition in patch.Conditions)
+                Check(condition.Kind == ModMoveConditionKind.ModExists && condition.Name == "Stun" && condition.Not &&
+                    newMove.SelectSingleNode("Conditions/ModExists[@Name='Stun' and @Not='1']") != null &&
+                    oldMove.SelectSingleNode("Conditions/ModExists[@Name='Stun']") == null,"Added native condition differs from archive.");
+        }
+        var peer = Peer(fixture,"fixture.move-patch-conflict","content.patch",
+            "sf2.moves.patch { move='MassBombPlayer', conditions={{type='mod_exists',name='Other'}} }");
+        var peerFirst=new ModContentCatalog();Load(peer,peerFirst);
+        ExpectFailure(mod,peerFirst,"Move combat patch already owned: MassBombPlayer");
+        Check(peerFirst.MoveCombatPatches.Count==1 && peerFirst.MoveCombatPatches[0].Owner==peer.Id &&
+            peerFirst.TimerPolicies.Count==0 && !peerFirst.Weapons.Any(item=>!item.IsCore),"Conflicting DE registration leaked content.");
+        ExpectFailure(peer,catalog,"Move combat patch already owned: MassBombPlayer");CheckDE(catalog);
+        int index=0;
+        foreach(string body in new[]{"move='Test'", "move='bad:name', hit={expected='High',value='Low'}",
+            "move='Test', hit={expected='High',value='High'}", "move='Test', hit={expected='High',value='Unknown'}",
+            "move='Test', interval_end={name='Attack',expected=42,value=40}","move='Test', interval_end={name='Uninterrupt',expected=42,value=-1}",
+            "move='Test', sound_frame={name='snd',expected=18,value=16.5}","move='Test', sound_frame={name='snd',expected=18,value=100001}",
+            "move='Test', sound_frame={name='snd',expected=18,value=math.huge}","move='Test', hit=true",
+            "move='Test', conditions={{type='unknown'}}","move='Test', hit={expected='High',value='Low',extra=1}"})
+        {
+            var invalid=Peer(fixture,"fixture.move-patch-invalid-"+index++,"content.patch","sf2.moves.patch {"+body+"}");
+            var failed=new ModContentCatalog();ExpectFailure(invalid,failed,"sf2.moves.patch");
+            Check(failed.MoveCombatPatches.Count==0,"Invalid patch leaked registration.");
+        }
+        var duplicate=Peer(fixture,"fixture.move-patch-duplicate","content.patch",
+            "for i=1,2 do sf2.moves.patch { move='Test', hit={expected='High',value='Low'} } end");
+        var duplicateCatalog=new ModContentCatalog();ExpectFailure(duplicate,duplicateCatalog,"Duplicate move combat patch");
+        Check(duplicateCatalog.MoveCombatPatches.Count==0,"Duplicate patch leaked registration.");
+        string Hash(string text)
+        {
+            File.WriteAllText(Path.Combine(peer.RootPath,"scripts/main.lua"),"local sf2=require('sf2')\n"+text,Utf8);
+            var result=new ModContentCatalog();Load(peer,result);
+            return ModSaveData.ComputeContentSetFingerprint(new[]{peer},result);
+        }
+        string[] declarations={"", "sf2.moves.patch {move='Test',hit={expected='High',value='Low'}}",
+            "sf2.moves.patch {move='Test',hit={expected='High',value='Middle'}}",
+            "sf2.moves.patch {move='Test',interval_end={name='Uninterrupt',expected=42,value=40}}",
+            "sf2.moves.patch {move='Test',sound_frame={name='snd',expected=18,value=16}}",
+            "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun'}}}",
+            "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun',['not']=true}}}"};
+        Check(declarations.Select(Hash).Distinct().Count()==declarations.Length,"Move patch fields missing from compatibility fingerprint.");
+    }
+
+    private static void CheckInitialStats(string fixture)
+    {
+        string Prefix(string category, string stats) =>
+            "local title=sf2.localization.register { id='stats', language='eng', value='Stats' }\n" +
+            "sf2.items.register_" + category + " { id='stats', display_name=title, " +
+            "icon=sf2.assets.sprite('core:ui/items/weapon17.img_weapon_boss_giant_sword'), " +
+            "model=sf2.assets.model('core:gamedata/models/mdl_weapon_giant_sword'), " +
+            (category == "ranged" || category == "magic" ? "subtype='Test', " : "") + stats + " }";
+        var values = new[] { "weapon_damage=0", "body_defense=17, head_defense=2, unarmed_damage=4",
+            "head_defense=1000000", "ranged_damage=30, weapon_damage=7", "magic_damage=42" };
+        var categories = new[] { "weapon", "armor", "helm", "ranged", "magic" };
+        for (int i = 0; i < categories.Length; i++)
+        {
+            var peer = Peer(fixture, "fixture.stats-" + categories[i], "content.register", Prefix(categories[i], "initial_stats={" + values[i] + "}"));
+            var catalog = new ModContentCatalog(); Load(peer, catalog);
+            Check(catalog.TryGetItem(DefinitionId.Parse(peer.Id + ":items/" + categories[i] + "/stats"), out var item) &&
+                item.InitialStats != null && item.InitialStats.Values.Count > 0, "Lua initial_stats lost for " + categories[i]);
+            bool immutable = false;
+            try { ((IDictionary<string, int>)item.InitialStats.Values).Add("MagicDamage", 11); }
+            catch (NotSupportedException) { immutable = true; }
+            Check(immutable, "Registered initial stats are mutable.");
+        }
+        int index = 0;
+        foreach (string invalid in new[] { "false", "10", "{weapon_damage='3'}", "{weapon_damage=-1}",
+            "{weapon_damage=1000001}", "{weapon_damage=1.25}", "{weapon_damage=0/0}", "{weapon_damage=math.huge}",
+            "{body_defense=1}", "{unknown=1}", "{3}", "{weapon_damage=true}" })
+        {
+            var peer = Peer(fixture, "fixture.stats-invalid-" + index++, "content.register", Prefix("weapon", "initial_stats=" + invalid));
+            var catalog = new ModContentCatalog(); ExpectFailure(peer, catalog, "initial_stats");
+            Check(!catalog.Weapons.Any(item => !item.IsCore), "Invalid initial stats leaked a weapon.");
+        }
+        var fingerprintPeer = Peer(fixture, "fixture.stats-fingerprint", "content.register", "");
+        string Hash(ModEquipmentInitialStats stats)
+        {
+            var catalog = new ModContentCatalog();
+            using (var tx = catalog.BeginRegistration(fingerprintPeer))
+            {
+                var title = tx.AddLocalization("stats", "eng", "Stats");
+                tx.RegisterWeapon("stats", title, default(AssetId), default(AssetId), "Katana", initialStats: stats);
+                tx.Commit();
+            }
+            return ModSaveData.ComputeContentSetFingerprint(new[] { fingerprintPeer }, catalog);
+        }
+        Check(new[] { Hash(null), Hash(new ModEquipmentInitialStats()), Hash(new ModEquipmentInitialStats(weaponDamage: 0)),
+            Hash(new ModEquipmentInitialStats(weaponDamage: 1)) }.Distinct().Count() == 4,
+            "Derived, absent, explicit zero and positive stats share compatibility fingerprints.");
     }
 
     private static void CheckTrialFingerprints(string fixture)
@@ -447,9 +590,118 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
         }
     }
 
+    private static void CheckShopContracts(string source, string fixture, ModDescriptor mod, ModContentCatalog enabled)
+    {
+        const string target = "core:items/weapon/WEAPON_BP_S1_GUARDIAN";
+        const string call = "local sf2 = require('sf2')\nsf2.shop.set_availability { item=sf2.items.get('" + target + "'), visibility=sf2.shop.FORCE_VISIBLE";
+        var fingerprints = new List<string>();
+        foreach (string value in new[] { "omitted", "0", "15", "16", "52", "-1", "53", "1.5", "'15'" })
+        {
+            var probe = CopyPackage(source, fixture, "shop-level-" + fingerprints.Count + "-" + value.Replace("'", ""));
+            File.WriteAllText(Path.Combine(probe.RootPath, "scripts/main.lua"),
+                call + (value == "omitted" ? "" : ", minimum_level=" + value) + " }\n", Utf8);
+            var catalog = new ModContentCatalog();
+            if (new[] { "-1", "53", "1.5", "'15'" }.Contains(value))
+            {
+                ExpectFailure(probe, catalog, "minimum_level");
+                Check(!catalog.ItemAvailabilityPolicies.Any(), "Invalid Lua level left an availability patch.");
+            }
+            else
+            {
+                Load(probe, catalog);
+                Check(catalog.TryGetItemAvailability(DefinitionId.Parse(target), out var policy) &&
+                    policy.MinimumLevel == (value == "omitted" ? 0 : int.Parse(value)), "Lua level parsing changed.");
+                fingerprints.Add(ModSaveData.ComputeContentSetFingerprint(new[] { mod }, catalog));
+            }
+        }
+        Check(fingerprints[0] == fingerprints[1], "Explicit zero changed the legacy availability fingerprint.");
+        Check(fingerprints.Skip(1).Distinct().Count() == 4, "Different level gates share a fingerprint.");
+
+        var competing = Peer(fixture, "fixture.shop-conflict", "content.patch",
+            "sf2.shop.set_availability { item=sf2.items.get('" + target + "'), visibility=sf2.shop.FORCE_HIDDEN }\n", "content.register");
+        ExpectFailure(competing, enabled, "already patched");
+        Check(enabled.TryGetItemAvailability(DefinitionId.Parse(target), out var retained) &&
+            retained.Owner == mod.Id && retained.MinimumLevel == 15, "Conflict modified active DE policy.");
+        var peerFirst = new ModContentCatalog();
+        Load(competing, peerFirst);
+        ExpectFailure(mod, peerFirst, "already patched");
+        Check(peerFirst.ItemAvailabilityPolicies.Count() == 1 && peerFirst.TimerPolicies.Count == 0 &&
+            !peerFirst.TryGetItem(Sword, out _) && Services.All(peerFirst.FeatureEnabled),
+            "Shop conflict leaked partial DE registration.");
+    }
+
+    private static void CheckCombatEquipment(string source, string fixture, string repository, ModDescriptor mod, ModContentCatalog catalog)
+    {
+        var archive = ReadXml(Path.Combine(repository, "Assets/DExml/list.xml"));
+        var moves = ReadXml(Path.Combine(repository, "Assets/vanillaXml/animations/moves.xml"));
+        foreach (var patch in catalog.ItemCombatSubtypes)
+        {
+            Check(catalog.TryGetItem(patch.Item, out var item) && item.IsCore && patch.Owner == mod.Id, "Subtype patch lost core identity.");
+            var original = ReadElement(item.LegacyItemXml);
+            var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
+            Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
+                "Subtype is not an exact archive delta: " + item.LegacyName);
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 2 &&
+                catalog.Moves.All(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) &&
+                catalog.MoveItemLockExtensions.Count == 10;
+            Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,
+                "Patched subtype has no complete registered move family: " + patch.Subtype);
+        }
+        foreach (var patch in catalog.ItemTacticSubtypes)
+        {
+            catalog.TryGetItem(patch.Item, out var item);
+            var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
+            Check(ReadElement(item.LegacyItemXml).HasAttribute("TacticSubtype") && !expected.HasAttribute("TacticSubtype") && patch.Group == "",
+                "Removed AI group is not an exact archive delta.");
+        }
+        const string id = "core:items/weapon/WEAPON_CHNY22_SPEAR";
+        string prefix = "local sf2=require('sf2')\nsf2.items.set_subtype { item=sf2.items.get('" + id + "'), subtype=";
+        var values = new[] { "''", "'bad value'", "'a/b'", "'a:b'", "'ż'", "string.rep('x',129)", "4", "nil" };
+        for (int i = 0; i < values.Length; i++)
+        {
+            var invalid = CopyPackage(source, fixture, "invalid-subtype-" + i);
+            File.WriteAllText(Path.Combine(invalid.RootPath, "scripts/main.lua"), prefix + values[i] + " }", Utf8);
+            var rejected = new ModContentCatalog();
+            ExpectFailure(invalid, rejected, "subtype");
+            Check(rejected.ItemCombatSubtypes.Count == 0, "Invalid subtype leaked registration.");
+        }
+        var wrongKind = CopyPackage(source, fixture, "subtype-armor");
+        File.WriteAllText(Path.Combine(wrongKind.RootPath, "scripts/main.lua"),
+            "local sf2=require('sf2')\nsf2.items.set_subtype {item=sf2.items.get('core:items/armor/ARMOR_BP_S1_GUARDIAN'), subtype='Katana'}", Utf8);
+        ExpectFailure(wrongKind, new ModContentCatalog(), "requires a weapon");
+        var noCapability = CopyPackage(source, fixture, "subtype-no-capability",
+            "[\"content.register\"]");
+        File.WriteAllText(Path.Combine(noCapability.RootPath, "scripts/main.lua"), prefix + "'Naginata' }", Utf8);
+        ExpectFailure(noCapability, new ModContentCatalog(), "content.patch");
+        var economy = CopyPackage(source, fixture, "subtype-no-economy");
+        File.WriteAllText(Path.Combine(economy.RootPath, "scripts/main.lua"), prefix + "'Naginata', price=0 }", Utf8);
+        ExpectFailure(economy, new ModContentCatalog(), "price");
+        var peer = Peer(fixture, "fixture.subtype", "content.patch", prefix.Replace("local sf2=require('sf2')\n", "") + "'Spear' }", "content.register");
+        ExpectFailure(peer, catalog, "already patched");
+        var peerFirst = new ModContentCatalog(); Load(peer, peerFirst);
+        ExpectFailure(mod, peerFirst, "already patched");
+        Check(peerFirst.ItemCombatSubtypes.Count == 1 && peerFirst.ItemTacticSubtypes.Count == 0 && peerFirst.TimerPolicies.Count == 0,
+            "Subtype conflict leaked other DE patches.");
+        var other = new ModContentCatalog(); ImportCore(other);
+        using (var tx = other.BeginRegistration(peer)) { tx.SetCombatSubtype(DefinitionId.Parse(id), "Naginata"); tx.Commit(); }
+        Check(ModSaveData.ComputeContentSetFingerprint(new[] { peer }, peerFirst) != ModSaveData.ComputeContentSetFingerprint(new[] { peer }, other),
+            "Subtype content is missing from fingerprints.");
+    }
+
+    private static XmlElement ReadElement(string xml)
+    { var document = new XmlDocument { XmlResolver = null }; document.LoadXml(xml); return document.DocumentElement; }
+
     private static void Run(string source, string fixture, string repository)
     {
         _items = ReadXml(Path.Combine(repository, "Assets/vanillaXml/list.xml"));
+        var archivedItems = ReadXml(Path.Combine(repository, "Assets/DExml/list.xml"));
+        foreach (XmlElement item in archivedItems.SelectNodes("/List/Items/Item[@Type='Weapon' or @Type='Armor' or @Type='Helm' or @Type='Ranged' or @Type='Magic']"))
+        {
+            if (_items.SelectSingleNode("/List/Items/Item[@Name='" + item.GetAttribute("Name") + "']") != null) continue;
+            if (item.GetAttribute("ShopHide") == "1") continue;
+            RestoredAssets["gamedata/models/" + item.GetAttribute("Model").ToLowerInvariant()] = AssetKind.Model;
+            RestoredAssets["ui/items/" + item.GetAttribute("Image").ToLowerInvariant()] = AssetKind.Sprite;
+        }
         _perks = ReadXml(Path.Combine(repository, "Assets/vanillaXml/perks.xml"));
         _stages = ReadXml(Path.Combine(repository, "Assets/vanillaXml/stages.xml"));
         _languages = new Dictionary<string, XmlDocument> {
@@ -463,11 +715,33 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
         Check(mod.Manifest.Dependencies.Count == 1 && mod.Manifest.Dependencies[0].Id.Value == "core",
             "DE128 unexpectedly depends on another mod.");
 
+        foreach (string asset in new[] { "gamedata/models/mdl_weapon_super_knives", "ui/items/weapon20.img_weapon_giant_sword", "gamedata/models/mdl_magic_mass_bomb", "ui/items/armor31.img_armor_old_legioner" })
+        {
+            var missingRestored = new ModContentCatalog();
+            ExpectFailure(mod, missingRestored, asset, asset);
+            CheckBase(missingRestored);
+        }
         CheckBase(null);
         var enabled = new ModContentCatalog();
         Load(mod, enabled);
         CheckDE(enabled);
+        DE128ShopTests.Run(mod, enabled, repository, Check);
+        DE128EquipmentTests.Run(mod, enabled, repository, Check);
+        CheckSharedMovePatches(mod, enabled, fixture, repository);
+        CheckShopContracts(source, fixture, mod, enabled);
+        CheckCombatEquipment(source, fixture, repository, mod, enabled);
         string fingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, enabled);
+        var legacyTimers = new ModContentCatalog();
+        using (var tx = legacyTimers.BeginRegistration(mod)) { tx.SetTimer("forge", 0, true); tx.Commit(); }
+        var pendingTimers = new ModContentCatalog();
+        using (var tx = pendingTimers.BeginRegistration(mod)) { tx.SetTimer("forge", 0, true, true); tx.Commit(); }
+        Check(ModSaveData.ComputeContentSetFingerprint(new[] { mod }, legacyTimers) !=
+            ModSaveData.ComputeContentSetFingerprint(new[] { mod }, pendingTimers), "Pending policy is missing from fingerprints.");
+        var invalidPending = Peer(fixture, "fixture.invalid-pending", "policy.timers",
+            "sf2.timers.set { subsystem = 'forge', seconds = 120, complete_pending = true }\n");
+        var rejectedPending = new ModContentCatalog();
+        ExpectFailure(invalidPending, rejectedPending, "complete_pending requires seconds = 0");
+        Check(rejectedPending.TimerPolicies.Count == 0, "Invalid pending policy was committed.");
 
         // Apply & Restart rebuilds the catalog. Disposing Lua alone is not a policy reset.
         CheckBase(new ModContentCatalog());
@@ -491,6 +765,8 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
         CheckDE(enabled);
         var conflict = new ModContentCatalog();
         Load(timer, conflict);
+        ModPolicies.Content = conflict;
+        Check(!ModPolicies.CompletePending("forge"), "Omitting complete_pending changed existing policy behavior.");
         // DE queues services before its conflicting timer. None may leak on failed commit.
         ExpectFailure(mod, conflict, "Timer policy already owned: forge");
         ModPolicies.Content = conflict;
@@ -516,7 +792,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             CheckBase(rejected);
         }
 
-        foreach (string module in new[] { "timers", "equipment", "rewards", "combat_perks", "progression" })
+        foreach (string module in new[] { "timers", "equipment", "combat_equipment", "chinese_swords", "chinese_swords_data", "restored_weapons", "restored_equipment", "shared_moves", "shop", "rewards", "combat_perks", "progression" })
         {
             var incomplete = CopyPackage(source, fixture, "missing-module-" + module, omit: "scripts/content/" + module + ".lua");
             var partial = new ModContentCatalog();
@@ -532,9 +808,15 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             Check(partial.TimerPolicies.Count == 0, "Missing art left a committed timer.");
             CheckBase(partial);
         }
+        var missingAnimation = CopyPackage(source, fixture, "missing-chinese-animation",
+            omit: "assets/animations/chinese_swords_super_slash_old.bytes");
+        var missingAnimationCatalog = new ModContentCatalog();
+        ExpectFailure(missingAnimation, missingAnimationCatalog, "animations/chinese_swords_super_slash_old");
+        CheckBase(missingAnimationCatalog);
         CheckLocalizationReferences(fixture);
         CheckRewardConfiguration(mod, fixture);
         CheckTrialFingerprints(fixture);
+        CheckInitialStats(fixture);
         DECombatPerksTests.Run(mod, repository, (descriptor, content) => LoadLive(descriptor, content), Check);
         var forceDisabled = CopyPackage(source, fixture, "explicit-disabled-require");
         File.AppendAllText(Path.Combine(forceDisabled.RootPath, "scripts/main.lua"),

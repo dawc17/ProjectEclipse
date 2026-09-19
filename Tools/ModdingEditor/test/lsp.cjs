@@ -201,6 +201,85 @@ async function main() {
         return ['level','description','parameters'].every(name=>found.some(value=>value.startsWith(name)));
     },'perk upgrade entry fields');
     console.log('PASS: perk upgrade entries complete');
+    const timerFields=probe('timer-fields.lua','local sf2=require("sf2")\nsf2.timers.set { subsystem="forge", seconds=0, | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',timerFields));
+        return ['skip_enabled','complete_pending'].every(name=>found.some(value=>value.startsWith(name)));
+    },'pending forge timer policy fields');
+      console.log('PASS: pending forge timer policy fields complete');
+      const shopFields=probe('shop-fields.lua','local sf2=require("sf2")\nsf2.shop.set_availability { item=sf2.items.get("core:items/weapon/WEAPON_KNIVES"), | }');
+      await until(async()=>{
+          const found=labels(await request('textDocument/completion',shopFields));
+          return ['minimum_level','required_group','visibility'].every(name=>found.some(value=>value.startsWith(name)));
+      },'shop availability level fields');
+      console.log('PASS: shop availability level fields complete');
+      const subtypeFields=probe('subtype-fields.lua','local sf2=require("sf2")\nsf2.items.set_subtype { | }');
+      await until(async()=>{
+          const found=labels(await request('textDocument/completion',subtypeFields));
+          return ['item','subtype'].every(name=>found.some(value=>value.startsWith(name)));
+      },'combat subtype fields');
+      console.log('PASS: equipment combat subtype fields complete');
+    for (const [category,fields] of Object.entries({weapon:['weapon_damage'],armor:['body_defense','head_defense','unarmed_damage'],helm:['head_defense'],ranged:['ranged_damage','weapon_damage'],magic:['magic_damage']})) {
+        const initial=probe('initial-'+category+'.lua','local sf2=require("sf2")\nsf2.items.register_'+category+' { initial_stats={ | } }');
+        await until(async()=>{
+            const found=labels(await request('textDocument/completion',initial));
+            return fields.every(name=>found.some(value=>value.startsWith(name)));
+        },category+' initial stat completion');
+    }
+    console.log('PASS: category-specific initial equipment stats complete');
+    const damageFields=probe('move-damage-fields.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="test",intervals={{type="Attack",attack={edges={"Edge"}, | }}} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',damageFields));
+        return ['damage_terms','hit','impulse'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move attack fields');
+    const termFields=probe('move-term-fields.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="test",intervals={{type="Attack",attack={edges={"Edge"},damage_terms={{ | }}}}} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',termFields));
+        return ['type','shift'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move damage term fields');
+    console.log('PASS: mixed move damage fields complete');
+    const moveLockFields=probe('move-lock-fields.lua','local sf2=require("sf2")\nsf2.moves.extend_item_lock { | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',moveLockFields));
+        return ['move','item_type','source_subtype','subtype'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move item lock extension fields');
+    const movePatchFields=probe('move-patch-fields.lua','local sf2=require("sf2")\nsf2.moves.patch { | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',movePatchFields));
+        return ['move','conditions','interval_end','hit','sound_frame'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move patch fields');
+    const movePatchFrame=probe('move-patch-frame.lua','local sf2=require("sf2")\nsf2.moves.patch { move="Test", interval_end={ | } }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',movePatchFrame));
+        return ['name','expected','value'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move patch selector fields');
+    console.log('PASS: scoped native move patches and expected-value selectors complete');
+    const moveGraphFields=probe('move-graph-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"), | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',moveGraphFields));
+        return ['locks','transitions','align','direction','actions','profile','tactic_distance','no_wall_repulsion','no_interpolation_frames'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move graph fields');
+    const alignFields=probe('move-align-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),align={axes={"X"},pivot={ | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',alignFields));
+        return ['object','part','player'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move alignment point fields');
+    console.log('PASS: move graph and item lock extension fields complete');
+    const moveActionFields=probe('move-action-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{ | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',moveActionFields));
+        return ['type','frame','event','core_sounds'].every(name=>found.some(value=>value.startsWith(name)));
+    },'scheduled move action fields');
+    const moveTacticFields=probe('move-tactic-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),tactic_distance={ | } }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',moveTacticFields));
+        return ['axis','minimum','maximum','from','to'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move tactic distance fields');
+    const moveProfileFields=probe('move-profile-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),profile={ | } }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',moveProfileFields));
+        return ['rank','core_icon','display_name'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move profile localization fields');
     const rewardContext=probe('reward-configure-context.lua','local sf2=require("sf2")\nsf2.rewards.register { id="reward",items={{item=sf2.items.get("core:items/weapon/WEAPON_KNIVES"),configure=function(context)\n local value=context.|\n return {}\nend}} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',rewardContext));
@@ -387,6 +466,23 @@ async function main() {
         return ['period','value','ease'].every(field=>result.some(name=>name === field || name === field + '?' || name.startsWith(field + ' ')));
     },'location curve point inference');
     console.log('PASS: procedural workflow and AI examples have no diagnostics; character, attack, location curve and callback fields complete');
+
+    const moveEffectProbe=probe('move-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="effect", actions={{ type="effect", effect={ | } }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',moveEffectProbe));
+        return ['name','core_sequence','scale','time_scale','looped','position','follow'].every(field=>result.some(value=>value.startsWith(field)));
+    },'scheduled move effect fields');
+
+    const projectileProbe=probe('move-projectile.lua','local sf2=require("sf2")\nsf2.moves.register { id="projectile", actions={{ type="create_projectile", projectile={ | } }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',projectileProbe));
+        return ['name','core_skeleton','copy_parent_type','core_start_animation','start_move'].every(field=>result.some(value=>value.startsWith(field)));
+    },'scheduled projectile fields');
+    const bulletsProbe=probe('move-bullets.lua','local sf2=require("sf2")\nsf2.moves.register { id="charge", actions={{ type="add_bullets", bullets={ | } }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',bulletsProbe));
+        return ['type','value'].every(field=>result.some(value=>value.startsWith(field)));
+    },'scheduled charge fields');
 
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',

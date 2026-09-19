@@ -267,6 +267,44 @@ namespace Eclipse.Modding
         Vanilla = 1
     }
 
+    // An explicit snapshot replaces the inferred initial stats, not the upgrade table.
+    // Empty and omitted snapshots deliberately have different meanings.
+    public sealed class ModEquipmentInitialStats
+    {
+        public IReadOnlyDictionary<string, int> Values { get; }
+
+        public ModEquipmentInitialStats(int? weaponDamage = null, int? bodyDefense = null,
+            int? headDefense = null, int? unarmedDamage = null, int? rangedDamage = null, int? magicDamage = null)
+        {
+            var values = new Dictionary<string, int>(StringComparer.Ordinal);
+            Add(values, "WeaponDamage", weaponDamage); Add(values, "BodyDefense", bodyDefense);
+            Add(values, "HeadDefense", headDefense); Add(values, "UnarmedDamage", unarmedDamage);
+            Add(values, "RangedDamage", rangedDamage); Add(values, "MagicDamage", magicDamage);
+            Values = new System.Collections.ObjectModel.ReadOnlyDictionary<string, int>(values);
+        }
+
+        private static void Add(Dictionary<string, int> values, string name, int? value)
+        {
+            if (!value.HasValue) return;
+            if (value.Value < 0 || value.Value > 1000000)
+                throw new ModContentException("initial_stats values must be integers from 0 to 1000000.");
+            values.Add(name, value.Value);
+        }
+
+        internal void ValidateFor(string category)
+        {
+            foreach (string name in Values.Keys)
+            {
+                bool allowed = category == "Weapon" && name == "WeaponDamage" ||
+                    category == "Armor" && (name == "BodyDefense" || name == "HeadDefense" || name == "UnarmedDamage") ||
+                    category == "Helm" && name == "HeadDefense" ||
+                    category == "Ranged" && (name == "RangedDamage" || name == "WeaponDamage") ||
+                    category == "Magic" && name == "MagicDamage";
+                if (!allowed) throw new ModContentException("initial_stats field " + name + " is not valid for " + category + ".");
+            }
+        }
+    }
+
     public abstract class ItemDefinition
     {
         public DefinitionId Id { get; }
@@ -279,10 +317,11 @@ namespace Eclipse.Modding
         public string LegacyItemXml { get; }
         public bool IsCore => Id.Namespace.Value == "core";
         public ItemProgressionKind Progression { get; }
+        public ModEquipmentInitialStats InitialStats { get; }
 
         protected ItemDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
             string legacyName = null, string legacyItemXml = null,
-            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, ModEquipmentInitialStats initialStats = null)
         {
             Id = id;
             DisplayName = displayName;
@@ -291,6 +330,7 @@ namespace Eclipse.Modding
             LegacyName = legacyName;
             LegacyItemXml = legacyItemXml;
             Progression = progression;
+            InitialStats = initialStats;
         }
     }
 
@@ -302,8 +342,8 @@ namespace Eclipse.Modding
 
         internal WeaponDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
             string subType, int damage, string legacyName = null, string legacyItemXml = null,
-            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, string tacticSubtype = null)
-            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, string tacticSubtype = null, ModEquipmentInitialStats initialStats = null)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression, initialStats)
         {
             SubType = subType;
             TacticSubtype = tacticSubtype;
@@ -319,8 +359,8 @@ namespace Eclipse.Modding
 
         internal ArmorDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model,
             int bodyDefense, int headDefense, int unarmedDamage, string legacyName = null,
-            string legacyItemXml = null, ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
-            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
+            string legacyItemXml = null, ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, ModEquipmentInitialStats initialStats = null)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression, initialStats)
         {
             BodyDefense = bodyDefense;
             HeadDefense = headDefense;
@@ -334,8 +374,8 @@ namespace Eclipse.Modding
 
         internal HelmDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model, int headDefense,
             string legacyName = null, string legacyItemXml = null,
-            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
-            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, ModEquipmentInitialStats initialStats = null)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression, initialStats)
         {
             HeadDefense = headDefense;
         }
@@ -349,8 +389,8 @@ namespace Eclipse.Modding
 
         internal RangedDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model, string subType,
             int rangedDamage, int weaponDamage, string legacyName = null, string legacyItemXml = null,
-            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
-            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, ModEquipmentInitialStats initialStats = null)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression, initialStats)
         {
             SubType = subType;
             RangedDamage = rangedDamage;
@@ -365,8 +405,8 @@ namespace Eclipse.Modding
 
         internal MagicDefinition(DefinitionId id, DefinitionId displayName, AssetId icon, AssetId model, string subType,
             int magicDamage, string legacyName = null, string legacyItemXml = null,
-            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot)
-            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression)
+            ItemProgressionKind progression = ItemProgressionKind.LegacySnapshot, ModEquipmentInitialStats initialStats = null)
+            : base(id, displayName, icon, model, legacyName, legacyItemXml, progression, initialStats)
         {
             SubType = subType;
             MagicDamage = magicDamage;
@@ -2457,7 +2497,7 @@ namespace Eclipse.Modding
         }
 
         public WeaponDefinition RegisterWeapon(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType, string tacticSubtype = null)
+            AssetId model, string subType, string tacticSubtype = null, ModEquipmentInitialStats initialStats = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("items", "weapon/" + localId);
@@ -2477,45 +2517,48 @@ namespace Eclipse.Modding
             if (_weapons.ContainsKey(id))
                 throw new ModContentException("Duplicate weapon definition: '" + id + "'.");
 
+            initialStats?.ValidateFor("Weapon");
             EnsureCapacityForNewRegistration();
             var definition = new WeaponDefinition(id, displayName, icon, model, subType.Trim(), 0,
-                progression: ItemProgressionKind.Vanilla, tacticSubtype: tacticSubtype);
+                progression: ItemProgressionKind.Vanilla, tacticSubtype: tacticSubtype, initialStats: initialStats);
             _weapons.Add(id, definition);
             return definition;
         }
 
         public ArmorDefinition RegisterArmor(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model)
+            AssetId model, ModEquipmentInitialStats initialStats = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("items", "armor/" + localId);
             EnsureItemIdAvailable(id);
             ValidateExternalItem(id, displayName, "Armor");
             if (_armors.ContainsKey(id)) throw new ModContentException("Duplicate armor definition: '" + id + "'.");
+            initialStats?.ValidateFor("Armor");
             EnsureCapacityForNewRegistration();
             var definition = new ArmorDefinition(id, displayName, icon, model, 0, 0, 0,
-                progression: ItemProgressionKind.Vanilla);
+                progression: ItemProgressionKind.Vanilla, initialStats: initialStats);
             _armors.Add(id, definition);
             return definition;
         }
 
         public HelmDefinition RegisterHelm(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model)
+            AssetId model, ModEquipmentInitialStats initialStats = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("items", "helm/" + localId);
             EnsureItemIdAvailable(id);
             ValidateExternalItem(id, displayName, "Helm");
             if (_helms.ContainsKey(id)) throw new ModContentException("Duplicate helm definition: '" + id + "'.");
+            initialStats?.ValidateFor("Helm");
             EnsureCapacityForNewRegistration();
             var definition = new HelmDefinition(id, displayName, icon, model, 0,
-                progression: ItemProgressionKind.Vanilla);
+                progression: ItemProgressionKind.Vanilla, initialStats: initialStats);
             _helms.Add(id, definition);
             return definition;
         }
 
         public RangedDefinition RegisterRanged(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType)
+            AssetId model, string subType, ModEquipmentInitialStats initialStats = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("items", "ranged/" + localId);
@@ -2523,15 +2566,16 @@ namespace Eclipse.Modding
             ValidateExternalItem(id, displayName, "Ranged item");
             if (string.IsNullOrWhiteSpace(subType)) throw new ModContentException("Ranged subtype must not be empty.");
             if (_ranged.ContainsKey(id)) throw new ModContentException("Duplicate ranged definition: '" + id + "'.");
+            initialStats?.ValidateFor("Ranged");
             EnsureCapacityForNewRegistration();
             var definition = new RangedDefinition(id, displayName, icon, model, subType.Trim(), 0, 0,
-                progression: ItemProgressionKind.Vanilla);
+                progression: ItemProgressionKind.Vanilla, initialStats: initialStats);
             _ranged.Add(id, definition);
             return definition;
         }
 
         public MagicDefinition RegisterMagic(string localId, DefinitionId displayName, AssetId icon,
-            AssetId model, string subType)
+            AssetId model, string subType, ModEquipmentInitialStats initialStats = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("items", "magic/" + localId);
@@ -2539,9 +2583,10 @@ namespace Eclipse.Modding
             ValidateExternalItem(id, displayName, "Magic item");
             if (string.IsNullOrWhiteSpace(subType)) throw new ModContentException("Magic subtype must not be empty.");
             if (_magic.ContainsKey(id)) throw new ModContentException("Duplicate magic definition: '" + id + "'.");
+            initialStats?.ValidateFor("Magic");
             EnsureCapacityForNewRegistration();
             var definition = new MagicDefinition(id, displayName, icon, model, subType.Trim(), 0,
-                progression: ItemProgressionKind.Vanilla);
+                progression: ItemProgressionKind.Vanilla, initialStats: initialStats);
             _magic.Add(id, definition);
             return definition;
         }

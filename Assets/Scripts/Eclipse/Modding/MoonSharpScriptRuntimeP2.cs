@@ -143,9 +143,9 @@ namespace Eclipse.Modding
                 timers.Set("set", DynValue.NewCallback((ctx, args) => ApiCall("sf2.timers.set", () =>
                 {
                     var table = args.AsType(0, "sf2.timers.set", DataType.Table, false).Table;
-                    ValidateFields(table, "sf2.timers.set", "subsystem", "seconds", "skip_enabled");
+                    ValidateFields(table, "sf2.timers.set", "subsystem", "seconds", "skip_enabled", "complete_pending");
                     _api.SetTimer(RequiredString(table, "subsystem", "timer"), RequiredInt(table, "seconds", "timer"),
-                        OptionalBool(table, "skip_enabled", true, "timer"));
+                        OptionalBool(table, "skip_enabled", true, "timer"), OptionalBool(table, "complete_pending", false, "timer"));
                     return DynValue.Nil;
                 })));
                 root.Set("timers", DynValue.NewTable(timers));

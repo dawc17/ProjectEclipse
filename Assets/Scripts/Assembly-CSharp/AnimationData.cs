@@ -15,7 +15,8 @@ public static class AnimationData
 
 	private static List<string> _WeaponTypeList = new List<string>();
 
-	public static List<InfoAnimation> KGPMGOBAOFG
+	// best guess for name
+	public static List<InfoAnimation> Animations
 	{
 		get
 		{
@@ -216,7 +217,7 @@ public static class AnimationData
 		dGJJDPIAEAO.CFPLPALGCMK = CFKCGBEONAM;
 		foreach (InfoAnimation lNKJIIGBEDum in LNKJIIGBEDA)
 		{
-			list = lNKJIIGBEDum.ODACDCDONJE.HIFPHBNGIPO;
+			list = lNKJIIGBEDum.MoveData.Locks;
 			if (lNKJIIGBEDum.HPPGNJJCEGF(dGJJDPIAEAO, list) && (JHJPMONBIDI == null || !lNKJIIGBEDum.CheckAnimationName(JHJPMONBIDI)))
 			{
 				MAHEJFLCCHP.Add(lNKJIIGBEDum);
@@ -335,12 +336,12 @@ public static class AnimationData
 		List<InfoAnimation> list = ((FKFEKLNOAGE != null) ? FKFEKLNOAGE : LNKJIIGBEDA);
 		foreach (InfoAnimation item in list)
 		{
-			InfoAnimation.MovePivot iLOEBFFAEAN = item.ODACDCDONJE.ILOEBFFAEAN;
+			InfoAnimation.MovePivot iLOEBFFAEAN = item.MoveData.ILOEBFFAEAN;
 			if (iLOEBFFAEAN.CKBGFODEBAJ != InfoAnimation.DOLCEABGNGA.ObjectNodes || iLOEBFFAEAN.EDBLMNIEKBD != ModelType.KEIDBIOIFGA.MODEL_THIS || iLOEBFFAEAN.HHPAGAOGGLP != InfoAnimation.DOLCEABGNGA.ObjectPivot)
 			{
 				continue;
 			}
-			string bLODCIGDJFK = item.ODACDCDONJE.ILOEBFFAEAN.BLODCIGDJFK;
+			string bLODCIGDJFK = item.MoveData.ILOEBFFAEAN.BLODCIGDJFK;
 			if (string.IsNullOrEmpty(bLODCIGDJFK))
 			{
 				continue;

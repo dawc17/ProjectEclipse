@@ -9,6 +9,12 @@ assert(type(sf2.timers) == "table" and type(sf2.timers.set) == "function",
 require("content.services")
 require("content.timers")
 require("content.equipment")
+require("content.combat_equipment")
+require("content.chinese_swords")
+require("content.restored_weapons")
+require("content.restored_equipment")
+require("content.shared_moves")
+require("content.shop")
 require("content.rewards")
 require("content.progression")
 -- Disabled at the owner's request. Keep the prototype out of the active mod.

@@ -20,8 +20,10 @@ public class RecipeItemInfo : ItemInfo
 	public int ItemLevel => (int)MDKBMLJNAGK;
 	public int PlayerLevel => (int)FKPHJOEDCDJ;
 	public long RecipeDeliveryTime => _RecipeDeliveryTime;
-	public long TimeLeft => Math.Max(0L, _RecipeDeliveryTime - CurrentTimeSeconds());
+	public long TimeLeft => Math.Max(0L, HGDELDFDFNH() - CurrentTimeSeconds());
 	public bool IsStillInOrder => _RecipeDeliveryTime > 0L && TimeLeft > 0L;
+	public bool IsReadyForDelivery(long time) => _RecipeDeliveryTime > 0L &&
+		(Eclipse.Modding.ModPolicies.CompletePending("forge") || _RecipeDeliveryTime <= time);
 	public string ItemAndRecipeInfo => Name;
 
 	public RecipeItemInfo(Recipe recipe, UserItem userItem, RecipePrice price)
@@ -75,5 +77,5 @@ public class RecipeItemInfo : ItemInfo
 	public Recipe OIMGNCLBPHD() => KFAHMNKAMKC;
 	public RecipePrice ADAJKDEOAAG() => HKBJMPIJOOA;
 	public UserItem MFEAIEJFDAM() => NKBIOFJMONB;
-	public long HGDELDFDFNH() => _RecipeDeliveryTime;
+	public long HGDELDFDFNH() => Eclipse.Modding.ModPolicies.CompletePending("forge") ? 0L : _RecipeDeliveryTime;
 }

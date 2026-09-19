@@ -65,8 +65,8 @@ public sealed class ConditionPerk : ConditionAnimation
     public ConditionPerk(string name):base("Perk"){_name=name;}
     public string get_Name()=>_name;
 }
-public sealed class MoveInside { public readonly List<ConditionAnimation> HIFPHBNGIPO=new List<ConditionAnimation>(); }
-public sealed class InfoAnimation { public string Name; public MoveInside ODACDCDONJE=new MoveInside(); }
+public sealed class MoveInside { public readonly List<ConditionAnimation> Locks=new List<ConditionAnimation>(); }
+public sealed class InfoAnimation { public string Name; public MoveInside MoveData=new MoveInside(); }
 public static class ConditionsParser
 {
     public static ConditionAnimation Create(XmlNode node)
@@ -74,7 +74,7 @@ public static class ConditionsParser
 }
 public static class AnimationData
 {
-    public static readonly List<InfoAnimation> KGPMGOBAOFG=new List<InfoAnimation>();
+    public static readonly List<InfoAnimation> Animations=new List<InfoAnimation>();
 }
 public static class SF2Paths { public static string MCFPDHOLNGB()=>"fixture"; }
 public static class XmlUtils
@@ -98,8 +98,8 @@ internal static class Program
     private static InfoAnimation BuildLive(XmlNode move)
     {
         var live=new InfoAnimation{Name=move.Attributes["Name"].Value};
-        foreach(XmlNode node in move["Locks"].ChildNodes) if(node.NodeType==XmlNodeType.Element) live.ODACDCDONJE.HIFPHBNGIPO.Add(ConditionsParser.Create(node));
-        live.ODACDCDONJE.HIFPHBNGIPO.Add(new ConditionPerk("INHERITED_SENTINEL"));
+        foreach(XmlNode node in move["Locks"].ChildNodes) if(node.NodeType==XmlNodeType.Element) live.MoveData.Locks.Add(ConditionsParser.Create(node));
+        live.MoveData.Locks.Add(new ConditionPerk("INHERITED_SENTINEL"));
         return live;
     }
     private static bool HasDirectPerk(XmlNode move,string perk)
@@ -114,7 +114,7 @@ internal static class Program
         var vanilla=new XmlDocument(); vanilla.Load(Path.Combine(root,"Assets/vanillaXml/animations/moves.xml"));
         var de=new XmlDocument(); de.Load(Path.Combine(root,"Assets/DExml/animations/moves.xml"));
         XmlUtils.Source=vanilla;
-        AnimationData.KGPMGOBAOFG.Clear();
+        AnimationData.Animations.Clear();
         var original=new Dictionary<string,string[]>();
         for(int i=0;i<Moves.Length;i++)
         {
@@ -122,15 +122,15 @@ internal static class Program
             Assert(baseMove!=null&&deMove!=null,"Missing authoritative move "+Moves[i]);
             Assert(HasDirectPerk(baseMove,Perks[i]),"Vanilla direct perk lock missing: "+Moves[i]);
             Assert(!HasDirectPerk(deMove,Perks[i]),"DExml still has removed perk lock: "+Moves[i]);
-            InfoAnimation live=BuildLive(baseMove); AnimationData.KGPMGOBAOFG.Add(live);
-            var names=new List<string>(); foreach(var c in live.ODACDCDONJE.HIFPHBNGIPO) names.Add(c is ConditionPerk p?"Perk:"+p.get_Name():c.Kind); original[Moves[i]]=names.ToArray();
+            InfoAnimation live=BuildLive(baseMove); AnimationData.Animations.Add(live);
+            var names=new List<string>(); foreach(var c in live.MoveData.Locks) names.Add(c is ConditionPerk p?"Perk:"+p.get_Name():c.Kind); original[Moves[i]]=names.ToArray();
         }
         var removals=new List<MovePerkLockRemoval>();
         for(int i=0;i<Moves.Length;i++) removals.Add(new MovePerkLockRemoval(Moves[i],new DefinitionId("core","perks",Perks[i].ToLowerInvariant()),Perks[i]));
         var rollback=ExternalCombatContentRuntime.ApplyMovePerkLocks(removals);
         for(int i=0;i<Moves.Length;i++)
         {
-            var locks=AnimationData.KGPMGOBAOFG[i].ODACDCDONJE.HIFPHBNGIPO;
+            var locks=AnimationData.Animations[i].MoveData.Locks;
             Assert(!locks.Exists(c=>c is ConditionPerk p&&p.get_Name()==Perks[i]),"Target lock survived: "+Moves[i]);
             Assert(locks.Exists(c=>c is ConditionPerk p&&p.get_Name()=="INHERITED_SENTINEL"),"Inherited lock was removed: "+Moves[i]);
             Assert(locks.Count==original[Moves[i]].Length-1,"Unexpected sibling lock mutation: "+Moves[i]);
@@ -138,7 +138,7 @@ internal static class Program
         ExternalCombatContentRuntime.RemoveMovePerkLocks(rollback);
         for(int i=0;i<Moves.Length;i++)
         {
-            var locks=AnimationData.KGPMGOBAOFG[i].ODACDCDONJE.HIFPHBNGIPO;
+            var locks=AnimationData.Animations[i].MoveData.Locks;
             Assert(locks.Count==original[Moves[i]].Length,"Rollback lock count: "+Moves[i]);
             for(int j=0;j<locks.Count;j++)
             {

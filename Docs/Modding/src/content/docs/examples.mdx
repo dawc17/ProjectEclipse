@@ -22,13 +22,17 @@ Start with <a href={pageUrl('guides/first-weapon')}>Your first weapon</a> for co
 
 [DE128 source](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/de128)
 shows a downstream mod split into Lua modules with an explicit startup order.
-It makes new forge orders instant and disables the six supported service groups.
+It makes new and saved pending forge orders eligible for instant completion and
+disables the six supported service groups.
 It also defines Titan's Desolator with core art, native innate perks and a name
 registered through <a href={pageUrl('api/localization-patches')}>Lua localization</a>.
 The manifest requests `policy.timers`, `policy.services`, `content.register` and
-`content.patch`. No XML mod definitions or extra art files are needed.
+`content.patch`, plus `combat.modify_outgoing_hit` and `combat.effects` for its
+perk behaviors. Content is authored in Lua without XML mod definitions. Its
+ChineseSwords module includes a recovered animation binary.
 
-Existing saved forge deadlines remain, with their normal skip option available.
+Saved forge deadlines are preserved until normal delivery settles the order;
+`complete_pending = true` makes it eligible without paying to skip again.
 Service flags suppress recognized quest groups and battle-pass source paths;
 complete removal of every related UI surface is not established. See
 <a href={pageUrl('api/timers-and-services')}>Timers and service settings</a> for the
@@ -69,6 +73,39 @@ suplex moves both use `PERK_SUPLEX`. `sf2.moves.remove_perk_lock` removes only t
 exact direct perk lock shown absent in the archived move XML. It does not grant fake
 legacy perks or remove the moves' remaining item, screen/profile, operator or
 inherited-template restrictions.
+
+The shop module exposes 25 existing items from the Guardian, Skanda, Wind Maker,
+Time Shifter and Scriptwriter battle-pass collections at levels 15, 20, 25, 45 and
+50 respectively. It uses <a href={pageUrl('api/shop')}>shop availability</a> with
+`minimum_level`, retaining canonical prices, stats, upgrade rules and item IDs.
+This demonstrates alternate shop access; it does not implement all archived set
+abilities or equipment changes. Native icon/model-text loading and controlled
+availability checks passed; purchases, equipment previews and save/reload still
+need gameplay acceptance.
+
+The equipment module also uses <a href={pageUrl('api/items-progression-forge')}>combat
+subtype patches</a> to restore Naginata, HunterClaws, MagariYari and Kunai routing
+on four existing items. Native condition/copy/rollback tests cover the mechanism.
+ChineseSwords is now registered through typed Lua move definitions, including its
+stance locks, four-hit super slash, profile title and shop preview. An isolated
+native fight passed move selection, attack intervals and animation completion;
+full hit-contact, AI and preview acceptance remains open.
+
+The restored equipment modules add ten missing weapon definitions plus Dragon
+Carapace, Old Legionnaire Armour, Samurai Armour, Gabled Helm, Dragon Helm,
+Dragon Boomerangs, Dragon's Breath and Lightning Arc. They demonstrate localized
+names, gem listings, act/level gates and default enchantments. Moon Fans uses
+`initial_stats = {}` to preserve absent initial damage. Samurai Armour uses
+`initial_stats = { head_defense = 914 }`, preserving the archive's head-only stats
+instead of silently adding body defense. See the
+<a href={pageUrl('api/equipment-shop-logging')}>equipment API</a> for snapshot rules.
+Native definition and asset checks passed. These are item-definition restorations;
+the shared-move module additionally demonstrates guarded
+<a href={pageUrl('api/moves-and-tactics') + '#sf2movespatch'}>native move patches</a>
+for interval duration, hit reaction, sound timing and selection conditions. Native
+condition evaluation and patch restoration passed. Five additional spells still
+lack move graphs; remaining preview differences, purchases, equipment use and save
+continuity remain separate acceptance work.
 
 ### Visual gameplay showcases
 

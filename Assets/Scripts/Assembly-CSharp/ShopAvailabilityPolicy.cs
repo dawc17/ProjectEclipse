@@ -15,6 +15,7 @@ public static class ShopAvailabilityPolicy
         if (!scripts.Content.TryResolveRuntimeItem(item.Name, runtimeXml, out id)) return available;
         ItemAvailabilityPolicyDefinition policy;
         if (!scripts.Content.TryGetItemAvailability(id, out policy)) return available;
+        if (roster.Level < policy.MinimumLevel) return false;
         if (policy.Visibility == ModItemVisibility.ForceHidden) return false;
         if (policy.Visibility == ModItemVisibility.ForceVisible) available = true;
         if (!available) return false;

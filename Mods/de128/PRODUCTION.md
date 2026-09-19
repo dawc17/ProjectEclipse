@@ -1,6 +1,12 @@
 # DE128 production record
 
-Current package: **0.5.0**. The owner rejected the Ascension prototype and directed
+Current package: **0.9.0**. Step 12 activates both ChineseSwords moves, ten lock
+extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
+move APIs and verified graph data; Step 13 adds passing isolated live input/animation
+acceptance. Step 8 adds four evidence-backed combat subtype changes
+and a reversible native patch API. Step 7 adds archived shop availability for the first
+five battle-pass collections through Lua and a generic level-gate API. Step 6 enables normal settlement of saved pending forge
+orders through a generic opt-in timer policy. The owner rejected the Ascension prototype and directed
 production back to actual DE XML content. Its modules are commented out. Step 5
 implements the archived Master of Style and Relentless perks, exact rank/branch
 placement, and associated move-lock removals. Earlier policies and the configured
@@ -36,7 +42,7 @@ in `Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs:141-157`.
 
 | ID | Finding | Consequence and next evidence needed |
 | --- | --- | --- |
-| DE128-01 | `ModTimerPolicy` accepts only `forge`. `RecipeItemInfo.cs:55-66` restores saved deadlines directly, and both `ForgeManager.FinishEnchant` and `UserItems.FinishDeliveryRecipe` consult the shared skip flag. | Pending orders are not instant. Keep skipping enabled in this version. A generic policy for settling existing orders needs lifecycle, materials, enchantment and save tests before implementation. Do not rewrite saved deadlines from the mod. |
+| DE128-01 | `ModTimerPolicy` accepts only `forge`. The initial implementation restored saved deadlines directly and shared the early-skip flag with delivery settlement. | Pending forge orders are addressed by Step 6 below, including lifecycle and save regression checks. Purchase/upgrade timer support remains open. Saved deadlines are not rewritten by the mod. |
 | DE128-02 | The audited `ModPolicies.FeatureEnabled` consumer is `QuestStage.Compare`, filtering recognized groups/source paths. | Complete ad/offer/battle-pass UI and direct service suppression are unproven. Trace concrete surviving surfaces before adding generic host hooks; do not claim the six flags remove every surface. |
 | DE128-03 | `RewardItemGrant` at `ModContent.cs:1364-1373` carries only item and upgrade. Archived `Assets/DExml/stages.xml:36420-36425` grants Titan's sword with a reward-specific Lifesteal aspect. | The public item-reward contract cannot reproduce that grant-specific enchantment. Existing `sf2.items.set_default_enchantments` accepts an optional fixed integer aspect on an item definition (`MoonSharpScriptRuntime.cs:1058-1083`), not a per-grant calculation using the player's level. A typed grant/enchantment operation is needed for exact parity; no raw XML or expression-string passthrough. |
 | DE128-04 | Canonical `Assets/vanillaXml/list.xml:1674` defines a sparse hidden Titan sword. Archived `Assets/DExml/list.xml:22-28` adds its icon, upgrades and innate `PERK_TITAN` / `PERK_ANTI_SHOCK`. | Reconcile metadata, upgrade policy and innate behavior through actual public APIs before claiming the DE item is complete. Shared upgrade economy remains immutable. |
@@ -521,3 +527,912 @@ localizations/eng.xml      A143E643AA84E1806B1C11EA5E36892DFBF4F0EE1B8E9C4D6BC24
 Stop after reporting this XML-derived content slice. Further content starts from
 explicit archive differences and requires the owner's continuation. Ascension
 remains disabled.
+
+## Step 6: saved pending forge orders
+
+Authorized by the active continuation goal on 2026-09-19. Version **0.6.0** closes
+the pending-forge portion of DE128-01. The no-wait requirement is recorded in
+`Mods/DE_PARITY_TARGET.md`; no new art is required. Purchase/upgrade delivery
+timers remain outside the supported `forge` subsystem and are still open work.
+
+`content/timers.lua` now opts into `complete_pending = true`. This new public
+`sf2.timers.set` field defaults to false and requires `seconds = 0`. Existing
+mods keep their previous pending-order behavior. Registration remains capability
+checked, transactional and exclusive per subsystem; opting in changes the content
+fingerprint without changing fingerprints of old declarations that omit the field.
+
+The C# host exposes zero effective remaining time while retaining the original
+saved deadline. `ListSF`'s existing delivery update recognizes eligibility and
+uses `UserItems.FinishDeliveryRecipe` / `ForgeManager.FinishEnchant` to settle.
+This is normal completion, including the existing enchantment, clear, save and
+notification path, not an early skip or a second material purchase. Failed
+enchantment keeps the pending order. Disabling the policy before settlement
+restores its original remaining time; already-settled enchantments stay settled.
+No live player saves or archived/core XML were modified. The mod contains only
+Lua declarations for this behavior; no DE-specific branch was added to C#.
+
+### Verification
+
+- `Tools/TestDE128Foundation.ps1`: **1,439 checks passed**, using the actual
+  package and current public bindings. Includes default behavior, activation,
+  disabling, invalid positive-duration opt-in, ownership conflicts, failed
+  registration rollback, capabilities, fingerprints and earlier DE content.
+- `Tools/TestForgePendingTimers.ps1`: **20 checks passed**. Compiles the complete
+  production `RecipeItemInfo` and extracts current user-item save/clear, pending
+  delivery, forge settlement and timer-update methods. Clock, enchantment and
+  disk/profile services are controlled. Covers saved-order reload, retained raw
+  timestamps, effective UI time, failure/retry, disabling before/after completion,
+  stale receipt/repeated update, skip-disabled completion and natural expiry.
+  This is not a live enchantment-randomization or disk-crash test.
+- Managed Assembly-CSharp and editor builds plus native Unity recompile passed.
+- Editor schema generation/check and **36** project tests passed. LuaLS 3.18.2
+  passed, including completion of `complete_pending`. VS Code integration passed.
+- Wiki build passed, including reference coverage and **4,025** local link/asset
+  checks across 47 pages. The existing `/404` route conflict warning remains.
+
+No full forge UI/gameplay or real-profile save/reload playtest was performed.
+Use the updated README acceptance steps on a test profile before claiming full
+in-game acceptance. DE parity remains incomplete; Ascension stays disabled.
+
+## Step 7: former battle-pass equipment in the shop
+
+Version **0.7.0** implements the `list.xml` shop-access delta for all five pieces
+of each of these archived collections:
+
+| Legacy name suffix (weapon, armor, helm, ranged, magic) | Minimum player level |
+| --- | ---: |
+| `BP_S1_GUARDIAN` | 15 |
+| `BP_S2_SKANDA` | 20 |
+| `BP_S3_WIND_MAKER` | 25 |
+| `BP_S5_TIME_SHIFTER` | 45 |
+| `BP_S4_SCRIPTWRITER` | 50 |
+
+Classification: `intentional_de`, supported by the parity target's alternate
+acquisition requirement and `/List/Items/Item` records with these exact names.
+The base marks every item `ShopHide="1"`; the archive removes that attribute.
+All 25 have unchanged, positive canonical `BonusPrice` values and identical icon
+and model references. `scripts/content/shop.lua` uses the existing core IDs and
+`sf2.shop.set_availability`, without copying items or embedding/reading XML.
+
+The missing capability was a level gate on availability. The generic optional
+`minimum_level` field accepts integers 0..52 (default 0). Native shop listing and
+item-availability queries apply it together with the policy's required group.
+Force-visible bypasses the original hidden/group gates but not the policy's new
+requirements. Validation, ownership conflicts, atomic entrypoint rollback and
+content fingerprints cover the field; omitted/zero retains old fingerprints.
+Disabling the mod restores base availability without changing saved ownership.
+
+The archived `Level` is used only as a shop access threshold. Canonical item
+level, upgrade level, stats, earned-gem price, enchantments, model and identity
+are untouched. Archive equipment-power/upgrade differences remain classified
+separately against the immutable Eclipse economy requirement. Non-economic
+combat differences also remain open: for example Wind Maker ranged uses `Kunai`
+in DE and `Chakram` in base. This step is **shop-access coverage**, not complete
+battle-pass set/ability/equipment parity. Other special-offer collections remain
+unconverted; no existing rewards or newly acquired items are migrated.
+
+### Verification
+
+- `Tools/TestDE128Foundation.ps1`: **1,847 checks passed**. Executes actual Lua
+  modules against canonical core projections. New shop coverage checks all 25
+  exact archive identities, eligibility just below/at/above each threshold,
+  inherited visibility, required-group composition, null guards and unloading.
+  It compiles the real `ShopAvailabilityPolicy` with controlled item/profile
+  services. Numeric/type bounds, default compatibility, distinct fingerprints,
+  conflicting policies in both load orders, capability failures, missing modules
+  and rollback are covered. These are controlled tests, not purchase gameplay.
+- `Tools/TestP1CContracts.ps1`: passed (existing structural API checks).
+- `Tools/TestForgePendingTimers.ps1`: **20 checks passed**, retaining prior saved
+  forge settlement coverage. Its controlled fixture types overlap the new shop
+  fixture assembly and produce CS0436 warnings; its own types are used.
+- Managed editor build (including runtime and recovered dependencies) passed:
+  zero errors, existing recovered-code warnings. Unity recompile completed with
+  no errors.
+- Native `Tools/VerifyDE128ShopAssets.cs` probe: all **25 model texts and 25
+  imported icon sprites** loaded through `CoreAssetProvider`; all icons have
+  four vertices. Run with `unity command eval_file --file
+  Tools/VerifyDE128ShopAssets.cs --json`. This does not instantiate fighters or
+  validate every referenced texture or attack animation.
+- Editor generation/check, **36** project tests and LuaLS passed, including the
+  new availability field completion. Public API docs, generated types and the
+  connected-mod example describe the implemented scope.
+- VS Code integration passed. Wiki build passed with **4,026** local link/asset
+  checks across 47 pages and no Astro source diagnostics. The existing `/404`
+  route conflict warning remains.
+
+Native shop purchases, previews/equipping, live level changes and real-profile
+save/reload acceptance remain outstanding. README contains the test sequence.
+No user save or archived/core XML was changed. Ascension remains disabled.
+
+### Archive snapshot hashes (SHA-256)
+
+```text
+Assets/DExml/list.xml       B9F2D71E25FC396281A469DFCE85C9CD1EB253A61A5329967BEEA6ED1BEFB76E
+Assets/vanillaXml/list.xml  147AFCF311C2145E1A90140597D71370088192B067D84C2548D19A1C568C299C
+```
+
+The timer investigation also confirmed that the current base `ListSF` purchase
+path already sets new delivery to zero and `UserItems.DINFNDFAJMB` settles saved
+purchase/upgrade delivery on its next tick. A configurable non-forge timer API is
+still absent; this absence alone does not prove DE currently waits for those
+orders. No timing behavior was changed in this step.
+
+## Step 8: equipment combat-family patches
+
+Version **0.8.0** implements the following intentional, non-economic `SubType`
+deltas from `/List/Items/Item` in the archived `list.xml`:
+
+| Item | Canonical family | Archived family | Native move evidence |
+| --- | --- | --- | --- |
+| `WEAPON_CHNY22_SPEAR` | Spear | Naginata | Seven attack definitions including `NaginataSuperSlash` |
+| `WEAPON_RAID_KARCER_SET` | Claws | HunterClaws | Seven HunterClaws attack definitions |
+| `WEAPON_BG_YARI` | Spear | MagariYari | Seven attack definitions including `MagariYariSuperSlash` |
+| `RANGED_BP_S3_WIND_MAKER` | Chakram | Kunai | `RangedKunaiPlayer` and its shop preview |
+
+The new `scripts/content/combat_equipment.lua` module uses generic
+`sf2.items.set_subtype { item, subtype }`. Eclipse provides typed, capability-
+checked registration, per-item conflicts, rollback, fingerprints and scoped native
+application. The subtype affects move conditions, projectile routing and AI
+fallback; an explicit tactic group remains independent. Duplicate recovered names
+are resolved using the original node identity, not just the first matching name.
+New fighter copies retain the applied family; already-built copies keep their
+snapshot. Teardown restores the original item. No inventory, price, power,
+upgrade, model or enchantment data is rewritten, and no XML is shipped/read by
+the Lua mod.
+
+Following the naming convention, the existing native `ItemInfo.MDPPNGIEJGD` field
+is now `SubType`, and the unused-name `Items.KLJFJJJPPJJ` list property is now
+`AllItems`. Both declarations carry `// best guess for name`. Only their actual
+callers/fixtures changed; the similarly named condition-class properties remain
+untouched. These plain runtime classes are not Unity serialized components, the
+XML attribute remains `SubType`, and no mapping/GUID changes were made.
+
+### Dependency findings and next content work
+
+The first archive test caught that `WEAPON_CHNY21_JIAN` cannot yet switch from
+HermitSwords to ChineseSwords: the base has **zero** ChineseSwords item-condition
+consumers. The archive extends ten Sai stance/attack definitions and adds
+`ChineseSwordsSuperSlash` plus its shop preview. The animation binary is present
+at `Assets/Resources/gamedata/animations/binary/chinese_swords_super_slash_old.bytes`;
+this is an API/content-graph dependency, not an absent-art blocker.
+
+The exact authored graph needs capabilities beyond today's move API: extending
+existing alternative item locks, repeated key sequences (two Punch taps),
+transitions/alignment, additional native conditions, mixed damage terms with
+shifts, `Spinning`/`HighHeavy` hit reactions, timed/random sound actions and shop
+completion/profile metadata. Current attack registration supports one damage
+attribute and only High/Middle/Low; it cannot reproduce the archive by substituting
+an approximate hit or family. Jian stays on its original working family until
+that dependency chain is implemented. This is the next substantial move-authoring
+slice, not a claim that Jian parity is complete.
+
+The archive also omits Monk Katar's `Katars` and Musket's `Rifle` tactic overrides.
+Omission alone does not establish intentional DE behavior: the recovered tactics
+pack has no MonkKatars/Musket-named archives. These remain `unresolved` relative
+to reconstruction compatibility; the mod does not remove their base AI groups.
+The apparent GlaivebowArrow subtype change comes from duplicate legacy records
+and is not treated as an ordinary unique-item delta.
+
+Music reconnaissance found 109 shared battle-level music-name differences.
+Several restored names currently map to substitute clips in `Sound.cs` (including
+old-version names). Merely patching names would not prove cut-music restoration;
+no such patch was added or counted as restored music.
+
+### Verification
+
+- `Tools/TestDE128Foundation.ps1`: **1,944 checks passed**. Actual Lua package,
+  exact archived subtype deltas, canonical move-condition consumers, explicit
+  API capability enforcement, rejected economic fields, invalid subtype bounds/
+  types/characters/categories, conflicts in both orders, atomic failure, unload/
+  rebuild and subtype-sensitive fingerprints.
+- `Tools/TestItemCombatSubtype.ps1`: **60 native checks passed** using compiled
+  production item parsing/copying, `ConditionItemInfo` and `LegacyContentAdapter`.
+  Covers weapon/ranged/magic, explicit AI-group independence, concurrent/stale
+  scopes, duplicate-name identity, partial application failure and restoration.
+- Existing native tactic-subtype fixture: **51** passed; projectile runtime:
+  **211** passed, including real move XML/parser and 136 attack intervals.
+- Regression checks after descriptive field naming: battle-result capture **12**,
+  profile query **18 native + 57 Lua**, immediate purchases **32**, form animation
+  entry/readiness **71**, and item acquisition/publication **22** passed. Stale
+  test stubs were updated to current member names; profile method extraction now
+  accepts CRLF. These controlled fixtures do not simulate a live profile/fight.
+- Managed editor build (including dependencies) passed with zero errors and
+  recovered-code warnings. Unity recompile completed without errors.
+- Editor schema generation/check, **36** project tests, LuaLS and VS Code
+  integration passed. Public contract now has 151 functions and 194 structures.
+- Wiki build passed: 47 pages, **4,031** local link/asset checks, no Astro source
+  diagnostics. The existing `/404` route conflict warning remains.
+- Scoped/full whitespace checks passed. Canonical/archived XML, project settings,
+  Unity identities and player saves were not changed.
+
+Live combat timing, rig/contact quality, NPC AI and equipment preview acceptance
+remain unverified. README lists the in-game checks. ChineseSwords and full DE
+parity remain incomplete; Ascension stays disabled.
+
+Source hashes retained from Step 7 for `list.xml`; additional SHA-256 evidence:
+
+```text
+DExml/animations/moves.xml       0C79503439E07111AB178FE9DD6542E978F0A51EC959DAF7A1049D533D24051E
+vanillaXml/animations/moves.xml  FD02CCA484BA593ACE270D50926899DCCB1864D5BFCD56AE8CB2E06551CDE241
+chinese_swords_super_slash_old.bytes 6810E8BE5CE50A88DAD84EEB7660D9AB92552B69DBB209B94C3998278109E5FA
+```
+
+## Step 9: Chinese swords attack and input authoring
+
+The current package stays **0.8.0** because this step builds the missing combat
+API and Lua sections without activating an incomplete move. No XML is shipped,
+read or patched by the mod. The C# adapter projects typed Lua declarations into
+the recovered parser's existing in-memory representation.
+
+### Implemented
+
+- `ModMoveAttack` and `sf2.moves.register[_template]` intervals now accept
+  `damage_terms`: 1–4 unique native attribute types with finite shifts in
+  -1000..1000. The old `damage_type` shorthand remains; specifying both is an
+  error. The native comparison/alignment formula is retained. Terms are not
+  summed damage or extra hits. New definitions retain ordered, immutable terms.
+- `Spinning` and `HighHeavy` native hit reactions are supported alongside
+  High/Middle/Low. No new reaction assets or DE-specific C# rules were added.
+- Key conditions preserve repeated entries, enabling Punch/Punch with a held
+  Forward key. Native `ConditionKeys` accepts the double tap and rejects the
+  single tap or missing Forward hold.
+- Added typed `round_stage`, `screen` and `mod_exists` conditions. Stage/screen
+  values follow the recovered parser's supported names. `mod_exists` tests a
+  combat effect, not a loaded Lua package; effect names remain native strings.
+- All additional terms/shifts and repeated inputs participate in deterministic
+  fingerprints. Existing single unshifted definitions keep their prior format;
+  explicit one-term zero-shift arrays project/fingerprint like the shorthand.
+- A regression uncovered MoonSharp retaining nil tombstones after `table.remove`.
+  The shared array validator now ignores absent Lua entries and validates every
+  live key as an integer in 1..count. It still rejects true holes, extra named
+  keys and fractional/zero/negative indices. This is generic C# binding behavior.
+
+The authored `scripts/pending/chinese_swords.lua` returns the exact eight input
+conditions and eight intervals (four attack intervals) of the archived
+`ChineseSwordsSuperSlash`, plus its preview screen restriction. Tests load this
+actual Lua file, register temporary templates through the real binding, project
+through `LegacyContentAdapter`, and compare every authored element/attribute to
+`Assets/DExml/animations/moves.xml`. Source XML is test evidence only. `main.lua`
+does not load the pending module, and Jian's combat subtype remains HermitSwords.
+
+### Verification
+
+- `Tools/TestMoveAttackAuthoring.ps1`: **167 checks passed**. Compiled production
+  Lua bindings, adapter, `ConditionKeys`, native condition and attack parsing;
+  all archived authored sections, invalid terms/conditions, rollback after a
+  prior registration, fingerprint differences, deterministic reload, and valid
+  edited arrays versus real malformed arrays. The standalone fixture initializes
+  MoonSharp before loading Unity reference DLLs to avoid calling unavailable
+  Unity Resources native functions; production supplies its own sandbox loader.
+- `Tools/TestDE128Foundation.ps1`: **1,944 checks passed** for the unchanged active
+  package, including composition, rollback, capability boundaries and perk traces.
+- `Tools/TestProjectileRuntime.ps1`: **211 checks passed**, including 136 native
+  attack intervals. `Tools/TestP2ACombatRuntime.ps1` passed public Lua examples,
+  state/migration, capability lifetimes, settlement and atomic rollback.
+- Managed editor build including runtime/firstpass/game dependencies passed with
+  zero errors (15 existing editor-build warnings). Unity recompile completed with
+  `failed: false`, `compilationFailed: false` and an empty error list.
+- Editor generation/check: **151 functions, 76 constants, 198 structures**;
+  **36 project tests**, LuaLS field inference (including nested damage terms),
+  and actual VS Code integration passed. The VS Code runner was invoked directly
+  with its executable path after npm's Windows argument escaping failed.
+- Wiki build passed: 47 pages and **4,031** local links/assets, no Astro source
+  diagnostics; the existing `/404` route warning remains. `git diff --check` passed.
+
+### Next graph slice and limits
+
+Before activation, implement exact extension of the ten Sai alternative item
+locks, the SaiHeavySpit transition with frame shift 2, alignment/direction,
+timed/random sounds, profile/tactics metadata, and shop completion/no-wall/no-
+interpolation fields. Then register both full moves via Lua and apply Jian's
+subtype delta. The binary exists; these are API gaps rather than missing art.
+The pending module is not a replacement move, a rough gameplay approximation,
+or proof of combat parity. No live fight, damage balance, contact timing, AI,
+preview or player-save acceptance was performed in this step. Ascension remains
+disabled, and full DE128 parity remains incomplete.
+
+## Step 10: Chinese swords locks, transitions and positioning
+
+The package remains **0.8.0**. This step extends the pending Lua module and the
+generic C# move API; it does not activate an incomplete ChineseSwords family.
+Archived XML remains comparison evidence, never a mod runtime dependency.
+
+### Implemented
+
+- `sf2.moves.extend_item_lock` adds an item subtype to one positive direct item
+  clause or one direct OR group selected by move, item type and source subtype.
+  Other skeleton, screen and perk requirements retain their native objects.
+  Negated, nested, AND-only, named-item, missing and ambiguous matches fail.
+  Selectors refer to original clauses, so one addition cannot depend on another
+  pending addition. The adapter validates the whole batch before changing live
+  lists and restores replaced clauses during teardown. Capability, conflict and
+  fingerprint handling are integrated into the normal content transaction.
+- Move definitions now support typed `locks`, `transitions`, `align` and
+  `direction`. Transition conditions use exactly one relative frame shift or
+  absolute first frame. Alignment uses validated axes and native points; facing
+  requires explicit players. Unsupported native combinations are rejected.
+  Templates reject transitions because the recovered parser does not inherit
+  them. Existing definitions without graph data retain their fingerprints.
+- The pending Lua module authors all ten Sai item-lock extensions, weapon and
+  skeleton locks, the SaiHeavySpit/SemiUninterrupt transition at frame shift 2,
+  combat alignment/facing, and shop screen locks with the archived -57 offset.
+  `main.lua` still does not load it, and Jian remains HermitSwords.
+- Native members newly used by the implementation received narrow descriptive
+  names marked `// best guess for name`, with actual callers and fixtures updated.
+  No deobfuscation mapping, serialized asset identity or archived XML changed.
+- Public wiki, editor schema/generated definitions, nested completion checks
+  and current production status describe the implemented contract.
+
+### Verification
+
+- `Tools/TestMoveGraphAuthoring.ps1`: **364 combined checks passed**, including
+  the 167 attack/input checks. Actual pending Lua definitions are compared with
+  archived combat and preview graph sections through production projection and
+  native transition/alignment/direction parsers. All ten base move eligibility
+  truth tables match the archive for Sai/HermitSwords/ChineseSwords/Katana and
+  Skeleton/Titan. Tests cover screen restrictions, atomic failure, ambiguous
+  clauses, composition, teardown, fingerprints and rejected input.
+- Active DE foundation: **1,944 checks passed**. Native projectile checks: **211**;
+  form animation entry: **71**; form parameter copying: **18**; AI eligibility:
+  **14**. Move perk-lock and showcase regression fixtures passed. Stale fixture
+  names/stubs were updated to current production declarations; these controlled
+  checks do not constitute live gameplay or raid acceptance.
+- Managed editor build passed with zero errors and 15 existing warnings. Unity
+  recompile completed with `failed: false`, `compilationFailed: false` and no errors.
+- Editor generation/check: **152 functions, 76 constants, 203 structures**;
+  **36 project tests** and LuaLS completion/diagnostic checks passed. VS Code
+  integration could not launch because its updater held `vscode-updating` beyond
+  the launcher's timeout; no integration pass is claimed for this step.
+- Wiki build passed with zero Astro diagnostics: 47 pages and 4,039 local
+  links/assets checked. The existing `/404` route warning remains.
+  `git diff --check` passed; Git reported only existing line-ending notices.
+
+### Remaining before activation
+
+Timed and random strike sounds, profile rank/icon, tactics distance metadata,
+shop `TryOnEnd` completion, and no-wall/no-interpolation fields remain. After
+those are supported, register both complete moves through Lua and apply Jian's
+subtype delta. Live combat, timing/contact, AI, preview and player-save acceptance
+remain unverified. Ascension stays disabled; full DE128 parity remains incomplete.
+
+## Step 11: Chinese swords sound and presentation authoring
+
+The remaining presentation fields are now available through generic C# runtime
+APIs and authored in the pending Lua module. Active package behavior remains
+**0.8.0** until complete registrations and native integration are checked.
+
+### Implemented
+
+- Direct move registration accepts up to 64 scheduled actions with exactly one
+  native frame or event. `random_sound` retains an ordered list of 1–32 core sound
+  names and uses the existing native random-sound action; `try_on_end` uses the
+  existing shop completion action. These are typed declarations, not arbitrary
+  XML or a procedural operation language. The mod reads no XML.
+- `profile` supplies a native moves-list rank/core icon; `tactic_distance`
+  supplies an axis, finite bounds and typed source/destination points. `Full`
+  omits the native axis attribute because any non-X attribute otherwise means Y.
+  `no_wall_repulsion` and `no_interpolation_frames` preserve native move flags.
+  These fields are move-only; templates reject them explicitly.
+- Ordered action choices, scheduling, profile, distance and flags participate in
+  fingerprints. Empty/default presentation retains previous fingerprints.
+  Unknown fields, invalid schedules, paths masquerading as core names, malformed
+  arrays and invalid points/bounds fail registration without leaking content.
+- The pending Lua module now contains swishes at frames 8, 17, 28 and 33;
+  six random strike sounds; rank 4 and `Trick7.super_slash`; the 200–800 X tactic
+  distance; preview swishes and AnimationEnd completion; both preview flags.
+  No runtime policy specific to DE was added to the C# implementation.
+- Public move documentation and editor schema/generated declarations now expose
+  all fields, defaults, limits and native-resource/verification constraints.
+
+### Verification
+
+- `Tools/TestMovePresentationAuthoring.ps1`: **504 combined checks passed**,
+  including the prior 364 attack/input/graph checks. The actual pending Lua module
+  projects matching archived Profile/Tactics/Actions sections and preview flags.
+  Native action types, exact start frames/events, random choice arrays and gender
+  behavior, parsed distance fields, profile rank/icon, fingerprints and rejection
+  rollback are checked. This does not exercise live sound playback or combat.
+- `Tools/TestDE128Foundation.ps1`: **1,944 checks passed** for the active package.
+- Managed editor build completed with zero errors and 2,739 warnings; subsequent
+  game builds completed with zero errors/warnings. Unity recompile completed with
+  `failed: false`, `compilationFailed: false` and an empty error list.
+- `Tools/VerifyDE128MovePresentationAssets.cs` ran successfully inside Unity:
+  all nine clips loaded with nonzero samples (swishes at 44,100 Hz; strikes at
+  22,050 Hz), and the native UI resolver returned a four-vertex profile sprite.
+  This is import/resolution evidence, not audible or rendered acceptance.
+- Editor generate/check: **152 functions, 76 constants, 206 structures**;
+  **36 project tests**, LuaLS including nested action/distance completions, and
+  real VS Code integration passed. VS Code's updater no longer blocked launch.
+- Wiki build passed: 47 pages, **4,042** local links/assets, zero Astro diagnostics;
+  the existing `/404` route warning remains. `git diff --check` passed.
+
+### Next integration step and limits
+
+Register both complete moves through Lua using the existing binary and exact
+attributes/events/templates, verify inherited native behavior and profile naming,
+then apply the ten item-lock extensions and Jian's subtype delta. The pending
+module remains absent from `main.lua`; the active package does not advertise
+ChineseSwords gameplay yet. No fight, sound playback, AI, shop-preview completion
+or player-save acceptance was performed. Ascension remains disabled and full
+DE128 parity remains incomplete.
+
+## Step 12: Activate Chinese swords combat and preview
+
+Package **0.9.0** now loads `content.chinese_swords` from `main.lua`. The module
+registers both complete moves, extends the ten archived Sai item-lock clauses,
+and changes `WEAPON_CHNY21_JIAN` from HermitSwords to ChineseSwords in the same
+normal transaction. The data module moved from `scripts/pending/chinese_swords.lua`
+to `scripts/content/chinese_swords_data.lua`. No runtime XML is shipped or read.
+
+### Integration and runtime changes
+
+- Full declarations retain the archived attributes, input, four hit intervals,
+  locks, transition, alignment/facing, sounds, profile/tactic metadata, preview
+  completion and events. All eleven inherited core templates exist and match the
+  archive; no additional template approximation was needed.
+- The package owns a byte-identical copy of the recovered animation at
+  `assets/animations/chinese_swords_super_slash_old.bytes`, resolved through
+  `sf2.assets.binary`. SHA-256 remains
+  `6810E8BE5CE50A88DAD84EEB7660D9AB92552B69DBB209B94C3998278109E5FA`.
+- Native profile headings otherwise use the internal move name as a localization
+  key. Added generic optional `profile.display_name`, a validated localization
+  handle. The adapter supplies it to `Trick.DisplayName`, and the profile UI uses
+  that heading while keeping `Trick.Name`/animation identity unchanged. Existing
+  profiles retain their original name fallback. Lua registers the English title
+  “Super Slash”; this title is an authored fallback, not a recovered translation.
+  Title references participate in fingerprints and editor completion.
+- Jian's prices, level, saved ownership and availability rules are not changed.
+  The separate archived `WEAPON_CHINESE_SWORDS`, absent from the canonical item
+  list, remains unimplemented. Monk Katar/Musket AI group intent remains open.
+
+### Verification
+
+- `Tools/TestDE128ChineseSwords.ps1`: **528 combined checks passed**, including
+  the preceding attack, graph and presentation suites. Executes the actual
+  registration module, compares both full moves with the archive (normalizing
+  owned identity/asset references and irrelevant top-level section ordering),
+  checks every inherited template, verifies the packaged binary hash, title
+  handle validation/fingerprints and legacy profile fallback.
+- `Tools/VerifyDE128ChineseSwordsNative.cs` passed inside Unity. It parsed two
+  complete moves and one correctly titled rank-4 profile using temporary native
+  catalogs, accepted ChineseSwords/Skeleton on the correct screens and rejected
+  unrelated equipment. Parser lookup objects are restored in `finally`; the
+  current live move list and saves are not changed by this probe.
+- The same Unity probe decoded both moves' binary into **38 samples / 67 nodes**,
+  verified consistent finite data and attack bounds. The archived Uninterrupt
+  interval ends at 50 although the binary ends at 37; the native interval reader
+  clamps it to 37 and reports its end at 38. This was explicitly checked rather
+  than lengthening the binary or altering the archive. All attacks and scheduled
+  sounds are inside the available samples. Live timing remains unverified.
+- `Tools/TestDE128Foundation.ps1`: **2,027 checks passed** with the active package,
+  including five subtype patches, both moves, ten extensions, localized title,
+  disable/rebuild, and atomic failure for missing registration/data modules or
+  the new animation binary. These are controlled runtime fixtures, not save or
+  campaign acceptance.
+- Managed editor build passed with zero errors and 15 warnings; Unity recompile
+  completed successfully with no errors. Editor generation/check, 36 project
+  tests, LuaLS including profile-title completion, and VS Code integration passed.
+  Contract remains 152 functions, 76 constants and 206 structures.
+- Wiki build passed with zero Astro diagnostics: 47 pages / 4,042 local links
+  and assets. Existing `/404` route warning remains. `git diff --check` passed.
+
+### Remaining acceptance and production
+
+An actual fight must still verify double-tap input, rig/contact and reactions,
+NPC tactic use, audible scheduling, and recovery timing; the shop must verify
+preview completion and the profile heading visually. No player-save test or
+running-game mod restart was performed. Next production work includes that
+acceptance and the remaining archived equipment/content deltas. Ascension stays
+disabled. This activates one complete authored move family; it does not establish
+full DE128 gameplay parity or complete the engine roadmap.
+
+## Step 13: Isolated live Chinese swords acceptance
+
+The actual **0.9.0** package now passes one bounded live combat case in Unity
+6000.6.0f1. This step adds repeatable engineering fixtures; it does not change
+DE gameplay policy or claim that the remaining acceptance gates are complete.
+
+### Harness and observed result
+
+- `Tools/TestDE128CombatNative.py` prepares an independent project copy using the
+  existing form-test copier, adds the real DE128 package and the Lua fixture under
+  `Tools/Fixtures/de128-combat`, then runs `Tools/ValidateDE128CombatNative.cs`.
+  The clone uses its own product/save identity and mod root. It never starts a
+  fight in the working editor or touches the owner's saves. Reuse accepts a
+  stopped marked clone, preserves prior logs, and backs up/hashes refreshed inputs.
+- The Lua fixture registers an arena, Jian-equipped opponent and fight using the
+  public APIs. Full game boot applies DE128 with no mod diagnostics. The live
+  opponent receives `WEAPON_CHNY21_JIAN` / `ChineseSwords`.
+- At simulation frame 120, the harness injects the authored double-tap/Forward
+  keys through the native controller/event path, mirrored for the actor's facing.
+  The native selector starts the namespaced ChineseSwords move at frame **122**.
+  Keys are then released; the move is not selected directly by name.
+- All four attack intervals start at samples **11, 19, 27, 32**. Each interval's
+  authored weapon-edge count matches the actual bound rig edges; this catches the
+  native binder silently skipping missing edges. All four random-sound actions
+  fire at samples **8, 17, 28, 33**. Animation completion is observed, the fighter's
+  object/rig remain active, and simulation continues beyond 180 frames after
+  selection with no captured exception after body readiness.
+
+Passing evidence:
+`Temp/FormNative-qpsmkaqv/DE128Runs/Run-34hr23yy/de128-validation.log`
+(Unity exit 0, explicit `[DE128Native] PASS`). The input-source hashes and previous
+fixture versions are alongside that log. The initial fresh import/run took about
+175 seconds; cached reruns took 35–39 seconds.
+
+### Verification scope and earlier fixture failures
+
+The first run supplied screen-right keys to a left-facing fighter and correctly
+selected SaiSpinningSpit. The second selected ChineseSwords but held the synthetic
+keys, causing a repeat. These were fixture input-lifecycle mistakes, corrected by
+mirroring and releasing the injected sequence; no game-code workaround was added.
+The subsequent run passed all assertions. Python syntax validation, fixture
+manifest/Lua editor analysis, Unity compilation and `git diff --check` passed.
+
+The log also contains a pre-game exception from UnityEditor.Search's startup
+indexing, before body readiness. It did not prevent the fixture from running and
+is not a gameplay exception; this step does not claim an entirely error-free
+editor session. The copied form example was also discovered, but its separate
+encounter/behavior is not attached to this fixture's Jian opponent.
+
+### Still open
+
+Both fighters are immortal and opponent AI is disabled after readiness. This
+case does not establish physical keyboard/gamepad input, AI tactics, hit contact
+or damage/reactions, audible output, visible profile rendering, shop completion,
+player-facing recovery timing or save continuity. Those remain separate checks.
+The archived standalone `WEAPON_CHINESE_SWORDS` item and broader equipment/content
+deltas remain production work. Ascension is still disabled; full DE128 parity
+and the engine roadmap remain incomplete.
+
+## Step 14 - missing weapon listings and native group membership
+
+DE128 0.10.0 adds `scripts/content/restored_weapons.lua`, loaded from `main.lua`.
+It restores nine of the ten weapon definitions present in archived `DExml/list.xml`
+but absent from the canonical vanilla item list. All declarations, localization,
+listings, availability and enchantments are Lua. XML is used only by engineering
+comparisons, never shipped/read by the mod.
+
+| Weapon | Level | Gems | Act group | Default enchantment / aspect | Initial damage |
+| --- | ---: | ---: | --- | --- | ---: |
+| Super Knives | 9 | 50 | ACT_2 | Precision / 296 | 186 |
+| Batons | 11 | 55 | ACT_2 | Weakness / 366 | 236 |
+| Dragon Knives | 13 | 60 | ACT_3 | Overheat / 442 | 292 |
+| Poleaxe | 19 | 78 | ACT_4 | Precision / 658 | 448 |
+| Kelt Axes | 26 | 106 | ACT_5 | Weakness / 909 | 629 |
+| Fans | 29 | 121 | ACT_5 | Bloodrage / 1014 | 704 |
+| Imhotep Axes | 36 | 165 | ACT_6 | Stun / 1265 | 885 |
+| Chinese Swords | 42 | 214 | INTERMISSION | Frenzy / 1511 | 1071 |
+| Giant Sword | 50 | 305 | ACT_7_3 | Time Bomb / 1797 | 1283 |
+
+Names, model/icon references, move families, prices, enchantments and group labels
+come from the archive. Kelt Axes retains its archived unknown-item placeholder
+icon. Initial damage derives from the existing vanilla Weapon_Bonus milestone;
+the nine results match both explicit archived values and native parsed attributes.
+Chinese Swords uses the family activated in Steps 12-13. Desolator remains reward
+only; this batch does not add a purchasable Desolator listing.
+
+**Runtime gap fixed:** owned equipment had no pack label. `required_group` gated
+shop queries, but native quest unlock/new-item paths use ItemInfo pack membership.
+The generic C# equipment adapter now projects an owned equipment policy's nonempty
+required group into that native label. It does not rewrite core labels or existing
+non-equipment pack metadata. The public shop reference, editor schema/help,
+generated definitions and editor guide document this behavior. No DE IDs or act
+policy were added to C#.
+
+**Discovered gap, still open:** Moon Fans has no WeaponDamage attribute in the
+archive. A real native comparison confirmed absent/zero there versus present/760
+from current owned-equipment progression. It remains unregistered, with its
+remaining row documented next to the Lua definitions. Its model and placeholder
+icon are available. The next step must design and implement generic typed initial
+stat authoring/semantics, then finish Moon Fans; do not silently normalize its
+stats or claim all missing weapons restored. This is an API gap, not missing art.
+
+Verification:
+
+- Foundation suite: **2,152 checks passed**, including actual Lua registration,
+  all nine archive comparisons, act/level gate behavior, exact enchantment aspects,
+  missing module/art transaction rollback and rebuild/reenable checks. The
+  pre-existing battle-pass and Desolator tests remain active.
+- Reward-only equipment adapter regression: **63 checks passed**.
+- Managed editor project build: **0 errors, 149 warnings**.
+- Independent Unity 6000.6.0f1 run: **terminal exit 0**. The harness checks all nine
+  native definitions, parsed damage, prices, levels, runtime group membership,
+  exact default perk/aspect and real model-text/sprite loading, then repeats the
+  live Jian four-hit selection/animation acceptance. Evidence is retained at
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-8bldlxd1/de128-validation.log`.
+- Native diagnostic run `Run-f1tunqd_` caught Moon Fans' initial damage mismatch;
+  an earlier run caught incorrect placement of the new pack projection. Both
+  failures were investigated before the final passing run.
+- Wiki build: 47 pages and 4,042 links/assets passed; existing duplicate `/404`
+  route warning remains. Editor generation/check, unit tests, LuaLS and VS Code
+  integration passed. VS Code was run directly through the Node launcher after
+  correcting the required executable argument and npm/PowerShell quoting.
+- `git diff --check` passed, with line-ending conversion warnings.
+
+These checks do not prove purchase/equip/save/reload flows, visible notification
+rendering, every restored weapon's combat behavior, or full equipment parity.
+The isolated run leaves the working editor/player saves alone. Ascension remains
+disabled. Full DE128 production is still active.
+
+## Step 15 - typed initial equipment stats and Moon Fans
+
+DE128 0.11.0 restores `de128:items/weapon/moon_fans` through Lua. It uses the
+archived model, unknown-item icon, Fans subtype, level 31, 132-gem price, ACT_6
+gate and Lifesteal aspect 1090. `initial_stats = {}` preserves the absence of
+WeaponDamage instead of silently assigning the canonical level-31 value of 760.
+This completes the ten archived weapon definitions absent from canonical vanilla;
+it does not mean all equipment differences or weapon gameplay are complete.
+
+The C# API now accepts optional `initial_stats` on all five equipment registration
+functions. The immutable typed snapshot validates category-appropriate attributes
+and integer values 0-1000000. Omitted/nil uses existing canonical initial power;
+an explicit table replaces the complete initial snapshot, leaving unspecified
+attributes absent. An empty table and an explicit zero are distinct. The native
+adapter still supplies normal levels, prices and upgrade templates. The snapshot
+is not a permanent stat override, does not rewrite existing inventory and does
+not replace normal level-scaled acquisition or upgrade behavior. No DE identifiers
+or policy entered the engine.
+
+Changed engine sources: `ModContent.cs` (validated immutable definitions and
+registration), `ModScripting.cs` (capability-checked facade),
+`MoonSharpScriptRuntime.cs` (strict Lua parsing), `LegacyContentAdapter.cs`
+(projection) and `ModSaveData.cs` (deterministic optional fingerprint data).
+Legacy declarations without the field retain their fingerprint representation.
+The equipment/shop wiki, editor schema, generated definitions, starter and editor
+guide document the new contract and its limits.
+
+Verification:
+
+- **2,239 foundation checks passed**, including actual Lua registration for every
+  equipment category, immutable snapshots, malformed/category/range/nonfinite
+  value rejection, whole-transaction rollback, and distinct fingerprints for
+  derived, absent, explicit-zero and positive snapshots. All ten restored weapons
+  are compared with archived listing/gate/enchantment evidence.
+- **135 extracted adapter checks passed**, including all five categories with
+  empty and explicit snapshots, omitted-field behavior, zero preservation,
+  upgrade-template retention, removal and previous default equipment regressions.
+- Managed editor project: **0 errors, 149 warnings**.
+- Isolated native Unity run **passed, terminal exit 0**. The ten definitions match
+  archive damage values AND attribute presence, prices, levels, subtypes, group
+  labels and exact enchantment aspects; all model texts/sprites load. Moon Fans
+  is absent/zero like its archived native ItemInfo. Applying the first normal
+  upgrade to isolated copies of each yields **766 damage** in both. The live Jian
+  four-hit selection/interval/sound-action/completion acceptance still passes.
+  Evidence: `Temp/FormNative-qpsmkaqv/DE128Runs/Run-7mr313t6/de128-validation.log`.
+- Editor generation/check: 152 functions, 76 constants, **211 typed structures**;
+  unit tests, LuaLS (including each initial-stat table's completion), and real
+  VS Code integration passed.
+- Wiki: 47 pages and **4,046 links/assets passed**, with the existing duplicate
+  `/404` route warning. `git diff --check` passed with line-ending warnings.
+
+No purchase/equip/save/reload UI acceptance is claimed, and the native upgrade
+check does not spend player currency. Other weapons' live combat and notifications
+remain open. The next archive inventory has 12 missing armor, 15 helms, two ranged
+items, seven magic items and eight consumables; some armor/helms are hidden NPC
+forms with level-1/no-upgrade metadata. These need asset/move/usage audits before
+registration and may need further generic API support. Ascension stays disabled;
+full DE128 production remains active.
+
+## Step 16 - restored armor, helms, ranged and magic definitions
+
+DE128 0.12.0 adds `scripts/content/restored_equipment.lua`, loaded explicitly from
+`main.lua`. It uses existing public APIs; no new engine policy or API was needed
+for these eight item definitions. All definitions, names, gem prices, group/level
+gates and default enchantments are authored in Lua. The mod still ships no XML.
+
+| Item | Category | Level | Gems | Group | Default enchantment / aspect |
+| --- | --- | ---: | ---: | --- | --- |
+| Dragon Carapace | Armor | 13 | 49 | ACT_3 | Overheat Defense / 442 |
+| Old Legionnaire Armour | Armor | 15 | 53 | ACT_3 | Damage Absorption / 512 |
+| Samurai Armour | Armor | 37 | 140 | GATES_OF_SHADOWS | Damage Absorption / 1306 |
+| Gabled Helm | Helm | 11 | 30 | ACT_2 | Rejuvenation / 366 |
+| Dragon Helm | Helm | 13 | 33 | ACT_3 | Overheat Defense / 442 |
+| Dragon Boomerangs | Ranged | 13 | 27 | ACT_3 | Overheat / 442 |
+| Dragon's Breath | Magic | 13 | 44 | ACT_3 | Overheat / 442 |
+| Lightning Arc | Magic | 39 | 139 | INTERMISSION | Enfeeble / 1388 |
+
+Samurai Armour preserves the archive's unusual **HeadDefense=914 only** initial
+snapshot through `initial_stats`; it does not silently gain BodyDefense or
+UnarmedDamage. All other new initial values derive from vanilla milestones and
+match the archive in a native parsed-attribute comparison. Gabled Helm and Samurai
+Armour retain their archived placeholder icons. English text is copied faithfully,
+including the typographic apostrophe in Dragon's Breath.
+
+**Scope:** these are item-definition restorations using existing base move families.
+They are not completed DE combat/preview parity. `AuditDE128EquipmentMoves.py`
+compares every archived consumer of Chakram, MassBomb and LightningArrow with
+canonical moves. It ignores package metadata, recovered attack IDs and the
+single-choice Sound/RandomSound spelling difference, but reports actual structure
+and attribute changes. The audit found outstanding changes such as Chakram's hit
+reaction (High versus MiddleShortPlus), uninterrupt end (42 versus 40), preview
+sound timing (18 versus 16), and MassBomb/LightningArrow's additional not-Stun
+condition. MassBomb preview effects also differ. These need explicit Lua-authored
+move changes and, where necessary, scoped typed patch APIs; do not call them done
+merely because the item definitions now exist.
+
+Five more spell definitions remain unregistered: Sphere1, Sphere2, Sphere3,
+ComboSphere3 and MindThrowNormal. Their assets are available, but their archived
+move consumers are absent by name from the base (9, 9, 5, 4 and 5 consumers,
+respectively). Hidden NPC armor/helms and RifleBullet also remain out of shop
+registration. The new audit preserves this distinction rather than treating all
+missing items as ordinary purchasable equipment.
+
+Verification:
+
+- **2,370 foundation checks passed.** The added equipment fixture compares all
+  eight identities, English names, category counts, art references, listing data,
+  group/level gates, default enchantments and Samurai's stat exception against
+  the archive. Missing module and missing model/icon failures roll back the whole
+  package, including all equipment categories. Existing weapon, policy, reward,
+  perk, initial-stat and compatibility tests remain active.
+- `AuditDE128MissingEquipmentAssets.cs` executed read-only in the working Unity
+  editor: all 13 missing non-hidden armor/helm/ranged/magic item model texts and
+  icon sprites loaded, including the five spells still pending move support.
+- Isolated Unity 6000.6.0f1 acceptance **passed, terminal exit 0**. The eight native
+  definitions match every stat's value AND presence, levels, upgrade levels,
+  prices, group labels, default perk/aspect and upgrade template. Models/icons
+  load through the real asset provider. The ten restored weapon checks and live
+  Jian four-hit acceptance also still pass. Evidence:
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-mz1gbhdy/de128-validation.log`.
+- That log also contains the previously observed UnityEditor.Search startup
+  indexing exception, before combat readiness. It is not a new game exception;
+  the harness does not claim the entire editor log is clean.
+- The public examples page now describes current restored content and ChineseSwords
+  validation accurately. Wiki build passed: **47 pages, 4,047 links/assets**;
+  the existing duplicate `/404` route warning remains.
+- `git diff --check` passed, with line-ending conversion warnings. No managed
+  engine source changed this step; the test harness compiled and ran in Unity.
+
+Purchase/equip/save/reload UI flows, the restored equipment's actual combat and
+visible notification behavior remain unverified. Next work should address shared
+move differences and missing spell graphs, rather than equating more registered
+items with complete gameplay parity. Full DE128 production remains active.
+
+## Step 17 - guarded native move patches (0.13.0)
+
+The generic C# API `sf2.moves.patch` now supports typed additional selection
+conditions, one named interval-end change, one whole-attack hit-reaction change,
+and one directly scheduled sound-frame change. Selectors are exact and frame/hit
+changes require expected source values. Conflicts reject two patches for the same
+move; native application validates the whole batch before changing any objects.
+Teardown restores owned changes, including deferred interval nodes consumed during
+native initialization. No DE identity or archive loader is added to the engine.
+The public API, editor types, completions and snippet are updated together.
+
+`shared_moves.lua` authors five archived changes:
+
+- RangedHeavyPlayer: Uninterrupt ends at 40 rather than 42.
+- ChakramFly: High becomes MiddleShortPlus.
+- ShopRangedTryOnHeavyPlayer: snd_disk moves from frame 18 to 16.
+- MassBombPlayer and LightningArrowPlayer: add the not-Stun selection condition.
+
+The stronger native predicate test exposed an adapter mistake: constructing a
+condition with ConditionsParser.Create does not initialize its base Not/Player
+fields. The adapter now also calls Parse, as the native parser does. A rerun
+verified both absent-Stun and present-Stun behavior.
+
+Verification:
+
+- 2,482 foundation checks passed: actual packaged Lua, archive comparisons,
+  conflicts in both load orders, package rollback, invalid declarations and
+  fingerprint distinctions.
+- 41 move-patch checks passed using the production patch implementation with
+  controlled native containers; 167 existing attack-authoring checks passed.
+- Managed editor assembly build passed with zero errors (149 warnings).
+- Isolated Unity 6000.6.0f1 acceptance passed, terminal exit 0. Five native patches,
+  actual Stun predicates, native apply/init/rollback in both initialization orders,
+  all restored equipment checks and the live Jian four-hit case passed. Evidence:
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-n8uf5rmq/de128-validation.log`.
+  The previously recorded UnityEditor.Search startup exception remains; this is
+  not a claim that the whole editor log is clean.
+- Editor generation/check, 36 tests, LuaLS completions and real VS Code integration
+  passed. Contracts contain 153 functions, 76 constants and 215 typed structures.
+- Wiki build passed: 47 pages and 4,052 links/assets; the existing duplicate
+  `/404` route warning remains. `git diff --check` passed.
+
+Remaining work includes MassBomb preview effects and other presentation/profile
+changes, plus the absent Sphere1/Sphere2/Sphere3/ComboSphere3/MindThrowNormal move
+graphs. Purchase/equip/save/reload flows and actual contact/preview acceptance
+remain open. These five changes do not establish full DE combat parity.
+
+## Step 18 - spell graph dependencies and native effect authoring
+
+This step starts the missing spell graphs rather than registering items with no
+working moves. `Tools/AuditDE128SpellGraphs.py` now traces each family's complete
+archived template closure and compares templates with canonical base data. It
+records source hashes, exact move names, actions, condition tags and resource
+source paths; run it with `--output Temp/DE128SpellGraphs.json` for full evidence.
+It is an engineering audit only. The mod never loads archive XML.
+
+| Family | Moves absent from base | Transitive templates | Templates absent from base |
+| --- | ---: | ---: | --- |
+| Sphere1 | 9 | 17 | Sphere1 |
+| Sphere2 | 9 | 17 | Sphere2 |
+| Sphere3 | 5 | 14 | Sphere3 |
+| ComboSphere3 | 4 | 14 | Sphere3 |
+| MindThrowNormal | 5 | 9 | None |
+
+All other referenced templates are structurally equivalent after the audit's
+stated normalization. All directly referenced animation binaries, effect atlas
+metadata and sound files were found in Resources. This proves file availability,
+not decoded animation, complete texture dependencies or rendered-effect success.
+The report must not be mistaken for full native graph acceptance.
+
+The first API gap is now implemented in generic C#: scheduled `effect`,
+`stop_effect` and `stop_follow_effect` actions on `sf2.moves.register`. An immutable
+typed effect contains its model-local name, core sequence, scale/time scale,
+loop flag and optional following position. Actions retain the existing frame/event
+scheduler. The adapter projects native Effect/StopEffect/StopFollowEffect nodes;
+Lua authors no XML. Strict field/type/range validation and optional fingerprint
+extensions preserve existing declarations while detecting every new field.
+There is no DE-specific engine branch. The public wiki, editor schema/generated
+contracts, nested completion test and reusable action snippet are updated.
+
+Verification:
+
+- `Tools/TestMoveEffects.ps1`: **620 combined checks passed**, including the prior
+  attack/graph/presentation cases. Actual Lua is projected through the production
+  adapter and compared with recovered native effect objects parsed from archived
+  Sphere1 actions. Tests cover defaults, positions, looping, both scheduling
+  forms, stop/detach names, invalid data, transaction rollback and fingerprints.
+- `Tools/TestDE128Foundation.ps1`: **2,482 checks passed**; the existing DE package
+  still loads and rolls back normally. Package version remains 0.13.0 because
+  this step does not yet enable another spell.
+- Managed editor build passed with **0 errors**, 2,739 existing warnings on the
+  rebuilt dependency graph. The focused test's subsequent managed build was clean.
+- Editor generate/check, **36 tests**, LuaLS including nested effect completion,
+  and real VS Code integration passed. Contracts have 153 functions, 76 constants
+  and 216 typed structures.
+- Wiki build passed: **47 pages, 4,052 links/assets**. The existing duplicate 404
+  warning remains. `git diff --check` passed with line-ending warnings.
+
+No Unity playtest or visible effect rendering was performed for these new actions.
+The tests verify recovered native parsing/scheduling, not a rendered projectile.
+Next work is typed projectile actor creation/equipment inheritance and deletion,
+charge consumption, and the missing graph conditions (including actor names and
+bullet counts). MindThrow also needs scheduled shake/voice behavior. The move
+flags, velocity and damage/defense requirements must be carried through when
+translating the complete graphs. These gaps remain explicit; no simplified spell
+has been substituted for the archived behavior. Full production stays active.
+
+## Step 19 - scheduled projectile creation, charge and deletion
+
+Generic move actions now expose the existing native child-weapon actor path:
+`create_projectile` takes a model name, core skeleton and source equipment slot
+(Weapon/Ranged/Magic), copying that equipment into the child Weapon slot. Optional
+owned `start_move` handles are validated at commit; alternatively a core animation
+name can select the initial move. `add_bullets` changes MagicBullet or
+RaidChargeBullet through native handling, and `delete_actor` selects a native actor
+for removal. Typed payloads reject unrelated fields and invalid values. All added
+fields affect fingerprints without altering prior action representations.
+
+Lua bindings, C# definitions and the native adapter changed together. These remain
+generic engine capabilities: no DE spell names or archive loading enter production
+C#. Wiki, editor contracts/completion and a reusable projectile snippet are updated.
+The five complete DE spell graphs remain pending; package version stays 0.13.0.
+
+Verification:
+
+- **697 combined move checks passed**, including actual Lua, archive projection,
+  recovered parsers where usable outside Unity, default/invalid declarations,
+  owned move handles, scheduling, rollback and fingerprint changes.
+- **2,482 DE128 foundation checks passed**. Managed editor build passed with
+  zero errors (2,739 warnings when rebuilding dependencies).
+- The standalone CreatePlayer parser requires Unity native calls, so its actual
+  ItemInfo comparison was moved to the isolated Unity acceptance harness instead
+  of replacing native behavior with a successful stub.
+- Unity 6000.6.0f1 run **passed, terminal exit 0** at
+  `Temp/FormNative-qpsmkaqv/DE128Runs/Run-nq0s7b4v/de128-validation.log`.
+  Inert Lua fixture moves reached the real parser. Skeleton/equipment-copy records,
+  actor name, owned initial move, charge and deletion scheduling matched. Existing
+  restored-equipment, shared-patch and live Jian acceptance also passed.
+- Editor generation/check, 36 tests, LuaLS nested projectile/charge completion and
+  real VS Code integration passed (153 functions, 76 constants, 218 structures).
+- Wiki build passed: 47 pages, 4,052 links/assets. Existing duplicate 404 warning
+  remains. Native logs retain the previously recorded editor indexing limitation.
+
+No live projectile creation/contact/deletion acceptance is claimed: the new fixture
+moves were inspected, not selected. Next work remains bullet/actor-name selection
+conditions, remaining move flags/velocity/damage details, then complete Lua spell
+graph translation and live acceptance. Full DE128 production remains active.

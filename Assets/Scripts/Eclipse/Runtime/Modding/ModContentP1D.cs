@@ -284,7 +284,7 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen }
 
     public sealed class ModMoveKey
     {
@@ -322,8 +322,21 @@ namespace Eclipse.Modding
             Keys=Array.AsReadOnly(keys == null ? Array.Empty<ModMoveKey>() : (ModMoveKey[])keys.Clone());
             if ((kind==ModMoveConditionKind.Keys && (Keys.Count<1 || Keys.Count>14)) || (kind!=ModMoveConditionKind.Keys && Keys.Count!=0))
                 throw new ModContentException("A keys condition requires 1..14 keys.");
-            var seenKeys=new HashSet<string>(StringComparer.Ordinal);
-            foreach(var key in Keys) if(key==null || !seenKeys.Add(key.Key)) throw new ModContentException("Duplicate/null move key.");
+            // Native KeyData preserves repeated taps as a sequence. Do not deduplicate it.
+            foreach(var key in Keys) if(key==null) throw new ModContentException("Null move key.");
+            if (kind == ModMoveConditionKind.RoundStage || kind == ModMoveConditionKind.ModExists || kind == ModMoveConditionKind.Screen)
+            {
+                if (string.IsNullOrWhiteSpace(Name) || Name.Length > 128 || Name != Name.Trim())
+                    throw new ModContentException("Named move condition requires a name of 1..128 characters without surrounding whitespace.");
+                if (Player != "" && Player != "Me" && Player != "Enemy" && Player != "Both")
+                    throw new ModContentException("Move condition player must be Me, Enemy or Both.");
+                if (ItemType.Length != 0 || ItemSubType.Length != 0)
+                    throw new ModContentException("Named move condition does not accept item fields.");
+                if (kind == ModMoveConditionKind.RoundStage && Array.IndexOf(new[]{"StartStance","Fight","EndStance","TryOn"}, Name) < 0)
+                    throw new ModContentException("Unsupported round_stage name.");
+                if (kind == ModMoveConditionKind.Screen && Array.IndexOf(new[]{"ShopArmor","ShopWeapon","ShopHelm","ShopMissile","ShopMagic","ShopRuby","ShopFree","ShopRaidItemPack","Profile","Fight"}, Name) < 0)
+                    throw new ModContentException("Unsupported screen name.");
+            }
             _children = children == null ? Array.Empty<ModMoveCondition>() : (ModMoveCondition[])children.Clone();
             bool group = kind == ModMoveConditionKind.All || kind == ModMoveConditionKind.Any;
             if (group && _children.Length == 0) throw new ModContentException("Grouped move condition requires children.");
@@ -351,25 +364,49 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModMoveDamageTerm
+    {
+        public string Type { get; }
+        public double Shift { get; }
+        public ModMoveDamageTerm(string type, double shift = 0)
+        {
+            if (Array.IndexOf(new[]{"UnarmedDamage","WeaponDamage","RangedDamage","MagicDamage"}, type) < 0)
+                throw new ModContentException("Unsupported damage term type.");
+            if (double.IsNaN(shift) || double.IsInfinity(shift) || Math.Abs(shift) > 1000)
+                throw new ModContentException("Damage term shift must be finite in -1000..1000.");
+            Type = type; Shift = shift;
+        }
+    }
+
     public sealed class ModMoveAttack
     {
         public IReadOnlyList<string> Edges { get; }
         public int Id { get; }
         public double Damage { get; }
         public string DamageType { get; }
+        public IReadOnlyList<ModMoveDamageTerm> DamageTerms { get; }
         public string Hit { get; }
         public double X { get; }
         public double Y { get; }
         public double Z { get; }
-        public ModMoveAttack(string[] edges, double damage, string damageType="UnarmedDamage", string hit="High", int id=0, double x=0,double y=0,double z=0)
+        public ModMoveAttack(string[] edges, double damage, string damageType=null, string hit="High", int id=0, double x=0,double y=0,double z=0,
+            ModMoveDamageTerm[] damageTerms = null)
         {
             if (edges==null || edges.Length<1 || edges.Length>64 || id<0 || id>999 || double.IsNaN(damage) || double.IsInfinity(damage) || damage<0 || damage>16)
                 throw new ModContentException("Attack needs 1..64 edges, damage 0..16 and id 0..999.");
             foreach(var edge in edges) if(string.IsNullOrWhiteSpace(edge) || edge.Length>128) throw new ModContentException("Invalid attack edge name.");
-            if (Array.IndexOf(new[]{"UnarmedDamage","WeaponDamage","RangedDamage","MagicDamage"},damageType)<0 ||
-                Array.IndexOf(new[]{"High","Middle","Low"},hit)<0) throw new ModContentException("Unsupported damage type or hit height.");
+            if (damageTerms != null && damageType != null)
+                throw new ModContentException("Use damage_type or damage_terms, not both.");
+            var terms = damageTerms == null ? new[]{new ModMoveDamageTerm(damageType ?? "UnarmedDamage")} : (ModMoveDamageTerm[])damageTerms.Clone();
+            if (terms.Length < 1 || terms.Length > 4) throw new ModContentException("damage_terms requires 1..4 terms.");
+            var types = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var term in terms)
+                if (term == null || !types.Add(term.Type)) throw new ModContentException("Duplicate/null damage term.");
+            DamageTerms = Array.AsReadOnly(terms);
+            if (Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus"},hit)<0)
+                throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
-            Edges=Array.AsReadOnly((string[])edges.Clone()); Damage=damage; DamageType=damageType; Hit=hit; Id=id; X=x; Y=y; Z=z;
+            Edges=Array.AsReadOnly((string[])edges.Clone()); Damage=damage; DamageType=terms[0].Type; Hit=hit; Id=id; X=x; Y=y; Z=z;
         }
     }
 
@@ -407,6 +444,249 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModMovePoint
+    {
+        public string Object { get; }
+        public string Player { get; }
+        public string Part { get; }
+        public double ShiftX { get; }
+        public double ShiftY { get; }
+        public ModMovePoint(string obj,string player=null,string part=null,double shiftX=0,double shiftY=0)
+        {
+            if (Array.IndexOf(new[]{"Nodes","Pivot","Wall","Animation","Floor","COM"},obj)<0)
+                throw new ModContentException("Unsupported move point object.");
+            if (player!=null && Array.IndexOf(new[]{"Me","Enemy","Parent","Child","EnemyChild"},player)<0)
+                throw new ModContentException("Unsupported move point player.");
+            if ((obj=="Nodes" && string.IsNullOrWhiteSpace(part)) || (part!=null && (part.Length>128 || part!=part.Trim())))
+                throw new ModContentException("Nodes point requires an exact part name of 1..128 characters.");
+            foreach(var value in new[]{shiftX,shiftY})
+                if(double.IsNaN(value)||double.IsInfinity(value)||Math.Abs(value)>100000)
+                    throw new ModContentException("Move point shifts must be finite in -100000..100000.");
+            Object=obj;Player=player??string.Empty;Part=part??string.Empty;ShiftX=shiftX;ShiftY=shiftY;
+        }
+    }
+
+    public sealed class ModMoveAlignment
+    {
+        public IReadOnlyList<string> Axes { get; }
+        public ModMovePoint Pivot { get; }
+        public ModMovePoint Position { get; }
+        public ModMoveAlignment(string[] axes,ModMovePoint pivot,ModMovePoint position)
+        {
+            if(axes==null||axes.Length<1||axes.Length>3) throw new ModContentException("Align axes requires 1..3 unique axes.");
+            var seen=new HashSet<string>(StringComparer.Ordinal);
+            foreach(var axis in axes)
+                if(Array.IndexOf(new[]{"X","Y","Z"},axis)<0||!seen.Add(axis)) throw new ModContentException("Invalid or duplicate align axis.");
+            if(pivot==null||position==null) throw new ModContentException("Align requires pivot and position points.");
+            foreach(var point in new[]{pivot,position})
+                if(point.Object=="Floor"||point.Object=="COM") throw new ModContentException("Align supports Nodes, Pivot, Animation or Wall points.");
+            if(pivot.ShiftX!=0||pivot.ShiftY!=0) throw new ModContentException("Align pivot shifts are unsupported; shift the position instead.");
+            Axes=Array.AsReadOnly((string[])axes.Clone());Pivot=pivot;Position=position;
+        }
+    }
+
+    public sealed class ModMoveDirection
+    {
+        public ModMovePoint From { get; }
+        public ModMovePoint To { get; }
+        public ModMoveDirection(ModMovePoint from,ModMovePoint to)
+        {
+            if(from==null||to==null) throw new ModContentException("Direction requires from and to points.");
+            foreach(var point in new[]{from,to})
+                if(point.Object=="Animation"||point.Player.Length==0) throw new ModContentException("Direction points require a player and a distance-point object.");
+            From=from;To=to;
+        }
+    }
+
+    public sealed class ModMoveTransition
+    {
+        public int? FrameShift { get; }
+        public int? FirstFrame { get; }
+        public IReadOnlyList<ModMoveCondition> Conditions { get; }
+        public ModMoveTransition(ModMoveCondition[] conditions,int? frameShift=null,int? firstFrame=null)
+        {
+            if(frameShift.HasValue==firstFrame.HasValue) throw new ModContentException("Transition requires exactly one of frame_shift or first_frame.");
+            if(frameShift < -100000||frameShift > 100000||firstFrame < 0||firstFrame > 100000)
+                throw new ModContentException("Transition frame value is out of bounds.");
+            if(conditions==null||conditions.Length<1||conditions.Length>64) throw new ModContentException("Transition requires 1..64 conditions.");
+            foreach(var condition in conditions) if(condition==null) throw new ModContentException("Null transition condition.");
+            FrameShift=frameShift;FirstFrame=firstFrame;Conditions=Array.AsReadOnly((ModMoveCondition[])conditions.Clone());
+        }
+    }
+
+    public sealed class ModMoveEffect
+    {
+        public string Name { get; }
+        public string CoreSequence { get; }
+        public double Scale { get; }
+        public double TimeScale { get; }
+        public bool Looped { get; }
+        public ModMovePoint Position { get; }
+        public bool Follow { get; }
+        public ModMoveEffect(string name, string coreSequence, double scale = 1, double timeScale = 1,
+            bool looped = false, ModMovePoint position = null, bool follow = false)
+        {
+            ModMoveScheduledAction.ValidateSymbol(name, "effect");
+            ModMoveScheduledAction.ValidateSymbol(coreSequence, "core effect sequence");
+            foreach (var value in new[] { scale, timeScale })
+                if (double.IsNaN(value) || double.IsInfinity(value) || value <= 0 || value > 100)
+                    throw new ModContentException("Effect scale/time_scale must be finite in (0,100].");
+            if (position != null && position.Object == "Animation")
+                throw new ModContentException("Effect position uses a distance point, not Animation.");
+            if (follow && position == null) throw new ModContentException("Following an effect requires a position.");
+            Name = name; CoreSequence = coreSequence; Scale = scale; TimeScale = timeScale;
+            Looped = looped; Position = position; Follow = follow;
+        }
+    }
+
+    public sealed class ModMoveProjectile
+    {
+        public string Name { get; }
+        public string CoreSkeleton { get; }
+        public string CopyParentType { get; }
+        public string CoreStartAnimation { get; }
+        public DefinitionId? StartMove { get; }
+        public ModMoveProjectile(string name, string coreSkeleton, string copyParentType,
+            string coreStartAnimation = null, DefinitionId? startMove = null)
+        {
+            ModMoveScheduledAction.ValidateSymbol(name, "projectile actor");
+            ModMoveScheduledAction.ValidateSymbol(coreSkeleton, "core skeleton");
+            if (Array.IndexOf(new[] { "Weapon", "Ranged", "Magic" }, copyParentType) < 0)
+                throw new ModContentException("Projectile copy_parent_type requires Weapon, Ranged or Magic.");
+            if (coreStartAnimation != null) ModMoveScheduledAction.ValidateSymbol(coreStartAnimation, "core start animation");
+            if (startMove.HasValue && (startMove.Value.Category != "moves" || coreStartAnimation != null))
+                throw new ModContentException("Projectile accepts either start_move or core_start_animation.");
+            Name = name; CoreSkeleton = coreSkeleton; CopyParentType = copyParentType;
+            CoreStartAnimation = coreStartAnimation ?? string.Empty; StartMove = startMove;
+        }
+    }
+
+    public sealed class ModMoveBulletChange
+    {
+        public string Type { get; }
+        public int Value { get; }
+        public ModMoveBulletChange(string type, int value)
+        {
+            if (type != "MagicBullet" && type != "RaidChargeBullet") throw new ModContentException("Unsupported bullet type.");
+            if (value == 0 || value < -100000 || value > 100000) throw new ModContentException("Bullet value must be a nonzero integer in -100000..100000.");
+            Type = type; Value = value;
+        }
+    }
+
+    public sealed class ModMoveScheduledAction
+    {
+        public string Kind { get; }
+        public int? Frame { get; }
+        public string Event { get; }
+        public IReadOnlyList<string> CoreSounds { get; }
+        public ModMoveEffect Effect { get; }
+        public string EffectName { get; }
+        public ModMoveProjectile Projectile { get; }
+        public ModMoveBulletChange Bullets { get; }
+        public string DeletePlayer { get; }
+        public ModMoveScheduledAction(string kind, int? frame, string eventName, string[] coreSounds = null,
+            ModMoveEffect effect = null, string effectName = null, ModMoveProjectile projectile = null,
+            ModMoveBulletChange bullets = null, string deletePlayer = null)
+        {
+            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
+            if (frame.HasValue == (eventName != null)) throw new ModContentException("Move action requires exactly one of frame or event.");
+            if (frame < 0 || frame > 100000) throw new ModContentException("Action frame must be in 0..100000.");
+            if (eventName != null && Array.IndexOf(new[] { "RoundStage", "KeyPressed", "KeyReleased", "RoundStart", "RoundEnd", "Hit", "Strike", "WallHit", "AnimationStart", "AnimationEnd", "IntervalStart", "IntervalEnd", "EveryFrame", "Birth", "ModExpires" }, eventName) < 0)
+                throw new ModContentException("Unknown action event.");
+            coreSounds = coreSounds ?? Array.Empty<string>();
+            if (kind == "random_sound" && (coreSounds.Length < 1 || coreSounds.Length > 32)) throw new ModContentException("Random sound requires 1..32 core sound names.");
+            if (kind != "random_sound" && coreSounds.Length != 0) throw new ModContentException("Only random_sound accepts sounds.");
+            if ((kind == "effect") != (effect != null)) throw new ModContentException("Only effect actions require an effect table.");
+            bool stopsEffect = kind == "stop_effect" || kind == "stop_follow_effect";
+            if (stopsEffect != (effectName != null)) throw new ModContentException("Effect stop actions require effect_name exclusively.");
+            if (effectName != null) ValidateSymbol(effectName, "effect");
+            if ((kind == "create_projectile") != (projectile != null)) throw new ModContentException("Only create_projectile requires a projectile table.");
+            if ((kind == "add_bullets") != (bullets != null)) throw new ModContentException("Only add_bullets requires a bullets table.");
+            if ((kind == "delete_actor") != (deletePlayer != null)) throw new ModContentException("Only delete_actor requires player.");
+            if (deletePlayer != null && Array.IndexOf(new[] { "Me", "Enemy", "Parent", "Child", "EnemyChild" }, deletePlayer) < 0)
+                throw new ModContentException("Unsupported delete actor player.");
+            Projectile = projectile; Bullets = bullets; DeletePlayer = deletePlayer ?? string.Empty;
+            Effect = effect; EffectName = effectName ?? string.Empty;
+            foreach (var name in coreSounds) ValidateSymbol(name, "core sound");
+            Kind = kind; Frame = frame; Event = eventName ?? string.Empty;
+            CoreSounds = Array.AsReadOnly((string[])coreSounds.Clone());
+        }
+        internal static void ValidateSymbol(string value, string label)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length > 128 || value != value.Trim()) throw new ModContentException("Invalid " + label + " name.");
+            foreach (char c in value)
+                if (!(char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == '.')) throw new ModContentException("Invalid " + label + " symbol.");
+        }
+    }
+
+    public sealed class ModMoveProfile
+    {
+        public int Rank { get; }
+        public string CoreIcon { get; }
+        public DefinitionId? DisplayName { get; }
+        public ModMoveProfile(int rank, string coreIcon, DefinitionId? displayName = null)
+        {
+            if (rank < 0 || rank > 100000) throw new ModContentException("Profile rank must be in 0..100000.");
+            ModMoveScheduledAction.ValidateSymbol(coreIcon, "profile icon");
+            if (displayName.HasValue && displayName.Value.Category != "localization") throw new ModContentException("Move profile display_name requires a localization handle.");
+            Rank = rank; CoreIcon = coreIcon; DisplayName = displayName;
+        }
+    }
+
+    public sealed class ModMoveTacticDistance
+    {
+        public string Axis { get; }
+        public double Minimum { get; }
+        public double Maximum { get; }
+        public ModMoveDirection Points { get; }
+        public ModMoveTacticDistance(string axis, double minimum, double maximum, ModMovePoint from, ModMovePoint to)
+        {
+            if (axis != "X" && axis != "Y" && axis != "Full") throw new ModContentException("Tactic distance axis must be X, Y or Full.");
+            foreach (double value in new[] { minimum, maximum })
+                if (double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value) > 1000000) throw new ModContentException("Tactic distance must be finite in -1000000..1000000.");
+            if (minimum > maximum) throw new ModContentException("Tactic minimum exceeds maximum.");
+            Points = new ModMoveDirection(from, to); Axis = axis; Minimum = minimum; Maximum = maximum;
+        }
+    }
+
+    public sealed class ModMovePresentation
+    {
+        public IReadOnlyList<ModMoveScheduledAction> Actions { get; }
+        public ModMoveProfile Profile { get; }
+        public ModMoveTacticDistance TacticDistance { get; }
+        public bool NoWallRepulsion { get; }
+        public bool NoInterpolationFrames { get; }
+        public bool HasContent => Actions.Count != 0 || Profile != null || TacticDistance != null || NoWallRepulsion || NoInterpolationFrames;
+        public ModMovePresentation(ModMoveScheduledAction[] actions = null, ModMoveProfile profile = null,
+            ModMoveTacticDistance tacticDistance = null, bool noWallRepulsion = false, bool noInterpolationFrames = false)
+        {
+            actions = actions ?? Array.Empty<ModMoveScheduledAction>();
+            if (actions.Length > 64) throw new ModContentException("At most 64 scheduled move actions are supported.");
+            foreach (var action in actions) if (action == null) throw new ModContentException("Null scheduled action.");
+            Actions = Array.AsReadOnly((ModMoveScheduledAction[])actions.Clone()); Profile = profile; TacticDistance = tacticDistance;
+            NoWallRepulsion = noWallRepulsion; NoInterpolationFrames = noInterpolationFrames;
+        }
+    }
+
+    public sealed class ModMoveGraph
+    {
+        public IReadOnlyList<ModMoveCondition> Locks { get; }
+        public IReadOnlyList<ModMoveTransition> Transitions { get; }
+        public ModMoveAlignment Align { get; }
+        public ModMoveDirection Direction { get; }
+        public ModMovePresentation Presentation { get; }
+        public bool HasContent => Locks.Count!=0||Transitions.Count!=0||Align!=null||Direction!=null;
+        public ModMoveGraph(ModMoveCondition[] locks=null,ModMoveTransition[] transitions=null,ModMoveAlignment align=null,ModMoveDirection direction=null,ModMovePresentation presentation=null)
+        {
+            locks=locks??Array.Empty<ModMoveCondition>();transitions=transitions??Array.Empty<ModMoveTransition>();
+            if(locks.Length>64||transitions.Length>32) throw new ModContentException("Move graph supports at most 64 locks and 32 transitions.");
+            foreach(var value in locks) if(value==null) throw new ModContentException("Null move lock.");
+            foreach(var value in transitions) if(value==null) throw new ModContentException("Null move transition.");
+            Locks=Array.AsReadOnly((ModMoveCondition[])locks.Clone());Transitions=Array.AsReadOnly((ModMoveTransition[])transitions.Clone());Align=align;Direction=direction;
+            Presentation=presentation??new ModMovePresentation();
+        }
+    }
+
     public abstract class MoveNodeDefinition
     {
         private readonly DefinitionId[] _templates;
@@ -431,11 +711,12 @@ namespace Eclipse.Modding
         public string TacticWeapon { get; }
         public bool Looped { get; }
         public bool EndsStage { get; }
+        public ModMoveGraph Graph { get; }
 
         protected MoveNodeDefinition(DefinitionId id, DefinitionId[] templates, string[] coreTemplates,
             ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals, string type,
             int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode, string tacticEquivalent,
-            string tacticWeapon, bool looped, bool endsStage)
+            string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
         {
             if (priority < 0 || midFrames < 0 || firstFrame < 0 || endFrame < 0)
                 throw new ModContentException("Move/template frame and priority values must not be negative.");
@@ -455,6 +736,7 @@ namespace Eclipse.Modding
             TacticWeapon = tacticWeapon ?? string.Empty;
             Looped = looped;
             EndsStage = endsStage;
+            Graph = graph ?? new ModMoveGraph();
         }
     }
 
@@ -463,9 +745,9 @@ namespace Eclipse.Modding
         internal MoveTemplateDefinition(DefinitionId id, DefinitionId[] templates, string[] coreTemplates,
             ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals, string type,
             int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode, string tacticEquivalent,
-            string tacticWeapon, bool looped, bool endsStage)
+            string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
             : base(id, templates, coreTemplates, events, conditions, intervals, type, priority, midFrames, firstFrame,
-                endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage) { }
+                endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage, graph) { }
     }
 
     public sealed class MoveDefinition : MoveNodeDefinition
@@ -474,9 +756,9 @@ namespace Eclipse.Modding
         internal MoveDefinition(DefinitionId id, AssetId animation, DefinitionId[] templates, string[] coreTemplates,
             ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals, string type,
             int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode, string tacticEquivalent,
-            string tacticWeapon, bool looped, bool endsStage)
+            string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
             : base(id, templates, coreTemplates, events, conditions, intervals, type, priority, midFrames, firstFrame,
-                endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage)
+                endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage, graph)
         {
             if (string.IsNullOrEmpty(animation.Path)) throw new ModContentException("Move requires a binary animation asset.");
             Animation = animation;
@@ -660,7 +942,7 @@ namespace Eclipse.Modding
         private readonly Dictionary<DefinitionId, TacticDefinition> _p1dTactics = new Dictionary<DefinitionId, TacticDefinition>();
 
         private int P1DRegistrationCount => _p1dLocales.Count + _p1dLocations.Count + _p1dMoveTemplates.Count +
-            _p1dMoves.Count + _p1dMoveTriggers.Count + _p1dTactics.Count + MovePerkLockRegistrationCount;
+            _p1dMoves.Count + _p1dMoveTriggers.Count + _p1dTactics.Count + MovePerkLockRegistrationCount + _moveItemLockExtensions.Count + _moveCombatPatches.Count;
 
         public LocaleMetadataDefinition RegisterLocaleMetadata(string localId, string name, string locale, string alias,
             string fileIcon, string fileIconSelected, string loaderImage, string preloaderImage, bool isAsian,
@@ -696,12 +978,14 @@ namespace Eclipse.Modding
         public MoveTemplateDefinition RegisterMoveTemplate(string localId, DefinitionId[] templates,
             string[] coreTemplates, ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals,
             string type, int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode,
-            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage)
+            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
         {
             ThrowIfCompleted();
+            if (graph != null && graph.Transitions.Count != 0) throw new ModContentException("Transitions must be declared directly on a move, not a template.");
+            if (graph != null && graph.Presentation.HasContent) throw new ModContentException("Presentation must be declared directly on a move, not a template.");
             DefinitionId id = Qualify("move-templates", localId);
             var value = new MoveTemplateDefinition(id, templates, coreTemplates, events, conditions, intervals, type,
-                priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage);
+                priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage, graph);
             AddP1D(_p1dMoveTemplates, id, value);
             return value;
         }
@@ -709,13 +993,13 @@ namespace Eclipse.Modding
         public MoveDefinition RegisterMove(string localId, AssetId animation, DefinitionId[] templates,
             string[] coreTemplates, ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals,
             string type, int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode,
-            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage)
+            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
         {
             ThrowIfCompleted();
             ValidateAssetReference(animation, "move animation");
             DefinitionId id = Qualify("moves", localId);
             var value = new MoveDefinition(id, animation, templates, coreTemplates, events, conditions, intervals, type,
-                priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage);
+                priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage, graph);
             AddP1D(_p1dMoves, id, value);
             return value;
         }
@@ -763,6 +1047,9 @@ namespace Eclipse.Modding
             TacticDefinition[] tactics = Values(_p1dTactics);
             _catalog.ValidateP1DCanAdd(locales, locations, templates, moves, triggers, tactics);
             ValidateMovePerkLockCommit();
+            _catalog.ValidateItemLockExtensions(_moveItemLockExtensions);
+            _catalog.ValidateCombatPatches(_moveCombatPatches);
+            foreach (var patch in _moveCombatPatches) ValidateMovePerkRefs(patch.Conditions);
             for (int i = 0; i < templates.Length; i++) ValidateTemplateRefs(templates[i]);
             for (int i = 0; i < moves.Length; i++) ValidateTemplateRefs(moves[i]);
             for (int i = 0; i < triggers.Length; i++) ValidateMovePerkRefs(triggers[i].Conditions);
@@ -780,6 +1067,8 @@ namespace Eclipse.Modding
             _catalog.AddP1D(Values(_p1dLocales), Values(_p1dLocations), Values(_p1dMoveTemplates),
                 Values(_p1dMoves), Values(_p1dMoveTriggers), Values(_p1dTactics));
             ApplyMovePerkLockCommit();
+            _catalog.AddItemLockExtensions(_moveItemLockExtensions);
+            _catalog.AddCombatPatches(_moveCombatPatches);
         }
 
         private void ClearP1DPending()
@@ -787,11 +1076,25 @@ namespace Eclipse.Modding
             _p1dLocales.Clear(); _p1dLocations.Clear(); _p1dMoveTemplates.Clear(); _p1dMoves.Clear();
             _p1dMoveTriggers.Clear(); _p1dTactics.Clear();
             ClearMovePerkLockPending();
+            _moveItemLockExtensions.Clear();
+            _moveCombatPatches.Clear();
         }
 
         private void ValidateTemplateRefs(MoveNodeDefinition node)
         {
+            if (node.Graph.Presentation.Profile?.DisplayName != null)
+                GetLocalization(node.Graph.Presentation.Profile.DisplayName.Value.ToString());
+            foreach (var action in node.Graph.Presentation.Actions)
+            {
+                if (action.Projectile == null || !action.Projectile.StartMove.HasValue) continue;
+                var id = action.Projectile.StartMove.Value;
+                if (!CanReferenceNamespace(id.Namespace) ||
+                    (!_p1dMoves.ContainsKey(id) && !_catalog.TryGetMove(id, out MoveDefinition ignored)))
+                    throw new ModContentException("Projectile references missing or inaccessible start_move: " + id);
+            }
             ValidateMovePerkRefs(node.Conditions);
+            ValidateMovePerkRefs(node.Graph.Locks);
+            foreach(var transition in node.Graph.Transitions) ValidateMovePerkRefs(transition.Conditions);
             for (int i = 0; i < node.Templates.Count; i++)
             {
                 DefinitionId id = node.Templates[i];

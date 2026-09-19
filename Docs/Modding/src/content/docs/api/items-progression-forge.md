@@ -67,6 +67,50 @@ sf2.progression.replace_perk_branch {
 
 An `upgrade` entry must refer to a perk that supports upgrades. Keep alternative choices appropriate for players who have already progressed through the tree.
 
+## sf2.items.set_subtype
+
+Change the combat family of an existing weapon, ranged item or magic definition.
+Native animation conditions and projectile selection use this subtype.
+
+**Signature:** `sf2.items.set_subtype { item, subtype }`
+
+**Returns:** Nothing (`nil`).
+
+**When:** During mod loading, before profile equipment and fighters are built.
+
+**Requires:** `content.patch`; obtaining an item handle also requires
+`content.register`. Declare a dependency on the item's owner.
+
+| Field | Meaning |
+| --- | --- |
+| `item` | Required weapon, ranged or magic handle. Armor, helms and consumables are rejected. |
+| `subtype` | Required case-sensitive string of 1–128 ASCII letters, digits or underscores. |
+
+```lua
+local weapon = sf2.items.get("core:items/weapon/WEAPON_CHNY22_SPEAR")
+sf2.items.set_subtype { item = weapon, subtype = "Naginata" }
+```
+
+Choose a family with compatible native moves, rig edges and projectile behavior,
+or register that behavior yourself. A syntactically valid family does not create
+missing animations. For example, changing to `ChineseSwords` in the current base
+also needs its stance and attack graph ported; supplying an animation file alone
+is insufficient.
+
+Item IDs, models, prices, power, enchantments and saved ownership are unchanged.
+The subtype feeds AI grouping only when the item has no explicit tactic group;
+use `set_tactic_subtype` separately to change an explicit group. Competing patches
+to the same item's subtype fail atomically, while an AI-group or availability
+patch is a separate field and can coexist.
+
+The native item must exist when content is applied; an owned item normally needs
+a supported listing or another supported registration path that creates it.
+Duplicate legacy names are resolved against their original definition nodes.
+Missing native targets roll back earlier applied subtype patches. Apply & Restart
+without the mod restores the original subtype. Existing fighter copies retain
+their snapshot until rebuilt; this is not a mid-fight transformation operation.
+Subtype patches participate in the content compatibility fingerprint.
+
 ## sf2.items.set_tactic_subtype
 
 Replace the AI table group of a core or owned weapon without changing its animation subtype.

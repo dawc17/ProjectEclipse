@@ -12,7 +12,7 @@ $fixture=Join-Path $root ('Temp/ImmediatePurchases-'+[Guid]::NewGuid().ToString(
 New-Item -ItemType Directory -Path $fixture -Force | Out-Null
 $code=@'
 using System;
-class ItemInfo { public long KJFAOKLILOC=7,FMHECGHHKGB=9; public int CPODJDDPJHB=2; public string MDPPNGIEJGD="",FAEGJAEEMGH="fixture"; }
+class ItemInfo { public long KJFAOKLILOC=7,FMHECGHHKGB=9; public int CPODJDDPJHB=2; public string SubType="",FAEGJAEEMGH="fixture"; }
 struct ObscuredLong { long value; public static explicit operator ObscuredLong(long n)=>new ObscuredLong{value=n}; public static implicit operator long(ObscuredLong n)=>n.value; }
 struct ObscuredInt { int value; public static explicit operator ObscuredInt(int n)=>new ObscuredInt{value=n}; public static implicit operator int(ObscuredInt n)=>n.value; }
 class UserItem { public int Count; public int OFOPFCJNEBL()=>Count; }
@@ -60,8 +60,8 @@ __METHODS__
    Check(!buy(null) && Eclipse.Modding.ModRuntime.Calls==0,"Null item entered settlement");
    ListSF.Owner=null; Check(!buy(new ItemInfo()),"Missing profile accepted");
   }
-  Reset();Check(NIEAANPCGLC(new ItemInfo{MDPPNGIEJGD="PerkReset"}) && ListSF.Owner.Resets==1,"Consumable perk reset lost");
-  Reset();Check(NIEAANPCGLC(new ItemInfo{MDPPNGIEJGD="Currency"}) && ListSF.Owner.Currency==2,"Consumable currency effect lost");
+  Reset();Check(NIEAANPCGLC(new ItemInfo{SubType="PerkReset"}) && ListSF.Owner.Resets==1,"Consumable perk reset lost");
+  Reset();Check(NIEAANPCGLC(new ItemInfo{SubType="Currency"}) && ListSF.Owner.Currency==2,"Consumable currency effect lost");
   Console.WriteLine("Immediate purchases: "+checks+" checks passed (production methods; settlement/roster/grant services controlled).");
  }
 }

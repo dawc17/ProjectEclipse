@@ -5,7 +5,7 @@ $fixture=Join-Path $root ('Temp/ProfileApi-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidateProfileApi.cs') -Destination (Join-Path $fixture 'Program.cs')
 $source=Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/ModRuntime.cs')
-$level=[regex]::Match($source,'(?m)^        private static int\? ReadProfileLevel\(\).*;$')
+$level=[regex]::Match($source,'(?m)^        private static int\? ReadProfileLevel\(\).*;\r?$')
 $item=[regex]::Match($source,'(?ms)^        private static ModProfileItemSnapshot ReadProfileItem\(.*?^        \}')
 $perk=[regex]::Match($source,'(?ms)^        private static ModProfilePerkSnapshot ReadProfilePerk\(.*?^        \}')
 if(!$level.Success -or !$item.Success -or !$perk.Success){throw 'Native profile query methods not found.'}
@@ -16,7 +16,7 @@ using System;
 using System.Collections.Generic;
 using Eclipse.Modding;
 public static class NativeProfileFixture {
- public class ItemMetadata {public string Type="Weapon",MDPPNGIEJGD="Nunchaku";public System.Xml.XmlNode NodeXML;}
+ public class ItemMetadata {public string Type="Weapon",SubType="Nunchaku";public System.Xml.XmlNode NodeXML;}
  public class Catalog {public ItemMetadata Item=new ItemMetadata();public string Name;public ItemMetadata GetItemByName(string name){Name=name;return Item;}}
  public static class ListSF {public static Catalog Items=new Catalog();public static Catalog GetItems()=>Items;}
 
@@ -48,7 +48,7 @@ public static class NativeProfileFixture {
   if(ReadProfileLevel()!=20||ReadProfileItem(CoreContentImporter.WeaponId("WEAPON_NUNCHAKU")).Present)throw new Exception("Roster switch retained old inventory");
   var classified=ReadProfileItem(CoreContentImporter.WeaponId("WEAPON_NUNCHAKU"));
   if(classified.Type!="Weapon"||classified.Subtype!="Nunchaku"||ListSF.Items.Name!="WEAPON_NUNCHAKU")throw new Exception("Unowned item classification unavailable");
-  ListSF.Items.Item.MDPPNGIEJGD="Changed";
+  ListSF.Items.Item.SubType="Changed";
   if(classified.Subtype!="Nunchaku"||ReadProfileItem(CoreContentImporter.WeaponId("WEAPON_NUNCHAKU")).Subtype!="Changed")throw new Exception("Classification snapshot stale/aliased");
   ListSF.Items.Item=null;
   if(ReadProfileItem(CoreContentImporter.WeaponId("WEAPON_NUNCHAKU")).Type!=null)throw new Exception("Missing metadata invented classification");

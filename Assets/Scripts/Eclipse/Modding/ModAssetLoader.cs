@@ -553,6 +553,87 @@ namespace Eclipse.Modding
             internal readonly List<Snapshot> Snapshots = new List<Snapshot>();
         }
 
+        internal sealed class MoveItemLockRollback : IDisposable
+        {
+            internal sealed class Replacement
+            {
+                internal List<ConditionAnimation> Locks;
+                internal int Index;
+                internal ConditionAnimation Original;
+                internal ConditionAnimation Applied;
+            }
+            internal readonly List<Replacement> Replacements = new List<Replacement>();
+            public void Dispose()
+            {
+                for (int i=Replacements.Count-1; i>=0; i--)
+                {
+                    var entry=Replacements[i];
+                    int index=entry.Locks.IndexOf(entry.Applied);
+                    if (index>=0) entry.Locks[index]=entry.Original;
+                }
+                Replacements.Clear();
+            }
+        }
+
+        internal static MoveItemLockRollback ApplyItemLockExtensions(IReadOnlyList<InfoAnimation> moves,
+            IReadOnlyList<MoveItemLockExtension> extensions)
+        {
+            if (extensions == null || extensions.Count == 0) return null;
+            var byName=new Dictionary<string,InfoAnimation>(StringComparer.Ordinal);
+            foreach (var move in moves)
+                if (move != null && !string.IsNullOrEmpty(move.Name))
+                {
+                    if (byName.ContainsKey(move.Name)) throw new InvalidOperationException("Ambiguous live move name: " + move.Name);
+                    byName.Add(move.Name,move);
+                }
+            var rollback=new MoveItemLockRollback();
+            var pending=new Dictionary<List<ConditionAnimation>,List<ConditionAnimation>>();
+            var document=new XmlDocument { XmlResolver=null };
+            foreach (var extension in extensions)
+            {
+                if (!byName.TryGetValue(extension.MoveName,out var move) || move.MoveData == null)
+                    throw new InvalidOperationException("Item lock extension references unavailable move '"+extension.MoveName+"'.");
+                var live=move.MoveData.Locks;
+                if (!pending.TryGetValue(live,out var locks)) pending.Add(live,locks=new List<ConditionAnimation>(live));
+                int match=-1;
+                for(int i=0;i<live.Count;i++)
+                {
+                    // Select against original clauses, never another pending addition.
+                    // This keeps independent mod registration order from changing targets.
+                    var candidate=live[i];
+                    bool found=MatchesItemLock(candidate,extension.ItemType,extension.SourceSubtype);
+                    if (candidate is ConditionList group && !group.IsNot && group.get_Type()==ConditionList.OperatorType.OR)
+                        foreach (var child in group.GetConditions()) found |= MatchesItemLock(child,extension.ItemType,extension.SourceSubtype);
+                    if (!found) continue;
+                    if (match>=0) throw new InvalidOperationException("Ambiguous item lock clause for '"+extension.MoveName+"'.");
+                    match=i;
+                }
+                if (match<0) throw new InvalidOperationException("No matching positive item lock clause for '"+extension.MoveName+"'.");
+                var original=locks[match];
+                var children=original is ConditionList existing ? new List<ConditionAnimation>(existing.GetConditions()) : new List<ConditionAnimation>{original};
+                foreach (var child in children)
+                    if (MatchesItemLock(child,extension.ItemType,extension.Subtype))
+                        throw new InvalidOperationException("Item lock subtype already exists for '"+extension.MoveName+"'.");
+                var item=document.CreateElement("Item"); item.SetAttribute("Type",extension.ItemType); item.SetAttribute("SubType",extension.Subtype);
+                var added=new ConditionItemInfo(item); added.Parse(item); children.Add(added);
+                var op=document.CreateElement("Operator"); op.SetAttribute("Type","Or");
+                var replacement=new ConditionList(op,children); replacement.Parse(op);
+                locks[match]=replacement;
+            }
+            // Validate the entire batch before changing any live condition list.
+            foreach (var pair in pending)
+                for(int i=0;i<pair.Key.Count;i++)
+                    if (!ReferenceEquals(pair.Key[i],pair.Value[i]))
+                        rollback.Replacements.Add(new MoveItemLockRollback.Replacement {
+                            Locks=pair.Key,Index=i,Original=pair.Key[i],Applied=pair.Value[i] });
+            foreach(var entry in rollback.Replacements) entry.Locks[entry.Index]=entry.Applied;
+            return rollback;
+        }
+
+        private static bool MatchesItemLock(ConditionAnimation condition,string itemType,string subtype)
+            => condition is ConditionItemInfo item && !item.IsNot && item.get_Type()==itemType &&
+                item.GetSubType()==subtype && string.IsNullOrEmpty(item.get_Name());
+
         internal static int ApplyMoves(XmlDocument document)
         {
             if (document == null || document["Movesxml"] == null)
@@ -568,7 +649,7 @@ namespace Eclipse.Modding
             if (sourceMoves == null) throw new InvalidOperationException("Recovered animations/moves.xml is unavailable.");
 
             var liveByName = new Dictionary<string, InfoAnimation>(StringComparer.Ordinal);
-            foreach (InfoAnimation move in AnimationData.KGPMGOBAOFG)
+            foreach (InfoAnimation move in AnimationData.Animations)
                 if (move != null && !string.IsNullOrEmpty(move.Name)) liveByName[move.Name] = move;
 
             var sourceByName = new Dictionary<string, XmlNode>(StringComparer.Ordinal);
@@ -585,7 +666,7 @@ namespace Eclipse.Modding
             {
                 if (!sourceByName.TryGetValue(removal.MoveName, out XmlNode sourceMove))
                     throw new InvalidOperationException("Move perk-lock removal references missing base move '" + removal.MoveName + "'.");
-                if (!liveByName.TryGetValue(removal.MoveName, out InfoAnimation liveMove) || liveMove.ODACDCDONJE == null)
+                if (!liveByName.TryGetValue(removal.MoveName, out InfoAnimation liveMove) || liveMove.MoveData == null)
                     throw new InvalidOperationException("Move perk-lock removal references unavailable live move '" + removal.MoveName + "'.");
 
                 XmlNode locksNode = sourceMove["Locks"];
@@ -609,7 +690,7 @@ namespace Eclipse.Modding
                 if (targetIndex < 0)
                     throw new InvalidOperationException("Move '" + removal.MoveName + "' has no direct perk lock '" + perkName + "'.");
 
-                List<ConditionAnimation> liveLocks = liveMove.ODACDCDONJE.HIFPHBNGIPO;
+                List<ConditionAnimation> liveLocks = liveMove.MoveData.Locks;
                 if (targetIndex >= liveLocks.Count || !(liveLocks[targetIndex] is ConditionPerk livePerk) ||
                     !string.Equals(livePerk.get_Name(), perkName, StringComparison.Ordinal))
                     throw new InvalidOperationException("Live move lock layout does not match recovered XML for '" + removal.MoveName + "'.");
@@ -626,7 +707,7 @@ namespace Eclipse.Modding
             foreach (MovePerkLockRollback.Snapshot snapshot in rollback.Snapshots)
             {
                 HashSet<int> indices = removalsByMove[snapshot.Move];
-                List<ConditionAnimation> liveLocks = snapshot.Move.ODACDCDONJE.HIFPHBNGIPO;
+                List<ConditionAnimation> liveLocks = snapshot.Move.MoveData.Locks;
                 liveLocks.Clear();
                 for (int i = 0; i < snapshot.Locks.Length; i++) if (!indices.Contains(i)) liveLocks.Add(snapshot.Locks[i]);
             }
@@ -639,8 +720,8 @@ namespace Eclipse.Modding
             for (int i = rollback.Snapshots.Count - 1; i >= 0; i--)
             {
                 MovePerkLockRollback.Snapshot snapshot = rollback.Snapshots[i];
-                if (snapshot.Move?.ODACDCDONJE == null) continue;
-                List<ConditionAnimation> locks = snapshot.Move.ODACDCDONJE.HIFPHBNGIPO;
+                if (snapshot.Move?.MoveData == null) continue;
+                List<ConditionAnimation> locks = snapshot.Move.MoveData.Locks;
                 locks.Clear();
                 locks.AddRange(snapshot.Locks);
             }
@@ -709,5 +790,140 @@ namespace Eclipse.Modding
             return null;
         }
 
+    }
+}
+
+namespace Eclipse.Modding
+{
+    // Validate the complete batch first. Animation loading can consume NodeInterval
+    // between application and removal, so rollback handles both representations.
+    internal static class MoveCombatPatchRuntime
+    {
+        internal sealed class Lifetime : IDisposable
+        {
+            internal readonly List<Action> Apply = new List<Action>();
+            internal readonly List<Action> Undo = new List<Action>();
+            private bool _disposed;
+            public void Dispose()
+            {
+                if (_disposed) return;
+                _disposed = true;
+                for (int i = Undo.Count - 1; i >= 0; i--) Undo[i]();
+            }
+        }
+
+        internal static Lifetime Apply(IReadOnlyList<InfoAnimation> moves, IReadOnlyList<MoveCombatPatch> patches,
+            Func<ModMoveCondition, ConditionAnimation> parse)
+        {
+            var lifetime = new Lifetime();
+            var names = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var patch in patches)
+            {
+                if (!names.Add(patch.MoveName)) throw new InvalidOperationException("Duplicate runtime move patch: " + patch.MoveName);
+                InfoAnimation move = null;
+                foreach (var candidate in moves)
+                    if (candidate != null && candidate.Name == patch.MoveName)
+                    {
+                        if (move != null) throw new InvalidOperationException("Ambiguous native move: " + patch.MoveName);
+                        move = candidate;
+                    }
+                if (move == null || move.MoveData == null) throw new InvalidOperationException("Missing native move: " + patch.MoveName);
+                var target = move;
+                foreach (var condition in patch.Conditions)
+                {
+                    var parsed = parse(condition);
+                    if (parsed == null) throw new InvalidOperationException("Unsupported parsed patch condition: " + patch.MoveName);
+                    var conditions = target.SelectionConditions;
+                    lifetime.Apply.Add(() => conditions.Add(parsed));
+                    lifetime.Undo.Add(() => conditions.Remove(parsed));
+                }
+                if (patch.IntervalEnd != null) PrepareEnd(target, patch.IntervalEnd, lifetime);
+                if (patch.Hit != null) PrepareHit(target, patch.Hit, lifetime);
+                if (patch.SoundFrame != null) PrepareSound(target, patch.SoundFrame, lifetime);
+            }
+            try { foreach (var apply in lifetime.Apply) apply(); }
+            catch { lifetime.Dispose(); throw; }
+            return lifetime;
+        }
+
+        private static string Attribute(XmlNode node, string name) => node?.Attributes?[name]?.Value;
+        private static int Integer(XmlNode node, string name, int fallback)
+        {
+            string raw = Attribute(node, name);
+            if (raw == null) return fallback;
+            if (!int.TryParse(raw, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int value))
+                throw new InvalidOperationException("Native move field is not an integer: " + name);
+            return value;
+        }
+        private static void PrepareEnd(InfoAnimation move, ModMoveFramePatch patch, Lifetime lifetime)
+        {
+            IntervalAnimation interval = null;
+            foreach (var candidate in move.MoveData.Intervals)
+                if ((candidate.NodeInterval != null ? Attribute(candidate.NodeInterval,"Name") : candidate.Name) == patch.Name)
+                {
+                    if (interval != null) throw new InvalidOperationException("Ambiguous interval: " + move.Name + "/" + patch.Name);
+                    interval = candidate;
+                }
+            if (interval == null) throw new InvalidOperationException("Missing interval: " + move.Name + "/" + patch.Name);
+            var target = interval; var originalNode = target.NodeInterval;
+            int start = originalNode == null ? target.Start : Integer(originalNode,"Start",0);
+            int end = originalNode == null ? target.EndFrame : Integer(originalNode,"End",-1);
+            if (end != patch.Expected || patch.Value < start) throw new InvalidOperationException("Interval expected end mismatch: " + move.Name);
+            XmlNode replacement = originalNode?.CloneNode(true);
+            if (replacement != null) ((XmlElement)replacement).SetAttribute("End",patch.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            lifetime.Apply.Add(() => { if (replacement != null) target.NodeInterval = replacement; else target.EndFrame = patch.Value; });
+            lifetime.Undo.Add(() =>
+            {
+                if (replacement != null && ReferenceEquals(target.NodeInterval,replacement)) target.NodeInterval = originalNode;
+                else if (target.NodeInterval == null && target.EndFrame == patch.Value) target.EndFrame = patch.Expected;
+            });
+        }
+        private static void PrepareHit(InfoAnimation move, ModMoveHitPatch patch, Lifetime lifetime)
+        {
+            IntervalAttack attack = null;
+            foreach (var candidate in move.MoveData.Intervals)
+                if (candidate is IntervalAttack found)
+                {
+                    if (attack != null) throw new InvalidOperationException("Hit patch requires one attack interval: " + move.Name);
+                    attack = found;
+                }
+            if (attack == null) throw new InvalidOperationException("Hit patch has no attack interval: " + move.Name);
+            var target = attack; var originalNode = target.NodeInterval;
+            XmlNode replacement = null;
+            if (originalNode != null)
+            {
+                var hits = originalNode.SelectNodes("Hit");
+                if (hits.Count != 1 || Attribute(hits[0],"Name") != patch.Expected ||
+                    Attribute(hits[0],"Start") != null || Attribute(hits[0],"End") != null)
+                    throw new InvalidOperationException("Hit patch requires one matching full-interval hit: " + move.Name);
+                replacement = originalNode.CloneNode(true);
+                ((XmlElement)replacement["Hit"]).SetAttribute("Name",patch.Value);
+            }
+            else if (target.HitReactions.Count != 1 || target.HitReactions[0].Name != patch.Expected ||
+                target.HitReactions[0].Start != target.Start || target.HitReactions[0].EndFrame != target.EndFrame)
+                throw new InvalidOperationException("Hit patch requires one matching full-interval reaction: " + move.Name);
+            lifetime.Apply.Add(() => { if (replacement != null) target.NodeInterval = replacement; else target.HitReactions[0].Name = patch.Value; });
+            lifetime.Undo.Add(() =>
+            {
+                if (replacement != null && ReferenceEquals(target.NodeInterval,replacement)) target.NodeInterval = originalNode;
+                else if (target.NodeInterval == null && target.HitReactions.Count == 1 && target.HitReactions[0].Name == patch.Value)
+                    target.HitReactions[0].Name = patch.Expected;
+            });
+        }
+        private static void PrepareSound(InfoAnimation move, ModMoveFramePatch patch, Lifetime lifetime)
+        {
+            ActionSound sound = null;
+            foreach (var candidate in move.ScheduledActions)
+                if (candidate is ActionSound found && found.get_Name() == patch.Name)
+                {
+                    if (sound != null) throw new InvalidOperationException("Ambiguous sound action: " + move.Name + "/" + patch.Name);
+                    sound = found;
+                }
+            if (sound == null || sound.ScheduledFrame != patch.Expected)
+                throw new InvalidOperationException("Sound expected frame mismatch: " + move.Name + "/" + patch.Name);
+            var target = sound;
+            lifetime.Apply.Add(() => target.SetScheduledFrame(patch.Value));
+            lifetime.Undo.Add(() => { if (target.ScheduledFrame == patch.Value) target.SetScheduledFrame(patch.Expected); });
+        }
     }
 }

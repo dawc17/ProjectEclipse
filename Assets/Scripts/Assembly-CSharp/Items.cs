@@ -102,7 +102,8 @@ public class Items
 		}
 	}
 
-	public List<ItemInfo> KLJFJJJPPJJ
+	// best guess for name
+	public List<ItemInfo> AllItems
 	{
 		get
 		{

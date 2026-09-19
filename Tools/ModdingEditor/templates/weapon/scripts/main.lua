@@ -6,6 +6,8 @@ local weapon = sf2.items.register_weapon {
     icon = sf2.assets.sprite("sprites/weapon"),
     model = sf2.assets.model("core:gamedata/models/mdl_weapon_katana_ritual"),
     subtype = "Katana",
+    -- Omit initial_stats for normal power; { weapon_damage = 0 } stores zero,
+    -- while {} leaves initial damage absent. Normal upgrades still apply.
     -- Optional tactic_subtype selects a different native AI table group.
 }
 

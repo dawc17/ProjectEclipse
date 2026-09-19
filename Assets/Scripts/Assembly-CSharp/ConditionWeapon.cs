@@ -45,7 +45,7 @@ public class ConditionWeapon : ConditionAnimation
 		{
 			foreach (ItemInfo item in conditions.OJIAKDDCGLB)
 			{
-				if ((string.IsNullOrEmpty(KCIIELDOBOM) || KCIIELDOBOM == item.Type) && (string.IsNullOrEmpty(LOKOGOFENFO) || LOKOGOFENFO == item.MDPPNGIEJGD) && (string.IsNullOrEmpty(_Name) || _Name == item.Name))
+				if ((string.IsNullOrEmpty(KCIIELDOBOM) || KCIIELDOBOM == item.Type) && (string.IsNullOrEmpty(LOKOGOFENFO) || LOKOGOFENFO == item.SubType) && (string.IsNullOrEmpty(_Name) || _Name == item.Name))
 				{
 					return !IsNot;
 				}

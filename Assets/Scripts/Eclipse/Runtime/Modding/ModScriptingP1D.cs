@@ -23,23 +23,23 @@ namespace Eclipse.Modding
         public MoveTemplateDefinition RegisterMoveTemplate(string localId, DefinitionId[] templates,
             string[] coreTemplates, ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals,
             string type, int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode,
-            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage)
+            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterMoveTemplate(localId, templates, coreTemplates, events, conditions,
                 intervals, type, priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon,
-                looped, endsStage);
+                looped, endsStage, graph);
         }
 
         public MoveDefinition RegisterMove(string localId, AssetId animation, DefinitionId[] templates,
             string[] coreTemplates, ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals,
             string type, int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode,
-            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage)
+            string tacticEquivalent, string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterMove(localId, animation, templates, coreTemplates, events,
                 conditions, intervals, type, priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent,
-                tacticWeapon, looped, endsStage);
+                tacticWeapon, looped, endsStage, graph);
         }
 
         public MoveTriggerDefinition RegisterMoveTrigger(string localId, ModMoveEvent[] events,

@@ -173,7 +173,7 @@ public class UserItems
 			if (dJKEECEOCJB != null)
 			{
 				bool flag = dJKEECEOCJB.Type.Equals(LFLGCDNKNJI);
-				bool flag2 = dJKEECEOCJB.MDPPNGIEJGD.Equals(GIGAFKGDKNH) || GIGAFKGDKNH.Equals(string.Empty);
+				bool flag2 = dJKEECEOCJB.SubType.Equals(GIGAFKGDKNH) || GIGAFKGDKNH.Equals(string.Empty);
 				bool flag3 = dJKEECEOCJB.DCHJDPCEODD || !isActive;
 				if (flag && flag2 && flag3)
 				{

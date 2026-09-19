@@ -76,11 +76,11 @@ public class Model : global::EventDispatcher<object>
 			for (int i = 0; i < MAHEJFLCCHP.Count; i++)
 			{
 				InfoAnimation pJAHIOELGGD = MAHEJFLCCHP[i];
-				if (pJAHIOELGGD.ODACDCDONJE.DFLNENOIMPO.IsExists)
+				if (pJAHIOELGGD.MoveData.DFLNENOIMPO.IsExists)
 				{
 					JHCMCMFOGCI.Add(pJAHIOELGGD);
 				}
-				List<EventAnimation> aJCMBMJGJEG = pJAHIOELGGD.ODACDCDONJE.AJCMBMJGJEG;
+				List<EventAnimation> aJCMBMJGJEG = pJAHIOELGGD.MoveData.AJCMBMJGJEG;
 				for (int j = 0; j < aJCMBMJGJEG.Count; j++)
 				{
 					List<InfoAnimation> list = NCNDKFCPLEH(aJCMBMJGJEG[j].Type);
@@ -2647,7 +2647,7 @@ public class Model : global::EventDispatcher<object>
 
 	public int GLEKCPCMINJ()
 	{
-		if (Parameters.Ranged != null && Parameters.Ranged.MDPPNGIEJGD == "NoRanged")
+		if (Parameters.Ranged != null && Parameters.Ranged.SubType == "NoRanged")
 		{
 			return 1;
 		}
@@ -3019,38 +3019,38 @@ public class Model : global::EventDispatcher<object>
 	{
 		foreach (InfoAnimation item in OHAMEHHMEAL)
 		{
-			if (item.ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI == -1)
+			if (item.MoveData.ILOEBFFAEAN.CLIPMJNJDKI == -1)
 			{
-				InfoAnimation.DOLCEABGNGA cKBGFODEBAJ = item.ODACDCDONJE.ILOEBFFAEAN.CKBGFODEBAJ;
+				InfoAnimation.DOLCEABGNGA cKBGFODEBAJ = item.MoveData.ILOEBFFAEAN.CKBGFODEBAJ;
 				if (cKBGFODEBAJ == InfoAnimation.DOLCEABGNGA.ObjectNodes)
 				{
-					ModelObject oIEODIEHJMH = OEKFONJCEFG(item.ODACDCDONJE.ILOEBFFAEAN.BAFGOANMBMI);
-					int num = oIEODIEHJMH.GetNodeIDByName(item.ODACDCDONJE.ILOEBFFAEAN.BLODCIGDJFK);
+					ModelObject oIEODIEHJMH = OEKFONJCEFG(item.MoveData.ILOEBFFAEAN.BAFGOANMBMI);
+					int num = oIEODIEHJMH.GetNodeIDByName(item.MoveData.ILOEBFFAEAN.BLODCIGDJFK);
 					if (num == -1)
 					{
-						LLLOJBFMONN.GLCKHLCAPIN("'Pivot' node '{0}' not found for '{1}' animation", item.ODACDCDONJE.ILOEBFFAEAN.BLODCIGDJFK, item.Name);
+						LLLOJBFMONN.GLCKHLCAPIN("'Pivot' node '{0}' not found for '{1}' animation", item.MoveData.ILOEBFFAEAN.BLODCIGDJFK, item.Name);
 					}
-					item.ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI = num;
-					item.ODACDCDONJE.ILOEBFFAEAN.BAHKGNNELBL = oIEODIEHJMH.GetNodeIDByPairName(item.ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI);
+					item.MoveData.ILOEBFFAEAN.CLIPMJNJDKI = num;
+					item.MoveData.ILOEBFFAEAN.BAHKGNNELBL = oIEODIEHJMH.GetNodeIDByPairName(item.MoveData.ILOEBFFAEAN.CLIPMJNJDKI);
 				}
 			}
-			if (item.ODACDCDONJE.ILOEBFFAEAN.JPKDOHPGEBA != -1 && item.ODACDCDONJE.ILOEBFFAEAN.EDBLMNIEKBD != ModelType.KEIDBIOIFGA.MODEL_OTHER)
+			if (item.MoveData.ILOEBFFAEAN.JPKDOHPGEBA != -1 && item.MoveData.ILOEBFFAEAN.EDBLMNIEKBD != ModelType.KEIDBIOIFGA.MODEL_OTHER)
 			{
 				continue;
 			}
-			InfoAnimation.DOLCEABGNGA hHPAGAOGGLP = item.ODACDCDONJE.ILOEBFFAEAN.HHPAGAOGGLP;
+			InfoAnimation.DOLCEABGNGA hHPAGAOGGLP = item.MoveData.ILOEBFFAEAN.HHPAGAOGGLP;
 			if (hHPAGAOGGLP == InfoAnimation.DOLCEABGNGA.ObjectNodes)
 			{
-				ModelObject oIEODIEHJMH2 = OEKFONJCEFG(item.ODACDCDONJE.ILOEBFFAEAN.EDBLMNIEKBD);
+				ModelObject oIEODIEHJMH2 = OEKFONJCEFG(item.MoveData.ILOEBFFAEAN.EDBLMNIEKBD);
 				if (oIEODIEHJMH2 != null)
 				{
-					item.ODACDCDONJE.ILOEBFFAEAN.JPKDOHPGEBA = oIEODIEHJMH2.GetNodeIDByName(item.ODACDCDONJE.ILOEBFFAEAN.PMILDGBBLMF);
-					item.ODACDCDONJE.ILOEBFFAEAN.KFMGKDOLKGN = oIEODIEHJMH2.GetNodeIDByPairName(item.ODACDCDONJE.ILOEBFFAEAN.JPKDOHPGEBA);
+					item.MoveData.ILOEBFFAEAN.JPKDOHPGEBA = oIEODIEHJMH2.GetNodeIDByName(item.MoveData.ILOEBFFAEAN.PMILDGBBLMF);
+					item.MoveData.ILOEBFFAEAN.KFMGKDOLKGN = oIEODIEHJMH2.GetNodeIDByPairName(item.MoveData.ILOEBFFAEAN.JPKDOHPGEBA);
 				}
 				else
 				{
 					LLLOJBFMONN.Error("Model::setCurrentNode() m == 0 : {0}", item.Name);
-					item.ODACDCDONJE.ILOEBFFAEAN.JPKDOHPGEBA = 0;
+					item.MoveData.ILOEBFFAEAN.JPKDOHPGEBA = 0;
 				}
 			}
 		}
@@ -3898,7 +3898,7 @@ public class Model : global::EventDispatcher<object>
 		foreach (ItemInfo item in GetModelConditionItems())
 		{
 			if (item != null && (item.Type == "Magic" || item.Type == "Weapon" || item.Type == "Ranged"))
-				items.Add(item.Type + ":" + item.Name + "/" + item.MDPPNGIEJGD);
+				items.Add(item.Type + ":" + item.Name + "/" + item.SubType);
 		}
 		return (items.Count == 0) ? "<none>" : string.Join(",", items.ToArray());
 	}

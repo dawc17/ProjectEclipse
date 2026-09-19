@@ -1109,7 +1109,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 		{
 			return;
 		}
-		List<ActionAnimation> dJBAIAKOIHM = BAOONIGFBMB.ODACDCDONJE.DJBAIAKOIHM;
+		List<ActionAnimation> dJBAIAKOIHM = BAOONIGFBMB.MoveData.DJBAIAKOIHM;
 		if (dJBAIAKOIHM.Count <= 0)
 		{
 			return;
@@ -1200,7 +1200,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 		int num = LOIJGOPOGMO();
 		MIDMNJKJOFO = (num - gOBJCKFGIPA) * (BAOONIGFBMB.MNHGBPOIHKG + 1);
 		float num2 = 0f;
-		if (0 < MIDMNJKJOFO && BAOONIGFBMB.ODACDCDONJE.ILOEBFFAEAN.CKBGFODEBAJ == InfoAnimation.DOLCEABGNGA.ObjectNodes)
+		if (0 < MIDMNJKJOFO && BAOONIGFBMB.MoveData.ILOEBFFAEAN.CKBGFODEBAJ == InfoAnimation.DOLCEABGNGA.ObjectNodes)
 		{
 			int num3;
 			if (ANHGOGDEFCO())
@@ -1298,7 +1298,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 
 	private void ShiftPoints()
 	{
-		InfoAnimation.MovePivot iLOEBFFAEAN = BAOONIGFBMB.ODACDCDONJE.ILOEBFFAEAN;
+		InfoAnimation.MovePivot iLOEBFFAEAN = BAOONIGFBMB.MoveData.ILOEBFFAEAN;
 		ModelAnimation oJIEPADIEDE = DMDKINMOAKM(iLOEBFFAEAN.BAFGOANMBMI);
 		ModelAnimation oJIEPADIEDE2 = DMDKINMOAKM(iLOEBFFAEAN.EDBLMNIEKBD);
 		Vector3f eMAFACPEPDK = new Vector3f();
@@ -1505,9 +1505,9 @@ public class ModelAnimation : global::EventDispatcher<object>
 
 	private void SetCurrentNode()
 	{
-		if (BAOONIGFBMB.ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI > -1)
+		if (BAOONIGFBMB.MoveData.ILOEBFFAEAN.CLIPMJNJDKI > -1)
 		{
-			LBHPMJDHAEM = BAOONIGFBMB.ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI;
+			LBHPMJDHAEM = BAOONIGFBMB.MoveData.ILOEBFFAEAN.CLIPMJNJDKI;
 			KFGEBGBEJBC = _Model.NAMKCLGOPDD()[LBHPMJDHAEM];
 		}
 		else
@@ -1556,7 +1556,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 			return;
 		}
 		ONHMMDAOGIM = false;
-		List<ActionAnimation> dJBAIAKOIHM = BAOONIGFBMB.ODACDCDONJE.DJBAIAKOIHM;
+		List<ActionAnimation> dJBAIAKOIHM = BAOONIGFBMB.MoveData.DJBAIAKOIHM;
 		if (dJBAIAKOIHM.Count <= 0)
 		{
 			return;

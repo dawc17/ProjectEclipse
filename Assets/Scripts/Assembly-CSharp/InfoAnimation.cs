@@ -238,7 +238,8 @@ public class InfoAnimation
 
 		public List<IntervalAnimation> Intervals = new List<IntervalAnimation>();
 
-		public List<ConditionAnimation> HIFPHBNGIPO = new List<ConditionAnimation>();
+		// best guess for name
+		public List<ConditionAnimation> Locks = new List<ConditionAnimation>();
 
 		public List<TransitionAnimation> ELFBPNOBDKC = new List<TransitionAnimation>();
 
@@ -314,7 +315,15 @@ public class InfoAnimation
 
 	public string FileName;
 
-	public MoveInside ODACDCDONJE;
+	// best guess for name
+	public MoveInside MoveData;
+
+	// best guess for name
+	public List<ConditionAnimation> SelectionConditions => MoveData.JIFAHHGNPFH;
+
+	// best guess for name
+	public List<ActionAnimation> ScheduledActions => MoveData.DJBAIAKOIHM;
+
 
 	public bool HFBOLCPHMBB;
 
@@ -645,17 +654,17 @@ public class InfoAnimation
 		AEDIIEEJKHE = false;
 		ENDJLOAGKGO = StageType.FDBBPEGEGMK.STAGE_NONE;
 		JCIKOMAMJDI = false;
-		ODACDCDONJE = new MoveInside();
+		MoveData = new MoveInside();
 		HFBOLCPHMBB = false;
 		_NodesCount = 0;
 		_AnimationContainer = null;
 		INFAGPDFGNL = false;
 		KPEMEDJCIIB = 0f;
 		Rank = 0;
-		ODACDCDONJE.ILOEBFFAEAN = new MovePivot();
-		ODACDCDONJE.ILOEBFFAEAN.IsExists = false;
-		ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI = -1;
-		ODACDCDONJE.IHJEKBAEIKK.IsExists = false;
+		MoveData.ILOEBFFAEAN = new MovePivot();
+		MoveData.ILOEBFFAEAN.IsExists = false;
+		MoveData.ILOEBFFAEAN.CLIPMJNJDKI = -1;
+		MoveData.IHJEKBAEIKK.IsExists = false;
 	}
 
 	public List<List<global::Pair<List<GroupTables>, string>>> NLCLHLIPFFH()
@@ -687,8 +696,8 @@ public class InfoAnimation
 
 	public void Init()
 	{
-		ODACDCDONJE.JGMGIHIBFKA();
-		ODACDCDONJE.NKHGGBMOADI();
+		MoveData.JGMGIHIBFKA();
+		MoveData.NKHGGBMOADI();
 		if (_AnimationContainer != null && _AnimationContainer.Length > 0)
 		{
 			_NodesCount = _AnimationContainer[0].Length;
@@ -702,19 +711,19 @@ public class InfoAnimation
 
 	public string KPIMAMCOEAN()
 	{
-		if (ODACDCDONJE == null)
+		if (MoveData == null)
 		{
 			LLLOJBFMONN.Error("moveInside is null");
 			return string.Empty;
 		}
-		return ODACDCDONJE.ILOEBFFAEAN.BLODCIGDJFK;
+		return MoveData.ILOEBFFAEAN.BLODCIGDJFK;
 	}
 
 	public void GetIntervals(int frame, List<IntervalAnimation> NKHPLNBJKLI, List<IntervalAnimation> HLMKBLOHJGC, HashSet<IntervalAnimation.NGAJJDIEDGF> FGBOFDJKLJI = null)
 	{
 		NKHPLNBJKLI.Clear();
 		HLMKBLOHJGC.Clear();
-		foreach (IntervalAnimation item in ODACDCDONJE.Intervals)
+		foreach (IntervalAnimation item in MoveData.Intervals)
 		{
 			int num = ((item.Start < GOBJCKFGIPA) ? GOBJCKFGIPA : item.Start);
 			int num2 = ((item.GEJLNPIEDPF > LHHAGECFIOL) ? LHHAGECFIOL : item.GEJLNPIEDPF);
@@ -734,12 +743,12 @@ public class InfoAnimation
 
 	public List<IntervalAnimation> PCKKMNHDDMP()
 	{
-		return ODACDCDONJE.Intervals;
+		return MoveData.Intervals;
 	}
 
 	public bool JBALJDEOGNK(EventAnimation p_event)
 	{
-		foreach (EventAnimation item in ODACDCDONJE.AJCMBMJGJEG)
+		foreach (EventAnimation item in MoveData.AJCMBMJGJEG)
 		{
 			if (item.IsEqual(p_event))
 			{
@@ -751,7 +760,7 @@ public class InfoAnimation
 
 	public bool HPPGNJJCEGF(ModelConditions conditions, List<ConditionAnimation> JPGMNIFICDM = null, EventAnimation DOANBADPBGH = null)
 	{
-		List<ConditionAnimation> list = ((JPGMNIFICDM == null) ? ODACDCDONJE.JIFAHHGNPFH : JPGMNIFICDM);
+		List<ConditionAnimation> list = ((JPGMNIFICDM == null) ? MoveData.JIFAHHGNPFH : JPGMNIFICDM);
 		if (DOANBADPBGH != null)
 		{
 			conditions.HFCIDBJJINB = DOANBADPBGH;
@@ -769,7 +778,7 @@ public class InfoAnimation
 
 	public bool HPPGNJJCEGF(Model ACENLMONNPA, List<ConditionAnimation> JPGMNIFICDM = null, EventAnimation DOANBADPBGH = null)
 	{
-		List<ConditionAnimation> list = ((JPGMNIFICDM == null) ? ODACDCDONJE.JIFAHHGNPFH : JPGMNIFICDM);
+		List<ConditionAnimation> list = ((JPGMNIFICDM == null) ? MoveData.JIFAHHGNPFH : JPGMNIFICDM);
 		for (int i = 0; i < list.Count; i++)
 		{
 			ConditionAnimation iIDOLPHMOGA = list[i];
@@ -872,58 +881,58 @@ public class InfoAnimation
 
 	public void NHAEHLFMPNK(MoveInside KECIIKEIJBH)
 	{
-		if (ODACDCDONJE != null)
+		if (MoveData != null)
 		{
 			ACGIFMKPBGC(KECIIKEIJBH.AJCMBMJGJEG);
 			CPKDGKCHOJJ(KECIIKEIJBH.NIDNJFOGBFO);
 			CHDLHMGPDHL(KECIIKEIJBH.JIFAHHGNPFH);
 			GAKOLFJGLMM(KECIIKEIJBH.Intervals);
-			OFMGLKAGCGO(KECIIKEIJBH.HIFPHBNGIPO);
+			OFMGLKAGCGO(KECIIKEIJBH.Locks);
 			PGMIJCNNJAG(KECIIKEIJBH.ELFBPNOBDKC);
 			FGAEEJBEGEJ(KECIIKEIJBH.DJBAIAKOIHM);
-			if (!ODACDCDONJE.DFLNENOIMPO.IsExists && KECIIKEIJBH.DFLNENOIMPO.IsExists)
+			if (!MoveData.DFLNENOIMPO.IsExists && KECIIKEIJBH.DFLNENOIMPO.IsExists)
 			{
-				ODACDCDONJE.DFLNENOIMPO = KECIIKEIJBH.DFLNENOIMPO;
+				MoveData.DFLNENOIMPO = KECIIKEIJBH.DFLNENOIMPO;
 			}
-			if (!ODACDCDONJE.ILOEBFFAEAN.IsExists && KECIIKEIJBH.ILOEBFFAEAN.IsExists)
+			if (!MoveData.ILOEBFFAEAN.IsExists && KECIIKEIJBH.ILOEBFFAEAN.IsExists)
 			{
-				ODACDCDONJE.ILOEBFFAEAN = KECIIKEIJBH.ILOEBFFAEAN;
+				MoveData.ILOEBFFAEAN = KECIIKEIJBH.ILOEBFFAEAN;
 			}
-			if (!ODACDCDONJE.IHJEKBAEIKK.IsExists && KECIIKEIJBH.IHJEKBAEIKK.IsExists)
+			if (!MoveData.IHJEKBAEIKK.IsExists && KECIIKEIJBH.IHJEKBAEIKK.IsExists)
 			{
-				ODACDCDONJE.IHJEKBAEIKK = KECIIKEIJBH.IHJEKBAEIKK;
+				MoveData.IHJEKBAEIKK = KECIIKEIJBH.IHJEKBAEIKK;
 			}
 		}
 	}
 
 	public void OFMGLKAGCGO(List<ConditionAnimation> value)
 	{
-		ODACDCDONJE.HIFPHBNGIPO.AddRange(value);
+		MoveData.Locks.AddRange(value);
 	}
 
 	public void PGMIJCNNJAG(List<TransitionAnimation> value)
 	{
-		ODACDCDONJE.ELFBPNOBDKC.AddRange(value);
+		MoveData.ELFBPNOBDKC.AddRange(value);
 	}
 
 	public void FGAEEJBEGEJ(List<ActionAnimation> value)
 	{
-		ODACDCDONJE.DJBAIAKOIHM.AddRange(value);
+		MoveData.DJBAIAKOIHM.AddRange(value);
 	}
 
 	public void ACGIFMKPBGC(List<EventAnimation> value)
 	{
-		ODACDCDONJE.AJCMBMJGJEG.AddRange(value);
+		MoveData.AJCMBMJGJEG.AddRange(value);
 	}
 
 	public void CPKDGKCHOJJ(List<ConditionAnimation> value)
 	{
-		ODACDCDONJE.NIDNJFOGBFO.AddRange(value);
+		MoveData.NIDNJFOGBFO.AddRange(value);
 	}
 
 	public void CHDLHMGPDHL(List<ConditionAnimation> value)
 	{
-		ODACDCDONJE.JIFAHHGNPFH.AddRange(value);
+		MoveData.JIFAHHGNPFH.AddRange(value);
 	}
 
 	public void GAKOLFJGLMM(List<IntervalAnimation> value)
@@ -932,7 +941,7 @@ public class InfoAnimation
 		{
 			item.set_AnimationFinishFrame(LHHAGECFIOL);
 		}
-		ODACDCDONJE.Intervals.AddRange(value);
+		MoveData.Intervals.AddRange(value);
 	}
 
 	private void OOICKIBOFGH(string path)
@@ -982,22 +991,22 @@ public class InfoAnimation
 	public void BPHNHFJCFCD(ModelObject OECPEDPMKCD, bool EKBOGDKIHIH, bool PHADJMAONJG, ModelObject MJCGOJBGFIE = null)
 	{
 		ModelNode aECCPADGGPG = null;
-		if (ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI > -1 && ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI < OECPEDPMKCD.LMBNDIPLBJA().Count)
+		if (MoveData.ILOEBFFAEAN.CLIPMJNJDKI > -1 && MoveData.ILOEBFFAEAN.CLIPMJNJDKI < OECPEDPMKCD.LMBNDIPLBJA().Count)
 		{
-			aECCPADGGPG = OECPEDPMKCD.LMBNDIPLBJA()[ODACDCDONJE.ILOEBFFAEAN.CLIPMJNJDKI];
+			aECCPADGGPG = OECPEDPMKCD.LMBNDIPLBJA()[MoveData.ILOEBFFAEAN.CLIPMJNJDKI];
 		}
-		UpdateConditions(ODACDCDONJE.JIFAHHGNPFH, OECPEDPMKCD, EKBOGDKIHIH, PHADJMAONJG, MJCGOJBGFIE, aECCPADGGPG);
-		if (0 < ODACDCDONJE.NIDNJFOGBFO.Count)
+		UpdateConditions(MoveData.JIFAHHGNPFH, OECPEDPMKCD, EKBOGDKIHIH, PHADJMAONJG, MJCGOJBGFIE, aECCPADGGPG);
+		if (0 < MoveData.NIDNJFOGBFO.Count)
 		{
-			UpdateConditions(ODACDCDONJE.NIDNJFOGBFO, OECPEDPMKCD, EKBOGDKIHIH, PHADJMAONJG, MJCGOJBGFIE, aECCPADGGPG);
+			UpdateConditions(MoveData.NIDNJFOGBFO, OECPEDPMKCD, EKBOGDKIHIH, PHADJMAONJG, MJCGOJBGFIE, aECCPADGGPG);
 		}
-		ODACDCDONJE.IHJEKBAEIKK.CLCFLPDNBNL.UpdateNode(OECPEDPMKCD, EKBOGDKIHIH, null, PHADJMAONJG, MJCGOJBGFIE);
-		ODACDCDONJE.IHJEKBAEIKK.KAEAKHIEIHH.UpdateNode(OECPEDPMKCD, EKBOGDKIHIH, null, PHADJMAONJG, MJCGOJBGFIE);
+		MoveData.IHJEKBAEIKK.CLCFLPDNBNL.UpdateNode(OECPEDPMKCD, EKBOGDKIHIH, null, PHADJMAONJG, MJCGOJBGFIE);
+		MoveData.IHJEKBAEIKK.KAEAKHIEIHH.UpdateNode(OECPEDPMKCD, EKBOGDKIHIH, null, PHADJMAONJG, MJCGOJBGFIE);
 		if (KPEMEDJCIIB != 0f)
 		{
 			OJGFJBFBCAP.UpdateNode(OECPEDPMKCD, EKBOGDKIHIH, null, PHADJMAONJG, MJCGOJBGFIE);
 		}
-		foreach (ActionAnimation item in ODACDCDONJE.DJBAIAKOIHM)
+		foreach (ActionAnimation item in MoveData.DJBAIAKOIHM)
 		{
 			if (item.get_Type() == ActionAnimation.FADAJCEEKIO.EFFECT)
 			{
@@ -1040,7 +1049,7 @@ public class InfoAnimation
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.GetConditions();
 					UpdateConditions(kDOGKKGDOBK, OECPEDPMKCD, EKBOGDKIHIH, PHADJMAONJG, MJCGOJBGFIE, AECCPADGGPG);
 				}
 				else
@@ -1084,7 +1093,7 @@ public class InfoAnimation
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> aIDMEPEKEOL = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> aIDMEPEKEOL = eLFKOGJJNMN.GetConditions();
 					CJAPHCKAOIE(aIDMEPEKEOL);
 				}
 				else
@@ -1097,9 +1106,9 @@ public class InfoAnimation
 
 	public void ABNCNNHMLII()
 	{
-		CJAPHCKAOIE(ODACDCDONJE.JIFAHHGNPFH);
-		CJAPHCKAOIE(ODACDCDONJE.NIDNJFOGBFO);
-		foreach (ActionAnimation item in ODACDCDONJE.DJBAIAKOIHM)
+		CJAPHCKAOIE(MoveData.JIFAHHGNPFH);
+		CJAPHCKAOIE(MoveData.NIDNJFOGBFO);
+		foreach (ActionAnimation item in MoveData.DJBAIAKOIHM)
 		{
 			if (item.get_Type() == ActionAnimation.FADAJCEEKIO.EFFECT)
 			{
@@ -1107,8 +1116,8 @@ public class InfoAnimation
 				jFJGGMEJDPG.MGCNPBCBMHB();
 			}
 		}
-		ODACDCDONJE.IHJEKBAEIKK.CLCFLPDNBNL.GPGKANDFLNB();
-		ODACDCDONJE.IHJEKBAEIKK.KAEAKHIEIHH.GPGKANDFLNB();
+		MoveData.IHJEKBAEIKK.CLCFLPDNBNL.GPGKANDFLNB();
+		MoveData.IHJEKBAEIKK.KAEAKHIEIHH.GPGKANDFLNB();
 		if (OJGFJBFBCAP != null)
 		{
 			OJGFJBFBCAP.GPGKANDFLNB();
@@ -1122,7 +1131,7 @@ public class InfoAnimation
 
 	public int CEDEDCLGJDE(ModelConditions conditions, int CLHNIJGMKBH)
 	{
-		return (!ODACDCDONJE.IHJEKBAEIKK.IsExists) ? CLHNIJGMKBH : ODACDCDONJE.IHJEKBAEIKK.IMLFCBLAJGA(conditions);
+		return (!MoveData.IHJEKBAEIKK.IsExists) ? CLHNIJGMKBH : MoveData.IHJEKBAEIKK.IMLFCBLAJGA(conditions);
 	}
 
 	public int PGOFHCBPLOE()
@@ -1138,7 +1147,7 @@ public class InfoAnimation
 	public int MLLLLMFLOBG(bool NPEIEAHIDKH)
 	{
 		int num = 0;
-		foreach (IntervalAnimation item in ODACDCDONJE.Intervals)
+		foreach (IntervalAnimation item in MoveData.Intervals)
 		{
 			if (item.Type == IntervalAnimation.NGAJJDIEDGF.INTERVAL_ATTACK && num < item.GEJLNPIEDPF)
 			{
@@ -1154,13 +1163,13 @@ public class InfoAnimation
 
 	public bool IsItemRequired(string LMNNBBKHMEI, string OCOEFJAMFCG)
 	{
-		List<ConditionAnimation> hIFPHBNGIPO = ODACDCDONJE.HIFPHBNGIPO;
+		List<ConditionAnimation> hIFPHBNGIPO = MoveData.Locks;
 		foreach (ConditionAnimation item in hIFPHBNGIPO)
 		{
 			if (item.Type == ConditionAnimation.ConditionType.ITEM && !item.IsNot)
 			{
 				ConditionItemInfo kOOGCJOEANH = item as ConditionItemInfo;
-				if (LMNNBBKHMEI == kOOGCJOEANH.get_Type() && OCOEFJAMFCG == kOOGCJOEANH.EAIMKPPOODM())
+				if (LMNNBBKHMEI == kOOGCJOEANH.get_Type() && OCOEFJAMFCG == kOOGCJOEANH.GetSubType())
 				{
 					return true;
 				}
@@ -1172,18 +1181,18 @@ public class InfoAnimation
 					continue;
 				}
 				ConditionList eLFKOGJJNMN = item as ConditionList;
-				if (eLFKOGJJNMN.get_Type() != ConditionList.PJDDCKKJBNB.OR)
+				if (eLFKOGJJNMN.get_Type() != ConditionList.OperatorType.OR)
 				{
 					LLLOJBFMONN.Error(string.Empty);
 					continue;
 				}
-				List<ConditionAnimation> list = eLFKOGJJNMN.KJILOMLMMEN();
+				List<ConditionAnimation> list = eLFKOGJJNMN.GetConditions();
 				foreach (ConditionAnimation item2 in list)
 				{
 					if (item2.Type == ConditionAnimation.ConditionType.ITEM && !item2.IsNot)
 					{
 						ConditionItemInfo kOOGCJOEANH2 = item2 as ConditionItemInfo;
-						if (LMNNBBKHMEI == kOOGCJOEANH2.get_Type() && OCOEFJAMFCG == kOOGCJOEANH2.EAIMKPPOODM())
+						if (LMNNBBKHMEI == kOOGCJOEANH2.get_Type() && OCOEFJAMFCG == kOOGCJOEANH2.GetSubType())
 						{
 							return true;
 						}
@@ -1197,7 +1206,7 @@ public class InfoAnimation
 	public int GetMoveLength(List<string> NFLDEGMEJAK)
 	{
 		int num = 0;
-		foreach (IntervalAnimation item in ODACDCDONJE.Intervals)
+		foreach (IntervalAnimation item in MoveData.Intervals)
 		{
 			if (NFLDEGMEJAK.Contains(item.Name) && num < item.GEJLNPIEDPF)
 			{
@@ -1225,7 +1234,7 @@ public class InfoAnimation
 
 	public ConditionKeys ILBCHANCOBP()
 	{
-		return DHBACBKLADO(ODACDCDONJE.JIFAHHGNPFH);
+		return DHBACBKLADO(MoveData.JIFAHHGNPFH);
 	}
 
 	private static ConditionKeys DHBACBKLADO(List<ConditionAnimation> conditions)
@@ -1237,7 +1246,7 @@ public class InfoAnimation
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.GetConditions();
 					ConditionKeys bHDEBDIHDFM = DHBACBKLADO(kDOGKKGDOBK);
 					if (bHDEBDIHDFM != null)
 					{
@@ -1264,7 +1273,7 @@ public class InfoAnimation
 	public List<ConditionKeys> MOPMGFIIFGA()
 	{
 		List<ConditionKeys> list = new List<ConditionKeys>();
-		CIEHMPCOKGK(ODACDCDONJE.JIFAHHGNPFH, list);
+		CIEHMPCOKGK(MoveData.JIFAHHGNPFH, list);
 		return list;
 	}
 
@@ -1277,7 +1286,7 @@ public class InfoAnimation
 				ConditionList eLFKOGJJNMN = item as ConditionList;
 				if (eLFKOGJJNMN != null)
 				{
-					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.KJILOMLMMEN();
+					List<ConditionAnimation> kDOGKKGDOBK = eLFKOGJJNMN.GetConditions();
 					CIEHMPCOKGK(kDOGKKGDOBK, GKHEPKGMEFI);
 				}
 				else
@@ -1372,18 +1381,18 @@ public class InfoAnimation
 
 	public bool AIHDFOPLBIL()
 	{
-		return ODACDCDONJE.ILOEBFFAEAN.BLODCIGDJFK == "NHeel_2";
+		return MoveData.ILOEBFFAEAN.BLODCIGDJFK == "NHeel_2";
 	}
 
 	public bool LIKPDIIPABF()
 	{
-		return ODACDCDONJE.ILOEBFFAEAN.BLODCIGDJFK == "NHeel_1";
+		return MoveData.ILOEBFFAEAN.BLODCIGDJFK == "NHeel_1";
 	}
 
 	public int IKFCNCLKDGD(bool NPEIEAHIDKH)
 	{
 		int num = 0;
-		foreach (IntervalAnimation item in ODACDCDONJE.Intervals)
+		foreach (IntervalAnimation item in MoveData.Intervals)
 		{
 			if ("Uninterrupt" == item.Name && num < item.GEJLNPIEDPF)
 			{
@@ -1474,7 +1483,7 @@ public class InfoAnimation
 
 	public bool MBENIPEBGBK(string name, int frame)
 	{
-		foreach (IntervalAnimation item in ODACDCDONJE.Intervals)
+		foreach (IntervalAnimation item in MoveData.Intervals)
 		{
 			if (item.Name == name && item.Start <= frame && frame <= item.GEJLNPIEDPF)
 			{
@@ -1497,7 +1506,7 @@ public class InfoAnimation
 			foreach (string item in NIKHAICFGNM)
 			{
 				bool flag = false;
-				foreach (IntervalAnimation item2 in ODACDCDONJE.Intervals)
+				foreach (IntervalAnimation item2 in MoveData.Intervals)
 				{
 					if (item2.Name == item && item2.Start <= frame && frame <= item2.GEJLNPIEDPF)
 					{
@@ -1512,7 +1521,7 @@ public class InfoAnimation
 			}
 			return true;
 		}
-		foreach (IntervalAnimation item3 in ODACDCDONJE.Intervals)
+		foreach (IntervalAnimation item3 in MoveData.Intervals)
 		{
 			if (NIKHAICFGNM.Contains(item3.Name) && item3.Start <= frame && frame <= item3.GEJLNPIEDPF)
 			{
@@ -1530,9 +1539,9 @@ public class InfoAnimation
 
 	public EventAnimation OIGBIFNICBI(EventAnimation.EECEJKADLCK LFLGCDNKNJI)
 	{
-		if (ODACDCDONJE != null)
+		if (MoveData != null)
 		{
-			return ODACDCDONJE.OIGBIFNICBI(LFLGCDNKNJI);
+			return MoveData.OIGBIFNICBI(LFLGCDNKNJI);
 		}
 		return null;
 	}
@@ -1550,7 +1559,7 @@ public class InfoAnimation
 	public void PreloadEffects()
 	{
 		string text = "Textures/Effects/Magic/";
-		foreach (ActionAnimation item in ODACDCDONJE.DJBAIAKOIHM)
+		foreach (ActionAnimation item in MoveData.DJBAIAKOIHM)
 		{
 			if (item.get_Type() == ActionAnimation.FADAJCEEKIO.EFFECT)
 			{
@@ -1563,7 +1572,7 @@ public class InfoAnimation
 
 	public void PreloadSounds()
 	{
-		foreach (ActionAnimation item in ODACDCDONJE.DJBAIAKOIHM)
+		foreach (ActionAnimation item in MoveData.DJBAIAKOIHM)
 		{
 			if (item.get_Type() == ActionAnimation.FADAJCEEKIO.SOUND)
 			{

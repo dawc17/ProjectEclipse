@@ -420,6 +420,7 @@ namespace Eclipse.Modding
             {
                 Append(canonical, timer.Owner.ToString()); Append(canonical, timer.Subsystem); Append(canonical, timer.Seconds);
                 Append(canonical, timer.SkipEnabled ? "skip" : "wait");
+                if (timer.CompletePending) Append(canonical, "complete_pending");
             }
             var features = new List<string>(content.DisabledFeatures); features.Sort(StringComparer.Ordinal);
             foreach (var feature in features) Append(canonical, feature);
@@ -447,6 +448,15 @@ namespace Eclipse.Modding
             Append(canonical, item.LegacyName ?? string.Empty);
             Append(canonical, item.LegacyItemXml ?? string.Empty);
             Append(canonical, ((int)item.Progression).ToString(CultureInfo.InvariantCulture));
+
+            if (item.InitialStats != null)
+            {
+                Append(canonical, "initial-stats");
+                var names = new List<string>(item.InitialStats.Values.Keys);
+                names.Sort(StringComparer.Ordinal);
+                Append(canonical, names.Count);
+                foreach (string name in names) { Append(canonical, name); Append(canonical, item.InitialStats.Values[name]); }
+            }
 
             if (item is WeaponDefinition weapon)
             {
@@ -727,6 +737,14 @@ namespace Eclipse.Modding
 
         private static void AppendP1C(StringBuilder canonical, ModContentCatalog content)
         {
+            if (content.ItemCombatSubtypes.Count != 0)
+            {
+                var subtypes = new List<ItemCombatSubtypeDefinition>(content.ItemCombatSubtypes);
+                subtypes.Sort((a,b) => string.CompareOrdinal(a.Item.ToString(),b.Item.ToString()));
+                Append(canonical,"item-combat-subtypes"); Append(canonical,subtypes.Count);
+                foreach (var subtype in subtypes)
+                { Append(canonical,subtype.Owner.Value); Append(canonical,subtype.Item.ToString()); Append(canonical,subtype.Subtype); }
+            }
             if (content.ItemTacticSubtypes.Count != 0)
             {
                 var groups = new List<ItemTacticSubtypeDefinition>(content.ItemTacticSubtypes);
@@ -835,6 +853,7 @@ namespace Eclipse.Modding
             {
                 ItemAvailabilityPolicyDefinition policy = availability[i]; Append(canonical, policy.Owner.Value);
                 Append(canonical, policy.Item.ToString()); Append(canonical, (int)policy.Visibility); Append(canonical, policy.RequiredGroup);
+                if (policy.MinimumLevel != 0) { Append(canonical, "minimum_level"); Append(canonical, policy.MinimumLevel); }
             }
 
             var progression = new List<ProgressionBranchOverlayDefinition>(content.ProgressionBranches);
@@ -925,6 +944,34 @@ namespace Eclipse.Modding
             Append(canonical, "moves"); Append(canonical, moves.Count);
             for (int i = 0; i < moves.Count; i++) AppendMoveNode(canonical, moves[i], moves[i].Animation.ToString());
 
+            if (content.MoveCombatPatches.Count > 0)
+            {
+                Append(canonical, "move-combat-patches-v1");
+                var patches = new List<MoveCombatPatch>(content.MoveCombatPatches);
+                patches.Sort((left,right) => string.CompareOrdinal(left.MoveName,right.MoveName));
+                Append(canonical, patches.Count);
+                foreach (var patch in patches)
+                {
+                    Append(canonical, patch.Owner.Value); Append(canonical, patch.MoveName);
+                    AppendMoveConditions(canonical, patch.Conditions);
+                    foreach (var frame in new[] { patch.IntervalEnd, patch.SoundFrame })
+                    {
+                        Append(canonical, frame != null);
+                        if (frame != null) { Append(canonical, frame.Name); Append(canonical, frame.Expected); Append(canonical, frame.Value); }
+                    }
+                    Append(canonical, patch.Hit != null);
+                    if (patch.Hit != null) { Append(canonical, patch.Hit.Expected); Append(canonical, patch.Hit.Value); }
+                }
+            }
+            if (content.MoveItemLockExtensions.Count > 0)
+            {
+                var extensions = new List<MoveItemLockExtension>(content.MoveItemLockExtensions);
+                extensions.Sort((a,b) => string.CompareOrdinal(a.ConflictKey,b.ConflictKey));
+                Append(canonical,"move-item-lock-extensions-v1"); Append(canonical,extensions.Count);
+                foreach (var entry in extensions)
+                { Append(canonical,entry.MoveName); Append(canonical,entry.ItemType); Append(canonical,entry.SourceSubtype); Append(canonical,entry.Subtype); }
+            }
+
             if (content.MovePerkLockRemovals.Count > 0)
             {
                 var removals = new List<MovePerkLockRemoval>(content.MovePerkLockRemovals);
@@ -987,12 +1034,89 @@ namespace Eclipse.Modding
                         var attack=interval.Attack; AppendStrings(canonical,attack.Edges); Append(canonical,attack.Id);
                         Append(canonical,attack.Damage.ToString("R",CultureInfo.InvariantCulture)); Append(canonical,attack.DamageType); Append(canonical,attack.Hit);
                         foreach(var impulse in new[]{attack.X,attack.Y,attack.Z}) Append(canonical,impulse.ToString("R",CultureInfo.InvariantCulture));
+                        // Preserve existing single unshifted attack fingerprints.
+                        if (attack.DamageTerms.Count != 1 || attack.DamageTerms[0].Shift != 0)
+                        {
+                            Append(canonical,"damage-terms-v1"); Append(canonical,attack.DamageTerms.Count);
+                            foreach (var term in attack.DamageTerms)
+                            { Append(canonical,term.Type); Append(canonical,term.Shift.ToString("R",CultureInfo.InvariantCulture)); }
+                        }
                     }
                 }
             }
             Append(canonical, node.Type); Append(canonical, node.Priority); Append(canonical, node.MidFrames);
             Append(canonical, node.FirstFrame); Append(canonical, node.EndFrame); Append(canonical, node.MirrorNode);
             Append(canonical, node.TacticEquivalent); Append(canonical, node.TacticWeapon); Append(canonical, node.Looped); Append(canonical, node.EndsStage);
+            AppendMovePresentation(canonical, node.Graph.Presentation);
+            if(node.Graph.HasContent)
+            {
+                Append(canonical,"move-graph-v1");AppendMoveConditions(canonical,node.Graph.Locks);
+                Append(canonical,node.Graph.Transitions.Count);
+                foreach(var transition in node.Graph.Transitions)
+                {
+                    Append(canonical,transition.FrameShift.HasValue);Append(canonical,transition.FrameShift??transition.FirstFrame.Value);
+                    AppendMoveConditions(canonical,transition.Conditions);
+                }
+                Append(canonical,node.Graph.Align!=null);
+                if(node.Graph.Align!=null)
+                {
+                    AppendStrings(canonical,node.Graph.Align.Axes);AppendMovePoint(canonical,node.Graph.Align.Pivot);AppendMovePoint(canonical,node.Graph.Align.Position);
+                }
+                Append(canonical,node.Graph.Direction!=null);
+                if(node.Graph.Direction!=null) { AppendMovePoint(canonical,node.Graph.Direction.From);AppendMovePoint(canonical,node.Graph.Direction.To); }
+            }
+        }
+
+        private static void AppendMovePresentation(StringBuilder canonical, ModMovePresentation value)
+        {
+            if (!value.HasContent) return;
+            Append(canonical, "move-presentation-v1");
+            Append(canonical, value.NoWallRepulsion); Append(canonical, value.NoInterpolationFrames);
+            Append(canonical, value.Profile != null);
+            if (value.Profile != null) { Append(canonical, value.Profile.Rank); Append(canonical, value.Profile.CoreIcon); }
+            if (value.Profile?.DisplayName != null) { Append(canonical, "move-profile-title-v1"); Append(canonical, value.Profile.DisplayName.Value.ToString()); }
+            Append(canonical, value.TacticDistance != null);
+            if (value.TacticDistance != null)
+            {
+                var distance = value.TacticDistance;
+                Append(canonical, distance.Axis); Append(canonical, distance.Minimum.ToString("R", CultureInfo.InvariantCulture));
+                Append(canonical, distance.Maximum.ToString("R", CultureInfo.InvariantCulture));
+                AppendMovePoint(canonical, distance.Points.From); AppendMovePoint(canonical, distance.Points.To);
+            }
+            Append(canonical, value.Actions.Count);
+            foreach (var action in value.Actions)
+            {
+                Append(canonical, action.Kind); Append(canonical, action.Frame.HasValue); Append(canonical, action.Frame ?? 0);
+                Append(canonical, action.Event); AppendStrings(canonical, action.CoreSounds);
+                if (action.Projectile != null)
+                {
+                    var projectile = action.Projectile; Append(canonical, "move-projectile-v1");
+                    Append(canonical, projectile.Name); Append(canonical, projectile.CoreSkeleton); Append(canonical, projectile.CopyParentType);
+                    Append(canonical, projectile.CoreStartAnimation); Append(canonical, projectile.StartMove?.ToString() ?? string.Empty);
+                }
+                if (action.Bullets != null)
+                {
+                    Append(canonical, "move-bullets-v1"); Append(canonical, action.Bullets.Type); Append(canonical, action.Bullets.Value);
+                }
+                if (action.DeletePlayer.Length != 0) { Append(canonical, "move-delete-v1"); Append(canonical, action.DeletePlayer); }
+                if (action.EffectName.Length != 0) { Append(canonical, "stop-move-effect-v1"); Append(canonical, action.EffectName); }
+                if (action.Effect != null)
+                {
+                    var effect = action.Effect; Append(canonical, "move-effect-v1");
+                    Append(canonical, effect.Name); Append(canonical, effect.CoreSequence);
+                    Append(canonical, effect.Scale.ToString("R", CultureInfo.InvariantCulture));
+                    Append(canonical, effect.TimeScale.ToString("R", CultureInfo.InvariantCulture));
+                    Append(canonical, effect.Looped); Append(canonical, effect.Follow);
+                    Append(canonical, effect.Position != null);
+                    if (effect.Position != null) AppendMovePoint(canonical, effect.Position);
+                }
+            }
+        }
+
+        private static void AppendMovePoint(StringBuilder canonical,ModMovePoint point)
+        {
+            Append(canonical,point.Object);Append(canonical,point.Player);Append(canonical,point.Part);
+            Append(canonical,point.ShiftX.ToString("R",CultureInfo.InvariantCulture));Append(canonical,point.ShiftY.ToString("R",CultureInfo.InvariantCulture));
         }
 
         private static void AppendMoveEvents(StringBuilder canonical, IReadOnlyList<ModMoveEvent> events)

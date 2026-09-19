@@ -39,6 +39,10 @@ public class IntervalAttack : IntervalAnimation
 
 		public int PLHPGFGAGKJ = -1;
 
+		// best guess for name
+		public int EndFrame => PLHPGFGAGKJ;
+
+
 		public Reaction()
 		{
 		}
@@ -76,6 +80,10 @@ public class IntervalAttack : IntervalAnimation
 	private int _ComboTime;
 
 	private List<Reaction> HBLDJNLGILG = new List<Reaction>();
+
+	// best guess for name
+	public IReadOnlyList<Reaction> HitReactions => HBLDJNLGILG;
+
 
 	private bool KOJJEJFODEG;
 

@@ -22,6 +22,10 @@ public class IntervalAnimation
 
 	public int GEJLNPIEDPF;
 
+	// best guess for name
+	public int EndFrame { get => GEJLNPIEDPF; set => GEJLNPIEDPF = value; }
+
+
 	public string Name;
 
 	public NGAJJDIEDGF Type;

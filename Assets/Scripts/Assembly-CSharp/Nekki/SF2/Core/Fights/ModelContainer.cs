@@ -209,7 +209,7 @@ namespace Nekki.SF2.Core.Fights
 					dJKEECEOCJB = OCEIGMAPCHK.ADBKGIBBNHJ;
 					HEGIABHIPHA.Magic = item;
 				}
-				else if (item.Type.Equals("RaidConsumable") && item.MDPPNGIEJGD.Equals("RaidCharge"))
+				else if (item.Type.Equals("RaidConsumable") && item.SubType.Equals("RaidCharge"))
 				{
 					dJKEECEOCJB = OCEIGMAPCHK.LMIBBJIKLNO;
 					KAOPLEPILDH kAOPLEPILDH = HEGIABHIPHA as KAOPLEPILDH;

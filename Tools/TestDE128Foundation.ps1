@@ -16,6 +16,9 @@ $runtimeSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Ec
 $bindingSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding') -Filter 'MoonSharpScriptRuntime*.cs' -File
 $compileFiles = @($runtimeSources.FullName) + @($bindingSources.FullName) + @(
     (Join-Path $PSScriptRoot 'DE128FoundationTests.cs'),
+    (Join-Path $PSScriptRoot 'DE128ShopTests.cs'),
+    (Join-Path $PSScriptRoot 'DE128EquipmentTests.cs'),
+    (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ShopAvailabilityPolicy.cs'),
     (Join-Path $PSScriptRoot 'DECombatPerksTests.cs'))
 $compileXml = ($compileFiles | Sort-Object | ForEach-Object {
     '    <Compile Include="' + [Security.SecurityElement]::Escape($_) + '" />'

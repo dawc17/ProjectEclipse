@@ -26,7 +26,7 @@ public class DamageFactorRule : AnimationListRule
 	{
 		foreach (InfoAnimation item in KABLHHCPDPD)
 		{
-			foreach (IntervalAnimation item2 in item.ODACDCDONJE.Intervals)
+			foreach (IntervalAnimation item2 in item.MoveData.Intervals)
 			{
 				if (item2.Type == IntervalAnimation.NGAJJDIEDGF.INTERVAL_ATTACK)
 				{
@@ -54,7 +54,7 @@ public class DamageFactorRule : AnimationListRule
 	{
 		foreach (InfoAnimation item in KABLHHCPDPD)
 		{
-			foreach (IntervalAnimation item2 in item.ODACDCDONJE.Intervals)
+			foreach (IntervalAnimation item2 in item.MoveData.Intervals)
 			{
 				if (item2.Type == IntervalAnimation.NGAJJDIEDGF.INTERVAL_ATTACK)
 				{

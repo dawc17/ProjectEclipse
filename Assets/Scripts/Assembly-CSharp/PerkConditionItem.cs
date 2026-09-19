@@ -7,7 +7,7 @@ public class PerkConditionItem : PerkCondition
 
 	private string KCIIELDOBOM;
 
-	private string MDPPNGIEJGD;
+	private string SubType;
 
 	public PerkConditionItem()
 	{
@@ -19,7 +19,7 @@ public class PerkConditionItem : PerkCondition
 		base.Parse(node);
 		Name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
 		KCIIELDOBOM = node.Attributes["Type"].CIPOICEEIBK(string.Empty);
-		MDPPNGIEJGD = node.Attributes["Subtype"].CIPOICEEIBK(string.Empty);
+		SubType = node.Attributes["Subtype"].CIPOICEEIBK(string.Empty);
 	}
 
 	public override bool IsEqual(Model ACENLMONNPA, List<string> NIKHAICFGNM)
@@ -32,7 +32,7 @@ public class PerkConditionItem : PerkCondition
 		List<ItemInfo> list = fGCODGKLHED.Parameters.DGMDEDKLGMB();
 		foreach (ItemInfo item in list)
 		{
-			if ((KCIIELDOBOM.Equals(string.Empty) || KCIIELDOBOM.Equals(item.Type)) && (MDPPNGIEJGD.Equals(string.Empty) || MDPPNGIEJGD.Equals(item.MDPPNGIEJGD)) && (Name.Equals(string.Empty) || Name.Equals(item.Name)))
+			if ((KCIIELDOBOM.Equals(string.Empty) || KCIIELDOBOM.Equals(item.Type)) && (SubType.Equals(string.Empty) || SubType.Equals(item.SubType)) && (Name.Equals(string.Empty) || Name.Equals(item.Name)))
 			{
 				return true;
 			}

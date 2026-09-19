@@ -264,7 +264,7 @@ public static class ItemBuyHelper
 			bool flag = KCBCGDFKNME(item);
 			if (flag)
 			{
-				switch (item.MDPPNGIEJGD)
+				switch (item.SubType)
 				{
 				case "PerkReset":
 					ListSF.CCDKHLAMKKO().JLBDOBLHHAF().LCDFOLAAEGM();

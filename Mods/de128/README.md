@@ -1,12 +1,48 @@
 # DE128 - Definitive Edition
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.5.0` disables the Ascension
-prototype and implements Master of Style and Relentless from the archived DE XML.
+DE128 is an ordinary downstream Eclipse mod. Version `0.13.0` restores ten missing weapon listings, eight other equipment
+listings, and enables the archived
+ChineseSwords combat/preview graph for Jian alongside four earlier equipment
+combat-family corrections through Lua. It includes shop availability
+for 25 former battle-pass items at their archived level gates and completes
+saved, already-paid forge orders without waiting. Ascension remains disabled; Master of
+Style and Relentless follow the archived DE XML.
 Definitions, translations and behavior are authored through the public Lua API.
+
+`scripts/content/chinese_swords.lua` registers both moves and Jian's subtype;
+`chinese_swords_data.lua` contains their typed combat/presentation data. The mod
+bundles the unchanged recovered animation binary, with no runtime XML dependency.
+Complete archive comparisons, native parsing and binary decoding pass. An isolated
+live fight also passed native double-tap/Forward selection, four attack intervals
+with bound weapon edges, four timed sound actions and animation completion. AI,
+hit contact, audible output and shop-preview acceptance remain open.
+See Steps 12–13 in `PRODUCTION.md`.
+
+The restored listings are Super Knives, Batons, Dragon Knives, Poleaxe, Kelt Axes,
+Fans, Moon Fans, Imhotep Axes, Chinese Swords and Giant Sword. Their Lua definitions retain
+archived act/level gates, gem prices, default enchantments and art references.
+Kelt Axes and Moon Fans retain the archive's placeholder icon. Moon Fans uses
+`initial_stats = {}` to preserve its absent initial damage attribute. A native
+check confirms its first normal upgrade supplies 766 damage, matching the archive.
+Steps 14-15 record the restored definitions, generic API support and verification
+limits. Purchase/equip/save/reload acceptance remains open.
+
+The additional equipment is Dragon Carapace, Old Legionnaire Armour, Samurai
+Armour, Gabled Helm, Dragon Helm, Dragon Boomerangs, Dragon's Breath and Lightning
+Arc. Stats, prices, group/level gates and default enchantments match archived
+item definitions. Samurai Armour deliberately retains only head defense (914).
+The three ranged/magic families use base moves. `shared_moves.lua` now applies
+five guarded changes: the heavy ranged uninterrupt end, Chakram hit reaction,
+heavy ranged preview sound timing, and not-Stun conditions for MassBomb and
+LightningArrow. Remaining preview/presentation differences and five absent spell
+graphs are still pending. Hidden NPC equipment remains unregistered. See Steps
+16-17 for the audit and verification scope. Step 18 traces the 32 missing spell
+moves and adds generic effect authoring support; complete spell graphs remain
+under development.
 
 ## What this version does
 
-- Makes **new forge/enchantment orders instant**, using the normal recipes and
+- Makes **new and saved pending forge/enchantment orders instant**, using the normal recipes and
   material costs.
 - Disables the six supported service groups: paid offers, battle pass,
   advertising, rewarded video, online services and payments. The verified native
@@ -21,6 +57,9 @@ Definitions, translations and behavior are authored through the public Lua API.
   upgrade opportunities at levels 8, 11, 14 and 17. Both start at rank 1 and have
   five ranks. Six move definitions receive the archive's exact perk-lock removals,
   retaining their other conditions.
+- Gives Jian the archived ChineseSwords family, extending ten Sai stance/attack
+  locks and adding the four-hit super slash, localized moves-list entry and shop
+  preview. Existing purchase/availability rules are unchanged.
 
 ## Combat perks
 
@@ -48,6 +87,53 @@ record exact XML identities and hashes. No available metadata independently
 identifies that archive as release 64. The existing `de128` namespace remains
 stable so previously saved item references continue to resolve.
 
+## Equipment combat families
+
+`scripts/content/combat_equipment.lua` changes four existing core definitions:
+
+| Equipment | Base family | DE family |
+| --- | --- | --- |
+| `WEAPON_CHNY22_SPEAR` | Spear | Naginata |
+| `WEAPON_RAID_KARCER_SET` | Claws | HunterClaws |
+| `WEAPON_BG_YARI` | Spear | MagariYari |
+| `RANGED_BP_S3_WIND_MAKER` | Chakram | Kunai |
+
+Those four target families have native moves in the base. Identity, prices, power,
+art and saved ownership stay unchanged. New equipment/fighter copies use the
+patched family; Apply & Restart with DE disabled restores the original family.
+Existing explicit AI groups remain intact. Test attacks, ranged throws, shop
+previews and NPC handling with each item before claiming full combat acceptance.
+
+`content.chinese_swords` additionally changes `WEAPON_CHNY21_JIAN` from
+HermitSwords to ChineseSwords and supplies its complete archived move graph.
+The recovered binary has 38 samples/67 nodes. All attacks and sounds fit; the
+archive's longer recovery interval follows native end-of-animation clamping,
+which has been checked in Unity. Live execution/completion passes; contact and
+player-facing timing still need acceptance.
+The separate archived `WEAPON_CHINESE_SWORDS` item is not restored by this step.
+Monk Katar and Musket
+retain their canonical AI groups while archive intent is investigated.
+
+## Former battle-pass equipment
+
+`scripts/content/shop.lua` exposes the five pieces of each collection through
+ordinary shop availability: Guardian at level 15, Skanda at 20, Wind Maker at 25,
+Time Shifter at 45 and Scriptwriter at 50. No pass or event-group membership is
+required. Existing core item IDs, earned-gem prices, stats, upgrade rules,
+enchantments and ownership are preserved. These are availability gates, not
+rewritten equipment levels. The mod does not grant equipment on activation.
+
+This implements the archive's shop access for these collections. Different
+archive stats, level/upgrade records and set abilities are not implemented by
+this module. Wind Maker's ranged subtype is handled separately above. Other
+special-offer collections remain open.
+
+On a test profile, reopen the shop one level below and at each listed gate; check
+all five categories, preview/equip, purchase at the displayed existing gem price,
+and save/reload. Disable DE128 through Apply & Restart and verify base visibility
+returns while owned items remain owned. Re-enable to restore the listings.
+Automated eligibility tests and loaded native art are not a purchase playtest.
+
 ## Ascension disabled
 
 The entrypoint call and both Ascension module bodies are commented out. Even
@@ -57,9 +143,9 @@ saved prototype state is retained as inactive data. Apply & Restart to unload
 content already present in a running session. Generic engine APIs remain available
 to other mods; the prototype test launcher now reports SKIP.
 
-Existing saved forge deadlines retain their original time. Their normal skip
-option stays available, with the existing base price. This version does not yet
-make those pending orders instant. Service gates also do not prove that every
+Saved pending forge orders complete on the next normal delivery update. Their
+original timestamps are not rewritten; disabling DE128 before completion restores
+their wait. Completed enchantments remain completed. Service gates do not prove that every
 associated button, offer or direct service entry point is hidden.
 
 Desolator has no purchase listing and is hidden before acquisition. The reward
@@ -102,8 +188,10 @@ both Suplex move variants should no longer require their old perk unlocks, while
 their skeleton/equipment/screen requirements still apply.
 
 With the forge unlocked and enough materials, start a new enchantment. It should
-apply immediately and charge the usual materials. Compare an already-pending
-order separately: it keeps its deadline and normal skip option. Disable DE128 and
+apply immediately and charge the usual materials. An already-pending order should
+complete once without charging materials again, clear its saved delivery entry,
+and remain complete after save/reload. A failed enchantment should keep its order.
+Disable DE128 before a pending order completes and
 apply the selection again to restore the base policy, unless another mod owns it.
 Already completed enchantments remain completed.
 
@@ -162,5 +250,5 @@ both disabled Ascension modules remain inert when required directly.
 `Tools/TestMovePerkLocks.ps1` checks targeted live lock removal and restoration.
 
 [Production notes](PRODUCTION.md) record source evidence, known API gaps and the
-next candidate. Development proceeds one approved step at a time. This foundation
+next candidate. Development proceeds in substantial steps with status reports. This foundation
 does not claim complete DE parity or a completed game playtest.

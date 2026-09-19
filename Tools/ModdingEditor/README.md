@@ -1,8 +1,27 @@
 # Eclipse Modding for VS Code
 
-Editor support for all 36 public Eclipse API modules: 140 functions, aliases, and
-callbacks; 76 constants; and 179 typed structures. Version 0.1.0 retains the ID
+Editor support for all 36 public Eclipse API modules: 152 functions, aliases, and
+callbacks; 76 constants; and 206 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
+
+Move authoring now completes `damage_terms = { { type, shift } }`, the native
+`Spinning`/`HighHeavy` reactions, and `round_stage`, `screen`, and `mod_exists`
+conditions. Ordered repeated key entries support native double-tap sequences.
+`damage_type` and `damage_terms` are mutually exclusive at runtime; LuaLS table
+completion does not replace runtime validation or a combat playtest.
+
+Move definitions also complete `locks`, `transitions`, `align`, and `direction`,
+including nested points and axes. Templates support these fields except
+`transitions`, which the native parser does not inherit. The scoped
+`sf2.moves.extend_item_lock` patch adds an alternative item subtype while
+preserving the move's other requirements; it requires `content.patch`.
+
+Direct move registrations also complete scheduled `actions` (core random sounds
+and shop completion), `profile`, `tactic_distance`, `no_wall_repulsion`, and
+`no_interpolation_frames`. Action frame/event exclusivity, native name availability
+and live animation behavior still require runtime validation and playtesting.
+`profile.display_name` completes as an optional localization handle for a readable
+move heading, independently of the move's namespaced runtime identity.
 
 ## Install
 
@@ -122,6 +141,22 @@ argument semantics. Contract changes need source review and tests.
 The extension bundles its runtime dependencies into ignored `out/`. Users need no
 Node installation. The VSIX contains metadata and starter assets; generated installers
 are ignored. CI checks coverage, project tests, and packaging on relevant changes.
+
+Timer declarations include optional `complete_pending = true` for instant forge
+policies (`seconds = 0`). Completions and generated `TimerPolicy` definitions
+include the field. The runtime rejects it for nonzero durations; it never rewrites
+saved deadlines and uses the normal forge delivery settlement path.
+
+For mod-owned equipment, shop `required_group` also supplies the native pack
+label used by quest unlock notifications. Core item labels are unchanged.
+
+Shop availability also accepts `minimum_level` (integer 0–52, default 0).
+Completions include this eligibility gate alongside `visibility` and
+`required_group`. It does not change equipment stats, prices or upgrade rules.
+
+`sf2.items.set_subtype { item, subtype }` has typed item-handle completion and
+requires `content.patch`. The target family must have compatible native move
+and projectile support; editor type checking cannot prove animation compatibility.
 
 For actual LuaLS tests, obtain the official **3.18.2** binary:
 
@@ -302,3 +337,27 @@ their current values and remaining modifier timers. The request signature and
 result fields are unchanged. `python3 Tools/TestCharacterForms.py` runs the
 existing production-method form fixtures on Linux using the installed Unity
 compiler and .NET 10 runtime; it does not require PowerShell or start the game.
+
+Equipment registration completes category-specific `initial_stats` fields.
+Omitting the table keeps normal level-derived power; an empty table leaves all
+initial attributes absent. A populated table replaces the complete initial
+snapshot, with integer values 0-1000000 (zero is distinct from absence). Normal
+upgrades and level-scaled acquisition still apply. The weapon starter explains
+these choices without changing its normal stats. See the equipment API reference.
+
+`sf2.moves.patch` completes extra conditions and guarded native interval-end,
+full-interval hit-reaction and direct-sound-frame edits. One declaration owns each
+native move; expected values must match at native application and the whole patch
+batch validates before edits. Frame values are integers 0-100000. The shared
+`MiddleShortPlus` native reaction is also available when authoring new attacks.
+See the moves reference for ambiguous-target rejection and teardown behavior.
+
+Scheduled move actions also support `effect`, `stop_effect`, and
+`stop_follow_effect`. Effect tables describe an existing core sequence, model-local
+name, scale/time scale, loop flag and optional following position. Completion is
+not an asset-existence or rendered-effect check; see the move API reference.
+
+Scheduled `create_projectile`, `add_bullets`, and `delete_actor` actions have typed
+nested tables. Projectile completion includes copied parent equipment and optional
+owned start-move handles. The `eclipse-move-projectile` snippet supplies cast actions;
+it does not provide the required projectile animation/selection/cleanup graph.

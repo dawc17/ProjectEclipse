@@ -492,12 +492,12 @@ public class SelectAnimation
 			for (int l = 0; l < MAHEJFLCCHP.Count; l++)
 			{
 				SelectInfo item3 = MAHEJFLCCHP[l];
-				if (item3.FGICHADOEHF.ODACDCDONJE.NIDNJFOGBFO.Count != 0)
+				if (item3.FGICHADOEHF.MoveData.NIDNJFOGBFO.Count != 0)
 				{
 					ACENLMONNPA.EBABHGHPLFK().PDKPGKPBBIL = item3.FGICHADOEHF.FOLOOGCLPNE();
 					ACENLMONNPA.EBABHGHPLFK().PCAOCHAIBJC = item3.FGICHADOEHF.CEDEDCLGJDE(ACENLMONNPA.EBABHGHPLFK(), ACENLMONNPA.OCPMJKIEPIG().KFCNPADAMHA());
-					ACENLMONNPA.EBABHGHPLFK().FOIHIKCEBJF = (int)item3.FGICHADOEHF.ODACDCDONJE.ILOEBFFAEAN.OLBDPMKCJIF;
-					if (item3.FGICHADOEHF.HPPGNJJCEGF(ACENLMONNPA.EBABHGHPLFK(), item3.FGICHADOEHF.ODACDCDONJE.NIDNJFOGBFO, item3.AALMPLPGCHA))
+					ACENLMONNPA.EBABHGHPLFK().FOIHIKCEBJF = (int)item3.FGICHADOEHF.MoveData.ILOEBFFAEAN.OLBDPMKCJIF;
+					if (item3.FGICHADOEHF.HPPGNJJCEGF(ACENLMONNPA.EBABHGHPLFK(), item3.FGICHADOEHF.MoveData.NIDNJFOGBFO, item3.AALMPLPGCHA))
 					{
 						MAHEJFLCCHP[num3] = item3;
 						num3++;
@@ -830,7 +830,7 @@ public class SelectAnimation
 	{
 		bool hHJGACBCGBP = false;
 		int bADKABIKMBD = -1;
-		List<TransitionAnimation> eLFBPNOBDKC = DBOLBEOCEME.ODACDCDONJE.ELFBPNOBDKC;
+		List<TransitionAnimation> eLFBPNOBDKC = DBOLBEOCEME.MoveData.ELFBPNOBDKC;
 		foreach (TransitionAnimation item in eLFBPNOBDKC)
 		{
 			if (item.HPPGNJJCEGF(conditions))
@@ -915,7 +915,7 @@ public class SelectAnimation
 			ItemInfo helperWeapon = ACENLMONNPA.Parameters.KDABEFBJMOD("Weapon");
 			if (helperWeapon != null)
 			{
-				helperWeaponSubtype = helperWeapon.MDPPNGIEJGD;
+				helperWeaponSubtype = helperWeapon.SubType;
 				for (int candidateIndex = 0; candidateIndex < MAHEJFLCCHP.Count; candidateIndex++)
 				{
 					if (MAHEJFLCCHP[candidateIndex].IsItemRequired("Weapon", helperWeaponSubtype))
@@ -937,16 +937,16 @@ public class SelectAnimation
 			{
 				continue;
 			}
-			for (int j = 0; j < pJAHIOELGGD.ODACDCDONJE.AJCMBMJGJEG.Count; j++)
+			for (int j = 0; j < pJAHIOELGGD.MoveData.AJCMBMJGJEG.Count; j++)
 			{
-				nFCCFMOMPHG = pJAHIOELGGD.ODACDCDONJE.AJCMBMJGJEG[j];
+				nFCCFMOMPHG = pJAHIOELGGD.MoveData.AJCMBMJGJEG[j];
 				if (IDLPMHIHDNO(pJAHIOELGGD, GLEOPGKNDAO[index]) || !AMECGJPMJBF(PEADINOKLKN.KJDFJPBIGJC, ACENLMONNPA, nFCCFMOMPHG.IHJJBIDMEMB) || !CGAJAFBPFAC(nFCCFMOMPHG, _ModelsConditions[index], PEADINOKLKN))
 				{
 					continue;
 				}
 				_ModelsConditions[index].PDKPGKPBBIL = pJAHIOELGGD.FOLOOGCLPNE();
 				_ModelsConditions[index].PCAOCHAIBJC = ((ACENLMONNPA.EGGEACCDAEK() == null) ? 1 : pJAHIOELGGD.CEDEDCLGJDE(_ModelsConditions[index], ACENLMONNPA.OCPMJKIEPIG().KFCNPADAMHA()));
-				_ModelsConditions[index].FOIHIKCEBJF = (int)pJAHIOELGGD.ODACDCDONJE.ILOEBFFAEAN.OLBDPMKCJIF;
+				_ModelsConditions[index].FOIHIKCEBJF = (int)pJAHIOELGGD.MoveData.ILOEBFFAEAN.OLBDPMKCJIF;
 				if (PEADINOKLKN.Type == EventAnimation.EECEJKADLCK.EVENT_KEY_PRESSED && PEADINOKLKN.IsRandom)
 				{
 					_ModelsConditions[index].IDCHHGHAENM = false;

@@ -321,42 +321,70 @@ local OutgoingFighter = {}
 ---@field error? string
 local FormRequest = {}
 
+---@class (exact) Eclipse.WeaponInitialStats
+---@field weapon_damage? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+local WeaponInitialStats = {}
+
 ---@class (exact) Eclipse.WeaponDefinition
 ---@field id string
 ---@field display_name Eclipse.LocalizationHandle
 ---@field icon Eclipse.SpriteHandle
 ---@field model Eclipse.ModelHandle
+---@field initial_stats? Eclipse.WeaponInitialStats Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged.
 ---@field subtype? string Defaults to Katana. Match the model and move family.
 ---@field tactic_subtype? string Optional AI table group, defaults to subtype. 1-128 ASCII letters, digits or underscores.
 local WeaponDefinition = {}
+
+---@class (exact) Eclipse.ArmorInitialStats
+---@field body_defense? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+---@field head_defense? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+---@field unarmed_damage? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+local ArmorInitialStats = {}
 
 ---@class (exact) Eclipse.ArmorDefinition
 ---@field id string
 ---@field display_name Eclipse.LocalizationHandle
 ---@field icon Eclipse.SpriteHandle
 ---@field model Eclipse.ModelHandle
+---@field initial_stats? Eclipse.ArmorInitialStats Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged.
 local ArmorDefinition = {}
+
+---@class (exact) Eclipse.HelmInitialStats
+---@field head_defense? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+local HelmInitialStats = {}
 
 ---@class (exact) Eclipse.HelmDefinition
 ---@field id string
 ---@field display_name Eclipse.LocalizationHandle
 ---@field icon Eclipse.SpriteHandle
 ---@field model Eclipse.ModelHandle
+---@field initial_stats? Eclipse.HelmInitialStats Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged.
 local HelmDefinition = {}
+
+---@class (exact) Eclipse.RangedInitialStats
+---@field ranged_damage? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+---@field weapon_damage? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+local RangedInitialStats = {}
 
 ---@class (exact) Eclipse.RangedDefinition
 ---@field id string
 ---@field display_name Eclipse.LocalizationHandle
 ---@field icon Eclipse.SpriteHandle
 ---@field model Eclipse.ModelHandle
+---@field initial_stats? Eclipse.RangedInitialStats Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged.
 ---@field subtype string
 local RangedDefinition = {}
+
+---@class (exact) Eclipse.MagicInitialStats
+---@field magic_damage? integer 0-1000000. Unspecified stats remain absent in an explicit snapshot.
+local MagicInitialStats = {}
 
 ---@class (exact) Eclipse.MagicDefinition
 ---@field id string
 ---@field display_name Eclipse.LocalizationHandle
 ---@field icon Eclipse.SpriteHandle
 ---@field model Eclipse.ModelHandle
+---@field initial_stats? Eclipse.MagicInitialStats Exact initial snapshot. Omit for normal level-derived stats; {} leaves all initial stats absent. Native upgrades remain unchanged.
 ---@field subtype string
 local MagicDefinition = {}
 
@@ -390,7 +418,8 @@ local ShopListing = {}
 ---@class (exact) Eclipse.Availability
 ---@field item Eclipse.ItemHandle
 ---@field visibility? "inherit"|"force_visible"|"force_hidden"
----@field required_group? string
+---@field required_group? string Player-group prerequisite; also the native unlock-notification pack label for mod-owned equipment. Core labels stay unchanged.
+---@field minimum_level? integer
 local Availability = {}
 
 ---@class (exact) Eclipse.AssetReplacement
@@ -876,6 +905,11 @@ local ItemInnatePerks = {}
 ---@field group string Native AI table group; empty selects physical subtype fallback.
 local ItemTacticSubtype = {}
 
+---@class (exact) Eclipse.ItemCombatSubtype
+---@field item Eclipse.ItemHandle
+---@field subtype string Case-sensitive native combat family; requires matching moves/projectile support.
+local ItemCombatSubtype = {}
+
 ---@class (exact) Eclipse.DefaultEnchantment
 ---@field perk Eclipse.PerkHandle
 ---@field aspect? integer
@@ -1068,7 +1102,7 @@ local MoveNamedCondition = {}
 
 ---@class (exact) Eclipse.MoveConditionGroup
 ---@field type "all"|"any"
----@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
+---@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
 ---@field not? boolean
 local MoveConditionGroup = {}
 
@@ -1089,6 +1123,32 @@ local MoveKey = {}
 ---@field not? boolean
 local MoveKeysCondition = {}
 
+---@class (exact) Eclipse.MoveStageCondition
+---@field type "round_stage"
+---@field name "StartStance"|"Fight"|"EndStance"|"TryOn"
+---@field player? "Me"|"Enemy"|"Both"
+---@field not? boolean
+local MoveStageCondition = {}
+
+---@class (exact) Eclipse.MoveScreenCondition
+---@field type "screen"
+---@field name "ShopArmor"|"ShopWeapon"|"ShopHelm"|"ShopMissile"|"ShopMagic"|"ShopRuby"|"ShopFree"|"ShopRaidItemPack"|"Profile"|"Fight"
+---@field player? "Me"|"Enemy"|"Both"
+---@field not? boolean
+local MoveScreenCondition = {}
+
+---@class (exact) Eclipse.MoveModCondition
+---@field type "mod_exists"
+---@field name string
+---@field player? "Me"|"Enemy"|"Both"
+---@field not? boolean
+local MoveModCondition = {}
+
+---@class (exact) Eclipse.MoveDamageTerm
+---@field type "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
+---@field shift? number
+local MoveDamageTerm = {}
+
 ---@class (exact) Eclipse.MoveImpulse
 ---@field x? number
 ---@field y? number
@@ -1099,7 +1159,8 @@ local MoveImpulse = {}
 ---@field edges string[]
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
----@field hit? "High"|"Middle"|"Low"
+---@field damage_terms? Eclipse.MoveDamageTerm[]
+---@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
 local MoveAttack = {}
@@ -1112,13 +1173,90 @@ local MoveAttack = {}
 ---@field attack? Eclipse.MoveAttack
 local MoveInterval = {}
 
+---@class (exact) Eclipse.MovePoint
+---@field object "Nodes"|"Pivot"|"Wall"|"Animation"|"Floor"|"COM"
+---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
+---@field part? string
+---@field shift_x? number
+---@field shift_y? number
+local MovePoint = {}
+
+---@class (exact) Eclipse.MoveAlignment
+---@field axes ("X"|"Y"|"Z")[]
+---@field pivot Eclipse.MovePoint
+---@field position Eclipse.MovePoint
+local MoveAlignment = {}
+
+---@class (exact) Eclipse.MoveDirection
+---@field from Eclipse.MovePoint
+---@field to Eclipse.MovePoint
+local MoveDirection = {}
+
+---@class (exact) Eclipse.MoveTransition
+---@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field frame_shift? integer
+---@field first_frame? integer
+local MoveTransition = {}
+
+---@class (exact) Eclipse.MoveEffect
+---@field name string
+---@field core_sequence string
+---@field scale? number
+---@field time_scale? number
+---@field looped? boolean
+---@field position? Eclipse.MovePoint
+---@field follow? boolean
+local MoveEffect = {}
+
+---@class (exact) Eclipse.MoveProjectile
+---@field name string
+---@field core_skeleton string
+---@field copy_parent_type "Weapon"|"Ranged"|"Magic"
+---@field core_start_animation? string
+---@field start_move? Eclipse.MoveHandle
+local MoveProjectile = {}
+
+---@class (exact) Eclipse.MoveBulletChange
+---@field type "MagicBullet"|"RaidChargeBullet"
+---@field value integer
+local MoveBulletChange = {}
+
+---@class (exact) Eclipse.MoveScheduledAction
+---@field type "random_sound"|"try_on_end"|"effect"|"stop_effect"|"stop_follow_effect"|"create_projectile"|"add_bullets"|"delete_actor"
+---@field frame? integer
+---@field event? "RoundStage"|"KeyPressed"|"KeyReleased"|"RoundStart"|"RoundEnd"|"Hit"|"Strike"|"WallHit"|"AnimationStart"|"AnimationEnd"|"IntervalStart"|"IntervalEnd"|"EveryFrame"|"Birth"|"ModExpires"
+---@field core_sounds? string[]
+---@field effect? Eclipse.MoveEffect
+---@field effect_name? string
+---@field projectile? Eclipse.MoveProjectile
+---@field bullets? Eclipse.MoveBulletChange
+---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
+local MoveScheduledAction = {}
+
+---@class (exact) Eclipse.MoveProfile
+---@field rank integer
+---@field core_icon string
+---@field display_name? Eclipse.LocalizationHandle
+local MoveProfile = {}
+
+---@class (exact) Eclipse.MoveTacticDistance
+---@field axis "X"|"Y"|"Full"
+---@field minimum? number
+---@field maximum? number
+---@field from Eclipse.MovePoint
+---@field to Eclipse.MovePoint
+local MoveTacticDistance = {}
+
 ---@class (exact) Eclipse.MoveTemplateDefinition
 ---@field id string
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
 ---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
 ---@field intervals? Eclipse.MoveInterval[]
+---@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field align? Eclipse.MoveAlignment
+---@field direction? Eclipse.MoveDirection
 ---@field type? string
 ---@field mirror_node? string
 ---@field tactic_equivalent? string
@@ -1136,8 +1274,11 @@ local MoveTemplateDefinition = {}
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
 ---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
 ---@field intervals? Eclipse.MoveInterval[]
+---@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field align? Eclipse.MoveAlignment
+---@field direction? Eclipse.MoveDirection
 ---@field type? string
 ---@field mirror_node? string
 ---@field tactic_equivalent? string
@@ -1149,7 +1290,45 @@ local MoveTemplateDefinition = {}
 ---@field looped? boolean
 ---@field ends_stage? boolean
 ---@field animation Eclipse.BinaryHandle
+---@field transitions? Eclipse.MoveTransition[]
+---@field actions? Eclipse.MoveScheduledAction[]
+---@field profile? Eclipse.MoveProfile
+---@field tactic_distance? Eclipse.MoveTacticDistance
+---@field no_wall_repulsion? boolean
+---@field no_interpolation_frames? boolean
 local MoveDefinition = {}
+
+---@class (exact) Eclipse.MoveItemLockExtension
+---@field move string
+---@field item_type "Weapon"|"Ranged"|"Magic"|"Armor"|"Helm"|"Skeleton"
+---@field source_subtype string
+---@field subtype string
+local MoveItemLockExtension = {}
+
+---@class (exact) Eclipse.MoveIntervalEndPatch
+---@field name "Uninterrupt"|"SelfUninterrupt"|"Unstable"
+---@field expected integer
+---@field value integer
+local MoveIntervalEndPatch = {}
+
+---@class (exact) Eclipse.MoveHitPatch
+---@field expected "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"
+---@field value "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"
+local MoveHitPatch = {}
+
+---@class (exact) Eclipse.MoveSoundFramePatch
+---@field name string
+---@field expected integer
+---@field value integer
+local MoveSoundFramePatch = {}
+
+---@class (exact) Eclipse.MovePatch
+---@field move string
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
+---@field interval_end? Eclipse.MoveIntervalEndPatch
+---@field hit? Eclipse.MoveHitPatch
+---@field sound_frame? Eclipse.MoveSoundFramePatch
+local MovePatch = {}
 
 ---@class (exact) Eclipse.MovePerkLockRemoval
 ---@field move string
@@ -1171,7 +1350,7 @@ local HitEffectAction = {}
 ---@class (exact) Eclipse.TriggerDefinition
 ---@field id string
 ---@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition)[]
+---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition)[]
 ---@field actions? (Eclipse.SoundAction|Eclipse.HitEffectAction)[]
 local TriggerDefinition = {}
 
@@ -1315,6 +1494,7 @@ local RaidDefinition = {}
 ---@field subsystem "forge"
 ---@field seconds integer
 ---@field skip_enabled? boolean
+---@field complete_pending? boolean
 local TimerPolicy = {}
 
 ---@class (exact) Eclipse.CounterDefinition
@@ -2078,6 +2258,14 @@ function items.set_innate_perks(definition) end
 ---@param definition Eclipse.ItemTacticSubtype
 function items.set_tactic_subtype(definition) end
 
+---Change the combat family of an existing weapon, ranged item or magic definition. Native animation conditions and projectile selection use this subtype.
+---Requires: `content.patch`; obtaining an item handle also requires `content.register`. Declare a dependency on the item's owner.
+---When: During mod loading, before profile equipment and fighters are built.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_subtype)
+---@param definition Eclipse.ItemCombatSubtype
+function items.set_subtype(definition) end
+
 ---Requires: `content.patch`; item/perk lookup or registration also requires `content.register`. Declare dependencies for referenced content from core or other mods.
 ---When: During mod loading.
 ---Returns: Nothing (`nil`).
@@ -2223,6 +2411,20 @@ function moves.register_template(definition) end
 ---@return Eclipse.MoveHandle
 function moves.register(definition) end
 
+---Requires: `content.patch`.
+---When: During registration. Applied to already-loaded native moves before external moves and fighters are built. Requires Apply & Restart when changing enabled content; it does not rebuild already-created fighter snapshots in place.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesextend_item_lock)
+---@param definition Eclipse.MoveItemLockExtension
+function moves.extend_item_lock(definition) end
+
+---Requires: `content.patch` and any dependencies required by referenced conditions.
+---When: Entrypoint. Registration records the patch; native application validates its target after base animations are available, before a fight starts.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movespatch)
+---@param definition Eclipse.MovePatch
+function moves.patch(definition) end
+
 ---Remove one exact direct perk lock from an existing native move.
 ---Requires: `content.patch`, plus access to the referenced perk through core or a declared dependency.
 ---When: During mod registration. The patch is applied when the active content set is projected into the recovered move runtime and is restored when that overlay is removed or rolled back.
@@ -2302,7 +2504,7 @@ function modes.cancel(request) end
 ---@return boolean
 function modes.is_pending(request) end
 
----Set the delivery duration and early-skip policy for new forge orders.
+---Set the delivery duration and early-skip policy for new forge orders, optionally making already-paid pending orders eligible for immediate normal completion.
 ---Requires: `policy.timers`.
 ---When: Entrypoint.
 ---Returns: `nil`.
