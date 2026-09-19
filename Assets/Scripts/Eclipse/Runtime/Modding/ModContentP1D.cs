@@ -439,6 +439,7 @@ namespace Eclipse.Modding
     public sealed class ModMoveAttack
     {
         public IReadOnlyList<string> Edges { get; }
+        public bool Direct { get; }
         public int Id { get; }
         public double Damage { get; }
         public ModMoveAttackOptions Options { get; }
@@ -449,10 +450,10 @@ namespace Eclipse.Modding
         public double Y { get; }
         public double Z { get; }
         public ModMoveAttack(string[] edges, double damage, string damageType=null, string hit="High", int id=0, double x=0,double y=0,double z=0,
-            ModMoveDamageTerm[] damageTerms = null, ModMoveAttackOptions options = null)
+            ModMoveDamageTerm[] damageTerms = null, ModMoveAttackOptions options = null, bool direct = false)
         {
-            if (edges==null || edges.Length<1 || edges.Length>64 || id<0 || id>999 || double.IsNaN(damage) || double.IsInfinity(damage) || damage<0 || damage>16)
-                throw new ModContentException("Attack needs 1..64 edges, damage 0..16 and id 0..999.");
+            if (edges==null || (direct ? edges.Length != 0 : edges.Length<1 || edges.Length>64) || id<0 || id>999 || double.IsNaN(damage) || double.IsInfinity(damage) || damage<0 || damage>16)
+                throw new ModContentException("Attack needs 1..64 edges or direct=true with no edges, damage 0..16 and id 0..999.");
             foreach(var edge in edges) if(string.IsNullOrWhiteSpace(edge) || edge.Length>128) throw new ModContentException("Invalid attack edge name.");
             if (damageTerms != null && damageType != null)
                 throw new ModContentException("Use damage_type or damage_terms, not both.");
@@ -462,10 +463,10 @@ namespace Eclipse.Modding
             foreach (var term in terms)
                 if (term == null || !types.Add(term.Type)) throw new ModContentException("Duplicate/null damage term.");
             DamageTerms = Array.AsReadOnly(terms);
-            if (Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong"},hit)<0)
+            if (Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction"},hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
-            Options = options ?? new ModMoveAttackOptions();
+            Direct = direct; Options = options ?? new ModMoveAttackOptions();
             Edges=Array.AsReadOnly((string[])edges.Clone()); Damage=damage; DamageType=terms[0].Type; Hit=hit; Id=id; X=x; Y=y; Z=z;
         }
     }
@@ -651,6 +652,40 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModMoveSound
+    {
+        public string CoreSound { get; }
+        public string Voice { get; }
+        public ModMoveSound(string coreSound, string voice = null)
+        {
+            ModMoveScheduledAction.ValidateSymbol(coreSound, "core sound");
+            if (voice != null && Array.IndexOf(new[] { "Male", "MaleLow", "Female" }, voice) < 0)
+                throw new ModContentException("Unsupported sound voice.");
+            CoreSound = coreSound; Voice = voice ?? string.Empty;
+        }
+    }
+
+    public sealed class ModMoveShake
+    {
+        public int PauseTime { get; }
+        public int EffectTime { get; }
+        public double AmplitudeX { get; }
+        public double AmplitudeY { get; }
+        public double FrequencyX { get; }
+        public double FrequencyY { get; }
+        public ModMoveShake(int pauseTime = 0, int effectTime = 0, double amplitudeX = 0,
+            double amplitudeY = 0, double frequencyX = 0, double frequencyY = 0)
+        {
+            if (pauseTime < 0 || pauseTime > 10000 || effectTime < 0 || effectTime > 10000)
+                throw new ModContentException("Shake times must be integers in 0..10000 native frames.");
+            foreach (var number in new[] { amplitudeX, amplitudeY, frequencyX, frequencyY })
+                if (double.IsNaN(number) || double.IsInfinity(number) || number < 0 || number > 1000)
+                    throw new ModContentException("Shake amplitudes and frequencies must be finite in 0..1000.");
+            PauseTime = pauseTime; EffectTime = effectTime; AmplitudeX = amplitudeX;
+            AmplitudeY = amplitudeY; FrequencyX = frequencyX; FrequencyY = frequencyY;
+        }
+    }
+
     public sealed class ModMoveScheduledAction
     {
         public string Kind { get; }
@@ -662,11 +697,13 @@ namespace Eclipse.Modding
         public ModMoveProjectile Projectile { get; }
         public ModMoveBulletChange Bullets { get; }
         public string DeletePlayer { get; }
+        public ModMoveSound Sound { get; }
+        public ModMoveShake Shake { get; }
         public ModMoveScheduledAction(string kind, int? frame, string eventName, string[] coreSounds = null,
             ModMoveEffect effect = null, string effectName = null, ModMoveProjectile projectile = null,
-            ModMoveBulletChange bullets = null, string deletePlayer = null)
+            ModMoveBulletChange bullets = null, string deletePlayer = null, ModMoveSound sound = null, ModMoveShake shake = null)
         {
-            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
+            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor", "sound", "shake_screen" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
             if (frame.HasValue == (eventName != null)) throw new ModContentException("Move action requires exactly one of frame or event.");
             if (frame < 0 || frame > 100000) throw new ModContentException("Action frame must be in 0..100000.");
             if (eventName != null && Array.IndexOf(new[] { "RoundStage", "KeyPressed", "KeyReleased", "RoundStart", "RoundEnd", "Hit", "Strike", "WallHit", "AnimationStart", "AnimationEnd", "IntervalStart", "IntervalEnd", "EveryFrame", "Birth", "ModExpires" }, eventName) < 0)
@@ -683,6 +720,9 @@ namespace Eclipse.Modding
             if ((kind == "delete_actor") != (deletePlayer != null)) throw new ModContentException("Only delete_actor requires player.");
             if (deletePlayer != null && Array.IndexOf(new[] { "Me", "Enemy", "Parent", "Child", "EnemyChild" }, deletePlayer) < 0)
                 throw new ModContentException("Unsupported delete actor player.");
+            if ((kind == "sound") != (sound != null)) throw new ModContentException("Only sound actions require a sound table.");
+            if ((kind == "shake_screen") != (shake != null)) throw new ModContentException("Only shake_screen actions require a shake table.");
+            Sound = sound; Shake = shake;
             Projectile = projectile; Bullets = bullets; DeletePlayer = deletePlayer ?? string.Empty;
             Effect = effect; EffectName = effectName ?? string.Empty;
             foreach (var name in coreSounds) ValidateSymbol(name, "core sound");

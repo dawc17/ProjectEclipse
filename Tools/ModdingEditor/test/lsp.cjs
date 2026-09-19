@@ -501,7 +501,11 @@ async function main() {
         return ['no_effect','no_critical','ignores_block','body_part','defense_types','ignores_invulnerable'].every(field=>result.some(value=>value.startsWith(field)));
     },'spell attack options');
     const physicalHitProbe=probe('physical-hit.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="hit",intervals={{type="Attack",attack={edges={"Edge"},hit=|}}} }');
-    await until(async()=>{ const found=labels(await request('textDocument/completion',physicalHitProbe)); return ['Physycal','HighLong'].every(name=>found.some(value=>value.includes(name))); },'native physical and long high-hit reaction completion');
+    await until(async()=>{ const found=labels(await request('textDocument/completion',physicalHitProbe)); return ['Physycal','HighLong','NoReaction'].every(name=>found.some(value=>value.includes(name))); },'native physical and long high-hit reaction completion');
+    for (const [kind,field,expected] of [['sound','sound',['core_sound','voice']],['shake_screen','shake',['pause_time','effect_time','amplitude_x','amplitude_y','frequency_x','frequency_y']]]) {
+        const point=probe('move-'+kind+'.lua',`local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="${kind}",frame=1,${field}={ | }}} }`);
+        await until(async()=>{ const found=labels(await request('textDocument/completion',point)); return expected.every(name=>found.some(value=>value.startsWith(name))); },kind+' nested fields');
+    }
     const distanceConditionProbe=probe('spell-distance.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ type="distance", | }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',distanceConditionProbe));

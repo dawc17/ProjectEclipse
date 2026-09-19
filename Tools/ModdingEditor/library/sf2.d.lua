@@ -1201,11 +1201,12 @@ local MoveImpulse = {}
 local MoveAttackOptions = {}
 
 ---@class (exact) Eclipse.MoveAttack
----@field edges string[]
+---@field edges? string[]
+---@field direct? boolean
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
 ---@field damage_terms? Eclipse.MoveDamageTerm[]
----@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"
+---@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
 ---@field options? Eclipse.MoveAttackOptions
@@ -1267,11 +1268,27 @@ local MoveProjectile = {}
 ---@field value integer
 local MoveBulletChange = {}
 
+---@class (exact) Eclipse.MoveSound
+---@field core_sound string
+---@field voice? "Male"|"MaleLow"|"Female"
+local MoveSound = {}
+
+---@class (exact) Eclipse.MoveShake
+---@field pause_time? integer
+---@field effect_time? integer
+---@field amplitude_x? number
+---@field amplitude_y? number
+---@field frequency_x? number
+---@field frequency_y? number
+local MoveShake = {}
+
 ---@class (exact) Eclipse.MoveScheduledAction
----@field type "random_sound"|"try_on_end"|"effect"|"stop_effect"|"stop_follow_effect"|"create_projectile"|"add_bullets"|"delete_actor"
+---@field type "random_sound"|"try_on_end"|"effect"|"stop_effect"|"stop_follow_effect"|"create_projectile"|"add_bullets"|"delete_actor"|"sound"|"shake_screen"
 ---@field frame? integer
 ---@field event? "RoundStage"|"KeyPressed"|"KeyReleased"|"RoundStart"|"RoundEnd"|"Hit"|"Strike"|"WallHit"|"AnimationStart"|"AnimationEnd"|"IntervalStart"|"IntervalEnd"|"EveryFrame"|"Birth"|"ModExpires"
 ---@field core_sounds? string[]
+---@field sound? Eclipse.MoveSound
+---@field shake? Eclipse.MoveShake
 ---@field effect? Eclipse.MoveEffect
 ---@field effect_name? string
 ---@field projectile? Eclipse.MoveProjectile
@@ -1360,8 +1377,8 @@ local MoveItemLockExtension = {}
 local MoveIntervalEndPatch = {}
 
 ---@class (exact) Eclipse.MoveHitPatch
----@field expected "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"
----@field value "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"
+---@field expected "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"
+---@field value "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"
 local MoveHitPatch = {}
 
 ---@class (exact) Eclipse.MoveSoundFramePatch

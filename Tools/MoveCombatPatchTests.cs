@@ -56,7 +56,7 @@ internal static class MoveCombatPatchTests
             if (initialized || consume) Check(interval.EndFrame==42 && attack.HitReactions.Single().Name=="High","Post-init rollback failed.");
             else Check(ReferenceEquals(interval.NodeInterval,source)&&ReferenceEquals(attack.NodeInterval,hitSource),"Pre-init rollback failed.");
         }
-        foreach (string reaction in new[] { "Physycal", "HighLong" })
+        foreach (string reaction in new[] { "Physycal", "HighLong", "NoReaction" })
         foreach (bool initialized in new[] { false, true })
         {
             var move = Move(initialized: initialized);

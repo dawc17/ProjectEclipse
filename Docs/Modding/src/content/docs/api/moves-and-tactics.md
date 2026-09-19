@@ -105,11 +105,12 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 
 | Field | Contract/default |
 | --- | --- |
-| `edges` | Required array of 1–64 native rig edge names, each 1–128 characters. These are attacking body parts, not arbitrary mesh vertices. |
+| `edges` | Array of 1–64 native rig edge names, each 1–128 characters; required unless `direct = true`. These are attacking body parts, not arbitrary mesh vertices. |
+| `direct` | Boolean, default false. With true, omit `edges` or supply an empty array. Uses the native attack path without collision edges, once per active interval against the current opponent; native invulnerability/damage rules still apply. |
 | `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
 | `damage_terms` | Optional array of 1–4 `{ type, shift = 0 }` tables. `type` uses the same four attribute names, each at most once. `shift` must be finite in −1,000…1,000. |
-| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), or `HighLong`. |
+| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, or `NoReaction`. |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
 
@@ -209,6 +210,18 @@ native capitalization, unlike the lowercase `events` registration table above.
   native sound names. The native action chooses one entry when it runs. One entry
   gives a fixed sound. Entries retain order and repetition, allowing the native
   selection to weight repeated names. Voice filtering is not added.
+- `type = "sound"` requires `sound = { core_sound = "name", voice = "Male" }`.
+  `core_sound` is a required native sound symbol. Optional `voice` is exactly
+  `Male`, `MaleLow`, or `Female`; omission allows any voice. The native action
+  plays only when the actor's voice matches. Use separate actions for separate
+  voice clips; `random_sound` remains unfiltered.
+- `type = "shake_screen"` requires a `shake` table. All fields default to zero:
+  `pause_time` and `effect_time` are integer native frame counts in 0–10,000;
+  `amplitude_x`, `amplitude_y`, `frequency_x`, and `frequency_y` are finite native
+  camera values in 0–1,000. Timing still uses exactly one outer `frame` or `event`.
+  This schedules the existing native camera action; it does not apply damage.
+  Unknown fields and payloads on unrelated action types are rejected.
+
 - `type = "try_on_end"` signals native shop preview completion. It accepts no
   sound list. Typically use `event = "AnimationEnd"` on a shop-only move.
 
@@ -243,6 +256,27 @@ checks their syntax, not whether sequences or rig nodes exist. Looping effects
 need appropriate stop/cleanup actions for the move's lifecycle. These operations
 use native effect rendering; they do not load XML or define new effect resources.
 Native parser/scheduling tests do not establish visible rendering acceptance.
+
+For example, these are fields inside a move definition with a valid animation:
+
+```lua
+intervals = {
+  { type = "Attack", start = 48, ["end"] = 49,
+    attack = { direct = true, damage = 0.15, damage_type = "MagicDamage",
+               hit = "NoReaction" } },
+},
+actions = {
+  { type = "sound", frame = 12,
+    sound = { core_sound = "snd_m_pl_attack6", voice = "Male" } },
+  { type = "shake_screen", frame = 48,
+    shake = { effect_time = 30, amplitude_x = 7, frequency_x = 1,
+              amplitude_y = 9, frequency_y = 0.3 } },
+},
+```
+
+`NoReaction` keeps the native no-reaction name; it does not suppress damage.
+An edge-free attack is explicit so accidentally omitting `edges` cannot create
+an unavoidable attack. Existing edge-based definitions and fingerprints are unchanged.
 
 Scheduled projectile lifecycle actions use the same `frame`/`event` timing:
 
@@ -501,7 +535,7 @@ dots or hyphens. At least one nonempty operation is required.
 | --- | --- |
 | `conditions` | Up to 32 additional typed move conditions, using the same records as `moves.register`. They are appended as extra requirements; existing conditions remain. |
 | `interval_end` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
-| `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`, `HighLong`. |
+| `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`, `HighLong`, `NoReaction`. |
 | `sound_frame` | `{ name, expected, value }`. Requires exactly one native direct Sound action with this clip name, scheduled at `expected`. Moves it to `value`. Event-driven and RandomSound actions are not supported by this selector. |
 
 Frame values must be distinct integers from 0 through 100000. Reaction names

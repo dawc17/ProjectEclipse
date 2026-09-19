@@ -179,7 +179,7 @@ namespace Eclipse.Modding
         public string Value { get; }
         public ModMoveHitPatch(string expected, string value)
         {
-            var names = new[] { "High", "Middle", "Low", "Spinning", "HighHeavy", "MiddleShortPlus", "Physycal", "HighLong" };
+            var names = new[] { "High", "Middle", "Low", "Spinning", "HighHeavy", "MiddleShortPlus", "Physycal", "HighLong", "NoReaction" };
             if (Array.IndexOf(names, expected) < 0 || Array.IndexOf(names, value) < 0 || expected == value)
                 throw new ModContentException("Move hit patch requires distinct supported expected/value reactions.");
             Expected = expected; Value = value;

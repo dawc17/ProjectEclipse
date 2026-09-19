@@ -260,8 +260,11 @@ namespace Eclipse.Modding
                             var ignores = document.CreateElement("IgnoresInvulnerable");
                             Set(ignores, "Name", string.Join("|", options.IgnoresInvulnerable)); item.AppendChild(ignores);
                         }
-                        var parts=document.CreateElement("AttackingParts"); item.AppendChild(parts);
-                        foreach(var edge in attack.Edges) { var part=document.CreateElement("Edge"); Set(part,"Name",edge); parts.AppendChild(part); }
+                        if (!attack.Direct)
+                        {
+                            var parts=document.CreateElement("AttackingParts"); item.AppendChild(parts);
+                            foreach(var edge in attack.Edges) { var part=document.CreateElement("Edge"); Set(part,"Name",edge); parts.AppendChild(part); }
+                        }
                         var damage=document.CreateElement("Damage"); Set(damage,"Value",attack.Damage.ToString("R",CultureInfo.InvariantCulture)); item.AppendChild(damage);
                         if (options.NoCritical) Set(damage, "NoCritical", "1");
                         if (options.BodyPart.Length != 0) Set(damage, "BodyPart", options.BodyPart);
@@ -386,10 +389,25 @@ namespace Eclipse.Modding
             var actions = document.CreateElement("Actions"); node.AppendChild(actions);
             foreach (var action in value.Actions)
             {
-                string tag = action.Kind == "random_sound" ? "RandomSound" : action.Kind == "effect" ? "Effect"
+                string tag = action.Kind == "sound" ? "Sound" : action.Kind == "shake_screen" ? "ShakeScreen" : action.Kind == "random_sound" ? "RandomSound" : action.Kind == "effect" ? "Effect"
                     : action.Kind == "create_projectile" ? "CreatePlayer" : action.Kind == "add_bullets" ? "AddBullets"
                     : action.Kind == "delete_actor" ? "Delete" : action.Kind == "stop_effect" ? "StopEffect" : action.Kind == "stop_follow_effect" ? "StopFollowEffect" : "TryOnEnd";
                 var entry = document.CreateElement(tag); actions.AppendChild(entry);
+                if (action.Sound != null)
+                {
+                    Set(entry, "Name", action.Sound.CoreSound);
+                    if (action.Sound.Voice.Length != 0) Set(entry, "Voice", action.Sound.Voice);
+                }
+                if (action.Shake != null)
+                {
+                    var shake = action.Shake;
+                    Set(entry, "PauseTime", shake.PauseTime.ToString(CultureInfo.InvariantCulture));
+                    Set(entry, "EffectTime", shake.EffectTime.ToString(CultureInfo.InvariantCulture));
+                    Set(entry, "AmplitudeX", shake.AmplitudeX.ToString("R", CultureInfo.InvariantCulture));
+                    Set(entry, "AmplitudeY", shake.AmplitudeY.ToString("R", CultureInfo.InvariantCulture));
+                    Set(entry, "FrequencyX", shake.FrequencyX.ToString("R", CultureInfo.InvariantCulture));
+                    Set(entry, "FrequencyY", shake.FrequencyY.ToString("R", CultureInfo.InvariantCulture));
+                }
                 if (action.DeletePlayer.Length != 0) Set(entry, "Player", action.DeletePlayer);
                 if (action.Bullets != null)
                 {

@@ -377,3 +377,8 @@ name and is rejected. Existing reaction defaults are unchanged.
 
 `HighLong` is also supported for new attack definitions and guarded hit patches.
 It selects the native long high-hit reaction; it does not change interval duration.
+
+Move completion includes explicit `attack.direct`, `NoReaction`, voice-filtered
+`sound` actions and `shake_screen` payloads. Direct attacks require no edges;
+normal attacks still require 1–64. See the move reference for camera bounds and
+native frame timing. These fields expose native behavior, not arbitrary Lua execution.

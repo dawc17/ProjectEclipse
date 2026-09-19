@@ -2969,11 +2969,12 @@
     },
     "MoveAttack": {
       "fields": {
-        "edges": "string[]",
+        "edges?": "string[]",
+        "direct?": "boolean",
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
         "damage_terms?": "Eclipse.MoveDamageTerm[]",
-        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"",
+        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse",
         "options?": "Eclipse.MoveAttackOptions"
@@ -3043,12 +3044,30 @@
         "value": "integer"
       }
     },
+    "MoveSound": {
+      "fields": {
+        "core_sound": "string",
+        "voice?": "\"Male\"|\"MaleLow\"|\"Female\""
+      }
+    },
+    "MoveShake": {
+      "fields": {
+        "pause_time?": "integer",
+        "effect_time?": "integer",
+        "amplitude_x?": "number",
+        "amplitude_y?": "number",
+        "frequency_x?": "number",
+        "frequency_y?": "number"
+      }
+    },
     "MoveScheduledAction": {
       "fields": {
-        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"",
+        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"|\"sound\"|\"shake_screen\"",
         "frame?": "integer",
         "event?": "\"RoundStage\"|\"KeyPressed\"|\"KeyReleased\"|\"RoundStart\"|\"RoundEnd\"|\"Hit\"|\"Strike\"|\"WallHit\"|\"AnimationStart\"|\"AnimationEnd\"|\"IntervalStart\"|\"IntervalEnd\"|\"EveryFrame\"|\"Birth\"|\"ModExpires\"",
         "core_sounds?": "string[]",
+        "sound?": "Eclipse.MoveSound",
+        "shake?": "Eclipse.MoveShake",
         "effect?": "Eclipse.MoveEffect",
         "effect_name?": "string",
         "projectile?": "Eclipse.MoveProjectile",
@@ -3144,8 +3163,8 @@
     },
     "MoveHitPatch": {
       "fields": {
-        "expected": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"",
-        "value": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\""
+        "expected": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"",
+        "value": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\""
       }
     },
     "MoveSoundFramePatch": {

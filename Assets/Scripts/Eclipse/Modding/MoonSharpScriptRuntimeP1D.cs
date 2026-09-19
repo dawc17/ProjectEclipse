@@ -443,7 +443,27 @@ namespace Eclipse.Modding
                         else if (kind == "create_projectile") ValidateFields(entry, function, "type", "frame", "event", "projectile");
                         else if (kind == "add_bullets") ValidateFields(entry, function, "type", "frame", "event", "bullets");
                         else if (kind == "delete_actor") ValidateFields(entry, function, "type", "frame", "event", "player");
+                        else if (kind == "sound") ValidateFields(entry, function, "type", "frame", "event", "sound");
+                        else if (kind == "shake_screen") ValidateFields(entry, function, "type", "frame", "event", "shake");
                         else ValidateFields(entry, function, "type", "frame", "event");
+                        ModMoveSound sound = null;
+                        if (kind == "sound")
+                        {
+                            if (entry.Get("sound").Type != DataType.Table) throw new ModContentException("Sound action requires a sound table.");
+                            var spec = entry.Get("sound").Table;
+                            ValidateFields(spec, function + ".sound", "core_sound", "voice");
+                            sound = new ModMoveSound(RequiredString(spec, "core_sound", function),
+                                spec.Get("voice").IsNil() ? null : RequiredString(spec, "voice", function));
+                        }
+                        ModMoveShake shake = null;
+                        if (kind == "shake_screen")
+                        {
+                            if (entry.Get("shake").Type != DataType.Table) throw new ModContentException("Shake action requires a shake table.");
+                            var spec = entry.Get("shake").Table;
+                            ValidateFields(spec, function + ".shake", "pause_time", "effect_time", "amplitude_x", "amplitude_y", "frequency_x", "frequency_y");
+                            shake = new ModMoveShake(OptionalInt(spec, "pause_time", 0, function), OptionalInt(spec, "effect_time", 0, function),
+                                UiNumber(spec, "amplitude_x"), UiNumber(spec, "amplitude_y"), UiNumber(spec, "frequency_x"), UiNumber(spec, "frequency_y"));
+                        }
                         ModMoveProjectile projectile = null;
                         if (kind == "create_projectile")
                         {
@@ -478,7 +498,7 @@ namespace Eclipse.Modding
                             entry.Get("event").IsNil() ? null : RequiredString(entry, "event", function),
                             OptionalStringArray(entry, "core_sounds", function), effect,
                             kind == "stop_effect" || kind == "stop_follow_effect" ? RequiredString(entry, "effect_name", function) : null, projectile, bullets,
-                            kind == "delete_actor" ? RequiredString(entry, "player", function) : null));
+                            kind == "delete_actor" ? RequiredString(entry, "player", function) : null, sound, shake));
                     }
                     EnsureDenseArray(array, actions.Count, function + ".actions");
                 }
@@ -667,7 +687,7 @@ namespace Eclipse.Modding
                 if(value.IsNil()) return null;
                 if(value.Type!=DataType.Table) throw new ModContentException(function+" must be a table.");
                 var table=value.Table;
-                ValidateFields(table,function,"edges","damage","damage_type","damage_terms","hit","id","impulse","options");
+                ValidateFields(table,function,"direct","edges","damage","damage_type","damage_terms","hit","id","impulse","options");
                 ModMoveDamageTerm[] terms = null;
                 if (!table.Get("damage_terms").IsNil())
                 {
@@ -704,7 +724,7 @@ namespace Eclipse.Modding
                 }
                 return new ModMoveAttack(OptionalStringArray(table,"edges",function),UiNumber(table,"damage"),
                     table.Get("damage_type").IsNil() ? null : RequiredString(table,"damage_type",function),
-                    OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z,terms,options);
+                    OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z,terms,options,OptionalBool(table,"direct",false,function));
             }
 
             private ModMoveAction[] ReadMoveActions(DynValue value, string function)

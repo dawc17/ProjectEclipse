@@ -212,3 +212,8 @@ DE128 0.17.0 restores ComboSphere3 and Blast of the Void through Lua with generi
 HighLong support. Archive comparisons and native casting/attack-phase/charge/
 cleanup pass. MindThrowNormal remains the missing spell graph; Step 25 records
 remaining damage, presentation and save acceptance.
+
+The owner-supplied complete DE corpus now supersedes repository DExml as content
+authority; acquisition is blocked by Drive quota. See de128/SOURCE_CORPUS.md.
+MindThrow direct attacks, NoReaction, voice sounds and camera-shake primitives
+are implemented; its graph and corpus reconciliation remain open (Step 26).

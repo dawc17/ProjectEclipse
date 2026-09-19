@@ -1031,7 +1031,9 @@ namespace Eclipse.Modding
                     Append(canonical,"interval-v1"); Append(canonical,interval.Start ?? -1); Append(canonical,interval.End ?? -1);
                     if(interval.Attack != null)
                     {
-                        var attack=interval.Attack; AppendStrings(canonical,attack.Edges); Append(canonical,attack.Id);
+                        var attack=interval.Attack;
+                        if (attack.Direct) Append(canonical,"move-direct-attack-v1");
+                        AppendStrings(canonical,attack.Edges); Append(canonical,attack.Id);
                         Append(canonical,attack.Damage.ToString("R",CultureInfo.InvariantCulture)); Append(canonical,attack.DamageType); Append(canonical,attack.Hit);
                         foreach(var impulse in new[]{attack.X,attack.Y,attack.Z}) Append(canonical,impulse.ToString("R",CultureInfo.InvariantCulture));
                         // Preserve existing single unshifted attack fingerprints.
@@ -1102,6 +1104,17 @@ namespace Eclipse.Modding
             {
                 Append(canonical, action.Kind); Append(canonical, action.Frame.HasValue); Append(canonical, action.Frame ?? 0);
                 Append(canonical, action.Event); AppendStrings(canonical, action.CoreSounds);
+                if (action.Sound != null)
+                {
+                    Append(canonical, "move-sound-v1"); Append(canonical, action.Sound.CoreSound); Append(canonical, action.Sound.Voice);
+                }
+                if (action.Shake != null)
+                {
+                    var shake = action.Shake; Append(canonical, "move-shake-v1");
+                    Append(canonical, shake.PauseTime); Append(canonical, shake.EffectTime);
+                    foreach (var number in new[] { shake.AmplitudeX, shake.AmplitudeY, shake.FrequencyX, shake.FrequencyY })
+                        Append(canonical, number.ToString("R", CultureInfo.InvariantCulture));
+                }
                 if (action.Projectile != null)
                 {
                     var projectile = action.Projectile; Append(canonical, "move-projectile-v1");

@@ -1659,3 +1659,38 @@ spell graph and requires additional reaction, action and edge-free attack suppor
 Production remains active; no full parity claim is made.
 
 Wiki build passed (47 pages, 4,052 links/assets; existing duplicate-404 warning). Managed compilation and whitespace checks passed. No Unity assets changed.
+
+## Step 26 - MindThrow runtime primitives and new source authority
+
+Added generic typed support for explicit edge-free attacks (`direct = true`),
+NoReaction, scheduled voice-filtered sound actions, and scheduled camera shakes.
+Direct mode omits AttackingParts entirely; normal attacks still require 1–64
+edges. The recovered ModelCollision path applies one direct collision per interval
+and resets normally. Missing edges cannot silently opt into direct damage.
+Voice names are strictly Male/MaleLow/Female, or omitted for unfiltered playback.
+Shake payloads preserve native frame counts and bounded finite camera values.
+New payloads are immutable and fingerprinted; omitted defaults preserve legacy
+fingerprints. No DE policy was added to engine code.
+
+The existing historical MindThrowPlayer2Normal declaration supplied the direct
+attack and shake comparison, and MindThrowPlayerNormal supplied voice filtering.
+1,046 combined checks pass against actual native parsers/collision logic, with
+invalid payload, kind exclusivity, voice filtering, timing and fingerprint tests.
+53 controlled patch/rollback checks and 2,590 package foundation checks pass.
+Managed editor compilation passes (zero errors; existing warnings). Editor
+contracts/docs include the new nested payloads and NoReaction completion.
+
+MindThrow's full graph is not yet registered: its owned victim reaction, reversed
+impulse direction and linked follow-up remain to be implemented/verified. No new
+Unity fight, audible sound or visible shake acceptance is claimed in this step.
+Package version remains 0.17.0 until the content is integrated.
+
+During this step, the owner supplied a complete DE corpus and required all DE
+content to come from it, including updates to Lua for changed XML. That archive
+supersedes repository DExml as authority. Download confirmation returned Google
+Drive Quota exceeded HTML, not archive bytes. Acquisition/reconciliation is pending
+an accessible download or local path; see SOURCE_CORPUS.md. Previously missing
+assets must be reassessed once the corpus is available. This also prevents claiming
+that the earlier restored content already matches the new source.
+
+Editor generation/check, 36 tests, LuaLS nested completion and real VS Code integration passed (153 functions, 76 constants, 225 structures). Wiki build passed: 47 pages, 4,052 links/assets, with the existing duplicate-404 warning. Whitespace checks passed.

@@ -1,5 +1,10 @@
 # DE128 - Definitive Edition
 
+The owner-supplied archive is now the source of truth for DE content. See
+[SOURCE_CORPUS.md](SOURCE_CORPUS.md) for acquisition status and reconciliation requirements.
+The download is currently blocked by Google Drive quota; prior archive comparisons
+below refer to the historical repository XML until reconciliation is performed.
+
 DE128 is an ordinary downstream Eclipse mod. Version `0.17.0` restores ten missing weapon listings, twelve other equipment
 listings, and enables the archived
 ChineseSwords combat/preview graph for Jian alongside four earlier equipment
