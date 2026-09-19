@@ -1694,3 +1694,22 @@ assets must be reassessed once the corpus is available. This also prevents claim
 that the earlier restored content already matches the new source.
 
 Editor generation/check, 36 tests, LuaLS nested completion and real VS Code integration passed (153 functions, 76 constants, 225 structures). Wiki build passed: 47 pages, 4,052 links/assets, with the existing duplicate-404 warning. Whitespace checks passed.
+
+## Step 27 - corpus reconciliation tooling (acquisition still pending)
+
+Added a read-only full-file SHA-256 inventory and comparison tool for the newly
+mandated corpus. Historical XML is compared by unambiguous relative suffix;
+bundled mod assets are checked against unambiguous source filenames. Reports
+include complete positional XML differences, added XML, missing/ambiguous matches
+and binary mismatches. XML indentation/attribute order is ignored while meaningful
+text, child order and repeated entries are preserved. The tool neither edits Lua
+nor imports Unity assets; input links/junctions and overwriting reports are rejected.
+
+Eight controlled-fixture tests passed, covering changed/formatting-only XML,
+malformed/entity XML, repeated elements, binary identity/mismatch, ambiguity,
+explicit subtree selection, deterministic inventory and report preservation.
+The actual corpus has not been audited: a fresh confirmed Drive download still
+returned 2,009-byte Quota exceeded HTML without a 7z signature. No new DE content
+or parity assertion was made from the historical source. An accessible archive or
+local path remains necessary for the owner's reconciliation and asset-expansion
+request. Source instructions and the audit command are in SOURCE_CORPUS.md.

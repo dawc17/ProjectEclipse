@@ -16,6 +16,9 @@ confirmed download returned an HTML **Quota exceeded** response on 2026-09-19.
 No archive checksum or content inventory can be claimed yet. A local file path or
 alternate download location has been requested.
 
+A later confirmed-download retry also returned quota HTML (2,009 bytes), not a
+7z signature. Repeated retries are not evidence of a usable corpus.
+
 Reserved local storage, ignored by Git and outside Unity imports:
 
 `ResearchSources/DECorpus/17UA-TnslzXws0M6hZs3qEzpH3skn8Pxy/`
@@ -39,3 +42,33 @@ do not bulk-copy the corpus into Unity's `Assets` or overwrite existing GUIDs.
 - Reassess blocked assets, restored-content gaps and presentation acceptance from
   the actual inventory. Do not call corpus reconciliation complete until the
   existing implementation and remaining scope have both been checked.
+
+## Read-only audit tool
+
+After acquiring, validating and extracting the archive, run from the repository:
+
+```powershell
+python Tools/AuditDECorpus.py --corpus ResearchSources/DECorpus/17UA-TnslzXws0M6hZs3qEzpH3skn8Pxy/extracted --output ResearchSources/DECorpus/17UA-TnslzXws0M6hZs3qEzpH3skn8Pxy/audit-001.json
+```
+
+The tool inventories every file with its source-relative path, byte size and
+SHA-256. It compares historical `Assets/DExml` by relative-path suffix and all
+bundled `Mods/de128/assets` by filename, recording candidates explicitly.
+Multiple candidates are **ambiguous**, even if one has identical bytes. Use
+`--xml-root` to select an inspected XML subtree inside the extracted corpus.
+Missing matches are evidence to investigate, not permission to substitute an old
+file. Alternate archive layouts may require explicit matching work.
+
+XML comparisons ignore indentation and attribute order, but preserve child order,
+repeated elements, attribute values and meaningful text whitespace. Reports retain
+every positional difference rather than truncating after a few examples. Numeric
+spellings and domain-specific equivalences are not guessed. DTD/entity declarations
+and malformed XML require manual review. Additional XML paths are listed separately.
+
+The audit never edits source assets, Lua or Unity metadata. Input links/junctions
+are rejected. Reports must be new files outside the input trees, so prior evidence
+cannot be overwritten. A report is an inventory/comparison, **not** proof that Lua
+has been reconciled or that the game renders the assets correctly.
+
+`python Tools/TestAuditDECorpus.py` passes eight controlled-fixture tests. The
+actual corpus audit remains pending acquisition.
