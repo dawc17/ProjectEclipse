@@ -374,3 +374,6 @@ The sphere attack snippet shows options only; it is not a complete projectile.
 Attack and guarded hit-patch completion also accept `Physycal`, the native
 physical-fall reaction spelling. Preserve that spelling; `Physical` is a different
 name and is rejected. Existing reaction defaults are unchanged.
+
+`HighLong` is also supported for new attack definitions and guarded hit patches.
+It selects the native long high-hit reaction; it does not change interval duration.

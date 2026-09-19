@@ -19,7 +19,7 @@ from TestCharacterForms import ROOT, prepare_native, owned_native_fixture
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--unity-editor', type=Path, required=True)
-    parser.add_argument('--spell', choices=('Sphere1', 'Sphere2', 'Sphere3'), default='Sphere1', help='Native spell lifecycle to exercise after Jian.')
+    parser.add_argument('--spell', choices=('Sphere1', 'Sphere2', 'Sphere3', 'ComboSphere3'), default='Sphere1', help='Native spell lifecycle to exercise after Jian.')
     parser.add_argument('--timeout', type=int, default=1200)
     parser.add_argument('--reuse-native', type=Path, help='Stopped marked DE128 clone; preserve prior logs and back up synced inputs.')
     parser.add_argument('--sync-native-source', action='append', default=[], help='Repository-relative Assets or Mods/de128 file to refresh in a reused clone.')

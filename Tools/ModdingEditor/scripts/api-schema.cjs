@@ -176,7 +176,7 @@ type('MoveModCondition',{type:'"mod_exists"',name:'string','player?':enumOf('Me'
 type('MoveDamageTerm',{type:enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'shift?':'number'});
 type('MoveImpulse',{'x?':'number','y?':'number','z?':'number'});
 type('MoveAttackOptions',{'no_effect?':'boolean','no_critical?':'boolean','ignores_block?':'boolean','body_part?':enumOf('Body','Head'),'defense_types?':'('+enumOf('BodyDefense','HeadDefense')+')[]','ignores_invulnerable?':'string[]'});
-type('MoveAttack',{edges:'string[]','damage?':'number','damage_type?':enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'damage_terms?':E('MoveDamageTerm')+'[]','hit?':enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal'),'id?':'integer','impulse?':E('MoveImpulse'),'options?':E('MoveAttackOptions')});
+type('MoveAttack',{edges:'string[]','damage?':'number','damage_type?':enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'damage_terms?':E('MoveDamageTerm')+'[]','hit?':enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal','HighLong'),'id?':'integer','impulse?':E('MoveImpulse'),'options?':E('MoveAttackOptions')});
 type('MoveInterval',{'type?':'string','name?':'string','start?':'integer','end?':'integer','attack?':E('MoveAttack')});
 type('MovePoint',{object:enumOf('Nodes','Pivot','Wall','Animation','Floor','COM'),'player?':enumOf('Me','Enemy','Parent','Child','EnemyChild'),'part?':'string','shift_x?':'number','shift_y?':'number'});
 type('MoveAlignment',{axes:'('+enumOf('X','Y','Z')+')[]',pivot:E('MovePoint'),position:E('MovePoint')});
@@ -192,7 +192,7 @@ type('MoveTacticDistance',{axis:enumOf('X','Y','Full'),'minimum?':'number','maxi
 type('MoveTemplateDefinition',move);type('MoveDefinition',{...move,animation:H('Binary'),'transitions?':E('MoveTransition')+'[]','actions?':E('MoveScheduledAction')+'[]','profile?':E('MoveProfile'),'tactic_distance?':E('MoveTacticDistance'),'no_wall_repulsion?':'boolean','no_interpolation_frames?':'boolean','no_magic_recharge?':'boolean','velocity?':E('MoveVelocity')});reg('moves.register_template','MoveTemplateDefinition','MoveTemplate');reg('moves.register','MoveDefinition','Move');
 type('MoveItemLockExtension',{move:'string',item_type:enumOf('Weapon','Ranged','Magic','Armor','Helm','Skeleton'),source_subtype:'string',subtype:'string'});reg('moves.extend_item_lock','MoveItemLockExtension',null,'content.patch');
 type('MoveIntervalEndPatch',{name:enumOf('Uninterrupt','SelfUninterrupt','Unstable'),expected:'integer',value:'integer'});
-type('MoveHitPatch',{expected:enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal'),value:enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal')});
+type('MoveHitPatch',{expected:enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal','HighLong'),value:enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal','HighLong')});
 type('MoveSoundFramePatch',{name:'string',expected:'integer',value:'integer'});
 type('MovePatch',{move:'string','conditions?':move['conditions?'],'interval_end?':E('MoveIntervalEndPatch'),'hit?':E('MoveHitPatch'),'sound_frame?':E('MoveSoundFramePatch')});reg('moves.patch','MovePatch',null,'content.patch');
 type('MovePerkLockRemoval',{move:'string',perk:H('Perk')});reg('moves.remove_perk_lock','MovePerkLockRemoval',null,'content.patch');

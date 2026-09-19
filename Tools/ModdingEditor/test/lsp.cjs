@@ -501,7 +501,7 @@ async function main() {
         return ['no_effect','no_critical','ignores_block','body_part','defense_types','ignores_invulnerable'].every(field=>result.some(value=>value.startsWith(field)));
     },'spell attack options');
     const physicalHitProbe=probe('physical-hit.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="hit",intervals={{type="Attack",attack={edges={"Edge"},hit=|}}} }');
-    await until(async()=>labels(await request('textDocument/completion',physicalHitProbe)).some(value=>value.includes('Physycal')),'native physical reaction completion');
+    await until(async()=>{ const found=labels(await request('textDocument/completion',physicalHitProbe)); return ['Physycal','HighLong'].every(name=>found.some(value=>value.includes(name))); },'native physical and long high-hit reaction completion');
     const distanceConditionProbe=probe('spell-distance.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ type="distance", | }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',distanceConditionProbe));

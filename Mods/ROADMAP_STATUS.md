@@ -207,3 +207,8 @@ graphs and broader presentation/damage/save acceptance remain open; see Step 23.
 DE128 0.16.0 adds Sphere3 and Large Charge of Darkness in Lua. Generic native
 Physycal reaction support, complete graph comparisons and native cast/middle/charge/
 cleanup pass. ComboSphere3 and MindThrowNormal remain; Step 24 records limits.
+
+DE128 0.17.0 restores ComboSphere3 and Blast of the Void through Lua with generic
+HighLong support. Archive comparisons and native casting/attack-phase/charge/
+cleanup pass. MindThrowNormal remains the missing spell graph; Step 25 records
+remaining damage, presentation and save acceptance.

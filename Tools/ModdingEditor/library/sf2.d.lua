@@ -1205,7 +1205,7 @@ local MoveAttackOptions = {}
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
 ---@field damage_terms? Eclipse.MoveDamageTerm[]
----@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"
+---@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
 ---@field options? Eclipse.MoveAttackOptions
@@ -1360,8 +1360,8 @@ local MoveItemLockExtension = {}
 local MoveIntervalEndPatch = {}
 
 ---@class (exact) Eclipse.MoveHitPatch
----@field expected "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"
----@field value "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"
+---@field expected "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"
+---@field value "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"
 local MoveHitPatch = {}
 
 ---@class (exact) Eclipse.MoveSoundFramePatch

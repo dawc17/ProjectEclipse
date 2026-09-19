@@ -1623,3 +1623,39 @@ and MindThrowNormal remain incomplete and require their exact reactions and
 edge-free attack support. Production remains active.
 
 Wiki build passed: 47 pages and 4,052 links/assets, with the existing duplicate-404 warning. Whitespace checks passed.
+
+## Step 25 - ComboSphere3 / Blast of the Void (0.17.0)
+
+The four ComboSphere3 moves are Lua-authored and reuse the two unchanged Sphere3
+animation binaries. Exact archive comparison retains cast MidFrames 1,
+Uninterrupt end 34, spawn frame 15, charge frame 7, enemy-centered projectile,
+parent-facing direction, frame-12–22 attack, five ordered edges (including
+repetitions), 0.3 mixed damage and impulse (-1,-600,0). Strike and animation-end
+both retain their deletion actions. The two shop moves retain their own effects,
+sound frame and TryOnEnd action. There is no middle-flight move to fabricate.
+
+Generic C# attack and guarded hit-patch validation now accept the existing native
+HighLong reaction (also used by vanilla HighBlockHeavy). Wiki, editor schema,
+generated contracts and LuaLS completion changed together. Blast of the Void
+retains level 27, 82 gems, ACT_5, MagicDamage 659 through native progression and
+Enfeeble aspect 944. The archived unknown-magic icon is deliberately preserved.
+All mod behavior is Lua; no runtime XML loading was introduced.
+
+Verification:
+- 988 combined move checks pass: complete four-move archive/template equivalence,
+  binary identity, native attack/reaction parsing, repeated edges, fingerprint
+  sensitivity and rejected unsupported reaction spellings.
+- 2,590 actual-package foundation checks and 49 production patch/rollback checks
+  pass, including HighLong before/after initialization.
+- Isolated Unity Run-4scal437 exited 0: prior Jian acceptance, restored equipment
+  and art, native Magic-input selection, one inherited-equipment child, the
+  actual startup attack phase, charge consumption and child deletion/removal.
+- Editor generation/check, 36 tests, LuaLS and real VS Code integration pass.
+  Contracts remain 153 functions, 76 constants and 223 typed structures.
+
+Numerical damage, victim hit reaction, visual/audio output, shop previews and
+purchase/save continuity remain open. MindThrowNormal is the remaining missing
+spell graph and requires additional reaction, action and edge-free attack support.
+Production remains active; no full parity claim is made.
+
+Wiki build passed (47 pages, 4,052 links/assets; existing duplicate-404 warning). Managed compilation and whitespace checks passed. No Unity assets changed.

@@ -112,3 +112,8 @@ wall-miss cleanup, audible/visual output or shop previews.
 Run-3mi0pvne passed native input, startup/middle selection, charge and child removal.
 Sphere3 centers on the opponent rather than flying horizontally; the shared check
 therefore reports middle-phase selection. It does not assert victim reaction or damage.
+
+`--spell ComboSphere3` selects Blast of the Void. It attacks in its sole startup
+phase; there is no middle move. Run-4scal437 passed native cast, inherited-equipment
+child, attack-phase selection, charge and removal. Damage/reaction and presentation
+remain separate acceptance work.

@@ -56,14 +56,15 @@ internal static class MoveCombatPatchTests
             if (initialized || consume) Check(interval.EndFrame==42 && attack.HitReactions.Single().Name=="High","Post-init rollback failed.");
             else Check(ReferenceEquals(interval.NodeInterval,source)&&ReferenceEquals(attack.NodeInterval,hitSource),"Pre-init rollback failed.");
         }
+        foreach (string reaction in new[] { "Physycal", "HighLong" })
         foreach (bool initialized in new[] { false, true })
         {
             var move = Move(initialized: initialized);
             var attack = (IntervalAttack)move.MoveData.Intervals[1];
-            using (Apply(new[] { move }, new MoveCombatPatch(Owner, "Test", hit: new ModMoveHitPatch("High", "Physycal"))))
+            using (Apply(new[] { move }, new MoveCombatPatch(Owner, "Test", hit: new ModMoveHitPatch("High", reaction))))
             {
                 if (!initialized) attack.Init();
-                Check(attack.HitReactions.Single().Name == "Physycal", "Physical-fall patch changed native spelling.");
+                Check(attack.HitReactions.Single().Name == reaction, "Physical-fall patch changed native spelling.");
             }
             Check(attack.HitReactions.Single().Name == "High", "Physical-fall patch rollback failed.");
         }

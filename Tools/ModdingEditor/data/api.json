@@ -2973,7 +2973,7 @@
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
         "damage_terms?": "Eclipse.MoveDamageTerm[]",
-        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"",
+        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse",
         "options?": "Eclipse.MoveAttackOptions"
@@ -3144,8 +3144,8 @@
     },
     "MoveHitPatch": {
       "fields": {
-        "expected": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"",
-        "value": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\""
+        "expected": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"",
+        "value": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\""
       }
     },
     "MoveSoundFramePatch": {
