@@ -67,6 +67,24 @@ name follows the scheduled-action symbol rules. Conditions can be nested in
 `all`/`any` groups and used wherever typed move conditions are accepted. Native
 charge overrides still apply; declaring a condition does not change recharge rules.
 
+A `distance` condition has required `axis` (`X`, `Y`, or `Full`), `from` and `to`
+move points, plus optional inclusive `minimum`/`maximum` bounds (defaults −1,000,000
+and +1,000,000). Bounds must be finite within that range and ordered. Optional
+`["not"]` negates the comparison. Point players are selected independently; there
+is no outer `player` field. Native `X` distance is signed and facing-relative;
+`Y` is signed vertical distance, and `Full` is planar Euclidean distance. `Animation`
+is not a distance-point object. Omitted point players retain native current-model
+selection. For example, a projectile can test when it has passed the front wall:
+
+```lua
+{ type = "distance", axis = "X", maximum = -250,
+  from = { object = "Nodes", part = "Magic-Node2_1" },
+  to = { object = "Wall", part = "Front" } },
+```
+
+This condition does not delete an actor; attach a separate cleanup action to the
+move selected by it. Named rig points must exist on that projectile's skeleton.
+
 Arrays must have consecutive integer indices starting at 1. Building an array with `table.remove` or deleting unused fields with `nil` is supported; live holes, fractional/zero/negative indices, and extra named entries are rejected.
 
 Repeated keys are preserved: two `{ key = "Punch", press = "Tap" }` entries require the native double-tap sequence. Entries are passed to the native Tap/Hold/Release groups in authored order; this is not a general timing or input-history scripting language.
@@ -94,6 +112,31 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 | `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, or `MiddleShortPlus`. |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
+
+The optional `attack.options` table exposes native spell attack rules:
+
+| Field | Contract/default |
+| --- | --- |
+| `no_effect` | Boolean, default false; suppresses the attack's normal hit effect. Separately scheduled effects remain independent. |
+| `no_critical` | Boolean, default false; suppresses critical hits for this attack. |
+| `ignores_block` | Boolean, default false; explicitly bypasses all block intervals. Native ranged/magic damage handling may also bypass block. |
+| `body_part` | Optional `Body` or `Head`; omitting it retains the native parser's default selection. |
+| `defense_types` | Optional array of up to two unique `BodyDefense`/`HeadDefense` attribute names, default empty. Uses the native defense calculation; these are not literal damage reductions. |
+| `ignores_invulnerable` | Optional array of up to 32 unique native invulnerability interval names, default empty. Names follow scheduled-action symbol rules. Only listed intervals are bypassed; names are not verified against loaded graphs at registration. |
+
+For example, inside an attack table:
+
+```lua
+options = {
+    no_effect = true, no_critical = true, ignores_block = true,
+    body_part = "Body", defense_types = { "BodyDefense" },
+    ignores_invulnerable = { "Evade", "Recovery", "Dash", "ShroudInterval" },
+},
+```
+
+Options are copied and fingerprinted. Omitted/default/empty options preserve prior
+attack declarations. Native parser comparisons verify these fields against sphere
+attacks; actual damage/contact and visible effects require a fight test.
 
 Damage terms use the existing native attribute comparison and alignment formula. `shift` offsets an attribute before that calculation; it is not an extra hit, damage percentage, or a sum of independent damage amounts. The native formula chooses the strongest adjusted attribute contribution. `damage` remains the attack's common multiplier. Ranged/magic terms retain their native block-bypass behavior even when mixed with another term.
 

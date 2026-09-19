@@ -162,5 +162,16 @@
       "no_magic_recharge = true,"
     ],
     "description": "Fields inside a projectile move definition; requires its remaining graph and compatible animation."
+  },
+  "Eclipse sphere attack options": {
+    "prefix": "eclipse-spell-attack-options",
+    "body": [
+      "options = {",
+      "    no_effect = true, no_critical = true, ignores_block = true,",
+      "    body_part = \"Body\", defense_types = { \"BodyDefense\" },",
+      "    ignores_invulnerable = { \"Evade\", \"Recovery\", \"Dash\", \"ShroudInterval\" },",
+      "},"
+    ],
+    "description": "Native spell options inside a move attack table; requires compatible edges and complete graph."
   }
 }

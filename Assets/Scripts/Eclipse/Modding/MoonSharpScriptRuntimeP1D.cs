@@ -577,6 +577,13 @@ namespace Eclipse.Modding
             {
                 string type = RequiredString(table, "type", function);
                 ModMoveConditionKind kind = ParseMoveConditionKind(type, function);
+                if (kind == ModMoveConditionKind.Distance)
+                {
+                    ValidateFields(table, function, "type", "axis", "from", "to", "minimum", "maximum", "not");
+                    return new ModMoveCondition(kind, not: OptionalBool(table, "not", false, function),
+                        distance: new ModMoveDistance(RequiredString(table, "axis", function), ReadMovePoint(table.Get("from"), function + ".from"),
+                            ReadMovePoint(table.Get("to"), function + ".to"), OptionalFloat(table, "minimum", -1000000, function), OptionalFloat(table, "maximum", 1000000, function)));
+                }
                 if (kind == ModMoveConditionKind.ActorName || kind == ModMoveConditionKind.Bullets)
                 {
                     if (kind == ModMoveConditionKind.ActorName) ValidateFields(table, function, "type", "name", "player", "not");
@@ -660,7 +667,7 @@ namespace Eclipse.Modding
                 if(value.IsNil()) return null;
                 if(value.Type!=DataType.Table) throw new ModContentException(function+" must be a table.");
                 var table=value.Table;
-                ValidateFields(table,function,"edges","damage","damage_type","damage_terms","hit","id","impulse");
+                ValidateFields(table,function,"edges","damage","damage_type","damage_terms","hit","id","impulse","options");
                 ModMoveDamageTerm[] terms = null;
                 if (!table.Get("damage_terms").IsNil())
                 {
@@ -685,9 +692,19 @@ namespace Eclipse.Modding
                     ValidateFields(impulse.Table,function+".impulse","x","y","z");
                     x=UiNumber(impulse.Table,"x"); y=UiNumber(impulse.Table,"y"); z=UiNumber(impulse.Table,"z");
                 }
+                ModMoveAttackOptions options = null;
+                if (!table.Get("options").IsNil())
+                {
+                    if (table.Get("options").Type != DataType.Table) throw new ModContentException("Attack options require a table.");
+                    var spec = table.Get("options").Table;
+                    ValidateFields(spec, function + ".options", "no_effect", "no_critical", "ignores_block", "body_part", "defense_types", "ignores_invulnerable");
+                    options = new ModMoveAttackOptions(OptionalBool(spec, "no_effect", false, function), OptionalBool(spec, "no_critical", false, function),
+                        OptionalBool(spec, "ignores_block", false, function), spec.Get("body_part").IsNil() ? null : RequiredString(spec, "body_part", function),
+                        OptionalStringArray(spec, "defense_types", function), OptionalStringArray(spec, "ignores_invulnerable", function));
+                }
                 return new ModMoveAttack(OptionalStringArray(table,"edges",function),UiNumber(table,"damage"),
                     table.Get("damage_type").IsNil() ? null : RequiredString(table,"damage_type",function),
-                    OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z,terms);
+                    OptionalString(table,"hit","High",function),OptionalInt(table,"id",0,function),x,y,z,terms,options);
             }
 
             private ModMoveAction[] ReadMoveActions(DynValue value, string function)
@@ -957,6 +974,7 @@ namespace Eclipse.Modding
                     case "mod_exists": return ModMoveConditionKind.ModExists;
                     case "screen": return ModMoveConditionKind.Screen;
                     case "character": return ModMoveConditionKind.Character;
+                    case "distance": return ModMoveConditionKind.Distance;
                     case "actor_name": return ModMoveConditionKind.ActorName;
                     case "bullets": return ModMoveConditionKind.Bullets;
                     case "current_animation": return ModMoveConditionKind.CurrentAnimation;

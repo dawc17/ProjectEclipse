@@ -252,14 +252,28 @@ namespace Eclipse.Modding
                     {
                         var attack=interval.Attack;
                         Set(item,"ID",attack.Id.ToString(CultureInfo.InvariantCulture));
+                        var options = attack.Options;
+                        if (options.NoEffect) Set(item, "NoEffect", "1");
+                        if (options.IgnoresBlock) item.AppendChild(document.CreateElement("IgnoresBlock"));
+                        if (options.IgnoresInvulnerable.Count != 0)
+                        {
+                            var ignores = document.CreateElement("IgnoresInvulnerable");
+                            Set(ignores, "Name", string.Join("|", options.IgnoresInvulnerable)); item.AppendChild(ignores);
+                        }
                         var parts=document.CreateElement("AttackingParts"); item.AppendChild(parts);
                         foreach(var edge in attack.Edges) { var part=document.CreateElement("Edge"); Set(part,"Name",edge); parts.AppendChild(part); }
                         var damage=document.CreateElement("Damage"); Set(damage,"Value",attack.Damage.ToString("R",CultureInfo.InvariantCulture)); item.AppendChild(damage);
+                        if (options.NoCritical) Set(damage, "NoCritical", "1");
+                        if (options.BodyPart.Length != 0) Set(damage, "BodyPart", options.BodyPart);
                         foreach (var term in attack.DamageTerms)
                         {
                             var attribute=document.CreateElement("Damage"); Set(attribute,"Type",term.Type);
                             if (term.Shift != 0) Set(attribute,"Shift",term.Shift.ToString("R",CultureInfo.InvariantCulture));
                             damage.AppendChild(attribute);
+                        }
+                        foreach (var type in options.DefenseTypes)
+                        {
+                            var defense = document.CreateElement("Defense"); Set(defense, "Type", type); damage.AppendChild(defense);
                         }
                         var impulse=document.CreateElement("Impulse"); item.AppendChild(impulse);
                         Set(impulse,"X",attack.X.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Y",attack.Y.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Z",attack.Z.ToString("R",CultureInfo.InvariantCulture));
@@ -428,6 +442,16 @@ namespace Eclipse.Modding
 
         private XmlElement BuildMoveCondition(XmlDocument document, ModMoveCondition value)
         {
+            if (value.Kind == ModMoveConditionKind.Distance)
+            {
+                var distance = value.Distance; var entry = document.CreateElement("Distance");
+                if (distance.Axis != "Full") Set(entry, "Axis", distance.Axis);
+                if (distance.Minimum != -1000000) Set(entry, "Min", distance.Minimum.ToString("R", CultureInfo.InvariantCulture));
+                if (distance.Maximum != 1000000) Set(entry, "Max", distance.Maximum.ToString("R", CultureInfo.InvariantCulture));
+                if (value.Not) Set(entry, "Not", "1");
+                entry.AppendChild(BuildMovePoint(document, "From", distance.From)); entry.AppendChild(BuildMovePoint(document, "To", distance.To));
+                return entry;
+            }
             if(value.Kind==ModMoveConditionKind.Keys)
             {
                 var keys=document.CreateElement("Keys");

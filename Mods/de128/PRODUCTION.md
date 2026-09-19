@@ -1477,3 +1477,44 @@ pending their complete graphs; package version stays 0.13.0. Next work needs
 wall-distance cleanup conditions and attack options (defense contribution,
 critical suppression, block/invulnerability exceptions and attack-effect flags),
 then exact Lua spell graph authoring and live verification. Production remains active.
+
+## Step 21 - spell attack options and wall-distance conditions
+
+Generic move conditions now include typed `distance` declarations with independent
+from/to points, signed X/Y or planar Full distance, inclusive bounds and negation.
+The adapter retains implicit native point players and omits Axis for Full (writing
+Full literally would incorrectly select Y in the recovered parser). This allows
+Lua to author the archived projectile-past-wall cleanup predicate.
+
+`attack.options` now supports native critical/hit-effect suppression, explicit
+block bypass, Body/Head targeting, BodyDefense/HeadDefense terms and a list of
+named invulnerability exceptions. Payloads are immutable, strict and fingerprinted;
+omitted or empty options preserve existing attack fingerprints. The generic C#
+implementation contains no DE names or runtime archive loader. Wiki, generated
+editor contracts, completion checks and a spell-options snippet changed together.
+
+Verification:
+
+- **949 combined move checks passed** using actual packaged Lua bindings and the
+  production adapter. Sphere1 attack flags, defense lists and exception lists
+  match recovered IntervalAttack fields parsed from the archive. Wall cleanup
+  projection and native ConditionDistance fields also match. Actual native signed
+  predicates cover the inclusive boundary and negation on both X and Y.
+- Invalid option types, duplicate/unsupported defenses, malformed exception lists,
+  distance bounds/points and fingerprint changes are tested. Empty attack options
+  retain the legacy declaration's fingerprint.
+- **2,482 DE128 foundation checks passed**; managed editor build passed with zero
+  errors (149 warnings on the successful incremental build).
+- Editor generation/check, 36 tests, LuaLS nested distance/attack completion and
+  real VS Code integration passed. Contracts contain 153 functions, 76 constants
+  and 223 typed structures.
+- Wiki build passed: 47 pages, 4,052 links/assets; the existing duplicate 404 warning
+  remains. Whitespace checks passed with line-ending conversion warnings.
+
+No new Unity playtest was performed in this step: these tests run the recovered
+parsers/predicates without a live projectile. Damage/contact, trajectory, cleanup
+and visual acceptance remain open. The next content step is complete Sphere1 Lua
+graph authoring and native live acceptance. Later spell graphs also need their
+additional hit reactions and MindThrow's edge-free attack path; those requirements
+were identified directly in the archive and are not silently approximated. Package
+version remains 0.13.0 until new spell content is integrated. Production stays active.

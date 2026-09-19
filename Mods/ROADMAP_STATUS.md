@@ -185,3 +185,10 @@ Step 20 adds native actor-name/charge selection conditions and move velocity,
 acceleration, velocity preservation and magic-recharge suppression. Predicate tests
 and real Unity move parsing pass; live projectile/spell acceptance is still open.
 Wall-distance conditions and spell attack options remain before graph integration.
+
+
+Step 21 adds signed distance conditions and native spell attack options for defense,
+critical/effect suppression, block and named invulnerability bypass. Sphere1 parser
+comparisons and signed predicate tests pass. The next content step is the complete
+Sphere1 Lua graph and live acceptance; later spells' additional reaction/edge-free
+attack requirements remain explicit. Package version is still 0.13.0.

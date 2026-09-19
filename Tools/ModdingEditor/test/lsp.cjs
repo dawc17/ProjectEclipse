@@ -495,6 +495,17 @@ async function main() {
         return ['bullet_type','minimum','maximum','player','not'].every(field=>result.some(value=>value.startsWith(field)));
     },'spell charge condition fields');
 
+    const spellAttackProbe=probe('spell-attack.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", intervals={{ type="Attack", attack={options={ | }} }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',spellAttackProbe));
+        return ['no_effect','no_critical','ignores_block','body_part','defense_types','ignores_invulnerable'].every(field=>result.some(value=>value.startsWith(field)));
+    },'spell attack options');
+    const distanceConditionProbe=probe('spell-distance.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ type="distance", | }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',distanceConditionProbe));
+        return ['axis','from','to','minimum','maximum','not'].every(field=>result.some(value=>value.startsWith(field)));
+    },'spell distance condition fields');
+
     const invalidUri = open('invalid.lua', [
         'local sf2 = require("sf2")',
         'sf2.items.register_weapon {',

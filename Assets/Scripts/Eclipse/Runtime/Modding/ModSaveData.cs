@@ -1035,6 +1035,12 @@ namespace Eclipse.Modding
                         Append(canonical,attack.Damage.ToString("R",CultureInfo.InvariantCulture)); Append(canonical,attack.DamageType); Append(canonical,attack.Hit);
                         foreach(var impulse in new[]{attack.X,attack.Y,attack.Z}) Append(canonical,impulse.ToString("R",CultureInfo.InvariantCulture));
                         // Preserve existing single unshifted attack fingerprints.
+                        if (attack.Options.HasContent)
+                        {
+                            var options = attack.Options; Append(canonical, "move-attack-options-v1");
+                            Append(canonical, options.NoEffect); Append(canonical, options.NoCritical); Append(canonical, options.IgnoresBlock);
+                            Append(canonical, options.BodyPart); AppendStrings(canonical, options.DefenseTypes); AppendStrings(canonical, options.IgnoresInvulnerable);
+                        }
                         if (attack.DamageTerms.Count != 1 || attack.DamageTerms[0].Shift != 0)
                         {
                             Append(canonical,"damage-terms-v1"); Append(canonical,attack.DamageTerms.Count);
@@ -1146,6 +1152,13 @@ namespace Eclipse.Modding
             Append(canonical, condition.ItemType); Append(canonical, condition.ItemSubType); Append(canonical, condition.Not);
             Append(canonical, condition.Children.Count);
             for (int i = 0; i < condition.Children.Count; i++) AppendMoveCondition(canonical, condition.Children[i]);
+            if (condition.Distance != null)
+            {
+                var distance = condition.Distance; Append(canonical, "move-distance-v1");
+                Append(canonical, distance.Axis); Append(canonical, distance.Minimum.ToString("R", CultureInfo.InvariantCulture));
+                Append(canonical, distance.Maximum.ToString("R", CultureInfo.InvariantCulture));
+                AppendMovePoint(canonical, distance.From); AppendMovePoint(canonical, distance.To);
+            }
             if (condition.Bullets != null)
             {
                 Append(canonical, "move-bullet-range-v1"); Append(canonical, condition.Bullets.Type);

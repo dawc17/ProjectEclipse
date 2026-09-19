@@ -366,3 +366,7 @@ Spell move declarations support typed `actor_name` and `bullets` conditions,
 `velocity`/acceleration components and `no_magic_recharge`. LuaLS tests check nested
 motion and charge-condition completion. Native simulation units and inclusive
 charge bounds are documented in the move API reference.
+
+Distance conditions and `attack.options` have nested completion for signed bounds,
+point endpoints, native defense attributes and block/invulnerability exceptions.
+The sphere attack snippet shows options only; it is not a complete projectile.

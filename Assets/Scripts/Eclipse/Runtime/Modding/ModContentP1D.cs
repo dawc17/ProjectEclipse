@@ -284,7 +284,7 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets, Distance }
 
     public sealed class ModMoveKey
     {
@@ -323,9 +323,10 @@ namespace Eclipse.Modding
         public IReadOnlyList<ModMoveCondition> Children => _children;
         public IReadOnlyList<ModMoveKey> Keys { get; }
         public ModMoveBulletRange Bullets { get; }
+        public ModMoveDistance Distance { get; }
 
         public ModMoveCondition(ModMoveConditionKind kind, string name = null, string player = null,
-            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null, ModMoveKey[] keys = null, ModMoveBulletRange bullets = null)
+            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null, ModMoveKey[] keys = null, ModMoveBulletRange bullets = null, ModMoveDistance distance = null)
         {
             Kind = kind;
             Name = name ?? string.Empty;
@@ -335,6 +336,10 @@ namespace Eclipse.Modding
             Not = not;
             if ((kind == ModMoveConditionKind.Bullets) != (bullets != null)) throw new ModContentException("Only bullets conditions require a bullet range.");
             Bullets = bullets;
+            if ((kind == ModMoveConditionKind.Distance) != (distance != null)) throw new ModContentException("Only distance conditions require a distance payload.");
+            Distance = distance;
+            if (kind == ModMoveConditionKind.Distance && (Name.Length != 0 || Player.Length != 0 || ItemType.Length != 0 || ItemSubType.Length != 0))
+                throw new ModContentException("Distance uses from/to players, not named/item condition fields.");
             if (kind == ModMoveConditionKind.ActorName || kind == ModMoveConditionKind.Bullets)
             {
                 if (kind == ModMoveConditionKind.ActorName) ModMoveScheduledAction.ValidateSymbol(Name, "actor");
@@ -402,11 +407,41 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModMoveAttackOptions
+    {
+        public bool NoEffect { get; }
+        public bool NoCritical { get; }
+        public bool IgnoresBlock { get; }
+        public string BodyPart { get; }
+        public IReadOnlyList<string> DefenseTypes { get; }
+        public IReadOnlyList<string> IgnoresInvulnerable { get; }
+        public bool HasContent => NoEffect || NoCritical || IgnoresBlock || BodyPart.Length != 0 || DefenseTypes.Count != 0 || IgnoresInvulnerable.Count != 0;
+        public ModMoveAttackOptions(bool noEffect = false, bool noCritical = false, bool ignoresBlock = false,
+            string bodyPart = null, string[] defenseTypes = null, string[] ignoresInvulnerable = null)
+        {
+            if (bodyPart != null && bodyPart != "Body" && bodyPart != "Head") throw new ModContentException("Attack body_part must be Body or Head.");
+            defenseTypes = defenseTypes ?? Array.Empty<string>(); ignoresInvulnerable = ignoresInvulnerable ?? Array.Empty<string>();
+            if (defenseTypes.Length > 2 || ignoresInvulnerable.Length > 32) throw new ModContentException("Attack supports at most 2 defense types and 32 invulnerability names.");
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var name in defenseTypes)
+                if ((name != "BodyDefense" && name != "HeadDefense") || !seen.Add(name)) throw new ModContentException("Invalid or duplicate defense type.");
+            seen.Clear();
+            foreach (var name in ignoresInvulnerable)
+            {
+                ModMoveScheduledAction.ValidateSymbol(name, "invulnerability interval");
+                if (!seen.Add(name)) throw new ModContentException("Duplicate invulnerability interval.");
+            }
+            NoEffect = noEffect; NoCritical = noCritical; IgnoresBlock = ignoresBlock; BodyPart = bodyPart ?? string.Empty;
+            DefenseTypes = Array.AsReadOnly((string[])defenseTypes.Clone()); IgnoresInvulnerable = Array.AsReadOnly((string[])ignoresInvulnerable.Clone());
+        }
+    }
+
     public sealed class ModMoveAttack
     {
         public IReadOnlyList<string> Edges { get; }
         public int Id { get; }
         public double Damage { get; }
+        public ModMoveAttackOptions Options { get; }
         public string DamageType { get; }
         public IReadOnlyList<ModMoveDamageTerm> DamageTerms { get; }
         public string Hit { get; }
@@ -414,7 +449,7 @@ namespace Eclipse.Modding
         public double Y { get; }
         public double Z { get; }
         public ModMoveAttack(string[] edges, double damage, string damageType=null, string hit="High", int id=0, double x=0,double y=0,double z=0,
-            ModMoveDamageTerm[] damageTerms = null)
+            ModMoveDamageTerm[] damageTerms = null, ModMoveAttackOptions options = null)
         {
             if (edges==null || edges.Length<1 || edges.Length>64 || id<0 || id>999 || double.IsNaN(damage) || double.IsInfinity(damage) || damage<0 || damage>16)
                 throw new ModContentException("Attack needs 1..64 edges, damage 0..16 and id 0..999.");
@@ -430,6 +465,7 @@ namespace Eclipse.Modding
             if (Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus"},hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
+            Options = options ?? new ModMoveAttackOptions();
             Edges=Array.AsReadOnly((string[])edges.Clone()); Damage=damage; DamageType=terms[0].Type; Hit=hit; Id=id; X=x; Y=y; Z=z;
         }
     }
@@ -487,6 +523,24 @@ namespace Eclipse.Modding
                 if(double.IsNaN(value)||double.IsInfinity(value)||Math.Abs(value)>100000)
                     throw new ModContentException("Move point shifts must be finite in -100000..100000.");
             Object=obj;Player=player??string.Empty;Part=part??string.Empty;ShiftX=shiftX;ShiftY=shiftY;
+        }
+    }
+
+    public sealed class ModMoveDistance
+    {
+        public string Axis { get; }
+        public double Minimum { get; }
+        public double Maximum { get; }
+        public ModMovePoint From { get; }
+        public ModMovePoint To { get; }
+        public ModMoveDistance(string axis, ModMovePoint from, ModMovePoint to, double minimum = -1000000, double maximum = 1000000)
+        {
+            if (axis != "X" && axis != "Y" && axis != "Full") throw new ModContentException("Distance axis must be X, Y or Full.");
+            if (from == null || to == null || from.Object == "Animation" || to.Object == "Animation") throw new ModContentException("Distance requires from/to distance points, not Animation.");
+            foreach (double value in new[] { minimum, maximum })
+                if (double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value) > 1000000) throw new ModContentException("Distance bounds must be finite in -1000000..1000000.");
+            if (minimum > maximum) throw new ModContentException("Distance minimum exceeds maximum.");
+            Axis = axis; From = from; To = to; Minimum = minimum; Maximum = maximum;
         }
     }
 
