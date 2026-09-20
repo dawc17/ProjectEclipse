@@ -51,10 +51,25 @@ battle entries and 23 fights from the opponent, rule and reward modules. It take
 complete opponent rosters and a separately implemented conditional RaidCharge
 rule; it does not implement that condition. `sensei_battles.lua` pairs entries on
 the six existing map pages, and `sensei_battle_text.lua` supplies 56 translated
-labels. The returned normal battle handles and five prior-act final fight handles
-can feed the notification coordinator. These factories remain outside main.lua;
+labels. The returned `final_ids` contains all six qualified normal final-fight
+IDs; `prior_final_ids` contains the first five for notifications. The original
+five `finals` handles remain available. These factories remain outside main.lua;
 source comparisons use controlled missing identities and a controlled availability
 reader only in tests. See Step 41 for the native locked-pair fix and acceptance limits.
+
+Pending `scripts/content/sensei_story.lua` connects the encounter graph, entry
+scenes, victory sequences and notifications in the required subscription order.
+Its `install(opponents, is_raid_charge_available, portraits)` takes verified
+rosters, a faithful perk-state reader and all entry/victory portrait handles,
+including `character_sensei` for notifications. It returns the encounter graph.
+The caller must request `content.register`, `story.events`, `story.progression`,
+`profile.read`, `state.read`, `state.write`, `ui.create` and `combat.effects`
+(for the charge control callback). Do not load the component installers separately.
+`Tools/TestSenseiStory.ps1` executes the combined Lua flow with controlled
+opponents, availability and presentation hosts. All six unlocks, 17 entries,
+23 victory cards, loss/retry, save/profile separation and outro cancellation
+are covered; missing assets, defeat dialogue and native campaign acceptance
+still prevent activation in main.lua. See Step 46.
 
 Pending `scripts/content/sensei_raid_charge.lua` supplies that conditional behavior
 through `register(is_available)`. Its caller must supply a verified boolean reader

@@ -2691,3 +2691,49 @@ verified portraits, guard/prince identities, faithful perk/ability availability,
 defeat dialogue and full campaign/story integration remain unfinished. Native
 continuation acceptance uses fixture fights and presentation, not the archived
 Sensei opponents or complete dialogue chain. Corpus acquisition remains deferred.
+
+## Step 46 — Combined pending Sensei story flow (2026-09-20)
+
+Added `sensei_story.install(opponents, is_raid_charge_available, portraits)` as
+the pending composition root. It connects the actual encounter/rule/reward
+factories to all first-entry sequences, post-victory dialogue and unlock
+notifications. It requires caller-supplied rosters, a faithful availability
+reader and verified portraits; no defaults substitute for these dependencies.
+Duplicate installation is rejected. The component installers must not also be
+called separately.
+
+The encounter graph now returns six qualified `final_ids` and five
+`prior_final_ids`, keeping its existing five `finals` handles intact. The shared
+identity source avoids passing opaque handles to the notification prerequisite
+reader, which expects strings, or omitting the prince from victory handling.
+Victory subscribes before notifications so queued narrative gates the next
+unlock. Notifications now accept an optional supplied portrait and resolve the
+legacy core fallback only when absent; the combined installer always supplies
+the verified `character_sensei` handle.
+
+`TestSenseiStory.ps1` runs the actual combined Lua against canonical base
+definitions through the production MoonSharp bindings. Its 552 checks cover
+12 paired battles/23 fights/57 reward slots, 17 first entries with 39 cards,
+23 victory cards and all six ordered unlocks. It exercises next-act prerequisites,
+failed map acknowledgements, loss/retry without repeated introductions,
+non-final victories, saved dialogue/profile separation, cancelled outro callbacks,
+completed and Eclipse result isolation, namespaced portraits and teardown.
+Dummy opponents, portrait metadata, perk availability and native presentation
+hosts are explicit controlled dependencies. This is not a native campaign or
+asset/AI acceptance test. It loads no archived DE XML; existing per-component
+source comparisons remain separate checks.
+
+Regression checks pass: 870 encounter graph, 73 opponent, 139 warrior loadout,
+114 notification, 660 victory, 1290 entry and 2672 active DE foundation checks.
+Managed Assembly-CSharp compilation passes; the wiki build passes with 47 pages,
+4132 checked links and no Astro diagnostics (existing duplicate-404 build warning).
+No new public engine API or editor schema changed. No Unity editor validation
+or game playtest was run for this Lua composition milestone.
+
+Active DE128 remains 0.18.0; main.lua still excludes these pending modules.
+Guard/prince identities, verified art, faithful perk availability, defeat dialogue
+and native full-campaign acceptance remain unresolved. The loss-flow audit found
+that the public battle-result observer runs after native FightEnd quests and
+result presentation; simply opening the archived defeat dialog there or queueing
+it to the map would not establish its original timing. That integration still
+needs an evidence-backed runtime solution. Corpus acquisition remains deferred.

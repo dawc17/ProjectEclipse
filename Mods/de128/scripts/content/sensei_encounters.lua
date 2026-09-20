@@ -14,7 +14,7 @@ local function register(opponents, conditional_raid_charge)
     local battles = require("content.sensei_battles").register()
     local rewards = require("content.sensei_rewards")
     local rules = require("content.sensei_fight_rules")
-    local result = { battles = battles, normal = {}, eclipse = {}, finals = {} }
+    local result = { battles = battles, normal = {}, eclipse = {}, finals = {}, final_ids = {}, prior_final_ids = {} }
     local function with_charge(entry)
         local copy = {}
         for index, rule in ipairs(entry.unconditional) do copy[index] = rule end
@@ -31,7 +31,11 @@ local function register(opponents, conditional_raid_charge)
             }
         end
         result.normal[act] = normal
-        if act < 6 then result.finals[act] = normal[#normal] end
+        result.final_ids[act] = sf2.mod.id .. ":fights/sensei_act_" .. act .. "_normal_" .. #normal
+        if act < 6 then
+            result.finals[act] = normal[#normal]
+            result.prior_final_ids[act] = result.final_ids[act]
+        end
         result.eclipse[act] = sf2.fights.register {
             id = "sensei_act_" .. act .. "_eclipse_1", battle = battles.eclipse[act],
             warriors = opponents[act].eclipse, rewards = rewards[act].eclipse, rules = with_charge(rules.acts[act].eclipse),

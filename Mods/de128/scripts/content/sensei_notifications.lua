@@ -2,14 +2,14 @@ local sf2 = require("sf2")
 local progression = require("content.sensei_progression")
 local map = require("content.sensei_map")
 local text = require("content.sensei_notification_text")
-local portrait = sf2.assets.sprite("core:ui/users/character_sensei")
 local shared = require("content.sensei_state")
 
 -- Pending until the six battle definitions and prior-act finals are assembled.
 -- Install once during registration. No XML or native user-variable names escape
 -- into the runtime behavior: all notification state belongs to this mod.
-local function install(battles, finals)
+local function install(battles, finals, portrait)
     assert(#battles == 6 and #finals == 5, "Sensei notifications need six battles and five prior-act finals")
+    portrait = portrait or sf2.assets.sprite("core:ui/users/character_sensei")
     shared.register()
     local scene, view
     local show_next

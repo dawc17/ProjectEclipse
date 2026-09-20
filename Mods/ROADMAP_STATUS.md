@@ -333,3 +333,11 @@ values). The normal native launch resumes after acknowledgement, with scoped
 cancellation and saved one-time flags. Native continuation and source/Lua tests
 pass; story activation still awaits verified assets/identities, faithful perk
 availability and remaining defeat/campaign integration. Active DE128 is 0.18.0.
+
+Step 46 connects pending Sensei encounters, introductions, victory dialogue and
+unlock notifications through one Lua installer. The graph supplies six final IDs
+and five prior-act prerequisite IDs, and every presentation accepts the caller's
+portrait namespace. A combined managed story fixture covers all six acts,
+loss/retry, notification ordering and save/profile cancellation. Verified assets,
+perk-state availability, defeat dialogue and native campaign acceptance remain
+open; the installer stays outside main.lua and active DE128 remains 0.18.0.

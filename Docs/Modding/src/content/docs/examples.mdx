@@ -49,6 +49,18 @@ that a manually added Desolator worked; that does not by itself validate the
 reward callback's level/enchantment settlement, save persistence, combat behavior,
 or runtime art rendering.
 
+The source also includes a **pending Sensei story composition example** in
+`scripts/content/sensei_story.lua`. It shows how owned fight-entry continuations,
+saved dialogue cursors and battle-result subscriptions work together: install
+victory handling before unlock notifications, and use the same qualified final
+fight IDs for both. Portrait handles are supplied by the caller, so presentation
+does not depend on a particular asset namespace. The combined managed fixture
+checks six acts with controlled opponents and presentation hosts, including
+loss/retry, saved dialogue and profile isolation. This code is not loaded by the
+package entrypoint: verified opponent assets, perk availability, defeat dialogue
+and a native campaign playtest remain outstanding. It is an integration example,
+not a playable restored campaign.
+
 The earlier Ascension prototype is disabled and is no longer part of the active
 DE restoration path. Its generic public rule and encounter-plan APIs remain
 documented because they are reusable modding features, but the DE package should
