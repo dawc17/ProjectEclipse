@@ -1658,6 +1658,16 @@ local UiPlacement = {}
 ---@field on_close? fun(view:Eclipse.UiHandle,reason:"script"|"back"|"scene"|"error"|"destroyed")
 local UiDefinition = {}
 
+---@class (exact) Eclipse.ActScreenLine
+---@field text Eclipse.LocalizationHandle
+---@field frames integer Required duration at 60 frames per second, 1..3600.
+local ActScreenLine = {}
+
+---@class (exact) Eclipse.ActScreenDefinition
+---@field lines Eclipse.ActScreenLine[]
+---@field on_complete? fun()
+local ActScreenDefinition = {}
+
 ---@class (exact) Eclipse.QuestSuppression
 ---@field target string
 local QuestSuppression = {}
@@ -2733,6 +2743,14 @@ function log.warn(message) end
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/logging/#sf2logerror)
 ---@param message string
 function log.error(message) end
+
+---Requires: `ui.create`. Registering localization also requires `content.register`.
+---When: On the active progression map with a bound profile. It cannot open from a UI cleanup callback. Only one act screen runs at a time.
+---Returns: `true` when the native act screen starts; `false` when another presentation or a map transition/input lock prevents it. Invalid arguments, a missing capability, or a host without presentation support raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiact_screen)
+---@param definition Eclipse.ActScreenDefinition
+---@return boolean
+function ui.act_screen(definition) end
 
 ---Requires: `ui.create` in the manifest.
 ---When: During script execution or callbacks with an available game UI host. Scene changes close the resulting view; create it from the relevant lifecycle callback when it must appear in a particular scene. Opening on every tick is unnecessary: keep a handle and update individual widgets.

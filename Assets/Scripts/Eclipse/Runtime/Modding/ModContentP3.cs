@@ -2,6 +2,26 @@ using System;
 using System.Collections.Generic;
 namespace Eclipse.Modding
 {
+    public sealed class ModActScreenLine
+    {
+        public string Text { get; }
+        public int Frames { get; }
+        public ModActScreenLine(string text, int frames)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length > 4096) throw new ArgumentException("Act-screen text requires 1..4096 characters.");
+            if (frames < 1 || frames > 3600) throw new ArgumentOutOfRangeException(nameof(frames));
+            Text = text; Frames = frames;
+        }
+    }
+
+    public static class ModActScreenAccess
+    {
+        // null refuses the request. The host reports false on cancellation and
+        // true only after native presentation and input cleanup have completed.
+        public static Func<IReadOnlyList<ModActScreenLine>, Action<bool>, IDisposable> Open;
+        public static void Clear() { Open = null; }
+    }
+
     // Host service retains native scene/quest authority; Lua passes only a menu name.
     public static class ModSceneAccess
     {

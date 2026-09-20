@@ -21,13 +21,35 @@ public class Module : global::EventDispatcher<object>
 
 	private ModuleHolder FFICJOEBPAK;
 
-	private bool EIJOCGCFMJF;
+	// best guess for name
+	private bool _inputLocked;
 
-	private bool CGDNICGKBEH;
+	// best guess for name
+	private bool _visibleInputLock;
 
 	private bool INGHJOIPMGH;
 
 	private bool FGGGPEGPDIK;
+    private int _presentationLocks;
+    public IDisposable AcquirePresentationLock()
+    {
+        bool visible = _inputLocked && _visibleInputLock;
+        _presentationLocks++;
+        RefreshInputLock(visible);
+        return new PresentationLock(this);
+    }
+    private sealed class PresentationLock : IDisposable
+    {
+        private Module owner;
+        public PresentationLock(Module owner) { this.owner = owner; }
+        public void Dispose()
+        {
+            var current = owner; owner = null;
+            if (current == null) return;
+            current._presentationLocks--;
+            current.RefreshInputLock(current._visibleInputLock);
+        }
+    }
 
 	private bool HNDJIOBDPLN;
 
@@ -274,36 +296,37 @@ public class Module : global::EventDispatcher<object>
 	public void JJFFNDJDNAJ(bool NKCGCFGFNDL, bool LLOLBKJMKNC = true)
 	{
 		INGHJOIPMGH = NKCGCFGFNDL;
-		LOAHOKPCOAO(LLOLBKJMKNC);
+		RefreshInputLock(LLOLBKJMKNC);
 	}
 
 	public void DIDFMBMPEAF(bool FHFEIGOAJHO, bool LLOLBKJMKNC = true)
 	{
 		FGGGPEGPDIK = FHFEIGOAJHO;
-		LOAHOKPCOAO(LLOLBKJMKNC);
+		RefreshInputLock(LLOLBKJMKNC);
 	}
 
-	public void LOAHOKPCOAO(bool LLOLBKJMKNC)
+    // best guess for name
+	public void RefreshInputLock(bool LLOLBKJMKNC)
 	{
-		bool flag = INGHJOIPMGH || FGGGPEGPDIK || HNDJIOBDPLN;
-		if (EIJOCGCFMJF != flag)
+		bool flag = INGHJOIPMGH || FGGGPEGPDIK || HNDJIOBDPLN || _presentationLocks > 0;
+		if (_inputLocked != flag)
 		{
-			EIJOCGCFMJF = flag;
-			CGDNICGKBEH = LLOLBKJMKNC;
-			if (EIJOCGCFMJF)
+			_inputLocked = flag;
+			_visibleInputLock = LLOLBKJMKNC;
+			if (_inputLocked)
 			{
-				MMHIKEIDDNB(CGDNICGKBEH);
+				MMHIKEIDDNB(_visibleInputLock);
 			}
 			else
 			{
 				FFIEHHJMLKJ();
 			}
 		}
-		else if (EIJOCGCFMJF && EIJOCGCFMJF == flag && CGDNICGKBEH != LLOLBKJMKNC)
+		else if (_inputLocked && _inputLocked == flag && _visibleInputLock != LLOLBKJMKNC)
 		{
-			CGDNICGKBEH = LLOLBKJMKNC;
+			_visibleInputLock = LLOLBKJMKNC;
 			FFIEHHJMLKJ();
-			MMHIKEIDDNB(CGDNICGKBEH);
+			MMHIKEIDDNB(_visibleInputLock);
 		}
 	}
 
@@ -314,12 +337,12 @@ public class Module : global::EventDispatcher<object>
 
 	private void MMHIKEIDDNB(bool LLOLBKJMKNC)
 	{
-		EKMKBPNAKCN(EIJOCGCFMJF, LLOLBKJMKNC);
+		EKMKBPNAKCN(_inputLocked, LLOLBKJMKNC);
 	}
 
 	private void FFIEHHJMLKJ()
 	{
-		EKMKBPNAKCN(EIJOCGCFMJF);
+		EKMKBPNAKCN(_inputLocked);
 	}
 
 	public void NPMIHDFCBBH()

@@ -1258,6 +1258,17 @@
       "requires": "No capability.",
       "when": "Entrypoint or a callback."
     },
+    "sf2.ui.act_screen": {
+      "params": {
+        "definition": "Eclipse.ActScreenDefinition"
+      },
+      "returns": "`true` when the native act screen starts; `false` when another presentation or a map transition/input lock prevents it. Invalid arguments, a missing capability, or a host without presentation support raise an error.",
+      "capability": "ui.create",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uiact_screen",
+      "summary": "",
+      "requires": "`ui.create`. Registering localization also requires `content.register`.",
+      "when": "On the active progression map with a bound profile. It cannot open from a UI cleanup callback. Only one act screen runs at a time."
+    },
     "sf2.ui.open": {
       "params": {
         "definition": "Eclipse.UiDefinition"
@@ -1499,6 +1510,7 @@
     "on_prepare"
   ],
   "uiCallbacks": [
+    "on_complete",
     "on_click",
     "on_close",
     "on_change",
@@ -3583,6 +3595,21 @@
         "on_change?": "fun(view:Eclipse.UiHandle,widget_id:string,value:boolean|number)",
         "on_click?": "fun(view:Eclipse.UiHandle,widget_id:string)",
         "on_close?": "fun(view:Eclipse.UiHandle,reason:\"script\"|\"back\"|\"scene\"|\"error\"|\"destroyed\")"
+      }
+    },
+    "ActScreenLine": {
+      "fields": {
+        "text": "Eclipse.LocalizationHandle",
+        "frames": [
+          "integer",
+          "Required duration at 60 frames per second, 1..3600."
+        ]
+      }
+    },
+    "ActScreenDefinition": {
+      "fields": {
+        "lines": "Eclipse.ActScreenLine[]",
+        "on_complete?": "fun()"
       }
     },
     "QuestSuppression": {

@@ -49,6 +49,7 @@ if (sources.some(source => /table\.Get\("on_result"\)/.test(source))) exported.a
 for (const name of ['on_click', 'on_close', 'on_change', 'on_back', 'on_decide', 'on_prepare'])
   if (sources.some(source => source.includes(`table.Get("${name}")`))) exported.add(name);
 
+if (sources.some(source => source.includes('definition.Get("on_complete")'))) exported.add('on_complete');
 const parser = unified().use(remarkParse);
 const documented = new Map();
 const failures = [];

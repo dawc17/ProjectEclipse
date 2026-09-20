@@ -3,14 +3,10 @@ local data = require("content.sensei_victory_data")
 local text = require("content.sensei_victory_text")
 local shared = require("content.sensei_state")
 
--- Pending: install before notifications. The final act's timed native-style
--- outro is an explicit dependency, never replaced with an acknowledgement box.
--- present_outro(text_handle, frames, done) returns false when unavailable and
--- calls done only after the silent-lock screen completes. Scene/profile teardown
--- must cancel it. This factory does not claim that presenter is implemented.
-local function install(final_ids, portraits, present_outro)
-    assert(type(final_ids) == "table" and #final_ids == 6 and type(portraits) == "table"
-        and type(present_outro) == "function", "Sensei victory needs six final IDs, portraits and timed outro support")
+-- Pending: install before notifications, with verified portrait handles.
+local function install(final_ids, portraits)
+    assert(type(final_ids) == "table" and #final_ids == 6 and type(portraits) == "table",
+        "Sensei victory needs six final IDs and verified portraits")
     local acts = {}
     for act = 1, 6 do
         assert(type(final_ids[act]) == "string" and final_ids[act]:match("^[%w_.%-]+:fights/.+$")
@@ -43,12 +39,12 @@ local function install(final_ids, portraits, present_outro)
             if act ~= 6 then complete(act); return end
             local token = {}
             outro = token
-            local accepted = present_outro(text.Sensei_arc_outro, 180, function()
+            local accepted = sf2.ui.act_screen { lines = { { text = text.Sensei_arc_outro, frames = 180 } }, on_complete = function()
                 if outro ~= token or scene ~= "map" then return end
                 if not sf2.state.get("sensei_dialogue_pending_" .. act) then return end
                 outro = nil
                 complete(act)
-            end)
+            end }
             if not accepted and outro == token then outro = nil end
             return
         end

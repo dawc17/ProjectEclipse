@@ -645,6 +645,8 @@ namespace Eclipse.Modding
                 if (_disposed) return;
                 _callbackWorkers.Clear();
                 _disposed = true;
+                _actScreen?.Dispose();
+                _actScreen = null;
                 _storyScope?.Dispose();
                 UiScope.Dispose();
                 _uiHandles = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface>();

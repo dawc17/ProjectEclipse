@@ -17,6 +17,13 @@ public static class ValidateDE128CombatNative
     static double started, reported;
     static bool campaign, entered, attached, requested, selected, released, finished;
     static bool mapLockChecked;
+    static int actPhase,actCompletions;
+    static double actStarted, actStableAt;
+    static UnityEngine.SceneManagement.Scene actScene, actStableScene;
+    static int actGeneration, actRetries;
+    static bool actFirst,actSecond;
+    static bool ActInputBlocked => (bool)typeof(Eclipse.UI.Modding.ModUiGameBridge).GetProperty("NativeInputBlocked", BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);
+
     static string failure;
     static int requestedAt, selectedAt, attacks, swishes;
     static Model actor;
@@ -68,13 +75,13 @@ public static class ValidateDE128CombatNative
             {
                 reported = EditorApplication.timeSinceStartup;
                 Debug.Log("[DE128Native] Waiting campaign=" + campaign + " entered=" + entered + " selected=" + selected + " actions=" + swishes);
-                if (!mapLockChecked && ModRuntime.Scripts != null)
+                if (!entered && ModRuntime.Scripts != null)
                 {
                     var flags = BindingFlags.Static | BindingFlags.NonPublic;
                     var blocker = typeof(Eclipse.UI.Modding.ModUiGameBridge).GetProperty("NativeInputBlocked", flags);
                     var lockScreen = Nekki.SF2.GUI.LockScreen.get_Instance();
                     Debug.Log("[DE128Native] Map gates: scene=" + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name +
-                        " module=" + Module.GetInstance()?.NMCNDOPKFJD() +
+                        " act=" + actPhase + " module=" + Module.GetInstance()?.NMCNDOPKFJD() +
                         " input=" + blocker?.GetValue(null) + " lock=" + (lockScreen != null && lockScreen.gameObject.activeInHierarchy) +
                         " mutation=" + typeof(ModRuntime).GetField("_profileMutationState", flags).GetValue(null) +
                         " quest=" + Nekki.SF2.Core.Quests.QuestsManager.get_Instance()?.CurrentQuestName);
@@ -105,6 +112,7 @@ public static class ValidateDE128CombatNative
                         Module.DLOKJOHNDID(ScreenType.ModuleMap, null, null, false);
                         return;
                     }
+                    if (!CheckActScreen()) return;
                     if (!CheckMapBattleLock()) return;
                     CheckMapBattleReveal();
                     CheckEclipseModeSwitch();
@@ -446,6 +454,70 @@ public static class ValidateDE128CombatNative
         }
         if (checkedPerks != bosses.Sum(value=>value.PerkLoadout.Count)) throw new Exception("Missing native boss perk instances.");
         Debug.Log("[DE128Native] PASS "+checkedPerks+" perk clones across twelve boss loadouts: Aspect/ChanceFactor/Chance/Frames, omitted defaults, explicit zero and instance isolation. Pending story is not activated; no boss AI/trigger playtest claim.");
+    }
+
+    static bool CheckActScreen()
+    {
+        if(actPhase==2)return true;
+        if(actPhase==0)
+        {
+            var currentScene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            if(currentScene!=actStableScene){actStableScene=currentScene;actStableAt=EditorApplication.timeSinceStartup;return false;}
+            if(EditorApplication.timeSinceStartup-actStableAt<1)return false;
+            var lines=new[]{new ModActScreenLine("Cancelled screen",180)};
+            int cancelled=0;
+            var first=ModActScreenAccess.Open(lines,done=>{if(done)throw new Exception("Cancelled screen completed");cancelled++;});
+            if(first==null)return false;
+            // These are actual native and mod UI locks, independent of the screen owner.
+            var native=Module.GetInstance().AcquirePresentationLock();
+            var ui=Eclipse.UI.Modding.ModUiGameBridge.AcquirePresentationBlock();
+            first.Dispose();first.Dispose();
+            if(cancelled!=1||!ActInputBlocked||!Nekki.SF2.GUI.LockScreen.get_Instance().gameObject.activeInHierarchy)
+                throw new Exception("Cancellation released another owner's lock or duplicated callback");
+            native.Dispose();ui.Dispose();
+            if(ActInputBlocked||Nekki.SF2.GUI.LockScreen.get_Instance().gameObject.activeInHierarchy)
+                throw new Exception("Cancellation retained input lock");
+            // A native quest lock must also survive cancellation of our lease.
+            var questScreen=ModActScreenAccess.Open(lines,done=>{});
+            if(questScreen==null)throw new Exception("Cancelled screen remained busy");
+            Module.GetInstance().DIDFMBMPEAF(true,false);
+            questScreen.Dispose();
+            if(!Nekki.SF2.GUI.LockScreen.get_Instance().gameObject.activeInHierarchy)throw new Exception("Presentation released native quest lock");
+            Module.GetInstance().DIDFMBMPEAF(false,false);
+            var bus=(ModStoryEvents)typeof(ModRuntime).GetField("StoryEvents",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);
+            actStarted=EditorApplication.timeSinceStartup;actPhase=1;
+            actScene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();actGeneration=bus.ProfileGeneration;
+            bus.Publish(new ModStoryEvent(ModStoryEventKind.LevelUp,null,previousLevel:1,level:2));
+            Debug.Log("[DE128Native] Act-screen Lua request started; generation="+actGeneration+" scene="+actScene.name);
+            if(!ActInputBlocked)throw new Exception("Lua act screen did not acquire input");
+            if(ModActScreenAccess.Open(lines,done=>{})!=null)throw new Exception("Concurrent act screen accepted");
+            return false;
+        }
+        var presenters=UnityEngine.Object.FindObjectsOfType<ModActScreenPresenter>();
+        if(presenters.Length==0&&actCompletions==0)
+        {
+            var bus=(ModStoryEvents)typeof(ModRuntime).GetField("StoryEvents",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);
+            if((actScene!=UnityEngine.SceneManagement.SceneManager.GetActiveScene()||actGeneration!=bus.ProfileGeneration)&&actRetries++<3)
+            {
+                Debug.Log("[DE128Native] Act screen correctly cancelled by scene/profile transition; retry after map settles.");
+                actPhase=0;actFirst=actSecond=false;actStableAt=EditorApplication.timeSinceStartup;return false;
+            }
+            throw new Exception("Act screen disappeared without completion or a scene/profile transition");
+        }
+        foreach(var presenter in presenters)
+        {
+            var label=presenter.GetComponentInChildren<Nekki.SF2.GUI.LabelAlias>(true);
+            if(label==null||!label.gameObject.activeInHierarchy)continue;
+            if(label.text=="Literal {0} <b>first</b>") {actFirst=true;if(label.supportRichText)throw new Exception("Act text interpreted rich markup");}
+            if(label.text=="Second line")actSecond=true;
+        }
+        if(actCompletions==0)return false;
+        if(actCompletions!=1||!actFirst||!actSecond||ActInputBlocked||Nekki.SF2.GUI.LockScreen.get_Instance().gameObject.activeInHierarchy)
+            throw new Exception("Act screen lines, completion, or input cleanup failed: first="+actFirst+" second="+actSecond);
+        if(EditorApplication.timeSinceStartup-actStarted<1)throw new Exception("Native line durations skipped");
+        actPhase=2;
+        Debug.Log("[DE128Native] PASS native act-screen Lua request, literal ordered lines, timing, cancellation, and independent native/mod locks.");
+        return true;
     }
 
     static bool CheckMapBattleLock()
@@ -912,6 +984,11 @@ public static class ValidateDE128CombatNative
     }
     static void Capture(string message, string stack, LogType type)
     {
+        if (message.Contains("[DE128Act] complete"))
+        {
+            actCompletions++;
+            if(ActInputBlocked)failure="Act callback ran before releasing input";
+        }
         if (message.Contains("[DE128Flag]"))
         {
             try

@@ -393,6 +393,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\TacticalTableHolder.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkObject.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Modding\ModSceneEntry.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\ModActScreenPresenter.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\BattleAscension.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SFToggle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionCurrentAnimation.cs" />

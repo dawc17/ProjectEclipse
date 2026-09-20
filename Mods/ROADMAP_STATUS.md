@@ -319,3 +319,10 @@ ordering. Reusable C# image mirroring preserves Widow's presentation. Actual Lua
 and isolated Unity UI checks pass; portrait assets and the final timed ActScreen
 remain explicit unverified dependencies, and intro/defeat/full-story integration
 is unfinished. Active DE128 remains 0.18.0; see its production record.
+
+Step 44 replaces the pending outro presenter with the C# `sf2.ui.act_screen` API:
+localized timed lines, native fades/music, independent input leases, bounded
+completion and cancellation on teardown. The pending victory factory uses it
+directly; the story stays disabled while asset/identity, perk-state and remaining
+narrative gaps are unresolved. Active DE128 remains 0.18.0. See its production
+record for verification and remaining integration limits.

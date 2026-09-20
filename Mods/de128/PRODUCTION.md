@@ -2573,3 +2573,63 @@ complete story playthrough remain unfinished, alongside the guard/prince and
 perk-activation gaps. The perk-event producer remains absent from recovered C#;
 no profile/equipment approximation was introduced. The corpus download stays
 explicitly deferred.
+
+
+## Step 44 — Native timed story screens (2026-09-20)
+
+Closed the Step 43 timed-presenter dependency with reusable C#
+`sf2.ui.act_screen { lines = {{text = handle, frames = 180}}, on_complete = function() end }`.
+The `ui.create` capability authorizes a progression-map-only presentation through
+Eclipse's native EnterScreen prefab, fades, music and 60-frame duration convention.
+Typed localized lines are resolved once and displayed literally; XML, alias
+expressions and arbitrary rich text are not evaluated. Dense arrays, field names,
+localization ownership, callback type, per-line duration and total duration are
+validated before reaching the host. Busy/unready maps return false without queuing.
+
+The native screen retains and cancels its own tween and restores music before
+completion. Independent native-module and mod-UI leases compose with existing
+locks and release only their ownership. Scene/profile/restart/context teardown
+cancels presentation without running the Lua completion callback. Completion is
+exactly once and uses the normal bounded Lua execution path. The pending victory
+factory now takes `(final_ids, portraits)` and calls the real API; its saved final
+completion and notification ordering still wait for the outro to finish.
+
+Verification:
+
+- Managed editor compile: zero errors.
+- `TestSenseiVictory.ps1`: 660 checks through the actual Lua binding and controlled
+  presentation host, retaining 23 cards, 448 source translations, interrupted and
+  serialized state, refused/retried/cancelled/stale completions and notifications.
+- `TestModUiLua.ps1`: 919 checks including literal act-screen text, host refusal,
+  capability/shape/duration errors, concurrent requests, teardown, exactly-once
+  completion and callback instruction limits. `TestModUiRuntime.ps1`: 154 checks.
+- `TestSenseiNotifications.ps1`: 114 checks. `TestDE128Foundation.ps1`: 2672 checks.
+- Isolated Unity UI fixture `Temp/ModUiUnity-c1c2ac23ebce45419c92ee353eb03f49`:
+  249 production renderer/input/lifetime checks.
+- Native Unity 6000.6.0f1 fixture
+  `Temp/FormNative-pesgwt7y/DE128Runs/Run-phl2dfgt`: actual Lua act-screen request,
+  literal ordered labels, native timing, exactly-once completion after input
+  release, refused concurrent presentation, cancellation, and preservation of
+  separate presentation and native quest locks. Native DE portrait and complete
+  story acceptance remain open.
+- Editor generation/check, 37 unit checks, real LuaLS typed act-screen/line
+  completions and isolated VS Code integration pass. Wiki builds 47 pages and
+  checks 4112 local links/assets with zero Astro diagnostics (existing 404 warning).
+
+The first reused native clone failed compilation because it lacked the preceding
+image-mirroring model change. Its failed log and residual lock were preserved;
+a fresh independent clone was created. Stalled native runs were stopped only
+after verifying their owned process identity, with logs retained; Unity itself
+reopened/closed the fixture to release its residual lockfile. Diagnostics found
+that Unity invokes OnDisable synchronously during Destroy: destroying a completed
+screen before notifying its owner had incorrectly reported cancellation. End now
+cleans the tween/music first, reports success, then destroys in finally. The
+native check requires successful callback and released locks, so it detects this
+ordering regression. The harness distinguishes scene/profile cancellation from
+unexpected disappearance, rather than treating cancellation as success.
+No owner editor or profile was modified.
+
+DE128 remains 0.18.0, with pending story modules outside main.lua. Verified
+portraits, guard/prince identities, actual perk activation/ability availability,
+intro/pre-fight/defeat sequences and complete story playthrough remain open.
+The asset corpus download remains explicitly deferred.

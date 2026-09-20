@@ -38,8 +38,12 @@ public class EnterScreen : MonoBehaviour
 	private Image _foreground;
 
 	private Action _dlg;
+    private DG.Tweening.Sequence _presentation;
+    private bool _finished;
+    private bool _musicCaptured;
 
-	private float EFGJOKICKHO;
+	// best guess for name
+	private float _originalMusicVolume;
 
 	private float ALGOCMIFECI;
 
@@ -51,13 +55,23 @@ public class EnterScreen : MonoBehaviour
 
 	public void Init(List<KeyValuePair<string, int>> IGLEKOAILHD, Action ODDEOFKLIAG)
 	{
+        InitLines(IGLEKOAILHD, ODDEOFKLIAG, false);
+    }
+
+    public void InitResolved(List<KeyValuePair<string, int>> lines, Action completed)
+    {
+        InitLines(lines, completed, true);
+    }
+
+    private void InitLines(List<KeyValuePair<string, int>> IGLEKOAILHD, Action ODDEOFKLIAG, bool resolved)
+	{
 		_dlg = ODDEOFKLIAG;
 		SetVisible(false);
 		CCDGDBJLLNG();
 		PDCFDHNFCIG(MIN_OPACITY);
 		if (_label != null && IGLEKOAILHD.Count > 0)
 		{
-			_label.set_Alias(IGLEKOAILHD[0].Key);
+			SetLine(IGLEKOAILHD[0].Key, resolved);
 		}
 		DG.Tweening.Sequence sequence = DOTween.Sequence();
 		sequence.AppendInterval(0f);
@@ -67,7 +81,7 @@ public class EnterScreen : MonoBehaviour
 			{
 				if (_label != null)
 				{
-					_label.set_Alias(MGPBPJOHMLH.Key);
+					SetLine(MGPBPJOHMLH.Key, resolved);
 				}
 			});
 			float interval = (float)MGPBPJOHMLH.Value / 60f;
@@ -75,6 +89,7 @@ public class EnterScreen : MonoBehaviour
 		}
 		DG.Tweening.Sequence t = MuteMusicSequence();
 		DG.Tweening.Sequence s = DOTween.Sequence();
+        _presentation = s;
 		s.Append(t);
 		s.Join(_foreground.DOFade(MAX_OPACITY, fadeTime));
 		s.AppendCallback(() =>
@@ -103,6 +118,7 @@ public class EnterScreen : MonoBehaviour
 		PDCFDHNFCIG(MIN_OPACITY);
 		DG.Tweening.Sequence t = MuteMusicSequence();
 		DG.Tweening.Sequence s = DOTween.Sequence();
+        _presentation = s;
 		s.Append(t);
 		s.Join(_foreground.DOFade(MAX_OPACITY, fadeTime));
 		s.AppendCallback(() =>
@@ -129,7 +145,7 @@ public class EnterScreen : MonoBehaviour
 		}, 0f, fadeTime));
 		sequence.AppendCallback(() =>
 		{
-			Sound.OAFCOFNOIJK(EFGJOKICKHO);
+			Sound.OAFCOFNOIJK(_originalMusicVolume);
 			Sound.FAJONFGJBPD();
 		});
 		return sequence;
@@ -137,17 +153,48 @@ public class EnterScreen : MonoBehaviour
 
 	public void End()
 	{
-		if (_dlg != null)
-		{
-			_dlg();
-		}
-		if (!Sound.ELHMADOKHHE())
+        if (_finished) return;
+        var completed = _dlg;
+        FinishPresentation(false);
+        // Destroy invokes OnDisable synchronously: report success before a
+        // presentation owner's disable hook can interpret it as cancellation.
+        try { completed?.Invoke(); }
+        finally { UnityEngine.Object.Destroy(base.gameObject); }
+    }
+
+    public void Cancel()
+    {
+        if (_finished) return;
+        FinishPresentation();
+    }
+
+    private void FinishPresentation(bool destroyObject = true)
+    {
+        _finished = true;
+        _dlg = null;
+        _presentation?.Kill();
+        _presentation = null;
+		if (_musicCaptured) Sound.OAFCOFNOIJK(_originalMusicVolume);
+		if (_musicCaptured && !Sound.ELHMADOKHHE())
 		{
 			SoundController.IsBackgroundMusicIntro = false;
 			SoundController.KHPHDKFDCLL();
 		}
-		UnityEngine.Object.Destroy(base.gameObject);
+		if (destroyObject) UnityEngine.Object.Destroy(base.gameObject);
 	}
+
+    private void OnDestroy()
+    {
+        if (!_finished) FinishPresentation(false);
+    }
+
+    private void SetLine(string text, bool resolved)
+    {
+        if (!resolved) { _label.set_Alias(text); return; }
+        _label.set_Alias(string.Empty);
+        _label.supportRichText = false;
+        _label.set_text(text);
+    }
 
 	public void SetVisible(bool value)
 	{
@@ -169,7 +216,7 @@ public class EnterScreen : MonoBehaviour
 	{
 		if (!Sound.ELHMADOKHHE())
 		{
-			Sound.OAFCOFNOIJK(EFGJOKICKHO);
+			Sound.OAFCOFNOIJK(_originalMusicVolume);
 			Sound.FAJONFGJBPD();
 			SoundController.IsBackgroundMusicIntro = false;
 			SoundController.KHPHDKFDCLL("act", false);
@@ -180,8 +227,9 @@ public class EnterScreen : MonoBehaviour
 	{
 		if (!Sound.ELHMADOKHHE())
 		{
-			EFGJOKICKHO = Sound.EAIGFAPKILL();
-			ALGOCMIFECI = EFGJOKICKHO;
+			_originalMusicVolume = Sound.EAIGFAPKILL();
+            _musicCaptured = true;
+			ALGOCMIFECI = _originalMusicVolume;
 		}
 	}
 

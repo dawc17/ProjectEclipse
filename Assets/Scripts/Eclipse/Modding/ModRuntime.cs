@@ -205,6 +205,8 @@ namespace Eclipse.Modding
             _profileRoster = null;
             ModProfileAccess.Clear();
             ModSceneAccess.Clear();
+            ModActScreenPresenter.CancelActive();
+            ModActScreenAccess.Clear();
             ModBattleAccess.Clear();
             DojoSelection.Clear();
             _legacyContent?.Dispose();
@@ -231,6 +233,7 @@ namespace Eclipse.Modding
             ModProfileAccess.Perk = ReadProfilePerk;
             ModProfileAccess.Equipment = ReadProfileEquipment;
             ModSceneAccess.Open = TryNavigateScene;
+            ModActScreenAccess.Open = TryOpenActScreen;
             ModPolicies.Content = _scripts.Content;
             ModModeRuntime.SchedulePreparation = (request,ready,cancel) =>
                 new GameObject("Mod encounter preparation").AddComponent<ModPendingEncounter>().Configure(request,ready,cancel);
@@ -375,6 +378,7 @@ namespace Eclipse.Modding
         public static void RecordSaveContext(System.Xml.XmlNode warrior, Roster roster = null)
         {
             if (_profileMutationState == 1) throw new InvalidOperationException("Cannot replace the profile during settlement.");
+            ModActScreenPresenter.CancelActive();
             _battleLotteryPresentation?.Dispose();
             _battleLotteryPresentation = null;
             _lotteryProfileNode = warrior;
@@ -402,6 +406,7 @@ namespace Eclipse.Modding
         public static void UnbindProfile()
         {
             if (_profileMutationState == 1) throw new InvalidOperationException("Cannot unload the profile during settlement.");
+            ModActScreenPresenter.CancelActive();
             _battleLotteryPresentation?.Dispose();
             _battleLotteryPresentation = null;
             _lotteryProfileNode = null;
@@ -411,6 +416,15 @@ namespace Eclipse.Modding
             DojoSelection.Unbind();
             ModModeRuntime.Clear();
             _scripts?.State.Unbind();
+        }
+
+        private static IDisposable TryOpenActScreen(IReadOnlyList<ModActScreenLine> lines, Action<bool> finished)
+        {
+            if (ReadyProgressionMap() == null) return null;
+            var owner = _profileRoster;
+            int generation = StoryEvents.ProfileGeneration;
+            return ModActScreenPresenter.TryOpen(lines, finished, () => ReferenceEquals(owner, _profileRoster) &&
+                generation == StoryEvents.ProfileGeneration && !Eclipse.UI.TitleScreen.IsOpen && !Eclipse.UI.GameSessionRestart.IsRestarting);
         }
 
         private static int? ReadProfileLevel() => _profileRoster == null ? (int?)null : _profileRoster.Level;
@@ -1471,6 +1485,8 @@ namespace Eclipse.Modding
             _profileRoster = null;
             ModProfileAccess.Clear();
             ModSceneAccess.Clear();
+            ModActScreenPresenter.CancelActive();
+            ModActScreenAccess.Clear();
             ModBattleAccess.Clear();
             DojoSelection.Clear();
             ModModeRuntime.Clear();

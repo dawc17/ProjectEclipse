@@ -1,4 +1,13 @@
 local sf2 = require("sf2")
+local act_first=sf2.localization.register{id="act.first",language="eng",value="Literal {0} <b>first</b>"}
+local act_second=sf2.localization.register{id="act.second",language="eng",value="Second line"}
+sf2.story.on("level_up",function(event)
+    if event.level~=2 then return end
+    assert(sf2.ui.act_screen {
+        lines={{text=act_first,frames=30},{text=act_second,frames=30}},
+        on_complete=function() sf2.log.info("[DE128Act] complete") end
+    })
+end)
 -- This isolated acceptance profile exercises map locks/combat, not the dojo tutorial.
 sf2.quests.suppress { target = "core:quests/quest_extensions/tutorial_quests.xml/storytutorialwelcome" }
 require("content.sensei_boss_opponents") -- Copied from the authored pending DE modules by the runner.

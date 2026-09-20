@@ -15,6 +15,10 @@ sealed class UiFighter : IModFighterOperations, IModCombatSnapshotSource, IModIn
 }
 static class Program
 {
+    sealed class CancelLease : IDisposable {
+        Action cancel; internal CancelLease(Action value){cancel=value;}
+        public void Dispose(){var action=cancel;cancel=null;action?.Invoke();}
+    }
     static int checks;
     static string mods, repo, manifest, entry, originalManifest;
     static void Check(bool value,string message) { checks++; if(!value)throw new Exception(message); }
@@ -158,6 +162,35 @@ on_close=function(view,reason)assert(reason=='script' and not sf2.ui.is_open(vie
         });
         Run(prefix+"sf2.ui.open{id='back',mount='menu',root="+root+",on_back=function() while true do end end}",false,
             (ctx,cat,views)=>Check(!views[0].TryBack() && views[0].IsClosed,"Unbounded Back callback escaped budget"));
+        const string actPrefix="local sf2=require('sf2');local text=sf2.localization.register{id='act',language='eng',value='Literal {0} <b>text</b>'};";
+        const string actDefinition="{lines={{text=text,frames=180}},on_complete=function() sf2.log.info('ACT_DONE') end}";
+        Action<bool> complete=null;int requests=0,cancels=0;
+        ModActScreenAccess.Open=(lines,done)=>{
+            requests++;complete=done;
+            Check(lines.Count==1&&lines[0].Text=="Literal {0} <b>text</b>"&&lines[0].Frames==180,"Act-screen text/duration changed");
+            return new CancelLease(()=>{cancels++;done(false);});
+        };
+        var actLogs=new List<ModLogEntry>();
+        Run(actPrefix+"assert(sf2.ui.act_screen"+actDefinition+");assert(not sf2.ui.act_screen"+actDefinition+")",false,
+            (ctx,cat,views)=>{Check(requests==1,"Busy act screen reached host");complete(true);complete(true);Check(actLogs.Count(e=>e.Message=="ACT_DONE")==1,"Completion duplicated");},captureLogs:actLogs);
+        actLogs.Clear();
+        Run(actPrefix+"assert(sf2.ui.act_screen"+actDefinition+")",false,
+            (ctx,cat,views)=>{ctx.Dispose();complete(true);Check(cancels==1&&!actLogs.Any(),"Disposed act screen completed or retained lease");},captureLogs:actLogs);
+        foreach(string invalid in new[]{"{}","{lines={}}","{lines={[2]={text=text,frames=1}}}",
+            "{lines={{text='literal',frames=1}}}","{lines={{text=text,frames=0}}}","{lines={{text=text,frames=1.5}}}",
+            "{lines={{text=text,frames=3601}}}","{lines={{text=text,frames=0/0}}}","{lines={{text=text,frames=1/0}}}",
+            "{lines={{text=text,frames=1,extra=true}}}","{lines={{text=text,frames=1}},extra=true}",
+            "{lines={{text=text,frames=1}},on_complete=3}","{lines={{text=text,frames=3600},{text=text,frames=3600},{text=text,frames=1}}}"})
+            Run(actPrefix+"sf2.ui.act_screen"+invalid,true);
+        Run(actPrefix+"local lines={};for i=1,33 do lines[i]={text=text,frames=1} end;sf2.ui.act_screen{lines=lines}",true);
+        Check(requests==2,"Invalid act screen reached host");
+        Run(actPrefix+"sf2.ui.act_screen{lines={{text=text,frames=180}},on_complete=function() while true do end end}",false,
+            (ctx,cat,views)=>complete(true),captureLogs:actLogs);
+        Check(actLogs.Any(e=>e.Message.Contains("Act-screen callback failed")),"Unbounded completion was not interrupted");
+        ModActScreenAccess.Open=(lines,done)=>null;
+        Run(actPrefix+"assert(not sf2.ui.act_screen"+actDefinition+")",false);
+        ModActScreenAccess.Clear();
+        Run(actPrefix+"sf2.ui.act_screen"+actDefinition,true);
         File.WriteAllText(manifest,originalManifest.Replace("capabilities = [","capabilities = [\"story.progression\", "));
         int modeCalls=0;
         ModProfileAccess.SetEclipseMode=enabled=>{modeCalls++;return true;};
@@ -226,6 +259,7 @@ assert(not sf2.ui.is_open(view))
         Run(prefix+"local view="+open,true,(ctx,cat,views)=>Check(views.Single().IsClosed,"Failed mount retained view"),failMount:true);
         File.WriteAllText(manifest,originalManifest.Replace(", \"ui.create\"",""));
         Run(prefix+"local view="+open,true,(ctx,cat,views)=>Check(views.Count==0,"Missing UI capability reached renderer"));
+        Run(actPrefix+"sf2.ui.act_screen"+actDefinition,true);
         Console.WriteLine("PASS: "+checks+" actual Lua UI validation, capability, click budget, handle lifetime and Charged Strike checks.");
     }
     static void Run(string source,bool failure,Action<IModScriptContext,ModContentCatalog,List<ModUiSurface>> inspect=null,bool host=true,bool failMount=false,List<ModLogEntry> captureLogs=null)

@@ -556,3 +556,47 @@ No notification runs for failed mounting, script shutdown, failed entrypoint
 cleanup or a disposed owner scope. Native cleanup still runs. Do not depend on
 `on_close` to grant rewards, persist a final result or run shutdown logic.
 Successful state writes before a later callback error are not rolled back.
+## sf2.ui.act_screen
+
+**Signature:** `sf2.ui.act_screen(definition) -> boolean`
+
+**Returns:** `true` when the native act screen starts; `false` when another presentation or a map transition/input lock prevents it. Invalid arguments, a missing capability, or a host without presentation support raise an error.
+
+**When:** On the active progression map with a bound profile. It cannot open from a UI cleanup callback. Only one act screen runs at a time.
+
+**Requires:** `ui.create`. Registering localization also requires `content.register`.
+
+The required `lines` is a dense array of 1–32 tables. Each requires `text`, a localization handle from this script context, and `frames`, an integer from 1–3600 at 60 frames per second. Total text duration may not exceed 7200 frames. Native fades add to that duration. Text resolves in the current language when requested and must contain 1–4096 characters; it is displayed literally, without alias, parameter, or rich-text interpretation. Unknown fields are rejected.
+
+The native screen controls fades and act music. It holds a silent input lock, including mod UI, without releasing other owners' locks. Scene/profile changes, restart, script disposal, or destruction cancel it, restore presentation resources, and do **not** invoke `on_complete`. A refused request is not queued: retry from an appropriate later event. The optional completion callback takes no arguments.
+
+```lua
+local ending = sf2.localization.register {
+    id = "ending", language = "eng", value = "The journey continues."
+}
+-- Invoke from your map story handler, after dialogue has closed.
+local accepted = sf2.ui.act_screen {
+    lines = {{text = ending, frames = 180}},
+    on_complete = function() sf2.log.info("Ending finished") end
+}
+```
+
+## on_complete
+
+**Signature:** `on_complete() -> nil`
+
+**Returns:** Nothing; the return value is ignored.
+
+**When:** Once after every line and the final native fade finish, with presentation resources and this screen's input locks already released. Cancellation/refusal never calls it. Exceptions and instruction-budget failures are logged.
+
+**Requires:** An accepted `sf2.ui.act_screen` request with `ui.create`.
+
+```lua
+-- ending is a localization handle registered earlier.
+sf2.ui.act_screen {
+    lines = {{text = ending, frames = 180}},
+    on_complete = function()
+        sf2.log.info("Safe to continue the story")
+    end
+}
+```

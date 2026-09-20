@@ -8,6 +8,17 @@ namespace Eclipse.UI.Modding
     {
         private static ModUiGameBridge current;
         private static bool nativeBlocked;
+        private static readonly System.Collections.Generic.HashSet<object> presentationBlocks = new System.Collections.Generic.HashSet<object>();
+        public static System.IDisposable AcquirePresentationBlock()
+        {
+            var lease = new PresentationBlock(); presentationBlocks.Add(lease);
+            if (current != null) current.RefreshNativeBlock();
+            return lease;
+        }
+        private sealed class PresentationBlock : System.IDisposable
+        {
+            public void Dispose() { presentationBlocks.Remove(this); if (current != null) current.RefreshNativeBlock(); }
+        }
         private static int consumedFrame = -1;
         private static int backHandledFrame = -1;
         private ModUiCoordinator coordinator;
@@ -20,12 +31,12 @@ namespace Eclipse.UI.Modding
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSession()
-        { current = null; nativeBlocked = false; consumedFrame = backHandledFrame = -1; }
+        { current = null; nativeBlocked = false; presentationBlocks.Clear(); consumedFrame = backHandledFrame = -1; }
 
         public static bool BlocksGameplayInput => consumedFrame == Time.frameCount ||
             (current != null && current.coordinator != null && current.coordinator.CapturesInput);
 
-        internal static bool NativeInputBlocked => nativeBlocked || TitleScreen.IsOpen || GameSessionRestart.IsRestarting;
+        internal static bool NativeInputBlocked => nativeBlocked || presentationBlocks.Count != 0 || TitleScreen.IsOpen || GameSessionRestart.IsRestarting;
 
         public static void Attach(ModUiSurface surface)
         {

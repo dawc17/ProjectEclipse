@@ -233,6 +233,9 @@ type('UiDefinition', { id:'string',mount:enumOf('menu','modal','hud'),root:E('Ui
     'on_change?':`fun(view:${H('Ui')},widget_id:string,value:boolean|number)`,
     'on_click?':`fun(view:${H('Ui')},widget_id:string)`,
     'on_close?':`fun(view:${H('Ui')},reason:${enumOf('script','back','scene','error','destroyed')})` });
+type('ActScreenLine', {text:H('Localization'),frames:['integer','Required duration at 60 frames per second, 1..3600.']});
+type('ActScreenDefinition', {lines:E('ActScreenLine')+'[]','on_complete?':'fun()'});
+fn('ui.act_screen',{definition:E('ActScreenDefinition')},'boolean','ui.create');
 fn('ui.open',{definition:E('UiDefinition')},H('Ui'),'ui.create');
 fn('ui.close',{view:H('Ui')},'nil',null);
 fn('ui.is_open',{view:H('Ui')},'boolean',null);
@@ -244,4 +247,4 @@ fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',nu
 fn('ui.set_enabled',{view:H('Ui'),widget_id:'string',enabled:'boolean'},'nil',null);
 type("QuestSuppression",{target:"string"});reg("quests.suppress","QuestSuppression",null,"content.patch");
 type('ProfileEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string',owned:'boolean',count:'integer','upgrade?':'integer'});fn('profile.equipment',{},E('ProfileEquipmentSnapshot')+'[]','profile.read');
-module.exports={types,functions,aliases,callbacks,modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};
+module.exports={types,functions,aliases,callbacks,modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_complete','on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};

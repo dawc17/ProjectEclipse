@@ -16,6 +16,10 @@ sealed class PortraitMetadata : IAssetProvider
 }
 static class Program
 {
+    sealed class CancelLease : IDisposable {
+        Action cancel; internal CancelLease(Action value){cancel=value;}
+        public void Dispose(){var action=cancel;cancel=null;action?.Invoke();}
+    }
     static int checks;
     static void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
     static XmlDocument Read(string path){var doc=new XmlDocument();doc.Load(path);return doc;}
@@ -48,23 +52,7 @@ end
 for _,name in ipairs{"character_prince","character_sensei_young","boss_hermit_young","boss_butcher_young","boss_wasp_young","boss_widow_young","character_ancient"} do
  portraits[name]=sf2.assets.sprite("core:ui/users/"..name)
 end
-local finish,stale
-local attempts=0
-require("content.sensei_victory").install(ids,portraits,function(text,frames,done)
- assert(frames==180 and #sf2.localization.text(text)>0)
- attempts=attempts+1
- if attempts==1 then sf2.log.info("OUTRO_REFUSED");return false end
- stale=finish;finish=done
- sf2.log.info("OUTRO")
- return true
-end)
--- Controlled host: profile scene attempts the last cancelled callback; dojo
--- attempts the current callback after leaving map. Neither may complete it.
-sf2.story.on("scene_enter",function(event)
- if event.scene=="profile" and stale then stale() end
- if event.scene=="dojo" and finish then finish() end
-end)
-sf2.story.on("level_up",function() if finish then finish();finish() end end)
+require("content.sensei_victory").install(ids,portraits)
 require("content.sensei_notifications").install(battles,finals)
 """);
         var mod=ModDiscovery.DiscoverLoose(args[0]).Mods.Single();var catalog=new ModContentCatalog();
@@ -76,6 +64,14 @@ require("content.sensei_notifications").install(battles,finals)
         ModProfileAccess.Fight=id=>new ModProfileFightSnapshot(true,1,0);
         ModProfileAccess.SetEclipseMode=value=>true;ModBattleAccess.Reveal=(id,value)=>true;
         ModBattleAccess.SetLocked=(id,value)=>true;ModBattleAccess.Focus=id=>true;
+        Action<bool> outro=null;
+        IDisposable request=null;
+        int attempts=0;
+        ModActScreenAccess.Open=(lines,done)=>{
+            Check(lines.Count==1&&lines[0].Frames==180&&lines[0].Text==Read(Path.Combine(args[1],"Assets/DExml/localizations/eng.xml")).SelectSingleNode("//Word[@Title='Sensei_arc_outro']").InnerText,"Native outro request differs");
+            if(++attempts==1){logs.Add("OUTRO_REFUSED");return null;}
+            logs.Add("OUTRO");outro=done;return request=new CancelLease(()=>done(false));
+        };
         using(var layers=new ModUiLayerStack())
         using(var tx=catalog.BeginRegistration(mod))
         using(var context=new MoonSharpScriptRuntime(view=>{views.Add(view);layers.Add(view);},null,null,bus)
@@ -97,7 +93,12 @@ require("content.sensei_notifications").install(battles,finals)
             var save=Save();
             void Bind(XmlDocument doc){Check(state.Bind(doc.DocumentElement,new[]{context}).Count==0,"State bind failed");bus.BindProfile();}
             bool Flag(string kind,int act)=>state.TryGetValue(mod.Id,"sensei_"+kind+"_"+act,out var value)&&value.Boolean;
-            void Scene(string scene)=>bus.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter,null,scene:scene));
+            void Scene(string scene){
+                var stale=outro;
+                if(scene!="map"){request?.Dispose();request=null;}
+                bus.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter,null,scene:scene));
+                if(scene!="map")stale?.Invoke(true); // A cancelled native callback cannot acknowledge the outro.
+            }
             void Result(string outcome,string id)=>bus.Publish(new ModStoryEvent(ModStoryEventKind.BattleResult,null,battle:new ModBattleResultSnapshot(DefinitionId.Parse(id),outcome,false)));
             ModUiSurface Live()=>views.Last(value=>!value.IsClosed);
             void Close(){foreach(var view in views.ToArray())view.Close(ModUiCloseReason.Scene);}
@@ -133,7 +134,7 @@ require("content.sensei_notifications").install(battles,finals)
             Scene("map");Check(!Flag("complete",6)&&logs.Count(value=>value=="OUTRO")==1,"Deferred outro failed to retry");
             Scene("dojo");Check(!Flag("complete",6),"Cancelled outro callback completed act");
             Scene("map");Scene("profile");Check(!Flag("complete",6),"Stale outro callback completed act");
-            Scene("map");bus.Publish(new ModStoryEvent(ModStoryEventKind.LevelUp,null,previousLevel:1,level:2));
+            Scene("map");outro(true);outro(true);
             Check(Flag("complete",6)&&!Flag("dialogue_pending",6),"Outro completion failed");
             for(int act=1;act<=6;act++){Check(Live().Id=="sensei_notification","Deferred notification missing");Check(layers.Back(),"Notification acknowledgement failed");}
             Check(views.All(value=>value.IsClosed),"Completed sequences left a view");
@@ -143,7 +144,7 @@ require("content.sensei_notifications").install(battles,finals)
             for(int act=1;act<=6;act++)Check(Flag("complete",act)&&Flag("opened",act),"Serialized completion lost");
             Check(errors.Count==0&&!logs.Any(value=>value.Contains("failed")),string.Join("\n",errors.Concat(logs)));
         }
-        ModProfileAccess.Clear();ModBattleAccess.Clear();
-        Console.WriteLine("PASS: "+checks+" Sensei victory checks; 23 actual Lua cards, 448 translations, mirrored portraits, queued notifications, interruption/save/profile isolation and explicit controlled outro. No native story/art or timed-screen acceptance claim.");
+        ModProfileAccess.Clear();ModBattleAccess.Clear();ModActScreenAccess.Clear();
+        Console.WriteLine("PASS: "+checks+" Sensei victory checks; 23 actual Lua cards, 448 translations, mirrored portraits, queued notifications, interruption/save/profile isolation and actual act-screen Lua binding with controlled host. No native story/art or timed-screen acceptance claim.");
     }
 }

@@ -9,12 +9,14 @@ namespace Eclipse.Modding
         private sealed partial class MoonSharpScriptContext
         {
             private int _uiCloseDepth;
+            private IDisposable _actScreen;
             private System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface> _uiHandles =
                 new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface>();
 
             private void AddUiModule(Table root)
             {
                 var ui = new Table(_script);
+                ui.Set("act_screen", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.act_screen", () => OpenActScreen(args))));
                 ui.Set("open", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.open", () => OpenUi(args))));
                 ui.Set("close", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.close", () => {
                     UiHandle(args, "sf2.ui.close").Close(); return DynValue.Nil;
@@ -50,6 +52,56 @@ namespace Eclipse.Modding
                     return DynValue.Nil;
                 })));
                 root.Set("ui", DynValue.NewTable(ui));
+            }
+
+            private DynValue OpenActScreen(CallbackArguments args)
+            {
+                const string function = "sf2.ui.act_screen";
+                ThrowIfDisposed(); _api.RequireCapability("ui.create");
+                if (_uiCloseDepth != 0) throw new ModContentException("Act screens cannot open during UI cleanup.");
+                var definition = UiArgument(args, 0, DataType.Table, function).Table;
+                ValidateFields(definition, function, "lines", "on_complete");
+                var callback = definition.Get("on_complete");
+                if (!callback.IsNil() && callback.Type != DataType.Function) throw new ModContentException("on_complete must be a Lua function.");
+                var source = definition.Get("lines");
+                if (source.Type != DataType.Table || source.Table.Length < 1 || source.Table.Length > 32)
+                    throw new ModContentException("Act screens require 1..32 lines.");
+                int pairs = 0, total = 0;
+                foreach (var pair in source.Table.Pairs)
+                {
+                    pairs++;
+                    if (pair.Key.Type != DataType.Number || pair.Key.Number != Math.Truncate(pair.Key.Number) || pair.Key.Number < 1 || pair.Key.Number > source.Table.Length)
+                        throw new ModContentException("Act-screen lines must be a dense array.");
+                }
+                if (pairs != source.Table.Length) throw new ModContentException("Act-screen lines must be a dense array.");
+                var lines = new List<ModActScreenLine>();
+                for (int i = 1; i <= source.Table.Length; i++)
+                {
+                    var value = source.Table.Get(i);
+                    if (value.Type != DataType.Table) throw new ModContentException("Act-screen line must be a table.");
+                    ValidateFields(value.Table, function, "text", "frames");
+                    var text = RequiredHandle(value.Table, "text", _localizationHandles, "localization", function);
+                    double frames = UiNumber(value.Table, "frames");
+                    if (double.IsNaN(frames) || frames < 1 || frames > 3600 || frames != Math.Truncate(frames))
+                        throw new ModContentException("Act-screen frames must be an integer from 1 to 3600.");
+                    total += (int)frames;
+                    if (total > 7200) throw new ModContentException("Act-screen text duration exceeds 7200 frames.");
+                    lines.Add(new ModActScreenLine(_api.ReadLocalization(text, _language?.Invoke() ?? "eng"), (int)frames));
+                }
+                if (_actScreen != null) return DynValue.False;
+                if (ModActScreenAccess.Open == null) throw new ModContentException("Act-screen presentation is unavailable in this host.");
+                bool ended = false;
+                var request = ModActScreenAccess.Open(lines.AsReadOnly(), completed => {
+                    if (ended) return;
+                    ended = true;
+                    _actScreen = null;
+                    if (!completed || _disposed || callback.IsNil()) return;
+                    try { RunBounded(callback, Mod.Id + ":ui/act_screen:on_complete", MaxBehaviorInstructionSlices, Array.Empty<DynValue>()); }
+                    catch (Exception error) { _api.Log(ModLogLevel.Error, "Act-screen callback failed: " + error.Message); }
+                });
+                if (!ended) _actScreen = request;
+                else request?.Dispose();
+                return DynValue.NewBoolean(request != null);
             }
 
             private static string UiString(CallbackArguments args, int index, string function) =>

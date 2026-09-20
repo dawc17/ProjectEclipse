@@ -330,6 +330,12 @@ async function main() {
     const uiImage=probe('ui-image.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ id="art",kind="image",width=64,height=64, | } }');
     await until(async()=>labels(await request('textDocument/completion',uiImage)).some(label=>label==='sprite'||label==='sprite?'),'image sprite completion');
     await until(async()=>labels(await request('textDocument/completion',uiImage)).some(label=>label==='mirrored'||label==='mirrored?'),'image mirroring completion');
+    const actScreen=probe('act-screen.lua','local sf2=require("sf2")\nsf2.ui.act_screen { | }');
+    for (const field of ['lines','on_complete'])
+        await until(async()=>labels(await request('textDocument/completion',actScreen)).some(label=>label===field||label===field+'?'),'act-screen '+field+' completion');
+    const actLine=probe('act-line.lua','local sf2=require("sf2")\nsf2.ui.act_screen { lines={{ | }} }');
+    for (const field of ['text','frames'])
+        await until(async()=>labels(await request('textDocument/completion',actLine)).includes(field),'act-line '+field+' completion');
     const uiGrid=probe('ui-grid.lua','local sf2=require("sf2")\nsf2.ui.open { id="menu",mount="menu",root={ id="grid",kind="grid",width=300,height=200, | } }');
     for (const field of ['columns','cell_width','cell_height'])
         await until(async()=>labels(await request('textDocument/completion',uiGrid)).some(label=>label===field||label===field+'?'),'grid '+field+' completion');
