@@ -1,7 +1,7 @@
 # Project Eclipse
 
 Project Eclipse is a mod engine for Shadow Fight 2. Think of this as the SF2 equivalent of Forge for Minecraft. </br>
-It targets **Unity 2022.3.62f3**.
+It targets **Unity 6.6**.
 
 **The project is not meant to be played on it's own without mods, even if it is possible** </br>
 It is intentionally bare, and it is strongly recommended to play with mods. (when that time comes lol)
