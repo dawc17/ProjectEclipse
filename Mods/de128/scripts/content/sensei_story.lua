@@ -21,6 +21,7 @@ local function install(opponents, is_raid_charge_available, portraits)
     -- The same final IDs drive narrative and the next act's prerequisites.
     -- Subscribe victory first so its pending flag gates the unlock notification.
     require("content.sensei_victory").install(graph.final_ids, portraits)
+    require("content.sensei_defeat").install(graph.normal_ids, portraits.character_sensei)
     require("content.sensei_notifications").install(graph.battles.normal, graph.prior_final_ids, portraits.character_sensei)
     installed = true
     return graph

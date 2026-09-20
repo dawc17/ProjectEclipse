@@ -26,7 +26,10 @@ local function install(final_ids, portraits)
     local function complete(act)
         sf2.state.set { ["sensei_complete_" .. act] = true, ["sensei_dialogue_pending_" .. act] = false }
         show_next()
-        if not pending_act() then shared.wake_notifications() end
+        if not pending_act() then
+            shared.wake_defeat()
+            shared.wake_notifications()
+        end
     end
     show_next = function()
         if scene ~= "map" or view or outro then return end

@@ -14,7 +14,7 @@ local function install(battles, finals, portrait)
     local scene, view
     local show_next
     show_next = function()
-        if scene ~= "map" or view or shared.dialogue_pending() then return end
+        if scene ~= "map" or view or shared.dialogue_pending() or shared.defeat_pending() then return end
         local act
         for index = 1, 6 do
             if sf2.state.get("sensei_pending_" .. index) and not sf2.state.get("sensei_opened_" .. index) then
