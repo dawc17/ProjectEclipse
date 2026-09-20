@@ -51,7 +51,7 @@ class Program {
 }
 '@
 $program.Replace('/* CAPTURE */',$method.Value) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Program.cs')
-$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs') | ForEach-Object {
+$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs','ModFightEntry.cs') | ForEach-Object {
  $path=[Security.SecurityElement]::Escape((Join-Path $root ('Assets/Scripts/Eclipse/Runtime/Modding/'+$_)))
  '<Compile Include="'+$path+'" />'
 }

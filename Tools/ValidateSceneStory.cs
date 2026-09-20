@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using Eclipse.Modding;
+namespace Eclipse.Multiplayer { public static class LocalVersusSession { public static bool IsActive; } }
 public static class Trace {public static List<string> Steps=new List<string>();}
 namespace UnityEngine {
  public class Component {public GameObject gameObject;}

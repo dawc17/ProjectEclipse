@@ -70,6 +70,17 @@ bonus bases. It also stays outside the active entrypoint until the story is read
 Native parsing and detached result calculations are checked against historical
 XML; profile settlement and the full story remain unverified (Step 33).
 
+Pending `scripts/content/sensei_entry.lua` ports the 17 normal first-entry
+sequences: 39 cards, seven timed lines and 938 translations. Call
+`install(normal_fight_handles, portraits)` with all six verified normal fight
+arrays and every portrait identity in `sensei_entry_data.lua`. The generic
+`sf2.story.before_fight` continuation holds the original map launch until its
+Fight button; interruptions restart unfinished intros, completed greetings do
+not replay, and the Shogun acknowledgement is saved separately. Installation
+requires `story.progression`, `ui.create`, `content.register`, `state.read` and
+`state.write`. These modules remain outside main.lua; source/runtime checks
+are described in Step 45 of the production record, not a full story playtest.
+
 Pending `scripts/content/sensei_victory.lua` implements the six post-victory
 sequences with 23 dialogue cards and 448 translations. Call
 `install(final_ids, portraits)` before installing notifications:

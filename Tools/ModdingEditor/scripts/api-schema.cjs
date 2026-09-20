@@ -165,6 +165,11 @@ type('ProfileFightSnapshot',{present:'boolean',wins:'integer',losses:'integer'})
 fn('profile.set_eclipse_mode',{enabled:'boolean'},'boolean','story.progression');
 type('BattleEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string'});
 type('StorySubscription',{'private __eclipseStorySubscription':'true'});type('StoryEvent',{kind:'"purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"','fight?':'string','outcome?':'"win"|"loss"|"surrender"|"raid_timeout"|"raid_round_timeout"','eclipse?':'boolean','equipment?':E('BattleEquipmentSnapshot')+'[]','item?':'string','recipe?':'string','previous_count?':'integer','count?':'integer','previous_level?':'integer','level?':'integer','scene?':'"map"|"shop"|"profile"|"dojo"|"fight"'});
+type('FightEntryRequest', {'private __eclipseFightEntry':'true',fight:'string'});
+fn('story.before_fight',{fight:H('Fight'),on_before_fight:`fun(request:${E('FightEntryRequest')}):boolean|nil`},'nil','story.progression');
+fn('story.resume_fight',{request:E('FightEntryRequest')},'boolean','story.progression');
+fn('story.cancel_fight',{request:E('FightEntryRequest')},'nil','story.progression');
+fn('story.fight_pending',{request:E('FightEntryRequest')},'boolean','story.progression');
 fn('story.on',{event:'"purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"',callback:'fun(event: Eclipse.StoryEvent)'},E('StorySubscription'),'story.events');
 fn('story.off',{subscription:E('StorySubscription')},'nil','story.events');
 fn('story.is_active',{subscription:E('StorySubscription')},'boolean','story.events');
@@ -247,4 +252,4 @@ fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',nu
 fn('ui.set_enabled',{view:H('Ui'),widget_id:'string',enabled:'boolean'},'nil',null);
 type("QuestSuppression",{target:"string"});reg("quests.suppress","QuestSuppression",null,"content.patch");
 type('ProfileEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string',owned:'boolean',count:'integer','upgrade?':'integer'});fn('profile.equipment',{},E('ProfileEquipmentSnapshot')+'[]','profile.read');
-module.exports={types,functions,aliases,callbacks,modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_complete','on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};
+module.exports={types,functions,aliases,callbacks,storyCallbacks:['on_before_fight'],modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_complete','on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};

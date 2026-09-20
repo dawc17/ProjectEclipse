@@ -10,6 +10,12 @@ function result.register()
         end
         fields["sensei_dialogue_next_" .. act] = { type = sf2.state.INTEGER, default = 1 }
     end
+    for act = 1, 6 do
+        for index = 1, (act == 6 and 2 or 3) do
+            fields["sensei_entered_" .. act .. "_" .. index] = { type = sf2.state.BOOLEAN, default = false }
+        end
+    end
+    fields.sensei_shogun_greeted = { type = sf2.state.BOOLEAN, default = false }
     sf2.state.register { version = 1, fields = fields }
     registered = true
 end

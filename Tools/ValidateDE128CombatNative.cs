@@ -17,6 +17,9 @@ public static class ValidateDE128CombatNative
     static double started, reported;
     static bool campaign, entered, attached, requested, selected, released, finished;
     static bool mapLockChecked;
+    static ModStoryEvents StoryBus => (ModStoryEvents)typeof(ModRuntime).GetField("StoryEvents",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);
+    static bool entryClicked;
+    static int entryResumed;
     static int actPhase,actCompletions;
     static double actStarted, actStableAt;
     static UnityEngine.SceneManagement.Scene actScene, actStableScene;
@@ -70,6 +73,8 @@ public static class ValidateDE128CombatNative
         try
         {
             if (failure != null) throw new Exception(failure);
+            if(ModRuntime.Scripts!=null&&ModRuntime.Scripts.Diagnostics.Count!=0)
+                throw new Exception("Fixture mod initialization: "+string.Join("; ",ModRuntime.Scripts.Diagnostics));
             if (EditorApplication.timeSinceStartup - started > 300) throw new Exception("Timeout: campaign=" + campaign + " entered=" + entered + " attached=" + attached);
             if (EditorApplication.timeSinceStartup - reported > 15)
             {
@@ -131,9 +136,22 @@ public static class ValidateDE128CombatNative
                 if (definition == null) throw new Exception("Fixture fight missing; check mod initialization errors.");
                 var encounter = ListSF.CHMCKGCDGCM(new FightIDS(ModRuntime.Scripts.Content.RuntimeFightId(definition.Id)));
                 entered = GameUtils.StartFight(encounter, false, null, true, false);
+                if (!StoryBus.FightEntries.HasPending) throw new Exception("Native entry was not held by Lua");
+                if (GameUtils.StartFight(encounter, false, null, true, false)) throw new Exception("Concurrent pending native entry was accepted");
                 Debug.Log("[DE128Native] StartFight=" + entered);
                 if (!entered) throw new Exception("Fixture fight rejected by native availability: " + definition.Id);
                 return;
+            }
+            if (!entryClicked)
+            {
+                var view=UnityEngine.Object.FindObjectsOfType<Eclipse.UI.Modding.ModUiView>().FirstOrDefault(value=>
+                    ((ModUiSurface)typeof(Eclipse.UI.Modding.ModUiView).GetField("surface", Hidden).GetValue(value)).Id=="entry_probe");
+                if(view==null)return;
+                if(Fight.GetCurrentFight()!=null||!StoryBus.FightEntries.HasPending)throw new Exception("Fight launched before acknowledgement");
+                entryClicked=true;
+                view.GetComponentInChildren<UnityEngine.UI.Button>().onClick.Invoke();
+                if(entryResumed!=1||StoryBus.FightEntries.HasPending)throw new Exception("Native continuation failed or duplicated");
+                Debug.Log("[DE128Native] PASS actual Lua fight-entry hold, timed screen and modal acknowledgement, concurrent rejection, same-fight continuation and stale-request rejection.");
             }
             var fight = Fight.GetCurrentFight(); if (fight == null) return;
             var enemy = (Model)typeof(Fight).GetField("CKNCPOABFBO", Hidden).GetValue(fight);
@@ -984,6 +1002,7 @@ public static class ValidateDE128CombatNative
     }
     static void Capture(string message, string stack, LogType type)
     {
+        if (message.Contains("[DE128Entry] resumed once")) entryResumed++;
         if (message.Contains("[DE128Act] complete"))
         {
             actCompletions++;

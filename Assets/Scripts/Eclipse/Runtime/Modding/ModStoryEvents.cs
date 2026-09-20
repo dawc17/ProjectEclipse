@@ -130,6 +130,7 @@ namespace Eclipse.Modding
         }
         private DeferredBatch _deferred;
         public int ProfileGeneration => _generation;
+        public ModFightEntries FightEntries { get; }
 
         // Host-only notification boundary, not an inventory transaction. Failed
         // operations discard their buffered observations; native mutations remain.
@@ -194,7 +195,7 @@ namespace Eclipse.Modding
             return false;
         }
 
-        public ModStoryEvents(Action<ModId, string> report = null) { _report = report; }
+        public ModStoryEvents(Action<ModId, string> report = null) { _report = report; FightEntries = new ModFightEntries(report); }
 
         public ModStoryScope CreateScope(ModId owner)
         {
@@ -205,6 +206,7 @@ namespace Eclipse.Modding
         public void BindProfile() { UnbindProfile(); _bound = true; }
         public void UnbindProfile()
         {
+            FightEntries.CancelPending();
             _bound = false;
             _encounter = null;
             unchecked { _generation++; }
@@ -215,6 +217,7 @@ namespace Eclipse.Modding
         public void Clear()
         {
             UnbindProfile();
+            FightEntries.Clear();
             unchecked { _scopeGeneration++; }
             foreach (var subscription in _subscriptions.ToArray()) subscription.Dispose();
         }

@@ -9,7 +9,7 @@ $publish=[regex]::Match($hostSource,'(?ms)^        internal static void PublishS
 if(!$awake.Success -or !$publish.Success){throw 'Scene hook methods not found.'}
 $code=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ValidateSceneStory.cs') -Raw -Encoding UTF8
 $code.Replace('/* AWAKE */',$awake.Value).Replace('/* PUBLISH */',$publish.Value) | Set-Content -LiteralPath (Join-Path $fixture 'Program.cs') -Encoding UTF8
-$paths=@('Assets/Scripts/Eclipse/Runtime/Modding/ModId.cs','Assets/Scripts/Eclipse/Runtime/Modding/DefinitionId.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModStoryEvents.cs','Assets/Scripts/Eclipse/Modding/ModSceneEntry.cs','Assets/Scripts/Assembly-CSharp/ScreenType.cs')
+$paths=@('Assets/Scripts/Eclipse/Runtime/Modding/ModId.cs','Assets/Scripts/Eclipse/Runtime/Modding/DefinitionId.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModStoryEvents.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModFightEntry.cs','Assets/Scripts/Eclipse/Modding/ModSceneEntry.cs','Assets/Scripts/Assembly-CSharp/ScreenType.cs')
 $sources=$paths | ForEach-Object { '<Compile Include="'+[Security.SecurityElement]::Escape((Join-Path $root $_))+'" />' }
 @"
 <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup>

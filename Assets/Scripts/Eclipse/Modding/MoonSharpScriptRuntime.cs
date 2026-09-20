@@ -104,6 +104,7 @@ namespace Eclipse.Modding
             private readonly Func<string> _language;
             private readonly ModDojoSelection _dojoSelection;
             private readonly ModStoryScope _storyScope;
+            private readonly ModFightEntries _fightEntries;
             public MoonSharpScriptContext(ModDescriptor mod, ModApiFacade api, Action<ModUiSurface> mountUi, Func<string> language, ModDojoSelection dojoSelection, ModStoryEvents storyEvents)
             {
                 Mod = mod ?? throw new ArgumentNullException(nameof(mod));
@@ -115,6 +116,7 @@ namespace Eclipse.Modding
                 if (api.Mod.Id != mod.Id)
                     throw new ArgumentException("Script API facade belongs to another mod.", nameof(api));
                 _storyScope = storyEvents?.CreateScope(mod.Id);
+                _fightEntries = storyEvents?.FightEntries;
 
                 _script = new Script(CoreModules.Preset_HardSandbox);
                 _script.Options.DebugPrint = message => _api.Log(ModLogLevel.Info, message);
@@ -647,6 +649,8 @@ namespace Eclipse.Modding
                 _disposed = true;
                 _actScreen?.Dispose();
                 _actScreen = null;
+                foreach (var binding in _fightEntryBindings) binding.Dispose();
+                _fightEntryBindings.Clear();
                 _storyScope?.Dispose();
                 UiScope.Dispose();
                 _uiHandles = new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface>();

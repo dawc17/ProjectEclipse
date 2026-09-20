@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\MotionBlur\SF2MotionBlur.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModSaveData.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModStoryEvents.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModFightEntry.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModQuestInvocationLedger.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1C.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModManifestReader.cs" />

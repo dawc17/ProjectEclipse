@@ -6,7 +6,7 @@ $fixture=Join-Path $root ('Temp/SceneStoryUnity-'+[Guid]::NewGuid().ToString('N'
 foreach($dir in @('Assets/Editor','Packages','ProjectSettings')){New-Item -ItemType Directory -Path (Join-Path $fixture $dir) -Force | Out-Null}
 Set-Content -LiteralPath (Join-Path $fixture 'Packages/manifest.json') -Value '{"dependencies":{}}' -Encoding UTF8
 Set-Content -LiteralPath (Join-Path $fixture 'ProjectSettings/ProjectVersion.txt') -Value 'm_EditorVersion: 2022.3.62f3' -Encoding UTF8
-foreach($file in @('ModId.cs','DefinitionId.cs','ModStoryEvents.cs')){
+foreach($file in @('ModId.cs','DefinitionId.cs','ModStoryEvents.cs','ModFightEntry.cs')){
  Copy-Item -LiteralPath (Join-Path $root ('Assets/Scripts/Eclipse/Runtime/Modding/'+$file)) -Destination (Join-Path $fixture 'Assets')
 }
 Copy-Item -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/ModSceneEntry.cs') -Destination (Join-Path $fixture 'Assets')

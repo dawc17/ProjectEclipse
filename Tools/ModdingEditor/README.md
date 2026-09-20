@@ -450,3 +450,5 @@ boolean defaults to false and is fixed for the view's lifetime. It changes
 neither layout size nor the sprite asset; `sf2.ui.set_sprite` preserves it.
 
 Timed map story screens use `sf2.ui.act_screen { lines = {{text = localized, frames = 180}}, on_complete = function() end }` (`ui.create`). IntelliSense provides typed localization handles, required line durations, and the optional completion callback. Refused/cancelled screens never acknowledge completion; see the Custom UI reference for bounds and lifecycle rules.
+
+Owned fight intros use `sf2.story.before_fight(fight, function(request) ... end)` with `story.progression`. Typed request completion supports `resume_fight`, `cancel_fight` and `fight_pending`; return `true` for immediate entry or `nil` for deferred UI. See Story events for native entry, lifetime, and instruction limits.

@@ -257,3 +257,103 @@ The native flow fixture uses controlled reward, quest, presentation and capture
 services to check ordering, repeated/reentrant completion, failure and profile
 replacement. It also verifies outcome delivery while lottery loot remains deferred.
 Full-game launch, result, Eclipse, timeout and settlement acceptance remain pending.
+
+
+## sf2.story.before_fight
+
+**Signature:** `sf2.story.before_fight(fight, on_before_fight) -> nil`
+
+**Returns:** Nothing. Duplicate registrations, foreign/core fight handles, missing capability or host support raise an error.
+
+**When:** Register after creating an owned fight. The handler runs on the progression map before native fight-entry quest processing, encounter commitment and combat loading. Existing mode preparation/resolution runs first. Launches from other scenes retain their native path without invoking this handler (including in-fight retries).
+
+**Requires:** `story.progression`. Creating the fight separately requires `content.register`.
+
+Only a fight handle created by this script context is accepted. One handler may own each fight; limits are 64 handlers per mod and 256 per session. Handlers live until script unload or callback failure. They are not saved. They can also guard fights belonging to a custom mode; resuming retains normal mode entry processing and costs.
+
+Return `true` to allow the original native entry immediately, `false` to cancel it, or `nil` to hold it while presenting UI. A held entry blocks competing fight launches. It grants no authority to select a different fight or skip native entry quests. The handler must eventually resume or cancel its request; it has no automatic timeout. Profile replacement, scene changes, restart and script unload invalidate held requests. Persist your own acknowledgement flags if the presentation should run only once.
+
+```lua
+-- first_fight is an owned handle registered earlier.
+sf2.story.before_fight(first_fight, function(request)
+    sf2.ui.open {
+        id = "entry", mount = "modal",
+        root = {id = "begin", kind = "button", width = 300, height = 80, text = "Begin"},
+        on_click = function(view)
+            sf2.ui.close(view)
+            sf2.story.resume_fight(request)
+        end,
+        on_back = function(view)
+            sf2.story.cancel_fight(request)
+            sf2.ui.close(view)
+        end,
+    }
+    return nil
+end)
+```
+
+## on_before_fight
+
+**Signature:** `on_before_fight(request) -> boolean|nil`
+
+**Returns:** `true` continues immediately; `false` cancels; `nil` defers. Other return types raise an error. Callback errors and instruction-budget exhaustion cancel the entry, remove its handler and log a diagnostic.
+
+**When:** When the registered owned fight is about to enter from the active progression map. `request.fight` is its qualified identity. Other request data is opaque; copying its table does not copy authority. Request functions only accept the original table in its owning script context.
+
+**Requires:** A `sf2.story.before_fight` registration with `story.progression`.
+
+Do not call `resume_fight` while this callback is running; return `true` for immediate entry. Deferred callbacks such as button clicks or act-screen completion may resume later. Each callback has the normal 200,000-instruction budget.
+
+```lua
+sf2.story.before_fight(first_fight, function(request)
+    sf2.log.info("Entering " .. request.fight)
+    return true
+end)
+```
+
+## sf2.story.resume_fight
+
+**Signature:** `sf2.story.resume_fight(request) -> boolean`
+
+**Returns:** Whether the retained native entry was accepted. Invalidated/consumed requests return `false`. A temporarily blocked map returns `false` while leaving the request pending. Once native entry is attempted, the request is consumed even if native entry refuses it.
+
+**When:** After the entry callback returns, while the same profile and map scene remain active. Unavailable during UI cleanup callbacks. Close your dialogue before resuming. Resume skips this handler once, then runs the ordinary native entry path with the original arguments; acceptance may include a native entry quest, not necessarily immediate combat.
+
+**Requires:** `story.progression` and an original request from this context.
+
+```lua
+-- In an acknowledgement callback:
+sf2.ui.close(dialogue)
+local accepted = sf2.story.resume_fight(request)
+if not accepted then sf2.story.cancel_fight(request) end
+```
+
+## sf2.story.cancel_fight
+
+**Signature:** `sf2.story.cancel_fight(request) -> nil`
+
+**Returns:** Nothing. Cancelling an already consumed/cancelled request is harmless.
+
+**When:** Abandoning a held entry, including dialogue cancellation. This does not close UI or modify saved acknowledgement flags for you. It cannot cancel a fight that already launched.
+
+**Requires:** `story.progression` and an original request from this context.
+
+```lua
+sf2.story.cancel_fight(request)
+```
+
+## sf2.story.fight_pending
+
+**Signature:** `sf2.story.fight_pending(request) -> boolean`
+
+**Returns:** Whether this request can still be resumed. A pending request may still be temporarily blocked by native presentation/input rules.
+
+**When:** Before continuing asynchronous presentation. Scene/profile changes and script unload make it false. Foreign, copied or fabricated request tables raise an error.
+
+**Requires:** `story.progression` and an original request from this context.
+
+```lua
+if sf2.story.fight_pending(request) then
+    sf2.log.info("Entry is still waiting for acknowledgement")
+end
+```

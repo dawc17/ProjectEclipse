@@ -4,7 +4,7 @@ name = "DE128 native combat acceptance"
 version = "1.0.0"
 authors = ["Eclipse tests"]
 entrypoint = "scripts/main.lua"
-capabilities = ["content.register", "content.patch", "combat.effects", "ui.create", "story.events"]
+capabilities = ["content.register", "content.patch", "combat.effects", "ui.create", "story.events", "story.progression"]
 [[dependencies]]
 id = "core"
 version = ">=1.0 <2.0"

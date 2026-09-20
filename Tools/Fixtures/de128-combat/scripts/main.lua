@@ -150,3 +150,25 @@ sf2.moves.register { id = "projectile_actions", animation = fixture_animation, a
     { type = "add_bullets", frame = 7, bullets = { type = "MagicBullet", value = -1 } },
     { type = "delete_actor", event = "Strike", player = "Me" },
 } }
+
+for _, entry in ipairs { fight, sphere2_fight, sphere3_fight, combosphere3_fight, mind_fight } do
+    local calls = 0
+    sf2.story.before_fight(entry, function(request)
+        calls = calls + 1
+        assert(calls == 1, "Continuation re-entered its own handler")
+        assert(sf2.story.fight_pending(request))
+        assert(sf2.ui.act_screen { lines = {{text=act_second,frames=15}}, on_complete=function()
+            sf2.ui.open {
+                id="entry_probe",mount="modal",
+                root={id="begin",kind="button",width=300,height=80,text="Begin encounter"},
+                on_click=function(view)
+                    sf2.ui.close(view)
+                    assert(sf2.story.resume_fight(request))
+                    assert(not sf2.story.fight_pending(request) and not sf2.story.resume_fight(request))
+                    sf2.log.info("[DE128Entry] resumed once")
+                end,
+            }
+        end })
+        return nil
+    end)
+end

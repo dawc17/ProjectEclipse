@@ -3,7 +3,7 @@ $root=Split-Path $PSScriptRoot -Parent
 $fixture=Join-Path $root ('Temp/StoryEvents-'+[Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'ValidateStoryEvents.cs') -Destination (Join-Path $fixture 'Program.cs')
-$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs') | ForEach-Object {
+$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs','ModFightEntry.cs') | ForEach-Object {
     $path=[Security.SecurityElement]::Escape((Join-Path $root ('Assets/Scripts/Eclipse/Runtime/Modding/'+$_)))
     '<Compile Include="'+$path+'" />'
 }

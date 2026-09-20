@@ -22,7 +22,8 @@ for(const s of sources){
 if(sources.some(s=>/table\.Get\("on_result"\)/.test(s)))exported.add('on_result');
 for(const name of ['on_click','on_close','on_change','on_back','on_decide','on_prepare'])if(sources.some(s=>s.includes(`table.Get("${name}")`)))exported.add(name);
 if (sources.some(source => source.includes('definition.Get("on_complete")'))) exported.add('on_complete');
-const covered=new Set(['require',...Object.keys(schema.functions),...Object.keys(schema.aliases),...schema.callbacks,...schema.modeCallbacks,...schema.uiCallbacks,...schema.aiCallbacks,...Object.keys(schema.fighterMethods).map(n=>'fighter:'+n),'fighter.opponent:change_health','fighter.opponent:add_magic_charge']);
+if (sources.some(source => source.includes('":on_before_fight"'))) exported.add('on_before_fight');
+const covered=new Set(['require',...Object.keys(schema.functions),...Object.keys(schema.aliases),...schema.callbacks,...schema.storyCallbacks,...schema.modeCallbacks,...schema.uiCallbacks,...schema.aiCallbacks,...Object.keys(schema.fighterMethods).map(n=>'fighter:'+n),'fighter.opponent:change_health','fighter.opponent:add_magic_charge']);
 assert.deepEqual([...covered].sort(),[...exported].sort(),'LuaLS schema must cover every runtime function, alias and callback exactly.');
 const docs={};
 for(const file of fs.readdirSync(path.join(repo,'Docs/Modding/src/content/docs/api'))){
@@ -62,7 +63,7 @@ for(const [name,f] of Object.entries(schema.fighterMethods))for(const opponent o
     out+=`function ${opponent?'Opponent':name==='scale_incoming_damage'?'ResolvingFighter':['scale_outgoing_damage','add_outgoing_damage'].includes(name)?'OutgoingFighter':'Fighter'}:${name}(${Object.keys(f.params).join(', ')}) end\n\n`;
 }
 out+=`return { ${modules.map(m=>`${m} = ${m}`).join(', ')} }\n`;
-const metadata={functions:Object.fromEntries(Object.entries(schema.functions).map(([n,f])=>[n,{...f,...docs[n]}])),aliases:schema.aliases,constants,callbacks:schema.callbacks,modeCallbacks:schema.modeCallbacks,uiCallbacks:schema.uiCallbacks,aiCallbacks:schema.aiCallbacks,fighterMethods:schema.fighterMethods,types:schema.types};
+const metadata={functions:Object.fromEntries(Object.entries(schema.functions).map(([n,f])=>[n,{...f,...docs[n]}])),aliases:schema.aliases,constants,callbacks:schema.callbacks,storyCallbacks:schema.storyCallbacks,modeCallbacks:schema.modeCallbacks,uiCallbacks:schema.uiCallbacks,aiCallbacks:schema.aiCallbacks,fighterMethods:schema.fighterMethods,types:schema.types};
 fs.mkdirSync(path.join(root,'data'),{recursive:true});
 for(const [file,content] of [['library/sf2.d.lua',out],['data/api.json',JSON.stringify(metadata,null,2)+'\n']]){
     if(process.argv.includes('--check'))assert.equal(fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n'),content,`${file} is stale; run npm run generate`);

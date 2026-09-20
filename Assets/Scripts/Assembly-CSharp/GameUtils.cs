@@ -2292,9 +2292,14 @@ public static class GameUtils
             Eclipse.Modding.ModRuntime.ShowPendingBattleLottery();
             return false;
         }
+        if (Eclipse.Modding.ModRuntime.StoryEvents.FightEntries.HasPending) return false;
         var requestedFight = KGKDKENMAOA;
         if (!Eclipse.Modding.ModModeRuntime.PrepareEntry(requestedFight, () => StartFight(requestedFight,FLLKCPMJOEL,DPOOIONCEOA,CDFICPGIBEE,IINNCMDDLGE))) return false;
 		if (!Eclipse.Modding.ModModeRuntime.ResolveEntry(ref KGKDKENMAOA)) return false;
+        var storyFight = KGKDKENMAOA;
+        var storyEntry = Eclipse.Modding.ModRuntime.TryStoryFightEntry(storyFight,
+            () => StartFight(storyFight, FLLKCPMJOEL, DPOOIONCEOA, CDFICPGIBEE, IINNCMDDLGE));
+        if (storyEntry.HasValue) return storyEntry.Value;
 		ScreenType iPKNDMINFMJ = Module.GetInstance().NMCNDOPKFJD();
 		FightList jDIPBIHBGPF = null;
 		if (iPKNDMINFMJ == ScreenType.ModuleDojo || iPKNDMINFMJ == ScreenType.ModuleFight)

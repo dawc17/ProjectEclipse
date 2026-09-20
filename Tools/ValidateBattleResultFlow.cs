@@ -26,6 +26,7 @@ public class FightList {
  public Clock FLKFFDLLBKA()=>new Clock();public List<RewardStruct> APKPCGDBMEP()=>new List<RewardStruct>{new RewardStruct()};public int PHCFNACJAAJ()=>0;
 }
 public class FightResult {
+ public FightList KGKDKENMAOA;
  public RewardPrize PMIHPJFAJIO=new RewardPrize();
  public FightList FightDefinition;public BattleType LFLGCDNKNJI;public FightIDS DIAIIPCBMFL;public ModelParameters ABKBEJBICOA,LEBLJJCFKOP;public GameOverTypes MHNEKAEGNBO;
  public bool IsWinner()=>MHNEKAEGNBO==GameOverTypes.GAME_OVER_WIN;

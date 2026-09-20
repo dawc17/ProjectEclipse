@@ -10,7 +10,7 @@ $publish=[regex]::Match($hostSource,'(?ms)^        internal static void PublishL
 if(!$gain.Success -or !$threshold.Success -or !$publish.Success){throw 'Production level methods not found.'}
 $code=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'ValidateLevelUpStory.cs') -Raw -Encoding UTF8
 $code.Replace('/* ROSTER METHODS */',$gain.Value+[Environment]::NewLine+$threshold.Value).Replace('/* HOST METHOD */',$publish.Value) | Set-Content -LiteralPath (Join-Path $fixture 'Program.cs') -Encoding UTF8
-$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs') | ForEach-Object {
+$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs','ModFightEntry.cs') | ForEach-Object {
  $path=[Security.SecurityElement]::Escape((Join-Path $root ('Assets/Scripts/Eclipse/Runtime/Modding/'+$_)))
  '<Compile Include="'+$path+'" />'
 }

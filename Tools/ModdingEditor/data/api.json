@@ -896,6 +896,51 @@
       "requires": "`story.progression`. `enabled` must be a boolean. Missing capability, wrong argument types or an unavailable host service raise errors.",
       "when": "From a user or story callback with an active profile on the ready map. Do not call from `on_close` cleanup, which rejects progression changes."
     },
+    "sf2.story.before_fight": {
+      "params": {
+        "fight": "Eclipse.FightHandle",
+        "on_before_fight": "fun(request:Eclipse.FightEntryRequest):boolean|nil"
+      },
+      "returns": "Nothing. Duplicate registrations, foreign/core fight handles, missing capability or host support raise an error.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storybefore_fight",
+      "summary": "",
+      "requires": "`story.progression`. Creating the fight separately requires `content.register`.",
+      "when": "Register after creating an owned fight. The handler runs on the progression map before native fight-entry quest processing, encounter commitment and combat loading. Existing mode preparation/resolution runs first. Launches from other scenes retain their native path without invoking this handler (including in-fight retries)."
+    },
+    "sf2.story.resume_fight": {
+      "params": {
+        "request": "Eclipse.FightEntryRequest"
+      },
+      "returns": "Whether the retained native entry was accepted. Invalidated/consumed requests return `false`. A temporarily blocked map returns `false` while leaving the request pending. Once native entry is attempted, the request is consumed even if native entry refuses it.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyresume_fight",
+      "summary": "",
+      "requires": "`story.progression` and an original request from this context.",
+      "when": "After the entry callback returns, while the same profile and map scene remain active. Unavailable during UI cleanup callbacks. Close your dialogue before resuming. Resume skips this handler once, then runs the ordinary native entry path with the original arguments; acceptance may include a native entry quest, not necessarily immediate combat."
+    },
+    "sf2.story.cancel_fight": {
+      "params": {
+        "request": "Eclipse.FightEntryRequest"
+      },
+      "returns": "Nothing. Cancelling an already consumed/cancelled request is harmless.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storycancel_fight",
+      "summary": "",
+      "requires": "`story.progression` and an original request from this context.",
+      "when": "Abandoning a held entry, including dialogue cancellation. This does not close UI or modify saved acknowledgement flags for you. It cannot cancel a fight that already launched."
+    },
+    "sf2.story.fight_pending": {
+      "params": {
+        "request": "Eclipse.FightEntryRequest"
+      },
+      "returns": "Whether this request can still be resumed. A pending request may still be temporarily blocked by native presentation/input rules.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyfight_pending",
+      "summary": "",
+      "requires": "`story.progression` and an original request from this context.",
+      "when": "Before continuing asynchronous presentation. Scene/profile changes and script unload make it false. Foreign, copied or fabricated request tables raise an error."
+    },
     "sf2.story.on": {
       "params": {
         "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"item_acquired\"|\"battle_result\"",
@@ -1504,6 +1549,9 @@
     "on_style_changed",
     "on_round_end",
     "on_fight_end"
+  ],
+  "storyCallbacks": [
+    "on_before_fight"
   ],
   "modeCallbacks": [
     "on_result",
@@ -2921,6 +2969,12 @@
         "previous_level?": "integer",
         "level?": "integer",
         "scene?": "\"map\"|\"shop\"|\"profile\"|\"dojo\"|\"fight\""
+      }
+    },
+    "FightEntryRequest": {
+      "fields": {
+        "private __eclipseFightEntry": "true",
+        "fight": "string"
       }
     },
     "LocationImage": {

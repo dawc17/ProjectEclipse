@@ -174,7 +174,7 @@ class Program {
 }
 '@
 $program.Replace('/* CLAIM */',$claim.Value).Replace('/* PREPARE */',$prepare.Value).Replace('/* RESUME */',$resume.Value).Replace('/* DEFER */',$defer.Value).Replace('/* ACK */',$ack.Value).Replace('/* QUEST RUN */',$questRun.Value).Replace('/* QUEST COMPLETE */',$questComplete.Value).Replace('/* QUEST RESOLVE */',$resolveQuest.Value).Replace('/* SAVE CONTEXT */',$saveContext.Value).Replace('/* RESTORE CONTEXT */',$restoreContext.Value).Replace('/* BATTLE PREPARE */',$battlePrepare.Value).Replace('/* BATTLE COMPLETE */',$battleComplete.Value).Replace('/* PENDING LOTTERY */',$pendingLottery.Value) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Program.cs')
-$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs','ModQuestInvocationLedger.cs') | ForEach-Object {
+$sources=@('ModId.cs','DefinitionId.cs','ModStoryEvents.cs','ModFightEntry.cs','ModQuestInvocationLedger.cs') | ForEach-Object {
  $path=[Security.SecurityElement]::Escape((Join-Path $root ('Assets/Scripts/Eclipse/Runtime/Modding/'+$_)))
  '<Compile Include="'+$path+'" />'
 }

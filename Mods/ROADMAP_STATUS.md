@@ -326,3 +326,10 @@ completion and cancellation on teardown. The pending victory factory uses it
 directly; the story stays disabled while asset/identity, perk-state and remaining
 narrative gaps are unresolved. Active DE128 remains 0.18.0. See its production
 record for verification and remaining integration limits.
+
+Step 45 adds owned-fight map-entry continuations in C# and ports the 17 pending
+Sensei introductions/greetings into Lua (39 cards, seven timed lines, 938 translated
+values). The normal native launch resumes after acknowledgement, with scoped
+cancellation and saved one-time flags. Native continuation and source/Lua tests
+pass; story activation still awaits verified assets/identities, faithful perk
+availability and remaining defeat/campaign integration. Active DE128 is 0.18.0.

@@ -1056,6 +1056,11 @@ local StorySubscription = {}
 ---@field scene? "map"|"shop"|"profile"|"dojo"|"fight"
 local StoryEvent = {}
 
+---@class (exact) Eclipse.FightEntryRequest
+---@field private __eclipseFightEntry true
+---@field fight string
+local FightEntryRequest = {}
+
 ---@class (exact) Eclipse.LocationImage
 ---@field sprite Eclipse.SpriteHandle
 ---@field x? number
@@ -2482,6 +2487,37 @@ function profile.fight(fight) end
 ---@param enabled boolean
 ---@return boolean
 function profile.set_eclipse_mode(enabled) end
+
+---Requires: `story.progression`. Creating the fight separately requires `content.register`.
+---When: Register after creating an owned fight. The handler runs on the progression map before native fight-entry quest processing, encounter commitment and combat loading. Existing mode preparation/resolution runs first. Launches from other scenes retain their native path without invoking this handler (including in-fight retries).
+---Returns: Nothing. Duplicate registrations, foreign/core fight handles, missing capability or host support raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storybefore_fight)
+---@param fight Eclipse.FightHandle
+---@param on_before_fight fun(request:Eclipse.FightEntryRequest):boolean|nil
+function story.before_fight(fight, on_before_fight) end
+
+---Requires: `story.progression` and an original request from this context.
+---When: After the entry callback returns, while the same profile and map scene remain active. Unavailable during UI cleanup callbacks. Close your dialogue before resuming. Resume skips this handler once, then runs the ordinary native entry path with the original arguments; acceptance may include a native entry quest, not necessarily immediate combat.
+---Returns: Whether the retained native entry was accepted. Invalidated/consumed requests return `false`. A temporarily blocked map returns `false` while leaving the request pending. Once native entry is attempted, the request is consumed even if native entry refuses it.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyresume_fight)
+---@param request Eclipse.FightEntryRequest
+---@return boolean
+function story.resume_fight(request) end
+
+---Requires: `story.progression` and an original request from this context.
+---When: Abandoning a held entry, including dialogue cancellation. This does not close UI or modify saved acknowledgement flags for you. It cannot cancel a fight that already launched.
+---Returns: Nothing. Cancelling an already consumed/cancelled request is harmless.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storycancel_fight)
+---@param request Eclipse.FightEntryRequest
+function story.cancel_fight(request) end
+
+---Requires: `story.progression` and an original request from this context.
+---When: Before continuing asynchronous presentation. Scene/profile changes and script unload make it false. Foreign, copied or fabricated request tables raise an error.
+---Returns: Whether this request can still be resumed. A pending request may still be temporarily blocked by native presentation/input rules.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyfight_pending)
+---@param request Eclipse.FightEntryRequest
+---@return boolean
+function story.fight_pending(request) end
 
 ---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
 ---When: During mod loading or a callback while the script is active, including before a profile loads.

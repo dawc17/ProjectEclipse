@@ -418,6 +418,31 @@ namespace Eclipse.Modding
             _scripts?.State.Unbind();
         }
 
+        private static FightList _resumingStoryFight;
+        internal static bool? TryStoryFightEntry(FightList fight, Func<bool> resume)
+        {
+            if (_resumingStoryFight != null && fight != null && _resumingStoryFight.FightId.Equals(fight.FightId)) { _resumingStoryFight = null; return null; }
+            if (StoryEvents.FightEntries.HasPending) return false;
+            if (_scripts == null || fight == null || !StoryEvents.FightEntries.HasHandlers) return null;
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != (int)ScreenType.ModuleMap) return null;
+            DefinitionId? id = null;
+            foreach (var definition in _scripts.Content.Fights)
+                if (StoryEvents.FightEntries.Contains(definition.Id) && _scripts.Content.RuntimeFightId(definition.Id) == fight.FightId.ToString())
+                { id = definition.Id; break; }
+            if (!id.HasValue) return null;
+            if (ReadyProgressionMap() == null) return false;
+            var profile = _profileRoster; int generation = StoryEvents.ProfileGeneration;
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+            var decision = StoryEvents.FightEntries.Begin(id.Value, () => {
+                _resumingStoryFight = fight;
+                try { return resume(); }
+                finally { _resumingStoryFight = null; }
+            }, () => ReferenceEquals(profile, _profileRoster) && generation == StoryEvents.ProfileGeneration &&
+                scene == UnityEngine.SceneManagement.SceneManager.GetActiveScene() && !Eclipse.UI.TitleScreen.IsOpen && !Eclipse.UI.GameSessionRestart.IsRestarting,
+                () => ReadyProgressionMap() != null);
+            return decision == ModFightEntryDecision.Continue ? (bool?)null : decision == ModFightEntryDecision.Deferred;
+        }
+
         private static IDisposable TryOpenActScreen(IReadOnlyList<ModActScreenLine> lines, Action<bool> finished)
         {
             if (ReadyProgressionMap() == null) return null;

@@ -2633,3 +2633,61 @@ DE128 remains 0.18.0, with pending story modules outside main.lua. Verified
 portraits, guard/prince identities, actual perk activation/ability availability,
 intro/pre-fight/defeat sequences and complete story playthrough remain open.
 The asset corpus download remains explicitly deferred.
+
+
+## Step 45 — Fight-entry continuations and pending Sensei intros (2026-09-20)
+
+Added a reusable C# map-entry continuation behind `story.progression`:
+`sf2.story.before_fight(fight, handler)`, `resume_fight`, `cancel_fight` and
+`fight_pending`. Registration requires the caller's owned fight handle, is
+bounded to 64 per mod/256 total, and is removed on script teardown or callback
+failure. The handler returns true to pass through, false to cancel, or nil to
+hold one native entry. Resume consumes that exact request once, retains the
+original native arguments and quest/mode processing, and bypasses only its own
+handler for that attempt. It cannot substitute another fight. Concurrent entries
+are rejected while a request is pending; profile/scene/restart invalidation and
+scope cleanup prevent stale launches. Requests cannot resume recursively from
+their initial callback or during UI cleanup. Native map/input gates remain
+in force. Non-map launches retain their native path, including in-fight retries.
+The path returns immediately when no entry handlers exist.
+
+Ported all 17 archived normal Sensei first-entry sequences into pending Lua:
+39 ordered dialogue cards, seven timed lines, 67 localization keys in 14 languages
+(938 values), exact title/portrait identities, mirroring, button captions and
+IgnoreBack behavior. These are six act introductions plus eleven guard/boss
+greetings. The caller supplies verified normal fight and portrait handles.
+The last acknowledgement resumes the held native entry. Unfinished sequences
+restart on the next attempt, matching the archive's completion-only flags;
+completed entries pass through without replay. Prince acknowledgement precedes
+its launch, while normal completion follows accepted launch. The distinct
+Shogun-greeted flag precedes act VI's first launch without prematurely completing
+the act intro. No native XML or expression string executes in the mod.
+
+Verification:
+
+- `TestSenseiEntry.ps1`: 1290 checks, including all cards/timed lines/translations,
+  saved completion/profile separation, cancellation/restart, flag ordering,
+  exactly-once continuation, blocked input, IgnoreBack, malformed/capability and
+  duplicate registrations, callback errors/budget exhaustion, forged request and
+  synchronous-resume rejection, and scope teardown. Portrait metadata and launch
+  service are controlled; this is not DE art or a complete story playtest.
+- Existing story/result fixtures: 65 transport, 12 capture, 16 EndFight flow,
+  16 level-up and 20 scene lifecycle checks. The EndFight and scene fixtures had
+  stale collaborator stubs; their missing existing fields/types were restored.
+- Existing Sensei victory: 660 checks; notifications: 114; Lua UI: 919;
+  active DE foundation: 2672; trial rules: 43; lottery claim/recovery: 80.
+- Managed editor/native-driver compilation passes. Native Unity 6000.6.0f1
+  acceptance `Temp/FormNative-pesgwt7y/DE128Runs/Run-vq3bpvc5` exited 0 and
+  exercised a real Lua map entry, timed screen and modal button,
+  held launch/concurrent rejection, same-fight continuation and consumed-request
+  rejection, followed by the prior Jian/MindThrow, controls and progression tests.
+  Fixture syntax failure evidence was preserved, and startup diagnostics now
+  fail early instead of leaving the validator behind a native tutorial.
+- Editor generation/check, 37 unit checks, real LuaLS request-field completion,
+  isolated VS Code integration and the wiki build pass (47 pages, 4132 links).
+
+Active DE128 remains 0.18.0. These modules are deliberately not loaded by main.lua:
+verified portraits, guard/prince identities, faithful perk/ability availability,
+defeat dialogue and full campaign/story integration remain unfinished. Native
+continuation acceptance uses fixture fights and presentation, not the archived
+Sensei opponents or complete dialogue chain. Corpus acquisition remains deferred.
