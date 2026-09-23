@@ -507,6 +507,58 @@ namespace Eclipse.Modding
             AppendP1D(canonical, content);
         }
 
+        private static void AppendWarriorBody(StringBuilder canonical, WarriorDefinition warrior)
+        {
+            Append(canonical, warrior.Id.ToString());
+            Append(canonical, warrior.HasTemplate ? warrior.Template.ToString() : string.Empty);
+            Append(canonical, warrior.FirstName); Append(canonical, warrior.LastName);
+            Append(canonical, warrior.Avatar); Append(canonical, warrior.Voice);
+            Append(canonical, warrior.Level); Append(canonical, warrior.Tactic); Append(canonical, warrior.HealthBars);
+            Append(canonical, warrior.Group); Append(canonical, warrior.Random);
+            if (!string.IsNullOrEmpty(warrior.BodyModel.Path) || warrior.SkinModels.Count > 0)
+            {
+                Append(canonical,"character-models-v1"); Append(canonical,warrior.BodyModel.ToString());
+                Append(canonical,warrior.SkinModels.Count);
+                foreach (var model in warrior.SkinModels) Append(canonical,model.ToString());
+            }
+            var attributeNames = new List<string>(warrior.Attributes.Keys);
+            attributeNames.Sort(StringComparer.Ordinal);
+            Append(canonical, attributeNames.Count);
+            for (int j = 0; j < attributeNames.Count; j++)
+            {
+                string name = attributeNames[j]; Append(canonical, name); Append(canonical, warrior.Attributes[name]);
+            }
+            Append(canonical, warrior.AttributeAlignments.Count);
+            for (int j = 0; j < warrior.AttributeAlignments.Count; j++)
+            {
+                WarriorAttributeAlignmentDefinition alignment = warrior.AttributeAlignments[j];
+                Append(canonical, alignment.Factor); Append(canonical, alignment.Shift);
+                Append(canonical, alignment.Priority); Append(canonical, (int)alignment.Mode);
+            }
+            AppendIds(canonical, warrior.Items); AppendIds(canonical, warrior.Perks);
+            if (warrior.Skeleton.Length != 0) { Append(canonical, "warrior-skeleton-v1"); Append(canonical, warrior.Skeleton); }
+            foreach (var entry in warrior.PerkLoadout)
+            {
+                if (!entry.HasSettings) continue;
+                Append(canonical, "warrior-perk-settings-v1"); Append(canonical, entry.Perk.ToString());
+                Append(canonical, entry.Aspect.HasValue); if (entry.Aspect.HasValue) Append(canonical, entry.Aspect.Value.ToString("R", CultureInfo.InvariantCulture));
+                Append(canonical, entry.ChanceFactor.HasValue); if (entry.ChanceFactor.HasValue) Append(canonical, entry.ChanceFactor.Value.ToString("R", CultureInfo.InvariantCulture));
+                // Preserve existing fingerprints when these optional overrides are absent.
+                if (entry.Chance.HasValue || entry.Frames.HasValue)
+                {
+                    Append(canonical, "warrior-perk-probability-duration-v1");
+                    Append(canonical, entry.Chance.HasValue); if (entry.Chance.HasValue) Append(canonical, entry.Chance.Value.ToString("R", CultureInfo.InvariantCulture));
+                    Append(canonical, entry.Frames.HasValue); if (entry.Frames.HasValue) Append(canonical, entry.Frames.Value);
+                }
+                if (entry.Parameters.Count > 0)
+                {
+                    Append(canonical, "warrior-perk-parameters-v1"); Append(canonical, entry.Parameters.Count);
+                    foreach (var parameter in entry.Parameters)
+                    { Append(canonical, parameter.Key); Append(canonical, parameter.Value.ToString("R", CultureInfo.InvariantCulture)); }
+                }
+            }
+        }
+
         private static void AppendStageGraph(StringBuilder canonical, ModContentCatalog content)
         {
             var templates = new List<WarriorTemplateDefinition>(content.WarriorTemplates);
@@ -553,6 +605,11 @@ namespace Eclipse.Modding
                 Append(canonical, battle.Music); Append(canonical, battle.RewardImage);
                 Append(canonical, battle.ShowResistance);
                 if (battle.PowerMode != ModPowerMode.Always) Append(canonical, "power-mode:" + (int)battle.PowerMode);
+                if (battle.Icons != null)
+                {
+                    Append(canonical, "battle-icons-v1"); Append(canonical, battle.Icons.Base); Append(canonical, battle.Icons.Active);
+                    Append(canonical, battle.Icons.Locked); Append(canonical, battle.Icons.LockedActive);
+                }
                 AppendIds(canonical, battle.Fights);
             }
 
@@ -587,47 +644,17 @@ namespace Eclipse.Modding
             for (int i = 0; i < warriors.Count; i++)
             {
                 WarriorDefinition warrior = warriors[i];
-                Append(canonical, warrior.Id.ToString());
-                Append(canonical, warrior.HasTemplate ? warrior.Template.ToString() : string.Empty);
-                Append(canonical, warrior.FirstName); Append(canonical, warrior.LastName);
-                Append(canonical, warrior.Avatar); Append(canonical, warrior.Voice);
-                Append(canonical, warrior.Level); Append(canonical, warrior.Tactic); Append(canonical, warrior.HealthBars);
-                Append(canonical, warrior.Group); Append(canonical, warrior.Random);
-                if (!string.IsNullOrEmpty(warrior.BodyModel.Path) || warrior.SkinModels.Count > 0)
-                {
-                    Append(canonical,"character-models-v1"); Append(canonical,warrior.BodyModel.ToString());
-                    Append(canonical,warrior.SkinModels.Count);
-                    foreach (var model in warrior.SkinModels) Append(canonical,model.ToString());
-                }
-                var attributeNames = new List<string>(warrior.Attributes.Keys);
-                attributeNames.Sort(StringComparer.Ordinal);
-                Append(canonical, attributeNames.Count);
-                for (int j = 0; j < attributeNames.Count; j++)
-                {
-                    string name = attributeNames[j]; Append(canonical, name); Append(canonical, warrior.Attributes[name]);
-                }
-                Append(canonical, warrior.AttributeAlignments.Count);
-                for (int j = 0; j < warrior.AttributeAlignments.Count; j++)
-                {
-                    WarriorAttributeAlignmentDefinition alignment = warrior.AttributeAlignments[j];
-                    Append(canonical, alignment.Factor); Append(canonical, alignment.Shift);
-                    Append(canonical, alignment.Priority); Append(canonical, (int)alignment.Mode);
-                }
-                AppendIds(canonical, warrior.Items); AppendIds(canonical, warrior.Perks);
-                foreach (var entry in warrior.PerkLoadout)
-                {
-                    if (!entry.HasSettings) continue;
-                    Append(canonical, "warrior-perk-settings-v1"); Append(canonical, entry.Perk.ToString());
-                    Append(canonical, entry.Aspect.HasValue); if (entry.Aspect.HasValue) Append(canonical, entry.Aspect.Value.ToString("R", CultureInfo.InvariantCulture));
-                    Append(canonical, entry.ChanceFactor.HasValue); if (entry.ChanceFactor.HasValue) Append(canonical, entry.ChanceFactor.Value.ToString("R", CultureInfo.InvariantCulture));
-                    // Preserve existing fingerprints when these optional overrides are absent.
-                    if (entry.Chance.HasValue || entry.Frames.HasValue)
-                    {
-                        Append(canonical, "warrior-perk-probability-duration-v1");
-                        Append(canonical, entry.Chance.HasValue); if (entry.Chance.HasValue) Append(canonical, entry.Chance.Value.ToString("R", CultureInfo.InvariantCulture));
-                        Append(canonical, entry.Frames.HasValue); if (entry.Frames.HasValue) Append(canonical, entry.Frames.Value);
-                    }
-                }
+                AppendWarriorBody(canonical, warrior);
+            }
+
+            // Mod-owned templates; omitted entirely when none exist to keep older fingerprints.
+            var ownedTemplates = new List<WarriorTemplateDefinition>();
+            foreach (var template in content.WarriorTemplates) if (template.Body != null) ownedTemplates.Add(template);
+            if (ownedTemplates.Count > 0)
+            {
+                ownedTemplates.Sort((left, right) => CompareIds(left.Id, right.Id));
+                Append(canonical, "mod-warrior-templates-v1"); Append(canonical, ownedTemplates.Count);
+                foreach (var template in ownedTemplates) AppendWarriorBody(canonical, template.Body);
             }
 
             var rules = new List<FightRuleDefinition>(content.FightRules);
@@ -642,10 +669,27 @@ namespace Eclipse.Modding
                 for (int j = 0; j < rule.Rounds.Count; j++) Append(canonical, rule.Rounds[j]);
                 Append(canonical, rule.Name); Append(canonical, rule.HasItem ? rule.Item.ToString() : string.Empty);
                 Append(canonical, rule.MinimumLevel); Append(canonical, rule.HasPerk ? rule.Perk.ToString() : string.Empty);
+                if (rule.PerkParameters.Count > 0)
+                {
+                    Append(canonical,"rule-perk-parameters-v1"); Append(canonical,rule.PerkParameters.Count);
+                    foreach (var parameter in rule.PerkParameters)
+                    { Append(canonical,parameter.Key); Append(canonical,parameter.Value.ToString("R",CultureInfo.InvariantCulture)); }
+                }
                 if (rule.PerkAspect.HasValue)
                 {
                     Append(canonical,"rule-perk-aspect-v1");
                     Append(canonical,rule.PerkAspect.Value.ToString("R",CultureInfo.InvariantCulture));
+                }
+                if (rule.Group != null)
+                {
+                    var group = rule.Group;
+                    Append(canonical,"rule-group-v1"); Append(canonical,(int)group.Kind);
+                    AppendIds(canonical, group.Children); Append(canonical, group.Description);
+                    Append(canonical,(int)group.Refresh); Append(canonical,group.NoDoubles);
+                    Append(canonical,group.Image); Append(canonical,group.Icon);
+                    Append(canonical,group.Width.ToString("R",CultureInfo.InvariantCulture));
+                    Append(canonical,group.FadeIn); Append(canonical,group.FramesOn);
+                    Append(canonical,group.FadeOut); Append(canonical,group.FramesOff);
                 }
                 if (rule.Trial != null)
                 {
@@ -690,6 +734,15 @@ namespace Eclipse.Modding
                     Append(canonical, "reward-economy-v1"); Append(canonical, reward.Experience);
                     Append(canonical, reward.PrizeBase.HasValue);
                     if (reward.PrizeBase.HasValue) Append(canonical, reward.PrizeBase.Value);
+                }
+                if (reward.Currencies.Count > 0)
+                {
+                    Append(canonical, "reward-currencies-v1"); Append(canonical, reward.Currencies.Count);
+                    foreach (var drop in reward.Currencies)
+                    {
+                        Append(canonical, drop.Currency); Append(canonical, drop.ExpectedValue.ToString("R", CultureInfo.InvariantCulture));
+                        Append(canonical, drop.ShowReward);
+                    }
                 }
                 Append(canonical, reward.Items.Count);
                 for (int j = 0; j < reward.Items.Count; j++) AppendRewardGrant(canonical, reward.Items[j]);

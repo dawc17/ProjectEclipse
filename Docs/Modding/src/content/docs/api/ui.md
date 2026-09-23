@@ -602,7 +602,7 @@ at a time; open the next one from `on_complete`.
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `portrait` | Sprite handle | Required | Speaker portrait, shown the same way as core portraits (512 × 512 art matches them). |
+| `portrait` | Sprite handle | No portrait | Speaker portrait, shown the same way as core portraits (512 × 512 art matches them). Omit it for an announcement without a speaker; the dialog then hides the portrait. |
 | `lines` | Array of line tables | Required | 1–16 pages shown in order. Each needs `text` (localization handle) and may set `button` (localization handle for that page's "more" button). |
 | `button` | Localization handle | Required | Caption of the final button, for example "OK" or "FIGHT". |
 | `title` | Localization handle | No title | Speaker name. |

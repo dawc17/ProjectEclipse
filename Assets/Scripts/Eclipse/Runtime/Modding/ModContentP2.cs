@@ -208,6 +208,15 @@ namespace Eclipse.Modding
                     { hardMode = mode.HardMode; return true; }
             return false;
         }
+        public static bool TryBattleIcons(string name, out ModBattleIcons icons)
+        {
+            icons = null;
+            if (Content == null || string.IsNullOrEmpty(name)) return false;
+            foreach (var battle in Content.Battles)
+                if (!battle.IsCore && battle.Icons != null && battle.LegacyName == name) { icons = battle.Icons; return true; }
+            return false;
+        }
+
         // Underworld pages owned by mods, and their battles' Power Mode visibility.
         public static bool TryUnderworldBattle(string name, out ModPowerMode powerMode)
         {

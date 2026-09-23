@@ -54,7 +54,6 @@ local function valid(extra)
 end
 local invalid={
     missing_button=function() local d=valid() d.button=nil return d end,
-    missing_portrait=function() local d=valid() d.portrait=nil return d end,
     empty_lines=function() return valid{lines={}} end,
     many_lines=function() local l={} for i=1,17 do l[i]={text=body} end return valid{lines=l} end,
     sparse_lines=function() return valid{lines={[1]={text=body},[3]={text=body}}} end,
@@ -69,7 +68,7 @@ local invalid={
 sf2.story.on("item_acquired",function(event)
     local command=event.item:match("items/(.+)$")
     if command=="open" then sf2.log.info("opened:"..tostring(sf2.ui.story_dialog(valid())))
-    elseif command=="minimal" then sf2.log.info("opened:"..tostring(sf2.ui.story_dialog{portrait=portrait,button=ok,lines={{text=body}}}))
+    elseif command=="minimal" then sf2.log.info("opened:"..tostring(sf2.ui.story_dialog{button=ok,lines={{text=body}}}))
     elseif command=="failing" then sf2.log.info("opened:"..tostring(sf2.ui.story_dialog(valid{on_complete=function() error("boom") end})))
     elseif command=="chain" then
         sf2.ui.story_dialog(valid{on_complete=function() sf2.log.info("chained:"..tostring(sf2.ui.story_dialog(valid()))) end})
@@ -120,7 +119,7 @@ if INVALID then sf2.ui.story_dialog(invalid[INVALID]()) end
         Check(logs.SequenceEqual(new[] { "cancel" }), "Cancellation was not exactly once: " + string.Join("|", logs));
 
         Run("minimal");
-        Check(logs.SequenceEqual(new[] { "opened:true" }) && requests[2].Title == "" && !requests[2].Mirrored && !requests[2].IgnoreBack, "Optional fields did not default");
+        Check(logs.SequenceEqual(new[] { "opened:true" }) && requests[2].Title == "" && requests[2].Portrait == "" && !requests[2].Mirrored && !requests[2].IgnoreBack, "Optional fields did not default");
         logs.Clear(); completions[2](true);
         Check(logs.Count == 0, "Omitted callbacks were invoked");
 
@@ -136,7 +135,7 @@ if INVALID then sf2.ui.story_dialog(invalid[INVALID]()) end
         refuse = true; Run("open"); refuse = false;
         Check(logs.SequenceEqual(new[] { "opened:false" }) && requests.Count == 7, "Host refusal did not return false");
 
-        foreach (var command in new[] { "missing_button", "missing_portrait", "empty_lines", "many_lines", "sparse_lines", "string_text",
+        foreach (var command in new[] { "missing_button", "empty_lines", "many_lines", "sparse_lines", "string_text",
             "string_title", "wrong_portrait", "extra_field", "extra_line_field", "bad_complete", "bad_mirrored" })
         {
             string root = Path.Combine(Path.GetDirectoryName(args[0]), "invalid-" + command);

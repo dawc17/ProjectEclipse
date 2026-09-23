@@ -496,10 +496,18 @@ local EnchantmentDefinition = {}
 ---@field perk Eclipse.PerkHandle
 local LegacyEnchantment = {}
 
+---@class (exact) Eclipse.BattleIcons
+---@field base Eclipse.SpriteHandle Unlocked, not selected.
+---@field active? Eclipse.SpriteHandle Selected state; supply it for complete art.
+---@field locked? Eclipse.SpriteHandle Locked state; native lock art when omitted.
+---@field locked_active? Eclipse.SpriteHandle Selected while locked.
+local BattleIcons = {}
+
 ---@class (exact) Eclipse.ZoneDefinition
 ---@field id string
 ---@field file? string
 ---@field start? boolean
+---@field underworld? boolean Place the page on the Underworld (raid) map; cannot be the start zone.
 local ZoneDefinition = {}
 
 ---@class (exact) Eclipse.BattleDefinition
@@ -519,6 +527,8 @@ local ZoneDefinition = {}
 ---@field reward_image? string
 ---@field preview? Eclipse.SpriteHandle|string Sprite handle for mod-supplied art, or an existing native preview name.
 ---@field show_resistance? boolean
+---@field power_mode? "normal"|"power" Underworld pages only: shown only while Power Mode is off (normal) or on (power). Omit to always show.
+---@field icons? Eclipse.BattleIcons Mod-supplied map-button sprites.
 local BattleDefinition = {}
 
 ---@class (exact) Eclipse.AttributeAlignment
@@ -534,6 +544,7 @@ local AttributeAlignment = {}
 ---@field chance_factor? number Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit.
 ---@field chance? number Core perks only; finite probability 0..1. Omit to inherit.
 ---@field frames? integer Core perks only; 0..2147483647 native frame duration. Omit to inherit.
+---@field parameters? table<string,number> Other native perk parameters: up to 32 names to finite numbers; dedicated names such as Aspect/Chance/Frames are rejected.
 local WarriorPerk = {}
 
 ---@class (exact) Eclipse.WarriorDefinition
@@ -554,7 +565,25 @@ local WarriorPerk = {}
 ---@field body_model? Eclipse.ModelHandle
 ---@field skin_models? Eclipse.ModelHandle[]
 ---@field health_bars? integer 0 inherits the template; 1-10000 is the total number of health bars.
+---@field skeleton? string Recovered body item such as Skeleton or SkeletonHeavy, added to the loadout.
 local WarriorDefinition = {}
+
+---@class (exact) Eclipse.WarriorTemplateDefinition
+---@field id string
+---@field template? Eclipse.WarriorTemplateHandle
+---@field first_name? string
+---@field last_name? string
+---@field voice? string
+---@field avatar? Eclipse.SpriteHandle|string Sprite handle for mod-supplied art, or an existing native portrait name.
+---@field level? integer
+---@field tactic? Eclipse.TacticHandle|string
+---@field items? Eclipse.ItemHandle[]
+---@field perks? (Eclipse.PerkHandle|Eclipse.WarriorPerk)[]
+---@field attributes? table<string,number>
+---@field attribute_alignments? Eclipse.AttributeAlignment[]
+---@field health_bars? integer 0 inherits the template; 1-10000 is the total number of health bars.
+---@field skeleton? string Recovered body item such as Skeleton or SkeletonHeavy, added to the loadout.
+local WarriorTemplateDefinition = {}
 
 ---@class (exact) Eclipse.RewardGrantContext
 ---@field player_level integer
@@ -588,6 +617,12 @@ local RewardCandidate = {}
 ---@field items Eclipse.RewardCandidate[]
 local RewardChoice = {}
 
+---@class (exact) Eclipse.RewardCurrency
+---@field currency "ForgeMaterial1"|"ForgeMaterial2"|"ForgeMaterial3"
+---@field expected number Average amount rolled by the game; finite, >0 and <=10000000.
+---@field show? boolean List the drop on the result screen; default true.
+local RewardCurrency = {}
+
 ---@class (exact) Eclipse.RewardDefinition
 ---@field id string
 ---@field items? Eclipse.ItemGrant[]
@@ -595,6 +630,7 @@ local RewardChoice = {}
 ---@field gems? integer
 ---@field experience? integer 0..1000000 experience points; default 0.
 ---@field prize_base? number Finite 0..1000000 native performance-bonus base; omitted keeps fallback. Not a fixed coin award.
+---@field currencies? Eclipse.RewardCurrency[] Up to 16 forge-material drops, each currency at most once.
 local RewardDefinition = {}
 
 ---@class (exact) Eclipse.FightDefinition
@@ -701,7 +737,36 @@ local Rule_no_button = {}
 ---@field rounds? integer[]
 ---@field perk Eclipse.PerkHandle
 ---@field aspect? number
+---@field parameters? table<string,number>
 local Rule_perk = {}
+
+---@class (exact) Eclipse.Rule_no_health_bar
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+local Rule_no_health_bar = {}
+
+---@class (exact) Eclipse.Rule_invert_joystick
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+local Rule_invert_joystick = {}
+
+---@class (exact) Eclipse.Rule_random_area
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+---@field image string
+---@field icon? string
+---@field width number
+---@field fade_in integer
+---@field frames_on integer
+---@field fade_out integer
+---@field frames_off integer
+local Rule_random_area = {}
 
 ---@class (exact) Eclipse.Rule_behavior
 ---@field id string
@@ -771,6 +836,23 @@ local Rule_remove_interval = {}
 ---@field mode? "normal"|"eclipse"|"all"
 ---@field rounds? integer[]
 local Rule_no_animation = {}
+
+---@class (exact) Eclipse.Rule_group
+---@field id string
+---@field rules Eclipse.RuleHandle[] 1..64 distinct rule handles; behavior rules are rejected.
+---@field description? Eclipse.LocalizationHandle
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+local Rule_group = {}
+
+---@class (exact) Eclipse.Rule_random
+---@field id string
+---@field rules Eclipse.RuleHandle[] 1..64 distinct rule handles; behavior rules are rejected.
+---@field refresh? "each_fight"|"each_round" Default each_fight.
+---@field no_doubles? boolean
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+local Rule_random = {}
 
 ---@class (exact) Eclipse.VariableOperand
 ---@field kind "variable"
@@ -1679,7 +1761,7 @@ local ActScreenDefinition = {}
 local StoryDialogLine = {}
 
 ---@class (exact) Eclipse.StoryDialogDefinition
----@field portrait Eclipse.SpriteHandle
+---@field portrait? Eclipse.SpriteHandle Omit to hide the portrait.
 ---@field lines Eclipse.StoryDialogLine[] 1..16 dense pages.
 ---@field button Eclipse.LocalizationHandle Final button caption.
 ---@field title? Eclipse.LocalizationHandle
@@ -1810,6 +1892,9 @@ local timers = {}
 
 ---@class Eclipse.Module_ui
 local ui = {}
+
+---@class Eclipse.Module_underworld
+local underworld = {}
 
 ---@class Eclipse.Module_warriors
 local warriors = {}
@@ -2210,6 +2295,15 @@ function warriors.get_template(reference) end
 ---@return Eclipse.WarriorHandle
 function warriors.register(definition) end
 
+---Define your own opponent template: shared settings that several warriors inherit.
+---Requires: `content.register`.
+---When: Entrypoint, before the warriors that use it.
+---Returns: A warrior-template handle, accepted wherever `sf2.warriors.get_template` handles are.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2warriorsregister_template)
+---@param definition Eclipse.WarriorTemplateDefinition
+---@return Eclipse.WarriorTemplateHandle
+function warriors.register_template(definition) end
+
 ---Create a reward that a fight can grant through its normal result/save flow.
 ---Requires: `content.register`.
 ---When: Entrypoint, before the fight uses the reward.
@@ -2299,6 +2393,33 @@ function rules.no_button(definition) end
 ---@return Eclipse.RuleHandle
 function rules.perk(definition) end
 
+---Hide the health bar of the selected fighters.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesno_health_bar)
+---@param definition Eclipse.Rule_no_health_bar
+---@return Eclipse.RuleHandle
+function rules.no_health_bar(definition) end
+
+---Reverse the player's left and right movement input.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesinvert_joystick)
+---@param definition Eclipse.Rule_invert_joystick
+---@return Eclipse.RuleHandle
+function rules.invert_joystick(definition) end
+
+---Show the native random area: a band of the arena that appears at a random place, stays for a while, fades away and returns somewhere else.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesrandom_area)
+---@param definition Eclipse.Rule_random_area
+---@return Eclipse.RuleHandle
+function rules.random_area(definition) end
+
 ---Attach executable Lua behavior directly to a fight, without creating a perk or requiring an equipped item.
 ---Requires: `content.register`. Each fighter operation still requires its own combat capability, declared by the mod that owns the behavior.
 ---When: Register in the entrypoint. Attached handlers run only at the supported combat callback boundaries of the selected fight.
@@ -2370,6 +2491,42 @@ function rules.remove_interval(definition) end
 ---@param definition Eclipse.Rule_no_animation
 ---@return Eclipse.RuleHandle
 function rules.no_animation(definition) end
+
+---Combine several rules into one native rule group with a single description.
+---Requires: `content.register`.
+---When: Entrypoint, after registering the rules it contains.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesgroup)
+---@param definition Eclipse.Rule_group
+---@return Eclipse.RuleHandle
+function rules.group(definition) end
+
+---Pick one rule at random from a list, for each round or for the whole fight.
+---Requires: `content.register`.
+---When: Entrypoint, after registering the rules it chooses from.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesrandom)
+---@param definition Eclipse.Rule_random
+---@return Eclipse.RuleHandle
+function rules.random(definition) end
+
+---Show or hide the map's Underworld toggle button.
+---Requires: `story.progression` and a strict boolean.
+---When: In a callback while the map scene is open, such as a `scene_enter` event for `"map"` or a story dialog's `on_complete`. Calls from UI cleanup callbacks raise an error.
+---Returns: `true` when the current map applied the change; `false` when the map is not ready: outside the map scene, during a scene or profile change, while an encounter is being prepared, or while native input is blocked (for example by a lock screen).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/underworld/#sf2underworldset_toggle_visible)
+---@param visible boolean
+---@return boolean
+function underworld.set_toggle_visible(visible) end
+
+---Choose the boss the Underworld map shows when the player next opens it.
+---Requires: `story.progression` and a battle handle registered by this mod on a zone with `underworld = true`. Strings, core battles and other mods' battles are rejected.
+---When: A callback after the profile has loaded, typically right before you show the toggle.
+---Returns: `true` when the focus was stored; `false` when no profile is loaded, a profile change is in progress, or the battle is not on one of your Underworld pages.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/underworld/#sf2underworldset_focus)
+---@param battle Eclipse.BattleHandle
+---@return boolean
+function underworld.set_focus(battle) end
 
 ---Create a quest that responds to selected game events.
 ---Requires: `content.register`, plus dependencies for referenced content.
@@ -3279,4 +3436,4 @@ function Fighter:show_status_icon(key, sprite, frames, stacks?) end
 ---@param key string
 function Fighter:clear_status_icon(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, warriors = warriors, zones = zones }

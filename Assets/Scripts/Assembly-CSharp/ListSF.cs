@@ -2629,6 +2629,46 @@ public class ListSF
 		LNCPHCBFNJO(xmlNode);
 	}
 
+	// Eclipse modding seam: register a mod-owned warrior template after the base
+	// templates were resolved. The parent must already be registered; inheritance
+	// is merged exactly like the base resolver (EANLGFEDADB) does for one entry.
+	public void AddExternalTemplate(XmlNode node)
+	{
+		if (node == null || node.Name != "Template")
+		{
+			throw new ArgumentException("An external warrior template requires a Template node.");
+		}
+		string name = node.Attributes["Name"].CIPOICEEIBK(string.Empty);
+		if (name == string.Empty || CNFBCBDPKCI(name) != null)
+		{
+			throw new InvalidOperationException("Warrior template '" + name + "' is already registered.");
+		}
+		XmlNode owned = ONBBADOAPIB.ImportNode(node, true);
+		TemplateUser template = KJMKFNHFCGM(owned);
+		if (template.IJBOAGICOON != string.Empty)
+		{
+			TemplateUser parent = CNFBCBDPKCI(template.IJBOAGICOON);
+			if (parent == null)
+			{
+				HBOHFLOJMAA.Remove(template);
+				throw new InvalidOperationException("Warrior template '" + name + "' has no registered parent '" + template.IJBOAGICOON + "'.");
+			}
+			XmlNode merged = ONBBADOAPIB.ImportNode(parent.KEJDJHAGBMK.Node ?? parent.node, true);
+			merged = MergeUserXML(merged, owned);
+			template.KEJDJHAGBMK = IAOBIMJFBMH(merged, parent.KEJDJHAGBMK);
+			template.KEJDJHAGBMK.Node = merged;
+		}
+	}
+
+	public void RemoveExternalTemplate(string name)
+	{
+		TemplateUser template = CNFBCBDPKCI(name);
+		if (template != null)
+		{
+			HBOHFLOJMAA.Remove(template);
+		}
+	}
+
 	private TemplateUser KJMKFNHFCGM(XmlNode node)
 	{
 		TemplateUser aHIIGFBIGAA = new TemplateUser();

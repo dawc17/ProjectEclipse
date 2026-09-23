@@ -1,6 +1,6 @@
 // Run with: unity command eval_file --file Tools/VerifyDE128SenseiArt.cs --json
 // Read-only native decode of DE128's shipped Sensei sprites plus every core
-// portrait the pending story references. Does not open UI, fights or saves.
+// portrait the Sensei and Underworld stories reference. Does not open UI, fights or saves.
 var mod = System.Linq.Enumerable.Single(Eclipse.Modding.ModDiscovery.DiscoverLoose("Mods").Mods, m => m.Id.ToString() == "de128");
 var core = new Eclipse.Modding.CoreAssetProvider();
 var resolver = new Eclipse.Modding.AssetResolver(new Eclipse.Modding.IAssetProvider[] { core, new Eclipse.Modding.LooseModProvider(mod) });
@@ -20,22 +20,29 @@ using (var loader = new Eclipse.Modding.ModAssetLoader(resolver))
         var center = sprite.texture.GetPixel((int)sprite.rect.width / 2, (int)sprite.rect.height / 2);
         rows.Add(new { id = "de128:sprites/sensei/" + name, sprite.rect.width, sprite.rect.height, vertices = sprite.vertices.Length, centerAlpha = center.a });
     }
+    // Underworld story portraits that are native resources outside the packaged catalog.
+    foreach (var name in new[] { "character_may_1", "character_may_4" })
+    {
+        var sprite = loader.LoadSprite(Eclipse.Modding.AssetId.Parse("de128:sprites/underworld/" + name));
+        if (sprite == null || sprite.vertices.Length < 3 || sprite.rect.width != 512 || sprite.rect.height != 512)
+            throw new Exception("Shipped Underworld portrait did not decode: " + name);
+    }
 }
 // Core portraits named by the pending Lua data (portrait/avatar fields).
 var names = new System.Collections.Generic.SortedSet<string>();
-foreach (var file in new[] { "sensei_entry_data", "sensei_victory_data", "sensei_guard_opponents", "sensei_boss_opponents", "sensei_act_one_opponents" })
+foreach (var file in new[] { "sensei_entry_data", "sensei_victory_data", "sensei_guard_opponents", "sensei_boss_opponents", "sensei_act_one_opponents", "underworld_story_data" })
     foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(
-        System.IO.File.ReadAllText("Mods/de128/scripts/content/" + file + ".lua"), "(?:portrait|avatar) = (?:art\\.avatar\\()?\"([A-Za-z_]+)\""))
+        System.IO.File.ReadAllText("Mods/de128/scripts/content/" + file + ".lua"), "(?:portrait|avatar) = (?:art\\.avatar\\()?\"([A-Za-z0-9_]+)\""))
         names.Add(match.Groups[1].Value);
 names.Add("character_sensei");
 int corePortraits = 0;
 foreach (var name in names)
 {
-    if (System.Array.IndexOf(owned, name) >= 0) continue;
+    if (System.Array.IndexOf(owned, name) >= 0 || name == "character_may_1" || name == "character_may_4") continue;
     UnityEngine.Sprite sprite;
     if (!core.TryLoadUnityAsset<UnityEngine.Sprite>(Eclipse.Modding.AssetId.Parse("core:ui/users/" + name.ToLowerInvariant()), out sprite) || sprite == null || sprite.vertices.Length < 3)
         throw new Exception("Core portrait missing: " + name);
     corePortraits++;
 }
-if (rows.Count != 12 || corePortraits < 14) throw new Exception("Unexpected coverage: " + rows.Count + " shipped, " + corePortraits + " core");
+if (rows.Count != 12 || corePortraits < 60) throw new Exception("Unexpected coverage: " + rows.Count + " shipped, " + corePortraits + " core");
 return new { shipped = rows, corePortraits, coreNames = names };

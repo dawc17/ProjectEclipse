@@ -119,6 +119,23 @@ namespace Nekki.SF2.GUI.Map
 			}
 		}
 
+		// Eclipse modding seam: mod-supplied map-button sprites (qualified IDs) replace
+		// the atlas lookup. A locked button keeps the native lock art unless the mod
+		// supplied its own locked sprites.
+		public void ApplyModIcons(string baseSprite, string activeSprite, string lockedSprite, string lockedActiveSprite, bool locked)
+		{
+			if (!locked)
+			{
+				SetNormalSprite(string.Empty, baseSprite);
+				SetDisabledSprite(string.Empty, activeSprite);
+			}
+			else if (!string.IsNullOrEmpty(lockedSprite))
+			{
+				SetNormalSprite(string.Empty, lockedSprite);
+				SetDisabledSprite(string.Empty, lockedActiveSprite);
+			}
+		}
+
 		public void CorrectLabel()
 		{
 		}

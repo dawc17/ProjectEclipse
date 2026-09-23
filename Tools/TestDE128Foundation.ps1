@@ -18,6 +18,9 @@ $compileFiles = @($runtimeSources.FullName) + @($bindingSources.FullName) + @(
     (Join-Path $PSScriptRoot 'DE128FoundationTests.cs'),
     (Join-Path $PSScriptRoot 'DE128ShopTests.cs'),
     (Join-Path $PSScriptRoot 'DE128EquipmentTests.cs'),
+    (Join-Path $PSScriptRoot 'DE128UnderworldTests.cs'),
+    (Join-Path $PSScriptRoot 'DE128UnderworldStoryTests.cs'),
+    (Join-Path $PSScriptRoot 'SenseiDialogFixture.cs'),
     (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ShopAvailabilityPolicy.cs'),
     (Join-Path $PSScriptRoot 'DECombatPerksTests.cs'))
 $compileXml = ($compileFiles | Sort-Object | ForEach-Object {

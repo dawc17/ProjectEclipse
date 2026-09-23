@@ -2990,3 +2990,94 @@ time (a lazy runtime `require` would register localization after commit).
 Not verified: the native dialog has not been exercised in Unity by these tests.
 The owner's next playtest is the first rendering check (layout, portrait scale,
 mirroring, Back handling, chaining into the fight launch).
+
+## Step 51 — The complete DE Underworld: eight tiers, 32 bosses and their story (2026-09-23)
+
+Owner request: port the entire original DE Underworld "in the same fashion" as the
+Sensei story, from the asset drop. Sources: `Assets/DExml/raid_stages_default.xml`
+(pages, battles, fights, warriors, rewards), `stages.xml` templates,
+`quests.xml` (RaidIntro, RaidIntro2, RaidEnter/RaidWinAfter/RaidLoseAfter per
+boss), `localizations/*.xml` (14 languages), and
+`ResearchSources/de128_assets/assets/Atlases` (event-raid map buttons).
+
+### Content (0.20.0)
+
+`Tools/GenerateDE128Underworld.py` (`--check` keeps the output in sync) writes
+`underworld_data.lua`, `underworld_text_values.lua` (378 keys × 14 languages;
+empty archived translations fall back to English) and `underworld_story_data.lua`.
+The mod never reads XML at runtime.
+
+- 8 Underworld pages `underworld_tier_1..8` (ZONE_RAID..ZONE_RAID7), 76 battles
+  (36 normal/Power Mode pairs, 2 bosses without a Power variant, 2 survivals),
+  76 fights, 104 warriors on 66 owned templates, 180 rewards with 108 forge-material
+  drops, and the archived fight rules (groups, random picks, random areas, perk
+  rules with native parameters, hidden health bars, inverted controls).
+- Normalizations, each asserted by `DE128UnderworldTests`: `Rounds="0"` → 1;
+  Sphere1/Sphere2 → the restored minor/medium Charge of Darkness; the music table;
+  RaidCharge rows reuse the Sensei story's conditional rule.
+- Omitted, because nothing can resolve them: items ARMOR_IM_CEREMONIAL,
+  BODY_BERSTUUK, HEAD_BERSTUUK, HELM_IM_CEREMONIAL, RANGED_NEEDLES; perk names with
+  DE typos or no definition; the LightInTheDarkness rule (no native class). The
+  Berstuuk body exists only as a model TextAsset in `bundles/BERSTUUK`.
+- `Tools/ExtractDE128UnderworldArt.py` ships 20 map-button sprites for the ten
+  event-raid atlases core lacks, plus `character_may_1`/`character_may_4`: native
+  resources missing from the packaged-art catalog (the DE 1.0.6 copies differ only
+  in encoding). The other 46 story portraits resolve from core.
+
+### Story (`underworld_story.lua`)
+
+- **Intro** (RaidIntro): after a win over `core:fights/zone_1/boss_lynx/2`, on the
+  map: act screen `ActScreenRaid` (240 frames) → toggle shown (ShowRaidsGag) →
+  focus BOSS_1 → two Volcano dialogs → RaidIntro2's four May/Sensei dialogs → the
+  dojo (ChangeScene Dojo). Until then the Underworld toggle is hidden on every map
+  entry. Saves that beat Lynx 2 before DE128 are caught up on their next map entry.
+  An interrupted intro replays from the start (the archive would lose it).
+- **32 bosses**: `sf2.story.before_fight` holds each normal fight's first entry
+  until the archived Fight button; the one Text-form act screen
+  (Gatekeeper `EnterPortal_ActScreen`) holds 300 frames, the EnterScreen prefab's
+  `hideTime` of 5 s. One-time win/loss dialogs are queued on `battle_result` and
+  shown on the map; `Loss` excludes surrender (`GameUtils` reports it separately).
+  The archive's swapped texts (a loss shows `dlg*Win`) are kept as authored.
+- Variables with one assignment are constants (Title_Assistant = characterMay,
+  Avatar_Assistant_1 = character_may_1, Title_Assistant_2 = characterSensei,
+  Avatar_Assistant_6 = character_sensei). NoAvatar announcements hide the portrait;
+  titles whose English text is empty are omitted.
+- State shares the Sensei schema, which is capped at 64 fields: `uw_intro` plus
+  five comma-delimited sets of lower-case archive boss names (entered, win/loss
+  pending/shown), so later data changes cannot reinterpret saves.
+- `RaidMapFocusOnFightEnd` (restore the raid map focus after a raid fight) is not
+  ported. The native map already stores the raid focus when an Underworld entry is
+  selected; confirm in the playtest.
+
+### API added for this port (wiki and editor schema updated)
+
+Zones `underworld`; battles `power_mode` and `icons`;
+`sf2.warriors.register_template` and the `skeleton` field; reward `currencies`;
+perk `parameters` on warrior perk rows and `sf2.rules.perk`; `sf2.rules.no_health_bar`,
+`invert_joystick`, `random_area`, `group`, `random`;
+`sf2.underworld.set_toggle_visible` and `set_focus`; an optional
+`sf2.ui.story_dialog` portrait. The manifest adds `presentation.navigate` (dojo
+change).
+
+### Verification
+
+- Foundation **9862** checks, including 5856 archive comparisons of every
+  registered Underworld definition and **1230** story checks: the actual package
+  through the production bindings, each presented card compared with quests.xml
+  (text, button, portrait), toggle gating, the interrupted intro, the dojo change,
+  all 32 entries/228 cards, loss/win once each, surrender and hardmode ignored,
+  profile separation, save restore and the veteran catch-up.
+- `TestUnderworldApi.ps1` **72**, `TestTrialRules.ps1` 43, Sensei story 533,
+  entry 1329, victory 683, notifications 118, story dialog 28,
+  `TestUnderworldRuntime.ps1` 1282; `GenerateDE128Underworld.py --check`, both
+  art extractors `--check`.
+- `Tools/VerifyDE128SenseiArt.cs` in the owner's Unity editor (read-only): 14
+  shipped portraits and 61 core portraits decode natively.
+- Game/editor assemblies build (0 errors); editor generate/check (182 functions,
+  242 structures), 37 unit tests, LuaLS and VS Code integration; wiki 48 pages /
+  4323 links, 0 Astro diagnostics.
+
+Not verified: no Unity playtest. Next owner playtest: beat Lynx 2 (or load a later
+save), watch the intro and dojo change, open the Underworld, toggle Power Mode,
+fight a boss (entry dialogs, loss/win lines), check event-raid buttons, random
+areas and forge-material drops.

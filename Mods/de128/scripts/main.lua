@@ -25,7 +25,12 @@ require("content.progression")
 -- Sensei story: guard templates and RaidCharge availability are synthesized from
 -- archive evidence (see sensei_guard_templates.lua, sensei_raid_charge_state.lua).
 require("content.sensei_story").install_default()
+-- Underworld: all eight archived tiers, sharing the story's RaidCharge rule, plus
+-- the archived intro (after Lynx 2), toggle gating and the 32 bosses' dialogues.
+local underworld = require("content.underworld").install(
+    require("content.sensei_raid_charge").register(require("content.sensei_raid_charge_state").create()))
+require("content.underworld_story").install(underworld)
 -- Disabled at the owner's request. Keep the prototype out of the active mod.
 -- require("content.ascension")
 
-sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Desolator reward, XML-evidenced combat perks and Sensei story registered.")
+sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Desolator reward, XML-evidenced combat perks, Sensei story and Underworld registered.")

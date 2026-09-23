@@ -976,6 +976,7 @@ namespace Eclipse.Modding
 
                 var warriors = new Table(_script);
                 warriors.Set("get_template", DynValue.NewCallback(GetWarriorTemplate));
+                warriors.Set("register_template", DynValue.NewCallback(RegisterWarriorTemplate));
                 warriors.Set("register", DynValue.NewCallback(RegisterWarrior));
                 root.Set("warriors", DynValue.NewTable(warriors));
 
@@ -1000,6 +1001,11 @@ namespace Eclipse.Modding
                 rules.Set("ring_out", DynValue.NewCallback(RegisterRingOutRule));
                 rules.Set("regeneration", DynValue.NewCallback(RegisterRegenerationRule));
                 rules.Set("no_animation", DynValue.NewCallback(RegisterNoAnimationRule));
+                rules.Set("no_health_bar", DynValue.NewCallback(RegisterNoHealthBarRule));
+                rules.Set("invert_joystick", DynValue.NewCallback(RegisterInvertJoystickRule));
+                rules.Set("random_area", DynValue.NewCallback(RegisterRandomAreaRule));
+                rules.Set("group", DynValue.NewCallback(RegisterGroupRule));
+                rules.Set("random", DynValue.NewCallback(RegisterRandomRule));
                 rules.Set("remove_interval", DynValue.NewCallback(RegisterRemoveIntervalRule));
                 root.Set("rules", DynValue.NewTable(rules));
 
@@ -1041,6 +1047,7 @@ namespace Eclipse.Modding
                 AddP2Modules(root);
                 AddP3Modules(root);
                 AddUiModule(root);
+                AddUnderworldModule(root);
 
                 DynValue value = DynValue.NewTable(root);
                 _modules.Add(moduleName, value);
@@ -1768,7 +1775,27 @@ namespace Eclipse.Modding
                 {
                     ValidateFields(table, function, "id", "zone", "type", "x", "y", "alias", "title", "icon",
                         "icon_atlas", "eclipse_toggle_name", "preview", "description", "location", "music",
-                        "reward_image", "show_resistance", "power_mode");
+                        "reward_image", "show_resistance", "power_mode", "icons");
+                    ModBattleIcons icons = null;
+                    DynValue iconsValue = table.Get("icons");
+                    if (!iconsValue.IsNil())
+                    {
+                        if (iconsValue.Type != DataType.Table) throw new ModContentException(function + " field 'icons' must be a table.");
+                        ValidateFields(iconsValue.Table, function + ".icons", "base", "active", "locked", "locked_active");
+                        string Sprite(string field, bool required)
+                        {
+                            DynValue value = iconsValue.Table.Get(field);
+                            if (value.IsNil())
+                            {
+                                if (required) throw new ModContentException(function + ".icons field '" + field + "' is required.");
+                                return string.Empty;
+                            }
+                            if (value.Type != DataType.Table || !_spriteHandles.TryGetValue(value.Table, out AssetId sprite))
+                                throw new ModContentException(function + ".icons field '" + field + "' must be a sprite handle.");
+                            return sprite.ToString();
+                        }
+                        icons = new ModBattleIcons(Sprite("base", true), Sprite("active", false), Sprite("locked", false), Sprite("locked_active", false));
+                    }
                     string powerModeText = OptionalStringAllowEmpty(table, "power_mode", string.Empty, function);
                     ModPowerMode powerMode = powerModeText == string.Empty ? ModPowerMode.Always
                         : powerModeText == "normal" ? ModPowerMode.Normal
@@ -1789,19 +1816,33 @@ namespace Eclipse.Modding
                         OptionalStringAllowEmpty(table, "reward_image", string.Empty, function),
                         OptionalBool(table, "show_resistance", false, function),
                         OptionalStringAllowEmpty(table, "icon_atlas", string.Empty, function),
-                        OptionalStringAllowEmpty(table, "eclipse_toggle_name", string.Empty, function), powerMode);
+                        OptionalStringAllowEmpty(table, "eclipse_toggle_name", string.Empty, function), powerMode, icons);
                     return NewHandle(_battleHandles, definition.Id);
                 });
             }
 
+            private DynValue RegisterWarriorTemplate(ScriptExecutionContext context, CallbackArguments args)
+            {
+                return RegisterWarriorOrTemplate(args, "sf2.warriors.register_template", true);
+            }
+
             private DynValue RegisterWarrior(ScriptExecutionContext context, CallbackArguments args)
             {
-                const string function = "sf2.warriors.register";
+                return RegisterWarriorOrTemplate(args, "sf2.warriors.register", false);
+            }
+
+            private DynValue RegisterWarriorOrTemplate(CallbackArguments args, string function, bool isTemplate)
+            {
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "template", "first_name", "last_name", "avatar", "voice", "level",
-                        "tactic", "group", "random", "attributes", "attribute_alignments", "items", "perks", "health_bars", "body_model", "skin_models");
+                    if (isTemplate)
+                        ValidateFields(table, function, "id", "template", "first_name", "last_name", "avatar", "voice", "level",
+                            "tactic", "attributes", "attribute_alignments", "items", "perks", "health_bars", "skeleton");
+                    else
+                        ValidateFields(table, function, "id", "template", "first_name", "last_name", "avatar", "voice", "level",
+                            "tactic", "group", "random", "attributes", "attribute_alignments", "items", "perks", "health_bars", "body_model", "skin_models", "skeleton");
+                    string skeleton = OptionalStringAllowEmpty(table, "skeleton", string.Empty, function);
                     string id = RequiredString(table, "id", function);
                     DefinitionId[] items = OptionalHandleArray(table, "items", _itemHandles, "item", function);
                     WarriorPerkDefinition[] perks = ReadWarriorPerks(table.Get("perks"), function + ".perks");
@@ -1840,6 +1881,17 @@ namespace Eclipse.Modding
                         else
                             throw new ModContentException(function + " field 'tactic' must be a tactic handle or string.");
                     }
+                    if (isTemplate)
+                    {
+                        WarriorTemplateDefinition owned = _api.RegisterWarriorTemplate(id,
+                            OptionalStringAllowEmpty(table, "first_name", string.Empty, function),
+                            OptionalStringAllowEmpty(table, "last_name", string.Empty, function),
+                            OptionalSpriteOrString(table, "avatar", function),
+                            OptionalStringAllowEmpty(table, "voice", string.Empty, function),
+                            OptionalInt(table, "level", 0, function), tactic, items, template, hasTemplate,
+                            attributes, alignments, OptionalInt(table, "health_bars", 0, function), perks, skeleton);
+                        return NewHandle(_warriorTemplateHandles, owned.Id);
+                    }
                     WarriorDefinition definition = _api.RegisterWarrior(id,
                         OptionalStringAllowEmpty(table, "first_name", string.Empty, function),
                         OptionalStringAllowEmpty(table, "last_name", string.Empty, function),
@@ -1849,7 +1901,7 @@ namespace Eclipse.Modding
                         template, hasTemplate, OptionalStringAllowEmpty(table, "group", string.Empty, function),
                         OptionalInt(table, "random", 0, function), attributes, alignments, OptionalInt(table, "health_bars", 0, function),
                         OptionalHandle(table,"body_model",_modelHandles,"model",function,default(AssetId)),
-                        OptionalHandleArray(table,"skin_models",_modelHandles,"model",function), perks);
+                        OptionalHandleArray(table,"skin_models",_modelHandles,"model",function), perks, skeleton);
                     return NewHandle(_warriorHandles, definition.Id);
                 });
             }
@@ -1869,16 +1921,31 @@ namespace Eclipse.Modding
                     else
                     {
                         string row = function + "[" + i + "]";
-                        ValidateFields(entry.Table, row, "perk", "aspect", "chance_factor", "chance", "frames");
+                        ValidateFields(entry.Table, row, "perk", "aspect", "chance_factor", "chance", "frames", "parameters");
                         result.Add(new WarriorPerkDefinition(RequiredHandle(entry.Table, "perk", _perkHandles, "perk", row),
                             ReadWarriorPerkNumber(entry.Table.Get("aspect"), row + ".aspect"),
                             ReadWarriorPerkNumber(entry.Table.Get("chance_factor"), row + ".chance_factor"),
                             ReadWarriorPerkNumber(entry.Table.Get("chance"), row + ".chance"),
-                            entry.Table.Get("frames").IsNil() ? (int?)null : OptionalInt(entry.Table, "frames", 0, row)));
+                            entry.Table.Get("frames").IsNil() ? (int?)null : OptionalInt(entry.Table, "frames", 0, row),
+                            ReadPerkParameters(entry.Table.Get("parameters"), row + ".parameters")));
                     }
                 }
                 EnsureDenseArray(value.Table, result.Count, function);
                 return result.ToArray();
+            }
+
+            private static IReadOnlyDictionary<string, double> ReadPerkParameters(DynValue value, string field)
+            {
+                if (value.IsNil()) return null;
+                if (value.Type != DataType.Table) throw new ModContentException(field + " must map native parameter names to numbers.");
+                var result = new Dictionary<string, double>(StringComparer.Ordinal);
+                foreach (TablePair pair in value.Table.Pairs)
+                {
+                    if (pair.Key.Type != DataType.String || pair.Value.Type != DataType.Number)
+                        throw new ModContentException(field + " must map native parameter names to numbers.");
+                    result.Add(pair.Key.String, pair.Value.Number);
+                }
+                return result;
             }
 
             private static double? ReadWarriorPerkNumber(DynValue value, string field)
@@ -1993,7 +2060,7 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "perk", "aspect", "target", "mode", "rounds");
+                    ValidateFields(table, function, "id", "perk", "aspect", "parameters", "target", "mode", "rounds");
                     DynValue aspectValue = table.Get("aspect");
                     double? aspect = null;
                     if (!aspectValue.IsNil())
@@ -2008,7 +2075,8 @@ namespace Eclipse.Modding
                         RequiredHandle(table, "perk", _perkHandles, "perk", function),
                         ParseRuleTarget(OptionalString(table, "target", "all", function), function),
                         ParseRuleMode(OptionalString(table, "mode", "all", function), function),
-                        OptionalIntArray(table, "rounds", function), aspect).Id);
+                        OptionalIntArray(table, "rounds", function), aspect,
+                        ReadPerkParameters(table.Get("parameters"), function + ".parameters")).Id);
                 });
             }
 
@@ -2059,14 +2127,41 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "items", "choices", "gems", "experience", "prize_base");
+                    ValidateFields(table, function, "id", "items", "choices", "gems", "experience", "prize_base", "currencies");
                     RewardItemGrant[] items = ReadRewardItems(table.Get("items"), function + ".items", false);
                     RewardChoiceDefinition[] choices = ReadRewardChoices(table.Get("choices"), function + ".choices");
                     RewardDefinition definition = _api.RegisterReward(RequiredString(table, "id", function), items, choices,
                         OptionalInt(table, "gems", 0, function), OptionalInt(table, "experience", 0, function),
-                        table.Get("prize_base").IsNil() ? (float?)null : OptionalFloat(table, "prize_base", 0, function));
+                        table.Get("prize_base").IsNil() ? (float?)null : OptionalFloat(table, "prize_base", 0, function),
+                        ReadRewardCurrencies(table.Get("currencies"), function + ".currencies"));
                     return NewHandle(_rewardHandles, definition.Id);
                 });
+            }
+
+            private RewardCurrencyDrop[] ReadRewardCurrencies(DynValue value, string function)
+            {
+                if (value.IsNil()) return null;
+                if (value.Type != DataType.Table) throw new ModContentException(function + " must be a dense array.");
+                int count = 0;
+                foreach (var pair in value.Table.Pairs)
+                {
+                    count++;
+                    if (pair.Key.Type != DataType.Number || pair.Key.Number != Math.Truncate(pair.Key.Number) ||
+                        pair.Key.Number < 1 || pair.Key.Number > value.Table.Length)
+                        throw new ModContentException(function + " must be a dense array.");
+                }
+                if (count != value.Table.Length) throw new ModContentException(function + " must be a dense array.");
+                var result = new RewardCurrencyDrop[count];
+                for (int i = 1; i <= count; i++)
+                {
+                    var entry = value.Table.Get(i);
+                    string row = function + "[" + i + "]";
+                    if (entry.Type != DataType.Table) throw new ModContentException(row + " must be a table.");
+                    ValidateFields(entry.Table, row, "currency", "expected", "show");
+                    result[i - 1] = new RewardCurrencyDrop(RequiredString(entry.Table, "currency", row),
+                        OptionalFloat(entry.Table, "expected", 0, row), OptionalBool(entry.Table, "show", true, row));
+                }
+                return result;
             }
 
             private DynValue RegisterFight(ScriptExecutionContext context, CallbackArguments args)

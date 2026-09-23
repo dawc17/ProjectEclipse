@@ -78,6 +78,19 @@ end
 
 Use dots for API functions, such as `sf2.log.info(...)`. Use the colon shown in the reference for fighter methods, such as `fighter:change_health(0.05)`: it passes the fighter as the method's receiver. Do not substitute one spelling for the other.
 
+Always give a new `local` a value, even when that value is `nil`:
+write `local choice = nil`, not `local choice`. Eclipse's Lua runtime can let a
+bare `local` inside a loop or a repeatedly called function start with a value left
+over from an earlier pass, which causes bugs that are hard to trace. With the
+explicit `= nil` the variable always starts empty.
+
+```lua
+for _, name in ipairs(names) do
+    local match = nil -- not just "local match"
+    if name == "Staff" then match = name end
+end
+```
+
 The function above is an illustration, not a registered callback. See [Behavior instances](../../api/behavior-instances/) to connect a function to a perk or enchantment. Fighter methods only work during the callback that supplies the fighter.
 
 ## Split a larger script

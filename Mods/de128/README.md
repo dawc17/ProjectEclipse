@@ -5,7 +5,7 @@ The owner-supplied archive is now the source of truth for DE content. See
 The download is currently blocked by Google Drive quota; prior archive comparisons
 below refer to the historical repository XML until reconciliation is performed.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.19.0` activates the Sensei story (below), restores ten missing weapon listings, thirteen other equipment
+DE128 is an ordinary downstream Eclipse mod. Version `0.20.0` adds the complete DE Underworld (below); `0.19.0` activated the Sensei story. It restores ten missing weapon listings, thirteen other equipment
 listings, and enables the archived
 ChineseSwords combat/preview graph for Jian alongside four earlier equipment
 combat-family corrections through Lua. It includes shop availability
@@ -13,6 +13,24 @@ for 25 former battle-pass items at their archived level gates and completes
 saved, already-paid forge orders without waiting. Ascension remains disabled; Master of
 Style and Relentless follow the archived DE XML.
 Definitions, translations and behavior are authored through the public Lua API.
+
+## Underworld (since 0.20.0)
+
+`main.lua` installs all eight archived Underworld tiers (`underworld.lua`) and
+their story (`underworld_story.lua`): 76 battles with normal/Power Mode pairs,
+76 fights, 104 opponents on 66 templates, 180 rewards with forge-material drops,
+and the archived fight rules. The Underworld toggle stays hidden until the player
+has beaten Lynx 2; the next map visit then plays the archived intro, focuses the
+Volcano boss and ends in the dojo. Each of the 32 bosses greets the player once
+before the first fight and speaks once after the first loss and first win.
+
+All data is generated from the archive by `Tools/GenerateDE128Underworld.py`;
+map buttons for the ten event raids and two May portraits ship under
+`assets/sprites/underworld/`. A few archived items and one rule (Berstuuk's
+body/head, ceremonial armor/helm, needles, LightInTheDarkness) cannot be
+resolved and are omitted (Step 51 in `PRODUCTION.md`). The manifest adds
+`presentation.navigate` for the dojo change. Automated checks compare
+everything with the archive; no Unity playtest has been done yet.
 
 ## Sensei story (active since 0.19.0)
 

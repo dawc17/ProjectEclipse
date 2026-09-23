@@ -62,6 +62,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModLocalizationLoader.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\DependencyResolver.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModWarriorTemplates.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModRuleGroups.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\VersionRange.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModPurchaseLedger.cs" />

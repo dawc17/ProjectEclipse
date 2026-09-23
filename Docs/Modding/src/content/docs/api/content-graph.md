@@ -21,7 +21,7 @@ the field type: a handle cannot be substituted for a string.
 
 Create a map page for your battles.
 
-**Signature:** `sf2.zones.register { id, file?, start? }`
+**Signature:** `sf2.zones.register { id, file?, start?, underworld? }`
 
 **Requires:** `content.register`.
 
@@ -33,8 +33,15 @@ Create a map page for your battles.
 `""`; `start` is a boolean defaulting to `false`. Reuse a known map file when
 starting out; a zone ID is not the map-art filename.
 
+`underworld` is a boolean defaulting to `false`. `true` places the page on the
+**Underworld** map (the raid map the player reaches with the map's Underworld
+toggle) instead of the story map, next to the game's own raid pages. An
+Underworld page cannot also be the start zone. Raid map art such as `"Raid1.1"`
+fits these pages. See [Underworld pages](../underworld/) for the complete flow.
+
 ```lua
 local zone = sf2.zones.register { id = "training", file = "Map1.1", start = false }
+local depths = sf2.zones.register { id = "depths", file = "Raid1.1", underworld = true }
 ```
 
 ## sf2.zones.get
@@ -81,6 +88,8 @@ Create the map entry that the player selects to open a fight.
 | `location`, `music` | Strings | `""` | Arena and music references used by the panel/content. |
 | `reward_image` | String | `""` | Reward presentation image reference. |
 | `show_resistance` | Boolean | `false` | Whether to show resistance presentation. |
+| `power_mode` | `"normal"` or `"power"` | Always shown | Underworld pages only: show the entry only while Power Mode is off (`"normal"`) or on (`"power"`). |
+| `icons` | Table of sprite handles | Native button art | Your own map-button sprites; see [Map-button sprites](#map-button-sprites). |
 
 ```lua
 local battle = sf2.battles.register {
@@ -100,8 +109,47 @@ are 484 × 274 pixels, so match that size to fill the panel the same way. A
 plain string is kept for compatibility and is looked up in the game's native
 `UI/battles/` folder only; it is not checked when you register the battle, so a
 misspelled name shows an empty panel instead of raising an error. `icon` and
-`icon_atlas` still select existing map-button art; there is no custom map-button
-sprite field yet.
+`icon_atlas` select existing map-button art; use `icons` for your own.
+
+### Map-button sprites
+
+`icons` replaces the round map button with sprites your mod ships. It is a table
+with these sprite-handle fields (from [`sf2.assets.sprite`](../assets/#sf2assetssprite)):
+
+| Field | Default | Meaning |
+| --- | --- | --- |
+| `base` | Required | Button while unlocked and not selected. |
+| `active` | None | Button while selected. Supply it: without it the selected state has no mod art. |
+| `locked` | Native lock art | Button while the battle is locked. |
+| `locked_active` | None | Selected button while locked; used together with `locked`. |
+
+Strings are rejected, and a missing or non-sprite asset fails registration.
+Core map buttons are 300 × 300 pixels. Leave `icon_atlas` empty when you set
+`icons`.
+
+```lua
+local boss = sf2.battles.register {
+    id = "gatekeeper", zone = depths, type = sf2.battles.FINAL, x = 400, y = 900,
+    -- Requires assets/sprites/buttons/gatekeeper_base.asset and _active.asset.
+    icons = {
+        base = sf2.assets.sprite("sprites/buttons/gatekeeper_base"),
+        active = sf2.assets.sprite("sprites/buttons/gatekeeper_active"),
+    },
+}
+```
+
+### Power Mode entries
+
+The Underworld map has a Power Mode checkbox. By default an entry on an
+Underworld page is shown in both states. `power_mode = "normal"` shows it only
+while Power Mode is off; `"power"` only while it is on. Pair a normal boss with a
+harder variant at the same position to make the checkbox swap them. The field is
+rejected on story pages; omit it for entries that should always be visible.
+
+```lua
+local normal = sf2.battles.register { id = "boss_1", zone = depths, type = sf2.battles.FINAL, power_mode = "normal" }
+local power = sf2.battles.register { id = "boss_1_power", zone = depths, type = sf2.battles.FINAL, power_mode = "power" }
+```
 
 Constants on `sf2.battles` are `DUMMY`, `TUTORIAL`, `CHALLENGE`, `BOSSES`,
 `TOURNAMENT`, `STORY`, `SURVIVAL`, `FRIENDLY`, `AUTO`, `AI`, `HIDDEN`, `FAKE`,
@@ -238,7 +286,7 @@ local template = sf2.warriors.get_template("core:warrior-templates/default")
 ```
 
 Template handles differ from warrior handles; pass this one to the `template`
-field of `sf2.warriors.register`.
+field of `sf2.warriors.register` or `sf2.warriors.register_template`.
 
 A template lookup requires a definition already present in the catalog. Naming a
 missing template does not restore its skeleton, inherited equipment, voice or
@@ -247,6 +295,45 @@ item handles into a registration function and check its required inputs before
 registering variants. Leave incomplete modules outside the entrypoint until their
 dependencies are available. A successful comparison of projected loadout fields
 does not establish that the inherited template or equipment works in combat.
+
+## sf2.warriors.register_template
+
+Define your own opponent template: shared settings that several warriors inherit.
+
+**Signature:** `sf2.warriors.register_template(definition)`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before the warriors that use it.
+
+**Returns:** A warrior-template handle, accepted wherever `sf2.warriors.get_template`
+handles are.
+
+The table takes the same fields as [`sf2.warriors.register`](#sf2warriorsregister)
+except `group`, `random`, `body_model` and `skin_models`: `id`, `template`,
+`first_name`, `last_name`, `avatar`, `voice`, `level`, `tactic`, `attributes`,
+`attribute_alignments`, `items`, `perks`, `health_bars` and `skeleton`. `template`
+names a parent template (core or one of yours registered earlier), so templates
+can form a chain.
+
+```lua
+local default = sf2.warriors.get_template("core:warrior-templates/default")
+local boss = sf2.warriors.register_template {
+    id = "fire_boss", template = default,
+    first_name = "my.mod:localization/fire_boss.name", voice = "Male",
+    health_bars = 15, attributes = { ShieldStack = 15 },
+    items = { sf2.items.get("core:items/weapon/WEAPON_KATANA") },
+    skeleton = "SkeletonHeavy",
+}
+local fighter = sf2.warriors.register { id = "fire_boss_1", template = boss, level = 40 }
+```
+
+The game merges inheritance field by field, with one exception: a template's
+**item list replaces** its parent's list instead of adding to it. A template that
+sets `items` must therefore list everything its warriors wear, including the
+body; set `skeleton` as well so the body is not lost. Warriors that set their own
+`items` replace the template's list in the same way. Templates are part of the
+saved content fingerprint.
 
 ## sf2.warriors.register
 
@@ -278,6 +365,7 @@ Define an opponent, optionally inheriting from a core template.
 | `body_model` | Model handle | Inherit skeleton | Native body model, including its ordered point rig. |
 | `skin_models` | Model handle array | Empty | Up to 16 native geometry overlays, appended after equipment. |
 | `health_bars` | Integer | `0` | Additional health-pool configuration; `0` keeps the template setting; `1` explicitly selects one pool. |
+| `skeleton` | String | Inherit | Native body item such as `"Skeleton"` or `"SkeletonHeavy"`, added to the loadout. |
 
 ```lua
 local opponent = sf2.warriors.register {
@@ -305,7 +393,7 @@ attribute name does not create a new mechanic. Template inheritance and native
 attribute handling can affect the result, so test custom balance in a fight.
 
 Each `perks` entry can be a handle or `{ perk = handle, aspect = number,
-chance_factor = number, chance = number, frames = integer }`. You may mix these forms in a dense array. Settings
+chance_factor = number, chance = number, frames = integer, parameters = table }`. You may mix these forms in a dense array. Settings
 apply only to that warrior's **core** perk instance; they do not change the core
 definition or other opponents. Configure owned Lua perks through their behavior
 definitions instead. Duplicate perks are rejected even when their settings differ.
@@ -321,6 +409,14 @@ change a perk that does not consume those parameters.
 Their effects depend on the selected native perk. Omitted fields inherit its
 defaults; explicit zero overrides a default. Changes to any setting change
 the saved content fingerprint. A bare handle and `{ perk = handle }` are equivalent.
+
+`parameters` sets any other native parameter the perk reads, as a table of up to
+32 names mapped to finite numbers within ±1,000,000,000, for example
+`{ DamageFactor = 0.5, Health = 2 }`. Names start with a letter and use at most
+64 letters, digits or underscores. The dedicated names (`Aspect`, `Chance`,
+`ChanceFactor`, `Frames`, `Name`, `Level`, `ApplyTo`, `Eclipse`, `Round`) are
+rejected here; use the fields above. A name the perk does not read has no effect,
+so check the perk's native parameters before relying on one.
 
 ```lua
 local opponent = sf2.warriors.register {
@@ -346,6 +442,12 @@ local opponent = sf2.warriors.register {
 
 For a Blender import, animation bake, geometric skin export and playable move example, follow [Character authoring](../../guides/character-authoring/). Body and skin assets must satisfy the native point-rig contract; these fields do not load arbitrary FBX files. The warrior handle also scopes moves through a `character` condition. Changing model bindings changes the saved content fingerprint.
 
+`skeleton` names one of the game's recovered body items: a name starting with
+`Skeleton` or `SKELETON_`, at most 64 letters, digits or underscores. It is
+written into the loadout like an item, so it matters mainly when `items` replaces
+an inherited list (see [`sf2.warriors.register_template`](#sf2warriorsregister_template)).
+It is not a model handle; use `body_model` for authored bodies.
+
 `health_bars` is bounded to 0–10,000. Zero inherits the template; 1 means one pool. Values above 1 set the **total** number of
 bars, including the active bar. These are separate from temporary Lua damage
 shields. Duplicate loadout items or perks are rejected.
@@ -354,7 +456,7 @@ shields. Duplicate loadout items or perks are rejected.
 
 Create a reward that a fight can grant through its normal result/save flow.
 
-**Signature:** `sf2.rewards.register { id, items?, choices?, gems?, experience?, prize_base? }`
+**Signature:** `sf2.rewards.register { id, items?, choices?, gems?, experience?, prize_base?, currencies? }`
 
 **Requires:** `content.register`.
 
@@ -370,6 +472,7 @@ Create a reward that a fight can grant through its normal result/save flow.
 | `gems` | Integer, 0–1,000,000 | `0` | Fixed gem reward through normal acquisition. |
 | `experience` | Integer, 0–1,000,000 | `0` | Experience points added by normal fight-result processing. |
 | `prize_base` | Finite number, 0–1,000,000 | Omitted | Native performance-bonus base, explained below. |
+| `currencies` | Array of drop rows | Empty | Forge-material drops, explained below. |
 
 `experience` is an absolute point count, not a level or percentage. Registering a
 reward does not grant it: the fight's selected reward slot must reach the normal
@@ -390,6 +493,23 @@ local victory = sf2.rewards.register {
     id = "story_victory", experience = 2, gems = 8, prize_base = 1,
 }
 -- Use victory in the appropriate wins slot of sf2.fights.register.rewards.
+```
+
+`currencies` adds forge-material drops, the materials used by the forge. Each
+row is `{ currency, expected, show? }`: `currency` is `"ForgeMaterial1"`,
+`"ForgeMaterial2"` or `"ForgeMaterial3"`; `expected` is the finite average amount,
+greater than 0 and at most 10,000,000, from which the game rolls the drop; `show`
+defaults to `true` and controls whether the result screen lists it. A reward
+holds at most 16 rows and each currency at most once.
+
+```lua
+local boss_reward = sf2.rewards.register {
+    id = "boss_victory", gems = 17,
+    currencies = {
+        { currency = "ForgeMaterial1", expected = 50 },
+        { currency = "ForgeMaterial3", expected = 9, show = false },
+    },
+}
 ```
 
 A candidate row is `{ item = handle, upgrade = 0, weight = 1, configure = function(context) ... end }`. Upgrade is a

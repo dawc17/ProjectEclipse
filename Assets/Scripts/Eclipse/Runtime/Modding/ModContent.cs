@@ -884,6 +884,11 @@ namespace Eclipse.Modding
         Regeneration = 12,
         NoAnimation = 13,
         RemoveInterval = 14,
+        NoHealthBar = 15,
+        InvertJoystick = 16,
+        RandomArea = 17,
+        Group = 18,
+        Random = 19,
     }
 
     public enum ModRuleTarget
@@ -901,6 +906,23 @@ namespace Eclipse.Modding
     }
 
     public enum ModPowerMode { Always = 0, Normal = 1, Power = 2 }
+
+    // Mod-supplied map-button art (qualified sprite IDs). Locked states are optional;
+    // without them the native lock art is used.
+    public sealed class ModBattleIcons
+    {
+        public string Base { get; }
+        public string Active { get; }
+        public string Locked { get; }
+        public string LockedActive { get; }
+        public ModBattleIcons(string baseSprite, string active, string locked, string lockedActive)
+        {
+            if (string.IsNullOrEmpty(baseSprite)) throw new ModContentException("Battle icons require a base sprite.");
+            Base = baseSprite; Active = string.IsNullOrEmpty(active) ? baseSprite : active;
+            Locked = locked ?? string.Empty;
+            LockedActive = string.IsNullOrEmpty(lockedActive) ? Locked : lockedActive;
+        }
+    }
 
     public sealed class ZoneDefinition
     {
@@ -953,6 +975,7 @@ namespace Eclipse.Modding
         public bool ShowResistance { get; }
         // Underworld map visibility: Always, only outside Power Mode, or only in Power Mode.
         public ModPowerMode PowerMode { get; }
+        public ModBattleIcons Icons { get; }
         public IReadOnlyList<DefinitionId> Fights => _readOnlyFights;
         public bool IsCore => Id.Namespace.Value == "core";
         internal string LegacyXml { get; }
@@ -961,11 +984,12 @@ namespace Eclipse.Modding
             int x, int y, string alias, string title, string icon, string preview, string description,
             string location, string music, string rewardImage, bool showResistance, DefinitionId[] fights,
             string iconAtlas = null, string eclipseToggleName = null,
-            string legacyXml = null, ModPowerMode powerMode = ModPowerMode.Always)
+            string legacyXml = null, ModPowerMode powerMode = ModPowerMode.Always, ModBattleIcons icons = null)
         {
             Id = id;
             Zone = zone;
             PowerMode = powerMode;
+            Icons = icons;
             LegacyName = legacyName ?? string.Empty;
             Kind = kind;
             X = x;
@@ -1274,6 +1298,31 @@ namespace Eclipse.Modding
         }
     }
 
+    // Typed numeric values for recovered perk Set attributes that have no dedicated field.
+    public static class ModPerkParameters
+    {
+        private static readonly string[] Reserved = { "Aspect", "Chance", "ChanceFactor", "Frames", "Name", "Level", "ApplyTo", "Eclipse", "Round" };
+
+        public static IReadOnlyDictionary<string, double> Copy(IReadOnlyDictionary<string, double> source, string owner)
+        {
+            var copy = new SortedDictionary<string, double>(StringComparer.Ordinal);
+            if (source == null) return new System.Collections.ObjectModel.ReadOnlyDictionary<string, double>(new Dictionary<string, double>());
+            if (source.Count > 32) throw new ModContentException(owner + " permits at most 32 parameters.");
+            foreach (var pair in source)
+            {
+                string name = pair.Key ?? string.Empty;
+                bool valid = name.Length >= 1 && name.Length <= 64 && char.IsLetter(name[0]);
+                foreach (char c in name) valid &= char.IsLetterOrDigit(c) || c == '_';
+                if (!valid || Array.IndexOf(Reserved, name) >= 0)
+                    throw new ModContentException(owner + " parameter '" + name + "' must be a native attribute name other than the dedicated fields.");
+                if (double.IsNaN(pair.Value) || double.IsInfinity(pair.Value) || Math.Abs(pair.Value) > 1e9)
+                    throw new ModContentException(owner + " parameter '" + name + "' must be finite and within +/-1e9.");
+                copy.Add(name, pair.Value);
+            }
+            return new System.Collections.ObjectModel.ReadOnlyDictionary<string, double>(new Dictionary<string, double>(copy));
+        }
+    }
+
     public sealed class WarriorPerkDefinition
     {
         public DefinitionId Perk { get; }
@@ -1281,12 +1330,15 @@ namespace Eclipse.Modding
         public double? ChanceFactor { get; }
         public double? Chance { get; }
         public int? Frames { get; }
-        public bool HasSettings => Aspect.HasValue || ChanceFactor.HasValue || Chance.HasValue || Frames.HasValue;
+        // Other native perk Set parameters (for example DamageFactor or Health).
+        public IReadOnlyDictionary<string, double> Parameters { get; }
+        public bool HasSettings => Aspect.HasValue || ChanceFactor.HasValue || Chance.HasValue || Frames.HasValue || Parameters.Count > 0;
 
         public WarriorPerkDefinition(DefinitionId perk, double? aspect = null, double? chanceFactor = null,
-            double? chance = null, int? frames = null)
+            double? chance = null, int? frames = null, IReadOnlyDictionary<string, double> parameters = null)
         {
             if (perk.Category != "perks") throw new ModContentException("Warrior loadout requires a perk reference.");
+            Parameters = ModPerkParameters.Copy(parameters, "Warrior perk");
             Validate(aspect, int.MaxValue, "aspect");
             Validate(chanceFactor, 10000, "chance_factor");
             Validate(chance, 1, "chance");
@@ -1303,6 +1355,15 @@ namespace Eclipse.Modding
 
     public sealed class WarriorDefinition
     {
+        // Native Skeleton-type item (not a catalog item); listed in the warrior's Items.
+        public string Skeleton { get; }
+        internal static bool IsSkeletonName(string value)
+        {
+            if (value.Length > 64 || !(value.StartsWith("Skeleton", StringComparison.Ordinal) || value.StartsWith("SKELETON_", StringComparison.Ordinal)))
+                return false;
+            foreach (char c in value) if (!(char.IsLetterOrDigit(c) || c == '_')) return false;
+            return true;
+        }
         public AssetId BodyModel { get; }
         public IReadOnlyList<AssetId> SkinModels { get; }
         private readonly DefinitionId[] _items;
@@ -1333,10 +1394,14 @@ namespace Eclipse.Modding
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
             WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0,
-            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null)
+            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null,
+            string skeleton = null)
         {
             if (level < 0 || level > 10000) throw new ModContentException("Warrior level must be 0..10000.");
             Id = id;
+            Skeleton = skeleton ?? string.Empty;
+            if (Skeleton.Length != 0 && !IsSkeletonName(Skeleton))
+                throw new ModContentException("Warrior skeleton must name a recovered skeleton item such as Skeleton or SkeletonHeavy.");
             BodyModel = bodyModel;
             if (skinModels != null && skinModels.Length > 16) throw new ModContentException("A warrior permits at most 16 skin models.");
             SkinModels = Array.AsReadOnly(skinModels == null ? Array.Empty<AssetId>() : (AssetId[])skinModels.Clone());
@@ -1388,7 +1453,9 @@ namespace Eclipse.Modding
         public DefinitionId Perk { get; }
         public bool HasPerk { get; }
         public double? PerkAspect { get; }
+        public IReadOnlyDictionary<string, double> PerkParameters { get; }
         public ModTrialRulePayload Trial { get; }
+        public ModRuleGroupPayload Group { get; }
         private readonly Dictionary<string, float> _attributes;
         public IReadOnlyDictionary<string, float> Attributes => _attributes;
 
@@ -1397,9 +1464,15 @@ namespace Eclipse.Modding
             DefinitionId perk = default(DefinitionId), bool hasPerk = false,
             IReadOnlyDictionary<string, float> attributes = null, DefinitionId behavior = default,
             IReadOnlyDictionary<string, ModParameterValue> initialParameters = null,
-            double? perkAspect = null, ModTrialRulePayload trial = null)
+            double? perkAspect = null, ModTrialRulePayload trial = null, ModRuleGroupPayload group = null,
+            IReadOnlyDictionary<string, double> perkParameters = null)
         {
             Behavior = behavior;
+            PerkParameters = ModPerkParameters.Copy(perkParameters, "Perk rule");
+            if (PerkParameters.Count > 0 && kind != ModFightRuleKind.Perk) throw new ModContentException("Perk parameters require a perk rule.");
+            if (ModRuleGroupPayload.IsGroupKind(kind) != (group != null) || group != null && group.Kind != kind)
+                throw new ModContentException("Rule group payload does not match rule kind '" + kind + "'.");
+            Group = group;
             var parameterCopy = new Dictionary<string, ModParameterValue>();
             if (initialParameters != null)
                 foreach (var pair in initialParameters) parameterCopy.Add(pair.Key, pair.Value);
@@ -1546,11 +1619,33 @@ namespace Eclipse.Modding
         }
     }
 
+    // A native RewardCurrency drop. The recovered settlement rolls the granted amount
+    // around ExpectedValue; only forge materials are exposed so shared economy
+    // currencies (coins, gems, keys) cannot be minted through this path.
+    public sealed class RewardCurrencyDrop
+    {
+        public static readonly string[] SupportedCurrencies = { "ForgeMaterial1", "ForgeMaterial2", "ForgeMaterial3" };
+        public string Currency { get; }
+        public float ExpectedValue { get; }
+        public bool ShowReward { get; }
+
+        public RewardCurrencyDrop(string currency, float expectedValue, bool showReward = true)
+        {
+            if (Array.IndexOf(SupportedCurrencies, currency) < 0)
+                throw new ModContentException("Reward currency must be ForgeMaterial1, ForgeMaterial2 or ForgeMaterial3.");
+            if (float.IsNaN(expectedValue) || float.IsInfinity(expectedValue) || expectedValue <= 0 || expectedValue > 10000000)
+                throw new ModContentException("Reward currency expected value must be finite and in (0, 10000000].");
+            Currency = currency; ExpectedValue = expectedValue; ShowReward = showReward;
+        }
+    }
+
     public sealed class RewardDefinition
     {
         private readonly RewardItemGrant[] _items;
         private readonly RewardChoiceDefinition[] _choices;
+        private readonly RewardCurrencyDrop[] _currencies;
         public DefinitionId Id { get; }
+        public IReadOnlyList<RewardCurrencyDrop> Currencies => Array.AsReadOnly(_currencies);
         public int Gems { get; }
         public int Experience { get; }
         public float? PrizeBase { get; }
@@ -1558,9 +1653,14 @@ namespace Eclipse.Modding
         public IReadOnlyList<RewardChoiceDefinition> Choices => Array.AsReadOnly(_choices);
 
         internal RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0,
-            int experience = 0, float? prizeBase = null)
+            int experience = 0, float? prizeBase = null, RewardCurrencyDrop[] currencies = null)
         {
             Id = id;
+            _currencies = currencies == null ? Array.Empty<RewardCurrencyDrop>() : (RewardCurrencyDrop[])currencies.Clone();
+            if (_currencies.Length > 16) throw new ModContentException("A reward permits at most 16 currency drops.");
+            var seenCurrencies = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var drop in _currencies)
+                if (drop == null || !seenCurrencies.Add(drop.Currency)) throw new ModContentException("Reward currency drops must be unique and non-null.");
             _items = items == null ? Array.Empty<RewardItemGrant>() : (RewardItemGrant[])items.Clone();
             if (gems < 0 || gems > 1000000) throw new ModContentException("Reward gems must be 0..1000000.");
             Gems = gems;
@@ -2429,7 +2529,7 @@ namespace Eclipse.Modding
             _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
             _enchantments.Count + _behaviors.Count + _zones.Count + _battles.Count + _fights.Count +
             _warriors.Count + _fightRules.Count + _rewards.Count + _localizationPatches.Count + _fightPatches.Count +
-            _collectionPatches.Count + P1CRegistrationCount + P1BRegistrationCount + P1DRegistrationCount + _modes.Count + _timers.Count + _disabledFeatures.Count + _counters.Count + _achievements.Count + _replacements.Count;
+            _collectionPatches.Count + WarriorTemplateRegistrationCount + P1CRegistrationCount + P1BRegistrationCount + P1DRegistrationCount + _modes.Count + _timers.Count + _disabledFeatures.Count + _counters.Count + _achievements.Count + _replacements.Count;
 
         internal ModRegistrationTransaction(ModContentCatalog catalog, ModDescriptor mod)
         {
@@ -2864,7 +2964,7 @@ namespace Eclipse.Modding
             int x = 0, int y = 0, string alias = null, string title = null, string icon = null,
             string preview = null, string description = null, string location = null, string music = null,
             string rewardImage = null, bool showResistance = false, string iconAtlas = null,
-            string eclipseToggleName = null, ModPowerMode powerMode = ModPowerMode.Always)
+            string eclipseToggleName = null, ModPowerMode powerMode = ModPowerMode.Always, ModBattleIcons icons = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("battles", localId);
@@ -2889,7 +2989,7 @@ namespace Eclipse.Modding
             var definition = new BattleDefinition(id, zone, id.ToString(), kind, x, y, alias, title,
                 string.IsNullOrEmpty(icon) ? "training" : icon, preview, description, location, music,
                 rewardImage, showResistance, Array.Empty<DefinitionId>(), iconAtlas, eclipseToggleName,
-                powerMode: powerMode);
+                powerMode: powerMode, icons: icons);
             _battles.Add(id, definition);
             _battleOrder.Add(id);
             if (!pendingZone)
@@ -2911,16 +3011,29 @@ namespace Eclipse.Modding
             DefinitionId template = default(DefinitionId), bool hasTemplate = false, string group = null,
             int random = 0, IReadOnlyDictionary<string, float> attributes = null,
             WarriorAttributeAlignmentDefinition[] attributeAlignments = null, int healthBars = 0,
-            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null)
+            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null,
+            string skeleton = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("warriors", localId);
             if (_warriors.ContainsKey(id)) throw new ModContentException("Duplicate warrior definition: '" + id + "'.");
+            var definition = BuildWarriorDefinition(id, firstName, lastName, avatar, voice, level, tactic, items, perks,
+                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels, perkLoadout, skeleton);
+            _warriors.Add(id, definition);
+            return definition;
+        }
+
+        private WarriorDefinition BuildWarriorDefinition(DefinitionId id, string firstName, string lastName, string avatar,
+            string voice, int level, string tactic, DefinitionId[] items, DefinitionId[] perks,
+            DefinitionId template, bool hasTemplate, string group, int random, IReadOnlyDictionary<string, float> attributes,
+            WarriorAttributeAlignmentDefinition[] attributeAlignments, int healthBars,
+            AssetId bodyModel, AssetId[] skinModels, WarriorPerkDefinition[] perkLoadout, string skeleton = null)
+        {
             if (hasTemplate)
             {
                 WarriorTemplateDefinition templateDefinition;
                 if (template.Category != "warrior-templates" || !CanReferenceNamespace(template.Namespace) ||
-                    !_catalog.TryGetWarriorTemplate(template, out templateDefinition))
+                    !TryGetAnyWarriorTemplate(template, out templateDefinition))
                     throw new ModContentException("Warrior references unavailable template '" + template + "'.");
             }
             if (random < 0) throw new ModContentException("Warrior random group selector must not be negative.");
@@ -2964,10 +3077,8 @@ namespace Eclipse.Modding
                     throw new ModContentException("Warrior aspect/chance_factor settings require a core perk; configure Lua behaviors on their own definitions.");
             }
             EnsureCapacityForNewRegistration();
-            var definition = new WarriorDefinition(id, firstName, lastName, avatar, voice, level, tactic, items, perks,
-                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels, perkLoadout);
-            _warriors.Add(id, definition);
-            return definition;
+            return new WarriorDefinition(id, firstName, lastName, avatar, voice, level, tactic, items, perks,
+                template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels, perkLoadout, skeleton);
         }
 
         public FightRuleDefinition RegisterNoPerksRule(string localId, ModRuleTarget target, ModRuleMode mode,
@@ -3027,7 +3138,7 @@ namespace Eclipse.Modding
         }
 
         public FightRuleDefinition RegisterPerkRule(string localId, DefinitionId perk, ModRuleTarget target,
-            ModRuleMode mode, int[] rounds, double? aspect = null)
+            ModRuleMode mode, int[] rounds, double? aspect = null, IReadOnlyDictionary<string, double> parameters = null)
         {
             ThrowIfCompleted();
             PerkDefinition perkDefinition;
@@ -3035,7 +3146,7 @@ namespace Eclipse.Modding
                 (!_perks.TryGetValue(perk, out perkDefinition) && !_catalog.TryGetPerk(perk, out perkDefinition)))
                 throw new ModContentException("Perk rule references an unavailable perk '" + perk + "'.");
             return RegisterExtendedRule(localId, ModFightRuleKind.Perk, target, mode, rounds, string.Empty,
-                default(DefinitionId), false, 0, perk, true, null, aspect);
+                default(DefinitionId), false, 0, perk, true, null, aspect, perkParameters: parameters);
         }
 
         public FightRuleDefinition RegisterRechargeMagicRule(string localId, ModRuleTarget target, ModRuleMode mode,
@@ -3055,7 +3166,8 @@ namespace Eclipse.Modding
         private FightRuleDefinition RegisterExtendedRule(string localId, ModFightRuleKind kind, ModRuleTarget target,
             ModRuleMode mode, int[] rounds, string name, DefinitionId item, bool hasItem, int minimumLevel,
             DefinitionId perk, bool hasPerk, IReadOnlyDictionary<string, float> attributes,
-            double? perkAspect = null, ModTrialRulePayload trial = null)
+            double? perkAspect = null, ModTrialRulePayload trial = null, ModRuleGroupPayload group = null,
+            IReadOnlyDictionary<string, double> perkParameters = null)
         {
             ThrowIfCompleted();
             ValidateRuleEnums(target, mode);
@@ -3063,7 +3175,7 @@ namespace Eclipse.Modding
             if (_fightRules.ContainsKey(id)) throw new ModContentException("Duplicate fight rule definition: '" + id + "'.");
             EnsureCapacityForNewRegistration();
             var definition = new FightRuleDefinition(id, kind, target, mode, rounds, name, item, hasItem,
-                minimumLevel, perk, hasPerk, attributes, perkAspect: perkAspect, trial: trial);
+                minimumLevel, perk, hasPerk, attributes, perkAspect: perkAspect, trial: trial, group: group, perkParameters: perkParameters);
             _fightRules.Add(id, definition);
             return definition;
         }
@@ -3090,12 +3202,12 @@ namespace Eclipse.Modding
         }
 
         public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0,
-            int experience = 0, float? prizeBase = null)
+            int experience = 0, float? prizeBase = null, RewardCurrencyDrop[] currencies = null)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("rewards", localId);
             if (_rewards.ContainsKey(id)) throw new ModContentException("Duplicate reward definition: '" + id + "'.");
-            var definition = new RewardDefinition(id, items, choices, gems, experience, prizeBase);
+            var definition = new RewardDefinition(id, items, choices, gems, experience, prizeBase, currencies);
             ValidateRewardReferences(definition);
             EnsureCapacityForNewRegistration();
             _rewards.Add(id, definition);
@@ -3289,10 +3401,13 @@ namespace Eclipse.Modding
             FightFieldPatch[] fightPatches = _fightPatches.ToArray();
             ModContentPatchRecord[] collectionPatches = _collectionPatches.ToArray();
 
+            WarriorTemplateDefinition[] warriorTemplates = PendingWarriorTemplates();
+            _catalog.ValidateCanAddModWarriorTemplates(warriorTemplates);
             _catalog.Commit(this, localizations, weapons, armors, helms, ranged, magic, nonEquipmentItems,
                 itemRedirects, listings,
                 perks, enchantments, behaviors, zones, battles, fights, warriors, fightRules, rewards,
                 localizationPatches, fightPatches, collectionPatches);
+            _catalog.AddModWarriorTemplates(warriorTemplates);
             ApplyP1CCommit();
             ApplyP1BCommit();
             ApplyP1DCommit();
@@ -3334,7 +3449,7 @@ namespace Eclipse.Modding
                     battle.X, battle.Y, battle.Alias, battle.Title, battle.Icon, battle.Preview,
                     battle.Description, battle.Location, battle.Music, battle.RewardImage,
                     battle.ShowResistance, children.ToArray(), battle.IconAtlas, battle.EclipseToggleName,
-                    battle.LegacyXml, battle.PowerMode));
+                    battle.LegacyXml, battle.PowerMode, battle.Icons));
             }
             result.Sort((left, right) => string.CompareOrdinal(left.Id.ToString(), right.Id.ToString()));
             return result.ToArray();
@@ -3571,6 +3686,7 @@ namespace Eclipse.Modding
 
         private void ClearPending()
         {
+            ClearPendingWarriorTemplates();
             _localizations.Clear();
             _weapons.Clear();
             _armors.Clear();

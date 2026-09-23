@@ -159,7 +159,7 @@ runtime does not interpret its `target` as an opponent-input restriction; use
 
 Apply a perk rule to the selected target.
 
-**Signature:** `sf2.rules.perk { id, perk, aspect?, target?, mode?, rounds? }`
+**Signature:** `sf2.rules.perk { id, perk, aspect?, parameters?, target?, mode?, rounds? }`
 
 **Requires:** `content.register`.
 
@@ -171,10 +171,19 @@ Apply a perk rule to the selected target.
 optional finite number from `0` through `2147483647`; omit it to keep the native
 perk rule's normal aspect/default behavior. Common field defaults are listed above.
 
+`parameters` optionally sets other native parameters the perk reads, with the
+same rules as warrior perk rows: up to 32 names mapped to finite numbers, and the
+dedicated names such as `Aspect`, `Chance` and `Frames` rejected. See
+[warrior perk settings](../content-graph/#sf2warriorsregister).
+
 ```lua
 local rule = sf2.rules.perk {
     id = "opponent_perk", perk = perk, aspect = 100000,
     target = sf2.rules.OPPONENT,
+}
+local bleeding = sf2.rules.perk {
+    id = "bleeding_hits", perk = perk, aspect = 100000,
+    target = sf2.rules.OPPONENT, parameters = { AttributeBleeding = 0.2 },
 }
 ```
 
@@ -341,6 +350,127 @@ Apply a map of native fight attribute values.
 ```lua
 local rule = sf2.rules.attributes {
     id = "attributes", values = { WeaponDamage = 100 }, target = sf2.rules.OPPONENT,
+}
+```
+
+## sf2.rules.no_health_bar
+
+Hide the health bar of the selected fighters.
+
+**Signature:** `sf2.rules.no_health_bar { id, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight.
+
+**Returns:** A rule handle.
+
+This is the native "no health bar" fight rule: damage still counts, the player
+just cannot see how much health is left. Shared field defaults are listed above.
+
+```lua
+local blind = sf2.rules.no_health_bar { id = "hidden_health", target = sf2.rules.ALL }
+```
+
+## sf2.rules.invert_joystick
+
+Reverse the player's left and right movement input.
+
+**Signature:** `sf2.rules.invert_joystick { id, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight.
+
+**Returns:** A rule handle.
+
+This is the native inverted-controls rule. It affects the controls of the player's
+fighter; set `target = sf2.rules.PLAYER` to make that explicit.
+
+```lua
+local mirror = sf2.rules.invert_joystick { id = "mirror_controls", target = sf2.rules.PLAYER }
+```
+
+## sf2.rules.random_area
+
+Show the native random area: a band of the arena that appears at a random place,
+stays for a while, fades away and returns somewhere else.
+
+**Signature:** `sf2.rules.random_area { id, image, icon?, width, fade_in, frames_on, fade_out, frames_off, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight.
+
+**Returns:** A rule handle.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `image` | String, required | Area texture name in the game's `Textures/fight/rules/randomarea/` folder, such as `"ra_bleed"`. A plain name of at most 128 characters; paths are rejected. |
+| `icon` | String | Optional indicator texture from the same folder. |
+| `width` | Number, required | Area width in arena units, greater than 0 and at most 100,000. |
+| `fade_in`, `fade_out` | Integers, required | Fade durations, 1–36,000 frames. |
+| `frames_on`, `frames_off` | Integers, required | Time fully shown and fully hidden, 0–36,000 frames. |
+
+Frames are native simulation frames (60 per second). The cycle repeats for the
+whole fight. The area is a location the native rule tracks; pair it with a rule or
+perk that reacts to it (the Underworld bosses combine it with perk rules in a
+[`sf2.rules.group`](#sf2rulesgroup)). It is not a custom damage zone by itself.
+
+```lua
+local area = sf2.rules.random_area {
+    id = "bleeding_ground", image = "ra_bleed", icon = "ra_bleed_icon", width = 500,
+    fade_in = 60, frames_on = 180, fade_out = 60, frames_off = 240,
+}
+```
+
+## sf2.rules.group
+
+Combine several rules into one native rule group with a single description.
+
+**Signature:** `sf2.rules.group { id, rules, description?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, after registering the rules it contains.
+
+**Returns:** A rule handle.
+
+`rules` is a dense array of 1–64 distinct rule handles, registered earlier by
+your mod or a declared dependency. The group applies all of them together.
+`description` is an optional localization handle shown for the group in the
+fight's rule list, instead of listing each child. `sf2.rules.behavior` rules
+cannot be placed in a group; attach them to the fight directly. A group can hold
+other groups and `sf2.rules.random` rules.
+
+```lua
+local label = sf2.localization.register { id = "rules.cursed_ground", language = "eng", value = "Cursed ground" }
+local cursed = sf2.rules.group { id = "cursed_ground", description = label, rules = { area, rule } }
+```
+
+## sf2.rules.random
+
+Pick one rule at random from a list, for each round or for the whole fight.
+
+**Signature:** `sf2.rules.random { id, rules, refresh?, no_doubles?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, after registering the rules it chooses from.
+
+**Returns:** A rule handle.
+
+`rules` takes the same dense array of 1–64 rule handles as `sf2.rules.group`,
+with the same restriction on behavior rules. `refresh` is `"each_fight"` (the
+default: one pick for the whole fight) or `"each_round"` (a new pick every
+round). `no_doubles` defaults to `false`; `true` asks the native rule not to pick
+the same child twice in a row. The game makes the random choice, so a script
+cannot predict it.
+
+```lua
+local jump = sf2.rules.no_animation { id = "no_jumping", name = "Jump" }
+local twist = sf2.rules.random {
+    id = "round_twist", refresh = "each_round", no_doubles = true, rules = { jump, blind },
 }
 ```
 

@@ -174,6 +174,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\ModuleHolder.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Common\ModelDebugUI.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DamageFactorRule.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeUnderworld.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionDownload.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\VisualObjectType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RosterFight.cs" />
@@ -321,6 +322,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\NameRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\StoryDialogInfo.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionCounter.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeRuleGroups.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PlayerType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionRandomSound.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowRaidFightTutorial.cs" />

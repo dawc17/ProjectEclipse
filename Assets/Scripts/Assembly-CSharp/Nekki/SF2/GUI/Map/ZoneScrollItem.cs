@@ -396,6 +396,10 @@ namespace Nekki.SF2.GUI.Map
 			string iconAtlas = UnderworldMapBattlePresentation.ResolveBattleIconAtlas(
 				CODCAENBFHK, DPOOIONCEOA.GetIconAtlas());
 			BattleButton battleButton = OHDFPIADEIG(DPOOIONCEOA.MIDPFGENBCF(), DPOOIONCEOA.CCALOKFBLMC(), DPOOIONCEOA.OAIJONICMKL(), DPOOIONCEOA.JCBOGEGKLKB(), DPOOIONCEOA.GMBFCAIINAD(), flag, iconAtlas);
+			if (Eclipse.Modding.ModPolicies.TryBattleIcons(DPOOIONCEOA.get_Name(), out var modIcons))
+			{
+				battleButton.ApplyModIcons(modIcons.Base, modIcons.Active, modIcons.Locked, modIcons.LockedActive, flag);
+			}
 			battleButton.onClick.AddListener(() =>
 			{
 				BDGBIIIKMEH(DPOOIONCEOA);

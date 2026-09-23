@@ -19,7 +19,7 @@ local function install(normal, portraits)
         sf2.story.before_fight(normal[sequence.act][sequence.index], function(request)
             if sf2.state.get(flag) then return true end
             local position = 1
-            local show_next
+            local show_next = nil
             local function acknowledge(card)
                 if not sf2.story.fight_pending(request) then return end
                 if card.launch then

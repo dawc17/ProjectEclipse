@@ -69,6 +69,15 @@ namespace Eclipse.Modding
         public static void Clear() { Open=null; }
     }
 
+    // Host service for owned Underworld pages. Both refuse (false) when no ready map
+    // or profile exists; SetFocus also refuses battles outside Underworld pages.
+    public static class ModUnderworldAccess
+    {
+        public static Func<bool, bool> SetToggleVisible;
+        public static Func<DefinitionId, bool> SetFocus;
+        public static void Clear() { SetToggleVisible = null; SetFocus = null; }
+    }
+
     public static class ModBattleAccess
     {
         public static Func<DefinitionId,bool,bool> SetLocked;

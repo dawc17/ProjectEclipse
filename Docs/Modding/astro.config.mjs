@@ -66,6 +66,7 @@ export default defineConfig({
           { slug: 'api/achievements' },
           { slug: 'api/events-and-modes' },
           { slug: 'api/offline-raids' },
+          { slug: 'api/underworld' },
           { slug: 'api/timers-and-services' },
         ] },
         { label: 'Working examples', slug: 'examples' },

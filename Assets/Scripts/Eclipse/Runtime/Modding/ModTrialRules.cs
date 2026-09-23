@@ -172,10 +172,10 @@ namespace Eclipse.Modding
     public sealed partial class ModApiFacade
     {
         public FightRuleDefinition RegisterPerkRule(string localId, DefinitionId perk, ModRuleTarget target,
-            ModRuleMode mode, int[] rounds, double? aspect)
+            ModRuleMode mode, int[] rounds, double? aspect, IReadOnlyDictionary<string, double> parameters = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterPerkRule(localId, perk, target, mode, rounds, aspect);
+            return RequireRegistration().RegisterPerkRule(localId, perk, target, mode, rounds, aspect, parameters);
         }
 
         public FightRuleDefinition RegisterHotGroundRule(string localId, int frames, ModTrialNodeLimit[] nodes,

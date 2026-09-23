@@ -352,11 +352,22 @@ namespace Eclipse.Modding
         public BattleDefinition RegisterBattle(string localId, DefinitionId zone, ModBattleKind kind,
             int x, int y, string alias, string title, string icon, string preview, string description,
             string location, string music, string rewardImage, bool showResistance, string iconAtlas,
-            string eclipseToggleName, ModPowerMode powerMode = ModPowerMode.Always)
+            string eclipseToggleName, ModPowerMode powerMode = ModPowerMode.Always, ModBattleIcons icons = null)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterBattle(localId, zone, kind, x, y, alias, title, icon,
-                preview, description, location, music, rewardImage, showResistance, iconAtlas, eclipseToggleName, powerMode);
+                preview, description, location, music, rewardImage, showResistance, iconAtlas, eclipseToggleName, powerMode, icons);
+        }
+
+        public WarriorTemplateDefinition RegisterWarriorTemplate(string localId, string firstName, string lastName,
+            string avatar, string voice, int level, string tactic, DefinitionId[] items, DefinitionId template,
+            bool hasTemplate, IReadOnlyDictionary<string, float> attributes,
+            WarriorAttributeAlignmentDefinition[] attributeAlignments, int healthBars, WarriorPerkDefinition[] perkLoadout,
+            string skeleton = null)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterWarriorTemplate(localId, firstName, lastName, avatar, voice, level, tactic,
+                items, template, hasTemplate, attributes, attributeAlignments, healthBars, perkLoadout, skeleton);
         }
 
         public WarriorDefinition RegisterWarrior(string localId, string firstName, string lastName, string avatar,
@@ -364,11 +375,12 @@ namespace Eclipse.Modding
             DefinitionId template, bool hasTemplate, string group, int random,
             System.Collections.Generic.IReadOnlyDictionary<string, float> attributes,
             WarriorAttributeAlignmentDefinition[] attributeAlignments, int healthBars = 0,
-            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null)
+            AssetId bodyModel = default, AssetId[] skinModels = null, WarriorPerkDefinition[] perkLoadout = null,
+            string skeleton = null)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterWarrior(localId, firstName, lastName, avatar, voice, level,
-                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels, perkLoadout);
+                tactic, items, perks, template, hasTemplate, group, random, attributes, attributeAlignments, healthBars, bodyModel, skinModels, perkLoadout, skeleton);
         }
 
         public WarriorTemplateDefinition GetWarriorTemplate(string reference)
@@ -434,10 +446,11 @@ namespace Eclipse.Modding
         }
 
         public RewardDefinition RegisterReward(string localId, RewardItemGrant[] items,
-            RewardChoiceDefinition[] choices, int gems = 0, int experience = 0, float? prizeBase = null)
+            RewardChoiceDefinition[] choices, int gems = 0, int experience = 0, float? prizeBase = null,
+            RewardCurrencyDrop[] currencies = null)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterReward(localId, items, choices, gems, experience, prizeBase);
+            return RequireRegistration().RegisterReward(localId, items, choices, gems, experience, prizeBase, currencies);
         }
 
         public FightDefinition RegisterFight(string localId, DefinitionId battle, int replays, int replayInterval,

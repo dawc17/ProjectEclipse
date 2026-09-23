@@ -12,8 +12,8 @@ internal static class DE128FoundationTests
         { "paid_offers", "battle_pass", "ads", "rewarded_video", "online_services", "payments" };
     private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
     private static readonly string[] Capabilities =
-        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create" };
-    private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create" };
+        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create", "presentation.navigate" };
+    private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create", "presentation.navigate" };
     private static readonly DefinitionId Sword = DefinitionId.Parse("de128:items/weapon/titans_desolator");
     private static readonly DefinitionId CoreSword = CoreContentImporter.WeaponId("WEAPON_TITAN_GIANT_SWORD");
     private static XmlDocument _items;
@@ -22,11 +22,21 @@ internal static class DE128FoundationTests
     private static Dictionary<string, XmlDocument> _languages;
     private static int _checks;
     private static readonly Dictionary<string, AssetKind> RestoredAssets = new Dictionary<string, AssetKind>();
-    // Core portraits the Sensei story names; Tools/VerifyDE128SenseiArt.cs loads each natively.
+    // Core portraits the Sensei and Underworld stories name; Tools/VerifyDE128SenseiArt.cs
+    // loads each natively.
     private static readonly HashSet<string> CorePortraits = new HashSet<string>(new[] {
         "boss_lynx_young", "character_ancient", "character_asian", "character_blind", "character_fanatic",
         "character_indean", "character_philosopher", "character_prince", "character_prince_evil", "character_ronin",
-        "character_sadist", "character_savage", "character_sensei_young", "character_sister" }.Select(name => "ui/users/" + name));
+        "character_sadist", "character_savage", "character_sensei_young", "character_sister",
+        "boss_ermin", "boss_architect", "boss_architect_hummer", "boss_arkhos", "boss_arkhos_halloween",
+        "boss_berstuuk", "boss_bison", "boss_blackness", "boss_crystal", "boss_crystal_halloween", "boss_fatum",
+        "boss_fire", "boss_gatekeeper", "boss_hoaxen", "boss_hunger", "boss_lamb", "boss_lamb_fungus",
+        "boss_lamb_hunger", "boss_lamb_vulcan", "boss_mushroom", "boss_puppeteer_hw21", "boss_rakshasa",
+        "boss_ravana", "boss_saturn", "boss_shurale_ny22", "boss_son_of_the_sun", "boss_tenebris", "boss_vortex",
+        "boss_war", "boss_whisper_24", "boss_wind_wolf_new", "character_faradaya", "character_lazarus",
+        "character_may_3", "character_nrityu", "character_pristess", "character_puma", "character_puppeteer",
+        "character_samson", "character_simon_raid", "character_sitaram_01", "character_sitaram_02",
+        "character_sitaram_03", "character_thief_2", "character_thief_3", "hunter_raid" }.Select(name => "ui/users/" + name));
 
     // Resolves only the declared core references. Native art decoding is a
     // separate check; arbitrary or misspelled asset IDs must not pass this fixture.
@@ -131,17 +141,21 @@ internal static class DE128FoundationTests
         using (LoadLive(mod, catalog, missingAsset)) { }
     }
 
-    private static IModScriptContext LoadLive(ModDescriptor mod, ModContentCatalog catalog, string missingAsset = null)
+    private static IModScriptContext LoadLive(ModDescriptor mod, ModContentCatalog catalog, string missingAsset = null) =>
+        LoadLive(mod, catalog, new ModStoryEvents((owner, message) => throw new InvalidOperationException(message)),
+            new ModStateRuntime(), missingAsset);
+
+    private static IModScriptContext LoadLive(ModDescriptor mod, ModContentCatalog catalog, ModStoryEvents bus,
+        ModStateRuntime state, string missingAsset = null)
     {
         ImportCore(catalog);
         // Actual canonical projections and controlled art metadata; no profile is bound.
         var assets = new AssetResolver(new IAssetProvider[] { new CoreMetadata(missingAsset), new LooseModProvider(mod) });
         using (var transaction = catalog.BeginRegistration(mod))
         {
-            var api = new ModApiFacade(mod, assets, transaction, new ModStateRuntime(), null);
+            var api = new ModApiFacade(mod, assets, transaction, state, null);
             // The active package installs story hooks; supply the production event bus.
-            var context = new MoonSharpScriptRuntime(null, null, null,
-                new ModStoryEvents((owner, message) => throw new InvalidOperationException(message))).CreateContext(mod, api);
+            var context = new MoonSharpScriptRuntime(null, null, null, bus).CreateContext(mod, api);
             try
             {
                 context.ExecuteEntrypoint();
@@ -226,7 +240,8 @@ internal static class DE128FoundationTests
         Check(catalog.TryGetLocalization(weapon.DisplayName, out var title) &&
             title.Id.Namespace.Value == "de128" && title.GetOrEnglish("eng") == "Titan's Desolator",
             "Desolator's mod-owned English title is missing.");
-        Check(catalog.Rewards.Count(value => !value.Id.LocalId.StartsWith("sensei_act_")) == 1 && catalog.Rewards.Count == 58 && catalog.TryGetReward(
+        Check(catalog.Rewards.Count(value => !value.Id.LocalId.StartsWith("sensei_act_") && !value.Id.LocalId.StartsWith("uw_")) == 1 &&
+            catalog.Rewards.Count(value => value.Id.LocalId.StartsWith("sensei_act_")) == 57 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
             reward.Items.Count == 1 && reward.Items[0].Item == Sword && reward.Items[0].UsesConfiguration &&
             reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 23 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
@@ -238,13 +253,29 @@ internal static class DE128FoundationTests
         Check(drop.ResultIndex == 1 && drop.Mode == ModRuleMode.Eclipse && !drop.MinimumLevel.HasValue &&
             !drop.MaximumLevel.HasValue && drop.Reward.Id.ToString() == "de128:rewards/titans_desolator",
             "Desolator reward changed its winning slot, mode or level gate.");
-        // The only mod-owned opponents, fights and rules are the active Sensei story's.
+        // The only mod-owned opponents, fights and rules are the Sensei story's and the Underworld's.
+        bool Owned(string id) => id.StartsWith("sensei_") || id.StartsWith("uw_");
         Check(catalog.Modes.Count == 0 && catalog.Quests.Count == 0 &&
-            catalog.Warriors.Count == 34 && catalog.Warriors.All(value => value.Id.LocalId.StartsWith("sensei_")) &&
-            catalog.Fights.Count(fight => !fight.IsCore) == 23 &&
-            catalog.Fights.Where(fight => !fight.IsCore).All(fight => fight.Id.LocalId.StartsWith("sensei_act_")) &&
-            catalog.FightRules.All(rule => rule.Id.LocalId.StartsWith("sensei_")),
+            catalog.Warriors.Count(value => value.Id.LocalId.StartsWith("sensei_")) == 34 && catalog.Warriors.All(value => Owned(value.Id.LocalId)) &&
+            catalog.Fights.Count(fight => !fight.IsCore && fight.Id.LocalId.StartsWith("sensei_act_")) == 23 &&
+            catalog.Fights.Where(fight => !fight.IsCore).All(fight => Owned(fight.Id.LocalId)) &&
+            catalog.FightRules.All(rule => Owned(rule.Id.LocalId)),
             "Disabled Ascension registered live modes, opponents, fights, rules or quests.");
+        // Active Underworld: eight Underworld pages generated from the archived raid stages.
+        var underworldZones = catalog.Zones.Where(zone => !zone.IsCore && zone.Underworld).ToArray();
+        var underworldBattles = catalog.Battles.Where(battle => underworldZones.Any(zone => zone.Id == battle.Zone)).ToArray();
+        Check(underworldZones.Length == 8 && underworldBattles.Length == 76 &&
+            underworldBattles.Count(battle => battle.PowerMode == ModPowerMode.Normal) == 36 &&
+            underworldBattles.Count(battle => battle.PowerMode == ModPowerMode.Power) == 36 &&
+            underworldBattles.Count(battle => battle.PowerMode == ModPowerMode.Always) == 4 &&
+            underworldBattles.Count(battle => battle.Icons != null) == 25,
+            "Underworld pages, Power Mode twins or shipped map buttons differ from the archive.");
+        var underworldRewards = catalog.Rewards.Where(reward => reward.Id.LocalId.StartsWith("uw_")).ToArray();
+        Check(catalog.Fights.Count(fight => fight.Id.LocalId.StartsWith("uw_")) == 76 && underworldRewards.Length == 180 &&
+            underworldRewards.Sum(reward => reward.Currencies.Count) == 108 &&
+            catalog.WarriorTemplates.Count(template => template.Body != null && template.Id.Namespace.Value == "de128") == 66 &&
+            catalog.Warriors.Count(value => value.Id.LocalId.StartsWith("uw_")) == 104,
+            "Underworld fights, rewards, forge drops, templates or opponents differ from the archive.");
         // Active Sensei story: synthesized guards (Default + voice) and the restored Sphere1.
         var guards = catalog.Warriors.Where(value => value.Id.LocalId.Contains("_guard_")).ToArray();
         Check(guards.Length == 22 && guards.All(value => value.HasTemplate &&
@@ -254,7 +285,7 @@ internal static class DE128FoundationTests
             guards.Where(value => value.Id.LocalId.StartsWith("sensei_act_6_")).All(value =>
                 value.Voice == "Male" && value.Items.Any(item => item.ToString() == "de128:items/magic/minor_charge_of_darkness")),
             "Sensei guard voices or the prince's restored Sphere1 differ.");
-        Check(catalog.Battles.Count(value => !value.IsCore) == 12 &&
+        Check(catalog.Battles.Count(value => !value.IsCore && value.Id.LocalId.StartsWith("sensei_act_")) == 12 &&
             catalog.Battles.Where(value => !value.IsCore && value.Preview.StartsWith("de128:")).Count() == 10,
             "Sensei battles or shipped previews missing from the active package.");
         Check(!catalog.Localizations.Any(value => value.Id.Namespace.Value == "de128" &&
@@ -430,6 +461,8 @@ internal static class DE128FoundationTests
         using (LoadLive(actualMod, catalog))
         {
             CheckDE(catalog);
+            int underworld = DE128UnderworldTests.Run(catalog, _repository, (ok, message) => Check(ok, message));
+            Console.WriteLine("Underworld archive comparisons: " + underworld);
             var reward = catalog.Rewards.Single(value => value.Id.LocalId == "titans_desolator");
             Check(reward.TryGetGrant(0, out actualGrant) && !reward.TryGetGrant(-1, out _) &&
                 !reward.TryGetGrant(1, out _), "Reward flat index validation failed.");
@@ -785,8 +818,11 @@ end}
             Check(!((IModInteractiveBehaviorScriptContext)live).TryInvokeBehavior(DefinitionId.Parse(invalidReader.Id+":behaviors/sensei_raid_charge"),ModEffectEvent.RoundBegin,parameters,context,fighter,out var error)&&error.Contains("must be boolean")&&fighter.Calls.Count==3,"Invalid availability reader mutated controls.");
     }
 
+    private static string _repository;
+
     private static void Run(string source, string fixture, string repository)
     {
+        _repository = repository;
         _items = ReadXml(Path.Combine(repository, "Assets/vanillaXml/list.xml"));
         var archivedItems = ReadXml(Path.Combine(repository, "Assets/DExml/list.xml"));
         foreach (XmlElement item in archivedItems.SelectNodes("/List/Items/Item[@Type='Weapon' or @Type='Armor' or @Type='Helm' or @Type='Ranged' or @Type='Magic']"))
@@ -886,7 +922,7 @@ end}
             {
                 var allowed = new ModContentCatalog();
                 Load(restricted, allowed);
-                Check(allowed.Fights.Count(fight => !fight.IsCore) == 23, "Call-time capability changed registration: " + missing);
+                Check(allowed.Fights.Count(fight => !fight.IsCore && fight.Id.LocalId.StartsWith("sensei_act_")) == 23, "Call-time capability changed registration: " + missing);
                 continue;
             }
             var rejected = new ModContentCatalog();
@@ -918,6 +954,8 @@ end}
         CheckBase(missingAnimationCatalog);
         CheckLocalizationReferences(fixture);
         CheckRewardConfiguration(mod, fixture);
+        Console.WriteLine("Underworld story checks: " + DE128UnderworldStoryTests.Run(mod, repository,
+            (descriptor, content, bus, state) => LoadLive(descriptor, content, bus, state), Check));
         CheckTrialFingerprints(fixture);
         CheckInitialStats(fixture);
         DECombatPerksTests.Run(mod, repository, (descriptor, content) => LoadLive(descriptor, content), Check);

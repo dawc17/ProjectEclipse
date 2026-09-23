@@ -39,8 +39,8 @@ are ready; native tutorials can defer completion. UI definitions now accept
 `on_back(view)` to acknowledge or retain a foreground menu/modal on user Back.
 Scene/profile cleanup continues to invoke only `on_close`.
 
-Editor support for all 36 public Eclipse API modules: 164 functions, aliases, and
-callbacks; 76 constants; and 229 typed structures. Version 0.1.0 retains the ID
+Editor support for all 37 public Eclipse API modules: 182 functions, aliases, and
+callbacks; 76 constants; and 242 typed structures. Version 0.1.0 retains the ID
 `eclipse-modding.eclipse-modding-preview` so it upgrades the original prototype.
 
 Move authoring now completes `damage_terms = { { type, shift } }`, the native
@@ -450,5 +450,13 @@ boolean defaults to false and is fixed for the view's lifetime. It changes
 neither layout size nor the sprite asset; `sf2.ui.set_sprite` preserves it.
 
 Timed map story screens use `sf2.ui.act_screen { lines = {{text = localized, frames = 180}}, on_complete = function() end }` (`ui.create`). IntelliSense provides typed localization handles, required line durations, and the optional completion callback. Refused/cancelled screens never acknowledge completion; see the Custom UI reference for bounds and lifecycle rules.
+
+Underworld content completes `underworld = true` on zones, `power_mode` and
+`icons = { base, active, locked?, locked_active? }` on battles,
+`sf2.warriors.register_template` with `skeleton`, perk-row `parameters`, reward
+`currencies = { { currency, expected, show? } }`, the `no_health_bar`,
+`invert_joystick`, `random_area`, `group` and `random` rules, and
+`sf2.underworld.set_toggle_visible` / `set_focus` (`story.progression`). See the
+wiki's Underworld pages guide.
 
 Owned fight intros use `sf2.story.before_fight(fight, function(request) ... end)` with `story.progression`. Typed request completion supports `resume_fight`, `cancel_fight` and `fight_pending`; return `true` for immediate entry or `nil` for deferred UI. See Story events for native entry, lifetime, and instruction limits.

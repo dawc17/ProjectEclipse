@@ -21,6 +21,7 @@ namespace Eclipse.Modding
         private readonly List<IDisposable> _combatSubtypeLifetimes = new List<IDisposable>();
         private readonly List<ProgressionBranchBinding> _progressionBindings = new List<ProgressionBranchBinding>();
         private readonly List<string> _externalZoneNames = new List<string>();
+        private readonly List<string> _externalTemplateNames = new List<string>();
         private readonly List<ExternalBattleBinding> _externalBattles = new List<ExternalBattleBinding>();
         private readonly List<QuestStage> _externalQuests = new List<QuestStage>();
         private readonly List<BattleSourceBinding> _battleSourceBindings = new List<BattleSourceBinding>();
@@ -290,10 +291,17 @@ namespace Eclipse.Modding
         {
             ThrowIfDisposed();
             if (list == null) throw new ArgumentNullException(nameof(list));
-            if (_externalZoneNames.Count != 0 || _externalBattles.Count != 0 || _battleSourceBindings.Count != 0)
+            if (_externalZoneNames.Count != 0 || _externalBattles.Count != 0 || _battleSourceBindings.Count != 0 ||
+                _externalTemplateNames.Count != 0)
                 throw new InvalidOperationException("Mod stage content is already applied.");
             try
             {
+                // Templates first: every mod or patched core fight resolves them while parsing.
+                foreach (WarriorTemplateDefinition template in OrderedModTemplates())
+                {
+                    list.AddExternalTemplate(BuildTemplateNode(template));
+                    _externalTemplateNames.Add(template.LegacyName);
+                }
                 ApplyCoreFightPatches(list);
                 foreach (ZoneDefinition zone in _content.Zones)
                 {
@@ -447,9 +455,12 @@ namespace Eclipse.Modding
                     list.RemoveExternalBattle(_externalBattles[i].ZoneName, _externalBattles[i].BattleName);
                 for (int i = _externalZoneNames.Count - 1; i >= 0; i--)
                     list.RemoveExternalZone(_externalZoneNames[i]);
+                for (int i = _externalTemplateNames.Count - 1; i >= 0; i--)
+                    list.RemoveExternalTemplate(_externalTemplateNames[i]);
             }
             _externalBattles.Clear();
             _externalZoneNames.Clear();
+            _externalTemplateNames.Clear();
             for (int i = _battleSourceBindings.Count - 1; i >= 0; i--)
             {
                 BattleSourceBinding binding = _battleSourceBindings[i];
@@ -807,6 +818,43 @@ namespace Eclipse.Modding
             return ListSF.GetInstance().CreateFormParameters(node, player);
         }
 
+        // Parents before children: an owned template may inherit from another owned one.
+        private List<WarriorTemplateDefinition> OrderedModTemplates()
+        {
+            var pending = new List<WarriorTemplateDefinition>();
+            foreach (WarriorTemplateDefinition template in _content.WarriorTemplates)
+                if (template.Body != null) pending.Add(template);
+            pending.Sort((left, right) => string.CompareOrdinal(left.Id.ToString(), right.Id.ToString()));
+            var ordered = new List<WarriorTemplateDefinition>();
+            var placed = new HashSet<DefinitionId>();
+            while (pending.Count > 0)
+            {
+                int before = pending.Count;
+                for (int i = 0; i < pending.Count; i++)
+                {
+                    WarriorDefinition body = pending[i].Body;
+                    bool ready = !body.HasTemplate || body.Template.Namespace.Value == "core" || placed.Contains(body.Template);
+                    if (!ready) continue;
+                    ordered.Add(pending[i]); placed.Add(pending[i].Id); pending.RemoveAt(i); i--;
+                }
+                if (pending.Count == before) throw new ModContentException("Warrior templates contain an inheritance cycle.");
+            }
+            return ordered;
+        }
+
+        internal XmlElement BuildTemplateNode(WarriorTemplateDefinition template)
+        {
+            var document = new XmlDocument { XmlResolver = null };
+            XmlElement warrior = BuildWarriorNode(document, template.Body);
+            XmlElement node = document.CreateElement("Template");
+            node.SetAttribute("Name", template.LegacyName);
+            foreach (XmlAttribute attribute in warrior.Attributes)
+                if (attribute.Name != "EclipseCharacterId") node.SetAttribute(attribute.Name, attribute.Value);
+            while (warrior.FirstChild != null) node.AppendChild(warrior.FirstChild);
+            document.AppendChild(node);
+            return node;
+        }
+
         private XmlElement BuildWarriorNode(XmlDocument document, WarriorDefinition warrior)
         {
             XmlElement node = document.CreateElement("Warrior");
@@ -835,7 +883,7 @@ namespace Eclipse.Modding
             foreach (KeyValuePair<string, float> pair in warrior.Attributes)
                 node.SetAttribute(pair.Key, pair.Value.ToString(CultureInfo.InvariantCulture));
             if (warrior.HealthBars > 0) node.SetAttribute("ShieldTotal", warrior.HealthBars.ToString(CultureInfo.InvariantCulture));
-            if (warrior.Items.Count != 0)
+            if (warrior.Items.Count != 0 || warrior.Skeleton.Length != 0)
             {
                 XmlElement items = document.CreateElement("Items");
                 node.AppendChild(items);
@@ -844,6 +892,12 @@ namespace Eclipse.Modding
                     XmlElement item = document.CreateElement("Item");
                     item.SetAttribute("Name", LegacyItemName(warrior.Items[i]));
                     items.AppendChild(item);
+                }
+                if (warrior.Skeleton.Length != 0)
+                {
+                    XmlElement skeleton = document.CreateElement("Item");
+                    skeleton.SetAttribute("Name", warrior.Skeleton);
+                    items.AppendChild(skeleton);
                 }
             }
             if (warrior.Perks.Count != 0)
@@ -863,6 +917,8 @@ namespace Eclipse.Modding
                         if (settings.ChanceFactor.HasValue) set.SetAttribute("ChanceFactor", settings.ChanceFactor.Value.ToString("R", CultureInfo.InvariantCulture));
                         if (settings.Chance.HasValue) set.SetAttribute("Chance", settings.Chance.Value.ToString("R", CultureInfo.InvariantCulture));
                         if (settings.Frames.HasValue) set.SetAttribute("Frames", settings.Frames.Value.ToString(CultureInfo.InvariantCulture));
+                        foreach (var parameter in settings.Parameters)
+                            set.SetAttribute(parameter.Key, parameter.Value.ToString("R", CultureInfo.InvariantCulture));
                         perk.AppendChild(set);
                     }
                     perks.AppendChild(perk);
@@ -917,10 +973,12 @@ namespace Eclipse.Modding
                 node = document.CreateElement("Perk");
                 node.SetAttribute("Name", LegacyPerkName(rule.Perk));
                 node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
-                if (rule.PerkAspect.HasValue)
+                if (rule.PerkAspect.HasValue || rule.PerkParameters.Count > 0)
                 {
                     XmlElement set = document.CreateElement("Set");
-                    set.SetAttribute("Aspect", rule.PerkAspect.Value.ToString("R", CultureInfo.InvariantCulture));
+                    if (rule.PerkAspect.HasValue) set.SetAttribute("Aspect", rule.PerkAspect.Value.ToString("R", CultureInfo.InvariantCulture));
+                    foreach (var parameter in rule.PerkParameters)
+                        set.SetAttribute(parameter.Key, parameter.Value.ToString("R", CultureInfo.InvariantCulture));
                     node.AppendChild(set);
                 }
             }
@@ -984,6 +1042,46 @@ namespace Eclipse.Modding
                 node.SetAttribute("Type", rule.Trial.IntervalType.ToString());
                 node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
             }
+            else if (rule.Kind == ModFightRuleKind.NoHealthBar || rule.Kind == ModFightRuleKind.InvertJoystick)
+            {
+                node = document.CreateElement(rule.Kind == ModFightRuleKind.NoHealthBar ? "NoHealthBar" : "InvertJoystick");
+                if (rule.Target != ModRuleTarget.All) node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
+            }
+            else if (rule.Kind == ModFightRuleKind.RandomArea)
+            {
+                ModRuleGroupPayload area = rule.Group;
+                node = document.CreateElement("RandomArea");
+                node.SetAttribute("Image", area.Image);
+                if (area.Icon.Length != 0) node.SetAttribute("Icon", area.Icon);
+                node.SetAttribute("Width", area.Width.ToString("R", CultureInfo.InvariantCulture));
+                node.SetAttribute("FadeIn", area.FadeIn.ToString(CultureInfo.InvariantCulture));
+                node.SetAttribute("FramesOn", area.FramesOn.ToString(CultureInfo.InvariantCulture));
+                node.SetAttribute("FadeOut", area.FadeOut.ToString(CultureInfo.InvariantCulture));
+                node.SetAttribute("FramesOff", area.FramesOff.ToString(CultureInfo.InvariantCulture));
+                if (rule.Target != ModRuleTarget.All) node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
+            }
+            else if (rule.Kind == ModFightRuleKind.Group || rule.Kind == ModFightRuleKind.Random)
+            {
+                ModRuleGroupPayload group = rule.Group;
+                node = document.CreateElement(rule.Kind == ModFightRuleKind.Group ? "ComplexRule" : "RandomRule");
+                if (rule.Kind == ModFightRuleKind.Random)
+                {
+                    node.SetAttribute("Refresh", group.Refresh == ModRuleRefresh.EachRound ? "EachRound" : "EachFight");
+                    if (group.NoDoubles) node.SetAttribute("NoDoubles", "1");
+                }
+                if (group.Description.Length != 0)
+                {
+                    XmlElement description = document.CreateElement("Description");
+                    description.SetAttribute("Alias", group.Description);
+                    node.AppendChild(description);
+                }
+                foreach (DefinitionId childId in group.Children)
+                {
+                    if (!_content.TryGetFightRule(childId, out FightRuleDefinition child))
+                        throw new ModContentException("Rule group references missing rule '" + childId + "'.");
+                    node.AppendChild(BuildRuleNode(document, child));
+                }
+            }
             else throw new ModContentException("Unsupported typed fight rule '" + rule.Kind + "'.");
             if (rule.Mode == ModRuleMode.Normal) node.SetAttribute("Eclipse", "0");
             else if (rule.Mode == ModRuleMode.Eclipse) node.SetAttribute("Eclipse", "1");
@@ -1002,6 +1100,15 @@ namespace Eclipse.Modding
             if (reward.Gems > 0) node.SetAttribute("Bonus", reward.Gems.ToString(CultureInfo.InvariantCulture));
             if (reward.Experience > 0) node.SetAttribute("Exp", reward.Experience.ToString(CultureInfo.InvariantCulture));
             if (reward.PrizeBase.HasValue) node.SetAttribute("PrizeBase", reward.PrizeBase.Value.ToString("R", CultureInfo.InvariantCulture));
+            foreach (RewardCurrencyDrop drop in reward.Currencies)
+            {
+                XmlElement currency = document.CreateElement("Currency");
+                currency.SetAttribute("Drop", "1");
+                currency.SetAttribute("ShowReward", drop.ShowReward ? "1" : "0");
+                currency.SetAttribute("Name", drop.Currency);
+                currency.SetAttribute("ExpectedValue", drop.ExpectedValue.ToString("R", CultureInfo.InvariantCulture));
+                node.AppendChild(currency);
+            }
             int grantIndex = 0;
             for (int i = 0; i < reward.Items.Count; i++)
                 node.AppendChild(BuildRewardItemNode(document, reward, reward.Items[i], null, grantIndex++));

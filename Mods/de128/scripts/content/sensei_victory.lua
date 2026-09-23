@@ -23,7 +23,7 @@ local function install(final_ids, portraits)
         end
     end
     shared.dialogue_pending = function() return pending_act() ~= nil end
-    local show_next
+    local show_next = nil
     local function complete(act)
         sf2.state.set { ["sensei_complete_" .. act] = true, ["sensei_dialogue_pending_" .. act] = false }
         show_next()

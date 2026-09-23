@@ -208,6 +208,7 @@ namespace Eclipse.Modding
             ModActScreenPresenter.CancelActive();
             ModStoryDialogPresenter.CancelActive();
             ModActScreenAccess.Clear();
+            ModUnderworldAccess.Clear();
             ModStoryDialogAccess.Clear();
             ModBattleAccess.Clear();
             DojoSelection.Clear();
@@ -231,6 +232,8 @@ namespace Eclipse.Modding
             ModBattleAccess.SetLocked = TrySetBattleLocked;
             ModBattleAccess.Reveal = TryRevealBattle;
             ModBattleAccess.Focus = TryFocusBattle;
+            ModUnderworldAccess.SetToggleVisible = TrySetUnderworldToggle;
+            ModUnderworldAccess.SetFocus = TrySetUnderworldFocus;
             ModProfileAccess.Item = ReadProfileItem;
             ModProfileAccess.Perk = ReadProfilePerk;
             ModProfileAccess.Equipment = ReadProfileEquipment;
@@ -548,6 +551,25 @@ namespace Eclipse.Modding
             native.IsMapVisible = true;
             map.ReloadZones();
             ListSF.GetInstance().OnAuthenticate(true);
+            return true;
+        }
+
+        internal static bool TrySetUnderworldToggle(bool visible)
+        {
+            var map = ReadyProgressionMap();
+            if (map == null) return false;
+            map.SetRaidToggleVisible(visible);
+            return true;
+        }
+
+        // Stores the Underworld map focus (opened on the next switch to that map)
+        // without revealing, saving or selecting anything else.
+        internal static bool TrySetUnderworldFocus(DefinitionId id)
+        {
+            if (_profileRoster == null || _scripts == null || _profileMutationState != 0) return false;
+            if (!_scripts.Content.TryGetBattle(id, out var battle) || !_scripts.Content.TryGetZone(battle.Zone, out var zone) || !zone.Underworld)
+                return false;
+            _profileRoster.SetRaidMapFocus(new FightIDS(zone.LegacyName, battle.LegacyName, string.Empty).ToString());
             return true;
         }
 
@@ -1548,6 +1570,7 @@ namespace Eclipse.Modding
             ModActScreenPresenter.CancelActive();
             ModStoryDialogPresenter.CancelActive();
             ModActScreenAccess.Clear();
+            ModUnderworldAccess.Clear();
             ModStoryDialogAccess.Clear();
             ModBattleAccess.Clear();
             DojoSelection.Clear();

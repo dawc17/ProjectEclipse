@@ -119,7 +119,8 @@ namespace Eclipse.Modding
                 if (!cancel.IsNil() && cancel.Type != DataType.Function) throw new ModContentException("on_cancel must be a Lua function.");
                 string title = definition.Get("title").IsNil() ? string.Empty
                     : _api.NativeLocalizationKey(RequiredHandle(definition, "title", _localizationHandles, "localization", function));
-                var portrait = RequiredHandle(definition, "portrait", _spriteHandles, "sprite", function);
+                string portrait = definition.Get("portrait").IsNil() ? string.Empty
+                    : RequiredHandle(definition, "portrait", _spriteHandles, "sprite", function).ToString();
                 bool mirrored = OptionalBool(definition, "mirrored", false, function);
                 bool ignoreBack = OptionalBool(definition, "ignore_back", false, function);
                 string button = _api.NativeLocalizationKey(RequiredHandle(definition, "button", _localizationHandles, "localization", function));
@@ -147,7 +148,7 @@ namespace Eclipse.Modding
                 }
                 if (_storyDialog != null) return DynValue.False;
                 if (ModStoryDialogAccess.Open == null) throw new ModContentException("Story dialogs are unavailable in this host.");
-                var request = new ModStoryDialogRequest(title, portrait.ToString(), mirrored, lines.AsReadOnly(), button, ignoreBack);
+                var request = new ModStoryDialogRequest(title, portrait, mirrored, lines.AsReadOnly(), button, ignoreBack);
                 bool ended = false;
                 var lease = ModStoryDialogAccess.Open(request, acknowledged => {
                     if (ended) return;

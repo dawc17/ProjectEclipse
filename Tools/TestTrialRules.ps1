@@ -114,7 +114,7 @@ $sources = @(
  'Assets/Scripts/Eclipse/Runtime/Modding/ModMovePerkLocks.cs',
  'Assets/Scripts/Eclipse/Runtime/Modding/ModTrialRules.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeUi.cs',
  'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP3.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeFightEntry.cs',
- 'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeTrialRules.cs',
+ 'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeTrialRules.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeRuleGroups.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeUnderworld.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModRuleGroups.cs',
  'Assets/Scripts/Assembly-CSharp/Rule.cs','Assets/Scripts/Assembly-CSharp/InFightRule.cs','Assets/Scripts/Assembly-CSharp/AnimationListRule.cs',
  'Assets/Scripts/Assembly-CSharp/HotGroundRule.cs','Assets/Scripts/Assembly-CSharp/RingOutRule.cs','Assets/Scripts/Assembly-CSharp/RegenerationRule.cs',
  'Assets/Scripts/Assembly-CSharp/NoAnimationRule.cs','Assets/Scripts/Assembly-CSharp/RemoveIntervalRule.cs'

@@ -16,10 +16,10 @@ local function install(battles, finals, portrait)
     for key, value in pairs(text) do captions[key] = value end
     local dialog = require("content.sensei_dialog")
     local scene, view
-    local show_next
+    local show_next = nil
     show_next = function()
         if scene ~= "map" or view or shared.dialogue_pending() or shared.defeat_pending() then return end
-        local act
+        local act = nil
         for index = 1, 6 do
             if sf2.state.get("sensei_pending_" .. index) and not sf2.state.get("sensei_opened_" .. index) then
                 act = index

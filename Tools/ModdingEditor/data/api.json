@@ -513,6 +513,17 @@
       "requires": "`content.register`.",
       "when": "Entrypoint, before registering the fight."
     },
+    "sf2.warriors.register_template": {
+      "params": {
+        "definition": "Eclipse.WarriorTemplateDefinition"
+      },
+      "returns": "A warrior-template handle, accepted wherever `sf2.warriors.get_template` handles are.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2warriorsregister_template",
+      "summary": "Define your own opponent template: shared settings that several warriors inherit.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before the warriors that use it."
+    },
     "sf2.rewards.register": {
       "params": {
         "definition": "Eclipse.RewardDefinition"
@@ -623,6 +634,39 @@
       "requires": "`content.register`.",
       "when": "Entrypoint, before attaching the rule to a fight."
     },
+    "sf2.rules.no_health_bar": {
+      "params": {
+        "definition": "Eclipse.Rule_no_health_bar"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesno_health_bar",
+      "summary": "Hide the health bar of the selected fighters.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.invert_joystick": {
+      "params": {
+        "definition": "Eclipse.Rule_invert_joystick"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesinvert_joystick",
+      "summary": "Reverse the player's left and right movement input.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
+    "sf2.rules.random_area": {
+      "params": {
+        "definition": "Eclipse.Rule_random_area"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesrandom_area",
+      "summary": "Show the native random area: a band of the arena that appears at a random place, stays for a while, fades away and returns somewhere else.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight."
+    },
     "sf2.rules.behavior": {
       "params": {
         "definition": "Eclipse.Rule_behavior"
@@ -710,6 +754,50 @@
       "summary": "Disable one named native animation for both fighters.",
       "requires": "`content.register`.",
       "when": "Entrypoint, before attaching the rule to a fight or encounter plan."
+    },
+    "sf2.rules.group": {
+      "params": {
+        "definition": "Eclipse.Rule_group"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesgroup",
+      "summary": "Combine several rules into one native rule group with a single description.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after registering the rules it contains."
+    },
+    "sf2.rules.random": {
+      "params": {
+        "definition": "Eclipse.Rule_random"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2rulesrandom",
+      "summary": "Pick one rule at random from a list, for each round or for the whole fight.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, after registering the rules it chooses from."
+    },
+    "sf2.underworld.set_toggle_visible": {
+      "params": {
+        "visible": "boolean"
+      },
+      "returns": "`true` when the current map applied the change; `false` when the map is not ready: outside the map scene, during a scene or profile change, while an encounter is being prepared, or while native input is blocked (for example by a lock screen).",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/underworld/#sf2underworldset_toggle_visible",
+      "summary": "Show or hide the map's Underworld toggle button.",
+      "requires": "`story.progression` and a strict boolean.",
+      "when": "In a callback while the map scene is open, such as a `scene_enter` event for `\"map\"` or a story dialog's `on_complete`. Calls from UI cleanup callbacks raise an error."
+    },
+    "sf2.underworld.set_focus": {
+      "params": {
+        "battle": "Eclipse.BattleHandle"
+      },
+      "returns": "`true` when the focus was stored; `false` when no profile is loaded, a profile change is in progress, or the battle is not on one of your Underworld pages.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/underworld/#sf2underworldset_focus",
+      "summary": "Choose the boss the Underworld map shows when the player next opens it.",
+      "requires": "`story.progression` and a battle handle registered by this mod on a zone with `underworld = true`. Strings, core battles and other mods' battles are rejected.",
+      "when": "A callback after the profile has loaded, typically right before you show the toggle."
     },
     "sf2.quests.register": {
       "params": {
@@ -2318,11 +2406,35 @@
         "perk": "Eclipse.PerkHandle"
       }
     },
+    "BattleIcons": {
+      "fields": {
+        "base": [
+          "Eclipse.SpriteHandle",
+          "Unlocked, not selected."
+        ],
+        "active?": [
+          "Eclipse.SpriteHandle",
+          "Selected state; supply it for complete art."
+        ],
+        "locked?": [
+          "Eclipse.SpriteHandle",
+          "Locked state; native lock art when omitted."
+        ],
+        "locked_active?": [
+          "Eclipse.SpriteHandle",
+          "Selected while locked."
+        ]
+      }
+    },
     "ZoneDefinition": {
       "fields": {
         "id": "string",
         "file?": "string",
-        "start?": "boolean"
+        "start?": "boolean",
+        "underworld?": [
+          "boolean",
+          "Place the page on the Underworld (raid) map; cannot be the start zone."
+        ]
       }
     },
     "BattleDefinition": {
@@ -2345,7 +2457,15 @@
           "Eclipse.SpriteHandle|string",
           "Sprite handle for mod-supplied art, or an existing native preview name."
         ],
-        "show_resistance?": "boolean"
+        "show_resistance?": "boolean",
+        "power_mode?": [
+          "\"normal\"|\"power\"",
+          "Underworld pages only: shown only while Power Mode is off (normal) or on (power). Omit to always show."
+        ],
+        "icons?": [
+          "Eclipse.BattleIcons",
+          "Mod-supplied map-button sprites."
+        ]
       }
     },
     "AttributeAlignment": {
@@ -2374,6 +2494,10 @@
         "frames?": [
           "integer",
           "Core perks only; 0..2147483647 native frame duration. Omit to inherit."
+        ],
+        "parameters?": [
+          "table<string,number>",
+          "Other native perk parameters: up to 32 names to finite numbers; dedicated names such as Aspect/Chance/Frames are rejected."
         ]
       }
     },
@@ -2401,6 +2525,37 @@
         "health_bars?": [
           "integer",
           "0 inherits the template; 1-10000 is the total number of health bars."
+        ],
+        "skeleton?": [
+          "string",
+          "Recovered body item such as Skeleton or SkeletonHeavy, added to the loadout."
+        ]
+      }
+    },
+    "WarriorTemplateDefinition": {
+      "fields": {
+        "id": "string",
+        "template?": "Eclipse.WarriorTemplateHandle",
+        "first_name?": "string",
+        "last_name?": "string",
+        "voice?": "string",
+        "avatar?": [
+          "Eclipse.SpriteHandle|string",
+          "Sprite handle for mod-supplied art, or an existing native portrait name."
+        ],
+        "level?": "integer",
+        "tactic?": "Eclipse.TacticHandle|string",
+        "items?": "Eclipse.ItemHandle[]",
+        "perks?": "(Eclipse.PerkHandle|Eclipse.WarriorPerk)[]",
+        "attributes?": "table<string,number>",
+        "attribute_alignments?": "Eclipse.AttributeAlignment[]",
+        "health_bars?": [
+          "integer",
+          "0 inherits the template; 1-10000 is the total number of health bars."
+        ],
+        "skeleton?": [
+          "string",
+          "Recovered body item such as Skeleton or SkeletonHeavy, added to the loadout."
         ]
       }
     },
@@ -2442,6 +2597,19 @@
         "items": "Eclipse.RewardCandidate[]"
       }
     },
+    "RewardCurrency": {
+      "fields": {
+        "currency": "\"ForgeMaterial1\"|\"ForgeMaterial2\"|\"ForgeMaterial3\"",
+        "expected": [
+          "number",
+          "Average amount rolled by the game; finite, >0 and <=10000000."
+        ],
+        "show?": [
+          "boolean",
+          "List the drop on the result screen; default true."
+        ]
+      }
+    },
     "RewardDefinition": {
       "fields": {
         "id": "string",
@@ -2455,6 +2623,10 @@
         "prize_base?": [
           "number",
           "Finite 0..1000000 native performance-bonus base; omitted keeps fallback. Not a fixed coin award."
+        ],
+        "currencies?": [
+          "Eclipse.RewardCurrency[]",
+          "Up to 16 forge-material drops, each currency at most once."
         ]
       }
     },
@@ -2575,7 +2747,39 @@
         "mode?": "\"normal\"|\"eclipse\"|\"all\"",
         "rounds?": "integer[]",
         "perk": "Eclipse.PerkHandle",
-        "aspect?": "number"
+        "aspect?": "number",
+        "parameters?": "table<string,number>"
+      }
+    },
+    "Rule_no_health_bar": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]"
+      }
+    },
+    "Rule_invert_joystick": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]"
+      }
+    },
+    "Rule_random_area": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "image": "string",
+        "icon?": "string",
+        "width": "number",
+        "fade_in": "integer",
+        "frames_on": "integer",
+        "fade_out": "integer",
+        "frames_off": "integer"
       }
     },
     "Rule_behavior": {
@@ -2651,6 +2855,34 @@
       "fields": {
         "id": "string",
         "name": "string",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]"
+      }
+    },
+    "Rule_group": {
+      "fields": {
+        "id": "string",
+        "rules": [
+          "Eclipse.RuleHandle[]",
+          "1..64 distinct rule handles; behavior rules are rejected."
+        ],
+        "description?": "Eclipse.LocalizationHandle",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]"
+      }
+    },
+    "Rule_random": {
+      "fields": {
+        "id": "string",
+        "rules": [
+          "Eclipse.RuleHandle[]",
+          "1..64 distinct rule handles; behavior rules are rejected."
+        ],
+        "refresh?": [
+          "\"each_fight\"|\"each_round\"",
+          "Default each_fight."
+        ],
+        "no_doubles?": "boolean",
         "mode?": "\"normal\"|\"eclipse\"|\"all\"",
         "rounds?": "integer[]"
       }
@@ -3695,7 +3927,10 @@
     },
     "StoryDialogDefinition": {
       "fields": {
-        "portrait": "Eclipse.SpriteHandle",
+        "portrait?": [
+          "Eclipse.SpriteHandle",
+          "Omit to hide the portrait."
+        ],
         "lines": [
           "Eclipse.StoryDialogLine[]",
           "1..16 dense pages."
