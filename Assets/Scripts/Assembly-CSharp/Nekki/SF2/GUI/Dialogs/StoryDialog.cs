@@ -229,7 +229,9 @@ namespace Nekki.SF2.GUI.Dialogs
 			string[] array2 = LBBHPDDLLOK.Split('/');
 			string[] array3 = array2[array2.Length - 1].Split('.');
 			_portrait.set_TexturePath(SF2Paths.BHCPOOOJAAK());
-			_portrait.set_SpriteName(array3[0]);
+			// Eclipse mod dialogs pass qualified sprite IDs (owner:path); the legacy
+			// basename/extension trimming would drop their namespace.
+			_portrait.set_SpriteName(array[0].IndexOf(':') > 0 ? array[0] : array3[0]);
 			int num = ((array.Length <= 1) ? 1 : (-1));
 			_portrait.transform.BGNJGIACJBG(0f);
 			_portrait.transform.OKHPLHPBPKJ(-500f);

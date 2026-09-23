@@ -1887,7 +1887,7 @@ public class ListSF
 			UserItem dKCHDHMLKHN = CCDKHLAMKKO().KHCNHPCPFII().CMGOCLGHNLH(PJDAGCBPLJE.Name);
 			if (dKCHDHMLKHN != null)
 			{
-				return dKCHDHMLKHN.IGACBNCNDBG();
+				return dKCHDHMLKHN.GetEnchantments();
 			}
 		}
 		return PJDAGCBPLJE.DefaultEnchantmentPreviews;
@@ -3229,7 +3229,7 @@ public class ListSF
 			UserItem dKCHDHMLKHN = CMGOCLGHNLH(PJDAGCBPLJE.Name);
 			if (dKCHDHMLKHN != null)
 			{
-				return dKCHDHMLKHN.IGACBNCNDBG();
+				return dKCHDHMLKHN.GetEnchantments();
 			}
 		}
 		return PJDAGCBPLJE.DefaultEnchantmentPreviews;

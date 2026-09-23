@@ -152,6 +152,9 @@ namespace Eclipse.Modding
                         value.Set("upgrade",state.Upgrade.HasValue?DynValue.NewNumber(state.Upgrade.Value):DynValue.Nil);
                         value.Set("type",state.Type==null?DynValue.Nil:DynValue.NewString(state.Type));
                         value.Set("subtype",state.Subtype==null?DynValue.Nil:DynValue.NewString(state.Subtype));
+                        var enchantments=new Table(_script);
+                        for(int e=0;e<entry.Enchantments.Count;e++)enchantments.Set(e+1,DynValue.NewString(entry.Enchantments[e].ToString()));
+                        value.Set("enchantments",DynValue.NewTable(enchantments));
                         result.Set(i+1,DynValue.NewTable(value));
                     }
                     return DynValue.NewTable(result);

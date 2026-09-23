@@ -145,6 +145,7 @@ namespace Eclipse.Modding
         }
 
         public string ReadLocalization(DefinitionId id, string language) => RequireRegistration().ReadLocalization(id, language);
+        public string NativeLocalizationKey(DefinitionId id) => RequireRegistration().NativeLocalizationKey(id);
 
         public DefinitionId PatchLocalization(string target, string language, string value)
         {
@@ -336,10 +337,10 @@ namespace Eclipse.Modding
                 recipe, equipment, behavior, initialParameters);
         }
 
-        public ZoneDefinition RegisterZone(string localId, string fileName, bool isStart)
+        public ZoneDefinition RegisterZone(string localId, string fileName, bool isStart, bool underworld = false)
         {
             RequireCapability("content.register");
-            return RequireRegistration().RegisterZone(localId, fileName, isStart);
+            return RequireRegistration().RegisterZone(localId, fileName, isStart, underworld);
         }
 
         public ZoneDefinition GetZone(string reference)
@@ -351,11 +352,11 @@ namespace Eclipse.Modding
         public BattleDefinition RegisterBattle(string localId, DefinitionId zone, ModBattleKind kind,
             int x, int y, string alias, string title, string icon, string preview, string description,
             string location, string music, string rewardImage, bool showResistance, string iconAtlas,
-            string eclipseToggleName)
+            string eclipseToggleName, ModPowerMode powerMode = ModPowerMode.Always)
         {
             RequireCapability("content.register");
             return RequireRegistration().RegisterBattle(localId, zone, kind, x, y, alias, title, icon,
-                preview, description, location, music, rewardImage, showResistance, iconAtlas, eclipseToggleName);
+                preview, description, location, music, rewardImage, showResistance, iconAtlas, eclipseToggleName, powerMode);
         }
 
         public WarriorDefinition RegisterWarrior(string localId, string firstName, string lastName, string avatar,

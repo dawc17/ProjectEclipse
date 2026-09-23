@@ -22,7 +22,10 @@ require("content.shared_moves")
 require("content.shop")
 require("content.rewards")
 require("content.progression")
+-- Sensei story: guard templates and RaidCharge availability are synthesized from
+-- archive evidence (see sensei_guard_templates.lua, sensei_raid_charge_state.lua).
+require("content.sensei_story").install_default()
 -- Disabled at the owner's request. Keep the prototype out of the active mod.
 -- require("content.ascension")
 
-sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Desolator reward and XML-evidenced combat perks registered.")
+sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Desolator reward, XML-evidenced combat perks and Sensei story registered.")

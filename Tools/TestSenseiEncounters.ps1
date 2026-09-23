@@ -5,6 +5,7 @@ foreach($name in @('sensei_battles','sensei_battle_text','sensei_encounters','se
     Copy-Item (Join-Path $root "Mods/de128/scripts/content/$name.lua") (Join-Path $package 'scripts/content')
 }
 $script:checks=0
+$script:ownedPreviews=0
 $zoneDoc=[Xml.XmlDocument]::new();$zones=$zoneDoc.CreateElement('Zones');$null=$zoneDoc.AppendChild($zones)
 for($act=1;$act -le 6;$act++) {
     $node=$stages.SelectSingleNode('//Zone[@Name="ZONE_'+$act+'"]')
@@ -61,8 +62,17 @@ foreach($battle in $catalog.Battles) {
     $actual=$build.Invoke($adapter,@([Xml.XmlDocument]::new(),$battle))
     $actual.OuterXml | Set-Content (Join-Path $fixture ($battle.Id.LocalId+'-graph.xml'))
     Check ($battle.Zone.ToString() -ceq ('core:zones/zone_'+$act)) 'Battle moved to another map page.'
-    foreach($field in @('Type','X','Y','Icon','Preview','Location','Music')) {
+    foreach($field in @('Type','X','Y','Icon','Location','Music')) {
         Check ($actual.GetAttribute($field) -ceq $source.GetAttribute($field)) ('Battle metadata differs: '+$battle.Id+'/'+$field)
+    }
+    # Core has preview_main.statue; the five pvp arena previews are shipped DE128 sprites.
+    $preview=$source.GetAttribute('Preview')
+    if($preview.StartsWith('preview_pvp_')) {
+        Check ($actual.GetAttribute('Preview') -ceq ('fixture.warriors:sprites/sensei/'+$preview)) ('Battle preview is not the shipped sprite: '+$battle.Id)
+        Check (Test-Path (Join-Path $root ('Mods/de128/assets/textures/sensei/'+$preview+'.png'))) ('Shipped preview texture missing: '+$preview)
+        $script:ownedPreviews++
+    } else {
+        Check ($actual.GetAttribute('Preview') -ceq $preview) ('Core battle preview changed: '+$battle.Id)
     }
     $description=if($mode -eq 'normal'){'locked'}else{'description'}
     foreach($field in @('Alias','Title','Description')) {
@@ -81,7 +91,7 @@ foreach($battle in $catalog.Battles) {
         foreach($field in @('Power','Rounds','RoundTime','Replays','EvaluatedRating')) {
             Check ([int]$a.GetAttribute($field) -eq [int]$e.GetAttribute($field)) ('Fight setting differs: '+$field)
         }
-        Check ((Shape $a.Warriors) -ceq (Shape $e.Warriors)) 'Ordered assembled roster differs.'
+        Check ((Shape $a.Warriors) -ceq (Shape (Synthesized-Guards $e.Warriors))) 'Ordered assembled roster differs.'
         $actualRules=$a.SelectNodes('Rules/*')
         $expectedRules=@($e.SelectNodes('Rules/*') | Where-Object {$_.LocalName -ne 'RulesWithConditions'})
         Check ($actualRules.Count -eq $expectedRules.Count) 'Static rule count differs.'
@@ -106,4 +116,5 @@ foreach($bad in @('factory.register(opponents,nil)','opponents[4].normal[3]=nil;
     try{$null=Load-Lua ($prefix+$bad) $identities.DocumentElement @($charge.DocumentElement) $zones}catch{$failed=$true}
     Check $failed ('Invalid assembler dependency accepted: '+$bad)
 }
-Write-Output "PASS: $script:checks Sensei graph checks: 12 paired battles, 23 fights, 34 loadouts, 57 reward slots and 56 translations. Evidence: $fixture. Conditional callback uses a controlled availability reader; missing template/item identities remain controlled. No complete story/asset/gameplay claim."
+Check ($script:ownedPreviews -eq 10) ('Expected ten battle entries using shipped previews, found '+$script:ownedPreviews)
+Write-Output "PASS: $script:checks Sensei graph checks: 12 paired battles, 23 fights, 34 loadouts, 57 reward slots and 56 translations. Evidence: $fixture. Conditional callback uses a controlled availability reader; guards use the synthesized Default+voice templates; the Sphere1 projection identity remains controlled. No complete story/asset/gameplay claim."

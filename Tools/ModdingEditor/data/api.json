@@ -185,7 +185,7 @@
       "capability": null,
       "referenceKind": "sprite",
       "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetssprite",
-      "summary": "Get a sprite handle for an item icon, achievement, or location image.",
+      "summary": "Get a sprite handle for an item icon, achievement, location image, battle preview or opponent portrait.",
       "requires": "No capability; cross-mod references require a dependency.",
       "when": "Usually during registration, before passing the handle to a definition."
     },
@@ -1314,6 +1314,17 @@
       "requires": "`ui.create`. Registering localization also requires `content.register`.",
       "when": "On the active progression map with a bound profile. It cannot open from a UI cleanup callback. Only one act screen runs at a time."
     },
+    "sf2.ui.story_dialog": {
+      "params": {
+        "definition": "Eclipse.StoryDialogDefinition"
+      },
+      "returns": "`true` when the native dialog opens; `false` when this script already has a story dialog open, or the host refuses (no bound profile, a scene/profile change in progress, the title screen or a restart). Invalid arguments, a missing capability, or a host without dialog support raise an error.",
+      "capability": "ui.create",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uistory_dialog",
+      "summary": "Show one of the game's own story dialogs: the parchment popup with a speaker title, a round portrait, text and a single button that quest dialogs use.",
+      "requires": "`ui.create`. Registering localization also requires `content.register`.",
+      "when": "From a story, UI or fight-entry callback after the profile has loaded. It cannot open from a UI cleanup callback. One story dialog per script is open at a time; open the next one from `on_complete`."
+    },
     "sf2.ui.open": {
       "params": {
         "definition": "Eclipse.UiDefinition"
@@ -1559,6 +1570,7 @@
   ],
   "uiCallbacks": [
     "on_complete",
+    "on_cancel",
     "on_click",
     "on_close",
     "on_change",
@@ -2325,11 +2337,14 @@
         "description?": "string",
         "icon?": "string",
         "icon_atlas?": "string",
-        "preview?": "string",
         "eclipse_toggle_name?": "string",
         "location?": "string",
         "music?": "string",
         "reward_image?": "string",
+        "preview?": [
+          "Eclipse.SpriteHandle|string",
+          "Sprite handle for mod-supplied art, or an existing native preview name."
+        ],
         "show_resistance?": "boolean"
       }
     },
@@ -2368,9 +2383,12 @@
         "template?": "Eclipse.WarriorTemplateHandle",
         "first_name?": "string",
         "last_name?": "string",
-        "avatar?": "string",
         "voice?": "string",
         "group?": "string",
+        "avatar?": [
+          "Eclipse.SpriteHandle|string",
+          "Sprite handle for mod-supplied art, or an existing native portrait name."
+        ],
         "level?": "integer",
         "tactic?": "Eclipse.TacticHandle|string",
         "random?": "integer",
@@ -3666,6 +3684,33 @@
         "on_complete?": "fun()"
       }
     },
+    "StoryDialogLine": {
+      "fields": {
+        "text": "Eclipse.LocalizationHandle",
+        "button?": [
+          "Eclipse.LocalizationHandle",
+          "Caption of the more button for this page."
+        ]
+      }
+    },
+    "StoryDialogDefinition": {
+      "fields": {
+        "portrait": "Eclipse.SpriteHandle",
+        "lines": [
+          "Eclipse.StoryDialogLine[]",
+          "1..16 dense pages."
+        ],
+        "button": [
+          "Eclipse.LocalizationHandle",
+          "Final button caption."
+        ],
+        "title?": "Eclipse.LocalizationHandle",
+        "mirrored?": "boolean",
+        "ignore_back?": "boolean",
+        "on_complete?": "fun()",
+        "on_cancel?": "fun()"
+      }
+    },
     "QuestSuppression": {
       "fields": {
         "target": "string"
@@ -3678,7 +3723,11 @@
         "subtype?": "string",
         "owned": "boolean",
         "count": "integer",
-        "upgrade?": "integer"
+        "upgrade?": "integer",
+        "enchantments": [
+          "string[]",
+          "Qualified lower-case perk IDs of the current enchantments, in native order; unknown perks are omitted."
+        ]
       }
     }
   }

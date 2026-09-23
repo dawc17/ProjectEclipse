@@ -513,11 +513,11 @@ local ZoneDefinition = {}
 ---@field description? string
 ---@field icon? string
 ---@field icon_atlas? string
----@field preview? string
 ---@field eclipse_toggle_name? string
 ---@field location? string
 ---@field music? string
 ---@field reward_image? string
+---@field preview? Eclipse.SpriteHandle|string Sprite handle for mod-supplied art, or an existing native preview name.
 ---@field show_resistance? boolean
 local BattleDefinition = {}
 
@@ -541,9 +541,9 @@ local WarriorPerk = {}
 ---@field template? Eclipse.WarriorTemplateHandle
 ---@field first_name? string
 ---@field last_name? string
----@field avatar? string
 ---@field voice? string
 ---@field group? string
+---@field avatar? Eclipse.SpriteHandle|string Sprite handle for mod-supplied art, or an existing native portrait name.
 ---@field level? integer
 ---@field tactic? Eclipse.TacticHandle|string
 ---@field random? integer
@@ -1673,6 +1673,22 @@ local ActScreenLine = {}
 ---@field on_complete? fun()
 local ActScreenDefinition = {}
 
+---@class (exact) Eclipse.StoryDialogLine
+---@field text Eclipse.LocalizationHandle
+---@field button? Eclipse.LocalizationHandle Caption of the more button for this page.
+local StoryDialogLine = {}
+
+---@class (exact) Eclipse.StoryDialogDefinition
+---@field portrait Eclipse.SpriteHandle
+---@field lines Eclipse.StoryDialogLine[] 1..16 dense pages.
+---@field button Eclipse.LocalizationHandle Final button caption.
+---@field title? Eclipse.LocalizationHandle
+---@field mirrored? boolean
+---@field ignore_back? boolean
+---@field on_complete? fun()
+---@field on_cancel? fun()
+local StoryDialogDefinition = {}
+
 ---@class (exact) Eclipse.QuestSuppression
 ---@field target string
 local QuestSuppression = {}
@@ -1684,6 +1700,7 @@ local QuestSuppression = {}
 ---@field owned boolean
 ---@field count integer
 ---@field upgrade? integer
+---@field enchantments string[] Qualified lower-case perk IDs of the current enchantments, in native order; unknown perks are omitted.
 local ProfileEquipmentSnapshot = {}
 
 ---@class Eclipse.Module_achievements
@@ -1932,7 +1949,7 @@ function price.coins(amount) end
 ---@return Eclipse.PriceHandle
 function price.gems(amount) end
 
----Get a sprite handle for an item icon, achievement, or location image.
+---Get a sprite handle for an item icon, achievement, location image, battle preview or opponent portrait.
 ---Requires: No capability; cross-mod references require a dependency.
 ---When: Usually during registration, before passing the handle to a definition.
 ---Returns: A sprite handle. Missing assets and assets of another type raise errors.
@@ -2787,6 +2804,15 @@ function log.error(message) end
 ---@param definition Eclipse.ActScreenDefinition
 ---@return boolean
 function ui.act_screen(definition) end
+
+---Show one of the game's own story dialogs: the parchment popup with a speaker title, a round portrait, text and a single button that quest dialogs use.
+---Requires: `ui.create`. Registering localization also requires `content.register`.
+---When: From a story, UI or fight-entry callback after the profile has loaded. It cannot open from a UI cleanup callback. One story dialog per script is open at a time; open the next one from `on_complete`.
+---Returns: `true` when the native dialog opens; `false` when this script already has a story dialog open, or the host refuses (no bound profile, a scene/profile change in progress, the title screen or a restart). Invalid arguments, a missing capability, or a host without dialog support raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uistory_dialog)
+---@param definition Eclipse.StoryDialogDefinition
+---@return boolean
+function ui.story_dialog(definition) end
 
 ---Requires: `ui.create` in the manifest.
 ---When: During script execution or callbacks with an available game UI host. Scene changes close the resulting view; create it from the relevant lifecycle callback when it must appear in a particular scene. Opening on every tick is unnecessary: keep a handle and update individual widgets.

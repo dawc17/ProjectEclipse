@@ -110,13 +110,13 @@ type('EnchantmentDefinition',{id:'string',recipe:enumOf('simple','medium','compl
 type('LegacyEnchantment',{id:'string',recipe:enumOf('simple','medium','complex'),item_types:`(${equipmentKinds})[]`,perk:H('Perk')});
 fn('enchantments.register',{definition:`${E('EnchantmentDefinition')}|${E('LegacyEnchantment')}`},H('Enchantment'));
 type('ZoneDefinition',{id:'string','file?':'string','start?':'boolean'});reg('zones.register','ZoneDefinition','Zone');lookup('zones.get','Zone');
-type('BattleDefinition',{id:'string',zone:H('Zone'),type:'string','x?':'integer','y?':'integer',...Object.fromEntries(['alias','title','description','icon','icon_atlas','preview','eclipse_toggle_name','location','music','reward_image'].map(k=>[k+'?','string'])),'show_resistance?':'boolean'});reg('battles.register','BattleDefinition','Battle');
+type('BattleDefinition',{id:'string',zone:H('Zone'),type:'string','x?':'integer','y?':'integer',...Object.fromEntries(['alias','title','description','icon','icon_atlas','eclipse_toggle_name','location','music','reward_image'].map(k=>[k+'?','string'])),'preview?':[`${H('Sprite')}|string`,'Sprite handle for mod-supplied art, or an existing native preview name.'],'show_resistance?':'boolean'});reg('battles.register','BattleDefinition','Battle');
 type('AttributeAlignment',{factor:'number',shift:'number','priority?':'integer','mode?':enumOf('all','normal','eclipse')});
 fn('battles.set_locked',{battle:H('Battle'),locked:'boolean'},'boolean','story.progression');
 fn('battles.reveal',{battle:H('Battle'),locked:'boolean'},'boolean','story.progression');
 fn('battles.focus',{battle:H('Battle')},'boolean','story.progression');
 type('WarriorPerk',{perk:H('Perk'),'aspect?':['number','Core perks only; finite 0..2147483647. Omit to inherit.'],'chance_factor?':['number','Core perks only; finite 0..10000 native multiplier, not a probability. Omit to inherit.'],'chance?':['number','Core perks only; finite probability 0..1. Omit to inherit.'],'frames?':['integer','Core perks only; 0..2147483647 native frame duration. Omit to inherit.']});
-type('WarriorDefinition',{id:'string','template?':H('WarriorTemplate'),...Object.fromEntries(['first_name','last_name','avatar','voice','group'].map(k=>[k+'?','string'])),'level?':'integer','tactic?':`${H('Tactic')}|string`,'random?':'integer','items?':H('Item')+'[]','perks?':`(${H('Perk')}|${E('WarriorPerk')})[]`,'attributes?':'table<string,number>','attribute_alignments?':E('AttributeAlignment')+'[]','body_model?':H('Model'),'skin_models?':H('Model')+'[]','health_bars?':['integer','0 inherits the template; 1-10000 is the total number of health bars.']});
+type('WarriorDefinition',{id:'string','template?':H('WarriorTemplate'),...Object.fromEntries(['first_name','last_name','voice','group'].map(k=>[k+'?','string'])),'avatar?':[`${H('Sprite')}|string`,'Sprite handle for mod-supplied art, or an existing native portrait name.'],'level?':'integer','tactic?':`${H('Tactic')}|string`,'random?':'integer','items?':H('Item')+'[]','perks?':`(${H('Perk')}|${E('WarriorPerk')})[]`,'attributes?':'table<string,number>','attribute_alignments?':E('AttributeAlignment')+'[]','body_model?':H('Model'),'skin_models?':H('Model')+'[]','health_bars?':['integer','0 inherits the template; 1-10000 is the total number of health bars.']});
 lookup('warriors.get_template','WarriorTemplate');reg('warriors.register','WarriorDefinition','Warrior');
 type('RewardGrantContext',{player_level:'integer',item_id:'string'});
 type('RewardGrantEnchantment',{perk:H('Perk'),'aspect?':'number'});
@@ -241,6 +241,9 @@ type('UiDefinition', { id:'string',mount:enumOf('menu','modal','hud'),root:E('Ui
 type('ActScreenLine', {text:H('Localization'),frames:['integer','Required duration at 60 frames per second, 1..3600.']});
 type('ActScreenDefinition', {lines:E('ActScreenLine')+'[]','on_complete?':'fun()'});
 fn('ui.act_screen',{definition:E('ActScreenDefinition')},'boolean','ui.create');
+type('StoryDialogLine', {text:H('Localization'),'button?':[H('Localization'),'Caption of the more button for this page.']});
+type('StoryDialogDefinition', {portrait:H('Sprite'),lines:[E('StoryDialogLine')+'[]','1..16 dense pages.'],button:[H('Localization'),'Final button caption.'],'title?':H('Localization'),'mirrored?':'boolean','ignore_back?':'boolean','on_complete?':'fun()','on_cancel?':'fun()'});
+fn('ui.story_dialog',{definition:E('StoryDialogDefinition')},'boolean','ui.create');
 fn('ui.open',{definition:E('UiDefinition')},H('Ui'),'ui.create');
 fn('ui.close',{view:H('Ui')},'nil',null);
 fn('ui.is_open',{view:H('Ui')},'boolean',null);
@@ -251,5 +254,5 @@ fn('ui.set_checked',{view:H('Ui'),widget_id:'string',checked:'boolean'},'nil',nu
 fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',null);
 fn('ui.set_enabled',{view:H('Ui'),widget_id:'string',enabled:'boolean'},'nil',null);
 type("QuestSuppression",{target:"string"});reg("quests.suppress","QuestSuppression",null,"content.patch");
-type('ProfileEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string',owned:'boolean',count:'integer','upgrade?':'integer'});fn('profile.equipment',{},E('ProfileEquipmentSnapshot')+'[]','profile.read');
-module.exports={types,functions,aliases,callbacks,storyCallbacks:['on_before_fight'],modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_complete','on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};
+type('ProfileEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string',owned:'boolean',count:'integer','upgrade?':'integer',enchantments:['string[]','Qualified lower-case perk IDs of the current enchantments, in native order; unknown perks are omitted.']});fn('profile.equipment',{},E('ProfileEquipmentSnapshot')+'[]','profile.read');
+module.exports={types,functions,aliases,callbacks,storyCallbacks:['on_before_fight'],modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_complete','on_cancel','on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};

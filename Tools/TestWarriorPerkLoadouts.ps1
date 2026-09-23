@@ -12,6 +12,9 @@ $package = Join-Path $fixture 'Mods/fixture.warriors'
 $null = New-Item -ItemType Directory -Force (Join-Path $package 'scripts/content')
 Copy-Item -LiteralPath (Join-Path $root 'Mods/de128/scripts/content/sensei_act_one_opponents.lua') -Destination (Join-Path $package 'scripts/content/sensei_act_one_opponents.lua')
 Copy-Item -LiteralPath (Join-Path $root 'Mods/de128/scripts/content/sensei_boss_opponents.lua') -Destination (Join-Path $package 'scripts/content/sensei_boss_opponents.lua')
+Copy-Item -LiteralPath (Join-Path $root 'Mods/de128/scripts/content/sensei_art.lua') -Destination (Join-Path $package 'scripts/content/sensei_art.lua')
+# Shipped DE128 Sensei sprites resolve under the fixture namespace through the real loose provider.
+Copy-Item -Recurse -LiteralPath (Join-Path $root 'Mods/de128/assets') -Destination (Join-Path $package 'assets')
 @'
 schema = 1
 id = "fixture.warriors"
@@ -142,11 +145,45 @@ $zero=Load-Lua ($prefix+'sf2.warriors.register{id="test",perks={{perk=p,chance=0
 $zeroSet=(Project $zero (First-Warrior $zero)).SelectSingleNode('Perks/Perk/Set')
 Check ($zeroSet.GetAttribute('Chance') -ceq '0' -and $zeroSet.GetAttribute('Frames') -ceq '0' -and !$zeroSet.HasAttribute('Aspect')) 'Explicit zero/default inheritance was lost.'
 
+# Sprite-handle avatars and battle previews: qualified owned IDs, legacy strings kept.
+$sprite='local art=sf2.assets.sprite("sprites/sensei/boss_hermit_young"); '
+$handleAvatar=Load-Lua ($sprite+'sf2.warriors.register{id="test",avatar=art}')
+Check ((Project $handleAvatar (First-Warrior $handleAvatar)).GetAttribute('Avatar') -ceq 'fixture.warriors:sprites/sensei/boss_hermit_young') 'Sprite avatar was not projected as its qualified ID.'
+$stringAvatar=Load-Lua 'sf2.warriors.register{id="test",avatar="character_savage"}'
+Check ((Project $stringAvatar (First-Warrior $stringAvatar)).GetAttribute('Avatar') -ceq 'character_savage') 'Legacy avatar string changed.'
+Check ((Fingerprint $handleAvatar) -cne (Fingerprint (Load-Lua 'sf2.warriors.register{id="test",avatar="boss_hermit_young"}'))) 'Sprite and bare-name avatars share a fingerprint.'
+$battleZone='local zone=sf2.zones.register{id="z"}; '
+$handlePreview=Load-Lua ($sprite+$battleZone+'sf2.battles.register{id="b",zone=zone,type=sf2.battles.STORY,preview=art}')
+Check (@($handlePreview.Battles)[0].Preview -ceq 'fixture.warriors:sprites/sensei/boss_hermit_young') 'Sprite preview was not stored as its qualified ID.'
+$stringPreview=Load-Lua ($battleZone+'sf2.battles.register{id="b",zone=zone,type=sf2.battles.STORY,preview="preview_main.statue"}')
+Check (@($stringPreview.Battles)[0].Preview -ceq 'preview_main.statue') 'Legacy preview string changed.'
+foreach($bad in @('avatar=5','avatar={}','avatar=true','avatar=sf2.warriors.get_template("core:warrior-templates/lynx_claws")')) {
+    $failed=$false
+    try { $null=Load-Lua ('sf2.warriors.register{id="prior"}; sf2.warriors.register{id="test",'+$bad+'}') } catch { $failed=$_.ToString().Contains("must be a sprite handle or string") }
+    Check $failed ('Invalid avatar accepted or wrongly reported: '+$bad)
+}
+foreach($bad in @('preview=5','preview={}','preview=zone')) {
+    $failed=$false
+    try { $null=Load-Lua ($battleZone+'sf2.battles.register{id="b",zone=zone,type=sf2.battles.STORY,'+$bad+'}') } catch { $failed=$_.ToString().Contains("must be a sprite handle or string") }
+    Check $failed ('Invalid preview accepted or wrongly reported: '+$bad)
+}
+
 # Compare pending DE Lua opponents to the historical XML, not to a duplicated fixture.
 $catalog = Load-Lua 'require("content.sensei_act_one_opponents")'
 [xml]$archive = Get-Content -Raw (Join-Path $root 'Assets/DExml/stages.xml')
+# Owned portraits project as qualified sprite IDs. Compare their archived name only
+# after proving the ID is this package's shipped Sensei sprite, never a core name.
+$script:ownedPortraits = @{}
+function Owned-Portrait([string]$name, [string]$value) {
+    $match = [regex]::Match($value, '^fixture\.[a-z]+:sprites/sensei/([a-z_]+)$')
+    if ($name -ne 'Avatar' -or !$match.Success) { return $value }
+    $bare = $match.Groups[1].Value
+    Check (Test-Path (Join-Path $root ('Mods/de128/assets/textures/sensei/'+$bare+'.png'))) ('Owned avatar has no shipped texture: '+$value)
+    $script:ownedPortraits[$bare] = $true
+    return $bare
+}
 function Shape([Xml.XmlNode]$node) {
-    $attrs = @($node.Attributes | Where-Object {$_.Name -ne 'EclipseCharacterId' -and !($_.Name -eq 'Level' -and $_.Value -eq '1')} | Sort-Object Name | ForEach-Object {$_.Name+'='+$_.Value}) -join ';'
+    $attrs = @($node.Attributes | Where-Object {$_.Name -ne 'EclipseCharacterId' -and !($_.Name -eq 'Level' -and $_.Value -eq '1')} | Sort-Object Name | ForEach-Object {$_.Name+'='+(Owned-Portrait $_.Name $_.Value)}) -join ';'
     $children = @($node.ChildNodes | Where-Object {$_.NodeType -eq 'Element'} | ForEach-Object {Shape $_}) -join ''
     return '<'+$node.LocalName+' '+$attrs+'>'+$children+'</'+$node.LocalName+'>'
 }
@@ -173,4 +210,5 @@ foreach($warrior in $catalog.Warriors) {
     $actual.OuterXml | Set-Content (Join-Path $fixture ($local+'.xml'))
     Check ((Shape $actual) -ceq (Shape $boss[0])) ('Boss differs from archive: '+$local+"`n"+$actual.OuterXml+"`n"+$boss[0].OuterXml)
 }
+Check ((($script:ownedPortraits.Keys | Sort-Object) -join ',') -ceq 'boss_butcher_young,boss_hermit_young,boss_shogun_young,boss_wasp_young,boss_widow_young') ('Young boss avatars did not use shipped portraits: '+(($script:ownedPortraits.Keys | Sort-Object) -join ','))
 Write-Output "PASS: $script:checks warrior loadout checks. Projection evidence: $fixture. Native combat is not exercised."

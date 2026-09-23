@@ -1,8 +1,8 @@
 # DE128 production record
 
-Current package: **0.18.0**. Latest activated content is recorded in Step 31;
-Steps 32–43 add encounter perk settings, reward economy, saved fight queries,
-map/notification support, rule enforcement and pending Sensei Story assembly.
+Current package: **0.19.0**. Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
+map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
 extensions and Jian's subtype delta through Lua. Steps 9–11 supplied the generic
 move APIs and verified graph data; Step 13 adds passing isolated live input/animation
@@ -2737,3 +2737,256 @@ that the public battle-result observer runs after native FightEnd quests and
 result presentation; simply opening the archived defeat dialog there or queueing
 it to the map would not establish its original timing. That integration still
 needs an evidence-backed runtime solution. Corpus acquisition remains deferred.
+
+## Step 47 — Sensei defeat dialogue (owner commit 71db8bad, 2026-09-20)
+
+The owner added `sensei_defeat.lua`/`sensei_defeat_text.lua`: an ordinary loss in
+a normal Sensei fight saves one pending map dialog with one of five localized
+lines, which outranks unlock notifications. That commit did not update
+`ValidateSenseiStory.cs`, whose loss step still expected no presentation and
+failed ("Loss unexpectedly queued victory"). Step 48 repairs the validator.
+
+## Step 48 — Owned Sensei art, sprite-handle previews/avatars and the prince's charge (2026-09-23)
+
+The owner placed the previously missing assets (except Underworld) under
+`ResearchSources/`: `de128_assets/` (123 PNGs: map buttons, battle previews, item
+icons, arena layers) beside the DE 1.0.6 reference export and the vanilla Nekki
+`bundles/`. Owner rule: `bundles/` is vanilla and loses to any newer alternative.
+
+### Asset audit for the pending story
+
+| Need | Before | Source now used |
+| --- | --- | --- |
+| Five Act II–VI battle previews (`preview_pvp_*`) | Absent from core | `de128_assets/assets/Battles`, unchanged bytes |
+| Young Hermit/Butcher/Wasp/Widow/Shogun portraits | Absent everywhere but vanilla | `bundles/USERS` Texture2D (full 512×512 canvas; the sprite rect covers the texture) |
+| `character_pirate` | Absent from core | DE 1.0.6 export (differs from the vanilla copy; newer wins) |
+| `character_sensei` | Native resource, **missing from the packaged-art catalog** | Core `Assets/Resources/ui/users/character_sensei.png` copy |
+| 15 other portraits | Core | Unchanged core IDs `core:ui/users/<name>` |
+
+The last row is a real defect found by native probing: public core sprite IDs
+resolve only through `PackagedArtCatalog`, which lacks `UI/Users/character_sensei`
+although native dialogs load it by bare name. The notification fallback
+`core:ui/users/character_sensei` therefore could never resolve at runtime. DE128
+ships a copy instead of rebuilding the core catalog in this step; the catalog gap
+remains a base-project finding.
+
+`Tools/ExtractDE128SenseiArt.py` rebuilds all twelve textures and line-based
+sprite descriptors under `assets/{textures,sprites}/sensei/`, checking the source
+bundle hash, sprite geometry and every output SHA-256; `--check` rebuilds in a
+temporary directory and requires byte-identical output. No Unity YAML, `.meta`
+files or sprite vertex data are written. Other items in the drop (map buttons,
+raid/PvP previews, item icons such as Moon Fans) are not consumed yet: the
+restored Moon Fans/Kelt Axes deliberately keep the archive's placeholder image
+reference.
+
+### Generic API
+
+`sf2.battles.register{ preview = ... }` and `sf2.warriors.register{ avatar = ... }`
+now accept a sprite handle or the legacy string. A handle projects its qualified
+asset ID (validated when the handle is created); native `ResolutionImage`
+already routes IDs containing `:` through the mod asset loader, so the battle
+panel, versus screen and fight HUD need no DE-specific code. Strings keep their
+exact previous projection and fingerprints. Other values raise
+"must be a sprite handle or string". Map-button icons remain string-only because
+the native button prefixes state names (`base_`, `active_`, ...); no consumer
+needs custom buttons yet.
+
+### Lua
+
+- New `sensei_art.lua` resolves portraits (owned or core), avatar values (owned
+  handle, otherwise the archived name) and previews (owned `preview_pvp_*`,
+  native `preview_main.statue`). `story_portraits()` returns every portrait the
+  entry/victory/defeat/notification modules require.
+- Battles, young bosses, Act I Lynx and guards use it; the notification fallback
+  now uses the shipped `character_sensei`.
+- **Sphere1 resolved.** Archive `list.xml` `/List/Items/Item[@Name='Sphere1']`
+  equals the restored Minor Charge of Darkness row (image, model, Magic/Sphere1,
+  level 23, price 69, ACT_4, Weakness 798). New `sensei_dependencies.resolve()`
+  supplies that handle and deliberately omits the still-missing guard templates.
+
+### Verification
+
+- `TestWarriorPerkLoadouts.ps1`: **169** checks (139 before). Young-boss avatars
+  project shipped sprite IDs and are compared to archive names only after proving
+  the shipped texture; handle/string/invalid-type binding cases and fingerprints.
+- `TestSenseiOpponents.ps1`: **90** (73): shipped pirate portrait; archived Sphere1
+  equals the restored Minor Charge row and the dependency module's handle.
+- `TestSenseiEncounters.ps1`: **893** (870): ten battle entries use shipped
+  previews, Act I keeps native `preview_main.statue`.
+- `TestSenseiStory.ps1`: **606** (552): six defeat dialogues (queued in fight,
+  shown on map, acknowledged, pending cleared), Eclipse losses isolated.
+- `TestSenseiNotifications.ps1` 114, `TestSenseiVictory.ps1` 660,
+  `TestSenseiEntry.ps1` 1290, `TestDE128Foundation.ps1` 2672 pass.
+- Native Unity 6000.6.0f1 read-only probe `Tools/VerifyDE128SenseiArt.cs` in the
+  owner's idle editor: all 12 shipped sprites decode (512×512 portraits,
+  484×273/274 previews, 4 vertices) and all 15 remaining core portraits resolve.
+  No scene, UI, fight or save was touched; the editor was not recompiled.
+- `dotnet build Assembly-CSharp.csproj`: 0 errors (MSBuild still cannot resolve
+  the SDK). Editor generate/check (172 functions, 232 structures), 37 unit tests
+  and LuaLS integration pass. Wiki: 47 pages, 4136 links, 0 Astro diagnostics
+  (existing duplicate-404 warning).
+- PowerShell 7 was absent; tests ran with a scratch `dotnet tool` pwsh 7.6.6.
+
+Package stays 0.18.0 and main.lua still excludes the story. Remaining activation
+blockers: Guard_Girl/Guard_Man template bodies (absent from vanilla, historical
+DE, DE 1.0.6 and the new drop) and the perk-driven RaidCharge availability
+producer. Rendered panel/HUD placement and a campaign playtest remain open.
+
+## Step 49 — Synthesized guard templates and RaidCharge availability; Sensei story active (2026-09-23)
+
+The owner directed: "if you cant find the templates youll have to synthesize
+them." Package **0.19.0** now installs the Sensei story from `main.lua` through
+`sensei_story.install_default()`.
+
+### Guard_Girl / Guard_Man (synthesized)
+
+All 22 archived guard rows name these templates; vanilla, historical DE XML, the
+DE 1.0.6 export and the owner's asset drop define neither. Evidence used:
+
+- Native `ListSF` resolves a warrior's `Template` and, when it is missing, parses
+  the warrior over a **blank** `ModelParameters` (no Default skeleton, fists,
+  attributes, perks or alignment). Template and warrior attributes go through
+  the same layered parser (`IAOBIMJFBMH`), so a template adding only `Voice` is
+  equivalent to a warrior on its parent template with that `Voice`.
+- Every comparable story-character template (Man_Haunted_Prince,
+  Boss_Lynx_Young, Boss_Wasp_Young, Boss_Widow_Young, Lynx_Claws) is
+  `Template="Default"` plus `Voice` and its own equipment; the guard rows already
+  carry full equipment, names and portraits.
+- All Guard_Girl rows are women (Savage, Asian, Sadist, Indean, Sister) and all
+  Guard_Man rows men (Philosopher, Ronin, Fanatic, Pirate, Blind, Prince).
+
+`sensei_guard_templates.lua` therefore supplies `{ template = core Default,
+voice = "Female" | "Male" }` specs, and the guard factory now takes these specs
+instead of template handles. No template-registration API was added: the
+equivalence makes one unnecessary. Tests compare every archive row after the
+explicit mapping `Guard_X` → `Default` + voice, and fail if a row ever carries its
+own `Voice`.
+
+### RaidCharge availability (synthesized producer)
+
+Archive quests `ShowRaidChargeButton`/`HideRaidChargeButton` set
+`_RaidChargeButton` on `ActivatePerk`/`DeactivatePerk` for thirteen perks; the
+recovered C# never raises those events. perks.xml marks all thirteen
+`PerkType="Combo"`; twelve carry `Button="RaidCharge"` and belong to single-item
+`SpecialRecipe` item sets (forge.xml's `Abilities` recipe grants four), i.e. they
+are item enchantments ("Charm … is now on"). The thirteenth is the five-piece
+NEO_WANDERER set bonus. `sensei_raid_charge_state.lua` reports availability when
+an owned equipped item carries one of the twelve enchantments or all five
+Neo Wanderer pieces are equipped, re-reading the profile each round rather than
+latching. Set-chest purchase resets are not modelled. PERK_SHADOW_CLOAK is
+DE-only and absent from core, so it is matched by ID without a registration
+lookup. Native evidence also shows the RaidCharge button is only presented in
+raid fights holding a charge (`Fight.cs` `FELJFJOEJNC`), so in story fights the
+conditional rule mainly preserves archived parity.
+
+### Generic API
+
+`sf2.profile.equipment()` records gain `enchantments`: qualified perk IDs of the
+record's current native enchantments, in order, unknown perks omitted. The host
+resolves each native runtime perk name through the active catalog (legacy name
+for core, qualified ID for mod perks). `UserItem.IGACBNCNDBG` is now
+`GetEnchantments` (`// best guess for name`; two `ListSF` callers updated).
+Definition IDs are lower-case-normalized; the reader compares lowered IDs — the
+new test caught an initial case-sensitive comparison.
+
+### Activation
+
+Manifest capabilities add `story.events`, `story.progression`, `profile.read`,
+`state.read`, `state.write` and `ui.create`. The active package registers 12
+battles, 23 fights, 34 warriors, 57 rewards, the RaidCharge behavior and the
+dialogue/notification coordinators on top of all earlier content.
+
+### Verification
+
+- `TestDE128Foundation.ps1`: **2756** checks on the actual activated package
+  (2672 before). Fixture now provides the production story-event bus and the
+  15 natively verified core portraits. New assertions: 22 guards on core Default
+  with Female×10/Male voices, prince carries the restored Minor Charge, 12
+  battles with 10 shipped previews. Earlier "no warriors/fights" Ascension
+  assertions are scoped to non-Sensei content; `profile.read`, `state.read` and
+  `ui.create` are verified as call-time capabilities (registration still fails
+  without `state.write`, `story.events` or `story.progression`).
+- New `TestSenseiRaidCharge.ps1`: **97** checks through the real Lua and
+  `profile.equipment` binding (all twelve enchantments, unowned records, ordinary
+  enchantments, incomplete/complete Neo Wanderer set, missing profile).
+- `TestProfileApi.ps1`: **21** native (18 before; enchantment identity, unknown
+  perks omitted, detached snapshot) + 57 Lua.
+- `TestSenseiOpponents.ps1` **115**, `TestSenseiEncounters.ps1` **915**,
+  `TestWarriorPerkLoadouts.ps1` 169, story 606, notifications 114, victory 660,
+  entry 1290, fight rules 252, rewards 727, map 67+132 pass.
+- `dotnet build` of Assembly-CSharp and Assembly-CSharp-Editor: 0 errors. Editor
+  generate/check, 37 unit tests and LuaLS pass; wiki 47 pages / 4136 links,
+  0 Astro diagnostics (existing duplicate-404 warning).
+
+Not verified: no Unity recompile of the owner's editor, no native campaign run
+of the activated story, no synthesized-guard model/voice/AI rendering, and no
+real forged-ability profile. Play the story on a test profile before relying on
+it; disabling DE128 via Apply & Restart removes the content while keeping its
+saved state inactive.
+
+### Step 49 follow-up: catch-up for saves already past the gate
+
+Owner playtest (Zone 1, tournament stage 12/24): the package loaded — the stage
+graph grew from 121 to 133 battles and 761 to 784 fights, with no diagnostics —
+but no Sensei entry appeared. As archived (`SenseiZone*Notify`), an act is queued
+only after a **victory** once its prerequisites are saved; this save beat
+tournament stage 3 before DE128 was enabled and had not won since. The
+notification coordinator now also re-checks the same saved prerequisites on map
+entry (never on a loss). New games behave as before, because winning stage 3 is
+itself the qualifying victory. `TestSenseiNotifications.ps1` adds the
+already-eligible case (115 checks). The victory/story/notification fixtures now
+give a "fresh profile" fresh fight history too; they had been reusing the old
+profile's wins. Story 606, victory 660 and foundation 2756 checks pass.
+
+## Step 50 — Native story dialogs replace the custom Lua panels (2026-09-23)
+
+Owner playtest: the Sensei cards used a custom `sf2.ui.open` panel instead of the
+game's dialog popup. The archive uses quest `<Dialog Type="Regular">` for every
+Sensei card, which `QuestActionDialog` opens through
+`DialogsOpener.EHMEIJCOOKP` → `DialogsManager` (`DialogType.DialogStory`,
+native `StoryDialog`).
+
+### Generic API: `sf2.ui.story_dialog`
+
+`sf2.ui.story_dialog { portrait, lines = {{ text, button? }}, button, title?,
+mirrored?, ignore_back?, on_complete?, on_cancel? } -> boolean` (`ui.create`).
+The binding turns localization handles into native keys (core legacy key or the
+qualified mod ID already registered as an external string) and passes the
+portrait's qualified sprite ID. Host `ModStoryDialogPresenter` calls the same
+opener as the Regular quest branch with one Right (Beige) button, sets
+`IsIgnoreBack`/`IsQuestDialog`, and reports exactly once: acknowledged (OK or
+Back) → `on_complete`, or closed by scene/profile change, restart, title screen,
+script disposal or external destruction → `on_cancel`. Native dialogs live on a
+`DontDestroyOnLoad` canvas, so the presenter closes them itself on those events.
+One dialog per script; busy/refused requests return false and are not queued.
+`StoryDialog.HPGFNENGBFI` kept only the basename of the image path; it now keeps a
+qualified `owner:path` sprite ID intact so shipped mod portraits resolve.
+
+### Lua
+
+New `sensei_dialog.lua` maps an archived card to the API. Entry, victory, defeat
+and notification modules use it; no Sensei module calls `sf2.ui.open` any more.
+Because the native dialog closes on OK, a refused notification map action now
+keeps the act pending and shows the notification again on the next map wake
+(previously the custom panel stayed open). Text modules are required at install
+time (a lazy runtime `require` would register localization after commit).
+
+### Verification
+
+- New `TestStoryDialog.ps1`: **29** binding checks (mod/core native keys,
+  portrait/mirroring/IgnoreBack, busy and refused requests, exactly-once
+  completion/cancellation, chaining from `on_complete`, callback errors,
+  12 invalid shapes, missing capability, teardown).
+- Sensei validators now drive a shared controlled native-dialog host
+  (`Tools/SenseiDialogFixture.cs`) that records the real binding's requests:
+  notifications **118**, victory **683**, entry **1329**, story **533** (fewer
+  than 606 because per-mount overlap assertions collapsed into one host hook; the
+  flow coverage is unchanged). They also assert single-line Regular requests,
+  button captions and archived IgnoreBack flags.
+- Foundation 2756, mod UI Lua 919; game and editor assemblies build (0 errors);
+  editor generate/check (174 functions, 234 structures), 37 unit tests, LuaLS;
+  wiki 47 pages / 4144 links, 0 Astro diagnostics.
+
+Not verified: the native dialog has not been exercised in Unity by these tests.
+The owner's next playtest is the first rendering check (layout, portrait scale,
+mirroring, Back handling, chaining into the fight launch).

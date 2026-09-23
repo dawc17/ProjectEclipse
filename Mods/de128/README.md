@@ -5,7 +5,7 @@ The owner-supplied archive is now the source of truth for DE content. See
 The download is currently blocked by Google Drive quota; prior archive comparisons
 below refer to the historical repository XML until reconciliation is performed.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.18.0` restores ten missing weapon listings, thirteen other equipment
+DE128 is an ordinary downstream Eclipse mod. Version `0.19.0` activates the Sensei story (below), restores ten missing weapon listings, thirteen other equipment
 listings, and enables the archived
 ChineseSwords combat/preview graph for Jian alongside four earlier equipment
 combat-family corrections through Lua. It includes shop availability
@@ -13,6 +13,35 @@ for 25 former battle-pass items at their archived level gates and completes
 saved, already-paid forge orders without waiting. Ascension remains disabled; Master of
 Style and Relentless follow the archived DE XML.
 Definitions, translations and behavior are authored through the public Lua API.
+
+## Sensei story (active since 0.19.0)
+
+`main.lua` calls `sensei_story.install_default()`. It registers the six-act young
+Sensei story on the existing map pages: 12 normal/Eclipse battles, 23 fights,
+34 opponents, 57 reward slots, first-entry dialogue, victory and defeat
+dialogue, unlock notifications and the conditional RaidCharge restriction.
+
+Two inputs are **synthesized**, not recovered, because no available source
+contains them (Step 49 in `PRODUCTION.md` records the evidence):
+
+- `Guard_Girl`/`Guard_Man` (`sensei_guard_templates.lua`): the core Default
+  template plus a Female/Male voice, the shape of every comparable story
+  character template. Guard rows keep their archived equipment and names.
+- RaidCharge availability (`sensei_raid_charge_state.lua`): true while an equipped
+  item carries one of the twelve forged ability enchantments, or the full Neo
+  Wanderer set is worn. Uses the new `enchantments` field of
+  `sf2.profile.equipment()`.
+
+The prince's `Sphere1` is the restored Minor Charge of Darkness. Portraits and
+previews missing from core ship under `assets/sprites/sensei/`. The manifest now
+also requests `story.events`, `story.progression`, `profile.read`, `state.read`,
+`state.write` and `ui.create`.
+
+Automated checks cover registration, archive comparisons and the Lua flow with
+controlled hosts. No native campaign playthrough of the activated story has been
+done yet: play it on a test profile (reach each act's unlock, fight guards and
+bosses in both modes, lose once, check portraits/previews and a forged ability)
+before relying on it. The per-component notes below predate activation.
 
 Pending `scripts/content/sensei_act_one_opponents.lua` ports normal/eclipse young
 Lynx, including encounter-specific enchantment strength/chance settings. It is
@@ -33,6 +62,8 @@ Pending `scripts/content/sensei_guard_opponents.lua` supplies the other 22
 normal/Eclipse loadouts, including the prince, and combines them with the bosses
 in the archived encounter order. Call its `register` function only after resolving
 verified `guard_girl`, `guard_man` template handles and the `sphere1` item handle.
+`sensei_dependencies.resolve()` supplies `sphere1`: the archived prince item is the
+restored Minor Charge of Darkness (Step 48). The guard templates remain missing.
 It provides no substitute for those missing inputs and has no registration side
 effects when merely required. Complete ordered projections cover 34 loadouts in
 23 encounters, with identity-only test fixtures for the unresolved inputs; this
@@ -67,9 +98,17 @@ The caller must request `content.register`, `story.events`, `story.progression`,
 (for the charge control callback). Do not load the component installers separately.
 `Tools/TestSenseiStory.ps1` executes the combined Lua flow with controlled
 opponents, availability and presentation hosts. All six unlocks, 17 entries,
-23 victory cards, loss/retry, save/profile separation and outro cancellation
-are covered; missing assets, defeat dialogue and native campaign acceptance
-still prevent activation in main.lua. See Step 46.
+23 victory cards, six defeat dialogues, loss/retry, save/profile separation and
+outro cancellation are covered. `sensei_art.story_portraits()` supplies every
+required portrait. Missing guard templates, the RaidCharge availability producer
+and native campaign acceptance still prevent activation in main.lua. See Steps 46–48.
+
+The mod now ships twelve Sensei sprites under `assets/sprites/sensei/`: five Act
+II–VI battle previews, five young-boss portraits, the pirate portrait and a copy
+of `character_sensei` (a native resource missing from the core art catalog that
+public sprite IDs use). `Tools/ExtractDE128SenseiArt.py` rebuilds and hash-checks
+them from `ResearchSources`; `Tools/VerifyDE128SenseiArt.cs` decodes them in
+Unity. Battles and opponents pass these as sprite handles to `preview`/`avatar`.
 
 Pending `scripts/content/sensei_raid_charge.lua` supplies that conditional behavior
 through `register(is_available)`. Its caller must supply a verified boolean reader

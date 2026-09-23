@@ -28,8 +28,11 @@ It also defines Titan's Desolator with core art, native innate perks and a name
 registered through <a href={pageUrl('api/localization-patches')}>Lua localization</a>.
 The manifest requests `policy.timers`, `policy.services`, `content.register` and
 `content.patch`, plus `combat.modify_outgoing_hit` and `combat.effects` for its
-perk behaviors. Content is authored in Lua without XML mod definitions. Its
-ChineseSwords module includes a recovered animation binary.
+perk behaviors. Its story also needs `story.events`, `story.progression`,
+`profile.read`, `state.read`, `state.write` and `ui.create`. Content is authored in
+Lua without XML mod definitions. Its ChineseSwords module includes a recovered
+animation binary, and its Sensei story ships its own portrait and battle-preview
+sprites, passed to `avatar` and `preview` as sprite handles.
 
 Saved forge deadlines are preserved until normal delivery settles the order;
 `complete_pending = true` makes it eligible without paying to skip again.
@@ -44,7 +47,10 @@ The integrated combat/offline-modes showcase also owns the forge timer. Disable
 that showcase before trying DE128: competing timer policies fail explicitly.
 Desolator has no purchase listing. DE128 now awards it through the Titan reward
 path using typed grant-time configuration for equipment level and enchantments.
-The package still does not restore the planned story arcs. The user confirmed only
+The package also installs a six-act Sensei story: battles on the existing map
+pages, encounters, rewards, dialogue and unlock notifications. Two of its inputs
+are synthesized where no source survives; the mod's production record explains
+the evidence, and no full campaign playthrough has been recorded yet. The user confirmed only
 that a manually added Desolator worked; that does not by itself validate the
 reward callback's level/enchantment settlement, save persistence, combat behavior,
 or runtime art rendering.

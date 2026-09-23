@@ -4,10 +4,11 @@ $root = Split-Path -Parent $PSScriptRoot
 $fixture = Join-Path $root ('Temp/SenseiEntry-' + [Guid]::NewGuid().ToString('N'))
 $content = Join-Path $fixture 'Mods/fixture.notify/scripts/content'
 New-Item -ItemType Directory -Force $content | Out-Null
-foreach ($name in @('sensei_state','sensei_entry','sensei_entry_data','sensei_entry_text')) {
+foreach ($name in @('sensei_state','sensei_entry','sensei_entry_data','sensei_entry_text','sensei_dialog')) {
     Copy-Item (Join-Path $root "Mods/de128/scripts/content/$name.lua") $content
 }
 Copy-Item (Join-Path $PSScriptRoot 'ValidateSenseiEntry.cs') (Join-Path $fixture 'Program.cs')
+Copy-Item (Join-Path $PSScriptRoot 'SenseiDialogFixture.cs') (Join-Path $fixture 'SenseiDialogFixture.cs')
 $production = [Security.SecurityElement]::Escape((Join-Path $root 'Temp/Phase1ShowcaseRuntime/bin/Debug/net10.0/Phase1ShowcaseRuntime.dll'))
 $moon = [Security.SecurityElement]::Escape((Join-Path $root 'Library/ScriptAssemblies/MoonSharp.Interpreter.dll'))
 @"

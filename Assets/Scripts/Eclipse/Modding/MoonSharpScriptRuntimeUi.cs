@@ -10,6 +10,7 @@ namespace Eclipse.Modding
         {
             private int _uiCloseDepth;
             private IDisposable _actScreen;
+            private IDisposable _storyDialog;
             private System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface> _uiHandles =
                 new System.Runtime.CompilerServices.ConditionalWeakTable<Table, ModUiSurface>();
 
@@ -17,6 +18,7 @@ namespace Eclipse.Modding
             {
                 var ui = new Table(_script);
                 ui.Set("act_screen", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.act_screen", () => OpenActScreen(args))));
+                ui.Set("story_dialog", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.story_dialog", () => OpenStoryDialog(args))));
                 ui.Set("open", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.open", () => OpenUi(args))));
                 ui.Set("close", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.close", () => {
                     UiHandle(args, "sf2.ui.close").Close(); return DynValue.Nil;
@@ -102,6 +104,63 @@ namespace Eclipse.Modding
                 if (!ended) _actScreen = request;
                 else request?.Dispose();
                 return DynValue.NewBoolean(request != null);
+            }
+
+            private DynValue OpenStoryDialog(CallbackArguments args)
+            {
+                const string function = "sf2.ui.story_dialog";
+                ThrowIfDisposed(); _api.RequireCapability("ui.create");
+                if (_uiCloseDepth != 0) throw new ModContentException("Story dialogs cannot open during UI cleanup.");
+                var definition = UiArgument(args, 0, DataType.Table, function).Table;
+                ValidateFields(definition, function, "title", "portrait", "mirrored", "lines", "button", "ignore_back", "on_complete", "on_cancel");
+                var complete = definition.Get("on_complete");
+                var cancel = definition.Get("on_cancel");
+                if (!complete.IsNil() && complete.Type != DataType.Function) throw new ModContentException("on_complete must be a Lua function.");
+                if (!cancel.IsNil() && cancel.Type != DataType.Function) throw new ModContentException("on_cancel must be a Lua function.");
+                string title = definition.Get("title").IsNil() ? string.Empty
+                    : _api.NativeLocalizationKey(RequiredHandle(definition, "title", _localizationHandles, "localization", function));
+                var portrait = RequiredHandle(definition, "portrait", _spriteHandles, "sprite", function);
+                bool mirrored = OptionalBool(definition, "mirrored", false, function);
+                bool ignoreBack = OptionalBool(definition, "ignore_back", false, function);
+                string button = _api.NativeLocalizationKey(RequiredHandle(definition, "button", _localizationHandles, "localization", function));
+                var source = definition.Get("lines");
+                if (source.Type != DataType.Table || source.Table.Length < 1 || source.Table.Length > 16)
+                    throw new ModContentException("Story dialogs require 1..16 lines.");
+                int pairs = 0;
+                foreach (var pair in source.Table.Pairs)
+                {
+                    pairs++;
+                    if (pair.Key.Type != DataType.Number || pair.Key.Number != Math.Truncate(pair.Key.Number) || pair.Key.Number < 1 || pair.Key.Number > source.Table.Length)
+                        throw new ModContentException("Story dialog lines must be a dense array.");
+                }
+                if (pairs != source.Table.Length) throw new ModContentException("Story dialog lines must be a dense array.");
+                var lines = new List<ModStoryDialogLine>();
+                for (int i = 1; i <= source.Table.Length; i++)
+                {
+                    var value = source.Table.Get(i);
+                    if (value.Type != DataType.Table) throw new ModContentException("Story dialog line must be a table.");
+                    ValidateFields(value.Table, function, "text", "button");
+                    string text = _api.NativeLocalizationKey(RequiredHandle(value.Table, "text", _localizationHandles, "localization", function));
+                    string more = value.Table.Get("button").IsNil() ? string.Empty
+                        : _api.NativeLocalizationKey(RequiredHandle(value.Table, "button", _localizationHandles, "localization", function));
+                    lines.Add(new ModStoryDialogLine(text, more));
+                }
+                if (_storyDialog != null) return DynValue.False;
+                if (ModStoryDialogAccess.Open == null) throw new ModContentException("Story dialogs are unavailable in this host.");
+                var request = new ModStoryDialogRequest(title, portrait.ToString(), mirrored, lines.AsReadOnly(), button, ignoreBack);
+                bool ended = false;
+                var lease = ModStoryDialogAccess.Open(request, acknowledged => {
+                    if (ended) return;
+                    ended = true;
+                    _storyDialog = null;
+                    var callback = acknowledged ? complete : cancel;
+                    if (_disposed || callback.IsNil()) return;
+                    try { RunBounded(callback, Mod.Id + ":ui/story_dialog:" + (acknowledged ? "on_complete" : "on_cancel"), MaxBehaviorInstructionSlices, Array.Empty<DynValue>()); }
+                    catch (Exception error) { _api.Log(ModLogLevel.Error, "Story dialog callback failed: " + error.Message); }
+                });
+                if (!ended) _storyDialog = lease;
+                else lease?.Dispose();
+                return DynValue.NewBoolean(lease != null);
             }
 
             private static string UiString(CallbackArguments args, int index, string function) =>

@@ -75,7 +75,8 @@ Create the map entry that the player selects to open a fight.
 | `type` | Battle constant/string | Required | Game battle category; start with `sf2.battles.STORY`. |
 | `x`, `y` | Integers | `0` | Placement on the map page. |
 | `alias`, `title`, `description` | Strings | `""` | Presentation/localization references. |
-| `icon`, `icon_atlas`, `preview` | Strings | `""` | Existing map/panel art identifiers. |
+| `icon`, `icon_atlas` | Strings | `""` | Existing map-button art identifiers. |
+| `preview` | Sprite handle or string | `""` | Battle-panel preview image: a sprite handle for art your mod ships, or an existing native preview name such as `preview_main.statue`. |
 | `eclipse_toggle_name` | String | `""` | Eclipse-mode toggle presentation name. |
 | `location`, `music` | Strings | `""` | Arena and music references used by the panel/content. |
 | `reward_image` | String | `""` | Reward presentation image reference. |
@@ -85,8 +86,22 @@ Create the map entry that the player selects to open a fight.
 local battle = sf2.battles.register {
     id = "training_battle", zone = zone, type = sf2.battles.STORY,
     title = "my.mod:localization/battle.title", x = 0, y = 0,
+    -- Requires assets/sprites/training_preview.asset and its PNG texture.
+    preview = sf2.assets.sprite("sprites/training_preview"),
 }
 ```
+
+### Battle preview images
+
+The map's battle panel shows `preview` when the player selects the entry. Pass
+a handle from [`sf2.assets.sprite`](../assets/#sf2assetssprite) to show your own
+image; a missing or wrong-kind asset fails registration. Core battle previews
+are 484 × 274 pixels, so match that size to fill the panel the same way. A
+plain string is kept for compatibility and is looked up in the game's native
+`UI/battles/` folder only; it is not checked when you register the battle, so a
+misspelled name shows an empty panel instead of raising an error. `icon` and
+`icon_atlas` still select existing map-button art; there is no custom map-button
+sprite field yet.
 
 Constants on `sf2.battles` are `DUMMY`, `TUTORIAL`, `CHALLENGE`, `BOSSES`,
 `TOURNAMENT`, `STORY`, `SURVIVAL`, `FRIENDLY`, `AUTO`, `AI`, `HIDDEN`, `FAKE`,
@@ -250,7 +265,8 @@ Define an opponent, optionally inheriting from a core template.
 | `id` | String | Required | Local warrior ID. |
 | `template` | Warrior-template handle | Omitted | Template to inherit from. |
 | `first_name`, `last_name` | Strings | `""` | Name/localization references. |
-| `avatar`, `voice` | Strings | `""` | Existing portrait/voice identifiers. |
+| `avatar` | Sprite handle or string | `""` | Opponent portrait: a sprite handle for art your mod ships, or an existing native portrait name. |
+| `voice` | String | `""` | Existing voice identifier. |
 | `level` | Integer | `0` | Opponent level setting, 0–10,000; use an explicit level in a new opponent. |
 | `tactic` | Tactic handle or string | `""` | Registered tactic or existing tactic name. |
 | `group` | String | `""` | Opponent content group. |
@@ -270,8 +286,17 @@ local opponent = sf2.warriors.register {
     first_name = "my.mod:localization/opponent.name",
     level = 1,
     tactic = "Standard",
+    -- Requires assets/sprites/partner.asset; core uses 512 x 512 portraits.
+    avatar = sf2.assets.sprite("sprites/partner"),
 }
 ```
+
+The avatar appears on the versus screen and fight HUD. A sprite handle is
+validated at registration and keeps working with any mod namespace. A plain
+string such as `"character_savage"` names a portrait in the game's native
+`UI/Users/` folder and is not validated. Core sprite handles also work, for
+example `sf2.assets.sprite("core:ui/users/character_savage")`, but only for
+portraits present in the packaged core art catalog.
 
 Alignment rows require numeric `factor` and `shift`; optional `priority` defaults
 to `0` and `mode` to `"all"` (`"normal"` and `"eclipse"` are also accepted).

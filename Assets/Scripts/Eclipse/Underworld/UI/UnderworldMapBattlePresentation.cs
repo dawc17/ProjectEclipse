@@ -11,6 +11,11 @@ namespace Eclipse.Underworld.UI
 				return true;
 			}
 			bool hardMode;
+            if (Eclipse.Modding.ModPolicies.TryUnderworldBattle(battle.get_Name(), out var powerModeVisibility))
+            {
+                if (powerModeVisibility == Eclipse.Modding.ModPowerMode.Always) return true;
+                return (powerModeVisibility == Eclipse.Modding.ModPowerMode.Power) == powerMode;
+            }
             if (!Eclipse.Modding.ModPolicies.TryRaidBattle(battle.get_Name(), out hardMode))
                 hardMode = battle.get_Name().EndsWith("_HARDMODE", StringComparison.OrdinalIgnoreCase);
 			return hardMode == powerMode;

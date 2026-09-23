@@ -26,4 +26,11 @@ local function install(opponents, is_raid_charge_available, portraits)
     installed = true
     return graph
 end
-return { install = install }
+-- Production composition: synthesized guard templates, restored Sphere1, the
+-- synthesized RaidCharge availability reader and shipped/core portraits.
+local function install_default()
+    local opponents = require("content.sensei_guard_opponents").register(require("content.sensei_dependencies").resolve())
+    local is_available = require("content.sensei_raid_charge_state").create()
+    return install(opponents, is_available, require("content.sensei_art").story_portraits())
+end
+return { install = install, install_default = install_default }

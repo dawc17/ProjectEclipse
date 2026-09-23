@@ -10,6 +10,7 @@ local places = {
 }
 local function register()
     local text = require("content.sensei_battle_text")
+    local art = require("content.sensei_art")
     local result = { normal = {}, eclipse = {} }
     for act, place in ipairs(places) do
         local zone = sf2.zones.get("core:zones/zone_" .. act)
@@ -17,7 +18,7 @@ local function register()
             result[mode][act] = sf2.battles.register {
                 id = "sensei_act_" .. act .. "_" .. mode, zone = zone,
                 type = mode == "normal" and sf2.battles.STORY or sf2.battles.FINAL,
-                x = place.x, y = place.y, location = place.location, preview = place.preview, music = place.music,
+                x = place.x, y = place.y, location = place.location, preview = art.preview(place.preview), music = place.music,
                 alias = text.alias, title = text.title, icon = "sensei",
                 description = mode == "normal" and text.locked or text.description,
                 eclipse_toggle_name = mode == "normal" and (sf2.mod.id .. ":battles/sensei_act_" .. act .. "_eclipse") or nil,

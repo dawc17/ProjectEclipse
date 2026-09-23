@@ -237,6 +237,7 @@ records are marked equipped. Each record contains:
 | `count` | Native inventory quantity. |
 | `owned` | Whether quantity is greater than zero. |
 | `upgrade` | Stored upgrade index, possibly the native unspecified sentinel `-1`; `nil` if unavailable. |
+| `enchantments` | Array of qualified perk ID strings for the item's current enchantments, in native order. Always present; empty when the item has none. Perks the API cannot identify are left out. |
 
 **When:** After an active game profile has loaded, including UI and story callbacks.
 
@@ -256,6 +257,28 @@ local function wearing_katana()
     end
     return false
 end
+```
+
+Definition IDs are normalized to lower case, so compare in lower case, for
+example `"core:perks/perk_hermitstorm"`. This example reports whether any worn
+item carries a given enchantment, such as a forged ability:
+
+```lua
+local sf2 = require("sf2")
+-- Call from a story, UI or combat callback after profile loading.
+local function wearing_enchantment(perk_id)
+    perk_id = perk_id:lower()
+    for _, item in ipairs(sf2.profile.equipment()) do
+        if item.owned then
+            for _, perk in ipairs(item.enchantments) do
+                if perk == perk_id then return true end
+            end
+        end
+    end
+    return false
+end
+
+local storm = wearing_enchantment("core:perks/PERK_HERMITSTORM")
 ```
 
 This reads profile equipment, not a fight's temporary rule-imposed loadout or the

@@ -206,7 +206,9 @@ namespace Eclipse.Modding
             ModProfileAccess.Clear();
             ModSceneAccess.Clear();
             ModActScreenPresenter.CancelActive();
+            ModStoryDialogPresenter.CancelActive();
             ModActScreenAccess.Clear();
+            ModStoryDialogAccess.Clear();
             ModBattleAccess.Clear();
             DojoSelection.Clear();
             _legacyContent?.Dispose();
@@ -234,6 +236,7 @@ namespace Eclipse.Modding
             ModProfileAccess.Equipment = ReadProfileEquipment;
             ModSceneAccess.Open = TryNavigateScene;
             ModActScreenAccess.Open = TryOpenActScreen;
+            ModStoryDialogAccess.Open = TryOpenStoryDialog;
             ModPolicies.Content = _scripts.Content;
             ModModeRuntime.SchedulePreparation = (request,ready,cancel) =>
                 new GameObject("Mod encounter preparation").AddComponent<ModPendingEncounter>().Configure(request,ready,cancel);
@@ -379,6 +382,7 @@ namespace Eclipse.Modding
         {
             if (_profileMutationState == 1) throw new InvalidOperationException("Cannot replace the profile during settlement.");
             ModActScreenPresenter.CancelActive();
+            ModStoryDialogPresenter.CancelActive();
             _battleLotteryPresentation?.Dispose();
             _battleLotteryPresentation = null;
             _lotteryProfileNode = warrior;
@@ -407,6 +411,7 @@ namespace Eclipse.Modding
         {
             if (_profileMutationState == 1) throw new InvalidOperationException("Cannot unload the profile during settlement.");
             ModActScreenPresenter.CancelActive();
+            ModStoryDialogPresenter.CancelActive();
             _battleLotteryPresentation?.Dispose();
             _battleLotteryPresentation = null;
             _lotteryProfileNode = null;
@@ -449,6 +454,17 @@ namespace Eclipse.Modding
             var owner = _profileRoster;
             int generation = StoryEvents.ProfileGeneration;
             return ModActScreenPresenter.TryOpen(lines, finished, () => ReferenceEquals(owner, _profileRoster) &&
+                generation == StoryEvents.ProfileGeneration && !Eclipse.UI.TitleScreen.IsOpen && !Eclipse.UI.GameSessionRestart.IsRestarting);
+        }
+
+        // Story dialogs belong to the active profile and the scene that opened them.
+        private static IDisposable TryOpenStoryDialog(ModStoryDialogRequest request, Action<bool> finished)
+        {
+            if (_profileRoster == null || _scripts == null || _profileMutationState != 0 || _sceneNavigationInProgress ||
+                Eclipse.UI.TitleScreen.IsOpen || Eclipse.UI.GameSessionRestart.IsRestarting) return null;
+            var owner = _profileRoster;
+            int generation = StoryEvents.ProfileGeneration;
+            return ModStoryDialogPresenter.TryOpen(request, finished, () => ReferenceEquals(owner, _profileRoster) &&
                 generation == StoryEvents.ProfileGeneration && !Eclipse.UI.TitleScreen.IsOpen && !Eclipse.UI.GameSessionRestart.IsRestarting);
         }
 
@@ -1127,6 +1143,21 @@ namespace Eclipse.Modding
             return new ModProfilePerkSnapshot(false, null);
         }
 
+        // Native enchantments carry the perk's runtime name: the legacy name for core
+        // perks and the qualified ID for mod perks. Unknown names are omitted.
+        private static bool TryResolveRuntimePerk(string name, out DefinitionId id)
+        {
+            id = default(DefinitionId);
+            if (string.IsNullOrEmpty(name)) return false;
+            foreach (var definition in _scripts.Content.Perks)
+            {
+                string runtime = definition.IsCore && !string.IsNullOrEmpty(definition.LegacyName)
+                    ? definition.LegacyName : definition.Id.ToString();
+                if (string.Equals(runtime, name, StringComparison.Ordinal)) { id = definition.Id; return true; }
+            }
+            return false;
+        }
+
         private static IReadOnlyList<ModProfileEquipmentSnapshot> ReadProfileEquipment()
         {
             if (_profileRoster == null || _scripts == null) return null;
@@ -1136,8 +1167,12 @@ namespace Eclipse.Modding
                 var metadata = item.BHKHOJPANHE();
                 DefinitionId? id = _scripts.Content.TryResolveRuntimeItem(item.get_Name(), metadata?.NodeXML?.OuterXml, out var resolved)
                     ? resolved : (DefinitionId?)null;
+                var enchantments = new List<DefinitionId>();
+                foreach (var perk in item.GetEnchantments())
+                    if (perk != null && TryResolveRuntimePerk(perk.Name, out var perkId)) enchantments.Add(perkId);
                 result.Add(new ModProfileEquipmentSnapshot(id,
-                    new ModProfileItemSnapshot(true, item.Count, true, item.DHNNCAEEMLL(), metadata?.Type, metadata?.SubType)));
+                    new ModProfileItemSnapshot(true, item.Count, true, item.DHNNCAEEMLL(), metadata?.Type, metadata?.SubType),
+                    enchantments));
             }
             return result.AsReadOnly();
         }
@@ -1511,7 +1546,9 @@ namespace Eclipse.Modding
             ModProfileAccess.Clear();
             ModSceneAccess.Clear();
             ModActScreenPresenter.CancelActive();
+            ModStoryDialogPresenter.CancelActive();
             ModActScreenAccess.Clear();
+            ModStoryDialogAccess.Clear();
             ModBattleAccess.Clear();
             DojoSelection.Clear();
             ModModeRuntime.Clear();

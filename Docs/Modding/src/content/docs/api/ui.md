@@ -581,6 +581,103 @@ local accepted = sf2.ui.act_screen {
 }
 ```
 
+## sf2.ui.story_dialog
+
+Show one of the game's own story dialogs: the parchment popup with a speaker
+title, a round portrait, text and a single button that quest dialogs use.
+
+**Signature:** `sf2.ui.story_dialog(definition) -> boolean`
+
+**Returns:** `true` when the native dialog opens; `false` when this script
+already has a story dialog open, or the host refuses (no bound profile, a
+scene/profile change in progress, the title screen or a restart). Invalid
+arguments, a missing capability, or a host without dialog support raise an
+error.
+
+**When:** From a story, UI or fight-entry callback after the profile has loaded.
+It cannot open from a UI cleanup callback. One story dialog per script is open
+at a time; open the next one from `on_complete`.
+
+**Requires:** `ui.create`. Registering localization also requires `content.register`.
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `portrait` | Sprite handle | Required | Speaker portrait, shown the same way as core portraits (512 × 512 art matches them). |
+| `lines` | Array of line tables | Required | 1–16 pages shown in order. Each needs `text` (localization handle) and may set `button` (localization handle for that page's "more" button). |
+| `button` | Localization handle | Required | Caption of the final button, for example "OK" or "FIGHT". |
+| `title` | Localization handle | No title | Speaker name. |
+| `mirrored` | Boolean | `false` | Flip the portrait horizontally. |
+| `ignore_back` | Boolean | `false` | Ignore the device Back key, so only the button closes the dialog. |
+| `on_complete` | Function | None | Runs once when the player presses the final button (or Back, unless `ignore_back`). |
+| `on_cancel` | Function | None | Runs once if the dialog is closed without that choice. |
+
+Text is looked up by the game when the dialog is shown, so it follows the
+current language. Use localization handles, not plain strings; core handles from
+`sf2.localization.key` work too. Arrays must be dense, and unknown fields are
+rejected.
+
+The dialog belongs to the scene and profile that opened it. Changing scene or
+profile, restarting, returning to the title screen or disposing the script
+closes it and runs `on_cancel` instead of `on_complete`. Exactly one of the two
+callbacks runs, at most once. A refused request is not queued: try again from a
+later event such as the next `scene_enter`.
+
+```lua
+local sf2 = require("sf2")
+local name = sf2.localization.register { id = "sensei.name", language = "eng", value = "SENSEI" }
+local line = sf2.localization.register { id = "sensei.hello", language = "eng", value = "Welcome back." }
+local ok = sf2.localization.register { id = "ok", language = "eng", value = "OK" }
+local face = sf2.assets.sprite("sprites/sensei")
+
+sf2.story.on("scene_enter", function(event)
+    if event.scene ~= "map" then return end
+    sf2.ui.story_dialog {
+        title = name, portrait = face, lines = { { text = line } }, button = ok,
+        on_complete = function() sf2.log.info("Player read the greeting") end,
+        on_cancel = function() sf2.log.info("Greeting interrupted; show it again later") end,
+    }
+end)
+```
+
+Callbacks run after the native dialog has closed. Chain a conversation by
+opening the next dialog from `on_complete`:
+
+```lua
+-- cards is an array of { title = handle, text = handle }; face and ok as above.
+local function show(index)
+    local card = cards[index]
+    if not card then return end
+    sf2.ui.story_dialog {
+        title = card.title, portrait = face, lines = { { text = card.text } }, button = ok,
+        on_complete = function() show(index + 1) end,
+    }
+end
+show(1)
+```
+
+## on_cancel
+
+**Signature:** `on_cancel() -> nil`
+
+**Returns:** Nothing; the return value is ignored.
+
+**When:** Once, when a story dialog opened by `sf2.ui.story_dialog` closes
+without the player's choice: a scene or profile change, restart, return to the
+title screen, or script disposal. It never runs after `on_complete`. Exceptions
+and instruction-budget failures are logged.
+
+**Requires:** An accepted `sf2.ui.story_dialog` request with `ui.create`.
+
+```lua
+-- face, line and ok are handles created earlier.
+local pending = true
+sf2.ui.story_dialog {
+    portrait = face, lines = { { text = line } }, button = ok,
+    on_complete = function() pending = false end,
+    on_cancel = function() sf2.log.info("Will show the message again on the next map visit") end,
+}
+```
+
 ## on_complete
 
 **Signature:** `on_complete() -> nil`
@@ -589,7 +686,7 @@ local accepted = sf2.ui.act_screen {
 
 **When:** Once after every line and the final native fade finish, with presentation resources and this screen's input locks already released. Cancellation/refusal never calls it. Exceptions and instruction-budget failures are logged.
 
-**Requires:** An accepted `sf2.ui.act_screen` request with `ui.create`.
+**Requires:** An accepted `sf2.ui.act_screen` request with `ui.create`. `sf2.ui.story_dialog` uses the same callback name when the player presses its final button (or Back); see that section.
 
 ```lua
 -- ending is a localization handle registered earlier.

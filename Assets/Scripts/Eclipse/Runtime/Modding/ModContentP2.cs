@@ -208,9 +208,21 @@ namespace Eclipse.Modding
                     { hardMode = mode.HardMode; return true; }
             return false;
         }
+        // Underworld pages owned by mods, and their battles' Power Mode visibility.
+        public static bool TryUnderworldBattle(string name, out ModPowerMode powerMode)
+        {
+            powerMode = ModPowerMode.Always;
+            if (Content == null || string.IsNullOrEmpty(name)) return false;
+            foreach (var battle in Content.Battles)
+                if (!battle.IsCore && battle.LegacyName == name && Content.TryGetZone(battle.Zone, out var zone) && zone.Underworld)
+                { powerMode = battle.PowerMode; return true; }
+            return false;
+        }
         public static bool IsRaidZone(string name)
         {
             if (Content == null) return false;
+            foreach (var zone in Content.Zones)
+                if (zone.Underworld && !zone.IsCore && zone.LegacyName == name) return true;
             foreach (var mode in Content.Modes)
                 if (mode.Raid) foreach (var id in mode.Fights)
                     if (Content.TryGetFight(id, out var fight) && Content.TryGetBattle(fight.Battle, out var battle) &&

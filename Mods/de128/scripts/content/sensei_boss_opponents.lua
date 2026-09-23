@@ -1,4 +1,5 @@
 local sf2 = require("sf2")
+local art = require("content.sensei_art")
 -- Pending: not required by main.lua. Historical DE stages.xml boss loadouts.
 -- Guards and encounter assembly remain unresolved; never replace missing templates.
 -- Reconcile with SOURCE_CORPUS.md before current-corpus parity claims.
@@ -9,7 +10,7 @@ do
         return sf2.warriors.register {
             id = id,
             template = sf2.warriors.get_template("core:warrior-templates/hermit_swords"),
-            tactic = "Lynx_Ranged", first_name = "BOSS_HERMIT", avatar = "boss_hermit_young",
+            tactic = "Lynx_Ranged", first_name = "BOSS_HERMIT", avatar = art.avatar("boss_hermit_young"),
             attributes = { WeaponDamage = 10, UnarmedDamage = 0, BodyDefense = 8, HeadDefense = 2 },
             items = { sf2.items.get("core:items/ranged/RANGED_NEEDLE") },
             perks = {
@@ -38,7 +39,7 @@ do
         return sf2.warriors.register {
             id = id,
             template = sf2.warriors.get_template("core:warrior-templates/butcher_backswords"),
-            tactic = "Standard", first_name = "BOSS_BUTCHER", avatar = "boss_butcher_young",
+            tactic = "Standard", first_name = "BOSS_BUTCHER", avatar = art.avatar("boss_butcher_young"),
             attributes = { WeaponDamage = 10, UnarmedDamage = 0, BodyDefense = 8, HeadDefense = 2 },
             items = { sf2.items.get("core:items/ranged/RANGED_CHAKRAM") },
             perks = {
@@ -66,7 +67,7 @@ do
         return sf2.warriors.register {
             id = id,
             template = sf2.warriors.get_template("core:warrior-templates/wasp_naginata"),
-            tactic = "Standard", first_name = "BOSS_WASP", avatar = "boss_wasp_young",
+            tactic = "Standard", first_name = "BOSS_WASP", avatar = art.avatar("boss_wasp_young"),
             attributes = { WeaponDamage = 10, UnarmedDamage = 0, BodyDefense = 8, HeadDefense = 2 },
             items = { sf2.items.get("core:items/ranged/RANGED_SHURIKEN_OF_DARKNESS") },
             perks = {
@@ -94,7 +95,7 @@ do
         return sf2.warriors.register {
             id = id,
             template = sf2.warriors.get_template("core:warrior-templates/huntress_fan"),
-            tactic = "Standard", first_name = "BOSS_HUNTRESS", avatar = "boss_widow_young",
+            tactic = "Standard", first_name = "BOSS_HUNTRESS", avatar = art.avatar("boss_widow_young"),
             attributes = { WeaponDamage = 10, UnarmedDamage = 0, BodyDefense = 8, HeadDefense = 2 },
             items = { sf2.items.get("core:items/ranged/RANGED_ASSASSINS_DAGGER") },
             perks = {
@@ -122,7 +123,7 @@ do
         return sf2.warriors.register {
             id = id,
             template = sf2.warriors.get_template("core:warrior-templates/shogun_katana"),
-            tactic = "Standard", first_name = "NAME_SHOGUN", avatar = "boss_shogun_young",
+            tactic = "Standard", first_name = "NAME_SHOGUN", avatar = art.avatar("boss_shogun_young"),
             attributes = { WeaponDamage = 10, UnarmedDamage = 0, BodyDefense = 8, HeadDefense = 2 },
             items = { sf2.items.get("core:items/ranged/RANGED_CHAKRAM_OF_MASTER") },
             perks = {

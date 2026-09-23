@@ -2,6 +2,7 @@ local sf2 = require("sf2")
 local data = require("content.sensei_victory_data")
 local text = require("content.sensei_victory_text")
 local shared = require("content.sensei_state")
+local dialog = require("content.sensei_dialog")
 
 -- Pending: install before notifications, with verified portrait handles.
 local function install(final_ids, portraits)
@@ -51,26 +52,16 @@ local function install(final_ids, portraits)
             if not accepted and outro == token then outro = nil end
             return
         end
-        local function advance(current)
-            if scene ~= "map" or view ~= current then return end
+        local token = {}
+        local opened = dialog.open(line, text, portraits[line.portrait], function()
+            if view ~= token then return end
+            view = nil
             sf2.state.set { ["sensei_dialogue_next_" .. act] = index + 1 }
-            sf2.ui.close(current)
-            show_next()
-        end
-        view = sf2.ui.open {
-            id = "sensei_victory", mount = "modal",
-            root = { id = "dialog", kind = "column", width = 800, height = 460, gap = 12, children = {
-                { id = "speaker", kind = "text", width = 776, height = 48, text = sf2.localization.text(text[line.title]), style = { font_size = 32 } },
-                { id = "content", kind = "row", width = 776, height = 310, gap = 20, children = {
-                    { id = "portrait", kind = "image", width = 210, height = 310, sprite = portraits[line.portrait], mirrored = line.mirrored },
-                    { id = "body", kind = "text", width = 546, height = 310, text = sf2.localization.text(text[line.text]), style = { font_size = 24, text_align = "left" } },
-                } },
-                { id = "continue", kind = "button", width = 240, height = 60, text = sf2.localization.text(text.OK) },
-            } },
-            on_click = function(current, id) if id == "continue" then advance(current) end end,
-            on_back = advance,
-            on_close = function(current) if view == current then view = nil end end,
-        }
+            if scene == "map" then show_next() end
+        end, function()
+            if view == token then view = nil end
+        end)
+        if opened then view = token end
     end
     sf2.story.on("battle_result", function(event)
         local act = acts[event.fight]

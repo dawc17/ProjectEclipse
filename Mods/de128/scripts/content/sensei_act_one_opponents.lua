@@ -1,4 +1,5 @@
 local sf2 = require("sf2")
+local art = require("content.sensei_art")
 
 -- Pending content: deliberately not required by main.lua. Archived Act I also
 -- references Guard_Girl/Guard_Man templates absent from the available sources.
@@ -11,7 +12,7 @@ local function lynx(id, alignments)
     return sf2.warriors.register {
         id = id,
         template = sf2.warriors.get_template("core:warrior-templates/lynx_claws"),
-        tactic = "Lynx_Ranged", first_name = "BOSS_LYNX", avatar = "boss_lynx_young",
+        tactic = "Lynx_Ranged", first_name = "BOSS_LYNX", avatar = art.avatar("boss_lynx_young"),
         attributes = { WeaponDamage = 10, UnarmedDamage = 0, BodyDefense = 8, HeadDefense = 2 },
         items = { sf2.items.get("core:items/ranged/RANGED_SHURIKENS") },
         perks = {

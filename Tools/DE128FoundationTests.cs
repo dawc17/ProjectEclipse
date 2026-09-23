@@ -12,7 +12,8 @@ internal static class DE128FoundationTests
         { "paid_offers", "battle_pass", "ads", "rewarded_video", "online_services", "payments" };
     private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
     private static readonly string[] Capabilities =
-        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects" };
+        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create" };
+    private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create" };
     private static readonly DefinitionId Sword = DefinitionId.Parse("de128:items/weapon/titans_desolator");
     private static readonly DefinitionId CoreSword = CoreContentImporter.WeaponId("WEAPON_TITAN_GIANT_SWORD");
     private static XmlDocument _items;
@@ -21,6 +22,11 @@ internal static class DE128FoundationTests
     private static Dictionary<string, XmlDocument> _languages;
     private static int _checks;
     private static readonly Dictionary<string, AssetKind> RestoredAssets = new Dictionary<string, AssetKind>();
+    // Core portraits the Sensei story names; Tools/VerifyDE128SenseiArt.cs loads each natively.
+    private static readonly HashSet<string> CorePortraits = new HashSet<string>(new[] {
+        "boss_lynx_young", "character_ancient", "character_asian", "character_blind", "character_fanatic",
+        "character_indean", "character_philosopher", "character_prince", "character_prince_evil", "character_ronin",
+        "character_sadist", "character_savage", "character_sensei_young", "character_sister" }.Select(name => "ui/users/" + name));
 
     // Resolves only the declared core references. Native art decoding is a
     // separate check; arbitrary or misspelled asset IDs must not pass this fixture.
@@ -38,6 +44,7 @@ internal static class DE128FoundationTests
             else if (id.Path == "ui/items/weapon17.img_weapon_boss_giant_sword") kind = AssetKind.Sprite;
             else if (id.Path == "ui/skills/iconmasterofstyle" || id.Path == "ui/skills/iconmasterofstyle_blue" ||
                 id.Path == "ui/skills/iconcrackedapple" || id.Path == "ui/skills/iconcrackedapple_blue") kind = AssetKind.Sprite;
+            else if (CorePortraits.Contains(id.Path)) kind = AssetKind.Sprite;
             else if (!RestoredAssets.TryGetValue(id.Path, out kind)) return false;
             metadata = new AssetMetadata(id, kind, AssetSourceKind.Core, string.Empty, -1, "DE128 metadata fixture");
             return true;
@@ -132,7 +139,9 @@ internal static class DE128FoundationTests
         using (var transaction = catalog.BeginRegistration(mod))
         {
             var api = new ModApiFacade(mod, assets, transaction, new ModStateRuntime(), null);
-            var context = new MoonSharpScriptRuntime().CreateContext(mod, api);
+            // The active package installs story hooks; supply the production event bus.
+            var context = new MoonSharpScriptRuntime(null, null, null,
+                new ModStoryEvents((owner, message) => throw new InvalidOperationException(message))).CreateContext(mod, api);
             try
             {
                 context.ExecuteEntrypoint();
@@ -217,7 +226,7 @@ internal static class DE128FoundationTests
         Check(catalog.TryGetLocalization(weapon.DisplayName, out var title) &&
             title.Id.Namespace.Value == "de128" && title.GetOrEnglish("eng") == "Titan's Desolator",
             "Desolator's mod-owned English title is missing.");
-        Check(catalog.Rewards.Count == 1 && catalog.TryGetReward(
+        Check(catalog.Rewards.Count(value => !value.Id.LocalId.StartsWith("sensei_act_")) == 1 && catalog.Rewards.Count == 58 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
             reward.Items.Count == 1 && reward.Items[0].Item == Sword && reward.Items[0].UsesConfiguration &&
             reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 23 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
@@ -229,16 +238,32 @@ internal static class DE128FoundationTests
         Check(drop.ResultIndex == 1 && drop.Mode == ModRuleMode.Eclipse && !drop.MinimumLevel.HasValue &&
             !drop.MaximumLevel.HasValue && drop.Reward.Id.ToString() == "de128:rewards/titans_desolator",
             "Desolator reward changed its winning slot, mode or level gate.");
-        Check(catalog.Modes.Count == 0 && catalog.Warriors.Count == 0 && catalog.FightRules.Count == 0 &&
-            !catalog.Fights.Any(fight => !fight.IsCore) && catalog.Quests.Count == 0,
+        // The only mod-owned opponents, fights and rules are the active Sensei story's.
+        Check(catalog.Modes.Count == 0 && catalog.Quests.Count == 0 &&
+            catalog.Warriors.Count == 34 && catalog.Warriors.All(value => value.Id.LocalId.StartsWith("sensei_")) &&
+            catalog.Fights.Count(fight => !fight.IsCore) == 23 &&
+            catalog.Fights.Where(fight => !fight.IsCore).All(fight => fight.Id.LocalId.StartsWith("sensei_act_")) &&
+            catalog.FightRules.All(rule => rule.Id.LocalId.StartsWith("sensei_")),
             "Disabled Ascension registered live modes, opponents, fights, rules or quests.");
+        // Active Sensei story: synthesized guards (Default + voice) and the restored Sphere1.
+        var guards = catalog.Warriors.Where(value => value.Id.LocalId.Contains("_guard_")).ToArray();
+        Check(guards.Length == 22 && guards.All(value => value.HasTemplate &&
+            value.Template.ToString() == "core:warrior-templates/default" && (value.Voice == "Female" || value.Voice == "Male")),
+            "Sensei guards do not use the synthesized Default+voice templates.");
+        Check(guards.Count(value => value.Voice == "Female") == 10 &&
+            guards.Where(value => value.Id.LocalId.StartsWith("sensei_act_6_")).All(value =>
+                value.Voice == "Male" && value.Items.Any(item => item.ToString() == "de128:items/magic/minor_charge_of_darkness")),
+            "Sensei guard voices or the prince's restored Sphere1 differ.");
+        Check(catalog.Battles.Count(value => !value.IsCore) == 12 &&
+            catalog.Battles.Where(value => !value.IsCore && value.Preview.StartsWith("de128:")).Count() == 10,
+            "Sensei battles or shipped previews missing from the active package.");
         Check(!catalog.Localizations.Any(value => value.Id.Namespace.Value == "de128" &&
             (value.Id.LocalId.StartsWith("ascension") || value.Id.LocalId == "zones/ascension")),
             "Disabled Ascension registered live localization.");
         var mindInnate=catalog.ItemInnatePerks.Single(value=>value.Item.ToString()=="de128:items/magic/mind_throw");
         Check(mindInnate.Entries.Count==1 && mindInnate.Entries[0].Perk.ToString()=="de128:perks/mind_throw",
             "MindThrow lost its innate Lua behavior");
-        Check(catalog.Perks.Count(perk => !perk.IsCore) == 3 && catalog.Behaviors.Count == 3,
+        Check(catalog.Perks.Count(perk => !perk.IsCore) == 3 && catalog.Behaviors.Count(value => value.Id.LocalId != "sensei_raid_charge") == 3 && catalog.Behaviors.Count == 4,
             "DE combat perk definitions are missing or unexpected behaviors were registered.");
         foreach (int level in new[] { 4, 8, 11, 14, 17 })
             Check(catalog.TryGetProgressionBranch(level, out var branch) && branch.Entries.Count == 2,
@@ -853,6 +878,15 @@ end}
             {
                 DECombatPerksTests.CheckMissingCapability(restricted, missing,
                     (descriptor, content) => LoadLive(descriptor, content), Check);
+                continue;
+            }
+            // Story capabilities used only inside later callbacks (profile queries, UI) are
+            // enforced when invoked; their dedicated Sensei suites cover the refusal.
+            if (CallTimeCapabilities.Contains(missing))
+            {
+                var allowed = new ModContentCatalog();
+                Load(restricted, allowed);
+                Check(allowed.Fights.Count(fight => !fight.IsCore) == 23, "Call-time capability changed registration: " + missing);
                 continue;
             }
             var rejected = new ModContentCatalog();

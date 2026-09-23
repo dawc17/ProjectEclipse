@@ -105,12 +105,11 @@ require("content.sensei_entry").install(normal,portraits)
         var mod=ModDiscovery.DiscoverLoose(args[0]).Mods.Single();var catalog=new ModContentCatalog();
         var stages=Read(Path.Combine(args[1],"Assets/vanillaXml/stages.xml"));CoreContentImporter.ImportStages(catalog,stages.SelectSingleNode("Stages/Zones"));
         var assets=new AssetResolver(new IAssetProvider[]{new LooseModProvider(mod),new PortraitMetadata()});
-        var errors=new List<string>();var views=new List<ModUiSurface>();var bus=new ModStoryEvents((id,error)=>errors.Add(error));var state=new ModStateRuntime();
+        var errors=new List<string>();var dialogs=new FakeDialogHost(catalog);var views=dialogs.Views;var layers=dialogs;var bus=new ModStoryEvents((id,error)=>errors.Add(error));var state=new ModStateRuntime();
         Action<bool> finish=null;IReadOnlyList<ModActScreenLine> lines=null;
         ModActScreenAccess.Open=(value,done)=>{lines=value;finish=done;return new Lease(()=>done(false));};
-        using(var layers=new ModUiLayerStack())
         using(var tx=catalog.BeginRegistration(mod))
-        using(var context=new MoonSharpScriptRuntime(view=>{views.Add(view);layers.Add(view);},null,null,bus).CreateContext(mod,new ModApiFacade(mod,assets,tx,state,entry=>errors.Add(entry.Message))))
+        using(var context=new MoonSharpScriptRuntime(null,null,null,bus).CreateContext(mod,new ModApiFacade(mod,assets,tx,state,entry=>errors.Add(entry.Message))))
         {
             context.ExecuteEntrypoint();tx.Commit();var save=Save();Check(state.Bind(save.DocumentElement,new[]{context}).Count==0,"Bind failed");bus.BindProfile();
             var archive=Read(Path.Combine(args[1],"Assets/DExml/quests.xml"));var english=Read(Path.Combine(args[1],"Assets/DExml/localizations/eng.xml"));
@@ -142,7 +141,8 @@ require("content.sensei_entry").install(normal,portraits)
                     var view=views.Last(value=>!value.IsClosed);var button=action.SelectSingleNode("Button");
                     Check(view.Read("speaker").Text==Text(action.Attributes["Title"].Value)&&view.Read("body").Text==Text(action.SelectSingleNode("Line").Attributes["Text"].Value),"Dialogue order/text mismatch");
                     Check(view.Read("continue").Text==Text(button.Attributes["Text"].Value),"Button text mismatch");
-                    Check(view.Read("portrait").Sprite==AssetId.Parse("core:ui/users/"+action.Attributes["Image"].Value)&&Node(view.Root,"portrait").Mirrored==(action.Attributes["Mirrored"]?.Value=="1"),"Portrait mismatch");
+                    Check(view.Read("portrait").Sprite==AssetId.Parse("core:ui/users/"+action.Attributes["Image"].Value)&&view.Read("portrait").Mirrored==(action.Attributes["Mirrored"]?.Value=="1"),"Portrait mismatch");
+                    Check(view.Request.IgnoreBack==(action.Attributes["IgnoreBack"]?.Value=="1")&&view.Request.Lines.Count==1,"Native IgnoreBack/line request differs");
                     layers.SetBlocked(true);Check(!view.TryClick("continue"),"Blocked entry advanced");layers.SetBlocked(false);
                     if(action.Attributes["IgnoreBack"]?.Value=="1"){layers.Back();Check(!view.IsClosed&&launched==0,"IgnoreBack launched fight");}
                     Check(view.TryClick("continue")&&view.IsClosed,"Card did not advance");cards++;

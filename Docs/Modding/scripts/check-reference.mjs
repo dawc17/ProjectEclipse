@@ -50,6 +50,7 @@ for (const name of ['on_click', 'on_close', 'on_change', 'on_back', 'on_decide',
   if (sources.some(source => source.includes(`table.Get("${name}")`))) exported.add(name);
 
 if (sources.some(source => source.includes('definition.Get("on_complete")'))) exported.add('on_complete');
+if (sources.some(source => source.includes('definition.Get("on_cancel")'))) exported.add('on_cancel');
 if (sources.some(source => source.includes('":on_before_fight"'))) exported.add('on_before_fight');
 const parser = unified().use(remarkParse);
 const documented = new Map();

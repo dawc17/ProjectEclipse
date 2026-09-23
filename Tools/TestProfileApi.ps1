@@ -11,6 +11,8 @@ $perk=[regex]::Match($source,'(?ms)^        private static ModProfilePerkSnapsho
 if(!$level.Success -or !$item.Success -or !$perk.Success){throw 'Native profile query methods not found.'}
 $equipment=[regex]::Match($source,'(?ms)^        private static IReadOnlyList<ModProfileEquipmentSnapshot> ReadProfileEquipment\(.*?^        \}')
 if(!$equipment.Success){throw 'Native equipment query not found.'}
+$runtimePerk=[regex]::Match($source,'(?ms)^        private static bool TryResolveRuntimePerk\(.*?^        \}')
+if(!$runtimePerk.Success){throw 'Native enchantment perk resolver not found.'}
 $native=@'
 using System;
 using System.Collections.Generic;
@@ -20,7 +22,8 @@ public static class NativeProfileFixture {
  public class Catalog {public ItemMetadata Item=new ItemMetadata();public string Name;public ItemMetadata GetItemByName(string name){Name=name;return Item;}}
  public static class ListSF {public static Catalog Items=new Catalog();public static Catalog GetItems()=>Items;}
 
- public class InventoryItem { public string Name="WEAPON_NUNCHAKU";public string get_Name()=>Name;public ItemMetadata Metadata=new ItemMetadata();public ItemMetadata BHKHOJPANHE()=>Metadata; public int Count=2; public bool EFMFGEPDAOP()=>true; public int DHNNCAEEMLL()=>3; }
+ public class Enchantment { public string Name; }
+ public class InventoryItem { public List<Enchantment> Enchantments=new List<Enchantment>();public List<Enchantment> GetEnchantments()=>Enchantments; public string Name="WEAPON_NUNCHAKU";public string get_Name()=>Name;public ItemMetadata Metadata=new ItemMetadata();public ItemMetadata BHKHOJPANHE()=>Metadata; public int Count=2; public bool EFMFGEPDAOP()=>true; public int DHNNCAEEMLL()=>3; }
  public class Inventory { public List<InventoryItem> Equipped=new List<InventoryItem>();public List<InventoryItem> JCMOHPFKPBO()=>Equipped; public InventoryItem Item=new InventoryItem(); public string Name; public InventoryItem CMGOCLGHNLH(string name){Name=name;return Item;} }
  public class Perk { public int Upgrade=2; public string get_Name()=>"TEST_PERK";public int DHNNCAEEMLL()=>Upgrade; }
  public class Perks { public System.Collections.Generic.List<Perk> Values=new System.Collections.Generic.List<Perk>();public System.Collections.Generic.List<Perk> KEHFPLBNDHI()=>Values; }
@@ -33,6 +36,9 @@ public static class NativeProfileFixture {
   _scripts=new Scripts{Content=catalog};_profileRoster=new Roster();
   _profileRoster.Perks.Values.Add(new Perk());ListSF.Items=new Catalog();
   ModProfileAccess.Item=ReadProfileItem;ModProfileAccess.Perk=ReadProfilePerk;ModProfileAccess.Equipment=ReadProfileEquipment;
+  _profileRoster.Items.Item.Enchantments.Add(new Enchantment{Name="TEST_PERK"});
+  _profileRoster.Items.Item.Enchantments.Add(new Enchantment{Name="NOT_A_PERK"});
+  _profileRoster.Items.Item.Enchantments.Add(null);
   _profileRoster.Items.Equipped.Add(_profileRoster.Items.Item);
   _profileRoster.Items.Equipped.Add(new InventoryItem{Name="UNREGISTERED",Count=0,Metadata=null});
  }
@@ -69,14 +75,17 @@ public static class NativeProfileFixture {
   Bind(catalog);var equipment=ReadProfileEquipment();
   if(equipment.Count!=2||equipment[0].Item!=CoreContentImporter.WeaponId("WEAPON_NUNCHAKU")||equipment[0].State.Subtype!="Nunchaku")throw new Exception("Equipped identity/metadata missing");
   if(equipment[1].Item!=null||equipment[1].State.Owned||equipment[1].State.Type!=null)throw new Exception("Unknown equipped record invented identity/ownership");
+  if(equipment[0].Enchantments.Count!=1||equipment[0].Enchantments[0]!=CoreContentImporter.PerkId("TEST_PERK")||equipment[1].Enchantments.Count!=0)throw new Exception("Enchantment identities wrong or unknown perk invented");
+  _profileRoster.Items.Item.Enchantments.Clear();
+  if(equipment[0].Enchantments.Count!=1)throw new Exception("Enchantment snapshot aliased native list");
   _profileRoster.Items.Equipped.Clear();
   if(equipment.Count!=2||ReadProfileEquipment().Count!=0)throw new Exception("Equipment snapshot stale or aliased");
   Unbind();if(ReadProfileEquipment()!=null)throw new Exception("Unloaded equipment remained available");
-  Console.WriteLine("PASS: 18 production profile query method checks with controlled roster services.");
+  Console.WriteLine("PASS: 21 production profile query method checks with controlled roster services.");
  }
 }
 '@
-$native.Replace('/* METHODS */',$level.Value+[Environment]::NewLine+$item.Value+[Environment]::NewLine+$perk.Value+[Environment]::NewLine+$equipment.Value) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Native.cs')
+$native.Replace('/* METHODS */',$level.Value+[Environment]::NewLine+$item.Value+[Environment]::NewLine+$perk.Value+[Environment]::NewLine+$runtimePerk.Value+[Environment]::NewLine+$equipment.Value) | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Native.cs')
 $production=[Security.SecurityElement]::Escape((Join-Path $root 'Temp/Phase1ShowcaseRuntime/bin/Debug/net10.0/Phase1ShowcaseRuntime.dll'))
 @"
 <Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup>

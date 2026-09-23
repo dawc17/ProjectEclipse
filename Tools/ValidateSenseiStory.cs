@@ -96,7 +96,8 @@ end
         var errors = new List<string>();
         var bus = new ModStoryEvents((owner, message) => errors.Add(message));
         var state = new ModStateRuntime();
-        var views = new List<ModUiSurface>();
+        var dialogs = new FakeDialogHost(catalog);
+        var views = dialogs.Views;
         var wins = new Dictionary<string, int>();
         var mapActions = new List<string>();
         bool mapReady = true;
@@ -107,21 +108,16 @@ end
         ModBattleAccess.Focus = id => { mapActions.Add("focus:" + id); return mapReady; };
         Action<bool> finish = null;
         IDisposable screen = null;
-        int timed = 0, entryCards = 0, victoryCards = 0, notifications = 0, launches = 0;
+        int timed = 0, entryCards = 0, victoryCards = 0, notifications = 0, launches = 0, defeats = 0;
         ModActScreenAccess.Open = (lines, done) =>
         {
             Check(finish == null, "Two timed screens overlapped");
             Check(views.All(view => view.IsClosed), "Timed screen overlapped a modal");
             timed++; finish = done; return screen = new Lease(() => done(false));
         };
-        using (var layers = new ModUiLayerStack())
+        dialogs.Opened = view => Check(finish == null, "Native dialog overlapped a timed screen");
         using (var tx = catalog.BeginRegistration(mod))
-        using (var context = new MoonSharpScriptRuntime(view =>
-        {
-            Check(views.All(previous => previous.IsClosed), "Story modals overlapped");
-            Check(finish == null, "Modal overlapped a timed screen");
-            views.Add(view); layers.Add(view);
-        }, null, null, bus).CreateContext(mod, new ModApiFacade(mod,
+        using (var context = new MoonSharpScriptRuntime(null, null, null, bus).CreateContext(mod, new ModApiFacade(mod,
             new AssetResolver(new IAssetProvider[] { new StoryPortraits(mod) }), tx, state, entry => errors.Add(entry.Message))))
         {
             context.ExecuteEntrypoint(); tx.Commit();
@@ -136,7 +132,7 @@ end
                 bus.BindProfile();
             }
             bool Flag(string name) => state.TryGetValue(mod.Id, "sensei_" + name, out var value) && value.Boolean;
-            ModUiSurface Live() => views.SingleOrDefault(view => !view.IsClosed);
+            FakeDialog Live() => views.SingleOrDefault(view => !view.IsClosed);
             void Scene(string scene)
             {
                 if (scene != "map")
@@ -181,7 +177,8 @@ end
             Result("core:fights/zone_1/tournament/3", "win");
             Check(Live()?.Id == "sensei_notification" && !Flag("opened_1"), "First unlock not queued");
             mapReady = false; var blocked = Live(); blocked.TryClick("continue");
-            Check(!blocked.IsClosed && !Flag("opened_1"), "Failed map mutation acknowledged notification");
+            Check(blocked.IsClosed && Flag("pending_1") && !Flag("opened_1"), "Failed map mutation acknowledged notification");
+            Scene("map"); Check(Live()?.Id == "sensei_notification", "Refused notification was not shown again on the next map wake");
             mapReady = true; mapActions.Clear(); Acknowledge("sensei_notification"); notifications++;
             Check(mapActions.Count == 9 && mapActions[0] == "eclipse:False" && Flag("opened_1"), "First map unlock ordering differs");
             for (int act = 1; act <= 6; act++)
@@ -200,8 +197,13 @@ end
                     Scene("fight");
                     if (index == 1)
                     {
-                        Result(Fight(act, index), "loss"); Scene("map");
-                        Check(Live() == null && finish == null, "Loss unexpectedly queued victory");
+                        Result(Fight(act, index), "loss");
+                        Check(Live() == null && Flag("defeat_pending"), "Defeat dialogue opened in fight or was not saved");
+                        Scene("map");
+                        Check(Live()?.Id == "sensei_defeat" && finish == null && !Flag("dialogue_pending_" + act), "Loss did not queue only the defeat dialogue");
+                        Check(!string.IsNullOrEmpty(Live().Read("body").Text), "Defeat dialogue has no line");
+                        Acknowledge("sensei_defeat"); defeats++;
+                        Check(Live() == null && !Flag("defeat_pending"), "Defeat acknowledgement left presentation or pending state");
                         Check(bus.FightEntries.Begin(DefinitionId.Parse(Fight(act, index)), () => throw new Exception("Replay deferred"), () => true, () => true)
                             == ModFightEntryDecision.Continue, "Completed introduction replayed after loss");
                         Scene("fight");
@@ -218,8 +220,10 @@ end
                 {
                     Acknowledge("sensei_victory"); victoryCards++;
                     string body = Live().Read("body").Text, stored = save.OuterXml;
+                    var savedWins = new Dictionary<string, int>(wins); wins.Clear();
                     Scene("shop"); bus.UnbindProfile(); state.Unbind(); Bind(Save()); Scene("map");
                     Check(Live() == null && !Flag("opened_1"), "Fresh profile inherited queued story");
+                    foreach (var pair in savedWins) wins[pair.Key] = pair.Value;
                     bus.UnbindProfile(); state.Unbind(); save = Save(stored); Bind(save); Scene("map");
                     Check(Live()?.Read("body").Text == body, "Combined story lost saved victory cursor");
                 }
@@ -239,11 +243,13 @@ end
                 }
                 Check(Live() == null && finish == null, "Act left stale presentation");
             }
-            Check(launches == 17 && entryCards == 39 && victoryCards == 23 && notifications == 6 && timed == 8,
-                "Combined campaign coverage changed: " + launches + "/" + entryCards + "/" + victoryCards + "/" + notifications + "/" + timed);
+            Check(launches == 17 && entryCards == 39 && victoryCards == 23 && notifications == 6 && timed == 8 && defeats == 6,
+                "Combined campaign coverage changed: " + launches + "/" + entryCards + "/" + victoryCards + "/" + notifications + "/" + timed + "/" + defeats);
             int shown = views.Count;
             for (int act = 1; act <= 6; act++)
             {
+                Scene("fight"); Result("fixture.story:fights/sensei_act_" + act + "_eclipse_1", "loss"); Scene("map");
+                Check(Live() == null && !Flag("defeat_pending"), "Eclipse loss queued the normal defeat dialogue");
                 Scene("fight"); Result("fixture.story:fights/sensei_act_" + act + "_eclipse_1", "win"); Scene("map");
                 Result(Fight(act, act == 6 ? 2 : 3), "win");
             }
@@ -252,6 +258,6 @@ end
             Check(errors.Count == 0, string.Join("\n", errors));
         }
         ModProfileAccess.Clear(); ModBattleAccess.Clear(); ModActScreenAccess.Clear();
-        Console.WriteLine("PASS: " + checks + " combined Sensei story checks; actual encounter graph, 17 entries/39 cards, 23 victory cards, six ordered unlocks, archive-independent Lua execution, namespaced portraits, loss/retry, save/profile separation and cancelled outro. Controlled opponents, availability and presentation host; no native campaign acceptance.");
+        Console.WriteLine("PASS: " + checks + " combined Sensei story checks; actual encounter graph, 17 entries/39 cards, 23 victory cards, six ordered unlocks, archive-independent Lua execution, namespaced portraits, six defeat dialogues, loss/retry, save/profile separation and cancelled outro. Controlled opponents, availability and presentation host; no native campaign acceptance.");
     }
 }

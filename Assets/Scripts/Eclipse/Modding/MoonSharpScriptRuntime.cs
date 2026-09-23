@@ -649,6 +649,8 @@ namespace Eclipse.Modding
                 _disposed = true;
                 _actScreen?.Dispose();
                 _actScreen = null;
+                _storyDialog?.Dispose();
+                _storyDialog = null;
                 foreach (var binding in _fightEntryBindings) binding.Dispose();
                 _fightEntryBindings.Clear();
                 _storyScope?.Dispose();
@@ -1732,11 +1734,12 @@ namespace Eclipse.Modding
                 Table table = args.AsType(0, function, DataType.Table, false).Table;
                 return ApiCall(function, () =>
                 {
-                    ValidateFields(table, function, "id", "file", "start");
+                    ValidateFields(table, function, "id", "file", "start", "underworld");
                     string id = RequiredString(table, "id", function);
                     string file = OptionalStringAllowEmpty(table, "file", string.Empty, function);
                     bool isStart = OptionalBool(table, "start", false, function);
-                    return NewHandle(_zoneHandles, _api.RegisterZone(id, file, isStart).Id);
+                    bool underworld = OptionalBool(table, "underworld", false, function);
+                    return NewHandle(_zoneHandles, _api.RegisterZone(id, file, isStart, underworld).Id);
                 });
             }
 
@@ -1765,7 +1768,12 @@ namespace Eclipse.Modding
                 {
                     ValidateFields(table, function, "id", "zone", "type", "x", "y", "alias", "title", "icon",
                         "icon_atlas", "eclipse_toggle_name", "preview", "description", "location", "music",
-                        "reward_image", "show_resistance");
+                        "reward_image", "show_resistance", "power_mode");
+                    string powerModeText = OptionalStringAllowEmpty(table, "power_mode", string.Empty, function);
+                    ModPowerMode powerMode = powerModeText == string.Empty ? ModPowerMode.Always
+                        : powerModeText == "normal" ? ModPowerMode.Normal
+                        : powerModeText == "power" ? ModPowerMode.Power
+                        : throw new ModContentException(function + " field 'power_mode' must be \"normal\" or \"power\".");
                     string id = RequiredString(table, "id", function);
                     DefinitionId zone = RequiredHandle(table, "zone", _zoneHandles, "zone", function);
                     ModBattleKind kind = ParseBattleKind(RequiredString(table, "type", function), function);
@@ -1774,14 +1782,14 @@ namespace Eclipse.Modding
                         OptionalStringAllowEmpty(table, "alias", string.Empty, function),
                         OptionalStringAllowEmpty(table, "title", string.Empty, function),
                         OptionalStringAllowEmpty(table, "icon", string.Empty, function),
-                        OptionalStringAllowEmpty(table, "preview", string.Empty, function),
+                        OptionalSpriteOrString(table, "preview", function),
                         OptionalStringAllowEmpty(table, "description", string.Empty, function),
                         OptionalStringAllowEmpty(table, "location", string.Empty, function),
                         OptionalStringAllowEmpty(table, "music", string.Empty, function),
                         OptionalStringAllowEmpty(table, "reward_image", string.Empty, function),
                         OptionalBool(table, "show_resistance", false, function),
                         OptionalStringAllowEmpty(table, "icon_atlas", string.Empty, function),
-                        OptionalStringAllowEmpty(table, "eclipse_toggle_name", string.Empty, function));
+                        OptionalStringAllowEmpty(table, "eclipse_toggle_name", string.Empty, function), powerMode);
                     return NewHandle(_battleHandles, definition.Id);
                 });
             }
@@ -1835,7 +1843,7 @@ namespace Eclipse.Modding
                     WarriorDefinition definition = _api.RegisterWarrior(id,
                         OptionalStringAllowEmpty(table, "first_name", string.Empty, function),
                         OptionalStringAllowEmpty(table, "last_name", string.Empty, function),
-                        OptionalStringAllowEmpty(table, "avatar", string.Empty, function),
+                        OptionalSpriteOrString(table, "avatar", function),
                         OptionalStringAllowEmpty(table, "voice", string.Empty, function),
                         OptionalInt(table, "level", 0, function), tactic, items, null,
                         template, hasTemplate, OptionalStringAllowEmpty(table, "group", string.Empty, function),
@@ -2274,6 +2282,18 @@ namespace Eclipse.Modding
                 if (value.Type != DataType.String)
                     throw new ModContentException(function + " field '" + field + "' must be a string.");
                 return value.String ?? string.Empty;
+            }
+
+            // Native portrait/preview consumers resolve a qualified ID through the mod
+            // asset loader and a bare name through their legacy resource folder.
+            private string OptionalSpriteOrString(Table table, string field, string function)
+            {
+                DynValue value = table.Get(field);
+                if (value.IsNil()) return string.Empty;
+                if (value.Type == DataType.String) return value.String ?? string.Empty;
+                if (value.Type == DataType.Table && _spriteHandles.TryGetValue(value.Table, out AssetId sprite))
+                    return sprite.ToString();
+                throw new ModContentException(function + " field '" + field + "' must be a sprite handle or string.");
             }
 
             private static bool OptionalBool(Table table, string field, bool fallback, string function)

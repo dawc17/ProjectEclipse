@@ -900,6 +900,8 @@ namespace Eclipse.Modding
         Eclipse = 2,
     }
 
+    public enum ModPowerMode { Always = 0, Normal = 1, Power = 2 }
+
     public sealed class ZoneDefinition
     {
         private readonly DefinitionId[] _battles;
@@ -909,13 +911,16 @@ namespace Eclipse.Modding
         public string LegacyName { get; }
         public string FileName { get; }
         public bool IsStart { get; }
+        // Mod zones shown as Underworld (raid map) pages instead of story map pages.
+        public bool Underworld { get; }
         public IReadOnlyList<DefinitionId> Battles => _readOnlyBattles;
         public bool IsCore => Id.Namespace.Value == "core";
 
         internal ZoneDefinition(DefinitionId id, string legacyName, string fileName, bool isStart,
-            DefinitionId[] battles)
+            DefinitionId[] battles, bool underworld = false)
         {
             Id = id;
+            Underworld = underworld;
             LegacyName = legacyName ?? string.Empty;
             FileName = fileName ?? string.Empty;
             IsStart = isStart;
@@ -946,6 +951,8 @@ namespace Eclipse.Modding
         public string Music { get; }
         public string RewardImage { get; }
         public bool ShowResistance { get; }
+        // Underworld map visibility: Always, only outside Power Mode, or only in Power Mode.
+        public ModPowerMode PowerMode { get; }
         public IReadOnlyList<DefinitionId> Fights => _readOnlyFights;
         public bool IsCore => Id.Namespace.Value == "core";
         internal string LegacyXml { get; }
@@ -954,10 +961,11 @@ namespace Eclipse.Modding
             int x, int y, string alias, string title, string icon, string preview, string description,
             string location, string music, string rewardImage, bool showResistance, DefinitionId[] fights,
             string iconAtlas = null, string eclipseToggleName = null,
-            string legacyXml = null)
+            string legacyXml = null, ModPowerMode powerMode = ModPowerMode.Always)
         {
             Id = id;
             Zone = zone;
+            PowerMode = powerMode;
             LegacyName = legacyName ?? string.Empty;
             Kind = kind;
             X = x;
@@ -2450,6 +2458,19 @@ namespace Eclipse.Modding
             return id;
         }
 
+        // The key native LocalizationManager resolves: a core legacy key or the
+        // qualified mod ID registered as an external string.
+        public string NativeLocalizationKey(DefinitionId id)
+        {
+            if (id.Category != "localization" || !CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("A permitted localization definition is required.");
+            _catalog.TryGetLocalization(id, out var definition);
+            if (definition == null && !_localizations.ContainsKey(id))
+                throw new ModContentException("Localization key is not registered: '" + id + "'.");
+            return definition != null && id.Namespace.Value == "core" && !string.IsNullOrEmpty(definition.LegacyKey)
+                ? definition.LegacyKey : id.ToString();
+        }
+
         public string ReadLocalization(DefinitionId id, string language)
         {
             if (id.Category != "localization" || !CanReferenceNamespace(id.Namespace))
@@ -2810,13 +2831,14 @@ namespace Eclipse.Modding
             return definition;
         }
 
-        public ZoneDefinition RegisterZone(string localId, string fileName = null, bool isStart = false)
+        public ZoneDefinition RegisterZone(string localId, string fileName = null, bool isStart = false, bool underworld = false)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("zones", localId);
             if (_zones.ContainsKey(id)) throw new ModContentException("Duplicate zone definition: '" + id + "'.");
+            if (underworld && isStart) throw new ModContentException("An Underworld zone cannot be the story start zone.");
             EnsureCapacityForNewRegistration();
-            var definition = new ZoneDefinition(id, id.ToString(), fileName, isStart, Array.Empty<DefinitionId>());
+            var definition = new ZoneDefinition(id, id.ToString(), fileName, isStart, Array.Empty<DefinitionId>(), underworld);
             _zones.Add(id, definition);
             return definition;
         }
@@ -2842,7 +2864,7 @@ namespace Eclipse.Modding
             int x = 0, int y = 0, string alias = null, string title = null, string icon = null,
             string preview = null, string description = null, string location = null, string music = null,
             string rewardImage = null, bool showResistance = false, string iconAtlas = null,
-            string eclipseToggleName = null)
+            string eclipseToggleName = null, ModPowerMode powerMode = ModPowerMode.Always)
         {
             ThrowIfCompleted();
             DefinitionId id = Qualify("battles", localId);
@@ -2861,9 +2883,13 @@ namespace Eclipse.Modding
                 throw new ModContentException("Battle kind '" + kind +
                     "' needs its dedicated roadmap mode adapter and is not available through the ordinary P1A battle API.");
             EnsureCapacityForNewRegistration();
+            if (!Enum.IsDefined(typeof(ModPowerMode), powerMode)) throw new ModContentException("Unsupported Power Mode visibility.");
+            if (powerMode != ModPowerMode.Always && !zoneDefinition.Underworld)
+                throw new ModContentException("Power Mode visibility requires an Underworld zone owned by a mod.");
             var definition = new BattleDefinition(id, zone, id.ToString(), kind, x, y, alias, title,
                 string.IsNullOrEmpty(icon) ? "training" : icon, preview, description, location, music,
-                rewardImage, showResistance, Array.Empty<DefinitionId>(), iconAtlas, eclipseToggleName);
+                rewardImage, showResistance, Array.Empty<DefinitionId>(), iconAtlas, eclipseToggleName,
+                powerMode: powerMode);
             _battles.Add(id, definition);
             _battleOrder.Add(id);
             if (!pendingZone)
@@ -3287,7 +3313,7 @@ namespace Eclipse.Modding
                     BattleDefinition battle = _battles[_battleOrder[i]];
                     if (battle.Zone == zone.Id) children.Add(battle.Id);
                 }
-                result.Add(new ZoneDefinition(zone.Id, zone.LegacyName, zone.FileName, zone.IsStart, children.ToArray()));
+                result.Add(new ZoneDefinition(zone.Id, zone.LegacyName, zone.FileName, zone.IsStart, children.ToArray(), zone.Underworld));
             }
             result.Sort((left, right) => string.CompareOrdinal(left.Id.ToString(), right.Id.ToString()));
             return result.ToArray();
@@ -3308,7 +3334,7 @@ namespace Eclipse.Modding
                     battle.X, battle.Y, battle.Alias, battle.Title, battle.Icon, battle.Preview,
                     battle.Description, battle.Location, battle.Music, battle.RewardImage,
                     battle.ShowResistance, children.ToArray(), battle.IconAtlas, battle.EclipseToggleName,
-                    battle.LegacyXml));
+                    battle.LegacyXml, battle.PowerMode));
             }
             result.Sort((left, right) => string.CompareOrdinal(left.Id.ToString(), right.Id.ToString()));
             return result.ToArray();

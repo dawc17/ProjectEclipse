@@ -22,6 +22,46 @@ namespace Eclipse.Modding
         public static void Clear() { Open = null; }
     }
 
+    // One native story dialog (the archive's Dialog Type="Regular"). Strings are
+    // native localization keys and a native or qualified portrait sprite name.
+    public sealed class ModStoryDialogLine
+    {
+        public string Text { get; }
+        public string Button { get; }
+        public ModStoryDialogLine(string text, string button = null)
+        {
+            if (string.IsNullOrEmpty(text) || text.Length > 512) throw new ArgumentException("Story dialog lines require a 1..512 character key.");
+            Text = text; Button = button ?? string.Empty;
+        }
+    }
+
+    public sealed class ModStoryDialogRequest
+    {
+        public string Title { get; }
+        public string Portrait { get; }
+        public bool Mirrored { get; }
+        public IReadOnlyList<ModStoryDialogLine> Lines { get; }
+        public string Button { get; }
+        public bool IgnoreBack { get; }
+        public ModStoryDialogRequest(string title, string portrait, bool mirrored, IReadOnlyList<ModStoryDialogLine> lines, string button, bool ignoreBack)
+        {
+            if (lines == null || lines.Count < 1 || lines.Count > 16) throw new ArgumentException("Story dialogs require 1..16 lines.");
+            var copy = new List<ModStoryDialogLine>(lines);
+            if (copy.Contains(null)) throw new ArgumentException("Null story dialog line.");
+            if (string.IsNullOrEmpty(button)) throw new ArgumentException("Story dialogs require a button key.");
+            Title = title ?? string.Empty; Portrait = portrait ?? string.Empty; Mirrored = mirrored;
+            Lines = copy.AsReadOnly(); Button = button; IgnoreBack = ignoreBack;
+        }
+    }
+
+    public static class ModStoryDialogAccess
+    {
+        // null refuses. The host reports true once when the player acknowledges the
+        // dialog, or false once when teardown closes it without acknowledgement.
+        public static Func<ModStoryDialogRequest, Action<bool>, IDisposable> Open;
+        public static void Clear() { Open = null; }
+    }
+
     // Host service retains native scene/quest authority; Lua passes only a menu name.
     public static class ModSceneAccess
     {
@@ -63,8 +103,13 @@ namespace Eclipse.Modding
     {
         public DefinitionId? Item { get; }
         public ModProfileItemSnapshot State { get; }
-        public ModProfileEquipmentSnapshot(DefinitionId? item, ModProfileItemSnapshot state)
-        { Item=item; State=state ?? throw new ArgumentNullException(nameof(state)); }
+        // Qualified perk IDs of the record's current enchantments, in native order.
+        public IReadOnlyList<DefinitionId> Enchantments { get; }
+        public ModProfileEquipmentSnapshot(DefinitionId? item, ModProfileItemSnapshot state, IReadOnlyList<DefinitionId> enchantments = null)
+        {
+            Item=item; State=state ?? throw new ArgumentNullException(nameof(state));
+            Enchantments=Array.AsReadOnly(enchantments == null ? Array.Empty<DefinitionId>() : new List<DefinitionId>(enchantments).ToArray());
+        }
     }
 
     public static class ModProfileAccess

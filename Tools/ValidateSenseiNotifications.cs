@@ -52,7 +52,7 @@ require("content.sensei_notifications").install(battles,finals)
         var stages=new XmlDocument();stages.Load(Path.Combine(args[1],"Assets/vanillaXml/stages.xml"));
         CoreContentImporter.ImportStages(catalog,stages.SelectSingleNode("Stages/Zones"));
         var assets=new AssetResolver(new IAssetProvider[]{new LooseModProvider(mod),new PortraitMetadata()});
-        var errors=new List<string>();var views=new List<ModUiSurface>();
+        var errors=new List<string>();var dialogs=new FakeDialogHost(catalog);var views=dialogs.Views;var layers=dialogs;
         var bus=new ModStoryEvents((id,message)=>errors.Add(message));
         var state=new ModStateRuntime();
         var calls=new List<string>();
@@ -63,9 +63,8 @@ require("content.sensei_notifications").install(battles,finals)
         ModBattleAccess.Reveal=(id,locked)=>{calls.Add("reveal:"+id.LocalId+":"+locked);return mapReady;};
         ModBattleAccess.SetLocked=(id,locked)=>{calls.Add("lock:"+id.LocalId+":"+locked);return mapReady;};
         ModBattleAccess.Focus=id=>{calls.Add("focus:"+id.LocalId);return mapReady;};
-        using(var layers=new ModUiLayerStack())
         using(var tx=catalog.BeginRegistration(mod))
-        using(var context=new MoonSharpScriptRuntime(view=>{views.Add(view);layers.Add(view);},null,null,bus)
+        using(var context=new MoonSharpScriptRuntime(null,null,null,bus)
             .CreateContext(mod,new ModApiFacade(mod,assets,tx,state,entry=>errors.Add(entry.Message))))
         {
             context.ExecuteEntrypoint();tx.Commit();
@@ -88,7 +87,7 @@ require("content.sensei_notifications").install(battles,finals)
             bool Flag(string kind,int act) => state.TryGetValue(mod.Id,"sensei_"+kind+"_"+act,out var value) && value.Boolean;
             void Scene(string scene) => bus.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter,null,scene:scene));
             void Result(string outcome) => bus.Publish(new ModStoryEvent(ModStoryEventKind.BattleResult,null,battle:new ModBattleResultSnapshot(null,outcome,true)));
-            ModUiSurface Live() => views.Last(view=>!view.IsClosed);
+            FakeDialog Live() => views.LastOrDefault(view=>!view.IsClosed) ?? throw new Exception("No live story dialog: "+string.Join(" | ",errors));
             void CloseForScene() { foreach(var view in views.ToArray())view.Close(ModUiCloseReason.Scene); }
             Bind(save);Scene("fight");
             Result("loss");Result("surrender");
@@ -100,15 +99,25 @@ require("content.sensei_notifications").install(battles,finals)
             string queued=save.OuterXml;
             Scene("map");var first=Live();
             Check(first.Read("body").Text.Contains("many years ago"),"Wrong first notification text");
-            Check(first.Read("portrait").Sprite==AssetId.Parse("core:ui/users/character_sensei"),"Wrong portrait identity");
+            Check(first.Read("portrait").Sprite==AssetId.Parse("fixture.notify:sprites/sensei/character_sensei"),"Fallback portrait is not the shipped Sensei sprite");
             layers.SetBlocked(true);Check(!layers.Back() && !first.TryClick("continue") && calls.Count==0,"Blocked input progressed");layers.SetBlocked(false);
-            Check(layers.Back() && !first.IsClosed && calls.SequenceEqual(new[]{"mode"}) && !Flag("opened",1),"Refused mode lost pending notification");
-            modeReady=true;calls.Clear();first.TryClick("continue");
-            Check(!first.IsClosed && calls.Count==2 && calls[0]=="mode" && calls[1].StartsWith("reveal:") && !Flag("opened",1),"Refused map action advanced notification");
+            // The native dialog closes on OK/Back; a refused map action keeps the act
+            // pending and the next map wake shows it again.
+            Check(layers.Back() && first.IsClosed && calls.SequenceEqual(new[]{"mode"}) && Flag("pending",1) && !Flag("opened",1),"Refused mode lost pending notification");
+            Check(first.Read("speaker").Text=="SENSEI" && first.Read("continue").Text=="OK" && !first.Request.IgnoreBack && first.Request.Lines.Count==1,"Native dialog request differs from the archived Regular dialog");
+            Scene("map");var retry=Live();
+            Check(retry!=first && !retry.IsClosed && retry.Read("body").Text.Contains("many years ago"),"Refused notification was not shown again on the next map wake");
+            modeReady=true;calls.Clear();retry.TryClick("continue");
+            Check(retry.IsClosed && calls.Count==2 && calls[0]=="mode" && calls[1].StartsWith("reveal:") && Flag("pending",1) && !Flag("opened",1),"Refused map action advanced notification");
+            Scene("map");Check(!Live().IsClosed,"Refused map action was not retried");
             calls.Clear();CloseForScene();Scene("shop");
             Check(calls.Count==0 && Flag("pending",1)&&!Flag("opened",1),"Scene cleanup acknowledged notification");
-            bus.UnbindProfile();state.Unbind();Bind(Save());Scene("map");
-            Check(views.All(view=>view.IsClosed)&&!Flag("pending",1),"New profile inherited pending notification");
+            wins=0;bus.UnbindProfile();state.Unbind();Bind(Save());Scene("map");
+            Check(views.All(view=>view.IsClosed)&&!Flag("pending",1),"New profile inherited pending notification");wins=1;
+            // A save that met the prerequisites before the mod was enabled catches up on map entry.
+            CloseForScene();Scene("shop");calls.Clear();Scene("map");
+            Check(Flag("pending",1)&&!Flag("opened",1)&&views.Any(view=>!view.IsClosed)&&calls.Count==0,"Already-eligible save was not caught up on map entry");
+            CloseForScene();Scene("shop");
             bus.UnbindProfile();state.Unbind();var restored=Save(queued);Bind(restored);Scene("map");
             Check(!Live().IsClosed && Flag("pending",1),"Serialized pending notification did not resume");
             mapReady=true;

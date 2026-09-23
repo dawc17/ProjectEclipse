@@ -211,7 +211,7 @@ public class UserItem
 	{
 		get
 		{
-			return IGACBNCNDBG();
+			return GetEnchantments();
 		}
 	}
 
@@ -492,7 +492,8 @@ public class UserItem
 		}
 	}
 
-	public List<PerkInfoItem> IGACBNCNDBG()
+	// best guess for name
+	public List<PerkInfoItem> GetEnchantments()
 	{
 		return JCGBOOPPOLG;
 	}

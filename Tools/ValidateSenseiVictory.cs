@@ -59,9 +59,9 @@ require("content.sensei_notifications").install(battles,finals)
         var stages=Read(Path.Combine(args[1],"Assets/vanillaXml/stages.xml"));
         CoreContentImporter.ImportStages(catalog,stages.SelectSingleNode("Stages/Zones"));
         var assets=new AssetResolver(new IAssetProvider[]{new LooseModProvider(mod),new PortraitMetadata()});
-        var errors=new List<string>();var logs=new List<string>();var views=new List<ModUiSurface>();
+        var errors=new List<string>();var logs=new List<string>();var dialogs=new FakeDialogHost(catalog);var views=dialogs.Views;var layers=dialogs;
         var bus=new ModStoryEvents((id,message)=>errors.Add(message));var state=new ModStateRuntime();
-        ModProfileAccess.Fight=id=>new ModProfileFightSnapshot(true,1,0);
+        int profileWins=1;ModProfileAccess.Fight=id=>new ModProfileFightSnapshot(true,profileWins,0);
         ModProfileAccess.SetEclipseMode=value=>true;ModBattleAccess.Reveal=(id,value)=>true;
         ModBattleAccess.SetLocked=(id,value)=>true;ModBattleAccess.Focus=id=>true;
         Action<bool> outro=null;
@@ -72,9 +72,8 @@ require("content.sensei_notifications").install(battles,finals)
             if(++attempts==1){logs.Add("OUTRO_REFUSED");return null;}
             logs.Add("OUTRO");outro=done;return request=new CancelLease(()=>done(false));
         };
-        using(var layers=new ModUiLayerStack())
         using(var tx=catalog.BeginRegistration(mod))
-        using(var context=new MoonSharpScriptRuntime(view=>{views.Add(view);layers.Add(view);},null,null,bus)
+        using(var context=new MoonSharpScriptRuntime(null,null,null,bus)
             .CreateContext(mod,new ModApiFacade(mod,assets,tx,state,entry=>logs.Add(entry.Message))))
         {
             context.ExecuteEntrypoint();tx.Commit();
@@ -100,7 +99,7 @@ require("content.sensei_notifications").install(battles,finals)
                 if(scene!="map")stale?.Invoke(true); // A cancelled native callback cannot acknowledge the outro.
             }
             void Result(string outcome,string id)=>bus.Publish(new ModStoryEvent(ModStoryEventKind.BattleResult,null,battle:new ModBattleResultSnapshot(DefinitionId.Parse(id),outcome,false)));
-            ModUiSurface Live()=>views.Last(value=>!value.IsClosed);
+            FakeDialog Live()=>views.LastOrDefault(value=>!value.IsClosed) ?? throw new Exception("No live story dialog: "+string.Join(" | ",errors.Concat(logs)));
             void Close(){foreach(var view in views.ToArray())view.Close(ModUiCloseReason.Scene);}
             Bind(save);Scene("fight");
             foreach(var outcome in new[]{"loss","surrender","raid_timeout"})Result(outcome,"fixture.notify:fights/final1");
@@ -117,12 +116,13 @@ require("content.sensei_notifications").install(battles,finals)
                     Check(current.Read("speaker").Text==english.SelectSingleNode("//Word[@Title='"+dialog.Attributes["Title"].Value+"']").InnerText,"Speaker differs");
                     Check(current.Read("body").Text==english.SelectSingleNode("//Word[@Title='"+dialog["Line"].GetAttribute("Text")+"']").InnerText,"Card order/text differs");
                     Check(current.Read("portrait").Sprite==AssetId.Parse("core:ui/users/"+dialog.Attributes["Image"].Value),"Portrait identity differs");
-                    Check(Node(current.Root,"portrait").Mirrored==(dialog.Attributes["Mirrored"]?.Value=="1"),"Portrait mirroring differs");
+                    Check(current.Read("portrait").Mirrored==(dialog.Attributes["Mirrored"]?.Value=="1"),"Portrait mirroring differs");
+                    Check(current.Read("continue").Text=="OK"&&!current.Request.IgnoreBack&&current.Request.Lines.Count==1,"Native dialog request differs from the archived Regular dialog");
                     Check(!Flag("complete",act),"Act completed before final card");
                     if(cards==1) {
                         layers.SetBlocked(true);Check(!current.TryClick("continue")&&!layers.Back(),"Blocked input advanced card");layers.SetBlocked(false);
                         string pending=save.OuterXml, previousText=current.Read("body").Text;Close();Scene("shop");
-                        bus.UnbindProfile();state.Unbind();Bind(Save());Scene("map");Check(views.All(value=>value.IsClosed),"New profile inherited dialogue");
+                        profileWins=0;bus.UnbindProfile();state.Unbind();Bind(Save());Scene("map");Check(views.All(value=>value.IsClosed),"New profile inherited dialogue");profileWins=1;
                         bus.UnbindProfile();state.Unbind();save=Save(pending);Bind(save);Scene("map");
                         Check(Live().Read("body").Text==previousText,"Saved cursor did not resume same card");current=Live();
                     }

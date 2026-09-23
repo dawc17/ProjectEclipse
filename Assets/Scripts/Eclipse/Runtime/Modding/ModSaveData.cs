@@ -530,6 +530,7 @@ namespace Eclipse.Modding
                 Append(canonical, zone.LegacyName);
                 Append(canonical, zone.FileName);
                 Append(canonical, zone.IsStart);
+                if (zone.Underworld) Append(canonical, "underworld");
                 AppendIds(canonical, zone.Battles);
             }
 
@@ -551,6 +552,7 @@ namespace Eclipse.Modding
                 Append(canonical, battle.Description); Append(canonical, battle.Location);
                 Append(canonical, battle.Music); Append(canonical, battle.RewardImage);
                 Append(canonical, battle.ShowResistance);
+                if (battle.PowerMode != ModPowerMode.Always) Append(canonical, "power-mode:" + (int)battle.PowerMode);
                 AppendIds(canonical, battle.Fights);
             }
 

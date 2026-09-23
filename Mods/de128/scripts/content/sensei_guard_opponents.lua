@@ -1,7 +1,8 @@
 local sf2 = require("sf2")
--- Pending historical Sensei loadouts, not loaded by main.lua. The available
--- corpus lacks Guard_Girl/Guard_Man templates and an item named Sphere1.
--- The assembler must supply verified handles; this module invents no defaults.
+-- Pending historical Sensei loadouts, not loaded by main.lua. The archive's
+-- Guard_Girl/Guard_Man templates are absent from every source; callers pass the
+-- synthesized template specs from sensei_guard_templates.lua and the Sphere1
+-- handle from sensei_dependencies.lua. This module invents no defaults.
 -- Reconcile with SOURCE_CORPUS.md before claiming current-corpus parity.
 local characters = {
     { act = 1, slot = 1, template = "guard_girl", avatar = "character_savage", name = "character_Savage", attributes = true,
@@ -30,7 +31,12 @@ local characters = {
 
 local function register(dependencies)
     assert(type(dependencies) == "table" and dependencies.guard_girl and dependencies.guard_man and dependencies.sphere1,
-        "Sensei opponents require verified Guard_Girl, Guard_Man and Sphere1 handles")
+        "Sensei opponents require Guard_Girl, Guard_Man template specs and a Sphere1 handle")
+    for _, name in ipairs({ "guard_girl", "guard_man" }) do
+        local spec = dependencies[name]
+        assert(type(spec) == "table" and spec.template ~= nil and (spec.voice == "Female" or spec.voice == "Male"),
+            "Guard template spec requires a template handle and a Female/Male voice: " .. name)
+    end
     local bosses = require("content.sensei_boss_opponents")
     local result = {}
     for act = 1, 6 do result[act] = { normal = {}, eclipse = {} } end
@@ -51,8 +57,9 @@ local function register(dependencies)
             if mode == "normal" then alignments[2] = { factor = 1, shift = shift, priority = 1 } end
             local warrior = sf2.warriors.register {
                 id = "sensei_act_" .. character.act .. "_guard_" .. character.slot .. "_" .. mode,
-                template = dependencies[character.template], tactic = "Standard",
-                first_name = character.name, avatar = character.avatar, items = items, perks = perks,
+                template = dependencies[character.template].template,
+                voice = dependencies[character.template].voice, tactic = "Standard",
+                first_name = character.name, avatar = require("content.sensei_art").avatar(character.avatar), items = items, perks = perks,
                 attributes = character.attributes and { WeaponDamage = 10, UnarmedDamage = 0, BodyDefense = 8, HeadDefense = 2 } or nil,
                 attribute_alignments = alignments,
             }

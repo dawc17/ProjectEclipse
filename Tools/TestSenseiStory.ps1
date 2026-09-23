@@ -5,7 +5,10 @@ $fixture = Join-Path $root ('Temp/SenseiStory-' + [Guid]::NewGuid().ToString('N'
 $content = Join-Path $fixture 'Mods/fixture.story/scripts/content'
 New-Item -ItemType Directory -Force $content | Out-Null
 Get-ChildItem (Join-Path $root 'Mods/de128/scripts/content/sensei_*.lua') | Copy-Item -Destination $content
+# Shipped Sensei previews resolve through the real loose provider under the fixture namespace.
+Copy-Item -Recurse (Join-Path $root 'Mods/de128/assets') (Join-Path $fixture 'Mods/fixture.story/assets')
 Copy-Item (Join-Path $PSScriptRoot 'ValidateSenseiStory.cs') (Join-Path $fixture 'Program.cs')
+Copy-Item (Join-Path $PSScriptRoot 'SenseiDialogFixture.cs') (Join-Path $fixture 'SenseiDialogFixture.cs')
 $production = [Security.SecurityElement]::Escape((Join-Path $root 'Temp/Phase1ShowcaseRuntime/bin/Debug/net10.0/Phase1ShowcaseRuntime.dll'))
 $moon = [Security.SecurityElement]::Escape((Join-Path $root 'Library/ScriptAssemblies/MoonSharp.Interpreter.dll'))
 @"
