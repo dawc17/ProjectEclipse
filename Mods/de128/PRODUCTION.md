@@ -3081,3 +3081,66 @@ Not verified: no Unity playtest. Next owner playtest: beat Lynx 2 (or load a lat
 save), watch the intro and dojo change, open the Underworld, toggle Power Mode,
 fight a boss (entry dialogs, loss/win lines), check event-raid buttons, random
 areas and forge-material drops.
+
+### Step 51 follow-up — boss strength and two-line names (2026-09-24)
+
+Owner playtest: Volcano one-shot a level-4 player who did no damage, and
+"SON OF HEAVEN" was cut to "SON OF" on the VS screen and fight HUD.
+
+- **Strength (base bug).** Live probe in the owner's editor: every Underworld boss
+  carried 11 alignment rows instead of Default's 7 plus its own 2. The extra
+  `Factor 0.86 / Shift +266 / Priority 1` pair (the last `Survival_7_3` group
+  warrior) outranked the archived rows and made the hit multiplier
+  player→boss ×1.7e-8 and boss→player ×7.5e7, against raw stats that favour the
+  player (weapon 112 vs boss defense 56). Cause: `ListSF.CNMFNFDIOOK` clones a
+  template's `ModelParameters`, whose clone shares `Node`, then `MergeUserXML`
+  rewrites that node in place, so parsing group warriors at load left their
+  attributes and `AttributesAlign` on `Default`'s cached node. Vanilla never
+  re-reads it; `AddExternalTemplate` (mod templates, including the synthesized
+  Sensei guards) merges from it. Fix: merge into `Node.CloneNode(true)`.
+  Archive data and projections were already correct.
+- **Names.** Three DE names contain `{br}` (`SON OF{br}HEAVEN`, `SON OF{br}THE SUN`,
+  `HAUNTED{br}PRINCE`), which `LocalizationManager` turns into a newline. The VS
+  name label (150 px text in a 300 px truncating rect) now overflows vertically
+  for such names, showing both lines; the HUD name label joins them onto one line
+  and best-fits down to half size.
+
+Verified: Assembly-CSharp builds; the live probe confirmed the polluted
+`Default` node. Not verified: the fixed build has not been run in Unity (the editor
+was not recompiled from here); replay Volcano and Son of Heaven.
+
+### Step 51 follow-up — Underworld arenas, map return and music (2026-09-24)
+
+Owner playtest: Vortex fighters floated, leaving a raid fight opened the story map,
+Wind Wolf and Adanti fought in the dojo, Rakshasa/Morgana/the tier-6 Lamb/Ravana
+arenas were malformed, and `fight_halloween2019` fell back to the default track.
+
+- **Arenas (base).** An atlas-aware audit of CORE_LOCATIONS against the params the
+  game loads found: six Underworld locations with art but no params (dojo
+  fallback), and six whose vanilla params name atlases absent from the bundle
+  (the packaged art is the newer per-image set). `Tools/InstallDELocationParams.py`
+  installs the archived DE params: unchanged for the missing six (world units,
+  identical to DE 1.0.6); for `dojo_hw21`, `dojo_indian_event`,
+  `dojo_indian_event_22`, `haloween_dojo` and `ritual_battle_raid` it keeps the DE
+  image names but converts sizes to world units (the DE files give upscaled images
+  in texture pixels); `dojo_india24` only loses its two missing atlas names.
+- **Vortex floor (base).** `vortex_raid_floor` is an atlas address holding seven
+  sprites; `PackagedArtCatalog.LoadSprite` returned only the first (`left`) and
+  dropped it on the name check, so the floor strip never drew. It now picks the
+  named sibling. Vortex was the only location affected.
+- **Map return (base).** `MapScene.Init` always opened the story map (the
+  decompiled condition is `if (0 == 0)`). An Underworld fight now records itself
+  (and whether its entry is a Power Mode one); the next map opens the Underworld
+  with Power Mode restored at the raid focus.
+- **Music.** `fight_halloween2019`, `flying_rocks`, `halls_of_the_dead_heroes` and
+  `ninja_in_the_night_old` resolve to no packaged track. DE128 ships them under
+  `assets/audio/underworld/` (drop Music for three, DE 1.0.6 for Halloween 2019).
+  Battle and fight `music` now accept an `sf2.assets.audio` handle (wiki and editor
+  schema updated; 5 new API checks).
+
+Verified: foundation 9862, Underworld API 77, runtime 1282, trial rules 43, Sensei
+story 533, dojo routing 29, location motion 36; both location tools `check`; art
+extractor `--check` (26 files); wiki build and editor generate/check/tests/LuaLS;
+Assembly-CSharp builds. Not verified in Unity: replay Vortex, Wind Wolf, Adanti,
+Rakshasa, Morgana, the tier-6 Lamb, Ravana, Faradeya and Halloween Puppeteer, and
+leave a normal and a Power Mode fight.

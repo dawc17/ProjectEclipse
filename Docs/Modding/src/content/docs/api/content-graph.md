@@ -85,7 +85,8 @@ Create the map entry that the player selects to open a fight.
 | `icon`, `icon_atlas` | Strings | `""` | Existing map-button art identifiers. |
 | `preview` | Sprite handle or string | `""` | Battle-panel preview image: a sprite handle for art your mod ships, or an existing native preview name such as `preview_main.statue`. |
 | `eclipse_toggle_name` | String | `""` | Eclipse-mode toggle presentation name. |
-| `location`, `music` | Strings | `""` | Arena and music references used by the panel/content. |
+| `location` | String | `""` | Arena (location) name. |
+| `music` | Audio handle or string | `""` | Fight music: a handle from [`sf2.assets.audio`](../assets/#sf2assetsaudio) for a track your mod ships, or a native track name such as `raids_vortex`. |
 | `reward_image` | String | `""` | Reward presentation image reference. |
 | `show_resistance` | Boolean | `false` | Whether to show resistance presentation. |
 | `power_mode` | `"normal"` or `"power"` | Always shown | Underworld pages only: show the entry only while Power Mode is off (`"normal"`) or on (`"power"`). |
@@ -628,7 +629,8 @@ Connect a battle to opponents, rounds, rules, and rewards.
 | `rounds` | Integer, 1–100 | `3` | Number of rounds. |
 | `round_time` | Integer, 1–86400 | `99` | Time limit in seconds. |
 | `replays`, `replay_interval`, `power` | Nonnegative integers | `0` | Native replay, interval, and power settings. |
-| `location`, `music` | Strings | `""` | Arena name and music reference. |
+| `location` | String | `""` | Arena name. |
+| `music` | Audio handle or string | `""` | Fight music reference: an audio handle from `sf2.assets.audio` or a native track name. |
 | `evaluated_rating` | Finite number | `-1` | Native rating setting. |
 | `health_recovery` | Finite nonnegative number | `1` | Native health recovery setting. |
 | `description`, `reward_image` | Strings | `""` | Presentation references. |

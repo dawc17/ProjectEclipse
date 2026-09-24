@@ -242,6 +242,20 @@ namespace Eclipse.Content
                     SpriteCache[normalized] = asset;
                     return asset;
                 }
+                // Some recovered location atlases share one address for several sprites
+                // (vortex_raid_floor holds left, right, smoke1_1 ... and vortex_raid_floor).
+                // The first sprite is not necessarily the one the address names.
+                if (asset != null)
+                {
+                    foreach (Sprite sibling in bundle.LoadAssetWithSubAssets<Sprite>(entry.AssetPath))
+                    {
+                        if (sibling != null && SpriteNameMatches(sibling.name, normalized))
+                        {
+                            SpriteCache[normalized] = sibling;
+                            return sibling;
+                        }
+                    }
+                }
             }
 
             Sprite member = LoadSpriteMember(normalized);

@@ -16,6 +16,8 @@ internal static class DE128UnderworldTests
     private static Action<bool, string> _check;
     private static int _compared;
     private static readonly string[] Languages = { "cro", "eng", "fra", "ger", "hin", "hun", "ita", "kor", "por", "rom", "rus", "spa", "swe", "tur" };
+    private static readonly HashSet<string> OwnedMusic = new HashSet<string>
+        { "fight_halloween2019", "flying_rocks", "halls_of_the_dead_heroes", "ninja_in_the_night_old" };
     private static readonly Dictionary<string, string> Music = new Dictionary<string, string>
     {
         { "vulcan", "raids_vulcan" }, { "crystal", "raids_crystal" }, { "fungus", "raids_fungus" }, { "vortex", "raids_vortex" },
@@ -119,7 +121,10 @@ internal static class DE128UnderworldTests
         Check(battle.Location == xml.GetAttribute("Location") && battle.Preview == xml.GetAttribute("Preview") && battle.Icon == xml.GetAttribute("Icon"),
             "Battle location/preview/icon differs: " + name);
         string music = xml.GetAttribute("Music");
-        Check(battle.Music == (Music.TryGetValue(music, out var mapped) ? mapped : music), "Battle music mapping differs: " + name);
+        // Ids no packaged track provides ship with DE128 as audio assets under their archive id.
+        string expected = OwnedMusic.Contains(music) ? "de128:audio/underworld/" + music
+            : Music.TryGetValue(music, out var mapped) ? mapped : music;
+        Check(battle.Music == expected, "Battle music mapping differs: " + name + " (" + battle.Music + ")");
         string atlas = xml.GetAttribute("IconAtlas");
         if (OwnedButtons.Contains(atlas))
             Check(battle.Icons != null && battle.IconAtlas == string.Empty &&

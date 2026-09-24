@@ -5,9 +5,9 @@
       "name": "CORE_LOCATIONS",
       "namespaceId": "core",
       "file": "CORE_LOCATIONS.tar.lz4",
-      "sha256": "fb583516f42e6f01195f09130e6a7f0471cb90b7de83b69eec4a7664e408f6b7",
-      "size": 98777004,
-      "unpackedSize": 103261696,
+      "sha256": "9f78253c4f816bf447514ecb71341628dd7f5bad21532c3a6957b8892f19587b",
+      "size": 390423944,
+      "unpackedSize": 406752768,
       "assets": [
         {
           "address": "Textures/Location_effects/atlases/bird_black",
@@ -3938,6 +3938,3730 @@
         },
         {
           "address": "Textures/Locations/waterfall/waterfall_bg",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/bg_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/fire",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/layer4_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/layer4_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/layer5_5",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/layer5_7",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/arkhos_raid/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/floor_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/floor_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/layersun",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/autumn/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/back_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/layer_4_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/layer_4_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/battlefield/top_cas",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/burning_town/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/burning_town/flame_glow3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/burning_town/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/burning_town/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/burning_town/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/burning_town/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/burning_town/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/layer3_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/capsules/smoke_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/floor1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/floor2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/fog_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/fog_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/layer2_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/r_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/castle_and_bridge/tuman",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/drop_texture1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/drop_texture2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/floor1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/floor2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/cave/top",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/fog_tile_down",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/chess_yard/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dark_room/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dark_room/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dark_room/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dark_room/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dark_room/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dark_room/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dark_room/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0000_foreground_shine",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0001_arena",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0003_haze_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0004_sunrays",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0005_island",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0007_right_mountaian_haze",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0008_left_mountain_haze",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0009_right_mountain",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0010_left_mountain",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0011_water",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0012_far_haze",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0015_left_mountain_cloud",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0017_cloud_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0018_far_mountain",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0019_far_cloud",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/_0020_background",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dock/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dojo_hw22/dojo_floor_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dojo_hw22/dojo_floor_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dojo_hw22/dojo_punch_bag_holder",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dojo_hw22/left_wall",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/dojo_hw22/right_wall",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/capsules_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/capsules_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/egg_glow",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/smoke_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/spot_light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/eggs/spot_light2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/background1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/background2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/floor_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/floor_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/layerf3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/emerald_forest/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/Back_light1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/layer0_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/factory/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/layer1-1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/layer2-1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fatum_raid/smoke_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/background1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/floor_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/floor_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/layer4_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/layer4_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/left_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flooded_village/right_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/layer_sun",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flowers_field/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_10",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_4",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_5",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_6",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_7",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_8",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/flying_rocks/stone_9",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/layer3_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/layer4",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fuji/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer2_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer2_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer3_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer3_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer_0_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer_1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/layer_1_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/fungus_raid/smoke",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/sand_10",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/sand_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/sand_4",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/graveyard_ships/sand_new",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/haloween_dojo_2019/dojo_floor_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/haloween_dojo_2019/dojo_floor_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/haloween_dojo_2019/dojo_punch_bag_holder",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/haloween_dojo_2019/left_wall",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/haloween_dojo_2019/right_wall",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/clouds_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/clouds_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/layer1_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/layer2_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/heaven/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer2-mist-center",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer2-mist-left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer2-mist-right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer3-column-left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer3-column-right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer3-rock-left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer3-rock-right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer4-triangle1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer4-triangle2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer4-triangle3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer5-left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer5-right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer6-left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer6-right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer7-left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/Layer7-right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/bg_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/hoaxen_raid/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/glow_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ice_cave/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/fog1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/lamp",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/layer_1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/layer_2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/layer_2_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/lamps_on_water/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/blue_glow",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/glow_red",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/glow_red2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/layer0_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/reflex_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/reflex_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/reflex_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/reflex_red",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/reflex_red1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/reflex_red2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/magic_rocks/smoke",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/layer3-1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/megalith_raid/smoke_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/light_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/smoke_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/smoke_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/smoke_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/smoke_column_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/smoke_column_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/spark",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/spark_back",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/neural_network/spark_back2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/lamp1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/lamp2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/lamp3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/layer2_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/layer_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/light2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/night_bridge/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/floor1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/floor2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/floor3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/lake_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/pink_lake/ship",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/layer0_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/road/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ruins_village/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/layer2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/sakura/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/dust_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/dust_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/layer4_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/layer5_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/stones_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/stones_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/shadow_gate/stones_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/layer1_2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/ships/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/layer_2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/layer_3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/skyport_cell_left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/skyport/skyport_cell_right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/floor1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/floor2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/layer2_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/layer_house1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/rock",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/snowy_peak/snow_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/blue_light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/clouds_light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/green-light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/left_thorny",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/light",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/light_ship",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/right_thorny",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/smoke2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/smoke_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/spot",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/spot_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/spaceship/spot_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/statue/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/statue/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_dragon/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/layer4_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/left_thorny",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/right_thorny",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/smoke_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/smoke_column",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/up_smoke",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/stone_forest/water_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/floor2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/floor3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/fog_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/fog_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/layer1_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/layer2_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/swamp/tree_reflection_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/floor1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/floor2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/layer5",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/layer_4_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/layer_4_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/village/tumbleweed",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/flame",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/layer1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/volcano/volcano_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/layer3_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/layer3_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/layer3_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/layer4_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/layer4_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/layer4_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/light_NEW",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/smoke",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/vulcan_raid/smoke_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/background1_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/background_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/floor",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/floor2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/layer2_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/layer3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/left",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/pixel_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/right",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/stones_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/stones_2",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/stones_3",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/waterfall_left_tile",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "Textures/Locations/waterfall/waterfall_right_tile",
           "texture": "",
           "sprites": "",
           "audio": "",
@@ -12346,9 +16070,9 @@
       "name": "USERS",
       "namespaceId": "core",
       "file": "USERS.tar.lz4",
-      "sha256": "15865d9b4ea950a44b120bc5b28abe844c20540013d59c6c79586f8a3dc6362f",
-      "size": 58368940,
-      "unpackedSize": 58764800,
+      "sha256": "3ca0c29320e99ae4b82ede557b9bc751f17ef56a84a47c4499bc2601f9ca1964",
+      "size": 64538410,
+      "unpackedSize": 64961024,
       "assets": [
         {
           "address": "UI/Users/boss_arkhos_halloween",
@@ -13024,6 +16748,97 @@
         },
         {
           "address": "UI/Users/witch_halloween_young_dialog",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/avatar_hero",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/boss_lynx",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/character_may_1",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/character_may_1_small",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/character_may_4",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/character_sensei",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/character_sensei_small",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/girl_sai",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/man_batons",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/man_kunai",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/man_kungfu",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/man_night",
+          "texture": "",
+          "sprites": "",
+          "audio": "",
+          "font": ""
+        },
+        {
+          "address": "UI/Users/man_swords",
           "texture": "",
           "sprites": "",
           "audio": "",

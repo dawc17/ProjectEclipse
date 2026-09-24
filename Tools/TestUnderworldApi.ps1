@@ -132,6 +132,15 @@ $cases = @(
 )
 foreach ($case in $cases) { Check (Fails ($prefix + $case[0]) $case[1]) ('Invalid input accepted or misreported: ' + $case[0]) }
 
+# Battle and fight music accept an audio handle (mod-shipped track) or a native name.
+$musicCatalog = Load-Lua ('local z=sf2.zones.register{id="u",underworld=true}; local tune=sf2.assets.audio("audio/underworld/flying_rocks"); ' +
+    'local b=sf2.battles.register{id="b",zone=z,type=sf2.battles.FINAL,music=tune}; sf2.battles.register{id="n",zone=z,type=sf2.battles.FINAL,music="raids_vortex"}; ' +
+    'sf2.fights.register{id="f",battle=b,music=tune,warriors={sf2.warriors.register{id="w",template=sf2.warriors.get_template("core:warrior-templates/default")}}}')
+Check ((One $musicCatalog.Battles 'b').Music -eq 'fixture.warriors:audio/underworld/flying_rocks' -and (One $musicCatalog.Battles 'n').Music -eq 'raids_vortex' -and
+    (One $musicCatalog.Fights 'f').Music -eq 'fixture.warriors:audio/underworld/flying_rocks') 'Music handle was not projected as its qualified id.'
+Check (Fails 'local z=sf2.zones.register{id="u",underworld=true}; sf2.battles.register{id="b",zone=z,type=sf2.battles.FINAL,music=5}' 'must be an audio handle or string') 'Numeric music accepted.'
+Check (Fails 'local z=sf2.zones.register{id="u",underworld=true}; sf2.battles.register{id="b",zone=z,type=sf2.battles.FINAL,music=sf2.assets.sprite("sprites/sensei/boss_hermit_young")}' 'must be an audio handle or string') 'Sprite handle accepted as music.'
+
 # sf2.underworld: story.progression capability, typed arguments and the host seam.
 $battle = 'local z=sf2.zones.register{id="u",underworld=true}; local b=sf2.battles.register{id="b",zone=z,type=sf2.battles.FINAL}; '
 Check (Fails 'sf2.underworld.set_toggle_visible(false)' 'story.progression') 'Toggle visibility ignored its capability.'

@@ -2801,7 +2801,10 @@ public class ListSF
 		if (KPAICOOKACB != null)
 		{
 			ModelParameters kIKOGDEPGHB = IAOBIMJFBMH(node, KPAICOOKACB);
-			kIKOGDEPGHB.Node = MergeUserXML(kIKOGDEPGHB.Node, node);
+			// Clone() shares the template's Node; merge into a copy so resolving a
+			// warrior never rewrites its template (later template resolution, such
+			// as mod templates layered on Default, reads that node).
+			kIKOGDEPGHB.Node = MergeUserXML(kIKOGDEPGHB.Node.CloneNode(true), node);
 			return kIKOGDEPGHB;
 		}
 		return null;

@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Root Music="6|7" Color="0x000000" Wall="400" Floor="80" Width="2336" Height="512">
-	  <Layer Type="1" Factor="0.1" >
+  <Layer Type="1" Factor="0.1">
     <Image X="0" Y="0" ClassName="background_1" Width="1536" Height="512" />
   </Layer>
   <Layer Type="1" Factor="0.15">
@@ -35,10 +35,10 @@
       <Speed X="1.1" Y="0.2" />
     </SimpleEffect>
   </Layer>
-  <Layer Type="1" Factor="0.1" >
+  <Layer Type="1" Factor="0.1">
     <Image X="0" Y="0" ClassName="layer_1_1" Width="1536" Height="512" />
   </Layer>
-  <Layer Type="1" Factor="0.15" >
+  <Layer Type="1" Factor="0.15">
     <SimpleEffect X="-896" Y="147.5" Type="Picture" PictureLocation="local" ClassName="layer_1_2_1" Width="256" Height="211">
       <ReappearX Min="-1152" Max="1152" />
       <Speed X="0.4" Y="0" />
@@ -79,7 +79,7 @@
   <Layer Type="2" Factor="1">
     <ModelsViewer PlayerPositionX="1068" PlayerPositionY="-94" EnemyPositionX="1268" EnemyPositionY="-94" />
   </Layer>
-  <Layer Type="1" Factor="1"  Scaling="1">
+  <Layer Type="1" Factor="1" Scaling="1">
     <Image X="-673" Y="-199" ClassName="left" Width="1500" Height="839" />
     <Image X="678.5" Y="-192" ClassName="right" Width="1500" Height="839" />
     <Image X="-896" Y="179.5" ClassName="layer_2_1" Width="256" Height="55" />
@@ -94,7 +94,7 @@
     <Image X="896" Y="175" ClassName="layer_2_2" Width="256" Height="64" />
     <Image X="0" Y="459" ClassName="pixel_1" Width="2350" Height="510" Color="0x000000" IsOpaque="1" />
   </Layer>
-  <Layer Type="1" Factor="0.1" >
+  <Layer Type="1" Factor="0.1">
     <SimpleEffect X="-5" Y="-55.659" Type="Picture" PictureLocation="local" ClassName="layer_3" Width="1536" Height="313.681">
       <Transparency Offset="0">
         <Point Period="2.6" Value="25" Ease="-1" />

@@ -17,6 +17,8 @@ local MUSIC = {
 }
 
 -- Event-raid map buttons absent from core art ship as DE128 sprites.
+-- Archive music ids no packaged track provides; DE128 ships them (Tools/ExtractDE128UnderworldArt.py).
+local OWNED_MUSIC = { fight_halloween2019 = true, flying_rocks = true, halls_of_the_dead_heroes = true, ninja_in_the_night_old = true }
 local OWNED_BUTTONS = {
     BattleBtnArchitect = true, BattleBtnHalloween = true, BattleBtnLamb = true, BattleBtnNrityu = true,
     BattleBtnPuppeteer = true, BattleBtnRakshasa = true, BattleBtnRavana = true, BattleBtnShurale = true,
@@ -106,6 +108,12 @@ local function install(raid_charge_rule)
         error("Unsupported Underworld rule kind " .. tostring(kind))
     end
 
+    local owned_music = {}
+    local function music(name)
+        if not OWNED_MUSIC[name] then return MUSIC[name] or name end
+        owned_music[name] = owned_music[name] or sf2.assets.audio("audio/underworld/" .. name)
+        return owned_music[name]
+    end
     local zones, battles, fights = {}, {}, {}
     -- by_battle[archive battle][archive fight] = { handle, id } for story hooks.
     local by_battle = {}
@@ -138,7 +146,7 @@ local function install(raid_charge_rule)
                 id = battle_id, zone = zone, type = BATTLE_TYPES[spec.type], x = spec.x, y = spec.y,
                 alias = text.key(spec.alias), title = text.key(spec.title), description = description,
                 icon = spec.icon, icon_atlas = (not icons) and spec.icon_atlas or nil, icons = icons,
-                preview = spec.preview, location = spec.location, music = MUSIC[spec.music] or spec.music,
+                preview = spec.preview, location = spec.location, music = music(spec.music),
                 power_mode = spec.power_mode,
             }
             battles[spec.name] = battle

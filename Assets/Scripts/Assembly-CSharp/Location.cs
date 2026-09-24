@@ -20,16 +20,10 @@ public class Location
 
 	private static readonly Dictionary<string, string> MissingArtworkFallbacks = new Dictionary<string, string>
 	{
-		{ "emerald_forest_new", "emerald_forest" },
-		{ "flying_rocks_small", "flying_rocks" },
-		{ "ruins_village_small", "ruins_village" },
-		{ "waterfall_small", "waterfall" },
-		{ "flooded_village", "village" },
-		{ "magic_rocks", "flying_rocks" },
-		{ "road", "battlefield" },
-		{ "spaceship_thorny", "spaceship" },
-		{ "stone_dragon", "stone_forest" },
-		{ "stone_forest_thorny", "stone_forest" }
+		// The other former entries (road, magic_rocks, stone_dragon, flooded_village and the
+		// _small/_thorny variants) now ship their own upscaled artwork and params
+		// (Tools/ImportUpscaledLocations.py); redirecting them would load another layout.
+		{ "emerald_forest_new", "emerald_forest" }
 	};
 
 	public string name;

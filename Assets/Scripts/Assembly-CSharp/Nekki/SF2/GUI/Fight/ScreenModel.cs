@@ -190,6 +190,16 @@ namespace Nekki.SF2.GUI.Fight
 				else
 				{
 					_name.SetAlias(_parameters.BMFLPBLAFLK);
+					// The fight HUD has one line for the name. Show a {br} two-line name
+					// ("SON OF{br}HEAVEN") on one line, shrunk to fit if needed.
+					string text = _name.get_text();
+					if (text.IndexOf('\n') >= 0)
+					{
+						_name.set_text(text.Replace("\r", string.Empty).Replace('\n', ' '));
+						_name.resizeTextMinSize = Mathf.Max(1, _name.fontSize / 2);
+						_name.resizeTextMaxSize = _name.fontSize;
+						_name.resizeTextForBestFit = true;
+					}
 				}
 			}
 		}

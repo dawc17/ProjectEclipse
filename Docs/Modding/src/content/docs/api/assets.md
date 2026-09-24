@@ -94,7 +94,7 @@ not prove that a custom model will look or animate correctly.
 
 ## sf2.assets.audio
 
-Get an audio handle for location music or a move's sound action.
+Get an audio handle for location, battle or fight music, or a move's sound action.
 
 **Signature:** `sf2.assets.audio(reference)`
 
@@ -109,8 +109,9 @@ local music = sf2.assets.audio("audio/arena")
 -- For example, a supported WAV file at assets/audio/arena.wav.
 ```
 
-This only resolves the asset. To hear it, attach it to a location or a supported
-sound action; there is no general `play()` method on the returned handle.
+This only resolves the asset. To hear it, attach it to a location, a battle or
+fight `music` field, or a supported sound action; there is no general `play()`
+method on the returned handle.
 
 ## sf2.assets.binary
 

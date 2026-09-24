@@ -6,6 +6,9 @@ byte-for-byte and gets a line-based mod sprite descriptor. Lock states are not i
 the drop; the game falls back to its native lock art. Two story portraits (character_may_1,
 character_may_4) are native Unity resources missing from the packaged-art catalog
 that resolves public core sprite IDs, so they are copied from Assets/Resources.
+Four Underworld music ids resolve to no packaged track; they ship as PCM WAV under
+assets/audio/underworld/<id>.wav: three from the drop's DE-named Music folder (newer) and
+fight_halloween2019 from the DE 1.0.6 reference, the only copy.
 --check verifies the shipped copies against their sources.
 """
 
@@ -27,6 +30,13 @@ BUTTONS = {
     "BattleBtnWindWolf": "wind_wolf_raid",
 }
 PORTRAITS = ("character_may_1", "character_may_4")
+MUSIC_DROP = ROOT / "ResearchSources" / "de128_assets" / "assets" / "Music"
+MUSIC = {
+    "flying_rocks": MUSIC_DROP / "the_flying_rocks.wav",
+    "halls_of_the_dead_heroes": MUSIC_DROP / "the_halls_of_the_dead_heroes.wav",
+    "ninja_in_the_night_old": MUSIC_DROP / "the_ninja_in_the_night_old.wav",
+    "fight_halloween2019": ROOT / "ResearchSources" / "ReferenceSF2DE106" / "ExportedProject" / "Assets" / "gamedata" / "music" / "fight_halloween2019.wav",
+}
 
 
 def sources():
@@ -65,11 +75,21 @@ def main() -> int:
         if not descriptor.is_file() or descriptor.read_text(encoding="utf-8") != body:
             failures.append("descriptor " + name)
         rows.append((name, sha256(source)))
+    audio = ASSETS / "audio" / "underworld"
+    if not args.check:
+        audio.mkdir(parents=True, exist_ok=True)
+    for name, source in MUSIC.items():
+        target = audio / (name + ".wav")
+        if not args.check:
+            shutil.copyfile(source, target)
+        if not target.is_file() or sha256(target) != sha256(source):
+            failures.append("audio " + name)
+        rows.append((name + ".wav", sha256(source)))
     for failure in failures:
         print("FAIL", failure)
     for name, digest in rows:
         print(digest, name)
-    print(f"{len(rows)} Underworld button and portrait sprites {'verified' if not failures else 'FAILED'}")
+    print(f"{len(rows)} Underworld button/portrait sprites and music files {'verified' if not failures else 'FAILED'}")
     return 1 if failures else 0
 
 

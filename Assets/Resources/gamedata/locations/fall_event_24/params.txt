@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Root Music="6|7" Color="0x000000" Wall="80" Floor="40" Width="1536" Height="512">
+  <Layer Type="1" Factor="0.1" Atlas="fall_event_24_back_layer">
+    <Image X="0" Y="-15" ClassName="BG" Width="1536" Height="512" IsOpaque="1" />
+  </Layer>
+  <Layer Type="1" Factor="0.2" Atlas="fall_event_24_back_layer">
+    <Image X="0" Y="-12" ClassName="middle_trees" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="fall_event_24_back_layer">
+    <Image X="0" Y="-17" ClassName="middle_side_trees" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="1" Factor="0.75" Atlas="fall_event_24_forward_layer">
+    <Image X="0" Y="-25" ClassName="FG" Width="1536" Height="512" />
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="868" PlayerPositionY="-94" EnemyPositionX="1068" EnemyPositionY="-94" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="fall_event_24_forward_layer" Scaling="1">
+    <Image X="-687" Y="55" ClassName="Wall_Left" Width="145" Height="309" />
+    <Image X="675.6" Y="55" ClassName="Wall_Right" Width="103" Height="319" />
+    <Image X="0" Y="105" ClassName="Ground" Width="1536" Height="374" />
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dojo_atlas_layer3" Scaling="1" Path="Locations/dojo/">
+    <Image X="0" Y="400" ClassName="pixel_1" Width="2000" Height="300" Color="0x000000" />
+  </Layer>
+</Root>

@@ -523,8 +523,8 @@ local ZoneDefinition = {}
 ---@field icon_atlas? string
 ---@field eclipse_toggle_name? string
 ---@field location? string
----@field music? string
 ---@field reward_image? string
+---@field music? Eclipse.AudioHandle|string Audio handle for music the mod ships, or a native track name.
 ---@field preview? Eclipse.SpriteHandle|string Sprite handle for mod-supplied art, or an existing native preview name.
 ---@field show_resistance? boolean
 ---@field power_mode? "normal"|"power" Underworld pages only: shown only while Power Mode is off (normal) or on (power). Omit to always show.
@@ -645,9 +645,9 @@ local RewardDefinition = {}
 ---@field replay_interval? integer
 ---@field power? integer
 ---@field location? string
----@field music? string
 ---@field description? string
 ---@field reward_image? string
+---@field music? Eclipse.AudioHandle|string Audio handle for music the mod ships, or a native track name.
 ---@field evaluated_rating? number
 ---@field health_recovery? number
 ---@field locked? boolean
@@ -2052,7 +2052,7 @@ function assets.sprite(reference) end
 ---@return Eclipse.ModelHandle
 function assets.model(reference) end
 
----Get an audio handle for location music or a move's sound action.
+---Get an audio handle for location, battle or fight music, or a move's sound action.
 ---Requires: No capability; cross-mod references require a dependency.
 ---When: During registration before using the handle.
 ---Returns: An audio handle. Missing or non-audio assets raise an error.

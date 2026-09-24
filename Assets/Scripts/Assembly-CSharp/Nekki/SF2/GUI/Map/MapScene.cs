@@ -165,6 +165,19 @@ namespace Nekki.SF2.GUI.Map
 			GetUnderworldControls().Initialize(LDOJANLOFHI == NMFLNANKNOJ.RaidMode);
 			UpdateRaidControls();
 			PLJBFIGOFPJ();
+			// Back from an Underworld fight: reopen the Underworld (and Power Mode) at its focus.
+			bool returnPowerMode;
+			if (Eclipse.Underworld.UnderworldZonePolicy.ConsumeMapReturn(out returnPowerMode))
+			{
+				SwitchToRaidMap();
+				if (returnPowerMode)
+				{
+					ToggleRaidPowerMode();
+					LastFight focus = JBAPLBALJII;
+					Battle battle = focus == null ? null : focus.AODOOCLOLMH();
+					if (battle != null && _storyContainer.HasBattle(battle)) SelectBattle(battle, 0f);
+				}
+			}
 		}
 
 		protected override void OnDestroy()

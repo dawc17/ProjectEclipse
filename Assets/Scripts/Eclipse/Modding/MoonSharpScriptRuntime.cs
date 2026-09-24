@@ -1812,7 +1812,7 @@ namespace Eclipse.Modding
                         OptionalSpriteOrString(table, "preview", function),
                         OptionalStringAllowEmpty(table, "description", string.Empty, function),
                         OptionalStringAllowEmpty(table, "location", string.Empty, function),
-                        OptionalStringAllowEmpty(table, "music", string.Empty, function),
+                        OptionalAudioOrString(table, "music", function),
                         OptionalStringAllowEmpty(table, "reward_image", string.Empty, function),
                         OptionalBool(table, "show_resistance", false, function),
                         OptionalStringAllowEmpty(table, "icon_atlas", string.Empty, function),
@@ -2182,7 +2182,7 @@ namespace Eclipse.Modding
                         OptionalInt(table, "rounds", 3, function),
                         OptionalInt(table, "round_time", 99, function),
                         OptionalStringAllowEmpty(table, "location", string.Empty, function),
-                        OptionalStringAllowEmpty(table, "music", string.Empty, function),
+                        OptionalAudioOrString(table, "music", function),
                         OptionalFloat(table, "evaluated_rating", -1f, function),
                         OptionalFloat(table, "health_recovery", 1f, function),
                         OptionalStringAllowEmpty(table, "description", string.Empty, function),
@@ -2389,6 +2389,17 @@ namespace Eclipse.Modding
                 if (value.Type == DataType.Table && _spriteHandles.TryGetValue(value.Table, out AssetId sprite))
                     return sprite.ToString();
                 throw new ModContentException(function + " field '" + field + "' must be a sprite handle or string.");
+            }
+
+            // Music fields: an audio handle for music a mod ships, or a native track name.
+            private string OptionalAudioOrString(Table table, string field, string function)
+            {
+                DynValue value = table.Get(field);
+                if (value.IsNil()) return string.Empty;
+                if (value.Type == DataType.String) return value.String ?? string.Empty;
+                if (value.Type == DataType.Table && _audioHandles.TryGetValue(value.Table, out AssetId audio))
+                    return audio.ToString();
+                throw new ModContentException(function + " field '" + field + "' must be an audio handle or string.");
             }
 
             private static bool OptionalBool(Table table, string field, bool fallback, string function)

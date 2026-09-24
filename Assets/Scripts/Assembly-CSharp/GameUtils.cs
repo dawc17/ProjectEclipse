@@ -1881,6 +1881,7 @@ public static class GameUtils
 				"' contained no usable enemies; using a player-equipment compatibility opponent.");
 		}
 		UnderworldRaidDiagnostics.LogEnemies(jDIPBIHBGPF, kIKOGDEPGHB, list);
+		Eclipse.Underworld.UnderworldZonePolicy.NoteFightStarted(jDIPBIHBGPF.Battle);
 		return new Fight(jDIPBIHBGPF, kIKOGDEPGHB, list, preFight, LPGANKOAPJL);
 	}
 

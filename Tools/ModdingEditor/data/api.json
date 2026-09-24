@@ -209,7 +209,7 @@
       "capability": null,
       "referenceKind": "audio",
       "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsaudio",
-      "summary": "Get an audio handle for location music or a move's sound action.",
+      "summary": "Get an audio handle for location, battle or fight music, or a move's sound action.",
       "requires": "No capability; cross-mod references require a dependency.",
       "when": "During registration before using the handle."
     },
@@ -2451,8 +2451,11 @@
         "icon_atlas?": "string",
         "eclipse_toggle_name?": "string",
         "location?": "string",
-        "music?": "string",
         "reward_image?": "string",
+        "music?": [
+          "Eclipse.AudioHandle|string",
+          "Audio handle for music the mod ships, or a native track name."
+        ],
         "preview?": [
           "Eclipse.SpriteHandle|string",
           "Sprite handle for mod-supplied art, or an existing native preview name."
@@ -2646,9 +2649,12 @@
         "replay_interval?": "integer",
         "power?": "integer",
         "location?": "string",
-        "music?": "string",
         "description?": "string",
         "reward_image?": "string",
+        "music?": [
+          "Eclipse.AudioHandle|string",
+          "Audio handle for music the mod ships, or a native track name."
+        ],
         "evaluated_rating?": "number",
         "health_recovery?": "number",
         "locked?": "boolean"

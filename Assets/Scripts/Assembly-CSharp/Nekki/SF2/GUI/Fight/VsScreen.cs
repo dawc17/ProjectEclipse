@@ -79,6 +79,17 @@ namespace Nekki.SF2.GUI.Fight
 			return GLAMMHFCJPN;
 		}
 
+		// Newer localization writes two-line fighter names with {br} ("SON OF{br}HEAVEN").
+		// The name label is one 150px line high and truncates vertically, which hid
+		// the second line; let such names overflow so both lines show.
+		private static void AllowExplicitLineBreaks(LabelAlias label)
+		{
+			if (label.get_text().IndexOf('\n') >= 0)
+			{
+				label.verticalOverflow = VerticalWrapMode.Overflow;
+			}
+		}
+
 		public void Init(ModelParameters KEJDJHAGBMK, ModelParameters HFGPAELCNMF)
 		{
 			if (playerLeft != null)
@@ -96,10 +107,12 @@ namespace Nekki.SF2.GUI.Fight
 			if (nameLeft != null)
 			{
 				nameLeft.set_Alias(KEJDJHAGBMK.BMFLPBLAFLK);
+				AllowExplicitLineBreaks(nameLeft);
 			}
 			if (nameRight != null)
 			{
 				nameRight.set_Alias(HFGPAELCNMF.BMFLPBLAFLK);
+				AllowExplicitLineBreaks(nameRight);
 			}
 			if (playerLeft != null && playerRight != null && nameLeft != null && nameRight != null && vsImage != null && leftStripe != null && rightStripe != null)
 			{
