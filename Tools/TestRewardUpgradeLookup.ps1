@@ -21,11 +21,11 @@ class UpgradeDataContainer {public List<UpgradeData> KPAPEBOAKIE=new List<Upgrad
 class ListSF {
  public static readonly ListSF Catalog=new ListSF();public static ListSF GetItems()=>Catalog;
  public Dictionary<string,UpgradeDataContainer> Templates=new Dictionary<string,UpgradeDataContainer>();
- public UpgradeDataContainer BKPOCLGODDM(string name)=>name!=null&&Templates.TryGetValue(name,out var value)?value:null;
+ public UpgradeDataContainer GetUpgradeDataContainerByName(string name)=>name!=null&&Templates.TryGetValue(name,out var value)?value:null;
 }
 class ItemInfo {
- public List<UpgradeData> KEFPALGDBOC=new List<UpgradeData>();public string PHDCGJOKBLH;public int OBJDGBBFJOO,Level;
- public ItemInfo MPADIPJLMLH(UpgradeData data)=>new ItemInfo{OBJDGBBFJOO=data.OGLHOJNMEBD.AKKLOMFOLNO,Level=data.OGLHOJNMEBD.Level};
+ public List<UpgradeData> LocalUpgrades=new List<UpgradeData>();public string UpgradeTemplateName;public int UpgradeLevel,Level;
+ public ItemInfo MPADIPJLMLH(UpgradeData data)=>new ItemInfo{UpgradeLevel=data.OGLHOJNMEBD.AKKLOMFOLNO,Level=data.OGLHOJNMEBD.Level};
  /* METHODS */
 }
 class Program {
@@ -33,10 +33,10 @@ class Program {
  static UpgradeData Row(int level,int encoded)=>new UpgradeData{OGLHOJNMEBD=new UpgradeData.Fields{Level=level,AKKLOMFOLNO=encoded}};
  static UpgradeData Parse(XElement e)=>Row((int?)e.Attribute("Level")??0,(int?)e.Attribute("UpgradeLevel")??0);
  static void Main(string[] args){
-  var item=new ItemInfo{PHDCGJOKBLH="test",OBJDGBBFJOO=100};item.KEFPALGDBOC.Add(Row(1,100));
+  var item=new ItemInfo{UpgradeTemplateName="test",UpgradeLevel=100};item.LocalUpgrades.Add(Row(1,100));
   ListSF.Catalog.Templates["test"]=new UpgradeDataContainer{KPAPEBOAKIE=new List<UpgradeData>{Row(5,500),Row(1,90),Row(3,300)}};
-  Check(item.HIOBANJPMKF(100).OBJDGBBFJOO==100,"Local exact upgrade lost");
-  Check(item.HIOBANJPMKF(200).OBJDGBBFJOO==300,"Native next-entry semantics changed");
+  Check(item.HIOBANJPMKF(100).UpgradeLevel==100,"Local exact upgrade lost");
+  Check(item.HIOBANJPMKF(200).UpgradeLevel==300,"Native next-entry semantics changed");
   Check(item.HIOBANJPMKF(501)==null,"Above-table request silently clamped");
   Check(item.DNFDAGFAANJ().Select(r=>r.OGLHOJNMEBD.AKKLOMFOLNO).SequenceEqual(new[]{100,300,500}),"Local/template merge or ordering changed");
   Check(item.DNFDAGFAANJ(true,3).Single().OGLHOJNMEBD.AKKLOMFOLNO==300,"Ordinal filter changed");
@@ -50,11 +50,11 @@ class Program {
    rows++;string name=(string)reward.Attribute("Name");
    if(!items.TryGetValue(name,out var definition)){missing++;continue;}
    if((string)reward.Attribute("UpgradeLevel")!="?Player[].Level*100"){unsupported++;continue;}
-   var upgrades=definition.Element("Upgrades");var native=new ItemInfo{PHDCGJOKBLH=(string)upgrades?.Attribute("Template")};
-   if(upgrades!=null)native.KEFPALGDBOC.AddRange(upgrades.Elements("Upgrade").Select(Parse));
+   var upgrades=definition.Element("Upgrades");var native=new ItemInfo{UpgradeTemplateName=(string)upgrades?.Attribute("Template")};
+   if(upgrades!=null)native.LocalUpgrades.AddRange(upgrades.Elements("Upgrade").Select(Parse));
    for(int level=1;level<=52;level++){
     var chosen=native.HIOBANJPMKF(level*100);
-    if(chosen==null)unavailable++;else if(chosen.OBJDGBBFJOO==level*100)exact++;else higher++;
+    if(chosen==null)unavailable++;else if(chosen.UpgradeLevel==level*100)exact++;else higher++;
    }
   }
   Check(rows>0,"Archive reward inventory empty");

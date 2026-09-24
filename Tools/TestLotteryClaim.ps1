@@ -48,7 +48,7 @@ class Program {
  public class FightList {public List<RewardStruct> Rewards=new List<RewardStruct>();public List<RewardStruct> APKPCGDBMEP()=>Rewards;}
  public class QuestStage {public bool allowDoubles,EclipseResumeActions;public string FileName="quests.xml",EclipseActionsDefinition="<Actions><DialogLottery/></Actions>";public ModQuestInvocationLedger EclipseLotteryInvocations;public string get_Name()=>"LotteryQuest";}
  public struct MANJCIGJPMK {public string Image=>"test";public string ViewType=>"Weapon";}
- public class ItemInfo {public int MHGODOLNDLE,OBJDGBBFJOO;public ItemInfo HIOBANJPMKF(int n)=>this;}
+ public class ItemInfo {public int ItemLevel,UpgradeLevel;public ItemInfo HIOBANJPMKF(int n)=>this;}
  public class Catalog {public ItemInfo GetItemByName(string n)=>null;public object ICFINJLNCPM(string n)=>null;public object NDMEGBEFBPJ(string n)=>null;}
  public static class GameUtils {public static Catalog AJDKHINLIDI=new Catalog(),JNIMKHKGPHE=new Catalog();}
  public partial class ListSF {public static FightList Fight;public static FightList CHMCKGCDGCM(FightIDS id)=>id.Name=="test"?Fight:null;public static Action Grant;public static int Grants,Writes;public static string Saved;public static Catalog GetItems()=>new Catalog();static ListSF current=new ListSF();public static ListSF GetInstance()=>current;public bool IMDGMNFHFCN(FightResult.ResultPrizeStruct p){Grants++;Grant?.Invoke();return false;}public void OnAuthenticate(bool force){if(DeferProfileSave())return;Writes++;Saved=_lotteryProfileNode.OwnerDocument.OuterXml;}}

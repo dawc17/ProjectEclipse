@@ -432,6 +432,12 @@ local ShopListing = {}
 ---@field minimum_level? integer
 local Availability = {}
 
+---@class (exact) Eclipse.ShopPricePatch
+---@field item Eclipse.ItemHandle
+---@field price Eclipse.PriceHandle
+---@field secondary_price? Eclipse.PriceHandle Optional positive price in the other currency.
+local ShopPricePatch = {}
+
 ---@class (exact) Eclipse.AssetReplacement
 ---@field target string
 ---@field replacement string
@@ -1011,6 +1017,31 @@ local ItemTacticSubtype = {}
 ---@field item Eclipse.ItemHandle
 ---@field subtype string Case-sensitive native combat family; requires matching moves/projectile support.
 local ItemCombatSubtype = {}
+
+---@class (exact) Eclipse.ItemInitialProfileStats
+---@field weapon_damage? integer 0-1000000; only fields valid for the item category are accepted.
+---@field body_defense? integer 0-1000000; only fields valid for the item category are accepted.
+---@field head_defense? integer 0-1000000; only fields valid for the item category are accepted.
+---@field unarmed_damage? integer 0-1000000; only fields valid for the item category are accepted.
+---@field ranged_damage? integer 0-1000000; only fields valid for the item category are accepted.
+---@field magic_damage? integer 0-1000000; only fields valid for the item category are accepted.
+local ItemInitialProfileStats = {}
+
+---@class (exact) Eclipse.ItemPresentation
+---@field item Eclipse.ItemHandle
+---@field icon? Eclipse.SpriteHandle Optional replacement shop icon.
+---@field model? Eclipse.ModelHandle Optional replacement fighter model. At least one of icon or model is required.
+local ItemPresentation = {}
+
+---@class (exact) Eclipse.ItemInitialProfile
+---@field item Eclipse.ItemHandle
+---@field level integer Starting equipment level, 1-52.
+---@field upgrade_level integer Starting upgrade tier, 0-5200.
+---@field initial_stats Eclipse.ItemInitialProfileStats Required complete initial stat snapshot; omitted fields remain absent.
+---@field upgrade_template? "Weapon_Bonus"|"Paid_Weapon_Bonus"|"Armor_Bonus"|"Paid_Armor_Bonus"|"Helm_Bonus"|"Paid_Helm_Bonus"|"Ranged_Bonus"|"Paid_Ranged_Bonus"|"Magic_Bonus"|"Paid_Magic_Bonus" Existing native template matching the equipment category; omitted keeps the current template.
+---@field legacy_paid_item? "none"|"paid"|"super_paid" Optional legacy PaidItem metadata. Omitted keeps the current marker; none clears it. Does not change price or currency.
+---@field clear_local_upgrades? boolean Optional; remove the item’s own upgrade rows so its shared template supplies progression.
+local ItemInitialProfile = {}
 
 ---@class (exact) Eclipse.DefaultEnchantment
 ---@field perk Eclipse.PerkHandle
@@ -2016,6 +2047,14 @@ function shop.addItem(definition) end
 ---@param definition Eclipse.Availability
 function shop.set_availability(definition) end
 
+---Replace an existing equipment item's native shop price with a positive coin or gem price. This also selects its purchase currency. The patch applies before new shop copies are built; direct native affordability and purchase paths read the same fields as the shop display.
+---Requires: `content.patch`; item lookup also requires `content.register`. Declare a dependency on the item's owner.
+---When: During mod loading, after obtaining the equipment handle. Use Apply & Restart to add or remove the patch.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/shop/#sf2shopset_price)
+---@param definition Eclipse.ShopPricePatch
+function shop.set_price(definition) end
+
 ---Create a coin price to use in a shop listing. This does not spend or grant coins.
 ---Requires: No capability to construct the price; listing it requires `content.register`.
 ---When: Usually during registration.
@@ -2582,6 +2621,22 @@ function items.set_tactic_subtype(definition) end
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_subtype)
 ---@param definition Eclipse.ItemCombatSubtype
 function items.set_subtype(definition) end
+
+---Change an existing equipment item's shop icon, fighter model, or both while keeping its identity and purchase state. Use typed asset handles so the asset host checks their kind and ownership before registration.
+---Requires: `content.patch`; item lookup needs `content.register`. Declare a dependency on the item's owner and on any asset owner.
+---When: During mod loading, before shop and fighter copies are built. Apply & Restart to load or remove the patch.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_presentation)
+---@param definition Eclipse.ItemPresentation
+function items.set_presentation(definition) end
+
+---Replace an existing equipment definition's starting level, upgrade level, initial stat snapshot and optionally its upgrade template or legacy paid marker. Use this when the item already exists and a mod changes its progression without replacing its identity or shared purchase price.
+---Requires: `content.patch`; `sf2.items.get` also needs `content.register`. Declare a dependency on the item's owner.
+---When: During mod loading, after obtaining the item handle and before shop, inventory and fighter copies are built. Apply & Restart to load or remove it.
+---Returns: Nothing (`nil`).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_initial_profile)
+---@param definition Eclipse.ItemInitialProfile
+function items.set_initial_profile(definition) end
 
 ---Requires: `content.patch`; item/perk lookup or registration also requires `content.register`. Declare dependencies for referenced content from core or other mods.
 ---When: During mod loading.

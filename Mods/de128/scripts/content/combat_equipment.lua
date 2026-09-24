@@ -1,7 +1,8 @@
 local sf2 = require("sf2")
 
 -- Exact non-economic SubType differences in Assets/DExml/list.xml.
--- Core identities, art, prices, power and enchantments remain unchanged.
+-- This module changes only combat subtype; shop profiles and default
+-- enchantments are applied separately by content.shop.
 for _, entry in ipairs({
     { "weapon", "WEAPON_CHNY22_SPEAR", "Naginata" },
     { "weapon", "WEAPON_RAID_KARCER_SET", "HunterClaws" },

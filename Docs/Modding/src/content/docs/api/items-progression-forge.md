@@ -67,6 +67,105 @@ sf2.progression.replace_perk_branch {
 
 An `upgrade` entry must refer to a perk that supports upgrades. Keep alternative choices appropriate for players who have already progressed through the tree.
 
+## sf2.items.set_presentation
+
+Change an existing equipment item's shop icon, fighter model, or both while
+keeping its identity and purchase state. Use typed asset handles so the asset
+host checks their kind and ownership before registration.
+
+**Signature:** `sf2.items.set_presentation { item, icon?, model? }`
+
+**Returns:** Nothing (`nil`).
+
+**When:** During mod loading, before shop and fighter copies are built. Apply &
+Restart to load or remove the patch.
+
+**Requires:** `content.patch`; item lookup needs `content.register`. Declare a
+dependency on the item's owner and on any asset owner.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `item` | Equipment handle | Required weapon, armor, helm, ranged or magic item. |
+| `icon` | Sprite handle | Optional icon from `sf2.assets.sprite`. |
+| `model` | Model handle | Optional model from `sf2.assets.model`. |
+
+Provide at least one of `icon` or `model`. An omitted field keeps its existing
+value. Another presentation patch for the same item conflicts. Removing the mod
+restores the previous icon and model for future copies; copies already built
+keep their snapshot. Existing saved item identity stays the same.
+
+```lua
+local sf2 = require("sf2")
+local weapon = sf2.items.get("core:items/weapon/WEAPON_KUNAI")
+sf2.items.set_presentation {
+    item = weapon,
+    icon = sf2.assets.sprite("core:UI/Items/weapon_kunai"),
+}
+```
+
+The `core` dependency is required in `mod.toml` for this example. You can also
+use a model owned by your mod. The content fingerprint includes both asset IDs.
+Native checks cover registration, copying and rollback; verify the actual shop
+thumbnail and fighter appearance in the game. DE128's isolated Unity check
+also selects one changed icon in the live shop and equips a changed-model armor.
+
+## sf2.items.set_initial_profile
+
+Replace an existing equipment definition's starting level, upgrade level,
+initial stat snapshot and optionally its upgrade template or legacy paid marker. Use this when the
+item already exists and a mod changes its progression without replacing its
+identity or shared purchase price.
+
+**Signature:** `sf2.items.set_initial_profile { item, level, upgrade_level, initial_stats, upgrade_template?, legacy_paid_item?, clear_local_upgrades? }`
+
+**Returns:** Nothing (`nil`).
+
+**When:** During mod loading, after obtaining the item handle and before shop,
+inventory and fighter copies are built. Apply & Restart to load or remove it.
+
+**Requires:** `content.patch`; `sf2.items.get` also needs `content.register`.
+Declare a dependency on the item's owner.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `item` | Equipment handle | Required. Weapon, armor, helm, ranged or magic. |
+| `level` | Integer 1–52 | Required starting item level. |
+| `upgrade_level` | Integer 0–5200 | Required starting upgrade level. This is the item's progression marker, not a price. |
+| `initial_stats` | Table | Required complete initial stat snapshot. Values are integers 0–1,000,000. Allowed keys match the category tables in [explicit initial stats](../equipment-shop-logging/#explicit-initial-stats). Omitted keys remain absent. |
+| `upgrade_template` | String | Optional. Leave out to retain the item's current template. To replace it, use `Weapon_Bonus` or `Paid_Weapon_Bonus` for a weapon, or the matching `Armor`, `Helm`, `Ranged`, or `Magic` pair. The selected template must exist in the native item catalog. |
+| `legacy_paid_item` | `"none"`, `"paid"` or `"super_paid"` | Optional. Leave out to retain the item's current legacy `PaidItem` marker. `"none"` clears it; the other values set the corresponding native marker. This is metadata used by legacy conditions and statistics, not the shop price or currency. |
+| `clear_local_upgrades` | Boolean | Optional, default `false`. Set `true` to remove the item's own XML-authored upgrade rows from future catalog copies. The selected shared `upgrade_template` still supplies its rows. |
+
+```lua
+local blade = sf2.items.get("core:items/weapon/WEAPON_BP_S1_GUARDIAN")
+sf2.items.set_initial_profile {
+    item = blade,
+    level = 15,
+    upgrade_level = 1500,
+    initial_stats = { weapon_damage = 342 },
+    upgrade_template = "Weapon_Bonus",
+    legacy_paid_item = "none",
+}
+```
+
+The patched catalog item supplies new purchase and fighter copies. Its source XML,
+item ID, coin/gem price and shared upgrade table definitions stay unchanged.
+Changing `upgrade_template` selects a different existing table, which can change
+future upgrade prices and power. Changing `legacy_paid_item` does not change shop
+visibility, the acquisition route, or the price; use the shop availability and
+listing APIs for those behaviors.
+Use `clear_local_upgrades = true` when replacing an item whose source definition
+has one-off upgrade rows that should no longer supplement its selected shared
+template. Removing the patch restores those rows; already saved inventory is not
+rewritten.
+Removing the mod restores the original catalog profile. Already saved inventory
+is not migrated or re-leveled by this declaration. The host rejects wrong-category
+stat keys or templates, invalid values, unavailable templates, unknown items and
+competing patches to the same item.
+The native copy and rollback paths have detached tests. DE128's isolated Unity
+check also buys, upgrades, equips and reloads representative patched items.
+Validate combat balance for each content pack in the game.
+
 ## sf2.items.set_subtype
 
 Change the combat family of an existing weapon, ranged item or magic definition.

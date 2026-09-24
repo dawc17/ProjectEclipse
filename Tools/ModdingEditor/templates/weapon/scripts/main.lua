@@ -18,4 +18,15 @@ sf2.shop.addItem {
     price = sf2.price.coins(1),
 }
 
+-- To change an existing item's starting level, stats, upgrade template or legacy
+-- paid marker, use
+-- sf2.items.set_initial_profile in a mod with content.patch. The equipment
+-- registration above already accepts initial_stats for new items.
+-- Existing equipment can also use sf2.shop.set_price { item = handle,
+-- price = sf2.price.gems(39) } with content.patch. Use shop.set_availability
+-- separately if the base item is hidden.
+-- To change an existing equipment icon or model, use
+-- sf2.items.set_presentation { item = handle, icon = sf2.assets.sprite("sprites/weapon") }.
+-- shop.set_price may include secondary_price in the other currency.
+
 sf2.log.info("Training Blade registered")

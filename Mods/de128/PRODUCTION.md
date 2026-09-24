@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current package: **0.19.0**. Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.21.0**. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3192,3 +3192,159 @@ params tool `check`. Not verified in Unity: the four arenas, Shurale and Karcer.
   (a shorter victim clip must not cancel legitimate throw damage) so the next
   playtest can show whether that case also occurs. `TestThrowRuntime.ps1` does not
   compile (its fixture calls a `ModelObject.set_Model` that does not exist at HEAD).
+
+## Step 52 — Archived normal-shop availability (2026-09-24)
+
+The historical repository DE `list.xml` exposes 221 core equipment definitions hidden by canonical
+`list.xml`. The first five battle-pass collections (25 items) were already exposed;
+DE128 now exposes a verified cohort of **116** (91 additional). The projection
+requires the same core type, icon, model and positive coin/gem price as the DE
+row. It also requires the same combat subtype, except for Wind Maker's ranged
+weapon, the Chinese New Year spear and Jian, whose DE subtypes are already patched
+by DE128's combat modules. All 116 icon files exist in the packaged core art.
+
+`Tools/GenerateDE128ShopAvailability.py` reads the archived and canonical XML
+only while authoring. It writes a static `shop_data.lua` table (35 weapons, 18
+armor, 27 helms, 20 ranged items, 16 magic items). At runtime `shop.lua` applies
+the archived level and `PackLabel` group as eligibility gates through the existing
+`sf2.shop.set_availability` API. This removes the old paid-offer or clan gate for
+these entries but waits for the corresponding act group. No XML is read by DE128
+at runtime, no new public API is needed, and core price/equipment definitions and
+saved item identity remain unchanged. At this stage, the other 105
+hidden-to-visible items still needed separate price, asset or combat-family work;
+Step 54 completes them.
+Reconcile this projection with the owner-supplied corpus when it becomes available.
+
+The native shop list calls `ShopAvailabilityPolicy.IsAvailable` for every item;
+normal coin/gem purchase selection follows its positive price (`ItemInfo`), while
+real-money purchase is a separate explicit `ItemAction`. This is a code-path
+audit, not a live purchase test. Core initial stats/upgrade levels still differ
+from DE for these listings; an eligibility gate does not rewrite equipment
+progression. Test pricing, balance, previews, purchase and save/reload in Unity
+before claiming full shop parity.
+
+Verification: generator `--check`; `TestDE128Foundation.ps1` **11,162** checks,
+including every policy against the archive, act/level gates and unload behavior;
+`git diff --check`. The fixture compiled with two pre-existing unused-field
+warnings and zero errors. No Unity editor validation or game playtest was run.
+
+### Step 53 — DE shop profiles, enchantments and legacy markers (2026-09-24)
+
+The Step 52 listings were available at DE gates but still cloned canonical starting
+levels, stats and upgrade templates. The same 116-row static `shop_data.lua`
+table now carries each archive item's `UpgradeLevel`, exact category stat
+snapshot, upgrade template, default enchantments and legacy paid marker.
+`shop.lua` applies the profile and changed default enchantments alongside
+availability. Its generator rejects missing or invalid profiles, unrecognized
+perks and unimplemented archive differences. It reads XML only during
+authoring; DE128 reads no gameplay XML at runtime.
+
+The new general `content.patch` API applies a reversible profile to an existing
+equipment definition. It validates dependency, category, ranges and competing
+patches, records the values in the content fingerprint, and changes the live
+`ItemInfo` catalog level, upgrade level, attributes, selected upgrade template
+and optional legacy `PaidItem` marker before new shop/fighter copies are built.
+The marker is legacy condition/statistics metadata; it does not select price or
+currency. The API leaves source XML, item identity, purchase price and shared
+upgrade table definitions alone. Selecting
+the archived template can change future upgrade costs. Adapter shutdown restores
+the prior catalog profile. The wiki reference, editor schema, generated definitions and starter
+example are updated in this change.
+
+The restored cohort now has matching archive gates, starting levels, upgrade
+levels, stat presence/values, upgrade template selection, paid markers and
+default enchantment loadouts. The five normal
+templates have identical definitions in the canonical and historical DE XML;
+111 of the 116 selected core items previously pointed at a `Paid_*_Bonus`
+template, while five already selected the corresponding normal template.
+For 112 items, the existing `sf2.items.set_default_enchantments` API applies
+142 of the archive's 146 perk/aspect entries; four items already match. All 46 distinct
+perks resolve in the core perk catalog. The 113 canonical `PaidItem` markers
+(110 `Paid`, three `SuperPaid`) are absent in the archive and are cleared by
+the new optional `legacy_paid_item = "none"` profile field. The other three
+already have no marker. Existing saved inventory is not migrated or
+re-enchanted. The Musket retains its canonical `Rifle` tactic tag for AI
+compatibility; the archive omission alone is insufficient evidence to remove it.
+At this stage the 105 other hidden-to-visible archive rows still needed their
+own price, art or combat-family work; Step 54 completes them. The owner archive
+has not yet been reconciled. Unity shop rendering, purchase, equip, upgrade
+cost and save/reload acceptance followed in Step 54; combat balance remains for
+an interactive playtest.
+Use an Act 3 test profile around level 15: check Guardian's five categories and
+the newly listed `ARMOR_8MARCH_24`; the Guardian weapon should begin at level
+15 / upgrade level 1500 / weapon damage 342, while its armor has body defense
+342 and unarmed damage 330. Check the displayed core price, buy and equip an
+item, save/reload, upgrade it, then Apply & Restart without and with DE128 to
+check visibility and ownership. This is an acceptance plan, not a passing result.
+
+Verification: generator `--check`; `TestDE128Foundation.ps1` **11,912** checks
+(including all selected enchantment loadouts, invalid profiles, duplicate and
+competing patches, and fingerprint cases); `TestItemInitialProfile.ps1` **25**
+native checks for clone, new inventory binding, saved item retention, rollback
+and adapter application; `TestModDefaultEnchantments.ps1` **33** compiled
+registration/projection/rollback checks. Editor generate, check, 37 unit tests,
+LuaLS and VS Code integration, plus the wiki build, pass; the latter builds 48 pages and checks
+4,330 links/assets. These tests do not exercise a Unity purchase or save.
+No Unity editor validation or game playtest was run.
+
+### Step 54 — Complete the archived normal-shop cohort (0.21.0, 2026-09-25)
+
+The 0.21.0 package selects all **221** hidden core equipment entries
+that the historical DE list makes visible for normal purchase. The generator
+still fails on unreviewed source differences and emits static Lua, so DE128
+loads no gameplay XML at runtime. It selects the archived level, upgrade tier,
+stat snapshot, template, default enchantments, paid marker and shop gate for
+each item. One starter helm clears a canonical local upgrade row. Five combat
+subtype differences are supplied by the existing DE128 Lua move modules.
+
+The formerly excluded 105 cases included 75 missing gem prices and 30 items
+with changed art, coin price, model or subtype. The generic reversible
+`sf2.shop.set_price` API now handles **99** price differences. Its optional
+`secondary_price` supports the archived Halloween scythe's simultaneous
+2,550,000 coin and 97 gem fields. The generic reversible
+`sf2.items.set_presentation` API patches **20** icons and **three** models
+using typed packaged core asset handles. Twenty-two items need a presentation
+patch because one changes both fields. These changes affect live catalog
+copies and restore previous fields when the mod unloads; they do not edit
+canonical list XML or saved ownership. The selection also applies **217**
+changed enchantment loadouts containing **258** entries, clears **129** legacy
+paid markers, and changes **150** upgrade template selections. Four existing
+loadouts already match the archive.
+
+The corresponding wiki pages, editor schema/generated Lua definitions, starter
+comment and editor guide were updated with both API contracts. The generator
+checks that changed art addresses are present in installed bundle catalogs.
+`Tools/AssetPacker` independently verified the four relevant TAR/LZ4 bundles:
+`ITEMS`, `MODELS`, `ZONE_2` and `ZONE_RAID`; listing their assets confirmed the
+specific changed icons and models. `Tools/TestDE128ShopArt.ps1` now builds a
+small isolated Unity 6 project with the production art loader and installed
+bundles. The `SF2/Validate DE128 Shop Art` editor check passed there: all
+**20** changed sprites loaded and all **three** changed model documents parsed
+with `Scene/Figures`. The original project remains open in another editor. A
+separate full-project Unity 6 fixture exercises the actual shop scene below.
+
+Verification: generator `--check`; **14,475** DE128 foundation checks on the
+activated package; **40** native item profile, price, presentation, clone and
+rollback checks; **33** native enchantment checks; **32** immediate-purchase and
+**62** affordability/quantity checks; the Unity 6 art fixture passed.
+`dotnet build` of the game and editor managed projects passed with zero errors.
+Editor `npm run generate`, `npm run check`, **37** project tests, LuaLS and VS Code
+integration passed. Wiki build passed **48** pages and **4,339** local
+links/assets. `Tools/TestDE128ShopNative.py` launches a separate full Unity 6
+project with its own native profile. It checks all 221 live force-visible
+policies and both exact price fields, buys a dual-price scythe for coins and
+two items for gems, then restarts Unity to verify the saved balance and
+inventory. It buys and equips the changed-model Warlock armor, equips the
+scythe, upgrades the starter helm through its shared template, and restarts
+again to check ownership, equipment, tier and currencies. Its real `ShopScene`
+lists and selects the changed-model armor and changed-icon Wakizashi weapon;
+the latter renders the expected icon. The test opens the ACT_4 gate on its
+isolated profile to inspect the Wakizashi. This validates headless native
+shop interactions; an interactive game playtest and combat balance review
+remain outstanding.
+
+The Underworld runtime suite passed 1,282 assertions. The static art audit now
+reads all 76 archived raid battles and 39 locations against the installed
+bundle catalog. It finds one missing image reference,
+`fungus_raid/layer_0_2`; the available owner upscale is incomplete. This shop
+work did not change location art.

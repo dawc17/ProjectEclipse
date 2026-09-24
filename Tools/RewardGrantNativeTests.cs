@@ -347,11 +347,11 @@ public sealed class ItemInfo
 {
     public readonly string Name;
     public readonly string Type;
-    public readonly int MHGODOLNDLE;
+    public readonly int ItemLevel;
     public ItemInfo ParentItem;
     public int MissingUpdateLevel = -1;
-    public ItemInfo(string name, string type, int level) { Name = name; Type = type; MHGODOLNDLE = level; }
-    public ItemInfo GetUpdateItemByLevel(int level, bool ignored) => level == MissingUpdateLevel ? null : level == MHGODOLNDLE ? this : new ItemInfo(Name, Type, level);
+    public ItemInfo(string name, string type, int level) { Name = name; Type = type; ItemLevel = level; }
+    public ItemInfo GetUpdateItemByLevel(int level, bool ignored) => level == MissingUpdateLevel ? null : level == ItemLevel ? this : new ItemInfo(Name, Type, level);
     public ItemInfo HIOBANJPMKF(int level) => new ItemInfo(Name, Type, level);
     public List<UpgradeData> DNFDAGFAANJ(bool ignored, int level) => new List<UpgradeData>();
     public ItemInfo MPADIPJLMLH(UpgradeData data) => this;

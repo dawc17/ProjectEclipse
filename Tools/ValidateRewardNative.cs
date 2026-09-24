@@ -28,12 +28,12 @@ public class Inventory { public HashSet<string> Owned=new HashSet<string>(); pub
 public class ItemCatalog { public Dictionary<string,ItemInfo> Items=new Dictionary<string,ItemInfo>();public ItemInfo GetItemByName(string name)=>Items.TryGetValue(name,out var item)?item:null; }
 public class UpgradeData { public int Number; }
 public class ItemInfo {
- public string Name,Type="Weapon";public int MHGODOLNDLE=4;public int Upgrade;
+ public string Name,Type="Weapon";public int ItemLevel=4;public int Upgrade;
  public List<UpgradeData> Upgrades=new List<UpgradeData>(); public ItemInfo LevelVariant;
  public ItemInfo GetUpdateItemByLevel(int level,bool flag)=>LevelVariant;
  public ItemInfo HIOBANJPMKF(int level)=>Upgrades.Where(u=>u.Number>=level).Select(MPADIPJLMLH).FirstOrDefault();
  public List<UpgradeData> DNFDAGFAANJ(bool flag,int level)=>Upgrades;
- public ItemInfo MPADIPJLMLH(UpgradeData data)=>new ItemInfo{Name=Name,Type=Type,MHGODOLNDLE=MHGODOLNDLE,Upgrade=data.Number};
+ public ItemInfo MPADIPJLMLH(UpgradeData data)=>new ItemInfo{Name=Name,Type=Type,ItemLevel=ItemLevel,Upgrade=data.Number};
 }
 public class Result {
  public long GBGNFPNCGED,PNDAIFALIKF;public uint exp;

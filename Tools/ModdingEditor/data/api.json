@@ -143,6 +143,17 @@
       "requires": "`content.patch`; a declared dependency when targeting another owner. Obtaining an item handle with `sf2.items.get` also requires `content.register`.",
       "when": "Entrypoint, after obtaining the item handle."
     },
+    "sf2.shop.set_price": {
+      "params": {
+        "definition": "Eclipse.ShopPricePatch"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/shop/#sf2shopset_price",
+      "summary": "Replace an existing equipment item's native shop price with a positive coin or gem price. This also selects its purchase currency. The patch applies before new shop copies are built; direct native affordability and purchase paths read the same fields as the shop display.",
+      "requires": "`content.patch`; item lookup also requires `content.register`. Declare a dependency on the item's owner.",
+      "when": "During mod loading, after obtaining the equipment handle. Use Apply & Restart to add or remove the patch."
+    },
     "sf2.price.coins": {
       "params": {
         "amount": "integer"
@@ -875,6 +886,28 @@
       "summary": "Change the combat family of an existing weapon, ranged item or magic definition. Native animation conditions and projectile selection use this subtype.",
       "requires": "`content.patch`; obtaining an item handle also requires `content.register`. Declare a dependency on the item's owner.",
       "when": "During mod loading, before profile equipment and fighters are built."
+    },
+    "sf2.items.set_presentation": {
+      "params": {
+        "definition": "Eclipse.ItemPresentation"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_presentation",
+      "summary": "Change an existing equipment item's shop icon, fighter model, or both while keeping its identity and purchase state. Use typed asset handles so the asset host checks their kind and ownership before registration.",
+      "requires": "`content.patch`; item lookup needs `content.register`. Declare a dependency on the item's owner and on any asset owner.",
+      "when": "During mod loading, before shop and fighter copies are built. Apply & Restart to load or remove the patch."
+    },
+    "sf2.items.set_initial_profile": {
+      "params": {
+        "definition": "Eclipse.ItemInitialProfile"
+      },
+      "returns": "Nothing (`nil`).",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/items-progression-forge/#sf2itemsset_initial_profile",
+      "summary": "Replace an existing equipment definition's starting level, upgrade level, initial stat snapshot and optionally its upgrade template or legacy paid marker. Use this when the item already exists and a mod changes its progression without replacing its identity or shared purchase price.",
+      "requires": "`content.patch`; `sf2.items.get` also needs `content.register`. Declare a dependency on the item's owner.",
+      "when": "During mod loading, after obtaining the item handle and before shop, inventory and fighter copies are built. Apply & Restart to load or remove it."
     },
     "sf2.items.set_default_enchantments": {
       "params": {
@@ -2334,6 +2367,16 @@
         "minimum_level?": "integer"
       }
     },
+    "ShopPricePatch": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "price": "Eclipse.PriceHandle",
+        "secondary_price?": [
+          "Eclipse.PriceHandle",
+          "Optional positive price in the other currency."
+        ]
+      }
+    },
     "AssetReplacement": {
       "fields": {
         "target": "string",
@@ -3081,6 +3124,76 @@
         "subtype": [
           "string",
           "Case-sensitive native combat family; requires matching moves/projectile support."
+        ]
+      }
+    },
+    "ItemInitialProfileStats": {
+      "fields": {
+        "weapon_damage?": [
+          "integer",
+          "0-1000000; only fields valid for the item category are accepted."
+        ],
+        "body_defense?": [
+          "integer",
+          "0-1000000; only fields valid for the item category are accepted."
+        ],
+        "head_defense?": [
+          "integer",
+          "0-1000000; only fields valid for the item category are accepted."
+        ],
+        "unarmed_damage?": [
+          "integer",
+          "0-1000000; only fields valid for the item category are accepted."
+        ],
+        "ranged_damage?": [
+          "integer",
+          "0-1000000; only fields valid for the item category are accepted."
+        ],
+        "magic_damage?": [
+          "integer",
+          "0-1000000; only fields valid for the item category are accepted."
+        ]
+      }
+    },
+    "ItemPresentation": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "icon?": [
+          "Eclipse.SpriteHandle",
+          "Optional replacement shop icon."
+        ],
+        "model?": [
+          "Eclipse.ModelHandle",
+          "Optional replacement fighter model. At least one of icon or model is required."
+        ]
+      }
+    },
+    "ItemInitialProfile": {
+      "fields": {
+        "item": "Eclipse.ItemHandle",
+        "level": [
+          "integer",
+          "Starting equipment level, 1-52."
+        ],
+        "upgrade_level": [
+          "integer",
+          "Starting upgrade tier, 0-5200."
+        ],
+        "initial_stats": [
+          "Eclipse.ItemInitialProfileStats",
+          "Required complete initial stat snapshot; omitted fields remain absent."
+        ],
+        "upgrade_template?": [
+          "\"Weapon_Bonus\"|\"Paid_Weapon_Bonus\"|\"Armor_Bonus\"|\"Paid_Armor_Bonus\"|\"Helm_Bonus\"|\"Paid_Helm_Bonus\"|\"Ranged_Bonus\"|\"Paid_Ranged_Bonus\"|\"Magic_Bonus\"|\"Paid_Magic_Bonus\"",
+          "Existing native template matching the equipment category; omitted keeps the current template."
+        ],
+        "legacy_paid_item?": [
+          "\"none\"|\"paid\"|\"super_paid\"",
+          "Optional legacy PaidItem metadata. Omitted keeps the current marker; none clears it. Does not change price or currency."
+        ],
+        "clear_local_upgrades?": [
+          "boolean",
+          "Optional; remove the item’s own upgrade rows so its shared template supplies progression."
         ]
       }
     },

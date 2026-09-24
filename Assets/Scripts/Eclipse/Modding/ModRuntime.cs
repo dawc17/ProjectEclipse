@@ -1031,7 +1031,7 @@ namespace Eclipse.Modding
             var prize = ModLotteryPrizeCodec.Read(saved["Prize"], (name, level, upgrade) => {
                 var item = ListSF.GetItems().GetItemByName(name);
                 if (item == null) return null;
-                return item.MHGODOLNDLE == level && item.OBJDGBBFJOO == upgrade ? item : item.HIOBANJPMKF(upgrade);
+                return item.ItemLevel == level && item.UpgradeLevel == upgrade ? item : item.HIOBANJPMKF(upgrade);
             }, name => GameUtils.AJDKHINLIDI.ICFINJLNCPM(name), name => GameUtils.JNIMKHKGPHE.NDMEGBEFBPJ(name));
             return new LotteryClaim(_profileRoster, StoryEvents.ProfileGeneration, prize, saved);
         }

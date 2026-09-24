@@ -4,10 +4,31 @@ namespace Eclipse.Modding
 {
     public sealed partial class ModApiFacade
     {
+        public void SetItemPresentation(DefinitionId item, AssetId icon, AssetId model)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().SetItemPresentation(item, icon, model);
+        }
+
+        public void SetItemShopPrice(DefinitionId item, ModPrice price, ModPrice? secondaryPrice = null)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().SetItemShopPrice(item, price, secondaryPrice);
+        }
+
         public void SetCombatSubtype(DefinitionId item, string subtype)
         {
             RequireCapability("content.patch");
             RequireRegistration().SetCombatSubtype(item, subtype);
+        }
+
+        public void SetItemInitialProfile(DefinitionId item, int level, int upgradeLevel,
+            ModEquipmentInitialStats initialStats, string upgradeTemplate = null, string legacyPaidItem = null,
+            bool clearLocalUpgrades = false)
+        {
+            RequireCapability("content.patch");
+            RequireRegistration().SetItemInitialProfile(item, level, upgradeLevel, initialStats, upgradeTemplate,
+                legacyPaidItem, clearLocalUpgrades);
         }
 
         public void SetTacticSubtype(DefinitionId item, string group)

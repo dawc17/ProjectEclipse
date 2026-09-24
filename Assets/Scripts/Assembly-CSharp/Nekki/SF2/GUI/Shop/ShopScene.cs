@@ -457,7 +457,7 @@ namespace Nekki.SF2.GUI.Shop
 			ItemInfo AOCHMFMOACB = null;
 			PDHEEIPFFME.ForEach((ItemInfo DHDMNHCIPEH) =>
 			{
-				if (DHDMNHCIPEH.DBHJGAGOLOB() && (AOCHMFMOACB == null || (ObscuredLong)(AOCHMFMOACB.FMHECGHHKGB) < (ObscuredLong)(DHDMNHCIPEH.FMHECGHHKGB) || ((ObscuredLong)(AOCHMFMOACB.FMHECGHHKGB) == (ObscuredLong)(DHDMNHCIPEH.FMHECGHHKGB) && (ObscuredLong)(AOCHMFMOACB.KJFAOKLILOC) < (ObscuredLong)(DHDMNHCIPEH.KJFAOKLILOC))))
+				if (DHDMNHCIPEH.DBHJGAGOLOB() && (AOCHMFMOACB == null || (ObscuredLong)(AOCHMFMOACB.GemPrice) < (ObscuredLong)(DHDMNHCIPEH.GemPrice) || ((ObscuredLong)(AOCHMFMOACB.GemPrice) == (ObscuredLong)(DHDMNHCIPEH.GemPrice) && (ObscuredLong)(AOCHMFMOACB.CoinPrice) < (ObscuredLong)(DHDMNHCIPEH.CoinPrice))))
 				{
 					AOCHMFMOACB = DHDMNHCIPEH;
 				}
@@ -720,8 +720,8 @@ namespace Nekki.SF2.GUI.Shop
 			{
 				UserItem dKCHDHMLKHN = ListSF.CCDKHLAMKKO().KHCNHPCPFII().CMGOCLGHNLH(FGBJPFPGHKC);
 				UserItem dKCHDHMLKHN2 = ListSF.CCDKHLAMKKO().KHCNHPCPFII().CMGOCLGHNLH(ACJEJOKKGNI);
-				int num = ((dKCHDHMLKHN == null) ? FGBJPFPGHKC.OBJDGBBFJOO : dKCHDHMLKHN.DHNNCAEEMLL());
-				int num2 = ((dKCHDHMLKHN2 == null) ? ACJEJOKKGNI.OBJDGBBFJOO : dKCHDHMLKHN2.DHNNCAEEMLL());
+				int num = ((dKCHDHMLKHN == null) ? FGBJPFPGHKC.UpgradeLevel : dKCHDHMLKHN.DHNNCAEEMLL());
+				int num2 = ((dKCHDHMLKHN2 == null) ? ACJEJOKKGNI.UpgradeLevel : dKCHDHMLKHN2.DHNNCAEEMLL());
 				int num3 = HELFDCAIJNE.IndexOf(FGBJPFPGHKC);
 				int value = HELFDCAIJNE.IndexOf(ACJEJOKKGNI);
 				return (num == num2) ? num3.CompareTo(value) : num.CompareTo(num2);

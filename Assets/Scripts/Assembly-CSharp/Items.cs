@@ -395,7 +395,8 @@ public class Items
 		}
 	}
 
-	public UpgradeDataContainer BKPOCLGODDM(string LFLGCDNKNJI)
+	// best guess for name
+	public UpgradeDataContainer GetUpgradeDataContainerByName(string LFLGCDNKNJI)
 	{
 		foreach (UpgradeDataContainer item in EJDLNCGFACO)
 		{
@@ -479,7 +480,7 @@ public class Items
 	public void SetNewAddItem(ItemInfo item, bool value, int OMHDLKNHNMJ)
 	{
 		bool flag = item.MMHIKEIDDNB == string.Empty || ListSF.CCDKHLAMKKO().FLFKOIPCEPI(item.MMHIKEIDDNB);
-		bool flag2 = OMHDLKNHNMJ == item.MHGODOLNDLE;
+		bool flag2 = OMHDLKNHNMJ == item.ItemLevel;
 		if (!item.GOKHJMOEGIJ() && flag && flag2)
 		{
 			item.BEBDMOEIEJN(value);

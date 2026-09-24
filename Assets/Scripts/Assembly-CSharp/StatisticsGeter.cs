@@ -111,12 +111,12 @@ public static class StatisticsGeter
 		MEEAKLDGLDF["type"] = text;
 		MEEAKLDGLDF["item"] = dJKEECEOCJB.Name;
 		MEEAKLDGLDF["item_type"] = dJKEECEOCJB.Type;
-		MEEAKLDGLDF["upgrade_level"] = dJKEECEOCJB.OBJDGBBFJOO;
+		MEEAKLDGLDF["upgrade_level"] = dJKEECEOCJB.UpgradeLevel;
 		MEEAKLDGLDF["money_changed"] = num;
 		MEEAKLDGLDF["gems_free_changed"] = num2;
 		MEEAKLDGLDF["gems_paid_changed"] = num3;
 		MEEAKLDGLDF["upgrade"] = ((!dJKEECEOCJB.INEOECGAGGD()) ? "0" : "1");
-		MEEAKLDGLDF["paid_item"] = dJKEECEOCJB.PBMHNMOHODB;
+		MEEAKLDGLDF["paid_item"] = dJKEECEOCJB.LegacyPaidItem;
 	}
 
 	private static void BJINPFAPMGO(ItemInfo item, StatisticsCollector.CNCDMFJLMFH LFLGCDNKNJI, bool CNIOCCCBDBJ, ref long OMALFAGNPEE, ref long DBMJEEHOABD)
@@ -369,7 +369,7 @@ public static class StatisticsGeter
 		if (item != null)
 		{
 			MEEAKLDGLDF[JMOHMLIGHHD + "_name"] = item.Name;
-			MEEAKLDGLDF[JMOHMLIGHHD + "_upg_level"] = item.OBJDGBBFJOO;
+			MEEAKLDGLDF[JMOHMLIGHHD + "_upg_level"] = item.UpgradeLevel;
 			IOHNPPCBIFL(item, MEEAKLDGLDF, JMOHMLIGHHD + "_enchantments");
 		}
 	}
@@ -465,7 +465,7 @@ public static class StatisticsGeter
 		}
 		if (dJKEECEOCJB != null)
 		{
-			return dJKEECEOCJB.MHGODOLNDLE;
+			return dJKEECEOCJB.ItemLevel;
 		}
 		LLLOJBFMONN.Error("logging UserItem without ItemInfo");
 		return 0;

@@ -215,12 +215,30 @@ async function main() {
           return ['minimum_level','required_group','visibility'].every(name=>found.some(value=>value.startsWith(name)));
       },'shop availability level fields');
       console.log('PASS: shop availability level fields complete');
+      const priceFields=probe('shop-price-fields.lua','local sf2=require("sf2")\nsf2.shop.set_price { | }');
+      await until(async()=>{
+          const found=labels(await request('textDocument/completion',priceFields));
+          return ['item','price','secondary_price'].every(name=>found.some(value=>value.startsWith(name)));
+      },'shop price fields');
+      console.log('PASS: shop price fields complete');
+      const presentationFields=probe('presentation-fields.lua','local sf2=require("sf2")\nsf2.items.set_presentation { | }');
+      await until(async()=>{
+          const found=labels(await request('textDocument/completion',presentationFields));
+          return ['item','icon','model'].every(name=>found.some(value=>value.startsWith(name)));
+      },'item presentation fields');
+      console.log('PASS: item presentation fields complete');
       const subtypeFields=probe('subtype-fields.lua','local sf2=require("sf2")\nsf2.items.set_subtype { | }');
       await until(async()=>{
           const found=labels(await request('textDocument/completion',subtypeFields));
           return ['item','subtype'].every(name=>found.some(value=>value.startsWith(name)));
       },'combat subtype fields');
       console.log('PASS: equipment combat subtype fields complete');
+      const profileFields=probe('initial-profile-fields.lua','local sf2=require("sf2")\nsf2.items.set_initial_profile { | }');
+      await until(async()=>{
+          const found=labels(await request('textDocument/completion',profileFields));
+          return ['item','level','upgrade_level','initial_stats','upgrade_template','legacy_paid_item','clear_local_upgrades'].every(name=>found.some(value=>value.startsWith(name)));
+      },'item initial profile fields');
+      console.log('PASS: item initial profile fields complete');
     for (const [category,fields] of Object.entries({weapon:['weapon_damage'],armor:['body_defense','head_defense','unarmed_damage'],helm:['head_defense'],ranged:['ranged_damage','weapon_damage'],magic:['magic_damage']})) {
         const initial=probe('initial-'+category+'.lua','local sf2=require("sf2")\nsf2.items.register_'+category+' { initial_stats={ | } }');
         await until(async()=>{

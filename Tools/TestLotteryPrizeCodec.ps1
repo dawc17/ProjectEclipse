@@ -18,7 +18,7 @@ class Program {
  static void Main(){
   // Avoid Unity-dependent item construction; only persisted identity fields are populated.
   var item=(ItemInfo)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(ItemInfo));
-  item.Name="test_item";item.MHGODOLNDLE=40;item.OBJDGBBFJOO=4000;
+  item.Name="test_item";item.ItemLevel=40;item.UpgradeLevel=4000;
   var doc=new XmlDocument();doc.LoadXml("<Item Name='test_item'><Enchantments><Perk Name='test_effect' ItemType='Weapon|Armor'><Set Power='12' Chance='0.3'/></Perk></Enchantments></Item>");
   var reward=new RewardItem(doc.DocumentElement);
   var original=new FightResult.ResultPrizeStruct{GBGNFPNCGED=500,PNDAIFALIKF=12,exp=30};
@@ -27,7 +27,7 @@ class Program {
   var loaded=new XmlDocument();loaded.LoadXml(saved.OuterXml);
   var restored=ModLotteryPrizeCodec.Read(loaded.DocumentElement,(name,level,upgrade)=>item,name=>null,name=>null);
   Check(restored.GBGNFPNCGED==500&&restored.PNDAIFALIKF==12&&restored.exp==30,"Scalar prize changed");
-  Check(restored.HELFDCAIJNE.Single().DLKPBAJDHBO.OBJDGBBFJOO==4000&&restored.HELFDCAIJNE[0].IDGKPLBKDIB,"Item upgrade/drop changed");
+  Check(restored.HELFDCAIJNE.Single().DLKPBAJDHBO.UpgradeLevel==4000&&restored.HELFDCAIJNE[0].IDGKPLBKDIB,"Item upgrade/drop changed");
   var perk=restored.HELFDCAIJNE[0].NAIEGGHELIH.LDLPCOFHFKE.Single();
   Check(perk.get_Name()=="test_effect"&&perk.NMOKPAPJLCN.SequenceEqual(new[]{"Weapon","Armor"})&&perk.Pairs.Count==2,"Enchantment changed");
   bool rejected=false;try{ModLotteryPrizeCodec.Read(loaded.DocumentElement,(name,level,upgrade)=>null,name=>null,name=>null);}catch(InvalidDataException){rejected=true;}

@@ -7,7 +7,7 @@ using Eclipse.Modding;
 using CodeStage.AntiCheat.ObscuredTypes;
 namespace CodeStage.AntiCheat.ObscuredTypes { public struct ObscuredLong { public static implicit operator ObscuredLong(long v) => new ObscuredLong(); } }
 namespace Nekki.Utils { }
-public class ItemInfo { public string Name, Type; public int MHGODOLNDLE=10; public ObscuredLong KLHOKKPALOK; }
+public class ItemInfo { public string Name, Type; public int ItemLevel=10; public ObscuredLong KLHOKKPALOK; }
 public class RecipePrice { public int DeliveryTime=300; public ObscuredLong BonusDeliveryPrice; }
 public class Recipe { public string Name="Simple"; public RecipePrice GetPriceByItemLevel(UserItem item,int level)=>new RecipePrice(); }
 public static class GlobalTimer { public static long get_GetTime()=>1000; }

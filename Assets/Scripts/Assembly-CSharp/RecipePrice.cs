@@ -66,7 +66,7 @@ public class RecipePrice
 		if (userItem == null) return false;
 		ItemInfo info = userItem.DBLCMCEGJGI(false);
 		if (info == null) info = userItem.BHKHOJPANHE();
-		return info != null && IsAvailableForLevel(info.MHGODOLNDLE);
+		return info != null && IsAvailableForLevel(info.ItemLevel);
 	}
 
 	public bool IsAvailableForLevel(int level)

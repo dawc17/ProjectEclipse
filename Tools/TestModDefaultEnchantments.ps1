@@ -1,7 +1,7 @@
 # Actual ItemInfo parser/projection/lifetime; acquisition, profile writes and UI rendering are not exercised.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-msbuild (Join-Path $root 'Assembly-CSharp.csproj') /nologo /v:quiet /clp:ErrorsOnly
+dotnet build (Join-Path $root 'Assembly-CSharp.csproj') --nologo --verbosity quiet /clp:ErrorsOnly
 if ($LASTEXITCODE -ne 0) { throw 'Managed build failed.' }
 . (Join-Path $PSScriptRoot 'LoadUnityManagedAssemblies.ps1')
 $null = Import-SF2ManagedRuntime $root

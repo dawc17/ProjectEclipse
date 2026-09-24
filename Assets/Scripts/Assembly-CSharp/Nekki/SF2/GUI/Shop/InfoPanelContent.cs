@@ -403,11 +403,11 @@ namespace Nekki.SF2.GUI.Shop
 		public void ShowConsumableButton()
 		{
 			Color oHJKNABLCMF = Color.black;
-			if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() < (ObscuredLong)(JMPPBCFDOLL.FMHECGHHKGB))
+			if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() < (ObscuredLong)(JMPPBCFDOLL.GemPrice))
 			{
 				oHJKNABLCMF = Constants.GJKMPOAJDCF;
 			}
-			SetButton(MJOLEHNABAM, (ObscuredLong)(JMPPBCFDOLL.FMHECGHHKGB), oHJKNABLCMF);
+			SetButton(MJOLEHNABAM, (ObscuredLong)(JMPPBCFDOLL.GemPrice), oHJKNABLCMF);
 		}
 
 		public void ShowPaymentButton()
@@ -420,17 +420,17 @@ namespace Nekki.SF2.GUI.Shop
 			if (!FNFHDIPECME)
 			{
 				Color oHJKNABLCMF = Color.black;
-				if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() < (ObscuredLong)(JMPPBCFDOLL.KJFAOKLILOC))
+				if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() < (ObscuredLong)(JMPPBCFDOLL.CoinPrice))
 				{
 					oHJKNABLCMF = Constants.GJKMPOAJDCF;
 				}
-				SetButton(NDMPMIEKGAA, (ObscuredLong)(JMPPBCFDOLL.KJFAOKLILOC), oHJKNABLCMF);
+				SetButton(NDMPMIEKGAA, (ObscuredLong)(JMPPBCFDOLL.CoinPrice), oHJKNABLCMF);
 				Color oHJKNABLCMF2 = Color.black;
-				if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() < (ObscuredLong)(JMPPBCFDOLL.FMHECGHHKGB))
+				if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() < (ObscuredLong)(JMPPBCFDOLL.GemPrice))
 				{
 					oHJKNABLCMF2 = Constants.GJKMPOAJDCF;
 				}
-				SetButton(EPDPCAKGBBO, (ObscuredLong)(JMPPBCFDOLL.FMHECGHHKGB), oHJKNABLCMF2);
+				SetButton(EPDPCAKGBBO, (ObscuredLong)(JMPPBCFDOLL.GemPrice), oHJKNABLCMF2);
 			}
 			else if (KAPLEKBLLFO)
 			{
@@ -450,17 +450,17 @@ namespace Nekki.SF2.GUI.Shop
 			{
 				ItemInfo dJKEECEOCJB2 = NKBIOFJMONB.HADDPFNDPDG();
 				Color oHJKNABLCMF4 = Color.black;
-				if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() < (ObscuredLong)(dJKEECEOCJB2.KJFAOKLILOC))
+				if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() < (ObscuredLong)(dJKEECEOCJB2.CoinPrice))
 				{
 					oHJKNABLCMF4 = Constants.GJKMPOAJDCF;
 				}
-				SetButton(FNEMFKKBHLC, (ObscuredLong)(dJKEECEOCJB2.KJFAOKLILOC), oHJKNABLCMF4);
+				SetButton(FNEMFKKBHLC, (ObscuredLong)(dJKEECEOCJB2.CoinPrice), oHJKNABLCMF4);
 				Color oHJKNABLCMF5 = Color.black;
-				if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() < (ObscuredLong)(dJKEECEOCJB2.FMHECGHHKGB))
+				if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() < (ObscuredLong)(dJKEECEOCJB2.GemPrice))
 				{
 					oHJKNABLCMF5 = Constants.GJKMPOAJDCF;
 				}
-				SetButton(ABACDHNMNLJ, (ObscuredLong)(dJKEECEOCJB2.FMHECGHHKGB), oHJKNABLCMF5);
+				SetButton(ABACDHNMNLJ, (ObscuredLong)(dJKEECEOCJB2.GemPrice), oHJKNABLCMF5);
 			}
 		}
 
@@ -539,7 +539,7 @@ namespace Nekki.SF2.GUI.Shop
 				if (dJKEECEOCJB != null)
 				{
 					int oMHDLKNHNMJ = ListSF.CCDKHLAMKKO().PINDEKDNCNL();
-					int oBJDGBBFJOO = dJKEECEOCJB.OBJDGBBFJOO;
+					int oBJDGBBFJOO = dJKEECEOCJB.UpgradeLevel;
 					UpgradeIndexItem aACAFOBANOH = dJKEECEOCJB.MJNILIJLCMI(oMHDLKNHNMJ, oBJDGBBFJOO);
 					int num = ((aACAFOBANOH != null) ? aACAFOBANOH.Index : 0);
 					if (aACAFOBANOH.Type == UpgradeIndexItem.LIPHFAOKLCA.UPGRADE_INDEX_MILESTONE)
@@ -571,7 +571,7 @@ namespace Nekki.SF2.GUI.Shop
 			SetDescription();
 			LNBNDFOMKCP();
 			ShowButton();
-			if (item.MHGODOLNDLE > ListSF.CCDKHLAMKKO().PINDEKDNCNL())
+			if (item.ItemLevel > ListSF.CCDKHLAMKKO().PINDEKDNCNL())
 			{
 				HPEKMDCMPBO();
 			}

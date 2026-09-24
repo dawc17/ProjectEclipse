@@ -891,7 +891,7 @@ public static class ValidateDE128CombatNative
             foreach (string attribute in new[] { "Type", "SubType", "Level", "UpgradeLevel", "BonusPrice", "PackLabel" })
                 if ((item.NodeXML.Attributes[attribute]?.Value ?? "") != row.GetAttribute(attribute)) throw new Exception("Native equipment " + attribute + " mismatch " + id);
             var archived = new ItemInfo(row);
-            var field = typeof(ItemInfo).GetField("IBLHIAHECLK");
+            var field = typeof(ItemInfo).GetField("ItemAttributes");
             var before = (Attributes)field.GetValue(archived); var after = (Attributes)field.GetValue(item);
             foreach (string stat in new[] { "WeaponDamage", "UnarmedDamage", "BodyDefense", "HeadDefense", "RangedDamage", "MagicDamage" })
             {
@@ -944,7 +944,7 @@ public static class ValidateDE128CombatNative
                 !assets.TryLoadUnityAsset<UnityEngine.Sprite>(weapon.Icon, out icon) || icon == null || icon.vertices.Length == 0)
                 throw new Exception("Restored native model/icon unavailable: " + weapon.Id);
             var archived = new ItemInfo(row);
-            var attributes = typeof(ItemInfo).GetField("IBLHIAHECLK");
+            var attributes = typeof(ItemInfo).GetField("ItemAttributes");
             var before = (Attributes)attributes.GetValue(archived);
             var after = (Attributes)attributes.GetValue(item);
             int expected = 0, actual = 0;

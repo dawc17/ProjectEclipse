@@ -17,7 +17,7 @@ using System;
 enum ItemAction { Item_Buy_Gold,Item_Upgrade_Gold,Item_Buy_Ruby,Item_Upgrade_Ruby,Item_Buy_Real,Item_Free,Item_Consumable,Item_Delivery_Ruby,Item_Recipe_Delivery_Ruby,Item_Order_Ruby,Item_Recipe }
 enum BKDHBIDPKLK { CHECK_ITEM_NONE,CHECK_ITEM_LEVEL,CHECK_ITEM_MONEY,CHECK_ITEM_BONUS,CHECK_ITEM_NO_NETWORK,CHECK_ITEM_MATERIALS }
 class CheckItems { public BKDHBIDPKLK Type; public long Value; }
-class ItemInfo { public string Type="Consumable",Name="fixture"; public ItemInfo ParentItem=null; public long Price=1; public long KLHOKKPALOK=0; public int MHGODOLNDLE=0; public long OHBBLIMNIMJ()=>Price; public long MCNMMBCJADI()=>Price; }
+class ItemInfo { public string Type="Consumable",Name="fixture"; public ItemInfo ParentItem=null; public long Price=1; public long KLHOKKPALOK=0; public int ItemLevel=0; public long OHBBLIMNIMJ()=>Price; public long MCNMMBCJADI()=>Price; }
 struct ObscuredLong { long n; public static explicit operator ObscuredLong(long n)=>new ObscuredLong{n=n}; public static implicit operator long(ObscuredLong n)=>n.n; }
 class UserItem { public int Count; public int OFOPFCJNEBL()=>Count; }
 class Recipe { public bool IHHJGMBGHEB(UserItem i)=>true; }
@@ -41,6 +41,7 @@ static class Program {
  public static int Writes,Granted; public static long Balance=100; static int checks;
  static UserItem Existing=null; static UserItem CMGOCLGHNLH(string name)=>Existing;
  static Quests ELEBLBJKDBI()=>new Quests();
+ static Quests GetInstance()=>new Quests();
  static Roster CCDKHLAMKKO()=>new Roster();
  static void MBBMOKFGABP(ItemInfo i){} static void BLNHEMCHIGF(ItemInfo i,bool b){}
  static bool EMEMDEAEMCB(ItemInfo i)=>true; static bool HJHCCBGILAJ(ItemInfo i)=>true;

@@ -50,7 +50,7 @@ public class QuestActionToggleItems : QuestAction
 				{
 					if (item.DCHJDPCEODD && item.MMHIKEIDDNB == ECNLPLIBNHF)
 					{
-						ListSF.GetItems().SetNewAddItem(item, true, (!(item.Type == "RealMoneyItem")) ? num : item.MHGODOLNDLE);
+						ListSF.GetItems().SetNewAddItem(item, true, (!(item.Type == "RealMoneyItem")) ? num : item.ItemLevel);
 					}
 				}
 				return;

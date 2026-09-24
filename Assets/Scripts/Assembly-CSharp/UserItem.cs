@@ -285,7 +285,7 @@ public class UserItem
 		EOFKPLMPGLD.DCHJDPCEODD = true;
 		if (IKNDJDEODFD == -1)
 		{
-			FMMDLMGHPIB(EOFKPLMPGLD.OBJDGBBFJOO);
+			FMMDLMGHPIB(EOFKPLMPGLD.UpgradeLevel);
 		}
 		else
 		{
@@ -630,7 +630,7 @@ public class UserItem
 	public void PJEEGECBHMH()
 	{
 		int mHNCENBCECJ = ListSF.CCDKHLAMKKO().PINDEKDNCNL();
-		int mHGODOLNDLE = EOFKPLMPGLD.MHGODOLNDLE;
+		int mHGODOLNDLE = EOFKPLMPGLD.ItemLevel;
 		GDBFNNLHPOB(EOFKPLMPGLD.DefaultEnchantments, mHGODOLNDLE, mHNCENBCECJ);
 	}
 

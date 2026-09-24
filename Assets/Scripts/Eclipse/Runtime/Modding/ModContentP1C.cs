@@ -162,6 +162,42 @@ namespace Eclipse.Modding
         { Owner = owner; Item = item; Subtype = subtype; }
     }
 
+    public sealed class ItemInitialProfileDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Item { get; }
+        public int Level { get; }
+        public int UpgradeLevel { get; }
+        public string UpgradeTemplate { get; }
+        public string LegacyPaidItem { get; }
+        public bool ClearLocalUpgrades { get; }
+        public ModEquipmentInitialStats InitialStats { get; }
+        internal ItemInitialProfileDefinition(ModId owner, DefinitionId item, int level, int upgradeLevel,
+            ModEquipmentInitialStats initialStats, string upgradeTemplate, string legacyPaidItem, bool clearLocalUpgrades)
+        { Owner = owner; Item = item; Level = level; UpgradeLevel = upgradeLevel; InitialStats = initialStats;
+          UpgradeTemplate = upgradeTemplate; LegacyPaidItem = legacyPaidItem; ClearLocalUpgrades = clearLocalUpgrades; }
+    }
+
+    public sealed class ItemShopPriceDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Item { get; }
+        public ModPrice Price { get; }
+        public ModPrice? SecondaryPrice { get; }
+        internal ItemShopPriceDefinition(ModId owner, DefinitionId item, ModPrice price, ModPrice? secondaryPrice)
+        { Owner = owner; Item = item; Price = price; SecondaryPrice = secondaryPrice; }
+    }
+
+    public sealed class ItemPresentationDefinition
+    {
+        public ModId Owner { get; }
+        public DefinitionId Item { get; }
+        public AssetId Icon { get; }
+        public AssetId Model { get; }
+        internal ItemPresentationDefinition(ModId owner, DefinitionId item, AssetId icon, AssetId model)
+        { Owner = owner; Item = item; Icon = icon; Model = model; }
+    }
+
     public sealed class ItemTacticSubtypeDefinition
     {
         public ModId Owner { get; }
@@ -297,6 +333,57 @@ namespace Eclipse.Modding
         private readonly List<ItemInnatePerksDefinition> _itemInnatePerks = new List<ItemInnatePerksDefinition>();
         private readonly List<ItemTacticSubtypeDefinition> _itemTacticSubtypes = new List<ItemTacticSubtypeDefinition>();
         private readonly List<ItemCombatSubtypeDefinition> _itemCombatSubtypes = new List<ItemCombatSubtypeDefinition>();
+        private readonly List<ItemInitialProfileDefinition> _itemInitialProfiles = new List<ItemInitialProfileDefinition>();
+        private readonly List<ItemShopPriceDefinition> _itemShopPrices = new List<ItemShopPriceDefinition>();
+        private readonly List<ItemPresentationDefinition> _itemPresentations = new List<ItemPresentationDefinition>();
+        public IReadOnlyList<ItemInitialProfileDefinition> ItemInitialProfiles => _itemInitialProfiles.AsReadOnly();
+        public IReadOnlyList<ItemShopPriceDefinition> ItemShopPrices => _itemShopPrices.AsReadOnly();
+        public IReadOnlyList<ItemPresentationDefinition> ItemPresentations => _itemPresentations.AsReadOnly();
+        internal void ValidateItemPresentations(IEnumerable<ItemPresentationDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(definition.Item, "presentation"), out var existing))
+                    throw new ModContentException("Item presentation already patched by '" + existing.Owner + "': " + definition.Item);
+        }
+        internal void CommitItemPresentations(IEnumerable<ItemPresentationDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+            {
+                var record = new ModContentPatchRecord(definition.Owner, definition.Item, "presentation", ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+                _patches.Add(record); _itemPresentations.Add(definition);
+            }
+        }
+        internal void ValidateItemShopPrices(IEnumerable<ItemShopPriceDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(definition.Item, "shop-price"), out var existing))
+                    throw new ModContentException("Shop price already patched by '" + existing.Owner + "': " + definition.Item);
+        }
+        internal void CommitItemShopPrices(IEnumerable<ItemShopPriceDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+            {
+                var record = new ModContentPatchRecord(definition.Owner, definition.Item, "shop-price", ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+                _patches.Add(record); _itemShopPrices.Add(definition);
+            }
+        }
+        internal void ValidateItemInitialProfiles(IEnumerable<ItemInitialProfileDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+                if (_patchByKey.TryGetValue(new ModContentPatchKey(definition.Item, "initial-profile"), out var existing))
+                    throw new ModContentException("Initial profile already patched by '" + existing.Owner + "': " + definition.Item);
+        }
+        internal void CommitItemInitialProfiles(IEnumerable<ItemInitialProfileDefinition> definitions)
+        {
+            foreach (var definition in definitions)
+            {
+                var record = new ModContentPatchRecord(definition.Owner, definition.Item, "initial-profile", ModContentPatchOperation.Replace);
+                _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+                _patches.Add(record); _itemInitialProfiles.Add(definition);
+            }
+        }
         public IReadOnlyList<ItemCombatSubtypeDefinition> ItemCombatSubtypes => _itemCombatSubtypes.AsReadOnly();
         internal void ValidateItemCombatSubtypes(IEnumerable<ItemCombatSubtypeDefinition> definitions)
         {
@@ -601,6 +688,76 @@ namespace Eclipse.Modding
 
         private readonly Dictionary<DefinitionId, ItemTacticSubtypeDefinition> _p1cTacticSubtypes = new Dictionary<DefinitionId, ItemTacticSubtypeDefinition>();
         private readonly Dictionary<DefinitionId, ItemCombatSubtypeDefinition> _p1cCombatSubtypes = new Dictionary<DefinitionId, ItemCombatSubtypeDefinition>();
+        private readonly Dictionary<DefinitionId, ItemInitialProfileDefinition> _p1cInitialProfiles = new Dictionary<DefinitionId, ItemInitialProfileDefinition>();
+        private readonly Dictionary<DefinitionId, ItemShopPriceDefinition> _p1cShopPrices = new Dictionary<DefinitionId, ItemShopPriceDefinition>();
+        private readonly Dictionary<DefinitionId, ItemPresentationDefinition> _p1cPresentations = new Dictionary<DefinitionId, ItemPresentationDefinition>();
+        public void SetItemPresentation(DefinitionId item, AssetId icon, AssetId model)
+        {
+            ThrowIfCompleted();
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("Item presentation requires a declared item dependency.");
+            if (!TryGetPendingItem(item, out var target) && !_catalog.TryResolveItem(item, out target))
+                throw new ModContentException("Unknown presentation item: " + item);
+            if (!(target is WeaponDefinition || target is ArmorDefinition || target is HelmDefinition ||
+                  target is RangedDefinition || target is MagicDefinition))
+                throw new ModContentException("Item presentation requires equipment.");
+            if (icon == default(AssetId) && model == default(AssetId))
+                throw new ModContentException("Item presentation requires icon or model.");
+            if (icon != default(AssetId)) RequirePresentationAsset(icon, AssetKind.Sprite);
+            if (model != default(AssetId)) RequirePresentationAsset(model, AssetKind.Model);
+            if (_p1cPresentations.ContainsKey(target.Id)) throw new ModContentException("Duplicate item presentation: " + target.Id);
+            EnsureCapacityForNewRegistration();
+            _p1cPresentations.Add(target.Id, new ItemPresentationDefinition(Mod.Id, target.Id, icon, model));
+        }
+        private void RequirePresentationAsset(AssetId id, AssetKind kind)
+        {
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Item presentation requires an accessible " + kind + " asset: " + id);
+        }
+        public void SetItemShopPrice(DefinitionId item, ModPrice price, ModPrice? secondaryPrice = null)
+        {
+            ThrowIfCompleted();
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("Shop price item requires a declared dependency.");
+            if (!TryGetPendingItem(item, out var target) && !_catalog.TryResolveItem(item, out target))
+                throw new ModContentException("Unknown shop price item: " + item);
+            if (!(target is WeaponDefinition || target is ArmorDefinition || target is HelmDefinition ||
+                  target is RangedDefinition || target is MagicDefinition))
+                throw new ModContentException("Shop price requires equipment.");
+            if (!Enum.IsDefined(typeof(ModPriceCurrency), price.Currency) || price.Amount < 1 || price.Amount > int.MaxValue)
+                throw new ModContentException("Shop price amount must be 1..2147483647 coins or gems.");
+            if (secondaryPrice.HasValue && (!Enum.IsDefined(typeof(ModPriceCurrency), secondaryPrice.Value.Currency) ||
+                secondaryPrice.Value.Amount < 1 || secondaryPrice.Value.Amount > int.MaxValue ||
+                secondaryPrice.Value.Currency == price.Currency))
+                throw new ModContentException("Secondary shop price must use the other currency and amount 1..2147483647.");
+            if (_p1cShopPrices.ContainsKey(target.Id)) throw new ModContentException("Duplicate shop price: " + target.Id);
+            EnsureCapacityForNewRegistration();
+            _p1cShopPrices.Add(target.Id, new ItemShopPriceDefinition(Mod.Id, target.Id, price, secondaryPrice));
+        }
+        public void SetItemInitialProfile(DefinitionId item, int level, int upgradeLevel,
+            ModEquipmentInitialStats initialStats, string upgradeTemplate = null, string legacyPaidItem = null,
+            bool clearLocalUpgrades = false)
+        {
+            ThrowIfCompleted();
+            if (!CanReferenceNamespace(item.Namespace)) throw new ModContentException("Initial profile item requires a declared dependency.");
+            if (!TryGetPendingItem(item, out var target) && !_catalog.TryResolveItem(item, out target))
+                throw new ModContentException("Unknown initial profile item: " + item);
+            string category = target is WeaponDefinition ? "Weapon" : target is ArmorDefinition ? "Armor" :
+                target is HelmDefinition ? "Helm" : target is RangedDefinition ? "Ranged" :
+                target is MagicDefinition ? "Magic" : null;
+            if (category == null) throw new ModContentException("Initial profile requires equipment.");
+            if (level < 1 || level > 52 || upgradeLevel < 0 || upgradeLevel > 5200)
+                throw new ModContentException("Initial profile level must be 1..52 and upgrade_level 0..5200.");
+            if (initialStats == null) throw new ModContentException("Initial profile requires initial_stats.");
+            initialStats.ValidateFor(category);
+            if (upgradeTemplate != null && upgradeTemplate != category + "_Bonus" &&
+                upgradeTemplate != "Paid_" + category + "_Bonus")
+                throw new ModContentException("upgrade_template must be an existing matching equipment category template.");
+            if (legacyPaidItem != null && legacyPaidItem != "none" && legacyPaidItem != "paid" && legacyPaidItem != "super_paid")
+                throw new ModContentException("legacy_paid_item must be none, paid or super_paid.");
+            if (_p1cInitialProfiles.ContainsKey(target.Id)) throw new ModContentException("Duplicate initial profile: " + target.Id);
+            EnsureCapacityForNewRegistration();
+            _p1cInitialProfiles.Add(target.Id, new ItemInitialProfileDefinition(Mod.Id, target.Id, level, upgradeLevel,
+                initialStats, upgradeTemplate, legacyPaidItem, clearLocalUpgrades));
+        }
         public void SetCombatSubtype(DefinitionId item, string subtype)
         {
             ThrowIfCompleted();
@@ -634,7 +791,7 @@ namespace Eclipse.Modding
             _p1cTacticSubtypes.Add(target.Id, new ItemTacticSubtypeDefinition(Mod.Id, target.Id, group));
         }
 
-        private int P1CRegistrationCount => _p1cCombatSubtypes.Count + _p1cTacticSubtypes.Count + _p1cInnatePerks.Count + _p1cDefaultEnchantments.Count + _p1cItems.Count + _p1cSets.Count + _p1cForgeRecipes.Count +
+        private int P1CRegistrationCount => _p1cCombatSubtypes.Count + _p1cTacticSubtypes.Count + _p1cInitialProfiles.Count + _p1cShopPrices.Count + _p1cPresentations.Count + _p1cInnatePerks.Count + _p1cDefaultEnchantments.Count + _p1cItems.Count + _p1cSets.Count + _p1cForgeRecipes.Count +
             _p1cAvailability.Count + _p1cProgression.Count + _p1cForgeExclusions.Count + _p1cForgeDeviations.Count;
 
         private readonly Dictionary<ModContentPatchKey, ForgeDeviationDefinition> _p1cForgeDeviations =
@@ -831,6 +988,9 @@ namespace Eclipse.Modding
             _catalog.ValidateItemInnatePerks(_p1cInnatePerks.Values);
             _catalog.ValidateItemTacticSubtypes(_p1cTacticSubtypes.Values);
             _catalog.ValidateItemCombatSubtypes(_p1cCombatSubtypes.Values);
+            _catalog.ValidateItemInitialProfiles(_p1cInitialProfiles.Values);
+            _catalog.ValidateItemShopPrices(_p1cShopPrices.Values);
+            _catalog.ValidateItemPresentations(_p1cPresentations.Values);
             _catalog.ValidateItemDefaultEnchantments(_p1cDefaultEnchantments.Values);
             foreach (DefinitionId id in _p1cItems.Keys)
                 if (_catalog.TryGetItem(id, out ItemDefinition ignored)) throw new ModContentException("Duplicate item definition: '" + id + "'.");
@@ -852,6 +1012,9 @@ namespace Eclipse.Modding
             _catalog.CommitItemInnatePerks(_p1cInnatePerks.Values);
             _catalog.CommitItemTacticSubtypes(_p1cTacticSubtypes.Values);
             _catalog.CommitItemCombatSubtypes(_p1cCombatSubtypes.Values);
+            _catalog.CommitItemInitialProfiles(_p1cInitialProfiles.Values);
+            _catalog.CommitItemShopPrices(_p1cShopPrices.Values);
+            _catalog.CommitItemPresentations(_p1cPresentations.Values);
             _catalog.CommitItemDefaultEnchantments(_p1cDefaultEnchantments.Values);
             _catalog.CommitP1C(_p1cItems.Values, _p1cSets.Values, _p1cForgeRecipes.Values,
                 _p1cAvailability.Values, _p1cProgression.Values, _p1cForgeExclusions.Values, _p1cForgeDeviations.Values);
@@ -862,6 +1025,9 @@ namespace Eclipse.Modding
             _p1cInnatePerks.Clear();
             _p1cTacticSubtypes.Clear();
             _p1cCombatSubtypes.Clear();
+            _p1cInitialProfiles.Clear();
+            _p1cShopPrices.Clear();
+            _p1cPresentations.Clear();
             _p1cDefaultEnchantments.Clear();
             _p1cItems.Clear();
             _p1cSets.Clear();

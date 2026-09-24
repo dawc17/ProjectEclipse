@@ -35,14 +35,14 @@ namespace Nekki.SF2.GUI.Shop
 			foreach (WarriorAttribute warriorItem in iBLHIAHECLK)
 			{
 				int OEMALIFPGPO = 0;
-				if (item == null || !item.IBLHIAHECLK.Get(warriorItem.get_Name(), ref OEMALIFPGPO) || warriorItem.GDCBBAHKCIE || warriorItem.GDECIAJAFHH)
+				if (item == null || !item.ItemAttributes.Get(warriorItem.get_Name(), ref OEMALIFPGPO) || warriorItem.GDCBBAHKCIE || warriorItem.GDECIAJAFHH)
 				{
 					continue;
 				}
 				int OEMALIFPGPO2 = OEMALIFPGPO;
 				if (FJIENDKAIDO != null && OGMLCLNEAIJ)
 				{
-					FJIENDKAIDO.IBLHIAHECLK.Get(warriorItem.get_Name(), ref OEMALIFPGPO2);
+					FJIENDKAIDO.ItemAttributes.Get(warriorItem.get_Name(), ref OEMALIFPGPO2);
 				}
 				if (_itemPrefab != null)
 				{

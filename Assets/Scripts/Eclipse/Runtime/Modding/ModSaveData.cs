@@ -812,6 +812,44 @@ namespace Eclipse.Modding
 
         private static void AppendP1C(StringBuilder canonical, ModContentCatalog content)
         {
+            if (content.ItemPresentations.Count != 0)
+            {
+                var presentations = new List<ItemPresentationDefinition>(content.ItemPresentations);
+                presentations.Sort((a,b) => string.CompareOrdinal(a.Item.ToString(),b.Item.ToString()));
+                Append(canonical,"item-presentations"); Append(canonical,presentations.Count);
+                foreach (var presentation in presentations)
+                { Append(canonical,presentation.Owner.Value); Append(canonical,presentation.Item.ToString());
+                  Append(canonical,presentation.Icon.ToString()); Append(canonical,presentation.Model.ToString()); }
+            }
+            if (content.ItemShopPrices.Count != 0)
+            {
+                var prices = new List<ItemShopPriceDefinition>(content.ItemShopPrices);
+                prices.Sort((a,b) => string.CompareOrdinal(a.Item.ToString(),b.Item.ToString()));
+                Append(canonical,"item-shop-prices"); Append(canonical,prices.Count);
+                foreach (var price in prices)
+                { Append(canonical,price.Owner.Value); Append(canonical,price.Item.ToString());
+                  Append(canonical,(int)price.Price.Currency); Append(canonical,price.Price.Amount);
+                  Append(canonical,price.SecondaryPrice.HasValue);
+                  if (price.SecondaryPrice.HasValue)
+                  { Append(canonical,(int)price.SecondaryPrice.Value.Currency); Append(canonical,price.SecondaryPrice.Value.Amount); } }
+            }
+            if (content.ItemInitialProfiles.Count != 0)
+            {
+                var initialProfiles = new List<ItemInitialProfileDefinition>(content.ItemInitialProfiles);
+                initialProfiles.Sort((a,b) => string.CompareOrdinal(a.Item.ToString(),b.Item.ToString()));
+                Append(canonical,"item-initial-profiles"); Append(canonical,initialProfiles.Count);
+                foreach (var profile in initialProfiles)
+                {
+                    Append(canonical,profile.Owner.Value); Append(canonical,profile.Item.ToString());
+                    Append(canonical,profile.Level); Append(canonical,profile.UpgradeLevel);
+                    Append(canonical,profile.UpgradeTemplate ?? string.Empty);
+                    Append(canonical,profile.LegacyPaidItem ?? string.Empty);
+                    Append(canonical,profile.ClearLocalUpgrades);
+                    var names = new List<string>(profile.InitialStats.Values.Keys); names.Sort(StringComparer.Ordinal);
+                    Append(canonical,names.Count);
+                    foreach (string name in names) { Append(canonical,name); Append(canonical,profile.InitialStats.Values[name]); }
+                }
+            }
             if (content.ItemCombatSubtypes.Count != 0)
             {
                 var subtypes = new List<ItemCombatSubtypeDefinition>(content.ItemCombatSubtypes);

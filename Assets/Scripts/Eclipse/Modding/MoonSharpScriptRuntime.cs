@@ -866,6 +866,8 @@ namespace Eclipse.Modding
                 items.Set("set_innate_perks", DynValue.NewCallback(SetInnatePerks));
                 items.Set("set_tactic_subtype", DynValue.NewCallback(SetTacticSubtype));
                 items.Set("set_subtype", DynValue.NewCallback(SetCombatSubtype));
+                items.Set("set_initial_profile", DynValue.NewCallback(SetItemInitialProfile));
+                items.Set("set_presentation", DynValue.NewCallback(SetItemPresentation));
                 items.Set("register_armor", DynValue.NewCallback(RegisterArmor));
                 items.Set("register_helm", DynValue.NewCallback(RegisterHelm));
                 items.Set("register_ranged", DynValue.NewCallback(RegisterRanged));
@@ -1040,6 +1042,7 @@ namespace Eclipse.Modding
                 shop.Set("FORCE_VISIBLE", DynValue.NewString("force_visible"));
                 shop.Set("FORCE_HIDDEN", DynValue.NewString("force_hidden"));
                 shop.Set("set_availability", DynValue.NewCallback(SetItemAvailability));
+                shop.Set("set_price", DynValue.NewCallback(SetItemShopPrice));
                 shop.Set("addItem", DynValue.NewCallback(ShopAddItem));
                 root.Set("shop", DynValue.NewTable(shop));
 
@@ -1220,6 +1223,23 @@ namespace Eclipse.Modding
                     ValidateFields(table, function, "item", "subtype");
                     _api.SetCombatSubtype(RequiredHandle(table, "item", _itemHandles, "item", function),
                         RequiredString(table, "subtype", function));
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue SetItemInitialProfile(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.set_initial_profile";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "item", "level", "upgrade_level", "initial_stats", "upgrade_template", "legacy_paid_item", "clear_local_upgrades");
+                    _api.SetItemInitialProfile(RequiredHandle(table, "item", _itemHandles, "item", function),
+                        RequiredInt(table, "level", function), RequiredInt(table, "upgrade_level", function),
+                        ReadInitialStats(table, function), table.Get("upgrade_template").IsNil() ? null :
+                        RequiredString(table, "upgrade_template", function),
+                        table.Get("legacy_paid_item").IsNil() ? null : RequiredString(table, "legacy_paid_item", function),
+                        OptionalBool(table, "clear_local_upgrades", false, function));
                     return DynValue.Nil;
                 });
             }
@@ -1549,6 +1569,37 @@ namespace Eclipse.Modding
                     _api.SetItemAvailability(item, visibility,
                         OptionalStringAllowEmpty(table, "required_group", string.Empty, function),
                         OptionalInt(table, "minimum_level", 0, function));
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue SetItemShopPrice(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.shop.set_price";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "item", "price", "secondary_price");
+                    _api.SetItemShopPrice(
+                        RequiredHandle(table, "item", _itemHandles, "item", function),
+                        RequiredHandle(table, "price", _priceHandles, "price", function),
+                        table.Get("secondary_price").IsNil() ? (ModPrice?)null :
+                            RequiredHandle(table, "secondary_price", _priceHandles, "price", function));
+                    return DynValue.Nil;
+                });
+            }
+
+            private DynValue SetItemPresentation(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.items.set_presentation";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "item", "icon", "model");
+                    _api.SetItemPresentation(
+                        RequiredHandle(table, "item", _itemHandles, "item", function),
+                        OptionalHandle(table, "icon", _spriteHandles, "sprite", function, default(AssetId)),
+                        OptionalHandle(table, "model", _modelHandles, "model", function, default(AssetId)));
                     return DynValue.Nil;
                 });
             }

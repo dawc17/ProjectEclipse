@@ -187,7 +187,8 @@ internal static class DE128FoundationTests
         {
             Check(!catalog.TryGetItem(Sword, out _), "Failed or absent DE128 left its weapon registered.");
             Check(!catalog.Weapons.Cast<ItemDefinition>().Concat(catalog.Armors).Concat(catalog.Helms).Concat(catalog.Ranged).Concat(catalog.Magic).Any(item => !item.IsCore) && catalog.ShopListings.Count == 0 &&
-                catalog.ItemDefaultEnchantments.Count == 0, "Failed or absent DE128 left restored equipment behind.");
+                catalog.ItemDefaultEnchantments.Count == 0 && catalog.ItemShopPrices.Count == 0 && catalog.ItemPresentations.Count == 0,
+                "Failed or absent DE128 left restored equipment behind.");
             Check(catalog.ItemInnatePerks.Count == 0, "Failed or absent DE128 left innate perks registered.");
             Check(catalog.Patches.Count == 0, "Failed or absent DE128 left content patches registered.");
             Check(!catalog.ItemAvailabilityPolicies.Any(), "Failed or absent DE128 left shop policies registered.");
@@ -219,9 +220,10 @@ internal static class DE128FoundationTests
         Check(slash.Animation.ToString() == "de128:animations/chinese_swords_super_slash_old" &&
             catalog.ItemCombatSubtypes.Any(patch => patch.Item == CoreContentImporter.WeaponId("WEAPON_CHNY21_JIAN") && patch.Subtype == "ChineseSwords"),
             "Chinese swords binary/subtype registration changed.");
-        Check(catalog.ItemAvailabilityPolicies.Count() == 48 &&
+        Check(catalog.ItemAvailabilityPolicies.Count() == 244 && catalog.ItemInitialProfiles.Count == 221 &&
+            catalog.ItemShopPrices.Count == 99 && catalog.ItemPresentations.Count == 22 &&
             catalog.ItemAvailabilityPolicies.Where(policy => policy.Item.Namespace.Value == "core").All(policy => policy.Owner.Value == "de128" &&
-                policy.Visibility == ModItemVisibility.ForceVisible && policy.MinimumLevel >= 15),
+                policy.Visibility == ModItemVisibility.ForceVisible && policy.MinimumLevel >= 1),
             "DE shop policies are incomplete after registration/rebuild/conflict.");
         Check(ModPolicies.DeliverySeconds("shop", 120) == 120, "An unrelated timer was modified.");
         Check(catalog.TryGetItem(Sword, out var definition) && definition is WeaponDefinition,
@@ -244,7 +246,7 @@ internal static class DE128FoundationTests
             catalog.Rewards.Count(value => value.Id.LocalId.StartsWith("sensei_act_")) == 57 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
             reward.Items.Count == 1 && reward.Items[0].Item == Sword && reward.Items[0].UsesConfiguration &&
-            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 23 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
+            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 240 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
             "Desolator must use one configured reward without changing equipment defaults or currencies.");
         Check(catalog.TryGetFight(DefinitionId.Parse("core:fights/zone_7/c3_boss_titan_eclipsemode/6"), out var titan) &&
             titan.RewardDrops.Count == 1 && catalog.Fights.Count(fight => fight.RewardDrops.Count != 0) == 1,
@@ -752,6 +754,34 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
     private static XmlElement ReadElement(string xml)
     { var document = new XmlDocument { XmlResolver = null }; document.LoadXml(xml); return document.DocumentElement; }
 
+    private static void CheckInitialProfileBinding(string source, string fixture, ModDescriptor mod, ModContentCatalog enabled)
+    {
+        const string target = "core:items/weapon/WEAPON_BP_S1_GUARDIAN";
+        string call = "sf2.items.set_initial_profile { item=sf2.items.get('" + target +
+            "'), level=15, upgrade_level=1500, upgrade_template='Weapon_Bonus', legacy_paid_item='none', initial_stats={weapon_damage=342} }";
+        var noCapability = CopyPackage(source, fixture, "initial-profile-no-capability", "[\"content.register\"]");
+        File.WriteAllText(Path.Combine(noCapability.RootPath, "scripts/main.lua"), "local sf2=require('sf2')\n" + call, Utf8);
+        ExpectFailure(noCapability, new ModContentCatalog(), "content.patch");
+        var wrongField = CopyPackage(source, fixture, "initial-profile-wrong-field");
+        File.WriteAllText(Path.Combine(wrongField.RootPath, "scripts/main.lua"),
+            "local sf2=require('sf2')\n" + call.Replace("weapon_damage", "unknown_stat"), Utf8);
+        var rejected = new ModContentCatalog();
+        ExpectFailure(wrongField, rejected, "unknown_stat");
+        Check(rejected.ItemInitialProfiles.Count == 0, "Invalid Lua profile leaked a catalog patch.");
+        var wrongTemplate = CopyPackage(source, fixture, "initial-profile-wrong-template");
+        File.WriteAllText(Path.Combine(wrongTemplate.RootPath, "scripts/main.lua"),
+            "local sf2=require('sf2')\n" + call.Replace("Weapon_Bonus", "Armor_Bonus"), Utf8);
+        ExpectFailure(wrongTemplate, new ModContentCatalog(), "upgrade_template");
+        var wrongPaid = CopyPackage(source, fixture, "initial-profile-wrong-paid-marker");
+        File.WriteAllText(Path.Combine(wrongPaid.RootPath, "scripts/main.lua"),
+            "local sf2=require('sf2')\n" + call.Replace("legacy_paid_item='none'", "legacy_paid_item='unknown'"), Utf8);
+        ExpectFailure(wrongPaid, new ModContentCatalog(), "legacy_paid_item");
+        var peer = Peer(fixture, "fixture.initial-profile-conflict", "content.patch", call, "content.register");
+        ExpectFailure(peer, enabled, "already patched");
+        Check(enabled.ItemInitialProfiles.Count == 221 && enabled.ItemInitialProfiles.All(value => value.Owner == mod.Id),
+            "A competing profile changed the active DE catalog.");
+    }
+
     private sealed class ControlFighter : IModFighterOperations, IModFighterControls
     {
         internal readonly List<(object Owner, string Control, bool Blocked)> Calls = new List<(object, string, bool)>();
@@ -827,7 +857,18 @@ end}
         var archivedItems = ReadXml(Path.Combine(repository, "Assets/DExml/list.xml"));
         foreach (XmlElement item in archivedItems.SelectNodes("/List/Items/Item[@Type='Weapon' or @Type='Armor' or @Type='Helm' or @Type='Ranged' or @Type='Magic']"))
         {
-            if (_items.SelectSingleNode("/List/Items/Item[@Name='" + item.GetAttribute("Name") + "']") != null) continue;
+            var baseItem = _items.SelectSingleNode("/List/Items/Item[@Name='" + item.GetAttribute("Name") + "']") as XmlElement;
+            if (baseItem != null)
+            {
+                if (baseItem.GetAttribute("ShopHide") == "1" && item.GetAttribute("ShopHide") != "1")
+                {
+                    if (baseItem.GetAttribute("Image") != item.GetAttribute("Image"))
+                        RestoredAssets["ui/items/" + item.GetAttribute("Image").ToLowerInvariant()] = AssetKind.Sprite;
+                    if (baseItem.GetAttribute("Model") != item.GetAttribute("Model"))
+                        RestoredAssets["gamedata/models/" + item.GetAttribute("Model").ToLowerInvariant()] = AssetKind.Model;
+                }
+                continue;
+            }
             if (item.GetAttribute("ShopHide") == "1") continue;
             RestoredAssets["gamedata/models/" + item.GetAttribute("Model").ToLowerInvariant()] = AssetKind.Model;
             RestoredAssets["ui/items/" + item.GetAttribute("Image").ToLowerInvariant()] = AssetKind.Sprite;
@@ -860,6 +901,7 @@ end}
         CheckSharedMovePatches(mod, enabled, fixture, repository);
         CheckShopContracts(source, fixture, mod, enabled);
         CheckCombatEquipment(source, fixture, repository, mod, enabled);
+        CheckInitialProfileBinding(source, fixture, mod, enabled);
         string fingerprint = ModSaveData.ComputeContentSetFingerprint(new[] { mod }, enabled);
         var legacyTimers = new ModContentCatalog();
         using (var tx = legacyTimers.BeginRegistration(mod)) { tx.SetTimer("forge", 0, true); tx.Commit(); }

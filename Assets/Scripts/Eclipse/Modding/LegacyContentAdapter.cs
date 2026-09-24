@@ -19,6 +19,9 @@ namespace Eclipse.Modding
         private readonly List<IDisposable> _innatePerkLifetimes = new List<IDisposable>();
         private readonly List<IDisposable> _tacticSubtypeLifetimes = new List<IDisposable>();
         private readonly List<IDisposable> _combatSubtypeLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _initialProfileLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _shopPriceLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _presentationLifetimes = new List<IDisposable>();
         private readonly List<ProgressionBranchBinding> _progressionBindings = new List<ProgressionBranchBinding>();
         private readonly List<string> _externalZoneNames = new List<string>();
         private readonly List<string> _externalTemplateNames = new List<string>();
@@ -80,6 +83,9 @@ namespace Eclipse.Modding
                     ItemSet itemSet = _items.DGKMILIPLLF().AddExternalSet(BuildItemSetNode(definition));
                     _itemSetNames.Add(itemSet.Name);
                 }
+                ApplyInitialProfiles();
+                ApplyShopPrices();
+                ApplyItemPresentations();
                 _itemsApplied = true;
             }
             catch
@@ -1212,6 +1218,12 @@ namespace Eclipse.Modding
 
         private void RemoveItems()
         {
+            for (int i = _shopPriceLifetimes.Count - 1; i >= 0; i--) _shopPriceLifetimes[i].Dispose();
+            _shopPriceLifetimes.Clear();
+            for (int i = _presentationLifetimes.Count - 1; i >= 0; i--) _presentationLifetimes[i].Dispose();
+            _presentationLifetimes.Clear();
+            for (int i = _initialProfileLifetimes.Count - 1; i >= 0; i--) _initialProfileLifetimes[i].Dispose();
+            _initialProfileLifetimes.Clear();
             if (_items != null)
             {
                 for (int i = _itemSetNames.Count - 1; i >= 0; i--)
@@ -1304,6 +1316,65 @@ namespace Eclipse.Modding
                 if (item == null || !item.TryOverrideCombatSubtype(definition.Subtype, out var lifetime))
                     throw new InvalidOperationException("Could not apply combat subtype for '" + definition.Owner + "': " + definition.Item);
                 _combatSubtypeLifetimes.Add(lifetime);
+            }
+        }
+
+        private void ApplyInitialProfiles()
+        {
+            foreach (var definition in _content.ItemInitialProfiles)
+            {
+                if (_items == null || !_content.TryGetItem(definition.Item, out var target))
+                    throw new InvalidOperationException("Initial profile requires applied items: " + definition.Item);
+                var item = _items.AllItems.Find(candidate => candidate != null &&
+                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                if (definition.UpgradeTemplate != null && _items.GetUpgradeDataContainerByName(definition.UpgradeTemplate) == null)
+                    throw new InvalidOperationException("Initial profile upgrade template is unavailable: " + definition.UpgradeTemplate);
+                string paid = definition.LegacyPaidItem == "none" ? "None" :
+                    definition.LegacyPaidItem == "paid" ? "Paid" :
+                    definition.LegacyPaidItem == "super_paid" ? "SuperPaid" : null;
+                if (item == null || !item.TryOverrideInitialProfile(definition.Level, definition.UpgradeLevel,
+                        definition.InitialStats.Values, definition.UpgradeTemplate, paid, definition.ClearLocalUpgrades,
+                        out var lifetime))
+                    throw new InvalidOperationException("Could not apply initial profile for '" + definition.Owner + "': " + definition.Item);
+                _initialProfileLifetimes.Add(lifetime);
+            }
+        }
+
+        private void ApplyShopPrices()
+        {
+            foreach (var definition in _content.ItemShopPrices)
+            {
+                if (_items == null || !_content.TryGetItem(definition.Item, out var target))
+                    throw new InvalidOperationException("Shop price requires applied items: " + definition.Item);
+                var item = _items.AllItems.Find(candidate => candidate != null &&
+                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                long coins = definition.Price.Currency == ModPriceCurrency.Coins ? definition.Price.Amount : 0;
+                long gems = definition.Price.Currency == ModPriceCurrency.Gems ? definition.Price.Amount : 0;
+                if (definition.SecondaryPrice.HasValue)
+                {
+                    var secondary = definition.SecondaryPrice.Value;
+                    if (secondary.Currency == ModPriceCurrency.Coins) coins = secondary.Amount;
+                    else gems = secondary.Amount;
+                }
+                if (item == null || !item.TryOverrideShopPrice(coins, gems, out var lifetime))
+                    throw new InvalidOperationException("Could not apply shop price for '" + definition.Owner + "': " + definition.Item);
+                _shopPriceLifetimes.Add(lifetime);
+            }
+        }
+
+        private void ApplyItemPresentations()
+        {
+            foreach (var definition in _content.ItemPresentations)
+            {
+                if (_items == null || !_content.TryGetItem(definition.Item, out var target))
+                    throw new InvalidOperationException("Item presentation requires applied items: " + definition.Item);
+                var item = _items.AllItems.Find(candidate => candidate != null &&
+                    _content.TryResolveRuntimeItem(candidate.Name, candidate.NodeXML?.OuterXml, out var id) && id == target.Id);
+                string icon = definition.Icon == default(AssetId) ? null : definition.Icon.ToString();
+                string model = definition.Model == default(AssetId) ? null : definition.Model.ToString();
+                if (item == null || !item.TryOverridePresentation(icon, model, out var lifetime))
+                    throw new InvalidOperationException("Could not apply item presentation for '" + definition.Owner + "': " + definition.Item);
+                _presentationLifetimes.Add(lifetime);
             }
         }
 
@@ -1673,7 +1744,7 @@ namespace Eclipse.Modding
                 return 18;
             }
 
-            UpgradeDataContainer upgrades = _items.BKPOCLGODDM(template);
+            UpgradeDataContainer upgrades = _items.GetUpgradeDataContainerByName(template);
             if (upgrades == null)
                 throw new InvalidOperationException("Vanilla upgrade template is unavailable: " + template);
 

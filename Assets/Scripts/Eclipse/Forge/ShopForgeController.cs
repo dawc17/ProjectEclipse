@@ -783,7 +783,7 @@ namespace Eclipse.Forge
 		private void ShowRecipePreview()
 		{
 			if (_selectedRecipe == null || _selectedItem == null) return;
-			int level = CurrentInfo(_selectedItem)?.MHGODOLNDLE ?? 1;
+			int level = CurrentInfo(_selectedItem)?.ItemLevel ?? 1;
 			List<PerkStruct> candidates = _selectedRecipe.GetPossibleEnchantments(_selectedItem, level, false);
 			if (candidates.Count == 0) return;
 			if (_recipePreview != null) UnityEngine.Object.Destroy(_recipePreview);
@@ -840,7 +840,7 @@ namespace Eclipse.Forge
 		private void RefreshRecipeCardState()
 		{
 			ItemInfo info = CurrentInfo(_selectedItem);
-			int itemLevel = info != null ? info.MHGODOLNDLE : 1;
+			int itemLevel = info != null ? info.ItemLevel : 1;
 			Roster roster = ListSF.CCDKHLAMKKO();
 
 			for (int i = 0; i < _recipeCards.Count; i++)

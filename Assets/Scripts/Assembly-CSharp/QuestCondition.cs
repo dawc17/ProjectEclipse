@@ -678,10 +678,10 @@ public class QuestCondition : ConditionExtension
 		switch (KJFKPMCPIBH.HBDLDIKHFEG)
 		{
 		case "Price":
-			BMDEBHIHIAJ.resultNumber = (ObscuredLong)(dJKEECEOCJB.KJFAOKLILOC);
+			BMDEBHIHIAJ.resultNumber = (ObscuredLong)(dJKEECEOCJB.CoinPrice);
 			break;
 		case "BonusPrice":
-			BMDEBHIHIAJ.resultNumber = (ObscuredLong)(dJKEECEOCJB.FMHECGHHKGB);
+			BMDEBHIHIAJ.resultNumber = (ObscuredLong)(dJKEECEOCJB.GemPrice);
 			break;
 		case "BonusDeliveryPrice":
 			BMDEBHIHIAJ.resultNumber = (ObscuredLong)(dJKEECEOCJB.KLHOKKPALOK);
@@ -690,7 +690,7 @@ public class QuestCondition : ConditionExtension
 			BMDEBHIHIAJ.resultNumber = (ObscuredLong)(dJKEECEOCJB.NDCOLFHCNLD);
 			break;
 		case "Level":
-			BMDEBHIHIAJ.resultNumber = dJKEECEOCJB.MHGODOLNDLE;
+			BMDEBHIHIAJ.resultNumber = dJKEECEOCJB.ItemLevel;
 			break;
 		case "Equipped":
 		{
@@ -786,7 +786,7 @@ public class QuestCondition : ConditionExtension
 		{
 			if ((EDNGDDEPAPA && item.INCBGIDFIDN()) || (!EDNGDDEPAPA && item.PLBFFNCCCGO()))
 			{
-				result = (ObscuredLong)((!EDNGDDEPAPA) ? item.FMHECGHHKGB : item.KJFAOKLILOC);
+				result = (ObscuredLong)((!EDNGDDEPAPA) ? item.GemPrice : item.CoinPrice);
 			}
 			else
 			{
@@ -892,7 +892,7 @@ public class QuestCondition : ConditionExtension
 				BMDEBHIHIAJ.resultSTR = iBBAMMHHBFE;
 				break;
 			case "PaidItem":
-				BMDEBHIHIAJ.resultSTR = ((dJKEECEOCJB == null) ? string.Empty : dJKEECEOCJB.PBMHNMOHODB);
+				BMDEBHIHIAJ.resultSTR = ((dJKEECEOCJB == null) ? string.Empty : dJKEECEOCJB.LegacyPaidItem);
 				break;
 			default:
 				LLLOJBFMONN.Error(string.Format("{0},\"{1}\"", "ERROR: QuestCondition.PurchaseFunction - unknown property: ", KJFKPMCPIBH.HBDLDIKHFEG));

@@ -4246,7 +4246,7 @@ public class Model : global::EventDispatcher<object>
 		Parameters.OLLNIKFPMKE(item.Type, item);
 		string aPJJEFJHJGK = GameUtils.APCAKCCOMLO.APJJEFJHJGK;
 		int OEMALIFPGPO = 0;
-		item.IBLHIAHECLK.Get(aPJJEFJHJGK, ref OEMALIFPGPO);
+		item.ItemAttributes.Get(aPJJEFJHJGK, ref OEMALIFPGPO);
 		Parameters.IBLHIAHECLK.Set(aPJJEFJHJGK, (!DDMEACNNLJN) ? GameUtils.APCAKCCOMLO.OMPDIOBDAKB : OEMALIFPGPO);
 		if (BNDJNLALHKL)
 		{

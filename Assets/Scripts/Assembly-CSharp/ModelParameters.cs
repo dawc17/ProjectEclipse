@@ -751,25 +751,25 @@ public class ModelParameters
 		ModelDocuments.Clear();
         if (!string.IsNullOrEmpty(EclipseBodyModel))
             ModelDocuments.Add(EclipseBodyModel.EndsWith(".xml",System.StringComparison.OrdinalIgnoreCase) ? EclipseBodyModel : OKALHAKMOLI(EclipseBodyModel));
-		else if (Skeleton != null && !string.IsNullOrEmpty(Skeleton.KJDFJPBIGJC))
+		else if (Skeleton != null && !string.IsNullOrEmpty(Skeleton.ModelFileName))
 		{
-			ModelDocuments.Add(OKALHAKMOLI(Skeleton.KJDFJPBIGJC));
+			ModelDocuments.Add(OKALHAKMOLI(Skeleton.ModelFileName));
 		}
-		if (Weapon != null && !string.IsNullOrEmpty(Weapon.KJDFJPBIGJC))
+		if (Weapon != null && !string.IsNullOrEmpty(Weapon.ModelFileName))
 		{
-			ModelDocuments.Add(OKALHAKMOLI(Weapon.KJDFJPBIGJC));
+			ModelDocuments.Add(OKALHAKMOLI(Weapon.ModelFileName));
 		}
-		if (Armor != null && !string.IsNullOrEmpty(Armor.KJDFJPBIGJC))
+		if (Armor != null && !string.IsNullOrEmpty(Armor.ModelFileName))
 		{
-			ModelDocuments.Add(OKALHAKMOLI(Armor.KJDFJPBIGJC));
+			ModelDocuments.Add(OKALHAKMOLI(Armor.ModelFileName));
 		}
-		if (Helm != null && !string.IsNullOrEmpty(Helm.KJDFJPBIGJC))
+		if (Helm != null && !string.IsNullOrEmpty(Helm.ModelFileName))
 		{
-			ModelDocuments.Add(OKALHAKMOLI(Helm.KJDFJPBIGJC));
+			ModelDocuments.Add(OKALHAKMOLI(Helm.ModelFileName));
 		}
 		for (int i = 0; i < HEKILHEHMMH.Count; i++)
 		{
-			ModelDocuments.Add(OKALHAKMOLI(HEKILHEHMMH[i].KJDFJPBIGJC));
+			ModelDocuments.Add(OKALHAKMOLI(HEKILHEHMMH[i].ModelFileName));
 		}
         foreach (var skin in EclipseSkinModels)
             ModelDocuments.Add(skin.EndsWith(".xml",System.StringComparison.OrdinalIgnoreCase) ? skin : OKALHAKMOLI(skin));
@@ -788,7 +788,7 @@ public class ModelParameters
 		for (int i = 0; i < HELFDCAIJNE.Count; i++)
 		{
 			int OEMALIFPGPO = 0;
-			if (HELFDCAIJNE[i].IBLHIAHECLK.Get(name, ref OEMALIFPGPO))
+			if (HELFDCAIJNE[i].ItemAttributes.Get(name, ref OEMALIFPGPO))
 			{
 				GMEMHMOHFGG = true;
 				num += OEMALIFPGPO;

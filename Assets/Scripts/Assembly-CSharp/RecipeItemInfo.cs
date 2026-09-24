@@ -46,7 +46,7 @@ public class RecipeItemInfo : ItemInfo
 		if (userItem != null)
 		{
 			ItemInfo info = userItem.DBLCMCEGJGI(false) ?? userItem.BHKHOJPANHE();
-			if (info != null) MDKBMLJNAGK = (uint)Math.Max(0, info.MHGODOLNDLE);
+			if (info != null) MDKBMLJNAGK = (uint)Math.Max(0, info.ItemLevel);
 		}
 		Roster roster = ListSF.CCDKHLAMKKO();
 		FKPHJOEDCDJ = (uint)Math.Max(0, roster == null ? 0 : roster.PINDEKDNCNL());

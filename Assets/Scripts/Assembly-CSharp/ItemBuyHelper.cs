@@ -9,7 +9,7 @@ public static class ItemBuyHelper
 		if (item == null) return false;
 		Roster roster = ListSF.CCDKHLAMKKO();
 		if (roster == null) return false;
-		long price = gems ? (long)item.FMHECGHHKGB : (long)item.KJFAOKLILOC;
+		long price = gems ? (long)item.GemPrice : (long)item.CoinPrice;
 		long balance = gems ? roster.EHFJHFDACMP() : roster.BFBOEGMAMNF();
 		if (price < 0 || balance < price) return false;
 		UserItem existing = roster.KHCNHPCPFII().CMGOCLGHNLH(item);
@@ -61,7 +61,7 @@ public static class ItemBuyHelper
 		if (NDMCFNGEPOA != null)
 		{
 			NDMCFNGEPOA.IJCEKDCPBAG(true);
-			NDMCFNGEPOA.FMMDLMGHPIB(item.OBJDGBBFJOO);
+			NDMCFNGEPOA.FMMDLMGHPIB(item.UpgradeLevel);
 			NDMCFNGEPOA.CDFODJBJIPI(ListSF.CCDKHLAMKKO().PINDEKDNCNL());
 			Sound.IFKCCDAIADF("snd_upgrade");
 			return true;
@@ -75,7 +75,7 @@ public static class ItemBuyHelper
 		{
 			long bAINMLLIKOL = GlobalTimer.get_LocalTimeUTC() + item.EHKNIKHPGDN;
 			NDMCFNGEPOA.set_DeliveryTime(bAINMLLIKOL);
-			NDMCFNGEPOA.BAMLNLIDEBG(item.OBJDGBBFJOO);
+			NDMCFNGEPOA.BAMLNLIDEBG(item.UpgradeLevel);
 			NDMCFNGEPOA.IJCEKDCPBAG(true);
 			NDMCFNGEPOA.PJEEGECBHMH();
 			ListSF.CCDKHLAMKKO().KHCNHPCPFII().GEFDJDIINND(NDMCFNGEPOA, true);
@@ -96,9 +96,9 @@ public static class ItemBuyHelper
 		{
 			return false;
 		}
-		if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() >= (ObscuredLong)(item.KJFAOKLILOC))
+		if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() >= (ObscuredLong)(item.CoinPrice))
 		{
-			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().BFBOEGMAMNF() - (ObscuredLong)(item.KJFAOKLILOC);
+			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().BFBOEGMAMNF() - (ObscuredLong)(item.CoinPrice);
 			bool flag = false;
 			// Desktop/offline builds have no reliable server-backed delivery clock.
 			// Complete coin purchases immediately so an order cannot strand the item.
@@ -126,9 +126,9 @@ public static class ItemBuyHelper
 		{
 			return false;
 		}
-		if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() >= (ObscuredLong)(item.FMHECGHHKGB))
+		if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() >= (ObscuredLong)(item.GemPrice))
 		{
-			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().EHFJHFDACMP() - (ObscuredLong)(item.FMHECGHHKGB);
+			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().EHFJHFDACMP() - (ObscuredLong)(item.GemPrice);
 			bool flag = KCBCGDFKNME(item);
 			if (flag)
 			{
@@ -158,9 +158,9 @@ public static class ItemBuyHelper
 		{
 			return false;
 		}
-		if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() >= (ObscuredLong)(dJKEECEOCJB.KJFAOKLILOC))
+		if (ListSF.CCDKHLAMKKO().BFBOEGMAMNF() >= (ObscuredLong)(dJKEECEOCJB.CoinPrice))
 		{
-			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().BFBOEGMAMNF() - (ObscuredLong)(dJKEECEOCJB.KJFAOKLILOC);
+			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().BFBOEGMAMNF() - (ObscuredLong)(dJKEECEOCJB.CoinPrice);
 			bool flag = false;
 			// Shop upgrades are immediate in the offline runtime. This also avoids
 			// entering the legacy delivery branch without reporting success.
@@ -193,9 +193,9 @@ public static class ItemBuyHelper
 		{
 			return false;
 		}
-		if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() >= (ObscuredLong)(dJKEECEOCJB.FMHECGHHKGB))
+		if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() >= (ObscuredLong)(dJKEECEOCJB.GemPrice))
 		{
-			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().EHFJHFDACMP() - (ObscuredLong)(dJKEECEOCJB.FMHECGHHKGB);
+			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().EHFJHFDACMP() - (ObscuredLong)(dJKEECEOCJB.GemPrice);
 			bool flag = LBCJLCDMJLI(dJKEECEOCJB, dKCHDHMLKHN);
 			if (flag)
 			{
@@ -258,9 +258,9 @@ public static class ItemBuyHelper
 		{
 			return false;
 		}
-		if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() >= (ObscuredLong)(item.FMHECGHHKGB))
+		if (ListSF.CCDKHLAMKKO().EHFJHFDACMP() >= (ObscuredLong)(item.GemPrice))
 		{
-			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().EHFJHFDACMP() - (ObscuredLong)(item.FMHECGHHKGB);
+			long bAINMLLIKOL = ListSF.CCDKHLAMKKO().EHFJHFDACMP() - (ObscuredLong)(item.GemPrice);
 			bool flag = KCBCGDFKNME(item);
 			if (flag)
 			{

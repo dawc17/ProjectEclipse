@@ -12,7 +12,7 @@ $fixture=Join-Path $root ('Temp/ImmediatePurchases-'+[Guid]::NewGuid().ToString(
 New-Item -ItemType Directory -Path $fixture -Force | Out-Null
 $code=@'
 using System;
-class ItemInfo { public long KJFAOKLILOC=7,FMHECGHHKGB=9; public int CPODJDDPJHB=2; public string SubType="",FAEGJAEEMGH="fixture"; }
+class ItemInfo { public long CoinPrice=7,GemPrice=9; public int CPODJDDPJHB=2; public string SubType="",FAEGJAEEMGH="fixture"; }
 struct ObscuredLong { long value; public static explicit operator ObscuredLong(long n)=>new ObscuredLong{value=n}; public static implicit operator long(ObscuredLong n)=>n.value; }
 struct ObscuredInt { int value; public static explicit operator ObscuredInt(int n)=>new ObscuredInt{value=n}; public static implicit operator int(ObscuredInt n)=>n.value; }
 class UserItem { public int Count; public int OFOPFCJNEBL()=>Count; }
@@ -56,7 +56,7 @@ __METHODS__
    Reset();ListSF.Owner.Item.Count=int.MaxValue;
    Check(!buy(new ItemInfo()) && Eclipse.Modding.ModRuntime.Calls==0,"Inventory overflow entered settlement");
    Reset();
-   Check(!buy(new ItemInfo{KJFAOKLILOC=-1,FMHECGHHKGB=-1}) && Eclipse.Modding.ModRuntime.Calls==0,"Negative price entered settlement");
+   Check(!buy(new ItemInfo{CoinPrice=-1,GemPrice=-1}) && Eclipse.Modding.ModRuntime.Calls==0,"Negative price entered settlement");
    Check(!buy(null) && Eclipse.Modding.ModRuntime.Calls==0,"Null item entered settlement");
    ListSF.Owner=null; Check(!buy(new ItemInfo()),"Missing profile accepted");
   }

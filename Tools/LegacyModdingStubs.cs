@@ -160,7 +160,7 @@ public sealed class Items
     public List<ItemInfo> HCDLKHKBEPF() { return _all; }
     public ItemSets DGKMILIPLLF() { return _itemSets; }
 
-    public UpgradeDataContainer BKPOCLGODDM(string name)
+    public UpgradeDataContainer GetUpgradeDataContainerByName(string name)
     {
         UpgradeDataContainer value;
         return _upgrades.TryGetValue(name, out value) ? value : null;

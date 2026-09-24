@@ -217,10 +217,10 @@ namespace Nekki.SF2.GUI.Shop
 			base.gameObject.name = string.Format("ShopScrollItem({0})", get_Name());
 			UserItem dKCHDHMLKHN = ListSF.CCDKHLAMKKO().KHCNHPCPFII().CMGOCLGHNLH(item);
 			JMPPBCFDOLL = ((dKCHDHMLKHN == null) ? item : dKCHDHMLKHN.AKKBIFEFDCI());
-			set_MaxOpacity((item.MHGODOLNDLE <= ListSF.CCDKHLAMKKO().PINDEKDNCNL()) ? 1f : 0.5f);
+			set_MaxOpacity((item.ItemLevel <= ListSF.CCDKHLAMKKO().PINDEKDNCNL()) ? 1f : 0.5f);
 			if (_lockIcon != null)
 			{
-				if (item.MHGODOLNDLE > ListSF.CCDKHLAMKKO().PINDEKDNCNL())
+				if (item.ItemLevel > ListSF.CCDKHLAMKKO().PINDEKDNCNL())
 				{
 					_lockIcon.gameObject.SetActive(true);
 				}
@@ -239,7 +239,7 @@ namespace Nekki.SF2.GUI.Shop
 				bool active = dKCHDHMLKHN != null && dKCHDHMLKHN.EFMFGEPDAOP();
 				_equppiedIcon.gameObject.SetActive(active);
 			}
-			bool active2 = JMPPBCFDOLL.MHGODOLNDLE > 0;
+			bool active2 = JMPPBCFDOLL.ItemLevel > 0;
 			if (_levelLabel != null)
 			{
 				Font font = LocalizationManager.MBPJIKFOEBJ();
@@ -247,7 +247,7 @@ namespace Nekki.SF2.GUI.Shop
 				{
 					_levelLabel.font = font;
 				}
-				_levelLabel.text = JMPPBCFDOLL.MHGODOLNDLE.ToString();
+				_levelLabel.text = JMPPBCFDOLL.ItemLevel.ToString();
 				_levelLabel.gameObject.SetActive(active2);
 			}
 			if (_levelIcon != null)
@@ -335,8 +335,8 @@ namespace Nekki.SF2.GUI.Shop
 
 		public int CompareTo(ShopScrollItem NOLFMPDGCOC)
 		{
-			int num = ((JMPPBCFDOLL != null) ? JMPPBCFDOLL.MHGODOLNDLE : 0);
-			int value = ((NOLFMPDGCOC.JMPPBCFDOLL != null) ? NOLFMPDGCOC.JMPPBCFDOLL.MHGODOLNDLE : 0);
+			int num = ((JMPPBCFDOLL != null) ? JMPPBCFDOLL.ItemLevel : 0);
+			int value = ((NOLFMPDGCOC.JMPPBCFDOLL != null) ? NOLFMPDGCOC.JMPPBCFDOLL.ItemLevel : 0);
 			int num2 = ((JMPPBCFDOLL != null) ? JMPPBCFDOLL.Index : 0);
 			int value2 = ((NOLFMPDGCOC.JMPPBCFDOLL == null) ? 1 : NOLFMPDGCOC.JMPPBCFDOLL.Index);
 			int num3 = num.CompareTo(value);

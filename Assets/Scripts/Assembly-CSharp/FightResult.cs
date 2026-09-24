@@ -223,7 +223,7 @@ public class FightResult
 			int requestedLevel = JJBPBGKBEED.CMEFKONFDKN();
 			int num = requestedLevel <= 0 ? ListSF.CCDKHLAMKKO().PINDEKDNCNL() : requestedLevel;
 			ItemInfo dJKEECEOCJB2 = null;
-			if (dJKEECEOCJB.MHGODOLNDLE == num)
+			if (dJKEECEOCJB.ItemLevel == num)
 			{
 				dJKEECEOCJB2 = dJKEECEOCJB;
 			}
@@ -250,7 +250,7 @@ public class FightResult
 			}
 			else if (JJBPBGKBEED.UpgradeNumber != 0)
 			{
-				List<UpgradeData> list = dJKEECEOCJB2.DNFDAGFAANJ(true, dJKEECEOCJB2.MHGODOLNDLE);
+				List<UpgradeData> list = dJKEECEOCJB2.DNFDAGFAANJ(true, dJKEECEOCJB2.ItemLevel);
 				uint count = (uint)list.Count;
 				if (count != 0)
 				{

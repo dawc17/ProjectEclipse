@@ -90,7 +90,8 @@ public class ItemInfo
 
 	public string FileName = string.Empty;
 
-	public string KJDFJPBIGJC = string.Empty;
+	// best guess for name
+	public string ModelFileName = string.Empty;
 
 	public string Type = string.Empty;
 
@@ -125,6 +126,152 @@ public class ItemInfo
 		var replacement = new CombatSubtypeOverride(this);
 		SubType = subtype;
 		_combatSubtypeOverride = replacement;
+		lifetime = replacement;
+		return true;
+	}
+
+	private InitialProfileOverride _initialProfileOverride;
+	private sealed class InitialProfileOverride : System.IDisposable
+	{
+		private ItemInfo _item;
+		private readonly bool _hadLevel;
+		private readonly int _level;
+		private readonly int _upgradeLevel;
+		private readonly string _upgradeTemplate;
+		private readonly string _legacyPaidItem;
+		private readonly List<UpgradeData> _localUpgrades;
+		private readonly Attributes _attributes;
+		public InitialProfileOverride(ItemInfo item)
+		{
+			_item = item;
+			_hadLevel = item.HasAuthoredLevel;
+			_level = item.ItemLevel;
+			_upgradeLevel = item.UpgradeLevel;
+			_upgradeTemplate = item.UpgradeTemplateName;
+			_legacyPaidItem = item.LegacyPaidItem;
+			_localUpgrades = item.LocalUpgrades;
+			_attributes = new Attributes(item.ItemAttributes);
+		}
+		public void Dispose()
+		{
+			ItemInfo item = _item;
+			if (item == null) return;
+			_item = null;
+			if (!object.ReferenceEquals(item._initialProfileOverride, this)) return;
+			item.HasAuthoredLevel = _hadLevel;
+			item.ItemLevel = _level;
+			item.UpgradeLevel = _upgradeLevel;
+			item.UpgradeTemplateName = _upgradeTemplate;
+			item.LegacyPaidItem = _legacyPaidItem;
+			item.LocalUpgrades = _localUpgrades;
+			item.ItemAttributes = new Attributes(_attributes);
+			item._initialProfileOverride = null;
+		}
+	}
+
+	// The catalog item changes in place before new shop/fighter copies are built.
+	// Its recovered NodeXML, price, shared upgrade tables and saved item identity are untouched.
+	internal bool TryOverrideInitialProfile(int level, int upgradeLevel,
+		System.Collections.Generic.IReadOnlyDictionary<string, int> stats, string upgradeTemplate, string legacyPaidItem,
+		bool clearLocalUpgrades,
+		out System.IDisposable lifetime)
+	{
+		lifetime = null;
+		if ((Type != "Weapon" && Type != "Armor" && Type != "Helm" && Type != "Ranged" && Type != "Magic") ||
+			_initialProfileOverride != null || level < 1 || level > 52 || upgradeLevel < 0 || upgradeLevel > 5200 || stats == null)
+			return false;
+		if (upgradeTemplate != null && upgradeTemplate != Type + "_Bonus" && upgradeTemplate != "Paid_" + Type + "_Bonus")
+			return false;
+		if (legacyPaidItem != null && legacyPaidItem != "None" && legacyPaidItem != "Paid" && legacyPaidItem != "SuperPaid")
+			return false;
+		var attributes = new Attributes();
+		foreach (var stat in stats)
+		{
+			if (stat.Value < 0 || stat.Value > 1000000) return false;
+			attributes.Set(stat.Key, stat.Value);
+		}
+		var replacement = new InitialProfileOverride(this);
+		HasAuthoredLevel = true;
+		ItemLevel = level;
+		UpgradeLevel = upgradeLevel;
+		if (upgradeTemplate != null) UpgradeTemplateName = upgradeTemplate;
+		if (legacyPaidItem != null) LegacyPaidItem = legacyPaidItem;
+		if (clearLocalUpgrades) LocalUpgrades = new List<UpgradeData>();
+		ItemAttributes = attributes;
+		_initialProfileOverride = replacement;
+		lifetime = replacement;
+		return true;
+	}
+
+	private ShopPriceOverride _shopPriceOverride;
+	private sealed class ShopPriceOverride : System.IDisposable
+	{
+		private ItemInfo _item;
+		private readonly ObscuredLong _coinPrice;
+		private readonly ObscuredLong _gemPrice;
+		public ShopPriceOverride(ItemInfo item)
+		{
+			_item = item;
+			_coinPrice = item.CoinPrice;
+			_gemPrice = item.GemPrice;
+		}
+		public void Dispose()
+		{
+			ItemInfo item = _item;
+			if (item == null) return;
+			_item = null;
+			if (!object.ReferenceEquals(item._shopPriceOverride, this)) return;
+			item.CoinPrice = _coinPrice;
+			item.GemPrice = _gemPrice;
+			item._shopPriceOverride = null;
+		}
+	}
+
+	// Update the native catalog before shop copies are built. Both currency fields
+	// are replaced so switching currency cannot leave the old price active.
+	internal bool TryOverrideShopPrice(long coins, long gems, out System.IDisposable lifetime)
+	{
+		lifetime = null;
+		if ((Type != "Weapon" && Type != "Armor" && Type != "Helm" && Type != "Ranged" && Type != "Magic") ||
+			_shopPriceOverride != null || coins < 0 || gems < 0 || coins > int.MaxValue || gems > int.MaxValue ||
+			(coins == 0 && gems == 0)) return false;
+		var replacement = new ShopPriceOverride(this);
+		CoinPrice = (ObscuredLong)coins;
+		GemPrice = (ObscuredLong)gems;
+		_shopPriceOverride = replacement;
+		lifetime = replacement;
+		return true;
+	}
+
+	private ItemPresentationOverride _presentationOverride;
+	private sealed class ItemPresentationOverride : System.IDisposable
+	{
+		private ItemInfo _item;
+		private readonly string _icon;
+		private readonly string _model;
+		public ItemPresentationOverride(ItemInfo item)
+		{ _item = item; _icon = item.FileName; _model = item.ModelFileName; }
+		public void Dispose()
+		{
+			ItemInfo item = _item;
+			if (item == null) return;
+			_item = null;
+			if (!object.ReferenceEquals(item._presentationOverride, this)) return;
+			item.FileName = _icon;
+			item.ModelFileName = _model;
+			item._presentationOverride = null;
+		}
+	}
+
+	internal bool TryOverridePresentation(string icon, string model, out System.IDisposable lifetime)
+	{
+		lifetime = null;
+		if ((Type != "Weapon" && Type != "Armor" && Type != "Helm" && Type != "Ranged" && Type != "Magic") ||
+			_presentationOverride != null || (string.IsNullOrEmpty(icon) && string.IsNullOrEmpty(model))) return false;
+		var replacement = new ItemPresentationOverride(this);
+		if (!string.IsNullOrEmpty(icon)) FileName = icon;
+		if (!string.IsNullOrEmpty(model)) ModelFileName = model;
+		_presentationOverride = replacement;
 		lifetime = replacement;
 		return true;
 	}
@@ -183,7 +330,8 @@ public class ItemInfo
 
 	public string MIIJIMJDHFP = string.Empty;
 
-	public string PBMHNMOHODB = string.Empty;
+	// best guess for name
+	public string LegacyPaidItem = string.Empty;
 
 	public string GGDJIPKMKFC = string.Empty;
 
@@ -191,11 +339,13 @@ public class ItemInfo
 
 	public string CMDJPAKOHMK = string.Empty;
 
-	public string PHDCGJOKBLH = string.Empty;
+	// best guess for name
+	public string UpgradeTemplateName = string.Empty;
 
 	public bool ANNCECNAEPN;
 
-	public bool KIGOEKKCPOJ;
+	// best guess for name
+	public bool HasAuthoredLevel;
 
 	private bool PPGBMODEAGD;
 
@@ -203,7 +353,8 @@ public class ItemInfo
 
 	public int NLMDNOBHHKP;
 
-	public int MHGODOLNDLE;
+	// best guess for name
+	public int ItemLevel;
 
 	public int GDCBBAHKCIE;
 
@@ -215,13 +366,16 @@ public class ItemInfo
 
 	public int GKODCKNAAHB;
 
-	public int OBJDGBBFJOO;
+	// best guess for name
+	public int UpgradeLevel;
 
 	public long EHKNIKHPGDN;
 
-	public ObscuredLong KJFAOKLILOC = (ObscuredLong)(0L);
+	// best guess for name
+	public ObscuredLong CoinPrice = (ObscuredLong)(0L);
 
-	public ObscuredLong FMHECGHHKGB = (ObscuredLong)(0L);
+	// best guess for name
+	public ObscuredLong GemPrice = (ObscuredLong)(0L);
 
 	public ObscuredLong KLHOKKPALOK = (ObscuredLong)(0L);
 
@@ -242,7 +396,8 @@ public class ItemInfo
 
 	private bool DHDDDJFLDBD;
 
-	public Attributes IBLHIAHECLK = new Attributes();
+	// best guess for name
+	public Attributes ItemAttributes = new Attributes();
 
 	// best guess for name
 	public List<PerkInfoItem> InnatePerks = new List<PerkInfoItem>();
@@ -288,7 +443,8 @@ public class ItemInfo
 		return true;
 	}
 
-	public List<UpgradeData> KEFPALGDBOC = new List<UpgradeData>();
+	// best guess for name
+	public List<UpgradeData> LocalUpgrades = new List<UpgradeData>();
 
 	// best guess for name
 	public List<PerkInfoItem> DefaultEnchantmentPreviews = new List<PerkInfoItem>();
@@ -417,7 +573,7 @@ public class ItemInfo
 	{
 		Name = item.Name;
 		FileName = item.FileName;
-		KJDFJPBIGJC = item.KJDFJPBIGJC;
+		ModelFileName = item.ModelFileName;
 		Type = item.Type;
 		SubType = item.SubType;
 		TacticSubtype = item.TacticSubtype;
@@ -430,26 +586,26 @@ public class ItemInfo
 		FPEIFLEBEAA = item.FPEIFLEBEAA;
 		EGAJMELKANL = item.EGAJMELKANL;
 		MIIJIMJDHFP = item.MIIJIMJDHFP;
-		PBMHNMOHODB = item.PBMHNMOHODB;
+		LegacyPaidItem = item.LegacyPaidItem;
 		GGDJIPKMKFC = item.GGDJIPKMKFC;
 		CGGDGCCNKJA = item.CGGDGCCNKJA;
 		CMDJPAKOHMK = item.CMDJPAKOHMK;
 		ANNCECNAEPN = item.ANNCECNAEPN;
-		KIGOEKKCPOJ = item.KIGOEKKCPOJ;
-		PHDCGJOKBLH = item.PHDCGJOKBLH;
+		HasAuthoredLevel = item.HasAuthoredLevel;
+		UpgradeTemplateName = item.UpgradeTemplateName;
 		PPGBMODEAGD = item.PPGBMODEAGD;
 		Index = item.Index;
 		NLMDNOBHHKP = item.NLMDNOBHHKP;
-		MHGODOLNDLE = item.MHGODOLNDLE;
+		ItemLevel = item.ItemLevel;
 		GDCBBAHKCIE = item.GDCBBAHKCIE;
 		DCHJDPCEODD = item.DCHJDPCEODD;
 		FOMPCNKEPJF = item.FOMPCNKEPJF;
 		ICDIEHCJBGA = item.ICDIEHCJBGA;
 		GKODCKNAAHB = item.GKODCKNAAHB;
-		OBJDGBBFJOO = item.OBJDGBBFJOO;
+		UpgradeLevel = item.UpgradeLevel;
 		EHKNIKHPGDN = item.EHKNIKHPGDN;
-		KJFAOKLILOC = item.KJFAOKLILOC;
-		FMHECGHHKGB = item.FMHECGHHKGB;
+		CoinPrice = item.CoinPrice;
+		GemPrice = item.GemPrice;
 		KLHOKKPALOK = item.KLHOKKPALOK;
 		NDCOLFHCNLD = item.NDCOLFHCNLD;
 		MBLKNNAFCOB = item.MBLKNNAFCOB;
@@ -458,9 +614,9 @@ public class ItemInfo
 		ParentItem = item.ParentItem;
 		IgnoreInventoryEnchantments = item.IgnoreInventoryEnchantments;
 		DJNOJLDEHDD = item.DJNOJLDEHDD;
-		IBLHIAHECLK = new Attributes(item.IBLHIAHECLK);
+		ItemAttributes = new Attributes(item.ItemAttributes);
 		InnatePerks = new List<PerkInfoItem>(item.InnatePerks);
-		KEFPALGDBOC = new List<UpgradeData>(item.KEFPALGDBOC);
+		LocalUpgrades = new List<UpgradeData>(item.LocalUpgrades);
 		DefaultEnchantmentPreviews = new List<PerkInfoItem>(item.DefaultEnchantmentPreviews);
 		ParsedPerks = new List<PerkInfoItem>(item.ParsedPerks);
 		DefaultEnchantments = new List<PerkStruct>(item.DefaultEnchantments);
@@ -498,13 +654,13 @@ public class ItemInfo
 	{
 		CPODJDDPJHB.GMCADPGOCHM();
 		FOLLHACLPNB.GMCADPGOCHM();
-		KJFAOKLILOC.GMCADPGOCHM();
-		FMHECGHHKGB.GMCADPGOCHM();
+		CoinPrice.GMCADPGOCHM();
+		GemPrice.GMCADPGOCHM();
 		KLHOKKPALOK.GMCADPGOCHM();
 		NDCOLFHCNLD.GMCADPGOCHM();
 		HHIFKGOJFAC.GMCADPGOCHM();
 		BBMLCBEFLGI.GMCADPGOCHM();
-		KEFPALGDBOC.ForEach((UpgradeData DHDMNHCIPEH) =>
+		LocalUpgrades.ForEach((UpgradeData DHDMNHCIPEH) =>
 		{
 			DHDMNHCIPEH.RandomizeObscuredVars();
 		});
@@ -512,7 +668,7 @@ public class ItemInfo
 
 	private long GetPrice()
 	{
-		return (ObscuredLong)((!PLBFFNCCCGO()) ? KJFAOKLILOC : FMHECGHHKGB);
+		return (ObscuredLong)((!PLBFFNCCCGO()) ? CoinPrice : GemPrice);
 	}
 
 	private long HIPLKBCODAH()
@@ -522,17 +678,17 @@ public class ItemInfo
 
 	private long MKEHOGFBMMA()
 	{
-		return (ObscuredLong)(KJFAOKLILOC) * (long)GameUtils.FPBFDNBDDIE;
+		return (ObscuredLong)(CoinPrice) * (long)GameUtils.FPBFDNBDDIE;
 	}
 
 	public long OHBBLIMNIMJ()
 	{
-		return (ObscuredLong)(KJFAOKLILOC);
+		return (ObscuredLong)(CoinPrice);
 	}
 
 	public long MCNMMBCJADI()
 	{
-		return (ObscuredLong)(FMHECGHHKGB);
+		return (ObscuredLong)(GemPrice);
 	}
 
 	private int DNDHIHJPIEA()
@@ -542,12 +698,12 @@ public class ItemInfo
 
 	public bool PLBFFNCCCGO()
 	{
-		return 0 < (ObscuredLong)(FMHECGHHKGB);
+		return 0 < (ObscuredLong)(GemPrice);
 	}
 
 	public bool INCBGIDFIDN()
 	{
-		return 0 < (ObscuredLong)(KJFAOKLILOC);
+		return 0 < (ObscuredLong)(CoinPrice);
 	}
 
 	public bool CAIEBJHILON()
@@ -613,7 +769,7 @@ public class ItemInfo
 		}
 		if (!node.Attributes["Model"].Empty())
 		{
-			KJDFJPBIGJC = node.Attributes["Model"].CIPOICEEIBK(string.Empty);
+			ModelFileName = node.Attributes["Model"].CIPOICEEIBK(string.Empty);
 		}
 		ReadCombatClassification(node);
 		if (!node.Attributes["Text"].Empty())
@@ -626,7 +782,7 @@ public class ItemInfo
 		}
 		if (!node.Attributes["Price"].Empty())
 		{
-			KJFAOKLILOC = (ObscuredLong)(node.Attributes["Price"].ParseLong(0L));
+			CoinPrice = (ObscuredLong)(node.Attributes["Price"].ParseLong(0L));
 		}
 		if (!node.Attributes["PriceDigits"].Empty())
 		{
@@ -634,7 +790,7 @@ public class ItemInfo
 		}
 		if (!node.Attributes["BonusPrice"].Empty())
 		{
-			FMHECGHHKGB = (ObscuredLong)(node.Attributes["BonusPrice"].ParseLong(0L));
+			GemPrice = (ObscuredLong)(node.Attributes["BonusPrice"].ParseLong(0L));
 		}
 		if (!node.Attributes["LotteryPrice"].Empty())
 		{
@@ -706,14 +862,14 @@ public class ItemInfo
 		{
 			GDCBBAHKCIE = node.Attributes["Hidden"].ParseInt();
 		}
-		KIGOEKKCPOJ = !node.Attributes["Level"].Empty();
+		HasAuthoredLevel = !node.Attributes["Level"].Empty();
 		if (!node.Attributes["Level"].Empty())
 		{
-			MHGODOLNDLE = node.Attributes["Level"].ParseInt();
+			ItemLevel = node.Attributes["Level"].ParseInt();
 		}
 		if (!node.Attributes["UpgradeLevel"].Empty())
 		{
-			OBJDGBBFJOO = node.Attributes["UpgradeLevel"].ParseInt();
+			UpgradeLevel = node.Attributes["UpgradeLevel"].ParseInt();
 		}
 		if (!node.Attributes["SpendAfterUse"].Empty())
 		{
@@ -756,7 +912,7 @@ public class ItemInfo
 		}
 		if (!node.Attributes["PaidItem"].Empty())
 		{
-			PBMHNMOHODB = node.Attributes["PaidItem"].CIPOICEEIBK(string.Empty);
+			LegacyPaidItem = node.Attributes["PaidItem"].CIPOICEEIBK(string.Empty);
 		}
 		List<WarriorAttribute> iBLHIAHECLK = GameUtils.BGENALLCKII.IBLHIAHECLK;
 		foreach (WarriorAttribute item in iBLHIAHECLK)
@@ -764,13 +920,13 @@ public class ItemInfo
 			XmlAttribute cJBEMNNNHDM = node.Attributes[item.get_Name()];
 			if (!cJBEMNNNHDM.Empty())
 			{
-				IBLHIAHECLK.Set(item.get_Name(), cJBEMNNNHDM.ParseInt());
+				ItemAttributes.Set(item.get_Name(), cJBEMNNNHDM.ParseInt());
 			}
 		}
 		XmlNode xmlNode3 = node["Upgrades"];
 		if (xmlNode3 != null)
 		{
-			PHDCGJOKBLH = xmlNode3.Attributes["Template"].CIPOICEEIBK(string.Empty);
+			UpgradeTemplateName = xmlNode3.Attributes["Template"].CIPOICEEIBK(string.Empty);
 		}
 	}
 
@@ -885,13 +1041,13 @@ public class ItemInfo
 	public void HNMFDILOBMJ(UpgradeData IFOFMGAKHEP)
 	{
 		UpgradeData item = DBPHNGLCHHO(IFOFMGAKHEP);
-		KEFPALGDBOC.Add(item);
+		LocalUpgrades.Add(item);
 	}
 
 	public int FMHIKMNJHDL()
 	{
 		int LPINKLMDEEF = int.MinValue;
-		KEFPALGDBOC.ForEach((UpgradeData DHDMNHCIPEH) =>
+		LocalUpgrades.ForEach((UpgradeData DHDMNHCIPEH) =>
 		{
 			if (DHDMNHCIPEH.OGLHOJNMEBD.AKKLOMFOLNO > LPINKLMDEEF)
 			{
@@ -906,8 +1062,8 @@ public class ItemInfo
 		List<UpgradeData> list = new List<UpgradeData>();
 		List<UpgradeData> list2 = new List<UpgradeData>();
 		int num = FMHIKMNJHDL();
-		list2.AddRange(KEFPALGDBOC);
-		UpgradeDataContainer aKHJNNDCKMK = ListSF.GetItems().BKPOCLGODDM(PHDCGJOKBLH);
+		list2.AddRange(LocalUpgrades);
+		UpgradeDataContainer aKHJNNDCKMK = ListSF.GetItems().GetUpgradeDataContainerByName(UpgradeTemplateName);
 		if (aKHJNNDCKMK != null)
 		{
 			foreach (UpgradeData item in aKHJNNDCKMK.KPAPEBOAKIE)
@@ -921,7 +1077,7 @@ public class ItemInfo
 		list2.Sort();
 		foreach (UpgradeData item2 in list2)
 		{
-			if ((!NNDOJGMBEDC || item2.OGLHOJNMEBD.AKKLOMFOLNO > OBJDGBBFJOO) && item2.OGLHOJNMEBD.Level <= JELPMBDMLAB)
+			if ((!NNDOJGMBEDC || item2.OGLHOJNMEBD.AKKLOMFOLNO > UpgradeLevel) && item2.OGLHOJNMEBD.Level <= JELPMBDMLAB)
 			{
 				list.Add(item2);
 			}
@@ -937,7 +1093,7 @@ public class ItemInfo
 			int OEMALIFPGPO = 0;
 			if (LILLEENHNCG.OGLHOJNMEBD.IBLHIAHECLK.Get(item.get_Name(), ref OEMALIFPGPO))
 			{
-				IBLHIAHECLK.Set(item.get_Name(), OEMALIFPGPO);
+				ItemAttributes.Set(item.get_Name(), OEMALIFPGPO);
 			}
 		}
 		if (LILLEENHNCG.EBHOFBFKNMB.KLHOKKPALOK)
@@ -946,7 +1102,7 @@ public class ItemInfo
 		}
 		if (LILLEENHNCG.EBHOFBFKNMB.FMHECGHHKGB)
 		{
-			FMHECGHHKGB = LILLEENHNCG.OGLHOJNMEBD.FMHECGHHKGB;
+			GemPrice = LILLEENHNCG.OGLHOJNMEBD.FMHECGHHKGB;
 		}
 		if (LILLEENHNCG.EBHOFBFKNMB.EHKNIKHPGDN)
 		{
@@ -954,7 +1110,7 @@ public class ItemInfo
 		}
 		if (LILLEENHNCG.EBHOFBFKNMB.Level)
 		{
-			MHGODOLNDLE = LILLEENHNCG.OGLHOJNMEBD.Level;
+			ItemLevel = LILLEENHNCG.OGLHOJNMEBD.Level;
 		}
 		if (LILLEENHNCG.EBHOFBFKNMB.ICDIEHCJBGA)
 		{
@@ -962,11 +1118,11 @@ public class ItemInfo
 		}
 		if (LILLEENHNCG.EBHOFBFKNMB.MDAAJFBENON)
 		{
-			KJFAOKLILOC = LILLEENHNCG.OGLHOJNMEBD.MDAAJFBENON;
+			CoinPrice = LILLEENHNCG.OGLHOJNMEBD.MDAAJFBENON;
 		}
 		if (LILLEENHNCG.EBHOFBFKNMB.AKKLOMFOLNO)
 		{
-			OBJDGBBFJOO = LILLEENHNCG.OGLHOJNMEBD.AKKLOMFOLNO;
+			UpgradeLevel = LILLEENHNCG.OGLHOJNMEBD.AKKLOMFOLNO;
 		}
 	}
 
@@ -1047,12 +1203,12 @@ public class ItemInfo
 			foreach (UpgradeData item in list)
 			{
 				UpgradeData.AGKOBJMBAEC oGLHOJNMEBD = item.OGLHOJNMEBD;
-				if (oGLHOJNMEBD.Level == MHGODOLNDLE && oGLHOJNMEBD.AKKLOMFOLNO < OBJDGBBFJOO && oGLHOJNMEBD.AKKLOMFOLNO > ParentItem.OBJDGBBFJOO)
+				if (oGLHOJNMEBD.Level == ItemLevel && oGLHOJNMEBD.AKKLOMFOLNO < UpgradeLevel && oGLHOJNMEBD.AKKLOMFOLNO > ParentItem.UpgradeLevel)
 				{
 					num++;
 				}
 			}
-			if (ParentItem.MHGODOLNDLE == MHGODOLNDLE)
+			if (ParentItem.ItemLevel == ItemLevel)
 			{
 				num++;
 			}
@@ -1060,7 +1216,7 @@ public class ItemInfo
 		if (num == 0)
 		{
 			aACAFOBANOH.Type = UpgradeIndexItem.LIPHFAOKLCA.UPGRADE_INDEX_MILESTONE;
-			aACAFOBANOH.Index = MHGODOLNDLE;
+			aACAFOBANOH.Index = ItemLevel;
 		}
 		else
 		{
@@ -1124,10 +1280,10 @@ public class ItemInfo
 		List<ItemInfo> list = ListSF.GetItems().HCDLKHKBEPF();
 		foreach (ItemInfo item in list)
 		{
-			item.KJFAOKLILOC = (ObscuredLong)(GameUtils.GetDenominatedValue((ObscuredLong)(item.KJFAOKLILOC), NPFOBKBJAOB));
+			item.CoinPrice = (ObscuredLong)(GameUtils.GetDenominatedValue((ObscuredLong)(item.CoinPrice), NPFOBKBJAOB));
 			item.FHILKOAPBKG(NPFOBKBJAOB);
 			item.BJBEKBECHAI(NPFOBKBJAOB);
-			List<UpgradeData> kEFPALGDBOC = item.KEFPALGDBOC;
+			List<UpgradeData> kEFPALGDBOC = item.LocalUpgrades;
 			foreach (UpgradeData item2 in kEFPALGDBOC)
 			{
 				item2.OGLHOJNMEBD.MDAAJFBENON = (ObscuredLong)(GameUtils.GetDenominatedValue((ObscuredLong)(item2.OGLHOJNMEBD.MDAAJFBENON), NPFOBKBJAOB));
@@ -1175,8 +1331,8 @@ public class ItemInfo
 
 	private void Init()
 	{
-		KJFAOKLILOC = (ObscuredLong)(0L);
-		FMHECGHHKGB = (ObscuredLong)(0L);
+		CoinPrice = (ObscuredLong)(0L);
+		GemPrice = (ObscuredLong)(0L);
 		FOLLHACLPNB = (ObscuredInt)(0);
 		HHIFKGOJFAC = (ObscuredLong)(0L);
 		BBMLCBEFLGI = (ObscuredLong)(0L);
@@ -1184,8 +1340,8 @@ public class ItemInfo
 		CPODJDDPJHB = (ObscuredInt)(0);
 		DCHJDPCEODD = true;
 		GDCBBAHKCIE = 0;
-		MHGODOLNDLE = 0;
-		OBJDGBBFJOO = 0;
+		ItemLevel = 0;
+		UpgradeLevel = 0;
 		ACOIHHPOBDH = false;
 		ANNCECNAEPN = false;
 		NNLMNNAEDIE = 0L;
@@ -1203,7 +1359,7 @@ public class ItemInfo
 		DGOMAGNAMMD = false;
 		CMDJPAKOHMK = string.Empty;
 		IgnoreInventoryEnchantments = false;
-		PBMHNMOHODB = "None";
+		LegacyPaidItem = "None";
 		PPGBMODEAGD = true;
 	}
 
@@ -1214,9 +1370,9 @@ public class ItemInfo
 		foreach (WarriorAttribute item in iBLHIAHECLK)
 		{
 			int OEMALIFPGPO = 0;
-			if (IBLHIAHECLK.Get(item.get_Name(), ref OEMALIFPGPO) && !fKFLGOCPFEB.OGLHOJNMEBD.IBLHIAHECLK.Get(item.get_Name(), ref OEMALIFPGPO))
+			if (ItemAttributes.Get(item.get_Name(), ref OEMALIFPGPO) && !fKFLGOCPFEB.OGLHOJNMEBD.IBLHIAHECLK.Get(item.get_Name(), ref OEMALIFPGPO))
 			{
-				IBLHIAHECLK.Get(item.get_Name(), ref OEMALIFPGPO);
+				ItemAttributes.Get(item.get_Name(), ref OEMALIFPGPO);
 				fKFLGOCPFEB.OGLHOJNMEBD.IBLHIAHECLK.Set(item.get_Name(), OEMALIFPGPO);
 			}
 		}
@@ -1226,7 +1382,7 @@ public class ItemInfo
 		}
 		if (!fKFLGOCPFEB.EBHOFBFKNMB.FMHECGHHKGB)
 		{
-			fKFLGOCPFEB.OGLHOJNMEBD.FMHECGHHKGB = FMHECGHHKGB;
+			fKFLGOCPFEB.OGLHOJNMEBD.FMHECGHHKGB = GemPrice;
 		}
 		if (!fKFLGOCPFEB.EBHOFBFKNMB.EHKNIKHPGDN)
 		{
@@ -1234,7 +1390,7 @@ public class ItemInfo
 		}
 		if (!fKFLGOCPFEB.EBHOFBFKNMB.Level)
 		{
-			fKFLGOCPFEB.OGLHOJNMEBD.Level = MHGODOLNDLE;
+			fKFLGOCPFEB.OGLHOJNMEBD.Level = ItemLevel;
 		}
 		if (!fKFLGOCPFEB.EBHOFBFKNMB.ICDIEHCJBGA)
 		{
@@ -1242,11 +1398,11 @@ public class ItemInfo
 		}
 		if (!fKFLGOCPFEB.EBHOFBFKNMB.MDAAJFBENON)
 		{
-			fKFLGOCPFEB.OGLHOJNMEBD.MDAAJFBENON = KJFAOKLILOC;
+			fKFLGOCPFEB.OGLHOJNMEBD.MDAAJFBENON = CoinPrice;
 		}
 		if (!fKFLGOCPFEB.EBHOFBFKNMB.AKKLOMFOLNO)
 		{
-			fKFLGOCPFEB.OGLHOJNMEBD.AKKLOMFOLNO = OBJDGBBFJOO;
+			fKFLGOCPFEB.OGLHOJNMEBD.AKKLOMFOLNO = UpgradeLevel;
 		}
 		return fKFLGOCPFEB;
 	}
@@ -1260,9 +1416,9 @@ public class ItemInfo
 
 	public void GEEGNGNLPGO()
 	{
-		KEFPALGDBOC.Sort();
+		LocalUpgrades.Sort();
 		int index = 0;
-		KEFPALGDBOC.ForEach((UpgradeData DHDMNHCIPEH) =>
+		LocalUpgrades.ForEach((UpgradeData DHDMNHCIPEH) =>
 		{
 			DHDMNHCIPEH.UpgradeIndex = index;
 			index++;

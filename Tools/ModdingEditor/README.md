@@ -72,6 +72,10 @@ Adds `sf2.items.set_innate_perks { item, entries }`; each entry has a
 perk handle and optional named numeric parameters. Empty entries remove innate effects.
 Adds `sf2.items.set_default_enchantments { item, entries }`; each entry
 has a perk handle and optional integer aspect. An empty entries array removes defaults.
+Adds `sf2.items.set_presentation { item, icon?, model? }` to patch an existing
+equipment item's typed sprite or model; at least one asset is required. The
+`sf2.shop.set_price` table also accepts `secondary_price` in the other currency
+when an item has both coin and gem purchase prices.
 Adds `sf2.forge.override_deviation { profile, equipment, minimum, maximum }`
 for an existing random-aspect recipe category. Its typed table requires integer bounds.
 Adds `sf2.forge.exclude_candidate { profile, perk, equipment }` with
@@ -196,6 +200,20 @@ Completions include this eligibility gate alongside `visibility` and
 `sf2.items.set_subtype { item, subtype }` has typed item-handle completion and
 requires `content.patch`. The target family must have compatible native move
 and projectile support; editor type checking cannot prove animation compatibility.
+
+`sf2.items.set_initial_profile { item, level, upgrade_level, initial_stats, upgrade_template?, legacy_paid_item?, clear_local_upgrades? }`
+completes the six allowed stat names, native upgrade templates and legacy paid
+marker values for reversible
+starting-profile patches. The runtime validates stat fields and the template
+against the equipment category. Selecting a different template can change future
+upgrade prices; the item's purchase price and saved identity remain unchanged.
+The optional `legacy_paid_item` changes only the native `PaidItem` metadata, not
+the shop price or currency.
+`clear_local_upgrades` is an optional Boolean that removes the item's own
+upgrade rows while retaining the selected shared template. For an existing
+equipment price, `sf2.shop.set_price { item, price }` completes the item and
+opaque price handles; the runtime accepts a positive coin or gem amount and
+restores the previous native fields on unload.
 
 For actual LuaLS tests, obtain the official **3.18.2** binary:
 

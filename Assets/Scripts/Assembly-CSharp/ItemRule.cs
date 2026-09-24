@@ -85,7 +85,7 @@ public class ItemRule : Rule
 		{
 			return false;
 		}
-		int num = ((dKCHDHMLKHN.AKKBIFEFDCI() == null) ? dJKEECEOCJB2.MHGODOLNDLE : dKCHDHMLKHN.AKKBIFEFDCI().MHGODOLNDLE);
+		int num = ((dKCHDHMLKHN.AKKBIFEFDCI() == null) ? dJKEECEOCJB2.ItemLevel : dKCHDHMLKHN.AKKBIFEFDCI().ItemLevel);
 		if (PMKLKLNMEKL.DHNNCAEEMLL() > num)
 		{
 			return false;
@@ -128,7 +128,7 @@ public class ItemRule : Rule
 		{
 			return false;
 		}
-		return equipped.MHGODOLNDLE >= PMKLKLNMEKL.DHNNCAEEMLL();
+		return equipped.ItemLevel >= PMKLKLNMEKL.DHNNCAEEMLL();
 	}
 
 	public void MOEAPHGDNAB(RuleAppliance IGFNCCEHFEK)

@@ -44,7 +44,8 @@ local listing_id = sf2.shop.addItem {
 | Magic | `sf2.shop.MAGIC` | 6–52 |
 
 Wrong categories, unsupported levels, duplicate listings, or another mod's item
-are errors. This API does not change the prices of existing core items.
+are errors. Use [`sf2.shop.set_price`](#sf2shopset_price) to change an existing
+core item's price.
 An equipment definition's explicit [`initial_stats`](../equipment-shop-logging/#explicit-initial-stats)
 replaces its initial level-derived power; the listing still sets its level, price
 and starting upgrade level.
@@ -85,6 +86,53 @@ local price = sf2.price.gems(10)
 ```
 
 This describes your new listing's cost. It is not a currency balance operation.
+
+## sf2.shop.set_price
+
+Replace an existing equipment item's native shop price with a positive coin or
+gem price. This also selects its purchase currency. The patch applies before new
+shop copies are built; direct native affordability and purchase paths read the
+same fields as the shop display.
+
+**Signature:** `sf2.shop.set_price { item, price, secondary_price? }`
+
+**Returns:** Nothing (`nil`).
+
+**When:** During mod loading, after obtaining the equipment handle. Use Apply &
+Restart to add or remove the patch.
+
+**Requires:** `content.patch`; item lookup also requires `content.register`.
+Declare a dependency on the item's owner.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `item` | Equipment handle | Required existing weapon, armor, helm, ranged or magic item. |
+| `price` | Price handle | Required `sf2.price.coins(amount)` or `sf2.price.gems(amount)` with amount 1–2,147,483,647. |
+| `secondary_price` | Price handle | Optional positive price in the other currency. Omitted sets that currency's price to zero. |
+
+```lua
+local sf2 = require("sf2")
+-- capabilities = ["content.register", "content.patch"]
+-- Also declare the core dependency in mod.toml.
+sf2.shop.set_price {
+    item = sf2.items.get("core:items/weapon/WEAPON_KNIVES"),
+    price = sf2.price.gems(39),
+}
+```
+
+The patch replaces both native price fields. Without `secondary_price`, the
+other currency becomes zero. With it, both purchase prices are available; the
+secondary handle must use a different currency. It does not grant the item,
+make it visible, change its level or stats, or
+rewrite its source XML. Use `sf2.shop.set_availability` separately to expose a
+hidden item. It does not rewrite saved ownership or currency already spent;
+subsequent shop copies use the patch. A second price patch for the same item
+conflicts, including one from another mod. Unloading restores the original
+native coin and gem fields. Both currencies and amounts participate in the content
+compatibility fingerprint. Automated checks cover registration, native field
+selection, cloning and rollback. DE128's isolated Unity acceptance also covers
+coin and gem purchase, live shop selection and save/reload for its patched
+items. Test the full interaction for your own content pack.
 
 ## sf2.shop.set_availability
 
@@ -134,3 +182,6 @@ power, upgrade rules, price, ownership or equipment use, and does not grant an
 item. An already-owned item stays owned. Removing the mod through Apply & Restart
 restores the base visibility rules. The policy's level is included in the content
 fingerprint; existing declarations that omit it retain their previous behavior.
+To replace an existing equipment definition's starting level and exact stats,
+use [`sf2.items.set_initial_profile`](../items-progression-forge/#sf2itemsset_initial_profile)
+separately.

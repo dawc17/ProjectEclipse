@@ -163,7 +163,7 @@ public class Recipe
 	{
 		if (userItem == null) return null;
 		ItemInfo info = CurrentInfo(userItem);
-		return info == null ? null : GetPriceByItemLevel(userItem, info.MHGODOLNDLE);
+		return info == null ? null : GetPriceByItemLevel(userItem, info.ItemLevel);
 	}
 
 	public RecipePrice GetPriceByItemLevel(UserItem userItem, int itemLevel)
@@ -309,7 +309,7 @@ public class Recipe
 		if (userItem == null || userItem.OFOPFCJNEBL() <= 0 || userItem.PHDBCIHJKON() != null) return false;
 		ItemInfo info = CurrentInfo(userItem);
 		return info != null && IsRecipeAvailableForItemType(info.Type) && GetPriceByItem(userItem) != null &&
-			IsRecipeWillEnchantItem(userItem, info.MHGODOLNDLE);
+			IsRecipeWillEnchantItem(userItem, info.ItemLevel);
 	}
 
 	public bool IsRecipeAvailableForItemType(string itemType)
@@ -529,7 +529,7 @@ public sealed class RecipePrices
 	{
 		if (userItem == null) return null;
 		ItemInfo info = userItem.DBLCMCEGJGI(false) ?? userItem.BHKHOJPANHE();
-		return info == null ? null : GetPriceByLevel(info.MHGODOLNDLE);
+		return info == null ? null : GetPriceByLevel(info.ItemLevel);
 	}
 
 	public RecipePrice GetPriceByLevel(int level)

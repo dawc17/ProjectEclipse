@@ -446,7 +446,7 @@ public class UserItems
 	public void GJGJALKONNA(UserItem NDMCFNGEPOA, ItemInfo PJDAGCBPLJE)
 	{
 		int num = NDMCFNGEPOA.DHNNCAEEMLL();
-		if (PJDAGCBPLJE == null || PJDAGCBPLJE.OBJDGBBFJOO == num)
+		if (PJDAGCBPLJE == null || PJDAGCBPLJE.UpgradeLevel == num)
 		{
 			return;
 		}

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 public class UserItem {}
 public class UpgradeData {}
 public class ItemInfo {
-    public string Name, Type; public int MHGODOLNDLE = 1;
+    public string Name, Type; public int ItemLevel = 1;
     public ItemInfo GetUpdateItemByLevel(int level, bool flag) => this;
     public ItemInfo HIOBANJPMKF(int level) => this;
     public List<UpgradeData> DNFDAGFAANJ(bool flag, int level) => new List<UpgradeData>();

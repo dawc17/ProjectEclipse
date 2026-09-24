@@ -194,16 +194,16 @@ namespace Nekki.SF2.GUI.Shop
 			base.gameObject.name = string.Format("ShopTableViewCell({0})", item.Name);
 			UserItem dKCHDHMLKHN = ListSF.CCDKHLAMKKO().KHCNHPCPFII().CMGOCLGHNLH(item);
 			JMPPBCFDOLL = ((dKCHDHMLKHN == null) ? item : dKCHDHMLKHN.AKKBIFEFDCI());
-			_lockIcon.gameObject.SetActive(item.MHGODOLNDLE > ListSF.CCDKHLAMKKO().PINDEKDNCNL());
+			_lockIcon.gameObject.SetActive(item.ItemLevel > ListSF.CCDKHLAMKKO().PINDEKDNCNL());
 			_jackdawIcon.gameObject.SetActive(dKCHDHMLKHN != null && item.Type != "Seal");
 			_equppiedIcon.gameObject.SetActive(dKCHDHMLKHN != null && dKCHDHMLKHN.EFMFGEPDAOP());
-			bool active = JMPPBCFDOLL.MHGODOLNDLE > 0;
+			bool active = JMPPBCFDOLL.ItemLevel > 0;
 			Font font = LocalizationManager.MBPJIKFOEBJ();
 			if (font != null)
 			{
 				_levelLabel.font = font;
 			}
-			_levelLabel.text = JMPPBCFDOLL.MHGODOLNDLE.ToString();
+			_levelLabel.text = JMPPBCFDOLL.ItemLevel.ToString();
 			_levelLabel.gameObject.SetActive(active);
 			_levelIcon.gameObject.SetActive(active);
 			_image.set_TexturePath((!(item.Type == "Seal")) ? _texturePath : SF2Paths.BHCPOOOJAAK());
@@ -250,8 +250,8 @@ namespace Nekki.SF2.GUI.Shop
 
 		public int CompareTo(ShopTableViewCell NOLFMPDGCOC)
 		{
-			int num = ((JMPPBCFDOLL != null) ? JMPPBCFDOLL.MHGODOLNDLE : 0);
-			int value = ((NOLFMPDGCOC.JMPPBCFDOLL != null) ? NOLFMPDGCOC.JMPPBCFDOLL.MHGODOLNDLE : 0);
+			int num = ((JMPPBCFDOLL != null) ? JMPPBCFDOLL.ItemLevel : 0);
+			int value = ((NOLFMPDGCOC.JMPPBCFDOLL != null) ? NOLFMPDGCOC.JMPPBCFDOLL.ItemLevel : 0);
 			int num2 = ((JMPPBCFDOLL != null) ? JMPPBCFDOLL.Index : 0);
 			int value2 = ((NOLFMPDGCOC.JMPPBCFDOLL == null) ? 1 : NOLFMPDGCOC.JMPPBCFDOLL.Index);
 			int num3 = num.CompareTo(value);

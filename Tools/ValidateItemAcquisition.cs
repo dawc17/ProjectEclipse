@@ -2,7 +2,7 @@ using System;
 using System.Xml;
 using System.Collections.Generic;
 using Eclipse.Modding;
-public class ItemInfo {public string Name="TEST_ITEM",SubType="";public ItemInfo ParentItem;public int OBJDGBBFJOO;public XmlNode NodeXML;}
+public class ItemInfo {public string Name="TEST_ITEM",SubType="";public ItemInfo ParentItem;public int UpgradeLevel;public XmlNode NodeXML;}
 public class UserItem {
  public ItemInfo Definition=new ItemInfo();public int PendingUpgrade,Upgrade;
  public long IJGAOHJNLAH()=>Delivery;public bool DBKKJGBJOEO()=>false;public ItemInfo BHKHOJPANHE()=>Definition;public int EIMMBNNMBCN()=>PendingUpgrade;public int DHNNCAEEMLL()=>Upgrade;

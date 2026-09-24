@@ -22,8 +22,8 @@ namespace Eclipse.Modding
             {
                 var item = document.CreateElement("Item");
                 item.SetAttribute("Name", grant.DLKPBAJDHBO.Name);
-                Set(item, "Level", grant.DLKPBAJDHBO.MHGODOLNDLE);
-                Set(item, "Upgrade", grant.DLKPBAJDHBO.OBJDGBBFJOO);
+                Set(item, "Level", grant.DLKPBAJDHBO.ItemLevel);
+                Set(item, "Upgrade", grant.DLKPBAJDHBO.UpgradeLevel);
                 item.SetAttribute("Drop", grant.IDGKPLBKDIB ? "1" : "0");
                 foreach (var perk in grant.NAIEGGHELIH.LDLPCOFHFKE)
                 {
@@ -93,7 +93,7 @@ namespace Eclipse.Modding
                         int level = checked((int)Number(node, "Level"));
                         int upgrade = checked((int)Number(node, "Upgrade"));
                         var item = resolveItem(name, level, upgrade);
-                        if (item == null || item.Name != name || item.MHGODOLNDLE != level || item.OBJDGBBFJOO != upgrade)
+                        if (item == null || item.Name != name || item.ItemLevel != level || item.UpgradeLevel != upgrade)
                             throw new InvalidDataException("Saved lottery item is unavailable or its upgrade changed: " + name);
                         var rewardNode = root.OwnerDocument.CreateElement("Item");
                         rewardNode.SetAttribute("Name", name);
