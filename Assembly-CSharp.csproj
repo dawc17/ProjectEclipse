@@ -1015,6 +1015,7 @@
     <None Include="Assets\Resources\textures\effects\magic\mgc_poison_cloud_end_vfx_xml.txt" />
     <None Include="Assets\Resources\shaders\unlit - transparent grayscale colored 2.shader" />
     <None Include="Assets\Resources\gamedata\locations\capsules\params.txt" />
+    <None Include="Assets\Resources\gamedata\locations\hw24_ancient_temple\params.txt" />
     <None Include="Assets\DExml\quest_extensions\zone_1\story.xml" />
     <None Include="Assets\vanillaXml\quest_extensions\promotions.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_acid_cloud_xml.txt" />
@@ -1051,6 +1052,7 @@
     <None Include="Assets\Resources\textures\effects\magic\mgc_mushroom_end_xml.txt" />
     <None Include="Assets\vanillaXml\quest_extensions\update_quests.xml" />
     <None Include="Assets\DExml\quest_extensions\dynamic_discounts.xml" />
+    <None Include="Assets\Resources\gamedata\locations\dojo_indian_event\params.txt" />
     <None Include="Assets\Resources\textures\effects\magic\chest_laser\mgc_ray_start_xml.txt" />
     <None Include="Assets\vanillaXml\quest_extensions\facebook.xml" />
     <None Include="Assets\vanillaXml\localizations\eng.xml" />
@@ -1061,6 +1063,7 @@
     <None Include="Assets\vanillaXml\locations\haloween_dojo_2019\haloween_dojo_2019_params.xml" />
     <None Include="Assets\vanillaXml\locations\moon\moon_params.xml" />
     <None Include="Assets\vanillaXml\ComputerSettings.xml" />
+    <None Include="Assets\vanillaXml\locations\dojo_hw22\dojo_hw22_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_saturn_gunshot_xml.txt" />
     <None Include="Assets\DExml\locations\swamp\swamp_params.xml" />
     <None Include="Assets\DExml\quest_extensions\intermission\story.xml" />
@@ -1206,6 +1209,7 @@
     <None Include="Assets\vanillaXml\locations\new_year_china_dojo_raid\new_year_china_dojo_raid_params.xml" />
     <None Include="Assets\DExml\locations\emerald_forest\emerald_forest_params.xml" />
     <None Include="Assets\DExml\locations\dojo_indian_event\dojo_indian_event_params.xml" />
+    <None Include="Assets\vanillaXml\locations\dojo_india25\dojo_india25_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_saturn_blade_hide_xml.txt" />
     <None Include="Assets\DExml\quest_extensions\events\general_events\event_vaisakhi_25.xml" />
     <None Include="Assets\DExml\quest_extensions\events\general_events\event_american_25.xml" />
@@ -1368,7 +1372,9 @@
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_asteroid_middle_xml.txt" />
     <None Include="Assets\Resources\textures\effects\fight\hit_blade_xml.txt" />
     <None Include="Assets\Resources\gamedata\locations\magic_rocks\params.txt" />
+    <None Include="Assets\vanillaXml\locations\american_event_24\american_event_24_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_electricity_impact_1_vfx_red_xml.txt" />
+    <None Include="Assets\Resources\gamedata\locations\dojo_india24\params.txt" />
     <None Include="Assets\DExml\quest_extensions\event_offers.xml" />
     <None Include="Assets\Resources\gamedata\locations\flooded_village\params.txt" />
     <None Include="Assets\vanillaXml\localizations\ita.xml" />
@@ -1475,9 +1481,11 @@
     <None Include="Assets\Resources\gamedata\quest_extensions\battles.txt" />
     <None Include="Assets\vanillaXml\locations\dojo_cny25\dojo_cny25_params.xml" />
     <None Include="Assets\Resources\gamedata\locations\skyport\params.txt" />
+    <None Include="Assets\Resources\gamedata\locations\fall_event_24\params.txt" />
     <None Include="Assets\Resources\gamedata\locations\vortex_raid\params.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_effect_bell_shield_medium_xml.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_violet_flash_back_middle_vfx_xml.txt" />
+    <None Include="Assets\Resources\gamedata\locations\haloween_dojo_2019\params.txt" />
     <None Include="Assets\DExml\quest_extensions\battles.xml" />
     <None Include="Assets\DExml\quest_extensions\item_restore_quests.xml" />
     <None Include="Assets\DExml\credits\ita.xml" />
@@ -1527,6 +1535,7 @@
     <None Include="Assets\Resources\textures\effects\magic\mgc_hw24_cards_pentacles_vfx_xml.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_widow_teleportation_end_xml.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_asteroid_end_2_xml.txt" />
+    <None Include="Assets\vanillaXml\locations\hw24_ancient_temple\hw24_ancient_temple_params.xml" />
     <None Include="Assets\vanillaXml\locations\vortex_raid\vortex_raid_params.xml" />
     <None Include="Assets\vanillaXml\locations\autumn\autumn_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_invisible_start_xml.txt" />
@@ -1535,7 +1544,11 @@
     <None Include="Assets\vanillaXml\quest_extensions\raid_offers.xml" />
     <None Include="Assets\DExml\locations\dojo_american_event_22\dojo_american_event_22_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_effect_arcane_martial_art_stack1_xml.txt" />
+    <None Include="Assets\vanillaXml\locations\mountains_ny_25\mountains_ny_25_params.xml" />
+    <None Include="Assets\Resources\gamedata\locations\dojo_indian_event_22\params.txt" />
+    <None Include="Assets\vanillaXml\locations\fall_event_24\fall_event_24_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_hunger_fist_2_vfx_xml.txt" />
+    <None Include="Assets\vanillaXml\locations\dojo_american_event_22\dojo_american_event_22_params.xml" />
     <None Include="Assets\vanillaXml\CharacterProgress.xml" />
     <None Include="Assets\Resources\gamedata\quest_extensions\zone_5\story.txt" />
     <None Include="Assets\DExml\localizations\ger.xml" />
@@ -1546,6 +1559,8 @@
     <None Include="Assets\vanillaXml\quest_extensions\zone_6\story.xml" />
     <None Include="Assets\Resources\gamedata\quest_extensions\zone_6\story.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_small_mushroom_start_xml.txt" />
+    <None Include="Assets\Resources\gamedata\locations\american_event_24\params.txt" />
+    <None Include="Assets\Resources\gamedata\locations\haloween_dojo\params.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_energy_ball_middle_xml.txt" />
     <None Include="Assets\vanillaXml\quest_extensions\events\mini_events\mini_event_ritual_hunger.xml" />
     <None Include="Assets\DExml\CharacterProgress.xml" />
@@ -1558,6 +1573,7 @@
     <None Include="Assets\vanillaXml\locations\flying_rocks\flying_rocks_params.xml" />
     <None Include="Assets\DExml\quest_extensions\update_quests.xml" />
     <None Include="Assets\DExml\locations\shadow_gate\shadow_gate_params.xml" />
+    <None Include="Assets\Resources\gamedata\locations\mountains_ny_25\params.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_mid_sphere_start_xml.txt" />
     <None Include="Assets\Resources\gamedata\locations\factory\params.txt" />
     <None Include="Assets\DExml\quest_extensions\zone_1\core.xml" />
@@ -1587,17 +1603,21 @@
     <None Include="Assets\DExml\credits\tur.xml" />
     <None Include="Assets\vanillaXml\locations\ice_cave\ice_cave_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_mass_bomb_middle_xml.txt" />
+    <None Include="Assets\Resources\gamedata\locations\dojo_india25\params.txt" />
     <None Include="Assets\DExml\credits\kor.xml" />
     <None Include="Assets\vanillaXml\locations\pink_lake\pink_lake_params.xml" />
     <None Include="Assets\DExml\devices.xml" />
+    <None Include="Assets\Resources\gamedata\locations\dojo_american_event_22\params.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_wind_wave_end_xml.txt" />
     <None Include="Assets\DExml\locations\dojo_indian_event_22\dojo_indian_event_22_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_poison_smoke_start_vfx_xml.txt" />
     <None Include="Assets\DExml\locations\moon\moon_params.xml" />
     <None Include="Assets\vanillaXml\locations\dojo_indian_event_22\dojo_indian_event_22_params.xml" />
+    <None Include="Assets\Resources\gamedata\locations\dojo_hw22\params.txt" />
     <None Include="Assets\Resources\gamedata\localizations\kor.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_soul_extract_xml.txt" />
     <None Include="Assets\vanillaXml\locations\freeze_raid0\freeze_raid0_params.xml" />
+    <None Include="Assets\Resources\gamedata\locations\ritual_battle_raid\params.txt" />
     <None Include="Assets\DExml\quest_extensions\zone_2\core.xml" />
     <None Include="Assets\DExml\localization.xml" />
     <None Include="Assets\Resources\gamedata\tactics_compressed\priorityandcapabilitytable.txt" />
@@ -1630,6 +1650,7 @@
     <None Include="Assets\Resources\gamedata\devices.txt" />
     <None Include="Assets\DExml\locations\new_year_china_dojo\new_year_china_dojo_params.xml" />
     <None Include="Assets\Resources\gamedata\locations\spaceship_thorny\params.txt" />
+    <None Include="Assets\Resources\gamedata\locations\dock\params.txt" />
     <None Include="Assets\Resources\gamedata\locations\bridge\params.txt" />
     <None Include="Assets\DExml\localizations\spa.xml" />
     <None Include="Assets\Resources\textures\effects\magic\magic_snowball_end_xml.txt" />
@@ -1663,6 +1684,7 @@
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_dark_wave_start_xml.txt" />
     <None Include="Assets\Resources\textures\effects\magic\magic_vodoo2_end_xml.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_effect_fireball_Kanade_throw_aura_xml.txt" />
+    <None Include="Assets\Resources\gamedata\locations\dojo_hw21\params.txt" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_wave_end_xml.txt" />
     <None Include="Assets\Resources\gamedata\locations\snowy_peak\params.txt" />
     <None Include="Assets\DExml\locations\dojo_new_year_22\dojo_new_year_22_params.xml" />

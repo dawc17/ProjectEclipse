@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Root Music="6|7" Color="0x000000" Wall="305" Floor="77" Width="1960" Height="560">
-  <Layer Type="1" Factor="0.1" Scaling="1">
+  <Layer Type="1" Factor="0.1"  Scaling="1">
     <Image X="0" Y="0" ClassName="background_1" Width="1024" Height="512" />
   </Layer>
-  <Layer Type="1" Factor="1" Scaling="1">
+  <Layer Type="1" Factor="1"  Scaling="1">
     <SimpleEffect X="0" Y="184" Type="Picture" PictureLocation="local" ClassName="fog_tile_down" Width="1530" Height="96">
       <Transparency Offset="0">
         <Point Period="0.1" Value="74" Ease="-1" />
@@ -11,16 +11,16 @@
       </Transparency>
     </SimpleEffect>
   </Layer>
-  <Layer Type="1" Factor="1" Scaling="1">
+  <Layer Type="1" Factor="1"  Scaling="1">
     <Image X="-240" Y="0" ClassName="layer_puppet" Width="-283" Height="307" Scaling="1" />
   </Layer>
-  <Layer Type="1" Factor="1" Scaling="1">
+  <Layer Type="1" Factor="1"  Scaling="1">
     <Image X="2" Y="20" ClassName="layer_dojo_walls" Width="1588" Height="512" />
   </Layer>
   <Layer Type="2" Factor="1">
     <ModelsViewer PlayerPositionX="690" PlayerPositionY="-93" EnemyPositionX="973" EnemyPositionY="-105" />
   </Layer>
-  <Layer Type="1" Factor="1" Scaling="1">
+  <Layer Type="1" Factor="1"  Scaling="1">
     <Image X="-640" Y="226.5" ClassName="layer_3_1" Width="256" Height="59" Color="0x000000" />
     <Image X="-384" Y="226.5" ClassName="layer_3_2" Width="256" Height="59" Color="0x000000" />
     <Image X="-128" Y="226.5" ClassName="layer_3_1" Width="256" Height="59" Color="0x000000" />

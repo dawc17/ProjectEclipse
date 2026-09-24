@@ -25,6 +25,9 @@ ROOT = Path(__file__).resolve().parent.parent
 DE = ROOT / "Assets" / "DExml"
 VANILLA = ROOT / "Assets" / "vanillaXml"
 OUT = ROOT / "Mods" / "de128" / "scripts" / "content"
+# Owner decision (2026-09-24): dojo_india24 exists only as a 768 px atlas stretched over
+# 1536 world units; Faradeya fights in Dandy's near-identical, high-resolution dojo_india25.
+LOCATION_OVERRIDES = {"dojo_india24": "dojo_india25"}
 LANGUAGES = ["cro", "eng", "fra", "ger", "hin", "hun", "ita", "kor", "por", "rom", "rus", "spa", "swe", "tur"]
 CATEGORY = {"Weapon": "weapon", "Armor": "armor", "Helm": "helm", "Ranged": "ranged", "Magic": "magic"}
 # Archive item names restored by DE128 under new identities (sensei_dependencies.lua evidence).
@@ -314,7 +317,7 @@ class Generator:
                     "description": self.text_key(desc_key) if desc_key else None, "description_level": desc_param,
                     "icon": battle.get("Icon"), "icon_atlas": battle.get("IconAtlas"), "preview": battle.get("Preview"),
                     "x": int(battle.get("X")), "y": int(battle.get("Y")),
-                    "location": battle.get("Location"), "music": battle.get("Music"), "power_mode": power,
+                    "location": LOCATION_OVERRIDES.get(battle.get("Location"), battle.get("Location")), "music": battle.get("Music"), "power_mode": power,
                     "fights": fights,
                 })
             zones.append({"name": zone.get("Name"), "file": zone.get("FileName"), "battles": battles})

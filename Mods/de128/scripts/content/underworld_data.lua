@@ -5359,7 +5359,7 @@ return {
                     preview = "preview_raid_events_india_24",
                     x = -223,
                     y = -180,
-                    location = "dojo_india24",
+                    location = "dojo_india25",
                     music = "fight43_bihu_india",
                     power_mode = "normal",
                     fights = {
@@ -5450,7 +5450,7 @@ return {
                     preview = "preview_raid_events_india_24",
                     x = -223,
                     y = -180,
-                    location = "dojo_india24",
+                    location = "dojo_india25",
                     music = "fight43_bihu_india",
                     power_mode = "power",
                     fights = {

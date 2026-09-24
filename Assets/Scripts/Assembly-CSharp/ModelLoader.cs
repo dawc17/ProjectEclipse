@@ -193,6 +193,14 @@ public class ModelLoader
 		Vector3f Position = new Vector3f(node.Attributes["X"].ParseFloat(), 0f - node.Attributes["Y"].ParseFloat(), node.Attributes["Z"].ParseFloat());
 		string value = node.Attributes["Type"].Value;
 		string name = node.Name;
+		// Shipped models repeat node names: DE's mdl_armor_forest_spirit repeats 49, and dual
+		// weapons such as mdl_weapon_hunger redefine the skeleton's off-hand Weapon-Node*_2
+		// attachment nodes. The first definition owns the name; a later one is not created, so
+		// that file's edges bind to the existing (arm-attached) node instead of a loose copy.
+		if (ACENLMONNPA.HKCFFKKFFFE().ContainsKey(name))
+		{
+			return;
+		}
 		bool flag = value == "CenterOfMass";
 		if (value == "Node" || flag)
 		{

@@ -2236,6 +2236,10 @@ public class Model : global::EventDispatcher<object>
 			{
 				HFGPAELCNMF = EGGEACCDAEK();
 			}
+			if (!PairedGrabAllowsStrike(HFGPAELCNMF))
+			{
+				return false;
+			}
 			if ((HFGPAELCNMF.OCPMJKIEPIG().HDJBHPOGKNJ(IntervalAnimation.NGAJJDIEDGF.INTERVAL_INVULNERABLE) == null || (hFIIPNLCIEE.MOILKOLCNBP() && hFIIPNLCIEE.DNPLIFOABPB().Count == 0) || (hFIIPNLCIEE.MOILKOLCNBP() && HFGPAELCNMF.OCPMJKIEPIG().CheckIntervals(hFIIPNLCIEE.DNPLIFOABPB()))) && _Collision.Render(HFGPAELCNMF._ModelObject, _Animation.CPNOFKIMMCK(), hFIIPNLCIEE))
 			{
 				if (!FHPKEJMDFLK)
@@ -3544,7 +3548,56 @@ public class Model : global::EventDispatcher<object>
 		if (target == null)
 			target = NMGNPBMFJKP(IBODMPMJELJ.OJLDHGKPLNC());
 		if (target != null)
-			target.PlayAnimation(IBODMPMJELJ.AnimationName);
+		{
+			bool paired = IBODMPMJELJ.OJLDHGKPLNC() == ModelType.KEIDBIOIFGA.MODEL_OTHER && string.IsNullOrEmpty(IBODMPMJELJ.ChildName);
+			bool started = target.PlayAnimation(IBODMPMJELJ.AnimationName);
+			if (paired)
+			{
+				// A throw pulls the enemy into its paired animation, then strikes by collision.
+				// If the enemy refused (in physics, inactive or without that move), the throw
+				// still swept through them and dealt damage without a grab ("bluetooth throw").
+				_PairedGrab = FHBLLPCEAHG();
+				_PairedGrabVictim = target;
+				_PairedGrabAnimation = IBODMPMJELJ.AnimationName;
+				_PairedGrabRefused = !started;
+				if (!started)
+				{
+					Debug.LogWarning("[Throw] " + get_Name() + " '" + (_PairedGrab == null ? "?" : _PairedGrab.Name) +
+						"': enemy refused paired animation '" + IBODMPMJELJ.AnimationName + "' (physics=" +
+						target._Physics.IsPhysics() + "); its strike is suppressed.");
+				}
+			}
+		}
+	}
+
+	private InfoAnimation _PairedGrab;
+	private Model _PairedGrabVictim;
+	private string _PairedGrabAnimation;
+	private bool _PairedGrabRefused;
+	private bool _PairedGrabLeftLogged;
+
+	// False when the current move grabbed this enemy into a paired animation that the enemy
+	// refused. Logs (without blocking) when the enemy left the paired animation before a strike.
+	private bool PairedGrabAllowsStrike(Model victim)
+	{
+		if (_PairedGrab == null || victim != _PairedGrabVictim) return true;
+		if (FHBLLPCEAHG() != _PairedGrab)
+		{
+			_PairedGrab = null;
+			_PairedGrabVictim = null;
+			_PairedGrabLeftLogged = false;
+			return true;
+		}
+		if (_PairedGrabRefused) return false;
+		InfoAnimation current = victim.FHBLLPCEAHG();
+		if ((current == null || current.Name != _PairedGrabAnimation) && !_PairedGrabLeftLogged)
+		{
+			_PairedGrabLeftLogged = true;
+			Debug.LogWarning("[Throw] " + get_Name() + " '" + _PairedGrab.Name + "': enemy left paired animation '" +
+				_PairedGrabAnimation + "' for '" + (current == null ? "<none>" : current.Name) + "' (physics=" +
+				victim._Physics.IsPhysics() + ") before the strike.");
+		}
+		return true;
 	}
 
 	public WeaponModel EGFIFHKBNML(List<CopyItemInfo> HELFDCAIJNE = null, string JLHDJLHLGND = "", string startAnimation = "")

@@ -3144,3 +3144,51 @@ extractor `--check` (26 files); wiki build and editor generate/check/tests/LuaLS
 Assembly-CSharp builds. Not verified in Unity: replay Vortex, Wind Wolf, Adanti,
 Rakshasa, Morgana, the tier-6 Lamb, Ravana, Faradeya and Halloween Puppeteer, and
 leave a normal and a Power Mode fight.
+
+### Step 51 follow-up — arena scale correction and model crashes (2026-09-24)
+
+Owner playtest: Ravana, Rakshasa, Morgana and the tier-6 Lamb were still broken;
+Shurale and Karcer crashed with "An item with the same key has already been added"
+(`MacroForestSpiritBodyRag-Node203`, `Weapon-Node1_2`); Faradeya's arena is blurry.
+
+- **Arenas.** The previous rebuild assumed the DE event-dojo params were doubled and
+  converted them to vanilla sizes, which reproduced the half-size layout of the
+  vanilla params. An offscreen composition of the params with the bundled sprites
+  (editor eval, read-only) showed the DE files fill the stage like the working
+  `dojo_india25` while vanilla sizes leave the arena at half size in the middle.
+  `InstallDELocationParams.py` now installs the DE params unchanged for
+  `dojo_hw21`, `dojo_indian_event`, `dojo_indian_event_22`, `haloween_dojo` and
+  `ritual_battle_raid`.
+- **Model crashes (base).** Shipped models repeat node names: DE's own
+  `mdl_armor_forest_spirit` repeats 49 (identical in the drop) and
+  `mdl_shadow_lord_sword` some; `mdl_weapon_hunger`, `mdl_armor_hoaxen`,
+  `mdl_armor_futurist` and `mdl_body_tentacle_skeleton` redefine skeleton nodes.
+  `ModelLoader` used `Dictionary.Add` and aborted the fight; it now keeps the latest
+  definition (each file's edges are linked while that file is parsed).
+- **Faradeya.** `dojo_india24` exists only as a 768 px atlas drawn over 1536 world
+  units; no higher-resolution copy is in the drop, the bundles or the CDN extracts.
+
+Verified: Assembly-CSharp builds; runtime 1282, location motion 36, dojo routing 29;
+params tool `check`. Not verified in Unity: the four arenas, Shurale and Karcer.
+- **Faradeya location (owner decision).** Both Faradeya battles now use Dandy's
+  high-resolution `dojo_india25` (`LOCATION_OVERRIDES` in the generator; the archive
+  test expects it).
+- **Karcer's floating blade (base).** "Latest definition wins" left
+  `mdl_weapon_hunger`'s second blade bound to its own fixed copies of the skeleton's
+  off-hand `Weapon-Node1_2..4_2`, so it floated. The first definition now owns a node
+  name and later same-named nodes are not created, so the weapon's edges bind to the
+  arm-attached skeleton nodes. The other repeats are identical copies
+  (tentacle body), the centre-of-mass node (Hoaxen/Futurist armor) or in-file
+  repeats (Shurale armor, Shadow Lord sword).
+- **"Bluetooth" throws (base).** Owner report: an AI sometimes plays a throw without
+  grabbing the player, yet the damage lands. Throws send the enemy into a paired
+  animation (`PlayAnimation Player="Enemy"`) and then strike by ordinary collision,
+  so if the enemy refused the paired animation (`Model.PlayAnimation` returns false
+  while the enemy is in physics or inactive, or lacks the move) the throw still swept
+  through the standing enemy. `Model` now records the paired grab; `CheckCollision`
+  suppresses the throw's strike on an enemy that refused it and logs
+  `[Throw] ... refused paired animation`. If the enemy takes the grab but leaves it
+  before the strike, it logs `[Throw] ... left paired animation` without blocking
+  (a shorter victim clip must not cancel legitimate throw damage) so the next
+  playtest can show whether that case also occurs. `TestThrowRuntime.ps1` does not
+  compile (its fixture calls a `ModelObject.set_Model` that does not exist at HEAD).

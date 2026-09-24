@@ -118,7 +118,9 @@ internal static class DE128UnderworldTests
         if (description.Length != 0) keys.Add(descriptionKey);
         Check(battle.Description == (description.Length == 0 ? string.Empty : Key(descriptionKey) + (brace < 0 ? string.Empty : description.Substring(brace))),
             "Battle description differs: " + name);
-        Check(battle.Location == xml.GetAttribute("Location") && battle.Preview == xml.GetAttribute("Preview") && battle.Icon == xml.GetAttribute("Icon"),
+        // Owner decision: Faradeya uses Dandy's high-resolution dojo_india25 (see generator).
+        string location = xml.GetAttribute("Location") == "dojo_india24" ? "dojo_india25" : xml.GetAttribute("Location");
+        Check(battle.Location == location && battle.Preview == xml.GetAttribute("Preview") && battle.Icon == xml.GetAttribute("Icon"),
             "Battle location/preview/icon differs: " + name);
         string music = xml.GetAttribute("Music");
         // Ids no packaged track provides ship with DE128 as audio assets under their archive id.
