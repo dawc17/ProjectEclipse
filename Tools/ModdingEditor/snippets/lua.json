@@ -162,6 +162,14 @@
     ],
     "description": "Stop an exact native sound when a move ends or is interrupted."
   },
+  "Eclipse play child animation": {
+    "prefix": "eclipse-move-play-child",
+    "body": [
+      "{ type = \"play_animation\", frame = ${1:17}, player = \"Child\",",
+      "    child_name = \"${2:BlackHand}\", move = ${3:child_move} },"
+    ],
+    "description": "Start a registered move on a named child actor; define child_move first."
+  },
   "Eclipse scheduled projectile": {
     "prefix": "eclipse-move-projectile",
     "body": [

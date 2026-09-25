@@ -72,6 +72,34 @@ Check ($resultNode.Actions.StopSound.GetAttribute('Name') -ceq 'snd_blade_fury' 
 Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('snd_blade_fury','snd_other')))) 'Sound stop is absent from the fingerprint.'
 Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('on_background=true','on_background=false')))) 'Background effect is absent from the fingerprint.'
 Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('name="Victory"','name="Defeat"')))) 'Round result is absent from the fingerprint.'
+$playLua=@'
+local animation=sf2.assets.binary("animations/chinese")
+local child=sf2.moves.register {id="hand",animation=animation}
+sf2.moves.register {id="caster",animation=animation,actions={{type="play_animation",frame=17,
+    move=child,player="Child",child_name="BlackHand"}}}
+'@
+$playCatalog=Load-Lua $playLua
+$playNode=(Project $playCatalog).SelectSingleNode('//Move[contains(@Name,"caster")]/Actions/PlayAnimation')
+$nativePlay=[ActionsParser]::Create($playNode)
+Check ($nativePlay -is [ActionPlayAnimation] -and $nativePlay.AnimationName -ceq 'fixture.moves:moves/hand' -and
+    $nativePlay.ChildName -ceq 'BlackHand' -and $playNode.GetAttribute('Player') -ceq 'Child' -and
+    $nativePlay.NeedStart(17) -and !$nativePlay.NeedStart(16)) 'Typed child animation did not reach the native scheduled action.'
+foreach($pair in @(@('frame=17','frame=18'),@('player="Child"','player="Enemy"'),
+    @('child_name="BlackHand"','child_name="OtherHand"'))) {
+    $changed=(Fingerprint (Load-Lua $playLua.Replace($pair[0],$pair[1])))
+    Check ((Fingerprint $playCatalog) -cne $changed) ('Play animation field missing from the fingerprint: '+$pair[1])
+}
+$corePlay=(Project (Load-Lua $playLua.Replace('move=child,','core_animation="StanceIdle",'))).SelectSingleNode('//Move[contains(@Name,"caster")]/Actions/PlayAnimation')
+Check ($corePlay.GetAttribute('Animation') -ceq 'StanceIdle') 'Core animation name did not project.'
+foreach($pair in @(@('move=child','move=nil'),@('move=child','move=animation'),
+    @('move=child','move="fixture.moves:moves/hand"'),
+    @('move=child','move=child,core_animation="StanceIdle"'),
+    @('player="Child"','player="Both"'),@('player="Child"','player=nil'),
+    @('child_name="BlackHand"','child_name="../bad"'),
+    @('move=child','move=child,effect_name="Other"'))) {
+    $failure=$null;try {$null=Load-Lua $playLua.Replace($pair[0],$pair[1])}catch{$failure=$_}
+    Check ($null -ne $failure) ('Invalid play_animation accepted: '+$pair[1])
+}
 foreach($mutation in @('name="Draw"','name=""','name="Victory",item_type="Weapon"')) {
  $failure=$null;try {$null=Load-Lua $resultLua.Replace('name="Victory"',$mutation)}catch{$failure=$_}
  Check ($null -ne $failure) ('Invalid round result accepted: '+$mutation)

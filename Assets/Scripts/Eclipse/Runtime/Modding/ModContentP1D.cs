@@ -744,6 +744,10 @@ namespace Eclipse.Modding
         public ModMoveEffect Effect { get; }
         public string EffectName { get; }
         public string StopSoundName { get; }
+        public DefinitionId? PlayMove { get; }
+        public string CoreAnimation { get; }
+        public string PlayPlayer { get; }
+        public string ChildName { get; }
         public ModMoveProjectile Projectile { get; }
         public ModMoveBulletChange Bullets { get; }
         public string DeletePlayer { get; }
@@ -752,9 +756,10 @@ namespace Eclipse.Modding
         public ModMoveScheduledAction(string kind, int? frame, string eventName, string[] coreSounds = null,
             ModMoveEffect effect = null, string effectName = null, ModMoveProjectile projectile = null,
             ModMoveBulletChange bullets = null, string deletePlayer = null, ModMoveSound sound = null, ModMoveShake shake = null,
-            string stopSoundName = null)
+            string stopSoundName = null, DefinitionId? playMove = null, string coreAnimation = null,
+            string playPlayer = null, string childName = null)
         {
-            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor", "sound", "stop_sound", "shake_screen" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
+            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor", "sound", "stop_sound", "shake_screen", "play_animation" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
             if (frame.HasValue == (eventName != null)) throw new ModContentException("Move action requires exactly one of frame or event.");
             if (frame < 0 || frame > 100000) throw new ModContentException("Action frame must be in 0..100000.");
             if (eventName != null && Array.IndexOf(new[] { "RoundStage", "KeyPressed", "KeyReleased", "RoundStart", "RoundEnd", "Hit", "Strike", "WallHit", "AnimationStart", "AnimationEnd", "IntervalStart", "IntervalEnd", "EveryFrame", "Birth", "ModExpires" }, eventName) < 0)
@@ -774,8 +779,23 @@ namespace Eclipse.Modding
             if ((kind == "sound") != (sound != null)) throw new ModContentException("Only sound actions require a sound table.");
             if ((kind == "stop_sound") != (stopSoundName != null)) throw new ModContentException("Stop sound actions require core_sound exclusively.");
             if (stopSoundName != null) ValidateSymbol(stopSoundName, "core sound");
+            if (kind == "play_animation")
+            {
+                if (playMove.HasValue == (coreAnimation != null))
+                    throw new ModContentException("Play animation requires exactly one move handle or core_animation.");
+                if (playMove.HasValue && playMove.Value.Category != "moves")
+                    throw new ModContentException("Play animation requires a move handle.");
+                if (coreAnimation != null) ValidateSymbol(coreAnimation, "core animation");
+                if (Array.IndexOf(new[] { "Me", "Enemy", "Parent", "Child", "EnemyChild" }, playPlayer) < 0)
+                    throw new ModContentException("Unsupported play animation player.");
+                if (childName != null) ValidateSymbol(childName, "child actor");
+            }
+            else if (playMove.HasValue || coreAnimation != null || playPlayer != null || childName != null)
+                throw new ModContentException("Only play_animation accepts animation target fields.");
             if ((kind == "shake_screen") != (shake != null)) throw new ModContentException("Only shake_screen actions require a shake table.");
             Sound = sound; Shake = shake; StopSoundName = stopSoundName ?? string.Empty;
+            PlayMove = playMove; CoreAnimation = coreAnimation ?? string.Empty;
+            PlayPlayer = playPlayer ?? string.Empty; ChildName = childName ?? string.Empty;
             Projectile = projectile; Bullets = bullets; DeletePlayer = deletePlayer ?? string.Empty;
             Effect = effect; EffectName = effectName ?? string.Empty;
             foreach (var name in coreSounds) ValidateSymbol(name, "core sound");

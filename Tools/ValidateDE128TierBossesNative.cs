@@ -37,6 +37,9 @@ public static class ValidateDE128TierBossesNative
     static int gatekeeperEnteredAt = -1, gatekeeperSelectedAt = -1;
     static bool gatekeeperChild, gatekeeperAttack, gatekeeperElectro, gatekeeperPowerEffects, gatekeeperCaptured;
     static bool gatekeeperElectroAnchored, gatekeeperPowerAnchored, gatekeeperPowerCaptured;
+    static int blacknessEnteredAt = -1, blacknessSelectedAt = -1;
+    static bool blacknessChild, blacknessTransition, blacknessAttack, blacknessDeleted, blacknessEffect, blacknessCaptured;
+    static Model blacknessHand;
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
@@ -74,7 +77,8 @@ public static class ValidateDE128TierBossesNative
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" ||
-                Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" ? 420 : 180;
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
@@ -207,6 +211,8 @@ public static class ValidateDE128TierBossesNative
                 !ObserveWarWhirl(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" &&
                 !ObserveGatekeeperField(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" &&
+                !ObserveBlacknessGrasp(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -268,6 +274,85 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveBlacknessGrasp(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_boss_13_1" &&
+            Target.Id.ToString() != "de128:fights/uw_boss_13_hardmode_1")
+            throw new Exception("Blackness Grasp acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (blacknessEnteredAt < 0)
+        {
+            blacknessEnteredAt = frame;
+            var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var caster = localMoves.SingleOrDefault(move => move.Name == "de128:moves/blackness_grasp_player");
+            if (caster == null ||
+                localMoves.Any(move => move.Name.StartsWith("BlacknessGraspAbility", StringComparison.Ordinal) &&
+                    move.SelectionConditions.Last().GetType().Name != "DisabledMoveCondition"))
+                throw new Exception("Blackness lacks the authored caster or retained a core selector: " +
+                    string.Join(",", localMoves.Where(move => move.Name.Contains("Blackness") || move.Name.Contains("blackness"))
+                        .Select(move => move.Name + "/" + move.SelectionConditions.Last().GetType().Name)));
+            var transition = caster.ScheduledActions.OfType<ActionPlayAnimation>().SingleOrDefault();
+            if (transition == null || transition.ChildName != "BlackHand" ||
+                transition.AnimationName != "de128:moves/blackness_grasp_hand_attack" || !transition.NeedStart(17))
+                throw new Exception("Blackness's frame-17 named-child transition did not reach the native parser.");
+            enemy.AddEventListener(6, value =>
+            {
+                var child = value as Model;
+                if (child?.get_Name() != "BlackHand") return;
+                if (child.Parameters.Weapon?.Name != "MAGIC_ACID_CLOUD")
+                    throw new Exception("BlackHand lost its hidden native item.");
+                var childMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child);
+                if (childMoves.Count(move => move.Name == "de128:moves/blackness_grasp_hand_start" ||
+                    move.Name == "de128:moves/blackness_grasp_hand_attack") != 2 ||
+                    childMoves.Any(move => move.Name.StartsWith("BlacknessGraspAbilityHand", StringComparison.Ordinal) &&
+                        move.SelectionConditions.Last().GetType().Name != "DisabledMoveCondition"))
+                    throw new Exception("BlackHand lacks its authored start/attack or retained a core child selector: " +
+                        string.Join(",", childMoves.Where(move => move.Name.Contains("Blackness") ||
+                            move.Name.Contains("blackness")).Select(move => move.Name + "/" +
+                            move.SelectionConditions.Last().GetType().Name)));
+                blacknessHand = child;
+                blacknessChild = true;
+                child.OCPMJKIEPIG().AddEventListener(2, action =>
+                {
+                    if (action is IntervalAttack attack && attack.Start == 7 &&
+                        attack.HitReactions.SingleOrDefault()?.Name == "Physycal" && attack.MOILKOLCNBP())
+                        blacknessAttack = true;
+                });
+                child.AddEventListener(5, ignored => blacknessDeleted = true);
+                Debug.Log(Prefix + "Blackness spawned the named BlackHand actor.");
+            });
+            Debug.Log(Prefix + "Blackness's three authored Grasp moves and timed child action loaded.");
+        }
+        if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "de128:moves/blackness_grasp_player" &&
+            blacknessSelectedAt < 0)
+        {
+            blacknessSelectedAt = frame;
+            if (frame < 600) throw new Exception("Blackness cast before the archived 600-frame opening cooldown.");
+            Debug.Log(Prefix + "Blackness selected Grasp at frame " + frame + ".");
+        }
+        if (blacknessHand?.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name ==
+            "de128:moves/blackness_grasp_hand_attack") blacknessTransition = true;
+        if (GameObject.Find("BlackHandEFX") != null)
+        {
+            blacknessEffect = true;
+            if (!blacknessCaptured && blacknessSelectedAt >= 0)
+            {
+                CaptureCombatFrame(Target.Id.ToString() + "_grasp");
+                blacknessCaptured = true;
+            }
+        }
+        if (frame - blacknessEnteredAt < 1800 ||
+            (blacknessSelectedAt >= 0 && frame - blacknessSelectedAt < 180)) return false;
+        if (blacknessSelectedAt < 0 || !blacknessChild || !blacknessTransition ||
+            !blacknessAttack || !blacknessDeleted || !blacknessEffect || !blacknessCaptured)
+            throw new Exception("Blackness Grasp did not complete in native combat: selected=" +
+                blacknessSelectedAt + " child=" + blacknessChild + " transition=" + blacknessTransition +
+                " attack=" + blacknessAttack + " deleted=" + blacknessDeleted + " effect=" + blacknessEffect +
+                " captured=" + blacknessCaptured);
+        Debug.Log(Prefix + "Blackness cast, effect, named hand transition and 0.4-damage attack completed in native combat.");
+        return true;
+    }
 
     static bool ObserveWarWhirl(Fight fight, Model enemy)
     {

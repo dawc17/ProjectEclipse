@@ -258,6 +258,14 @@ native capitalization, unlike the lowercase `events` registration table above.
   a move is interrupted or finishes. This calls the native sound stop action;
   the name is validated at registration, while the sound's existence is resolved
   by the game.
+- `type = "play_animation"` starts a move on `player` (`Me`, `Enemy`, `Parent`,
+  `Child`, or `EnemyChild`) at the chosen frame or event. Supply exactly one of
+  `move` (a handle returned by `sf2.moves.register`) or `core_animation` (an
+  existing native move name). Optional `child_name` picks a spawned actor by
+  its exact name, useful when a caster has several children. The named child is
+  checked first; if none matches, the native player target is used. The native
+  action can fail when its target is absent or cannot select that animation;
+  it does not force a transition. Register the target move before the caster.
 - `type = "shake_screen"` requires a `shake` table. All fields default to zero:
   `pause_time` and `effect_time` are integer native frame counts in 0–10,000;
   `amplitude_x`, `amplitude_y`, `frequency_x`, and `frequency_y` are finite native
@@ -269,6 +277,22 @@ native capitalization, unlike the lowercase `events` registration table above.
 { type = "random_sound", frame = 3, core_sounds = { "snd_blade_fury" } },
 { type = "stop_sound", event = "Hit", core_sound = "snd_blade_fury" },
 { type = "stop_sound", event = "AnimationEnd", core_sound = "snd_blade_fury" },
+```
+
+For a spawned actor that changes phase after its caster has advanced eight
+frames, retain the handle from its attacking move:
+
+```lua
+local hand_attack = sf2.moves.register {
+    id = "hand_attack", animation = sf2.assets.binary("animations/hand_attack"),
+    -- Add the child's locks, conditions, attack interval, and cleanup here.
+}
+local cast_actions = {
+    -- Create BlackHand with a create_projectile action earlier in this array.
+    { type = "play_animation", frame = 17, player = "Child",
+      child_name = "BlackHand", move = hand_attack },
+}
+-- Pass cast_actions as the caster move's actions field.
 ```
 
 - `type = "try_on_end"` signals native shop preview completion. It accepts no

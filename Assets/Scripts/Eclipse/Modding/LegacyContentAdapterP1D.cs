@@ -402,7 +402,7 @@ namespace Eclipse.Modding
             {
                 string tag = action.Kind == "sound" ? "Sound" : action.Kind == "stop_sound" ? "StopSound" : action.Kind == "shake_screen" ? "ShakeScreen" : action.Kind == "random_sound" ? "RandomSound" : action.Kind == "effect" ? "Effect"
                     : action.Kind == "create_projectile" ? "CreatePlayer" : action.Kind == "add_bullets" ? "AddBullets"
-                    : action.Kind == "delete_actor" ? "Delete" : action.Kind == "stop_effect" ? "StopEffect" : action.Kind == "stop_follow_effect" ? "StopFollowEffect" : "TryOnEnd";
+                    : action.Kind == "delete_actor" ? "Delete" : action.Kind == "stop_effect" ? "StopEffect" : action.Kind == "stop_follow_effect" ? "StopFollowEffect" : action.Kind == "play_animation" ? "PlayAnimation" : "TryOnEnd";
                 var entry = document.CreateElement(tag); actions.AppendChild(entry);
                 if (action.Sound != null)
                 {
@@ -440,6 +440,12 @@ namespace Eclipse.Modding
                 }
                 if (action.EffectName.Length != 0) Set(entry, "Name", action.EffectName);
                 if (action.StopSoundName.Length != 0) Set(entry, "Name", action.StopSoundName);
+                if (action.Kind == "play_animation")
+                {
+                    Set(entry, "Animation", action.PlayMove.HasValue ? action.PlayMove.Value.ToString() : action.CoreAnimation);
+                    Set(entry, "Player", action.PlayPlayer);
+                    if (action.ChildName.Length != 0) Set(entry, "ChildName", action.ChildName);
+                }
                 if (action.Effect != null)
                 {
                     var effect = action.Effect;

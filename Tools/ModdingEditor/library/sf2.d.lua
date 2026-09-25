@@ -1462,7 +1462,7 @@ local MoveSound = {}
 local MoveShake = {}
 
 ---@class (exact) Eclipse.MoveScheduledAction
----@field type "random_sound"|"try_on_end"|"effect"|"stop_effect"|"stop_follow_effect"|"create_projectile"|"add_bullets"|"delete_actor"|"sound"|"stop_sound"|"shake_screen"
+---@field type "random_sound"|"try_on_end"|"effect"|"stop_effect"|"stop_follow_effect"|"create_projectile"|"add_bullets"|"delete_actor"|"sound"|"stop_sound"|"shake_screen"|"play_animation"
 ---@field frame? integer
 ---@field event? "RoundStage"|"KeyPressed"|"KeyReleased"|"RoundStart"|"RoundEnd"|"Hit"|"Strike"|"WallHit"|"AnimationStart"|"AnimationEnd"|"IntervalStart"|"IntervalEnd"|"EveryFrame"|"Birth"|"ModExpires"
 ---@field core_sounds? string[]
@@ -1474,6 +1474,9 @@ local MoveShake = {}
 ---@field projectile? Eclipse.MoveProjectile
 ---@field bullets? Eclipse.MoveBulletChange
 ---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
+---@field move? Eclipse.MoveHandle
+---@field core_animation? string
+---@field child_name? string
 local MoveScheduledAction = {}
 
 ---@class (exact) Eclipse.MoveProfile

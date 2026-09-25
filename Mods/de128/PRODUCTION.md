@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.30.0**. Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.31.0**. Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3802,3 +3802,51 @@ project tests, LuaLS and VS Code integration; wiki build (**48** pages,
 **4,344** local links/assets); four managed builds; **1,282** Underworld
 runtime assertions; pinned generator and art `--check`; and `git diff --check`.
 The location audit retains the known missing `fungus_raid/layer_0_2` image.
+
+### Step 65 — Blackness's archived Grasp (0.31.0, 2026-09-25)
+
+DE128 now restores Blackness's complete three-move Underworld Grasp graph in
+normal and Power Mode. The RaidCharge caster creates the hidden `BlackHand`
+actor at frame 9 and starts its 0.4-damage, lightning-edge attack at frame 17.
+The hand's opening move shows `mgc_effect_black_hand` and plays the archived
+sound; its attack accelerates toward the player and deletes the actor at frame
+12. A scoped opponent tactic preserves the archived 600-frame opening and
+recast delay, selects other attacks during the cooldown, and backs away to
+meet Grasp's 450-unit AI distance gate. The generated Underworld fight data
+remains a source transcription; the live tactic override is asserted
+separately. The local owner drop records caster priority 200, whereas the
+older historical XML records 1000; DE128 follows the reviewed local value.
+The hand's historical parent-perk lock cannot be carried onto an Eclipse
+spawned actor, which has no parent perk slot. Its actor-name and hidden-item
+locks retain the exclusive child phases. The two animation binaries match
+their packaged native counterparts byte for byte (SHA-256
+`6082D513ECAB8573EA8E55BB1C7377613926D66153AA5DE3A4FFAA9B58E6B3DF`
+and `BDFCA754073DF75F078AB5D766210EAD77412465B74EF2409C9A999F30D35F82`).
+
+Eclipse's public scheduled move actions now support typed `play_animation`
+with a registered move handle or core animation name, a native player target,
+and an optional exact child name. The binding rejects unknown fields and
+inconsistent targets; the adapter emits the native `PlayAnimation` action and
+the content fingerprint includes every target field. The wiki and
+ModdingEditor schema, generated definitions, snippet, starter and editor
+guide document the same API. DE128 ships no XML and never reads it at runtime.
+
+Isolated Unity 6 native runs entered both Blackness fights. They observed the
+cast after the 600-frame opening delay, named hidden-item hand, authored
+start and attack moves, visible hand effect, damaging attack interval, actor
+deletion, normal and Power Mode spotlight screenshots, and return to the
+Underworld map. These runs establish the full combat transition and offscreen
+rendering, while
+interactive balance and audible sound quality remain unassessed. The full
+designated owner corpus remains unavailable for source-to-source comparison.
+
+Verification: four managed `dotnet msbuild` builds; **14,710** DE128 foundation
+checks; **553** combined move presentation checks; **1,282** Underworld runtime
+assertions; normal and Power Mode native Blackness combat, effect captures and
+map return; pinned Underworld generator and art `--check`; location audit;
+ModdingEditor generate/check/**38** project tests, LuaLS and VS Code integration;
+wiki build (**48** pages, **4,344** local links/assets); and `git diff --check`.
+The foundation harness now shares immutable package media through Windows
+hard links so its negative-case matrix runs without multiplying large audio
+copies. The location audit retains the known missing
+`fungus_raid/layer_0_2` image.

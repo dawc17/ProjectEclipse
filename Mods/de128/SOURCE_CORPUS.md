@@ -40,6 +40,14 @@ the Underworld generator pins that exact file. This drop is not verified to be
 the designated 1.6 GB `Assets.7z`, so its local reconciliation does not close
 the full-corpus audit below.
 
+Blackness's Grasp was reviewed against this drop's
+`gamedata/animations/moves.xml` (SHA-256
+`7F4D181848DC3F430BA4AF1A8A024905D629FC77C499FF74832710C65D07B818`).
+Its caster priority is 200 there; the older `Assets/DExml` move file says
+1000. The two selected animation binaries match their packaged native copies
+byte for byte; see Step 65 in `PRODUCTION.md` for their hashes and live checks.
+This review does not establish equivalence with the designated `Assets.7z`.
+
 ## Reconciliation requirements
 
 - Treat `Assets/DExml` and earlier production comparisons as historical evidence,

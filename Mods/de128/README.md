@@ -6,7 +6,12 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.30.0` restores
+DE128 is an ordinary downstream Eclipse mod. Version `0.31.0` restores
+Blackness's three-phase Underworld Grasp in normal and Power Mode: the
+RaidCharge cast creates a named BlackHand, transitions it into its damaging
+attack, shows the hand effect, and respects the 600-frame opening cooldown.
+Native Unity tests observe both complete fights through map return. Version
+`0.30.0` restores
 Gatekeeper's archived RaidCharge Power Field in normal and Power Mode. The
 reusable Eclipse effect renderer now follows two live model nodes and places
 background electricity between the arena and fighters. Native Unity tests

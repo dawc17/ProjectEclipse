@@ -457,6 +457,7 @@ namespace Eclipse.Modding
                         else if (kind == "delete_actor") ValidateFields(entry, function, "type", "frame", "event", "player");
                         else if (kind == "sound") ValidateFields(entry, function, "type", "frame", "event", "sound");
                         else if (kind == "stop_sound") ValidateFields(entry, function, "type", "frame", "event", "core_sound");
+                        else if (kind == "play_animation") ValidateFields(entry, function, "type", "frame", "event", "move", "core_animation", "player", "child_name");
                         else if (kind == "shake_screen") ValidateFields(entry, function, "type", "frame", "event", "shake");
                         else ValidateFields(entry, function, "type", "frame", "event");
                         ModMoveSound sound = null;
@@ -525,7 +526,14 @@ namespace Eclipse.Modding
                             OptionalStringArray(entry, "core_sounds", function), effect,
                             kind == "stop_effect" || kind == "stop_follow_effect" ? RequiredString(entry, "effect_name", function) : null, projectile, bullets,
                             kind == "delete_actor" ? RequiredString(entry, "player", function) : null, sound, shake,
-                            kind == "stop_sound" ? RequiredString(entry, "core_sound", function) : null));
+                            kind == "stop_sound" ? RequiredString(entry, "core_sound", function) : null,
+                            kind == "play_animation" && !entry.Get("move").IsNil()
+                                ? RequiredHandle(entry, "move", _moveHandles, "move", function) : (DefinitionId?)null,
+                            kind == "play_animation" && !entry.Get("core_animation").IsNil()
+                                ? RequiredString(entry, "core_animation", function) : null,
+                            kind == "play_animation" ? RequiredString(entry, "player", function) : null,
+                            kind == "play_animation" && !entry.Get("child_name").IsNil()
+                                ? RequiredString(entry, "child_name", function) : null));
                     }
                     EnsureDenseArray(array, actions.Count, function + ".actions");
                 }

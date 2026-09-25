@@ -3694,7 +3694,7 @@
     },
     "MoveScheduledAction": {
       "fields": {
-        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"|\"sound\"|\"stop_sound\"|\"shake_screen\"",
+        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"|\"sound\"|\"stop_sound\"|\"shake_screen\"|\"play_animation\"",
         "frame?": "integer",
         "event?": "\"RoundStage\"|\"KeyPressed\"|\"KeyReleased\"|\"RoundStart\"|\"RoundEnd\"|\"Hit\"|\"Strike\"|\"WallHit\"|\"AnimationStart\"|\"AnimationEnd\"|\"IntervalStart\"|\"IntervalEnd\"|\"EveryFrame\"|\"Birth\"|\"ModExpires\"",
         "core_sounds?": "string[]",
@@ -3705,7 +3705,10 @@
         "effect_name?": "string",
         "projectile?": "Eclipse.MoveProjectile",
         "bullets?": "Eclipse.MoveBulletChange",
-        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\""
+        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
+        "move?": "Eclipse.MoveHandle",
+        "core_animation?": "string",
+        "child_name?": "string"
       }
     },
     "MoveProfile": {

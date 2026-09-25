@@ -8,6 +8,10 @@ using Eclipse.Modding;
 
 internal static class DE128FoundationTests
 {
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", EntryPoint = "CreateHardLinkW",
+        CharSet = System.Runtime.InteropServices.CharSet.Unicode, SetLastError = true)]
+    private static extern bool CreateHardLink(string target, string source, IntPtr securityAttributes);
+
     private static readonly string[] Services =
         { "paid_offers", "battle_pass", "ads", "rewarded_video", "online_services", "payments" };
     private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
@@ -110,7 +114,14 @@ internal static class DE128FoundationTests
             if (relative.Replace('\\', '/') == omit) continue;
             string target = Path.Combine(destination, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(target));
-            File.Copy(file, target, false);
+            // The negative-case matrix mutates Lua and the manifest, never packaged
+            // art/audio. Share those large immutable assets when the fixture is on
+            // the same volume so repeated package copies do not exhaust the disk.
+            if (!OperatingSystem.IsWindows() ||
+                !relative.StartsWith("assets" + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||
+                !Path.GetPathRoot(file).Equals(Path.GetPathRoot(target), StringComparison.OrdinalIgnoreCase) ||
+                !CreateHardLink(target, file, IntPtr.Zero))
+                File.Copy(file, target, false);
         }
         if (capabilities != null)
         {
@@ -211,10 +222,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 47 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 17 &&
-            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 12,
+        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 20 &&
+            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 5 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 6 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -280,6 +291,30 @@ internal static class DE128FoundationTests
             catalog.TryGetWarrior(gatekeeperPowerFight.Warriors[0], out var gatekeeperPowerWarrior) &&
             gatekeeperPowerWarrior.Tactic == "de128:tactics/gatekeeper_power_field",
             "Gatekeeper's archived cast, attached child field or both Underworld tactics are incomplete.");
+        var grasp = catalog.Moves.Single(move => move.Id.LocalId == "blackness_grasp_player");
+        var handStart = catalog.Moves.Single(move => move.Id.LocalId == "blackness_grasp_hand_start");
+        var handAttack = catalog.Moves.Single(move => move.Id.LocalId == "blackness_grasp_hand_attack");
+        var handSpawn = grasp.Graph.Presentation.Actions.Single(action => action.Kind == "create_projectile");
+        var handTransition = grasp.Graph.Presentation.Actions.Single(action => action.Kind == "play_animation");
+        Check(grasp.Priority == 200 && handSpawn.Frame == 9 && handSpawn.Projectile.Name == "BlackHand" &&
+            handSpawn.Projectile.StartMove == handStart.Id &&
+            handSpawn.Projectile.Item == CoreContentImporter.MagicId("MAGIC_ACID_CLOUD") &&
+            handTransition.Frame == 17 && handTransition.PlayMove == handAttack.Id &&
+            handTransition.PlayPlayer == "Child" && handTransition.ChildName == "BlackHand" &&
+            handStart.Graph.Presentation.Actions.Any(action => action.Effect?.CoreSequence == "mgc_effect_black_hand") &&
+            handStart.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item &&
+                condition.Name == "MAGIC_ACID_CLOUD") &&
+            handAttack.Graph.Locks.All(condition => condition.Kind != ModMoveConditionKind.Perk) &&
+            handAttack.Intervals.Single(interval => interval.Attack != null).Attack.Damage == 0.4 &&
+            handAttack.Graph.Presentation.Actions.Single(action => action.Kind == "delete_actor").Frame == 12 &&
+            Math.Abs(handAttack.Graph.Presentation.Velocity.Ax + 0.4) < 0.00001 &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_13_1"), out var blacknessFight) &&
+            catalog.TryGetWarrior(blacknessFight.Warriors[0], out var blacknessWarrior) &&
+            blacknessWarrior.Tactic == "de128:tactics/blackness_grasp" &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_13_hardmode_1"), out var blacknessPowerFight) &&
+            catalog.TryGetWarrior(blacknessPowerFight.Warriors[0], out var blacknessPowerWarrior) &&
+            blacknessPowerWarrior.Tactic == "de128:tactics/blackness_grasp",
+            "Blackness's caster, timed child transition, attacking hand or two tactics are incomplete.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
             catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&
@@ -807,7 +842,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 47 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 50 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,

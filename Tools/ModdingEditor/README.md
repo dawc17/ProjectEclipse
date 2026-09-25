@@ -92,6 +92,9 @@ start_rotation? }` to follow a pair of live model nodes. Use `attach` in place
 of `position`; its offset uses the node-local frame with positive Y down.
 Scheduled `stop_sound` actions accept `core_sound` and call the native sound
 stop path at a frame or event, including hit and animation end.
+Scheduled `play_animation` actions target a named actor at a frame or event.
+Use a registered `move` handle or a native `core_animation` name, exactly one;
+`player` is required and `child_name` can select a specific spawned child.
 Adds AI candidate `timing` (sample bounds, spacing, nominal duration,
 loop flag) and `inputs` (native controls and press types). Nested fields complete
 inside `on_decide`; nominal duration is not a prediction of completion or hits.

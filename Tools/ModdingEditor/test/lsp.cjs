@@ -295,6 +295,11 @@ async function main() {
         const found=labels(await request('textDocument/completion',stopSound));
         return found.some(value=>value.startsWith('core_sound'));
     },'native sound stop field');
+    const playAnimation=probe('move-play-animation.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="play_animation",frame=17, | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',playAnimation));
+        return ['move','core_animation','player','child_name'].every(name=>found.some(value=>value.startsWith(name)));
+    },'child animation action fields');
     const moveTacticFields=probe('move-tactic-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),tactic_distance={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveTacticFields));
