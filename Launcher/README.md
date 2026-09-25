@@ -3,6 +3,8 @@
 Build with `BuildScripts/BuildLauncher.ps1`. Output is
 `BuildScripts/out/Launcher/EclipseLauncher.exe`. Requires Windows x64 with .NET
 Framework 4.8 (included in current Windows 10/11). This is independent of Unity.
+The build embeds `Assets/icon.png` and `Assets/Resources/ui/fonts/AGOpusBold.ttf`,
+so the launcher matches the game's icon and title font.
 The normal `BuildScripts/BuildPlayers.ps1 -Target Windows` workflow also places
 the launcher beside the Windows player. Unity's editor menu alone does not.
 
