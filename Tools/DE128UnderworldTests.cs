@@ -224,6 +224,8 @@ internal static class DE128UnderworldTests
             xml.GetAttribute("Tactic") == "Aggressive") tactic = "de128:tactics/hermit_storm";
         if (template == "Girl_Drakaina" && xml.GetAttribute("Tactic") == "Aggressive")
             tactic = "de128:tactics/war_whirl";
+        if (template == "Cyborg_Gatekeeper" && xml.GetAttribute("Tactic") == "Aggressive")
+            tactic = "de128:tactics/gatekeeper_power_field";
         Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();

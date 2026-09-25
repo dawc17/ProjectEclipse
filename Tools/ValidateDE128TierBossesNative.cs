@@ -34,6 +34,9 @@ public static class ValidateDE128TierBossesNative
     static int warEnteredAt = -1, warSelectedAt = -1;
     static bool warAttack, warEffectStopped, warCaptured;
     static readonly HashSet<string> warEffects = new HashSet<string>();
+    static int gatekeeperEnteredAt = -1, gatekeeperSelectedAt = -1;
+    static bool gatekeeperChild, gatekeeperAttack, gatekeeperElectro, gatekeeperPowerEffects, gatekeeperCaptured;
+    static bool gatekeeperElectroAnchored, gatekeeperPowerAnchored, gatekeeperPowerCaptured;
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
@@ -70,7 +73,8 @@ public static class ValidateDE128TierBossesNative
             double timeout = Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" ||
-                Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" ? 420 : 180;
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
@@ -201,6 +205,8 @@ public static class ValidateDE128TierBossesNative
                 !ObserveHermitWave(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" &&
                 !ObserveWarWhirl(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" &&
+                !ObserveGatekeeperField(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -326,6 +332,115 @@ public static class ValidateDE128TierBossesNative
                 decisionFrame + " selected=" + warSelectedAt + " attack=" + warAttack +
                 " stop=" + warEffectStopped + " effects=" + string.Join(",", warEffects));
         Debug.Log(Prefix + "War Whirl attacked and ran all three native effects with cleanup.");
+        return true;
+    }
+
+    static bool ObserveGatekeeperField(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_boss_11_1" &&
+            Target.Id.ToString() != "de128:fights/uw_boss_11_hardmode_1")
+            throw new Exception("Gatekeeper field acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (gatekeeperEnteredAt < 0)
+        {
+            gatekeeperEnteredAt = frame;
+            var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var cast = localMoves.SingleOrDefault(move => move.Name == "de128:moves/gatekeeper_power_field");
+            if (cast == null || localMoves.Count(move => move.Name == "GateKeeperPowerField" &&
+                move.SelectionConditions.Last().GetType().Name == "DisabledMoveCondition") != 1)
+                throw new Exception("Gatekeeper lacks the authored cast or retained the core selector.");
+            var electro = cast.ScheduledActions.OfType<ActionEffect>().Single();
+            if (electro.Attachment == null || !electro.DIGCODDLDAD())
+                throw new Exception("Gatekeeper's effect lost its native node attachment.");
+            enemy.AddEventListener(7, value =>
+            {
+                if (value is ActionEffect effect && effect.get_Name() == "ElectroEffect" &&
+                    enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == cast.Name)
+                    gatekeeperElectro = true;
+            });
+            Debug.Log(Prefix + "Gatekeeper's authored cast and node attachment loaded.");
+        }
+        if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "de128:moves/gatekeeper_power_field" &&
+            gatekeeperSelectedAt < 0)
+        {
+            gatekeeperSelectedAt = frame;
+            Debug.Log(Prefix + "Gatekeeper selected Power Field at frame " + frame + ".");
+        }
+        Model child = enemy.NMGNPBMFJKP(ModelType.KEIDBIOIFGA.MODEL_CHILD);
+        if (child != null && child.get_Name() == "AbilityPowerField")
+        {
+            if (!gatekeeperChild)
+            {
+                if (child.Parameters.Weapon?.Name != "MAGIC_FIRE_AURA")
+                    throw new Exception("Gatekeeper's power field lost its hidden native item.");
+                var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child);
+                var surge = localMoves.SingleOrDefault(move => move.Name == "de128:moves/gatekeeper_power_surge");
+                if (surge == null || surge.ScheduledActions.OfType<ActionEffect>().Count(effect => effect.Attachment != null) != 2)
+                    throw new Exception("Gatekeeper's spawned field lost its two parent-attached effects.");
+                child.OCPMJKIEPIG().AddEventListener(2, value =>
+                {
+                    if (value is IntervalAttack attack && attack.Start == 2 && attack.EndFrame == 5 &&
+                        attack.HitReactions.SingleOrDefault()?.Name == "ElectrocutionPowerfield" && attack.MOILKOLCNBP())
+                        gatekeeperAttack = true;
+                });
+                gatekeeperChild = true;
+                Debug.Log(Prefix + "Gatekeeper spawned the hidden-item Power Field actor.");
+            }
+        }
+        var electroObject = GameObject.Find("ElectroEffect");
+        if (electroObject != null)
+        {
+            var cast = ((List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy))
+                .Single(move => move.Name == "de128:moves/gatekeeper_power_field");
+            Vector3 target;
+            Quaternion orientation;
+            if (!cast.ScheduledActions.OfType<ActionEffect>().Single().Attachment.TryGetTransform(enemy, out target, out orientation) ||
+                Vector3.Distance(target, electroObject.transform.localPosition) > 80f)
+                throw new Exception("Gatekeeper ElectroEffect drifted from its live model anchor: target=" +
+                    target + " actual=" + electroObject.transform.localPosition + " world=" +
+                    electroObject.transform.position + " parent=" + electroObject.transform.parent?.position);
+            gatekeeperElectroAnchored = true;
+        }
+        var powerObject = GameObject.Find("PowerFieldEffect");
+        var powerObject2 = GameObject.Find("PowerFieldEffect2");
+        if (powerObject != null && powerObject2 != null)
+        {
+            gatekeeperPowerEffects = true;
+            if (child == null) throw new Exception("Gatekeeper's parent-attached effect lost its child actor.");
+            var surge = ((List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child))
+                .Single(move => move.Name == "de128:moves/gatekeeper_power_surge");
+            var attachment = surge.ScheduledActions.OfType<ActionEffect>().First().Attachment;
+            Vector3 target;
+            Quaternion orientation;
+            if (!attachment.TryGetTransform(child, out target, out orientation) ||
+                Vector3.Distance(target, powerObject.transform.localPosition) > 80f ||
+                Vector3.Distance(target, powerObject2.transform.localPosition) > 80f)
+                throw new Exception("Gatekeeper's field effects drifted from their parent model anchor.");
+            gatekeeperPowerAnchored = true;
+            if (!gatekeeperPowerCaptured)
+            {
+                CaptureCombatFrame(Target.Id.ToString() + "_power_surge");
+                gatekeeperPowerCaptured = true;
+            }
+        }
+        if (!gatekeeperCaptured && gatekeeperSelectedAt >= 0 && frame - gatekeeperSelectedAt >= 22 &&
+            frame - gatekeeperSelectedAt <= 80 && GameObject.Find("ElectroEffect") != null)
+        {
+            CaptureCombatFrame(Target.Id.ToString() + "_power_field");
+            gatekeeperCaptured = true;
+        }
+        // Verify one complete cast. A later recast can leave same-named effect
+        // objects alive briefly while the old sequence finishes.
+        if (gatekeeperSelectedAt < 0 || frame - gatekeeperSelectedAt < 180) return false;
+        if (gatekeeperSelectedAt < 0 || !gatekeeperChild || !gatekeeperAttack || !gatekeeperElectro ||
+            !gatekeeperPowerEffects || !gatekeeperCaptured || !gatekeeperElectroAnchored ||
+            !gatekeeperPowerAnchored || !gatekeeperPowerCaptured)
+            throw new Exception("Gatekeeper Power Field did not complete its first cast: selected=" +
+                gatekeeperSelectedAt + " child=" + gatekeeperChild + " attack=" + gatekeeperAttack +
+                " electro=" + gatekeeperElectro + " powerEffects=" + gatekeeperPowerEffects +
+                " capture=" + gatekeeperCaptured + " anchors=" + gatekeeperElectroAnchored +
+                "," + gatekeeperPowerAnchored);
+        Debug.Log(Prefix + "Gatekeeper cast, attached effects and spawned 0.3-damage field completed in native combat.");
         return true;
     }
 

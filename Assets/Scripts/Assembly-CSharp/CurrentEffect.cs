@@ -38,10 +38,22 @@ public class CurrentEffect
 
 	public void HJGPLENNFCK()
 	{
+		if (LLOLBKJMKNC.Attachment != null)
+		{
+			Vector3 position;
+			Quaternion attachmentRotation;
+			if (LLOLBKJMKNC.Attachment.TryGetTransform(ACENLMONNPA, out position, out attachmentRotation))
+			{
+				if (LLOLBKJMKNC.JNAALMFCPCN()) position.z += 0.1f;
+				_Interpolation.Push(position, attachmentRotation);
+			}
+			return;
+		}
 		int num = ACENLMONNPA.KFCNPADAMHA();
 		ModelConditions kDOGKKGDOBK = ACENLMONNPA.EBABHGHPLFK();
 		Vector3f eMAFACPEPDK = Vector3f.op_Implicit(LLOLBKJMKNC.ECJPLFFAMJO().EMGKDOAMBOH(kDOGKKGDOBK));
 		Vector3 anchor = new Vector3(eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
+		if (LLOLBKJMKNC.JNAALMFCPCN()) anchor.z += 0.1f;
 		_Diagnostics.Observe(ACENLMONNPA, LLOLBKJMKNC, anchor, num);
 		Quaternion rotation = _Interpolation.CurrentRotation;
 		Vector2f hEJKLMNOLLG = LLOLBKJMKNC.MABFDDNEOGO().HLBBNCBJHGB(kDOGKKGDOBK);

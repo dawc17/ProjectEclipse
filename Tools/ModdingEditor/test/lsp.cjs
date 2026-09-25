@@ -313,7 +313,7 @@ async function main() {
     const backgroundEffect=probe('move-background-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="effect",frame=1,effect={name="storm",core_sequence="storm", | }}} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',backgroundEffect));
-        return found.some(value=>value.startsWith('on_background'));
+        return ['on_background','attach'].every(name=>found.some(value=>value.startsWith(name)));
     },'background effect field');
     const moveProfileFields=probe('move-profile-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),profile={ | } }');
     await until(async()=>{
@@ -520,8 +520,13 @@ async function main() {
     const moveEffectProbe=probe('move-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="effect", actions={{ type="effect", effect={ | } }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',moveEffectProbe));
-        return ['name','core_sequence','scale','time_scale','looped','position','follow'].every(field=>result.some(value=>value.startsWith(field)));
+        return ['name','core_sequence','scale','time_scale','looped','position','follow','attach'].every(field=>result.some(value=>value.startsWith(field)));
     },'scheduled move effect fields');
+    const moveAttachProbe=probe('move-effect-attach.lua','local sf2=require("sf2")\nsf2.moves.register { id="effect", actions={{ type="effect", effect={name="shock",core_sequence="shock",attach={ | } } }} }');
+    await until(async()=>{
+        const result=labels(await request('textDocument/completion',moveAttachProbe));
+        return ['player','root_point','attach_point','offset_x','offset_y','start_rotation'].every(field=>result.some(value=>value.startsWith(field)));
+    },'scheduled effect attachment fields');
 
     const projectileProbe=probe('move-projectile.lua','local sf2=require("sf2")\nsf2.moves.register { id="projectile", actions={{ type="create_projectile", projectile={ | } }} }');
     await until(async()=>{

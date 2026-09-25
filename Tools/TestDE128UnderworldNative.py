@@ -29,6 +29,7 @@ def main() -> int:
     parser.add_argument("--hermit-wave", action="store_true", help="Reach the second Demon survival fighter and observe Storm")
     parser.add_argument("--hermit-victory", action="store_true", help="Defeat the player after Hermit's Storm and observe the authored victory move")
     parser.add_argument("--war-whirl", action="store_true", help="Observe War's archived RaidCharge Whirl in her Underworld boss fight")
+    parser.add_argument("--gatekeeper-field", action="store_true", help="Observe Gatekeeper's attached RaidCharge Power Field and child attack")
     parser.add_argument("--mercenary-wave", action="store_true", help="Reach Girl Fan in Mercenary survival and validate her native equipment")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
@@ -61,9 +62,12 @@ def main() -> int:
     if args.war_whirl and (args.fight not in ("de128:fights/uw_boss_9_1",
                                            "de128:fights/uw_boss_9_hardmode_1") or args.win):
         parser.error("--war-whirl requires a War normal or Power Mode --fight without --win.")
+    if args.gatekeeper_field and (args.fight not in ("de128:fights/uw_boss_11_1",
+                                                  "de128:fights/uw_boss_11_hardmode_1") or args.win):
+        parser.error("--gatekeeper-field requires a Gatekeeper normal or Power Mode --fight without --win.")
     if args.mercenary_wave and (args.fight != "de128:fights/uw_survival_mercenary_1" or args.win):
         parser.error("--mercenary-wave requires --fight de128:fights/uw_survival_mercenary_1 without --win.")
-    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.mercenary_wave)) > 1:
+    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.mercenary_wave)) > 1:
         parser.error("Choose one survival wave acceptance at a time.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
@@ -78,6 +82,13 @@ def main() -> int:
         "Assets/Scripts/Assembly-CSharp/ResourceManager.cs",
         "Assets/Scripts/Assembly-CSharp/IntervalAttack.cs",
         "Assets/Scripts/Assembly-CSharp/ModelAi.cs",
+        "Assets/Scripts/Assembly-CSharp/Model.cs",
+        "Assets/Scripts/Assembly-CSharp/ModelObject.cs",
+        "Assets/Scripts/Assembly-CSharp/ActionEffect.cs",
+        "Assets/Scripts/Assembly-CSharp/CurrentEffect.cs",
+        "Assets/Scripts/Assembly-CSharp/EffectsRunning.cs",
+        "Assets/Scripts/Eclipse/Rendering/EffectAttachment.cs",
+        "Assets/Scripts/Eclipse/Rendering/EffectAttachment.cs.meta",
         "Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs",
         "Assets/Scripts/Eclipse/Modding/ModAssetLoader.cs",
         "Assets/Scripts/Eclipse/Modding/ModRuntime.cs",
@@ -151,6 +162,8 @@ def main() -> int:
         environment["ECLIPSE_DE128_HERMIT_VICTORY"] = "1"
     if args.war_whirl:
         environment["ECLIPSE_DE128_WAR_WHIRL"] = "1"
+    if args.gatekeeper_field:
+        environment["ECLIPSE_DE128_GATEKEEPER_FIELD"] = "1"
     if args.mercenary_wave:
         environment["ECLIPSE_DE128_MERCENARY_WAVE"] = "1"
     if args.story_bosses:

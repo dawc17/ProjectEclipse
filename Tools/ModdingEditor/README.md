@@ -86,7 +86,10 @@ AI action completion respects authored native `tactic_conditions` and
 `tactic_distance` gates. Move conditions also support
 `{ type = "round_result", name = "Victory" }` or `"Defeat"` for end-of-round animations.
 Scheduled move effects accept `on_background = true` for the native background
-render layer; omission keeps the existing foreground behavior.
+render layer; omission keeps the existing foreground behavior. They also accept
+`attach = { player, root_point, attach_point, offset_x?, offset_y?,
+start_rotation? }` to follow a pair of live model nodes. Use `attach` in place
+of `position`; its offset uses the node-local frame with positive Y down.
 Scheduled `stop_sound` actions accept `core_sound` and call the native sound
 stop path at a frame or event, including hit and animation end.
 Adds AI candidate `timing` (sample bounds, spacing, nominal duration,

@@ -1275,6 +1275,14 @@ namespace Eclipse.Modding
                     Append(canonical, effect.Position != null);
                     if (effect.Position != null) AppendMovePoint(canonical, effect.Position);
                     if (effect.OnBackground) Append(canonical, "move-effect-background-v1");
+                    if (effect.Attach != null)
+                    {
+                        Append(canonical, "move-effect-attach-v1");
+                        Append(canonical, effect.Attach.Player); Append(canonical, effect.Attach.RootPoint); Append(canonical, effect.Attach.AttachPoint);
+                        Append(canonical, effect.Attach.OffsetX.ToString("R", CultureInfo.InvariantCulture));
+                        Append(canonical, effect.Attach.OffsetY.ToString("R", CultureInfo.InvariantCulture));
+                        Append(canonical, effect.Attach.StartRotation.ToString("R", CultureInfo.InvariantCulture));
+                    }
                 }
             }
         }

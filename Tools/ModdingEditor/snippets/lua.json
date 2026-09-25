@@ -144,6 +144,17 @@
     ],
     "description": "Inside a move actions array; requires content.register and a compatible core effect/rig."
   },
+  "Eclipse attached native effect": {
+    "prefix": "eclipse-move-effect-attach",
+    "body": [
+      "{ type = \"effect\", frame = ${1:13}, effect = {",
+      "    name = \"${2:ElectroEffect}\", core_sequence = \"${3:mgc_effect_shocker}\",",
+      "    attach = { player = \"Me\", root_point = \"${4:NStomach}\",",
+      "        attach_point = \"${5:NChest}\", offset_x = 0, offset_y = 0 },",
+      "} },"
+    ],
+    "description": "Inside a move actions array; follows a pair of live model nodes."
+  },
   "Eclipse stop native sound": {
     "prefix": "eclipse-move-stop-sound",
     "body": [

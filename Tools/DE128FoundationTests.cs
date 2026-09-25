@@ -211,10 +211,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 45 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 15 &&
-            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 10,
+        Check(catalog.Moves.Count == 47 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 17 &&
+            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 12,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 4 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 5 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -265,6 +265,21 @@ internal static class DE128FoundationTests
             warWhirl.Graph.Presentation.Actions.Count(action => action.Kind == "stop_sound" &&
                 action.StopSoundName == "snd_blade_fury") == 2,
             "War's archived Whirl combat graph, effect schedule or sound cleanup is incomplete.");
+        var field = catalog.Moves.Single(move => move.Id.LocalId == "gatekeeper_power_field");
+        var surge = catalog.Moves.Single(move => move.Id.LocalId == "gatekeeper_power_surge");
+        var fieldSpawn = field.Graph.Presentation.Actions.Single(action => action.Kind == "create_projectile").Projectile;
+        Check(fieldSpawn.StartMove == surge.Id && fieldSpawn.Item == CoreContentImporter.MagicId("MAGIC_FIRE_AURA") &&
+            field.Graph.Presentation.Actions.Single(action => action.Effect != null).Effect.Attach?.RootPoint == "MacroBodyGatekeeper-Node975" &&
+            surge.Graph.Presentation.Actions.Count(action => action.Effect?.Attach?.Player == "Parent") == 2 &&
+            surge.Intervals.Single(interval => interval.Attack != null).Attack.Damage == 0.3 &&
+            surge.Intervals.Single(interval => interval.Attack != null).Attack.Hit == "ElectrocutionPowerfield" &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_11_1"), out var gatekeeperFight) &&
+            catalog.TryGetWarrior(gatekeeperFight.Warriors[0], out var gatekeeperWarrior) &&
+            gatekeeperWarrior.Tactic == "de128:tactics/gatekeeper_power_field" &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_11_hardmode_1"), out var gatekeeperPowerFight) &&
+            catalog.TryGetWarrior(gatekeeperPowerFight.Warriors[0], out var gatekeeperPowerWarrior) &&
+            gatekeeperPowerWarrior.Tactic == "de128:tactics/gatekeeper_power_field",
+            "Gatekeeper's archived cast, attached child field or both Underworld tactics are incomplete.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
             catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&
@@ -792,7 +807,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 45 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 47 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,

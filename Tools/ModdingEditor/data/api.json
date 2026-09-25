@@ -3587,7 +3587,7 @@
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
         "damage_terms?": "Eclipse.MoveDamageTerm[]",
-        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"|\"WaspFly\"|\"Earthquake\"",
+        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"|\"WaspFly\"|\"Earthquake\"|\"ElectrocutionPowerfield\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse",
         "options?": "Eclipse.MoveAttackOptions"
@@ -3637,6 +3637,16 @@
         "first_frame?": "integer"
       }
     },
+    "MoveEffectAttachment": {
+      "fields": {
+        "player": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
+        "root_point": "string",
+        "attach_point": "string",
+        "offset_x?": "number",
+        "offset_y?": "number",
+        "start_rotation?": "number"
+      }
+    },
     "MoveEffect": {
       "fields": {
         "name": "string",
@@ -3646,7 +3656,8 @@
         "looped?": "boolean",
         "on_background?": "boolean",
         "position?": "Eclipse.MovePoint",
-        "follow?": "boolean"
+        "follow?": "boolean",
+        "attach?": "Eclipse.MoveEffectAttachment"
       }
     },
     "MoveProjectile": {

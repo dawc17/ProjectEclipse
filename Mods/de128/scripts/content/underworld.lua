@@ -8,6 +8,7 @@ local wasp_fly = require("content.wasp_fly")
 local butcher_earthquake = require("content.butcher_earthquake")
 local hermit_storm = require("content.hermit_storm")
 local war_whirl = require("content.war_whirl")
+local gatekeeper_power_field = require("content.gatekeeper_power_field")
 
 local ZONE_TITLES = { "ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7" }
 
@@ -187,7 +188,8 @@ local function install(raid_charge_rule)
                     local tactic = w.template == "Boss_Wasp_Young" and wasp_fly.tactic or
                         (w.template == "Boss_Butcher_Young" and butcher_earthquake.tactic or
                         (w.template == "Boss_Hermit_Young" and hermit_storm.tactic or
-                        (w.template == "Girl_Drakaina" and war_whirl.tactic or w.tactic)))
+                        (w.template == "Girl_Drakaina" and war_whirl.tactic or
+                        (w.template == "Cyborg_Gatekeeper" and gatekeeper_power_field.tactic or w.tactic))))
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = tactic,
                         avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,

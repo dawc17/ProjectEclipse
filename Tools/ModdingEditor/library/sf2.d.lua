@@ -1368,7 +1368,7 @@ local MoveAttackOptions = {}
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
 ---@field damage_terms? Eclipse.MoveDamageTerm[]
----@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"|"WaspFly"|"Earthquake"
+---@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"|"WaspFly"|"Earthquake"|"ElectrocutionPowerfield"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
 ---@field options? Eclipse.MoveAttackOptions
@@ -1412,6 +1412,15 @@ local MoveDirection = {}
 ---@field first_frame? integer
 local MoveTransition = {}
 
+---@class (exact) Eclipse.MoveEffectAttachment
+---@field player "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
+---@field root_point string
+---@field attach_point string
+---@field offset_x? number
+---@field offset_y? number
+---@field start_rotation? number
+local MoveEffectAttachment = {}
+
 ---@class (exact) Eclipse.MoveEffect
 ---@field name string
 ---@field core_sequence string
@@ -1421,6 +1430,7 @@ local MoveTransition = {}
 ---@field on_background? boolean
 ---@field position? Eclipse.MovePoint
 ---@field follow? boolean
+---@field attach? Eclipse.MoveEffectAttachment
 local MoveEffect = {}
 
 ---@class (exact) Eclipse.MoveProjectile

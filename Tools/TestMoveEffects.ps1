@@ -40,6 +40,35 @@ $defaultDoc=Project (Load-Lua $defaultLua)
 $defaultNode=$defaultDoc.SelectSingleNode('//Move/Actions/Effect')
 Check ($null -eq $defaultNode.Position -and $defaultNode.GetAttribute('Scale') -eq '1' -and $defaultNode.GetAttribute('TimeScale') -eq '1' -and $defaultNode.GetAttribute('Looped') -eq '0') 'Effect defaults differ.'
 Check ($null -ne [ActionsParser]::Create($defaultNode)) 'Positionless native effect failed.'
+$attachLua=@'
+local sf2=require("sf2")
+local attach={player="Parent",root_point="NStomach",attach_point="NChest",offset_x=15,offset_y=-15,start_rotation=330}
+sf2.moves.register {id="attached",animation=sf2.assets.binary("animations/chinese"),actions={{type="effect",frame=1,effect={name="Aura",core_sequence="effect_electricity",attach=attach}}}}
+'@
+$attachCatalog=Load-Lua $attachLua
+$attachNode=(Project $attachCatalog).SelectSingleNode('//Move/Actions/Effect/Attach')
+Check ($attachNode.GetAttribute('Player') -ceq 'Parent' -and $attachNode.GetAttribute('RootPoint') -ceq 'NStomach' -and
+    $attachNode.GetAttribute('AttachPoint') -ceq 'NChest' -and $attachNode.GetAttribute('OffsetVector') -ceq '15;-15' -and
+    $attachNode.GetAttribute('StartRotAngle') -ceq '330') 'Effect attachment native projection differs.'
+$attached=[ActionsParser]::Create($attachNode.ParentNode)
+Check ($null -ne $attached.Attachment -and $attached.DIGCODDLDAD()) 'Native parser did not retain following attachment.'
+$attachBaseline=Fingerprint $attachCatalog
+foreach($mutation in @('attach.player="Enemy"','attach.root_point="NNeck"','attach.attach_point="NHead"',
+    'attach.offset_x=16','attach.offset_y=-16','attach.start_rotation=329')) {
+    Check ($attachBaseline -cne (Fingerprint (Load-Lua $attachLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))))) ('Effect attachment fingerprint omitted: '+$mutation)
+}
+foreach($mutation in @('attach.player="Both"','attach.root_point=""','attach.attach_point="bad/path"',
+    'attach.offset_x=0/0','attach.offset_y=10001','attach.start_rotation=1/0','attach.extra=true',
+    'attach=nil;attach={player="Me"}','attach.offset_x="15"')) {
+    $failure=$null
+    try {$null=Load-Lua $attachLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))}catch{$failure=$_}
+    Check ($null -ne $failure) ('Invalid effect attachment accepted: '+$mutation)
+}
+foreach($addition in @('position={player="Me",object="Nodes",part="NPivot"}', 'follow=true')) {
+    $failure=$null
+    try {$null=Load-Lua $attachLua.Replace('attach=attach','attach=attach,'+$addition)}catch{$failure=$_}
+    Check ($null -ne $failure) ('Attached effect accepted incompatible '+$addition)
+}
 $baseline=Fingerprint $catalog
 foreach($mutation in @(
  'effect.name="Changed"','effect.core_sequence="changed_sequence"','effect.scale=0.5','effect.time_scale=0.5',

@@ -72,15 +72,32 @@ public class EffectsRunning
 		Vector3f eMAFACPEPDK = Vector3f.op_Implicit(IBODMPMJELJ.ECJPLFFAMJO().EMGKDOAMBOH(dGJJDPIAEAO));
 		GameObject gameObject = new GameObject(IBODMPMJELJ.get_Name());
 		gameObject.transform.localPosition = new Vector3(eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
+		Quaternion attachmentRotation = Quaternion.identity;
+		if (IBODMPMJELJ.Attachment != null)
+		{
+			Vector3 attachmentPosition;
+			if (!IBODMPMJELJ.Attachment.TryGetTransform(ACENLMONNPA, out attachmentPosition, out attachmentRotation))
+			{
+				Debug.LogWarning("[EffectAttach] Missing live anchor for " + IBODMPMJELJ.get_Name() + " on " + ACENLMONNPA.get_Name());
+				Object.Destroy(gameObject);
+				return;
+			}
+			gameObject.transform.localPosition = attachmentPosition;
+		}
+		if (IBODMPMJELJ.JNAALMFCPCN())
+			gameObject.transform.localPosition += new Vector3(0f, 0f, 0.1f);
 		Vector3 localScale = new Vector3((float)dGJJDPIAEAO.PCAOCHAIBJC * IBODMPMJELJ.GetScaleX(), 0f - IBODMPMJELJ.GetScaleY(), 1f);
 		gameObject.transform.localScale = localScale;
-		gameObject.transform.localEulerAngles = new Vector3(0f, 0f, IBODMPMJELJ.GetStartRotation());
+		gameObject.transform.localRotation = IBODMPMJELJ.Attachment == null
+			? Quaternion.Euler(0f, 0f, IBODMPMJELJ.GetStartRotation()) : attachmentRotation;
 		gameObject.transform.SetParent(_UnityObject.transform, false);
 		float changeSpriteTime = IBODMPMJELJ.EHJCPFIELAN() / 60f;
 		string oNNKJLOGHGH = "Textures/Effects/Magic/" + IBODMPMJELJ.EPDMGFELIMC();
 		CocosAnimation cocosAnimation = gameObject.AddComponent<CocosAnimation>();
 		bool effectLoaded = cocosAnimation.Init(oNNKJLOGHGH, true);
-		cocosAnimation.SetSortingOrder(IBODMPMJELJ.GetPriority());
+		// The recovered -10 background order puts effects behind every location
+		// sprite in Unity. Keep their order with the arena and use model depth.
+		cocosAnimation.SetSortingOrder(IBODMPMJELJ.JNAALMFCPCN() ? 0 : IBODMPMJELJ.GetPriority());
 		if (!effectLoaded)
 		{
 			LLLOJBFMONN.Write("Effect NO " + oNNKJLOGHGH);

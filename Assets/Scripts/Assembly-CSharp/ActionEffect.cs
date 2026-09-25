@@ -1,4 +1,5 @@
 using System.Xml;
+using Eclipse.Rendering;
 
 public class ActionEffect : ActionAnimation
 {
@@ -29,6 +30,8 @@ public class ActionEffect : ActionAnimation
 	private int _StopFollowFrame;
 
 	private DistanceVector GOPEDNFNPJF = new DistanceVector();
+
+	public EffectAttachment Attachment { get; private set; }
 
 	public string FileName
 	{
@@ -221,6 +224,12 @@ public class ActionEffect : ActionAnimation
 		if (xmlNode2 != null)
 		{
 			GOPEDNFNPJF.Parse(xmlNode2);
+		}
+		XmlNode attachment = node["Attach"];
+		if (attachment != null)
+		{
+			Attachment = new EffectAttachment(attachment);
+			EMPMLDKGEEG = true;
 		}
 	}
 }

@@ -474,7 +474,7 @@ namespace Eclipse.Modding
             if (hitMove.HasValue && (hit != null || hitMove.Value.Category != "moves"))
                 throw new ModContentException("Attack accepts hit or a moves-category hit_move, not both.");
             HitMove = hitMove; hit = hit ?? (hitMove.HasValue ? string.Empty : "High");
-            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction","WaspFly","Earthquake"},hit)<0)
+            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction","WaspFly","Earthquake","ElectrocutionPowerfield"},hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
             Direct = direct; Options = options ?? new ModMoveAttackOptions();
@@ -610,6 +610,29 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModMoveEffectAttachment
+    {
+        public string Player { get; }
+        public string RootPoint { get; }
+        public string AttachPoint { get; }
+        public double OffsetX { get; }
+        public double OffsetY { get; }
+        public double StartRotation { get; }
+        public ModMoveEffectAttachment(string player, string rootPoint, string attachPoint,
+            double offsetX = 0, double offsetY = 0, double startRotation = 0)
+        {
+            if (Array.IndexOf(new[] { "Me", "Enemy", "Parent", "Child", "EnemyChild" }, player) < 0)
+                throw new ModContentException("Effect attachment player is unsupported.");
+            ModMoveScheduledAction.ValidateSymbol(rootPoint, "effect root point");
+            ModMoveScheduledAction.ValidateSymbol(attachPoint, "effect attach point");
+            foreach (double value in new[] { offsetX, offsetY, startRotation })
+                if (double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value) > 10000)
+                    throw new ModContentException("Effect attachment offsets and rotation must be finite in -10000..10000.");
+            Player = player; RootPoint = rootPoint; AttachPoint = attachPoint;
+            OffsetX = offsetX; OffsetY = offsetY; StartRotation = startRotation;
+        }
+    }
+
     public sealed class ModMoveEffect
     {
         public string Name { get; }
@@ -619,9 +642,11 @@ namespace Eclipse.Modding
         public bool Looped { get; }
         public bool OnBackground { get; }
         public ModMovePoint Position { get; }
+        public ModMoveEffectAttachment Attach { get; }
         public bool Follow { get; }
         public ModMoveEffect(string name, string coreSequence, double scale = 1, double timeScale = 1,
-            bool looped = false, ModMovePoint position = null, bool follow = false, bool onBackground = false)
+            bool looped = false, ModMovePoint position = null, bool follow = false, bool onBackground = false,
+            ModMoveEffectAttachment attach = null)
         {
             ModMoveScheduledAction.ValidateSymbol(name, "effect");
             ModMoveScheduledAction.ValidateSymbol(coreSequence, "core effect sequence");
@@ -631,8 +656,9 @@ namespace Eclipse.Modding
             if (position != null && position.Object == "Animation")
                 throw new ModContentException("Effect position uses a distance point, not Animation.");
             if (follow && position == null) throw new ModContentException("Following an effect requires a position.");
+            if (attach != null && position != null) throw new ModContentException("Effect position and attach are mutually exclusive.");
             Name = name; CoreSequence = coreSequence; Scale = scale; TimeScale = timeScale;
-            Looped = looped; Position = position; Follow = follow; OnBackground = onBackground;
+            Looped = looped; Position = position; Follow = follow; OnBackground = onBackground; Attach = attach;
         }
     }
 

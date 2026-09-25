@@ -426,6 +426,12 @@ public class ModelObject
 		return lCDGOCIAIDK;
 	}
 
+	// best guess for name
+	public ModelNode FindNodeOrParent(string name)
+	{
+		return KLAPIGGACMM(name);
+	}
+
 	public int GetNodeIDByName(string name)
 	{
 		for (int i = 0; i < CEHJGIHMKFF.OEAFIMFONDL.Count; i++)

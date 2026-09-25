@@ -1533,6 +1533,12 @@ public class Model : global::EventDispatcher<object>
 		return _ModelObject;
 	}
 
+	// best guess for name
+	public ModelObject GetModelObject()
+	{
+		return CLDMEJKGLBA();
+	}
+
     internal System.Action CopyFormModifiersFrom(Model source)
     {
         if (source == null || source == this)
@@ -3246,6 +3252,12 @@ public class Model : global::EventDispatcher<object>
 			LLLOJBFMONN.Error("Model::getModelByType ERROR - wrong model type: {0}", LFLGCDNKNJI);
 			return null;
 		}
+	}
+
+	// best guess for name
+	public Model GetModelByRole(string role)
+	{
+		return NMGNPBMFJKP(ModelType.EHFNOBFLAHI(role));
 	}
 
 	public int JFCOFAELOCC(List<global::Pair<string, int>> IBLHIAHECLK)

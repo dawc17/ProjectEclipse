@@ -453,6 +453,16 @@ namespace Eclipse.Modding
                         var position = BuildMovePoint(document, "Position", effect.Position);
                         Set(position, "Follow", effect.Follow ? "1" : "0"); entry.AppendChild(position);
                     }
+                    if (effect.Attach != null)
+                    {
+                        var attach = document.CreateElement("Attach");
+                        Set(attach, "Player", effect.Attach.Player);
+                        Set(attach, "RootPoint", effect.Attach.RootPoint);
+                        Set(attach, "AttachPoint", effect.Attach.AttachPoint);
+                        Set(attach, "OffsetVector", effect.Attach.OffsetX.ToString("R", CultureInfo.InvariantCulture) + ";" + effect.Attach.OffsetY.ToString("R", CultureInfo.InvariantCulture));
+                        Set(attach, "StartRotAngle", effect.Attach.StartRotation.ToString("R", CultureInfo.InvariantCulture));
+                        entry.AppendChild(attach);
+                    }
                 }
                 if (action.Frame.HasValue) Set(entry, "Frame", action.Frame.Value.ToString(CultureInfo.InvariantCulture));
                 else Set(entry, "Event", action.Event);

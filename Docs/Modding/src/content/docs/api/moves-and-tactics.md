@@ -118,7 +118,7 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 | `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
 | `damage_terms` | Optional array of 1–4 `{ type, shift = 0 }` tables. `type` uses the same four attribute names, each at most once. `shift` must be finite in −1,000…1,000. |
-| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, `NoReaction`, `WaspFly`, or `Earthquake`. |
+| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, `NoReaction`, `WaspFly`, `Earthquake`, or `ElectrocutionPowerfield`. |
 | `hit_move` | Optional move handle selecting an authored hit reaction. Mutually exclusive with `hit`. The referenced move must exist and be accessible when registration commits. |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
@@ -283,6 +283,16 @@ native capitalization, unlike the lowercase `events` registration table above.
   Optional `position` uses the move point format below, except `Animation` is not
   supported by native effect positions. `follow` defaults to false and requires
   `position` when true. Omit `position` for the native model-owned/default placement.
+  Optional `attach` anchors and rotates the effect using two live model nodes. It
+  requires `player` (`Me`, `Enemy`, `Parent`, `Child`, or `EnemyChild`),
+  `root_point`, and `attach_point` (existing node names on that actor). Optional
+  `offset_x`, `offset_y`, and `start_rotation` default to 0; each must be finite
+  and within −10,000…10,000. The offset is in the two-node local frame, with
+  positive Y down. `start_rotation` adds degrees to the node direction. The
+  effect follows the nodes for its lifetime. Use either `attach` or `position`.
+  Leave `follow` unset with `attach`; following is automatic.
+  Missing live nodes cause the effect to be skipped and logged; the action does
+  not alter combat damage or move selection.
 - `type = "stop_effect"` requires `effect_name` and stops that named effect on the
   model. `type = "stop_follow_effect"` takes the same field and detaches its
   following behavior while leaving the effect active. Names must match the
@@ -300,6 +310,18 @@ end of the move. Place them in a compatible move's `actions` array:
 } },
 { type = "stop_follow_effect", event = "AnimationEnd", effect_name = "SmallSphereStart" },
 { type = "stop_effect", event = "RoundEnd", effect_name = "SmallSphereStart" },
+```
+
+For a moving boss aura, attach to two nodes instead of supplying a fixed point:
+
+```lua
+{ type = "effect", frame = 13, effect = {
+    name = "ElectroEffect", core_sequence = "mgc_effect_shocker",
+    scale = 0.75, time_scale = 2, on_background = true,
+    attach = { player = "Me", root_point = "MacroBodyGatekeeper-Node975",
+        attach_point = "MacroBodyGatekeeper-Node445",
+        offset_x = -54, offset_y = -12, start_rotation = -78 },
+} },
 ```
 
 Effect names and sequences follow the same symbol rules as sounds. Registration

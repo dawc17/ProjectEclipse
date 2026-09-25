@@ -502,11 +502,22 @@ namespace Eclipse.Modding
                         {
                             if (entry.Get("effect").Type != DataType.Table) throw new ModContentException("Effect action requires an effect table.");
                             var spec = entry.Get("effect").Table;
-                            ValidateFields(spec, function + ".effect", "name", "core_sequence", "scale", "time_scale", "looped", "position", "follow", "on_background");
+                            ValidateFields(spec, function + ".effect", "name", "core_sequence", "scale", "time_scale", "looped", "position", "follow", "on_background", "attach");
+                            ModMoveEffectAttachment attach = null;
+                            if (!spec.Get("attach").IsNil())
+                            {
+                                if (spec.Get("attach").Type != DataType.Table) throw new ModContentException("Effect attach requires a table.");
+                                var anchor = spec.Get("attach").Table;
+                                ValidateFields(anchor, function + ".effect.attach", "player", "root_point", "attach_point", "offset_x", "offset_y", "start_rotation");
+                                attach = new ModMoveEffectAttachment(RequiredString(anchor, "player", function),
+                                    RequiredString(anchor, "root_point", function), RequiredString(anchor, "attach_point", function),
+                                    OptionalFloat(anchor, "offset_x", 0, function), OptionalFloat(anchor, "offset_y", 0, function),
+                                    OptionalFloat(anchor, "start_rotation", 0, function));
+                            }
                             effect = new ModMoveEffect(RequiredString(spec, "name", function), RequiredString(spec, "core_sequence", function),
                                 OptionalFloat(spec, "scale", 1, function), OptionalFloat(spec, "time_scale", 1, function),
                                 OptionalBool(spec, "looped", false, function), spec.Get("position").IsNil() ? null : ReadMovePoint(spec.Get("position"), function + ".effect.position"),
-                                OptionalBool(spec, "follow", false, function), OptionalBool(spec, "on_background", false, function));
+                                OptionalBool(spec, "follow", false, function), OptionalBool(spec, "on_background", false, function), attach);
                         }
                         actions.Add(new ModMoveScheduledAction(kind,
                             entry.Get("frame").IsNil() ? (int?)null : RequiredInt(entry, "frame", function),

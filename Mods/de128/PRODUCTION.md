@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.29.0**. Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.30.0**. Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3756,3 +3756,49 @@ LuaLS and VS Code integration; wiki build (**48** pages, **4,344** local
 links/assets); four `dotnet msbuild` managed builds; **1,282** Underworld runtime
 assertions; pinned generator and art `--check`; and `git diff --check`. The
 location audit retains the known missing `fungus_raid/layer_0_2` image.
+
+### Step 64 — Gatekeeper's archived Power Field (0.30.0, 2026-09-25)
+
+The historical DE move archive changes Gatekeeper's Power Field input from
+Super to RaidCharge, removes the Super cooldown, replaces the cast's unstable,
+throwable and invulnerable intervals with a short Uninterrupt interval and a
+Block interval, and schedules a shocker effect on two named body macro nodes.
+It also changes the spawned field's attack damage from 0.4 to 0.3. DE128 now
+registers both complete moves, disables their core selectors, and installs a
+scoped Aggressive-inheriting tactic on the normal and Power Mode Gatekeeper.
+The hidden `MAGIC_FIRE_AURA` item, native electrocuting hit, paired field
+effects, and self-deletion remain in the spawned actor. The two binary
+animations are byte-identical to the packaged core files (SHA-256
+`DF779BD65A07C842972C3E78EB666DED15A70EA303F9236D58ABC8966A8223B9`
+and `28736A2E0DAF65C4D2347463B16B8DD08DB4B038FEAEFD4B937B96D1295B2DFE`).
+
+Eclipse now parses archived effect `Attach` children and follows two live model
+nodes each frame, including parent or enemy nodes for spawned actors. The
+two-node frame determines the effect's position and rotation; malformed or
+missing anchors cannot silently place an effect at the arena origin. The
+background effect compositor now places effects behind fighter models and in
+front of arena art: the recovered sorting order had hidden the electricity
+behind every location sprite. The public `effect.attach` table is typed,
+validated, projected to the native action, fingerprinted, documented in the
+wiki, and represented in the ModdingEditor schema, generated definitions,
+snippet and completion test. `ElectrocutionPowerfield` is a supported named
+native hit reaction. DE128 ships no XML and never reads XML at runtime.
+
+Isolated Unity 6 native runs entered both Gatekeeper fights. Each selected
+the RaidCharge cast, spawned the hidden field actor, ran its archived attack
+interval, resolved and rendered the shocker plus both parent-attached field
+effects, captured an offscreen frame with visible electricity, and returned to
+the Underworld map. The attachment frame and offsets are inferred from the
+archived node names and the existing Unity coordinate convention; the full
+owner corpus is still unavailable for a source-to-source comparison. These
+runs establish native combat and rendering, not interactive balance or
+audible sound quality.
+
+Verification: **14,699** DE128 foundation checks; **680** combined native move
+effect checks; normal and Power Mode native Gatekeeper combat, attachment
+tracking, offscreen captures and map return; native Hermit Storm regression;
+editor generate/check/**38**
+project tests, LuaLS and VS Code integration; wiki build (**48** pages,
+**4,344** local links/assets); four managed builds; **1,282** Underworld
+runtime assertions; pinned generator and art `--check`; and `git diff --check`.
+The location audit retains the known missing `fungus_raid/layer_0_2` image.
