@@ -472,7 +472,7 @@ namespace Eclipse.Modding
             if (hitMove.HasValue && (hit != null || hitMove.Value.Category != "moves"))
                 throw new ModContentException("Attack accepts hit or a moves-category hit_move, not both.");
             HitMove = hitMove; hit = hit ?? (hitMove.HasValue ? string.Empty : "High");
-            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction","WaspFly"},hit)<0)
+            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction","WaspFly","Earthquake"},hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
             Direct = direct; Options = options ?? new ModMoveAttackOptions();
@@ -638,19 +638,24 @@ namespace Eclipse.Modding
         public string Name { get; }
         public string CoreSkeleton { get; }
         public string CopyParentType { get; }
+        public DefinitionId? Item { get; }
         public string CoreStartAnimation { get; }
         public DefinitionId? StartMove { get; }
         public ModMoveProjectile(string name, string coreSkeleton, string copyParentType,
-            string coreStartAnimation = null, DefinitionId? startMove = null)
+            string coreStartAnimation = null, DefinitionId? startMove = null, DefinitionId? item = null)
         {
             ModMoveScheduledAction.ValidateSymbol(name, "projectile actor");
             ModMoveScheduledAction.ValidateSymbol(coreSkeleton, "core skeleton");
-            if (Array.IndexOf(new[] { "Weapon", "Ranged", "Magic" }, copyParentType) < 0)
+            if (item.HasValue == (copyParentType != null))
+                throw new ModContentException("Projectile requires exactly one of item or copy_parent_type.");
+            if (copyParentType != null && Array.IndexOf(new[] { "Weapon", "Ranged", "Magic" }, copyParentType) < 0)
                 throw new ModContentException("Projectile copy_parent_type requires Weapon, Ranged or Magic.");
+            if (item.HasValue && item.Value.Category != "items")
+                throw new ModContentException("Projectile item must be an equipment handle.");
             if (coreStartAnimation != null) ModMoveScheduledAction.ValidateSymbol(coreStartAnimation, "core start animation");
             if (startMove.HasValue && (startMove.Value.Category != "moves" || coreStartAnimation != null))
                 throw new ModContentException("Projectile accepts either start_move or core_start_animation.");
-            Name = name; CoreSkeleton = coreSkeleton; CopyParentType = copyParentType;
+            Name = name; CoreSkeleton = coreSkeleton; CopyParentType = copyParentType; Item = item;
             CoreStartAnimation = coreStartAnimation ?? string.Empty; StartMove = startMove;
         }
     }
@@ -805,18 +810,28 @@ namespace Eclipse.Modding
         public IReadOnlyList<ModMoveScheduledAction> Actions { get; }
         public ModMoveProfile Profile { get; }
         public ModMoveTacticDistance TacticDistance { get; }
+        public IReadOnlyList<ModMoveCondition> TacticConditions { get; }
         public bool NoWallRepulsion { get; }
         public bool NoInterpolationFrames { get; }
         public bool NoMagicRecharge { get; }
         public ModMoveVelocity Velocity { get; }
-        public bool HasContent => Actions.Count != 0 || Profile != null || TacticDistance != null || NoWallRepulsion || NoInterpolationFrames || NoMagicRecharge || Velocity != null;
+        public bool HasContent => Actions.Count != 0 || Profile != null || TacticDistance != null || TacticConditions.Count != 0 || NoWallRepulsion || NoInterpolationFrames || NoMagicRecharge || Velocity != null;
         public ModMovePresentation(ModMoveScheduledAction[] actions = null, ModMoveProfile profile = null,
-            ModMoveTacticDistance tacticDistance = null, bool noWallRepulsion = false, bool noInterpolationFrames = false, bool noMagicRecharge = false, ModMoveVelocity velocity = null)
+            ModMoveTacticDistance tacticDistance = null, bool noWallRepulsion = false, bool noInterpolationFrames = false, bool noMagicRecharge = false, ModMoveVelocity velocity = null,
+            ModMoveCondition[] tacticConditions = null)
         {
             actions = actions ?? Array.Empty<ModMoveScheduledAction>();
+            bool hasTacticConditions = tacticConditions != null;
+            tacticConditions = tacticConditions ?? Array.Empty<ModMoveCondition>();
             if (actions.Length > 64) throw new ModContentException("At most 64 scheduled move actions are supported.");
             foreach (var action in actions) if (action == null) throw new ModContentException("Null scheduled action.");
+            if (tacticDistance != null && hasTacticConditions)
+                throw new ModContentException("Use tactic_distance or tactic_conditions, not both.");
+            if (hasTacticConditions && (tacticConditions.Length < 1 || tacticConditions.Length > 32 ||
+                Array.Exists(tacticConditions, condition => condition == null)))
+                throw new ModContentException("Tactic conditions require 1..32 non-null entries.");
             Actions = Array.AsReadOnly((ModMoveScheduledAction[])actions.Clone()); Profile = profile; TacticDistance = tacticDistance;
+            TacticConditions = Array.AsReadOnly((ModMoveCondition[])tacticConditions.Clone());
             NoWallRepulsion = noWallRepulsion; NoInterpolationFrames = noInterpolationFrames;
             NoMagicRecharge = noMagicRecharge; Velocity = velocity;
         }
@@ -1240,7 +1255,17 @@ namespace Eclipse.Modding
                 GetLocalization(node.Graph.Presentation.Profile.DisplayName.Value.ToString());
             foreach (var action in node.Graph.Presentation.Actions)
             {
-                if (action.Projectile == null || !action.Projectile.StartMove.HasValue) continue;
+                if (action.Projectile == null) continue;
+                if (action.Projectile.Item.HasValue)
+                {
+                    var item = action.Projectile.Item.Value;
+                    if (!CanReferenceNamespace(item.Namespace) ||
+                        (!TryGetPendingItem(item, out ItemDefinition pendingItem) && !_catalog.TryResolveItem(item, out pendingItem)))
+                        throw new ModContentException("Projectile references missing or inaccessible item: " + item);
+                    if (!(pendingItem is WeaponDefinition) && !(pendingItem is RangedDefinition) && !(pendingItem is MagicDefinition))
+                        throw new ModContentException("Projectile item requires weapon, ranged or magic equipment: " + item);
+                }
+                if (!action.Projectile.StartMove.HasValue) continue;
                 var id = action.Projectile.StartMove.Value;
                 if (!CanReferenceNamespace(id.Namespace) ||
                     (!_p1dMoves.ContainsKey(id) && !_catalog.TryGetMove(id, out MoveDefinition ignored)))
@@ -1255,6 +1280,7 @@ namespace Eclipse.Modding
                     throw new ModContentException("Attack references missing or inaccessible hit_move: " + id);
             }
             ValidateMovePerkRefs(node.Conditions);
+            ValidateMovePerkRefs(node.Graph.Presentation.TacticConditions);
             ValidateMovePerkRefs(node.Graph.Locks);
             foreach(var transition in node.Graph.Transitions) ValidateMovePerkRefs(transition.Conditions);
             for (int i = 0; i < node.Templates.Count; i++)

@@ -25,6 +25,8 @@ def main() -> int:
     parser.add_argument("--fight", help="Play one exact de128:fights/uw_* ID")
     parser.add_argument("--win", action="store_true", help="Complete --fight through the native victory, reward and map path")
     parser.add_argument("--wasp-wave", action="store_true", help="Reach the fourth Demon survival fighter and observe her Fly ability")
+    parser.add_argument("--butcher-wave", action="store_true", help="Reach the third Demon survival fighter and observe Earthquake")
+    parser.add_argument("--mercenary-wave", action="store_true", help="Reach Girl Fan in Mercenary survival and validate her native equipment")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
                         help="Assert the saved Titan reward set is equipped on the native fighter")
@@ -47,6 +49,12 @@ def main() -> int:
         parser.error("--win requires one exact --fight ID.")
     if args.wasp_wave and (args.fight != "de128:fights/uw_survival_demon_1" or args.win):
         parser.error("--wasp-wave requires --fight de128:fights/uw_survival_demon_1 without --win.")
+    if args.butcher_wave and (args.fight != "de128:fights/uw_survival_demon_1" or args.win):
+        parser.error("--butcher-wave requires --fight de128:fights/uw_survival_demon_1 without --win.")
+    if args.mercenary_wave and (args.fight != "de128:fights/uw_survival_mercenary_1" or args.win):
+        parser.error("--mercenary-wave requires --fight de128:fights/uw_survival_mercenary_1 without --win.")
+    if sum((args.wasp_wave, args.butcher_wave, args.mercenary_wave)) > 1:
+        parser.error("Choose one survival wave acceptance at a time.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
     if (fixture / "Temp/UnityLockfile").exists():
@@ -59,6 +67,7 @@ def main() -> int:
         "Assets/Scripts/Assembly-CSharp/ListSF.cs",
         "Assets/Scripts/Assembly-CSharp/ResourceManager.cs",
         "Assets/Scripts/Assembly-CSharp/IntervalAttack.cs",
+        "Assets/Scripts/Assembly-CSharp/ModelAi.cs",
         "Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs",
         "Assets/Scripts/Eclipse/Modding/ModAssetLoader.cs",
         "Assets/Scripts/Eclipse/Modding/ModRuntime.cs",
@@ -123,6 +132,10 @@ def main() -> int:
         environment["ECLIPSE_DE128_TITAN_EQUIPMENT"] = "1"
     if args.wasp_wave:
         environment["ECLIPSE_DE128_WASP_WAVE"] = "1"
+    if args.butcher_wave:
+        environment["ECLIPSE_DE128_BUTCHER_WAVE"] = "1"
+    if args.mercenary_wave:
+        environment["ECLIPSE_DE128_MERCENARY_WAVE"] = "1"
     if args.story_bosses:
         environment["ECLIPSE_DE128_UNDERWORLD_MATRIX"] = "story"
         source = (ROOT / "Mods/de128/scripts/content/underworld_story_data.lua").read_text(encoding="utf-8")

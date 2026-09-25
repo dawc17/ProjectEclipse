@@ -1361,7 +1361,7 @@ local MoveAttackOptions = {}
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
 ---@field damage_terms? Eclipse.MoveDamageTerm[]
----@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"|"WaspFly"
+---@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"|"WaspFly"|"Earthquake"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
 ---@field options? Eclipse.MoveAttackOptions
@@ -1418,7 +1418,8 @@ local MoveEffect = {}
 ---@class (exact) Eclipse.MoveProjectile
 ---@field name string
 ---@field core_skeleton string
----@field copy_parent_type "Weapon"|"Ranged"|"Magic"
+---@field copy_parent_type? "Weapon"|"Ranged"|"Magic"
+---@field item? Eclipse.ItemHandle
 ---@field core_start_animation? string
 ---@field start_move? Eclipse.MoveHandle
 local MoveProjectile = {}
@@ -1517,6 +1518,7 @@ local MoveTemplateDefinition = {}
 ---@field actions? Eclipse.MoveScheduledAction[]
 ---@field profile? Eclipse.MoveProfile
 ---@field tactic_distance? Eclipse.MoveTacticDistance
+---@field tactic_conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]
 ---@field no_wall_repulsion? boolean
 ---@field no_interpolation_frames? boolean
 ---@field no_magic_recharge? boolean

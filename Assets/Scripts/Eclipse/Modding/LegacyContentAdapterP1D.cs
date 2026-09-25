@@ -359,7 +359,7 @@ namespace Eclipse.Modding
             parent.AppendChild(conditions);
         }
 
-        private static void AppendMovePresentation(XmlDocument document, XmlElement node, ModMovePresentation value)
+        private void AppendMovePresentation(XmlDocument document, XmlElement node, ModMovePresentation value)
         {
             if (value.NoMagicRecharge) Set(node, "NoMagicRecharge", "1");
             if (value.Velocity != null)
@@ -390,6 +390,11 @@ namespace Eclipse.Modding
                 Set(entry, "Max", distance.Maximum.ToString("R", CultureInfo.InvariantCulture));
                 entry.AppendChild(BuildMovePoint(document, "From", distance.Points.From));
                 entry.AppendChild(BuildMovePoint(document, "To", distance.Points.To));
+            }
+            if (value.TacticConditions.Count != 0)
+            {
+                var tactics = document.CreateElement("Tactics"); node.AppendChild(tactics);
+                AppendConditions(document, tactics, value.TacticConditions, "Conditions");
             }
             if (value.Actions.Count == 0) return;
             var actions = document.CreateElement("Actions"); node.AppendChild(actions);
@@ -429,7 +434,9 @@ namespace Eclipse.Modding
                     var skeleton = document.CreateElement("Item"); Set(skeleton, "Type", "Skeleton");
                     Set(skeleton, "Name", projectile.CoreSkeleton); entry.AppendChild(skeleton);
                     var weapon = document.CreateElement("Item"); Set(weapon, "Type", "Weapon");
-                    Set(weapon, "CopyParentType", projectile.CopyParentType); entry.AppendChild(weapon);
+                    if (projectile.Item.HasValue) Set(weapon, "Name", LegacyItemName(projectile.Item.Value));
+                    else Set(weapon, "CopyParentType", projectile.CopyParentType);
+                    entry.AppendChild(weapon);
                 }
                 if (action.EffectName.Length != 0) Set(entry, "Name", action.EffectName);
                 if (action.Effect != null)

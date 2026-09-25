@@ -376,7 +376,7 @@ namespace Eclipse.Modding
                 var fields = new List<string> { "id", "templates", "core_templates", "events", "conditions", "intervals",
                     "type", "priority", "mid_frames", "first_frame", "end_frame", "mirror_node", "tactic_equivalent",
                     "tactic_weapon", "looped", "ends_stage", "locks", "align", "direction" };
-                if (animation) { fields.AddRange(new[] { "animation", "transitions", "actions", "profile", "tactic_distance", "no_wall_repulsion", "no_interpolation_frames", "no_magic_recharge", "velocity" }); }
+                if (animation) { fields.AddRange(new[] { "animation", "transitions", "actions", "profile", "tactic_distance", "tactic_conditions", "no_wall_repulsion", "no_interpolation_frames", "no_magic_recharge", "velocity" }); }
                 ValidateFields(table, function, fields.ToArray());
             }
 
@@ -481,10 +481,12 @@ namespace Eclipse.Modding
                         {
                             if (entry.Get("projectile").Type != DataType.Table) throw new ModContentException("Projectile action requires a projectile table.");
                             var spec = entry.Get("projectile").Table;
-                            ValidateFields(spec, function + ".projectile", "name", "core_skeleton", "copy_parent_type", "core_start_animation", "start_move");
+                            ValidateFields(spec, function + ".projectile", "name", "core_skeleton", "copy_parent_type", "item", "core_start_animation", "start_move");
                             projectile = new ModMoveProjectile(RequiredString(spec, "name", function), RequiredString(spec, "core_skeleton", function),
-                                RequiredString(spec, "copy_parent_type", function), spec.Get("core_start_animation").IsNil() ? null : RequiredString(spec, "core_start_animation", function),
-                                spec.Get("start_move").IsNil() ? (DefinitionId?)null : RequiredHandle(spec, "start_move", _moveHandles, "move", function));
+                                spec.Get("copy_parent_type").IsNil() ? null : RequiredString(spec, "copy_parent_type", function),
+                                spec.Get("core_start_animation").IsNil() ? null : RequiredString(spec, "core_start_animation", function),
+                                spec.Get("start_move").IsNil() ? (DefinitionId?)null : RequiredHandle(spec, "start_move", _moveHandles, "move", function),
+                                spec.Get("item").IsNil() ? (DefinitionId?)null : RequiredHandle(spec, "item", _itemHandles, "item", function));
                         }
                         ModMoveBulletChange bullets = null;
                         if (kind == "add_bullets")
@@ -545,7 +547,8 @@ namespace Eclipse.Modding
                 }
                 return new ModMovePresentation(actions.ToArray(), profile, distance,
                     OptionalBool(table, "no_wall_repulsion", false, function), OptionalBool(table, "no_interpolation_frames", false, function),
-                    OptionalBool(table, "no_magic_recharge", false, function), velocity);
+                    OptionalBool(table, "no_magic_recharge", false, function), velocity,
+                    table.Get("tactic_conditions").IsNil() ? null : ReadMoveConditions(table.Get("tactic_conditions"), function + ".tactic_conditions"));
             }
 
             private DynValue RegisterMoveTrigger(ScriptExecutionContext context, CallbackArguments args)

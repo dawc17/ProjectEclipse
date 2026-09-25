@@ -56,7 +56,7 @@ including nested points and axes. Templates support these fields except
 preserving the move's other requirements; it requires `content.patch`.
 
 Direct move registrations also complete scheduled `actions` (core random sounds
-and shop completion), `profile`, `tactic_distance`, `no_wall_repulsion`, and
+and shop completion), `profile`, `tactic_distance`, `tactic_conditions`, `no_wall_repulsion`, and
 `no_interpolation_frames`. Action frame/event exclusivity, native name availability
 and live animation behavior still require runtime validation and playtesting.
 `profile.display_name` completes as an optional localization handle for a readable
@@ -412,10 +412,16 @@ batch validates before edits. Frame values are integers 0-100000. The shared
 See the moves reference for ambiguous-target rejection and teardown behavior.
 
 Move patches also accept `disable = true` to make an existing move unselectable
-while a complete replacement is registered. Move attacks accept the `WaspFly`
+while a complete replacement is registered. Move attacks accept the `WaspFly` and `Earthquake`
 reaction and `options.ignores_all_invulnerable = true`. The latter is exclusive
 with the named `ignores_invulnerable` list. Core perk handles in move locks are
 resolved to their native perk names when installed.
+
+`tactic_conditions` describes native AI eligibility with the same typed condition
+tables as move selection; it is exclusive with `tactic_distance`. A scheduled
+projectile accepts exactly one of `copy_parent_type` and an `item` equipment
+handle for its child Weapon slot. The named-item projectile snippet demonstrates
+the hidden core-item path.
 
 Scheduled move actions also support `effect`, `stop_effect`, and
 `stop_follow_effect`. Effect tables describe an existing core sequence, model-local

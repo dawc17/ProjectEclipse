@@ -3579,7 +3579,7 @@
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
         "damage_terms?": "Eclipse.MoveDamageTerm[]",
-        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"|\"WaspFly\"",
+        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"|\"WaspFly\"|\"Earthquake\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse",
         "options?": "Eclipse.MoveAttackOptions"
@@ -3644,7 +3644,8 @@
       "fields": {
         "name": "string",
         "core_skeleton": "string",
-        "copy_parent_type": "\"Weapon\"|\"Ranged\"|\"Magic\"",
+        "copy_parent_type?": "\"Weapon\"|\"Ranged\"|\"Magic\"",
+        "item?": "Eclipse.ItemHandle",
         "core_start_animation?": "string",
         "start_move?": "Eclipse.MoveHandle"
       }
@@ -3751,6 +3752,7 @@
         "actions?": "Eclipse.MoveScheduledAction[]",
         "profile?": "Eclipse.MoveProfile",
         "tactic_distance?": "Eclipse.MoveTacticDistance",
+        "tactic_conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
         "no_wall_repulsion?": "boolean",
         "no_interpolation_frames?": "boolean",
         "no_magic_recharge?": "boolean",

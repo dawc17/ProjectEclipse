@@ -3,7 +3,7 @@
 param([string]$OutputPath)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-msbuild (Join-Path $root 'Assembly-CSharp.csproj') /nologo /v:quiet /clp:ErrorsOnly
+dotnet msbuild (Join-Path $root 'Assembly-CSharp.csproj') /nologo /v:quiet /clp:ErrorsOnly
 if ($LASTEXITCODE -ne 0) { throw 'Native AI content test requires a current managed build.' }
 . (Join-Path $PSScriptRoot 'LoadUnityManagedAssemblies.ps1')
 $assembly = Import-SF2ManagedRuntime $root

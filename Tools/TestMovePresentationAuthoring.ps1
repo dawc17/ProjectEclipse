@@ -39,6 +39,26 @@ foreach($field in [ConditionDistance].GetFields($flags)) {
 }
 $full=Project (Load-Lua $presentationLua.Replace('local animation=','data.tactic_distance.axis="Full"' + "`n" + 'local animation='))
 Check (!$full.SelectSingleNode('//Move[contains(@Name,"slash")]/Tactics/Conditions/Distance').HasAttribute('Axis')) 'Full distance incorrectly became native Y distance.'
+$tacticLua=@'
+local animation=sf2.assets.binary("animations/chinese")
+local checks={
+ {type="current_animation",player="Enemy",name="Jump",["not"]=true},
+ {type="any",conditions={
+  {type="distance",axis="X",minimum=250,from={object="Pivot",player="Me"},to={object="Nodes",part="NPivot",player="Enemy"}},
+  {type="current_animation",player="Enemy",name="Fall"}
+ }},
+}
+sf2.moves.register {id="tactic",animation=animation,tactic_conditions=checks}
+'@
+$tacticCatalog=Load-Lua $tacticLua
+$tacticNode=(Project $tacticCatalog).SelectSingleNode('//Move[contains(@Name,"tactic")]/Tactics')
+Check ((Shape $tacticNode) -ceq (Shape $archive.SelectSingleNode('//Move[@Name="ButcherEarthquakePlayer"]/Tactics'))) 'Archived compound AI tactic conditions did not project exactly.'
+Check ((Fingerprint $tacticCatalog) -cne (Fingerprint (Load-Lua ($tacticLua.Replace('minimum=250','minimum=251'))))) 'AI tactic conditions are absent from the fingerprint.'
+foreach($mutation in @('tactic_distance={axis="X",from={object="Pivot",player="Me"},to={object="Pivot",player="Enemy"}}','tactic_conditions={[2]=checks[1]}','tactic_conditions={}')) {
+ $failure=$null
+ try {$null=Load-Lua $tacticLua.Replace('tactic_conditions=checks',('tactic_conditions=checks,'+$mutation))}catch{$failure=$_}
+ Check ($null -ne $failure) ('Invalid compound AI tactic accepted: '+$mutation)
+}
 $nativeProfile=[Trick]::new($slash.Profile,[InfoAnimation]::new())
 Check ($nativeProfile.Rank -eq 4 -and $nativeProfile.NHKMCLPOMFK -ceq 'Trick7.super_slash') 'Profile rank/icon changed in native parser.'
 $fingerprint=Fingerprint $catalog

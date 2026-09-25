@@ -218,6 +218,8 @@ internal static class DE128UnderworldTests
         // This exact fighter inherits Aggressive and selects Fly when native conditions permit.
         string tactic = where == "uw_survival_demon_1 opponent 4" && template == "Boss_Wasp_Young" &&
             xml.GetAttribute("Tactic") == "Aggressive" ? "de128:tactics/wasp_fly" : xml.GetAttribute("Tactic");
+        if (where == "uw_survival_demon_1 opponent 3" && template == "Boss_Butcher_Young" &&
+            xml.GetAttribute("Tactic") == "Aggressive") tactic = "de128:tactics/butcher_earthquake";
         Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();

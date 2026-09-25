@@ -277,7 +277,7 @@ async function main() {
     const moveGraphFields=probe('move-graph-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"), | }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveGraphFields));
-        return ['locks','transitions','align','direction','actions','profile','tactic_distance','no_wall_repulsion','no_interpolation_frames'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['locks','transitions','align','direction','actions','profile','tactic_distance','tactic_conditions','no_wall_repulsion','no_interpolation_frames'].every(name=>found.some(value=>value.startsWith(name)));
     },'move graph fields');
     const alignFields=probe('move-align-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),align={axes={"X"},pivot={ | }} }');
     await until(async()=>{
@@ -295,6 +295,11 @@ async function main() {
         const found=labels(await request('textDocument/completion',moveTacticFields));
         return ['axis','minimum','maximum','from','to'].every(name=>found.some(value=>value.startsWith(name)));
     },'move tactic distance fields');
+    const tacticCondition=probe('move-tactic-conditions.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),tactic_conditions={{ | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',tacticCondition));
+        return ['type','name','player','conditions','minimum'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move tactic condition fields');
     const moveProfileFields=probe('move-profile-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),profile={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveProfileFields));
@@ -506,7 +511,7 @@ async function main() {
     const projectileProbe=probe('move-projectile.lua','local sf2=require("sf2")\nsf2.moves.register { id="projectile", actions={{ type="create_projectile", projectile={ | } }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',projectileProbe));
-        return ['name','core_skeleton','copy_parent_type','core_start_animation','start_move'].every(field=>result.some(value=>value.startsWith(field)));
+        return ['name','core_skeleton','copy_parent_type','item','core_start_animation','start_move'].every(field=>result.some(value=>value.startsWith(field)));
     },'scheduled projectile fields');
     const bulletsProbe=probe('move-bullets.lua','local sf2=require("sf2")\nsf2.moves.register { id="charge", actions={{ type="add_bullets", bullets={ | } }} }');
     await until(async()=>{

@@ -211,15 +211,28 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 39 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 9 &&
-            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 4,
-            "Archived move registrations, Wasp replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 1 && catalog.Tactics.Single().RuntimeName == "de128:tactics/wasp_fly" &&
-            catalog.Tactics.Single().CoreTemplate == "Aggressive" &&
+        Check(catalog.Moves.Count == 41 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 11 &&
+            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 6,
+            "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
+        Check(catalog.Tactics.Count == 2 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
             "Wasp's Underworld fighter lost its Fly-aware Aggressive tactic.");
+        Check(catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/butcher_earthquake" && tactic.CoreTemplate == "Aggressive") &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var butcherFight) &&
+            catalog.TryGetWarrior(butcherFight.Warriors[2], out var butcherWarrior) &&
+            butcherWarrior.Tactic == "de128:tactics/butcher_earthquake",
+            "Butcher's Underworld fighter lost its Earthquake-aware Aggressive tactic.");
+        var quakePlayer = catalog.Moves.Single(move => move.Id.LocalId == "butcher_earthquake_player");
+        var quakeStart = catalog.Moves.Single(move => move.Id.LocalId == "butcher_earthquake_start");
+        var quakeSpawn = quakePlayer.Graph.Presentation.Actions.Single(action => action.Kind == "create_projectile").Projectile;
+        Check(quakePlayer.Graph.Presentation.TacticConditions.Count == 2 &&
+            quakeSpawn.Item == CoreContentImporter.MagicId("MAGIC_BUTCHER_EARTHQUAKE") &&
+            quakeSpawn.StartMove == quakeStart.Id && quakeSpawn.CopyParentType == null &&
+            quakeStart.Intervals.Single().Attack.Hit == "Earthquake" &&
+            quakeStart.Intervals.Single().Attack.Options.IgnoresBlock,
+            "Butcher's authored caster, hidden-item projectile or native hit graph is incomplete.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
             catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&
@@ -747,7 +760,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 39 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 41 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,

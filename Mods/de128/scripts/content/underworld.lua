@@ -5,6 +5,7 @@ local sf2 = require("sf2")
 local data = require("content.underworld_data")
 local text = require("content.underworld_text")
 local wasp_fly = require("content.wasp_fly")
+local butcher_earthquake = require("content.butcher_earthquake")
 
 local ZONE_TITLES = { "ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7" }
 
@@ -181,7 +182,8 @@ local function install(raid_charge_rule)
                 local prefix = battle_id .. "_" .. lower_id(fight_spec.name)
                 local warriors = {}
                 for index, w in ipairs(fight_spec.warriors) do
-                    local tactic = w.template == "Boss_Wasp_Young" and wasp_fly.tactic or w.tactic
+                    local tactic = w.template == "Boss_Wasp_Young" and wasp_fly.tactic or
+                        (w.template == "Boss_Butcher_Young" and butcher_earthquake.tactic or w.tactic)
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = tactic,
                         avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,

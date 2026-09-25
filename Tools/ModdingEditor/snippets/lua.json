@@ -154,6 +154,16 @@
     ],
     "description": "Inside a caster move actions array; requires a complete compatible projectile graph."
   },
+  "Eclipse named-item projectile": {
+    "prefix": "eclipse-move-projectile-item",
+    "body": [
+      "{ type = \"create_projectile\", frame = ${1:22}, projectile = {",
+      "    name = \"${2:Earthquake}\", core_skeleton = \"${3:SkeletonMagic}\",",
+      "    item = sf2.items.get(\"core:items/magic/${4:MAGIC_BUTCHER_EARTHQUAKE}\"), start_move = ${5:child_move},",
+      "} },"
+    ],
+    "description": "Equip a resolved hidden item on a child actor; define child_move first."
+  },
   "Eclipse projectile flight fields": {
     "prefix": "eclipse-projectile-flight",
     "body": [

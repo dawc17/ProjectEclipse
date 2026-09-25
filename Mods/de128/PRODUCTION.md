@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.26.0**. Step 60 restores Wasp's complete Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.27.0**. Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3610,3 +3610,64 @@ Volcano victory; editor generate/check/**38** project tests, LuaLS and VS Code
 integration; wiki build (**48** pages, **4,344** local links/assets). The
 location audit still reports the known missing `fungus_raid/layer_0_2` image.
 No interactive player playtest or visual review of Fly's effects was run.
+
+### Step 61 — Butcher's Earthquake and late Mercenary survival (0.27.0, 2026-09-25)
+
+The historical DE move archive gives Butcher Earthquake a RaidCharge caster move
+and a hidden-item child attack. The packaged core retains older versions: its
+caster uses the Super input, lacks the archived combat guards, native AI
+conditions and voice/effect schedule, and its child graph lacks the archived
+item/skeleton locks, damage options and no-recharge flag. DE128 now registers
+both replacement moves from unchanged packaged animation binaries, disables the
+two older core selectors, and gives only the third Demon survival opponent an
+Aggressive-inheriting Lua tactic that chooses Earthquake when the native move
+is eligible. The authored graph retains the archived 250-unit-or-falling AI
+gate, cooldown, frame-22 hidden-item spawn, frame-23 shake, child attack at
+frame 2 with the Earthquake reaction and block bypass, and child deletion.
+
+Eclipse's reusable move API now allows `create_projectile` to equip a resolved
+weapon, ranged or magic item instead of copying the caster's equipment. It
+rejects missing, inaccessible, incompatible and simultaneous item/copy sources
+at registration. The native adapter emits the resolved legacy item name and the
+item identity affects save fingerprints. New typed `tactic_conditions` projects
+compound native AI conditions; it is exclusive with `tactic_distance` and is
+fingerprinted. The existing native Earthquake hit reaction is available by
+name. The wiki, editor schema/generated Lua definitions, completion checks,
+snippet and editor guide changed with those APIs. DE128 still ships no XML and
+reads none at runtime. The unavailable full owner corpus remains an explicit
+reconciliation limit; this restoration uses the checked-in historical DE move
+archive and byte-identical packaged animation data.
+
+Two Unity 6 acceptance runs with the corrected AI clock advanced through Lynx
+and Hermit to Butcher's third Demon survival wave. They observed the replacement
+move on his fighter with the older core selector disabled, a real AI selection,
+creation of Earthquake with the hidden native item, selection of the authored
+child move, entry into its
+attack interval with the Earthquake reaction and block bypass, deletion of the
+child, and return to the Underworld map. Later runs exposed a base AI clock bug:
+the Lua callback received the controller's last-input frame, which stayed zero
+while Butcher idled and froze the decision throttle. Eclipse now passes the
+advancing fight frame. The scoped Lua tactic preserves the archived distance
+or falling gate when choosing a candidate; native Aggressive decisions continue
+while the ability is unavailable. The native fixture also checks that the Lua
+AI clock advanced; the final-source run selected the move at frame 371.
+
+Separately, the native Mercenary survival fixture defeated 22 opponents through
+the real fight state machine and reached Girl Fan in wave 23. Her archived
+ceremonial armor and helm equipped, her model rendered for 90 frames with 893
+nodes in the burning-town arena, and the fight returned to the Underworld map.
+The first 180-second fixture cap expired during wave 17; the reviewed long-run
+cap passed without changing gameplay code. The captured offscreen frame shows
+the arena and silhouettes; it does not establish detailed equipment appearance.
+
+Verification: DE128 foundation **14,653** checks; Underworld runtime **1,282**
+assertions; move presentation **512** and projectile **717** combined checks;
+four managed builds; Lua AI suite (**14** shortlist, **56** adapter, **33** native
+metadata and **69** Lua decision checks); pinned Underworld generator/art
+`--check`; static location audit (same missing `fungus_raid/layer_0_2` image);
+native Butcher ability and
+Girl Fan wave fixtures; editor generate/check/**38** project tests, LuaLS and VS
+Code integration; and wiki build (**48** pages, **4,344** local links/assets).
+Neither interactive combat balance nor audible/visual quality of Earthquake's
+effect was established. The survival tests surrendered after the observed wave;
+they did not claim a full Mercenary or Demon reward victory.

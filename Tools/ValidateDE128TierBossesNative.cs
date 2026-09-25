@@ -25,6 +25,9 @@ public static class ValidateDE128TierBossesNative
     static bool campaign, mapRequested, raidPrepared, entryRequested, surrenderRequested, ownerArtValidated;
     static int targetIndex, storyPresses, storyIntros;
     static int waspWaveDefeats, waspEnteredAt = -1, waspFirstFlyAt = -1, waspLastFlyAt = -1;
+    static int butcherWaveDefeats, butcherEnteredAt = -1, butcherSelectedAt = -1;
+    static bool butcherChildSpawned, butcherChildMove, butcherChildAttack, butcherChildDeleted;
+    static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
 
@@ -57,7 +60,9 @@ public static class ValidateDE128TierBossesNative
         try
         {
             if (combatException != null) throw new Exception("Native boss combat exception: " + combatException);
-            if (EditorApplication.timeSinceStartup - started > 180)
+            double timeout = Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" ? 420 : 180;
+            if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
                     " fight=" + (Fight.GetCurrentFight() != null));
@@ -179,6 +184,10 @@ public static class ValidateDE128TierBossesNative
             if (fight.get_FightTimeInFrames() < 30) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_WASP_WAVE") == "1" &&
                 !ObserveWaspWave(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" &&
+                !ObserveButcherWave(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
+                !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
             if (live?.FightId?.ToString() != new FightIDS(scripts.Content.RuntimeFightId(Target.Id)).ToString() ||
                 enemy.CLDMEJKGLBA() == null || player.CLDMEJKGLBA() == null)
@@ -238,6 +247,121 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveButcherWave(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_survival_demon_1")
+            throw new Exception("Butcher wave acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (enemy.Parameters.Weapon?.Name != "WEAPON_BUTCHER_KNIVES")
+        {
+            if (butcherEnteredAt >= 0) throw new Exception("Butcher left his wave before Earthquake acceptance.");
+            if (butcherWaveDefeats > 3) throw new Exception("Butcher did not enter after two survival defeats.");
+            if (EditorApplication.timeSinceStartup - lastWaveDefeat < 0.7) return false;
+            lastWaveDefeat = EditorApplication.timeSinceStartup;
+            if (fight.DebugDefeatOpponent())
+            {
+                butcherWaveDefeats++;
+                Debug.Log(Prefix + "Advanced Demon survival to Butcher: defeat " + butcherWaveDefeats + ".");
+            }
+            return false;
+        }
+        if (butcherEnteredAt < 0)
+        {
+            butcherEnteredAt = frame;
+            if (butcherWaveDefeats != 2)
+                throw new Exception("Butcher entered outside his third archived survival wave.");
+            var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            if (localMoves.Count(move => move.Name == "de128:moves/butcher_earthquake_player") != 1 ||
+                localMoves.Count(move => move.Name == "ButcherEarthquakePlayer" &&
+                    move.SelectionConditions.Last().GetType().Name == "DisabledMoveCondition") != 1)
+                throw new Exception("Butcher lacks the selectable DE Earthquake or retained the core selector.");
+            enemy.AddEventListener(6, value =>
+            {
+                var child = value as Model;
+                if (child?.get_Name() != "Earthquake") return;
+                butcherChildSpawned = true;
+                if (child.Parameters.Weapon?.Name != "MAGIC_BUTCHER_EARTHQUAKE")
+                    throw new Exception("Butcher's projectile did not equip the hidden native earthquake item.");
+                child.OCPMJKIEPIG().AddEventListener(0, animation =>
+                {
+                    if ((animation as InfoAnimation)?.Name == "de128:moves/butcher_earthquake_start")
+                        butcherChildMove = true;
+                });
+                child.OCPMJKIEPIG().AddEventListener(2, interval =>
+                {
+                    if (child.OCPMJKIEPIG().NNMAFFCCMHC()?.Name != "de128:moves/butcher_earthquake_start" ||
+                        !(interval is IntervalAttack attack)) return;
+                    if (attack.Start != 2 || attack.HitReactions.SingleOrDefault()?.Name != "Earthquake" ||
+                        !attack.MOILKOLCNBP())
+                        throw new Exception("Butcher's live projectile attack lost its archived Earthquake reaction or block bypass.");
+                    butcherChildAttack = true;
+                });
+                child.AddEventListener(5, ignored => butcherChildDeleted = true);
+                Debug.Log(Prefix + "Butcher spawned Earthquake with its hidden native item.");
+            });
+            Debug.Log(Prefix + "Reached Butcher after two native survival defeats; DE Earthquake is selectable.");
+        }
+        if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "de128:moves/butcher_earthquake_player" &&
+            butcherSelectedAt < 0)
+        {
+            butcherSelectedAt = frame;
+            Debug.Log(Prefix + "Butcher selected archived Earthquake at frame " + frame + ".");
+        }
+        if (frame - butcherEnteredAt < 1200) return false;
+        int decisionFrame = (int)typeof(ModelAi).GetField("_modDecisionFrame", Hidden)
+            .GetValue(enemy.EEIGOJBKFGE());
+        if (decisionFrame < 300)
+            throw new Exception("Butcher's Lua AI clock did not advance in live combat: " + decisionFrame);
+        if (butcherSelectedAt < 0 || !butcherChildSpawned || !butcherChildMove || !butcherChildAttack || !butcherChildDeleted)
+            throw new Exception("Butcher's complete Earthquake sequence did not execute within 1200 frames: selected=" +
+                butcherSelectedAt + " spawned=" + butcherChildSpawned + " move=" + butcherChildMove +
+                " attack=" + butcherChildAttack +
+                " deleted=" + butcherChildDeleted);
+        Debug.Log(Prefix + "Butcher Earthquake cast, child attack and deletion completed in native combat.");
+        return true;
+    }
+
+    static bool ObserveMercenaryWave(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_survival_mercenary_1")
+            throw new Exception("Mercenary wave acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (enemy.Parameters.Weapon?.Name != "WEAPON_SUPER_FANS")
+        {
+            if (mercenaryEnteredAt >= 0)
+                throw new Exception("Girl Fan left her wave before equipment acceptance.");
+            if (mercenaryWaveDefeats > 23)
+                throw new Exception("Girl Fan did not enter after 22 survival defeats.");
+            if (EditorApplication.timeSinceStartup - lastWaveDefeat < 0.7) return false;
+            lastWaveDefeat = EditorApplication.timeSinceStartup;
+            if (fight.DebugDefeatOpponent())
+            {
+                mercenaryWaveDefeats++;
+                Debug.Log(Prefix + "Advanced Mercenary survival: defeat " + mercenaryWaveDefeats +
+                    ", current weapon=" + enemy.Parameters.Weapon?.Name + ".");
+            }
+            return false;
+        }
+        if (mercenaryEnteredAt < 0)
+        {
+            mercenaryEnteredAt = frame;
+            if (mercenaryWaveDefeats != 22 ||
+                enemy.Parameters.Armor?.Name != "ARMOR_IM_CEREMONIAL" ||
+                enemy.Parameters.Helm?.Name != "HELM_IM_CEREMONIAL")
+                throw new Exception("Girl Fan's native survival slot or ceremonial equipment differs: " +
+                    mercenaryWaveDefeats + " defeats, armor=" + enemy.Parameters.Armor?.Name +
+                    ", helm=" + enemy.Parameters.Helm?.Name);
+            Debug.Log(Prefix + "Reached Girl Fan after 22 native survival defeats; ceremonial armor and helm equipped.");
+        }
+        if (frame - mercenaryEnteredAt < 90) return false;
+        var macros = enemy.CLDMEJKGLBA()?.BLFJJAEFKKP();
+        if (macros == null || macros.Count < 10)
+            throw new Exception("Girl Fan's native fighter model did not render through 90 combat frames.");
+        CaptureCombatFrame(Target.Id.ToString() + "_girl_fan");
+        Debug.Log(Prefix + "Girl Fan fought 90 frames with " + macros.Count + " native model nodes.");
+        return true;
+    }
 
     static bool ObserveWaspWave(Fight fight, Model enemy)
     {

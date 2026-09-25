@@ -6,7 +6,12 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.26.0` restores Wasp's
+DE128 is an ordinary downstream Eclipse mod. Version `0.27.0` restores Butcher's
+archived Earthquake caster and hidden-item projectile in the Demon survival wave.
+The native test reaches his third wave, observes the RaidCharge cast, projectile
+attack interval and deletion, then returns to the Underworld map. The same
+acceptance suite reaches Girl Fan in Mercenary survival's 23rd wave and verifies
+her ceremonial gear in combat. Version `0.26.0` restores Wasp's
 four archived Fly attacks in the Demon survival wave, with the native RaidCharge
 input, cooldown, wall ranges, hit behavior, effects and a Fly-aware Aggressive
 tactic. The native test advances through three opponents, observes the ability

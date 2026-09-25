@@ -110,7 +110,7 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 | `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
 | `damage_terms` | Optional array of 1–4 `{ type, shift = 0 }` tables. `type` uses the same four attribute names, each at most once. `shift` must be finite in −1,000…1,000. |
-| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, `NoReaction`, or `WaspFly`. |
+| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, `NoReaction`, `WaspFly`, or `Earthquake`. |
 | `hit_move` | Optional move handle selecting an authored hit reaction. Mutually exclusive with `hit`. The referenced move must exist and be accessible when registration commits. |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
@@ -209,6 +209,7 @@ rejects them. They require the same `content.register` capability as the move.
 | `actions` | Dense array of up to 64 scheduled actions, default empty. |
 | `profile` | Optional `{ rank, core_icon }` entry shown in the native moves list. `rank` is a required integer in 0–100,000; `core_icon` is an existing native icon name such as `Trick7.super_slash`. Omit the table for no entry. |
 | `tactic_distance` | Optional native AI distance requirement with required `axis`, `from`, and `to`. `axis` is `X`, `Y`, or `Full` (planar distance). `minimum`/`maximum` default to −1,000,000/+1,000,000, must be finite within those bounds, and minimum must not exceed maximum. Points use the table format below, require explicit players and cannot use `Animation`. This restricts native tactic eligibility; it does not itself configure an AI tactic table. |
+| `tactic_conditions` | Optional dense array of 1–32 typed move conditions evaluated by native AI when considering this move. It supports the same condition shapes and `all`/`any` groups as `conditions`; it does not change player input eligibility. Use this for AI rules that combine distance with another state, such as allowing a cast when the opponent is falling. Mutually exclusive with `tactic_distance`; omit both for no authored AI gate. |
 | `no_wall_repulsion` | Boolean, default false. Uses the native move flag to suppress wall repulsion. |
 | `no_interpolation_frames` | Boolean, default false. Uses the native move flag to suppress interpolation frames. |
 | `no_magic_recharge` | Boolean, default false. Sets the native per-move flag preventing magic recharge during that move; useful for projectile actors. |
@@ -310,9 +311,13 @@ an unavoidable attack. Existing edge-based definitions and fingerprints are unch
 Scheduled projectile lifecycle actions use the same `frame`/`event` timing:
 
 - `type = "create_projectile"` requires `projectile = { name, core_skeleton,
-  copy_parent_type }`. The native runtime creates a child weapon actor with this
-  exact model name, an existing skeleton such as `SkeletonMagic`, and a copy of
-  the caster's `Weapon`, `Ranged`, or `Magic` equipment in the child's Weapon slot.
+  copy_parent_type }` or `projectile = { name, core_skeleton, item }`. The native
+  runtime creates a child weapon actor with this exact model name and an existing
+  skeleton such as `SkeletonMagic`. Supply exactly one equipment source:
+  `copy_parent_type` copies the caster's `Weapon`, `Ranged`, or `Magic` equipment
+  into the child's Weapon slot; `item` equips a resolved equipment handle there,
+  including a hidden core projectile item. `item` accepts weapon, ranged, or
+  magic equipment; missing and incompatible items fail registration.
   Names are symbolic, not paths. This API describes this native child-actor path;
   it does not register a warrior or load a new skeleton. Copying equipment retains
   native item properties instead of supplying a replacement damage value.
@@ -342,6 +347,17 @@ spawn and charge timing. The projectile still needs its own complete move graph:
 { type = "add_bullets", frame = 7, bullets = { type = "MagicBullet", value = -1 } },
 -- On a separate projectile move:
 -- { type = "delete_actor", event = "Strike", player = "Me" },
+```
+
+A boss ability can equip its own hidden core item instead of borrowing the
+caster's equipment. Register a compatible child move before referencing it:
+
+```lua
+local quake_item = sf2.items.get("core:items/magic/MAGIC_BUTCHER_EARTHQUAKE")
+{ type = "create_projectile", frame = 22, projectile = {
+    name = "Earthquake", core_skeleton = "SkeletonMagic",
+    item = quake_item, start_move = quake_child,
+} },
 ```
 
 Registration validates payloads and owned start-move references. Core skeletons
@@ -693,8 +709,9 @@ Do not construct action tables or retain them for a later decision.
 active simulation frames (10 Hz). Native uninterruptible intervals and response
 waits still apply. `event.self` and `event.opponent` contain detached health,
 maximum health, health-bar count and position snapshots, as described in the
-[fighter reference](../fighter/). `event.frame` and `event.seconds` are the
-fighter controller's simulation clock. `event.actions` is an array of currently
+[fighter reference](../fighter/). `event.frame` and `event.seconds` use the
+fight's advancing simulation clock, including while a fighter has not pressed
+a key. `event.actions` is an array of currently
 legal input-driven actions. It may be empty. Each candidate has these fields:
 
 | Field | Meaning |

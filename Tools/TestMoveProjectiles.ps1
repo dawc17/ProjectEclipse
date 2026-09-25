@@ -38,6 +38,30 @@ foreach($choice in @('projectile.core_start_animation="ShopMagicSphere1"','proje
  Check ($native.GetAttribute('StartAnimation') -ceq $expectedName) 'Explicit child starting move lost.'
 }
 $baseline=Fingerprint $catalog
+$namedItemLua=$projectileLua.Replace('copy_parent_type="Magic"', 'item=sf2.items.get("core:items/magic/MAGIC_BUTCHER_EARTHQUAKE")')
+$manifest=Join-Path $package 'mod.toml'
+$oldManifest=Get-Content -LiteralPath $manifest -Raw
+Add-Content -LiteralPath $manifest -Value "`n[[dependencies]]`nid = `"core`"`nversion = `">=1.0 <2.0`""
+$mod=[Eclipse.Modding.ModDiscovery]::DiscoverLoose((Join-Path $fixture 'Mods')).Mods[0]
+$seedMagic={ param($target)
+ $items=[Xml.XmlDocument]::new();$items.Load((Join-Path $root 'Assets/vanillaXml/list.xml'))
+ [void][Eclipse.Modding.CoreContentImporter]::ImportMagic($target,
+  [Xml.XmlNode[]]@($items.SelectSingleNode('/List/Items/Item[@Name="MAGIC_BUTCHER_EARTHQUAKE"]')),$null)
+ [void][Eclipse.Modding.CoreContentImporter]::ImportArmors($target,
+  [Xml.XmlNode[]]@($items.SelectSingleNode('/List/Items/Item[@Name="ARMOR_CEREMONIAL"]')),$null)
+}
+$namedItem=Load-Lua $namedItemLua $seedMagic
+$namedNode=(Project $namedItem).SelectSingleNode('//Move[contains(@Name,"cast")]/Actions/CreatePlayer/Item[@Type="Weapon"]')
+Check ($namedNode.GetAttribute('Name') -ceq 'MAGIC_BUTCHER_EARTHQUAKE' -and !$namedNode.HasAttribute('CopyParentType')) 'Named-item projectile did not emit the hidden native weapon source.'
+Check ($baseline -cne (Fingerprint $namedItem)) 'Named-item projectile did not affect the content fingerprint.'
+foreach($mutation in @('projectile.copy_parent_type="Magic"','projectile.item=nil','projectile.item=child','projectile.item="MAGIC_BUTCHER_EARTHQUAKE"',
+ 'projectile.item=sf2.items.get("core:items/armor/ARMOR_CEREMONIAL")')) {
+ $failure=$null
+ try {$null=Load-Lua $namedItemLua.Replace('sf2.moves.register {id="cast"',($mutation+"`n"+'sf2.moves.register {id="cast"')) $seedMagic}catch{$failure=$_}
+ Check ($null -ne $failure) ('Invalid named-item projectile accepted: '+$mutation)
+}
+Set-Content -LiteralPath $manifest -Value $oldManifest
+$mod=[Eclipse.Modding.ModDiscovery]::DiscoverLoose((Join-Path $fixture 'Mods')).Mods[0]
 foreach($mutation in @('projectile.name="Other"','projectile.core_skeleton="OtherSkeleton"','projectile.copy_parent_type="Ranged"',
  'projectile.core_start_animation="ShopMagicSphere1"','projectile.start_move=child','actions[2].bullets.type="RaidChargeBullet"',
  'actions[2].bullets.value=-2','actions[3].player="Child"')) {

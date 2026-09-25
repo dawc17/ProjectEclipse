@@ -1230,6 +1230,11 @@ namespace Eclipse.Modding
                 Append(canonical, distance.Maximum.ToString("R", CultureInfo.InvariantCulture));
                 AppendMovePoint(canonical, distance.Points.From); AppendMovePoint(canonical, distance.Points.To);
             }
+            if (value.TacticConditions.Count != 0)
+            {
+                Append(canonical, "move-tactic-conditions-v1");
+                AppendMoveConditions(canonical, value.TacticConditions);
+            }
             Append(canonical, value.Actions.Count);
             foreach (var action in value.Actions)
             {
@@ -1249,8 +1254,9 @@ namespace Eclipse.Modding
                 if (action.Projectile != null)
                 {
                     var projectile = action.Projectile; Append(canonical, "move-projectile-v1");
-                    Append(canonical, projectile.Name); Append(canonical, projectile.CoreSkeleton); Append(canonical, projectile.CopyParentType);
+                    Append(canonical, projectile.Name); Append(canonical, projectile.CoreSkeleton); Append(canonical, projectile.CopyParentType ?? string.Empty);
                     Append(canonical, projectile.CoreStartAnimation); Append(canonical, projectile.StartMove?.ToString() ?? string.Empty);
+                    if (projectile.Item.HasValue) { Append(canonical, "move-projectile-item-v1"); Append(canonical, projectile.Item.Value.ToString()); }
                 }
                 if (action.Bullets != null)
                 {
