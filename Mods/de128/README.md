@@ -5,7 +5,9 @@ The owner-supplied archive is now the source of truth for DE content. See
 The download is currently blocked by Google Drive quota; prior archive comparisons
 below refer to the historical repository XML until reconciliation is performed.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.21.0` restores
+DE128 is an ordinary downstream Eclipse mod. Version `0.21.1` includes a
+verified Underworld boss-alignment repair in the Eclipse template resolver.
+Version `0.21.0` restores
 normal shop availability and archived starting profiles for all 221 hidden core
 equipment entries, with 99 price, 20 icon and three model differences patched.
 Version `0.20.0` added the complete DE Underworld (below), and
@@ -34,7 +36,10 @@ map buttons for the ten event raids and two May portraits ship under
 body/head, ceremonial armor/helm, needles, LightInTheDarkness) cannot be
 resolved and are omitted (Step 51 in `PRODUCTION.md`). The manifest adds
 `presentation.navigate` for the dojo change. Automated checks compare
-everything with the archive; no Unity playtest has been done yet.
+everything with the archive. A headless Unity 6 test now enters Volcano
+through the native raid map and three story cards, renders the arena, runs the
+fight, and returns to Underworld on surrender. An interactive combat and
+presentation playtest remains outstanding.
 
 ## Sensei story (active since 0.19.0)
 

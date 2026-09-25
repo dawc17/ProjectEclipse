@@ -476,5 +476,7 @@ Underworld content completes `underworld = true` on zones, `power_mode` and
 `invert_joystick`, `random_area`, `group` and `random` rules, and
 `sf2.underworld.set_toggle_visible` / `set_focus` (`story.progression`). See the
 wiki's Underworld pages guide.
+For a warrior or child template, `attribute_alignments` adds its rows once to
+the inherited rows. Leave it out to keep the parent's alignment rows.
 
 Owned fight intros use `sf2.story.before_fight(fight, function(request) ... end)` with `story.progression`. Typed request completion supports `resume_fight`, `cancel_fight` and `fight_pending`; return `true` for immediate entry or `nil` for deferred UI. See Story events for native entry, lifetime, and instruction limits.

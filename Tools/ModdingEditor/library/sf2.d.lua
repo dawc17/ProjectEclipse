@@ -567,7 +567,7 @@ local WarriorPerk = {}
 ---@field items? Eclipse.ItemHandle[]
 ---@field perks? (Eclipse.PerkHandle|Eclipse.WarriorPerk)[]
 ---@field attributes? table<string,number>
----@field attribute_alignments? Eclipse.AttributeAlignment[]
+---@field attribute_alignments? Eclipse.AttributeAlignment[] Rows append once to inherited template alignments. Omit to keep the parent rows.
 ---@field body_model? Eclipse.ModelHandle
 ---@field skin_models? Eclipse.ModelHandle[]
 ---@field health_bars? integer 0 inherits the template; 1-10000 is the total number of health bars.
@@ -586,7 +586,7 @@ local WarriorDefinition = {}
 ---@field items? Eclipse.ItemHandle[]
 ---@field perks? (Eclipse.PerkHandle|Eclipse.WarriorPerk)[]
 ---@field attributes? table<string,number>
----@field attribute_alignments? Eclipse.AttributeAlignment[]
+---@field attribute_alignments? Eclipse.AttributeAlignment[] Rows append once to inherited template alignments. Omit to keep the parent rows.
 ---@field health_bars? integer 0 inherits the template; 1-10000 is the total number of health bars.
 ---@field skeleton? string Recovered body item such as Skeleton or SkeletonHeavy, added to the loadout.
 local WarriorTemplateDefinition = {}

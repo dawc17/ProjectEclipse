@@ -334,7 +334,10 @@ The game merges inheritance field by field, with one exception: a template's
 sets `items` must therefore list everything its warriors wear, including the
 body; set `skeleton` as well so the body is not lost. Warriors that set their own
 `items` replace the template's list in the same way. Templates are part of the
-saved content fingerprint.
+saved content fingerprint. `attribute_alignments` rows are additive: a child
+template or warrior retains inherited rows and appends only the rows it declares.
+For example, a parent with seven rows and a warrior with two rows gives that
+warrior nine rows. Omit the field to inherit the parent's rows as they are.
 
 ## sf2.warriors.register
 

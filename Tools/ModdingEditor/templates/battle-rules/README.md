@@ -10,6 +10,8 @@ This example uses core art and the default warrior template. It changes no
 inventory or shared economy. Rule counters are transient, separate for every
 rule and fighter, and are discarded for the next fight. Disabling the mod leaves
 its owned progression inert under the existing missing-mod save contract.
+If you add `attribute_alignments` to the guardian, those rows append once to
+the default template's rows; leave the field out to inherit them unchanged.
 
 Automated verification: `Tools/TestBattleRules.ps1`. A full in-game playtest is
 still required to validate presentation and the complete encounter flow.

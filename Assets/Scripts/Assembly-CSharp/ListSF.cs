@@ -2655,7 +2655,10 @@ public class ListSF
 			}
 			XmlNode merged = ONBBADOAPIB.ImportNode(parent.KEJDJHAGBMK.Node ?? parent.node, true);
 			merged = MergeUserXML(merged, owned);
-			template.KEJDJHAGBMK = IAOBIMJFBMH(merged, parent.KEJDJHAGBMK);
+			// Parent parameters already contain inherited alignments and groups.
+			// Parse only this template's overlay; parsing the merged node appends
+			// inherited rows again (Default's seven became fourteen for DE bosses).
+			template.KEJDJHAGBMK = IAOBIMJFBMH(owned, parent.KEJDJHAGBMK);
 			template.KEJDJHAGBMK.Node = merged;
 		}
 	}

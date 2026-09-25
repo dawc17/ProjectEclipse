@@ -2565,7 +2565,10 @@
         "items?": "Eclipse.ItemHandle[]",
         "perks?": "(Eclipse.PerkHandle|Eclipse.WarriorPerk)[]",
         "attributes?": "table<string,number>",
-        "attribute_alignments?": "Eclipse.AttributeAlignment[]",
+        "attribute_alignments?": [
+          "Eclipse.AttributeAlignment[]",
+          "Rows append once to inherited template alignments. Omit to keep the parent rows."
+        ],
         "body_model?": "Eclipse.ModelHandle",
         "skin_models?": "Eclipse.ModelHandle[]",
         "health_bars?": [
@@ -2594,7 +2597,10 @@
         "items?": "Eclipse.ItemHandle[]",
         "perks?": "(Eclipse.PerkHandle|Eclipse.WarriorPerk)[]",
         "attributes?": "table<string,number>",
-        "attribute_alignments?": "Eclipse.AttributeAlignment[]",
+        "attribute_alignments?": [
+          "Eclipse.AttributeAlignment[]",
+          "Rows append once to inherited template alignments. Omit to keep the parent rows."
+        ],
         "health_bars?": [
           "integer",
           "0 inherits the template; 1-10000 is the total number of health bars."

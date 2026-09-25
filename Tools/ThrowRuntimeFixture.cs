@@ -20,9 +20,11 @@ public static class ThrowRuntimeFixture
     {
         private Fighter() : base(null) { }
         public int PlayedSign;
+        public bool RefuseAnimation;
         public override bool PlayAnimation(InfoAnimation move, int sign = 0,
             bool frameShift = false, int startFrame = -1)
         {
+            if (RefuseAnimation) return false;
             PlayedSign = sign == 0 ? KFCNPADAMHA() : sign;
             return OCPMJKIEPIG().PlayInfo(move, PlayedSign, true, frameShift, startFrame);
         }
@@ -77,8 +79,9 @@ public static class ThrowRuntimeFixture
     {
         var fighter = (Fighter)FormatterServices.GetUninitializedObject(typeof(Fighter));
         var model = new ModelObject();
-        model.set_Model(fighter);
+        model.SetModel(fighter);
         Set(fighter, typeof(Model), "_ModelObject", model);
+        Set(fighter, typeof(Model), "_Physics", new ModelPhysics(model));
         Set(fighter, typeof(Model), "_ModelConditions", new ModelConditions());
         Set(fighter, typeof(Model), "OHAMEHHMEAL", new List<InfoAnimation> { move });
         // Binary clips index the recovered skeleton's nodes; use the real names
@@ -91,21 +94,21 @@ public static class ThrowRuntimeFixture
             string name = i < definitions.Count ? definitions[i].Name : "Extra" + i;
             Vector3 p = pose[i];
             var node = new ModelNode(name, new Vector3f(sign * p.x + offset, p.y, p.z));
-            node.set_ID(i);
+            node.SetID(i);
             model.NAMKCLGOPDD().Add(node);
             model.LMBNDIPLBJA().Add(node);
             model.HKCFFKKFFFE().Add(name, node);
         }
-        Check(model.EGHIDHMENEF("NPivot").ANAECCFDHMI() == 18, "Skeleton pivot index changed");
+        Check(model.EGHIDHMENEF("NPivot").GetID() == 18, "Skeleton pivot index changed");
         foreach (ModelNode node in model.NAMKCLGOPDD())
         {
-            string name = node.get_Name();
+            string name = node.GetName();
             if (!name.EndsWith("_1")) continue;
             ModelNode pair = model.EGHIDHMENEF(name.Substring(0, name.Length - 1) + "2");
             if (pair == null) continue;
-            node.set_PairNode(pair);
-            pair.set_PairNode(node);
-            model.DJNNIKHGGFO().Add(new Pair<int, int>(node.ANAECCFDHMI(), pair.ANAECCFDHMI()));
+            node.SetPairNode(pair);
+            pair.SetPairNode(node);
+            model.DJNNIKHGGFO().Add(new Pair<int, int>(node.GetID(), pair.GetID()));
         }
         var animation = new ModelAnimation(model);
         animation.set_Sign(sign);
@@ -134,7 +137,13 @@ public static class ThrowRuntimeFixture
 
     private static float PivotX(Fighter fighter)
     {
-        return fighter.CLDMEJKGLBA().EGHIDHMENEF("NPivot").ICLEOFDKDIF().GILCBJJPKBK();
+        return fighter.CLDMEJKGLBA().EGHIDHMENEF("NPivot").GetStart().GetX();
+    }
+
+    private static bool AllowsStrike(Fighter attacker, Fighter victim)
+    {
+        return (bool)typeof(Model).GetMethod("PairedGrabAllowsStrike", Instance)
+            .Invoke(attacker, new object[] { victim });
     }
 
     public static void Run(string root, string skeletonText)
@@ -173,8 +182,8 @@ public static class ThrowRuntimeFixture
                     a.OCPMJKIEPIG().Render();
                 Check(v.PlayedSign == sign, name + " victim ignored SetDirection: attacker=" + sign +
                     ", victim=" + v.PlayedSign);
-                Check(Math.Abs(a.OCPMJKIEPIG().Shift.GILCBJJPKBK() -
-                    v.OCPMJKIEPIG().Shift.GILCBJJPKBK()) < 0.01f, name + " origins differ");
+                Check(Math.Abs(a.OCPMJKIEPIG().Shift.GetX() -
+                    v.OCPMJKIEPIG().Shift.GetX()) < 0.01f, name + " origins differ");
                 // Exercise all buffered poses, including interpolation and landing.
                 for (int frame = 0; frame < 220 * substeps; frame++)
                 {
@@ -185,9 +194,9 @@ public static class ThrowRuntimeFixture
                         name + " separated fighters at frame " + frame + ": " + separation);
                     foreach (ModelNode node in v.CLDMEJKGLBA().NAMKCLGOPDD())
                     {
-                        Vector3f p = node.ICLEOFDKDIF();
-                        Check(!float.IsNaN(p.KMFEKANLCFO()) && Math.Abs(p.GILCBJJPKBK() - arenaX) < 650 &&
-                            Math.Abs(p.OBIMBNIBEFG()) < 600 && Math.Abs(p.KMFEKANLCFO()) < 600,
+                        Vector3f p = node.GetStart();
+                        Check(!float.IsNaN(p.GetZ()) && Math.Abs(p.GetX() - arenaX) < 650 &&
+                            Math.Abs(p.GetY()) < 600 && Math.Abs(p.GetZ()) < 600,
                             name + " victim escaped the arena");
                     }
                 }
@@ -198,7 +207,61 @@ public static class ThrowRuntimeFixture
                 Check(v.PlayAnimation(victim.Name), "Move without SetDirection failed");
                 Check(v.PlayedSign == -sign, "Move without SetDirection changed facing");
             }
-            Console.WriteLine("PASS: 36 throw playback scenarios (" + checks + " assertions; real frame/action dispatch, vanilla XML, binary clips, both directions, three arena positions and simulation subdivisions).");
+            foreach (string name in new[] { "ThrowForward", "ThrowThroughTheBack" })
+            foreach (int sign in new[] { -1, 1 })
+            {
+                GameUtils.CEPJBBGGMDP(1);
+                InfoAnimation attack = LoadMove(xml, name, root);
+                InfoAnimation victimMove = LoadMove(xml, name + "V", root);
+                Fighter attacker = MakeFighter(attack, skeleton, sign, 0);
+                Fighter victim = MakeFighter(victimMove, skeleton, -sign, sign * 80);
+                Link(attacker, victim);
+                Link(victim, attacker);
+                victim.RefuseAnimation = true;
+                bool dispatched = false;
+                attacker.OCPMJKIEPIG().AddEventListener(4, delegate(object data)
+                {
+                    foreach (ActionAnimation action in (List<ActionAnimation>)data)
+                    {
+                        if (!(action is ActionPlayAnimation)) continue;
+                        dispatched = true;
+                        action.Visit(attacker);
+                    }
+                });
+                Check(attacker.PlayAnimation(attack, sign), name + " refused-case attacker did not start");
+                for (int tick = 0; tick < 64 && !dispatched; tick++)
+                    attacker.OCPMJKIEPIG().Render();
+                Check(dispatched, name + " paired action did not dispatch");
+                Check(victim.PlayedSign == 0, name + " victim unexpectedly accepted the paired move");
+                Check(!AllowsStrike(attacker, victim), name + " struck after the paired move was refused");
+                bool attackWindow = false;
+                for (int tick = 0; tick < 220; tick++)
+                {
+                    if (attacker.OCPMJKIEPIG().HDJBHPOGKNJ(
+                        IntervalAnimation.NGAJJDIEDGF.INTERVAL_ATTACK) is IntervalAttack)
+                    {
+                        attackWindow = true;
+                        Check(victim.OCPMJKIEPIG().HDJBHPOGKNJ(
+                            IntervalAnimation.NGAJJDIEDGF.INTERVAL_INVULNERABLE) == null,
+                            name + " refused victim entered an invulnerable interval");
+                        // _Collision is intentionally absent in this detached fixture.
+                        // Reaching it would throw, so a false result here proves the
+                        // real CheckCollision path returned at its paired-grab gate.
+                        Check(!attacker.CheckCollision(victim, true),
+                            name + " collision escaped the refused-grab gate");
+                        break;
+                    }
+                    attacker.OCPMJKIEPIG().Render();
+                }
+                Check(attackWindow, name + " never entered its real strike interval");
+                victim.RefuseAnimation = false;
+                InfoAnimation next = LoadMove(xml,
+                    name == "ThrowForward" ? "ThrowThroughTheBack" : "ThrowForward", root);
+                Check(attacker.PlayAnimation(next, sign), name + " next attack did not start");
+                Check(AllowsStrike(attacker, victim), name + " retained a stale refused-grab gate");
+            }
+            Console.WriteLine("PASS: 36 throw playback and four refused-grab scenarios (" + checks +
+                " assertions; real frame/action dispatch, vanilla XML, binary clips, both directions, three arena positions and simulation subdivisions).");
         }
         finally { Debug.unityLogger.logHandler = previousLog; }
     }

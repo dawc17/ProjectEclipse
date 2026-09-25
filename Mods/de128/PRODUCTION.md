@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.21.0**. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.21.1**. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3190,8 +3190,12 @@ params tool `check`. Not verified in Unity: the four arenas, Shurale and Karcer.
   `[Throw] ... refused paired animation`. If the enemy takes the grab but leaves it
   before the strike, it logs `[Throw] ... left paired animation` without blocking
   (a shorter victim clip must not cancel legitimate throw damage) so the next
-  playtest can show whether that case also occurs. `TestThrowRuntime.ps1` does not
-  compile (its fixture calls a `ModelObject.set_Model` that does not exist at HEAD).
+  playtest can show whether that case also occurs. The previously stale
+  `TestThrowRuntime.ps1` fixture now passes 36 real throw-playback scenarios
+  and four refused-grab scenarios. It verifies the real attack interval reaches
+  `CheckCollision` and the refused grab suppresses its strike (1,257,008
+  assertions). The victim-leaves-paired-animation case still needs a live
+  playtest to establish whether it is a gameplay defect.
 
 ## Step 52 — Archived normal-shop availability (2026-09-24)
 
@@ -3348,3 +3352,35 @@ reads all 76 archived raid battles and 39 locations against the installed
 bundle catalog. It finds one missing image reference,
 `fungus_raid/layer_0_2`; the available owner upscale is incomplete. This shop
 work did not change location art.
+
+### Step 55 — Native Volcano encounter and template inheritance repair (0.21.1, 2026-09-25)
+
+`Tools/TestDE128UnderworldNative.py` makes an independent Unity 6 project and
+profile. Its test-only copy of the stock quest index omits the movement
+tutorial include, equivalent to loading an advanced profile after the tutorial;
+the production mod still reads no XML at runtime. The test enters the real
+eight-tier raid map, requests Volcano through `GameUtils.StartFight`, presses
+all three native story cards, runs 60 fight frames, counts 24 rendered arena
+sprites, checks both fighter rigs and 15 shield bars, then uses the native
+surrender callback and confirms the next Map is still in Raid Mode.
+
+The first native run found **16** alignment rows on Volcano's fighter:
+Default's seven were present twice, then Volcano's two. `ListSF.AddExternalTemplate`
+cloned the parent parameters and parsed a merged parent-plus-child node,
+appending inherited rows again. The Eclipse resolver now parses only the
+child overlay against cloned parent parameters and keeps the merged node for
+later descendants. The same native fight then showed the intended **nine**
+rows, and surrender returned to Underworld. The public wiki and editor schema,
+generated Lua definitions, guide and starter notes now explain that alignment
+rows append once per inheritance layer. No DE-specific branch was added to
+the base runtime.
+
+Verification: fresh isolated Unity 6 native run passed all entry, art, fighter,
+alignment and map-return assertions. `dotnet build Assembly-CSharp.csproj`
+passed; DE128 foundation **14,475**, Underworld API **77**, Underworld runtime
+**1,282**, and throw fixture **1,257,008** assertions passed. The generator
+`--check`, Underworld art audit, editor generate/check/37 project tests,
+LuaLS and VS Code integration, and wiki build (48 pages, 4,339 links/assets)
+passed. The art audit still identifies `fungus_raid/layer_0_2` as absent from
+installed sources. The headless encounter does not establish interactive
+combat balance, visual quality or all 76 fights; those remain for playtesting.
