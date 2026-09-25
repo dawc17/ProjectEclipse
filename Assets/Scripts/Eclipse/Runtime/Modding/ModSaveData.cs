@@ -690,6 +690,12 @@ namespace Eclipse.Modding
                     Append(canonical,group.Width.ToString("R",CultureInfo.InvariantCulture));
                     Append(canonical,group.FadeIn); Append(canonical,group.FramesOn);
                     Append(canonical,group.FadeOut); Append(canonical,group.FramesOff);
+                    if (rule.Kind == ModFightRuleKind.LightInTheDarkness)
+                    {
+                        Append(canonical,"light-in-the-darkness-v1");
+                        Append(canonical,group.LightRadius.ToString("R",CultureInfo.InvariantCulture));
+                        Append(canonical,group.LightShape.ToString("R",CultureInfo.InvariantCulture));
+                    }
                 }
                 if (rule.Trial != null)
                 {

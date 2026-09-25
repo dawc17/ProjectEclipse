@@ -890,6 +890,8 @@ end}
     {
         _repository = repository;
         _items = ReadXml(Path.Combine(repository, "Assets/vanillaXml/list.xml"));
+        Check(Eclipse.Content.ItemListCompatibility.AddHistoricalStageAliases(_items) == 3,
+            "Eclipse core stage aliases changed.");
         var archivedItems = ReadXml(Path.Combine(repository, "Assets/DExml/list.xml"));
         foreach (XmlElement item in archivedItems.SelectNodes("/List/Items/Item[@Type='Weapon' or @Type='Armor' or @Type='Helm' or @Type='Ranged' or @Type='Magic']"))
         {

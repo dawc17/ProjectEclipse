@@ -475,7 +475,7 @@ Underworld content completes `underworld = true` on zones, `power_mode` and
 `icons = { base, active, locked?, locked_active? }` on battles,
 `sf2.warriors.register_template` with `skeleton`, perk-row `parameters`, reward
 `currencies = { { currency, expected, show? } }`, the `no_health_bar`,
-`invert_joystick`, `random_area`, `group` and `random` rules, and
+`invert_joystick`, `random_area`, `light_in_the_darkness`, `group` and `random` rules, and
 `sf2.underworld.set_toggle_visible` / `set_focus` (`story.progression`). See the
 wiki's Underworld pages guide.
 For a warrior or child template, `attribute_alignments` adds its rows once to

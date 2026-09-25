@@ -23,6 +23,10 @@ public class Render
 
 	private SpriteRenderer OEJKNMDNMAP;
 
+	private SpriteRenderer _lightInTheDarkness;
+	private Sprite _lightInTheDarknessSprite;
+	private Material _lightInTheDarknessMaterial;
+
 	private int EMKDAHLGACK;
 
 	private GameObject GKLOAPHPBPB;
@@ -479,6 +483,49 @@ public class Render
 		}
 	}
 
+	public void CreateLightInTheDarkness()
+	{
+		if (_lightInTheDarkness != null || _location == null) return;
+		Shader shader = Resources.Load<Shader>("shaders/EclipseLightInTheDarkness");
+		if (shader == null) throw new InvalidOperationException("Eclipse spotlight shader is unavailable.");
+		_lightInTheDarknessMaterial = new Material(shader);
+		Texture2D white = Texture2D.whiteTexture;
+		_lightInTheDarknessSprite = Sprite.Create(white, new Rect(0f, 0f, white.width, white.height),
+			new Vector2(0.5f, 0.5f), white.width);
+		_lightInTheDarkness = new GameObject("LightInTheDarkness").AddComponent<SpriteRenderer>();
+		_lightInTheDarkness.transform.SetParent(EPKHDFIIFIL.MJNPBMOAFML().transform, false);
+		// The later native rule stretches its mask sprite to a 2048-unit square.
+		_lightInTheDarkness.transform.localScale = new Vector3(2048f, 2048f, 1f);
+		_lightInTheDarkness.sprite = _lightInTheDarknessSprite;
+		_lightInTheDarkness.sharedMaterial = _lightInTheDarknessMaterial;
+	}
+
+	public void UpdateLightInTheDarkness(Vector3f position, float radius, float shape)
+	{
+		if (_lightInTheDarkness == null) return;
+		// Fighter coordinates belong to RenderContainer, whose origin is offset
+		// and mirrored inside the game layer. The mask belongs to the foreground
+		// layer, so project through both transforms before writing its UV center.
+		Vector3 fighterWorld = PFELMKLNBMC.MJNPBMOAFML().transform.TransformPoint(
+			new Vector3(position.GetX(), position.GetY(), 0f));
+		Vector3 fighterOnMask = _lightInTheDarkness.transform.InverseTransformPoint(fighterWorld);
+		_lightInTheDarknessMaterial.SetVector("_Center", new Vector4(
+			0.5f + fighterOnMask.x,
+			0.5f + fighterOnMask.y, 0f, 0f));
+		_lightInTheDarknessMaterial.SetFloat("_Radius", radius);
+		_lightInTheDarknessMaterial.SetFloat("_Shape", shape);
+	}
+
+	public void RemoveLightInTheDarkness()
+	{
+		if (_lightInTheDarkness != null) UnityEngine.Object.Destroy(_lightInTheDarkness.gameObject);
+		if (_lightInTheDarknessMaterial != null) UnityEngine.Object.Destroy(_lightInTheDarknessMaterial);
+		if (_lightInTheDarknessSprite != null) UnityEngine.Object.Destroy(_lightInTheDarknessSprite);
+		_lightInTheDarkness = null;
+		_lightInTheDarknessMaterial = null;
+		_lightInTheDarknessSprite = null;
+	}
+
 	public ViewerModel FPNKBJPKKGB()
 	{
 		return PFELMKLNBMC.FPNKBJPKKGB();
@@ -583,6 +630,7 @@ public class Render
 
 	public void Clear()
 	{
+		RemoveLightInTheDarkness();
 		PFELMKLNBMC.Clear();
 	}
 }

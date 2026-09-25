@@ -599,6 +599,7 @@ public class FightList
 		case Rule.BCBLLMPAMLP.RuleNoAnimation:
 		case Rule.BCBLLMPAMLP.RuleRingout:
 		case Rule.BCBLLMPAMLP.RuleDarkness:
+		case Rule.BCBLLMPAMLP.RuleLightInTheDarkness:
 		case Rule.BCBLLMPAMLP.RuleHotGround:
 		case Rule.BCBLLMPAMLP.RuleLoseFall:
 		case Rule.BCBLLMPAMLP.RuleRegeneration:

@@ -9,8 +9,15 @@ if (!(Test-Path -LiteralPath (Join-Path $modSource 'mod.toml') -PathType Leaf)) 
     throw "Missing DE128 package: $modSource"
 }
 
-# Each run owns a fresh directory. Existing fixtures and player saves are untouched.
-$fixture = Join-Path $root ('Temp/DE128Foundation-' + [Guid]::NewGuid().ToString('N'))
+# Each run owns a fresh directory. Allow a separate disk when the repository
+# volume cannot hold the package copies made by the foundation matrix.
+$fixtureRoot = if ($env:DE128_FOUNDATION_FIXTURE_ROOT) {
+    [System.IO.Path]::GetFullPath($env:DE128_FOUNDATION_FIXTURE_ROOT)
+} else {
+    Join-Path $root 'Temp'
+}
+New-Item -ItemType Directory -Force -Path $fixtureRoot | Out-Null
+$fixture = Join-Path $fixtureRoot ('DE128Foundation-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
 $runtimeSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding') -Filter '*.cs' -File
 $bindingSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding') -Filter 'MoonSharpScriptRuntime*.cs' -File
@@ -22,6 +29,7 @@ $compileFiles = @($runtimeSources.FullName) + @($bindingSources.FullName) + @(
     (Join-Path $PSScriptRoot 'DE128UnderworldStoryTests.cs'),
     (Join-Path $PSScriptRoot 'SenseiDialogFixture.cs'),
     (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ShopAvailabilityPolicy.cs'),
+    (Join-Path $root 'Assets/Scripts/Eclipse/Content/ItemListCompatibility.cs'),
     (Join-Path $PSScriptRoot 'DECombatPerksTests.cs'))
 $compileXml = ($compileFiles | Sort-Object | ForEach-Object {
     '    <Compile Include="' + [Security.SecurityElement]::Escape($_) + '" />'

@@ -24,6 +24,14 @@ test('clean starter indexes and validates, including table-call syntax', async (
     assert.equal(mod.localizations.get('weapon.training_blade').translations[0].language, 'eng');
     assert.deepEqual(p.analyze(await fs.readFile(path.join(template, 'scripts/main.lua'), 'utf8'), mod).issues, []);
 });
+test('spotlight rule is typed and documented for battle mods', async () => {
+    const mod = await p.indexMod(path.resolve(__dirname, '../templates/battle-rules'));
+    const source = header + 'local light = sf2.rules.light_in_the_darkness { id="light", radius=0.2, shape=1, target=sf2.rules.PLAYER }\n';
+    assert.deepEqual(p.analyze(source, mod).issues, []);
+    const api = require('../data/api.json');
+    assert.equal(api.functions['sf2.rules.light_in_the_darkness'].capability, 'content.register');
+    assert.equal(api.types.Rule_light_in_the_darkness.fields.radius[0], 'number');
+});
 test('Lua localization registration is typed, indexed, capability checked, and immediately key-addressable', async t => {
     const root=await fs.mkdtemp(path.join(os.tmpdir(),'eclipse-localization-'));
     t.after(()=>fs.rm(root,{recursive:true,force:true}));

@@ -72,7 +72,7 @@ def main() -> int:
         raise RuntimeError("The stock tutorial quest include changed; review the native fixture profile.")
     quests.write_text(source_quests.replace(tutorial_include, "", 1), encoding="utf-8")
     # The test creates many isolated player profiles. Keep their decompressed
-    # bundles in this disposable F: project copy instead of repeating them in
+    # bundles in this disposable project copy instead of repeating them in
     # Unity's per-profile LocalLow cache on C:. Decoding and validation stay native.
     cache_source = ROOT / "Assets/Scripts/Eclipse/Content/TarAssets/Lz4BundleCache.cs"
     cache = fixture / "Assets/Scripts/Eclipse/Content/TarAssets/Lz4BundleCache.cs"

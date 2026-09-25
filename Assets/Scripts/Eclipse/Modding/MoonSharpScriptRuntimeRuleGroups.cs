@@ -45,6 +45,22 @@ namespace Eclipse.Modding
                 });
             }
 
+            private DynValue RegisterLightInTheDarknessRule(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.rules.light_in_the_darkness";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateFields(table, function, "id", "radius", "shape", "target", "mode", "rounds");
+                    return NewHandle(_ruleHandles, _api.RegisterLightInTheDarknessRule(
+                        RequiredString(table, "id", function), RequiredTrialFloat(table, "radius", function),
+                        OptionalFloat(table, "shape", 1f, function),
+                        ParseRuleTarget(OptionalString(table, "target", "all", function), function),
+                        ParseRuleMode(OptionalString(table, "mode", "all", function), function),
+                        OptionalIntArray(table, "rounds", function)).Id);
+                });
+            }
+
             private DynValue RegisterGroupRule(ScriptExecutionContext context, CallbackArguments args)
             {
                 const string function = "sf2.rules.group";

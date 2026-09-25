@@ -46,7 +46,8 @@ public class Rule : global::EventDispatcher<object>
 		RuleResistance = 36,
 		RuleRaidCurrencyCost = 37,
 		RuleAvatar = 38,
-		RuleName = 39
+		RuleName = 39,
+		RuleLightInTheDarkness = 42
 	}
 
 	public enum DIMPPDKCBLE

@@ -678,6 +678,17 @@
       "requires": "`content.register`.",
       "when": "Entrypoint, before attaching the rule to a fight."
     },
+    "sf2.rules.light_in_the_darkness": {
+      "params": {
+        "definition": "Eclipse.Rule_light_in_the_darkness"
+      },
+      "returns": "A rule handle.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/rules/#sf2ruleslight_in_the_darkness",
+      "summary": "Darken the arena except for a spotlight that follows a fighter. This is a visual rule: it does not change damage, movement, or which attacks can connect.",
+      "requires": "`content.register`.",
+      "when": "Entrypoint, before attaching the rule to a fight. The spotlight is created at round setup, follows the fighter every render frame, and is removed when the rule stops."
+    },
     "sf2.rules.behavior": {
       "params": {
         "definition": "Eclipse.Rule_behavior"
@@ -2835,6 +2846,22 @@
         "frames_on": "integer",
         "fade_out": "integer",
         "frames_off": "integer"
+      }
+    },
+    "Rule_light_in_the_darkness": {
+      "fields": {
+        "id": "string",
+        "target?": "\"player\"|\"opponent\"|\"all\"",
+        "mode?": "\"normal\"|\"eclipse\"|\"all\"",
+        "rounds?": "integer[]",
+        "radius": [
+          "number",
+          "Normalized light radius in (0, 1]."
+        ],
+        "shape?": [
+          "number",
+          "0 is square, 1 is circular; default 1."
+        ]
       }
     },
     "Rule_behavior": {

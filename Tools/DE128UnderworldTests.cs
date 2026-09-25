@@ -46,6 +46,12 @@ internal static class DE128UnderworldTests
         "boss_tenebris_hardmode_new", "boss_vortex_hardmode_new", "boss_war_hardmode_new",
         "boss_whisper_hardmode_new", "new_man_shuang_gou_hardmode_new",
     };
+    private static readonly Dictionary<string, string> CoreStageAliases = new Dictionary<string, string>
+    {
+        { "ARMOR_IM_CEREMONIAL", "ARMOR_CEREMONIAL" },
+        { "HELM_IM_CEREMONIAL", "HELM_CEREMONIAL" },
+        { "RANGED_NEEDLES", "RANGED_NEEDLE" },
+    };
 
     private static ModContentCatalog _catalog;
     private static Dictionary<string, string> _coreItemTypes;
@@ -71,6 +77,12 @@ internal static class DE128UnderworldTests
         _coreItemTypes = new Dictionary<string, string>();
         foreach (XmlElement item in Read("Assets/vanillaXml/list.xml").SelectNodes("/List/Items/Item"))
             if (item.HasAttribute("Type") && !_coreItemTypes.ContainsKey(item.GetAttribute("Name"))) _coreItemTypes[item.GetAttribute("Name")] = item.GetAttribute("Type");
+        string aliases = File.ReadAllText(Path.Combine(repository, "Assets/Scripts/Eclipse/Content/ItemListCompatibility.cs"));
+        foreach (var pair in CoreStageAliases)
+        {
+            Check(aliases.Contains("{ \"" + pair.Key + "\", \"" + pair.Value + "\" }"), "Core stage alias changed: " + pair.Key);
+            _coreItemTypes.Add(pair.Key, _coreItemTypes[pair.Value]);
+        }
         _corePerks = new HashSet<string>(Read("Assets/vanillaXml/perks.xml").SelectNodes("//Perk").Cast<XmlElement>().Select(p => p.GetAttribute("Name")));
 
         var zones = raid.SelectNodes("/Stages/Zones/Zone").Cast<XmlElement>().ToArray();
@@ -245,7 +257,7 @@ internal static class DE128UnderworldTests
         {
             string name = item.GetAttribute("Name");
             if (Restored.TryGetValue(name, out var restored)) { if (!refs.Contains(restored)) refs.Add(restored); continue; }
-            if (!_coreItemTypes.TryGetValue(name, out var type)) continue; // undefined in DE itself; native loader skips it
+            if (!_coreItemTypes.TryGetValue(name, out var type)) continue; // unresolved in the core catalog
             if (type == "Skeleton") { skeleton = name; continue; }
             string id = ("core:items/" + type.ToLowerInvariant() + "/" + name).ToLowerInvariant();
             if (!refs.Contains(id)) refs.Add(id);
@@ -272,13 +284,12 @@ internal static class DE128UnderworldTests
         }
     }
 
-    // Children that project: DE-unresolvable perks and the missing LightInTheDarkness class drop out.
+    // Children that project: only genuinely unresolved perks drop out.
     private static bool Emits(XmlElement xml)
     {
         switch (xml.Name)
         {
             case "Perk": return _corePerks.Contains(xml.GetAttribute("Name"));
-            case "LightInTheDarkness": return false;
             case "Description": return false;
             case "ComplexRule": case "RandomRule": return xml.ChildNodes.OfType<XmlElement>().Any(Emits);
             case "EquipItem": return _coreItemTypes.ContainsKey(xml.GetAttribute("Name")) || Restored.ContainsKey(xml.GetAttribute("Name"));
@@ -340,6 +351,11 @@ internal static class DE128UnderworldTests
                     Near(rule.Group.Width, F(xml, "Width")) && rule.Group.FadeIn == int.Parse(xml.GetAttribute("FadeIn")) &&
                     rule.Group.FramesOn == int.Parse(xml.GetAttribute("FramesOn")) && rule.Group.FadeOut == int.Parse(xml.GetAttribute("FadeOut")) &&
                     rule.Group.FramesOff == int.Parse(xml.GetAttribute("FramesOff")) && rule.Target == Target(xml), "Random area differs: " + where);
+                return;
+            case "LightInTheDarkness":
+                Check(rule.Kind == ModFightRuleKind.LightInTheDarkness && rule.Target == Target(xml) &&
+                    Near(rule.Group.LightRadius, F(xml, "LightRadius")) &&
+                    Near(rule.Group.LightShape, F(xml, "LightShape")), "Spotlight rule differs: " + where);
                 return;
             case "NoAnimation":
                 Check(rule.Kind == ModFightRuleKind.NoAnimation && rule.Trial.Node == xml.GetAttribute("Name"), "No-animation differs: " + where);

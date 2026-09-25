@@ -13,5 +13,10 @@ its owned progression inert under the existing missing-mod save contract.
 If you add `attribute_alignments` to the guardian, those rows append once to
 the default template's rows; leave the field out to inherit them unchanged.
 
+For a visual challenge, add `sf2.rules.light_in_the_darkness {
+id = "spotlight", radius = 0.2, shape = 1 }` to `scripts/main.lua` and include
+the returned handle in the fight's `rules` array. The circle follows the player;
+it changes visibility only and needs `content.register`.
+
 Automated verification: `Tools/TestBattleRules.ps1`. A full in-game playtest is
 still required to validate presentation and the complete encounter flow.

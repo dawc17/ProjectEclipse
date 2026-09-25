@@ -20,7 +20,8 @@ Example:
     python3 Tools/TestCharacterForms.py --native --reuse-native Temp/FormNative-EXISTING \
         --sync-native-source Assets/Scripts/Assembly-CSharp/Fight.cs
 
-Reuse accepts only a stopped, marked clone directly under this repository's Temp.
+Reuse accepts only a stopped, marked clone directly under the fixture root.
+Set ECLIPSE_NATIVE_FIXTURE_ROOT to use another disk for new and reused clones.
 It retains the original logs and records each rerun, including backups and hashes
 of explicitly synced inputs, under the clone's NativeRuns directory.
 """
@@ -220,10 +221,10 @@ def prepare_native(editor: Path) -> tuple[Path, list[str]]:
     for name in required:
         if not (ROOT / name).is_file():
             raise FileNotFoundError(f"Native fixture input missing: {name}")
-    temporary = ROOT / "Temp"
-    temporary.mkdir(exist_ok=True)
+    temporary = native_fixture_root()
+    temporary.mkdir(parents=True, exist_ok=True)
     fixture = Path(tempfile.mkdtemp(prefix="FormNative-", dir=temporary))
-    print(f"Native fixture: {fixture.relative_to(ROOT)}", flush=True)
+    print(f"Native fixture: {fixture}", flush=True)
     print("Copying Assets, Packages, ProjectSettings and cached packages independently.", flush=True)
     pairs = [(ROOT / name, fixture / name) for name in ("Assets", "Packages", "ProjectSettings")]
     cache = ROOT / "Library/PackageCache"
@@ -253,13 +254,18 @@ def prepare_native(editor: Path) -> tuple[Path, list[str]]:
     return fixture, command
 
 
+def native_fixture_root() -> Path:
+    configured = os.environ.get("ECLIPSE_NATIVE_FIXTURE_ROOT")
+    return Path(configured).expanduser().resolve() if configured else ROOT / "Temp"
+
+
 def owned_native_fixture(requested: Path) -> Path:
     candidate = requested.expanduser()
     if not candidate.is_absolute():
         candidate = ROOT / candidate
     fixture = candidate.resolve(strict=True)
-    if candidate.absolute() != fixture or fixture.parent != ROOT / "Temp" or not fixture.name.startswith("FormNative-"):
-        raise ValueError("Native reuse requires a real FormNative-* directory directly under this repository's Temp.")
+    if candidate.absolute() != fixture or fixture.parent != native_fixture_root() or not fixture.name.startswith("FormNative-"):
+        raise ValueError("Native reuse requires a real FormNative-* directory directly under the configured fixture root.")
     marker = fixture / "form-native-fixture.marker"
     command_file = fixture / "command.json"
     for path in (marker, command_file, fixture / "ProjectSettings/ProjectVersion.txt"):
@@ -445,7 +451,7 @@ def main() -> int:
     native = parser.add_mutually_exclusive_group()
     native.add_argument("--native", action="store_true", help="Run ValidateFormNative in an independent project copy; fresh unless --reuse-native is supplied.")
     native.add_argument("--prepare-native", action="store_true", help="Prepare a native fixture and print its command without launching Unity.")
-    parser.add_argument("--reuse-native", type=Path, help="Reuse a stopped owned Temp/FormNative-* clone; preserve its original logs and imported cache.")
+    parser.add_argument("--reuse-native", type=Path, help="Reuse a stopped owned FormNative-* clone under the configured fixture root; preserve its original logs and imported cache.")
     parser.add_argument("--sync-native-source", action="append", default=[], help="Copy one current repository-relative file into the reused clone, backing up its previous contents. Repeat as needed.")
     parser.add_argument("--native-timeout", type=int, default=900, help="Outer native process timeout in seconds, including import/compile. Default: 900.")
     args = parser.parse_args()

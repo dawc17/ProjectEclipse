@@ -56,6 +56,11 @@ local ember = boss("ember", "normal", 40, 10)
 local ember_power = boss("ember_power", "power", 60, 20)
 ```
 
+For a fight in darkness, register
+[`sf2.rules.light_in_the_darkness`](../rules/#sf2ruleslight_in_the_darkness)
+and include its handle in the fight's `rules` array. Its spotlight follows the
+player unless you select the opponent. The rule changes visibility only.
+
 Registering a battle does not reveal it in an existing save. Reveal entries with
 [`sf2.battles.reveal`](../content-graph/#sf2battlesreveal) or a quest, exactly as
 on the story map.

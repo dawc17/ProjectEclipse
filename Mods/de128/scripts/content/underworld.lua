@@ -117,6 +117,10 @@ local function install(raid_charge_rule)
                 fade_in = spec.fade_in, frames_on = spec.frames_on, fade_out = spec.fade_out,
                 frames_off = spec.frames_off, target = spec.target }
         end
+        if kind == "light_in_the_darkness" then
+            return sf2.rules.light_in_the_darkness { id = id, radius = spec.radius,
+                shape = spec.shape, target = spec.target }
+        end
         if kind == "no_animation" then return sf2.rules.no_animation { id = id, name = spec.name } end
         if kind == "remove_interval" then return sf2.rules.remove_interval { id = id, type = spec.type, target = spec.target } end
         if kind == "regeneration" then

@@ -35,6 +35,7 @@ sf2.rules.regeneration { id = "regen", rate = 0.001, frames_after_hit = 180, tar
 sf2.rules.no_animation { id = "no_jump", name = "Jump" }
 sf2.rules.remove_interval { id = "no_block", type = "Block", target = sf2.rules.PLAYER }
 sf2.rules.perk { id = "buff", perk = perk, aspect = 100000, target = sf2.rules.OPPONENT }
+sf2.rules.light_in_the_darkness { id = "light", radius = 0.20, shape = 1, target = sf2.rules.PLAYER }
 '@ | Set-Content -Encoding UTF8 (Join-Path $modRoot 'scripts/main.lua')
 
 function Extract-Method([string]$source, [string]$signature) {
@@ -117,7 +118,8 @@ $sources = @(
  'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeTrialRules.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeRuleGroups.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeUnderworld.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModRuleGroups.cs',
  'Assets/Scripts/Assembly-CSharp/Rule.cs','Assets/Scripts/Assembly-CSharp/InFightRule.cs','Assets/Scripts/Assembly-CSharp/AnimationListRule.cs',
  'Assets/Scripts/Assembly-CSharp/HotGroundRule.cs','Assets/Scripts/Assembly-CSharp/RingOutRule.cs','Assets/Scripts/Assembly-CSharp/RegenerationRule.cs',
- 'Assets/Scripts/Assembly-CSharp/NoAnimationRule.cs','Assets/Scripts/Assembly-CSharp/RemoveIntervalRule.cs'
+ 'Assets/Scripts/Assembly-CSharp/NoAnimationRule.cs','Assets/Scripts/Assembly-CSharp/RemoveIntervalRule.cs',
+ 'Assets/Scripts/Eclipse/LightInTheDarknessRule.cs'
 ) | ForEach-Object { Join-Path $root $_ }
 $program = Join-Path $root 'Tools/TrialRulesTests.cs'
 $compile = @($program,$projection,$nativeStubs)+$sources

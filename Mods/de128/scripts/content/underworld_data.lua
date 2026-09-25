@@ -338,7 +338,7 @@ return {
             voice = "Male",
             health_bars = 30,
             attributes = { ShieldStack = 30, EnchantmentResistance = 100 },
-            items = { "core:items/weapon/WEAPON_SUPER_DRAGON_TEETH", "core:items/armor/BODY_SHIN", "core:items/helm/HEAD_TITANS_ARMY4", "core:items/magic/MAGIC_C4_Z1_WARLOCK_DARK_WAVE" },
+            items = { "core:items/weapon/WEAPON_SUPER_DRAGON_TEETH", "core:items/armor/BODY_SHIN", "core:items/helm/HEAD_TITANS_ARMY4", "core:items/ranged/RANGED_NEEDLES", "core:items/magic/MAGIC_C4_Z1_WARLOCK_DARK_WAVE" },
             skeleton = "Skeleton",
         },
         {
@@ -634,7 +634,7 @@ return {
             avatar = "girl_fan",
             voice = "Female",
             attributes = { EnchantmentResistance = 100 },
-            items = { "core:items/weapon/WEAPON_SUPER_FANS" },
+            items = { "core:items/weapon/WEAPON_SUPER_FANS", "core:items/armor/ARMOR_IM_CEREMONIAL", "core:items/helm/HELM_IM_CEREMONIAL" },
             skeleton = "Skeleton",
         },
         {
@@ -3855,6 +3855,13 @@ return {
                                 },
                             },
                             rules = {
+                                {
+                                    kind = "group",
+                                    description = "LIGHT_IN_THE_DARK",
+                                    rules = {
+                                        { kind = "light_in_the_darkness", radius = 0.2, shape = 1, target = "all" },
+                                    },
+                                },
                                 { kind = "perk", perk = "core:perks/PERK_ANTI_SHOCK", target = "opponent" },
                                 { kind = "raid_charge" },
                             },
@@ -4292,6 +4299,13 @@ return {
                                 },
                             },
                             rules = {
+                                {
+                                    kind = "group",
+                                    description = "LIGHT_IN_THE_DARK",
+                                    rules = {
+                                        { kind = "light_in_the_darkness", radius = 0.2, shape = 1, target = "all" },
+                                    },
+                                },
                                 { kind = "perk", perk = "core:perks/PERK_ANTI_SHOCK", target = "opponent" },
                                 { kind = "raid_charge" },
                             },

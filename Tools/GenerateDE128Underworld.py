@@ -8,9 +8,9 @@ to verify the committed Lua is current.
 Deliberate normalizations (each recorded in the generated notes):
 - Fight Rounds="0" becomes rounds = 1, matching Eclipse's offline raid adaptation
   (UnderworldStageCompatibility.AdaptOfflineRaidRounds).
-- The owner raid data corrects seven historical perk-name spellings. Other item
-  and rule names the available data cannot resolve are omitted.
-- LightInTheDarkness has no recovered rule class; it is reported, not emitted.
+- The owner raid data corrects seven historical perk-name spellings. Any other
+  unresolved item or rule identity is reported as an omission.
+- LightInTheDarkness is emitted through Eclipse's recovered-rule bridge.
 """
 
 from __future__ import annotations
@@ -28,6 +28,13 @@ VANILLA = ROOT / "Assets" / "vanillaXml"
 OUT = ROOT / "Mods" / "de128" / "scripts" / "content"
 OWNER_RAID = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "raid_stages_default.xml"
 OWNER_RAID_SHA256 = "d012a1f47418def617d375743864e2256b00f4fd709f6785da45aa67a8c3fa7c"
+# Eclipse's core list loader registers these archived stage identities as hidden
+# aliases of the named canonical items before the mod catalog is assembled.
+CORE_STAGE_ALIASES = {
+    "ARMOR_IM_CEREMONIAL": "ARMOR_CEREMONIAL",
+    "HELM_IM_CEREMONIAL": "HELM_CEREMONIAL",
+    "RANGED_NEEDLES": "RANGED_NEEDLE",
+}
 # Owner decision (2026-09-24): dojo_india24 exists only as a 768 px atlas stretched over
 # 1536 world units; Faradeya fights in Dandy's near-identical, high-resolution dojo_india25.
 LOCATION_OVERRIDES = {"dojo_india24": "dojo_india25"}
@@ -92,6 +99,12 @@ class Generator:
         for item in ET.parse(VANILLA / "list.xml").getroot().iter("Item"):
             if item.get("Type") and item.get("Name") not in self.core_items:
                 self.core_items[item.get("Name")] = item.get("Type")
+        compatibility = (ROOT / "Assets" / "Scripts" / "Eclipse" / "Content" /
+                         "ItemListCompatibility.cs").read_text(encoding="utf-8")
+        for alias, source in CORE_STAGE_ALIASES.items():
+            if f'{{ "{alias}", "{source}" }}' not in compatibility or alias in self.core_items:
+                raise ValueError(f"Reviewed core stage alias changed: {alias}")
+            self.core_items[alias] = self.core_items[source]
         self.core_perks = {p.get("Name") for p in ET.parse(VANILLA / "perks.xml").getroot().iter("Perk")}
         self.keys = set()
         self.notes = []
@@ -267,8 +280,8 @@ class Generator:
         if tag == "InvertJoystick":
             return {"kind": "invert_joystick", "target": target}
         if tag == "LightInTheDarkness":
-            self.omitted["rules"].add("LightInTheDarkness")
-            return None
+            return {"kind": "light_in_the_darkness", "radius": number(node.get("LightRadius", "0.2")),
+                    "shape": number(node.get("LightShape", "1")), "target": target}
         raise ValueError("Unsupported rule " + tag)
 
     # --- battles ------------------------------------------------------------

@@ -774,6 +774,15 @@ local Rule_invert_joystick = {}
 ---@field frames_off integer
 local Rule_random_area = {}
 
+---@class (exact) Eclipse.Rule_light_in_the_darkness
+---@field id string
+---@field target? "player"|"opponent"|"all"
+---@field mode? "normal"|"eclipse"|"all"
+---@field rounds? integer[]
+---@field radius number Normalized light radius in (0, 1].
+---@field shape? number 0 is square, 1 is circular; default 1.
+local Rule_light_in_the_darkness = {}
+
 ---@class (exact) Eclipse.Rule_behavior
 ---@field id string
 ---@field target? "player"|"opponent"|"all"
@@ -2458,6 +2467,15 @@ function rules.invert_joystick(definition) end
 ---@param definition Eclipse.Rule_random_area
 ---@return Eclipse.RuleHandle
 function rules.random_area(definition) end
+
+---Darken the arena except for a spotlight that follows a fighter. This is a visual rule: it does not change damage, movement, or which attacks can connect.
+---Requires: `content.register`.
+---When: Entrypoint, before attaching the rule to a fight. The spotlight is created at round setup, follows the fighter every render frame, and is removed when the rule stops.
+---Returns: A rule handle.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/rules/#sf2ruleslight_in_the_darkness)
+---@param definition Eclipse.Rule_light_in_the_darkness
+---@return Eclipse.RuleHandle
+function rules.light_in_the_darkness(definition) end
 
 ---Attach executable Lua behavior directly to a fight, without creating a perk or requiring an equipped item.
 ---Requires: `content.register`. Each fighter operation still requires its own combat capability, declared by the mod that owns the behavior.

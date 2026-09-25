@@ -3528,3 +3528,42 @@ Interactive portrait/map visuals, Wasp ability timing and long-form combat
 balance remain for a game playtest. Ceremonial armor/helm,
 `RANGED_NEEDLES` and the `LightInTheDarkness` visual rule remain unresolved;
 none were invented.
+
+### Step 59 — Restore the archived raid spotlight and hidden stage equipment (0.25.0, 2026-09-25)
+
+The reviewed owner raid file has `LightInTheDarkness` in two Power Mode fights:
+Blackness and Son of the Sun, both with `LightRadius="0.2"` and `LightShape="1"`.
+The canonical vanilla gatekeeper fight also records radius `0.13` and shape `1`.
+The later native IL2CPP dump in the local research corpus identifies rule enum
+value 42, its radius and shape fields, material properties `_Center`, `_Radius`
+and `_Shape`, and a 2,048-unit mask sprite. Eclipse now parses that recovered
+rule shape, updates the mask center from the live fighter render transform each
+frame and removes the mask when the rule stops. The material's darkening curve
+is reconstructed from the native parameter names and geometry; its exact
+historical shader source was not available. The typed Lua API exposes this
+through `sf2.rules.light_in_the_darkness`, with wiki and editor contracts in
+the same change. DE128's generated static raid table registers the two rules
+inside their archived localized groups; DE128 Lua opens no XML.
+
+The three previously omitted equipment names were already handled by Eclipse's
+`ItemListCompatibility.AddHistoricalStageAliases`: it clones the canonical
+`ARMOR_CEREMONIAL`, `HELM_CEREMONIAL` and `RANGED_NEEDLE` entries as hidden
+`ARMOR_IM_CEREMONIAL`, `HELM_IM_CEREMONIAL` and `RANGED_NEEDLES` stage identities.
+The generator now checks those exact runtime aliases before emitting their core
+handles. It reports zero omitted items, perks, rules and text keys across all
+76 fights. The alias choice uses the installed core geometry and combat profile;
+the available raid XML does not supply separate replacement model definitions
+for these identities.
+
+Verification: pinned Underworld generator `--check`; DE128 foundation **14,623**
+checks; Underworld runtime **1,282** assertions; four managed builds; editor
+generate/check/**38** project tests, LuaLS and VS Code integration; wiki build (**48**
+pages, **4,344** links/assets); native spotlight combat in both Power Mode
+fights with material, radius, shape, fighter position and teardown checked;
+native needles equipped in both Halloween Puppeteer modes; and ceremonial
+armor and helm resolved in the Mercenary survival roster. The native fixture
+ran 30 frames and returned to the Underworld map for each selected fight.
+Offscreen native frames of normal and Power Mode Blackness show the expected
+arena-wide view becoming a lit circle around the player. It
+does not reach Girl Fan's later survival wave or establish interactive visual
+quality and long-form combat balance.

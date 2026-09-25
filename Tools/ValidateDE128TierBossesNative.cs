@@ -94,6 +94,8 @@ public static class ValidateDE128TierBossesNative
                 if (module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
                 var returned = UnityEngine.Object.FindObjectOfType<MapScene>();
                 if (returned == null) return;
+                if (IsSpotlightFight(Target.Id.ToString()) && GameObject.Find("LightInTheDarkness") != null)
+                    throw new Exception("Spotlight survived the fight return: " + Target.Id);
                 if (returned.GetCurrentState() != MapScene.NMFLNANKNOJ.RaidMode)
                     throw new Exception("Boss " + Target.Id + " surrendered to the story map.");
                 Debug.Log(Prefix + "Returned from " + Target.Id + " to the Underworld map.");
@@ -200,6 +202,12 @@ public static class ValidateDE128TierBossesNative
             if (location?.name != live.Location || sprites == 0)
                 throw new Exception("Tier boss arena did not render: " + Target.Id +
                     " location=" + location?.name + " sprites=" + sprites);
+            if (IsSpotlightFight(Target.Id.ToString())) ValidateSpotlight(player, Target.Id.ToString());
+            ValidateRecoveredAliasEquipment(live, enemy, Target.Id.ToString());
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_CAPTURE_SPOTLIGHT") == "1" &&
+                (IsSpotlightFight(Target.Id.ToString()) ||
+                 Target.Id.ToString() == "de128:fights/uw_boss_13_1"))
+                CaptureCombatFrame(Target.Id.ToString());
             if (Target.Id.ToString() == "de128:fights/uw_boss_berstuuk_1")
             {
                 var armor = enemy.Parameters.Armor;
@@ -227,6 +235,82 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool IsSpotlightFight(string id) => id == "de128:fights/uw_boss_13_hardmode_1" ||
+        id == "de128:fights/uw_boss_son_of_the_sun_hardmode_1";
+
+    static void ValidateRecoveredAliasEquipment(FightList fight, Model enemy, string id)
+    {
+        if (id == "de128:fights/uw_boss_halloween_puppeteer_1" ||
+            id == "de128:fights/uw_boss_halloween_puppeteer_hardmode_1")
+        {
+            if (enemy.Parameters.Ranged?.Name != "RANGED_NEEDLES")
+                throw new Exception("Puppeteer's archived needle identity was not equipped: " + id +
+                    " actual=" + enemy.Parameters.Ranged?.Name);
+            Debug.Log(Prefix + "Puppeteer's archived needles equipped in " + id + ".");
+        }
+        if (id == "de128:fights/uw_survival_mercenary_1")
+        {
+            var girl = fight.OFKJMHPMCCD().Where(warrior =>
+                warrior.Armor?.Name == "ARMOR_IM_CEREMONIAL").ToArray();
+            if (girl.Length != 1 || girl[0].Helm?.Name != "HELM_IM_CEREMONIAL")
+                throw new Exception("Girl Fan's ceremonial armor and helm did not resolve in the native survival roster: " +
+                    string.Join(",", fight.OFKJMHPMCCD().Select(warrior => warrior.Armor?.Name + "/" + warrior.Helm?.Name)));
+            Debug.Log(Prefix + "Girl Fan's archived ceremonial armor and helm resolved in the native survival roster.");
+        }
+    }
+
+    static void CaptureCombatFrame(string id)
+    {
+        var camera = UnityEngine.Camera.main;
+        if (camera == null) throw new Exception("No main camera for spotlight frame capture.");
+        var target = new RenderTexture(512, 288, 24);
+        var image = new Texture2D(512, 288, TextureFormat.RGBA32, false);
+        var oldTarget = camera.targetTexture;
+        var oldActive = RenderTexture.active;
+        try
+        {
+            camera.targetTexture = target;
+            camera.Render();
+            RenderTexture.active = target;
+            image.ReadPixels(new Rect(0, 0, 512, 288), 0, 0);
+            image.Apply();
+            string root = Directory.GetParent(Application.dataPath).FullName;
+            string path = Path.Combine(root, "spotlight-" + id.Substring(id.LastIndexOf('/') + 1) + ".png");
+            File.WriteAllBytes(path, image.EncodeToPNG());
+            Debug.Log(Prefix + "Captured combat frame: " + path);
+        }
+        finally
+        {
+            camera.targetTexture = oldTarget;
+            RenderTexture.active = oldActive;
+            UnityEngine.Object.DestroyImmediate(image);
+            UnityEngine.Object.DestroyImmediate(target);
+        }
+    }
+
+    static void ValidateSpotlight(Model player, string id)
+    {
+        var mask = GameObject.Find("LightInTheDarkness")?.GetComponent<SpriteRenderer>();
+        if (mask == null || !mask.enabled || mask.sprite == null || mask.sharedMaterial == null ||
+            mask.sharedMaterial.shader.name != "Eclipse/Fight/Light In The Darkness")
+            throw new Exception("Native spotlight material did not load: " + id);
+        var material = mask.sharedMaterial;
+        var center = material.GetVector("_Center");
+        var logical = player.PLBNCDCFPML();
+        var fighterWorld = player.MJNPBMOAFML().transform.parent.TransformPoint(
+            new Vector3(logical.GetX(), logical.GetY(), 0f));
+        var onMask = mask.transform.InverseTransformPoint(fighterWorld);
+        if (Mathf.Abs(material.GetFloat("_Radius") - 0.2f) > 0.0001f ||
+            Mathf.Abs(material.GetFloat("_Shape") - 1f) > 0.0001f ||
+            center.x < 0f || center.x > 1f || center.y < 0f || center.y > 1f ||
+            Mathf.Abs(center.x - 0.5f - onMask.x) > 0.02f ||
+            Mathf.Abs(center.y - 0.5f - onMask.y) > 0.02f ||
+            Mathf.Abs(mask.transform.localScale.x - 2048f) > 0.01f)
+            throw new Exception("Native spotlight radius, shape, center or mask scale differs: " +
+                id + " center=" + center);
+        Debug.Log(Prefix + "Spotlight " + id + " material loaded and followed the live fighter at " + center + ".");
+    }
 
     static void ValidateOwnerRaidArt()
     {

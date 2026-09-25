@@ -74,6 +74,8 @@ public class RuleParser
 			return HPFJOADKOEH(Rule.BCBLLMPAMLP.RuleCombo, node);
 		case "Darkness":
 			return HPFJOADKOEH(Rule.BCBLLMPAMLP.RuleDarkness, node);
+		case "LightInTheDarkness":
+			return HPFJOADKOEH(Rule.BCBLLMPAMLP.RuleLightInTheDarkness, node);
 		case "Points":
 			return HPFJOADKOEH(Rule.BCBLLMPAMLP.RulePoints, node);
 		case "NoBulletsReplenishment":
@@ -194,6 +196,8 @@ public class RuleParser
 			return new ComboRule(node, eJPOJJKKICO);
 		case Rule.BCBLLMPAMLP.RuleDarkness:
 			return new DarknessRule(node, RuleAppliance.AppliancePlayer);
+		case Rule.BCBLLMPAMLP.RuleLightInTheDarkness:
+			return new Eclipse.Combat.LightInTheDarknessRule(node, eJPOJJKKICO);
 		case Rule.BCBLLMPAMLP.RulePoints:
 			return new PointsRule(node, RuleAppliance.ApplianceAll);
 		case Rule.BCBLLMPAMLP.RuleNoBulletsReplenishment:

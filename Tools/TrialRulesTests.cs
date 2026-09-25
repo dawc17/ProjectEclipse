@@ -74,6 +74,10 @@ internal static class TrialRulesTests
         var perk = Rule(catalog, "buff");
         Check(perk.Kind == ModFightRuleKind.Perk && perk.PerkAspect == 100000d,
             "Perk rule aspect did not cross the Lua boundary.");
+        var light = Rule(catalog, "light");
+        Check(light.Kind == ModFightRuleKind.LightInTheDarkness && light.Target == ModRuleTarget.Player &&
+            Math.Abs(light.Group.LightRadius - 0.20f) < 0.000001f && light.Group.LightShape == 1f,
+            "Spotlight radius, shape or target did not cross the Lua boundary.");
 
         // Returned collections must be detached from registration input.
         var nodes = hot.Trial.Nodes.ToArray();
@@ -103,6 +107,10 @@ internal static class TrialRulesTests
         XmlElement perk = projection.Build(Rule(catalog, "buff"));
         Check(perk.Name == "Perk" && perk.GetAttribute("Name") == "PERK_TEST_TRIAL" &&
             perk.SelectSingleNode("Set[@Aspect='100000']") != null, "Perk aspect projection is missing its literal Set/Aspect.");
+        XmlElement light = projection.Build(Rule(catalog, "light"));
+        Check(light.Name == "LightInTheDarkness" && light.GetAttribute("LightRadius") == "0.2" &&
+            light.GetAttribute("LightShape") == "1" && light.GetAttribute("ApplyTo") == "Player",
+            "Spotlight projection differs from recovered XML.");
     }
 
     private static void CheckValidation(ModDescriptor mod)
@@ -131,6 +139,11 @@ internal static class TrialRulesTests
                 ModRuleTarget.All, ModRuleMode.All, Array.Empty<int>()); }
             catch (ModContentException) { rejected = true; }
             Check(rejected, "Hot-ground ApplyTo=All accepted despite recovered copy-type hazard.");
+            rejected = false;
+            try { tx.RegisterLightInTheDarknessRule("bad_light", float.NaN, 1f,
+                ModRuleTarget.Player, ModRuleMode.All, Array.Empty<int>()); }
+            catch (ModContentException) { rejected = true; }
+            Check(rejected, "Non-finite spotlight radius was accepted.");
         }
     }
 
@@ -151,6 +164,9 @@ internal static class TrialRulesTests
         Check(noAnimation.DPKNMJMPEDM() == "Jump", "Recovered NoAnimationRule did not consume name.");
         RemoveIntervalRule remove = new RemoveIntervalRule(projection.Build(Rule(catalog, "no_block")), RuleAppliance.AppliancePlayer);
         Check(remove.Copy() is RemoveIntervalRule, "Recovered RemoveIntervalRule copy failed.");
+        var light = new Eclipse.Combat.LightInTheDarknessRule(projection.Build(Rule(catalog, "light")), RuleAppliance.AppliancePlayer);
+        Check(Math.Abs(light.LightRadius - 0.20f) < 0.000001f && light.LightShape == 1f &&
+            light.Copy() is Eclipse.Combat.LightInTheDarknessRule, "Spotlight rule did not consume/copy radius and shape.");
     }
 
     public static int Main(string[] args)

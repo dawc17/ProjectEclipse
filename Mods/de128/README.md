@@ -6,7 +6,9 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.24.0` reconciles the
+DE128 is an ordinary downstream Eclipse mod. Version `0.25.0` restores the
+two archived Underworld spotlight encounters and three hidden core equipment
+identities used by late raid opponents. Version `0.24.0` reconciles the
 local owner Underworld raid file, restores twenty boss portraits and Haunted
 Prince's map button, and verifies all 29 changed fights in native Unity.
 Version `0.23.0` restores all
@@ -47,15 +49,18 @@ source hash and refuses an unreviewed revision. Map buttons for eleven event
 raids, twenty upscaled boss portraits and two May portraits ship under
 `assets/sprites/underworld/`. Berstuuk's hidden armor and mask use archived
 geometry packed as `.modelz` assets and load through the normal model handle
-API. DE128 Lua never opens XML. Ceremonial armor/helm, needles and the
-`LightInTheDarkness` rule remain unresolved from available sources. The
+API. DE128 Lua never opens XML. The core item-list compatibility loader supplies
+the hidden ceremonial armor, ceremonial helm and needles identities used by the
+archive. The `LightInTheDarkness` rule now follows the player in Blackness and
+Son of the Sun Power Mode through Eclipse's typed rule API. The
 manifest adds `presentation.navigate` for the dojo
 change. Automated checks compare the generated data with the archive. The
 headless Unity 6 fixture covers native entry, arena and fighter rigs, 30 combat
 frames and surrender/map return for every Underworld fight, plus the archived
 boss story sequence matrix. The 29 fights changed by the reviewed owner raid
 file passed the same native path, with all new portraits and Prince buttons
-decoded. An interactive combat and presentation playtest
+decoded. The two spotlight encounters passed native shader, fighter-position,
+arena and cleanup checks. An interactive combat and presentation playtest
 remains outstanding.
 
 ## Sensei story (active since 0.19.0)

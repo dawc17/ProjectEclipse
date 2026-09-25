@@ -30,10 +30,13 @@ namespace Eclipse.Modding
         public int FramesOn { get; }
         public int FadeOut { get; }
         public int FramesOff { get; }
+        // LightInTheDarkness: normalized radius and circle/square shape blend.
+        public float LightRadius { get; }
+        public float LightShape { get; }
 
         private ModRuleGroupPayload(ModFightRuleKind kind, DefinitionId[] children, string description,
             ModRuleRefresh refresh, bool noDoubles, string image, string icon, float width,
-            int fadeIn, int framesOn, int fadeOut, int framesOff)
+            int fadeIn, int framesOn, int fadeOut, int framesOff, float lightRadius = 0f, float lightShape = 0f)
         {
             Kind = kind;
             _children = children == null ? Array.Empty<DefinitionId>() : (DefinitionId[])children.Clone();
@@ -44,11 +47,22 @@ namespace Eclipse.Modding
             Icon = icon ?? string.Empty;
             Width = width;
             FadeIn = fadeIn; FramesOn = framesOn; FadeOut = fadeOut; FramesOff = framesOff;
+            LightRadius = lightRadius; LightShape = lightShape;
         }
 
         internal static bool IsGroupKind(ModFightRuleKind kind) =>
             kind == ModFightRuleKind.NoHealthBar || kind == ModFightRuleKind.InvertJoystick ||
-            kind == ModFightRuleKind.RandomArea || kind == ModFightRuleKind.Group || kind == ModFightRuleKind.Random;
+            kind == ModFightRuleKind.RandomArea || kind == ModFightRuleKind.Group || kind == ModFightRuleKind.Random ||
+            kind == ModFightRuleKind.LightInTheDarkness;
+
+        internal static ModRuleGroupPayload LightInTheDarkness(float radius, float shape)
+        {
+            if (float.IsNaN(radius) || float.IsInfinity(radius) || radius <= 0f || radius > 1f ||
+                float.IsNaN(shape) || float.IsInfinity(shape) || shape < 0f || shape > 1f)
+                throw new ModContentException("Light-in-the-darkness radius must be in (0, 1] and shape in [0, 1].");
+            return new ModRuleGroupPayload(ModFightRuleKind.LightInTheDarkness, null, null, default, false,
+                null, null, 0f, 0, 0, 0, 0, radius, shape);
+        }
 
         internal static ModRuleGroupPayload Flag(ModFightRuleKind kind)
         {
@@ -121,6 +135,11 @@ namespace Eclipse.Modding
             RegisterExtendedRule(localId, ModFightRuleKind.RandomArea, target, mode, rounds, string.Empty, default, false, 0,
                 default, false, null, group: ModRuleGroupPayload.RandomArea(image, icon, width, fadeIn, framesOn, fadeOut, framesOff));
 
+        public FightRuleDefinition RegisterLightInTheDarknessRule(string localId, float radius, float shape,
+            ModRuleTarget target, ModRuleMode mode, int[] rounds) =>
+            RegisterExtendedRule(localId, ModFightRuleKind.LightInTheDarkness, target, mode, rounds, string.Empty,
+                default, false, 0, default, false, null, group: ModRuleGroupPayload.LightInTheDarkness(radius, shape));
+
         public FightRuleDefinition RegisterGroupRule(string localId, DefinitionId? description, DefinitionId[] children,
             ModRuleMode mode, int[] rounds)
         {
@@ -170,6 +189,13 @@ namespace Eclipse.Modding
             RequireCapability("content.register");
             return RequireRegistration().RegisterRandomAreaRule(localId, image, icon, width, fadeIn, framesOn, fadeOut, framesOff,
                 target, mode, rounds);
+        }
+
+        public FightRuleDefinition RegisterLightInTheDarknessRule(string localId, float radius, float shape,
+            ModRuleTarget target, ModRuleMode mode, int[] rounds)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterLightInTheDarknessRule(localId, radius, shape, target, mode, rounds);
         }
 
         public FightRuleDefinition RegisterGroupRule(string localId, DefinitionId? description, DefinitionId[] children,

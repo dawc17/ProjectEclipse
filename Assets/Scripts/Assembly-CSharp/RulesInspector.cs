@@ -177,6 +177,7 @@ public class RulesInspector : global::EventDispatcher<object>
 		bool flag3 = false;
 		bool flag4 = false;
 		bool flag5 = false;
+		bool spotlightPrepared = false;
 		foreach (InFightRule item in _inFightRules)
 		{
 			if (!item.HHHPGLLBPMF())
@@ -212,6 +213,13 @@ public class RulesInspector : global::EventDispatcher<object>
 				{
 					_fight.HKOMIIDELBC();
 					flag2 = true;
+				}
+				break;
+			case Rule.BCBLLMPAMLP.RuleLightInTheDarkness:
+				if (!spotlightPrepared)
+				{
+					_fight.CreateLightInTheDarkness();
+					spotlightPrepared = true;
 				}
 				break;
 			case Rule.BCBLLMPAMLP.RulePoints:
@@ -279,6 +287,10 @@ public class RulesInspector : global::EventDispatcher<object>
 				if (bCBLLMPAMLP == Rule.BCBLLMPAMLP.RuleDarkness)
 				{
 					_fight.DBIHABKLFHP(0f);
+				}
+				else if (bCBLLMPAMLP == Rule.BCBLLMPAMLP.RuleLightInTheDarkness)
+				{
+					_fight.RemoveLightInTheDarkness();
 				}
 			}
 		}
@@ -590,6 +602,10 @@ public class RulesInspector : global::EventDispatcher<object>
 			case Rule.BCBLLMPAMLP.RuleDarkness:
 				_fight.DBIHABKLFHP(((DarknessRule)item).CFNAMMODOAA());
 				break;
+			case Rule.BCBLLMPAMLP.RuleLightInTheDarkness:
+				var spotlight = (Eclipse.Combat.LightInTheDarknessRule)item;
+				_fight.UpdateLightInTheDarkness(spotlight.EDAKADCHOLE(), spotlight.LightRadius, spotlight.LightShape);
+				break;
 			case Rule.BCBLLMPAMLP.RuleRandomArea:
 			{
 				RandomAreaRule dFAONBFDMKA = (RandomAreaRule)item;
@@ -827,6 +843,7 @@ public class RulesInspector : global::EventDispatcher<object>
 			RemoveInFightRule((InFightRule)HNBFMAKFJAM);
 			break;
 		case Rule.BCBLLMPAMLP.RuleDarkness:
+		case Rule.BCBLLMPAMLP.RuleLightInTheDarkness:
 		case Rule.BCBLLMPAMLP.RulePoints:
 		case Rule.BCBLLMPAMLP.RuleInvertJoystick:
 		case Rule.BCBLLMPAMLP.RuleRandomArea:
@@ -987,6 +1004,7 @@ public class RulesInspector : global::EventDispatcher<object>
 			PutInFightRule((InFightRule)HNBFMAKFJAM);
 			return;
 		case Rule.BCBLLMPAMLP.RuleDarkness:
+		case Rule.BCBLLMPAMLP.RuleLightInTheDarkness:
 		case Rule.BCBLLMPAMLP.RulePoints:
 			PutInFightRule((InFightRule)HNBFMAKFJAM, true);
 			return;

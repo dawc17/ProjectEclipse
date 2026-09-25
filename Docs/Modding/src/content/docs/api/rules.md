@@ -424,6 +424,40 @@ local area = sf2.rules.random_area {
 }
 ```
 
+## sf2.rules.light_in_the_darkness
+
+Darken the arena except for a spotlight that follows a fighter. This is a visual
+rule: it does not change damage, movement, or which attacks can connect.
+
+**Signature:** `sf2.rules.light_in_the_darkness { id, radius, shape?, target?, mode?, rounds? }`
+
+**Requires:** `content.register`.
+
+**When:** Entrypoint, before attaching the rule to a fight. The spotlight is
+created at round setup, follows the fighter every render frame, and is removed
+when the rule stops.
+
+**Returns:** A rule handle.
+
+`radius` is required and must be greater than 0 and at most 1. It is a fraction
+of the rule's 2,048-unit presentation square; `0.20` lights about 410 arena
+units around the fighter. The recovered fights use `0.13` or `0.20`.
+`shape` is optional, from 0 (square) to 1 (circle), and defaults to 1. The
+recovered fights use 1. `target` defaults to `all`, which follows the player
+for this single-spotlight rule; use `sf2.rules.OPPONENT` to follow the enemy.
+The shared `mode` and `rounds` fields are described above. A rule group can
+pair the spotlight with a localized description. The radius and shape are part
+of the fight graph's save compatibility fingerprint, so changing either is a
+content change for existing saves.
+
+```lua
+local light = sf2.rules.light_in_the_darkness {
+    id = "follow_the_light", radius = 0.20, shape = 1,
+    target = sf2.rules.PLAYER,
+}
+-- Include light in a fight's rules array.
+```
+
 ## sf2.rules.group
 
 Combine several rules into one native rule group with a single description.

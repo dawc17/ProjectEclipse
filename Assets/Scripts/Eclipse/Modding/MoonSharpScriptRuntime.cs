@@ -1006,6 +1006,7 @@ namespace Eclipse.Modding
                 rules.Set("no_health_bar", DynValue.NewCallback(RegisterNoHealthBarRule));
                 rules.Set("invert_joystick", DynValue.NewCallback(RegisterInvertJoystickRule));
                 rules.Set("random_area", DynValue.NewCallback(RegisterRandomAreaRule));
+                rules.Set("light_in_the_darkness", DynValue.NewCallback(RegisterLightInTheDarknessRule));
                 rules.Set("group", DynValue.NewCallback(RegisterGroupRule));
                 rules.Set("random", DynValue.NewCallback(RegisterRandomRule));
                 rules.Set("remove_interval", DynValue.NewCallback(RegisterRemoveIntervalRule));

@@ -1066,6 +1066,13 @@ namespace Eclipse.Modding
                 node.SetAttribute("FramesOff", area.FramesOff.ToString(CultureInfo.InvariantCulture));
                 if (rule.Target != ModRuleTarget.All) node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
             }
+            else if (rule.Kind == ModFightRuleKind.LightInTheDarkness)
+            {
+                node = document.CreateElement("LightInTheDarkness");
+                node.SetAttribute("LightRadius", rule.Group.LightRadius.ToString("R", CultureInfo.InvariantCulture));
+                node.SetAttribute("LightShape", rule.Group.LightShape.ToString("R", CultureInfo.InvariantCulture));
+                if (rule.Target != ModRuleTarget.All) node.SetAttribute("ApplyTo", RuleTargetName(rule.Target));
+            }
             else if (rule.Kind == ModFightRuleKind.Group || rule.Kind == ModFightRuleKind.Random)
             {
                 ModRuleGroupPayload group = rule.Group;

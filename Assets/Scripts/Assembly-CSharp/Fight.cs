@@ -1829,6 +1829,25 @@ public class Fight
 		_Camera.KKFIJLOMOJI().OBICGGFDMLN();
 	}
 
+	public void CreateLightInTheDarkness()
+	{
+		_Camera.KKFIJLOMOJI().CreateLightInTheDarkness();
+	}
+
+	public void UpdateLightInTheDarkness(RuleAppliance target, float radius, float shape)
+	{
+		Model model = target == RuleAppliance.ApplianceOpponent ? CKNCPOABFBO : _playerModel;
+		if (model != null)
+		{
+			_Camera.KKFIJLOMOJI().UpdateLightInTheDarkness(model.PLBNCDCFPML(), radius, shape);
+		}
+	}
+
+	public void RemoveLightInTheDarkness()
+	{
+		_Camera.KKFIJLOMOJI().RemoveLightInTheDarkness();
+	}
+
 	public void DNJMJGFGHBC(Model ACENLMONNPA, PerkTrigger CPBHKJFPFJB)
 	{
 	}

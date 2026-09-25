@@ -889,6 +889,7 @@ namespace Eclipse.Modding
         RandomArea = 17,
         Group = 18,
         Random = 19,
+        LightInTheDarkness = 20,
     }
 
     public enum ModRuleTarget
