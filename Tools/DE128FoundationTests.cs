@@ -245,9 +245,14 @@ internal static class DE128FoundationTests
         Check(catalog.Rewards.Count(value => !value.Id.LocalId.StartsWith("sensei_act_") && !value.Id.LocalId.StartsWith("uw_")) == 1 &&
             catalog.Rewards.Count(value => value.Id.LocalId.StartsWith("sensei_act_")) == 57 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
-            reward.Items.Count == 1 && reward.Items[0].Item == Sword && reward.Items[0].UsesConfiguration &&
-            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 240 && !catalog.ItemDefaultEnchantments.Any(value => value.Item == Sword),
-            "Desolator must use one configured reward without changing equipment defaults or currencies.");
+            reward.Items.Count == 5 && reward.Items[0].Item == Sword &&
+            reward.Items.Skip(1).Select(value => value.Item.ToString()).SequenceEqual(new[] {
+                "de128:items/armor/titans_form", "de128:items/helm/titans_helm",
+                "de128:items/ranged/titans_harpoon", "de128:items/magic/titans_mind_throw" }) &&
+            reward.Items.All(value => value.UsesConfiguration) &&
+            reward.Choices.Count == 0 && reward.Gems == 0 && catalog.ItemDefaultEnchantments.Count == 240 &&
+            !catalog.ItemDefaultEnchantments.Any(value => reward.Items.Any(grant => grant.Item == value.Item)),
+            "The five Titan grants must be configured without changing equipment defaults or currencies.");
         Check(catalog.TryGetFight(DefinitionId.Parse("core:fights/zone_7/c3_boss_titan_eclipsemode/6"), out var titan) &&
             titan.RewardDrops.Count == 1 && catalog.Fights.Count(fight => fight.RewardDrops.Count != 0) == 1,
             "DE128 must patch only the final Eclipse Titan reward.");
@@ -458,6 +463,28 @@ internal static class DE128FoundationTests
 
     private static void CheckRewardConfiguration(ModDescriptor actualMod, string fixture)
     {
+        var archived = new XmlDocument();
+        archived.Load(Path.Combine(_repository, "ResearchSources/de128_assets/gamedata/stages.xml"));
+        var archivedItems = archived.SelectNodes(
+            "//Zone[@Name='ZONE_7']//Battle[@Name='C3_BOSS_TITAN_ECLIPSEMODE']/Fight[@Name='6']/Rewards/Reward/EclipseModeReward/Item")
+            .Cast<XmlElement>().ToArray();
+        string[] sourceNames = { "WEAPON_TITAN_GIANT_SWORD", "BODY_TITAN", "HEAD_TITAN",
+            "RANGED_TITANS_HARPOON", "MAGIC_MIND_THROW" };
+        string[] sourcePerks = { "PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON", "PERK_ITEM_SPECIAL_SHIELDING_ARMOR",
+            "PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_HEAD_HELM", "PERK_ITEM_SPECIAL_PRECISION_RANGED",
+            "PERK_ITEM_SPECIAL_FRENZY_MAGIC" };
+        Check(archivedItems.Length == sourceNames.Length, "Owner archive changed the final Titan reward count.");
+        for (int i = 0; i < sourceNames.Length; i++)
+        {
+            var perk = (XmlElement)archivedItems[i].SelectSingleNode("Enchantments/Perk");
+            Check(archivedItems[i].GetAttribute("Name") == sourceNames[i] &&
+                archivedItems[i].GetAttribute("Level") == "?Player[].Level" &&
+                archivedItems[i].GetAttribute("Drop") == "1" &&
+                archivedItems[i].GetAttribute("ShowReward") == "1" &&
+                perk?.GetAttribute("Name") == sourcePerks[i] &&
+                perk["Set"]?.GetAttribute("Aspect") == "3639 / 100 * ?Player[].Level + 60",
+                "Owner archive changed Titan reward grant " + i);
+        }
         var catalog = new ModContentCatalog();
         RewardItemGrant actualGrant;
         using (LoadLive(actualMod, catalog))
@@ -467,19 +494,28 @@ internal static class DE128FoundationTests
             Console.WriteLine("Underworld archive comparisons: " + underworld);
             var reward = catalog.Rewards.Single(value => value.Id.LocalId == "titans_desolator");
             Check(reward.TryGetGrant(0, out actualGrant) && !reward.TryGetGrant(-1, out _) &&
-                !reward.TryGetGrant(1, out _), "Reward flat index validation failed.");
+                !reward.TryGetGrant(5, out _), "Reward flat index validation failed.");
+            string[] perks = {
+                "PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON", "PERK_ITEM_SPECIAL_SHIELDING_ARMOR",
+                "PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_HEAD_HELM", "PERK_ITEM_SPECIAL_PRECISION_RANGED",
+                "PERK_ITEM_SPECIAL_FRENZY_MAGIC" };
             foreach (int level in new[] { 1, 2, 7, 51, 52 })
             {
-                var configuration = actualGrant.Configure(level);
-                Check(configuration.Level == level && configuration.Enchantments.Count == 1,
-                    "The actual DE128 callback did not configure player-level equipment.");
-                var enchantment = configuration.Enchantments[0];
-                Check(enchantment.Perk == CoreContentImporter.PerkId("PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON") &&
-                    Math.Abs(enchantment.Aspect.Value - (3639d / 100 * level + 60)) < 0.0000001,
-                    "The actual DE128 callback changed the archived Lifesteal formula.");
-                var repeated = actualGrant.Configure(level);
-                Check(repeated != configuration && repeated.Enchantments != configuration.Enchantments &&
-                    repeated.Enchantments[0].Aspect == enchantment.Aspect, "Reward results are shared or nondeterministic.");
+                for (int i = 0; i < perks.Length; i++)
+                {
+                    Check(reward.TryGetGrant(i, out var grant), "Titan reward grant is missing: " + i);
+                    var configuration = grant.Configure(level);
+                    Check(configuration.Level == level && configuration.Enchantments.Count == 1,
+                        "Titan grant did not configure player-level equipment: " + i);
+                    var enchantment = configuration.Enchantments[0];
+                    Check(enchantment.Perk == CoreContentImporter.PerkId(perks[i]) &&
+                        Math.Abs(enchantment.Aspect.Value - (3639d / 100 * level + 60)) < 0.0000001,
+                        "Titan reward enchantment differs from the archive: " + i);
+                    var repeated = grant.Configure(level);
+                    Check(repeated != configuration && repeated.Enchantments != configuration.Enchantments &&
+                        repeated.Enchantments[0].Aspect == enchantment.Aspect,
+                        "Titan reward results are shared or nondeterministic: " + i);
+                }
             }
         }
         Exception disposedFailure = null;

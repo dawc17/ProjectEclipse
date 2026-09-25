@@ -5,7 +5,9 @@ The owner-supplied archive is now the source of truth for DE content. See
 The download is currently blocked by Google Drive quota; prior archive comparisons
 below refer to the historical repository XML until reconciliation is performed.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.22.0` restores
+DE128 is an ordinary downstream Eclipse mod. Version `0.23.0` restores all
+five archived final Eclipse Titan equipment rewards with their own models,
+localized names and player-level enchantments. Version `0.22.0` restores
 Berstuuk's archived body and mask geometry and verifies all 76 Underworld
 encounters in a native Unity fixture. Version `0.21.1` includes a
 verified Underworld boss-alignment repair in the Eclipse template resolver.
@@ -260,9 +262,10 @@ for the native lifecycle evidence and its limits.
 - Registers `de128:items/weapon/titans_desolator`, reusing the core sword model,
   icon and `TitanGiantSword` move family. Its English name is registered in Lua;
   its innate loadout references core `PERK_TITAN` and `PERK_ANTI_SHOCK`.
-- Adds Desolator to the winning reward of final Eclipse Titan fight 6. The reward
-  uses the player's level when the result is prepared, and its Lifesteal aspect
-  is calculated in Lua as `3639 / 100 * player_level + 60`.
+- Restores the complete five-item winning reward of final Eclipse Titan fight 6:
+  Desolator, Titan's Form, Titan's Helm, Titan's Harpoon and Mind Throw. Each
+  uses the player's level when the result is prepared and its archived perk
+  aspect `3639 / 100 * player_level + 60`.
 - Adds the XML's level-4 **Master of Style / Relentless** perk choice and paired
   upgrade opportunities at levels 8, 11, 14 and 17. Both start at rank 1 and have
   five ranks. Six move definitions receive the archive's exact perk-lock removals,
@@ -380,12 +383,14 @@ original timestamps are not rewritten; disabling DE128 before completion restore
 their wait. Completed enchantments remain completed. Service gates do not prove that every
 associated button, offer or direct service entry point is hidden.
 
-Desolator has no purchase listing and is hidden before acquisition. The reward
+The five Titan items have no purchase listings and are hidden before acquisition. The reward
 patch preserves the base game's coins and forge materials. It does not unlock
-Titan, grant equipment at startup, replace the NPC sword or migrate inventory.
-The item uses normal core weapon progression. Already owning this mod's sword
-suppresses another reward copy, including a sword manually added for testing;
-that existing copy keeps its level and enchantments.
+Titan, grant equipment at startup, replace the NPC loadout or migrate inventory.
+The sword uses normal core weapon progression. Already owning any of the five
+mod items suppresses another copy of that item; an existing copy keeps its
+level and enchantments. The four new items use archived hidden-item stats and
+subtypes. Their models ship as packaged `.modelz` geometry, including the
+archive's harpoon edge flags. DE128 Lua never reads XML.
 
 The generic reward callback uses a snapshot taken before reward experience is
 awarded. The result is also safe to calculate for previews: it only returns
@@ -394,11 +399,14 @@ contract, not a promise that every archived expression has the same timing when
 a reward also levels up the player. Native settlement applies the prepared perk
 through the ordinary inventory/save path.
 
-No additional art files are bundled. Core references still require their assets
-to resolve in the installed game; a missing required reference rejects the whole
-mod registration. The owner confirmed the manually added sword worked on
-2026-09-18. That check does not establish reward-screen, Lifesteal or reload
-acceptance for the newly connected reward.
+The four Titan models are rebuilt by `Tools/ExtractDE128TitanRewardArt.py` from
+archived geometry; `Tools/GenerateDE128TitanRewardText.py` generates their names
+in 14 languages. Core icon and perk references still require the installed game.
+An isolated native Unity 6 run settled all five grants at level 52, equipped
+them and reloaded their saved enchantments at aspect `1952.28`. A second native
+fight rendered the Titan body and helm rigs for 30 frames and returned to the
+Underworld map. Interactive reward presentation and ranged/magic attack visuals
+remain for a game playtest.
 
 ## Enable and try it
 
@@ -427,19 +435,23 @@ Disable DE128 before a pending order completes and
 apply the selection again to restore the base policy, unless another mod owns it.
 Already completed enchantments remain completed.
 
-For the acquisition check, use a profile that has unlocked the final Eclipse
-Titan fight and does not own `de128:items/weapon/titans_desolator`. Win fight 6,
-check the sword's level and Lifesteal, then save and reload. Compare a normal-mode
-result and an already-owned result: neither should grant a new copy. The manual
-test copy in an existing profile is intentionally left alone.
+For the acquisition check, use a profile that has unlocked final Eclipse Titan
+fight 6 and owns none of the five reward items. Win the Eclipse fight, check all
+five items at the player's level and with their matching Lifesteal, Shielding,
+Damage Absorption, Precision and Frenzy enchantments, then save and reload.
+Compare a normal-mode result and an already-owned result: neither should grant
+unearned or duplicate copies. Equip the body, helm, harpoon and magic in a fight
+to check their rendered animations.
 
 ## Source layout
 
 `scripts/main.lua` loads the content modules in an explicit order. Service policy
 lives in `scripts/content/services.lua`; forge timing lives in
 `scripts/content/timers.lua`; Desolator's definition, translation and innate perks
-live in `scripts/content/equipment.lua`. The grant calculation and final Titan
-patch live in `scripts/content/rewards.lua`. New perk behavior, icons,
+live in `scripts/content/equipment.lua`. The four other Titan items and their
+translations live in `titan_reward_equipment.lua` and `titan_reward_text*.lua`.
+The grant calculation and final Titan patch live in `scripts/content/rewards.lua`.
+New perk behavior, icons,
 translations and rank tables live in `scripts/content/combat_perks.lua`; exact
 branch replacements and move-lock removals live in `scripts/content/progression.lua`.
 `ascension.lua` and `ascension_rules.lua` are commented archival prototypes.
@@ -458,8 +470,8 @@ persistent state schema. Native learned-perk saves retain selected ranks.
 ## Verification and next work
 
 Run `./Tools/TestDE128Foundation.ps1` from the repository root. It executes the
-actual packaged Lua through MoonSharp and checks policy consumption, Desolator
-registration, Lua localization, actual reward calculations, callback errors and
+actual packaged Lua through MoonSharp and checks policy consumption, all five Titan
+item registrations, Lua localization, actual reward calculations, callback errors and
 instruction budgets, module and asset failures, missing capabilities, conflicts,
 composition and rebuilding without DE.
 It uses an isolated temporary fixture and requires the project's MoonSharp DLL
@@ -472,7 +484,10 @@ the native services substituted by that fixture.
 `Tools/TestRewardGrantNative.ps1` checks the configured reward bridge, actual
 canonical Eclipse Titan reward projection and recovered enchantment serialization.
 It extracts the changed production methods and supplies controlled engine/catalog
-services. It does not run a campaign or load the owner's save.
+services. `Tools/TestDE128TitanRewardNative.py` separately runs native Unity 6
+grant, inventory settlement and save/reload checks on an isolated profile; the
+Underworld native fight runner checks the equipped Titan body and helm rigs.
+Neither runs a full campaign or loads the owner's save.
 
 The foundation fixture also compares both perks' rank tables and progression
 slots to the archive, executes hit/cancellation/expiry traces, and verifies that

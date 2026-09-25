@@ -177,6 +177,22 @@ public static class ValidateDE128TierBossesNative
             if (live?.FightId?.ToString() != new FightIDS(scripts.Content.RuntimeFightId(Target.Id)).ToString() ||
                 enemy.CLDMEJKGLBA() == null || player.CLDMEJKGLBA() == null)
                 throw new Exception("Tier boss fight or native fighter rig differs: " + Target.Id);
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_TITAN_EQUIPMENT") == "1")
+            {
+                string[] names = { "de128:items/weapon/titans_desolator", "de128:items/armor/titans_form",
+                    "de128:items/helm/titans_helm", "de128:items/ranged/titans_harpoon",
+                    "de128:items/magic/titans_mind_throw" };
+                var equipped = player.Parameters.PJNJIJIODHE().Select(item => item.Name).ToArray();
+                if (names.Any(name => !equipped.Contains(name)))
+                    throw new Exception("The native fighter lost saved Titan equipment: " + string.Join(",", equipped));
+                var macros = player.CLDMEJKGLBA().BLFJJAEFKKP();
+                int bodyNodes = macros.Count(node => node.GetName().StartsWith("TitanBody_", StringComparison.Ordinal));
+                int headNodes = macros.Count(node => node.GetName().StartsWith("TitanHead_", StringComparison.Ordinal));
+                if (bodyNodes != 8 || headNodes != 12)
+                    throw new Exception("Titan's archived body or helm geometry fell back: body=" +
+                        bodyNodes + " helm=" + headNodes);
+                Debug.Log(Prefix + "Five saved Titan items loaded; 8 body and 12 helm macro nodes in the native rig.");
+            }
             var location = (Location)typeof(Fight).GetField("_location", Hidden).GetValue(fight);
             int sprites = location?.layers?.Sum(layer => layer.ICDCIANNAAI == null ? 0 :
                 layer.ICDCIANNAAI.GetComponentsInChildren<SpriteRenderer>(true).Length) ?? 0;

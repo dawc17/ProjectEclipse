@@ -490,13 +490,30 @@ namespace Eclipse.Modding
     }
     public sealed class RewardChoiceItem { public RewardItemGrant Grant { get; } public float Weight { get; } public RewardChoiceItem(RewardItemGrant grant, float weight = 1) { Grant = grant; Weight = weight; } }
     public sealed class RewardChoiceDefinition { public IReadOnlyList<RewardChoiceItem> Items { get; } public RewardChoiceDefinition(RewardChoiceItem[] items) { Items = Array.AsReadOnly(items); } }
+    public sealed class RewardCurrencyDrop
+    {
+        public string Currency { get; }
+        public float ExpectedValue { get; }
+        public bool ShowReward { get; }
+        public RewardCurrencyDrop(string currency, float expectedValue, bool showReward = true)
+        { Currency = currency; ExpectedValue = expectedValue; ShowReward = showReward; }
+    }
     public sealed class RewardDefinition
     {
         public DefinitionId Id { get; }
         public int Gems { get; }
+        public int Experience { get; }
+        public float? PrizeBase { get; }
+        public IReadOnlyList<RewardCurrencyDrop> Currencies { get; }
         public IReadOnlyList<RewardItemGrant> Items { get; }
         public IReadOnlyList<RewardChoiceDefinition> Choices { get; }
-        public RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices, int gems = 0) { Id = id; Items = Array.AsReadOnly(items); Choices = Array.AsReadOnly(choices); Gems = gems; }
+        public RewardDefinition(DefinitionId id, RewardItemGrant[] items, RewardChoiceDefinition[] choices,
+            int gems = 0, int experience = 0, float? prizeBase = null, RewardCurrencyDrop[] currencies = null)
+        {
+            Id = id; Items = Array.AsReadOnly(items); Choices = Array.AsReadOnly(choices);
+            Gems = gems; Experience = experience; PrizeBase = prizeBase;
+            Currencies = Array.AsReadOnly(currencies ?? Array.Empty<RewardCurrencyDrop>());
+        }
         public bool TryGetGrant(int index, out RewardItemGrant grant) { grant = null; if (index < 0) return false; if (index < Items.Count) { grant = Items[index]; return true; } index -= Items.Count; foreach (var choice in Choices) { if (index < choice.Items.Count) { grant = choice.Items[index].Grant; return true; } index -= choice.Items.Count; } return false; }
     }
     public sealed class ModContentCatalog

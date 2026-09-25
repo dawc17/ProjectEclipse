@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.22.0**. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.23.0**. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload and equipped-fight acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3428,3 +3428,54 @@ with the known absent `fungus_raid/layer_0_2` image. Ceremonial armor/helm,
 needles, four perk names and `LightInTheDarkness` still lack complete archived
 source or verified behavior. Native headless acceptance does not establish
 interactive visuals, long-form combat balance or outcome rewards.
+
+### Step 57 — Complete the final Eclipse Titan equipment reward (0.23.0, 2026-09-25)
+
+The archived final Eclipse Titan fight 6, winning reward slot 1, lists five
+ordered equipment drops in `Assets/DExml/stages.xml`: the giant sword, body,
+helm, harpoon and Mind Throw. Each uses the player's level and a distinct perk
+whose aspect is `3639 / 100 * ?Player[].Level + 60`. The earlier DE128 reward
+only granted the sword. `scripts/content/rewards.lua` now grants all five in
+that exact slot and order through the typed reward configuration callback. It
+keeps the existing scoped fight patch and leaves the base prize and materials
+in place. Ordinary native ownership filtering applies per item.
+
+The four missing items register as hidden, reward-only DE128 equipment with
+separate identities from Titan's NPC loadout. The archived initial stats,
+`TitansHarpoon` and `MindThrow` subtypes, unknown-item icons and model identities
+are checked against the archived lists. Their names are generated into static
+Lua values for all 14 historical languages; the owner drop's English table
+matches those four names. `ExtractDE128TitanRewardArt.py` deterministically
+packs the four owner-drop model geometries into `.modelz` assets. Their source
+SHA-256 values, in body/helm/harpoon/magic order, are:
+
+- `626f4875c1efd93820196ab77e6d62a2bd22f6630f23da6520542815922f1283`
+- `1a73f70bb74f9356a82ac373f3058c59aab0417f2a524c93e057522647d0e1f8`
+- `dd2a22dbc0b6996ff3f52a7a3bfb0bb28be9fed230436de6778896018bb5f941`
+- `eb9724432b74f7e4626ec129468e7d442a57032b188e804c9cb2b59adeec7bfe`
+
+Body, helm and magic geometry match installed core model semantics. The owner
+harpoon changes `TitanHarpoonAttack_Edge` visibility and collision to zero and
+`TrossEdge1` visibility to zero, so it uses the owner geometry. This is a
+packaging operation, not a handwritten sprite or model-vertex repair. DE128 Lua
+reads no XML, and no XML file ships in the mod.
+
+`TestDE128TitanRewardNative.py` used an isolated Unity 6 project and profile.
+The live final-fight slot projected all five grants at level 52 with the
+correct identities and perks; native inventory settlement equipped them all.
+After restarting Unity, all five remained owned and equipped with saved aspect
+`1952.28`. The fixture also loaded and parsed all four model documents via
+the production typed asset loader. On the saved profile, the Underworld native
+fight runner equipped the Titan body and helm in a live Volcano encounter:
+eight body and twelve helm macro nodes rendered for 30 frames, followed by a
+clean surrender to the Underworld map. These fixtures use disposable profiles,
+omit the stock movement-tutorial include and redirect the TAR cache to the
+fixture; shipped game files are unchanged.
+
+Verification: text and art generators `--check`; DE128 foundation **14,587**;
+native reward bridge **33**; all four managed builds; editor generate/check,
+**37** project tests, LuaLS and VS Code integration; wiki build (**48** pages,
+**4,339** links/assets); native grant/reload and equipped-fight checks; and
+`git diff --check`. The headless run does not test the actual Titan win screen or
+interactive harpoon/Mind Throw attack visuals. A game playtest remains needed
+for those presentation paths and combat balance.

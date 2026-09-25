@@ -23,6 +23,8 @@ def main() -> int:
     parser.add_argument("--story-bosses", action="store_true", help="Play the 32 boss fights with archived story sequences")
     parser.add_argument("--all-fights", action="store_true", help="Play all 76 native Underworld fights")
     parser.add_argument("--fight", help="Play one exact de128:fights/uw_* ID")
+    parser.add_argument("--require-titan-equipment", action="store_true",
+                        help="Assert the saved Titan reward set is equipped on the native fighter")
     parser.add_argument("--timeout", type=int, default=1200)
     args = parser.parse_args()
     if not args.unity_editor.is_file() or args.timeout < 1 or not re.fullmatch(r"[A-Za-z0-9_-]{0,32}", args.profile_tag):
@@ -31,6 +33,8 @@ def main() -> int:
         parser.error("Choose one encounter matrix at a time.")
     if args.fight and not re.fullmatch(r"de128:fights/uw_[a-z0-9_]+", args.fight):
         parser.error("--fight requires an exact de128:fights/uw_* ID.")
+    if args.require_titan_equipment and not args.fight:
+        parser.error("--require-titan-equipment requires one exact --fight ID.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
     if (fixture / "Temp/UnityLockfile").exists():
@@ -92,6 +96,8 @@ def main() -> int:
     if args.fight:
         environment["ECLIPSE_DE128_UNDERWORLD_MATRIX"] = "single"
         environment["ECLIPSE_DE128_UNDERWORLD_TARGETS"] = args.fight
+    if args.require_titan_equipment:
+        environment["ECLIPSE_DE128_TITAN_EQUIPMENT"] = "1"
     if args.story_bosses:
         environment["ECLIPSE_DE128_UNDERWORLD_MATRIX"] = "story"
         source = (ROOT / "Mods/de128/scripts/content/underworld_story_data.lua").read_text(encoding="utf-8")

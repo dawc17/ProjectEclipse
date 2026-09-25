@@ -21,6 +21,7 @@ require("content.restored_equipment")
 require("content.shared_moves")
 require("content.shop")
 require("content.underworld_equipment")
+require("content.titan_reward_equipment")
 require("content.rewards")
 require("content.progression")
 -- Sensei story: guard templates and RaidCharge availability are synthesized from
@@ -34,4 +35,4 @@ require("content.underworld_story").install(underworld)
 -- Disabled at the owner's request. Keep the prototype out of the active mod.
 -- require("content.ascension")
 
-sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Desolator reward, XML-evidenced combat perks, Sensei story and Underworld registered.")
+sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Titan reward set, XML-evidenced combat perks, Sensei story and Underworld registered.")
