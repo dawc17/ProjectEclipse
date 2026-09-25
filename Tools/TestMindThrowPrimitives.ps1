@@ -4,11 +4,11 @@ $mindLua=@'
 local sound={core_sound="snd_m_pl_attack6",voice="Male"}
 local shake={pause_time=0,effect_time=30,amplitude_x=7,frequency_x=1,amplitude_y=9,frequency_y=0.3}
 local attack={direct=true,damage=0.15,hit="NoReaction",
- damage_terms={{type="MagicDamage"},{type="UnarmedDamage",shift=-25}},
+ damage_terms={MagicDamage=0,UnarmedDamage=-25},
  options={no_critical=true,body_part="Body",defense_types={"BodyDefense"}}}
 sf2.moves.register {id="mind",animation=sf2.assets.binary("animations/chinese"),
- intervals={{type="Attack",start=48,["end"]=49,attack=attack}},actions={
- {type="sound",frame=12,sound=sound},{type="shake_screen",frame=48,shake=shake}}}
+ intervals={{type="Attack",from=48,to=49,attack=attack}},timeline={
+ [12]={play_sound=sound.core_sound,voice=sound.voice},[48]={shake=shake}}}
 '@
 $catalog=Load-Lua $mindLua
 $doc=Project $catalog
@@ -56,14 +56,14 @@ foreach($mutation in @('sound.voice="Female"','sound.core_sound="snd_f_pl_attack
  Check ($fp -cne (Fingerprint (Load-Lua $mindLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))))) ('Fingerprint missed '+$mutation)
 }
 foreach($mutation in @('attack.direct=false','attack.direct="yes"','attack.edges={"Edge"}','sound.voice="Unknown"','sound.voice=1',
- 'sound.core_sound="bad/path"','sound.extra=1','shake.pause_time=-1','shake.effect_time=10001','shake.pause_time=0.5',
+ 'sound.core_sound="bad/path"','shake.pause_time=-1','shake.effect_time=10001','shake.pause_time=0.5',
  'shake.amplitude_x=-1','shake.amplitude_y=1/0','shake.frequency_x=1001','shake.frequency_y="bad"','shake.extra=true')) {
  $failure=$null;try {$null=Load-Lua $mindLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))}catch{$failure=$_}
  Check ($null -ne $failure) ('Invalid payload accepted: '+$mutation)
 }
-foreach($bad in @($mindLua.Replace('type="sound",frame=12,sound=sound','type="try_on_end",frame=12,sound=sound'),
- $mindLua.Replace('type="shake_screen",frame=48,shake=shake','type="sound",frame=48,shake=shake'),
- $mindLua.Replace('sound=sound','sound=1'),$mindLua.Replace('shake=shake','shake=1'))) {
+foreach($bad in @($mindLua.Replace('play_sound=sound.core_sound','try_on_end=sound.core_sound'),
+ $mindLua.Replace('shake=shake','play_sound=shake'),
+ $mindLua.Replace('play_sound=sound.core_sound','play_sound=1'),$mindLua.Replace('shake=shake','shake=1'))) {
  $failure=$null;try {$null=Load-Lua $bad}catch{$failure=$_}
  Check ($null -ne $failure) 'Cross-kind/malformed payload accepted.'
 }

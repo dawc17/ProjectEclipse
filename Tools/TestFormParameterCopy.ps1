@@ -101,7 +101,7 @@ class ModelConditions
 }
 class AnimationData
 {
-    public static readonly List<InfoAnimation> LNKJIIGBEDA = new List<InfoAnimation> {
+    public static readonly List<InfoAnimation> _Animations = new List<InfoAnimation> {
         new InfoAnimation { Name = "Stance" }, new InfoAnimation { Name = "RestrictedKick" } };
     ANIMATION_METHODS
 }

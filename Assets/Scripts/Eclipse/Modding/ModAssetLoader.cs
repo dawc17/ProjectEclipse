@@ -852,9 +852,16 @@ namespace Eclipse.Modding
         }
 
         internal static Lifetime Apply(IReadOnlyList<InfoAnimation> moves, IReadOnlyList<MoveCombatPatch> patches,
-            Func<ModMoveCondition, ConditionAnimation> parse)
+            Func<ModMoveCondition, ConditionAnimation> parse, Action rebuildPriorityConflicts = null)
         {
             var lifetime = new Lifetime();
+            // Native priority-conflict tables are derived from each move's key
+            // condition and Priority. Rebuild them after key/priority changes are
+            // applied and again after they are undone (Undo runs in reverse).
+            bool changesConflicts = false;
+            foreach (var patch in patches)
+                if (patch.Input != null || patch.Priority != null) changesConflicts = true;
+            if (changesConflicts && rebuildPriorityConflicts != null) lifetime.Undo.Add(rebuildPriorityConflicts);
             var names = new HashSet<string>(StringComparer.Ordinal);
             foreach (var patch in patches)
             {
@@ -898,6 +905,7 @@ namespace Eclipse.Modding
                 if (patch.Animation != null) PrepareAnimation(target, patch.Animation, lifetime);
                 if (patch.RemoveInterval != null) PrepareRemoveInterval(target, patch.RemoveInterval, lifetime);
             }
+            if (changesConflicts && rebuildPriorityConflicts != null) lifetime.Apply.Add(rebuildPriorityConflicts);
             try { foreach (var apply in lifetime.Apply) apply(); }
             catch { lifetime.Dispose(); throw; }
             return lifetime;

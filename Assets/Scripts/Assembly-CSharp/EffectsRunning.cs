@@ -96,8 +96,9 @@ public class EffectsRunning
 		CocosAnimation cocosAnimation = gameObject.AddComponent<CocosAnimation>();
 		bool effectLoaded = cocosAnimation.Init(oNNKJLOGHGH, true);
 		// The recovered -10 background order puts effects behind every location
-		// sprite in Unity. Keep their order with the arena and use model depth.
-		cocosAnimation.SetSortingOrder(IBODMPMJELJ.JNAALMFCPCN() ? 0 : IBODMPMJELJ.GetPriority());
+		// sprite in Unity. Keep their order with the arena and use model depth;
+		// an authored positive Priority (vanilla OrbOfHungerEffect1) still applies.
+		cocosAnimation.SetSortingOrder(IBODMPMJELJ.JNAALMFCPCN() ? Mathf.Max(0, IBODMPMJELJ.GetPriority()) : IBODMPMJELJ.GetPriority());
 		if (!effectLoaded)
 		{
 			LLLOJBFMONN.Write("Effect NO " + oNNKJLOGHGH);

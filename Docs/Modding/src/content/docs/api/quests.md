@@ -8,6 +8,10 @@ reveal your map battle at session startup. The current interface is a typed
 compatibility format: it does not take arbitrary Lua quest callbacks. Put custom
 combat calculations in behavior functions instead.
 
+Quest actions use the `actions` array and a `type` discriminator shown below.
+Move timelines are a separate contract: use the [move short form](../moves-and-tactics/#writing-moves-the-short-form)
+when authoring combat animation actions.
+
 ## sf2.quests.register
 
 Create a quest that responds to selected game events.

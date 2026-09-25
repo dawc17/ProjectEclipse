@@ -76,6 +76,7 @@ require("content.sensei_notifications").install(battles,finals)
         using(var context=new MoonSharpScriptRuntime(null,null,null,bus)
             .CreateContext(mod,new ModApiFacade(mod,assets,tx,state,entry=>logs.Add(entry.Message))))
         {
+            ModLocalizationLoader.Load(mod, new AssetResolver(new IAssetProvider[] { new LooseModProvider(mod) }), tx);
             context.ExecuteEntrypoint();tx.Commit();
             var source=Read(Path.Combine(args[1],"Assets/DExml/quests.xml"));
             var english=Read(Path.Combine(args[1],"Assets/DExml/localizations/eng.xml"));

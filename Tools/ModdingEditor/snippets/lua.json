@@ -160,55 +160,55 @@
   "Eclipse scheduled native effect": {
     "prefix": "eclipse-move-effect",
     "body": [
-      "{ type = \"effect\", frame = ${1:2}, effect = {",
+      "[${1:2}] = { effect = {",
       "    name = \"${2:SmallSphereStart}\", core_sequence = \"${3:mgc_magic_small_sphere_start}\",",
       "    scale = 0.75, time_scale = 1.45,",
-      "    position = { player = \"Me\", object = \"Nodes\", part = \"${4:Magic-Node2_1}\", shift_y = 80 },",
+      "    position = { node = \"${4:Magic-Node2_1}\", player = \"Me\", y = 80 },",
       "    follow = true,",
       "} },"
     ],
-    "description": "Inside a move actions array; requires content.register and a compatible core effect/rig."
+    "description": "Inside a move timeline; requires content.register and a compatible core effect/rig."
   },
   "Eclipse attached native effect": {
     "prefix": "eclipse-move-effect-attach",
     "body": [
-      "{ type = \"effect\", frame = ${1:13}, effect = {",
+      "[${1:13}] = { effect = {",
       "    name = \"${2:ElectroEffect}\", core_sequence = \"${3:mgc_effect_shocker}\",",
       "    attach = { player = \"Me\", root_point = \"${4:NStomach}\",",
       "        attach_point = \"${5:NChest}\", offset_x = 0, offset_y = 0 },",
       "} },"
     ],
-    "description": "Inside a move actions array; follows a pair of live model nodes."
+    "description": "Inside a move timeline; follows a pair of live model nodes."
   },
   "Eclipse stop native sound": {
     "prefix": "eclipse-move-stop-sound",
     "body": [
-      "{ type = \"stop_sound\", event = \"${1:AnimationEnd}\", core_sound = \"${2:snd_blade_fury}\" },"
+      "${1:animation_end} = { stop_sound = \"${2:snd_blade_fury}\" },"
     ],
     "description": "Stop an exact native sound when a move ends or is interrupted."
   },
   "Eclipse play child animation": {
     "prefix": "eclipse-move-play-child",
     "body": [
-      "{ type = \"play_animation\", frame = ${1:17}, player = \"Child\",",
-      "    child_name = \"${2:BlackHand}\", move = ${3:child_move} },"
+      "[${1:17}] = { play_animation = ${3:child_move}, player = \"Child\",",
+      "    child_name = \"${2:BlackHand}\" },"
     ],
     "description": "Start a registered move on a named child actor; define child_move first."
   },
   "Eclipse scheduled projectile": {
     "prefix": "eclipse-move-projectile",
     "body": [
-      "{ type = \"create_projectile\", frame = ${1:2}, projectile = {",
+      "[${1:2}] = { projectile = {",
       "    name = \"${2:Sphere1}\", core_skeleton = \"${3:SkeletonMagic}\", copy_parent_type = \"Magic\",",
       "} },",
-      "{ type = \"add_bullets\", frame = ${4:7}, bullets = { type = \"MagicBullet\", value = -1 } },"
+      "[${4:7}] = { add_bullets = \"MagicBullet\", amount = -1 },"
     ],
-    "description": "Inside a caster move actions array; requires a complete compatible projectile graph."
+    "description": "Inside a caster move timeline; requires a complete compatible projectile graph."
   },
   "Eclipse named-item projectile": {
     "prefix": "eclipse-move-projectile-item",
     "body": [
-      "{ type = \"create_projectile\", frame = ${1:22}, projectile = {",
+      "[${1:22}] = { projectile = {",
       "    name = \"${2:Earthquake}\", core_skeleton = \"${3:SkeletonMagic}\",",
       "    item = sf2.items.get(\"core:items/magic/${4:MAGIC_BUTCHER_EARTHQUAKE}\"), start_move = ${5:child_move},",
       "} },"
@@ -218,7 +218,7 @@
   "Eclipse projectile flight fields": {
     "prefix": "eclipse-projectile-flight",
     "body": [
-      "conditions = { { type = \"actor_name\", name = \"${1:Sphere1}\" } },",
+      "conditions = { { actor = \"${1:Sphere1}\" } },",
       "velocity = { x = ${2:30} },",
       "no_magic_recharge = true,"
     ],
@@ -234,5 +234,23 @@
       "},"
     ],
     "description": "Native spell options inside a move attack table; requires compatible edges and complete graph."
+  },
+  "Eclipse saved dialogue sequence": {
+    "prefix": "eclipse-story-sequence",
+    "description": "Play typed dialogue steps with a declared integer cursor (default 1). Requires story.events, ui.create, state.read and state.write.",
+    "body": [
+      "sf2.story.play_sequence {",
+      "    position = \"${1:dialogue_next}\",",
+      "    steps = {",
+      "        { dialog = {",
+      "            lines = { { text = ${2:body_text} } },",
+      "            button = ${3:button_text},",
+      "        } },",
+      "    },",
+      "    on_complete = function()",
+      "        ${0:-- Mark the pending story complete.}",
+      "    end,",
+      "}"
+    ]
   }
 }

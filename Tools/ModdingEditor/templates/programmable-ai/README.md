@@ -45,7 +45,7 @@ for `WaspFly` and `Earthquake` hit reactions, native `tactic_conditions`,
 projectiles equipped from an `item` handle, and the exclusive
 `ignores_all_invulnerable`/`ignores_invulnerable` options.
 For a timed child phase, register its move first and add a caster action such as
-`{ type = "play_animation", frame = 17, player = "Child", child_name = "BlackHand", move = child_move }`.
+`timeline = { [17] = { play_animation = child_move, player = "Child", child_name = "BlackHand" } }`.
 The child must exist and be able to select that move when the native action runs.
 
 Test each distinct behavior in combat, including pause/resume, knockdowns and

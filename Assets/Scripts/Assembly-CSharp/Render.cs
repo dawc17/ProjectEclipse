@@ -486,6 +486,8 @@ public class Render
 	public void CreateLightInTheDarkness()
 	{
 		if (_lightInTheDarkness != null || _location == null) return;
+		// The mask may have been destroyed with its layer; release what it used.
+		RemoveLightInTheDarkness();
 		Shader shader = Resources.Load<Shader>("shaders/EclipseLightInTheDarkness");
 		if (shader == null) throw new InvalidOperationException("Eclipse spotlight shader is unavailable.");
 		_lightInTheDarknessMaterial = new Material(shader);

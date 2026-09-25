@@ -31,6 +31,8 @@ namespace Eclipse.Modding
                 root.Set("scenes",DynValue.NewTable(scenes));
                 var story = new Table(_script);
                 AddFightEntryFunctions(story);
+                _storyScope?.SetSceneCleanup(notification => StopSequence(true));
+                story.Set("play_sequence", DynValue.NewCallback((ctx, args) => ApiCall("sf2.story.play_sequence", () => PlaySequence(args))));
                 story.Set("on",DynValue.NewCallback((ctx,args)=>ApiCall("sf2.story.on",()=>{
                     const string function="sf2.story.on";
                     _api.RequireCapability("story.events");

@@ -20,8 +20,8 @@ local slash = sf2.moves.register {
     profile = data.profile, tactic_distance = data.tactic_distance,
     conditions = data.conditions, locks = data.locks, intervals = data.intervals,
     transitions = data.transitions, align = data.align, direction = data.direction,
-    actions = data.actions,
-    events = { "key_pressed", { type = "interval_end", name = "Uninterrupt" }, "animation_end" },
+    timeline = data.timeline,
+    events = { "key_pressed", { interval_end = "Uninterrupt" }, "animation_end" },
 }
 local preview = sf2.moves.register {
     id = "shop_chinese_swords_super_slash", animation = animation,
@@ -30,7 +30,7 @@ local preview = sf2.moves.register {
     no_wall_repulsion = data.preview.no_wall_repulsion,
     no_interpolation_frames = data.preview.no_interpolation_frames,
     locks = data.preview.locks, align = data.preview.align, direction = data.direction,
-    actions = data.preview.actions, events = { { type = "round_stage_start", name = "TryOn" } },
+    timeline = data.preview.timeline, events = { { round_stage_start = "TryOn" } },
 }
 sf2.items.set_subtype {
     item = sf2.items.get("core:items/weapon/WEAPON_CHNY21_JIAN"), subtype = "ChineseSwords",

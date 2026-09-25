@@ -227,7 +227,12 @@ internal static class DE128UnderworldTests
         if (template == "Cyborg_Gatekeeper" && xml.GetAttribute("Tactic") == "Aggressive")
             tactic = "de128:tactics/gatekeeper_power_field";
         if (template == "Girl_Blackness" && xml.GetAttribute("Tactic") == "Aggressive")
-            tactic = "de128:tactics/blackness_grasp";
+        {
+            var set = xml.SelectSingleNode("Perks/Perk[@Name='PERK_GRASP_OF_DARKNESS']/Set") as XmlElement;
+            tactic = set?.GetAttribute("Frames") == "700" ? "de128:tactics/blackness_grasp_power" :
+                set?.GetAttribute("Frames") == "800" ? "de128:tactics/blackness_grasp" :
+                throw new Exception("Blackness's Grasp recast delay differs: " + where);
+        }
         if (template == "Girl_Saturn" && xml.GetAttribute("Tactic") == "Aggressive")
         {
             var set = xml.SelectSingleNode("Perks/Perk[@Name='PERK_SUPER_BLASTER']/Set") as XmlElement;

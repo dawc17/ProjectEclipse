@@ -155,13 +155,15 @@ public static class AnimationData
 		}
 
 		internal readonly List<Entry> Entries = new List<Entry>();
+		internal readonly List<System.Action> TemplateUndo = new List<System.Action>();
 		private bool _disposed;
 
 		public void Dispose()
 		{
 			if (_disposed) return;
 			_disposed = true;
-			bool restored = false;
+			for (int i = TemplateUndo.Count - 1; i >= 0; i--) TemplateUndo[i]();
+			bool restored = TemplateUndo.Count != 0;
 			for (int i = Entries.Count - 1; i >= 0; i--)
 			{
 				Entry entry = Entries[i];
@@ -184,30 +186,51 @@ public static class AnimationData
 		if (document.SelectNodes("/Movesxml/Templates/Template").Count != 0 ||
 			document.SelectNodes("/Movesxml/Triggers/Trigger").Count != 0)
 			throw new System.InvalidOperationException("Native move replacements cannot add templates or triggers.");
+		// Parsing appends each replacement to the live template lists it names.
+		// Keep a snapshot so a rejected batch leaves template membership unchanged.
+		var templateSnapshot = new List<KeyValuePair<List<InfoAnimation>, InfoAnimation[]>>();
+		foreach (TemplateAnimation template in _TemplatesByName.Values)
+			templateSnapshot.Add(new KeyValuePair<List<InfoAnimation>, InfoAnimation[]>(
+				template.LDEBJOPLCKO(), template.LDEBJOPLCKO().ToArray()));
+		var templateNames = new HashSet<string>(_TemplatesByName.Keys, System.StringComparer.Ordinal);
 		var parsed = new List<InfoAnimation>();
-		MovesParser.ParseAdditional(document, parsed, _TemplatesByName, new List<Trick>(), new List<Trigger>());
-		if (parsed.Count != expectedFiles.Count)
-			throw new System.InvalidOperationException("Native replacement count does not match its guards.");
 		var lifetime = new ExternalMoveReplacementLifetime();
-		var names = new HashSet<string>(System.StringComparer.Ordinal);
-		foreach (InfoAnimation replacement in parsed)
+		try
 		{
-			if (!names.Add(replacement.Name) ||
-				!expectedFiles.TryGetValue(replacement.Name, out string expectedFile))
-				throw new System.InvalidOperationException("Unguarded or duplicate native replacement: " + replacement.Name);
-			int index = -1;
-			for (int i = 0; i < _Animations.Count; i++)
-				if (_Animations[i].Name == replacement.Name)
-				{
-					if (index >= 0) throw new System.InvalidOperationException("Ambiguous native replacement target: " + replacement.Name);
-					index = i;
-				}
-			if (index < 0 || _Animations[index].FileName != expectedFile ||
-				!_AnimationsByName.TryGetValue(replacement.Name, out InfoAnimation mapped) ||
-				!ReferenceEquals(mapped, _Animations[index]))
-				throw new System.InvalidOperationException("Native replacement expected filename or target mismatch: " + replacement.Name);
-			lifetime.Entries.Add(new ExternalMoveReplacementLifetime.Entry {
-				Index = index, Original = _Animations[index], Replacement = replacement });
+			MovesParser.ParseAdditional(document, parsed, _TemplatesByName, new List<Trick>(), new List<Trigger>());
+			if (parsed.Count != expectedFiles.Count)
+				throw new System.InvalidOperationException("Native replacement count does not match its guards.");
+			var names = new HashSet<string>(System.StringComparer.Ordinal);
+			foreach (InfoAnimation replacement in parsed)
+			{
+				if (!names.Add(replacement.Name) ||
+					!expectedFiles.TryGetValue(replacement.Name, out string expectedFile))
+					throw new System.InvalidOperationException("Unguarded or duplicate native replacement: " + replacement.Name);
+				int index = -1;
+				for (int i = 0; i < _Animations.Count; i++)
+					if (_Animations[i].Name == replacement.Name)
+					{
+						if (index >= 0) throw new System.InvalidOperationException("Ambiguous native replacement target: " + replacement.Name);
+						index = i;
+					}
+				if (index < 0 || _Animations[index].FileName != expectedFile ||
+					!_AnimationsByName.TryGetValue(replacement.Name, out InfoAnimation mapped) ||
+					!ReferenceEquals(mapped, _Animations[index]))
+					throw new System.InvalidOperationException("Native replacement expected filename or target mismatch: " + replacement.Name);
+				lifetime.Entries.Add(new ExternalMoveReplacementLifetime.Entry {
+					Index = index, Original = _Animations[index], Replacement = replacement });
+			}
+		}
+		catch
+		{
+			foreach (var list in templateSnapshot)
+			{
+				list.Key.Clear();
+				list.Key.AddRange(list.Value);
+			}
+			foreach (string name in new List<string>(_TemplatesByName.Keys))
+				if (!templateNames.Contains(name)) _TemplatesByName.Remove(name);
+			throw;
 		}
 		try
 		{
@@ -215,6 +238,8 @@ public static class AnimationData
 			{
 				_Animations[entry.Index] = entry.Replacement;
 				_AnimationsByName[entry.Replacement.Name] = entry.Replacement;
+				foreach (TemplateAnimation template in _TemplatesByName.Values)
+					SwapTemplateMember(template, entry.Original, entry.Replacement, lifetime);
 			}
 			RebuildCapabilityTables();
 			return lifetime;
@@ -226,7 +251,41 @@ public static class AnimationData
 		}
 	}
 
-	private static void RebuildCapabilityTables()
+	// A replacement takes the original's place in templates it also declares,
+	// and in the per-move template named after the move, so template lookups keep
+	// their native order. Templates only the original declared drop it.
+	private static void SwapTemplateMember(TemplateAnimation template, InfoAnimation original,
+		InfoAnimation replacement, ExternalMoveReplacementLifetime lifetime)
+	{
+		List<InfoAnimation> members = template.LDEBJOPLCKO();
+		int originalIndex = members.IndexOf(original);
+		int replacementIndex = members.IndexOf(replacement);
+		if (originalIndex < 0)
+		{
+			if (replacementIndex >= 0)
+				lifetime.TemplateUndo.Add(() => members.Remove(replacement));
+			return;
+		}
+		if (replacementIndex >= 0 || template.get_Name() == original.Name)
+		{
+			if (replacementIndex >= 0) members.RemoveAt(replacementIndex);
+			originalIndex = members.IndexOf(original);
+			members[originalIndex] = replacement;
+			lifetime.TemplateUndo.Add(() =>
+			{
+				int current = members.IndexOf(replacement);
+				if (current >= 0) members[current] = original;
+			});
+			return;
+		}
+		members.RemoveAt(originalIndex);
+		lifetime.TemplateUndo.Add(() =>
+		{
+			if (!members.Contains(original)) members.Insert(System.Math.Min(originalIndex, members.Count), original);
+		});
+	}
+
+	internal static void RebuildCapabilityTables()
 	{
 		foreach (InfoAnimation move in _Animations)
 			move.PriorityConflicts.HigherPriorityMoves.Clear();

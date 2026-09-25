@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.34.0**. Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.36.0**. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3003,8 +3003,12 @@ boss), `localizations/*.xml` (14 languages), and
 ### Content (0.20.0)
 
 `Tools/GenerateDE128Underworld.py` (`--check` keeps the output in sync) writes
-`underworld_data.lua`, `underworld_text_values.lua` (378 keys × 14 languages;
-empty archived translations fall back to English) and `underworld_story_data.lua`.
+`underworld_data.lua`, `underworld_text.lua` (381 key handles), the Underworld
+sections of 14 `localizations/<language>.toml` files, and `underworld_story_data.lua`.
+Empty archived translations fall back to English. Generated warrior, perk and
+dialogue rows are compact; Power Mode fight rows contain differences from their
+normal twin, resolved by the registrar into fresh tables. Sensei translations
+and generated Titan reward names use separate sections in the same language files.
 The mod never reads XML at runtime.
 
 - 8 Underworld pages `underworld_tier_1..8` (ZONE_RAID..ZONE_RAID7), 76 battles
@@ -4091,3 +4095,43 @@ generate/check/**39** project tests, LuaLS and real VS Code integration;
 wiki build (**48** pages, **4,351** local links/assets); and
 `git diff --check`. The audit retains the known missing
 `fungus_raid/layer_0_2` image.
+
+### Post-0.36.0 review corrections (unreleased, 2026-09-25)
+
+A review of Steps 51–70 found these defects; the manifest version is unchanged.
+
+1. **Blackness Grasp timing.** Step 65's tactic used a 600-frame opening and
+   recast. The owner `perks.xml` sets `GraspOfDarknessCD` for `_Frames` both at
+   `RoundStageStart Fight` and on each cast, and the Blackness rows override
+   `_Frames` to 800 (normal) and 700 (Power Mode). The tactic therefore judged
+   Grasp ready 200/100 frames early and retreated during that gap. Blackness now
+   uses `de128:tactics/blackness_grasp` (800) or
+   `de128:tactics/blackness_grasp_power` (700), chosen from the archived row.
+2. **Wall-pinned retreat.** While a cast was ready, Blackness and the Hoaxen,
+   Berstuuk, Arkhos and Tenebris tactics always preferred `StepBack` to open
+   the native minimum-distance gate. With the boss's back wall within 120 units
+   (Hunter's existing threshold) they now fall through to their other attacks
+   instead of repeating `StepBack`.
+3. **Widow's airborne exclusions.** `wasp_fly.lua` disables the native
+   `WaspFly_*` selectors, so Step 70's gate never matched a player's Wasp Fly.
+   The four `de128:moves/wasp_fly_*` replacements are now excluded as well.
+4. **Native move tables.** Input and priority patches now rebuild the native
+   priority-conflict tables after apply and rollback. Native move replacement
+   now swaps the original for the replacement in live template lists
+   (including the per-move template) and restores them on rollback or a
+   rejected batch (`Tools/TestMoveReplacementTemplates.ps1`).
+5. **Test harness names.** Seven harnesses still used obfuscated names renamed
+   during Steps 51–70 and no longer compiled; they use the new names.
+
+No Unity playtest was run for these corrections.
+
+### Move short form: War Whirl and Sphere1 (unreleased, 2026-09-25)
+
+`war_whirl.lua` and `sphere1.lua` are rewritten in the move short form (see
+`Mods/SHORT_FORM_MIGRATION.md` and the wiki's "Writing moves: the short form").
+`Tools/TestDE128ShortFormEquivalence.ps1` proves both project to the same native
+moves, move patches and tactics as their long-form originals. The Sphere archive
+tests now compare condition lists as sets and actions grouped by trigger, which
+matches native `ConditionList` and `ModelAnimation` dispatch; all other fields
+remain strict. The remaining DE128 move files are still in the long form. No Unity
+playtest was run.

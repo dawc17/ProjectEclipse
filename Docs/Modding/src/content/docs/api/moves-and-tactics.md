@@ -7,6 +7,106 @@ These are advanced content APIs. They configure the native animation and AI syst
 
 Native equipment can use a different AI table group from its animation subtype. Eclipse respects the shipped `TacticSubtype` metadata (for example, a `TwoHandedBlunt` weapon can use `TwoHanded` AI tables), falling back to `SubType` when it is absent. Item cloning preserves this distinction, and weapon changes update the fighter's own AI group. Animation and item-condition matching still use the actual subtype. Owned weapon registration supports an optional `tactic_subtype`; see [weapon registration](../equipment-shop-logging/#sf2itemsregister_weapon). You can also [override weapon AI groups](../items-progression-forge/#sf2itemsset_tactic_subtype). Managed tests cover parsing and group updates; live combat acceptance remains separate.
 
+## Writing moves: the short form
+
+Use plain declarative tables to describe moves. A condition names its kind,
+points name the rig object, and a timeline groups actions by their frame or event.
+The C# binding validates these tables and projects them into native move data;
+no Lua helper library is required. Long-form move tables remain temporarily
+accepted while test fixtures are migrated. New content should use the short form.
+
+```lua
+local sf2 = require("sf2")
+local move = sf2.moves.register {
+    id = "spell", animation = "animations/spell",
+    core_templates = { "MagicPlayer", "Controlled" },
+    events = "controlled", direction = "face_enemy",
+    conditions = {
+        { key = "Magic" }, { bullets = "MagicBullet", min = 1 },
+        { not_mod = "Concussion" }, { not_mod = "Stun" },
+        { controllable = true },
+    },
+    locks = { { item = "Skeleton", subtype = "Skeleton" } },
+    intervals = { { name = "Uninterrupt", to = 30 } },
+    timeline = {
+        [3] = { sound = "snd_midsphere_start" },
+        [7] = { add_bullets = "MagicBullet", amount = -1 },
+        strike = { sound = { "snd_hit1", "snd_hit2" } },
+    },
+}
+```
+
+This is an authoring fragment: provide a compatible animation and the rest of
+your spell's attack/projectile graph before using it in a fight.
+
+Each condition has one kind key. Supported keys are `key`, `keys`, `mod`,
+`interval`, `animation`, `stage`, `round_result`, `screen`, `actor`, `character`,
+`perk`, `item`, `bullets`, `distance`, `direction`, `all`, and `any`. Prefix any
+with `not_` to negate it. Conditions within a list are ANDed; `any` groups use OR.
+Nested plain lists are spliced into the enclosing list, so shared condition
+arrays can be reused. Nesting is limited to eight levels.
+
+`{ controllable = true }` expands to the native readiness conditions: outside
+`SemiUninterrupt` and `Uninterrupt`, round stage `Fight`, not simultaneously in
+`$Move` and `SemiUninterrupt`, and not in `Physical`. It does not include stun,
+concussion, equipment, or charge checks; declare those as needed.
+
+For points, use `{ node = "NPivot", player = "Enemy", x = 5, y = 10 }` or
+`{ wall = "Front", player = "Me" }`. Partless objects take the player directly:
+`{ pivot = "Me" }`, `{ animation = "Parent" }`, `{ floor = "Me" }`, or
+`{ com = "Me" }`. Use `true` to retain native default player selection, such as
+`{ animation = true }`. A player cannot be supplied twice. The positioning
+section below explains which objects each operation supports.
+
+Use a single action or an array of actions under each timeline key:
+
+```lua
+local timeline = {
+    [2] = {
+        { sound = "snd_midsphere_start" },
+        { effect = { name = "Glow", core_sequence = "mgc_magic_mid_sphere_start" } },
+    },
+    animation_end = { stop_effect = "Glow" },
+}
+```
+
+Frames are emitted in ascending order, followed by events in this order:
+`birth`, `round_stage`, `round_start`, `key_pressed`, `key_released`,
+`animation_start`, `interval_start`, `every_frame`, `strike`, `hit`, `wall_hit`,
+`interval_end`, `animation_end`, `mod_expires`, `round_end`. Actions under one
+key retain their written order. The native runtime dispatches each trigger
+separately, so order between different triggers does not affect execution.
+
+| Short action | Meaning |
+| --- | --- |
+| `{ sound = "snd_hit1" }` or `{ sound = { "snd_hit1", "snd_hit2" } }` | Play one native sound or randomly choose from the ordered list. |
+| `{ play_sound = "snd_m_pl_attack6", voice = "Male" }` | Play a native sound with an optional voice filter. |
+| `{ stop_sound = "snd_blade_fury" }` | Stop the named native sound. |
+| `{ effect = { name = "Glow", core_sequence = "mgc_magic_mid_sphere_start" } }` | Start a native effect with the payload described below. |
+| `{ stop_effect = "Glow" }`, `{ stop_follow_effect = "Glow" }` | Stop an effect or detach its following behavior. |
+| `{ projectile = { name = "Sphere", core_skeleton = "SkeletonMagic", copy_parent_type = "Magic" } }` | Create a native child projectile actor. |
+| `{ add_bullets = "MagicBullet", amount = -1 }` | Change the current model's charge. |
+| `{ delete_actor = "Me" }` | Delete the selected native actor. |
+| `{ play_animation = move, player = "Child", child_name = "Hand" }` | Start a registered move on the selected actor. A string instead of the handle names a core animation. |
+| `{ shake = { effect_time = 30, amplitude_x = 7, frequency_x = 1 } }` | Schedule native camera shake. |
+| `{ try_on_end = true }` | Complete a shop preview. |
+
+Other conveniences preserve the same native values:
+
+- `events = "controlled"` means key press, `Uninterrupt` end, and animation end.
+- `direction = "face_enemy"` uses `NPivot` on `Me` and `Enemy`.
+- Intervals use `from`/`to`, for example `{ type = "Block", from = 20 }`.
+- Damage terms use a map, for example `{ WeaponDamage = 0, UnarmedDamage = -10 }`.
+  Terms emit in `WeaponDamage`, `RangedDamage`, `MagicDamage`, `UnarmedDamage` order.
+- `tactic_distance` uses `distance`, `min`, `max`, `from`, and `to`.
+- `animation = "animations/spell"` resolves the mod's binary asset; an existing
+  binary handle is also accepted.
+
+Only the compact move syntax is accepted. Legacy condition/event `type` fields, point `object` fields, interval `start`/`end`, damage-term arrays, tactic-distance `axis`, and scheduled move `actions` are rejected.
+
+The move short form does not change quest actions, owned-audio trigger actions,
+or guarded native interval patch selectors. Those have their own field contracts.
+
 ## Shared move fields
 
 Both move registration functions accept the following fields:
@@ -27,60 +127,56 @@ Both move registration functions accept the following fields:
 
 Use existing core definitions as a reference for native names and animation nodes. A valid Lua table does not guarantee that an animation will suit the fighter skeleton.
 
-Events can be a type string or `{ type = ..., name = "...", player = "..." }`. Table form requires `type`; `name` and `player` default empty. Supported types and their constants under `sf2.moves` are:
+Events are strings such as `"animation_end"`, or tables such as
+`{ interval_end = "Uninterrupt", player = "Me" }`. A table's kind key holds
+the native name to match; `player` is optional. Use `events = "controlled"`
+for key press, Uninterrupt end, and animation end together.
 
-| Type | Constant |
-| --- | --- |
-| `animation_end`, `animation_start` | `ANIMATION_END`, `ANIMATION_START` |
-| `interval_end`, `interval_start` | `INTERVAL_END`, `INTERVAL_START` |
-| `hit`, `strike` | `HIT`, `STRIKE` |
-| `every_frame`, `birth` | `EVERY_FRAME`, `BIRTH` |
-| `round_stage_start`, `mod_expires` | `ROUND_STAGE_START`, `MOD_EXPIRES` |
-| `key_pressed` | Use the string literal; no constant alias. |
+Supported event names are `animation_end`, `animation_start`, `interval_end`,
+`interval_start`, `hit`, `strike`, `every_frame`, `birth`, `round_stage_start`,
+`mod_expires`, and `key_pressed`.
 
-Conditions use `type` and optional `["not"] = true` (default `false`). Available types:
+Conditions name their kind directly. Prefix that key with `not_` to negate it.
 
-- `"perk"` (`sf2.moves.PERK`): requires a `perk` handle; optional `player` string. Core handles resolve to the native perk name when the move is installed.
-- `"all"` / `"any"` (`ALL` / `ANY`): require a nonempty `conditions` array.
-- `"current_animation"`, `"current_interval"`, `"item"` (`CURRENT_ANIMATION`, `CURRENT_INTERVAL`, `ITEM`): accept native `name`, `player`, `item_type`, and `item_subtype` strings, default empty.
-
-- `"character"`: requires a registered `warrior` handle; matches only that character, including copies of its model parameters.
-- `"keys"`: requires 1–14 `keys`, each `{ key = "Kick", press = "Tap" }`. `press` defaults to `Tap`; alternatives are `Hold` and `Release`. Keys are `Up`, `Up-Forward`, `Forward`, `Down-Forward`, `Down`, `Down-Back`, `Back`, `Up-Back`, `Punch`, `Kick`, `Ranged`, `Magic`, `RaidCharge`, and `Super`.
-- `"direction"`: requires `player = "Me"` or `"Enemy"` and `from`/`to` point tables with explicit players. Tests which way that fighter faces relative to the two points. It is a condition, separate from the move's top-level `direction` setting.
+- `{ perk = handle, player = "Me" }` tests a perk. Core handles resolve to the native perk name.
+- `{ all = { ... } }` / `{ any = { ... } }` group a nonempty list of conditions.
+- `{ animation = "Stance" }` and `{ interval = "Uninterrupt" }` test native state; optional `player` selects the model.
+- `{ item = "Weapon", subtype = "Katana" }` tests equipped items. Optional `name` selects an exact item; `player` selects the model.
+- `{ character = warrior }` matches a registered character, including copies of its model parameters.
+- `{ key = "Kick" }` tests one input. `{ keys = { "Punch", "Punch", { "Forward", press = "Hold" } } }` tests an ordered sequence of 1–14 inputs. `press` defaults to `Tap`; alternatives are `Hold` and `Release`. Keys are `Up`, `Up-Forward`, `Forward`, `Down-Forward`, `Down`, `Down-Back`, `Back`, `Up-Back`, `Punch`, `Kick`, `Ranged`, `Magic`, `RaidCharge`, and `Super`.
+- `{ direction = "Enemy", from = ..., to = ... }` tests the facing of `Me` or `Enemy` relative to two points with explicit players. It is separate from the move's top-level `direction` setting.
 
 Character and key conditions use string literals, without constant aliases. Combine them with `key_pressed` to bind an authored move to a fighter's controls.
 
 Spell and projectile selection also supports:
 
-- `{ type = "actor_name", name = "Sphere1" }` tests the native model's exact,
+- `{ actor = "Sphere1" }` tests the native model's exact,
   case-sensitive actor name (for example, the name supplied by `create_projectile`).
   It does not test a warrior content ID; use `character` for that.
-- `{ type = "bullets", bullet_type = "MagicBullet", minimum = 1 }` tests the
-  selected model's native charge count. `bullet_type` is required and accepts
+- `{ bullets = "MagicBullet", min = 1 }` tests the
+  selected model's native charge count. `bullets` is required and accepts
   `MagicBullet` or `RaidChargeBullet`. Bounds are inclusive integers in
   0–2,147,483,647; minimum defaults to 0 and maximum to 2,147,483,647. Minimum must
   not exceed maximum. This is a condition only; use the scheduled `add_bullets`
   action to consume charge.
 
-Both types accept `["not"] = true` and `player` (`Me`, `Enemy`, `Parent`, `Child`,
+Both conditions accept a `not_` prefix and `player` (`Me`, `Enemy`, `Parent`, `Child`,
 `EnemyChild`, or `Both`, default `Me`) through native condition targeting. The actor
 name follows the scheduled-action symbol rules. Conditions can be nested in
 `all`/`any` groups and used wherever typed move conditions are accepted. Native
 charge overrides still apply; declaring a condition does not change recharge rules.
 
-A `distance` condition has required `axis` (`X`, `Y`, or `Full`), `from` and `to`
-move points, plus optional inclusive `minimum`/`maximum` bounds (defaults −1,000,000
+A `distance` condition uses `distance` for its axis (`X`, `Y`, or `Full`), `from` and `to`
+move points, plus optional inclusive `min`/`max` bounds (defaults −1,000,000
 and +1,000,000). Bounds must be finite within that range and ordered. Optional
-`["not"]` negates the comparison. Point players are selected independently; there
+`not_distance` negates the comparison. Point players are selected independently; there
 is no outer `player` field. Native `X` distance is signed and facing-relative;
 `Y` is signed vertical distance, and `Full` is planar Euclidean distance. `Animation`
 is not a distance-point object. Omitted point players retain native current-model
 selection. For example, a projectile can test when it has passed the front wall:
 
 ```lua
-{ type = "distance", axis = "X", maximum = -250,
-  from = { object = "Nodes", part = "Magic-Node2_1" },
-  to = { object = "Wall", part = "Front" } },
+{ distance = "X", max = -250, from = { node = "Magic-Node2_1" }, to = { wall = "Front" } },
 ```
 
 This condition does not delete an actor; attach a separate cleanup action to the
@@ -88,27 +184,27 @@ move selected by it. Named rig points must exist on that projectile's skeleton.
 
 Arrays must have consecutive integer indices starting at 1. Building an array with `table.remove` or deleting unused fields with `nil` is supported; live holes, fractional/zero/negative indices, and extra named entries are rejected.
 
-Repeated keys are preserved: two `{ key = "Punch", press = "Tap" }` entries require the native double-tap sequence. Entries are passed to the native Tap/Hold/Release groups in authored order; this is not a general timing or input-history scripting language.
+Repeated keys are preserved: two `"Punch"` entries inside `keys` require the native double-tap sequence. Entries are passed to the native Tap/Hold/Release groups in authored order; this is not a general timing or input-history scripting language.
 
 Four additional named condition types are available in moves, templates and triggers:
 
-| `type` | Required `name` | Meaning |
+| Kind key | Required value | Meaning |
 | --- | --- | --- |
-| `round_stage` | `StartStance`, `Fight`, `EndStance`, or `TryOn` | Matches the native round stage. |
-| `round_result` | `Victory` or `Defeat` | Matches the selected fighter's completed-round result; useful with `round_stage = "EndStance"` for victory or loss moves. |
+| `stage` | `StartStance`, `Fight`, `EndStance`, or `TryOn` | Matches the native round stage. |
+| `round_result` | `Victory` or `Defeat` | Matches the selected fighter's completed-round result; useful with `stage = "EndStance"` for victory or loss moves. |
 | `screen` | `ShopArmor`, `ShopWeapon`, `ShopHelm`, `ShopMissile`, `ShopMagic`, `ShopRuby`, `ShopFree`, `ShopRaidItemPack`, `Profile`, or `Fight` | Matches the native combat/preview scene. |
-| `mod_exists` | Native effect name, e.g. `MOD_TITAN` | Tests an active combat modification, **not** an installed Lua mod. |
+| `mod` | Native effect name, e.g. `MOD_TITAN` | Tests an active combat modification, **not** an installed Lua mod. |
 
-These types accept optional `["not"] = true` and `player = "Me"`, `"Enemy"`, or `"Both"` (default `Me`). Player selection matters for `round_result` and `mod_exists`; round stage and screen are shared native state. Names must contain 1–128 characters without surrounding whitespace. Unknown stage/result/screen names and item-specific fields are rejected. Use the native name of an effect that actually exists; registration does not resolve effect names.
+Negate these conditions with `not_stage`, `not_round_result`, `not_screen`, or `not_mod`. They accept optional `player = "Me"`, `"Enemy"`, or `"Both"` (default `Me`). Player selection matters for `round_result` and `mod_exists`; round stage and screen are shared native state. Names must contain 1–128 characters without surrounding whitespace. Unknown stage/result/screen names and item-specific fields are rejected. Use the native name of an effect that actually exists; registration does not resolve effect names.
 
 ```lua
 conditions = {
-    { type = "round_result", name = "Victory" },
-    { type = "round_stage", name = "EndStance" },
+    { round_result = "Victory" },
+    { stage = "EndStance" },
 }
 ```
 
-An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices, and optional `attack`. At least one of `type` or `name` must be nonempty. Frame indices are integers from 0 to 100,000; when both are supplied, end must not precede start. Omitted bounds retain the native interval behavior. Use stored animation sample indices within the move's frame range. `mid_frames` changes interpolation time between samples, not the indices used for these bounds.
+An interval accepts `type`, `name`, optional `from` and `to` frame indices, and optional `attack`. At least one of `type` or `name` must be nonempty. Frame indices are integers from 0 to 100,000; when both are supplied, end must not precede start. Omitted bounds retain the native interval behavior. Use stored animation sample indices within the move's frame range. `mid_frames` changes interpolation time between samples, not the indices used for these bounds.
 
 `attack` requires `type = "Attack"` and the following fields:
 
@@ -118,7 +214,7 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 | `direct` | Boolean, default false. With true, omit `edges` or supply an empty array. Uses the native attack path without collision edges, once per active interval against the current opponent; native invulnerability/damage rules still apply. |
 | `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
-| `damage_terms` | Optional array of 1–4 `{ type, shift = 0 }` tables. `type` uses the same four attribute names, each at most once. `shift` must be finite in −1,000…1,000. |
+| `damage_terms` | Optional map of 1–4 attributes to shifts, such as `{ WeaponDamage = 0, UnarmedDamage = -10 }`. Keys use the same four attribute names; shifts must be finite in −1,000…1,000. |
 | `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, `NoReaction`, `WaspFly`, `Earthquake`, or `ElectrocutionPowerfield`. |
 | `hit_move` | Optional move handle selecting an authored hit reaction. Mutually exclusive with `hit`. The referenced move must exist and be accessible when registration commits. |
 | `id` | Integer 0–999, default 0; native attack identity. |
@@ -157,27 +253,19 @@ local sf2 = require("sf2")
 sf2.moves.register_template {
     id = "double-tap-attack",
     conditions = {
-        { type = "round_stage", name = "Fight" },
-        { type = "keys", keys = {
-            { key = "Punch" }, { key = "Punch" },
-            { key = "Forward", press = "Hold" },
-        } },
+        { stage = "Fight" },
+        { keys = { "Punch", "Punch", { "Forward", press = "Hold" } } },
     },
-    intervals = {{ type = "Attack", start = 11, ["end"] = 14,
-        attack = {
+    intervals = {{ type = "Attack", from = 11, to = 14, attack = {
             edges = { "WEAPON_SAI-Edge30_2", "WEAPON_SAI-Edge31_2" },
             damage = 0.06,
-            damage_terms = {
-                { type = "WeaponDamage" },
-                { type = "UnarmedDamage", shift = -10 },
-            },
+            damage_terms = { WeaponDamage = 0, UnarmedDamage = -10 },
             hit = "Spinning", impulse = { x = 25, y = -100 },
-        },
-    }},
+        } }},
 }
 ```
 
-This registers a reusable template, not a complete selectable move. Attach it to a compatible animation and rig through `sf2.moves.register`. Extended reaction names select native hit reactions; they do not supply new reaction animations. All terms, shifts and repeated key entries participate in content fingerprints. Existing single-attribute definitions retain their previous fingerprint and native projection; an explicit one-term zero-shift list is equivalent to `damage_type`.
+This registers a reusable template, not a complete selectable move. Attach it to a compatible animation and rig through `sf2.moves.register`. Extended reaction names select native hit reactions; they do not supply new reaction animations. All terms, shifts and repeated key entries participate in content fingerprints. Existing single-attribute definitions retain their previous fingerprint and native projection; an explicit one-term zero-shift map is equivalent to `damage_type`.
 
 See [Character authoring](../../guides/character-authoring/) for a complete exported character module and input/attack example. The registration API validates structure and bounds; verify edge names, contact timing, mirroring and damage in a fight.
 
@@ -194,13 +282,12 @@ inaccessible dependencies reject the entire registration transaction.
 local reaction = sf2.moves.register {
     id = "recoil", animation = sf2.assets.binary("animations/recoil"),
     core_templates = { "Recoil", "Hit" },
-    events = {{ type = "hit", name = sf2.mod.id .. ":moves/recoil" }},
+    events = {{ hit = sf2.mod.id .. ":moves/recoil" }},
     direction = { impulse = { reverse = true } },
 }
 local strike = sf2.moves.register {
     id = "strike", animation = sf2.assets.binary("animations/strike"),
-    intervals = {{ type = "Attack", start = 10, ["end"] = 12,
-        attack = { edges = { "Weapon-Edge1" }, damage = 0.3, hit_move = reaction } }},
+    intervals = {{ type = "Attack", from = 10, to = 12, attack = { edges = { "Weapon-Edge1" }, damage = 0.3, hit_move = reaction } }},
 }
 ```
 
@@ -215,9 +302,9 @@ rejects them. They require the same `content.register` capability as the move.
 
 | Field | Meaning/default |
 | --- | --- |
-| `actions` | Dense array of up to 64 scheduled actions, default empty. |
+| `timeline` | Frame/event table containing up to 64 scheduled actions in total, default empty. |
 | `profile` | Optional `{ rank, core_icon }` entry shown in the native moves list. `rank` is a required integer in 0–100,000; `core_icon` is an existing native icon name such as `Trick7.super_slash`. Omit the table for no entry. |
-| `tactic_distance` | Optional native AI distance requirement with required `axis`, `from`, and `to`. `axis` is `X`, `Y`, or `Full` (planar distance). `minimum`/`maximum` default to −1,000,000/+1,000,000, must be finite within those bounds, and minimum must not exceed maximum. Points use the table format below, require explicit players and cannot use `Animation`. This restricts native tactic eligibility; it does not itself configure an AI tactic table. |
+| `tactic_distance` | Optional native AI distance requirement with required `distance`, `from`, and `to`. `distance` is `X`, `Y`, or `Full` (planar distance). `min`/`max` default to −1,000,000/+1,000,000, must be finite within those bounds, and minimum must not exceed maximum. Points use the table format below, require explicit players and cannot use `Animation`. This restricts native tactic eligibility; it does not itself configure an AI tactic table. |
 | `tactic_conditions` | Optional dense array of 1–32 typed move conditions evaluated by native AI when considering this move. It supports the same condition shapes and `all`/`any` groups as `conditions`; it does not change player input eligibility. Use this for AI rules that combine distance with another state, such as allowing a cast when the opponent is falling. Mutually exclusive with `tactic_distance`; omit both for no authored AI gate. |
 | `no_wall_repulsion` | Boolean, default false. Uses the native move flag to suppress wall repulsion. |
 | `no_interpolation_frames` | Boolean, default false. Uses the native move flag to suppress interpolation frames. |
@@ -228,7 +315,7 @@ For example, a projectile flight move can declare:
 
 ```lua
 -- Fields inside sf2.moves.register:
-conditions = { { type = "actor_name", name = "Sphere1" } },
+conditions = { { actor = "Sphere1" } },
 velocity = { x = 30 },
 no_magic_recharge = true,
 ```
@@ -238,46 +325,48 @@ Its fields and the recharge flag participate in content fingerprints. Native
 parser and predicate tests cover these declarations; live trajectory/contact
 acceptance remains separate.
 
-Each action requires `type` and **exactly one** of integer `frame` (0–100,000)
-or `event`. Frames are native animation sample indices, not elapsed milliseconds.
-Supported event strings are `RoundStage`, `KeyPressed`, `KeyReleased`, `RoundStart`,
-`RoundEnd`, `Hit`, `Strike`, `WallHit`, `AnimationStart`, `AnimationEnd`,
-`IntervalStart`, `IntervalEnd`, `EveryFrame`, `Birth`, and `ModExpires`. These use
-native capitalization, unlike the lowercase `events` registration table above.
+Place each action under a frame number (0–100,000) or an event key in `timeline`.
+Frames are native animation sample indices, not elapsed milliseconds. Event keys
+are `round_stage`, `key_pressed`, `key_released`, `round_start`, `round_end`,
+`hit`, `strike`, `wall_hit`, `animation_start`, `animation_end`, `interval_start`,
+`interval_end`, `every_frame`, `birth`, and `mod_expires`. Multiple actions under
+one key use an array; their order is preserved.
 
-- `type = "random_sound"` requires `core_sounds`, a dense array of 1–32 existing
+- `sound` accepts one native sound name or a dense array of 1–32 existing
   native sound names. The native action chooses one entry when it runs. One entry
   gives a fixed sound. Entries retain order and repetition, allowing the native
   selection to weight repeated names. Voice filtering is not added.
-- `type = "sound"` requires `sound = { core_sound = "name", voice = "Male" }`.
-  `core_sound` is a required native sound symbol. Optional `voice` is exactly
+- `{ play_sound = "name", voice = "Male" }` plays a native sound.
+  `play_sound` is a required native sound symbol. Optional `voice` is exactly
   `Male`, `MaleLow`, or `Female`; omission allows any voice. The native action
   plays only when the actor's voice matches. Use separate actions for separate
-  voice clips; `random_sound` remains unfiltered.
-- `type = "stop_sound"` requires `core_sound`, the exact name of a native sound
+  voice clips; `sound` remains unfiltered.
+- `stop_sound` takes the exact name of a native sound
   already playing. Schedule it on `Hit` or `AnimationEnd` to end a long clip when
   a move is interrupted or finishes. This calls the native sound stop action;
   the name is validated at registration, while the sound's existence is resolved
   by the game.
-- `type = "play_animation"` starts a move on `player` (`Me`, `Enemy`, `Parent`,
-  `Child`, or `EnemyChild`) at the chosen frame or event. Supply exactly one of
-  `move` (a handle returned by `sf2.moves.register`) or `core_animation` (an
-  existing native move name). Optional `child_name` picks a spawned actor by
+- `play_animation` starts a move on `player` (`Me`, `Enemy`, `Parent`,
+  `Child`, or `EnemyChild`) at the chosen frame or event. Its value is
+  a handle returned by `sf2.moves.register` or a string naming an
+  existing native move. Optional `child_name` picks a spawned actor by
   its exact name, useful when a caster has several children. The named child is
   checked first; if none matches, the native player target is used. The native
   action can fail when its target is absent or cannot select that animation;
   it does not force a transition. Register the target move before the caster.
-- `type = "shake_screen"` requires a `shake` table. All fields default to zero:
+- `shake` takes a table. All fields default to zero:
   `pause_time` and `effect_time` are integer native frame counts in 0–10,000;
   `amplitude_x`, `amplitude_y`, `frequency_x`, and `frequency_y` are finite native
-  camera values in 0–1,000. Timing still uses exactly one outer `frame` or `event`.
+  camera values in 0–1,000. Timing comes from the containing timeline key.
   This schedules the existing native camera action; it does not apply damage.
   Unknown fields and payloads on unrelated action types are rejected.
 
 ```lua
-{ type = "random_sound", frame = 3, core_sounds = { "snd_blade_fury" } },
-{ type = "stop_sound", event = "Hit", core_sound = "snd_blade_fury" },
-{ type = "stop_sound", event = "AnimationEnd", core_sound = "snd_blade_fury" },
+timeline = {
+        [3] = { sound = "snd_blade_fury" },
+        hit = { stop_sound = "snd_blade_fury" },
+        animation_end = { stop_sound = "snd_blade_fury" },
+}
 ```
 
 For a spawned actor that changes phase after its caster has advanced eight
@@ -288,18 +377,15 @@ local hand_attack = sf2.moves.register {
     id = "hand_attack", animation = sf2.assets.binary("animations/hand_attack"),
     -- Add the child's locks, conditions, attack interval, and cleanup here.
 }
-local cast_actions = {
-    -- Create BlackHand with a create_projectile action earlier in this array.
-    { type = "play_animation", frame = 17, player = "Child",
-      child_name = "BlackHand", move = hand_attack },
-}
--- Pass cast_actions as the caster move's actions field.
+local cast_timeline = {
+        [17] = { play_animation = hand_attack, player = "Child", child_name = "BlackHand" },
+    }
 ```
 
-- `type = "try_on_end"` signals native shop preview completion. It accepts no
-  sound list. Typically use `event = "AnimationEnd"` on a shop-only move.
+- `{ try_on_end = true }` signals native shop preview completion. Put it under
+  `animation_end` on a shop-only move.
 
-- `type = "effect"` requires an `effect` table. Required `name` identifies the
+- `effect` takes a table. Required `name` identifies the
   active effect on the native model; required `core_sequence` selects an existing
   native effect sequence. Optional `scale` and `time_scale` default to 1 and must
   be finite numbers greater than 0 and at most 100. `looped` defaults to false.
@@ -318,35 +404,38 @@ local cast_actions = {
   Leave `follow` unset with `attach`; following is automatic.
   Missing live nodes cause the effect to be skipped and logged; the action does
   not alter combat damage or move selection.
-- `type = "stop_effect"` requires `effect_name` and stops that named effect on the
-  model. `type = "stop_follow_effect"` takes the same field and detaches its
+- `stop_effect` takes the effect name and stops that effect on the
+  model. `stop_follow_effect` takes the same name and detaches its
   following behavior while leaving the effect active. Names must match the
   corresponding effect's `name`; these actions do not select sequences globally.
 
 For example, these actions start a following sphere effect and detach it at the
-end of the move. Place them in a compatible move's `actions` array:
+end of the move. Place them in a compatible move's `timeline` table:
 
 ```lua
-{ type = "effect", frame = 2, effect = {
+timeline = {
+        [2] = { effect = {
     name = "SmallSphereStart", core_sequence = "mgc_magic_small_sphere_start",
     scale = 0.75, time_scale = 1.45,
-    position = { player = "Me", object = "Nodes", part = "Magic-Node2_1",
-                 shift_y = 80 }, follow = true,
+    position = { node = "Magic-Node2_1", player = "Me", y = 80 }, follow = true,
 } },
-{ type = "stop_follow_effect", event = "AnimationEnd", effect_name = "SmallSphereStart" },
-{ type = "stop_effect", event = "RoundEnd", effect_name = "SmallSphereStart" },
+        animation_end = { stop_follow_effect = "SmallSphereStart" },
+        round_end = { stop_effect = "SmallSphereStart" },
+}
 ```
 
 For a moving boss aura, attach to two nodes instead of supplying a fixed point:
 
 ```lua
-{ type = "effect", frame = 13, effect = {
+timeline = {
+        [13] = { effect = {
     name = "ElectroEffect", core_sequence = "mgc_effect_shocker",
     scale = 0.75, time_scale = 2, on_background = true,
     attach = { player = "Me", root_point = "MacroBodyGatekeeper-Node975",
         attach_point = "MacroBodyGatekeeper-Node445",
         offset_x = -54, offset_y = -12, start_rotation = -78 },
 } },
+}
 ```
 
 Effect names and sequences follow the same symbol rules as sounds. Registration
@@ -359,26 +448,23 @@ For example, these are fields inside a move definition with a valid animation:
 
 ```lua
 intervals = {
-  { type = "Attack", start = 48, ["end"] = 49,
-    attack = { direct = true, damage = 0.15, damage_type = "MagicDamage",
+  { type = "Attack", from = 48, to = 49, attack = { direct = true, damage = 0.15, damage_type = "MagicDamage",
                hit = "NoReaction" } },
 },
-actions = {
-  { type = "sound", frame = 12,
-    sound = { core_sound = "snd_m_pl_attack6", voice = "Male" } },
-  { type = "shake_screen", frame = 48,
-    shake = { effect_time = 30, amplitude_x = 7, frequency_x = 1,
+timeline = {
+        [12] = { play_sound = "snd_m_pl_attack6", voice = "Male" },
+        [48] = { shake = { effect_time = 30, amplitude_x = 7, frequency_x = 1,
               amplitude_y = 9, frequency_y = 0.3 } },
-},
+    },
 ```
 
 `NoReaction` keeps the native no-reaction name; it does not suppress damage.
 An edge-free attack is explicit so accidentally omitting `edges` cannot create
 an unavoidable attack. Existing edge-based definitions and fingerprints are unchanged.
 
-Scheduled projectile lifecycle actions use the same `frame`/`event` timing:
+Scheduled projectile lifecycle actions use the same timeline keys:
 
-- `type = "create_projectile"` requires `projectile = { name, core_skeleton,
+- `projectile` takes `{ name, core_skeleton,
   copy_parent_type }` or `projectile = { name, core_skeleton, item }`. The native
   runtime creates a child weapon actor with this exact model name and an existing
   skeleton such as `SkeletonMagic`. Supply exactly one equipment source:
@@ -394,27 +480,27 @@ Scheduled projectile lifecycle actions use the same `frame`/`event` timing:
   `projectile.core_start_animation` for an exact existing native animation name.
   They are mutually exclusive. Omit both to let the native Birth event select a
   move. A start override does not prove the animation is compatible with the rig.
-- `type = "add_bullets"` requires `bullets = { type, value }`. Type is
-  `MagicBullet` or `RaidChargeBullet`; value is a nonzero integer from −100,000 to
+- `{ add_bullets = "MagicBullet", amount = -1 }` changes charge. The bullet name is
+  `MagicBullet` or `RaidChargeBullet`; `amount` is a nonzero integer from −100,000 to
   100,000. Negative consumes charge, positive adds charge through native handling.
   It acts on the model running the move; no player override is accepted. Native
   charge rules still apply. It neither creates a projectile nor guards selection;
   author the cast's eligibility and spawn action separately.
-- `type = "delete_actor"` requires `player`, one of `Me`, `Enemy`, `Parent`,
+- `delete_actor` takes a player name, one of `Me`, `Enemy`, `Parent`,
   `Child`, or `EnemyChild`. It invokes native deletion for that selected actor.
   Usually use `Me` in the projectile's own strike/expiry move. Do not place that
   action on the caster unless deleting the caster is intended.
 
-For example, these entries in a caster's `actions` array reproduce native magic
+For example, these entries in a caster's `timeline` reproduce native magic
 spawn and charge timing. The projectile still needs its own complete move graph:
 
 ```lua
-{ type = "create_projectile", frame = 2, projectile = {
+timeline = {
+        [2] = { projectile = {
     name = "Sphere1", core_skeleton = "SkeletonMagic", copy_parent_type = "Magic",
 } },
-{ type = "add_bullets", frame = 7, bullets = { type = "MagicBullet", value = -1 } },
--- On a separate projectile move:
--- { type = "delete_actor", event = "Strike", player = "Me" },
+        [7] = { add_bullets = "MagicBullet", amount = -1 },
+}
 ```
 
 A boss ability can equip its own hidden core item instead of borrowing the
@@ -422,10 +508,12 @@ caster's equipment. Register a compatible child move before referencing it:
 
 ```lua
 local quake_item = sf2.items.get("core:items/magic/MAGIC_BUTCHER_EARTHQUAKE")
-{ type = "create_projectile", frame = 22, projectile = {
-    name = "Earthquake", core_skeleton = "SkeletonMagic",
-    item = quake_item, start_move = quake_child,
-} },
+local timeline = {
+    [22] = { projectile = {
+        name = "Earthquake", core_skeleton = "SkeletonMagic",
+        item = quake_item, start_move = quake_child,
+    } },
+}
 ```
 
 Registration validates payloads and owned start-move references. Core skeletons
@@ -462,15 +550,11 @@ existing binary animation handle:
 
 ```lua
 profile = { rank = 4, core_icon = "Trick7.super_slash" },
-tactic_distance = {
-    axis = "X", minimum = 200, maximum = 800,
-    from = { player = "Me", object = "Pivot" },
-    to = { player = "Enemy", object = "Nodes", part = "NPivot" },
-},
-actions = {
-    { type = "random_sound", frame = 8, core_sounds = { "snd_swish_sword1" } },
-    { type = "random_sound", event = "Strike", core_sounds = { "snd_hit1", "snd_hit2" } },
-},
+tactic_distance = { distance = "X", min = 200, max = 800, from = { pivot = "Me" }, to = { node = "NPivot", player = "Enemy" } },
+timeline = {
+        [8] = { sound = "snd_swish_sword1" },
+        strike = { sound = { "snd_hit1", "snd_hit2" } },
+    },
 ```
 
 Managed parser/scheduling checks do not verify audible playback, rig compatibility,
@@ -478,34 +562,39 @@ rendered icons or shop completion in a running game. Playtest those behaviors.
 
 ### Availability, transitions and positioning
 
-`locks` are checked when the native system builds a fighter or preview's eligible move list. They are separate from the conditions evaluated to start a move. Use locks for equipment/skeleton/screen requirements; put input sequences and current-animation tests in `conditions`. Sibling locks are ANDed; use `type = "any"` for alternatives. Existing template locks remain additional requirements.
+`locks` are checked when the native system builds a fighter or preview's eligible move list. They are separate from the conditions evaluated to start a move. Use locks for equipment/skeleton/screen requirements; put input sequences and current-animation tests in `conditions`. Sibling locks are ANDed; use `{ any = { ... } }` for alternatives. Existing template locks remain additional requirements.
 
 `sf2.moves.register` also accepts up to 32 ordered `transitions`. Each row requires 1–64 `conditions` and **exactly one** of `frame_shift` or `first_frame`. `frame_shift` is an integer from −100,000 to 100,000 using the native relative-frame transition behavior. `first_frame` is an absolute starting sample in 0–100,000. The first matching transition wins. Check values against the actual animation. The recovered parser does not inherit template transitions, so **`register_template` rejects `transitions`**; declare them directly on the move.
 
 ```lua
 -- Fields inside sf2.moves.register { ... }:
 transitions = {{ frame_shift = 2, conditions = {
-    { type = "current_animation", name = "SaiHeavySpit" },
-    { type = "current_interval", name = "SemiUninterrupt" },
+    { animation = "SaiHeavySpit" },
+    { interval = "SemiUninterrupt" },
 } }},
 locks = {
-    { type = "item", item_type = "Weapon", item_subtype = "ChineseSwords" },
-    { type = "item", item_type = "Skeleton", item_subtype = "Skeleton" },
+    { item = "Weapon", subtype = "ChineseSwords" },
+    { item = "Skeleton", subtype = "Skeleton" },
 },
 align = {
     axes = { "X", "Z" },
-    pivot = { object = "Nodes", part = "NHeel_2" },
-    position = { player = "Me", object = "Pivot" },
+    pivot = { node = "NHeel_2" },
+    position = { pivot = "Me" },
 },
 direction = {
-    from = { player = "Me", object = "Nodes", part = "NPivot" },
-    to = { player = "Enemy", object = "Nodes", part = "NPivot" },
+    from = { node = "NPivot", player = "Me" },
+    to = { node = "NPivot", player = "Enemy" },
 },
 ```
 
-Point tables have required `object`, optional `player` and `part`, and optional finite `shift_x`/`shift_y` offsets in −100,000…100,000 (default 0). `Nodes` requires an exact nonempty part name of at most 128 characters. Supported players are `Me`, `Enemy`, `Parent`, `Child`, and `EnemyChild`; availability of those model relationships is a separate runtime requirement.
+Point tables use `{ node = "NPivot", player = "Enemy" }`, `{ wall = "Front" }`,
+or partless points such as `{ pivot = "Me" }`, `{ animation = true }`,
+`{ floor = "Me" }`, and `{ com = "Me" }`. Optional finite `x`/`y` offsets are
+within −100,000…100,000 and default to 0. `node` requires an exact nonempty name
+of at most 128 characters. Supported players are `Me`, `Enemy`, `Parent`, `Child`,
+and `EnemyChild`; model availability is a separate runtime requirement.
 
-- `align` requires 1–3 unique `axes` (`X`, `Y`, `Z`) plus `pivot` and `position` points. Alignment supports `Nodes`, `Pivot`, `Animation`, and `Wall` objects; omitted players default to `Me` in the native parser. Optional `shift_model_node` selects the exact native rig node shifted during alignment, such as `NPivot`. Only the **position** may have nonzero offsets; pivot offsets and `shift_z` are rejected because the recovered parser does not apply them.
+- `align` requires 1–3 unique `axes` (`X`, `Y`, `Z`) plus `pivot` and `position` points. Alignment supports `Nodes`, `Pivot`, `Animation`, and `Wall` objects; omitted players default to `Me` in the native parser. Optional `shift_model_node` selects the exact native rig node shifted during alignment, such as `NPivot`. Only the **position** may have nonzero offsets; pivot offsets and `z` are rejected because the recovered parser does not apply them.
 - `direction` accepts either `from` and `to` points with explicit players, or `impulse = { reverse = false }`. The two forms are mutually exclusive. Impulse mode uses the native incoming-impulse facing calculation; `reverse` is a boolean and defaults to false. With true it faces against the incoming impulse. No impulse is applied. Point-based directions require both points. These support `Nodes`, `Pivot`, `Wall`, `Floor`, and `COM` objects. `Animation` is not a native direction point and is rejected. Direction uses the existing native facing calculation; it does not move the character.
 
 Names and points are not asset lookups at registration. A valid declaration can still reference an absent rig node. Test contact, mirroring, position and transitions in a fight. Graph fields are fingerprinted; omitted/empty graph fields retain existing fingerprints. Lists are copied at registration, so later Lua table edits do not mutate registered content.
@@ -542,8 +631,6 @@ local step_template = sf2.moves.register_template {
 Accepts the shared move fields and a required `animation` binary-asset handle. The file must contain a supported native animation; renaming an arbitrary file does not convert it.
 
 ```lua
--- Supply assets/animations/opening.bytes in your mod.
--- step_template is the template registered in the preceding example.
 local opening_step = sf2.moves.register {
     id = "opening_step",
     animation = sf2.assets.binary("animations/opening"),
@@ -573,15 +660,14 @@ This demonstrates the definition's shape. Choose event and condition restriction
 Replace one existing native move with a complete typed definition while keeping its name. Supply the fields of [`sf2.moves.register`](#sf2movesregister), plus required `target` (exact native move name) and `expected_file` (the original native `.bytes` filename). `templates` is unavailable; use existing `core_templates` and define all other behavior in the replacement. The target must exist exactly once and its loaded filename must match the guard. Duplicate targets and mismatched guards fail during native application. Its normal registration fields, conditions, locks, intervals, actions and positioning all come from the new definition; omitted fields are not inherited from the original move. Refer to the [shared field tables](#shared-move-fields) and validate rig nodes and attack contact in an actual fight.
 
 ```lua
--- Supply assets/animations/guarded_step.bytes in your mod.
 local step = sf2.moves.replace {
     id = "guarded_step", target = "ExistingStep",
     expected_file = "existing_step.bytes",
     animation = sf2.assets.binary("animations/guarded_step"),
     core_templates = { "Step", "Controlled" },
     priority = 120,
-    conditions = { { type = "keys", keys = { { key = "RaidCharge" } } } },
-    intervals = { { name = "Uninterrupt", ["end"] = 12 } },
+    conditions = { { keys = { "RaidCharge" } } },
+    intervals = { { name = "Uninterrupt", to = 12 } },
 }
 ```
 
@@ -605,13 +691,9 @@ Requires `id`. `events`, `conditions`, and `actions` are arrays (default empty).
 | `type = "hit_effect"` | Required `name` of an existing native hit effect. |
 
 ```lua
--- Supply assets/audio/step.wav (PCM16 WAV).
 local sound_trigger = sf2.moves.register_trigger {
     id = "opening_step_sound",
-    events = { {
-        type = sf2.moves.ANIMATION_START,
-        name = sf2.mod.id .. ":moves/opening_step",
-    } },
+    events = { { animation_start = sf2.mod.id .. ":moves/opening_step" } },
     actions = { {
         type = "sound",
         audio = sf2.assets.audio("audio/step"),
@@ -698,7 +780,7 @@ Removed intervals return to their original list position when the patch is remov
 local sf2 = require("sf2")
 sf2.moves.patch {
     move = "MassBombPlayer",
-    conditions = { { type = "mod_exists", name = "Stun", ["not"] = true } },
+    conditions = { { not_mod = "Stun" } },
 }
 sf2.moves.patch {
     move = "RangedHeavyPlayer",
@@ -896,8 +978,6 @@ local patient = sf2.tactics.register {
         return best
     end,
 }
--- In an owned warrior definition:
--- tactic = sf2.tactics.name(patient)
 ```
 
 Returning a
@@ -970,7 +1050,6 @@ your AI react to live native intervals, rather than infer an attack from the
 opponent's animation name or its nominal duration:
 
 ```lua
--- An on_decide callback.
 local function evade_active_attack(memory, event)
     local animation = event.opponent and event.opponent.animation
     if not animation then return nil end

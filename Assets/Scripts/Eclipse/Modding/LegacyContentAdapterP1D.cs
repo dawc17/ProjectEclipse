@@ -184,7 +184,7 @@ namespace Eclipse.Modding
                     var parsed = ConditionsParser.Create(node);
                     parsed?.Parse(node);
                     return parsed;
-                });
+                }, AnimationData.RebuildCapabilityTables);
             _p1dMovePerkLockRollback = ExternalCombatContentRuntime.ApplyMovePerkLocks(_content.MovePerkLockRemovals);
             _moveItemLockRollback = ExternalCombatContentRuntime.ApplyItemLockExtensions(AnimationData.Animations,_content.MoveItemLockExtensions);
             if (_content.MoveTemplates.Count != 0 || _content.Moves.Count > expectedFiles.Count || _content.MoveTriggers.Count != 0)
@@ -305,7 +305,7 @@ namespace Eclipse.Modding
                         }
                         var impulse=document.CreateElement("Impulse"); item.AppendChild(impulse);
                         Set(impulse,"X",attack.X.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Y",attack.Y.ToString("R",CultureInfo.InvariantCulture)); Set(impulse,"Z",attack.Z.ToString("R",CultureInfo.InvariantCulture));
-                        var hit=document.CreateElement("Hit"); Set(hit,"Name",attack.HitMove?.ToString() ?? attack.Hit); item.AppendChild(hit);
+                        var hit=document.CreateElement("Hit"); Set(hit,"Name",attack.HitMove.HasValue ? MoveRuntimeName(attack.HitMove.Value) : attack.Hit); item.AppendChild(hit);
                     }
                     intervals.AppendChild(item);
                 }
@@ -448,7 +448,7 @@ namespace Eclipse.Modding
                 {
                     var projectile = action.Projectile;
                     Set(entry, "Name", projectile.Name);
-                    string start = projectile.StartMove.HasValue ? projectile.StartMove.Value.ToString() : projectile.CoreStartAnimation;
+                    string start = projectile.StartMove.HasValue ? MoveRuntimeName(projectile.StartMove.Value) : projectile.CoreStartAnimation;
                     if (start.Length != 0) Set(entry, "StartAnimation", start);
                     var skeleton = document.CreateElement("Item"); Set(skeleton, "Type", "Skeleton");
                     Set(skeleton, "Name", projectile.CoreSkeleton); entry.AppendChild(skeleton);
@@ -461,7 +461,7 @@ namespace Eclipse.Modding
                 if (action.StopSoundName.Length != 0) Set(entry, "Name", action.StopSoundName);
                 if (action.Kind == "play_animation")
                 {
-                    Set(entry, "Animation", action.PlayMove.HasValue ? action.PlayMove.Value.ToString() : action.CoreAnimation);
+                    Set(entry, "Animation", action.PlayMove.HasValue ? MoveRuntimeName(action.PlayMove.Value) : action.CoreAnimation);
                     Set(entry, "Player", action.PlayPlayer);
                     if (action.ChildName.Length != 0) Set(entry, "ChildName", action.ChildName);
                 }
@@ -695,9 +695,16 @@ namespace Eclipse.Modding
             parent.AppendChild(node);
         }
 
-        private static string TacticAnimationName(ModTacticAnimationValue value)
+        private string TacticAnimationName(ModTacticAnimationValue value)
         {
-            return value.HasMove ? value.Move.ToString() : value.Animation;
+            return value.HasMove ? MoveRuntimeName(value.Move) : value.Animation;
+        }
+
+        // A native replacement keeps its target's runtime name, so references to
+        // its handle must name that target rather than the definition id.
+        private string MoveRuntimeName(DefinitionId id)
+        {
+            return _content.TryGetMove(id, out MoveDefinition move) ? move.RuntimeName : id.ToString();
         }
 
         private void RemoveP1DContent()

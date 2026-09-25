@@ -23,12 +23,12 @@ local function portrait(name)
     return handle
 end
 
-local function open_card(card, on_complete, on_cancel)
+local function dialog_definition(card)
     assert((card.title == nil or text[card.title]) and text[card.text] and text[card.button], "Underworld dialog text missing")
-    return sf2.ui.story_dialog {
+    return {
         title = card.title and text[card.title] or nil, portrait = portrait(card.portrait), mirrored = card.mirrored == true,
         lines = { { text = text[card.text] } }, button = text[card.button],
-        ignore_back = card.ignore_back == true, on_complete = on_complete, on_cancel = on_cancel,
+        ignore_back = card.ignore_back == true,
     }
 end
 
@@ -36,6 +36,15 @@ local function act_lines(card)
     local lines = {}
     for index, line in ipairs(card.lines) do lines[index] = { text = text[line.text], frames = line.frames } end
     return lines
+end
+
+local function sequence_steps(cards)
+    local steps = {}
+    for _, card in ipairs(cards) do
+        steps[#steps + 1] = card.lines and { act_screen = { lines = act_lines(card) } }
+            or { dialog = dialog_definition(card) }
+    end
+    return steps
 end
 
 -- Every portrait the story names, resolved during installation.
@@ -57,12 +66,17 @@ local function story_portraits()
 end
 
 -- Saved boss sets (sensei_state.lua): ",name,name," with lower-case archive names.
-local function has(set, key) return sf2.state.get("uw_" .. set):find("," .. key .. ",", 1, true) ~= nil end
+local function saved_set(set)
+    local value = sf2.state.get("uw_" .. set)
+    assert(type(value) == "string", "Underworld story set must be a string")
+    return value
+end
+local function has(set, key) return saved_set(set):find("," .. key .. ",", 1, true) ~= nil end
 local function add(set, key)
-    if not has(set, key) then sf2.state.set { ["uw_" .. set] = sf2.state.get("uw_" .. set) .. key .. "," } end
+    if not has(set, key) then sf2.state.set { ["uw_" .. set] = saved_set(set) .. key .. "," } end
 end
 local function remove(set, key)
-    local value = sf2.state.get("uw_" .. set)
+    local value = saved_set(set)
     local first, last = value:find("," .. key .. ",", 1, true)
     if first then sf2.state.set { ["uw_" .. set] = value:sub(1, first) .. value:sub(last + 1) } end
 end
@@ -82,89 +96,66 @@ local function install(underworld)
         -- RaidEnter<Boss>: once per profile, the exact entry is held until the Fight button.
         sf2.story.before_fight(fights["1"].handle, function(request)
             if has("entered", key) then return true end
-            local position = 1
-            local show_next = nil
-            show_next = function()
-                if not sf2.story.fight_pending(request) then return end
-                local card = sequences.enter[position]
-                assert(card, "Underworld entry must end with its Fight button")
-                if card.lines then
-                    if not sf2.ui.act_screen { lines = act_lines(card), on_complete = function()
-                        position = position + 1
-                        show_next()
-                    end } then sf2.story.cancel_fight(request) end
-                    return
-                end
-                local opened = open_card(card, function()
-                    if not sf2.story.fight_pending(request) then return end
-                    if not card.launch then
-                        position = position + 1
-                        show_next()
-                        return
-                    end
+            local last = sequences.enter[#sequences.enter]
+            assert(last and last.launch, "Underworld entry must end with its Fight button")
+            local opened = sf2.story.play_sequence {
+                steps = sequence_steps(sequences.enter),
+                on_step = function() return sf2.story.fight_pending(request) end,
+                on_complete = function()
                     if sf2.story.resume_fight(request) then add("entered", key)
                     else sf2.story.cancel_fight(request) end
-                end, function() sf2.story.cancel_fight(request) end)
-                if not opened then sf2.story.cancel_fight(request) end
-            end
-            show_next()
+                end,
+                on_cancel = function() sf2.story.cancel_fight(request) end,
+            }
+            if not opened then sf2.story.cancel_fight(request) end
             return nil
         end)
     end
 
     local scene, view = nil, nil
-    local show_next = nil
+    local show_next = function() end
 
-    -- Runs cards in order; on_done runs after the last acknowledgement. A refused
-    -- or cancelled card leaves the saved step unchanged for the next map entry.
-    local function run_cards(cards, on_done)
-        local position = 1
-        local step = nil
-        step = function()
-            local card = cards[position]
-            if not card then
-                view = nil
-                on_done()
-                return
-            end
-            local token = {}
-            local opened = open_card(card, function()
-                if view ~= token then return end
-                position = position + 1
-                if scene == "map" then step() else view = nil end
-            end, function()
-                if view == token then view = nil end
-            end)
-            if opened then view = token else view = nil end
+    -- A saved cursor belongs to a stable story key; acknowledgement advances it
+    -- inside the API. Completion clears it together with the pending story work.
+    local function run_cards(key, cards, on_done, on_step)
+        if sf2.state.get("uw_sequence_key") ~= key then
+            sf2.state.set { uw_sequence_key = key, uw_sequence_next = 1 }
         end
-        step()
+        view = true
+        local opened = sf2.story.play_sequence {
+            position = "uw_sequence_next", steps = sequence_steps(cards), on_step = on_step,
+            on_complete = function()
+                view = nil
+                sf2.state.set { uw_sequence_key = "", uw_sequence_next = 1 }
+                on_done()
+            end,
+            on_cancel = function() view = nil end,
+        }
+        if not opened then view = nil end
     end
 
     local function run_intro()
-        local token = {}
-        view = token
-        local intro_cards = {}
-        for _, card in ipairs(story.intro) do
-            if not card.lines then intro_cards[#intro_cards + 1] = card end
-        end
-        local accepted = sf2.ui.act_screen { lines = act_lines(story.intro[1]), on_complete = function()
-            if view ~= token then return end
-            if scene ~= "map" then view = nil return end
-            -- ShowRaidsGag and SetMapFocus precede the archived intro dialogs.
-            sf2.underworld.set_toggle_visible(true)
-            sf2.underworld.set_focus(underworld.battles[story.focus])
-            run_cards(intro_cards, function()
-                sf2.state.set { uw_intro = 1 }
-                show_next()
-            end)
-        end }
-        if not accepted and view == token then view = nil end
+        run_cards("intro", story.intro, function()
+            sf2.state.set { uw_intro = 1 }
+            show_next()
+        end, function(index)
+            if index > 1 then
+                sf2.underworld.set_toggle_visible(true)
+                sf2.underworld.set_focus(underworld.battles[story.focus])
+            end
+        end)
     end
 
     local order = {}
     for boss in pairs(story.bosses) do order[#order + 1] = boss end
     table.sort(order)
     local function pending_result()
+        local saved = sf2.state.get("uw_sequence_key")
+        for _, boss in ipairs(order) do
+            for _, kind in ipairs { "win", "loss" } do
+                if saved == boss .. ":" .. kind and has(kind .. "_pending", boss:lower()) then return boss, kind end
+            end
+        end
         for _, boss in ipairs(order) do
             local key = boss:lower()
             if has("win_pending", key) then return boss, "win" end
@@ -187,7 +178,7 @@ local function install(underworld)
             -- RaidIntro2 ends with ChangeScene Dojo on its last button.
             local cards = story.followup
             assert(cards[#cards].scene == "dojo", "Underworld followup must end in the dojo")
-            run_cards(cards, function()
+            run_cards("followup", cards, function()
                 sf2.state.set { uw_intro = 2 }
                 sf2.scenes.open("dojo")
             end)
@@ -196,7 +187,7 @@ local function install(underworld)
         local boss, kind = pending_result()
         if not boss then return end
         local key = boss:lower()
-        run_cards(story.bosses[boss][kind], function()
+        run_cards(boss .. ":" .. kind, story.bosses[boss][kind], function()
             add(kind .. "_shown", key)
             remove(kind .. "_pending", key)
             show_next()

@@ -144,6 +144,13 @@ input callbacks. See the Custom UI reference for lifetime and input rules.
   localization, texture, sprite descriptor, and editor settings. It never overwrites
   an existing folder.
 - **Validate Open Mod** refreshes diagnostics and opens Problems; **Open Documentation** opens the wiki.
+- Move short-form tables are typed: one-key conditions such as `{ not_mod = "Stun" }`
+  and `{ controllable = true }`, points such as `{ node = "NPivot", player = "Enemy" }`,
+  `timeline` keyed by frame or event, `events = "controlled"`,
+  `direction = "face_enemy"`, `from`/`to` interval bounds and `damage_terms` maps.
+  The long-form tables still type-check while packaged content is migrated.
+  LuaLS checks field names and value types; the game enforces the one-kind-per-table
+  rule and limits when the mod loads.
 
 Type `eclipse-` for import, weapon, sprite, localization, behavior, stateful behavior,
 damage modifier, saved state, and perk snippets. Snippets are building blocks:
@@ -519,7 +526,13 @@ Underworld content completes `underworld = true` on zones, `power_mode` and
 `invert_joystick`, `random_area`, `light_in_the_darkness`, `group` and `random` rules, and
 `sf2.underworld.set_toggle_visible` / `set_focus` (`story.progression`). See the
 wiki's Underworld pages guide.
+Move snippets now insert `timeline` entries with frame or lowercase event keys,
+short condition keys, and `node`/`pivot` points. Put scheduled snippets inside
+the move's `timeline` table. Quest and owned-audio trigger actions retain their
+own `type`-based syntax. The LuaLS suite covers every packaged DE128 move module.
 For a warrior or child template, `attribute_alignments` adds its rows once to
 the inherited rows. Leave it out to keep the parent's alignment rows.
 
 Owned fight intros use `sf2.story.before_fight(fight, function(request) ... end)` with `story.progression`. Typed request completion supports `resume_fight`, `cancel_fight` and `fight_pending`; return `true` for immediate entry or `nil` for deferred UI. See Story events for native entry, lifetime, and instruction limits.
+
+Move definitions use compact condition keys, points, timelines and damage maps exclusively. Legacy move types are removed from completion. `sf2.story.play_sequence` provides typed dialog/act-screen steps and optional saved state cursors; see the story reference for callback and resume behavior.

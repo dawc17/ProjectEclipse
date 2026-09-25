@@ -15,7 +15,7 @@ local chain_perk = sf2.perks.get("core:perks/PERK_LIGHTING_CHAIN")
 for _, name in ipairs({ "LightingChainStart", "LightingChain50", "LightingChain150",
     "LightingChain300", "LightingChain400" }) do
     sf2.moves.remove_perk_lock { move = name, perk = chain_perk }
-    sf2.moves.patch { move = name, conditions = { { type = "actor_name", name = "LightningChain" } } }
+    sf2.moves.patch { move = name, conditions = { { actor = "LightningChain" } } }
 end
 
 local function register_tactic(id, cooldown)

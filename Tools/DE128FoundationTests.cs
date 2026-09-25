@@ -169,6 +169,7 @@ internal static class DE128FoundationTests
             var context = new MoonSharpScriptRuntime(null, null, null, bus).CreateContext(mod, api);
             try
             {
+                ModLocalizationLoader.Load(mod, assets, transaction);
                 context.ExecuteEntrypoint();
                 transaction.Commit();
                 return context;
@@ -225,7 +226,7 @@ internal static class DE128FoundationTests
         Check(catalog.Moves.Count == 52 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 35 &&
             catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 20 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 21 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -333,7 +334,7 @@ internal static class DE128FoundationTests
             blacknessWarrior.Tactic == "de128:tactics/blackness_grasp" &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_13_hardmode_1"), out var blacknessPowerFight) &&
             catalog.TryGetWarrior(blacknessPowerFight.Warriors[0], out var blacknessPowerWarrior) &&
-            blacknessPowerWarrior.Tactic == "de128:tactics/blackness_grasp",
+            blacknessPowerWarrior.Tactic == "de128:tactics/blackness_grasp_power",
             "Blackness's caster, timed child transition, attacking hand or two tactics are incomplete.");
         var saturn = catalog.MoveCombatPatches.Single(patch => patch.MoveName == "SaturnBlasterAbilityPlayer");
         Check(saturn.Input?.Expected.Key == "Super" && saturn.Input.Value.Key == "RaidCharge" &&
@@ -488,12 +489,15 @@ internal static class DE128FoundationTests
         Check(start.Conditions.First().Kind == ModMoveConditionKind.Keys &&
             start.Conditions.First().Keys.Single().Key == "RaidCharge" &&
             start.Conditions.Count(condition => condition.Kind == ModMoveConditionKind.CurrentAnimation &&
-                condition.Player == "Enemy" && condition.Not) == 15 &&
+                condition.Player == "Enemy" && condition.Not) == 19 &&
+            new[] { "150", "200", "300", "370" }.All(range => start.Conditions.Any(condition =>
+                condition.Kind == ModMoveConditionKind.CurrentAnimation && condition.Player == "Enemy" && condition.Not &&
+                condition.Name == "de128:moves/wasp_fly_" + range)) &&
             start.Conditions.Count(condition => condition.Kind == ModMoveConditionKind.Direction) == 1 &&
             start.Conditions.All(condition => condition.Kind != ModMoveConditionKind.Distance) &&
             start.Graph.Locks.Count == 1 && start.Graph.Locks[0].Kind == ModMoveConditionKind.Perk &&
             finish.Conditions.Count(condition => condition.Kind == ModMoveConditionKind.CurrentAnimation &&
-                condition.Player == "Enemy" && condition.Not) == 15 &&
+                condition.Player == "Enemy" && condition.Not) == 19 &&
             finish.Graph.Align.ShiftModelNode == "NPivot" && finish.Graph.Align.Position.ShiftX == 100,
             "Teleportation input, enemy safety gates or alignment differs from the archive.");
         var attack = finish.Intervals.Single(interval => interval.Attack != null).Attack;
@@ -605,7 +609,7 @@ internal static class DE128FoundationTests
                         oldMove.SelectSingleNode("Conditions/ModExists[@Name='Stun']") == null,"Added native condition differs from archive.");
         }
         var peer = Peer(fixture,"fixture.move-patch-conflict","content.patch",
-            "sf2.moves.patch { move='MassBombPlayer', conditions={{type='mod_exists',name='Other'}} }");
+            "sf2.moves.patch { move='MassBombPlayer', conditions={{mod='Other'}} }");
         var peerFirst=new ModContentCatalog();Load(peer,peerFirst);
         ExpectFailure(mod,peerFirst,"Move combat patch already owned: MassBombPlayer");
         Check(peerFirst.MoveCombatPatches.Count==1 && peerFirst.MoveCombatPatches[0].Owner==peer.Id &&
@@ -639,8 +643,8 @@ internal static class DE128FoundationTests
             "sf2.moves.patch {move='Test',interval_end={name='Uninterrupt',expected=42,value=40}}",
             "sf2.moves.patch {move='Test',interval_start={name='Uninterrupt',expected=9,value=0}}",
             "sf2.moves.patch {move='Test',sound_frame={name='snd',expected=18,value=16}}",
-            "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun'}}}",
-            "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun',['not']=true}}}",
+            "sf2.moves.patch {move='Test',conditions={{mod='Stun'}}}",
+            "sf2.moves.patch {move='Test',conditions={{not_mod='Stun'}}}",
             "sf2.moves.patch {move='Test',remove_interval={name='Evade',type='Invulnerable',start=0,['end']=47}}",
             "sf2.moves.patch {move='Test',remove_interval={name='Evade',type='Invulnerable',start=0,['end']=46}}"};
         Check(declarations.Select(Hash).Distinct().Count()==declarations.Length,"Move patch fields missing from compatibility fingerprint.");

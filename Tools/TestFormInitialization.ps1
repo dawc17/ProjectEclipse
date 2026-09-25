@@ -31,7 +31,7 @@ using ObscuredFloat = System.Single;
 // Production health/path/initialization/request methods are inserted below.
 // XML projection, attributes, item rules, native body construction and queuing
 // are controlled services. This fixture does not execute Unity or form commit.
-class ItemInfo { public string KJDFJPBIGJC; }
+class ItemInfo { public string ModelFileName; }
 class Tactic { public string Name; }
 struct DefinitionId { }
 class ItemRule { public ItemInfo Weapon; }
@@ -39,7 +39,7 @@ class AnimationData { public static int Count = 5; public static int DJDLCMCLOJN
 class ListSF
 {
     public static readonly ListSF Instance = new ListSF();
-    public readonly ItemInfo DefaultBody = new ItemInfo { KJDFJPBIGJC = "default_body" };
+    public readonly ItemInfo DefaultBody = new ItemInfo { ModelFileName = "default_body" };
     public int Lookups;
     public bool Fail;
     public static ListSF GetItems() => Instance;
@@ -108,9 +108,9 @@ class Rules
 {
     public ModelParameters Current;
     public readonly List<ItemRule> Player = new List<ItemRule> {
-        new ItemRule { Weapon = new ItemInfo { KJDFJPBIGJC = "player_rule_weapon" } } };
+        new ItemRule { Weapon = new ItemInfo { ModelFileName = "player_rule_weapon" } } };
     public readonly List<ItemRule> Enemy = new List<ItemRule> {
-        new ItemRule { Weapon = new ItemInfo { KJDFJPBIGJC = "enemy_rule_weapon" } } };
+        new ItemRule { Weapon = new ItemInfo { ModelFileName = "enemy_rule_weapon" } } };
     public List<ItemRule> Selected;
     public List<ItemRule> GetPlayerItemRules() => Player;
     public List<ItemRule> GetEnemyItemRules() => Enemy;
@@ -146,7 +146,7 @@ class Fight
                 throw new InvalidOperationException("native construction received an empty health pool");
             if (!p.ItemPasses.SequenceEqual(new[] { false, true }) || p.AttributePasses < 2 ||
                 !p.AttributePaths.SequenceEqual(p.ModelDocuments) ||
-                !p.ModelDocuments.Contains(p.Weapon.KJDFJPBIGJC + ".xml"))
+                !p.ModelDocuments.Contains(p.Weapon.ModelFileName + ".xml"))
                 throw new InvalidOperationException("native construction received stale rule equipment/attributes");
             Constructed++;
             Model = new Model { Parameters = p };
@@ -177,7 +177,7 @@ class ValidateFormInitialization
     static ModelParameters Destination(int life) => new ModelParameters {
         DEGCGHDAMDA = life, CIDCNCDFONA = 0, _CurrentLife = 0, RoundsWon = 8,
         EAJHPCJJCDI = true, HBFMBOHLKPJ = new Tactic { Name = "new_tactic" },
-        Weapon = new ItemInfo { KJDFJPBIGJC = "destination_weapon" },
+        Weapon = new ItemInfo { ModelFileName = "destination_weapon" },
         IAIHFLGBIPB = new List<int> { 87 }, ModelDocuments = new List<string> { "stale.xml" } };
     static string State(ModelParameters p) => string.Join("|", new object[] { p.IsPlayer, p.UserControlled, p.AiControlled,
         p.CIDCNCDFONA, p.KKMCHCNOHMB(), p.OJLKDEHMIAC(), p.RoundsWon, p.EAJHPCJJCDI, p.ABLMGLAKJBL,
@@ -267,7 +267,7 @@ class ValidateFormInitialization
     {
         var current = Current(true, true, false);
         var p = Destination(40);
-        var body = new ItemInfo { KJDFJPBIGJC = "authored_skeleton" };
+        var body = new ItemInfo { ModelFileName = "authored_skeleton" };
         p.Skeleton = body;
         p.EclipseBodyModel = "sample:models/body.xml";
         p.EclipseSkinModels = new[] { "sample:models/skin.xml" };

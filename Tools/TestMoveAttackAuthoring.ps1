@@ -109,30 +109,27 @@ foreach($name in @('RoundStage','ModExists')) {
 $screen=Parse-Condition $projected.SelectSingleNode('//Template[contains(@Name,"preview")]/Conditions/Screen')
 Check ($screen.get_Type().ToString() -eq 'SceneShopWeapon') 'Native shop screen mapping changed.'
 $legacy='sf2.moves.register_template {id="test",intervals={{type="Attack",attack={edges={"Edge"},damage=0.06,damage_type="WeaponDamage"}}}}'
-$single=$legacy.Replace('damage_type="WeaponDamage"','damage_terms={{type="WeaponDamage",shift=0}}')
+$single=$legacy.Replace('damage_type="WeaponDamage"','damage_terms={WeaponDamage=0}')
 Check ((Fingerprint (Load-Lua $legacy)) -ceq (Fingerprint (Load-Lua $single))) 'Single unshifted shorthand fingerprint changed.'
 Check ((Shape (Project (Load-Lua $legacy)).DocumentElement) -ceq (Shape (Project (Load-Lua $single)).DocumentElement)) 'Legacy shorthand projection changed.'
 Check ((Fingerprint $catalog) -ceq (Fingerprint (Load-Lua $lua))) 'Repeat registration is not deterministic.'
-$mixed=$legacy.Replace('damage_type="WeaponDamage"','damage_terms={{type="WeaponDamage"},{type="UnarmedDamage",shift=-10}}')
-Check ((Fingerprint (Load-Lua $mixed)) -cne (Fingerprint (Load-Lua $mixed.Replace('shift=-10','shift=-9')))) 'Damage shift omitted from fingerprint.'
+$mixed=$legacy.Replace('damage_type="WeaponDamage"','damage_terms={WeaponDamage=0,UnarmedDamage=-10}')
+Check ((Fingerprint (Load-Lua $mixed)) -cne (Fingerprint (Load-Lua $mixed.Replace('UnarmedDamage=-10','UnarmedDamage=-9')))) 'Damage shift omitted from fingerprint.'
 Check ((Fingerprint (Load-Lua $mixed)) -cne (Fingerprint (Load-Lua $single))) 'Additional damage term omitted from fingerprint.'
 Check ((Fingerprint (Load-Lua $mixed)) -cne (Fingerprint (Load-Lua $mixed.Replace('UnarmedDamage','MagicDamage')))) 'Additional term type omitted from fingerprint.'
 Check ((Fingerprint (Load-Lua $lua)) -cne (Fingerprint (Load-Lua ($lua.Replace('sf2.moves.register_template { id="slash"','table.remove(data.conditions[1].keys, 1)' + "`n" + 'sf2.moves.register_template { id="slash"'))))) 'Repeated key count omitted from fingerprint.'
 Check ((Fingerprint (Load-Lua $lua)) -ceq (Fingerprint (Load-Lua ($lua.Replace('sf2.moves.register_template { id="slash"','data.conditions[1].keys.removed = true; data.conditions[1].keys.removed = nil' + "`n" + 'sf2.moves.register_template { id="slash"'))))) 'Deleted non-array key rejected a valid sequence.'
 foreach($shift in @(-1000,0,1000)) {
-    $bounded=Load-Lua $single.Replace('shift=0',('shift='+$shift))
+    $bounded=Load-Lua $single.Replace('WeaponDamage=0',('WeaponDamage='+$shift))
     Check ($bounded.MoveTemplates.Count -eq 1) 'Valid shift boundary rejected.'
 }
 foreach($bad in @(
-    'damage_terms={}', 'damage_terms={{type="Armor"}}',
-    'damage_terms={{type="WeaponDamage",shift=0/0}}', 'damage_terms={{type="WeaponDamage",shift=1/0}}',
-    'damage_terms={{type="WeaponDamage",shift=1001}}', 'damage_terms={{type="WeaponDamage",shift=-1001}}',
-    'damage_terms={{type="WeaponDamage",shift="bad"}}', 'damage_terms={{type="WeaponDamage",extra=1}}',
-    'damage_terms={{type="WeaponDamage"},{type="WeaponDamage"}}',
-    'damage_terms={{type="WeaponDamage"}},damage_type="WeaponDamage"',
-    'damage_terms={[1]={type="WeaponDamage"},[3]={type="MagicDamage"}}',
-    'damage_terms={false}', 'damage_terms={{type="WeaponDamage"},unexpected=true}',
-    'damage_terms={{type="WeaponDamage"},{type="UnarmedDamage"},{type="MagicDamage"},{type="RangedDamage"},{type="WeaponDamage"}}',
+    'damage_terms={}', 'damage_terms={Armor=0}',
+    'damage_terms={WeaponDamage=0/0}', 'damage_terms={WeaponDamage=1/0}',
+    'damage_terms={WeaponDamage=1001}', 'damage_terms={WeaponDamage=-1001}',
+    'damage_terms={WeaponDamage="bad"}', 'damage_terms={WeaponDamage=0,extra=1}',
+    'damage_terms={WeaponDamage=0},damage_type="WeaponDamage"',
+    'damage_terms={[1]=0}', 'damage_terms={false}',
     'hit="invented"'
 )) {
     $failure=$null
@@ -140,10 +137,10 @@ foreach($bad in @(
     Check ($null -ne $failure) ('Invalid attack accepted: '+$bad)
 }
 foreach($bad in @(
-    '{type="round_stage",name="invented"}', '{type="round_stage"}',
-    '{type="screen",name="invented"}', '{type="screen",name="ShopWeapon",item_type="Weapon"}',
-    '{type="mod_exists",name=""}', '{type="mod_exists",name="MOD_TITAN",player="Nobody"}',
-    '{type="keys",keys={}}', '{type="keys",keys={{key="Punch",press="invented"}}}'
+    '{stage="invented"}', '{stage=true}',
+    '{screen="invented"}', '{screen="ShopWeapon",item="Weapon"}',
+    '{mod=""}', '{mod="MOD_TITAN",player="Nobody"}',
+    '{keys={}}', '{keys={{"Punch",press="invented"}}}'
 )) {
     $failure=$null
     try {$null=Load-Lua ('sf2.moves.register_template {id="prior"}' + "`n" + 'sf2.moves.register_template {id="bad",conditions={'+$bad+'}}')}catch{$failure=$_}

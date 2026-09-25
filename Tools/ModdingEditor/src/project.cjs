@@ -118,6 +118,7 @@ function analyze(text,mod){
             const symbol=resolve(n.base,env),args=Array.isArray(n.arguments)?n.arguments:n.arguments?[n.arguments]:n.argument?[n.argument]:[];
             const name=api.aliases[symbol]??symbol,info=api.functions[name];
             if(info){calls.push({name,node:n,args});required(n,info.capability);
+                if(name==='sf2.story.play_sequence'&&fields(args[0]).position)required(n,['state.read','state.write']);
                 if(name==='sf2.localization.register'){
                     const definition=fields(args[0]),id=literal(definition.id),language=literal(definition.language),value=literal(definition.value);
                     if(typeof id==='string'&&(!id.trim()||id.includes(':')))add(definition.id,'localization-id','id must be a nonempty local localization key, without a namespace.');

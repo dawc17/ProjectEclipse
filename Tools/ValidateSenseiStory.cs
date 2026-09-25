@@ -120,6 +120,7 @@ end
         using (var context = new MoonSharpScriptRuntime(null, null, null, bus).CreateContext(mod, new ModApiFacade(mod,
             new AssetResolver(new IAssetProvider[] { new StoryPortraits(mod) }), tx, state, entry => errors.Add(entry.Message))))
         {
+            ModLocalizationLoader.Load(mod, new AssetResolver(new IAssetProvider[] { new LooseModProvider(mod) }), tx);
             context.ExecuteEntrypoint(); tx.Commit();
             Check(catalog.Fights.Count(value => value.Id.Namespace == mod.Id) == 23, "Not all actual encounters registered");
             Check(catalog.Rewards.Count(value => value.Id.Namespace == mod.Id) == 57, "Not all actual rewards registered");

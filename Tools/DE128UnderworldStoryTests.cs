@@ -194,9 +194,8 @@ internal static class DE128UnderworldStoryTests
                 Scene("shop");
                 Check(Intro() == 0, "Interrupted intro was recorded as shown");
                 toggles.Clear(); focus.Clear(); Scene("map");
-                Check(toggles.First() == false && finish != null, "Interrupted intro did not replay from the start");
-                finish(true); finish = null;
-                Play(introCards, "Intro");
+                Check(toggles.First() == false && finish == null, "Interrupted intro replayed its completed act screen");
+                Play(introCards.Skip(1).ToList(), "Resumed intro");
                 Check(Intro() == 1, "Intro completion was not saved");
                 Play(Cards(byName["RaidIntro2"]), "Followup");
                 Check(Intro() == 2 && scenes.SequenceEqual(new[] { "dojo" }) && dialogs.Live == null, "Followup did not end in the dojo");

@@ -27,7 +27,7 @@ local authored=require('character')
 sf2.moves.register {
     id='attack',animation=sf2.assets.binary('animations/authored'),type='ATTACK',end_frame=59,
     events={'key_pressed'},
-    conditions={{type='character',warrior=authored.warrior},{type='keys',keys={{key='Kick',press='Tap'}}}},
+    conditions={{character=authored.warrior},{key='Kick',press='Tap'}},
     intervals={{type='Attack',start=6,['end']=8,attack={edges={'ECalf_2'},damage=0.12,impulse={x=245,z=350}}}},
 }
 '@ | Set-Content -Encoding UTF8 -LiteralPath (Join-Path $mod 'scripts/main.lua')

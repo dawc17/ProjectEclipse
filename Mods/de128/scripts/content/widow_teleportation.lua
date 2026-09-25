@@ -3,43 +3,38 @@ local sf2 = require("sf2")
 -- Reviewed owner moves.xml: WidowTeleportationStart/End. Keep their native
 -- identities so the perk trigger and the start-to-end transition still work.
 -- This is typed content; DE128 never loads XML while the game runs.
-local point = function(object, part, player, x, y)
-    return { object = object, part = part, player = player, shift_x = x, shift_y = y }
-end
+
 local teleport_perk = sf2.perks.get("core:perks/PERK_TELEPORTATION")
 local excluded_enemy_moves = {
     "WallRunUp", "WallJump_50", "WallJump_100", "WallJump_200", "WallJump_250",
     "WallHit", "WallHitFall", "WaspFly_150", "WaspFly_200", "WaspFly_300", "WaspFly_370",
     "HunterFly_150", "HunterFly_200", "HunterFly_300", "HunterFly_370",
+    -- wasp_fly.lua disables the native WaspFly selectors and plays these instead.
+    "de128:moves/wasp_fly_150", "de128:moves/wasp_fly_200",
+    "de128:moves/wasp_fly_300", "de128:moves/wasp_fly_370",
 }
 local function enemy_exclusions(conditions)
     for _, name in ipairs(excluded_enemy_moves) do
-        conditions[#conditions + 1] = { type = "current_animation", player = "Enemy", name = name, ["not"] = true }
+        conditions[#conditions + 1] = { not_animation = name, player = "Enemy" }
     end
     return conditions
 end
-local function effect(name, sequence, frame, x, y, scale)
-    return { type = "effect", frame = frame, effect = {
-        name = name, core_sequence = sequence, scale = scale, time_scale = 1.5,
-        position = point("Nodes", "NPivot", "Me", x, y), follow = false,
-    } }
-end
+
 local hits = { "snd_hit1", "snd_hit2", "snd_hit3", "snd_hit4", "snd_hit5", "snd_hit6" }
 
 local start_conditions = enemy_exclusions {
-    { type = "keys", keys = { { key = "RaidCharge", press = "Tap" } } },
-    { type = "mod_exists", name = "TeleportationRecharge", ["not"] = true },
+    { keys = { { "RaidCharge", press = "Tap" } } },
+    { not_mod = "TeleportationRecharge" },
 }
-start_conditions[#start_conditions + 1] = { type = "direction", player = "Enemy",
-    from = point("Nodes", "NPivot", "Enemy"), to = point("Nodes", "NPivot", "Me") }
-start_conditions[#start_conditions + 1] = { type = "current_interval", name = "SemiUninterrupt", ["not"] = true }
-start_conditions[#start_conditions + 1] = { type = "current_interval", name = "Uninterrupt", ["not"] = true }
-start_conditions[#start_conditions + 1] = { type = "round_stage", name = "Fight" }
-start_conditions[#start_conditions + 1] = { type = "all", ["not"] = true, conditions = {
-    { type = "current_animation", name = "$Move" },
-    { type = "current_interval", name = "SemiUninterrupt" },
+start_conditions[#start_conditions + 1] = { direction = "Enemy", from = { node = "NPivot", player = "Enemy" }, to = { node = "NPivot", player = "Me" } }
+start_conditions[#start_conditions + 1] = { not_interval = "SemiUninterrupt" }
+start_conditions[#start_conditions + 1] = { not_interval = "Uninterrupt" }
+start_conditions[#start_conditions + 1] = { stage = "Fight" }
+start_conditions[#start_conditions + 1] = { not_all = {
+    { animation = "$Move" },
+    { interval = "SemiUninterrupt" },
 } }
-start_conditions[#start_conditions + 1] = { type = "current_animation", name = "Physical", ["not"] = true }
+start_conditions[#start_conditions + 1] = { not_animation = "Physical" }
 
 local start = sf2.moves.replace {
     id = "widow_teleportation_start", target = "WidowTeleportationStart",
@@ -48,27 +43,30 @@ local start = sf2.moves.replace {
     core_templates = { "1key", "BossAbility", "Controlled", "SoundStrike" },
     mid_frames = 2, no_wall_repulsion = true, first_frame = 1, priority = 110,
     mirror_node = "NHeel_1",
-    align = { axes = { "X", "Z" }, pivot = point("Nodes", "NHeel_1"),
-        position = point("Pivot", nil, "Me") },
+    align = { axes = { "X", "Z" }, pivot = { node = "NHeel_1" },
+        position = { pivot = "Me" } },
     conditions = start_conditions,
-    locks = { { type = "perk", perk = teleport_perk } },
+    locks = { { perk = teleport_perk } },
     intervals = {
-        { name = "Uninterrupt", ["end"] = 13 },
-        { type = "Block", start = 14 },
-        { name = "Throwable", start = 14 },
+        { name = "Uninterrupt", to = 13 },
+        { type = "Block", from = 14 },
+        { name = "Throwable", from = 14 },
     },
-    actions = {
-        effect("WidowTeleportationStart", "mgc_widow_teleportation_start", 13, 54, 73, 1.3),
-        { type = "random_sound", frame = 4, core_sounds = { "snd_widow_teleport_start" } },
-        { type = "stop_sound", event = "Hit", core_sound = "snd_widow_teleport_start" },
-        { type = "random_sound", event = "Strike", core_sounds = hits },
+    timeline = {
+        [13] = { effect = {
+        name = "WidowTeleportationStart", core_sequence = "mgc_widow_teleportation_start", scale = 1.3, time_scale = 1.5,
+        position = { node = "NPivot", player = "Me", x = 54, y = 73 }, follow = false,
+    } },
+        [4] = { sound = "snd_widow_teleport_start" },
+        hit = { stop_sound = "snd_widow_teleport_start" },
+        strike = { sound = hits },
     },
-    events = { "key_pressed", { type = "interval_end", name = "Uninterrupt" }, "animation_end" },
-    direction = { from = point("Nodes", "NPivot", "Me"), to = point("Nodes", "NPivot", "Enemy") },
+    events = { "key_pressed", { interval_end = "Uninterrupt" }, "animation_end" },
+    direction = { from = { node = "NPivot", player = "Me" }, to = { node = "NPivot", player = "Enemy" } },
 }
 
 local end_conditions = enemy_exclusions {
-    { type = "current_animation", name = "WidowTeleportationStart" },
+    { animation = "WidowTeleportationStart" },
 }
 local finish = sf2.moves.replace {
     id = "widow_teleportation_end", target = "WidowTeleportationEnd",
@@ -77,31 +75,33 @@ local finish = sf2.moves.replace {
     core_templates = { "ChangeDirection" },
     mid_frames = 2, no_wall_repulsion = true, first_frame = 1, priority = 450,
     mirror_node = "NHeel_1",
-    direction = { from = point("Wall", "Front", "Enemy"), to = point("Wall", "Back", "Enemy") },
+    direction = { from = { wall = "Front", player = "Enemy" }, to = { wall = "Back", player = "Enemy" } },
     align = { axes = { "X", "Z" }, shift_model_node = "NPivot",
-        pivot = point("Nodes", "NHeel_1"), position = point("Pivot", nil, "Enemy", 100) },
+        pivot = { node = "NHeel_1" }, position = { pivot = "Enemy", x = 100 } },
     events = { "animation_end" },
     conditions = end_conditions,
-    locks = { { type = "perk", perk = teleport_perk } },
+    locks = { { perk = teleport_perk } },
     intervals = {
-        { name = "Uninterrupt", ["end"] = 19 },
-        { type = "Block", start = 20 },
-        { name = "Throwable", start = 20 },
-        { type = "Attack", start = 3, ["end"] = 4, attack = {
+        { name = "Uninterrupt", to = 19 },
+        { type = "Block", from = 20 },
+        { name = "Throwable", from = 20 },
+        { type = "Attack", from = 3, to = 4, attack = {
             edges = { "EForearm_1", "EHand_1", "EFingers_1", "EArm_1", "EArm_2",
                 "EForearm_2", "EHand_2", "EFingers_2", "EChest" },
             damage = 0.28,
-            damage_terms = { { type = "WeaponDamage" }, { type = "UnarmedDamage", shift = -10 } },
+            damage_terms = { WeaponDamage = 0, UnarmedDamage = -10 },
             impulse = { x = -245, y = -245 }, hit = "High",
             options = { ignores_block = true },
         } },
     },
-    actions = {
-        effect("WidowTeleportEnd", "mgc_widow_teleportation_end", 1, 65, 95, 1.5),
-        { type = "random_sound", frame = 6, core_sounds = { "snd_swish2" } },
-        { type = "random_sound", event = "Strike", core_sounds = hits },
-        { type = "random_sound", frame = 6, core_sounds = { "snd_widow_teleport_end" } },
-        { type = "stop_sound", event = "Hit", core_sound = "snd_widow_teleport_end" },
+    timeline = {
+        [1] = { effect = {
+        name = "WidowTeleportEnd", core_sequence = "mgc_widow_teleportation_end", scale = 1.5, time_scale = 1.5,
+        position = { node = "NPivot", player = "Me", x = 65, y = 95 }, follow = false,
+    } },
+        [6] = { { sound = "snd_swish2" }, { sound = "snd_widow_teleport_end" } },
+        strike = { sound = hits },
+        hit = { stop_sound = "snd_widow_teleport_end" },
     },
 }
 

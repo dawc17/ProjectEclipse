@@ -24,17 +24,18 @@ local function install(normal_ids, portrait)
     local function show_next()
         if scene ~= "map" or view or shared.dialogue_pending() or not shared.defeat_pending() then return end
         local choice = sf2.random.integer("sensei_defeat_rng", 1, 5)
-        local token = {}
         local card = { title = "characterSensei", text = "Sensei_defeat" .. choice, button = "OK" }
-        local opened = dialog.open(card, text, portrait, function()
-            if view ~= token then return end
-            view = nil
-            sf2.state.set { sensei_defeat_pending = false }
-            shared.wake_notifications()
-        end, function()
-            if view == token then view = nil end
-        end)
-        if opened then view = token end
+        view = true
+        local opened = sf2.story.play_sequence {
+            steps = { { dialog = dialog.definition(card, text, portrait) } },
+            on_complete = function()
+                view = nil
+                sf2.state.set { sensei_defeat_pending = false }
+                shared.wake_notifications()
+            end,
+            on_cancel = function() view = nil end,
+        }
+        if not opened then view = nil end
     end
     shared.wake_defeat = show_next
     sf2.story.on("battle_result", function(event)
@@ -45,6 +46,7 @@ local function install(normal_ids, portrait)
     end)
     sf2.story.on("scene_enter", function(event)
         scene = event.scene
+        view = nil
         show_next()
     end)
 end

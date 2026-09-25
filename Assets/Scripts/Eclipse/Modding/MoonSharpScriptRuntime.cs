@@ -122,6 +122,7 @@ namespace Eclipse.Modding
                 _script.Options.DebugPrint = message => _api.Log(ModLogLevel.Info, message);
                 _script.Options.DebugInput = prompt => throw new ScriptRuntimeException("Interactive input is disabled.");
                 _script.Globals.Set("require", DynValue.NewCallback(Require));
+                _api.State.BindingChanged += OnSequenceBindingChanged;
             }
 
             public void ExecuteEntrypoint()
@@ -647,6 +648,8 @@ namespace Eclipse.Modding
                 if (_disposed) return;
                 _callbackWorkers.Clear();
                 _disposed = true;
+                _api.State.BindingChanged -= OnSequenceBindingChanged;
+                StopSequence(false);
                 _actScreen?.Dispose();
                 _actScreen = null;
                 _storyDialog?.Dispose();
@@ -3333,6 +3336,7 @@ namespace Eclipse.Modding
                 var allowed = new HashSet<string>(fields, StringComparer.Ordinal);
                 foreach (TablePair pair in table.Pairs)
                 {
+                    if (pair.Value.IsNil()) continue;
                     if (pair.Key.Type != DataType.String)
                         throw new ModContentException(function + " input table contains a non-string field.");
                     if (!allowed.Contains(pair.Key.String))

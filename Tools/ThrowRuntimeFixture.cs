@@ -86,7 +86,7 @@ public static class ThrowRuntimeFixture
         Set(fighter, typeof(Model), "OHAMEHHMEAL", new List<InfoAnimation> { move });
         // Binary clips index the recovered skeleton's nodes; use the real names
         // and pairings, with an initial pose near the requested arena position.
-        Vector3[] pose = move.DIHJOPGKGFO()[move.GOBJCKFGIPA];
+        Vector3[] pose = move.DIHJOPGKGFO()[move.FirstFrame];
         XmlNodeList definitions = skeleton.SelectNodes("/Scene/Nodes/*");
         float offset = x - sign * pose[18].x; // NPivot, verified below.
         for (int i = 0; i < pose.Length; i++)

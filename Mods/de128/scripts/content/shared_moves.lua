@@ -17,6 +17,6 @@ sf2.moves.patch {
 for _, move in ipairs({ "MassBombPlayer", "LightningArrowPlayer" }) do
     sf2.moves.patch {
         move = move,
-        conditions = { { type = "mod_exists", name = "Stun", ["not"] = true } },
+        conditions = { { not_mod = "Stun" } },
     }
 end

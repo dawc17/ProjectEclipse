@@ -1,0 +1,192 @@
+[
+  {
+    "name": "{ key = \"RaidCharge\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Keys><Key Type=\"RaidCharge\" PressType=\"Tap\" /></Keys></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { key = \"RaidCharge\" } }"
+  },
+  {
+    "name": "{ key = \"Magic\", press = \"Hold\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Keys><Key Type=\"Magic\" PressType=\"Hold\" /></Keys></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { key = \"Magic\", press = \"Hold\" } }"
+  },
+  {
+    "name": "{ keys = { \"Down\", { \"Magic\", press = \"Hold\" } } }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Keys><Key Type=\"Down\" PressType=\"Tap\" /><Key Type=\"Magic\" PressType=\"Hold\" /></Keys></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { keys = { \"Down\", { \"Magic\", press = \"Hold\" } } } }"
+  },
+  {
+    "name": "{ not_key = \"Back\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Keys Not=\"1\"><Key Type=\"Back\" PressType=\"Tap\" /></Keys></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { not_key = \"Back\" } }"
+  },
+  {
+    "name": "{ mod = \"Stun\", player = \"Enemy\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><ModExists Name=\"Stun\" Player=\"Enemy\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { mod = \"Stun\", player = \"Enemy\" } }"
+  },
+  {
+    "name": "{ not_mod = \"Stun\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><ModExists Name=\"Stun\" Not=\"1\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { not_mod = \"Stun\" } }"
+  },
+  {
+    "name": "{ interval = \"Throwable\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><CurrentInterval Name=\"Throwable\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { interval = \"Throwable\" } }"
+  },
+  {
+    "name": "{ not_interval = \"Uninterrupt\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><CurrentInterval Name=\"Uninterrupt\" Not=\"1\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { not_interval = \"Uninterrupt\" } }"
+  },
+  {
+    "name": "{ animation = \"Stance\", player = \"Parent\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><CurrentAnimation Name=\"Stance\" Player=\"Parent\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { animation = \"Stance\", player = \"Parent\" } }"
+  },
+  {
+    "name": "{ not_animation = \"Physical\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><CurrentAnimation Name=\"Physical\" Not=\"1\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { not_animation = \"Physical\" } }"
+  },
+  {
+    "name": "{ stage = \"Fight\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><RoundStage Name=\"Fight\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { stage = \"Fight\" } }"
+  },
+  {
+    "name": "{ round_result = \"Victory\", player = \"Me\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><RoundResult Name=\"Victory\" Player=\"Me\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { round_result = \"Victory\", player = \"Me\" } }"
+  },
+  {
+    "name": "{ screen = \"ShopMagic\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Screen Name=\"ShopMagic\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { screen = \"ShopMagic\" } }"
+  },
+  {
+    "name": "{ actor = \"Sphere1\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Name Value=\"Sphere1\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { actor = \"Sphere1\" } }"
+  },
+  {
+    "name": "{ item = \"Weapon\", subtype = \"Katana\", player = \"Me\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Item Player=\"Me\" Type=\"Weapon\" SubType=\"Katana\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { item = \"Weapon\", subtype = \"Katana\", player = \"Me\" } }"
+  },
+  {
+    "name": "{ not_item = \"Weapon\", name = \"MAGIC_ACID_CLOUD\" }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Item Name=\"MAGIC_ACID_CLOUD\" Type=\"Weapon\" Not=\"1\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { not_item = \"Weapon\", name = \"MAGIC_ACID_CLOUD\" } }"
+  },
+  {
+    "name": "{ bullets = \"MagicBullet\", min = 1, max = 3 }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Bullets Type=\"MagicBullet\" Min=\"1\" Max=\"3\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { bullets = \"MagicBullet\", min = 1, max = 3 } }"
+  },
+  {
+    "name": "{ distance = \"X\", min = 10, max = 90, from = { pivot = \"Me\" }, to = { node = \"NPivot\", player = \"Enemy\", x = 5, y = -2 } }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Distance Axis=\"X\" Min=\"10\" Max=\"90\"><From Object=\"Pivot\" Player=\"Me\" /><To Object=\"Nodes\" Player=\"Enemy\" Part=\"NPivot\" ShiftX=\"5\" ShiftY=\"-2\" /></Distance></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { distance = \"X\", min = 10, max = 90, from = { pivot = \"Me\" }, to = { node = \"NPivot\", player = \"Enemy\", x = 5, y = -2 } } }"
+  },
+  {
+    "name": "{ direction = \"Enemy\", from = { wall = \"Front\", player = \"Enemy\" }, to = { com = \"Me\" } }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Direction Player=\"Enemy\"><From Object=\"Wall\" Player=\"Enemy\" Part=\"Front\" /><To Object=\"COM\" Player=\"Me\" /></Direction></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { direction = \"Enemy\", from = { wall = \"Front\", player = \"Enemy\" }, to = { com = \"Me\" } } }"
+  },
+  {
+    "name": "{ any = { { stage = \"Fight\" }, { not_mod = \"Stun\" } } }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Operator Type=\"Or\"><RoundStage Name=\"Fight\" /><ModExists Name=\"Stun\" Not=\"1\" /></Operator></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { any = { { stage = \"Fight\" }, { not_mod = \"Stun\" } } } }"
+  },
+  {
+    "name": "{ not_all = { { animation = \"$Move\" }, { interval = \"SemiUninterrupt\" } } }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Operator Type=\"And\" Not=\"1\"><CurrentAnimation Name=\"$Move\" /><CurrentInterval Name=\"SemiUninterrupt\" /></Operator></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { not_all = { { animation = \"$Move\" }, { interval = \"SemiUninterrupt\" } } } }"
+  },
+  {
+    "name": "{ { stage = \"Fight\" }, { { not_mod = \"Stun\" } } }",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><RoundStage Name=\"Fight\" /><ModExists Name=\"Stun\" Not=\"1\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { { stage = \"Fight\" }, { { not_mod = \"Stun\" } } } }"
+  },
+  {
+    "name": "controllable preset",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><CurrentInterval Name=\"SemiUninterrupt\" Not=\"1\" /><CurrentInterval Name=\"Uninterrupt\" Not=\"1\" /><RoundStage Name=\"Fight\" /><Operator Type=\"And\" Not=\"1\"><CurrentAnimation Name=\"$Move\" /><CurrentInterval Name=\"SemiUninterrupt\" /></Operator><CurrentAnimation Name=\"Physical\" Not=\"1\" /></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { controllable = true } }"
+  },
+  {
+    "name": "locks",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Locks><Item Type=\"Skeleton\" SubType=\"Skeleton\" /></Locks></Move></Moves><Triggers /></Movesxml>",
+    "lua": "locks = { { item = \"Skeleton\", subtype = \"Skeleton\" } }"
+  },
+  {
+    "name": "transition conditions",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Transitions><Transition FrameShift=\"2\"><Conditions><ModExists Name=\"Stun\" Not=\"1\" /></Conditions></Transition></Transitions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "transitions = { { frame_shift = 2, conditions = { { not_mod = \"Stun\" } } } }"
+  },
+  {
+    "name": "align points",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Align Axis=\"X|Z\"><Pivot Object=\"Nodes\" Part=\"NHeel_1\" /><Position Object=\"Pivot\" Player=\"Me\" ShiftX=\"-80\" /></Align></Move></Moves><Triggers /></Movesxml>",
+    "lua": "align = { axes = { \"X\", \"Z\" }, pivot = { node = \"NHeel_1\" }, position = { pivot = \"Me\", x = -80 } }"
+  },
+  {
+    "name": "partless points",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Align Axis=\"X\"><Pivot Object=\"Animation\" /><Position Object=\"Animation\" Player=\"Parent\" /></Align></Move></Moves><Triggers /></Movesxml>",
+    "lua": "align = { axes = { \"X\" }, pivot = { animation = true }, position = { animation = \"Parent\" } }"
+  },
+  {
+    "name": "floor and com points",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Conditions><Distance Axis=\"Y\" Max=\"5\"><From Object=\"Floor\" Player=\"Me\" /><To Object=\"COM\" /></Distance></Conditions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "conditions = { { distance = \"Y\", max = 5, from = { floor = true, player = \"Me\" }, to = { com = true } } }"
+  },
+  {
+    "name": "face_enemy",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><SetDirection><From Object=\"Nodes\" Player=\"Me\" Part=\"NPivot\" /><To Object=\"Nodes\" Player=\"Enemy\" Part=\"NPivot\" /></SetDirection></Move></Moves><Triggers /></Movesxml>",
+    "lua": "direction = \"face_enemy\""
+  },
+  {
+    "name": "controlled events",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Events><KeyPressed /><IntervalEnd Name=\"Uninterrupt\" /><AnimationEnd /></Events></Move></Moves><Triggers /></Movesxml>",
+    "lua": "events = \"controlled\""
+  },
+  {
+    "name": "event tables",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Events><Birth /><RoundStageStart Name=\"TryOn\" /><ModExpires Name=\"Stun\" Player=\"Enemy\" /></Events></Move></Moves><Triggers /></Movesxml>",
+    "lua": "events = { \"birth\", { round_stage_start = \"TryOn\" }, { mod_expires = \"Stun\", player = \"Enemy\" } }"
+  },
+  {
+    "name": "interval bounds",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Intervals><Interval Name=\"Uninterrupt\" End=\"40\" /><Interval Type=\"Block\" Start=\"41\" /><Interval Type=\"Invulnerable\" Name=\"Evade\" Start=\"1\" End=\"9\" /></Intervals></Move></Moves><Triggers /></Movesxml>",
+    "lua": "intervals = { { name = \"Uninterrupt\", to = 40 }, { type = \"Block\", from = 41 }, { type = \"Invulnerable\", name = \"Evade\", from = 1, to = 9 } }"
+  },
+  {
+    "name": "damage term map",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Intervals><Interval Type=\"Attack\" Start=\"3\" End=\"4\" ID=\"0\"><AttackingParts><Edge Name=\"EChest\" /></AttackingParts><Damage Value=\"0.2\"><Damage Type=\"WeaponDamage\" /><Damage Type=\"UnarmedDamage\" Shift=\"-10\" /></Damage><Impulse X=\"0\" Y=\"0\" Z=\"0\" /><Hit Name=\"High\" /></Interval></Intervals></Move></Moves><Triggers /></Movesxml>",
+    "lua": "intervals = { { type = \"Attack\", from = 3, to = 4, attack = { edges = { \"EChest\" }, damage = 0.2, damage_terms = { UnarmedDamage = -10, WeaponDamage = 0 } } } }"
+  },
+  {
+    "name": "tactic distance",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Tactics><Conditions><Distance Axis=\"X\" Min=\"200\" Max=\"800\"><From Object=\"Pivot\" Player=\"Me\" /><To Object=\"Nodes\" Player=\"Enemy\" Part=\"NPivot\" /></Distance></Conditions></Tactics></Move></Moves><Triggers /></Movesxml>",
+    "lua": "tactic_distance = { distance = \"X\", min = 200, max = 800, from = { pivot = \"Me\" }, to = { node = \"NPivot\", player = \"Enemy\" } }"
+  },
+  {
+    "name": "timeline order and action kinds",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Actions><Delete Player=\"Me\" Frame=\"2\" /><StopEffect Name=\"Fx\" Frame=\"7\" /><RandomSound Frame=\"7\"><Sound Name=\"a\" /><Sound Name=\"b\" /></RandomSound><RandomSound Event=\"Strike\"><Sound Name=\"snd_hit1\" /></RandomSound><StopSound Name=\"snd_x\" Event=\"Hit\" /><Sound Name=\"snd_y\" Voice=\"Female\" Event=\"Hit\" /><TryOnEnd Event=\"AnimationEnd\" /></Actions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "timeline = { strike = { sound = \"snd_hit1\" }, [7] = { { stop_effect = \"Fx\" }, { sound = { \"a\", \"b\" } } }, [2] = { delete_actor = \"Me\" }, hit = { { stop_sound = \"snd_x\" }, { play_sound = \"snd_y\", voice = \"Female\" } }, animation_end = { try_on_end = true } }"
+  },
+  {
+    "name": "effect action",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Actions><Effect Name=\"Fx\" Sequence=\"mgc_x\" Scale=\"1\" TimeScale=\"1\" Looped=\"0\" Frame=\"3\"><Position Object=\"Nodes\" Player=\"Me\" Part=\"NStomach\" ShiftX=\"3\" Follow=\"1\" /></Effect></Actions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "timeline = { [3] = { effect = { name = \"Fx\", core_sequence = \"mgc_x\", position = { node = \"NStomach\", player = \"Me\", x = 3 }, follow = true } } }"
+  },
+  {
+    "name": "projectile, bullets and shake",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Actions><CreatePlayer Name=\"P\" Frame=\"2\"><Item Type=\"Skeleton\" Name=\"SkeletonMagic\" /><Item Type=\"Weapon\" CopyParentType=\"Magic\" /></CreatePlayer><AddBullets Type=\"MagicBullet\" Value=\"-1\" Frame=\"4\" /><ShakeScreen PauseTime=\"0\" EffectTime=\"5\" AmplitudeX=\"2\" AmplitudeY=\"0\" FrequencyX=\"0\" FrequencyY=\"0\" Frame=\"9\" /></Actions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "timeline = { [2] = { projectile = { name = \"P\", core_skeleton = \"SkeletonMagic\", copy_parent_type = \"Magic\" } }, [4] = { add_bullets = \"MagicBullet\", amount = -1 }, [9] = { shake = { effect_time = 5, amplitude_x = 2 } } }"
+  },
+  {
+    "name": "core play_animation",
+    "xml": "<Movesxml><Templates /><Moves><Move Name=\"fixture.short:moves/m\" FileName=\"fixture.short:animations/clip\"><Actions><PlayAnimation Animation=\"Stance\" Player=\"Child\" ChildName=\"Hand\" Frame=\"5\" /></Actions></Move></Moves><Triggers /></Movesxml>",
+    "lua": "timeline = { [5] = { play_animation = \"Stance\", player = \"Child\", child_name = \"Hand\" } }"
+  }
+]

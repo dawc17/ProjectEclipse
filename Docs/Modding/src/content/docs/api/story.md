@@ -1,6 +1,6 @@
 ---
 title: Story events
-description: React to purchases and completed enchantments with Lua.
+description: React to story events and present resumable dialogue sequences.
 ---
 
 Declare `story.events` in your manifest.
@@ -357,3 +357,55 @@ if sf2.story.fight_pending(request) then
     sf2.log.info("Entry is still waiting for acknowledgement")
 end
 ```
+
+## sf2.story.play_sequence
+
+**Signature:** `sf2.story.play_sequence(definition)`
+
+**Returns:** `boolean`: true when playback is accepted (possibly completed synchronously), false when another story sequence/dialog/act screen in this context is active or the host refuses the first step. Invalid definitions and unavailable hosts raise an error.
+
+**When:** In a story or fight-entry callback after profile binding. Playback cancels on scene entry, native presentation cancellation, profile rebinding or context disposal. Call it again from the appropriate story event to resume.
+
+**Requires:** `story.events` and `ui.create`. A saved `position` additionally requires `state.read`, `state.write` and a registered integer state field with default `1`.
+
+A sequence is a dense array of **1–64 steps**. Each step has exactly one `dialog` or `act_screen` payload. These use the same fields and limits as [story dialogs and act screens](../ui/), but cannot contain their own callbacks. All payloads are validated and copied before the first screen opens. A dialog step advances after its final page is acknowledged; an act-screen step advances when it finishes.
+
+| Field | Meaning |
+| --- | --- |
+| `steps` | Required ordered array of `{ dialog = {...} }` or `{ act_screen = { lines = {...} } }`. |
+| `position` | Optional name of an owned integer state field. Its value must be in `1..#steps+1`. Omit for a transient sequence that starts at step 1 each call. |
+| `on_complete` | Optional Lua function called after the final acknowledgement. |
+| `on_cancel` | Optional Lua function called on cancellation or host refusal. Teardown and profile changes suppress this callback. |
+| `on_step(index)` | Optional Lua function before opening each step, including resumed steps. Return `false` to cancel before showing the step, for example when `sf2.story.fight_pending(request)` is false. Use ordinary Lua here for presentation side effects. It may run again after interruption, so keep those effects safe to repeat. |
+
+The runtime saves the next step **before** opening it. Cancellation leaves the cursor unchanged. Completion leaves it at `#steps+1`; update your pending/completed fields in `on_complete`, and reset the cursor to `1` yourself before replaying. Calling with a completed cursor invokes `on_complete` again without opening UI, allowing completion work to retry after an error. Save writes use the normal mod-state system and do not force an immediate disk flush. Keep step ordering stable or migrate the cursor with your state schema when changing a shipped sequence.
+
+Callbacks use the normal bounded Lua execution budget. A failed callback stops playback and is reported; later event-driven calls can retry. Duplicate and stale native callbacks cannot advance a newer sequence or another profile. Cancellation callbacks run during cleanup and cannot open UI, navigate, or resume fights. Completion callbacks can start another sequence, with recursive completion limited to eight levels.
+
+```lua
+local next_card = "intro_next"
+sf2.state.register {
+    version = 1,
+    fields = {
+        intro_next = { type = sf2.state.INTEGER, default = 1 },
+        intro_done = { type = sf2.state.BOOLEAN, default = false },
+    },
+}
+-- Resolve these localization handles while registering your content.
+local welcome = sf2.localization.key("welcome")
+local ok = sf2.localization.key("ok")
+
+sf2.story.on("scene_enter", function(event)
+    if event.scene ~= "map" or sf2.state.get("intro_done") then return end
+    sf2.story.play_sequence {
+        position = next_card,
+        steps = {
+            { act_screen = { lines = { { text = welcome, frames = 180 } } } },
+            { dialog = { lines = { { text = welcome } }, button = ok } },
+        },
+        on_complete = function() sf2.state.set { intro_done = true } end,
+    }
+end)
+```
+
+Keep branching, fight resumption, rewards and pending-story selection in Lua callbacks. The sequence API only presents the declared steps and tracks acknowledgement.

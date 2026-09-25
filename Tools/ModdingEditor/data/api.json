@@ -1073,6 +1073,20 @@
       "requires": "`story.progression` and an original request from this context.",
       "when": "Before continuing asynchronous presentation. Scene/profile changes and script unload make it false. Foreign, copied or fabricated request tables raise an error."
     },
+    "sf2.story.play_sequence": {
+      "params": {
+        "definition": "Eclipse.StorySequenceDefinition"
+      },
+      "returns": "`boolean`: true when playback is accepted (possibly completed synchronously), false when another story sequence/dialog/act screen in this context is active or the host refuses the first step. Invalid definitions and unavailable hosts raise an error.",
+      "capability": [
+        "story.events",
+        "ui.create"
+      ],
+      "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyplay_sequence",
+      "summary": "",
+      "requires": "`story.events` and `ui.create`. A saved `position` additionally requires `state.read`, `state.write` and a registered integer state field with default `1`.",
+      "when": "In a story or fight-entry callback after profile binding. Playback cancels on scene entry, native presentation cancellation, profile rebinding or context disposal. Call it again from the appropriate story event to resume."
+    },
     "sf2.story.on": {
       "params": {
         "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"item_acquired\"|\"battle_result\"",
@@ -1672,8 +1686,6 @@
     "sf2.moves.BIRTH": "birth",
     "sf2.moves.ROUND_STAGE_START": "round_stage_start",
     "sf2.moves.MOD_EXPIRES": "mod_expires",
-    "sf2.moves.CURRENT_ANIMATION": "current_animation",
-    "sf2.moves.CURRENT_INTERVAL": "current_interval",
     "sf2.moves.ITEM": "item",
     "sf2.moves.PERK": "perk",
     "sf2.moves.ALL": "all",
@@ -3390,6 +3402,36 @@
         "fight": "string"
       }
     },
+    "SequenceDialog": {
+      "fields": {
+        "portrait?": "Eclipse.SpriteHandle",
+        "lines": "Eclipse.StoryDialogLine[]",
+        "button": "Eclipse.LocalizationHandle",
+        "title?": "Eclipse.LocalizationHandle",
+        "mirrored?": "boolean",
+        "ignore_back?": "boolean"
+      }
+    },
+    "SequenceActScreen": {
+      "fields": {
+        "lines": "Eclipse.ActScreenLine[]"
+      }
+    },
+    "StorySequenceStep": {
+      "fields": {
+        "dialog?": "Eclipse.SequenceDialog",
+        "act_screen?": "Eclipse.SequenceActScreen"
+      }
+    },
+    "StorySequenceDefinition": {
+      "fields": {
+        "steps": "Eclipse.StorySequenceStep[]",
+        "position?": "string",
+        "on_complete?": "fun()",
+        "on_cancel?": "fun()",
+        "on_step?": "fun(index:integer):boolean|nil"
+      }
+    },
     "LocationImage": {
       "fields": {
         "sprite": "Eclipse.SpriteHandle",
@@ -3442,49 +3484,70 @@
         "layers": "Eclipse.LocationLayer[]"
       }
     },
-    "MoveEvent": {
+    "MoveShortPoint": {
       "fields": {
-        "type": "\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"",
+        "node?": "string",
+        "wall?": "\"Front\"|\"Back\"",
+        "pivot?": "string|true",
+        "animation?": "string|true",
+        "floor?": "string|true",
+        "com?": "string|true",
+        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
+        "x?": "number",
+        "y?": "number"
+      }
+    },
+    "MoveShortKey": {
+      "fields": {
+        "[1]": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"",
+        "press?": "\"Tap\"|\"Hold\"|\"Release\""
+      }
+    },
+    "MoveShortCondition": {
+      "fields": {
+        "key?": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"",
+        "keys?": "(\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"|Eclipse.MoveShortKey)[]",
+        "mod?": "string",
+        "interval?": "string",
+        "animation?": "string",
+        "stage?": "\"StartStance\"|\"Fight\"|\"EndStance\"|\"TryOn\"",
+        "round_result?": "\"Victory\"|\"Defeat\"",
+        "screen?": "\"ShopArmor\"|\"ShopWeapon\"|\"ShopHelm\"|\"ShopMissile\"|\"ShopMagic\"|\"ShopRuby\"|\"ShopFree\"|\"ShopRaidItemPack\"|\"Profile\"|\"Fight\"",
+        "actor?": "string",
+        "character?": "Eclipse.WarriorHandle",
+        "perk?": "Eclipse.PerkHandle",
+        "item?": "\"Weapon\"|\"Ranged\"|\"Magic\"|\"Armor\"|\"Helm\"|\"Skeleton\"",
+        "bullets?": "\"MagicBullet\"|\"RaidChargeBullet\"",
+        "distance?": "\"X\"|\"Y\"|\"Full\"",
+        "direction?": "\"Me\"|\"Enemy\"",
+        "all?": "table[]",
+        "any?": "table[]",
+        "not_key?": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"",
+        "not_keys?": "(\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"|Eclipse.MoveShortKey)[]",
+        "not_mod?": "string",
+        "not_interval?": "string",
+        "not_animation?": "string",
+        "not_stage?": "\"StartStance\"|\"Fight\"|\"EndStance\"|\"TryOn\"",
+        "not_round_result?": "\"Victory\"|\"Defeat\"",
+        "not_screen?": "\"ShopArmor\"|\"ShopWeapon\"|\"ShopHelm\"|\"ShopMissile\"|\"ShopMagic\"|\"ShopRuby\"|\"ShopFree\"|\"ShopRaidItemPack\"|\"Profile\"|\"Fight\"",
+        "not_actor?": "string",
+        "not_character?": "Eclipse.WarriorHandle",
+        "not_perk?": "Eclipse.PerkHandle",
+        "not_item?": "\"Weapon\"|\"Ranged\"|\"Magic\"|\"Armor\"|\"Helm\"|\"Skeleton\"",
+        "not_bullets?": "\"MagicBullet\"|\"RaidChargeBullet\"",
+        "not_distance?": "\"X\"|\"Y\"|\"Full\"",
+        "not_direction?": "\"Me\"|\"Enemy\"",
+        "not_all?": "table[]",
+        "not_any?": "table[]",
+        "controllable?": "true",
+        "press?": "\"Tap\"|\"Hold\"|\"Release\"",
+        "subtype?": "string",
         "name?": "string",
-        "player?": "string"
-      }
-    },
-    "MoveDistanceCondition": {
-      "fields": {
-        "type": "\"distance\"",
-        "axis": "\"X\"|\"Y\"|\"Full\"",
-        "from": "Eclipse.MovePoint",
-        "to": "Eclipse.MovePoint",
-        "minimum?": "number",
-        "maximum?": "number",
-        "not?": "boolean"
-      }
-    },
-    "MoveDirectionCondition": {
-      "fields": {
-        "type": "\"direction\"",
-        "player": "\"Me\"|\"Enemy\"",
-        "from": "Eclipse.MovePoint",
-        "to": "Eclipse.MovePoint",
-        "not?": "boolean"
-      }
-    },
-    "MoveActorCondition": {
-      "fields": {
-        "type": "\"actor_name\"",
-        "name": "string",
         "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"|\"Both\"",
-        "not?": "boolean"
-      }
-    },
-    "MoveBulletsCondition": {
-      "fields": {
-        "type": "\"bullets\"",
-        "bullet_type": "\"MagicBullet\"|\"RaidChargeBullet\"",
-        "minimum?": "integer",
-        "maximum?": "integer",
-        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"|\"Both\"",
-        "not?": "boolean"
+        "min?": "number",
+        "max?": "number",
+        "from?": "Eclipse.MoveShortPoint",
+        "to?": "Eclipse.MoveShortPoint"
       }
     },
     "MoveVelocity": {
@@ -3498,87 +3561,12 @@
         "save_velocity?": "boolean"
       }
     },
-    "MovePerkCondition": {
+    "MoveDamageTermMap": {
       "fields": {
-        "type": "\"perk\"",
-        "perk": "Eclipse.PerkHandle",
-        "player?": "string",
-        "not?": "boolean"
-      }
-    },
-    "MoveNamedCondition": {
-      "fields": {
-        "type": "\"current_animation\"|\"current_interval\"|\"item\"",
-        "name?": "string",
-        "player?": "string",
-        "item_type?": "string",
-        "item_subtype?": "string",
-        "not?": "boolean"
-      }
-    },
-    "MoveConditionGroup": {
-      "fields": {
-        "type": "\"all\"|\"any\"",
-        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
-        "not?": "boolean"
-      }
-    },
-    "MoveCharacterCondition": {
-      "fields": {
-        "type": "\"character\"",
-        "warrior": "Eclipse.WarriorHandle",
-        "not?": "boolean"
-      }
-    },
-    "MoveKey": {
-      "fields": {
-        "key": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"",
-        "press?": "\"Tap\"|\"Hold\"|\"Release\""
-      }
-    },
-    "MoveKeysCondition": {
-      "fields": {
-        "type": "\"keys\"",
-        "keys": "Eclipse.MoveKey[]",
-        "not?": "boolean"
-      }
-    },
-    "MoveStageCondition": {
-      "fields": {
-        "type": "\"round_stage\"",
-        "name": "\"StartStance\"|\"Fight\"|\"EndStance\"|\"TryOn\"",
-        "player?": "\"Me\"|\"Enemy\"|\"Both\"",
-        "not?": "boolean"
-      }
-    },
-    "MoveRoundResultCondition": {
-      "fields": {
-        "type": "\"round_result\"",
-        "name": "\"Victory\"|\"Defeat\"",
-        "player?": "\"Me\"|\"Enemy\"|\"Both\"",
-        "not?": "boolean"
-      }
-    },
-    "MoveScreenCondition": {
-      "fields": {
-        "type": "\"screen\"",
-        "name": "\"ShopArmor\"|\"ShopWeapon\"|\"ShopHelm\"|\"ShopMissile\"|\"ShopMagic\"|\"ShopRuby\"|\"ShopFree\"|\"ShopRaidItemPack\"|\"Profile\"|\"Fight\"",
-        "player?": "\"Me\"|\"Enemy\"|\"Both\"",
-        "not?": "boolean"
-      }
-    },
-    "MoveModCondition": {
-      "fields": {
-        "type": "\"mod_exists\"",
-        "name": "string",
-        "player?": "\"Me\"|\"Enemy\"|\"Both\"",
-        "not?": "boolean"
-      }
-    },
-    "MoveDamageTerm": {
-      "fields": {
-        "type": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
-        "shift?": "number"
+        "WeaponDamage?": "number",
+        "RangedDamage?": "number",
+        "MagicDamage?": "number",
+        "UnarmedDamage?": "number"
       }
     },
     "MoveImpulse": {
@@ -3606,7 +3594,7 @@
         "hit_move?": "Eclipse.MoveHandle",
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
-        "damage_terms?": "Eclipse.MoveDamageTerm[]",
+        "damage_terms?": "Eclipse.MoveDamageTermMap",
         "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"|\"WaspFly\"|\"Earthquake\"|\"ElectrocutionPowerfield\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse",
@@ -3617,25 +3605,16 @@
       "fields": {
         "type?": "string",
         "name?": "string",
-        "start?": "integer",
-        "end?": "integer",
+        "from?": "integer",
+        "to?": "integer",
         "attack?": "Eclipse.MoveAttack"
-      }
-    },
-    "MovePoint": {
-      "fields": {
-        "object": "\"Nodes\"|\"Pivot\"|\"Wall\"|\"Animation\"|\"Floor\"|\"COM\"",
-        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
-        "part?": "string",
-        "shift_x?": "number",
-        "shift_y?": "number"
       }
     },
     "MoveAlignment": {
       "fields": {
         "axes": "(\"X\"|\"Y\"|\"Z\")[]",
-        "pivot": "Eclipse.MovePoint",
-        "position": "Eclipse.MovePoint",
+        "pivot": "Eclipse.MoveShortPoint",
+        "position": "Eclipse.MoveShortPoint",
         "shift_model_node?": "string"
       }
     },
@@ -3646,16 +3625,32 @@
     },
     "MoveDirection": {
       "fields": {
-        "from?": "Eclipse.MovePoint",
-        "to?": "Eclipse.MovePoint",
+        "from?": "Eclipse.MoveShortPoint",
+        "to?": "Eclipse.MoveShortPoint",
         "impulse?": "Eclipse.MoveImpulseDirection"
       }
     },
     "MoveTransition": {
       "fields": {
-        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "conditions": "(Eclipse.MoveShortCondition|table[])[]",
         "frame_shift?": "integer",
         "first_frame?": "integer"
+      }
+    },
+    "MoveShortEvent": {
+      "fields": {
+        "interval_end?": "string",
+        "interval_start?": "string",
+        "round_stage_start?": "string",
+        "mod_expires?": "string",
+        "animation_start?": "string",
+        "animation_end?": "string",
+        "hit?": "string",
+        "strike?": "string",
+        "every_frame?": "string",
+        "birth?": "string",
+        "key_pressed?": "string",
+        "player?": "string"
       }
     },
     "MoveEffectAttachment": {
@@ -3676,7 +3671,7 @@
         "time_scale?": "number",
         "looped?": "boolean",
         "on_background?": "boolean",
-        "position?": "Eclipse.MovePoint",
+        "position?": "Eclipse.MoveShortPoint",
         "follow?": "boolean",
         "attach?": "Eclipse.MoveEffectAttachment"
       }
@@ -3691,18 +3686,6 @@
         "start_move?": "Eclipse.MoveHandle"
       }
     },
-    "MoveBulletChange": {
-      "fields": {
-        "type": "\"MagicBullet\"|\"RaidChargeBullet\"",
-        "value": "integer"
-      }
-    },
-    "MoveSound": {
-      "fields": {
-        "core_sound": "string",
-        "voice?": "\"Male\"|\"MaleLow\"|\"Female\""
-      }
-    },
     "MoveShake": {
       "fields": {
         "pause_time?": "integer",
@@ -3713,25 +3696,6 @@
         "frequency_y?": "number"
       }
     },
-    "MoveScheduledAction": {
-      "fields": {
-        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"|\"sound\"|\"stop_sound\"|\"shake_screen\"|\"play_animation\"",
-        "frame?": "integer",
-        "event?": "\"RoundStage\"|\"KeyPressed\"|\"KeyReleased\"|\"RoundStart\"|\"RoundEnd\"|\"Hit\"|\"Strike\"|\"WallHit\"|\"AnimationStart\"|\"AnimationEnd\"|\"IntervalStart\"|\"IntervalEnd\"|\"EveryFrame\"|\"Birth\"|\"ModExpires\"",
-        "core_sounds?": "string[]",
-        "core_sound?": "string",
-        "sound?": "Eclipse.MoveSound",
-        "shake?": "Eclipse.MoveShake",
-        "effect?": "Eclipse.MoveEffect",
-        "effect_name?": "string",
-        "projectile?": "Eclipse.MoveProjectile",
-        "bullets?": "Eclipse.MoveBulletChange",
-        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
-        "move?": "Eclipse.MoveHandle",
-        "core_animation?": "string",
-        "child_name?": "string"
-      }
-    },
     "MoveProfile": {
       "fields": {
         "rank": "integer",
@@ -3739,13 +3703,53 @@
         "display_name?": "Eclipse.LocalizationHandle"
       }
     },
-    "MoveTacticDistance": {
+    "MoveShortTacticDistance": {
       "fields": {
-        "axis": "\"X\"|\"Y\"|\"Full\"",
-        "minimum?": "number",
-        "maximum?": "number",
-        "from": "Eclipse.MovePoint",
-        "to": "Eclipse.MovePoint"
+        "distance": "\"X\"|\"Y\"|\"Full\"",
+        "min?": "number",
+        "max?": "number",
+        "from": "Eclipse.MoveShortPoint",
+        "to": "Eclipse.MoveShortPoint"
+      }
+    },
+    "MoveShortAction": {
+      "fields": {
+        "sound?": "string|string[]",
+        "stop_sound?": "string",
+        "play_sound?": "string",
+        "voice?": "\"Male\"|\"MaleLow\"|\"Female\"",
+        "effect?": "Eclipse.MoveEffect",
+        "stop_effect?": "string",
+        "stop_follow_effect?": "string",
+        "projectile?": "Eclipse.MoveProjectile",
+        "add_bullets?": "\"MagicBullet\"|\"RaidChargeBullet\"",
+        "amount?": "integer",
+        "delete_actor?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
+        "play_animation?": "Eclipse.MoveHandle|string",
+        "player?": "\"Me\"|\"Enemy\"|\"Parent\"|\"Child\"|\"EnemyChild\"",
+        "child_name?": "string",
+        "shake?": "Eclipse.MoveShake",
+        "try_on_end?": "true"
+      }
+    },
+    "MoveTimeline": {
+      "fields": {
+        "[integer]": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "birth?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "round_stage?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "round_start?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "key_pressed?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "key_released?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "animation_start?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "interval_start?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "every_frame?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "strike?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "hit?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "wall_hit?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "interval_end?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "animation_end?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "mod_expires?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]",
+        "round_end?": "Eclipse.MoveShortAction|Eclipse.MoveShortAction[]"
       }
     },
     "MoveTemplateDefinition": {
@@ -3753,12 +3757,12 @@
         "id": "string",
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
-        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "events?": "\"controlled\"|(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveShortEvent)[]",
+        "conditions?": "(Eclipse.MoveShortCondition|table[])[]",
         "intervals?": "Eclipse.MoveInterval[]",
-        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "locks?": "(Eclipse.MoveShortCondition|table[])[]",
         "align?": "Eclipse.MoveAlignment",
-        "direction?": "Eclipse.MoveDirection",
+        "direction?": "Eclipse.MoveDirection|\"face_enemy\"",
         "type?": "string",
         "mirror_node?": "string",
         "tactic_equivalent?": "string",
@@ -3776,12 +3780,12 @@
         "id": "string",
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
-        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "events?": "\"controlled\"|(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveShortEvent)[]",
+        "conditions?": "(Eclipse.MoveShortCondition|table[])[]",
         "intervals?": "Eclipse.MoveInterval[]",
-        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "locks?": "(Eclipse.MoveShortCondition|table[])[]",
         "align?": "Eclipse.MoveAlignment",
-        "direction?": "Eclipse.MoveDirection",
+        "direction?": "Eclipse.MoveDirection|\"face_enemy\"",
         "type?": "string",
         "mirror_node?": "string",
         "tactic_equivalent?": "string",
@@ -3792,12 +3796,12 @@
         "end_frame?": "integer",
         "looped?": "boolean",
         "ends_stage?": "boolean",
-        "animation": "Eclipse.BinaryHandle",
+        "animation": "Eclipse.BinaryHandle|string",
         "transitions?": "Eclipse.MoveTransition[]",
-        "actions?": "Eclipse.MoveScheduledAction[]",
+        "timeline?": "Eclipse.MoveTimeline",
         "profile?": "Eclipse.MoveProfile",
-        "tactic_distance?": "Eclipse.MoveTacticDistance",
-        "tactic_conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "tactic_distance?": "Eclipse.MoveShortTacticDistance",
+        "tactic_conditions?": "(Eclipse.MoveShortCondition|table[])[]",
         "no_wall_repulsion?": "boolean",
         "no_interpolation_frames?": "boolean",
         "no_magic_recharge?": "boolean",
@@ -3808,12 +3812,12 @@
       "fields": {
         "id": "string",
         "core_templates?": "string[]",
-        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "events?": "\"controlled\"|(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveShortEvent)[]",
+        "conditions?": "(Eclipse.MoveShortCondition|table[])[]",
         "intervals?": "Eclipse.MoveInterval[]",
-        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "locks?": "(Eclipse.MoveShortCondition|table[])[]",
         "align?": "Eclipse.MoveAlignment",
-        "direction?": "Eclipse.MoveDirection",
+        "direction?": "Eclipse.MoveDirection|\"face_enemy\"",
         "type?": "string",
         "mirror_node?": "string",
         "tactic_equivalent?": "string",
@@ -3824,12 +3828,12 @@
         "end_frame?": "integer",
         "looped?": "boolean",
         "ends_stage?": "boolean",
-        "animation": "Eclipse.BinaryHandle",
+        "animation": "Eclipse.BinaryHandle|string",
         "transitions?": "Eclipse.MoveTransition[]",
-        "actions?": "Eclipse.MoveScheduledAction[]",
+        "timeline?": "Eclipse.MoveTimeline",
         "profile?": "Eclipse.MoveProfile",
-        "tactic_distance?": "Eclipse.MoveTacticDistance",
-        "tactic_conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "tactic_distance?": "Eclipse.MoveShortTacticDistance",
+        "tactic_conditions?": "(Eclipse.MoveShortCondition|table[])[]",
         "no_wall_repulsion?": "boolean",
         "no_interpolation_frames?": "boolean",
         "no_magic_recharge?": "boolean",
@@ -3903,7 +3907,7 @@
       "fields": {
         "move": "string",
         "disable?": "boolean",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "conditions?": "(Eclipse.MoveShortCondition|table[])[]",
         "interval_start?": "Eclipse.MoveIntervalStartPatch",
         "interval_end?": "Eclipse.MoveIntervalEndPatch",
         "hit?": "Eclipse.MoveHitPatch",
@@ -3937,8 +3941,8 @@
     "TriggerDefinition": {
       "fields": {
         "id": "string",
-        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "events?": "\"controlled\"|(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveShortEvent)[]",
+        "conditions?": "(Eclipse.MoveShortCondition|table[])[]",
         "actions?": "(Eclipse.SoundAction|Eclipse.HitEffectAction)[]"
       }
     },

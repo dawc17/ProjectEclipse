@@ -118,6 +118,15 @@ internal static class MoveCombatPatchTests
         Check(inputMove.SelectionConditions.SequenceEqual(new[] { inserted, originalInput }),
             "Input rollback damaged a later sibling insertion.");
         inputMove.SelectionConditions.Remove(inserted);
+        var rebuiltPriorities = new List<int>();
+        using (MoveCombatPatchRuntime.Apply(new[] { inputMove }, new[] { inputPatch },
+            condition => new ConditionKeys(condition.Keys.Single().Key), () => rebuiltPriorities.Add(inputMove.Priority)))
+            Check(rebuiltPriorities.SequenceEqual(new[] { 200 }), "Priority conflicts were not rebuilt after input/priority apply.");
+        Check(rebuiltPriorities.SequenceEqual(new[] { 200, 1000 }), "Priority conflicts were not rebuilt after input/priority rollback.");
+        int unrelatedRebuilds = 0;
+        using (MoveCombatPatchRuntime.Apply(new[] { Move() }, new[] { Patch() },
+            condition => new ConditionAnimation(), () => unrelatedRebuilds++)) { }
+        Check(unrelatedRebuilds == 0, "Priority conflicts were rebuilt for a patch without input or priority.");
         Reject(new[] { inputMove }, new[] { new MoveCombatPatch(Owner, "Input",
             input: new ModMoveInputPatch("Magic", "RaidCharge")) }, "Wrong expected input accepted.");
         Reject(new[] { inputMove }, new[] { new MoveCombatPatch(Owner, "Input",

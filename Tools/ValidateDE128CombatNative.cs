@@ -182,7 +182,7 @@ public static class ValidateDE128CombatNative
             if (!requested && frame >= 120)
             {
                 var move = AnimationData.Animations.Single(value => value.Name == Move);
-                var keys = new KeyData(move.MOPMGFIIFGA().Single().FONEJOKEIEN);
+                var keys = new KeyData(move.MOPMGFIIFGA().Single().RequiredKeys);
                 // KeyData at the controller boundary uses screen directions;
                 // the move's Forward condition is relative to the fighter.
                 keys.Reverse(actor.KFCNPADAMHA());
@@ -219,7 +219,7 @@ public static class ValidateDE128CombatNative
             actor.JJDNDOLCMMN = 1;
             actor.AddEventListener(6, OnSphereCreated);
             var cast = AnimationData.Animations.Single(value => value.Name == SpellMove);
-            var keys = new KeyData(cast.MOPMGFIIFGA().Single().FONEJOKEIEN);
+            var keys = new KeyData(cast.MOPMGFIIFGA().Single().RequiredKeys);
             keys.Reverse(actor.KFCNPADAMHA());
             spellRequested = true; spellFrame = frame; actor.PlayAnimation(keys);
             Debug.Log("[DE128Native] Requested " + Spell + " through native Magic input at " + frame);

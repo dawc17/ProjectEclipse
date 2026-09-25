@@ -4,7 +4,7 @@ $reactionLua=@'
 local animation=sf2.assets.binary("animations/chinese")
 local direction={impulse={reverse=true}}
 local victim=sf2.moves.register {id="victim",animation=animation,
- events={{type="hit",name="fixture.moves:moves/victim"}},direction=direction}
+ events={{ hit = "fixture.moves:moves/victim" }},direction=direction}
 local other=sf2.moves.register {id="other",animation=animation}
 local attack={edges={"Edge"},damage=0.3,hit_move=victim}
 sf2.moves.register {id="attack",animation=animation,intervals={{type="Attack",attack=attack}}}
@@ -34,7 +34,7 @@ Check ((Fingerprint (Load-Lua $reactionLua.Replace('reverse=true',''))) -ceq (Fi
 foreach($bad in @($reactionLua.Replace('hit_move=victim','hit_move="fixture.moves:moves/victim"'),
  $reactionLua.Replace('hit_move=victim','hit_move=animation'),$reactionLua.Replace('hit_move=victim','hit_move=victim,hit="High"'),
  $reactionLua.Replace('impulse={reverse=true}','impulse=true'),$reactionLua.Replace('reverse=true','reverse=1'),
- $reactionLua.Replace('reverse=true','reverse=true,extra=1'),$reactionLua.Replace('impulse={reverse=true}','impulse={},from={object="Pivot",player="Me"}'))) {
+ $reactionLua.Replace('reverse=true','reverse=true,extra=1'),$reactionLua.Replace('impulse={reverse=true}','impulse={},from={pivot="Me"}'))) {
  $failure=$null;try {$null=Load-Lua $bad}catch{$failure=$_}
  Check ($null -ne $failure) 'Malformed/ambiguous reaction or direction accepted.'
 }

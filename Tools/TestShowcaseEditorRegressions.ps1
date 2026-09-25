@@ -64,11 +64,11 @@ public sealed class Model {
 }
 public sealed class InfoAnimation {
     public sealed class Inside { public Inside ILOEBFFAEAN => this; public int OLBDPMKCJIF; public object NIDNJFOGBFO; }
-    public sealed class CapabilityTable { public List<InfoAnimation> NINJLLDJLFI = new List<InfoAnimation>(); }
+    public sealed class CapabilityTable { public List<InfoAnimation> HigherPriorityMoves = new List<InfoAnimation>(); }
     public ConditionKeys Keys;
     public bool Allowed = true;
     public Inside MoveData = new Inside();
-    public CapabilityTable ICANLHJKKNE = new CapabilityTable();
+    public CapabilityTable PriorityConflicts = new CapabilityTable();
     public ConditionKeys ILBCHANCOBP() => Keys;
     public int FOLOOGCLPNE() => 0;
     public int CEDEDCLGJDE(ModelConditions c, int direction) => 0;
@@ -120,7 +120,7 @@ public static class Program {
         ai._Model.Moves.Add(opening); ai._Model.Moves.Add(keyed);
         Check(!ai.Normal(opening) && !ai.Tactical(opening), "Event-only move entered the keyboard AI path.");
         Check(ai.Normal(keyed) && ai.Tactical(keyed), "Ordinary keyed movement was disabled.");
-        keyed.ICANLHJKKNE.NINJLLDJLFI.Add(opening);
+        keyed.PriorityConflicts.HigherPriorityMoves.Add(opening);
         Check(ai.Normal(keyed), "Event-only override suppressed ordinary keyed movement.");
         keyed.Allowed = false;
         Check(!ai.Normal(keyed) && !ai.Tactical(keyed), "Existing animation eligibility was bypassed.");

@@ -1,64 +1,56 @@
 local sf2 = require("sf2")
--- Complete archived Sphere1 graph, authored with typed Lua definitions.
-local animation = {
-    player = sf2.assets.binary("animations/fireball_player"),
-    start = sf2.assets.binary("animations/fireball_start"),
-    middle = sf2.assets.binary("animations/fireball_middle"),
-}
+-- Complete archived Sphere1 graph: the player cast, the flying sphere (start,
+-- middle and wall hit) and the shop preview and try-on moves.
 local family = sf2.moves.register_template { id = "sphere1" }
 local moves = {}
-local function name(id) return "de128:moves/" .. id end
-local function point(object, part, player, x, y)
-    return { object = object, part = part, player = player, shift_x = x, shift_y = y }
-end
+
+local HITS = { "snd_hit1", "snd_hit2", "snd_hit3", "snd_hit4", "snd_hit5", "snd_hit6" }
+local SPHERE = { actor = "Sphere1" }
+local SPHERE_NODE = { node = "Magic-Node2_1", player = "Me" }
+
+-- Equipment the fighter (player) or the spawned sphere actor must carry.
 local function locks(player, shop)
     local result = {
-        { type = "item", item_type = player and "Magic" or "Weapon", item_subtype = "Sphere1" },
-        { type = "item", item_type = "Skeleton", item_subtype = player and "Skeleton" or "SkeletonMagic" },
+        { item = player and "Magic" or "Weapon", subtype = "Sphere1" },
+        { item = "Skeleton", subtype = player and "Skeleton" or "SkeletonMagic" },
     }
-    if shop then table.insert(result, 1, { type = "screen", name = "ShopMagic" }) end
+    if shop then table.insert(result, 1, { screen = "ShopMagic" }) end
     return result
 end
-local function actor() return { type = "actor_name", name = "Sphere1" } end
-local function current(value, player, negate)
-    return { type = "current_animation", name = value, player = player, ["not"] = negate }
-end
-local function sound(when, ...)
-    return { type = "random_sound", frame = type(when) == "number" and when or nil,
-        event = type(when) == "string" and when or nil, core_sounds = { ... } }
-end
-local function effect(stage, when, x, y, follow, scale, time_scale, looped)
-    return { type = "effect", frame = type(when) == "number" and when or nil,
-        event = type(when) == "string" and when or nil, effect = {
-            name = "SmallSphere" .. stage, core_sequence = "mgc_magic_small_sphere_" .. string.lower(stage),
-            scale = scale, time_scale = time_scale, looped = looped,
-            position = point("Nodes", "Magic-Node2_1", "Me", x, y), follow = follow,
-        } }
-end
-local function spawn(start_move)
-    return { type = "create_projectile", frame = 2, projectile = {
-        name = "Sphere1", core_skeleton = "SkeletonMagic", copy_parent_type = "Magic", start_move = start_move,
+
+-- SmallSphereStart / Middle / End effects on the sphere's node.
+local function sphere_effect(stage, x, y, options)
+    options = options or {}
+    return { effect = {
+        name = "SmallSphere" .. stage, core_sequence = "mgc_magic_small_sphere_" .. string.lower(stage),
+        scale = options.scale or 0.75, time_scale = options.time_scale or 1, looped = options.looped,
+        position = { node = "Magic-Node2_1", player = "Me", x = x, y = y }, follow = options.follow ~= false,
     } }
 end
-local function facing()
-    return { from = point("Nodes", "NPivot", "Me"), to = point("Nodes", "NPivot", "Enemy") }
+
+local function spawn(start_move)
+    return { projectile = { name = "Sphere1", core_skeleton = "SkeletonMagic", copy_parent_type = "Magic", start_move = start_move } }
 end
-local function attack(start, shroud)
+
+local function attack(from, shroud)
     local ignores = { "Evade", "Recovery", "Dash" }
     if shroud then table.insert(ignores, "ShroudInterval") end
-    return { type = "Attack", start = start, attack = {
+    return { type = "Attack", from = from, attack = {
         edges = { "Fireball-Edge1" }, damage = 0.45,
-        damage_terms = { { type = "MagicDamage" }, { type = "UnarmedDamage", shift = -25 } },
+        damage_terms = { MagicDamage = 0, UnarmedDamage = -25 },
         impulse = { x = 500 }, hit = "High",
         options = { no_effect = true, no_critical = true, body_part = "Body",
             defense_types = { "BodyDefense" }, ignores_block = true, ignores_invulnerable = ignores },
     } }
 end
-local function strike_actions()
-    return { sound("Strike", "snd_smallsphere_end"),
-        { type = "delete_actor", player = "Me", event = "Strike" },
-        effect("End", "Strike", 100, 80, false, 1.5, 1, false) }
-end
+
+-- The sphere bursts and removes itself when it strikes.
+local STRIKE = {
+    { sound = "snd_smallsphere_end" },
+    { delete_actor = "Me" },
+    sphere_effect("End", 100, 80, { scale = 1.5, follow = false }),
+}
+
 local function register(id, definition)
     definition.id = id
     moves[id] = sf2.moves.register(definition)
@@ -66,86 +58,127 @@ local function register(id, definition)
 end
 
 register("sphere1_player", {
-    animation = animation.player, core_templates = { "1key", "MagicPlayer", "Controlled", "SoundStrike" },
+    animation = "animations/fireball_player",
+    core_templates = { "1key", "MagicPlayer", "Controlled", "SoundStrike" },
     type = "ATTACK", mid_frames = 2, first_frame = 2, priority = 110, tactic_weapon = "Sphere1", mirror_node = "NHeel_1",
-    tactic_distance = { axis = "X", minimum = 400, from = point("Pivot", nil, "Me"), to = point("Nodes", "NPivot", "Enemy") },
-    align = { axes = { "X", "Z" }, pivot = point("Nodes", "NHeel_2"), position = point("Pivot", nil, "Me") },
+    events = "controlled", direction = "face_enemy",
+    align = { axes = { "X", "Z" }, pivot = { node = "NHeel_2" }, position = { pivot = "Me" } },
+    tactic_distance = { distance = "X", min = 400, from = { pivot = "Me" }, to = { node = "NPivot", player = "Enemy" } },
     conditions = {
-        { type = "keys", keys = { { key = "Magic" } } },
-        { type = "bullets", bullet_type = "MagicBullet", minimum = 1 },
-        { type = "current_interval", name = "SemiUninterrupt", ["not"] = true },
-        { type = "mod_exists", name = "Concussion", ["not"] = true },
-        { type = "current_interval", name = "Uninterrupt", ["not"] = true },
-        { type = "round_stage", name = "Fight" },
-        { type = "all", ["not"] = true, conditions = {
-            current("$Move"), { type = "current_interval", name = "SemiUninterrupt" },
-        } }, current("Physical", nil, true),
-    }, locks = locks(true), intervals = { { name = "Uninterrupt", ["end"] = 31 } },
-    actions = { spawn(), { type = "add_bullets", frame = 7, bullets = { type = "MagicBullet", value = -1 } },
-        sound("Strike", "snd_hit1", "snd_hit2", "snd_hit3", "snd_hit4", "snd_hit5", "snd_hit6") },
-    events = { "key_pressed", { type = "interval_end", name = "Uninterrupt" }, "animation_end" }, direction = facing(),
+        { key = "Magic" },
+        { bullets = "MagicBullet", min = 1 },
+        { not_mod = "Concussion" },
+        { controllable = true },
+    },
+    locks = locks(true),
+    intervals = { { name = "Uninterrupt", to = 31 } },
+    timeline = {
+        [2] = spawn(),
+        [7] = { add_bullets = "MagicBullet", amount = -1 },
+        strike = { sound = HITS },
+    },
 })
-local start_actions = { sound(2, "snd_smallsphere_start"), effect("Start", 2, 0, 80, true, 0.75, 1.45, false),
-    sound("AnimationEnd", "snd_smallsphere_middle"), effect("Middle", "AnimationEnd", -70, 55, true, 0.75, 1, true),
-    sound(2, "snd_magic_fireball_start") }
-for _, action in ipairs(strike_actions()) do table.insert(start_actions, action) end
+
 register("sphere1_start", {
-    animation = animation.start, templates = { family },
+    animation = "animations/fireball_start", templates = { family },
     core_templates = { "MagicMissileStart", "MagicMissile", "MissileStart", "MagicMissileFly" },
     mid_frames = 2, first_frame = 2, priority = 500, no_wall_repulsion = true, no_interpolation_frames = true, no_magic_recharge = true,
-    direction = { from = point("Wall", "Back", "Parent"), to = point("Wall", "Front", "Parent") },
-    align = { axes = { "X", "Y", "Z" }, pivot = point("Animation"), position = point("Animation", nil, "Parent", nil, 45) },
-    events = { "birth" }, intervals = { attack(13, true) }, actions = start_actions,
-    conditions = { current("StanceShop", "Parent", true), actor() }, locks = locks(false),
+    events = { "birth" },
+    direction = { from = { wall = "Back", player = "Parent" }, to = { wall = "Front", player = "Parent" } },
+    align = { axes = { "X", "Y", "Z" }, pivot = { animation = true }, position = { animation = "Parent", y = 45 } },
+    conditions = { { not_animation = "StanceShop", player = "Parent" }, SPHERE },
+    locks = locks(false),
+    intervals = { attack(13, true) },
+    timeline = {
+        [2] = { { sound = "snd_smallsphere_start" }, sphere_effect("Start", 0, 80, { time_scale = 1.45 }),
+            { sound = "snd_magic_fireball_start" } },
+        animation_end = { { sound = "snd_smallsphere_middle" }, sphere_effect("Middle", -70, 55, { looped = true }) },
+        strike = STRIKE,
+    },
 })
+
 register("sphere1_middle", {
-    animation = animation.middle, templates = { family }, core_templates = { "MagicMissileFly", "MagicMissile" },
+    animation = "animations/fireball_middle", templates = { family }, core_templates = { "MagicMissileFly", "MagicMissile" },
     mid_frames = 2, first_frame = 1, priority = 500, no_magic_recharge = true, velocity = { x = 30 },
-    align = { axes = { "X", "Y", "Z" }, pivot = point("Nodes", "Magic-Node2_1"), position = point("Nodes", "Magic-Node2_1", "Me") },
-    events = { "animation_end" }, conditions = { { type = "any", conditions = {
-        current(name("sphere1_start")), current(name("sphere1_middle")),
-    } }, actor() }, intervals = { attack() }, actions = strike_actions(), locks = locks(false),
+    events = { "animation_end" },
+    align = { axes = { "X", "Y", "Z" }, pivot = { node = "Magic-Node2_1" }, position = SPHERE_NODE },
+    conditions = {
+        { any = { { animation = "de128:moves/sphere1_start" }, { animation = "de128:moves/sphere1_middle" } } },
+        SPHERE,
+    },
+    locks = locks(false),
+    intervals = { attack() },
+    timeline = { strike = STRIKE },
 })
+
 register("sphere1_wall", {
-    animation = animation.middle, templates = { family }, core_templates = { "MagicMissileFly", "MagicMissile" },
+    animation = "animations/fireball_middle", templates = { family }, core_templates = { "MagicMissileFly", "MagicMissile" },
     mid_frames = 2, first_frame = 1, priority = 500, no_magic_recharge = true,
-    align = { axes = { "X", "Y", "Z" }, pivot = point("Nodes", "Magic-Node2_1"), position = point("Nodes", "Magic-Node2_1", "Me") },
-    events = { "every_frame" }, conditions = { current(name("sphere1_middle")),
-        { type = "distance", axis = "X", maximum = -250, from = point("Nodes", "Magic-Node2_1"), to = point("Wall", "Front") }, actor() },
-    actions = { { type = "delete_actor", player = "Me", frame = 1 } }, locks = locks(false),
+    events = { "every_frame" },
+    align = { axes = { "X", "Y", "Z" }, pivot = { node = "Magic-Node2_1" }, position = SPHERE_NODE },
+    conditions = {
+        { animation = "de128:moves/sphere1_middle" },
+        { distance = "X", max = -250, from = { node = "Magic-Node2_1" }, to = { wall = "Front" } },
+        SPHERE,
+    },
+    locks = locks(false),
+    timeline = { [1] = { delete_actor = "Me" } },
 })
+
+-- Shop preview: the fighter casts a sphere that plays its effects and vanishes.
 local preview = register("shop_magic_sphere1", {
-    animation = animation.start, templates = { family }, core_templates = { "MagicShop", "MagicMissileFly", "MagicMissile" },
+    animation = "animations/fireball_start", templates = { family }, core_templates = { "MagicShop", "MagicMissileFly", "MagicMissile" },
     mid_frames = 2, first_frame = 2, priority = 1, no_wall_repulsion = true, no_interpolation_frames = true, no_magic_recharge = true,
-    actions = { effect("Start", 3, 15, 25, true, 0.75, 1.45, false),
-        effect("Middle", "AnimationEnd", -60, 40, true, 0.75, 1, true), sound(4, "snd_smallsphere_start"),
-        sound("AnimationEnd", "snd_smallsphere_middle"), { type = "delete_actor", player = "Me", event = "AnimationEnd" } },
-    events = { "birth" }, conditions = { current("ShopPeacefulStart", "Parent"), actor() }, locks = locks(false),
-    align = { axes = { "X", "Z" }, pivot = point("Animation"), position = point("Animation", nil, "Parent") },
+    events = { "birth" },
+    align = { axes = { "X", "Z" }, pivot = { animation = true }, position = { animation = "Parent" } },
+    conditions = { { animation = "ShopPeacefulStart", player = "Parent" }, SPHERE },
+    locks = locks(false),
+    timeline = {
+        [3] = sphere_effect("Start", 15, 25, { time_scale = 1.45 }),
+        [4] = { sound = "snd_smallsphere_start" },
+        animation_end = { sphere_effect("Middle", -60, 40, { looped = true }), { sound = "snd_smallsphere_middle" },
+            { delete_actor = "Me" } },
+    },
 })
-for _, row in ipairs({ { "shop_magic_sphere1_player", "ShopPeacefulStart", "PeacefulStart", preview },
-    { "shop_magic_try_on_sphere1_player", "ShopTryOn", "TryOn" } }) do
-    register(row[1], {
-        animation = animation.player, core_templates = { row[2], "StanceShop", "StageStance", "Stance" },
+
+for _, shop in ipairs({
+    { id = "shop_magic_sphere1_player", template = "ShopPeacefulStart", stage = "PeacefulStart", start = preview },
+    { id = "shop_magic_try_on_sphere1_player", template = "ShopTryOn", stage = "TryOn" },
+}) do
+    register(shop.id, {
+        animation = "animations/fireball_player", core_templates = { shop.template, "StanceShop", "StageStance", "Stance" },
         mid_frames = 2, first_frame = 2, priority = 1, no_interpolation_frames = true, ends_stage = true, mirror_node = "NHeel_1",
-        align = { axes = { "X", "Z" }, pivot = point("Nodes", "NHeel_2"), position = point("Pivot", nil, "Me", -80) },
-        locks = locks(true, true), actions = { spawn(row[4]) }, events = { { type = "round_stage_start", name = row[3] } }, direction = facing(),
+        events = { { round_stage_start = shop.stage } }, direction = "face_enemy",
+        align = { axes = { "X", "Z" }, pivot = { node = "NHeel_2" }, position = { pivot = "Me", x = -80 } },
+        locks = locks(true, true),
+        timeline = { [2] = spawn(shop.start) },
     })
 end
+
 register("shop_magic_try_on_sphere1_start", {
-    animation = animation.start, templates = { family }, core_templates = { "MagicShopTryOn", "MagicMissileFly", "MagicMissile" },
+    animation = "animations/fireball_start", templates = { family }, core_templates = { "MagicShopTryOn", "MagicMissileFly", "MagicMissile" },
     mid_frames = 2, first_frame = 2, priority = 1, no_wall_repulsion = true, no_interpolation_frames = true, no_magic_recharge = true,
-    actions = { effect("Start", 2, 0, 25, true, 0.75, 1.45, false), effect("Middle", "AnimationEnd", -70, 0.5, true, 0.75, 1, true),
-        sound(2, "snd_smallsphere_start"), sound("AnimationEnd", "snd_smallsphere_middle") },
-    events = { "birth" }, conditions = { current("ShopTryOn", "Parent"), actor() }, locks = locks(false),
-    align = { axes = { "X", "Z" }, pivot = point("Animation"), position = point("Animation", nil, "Parent") },
+    events = { "birth" },
+    align = { axes = { "X", "Z" }, pivot = { animation = true }, position = { animation = "Parent" } },
+    conditions = { { animation = "ShopTryOn", player = "Parent" }, SPHERE },
+    locks = locks(false),
+    timeline = {
+        [2] = { sphere_effect("Start", 0, 25, { time_scale = 1.45 }), { sound = "snd_smallsphere_start" } },
+        animation_end = { sphere_effect("Middle", -70, 0.5, { looped = true }), { sound = "snd_smallsphere_middle" } },
+    },
 })
+
 register("shop_magic_try_on_sphere1_end", {
-    animation = animation.middle, templates = { family }, core_templates = { "MagicMissileEnd", "MagicMissileFly", "MagicMissile" },
+    animation = "animations/fireball_middle", templates = { family }, core_templates = { "MagicMissileEnd", "MagicMissileFly", "MagicMissile" },
     mid_frames = 2, first_frame = 1, priority = 500, no_magic_recharge = true, velocity = { x = 30 },
-    align = { axes = { "X", "Y", "Z" }, pivot = point("Nodes", "Magic-Node2_1"), position = point("Nodes", "Magic-Node2_1", "Me") },
-    events = { "animation_end" }, conditions = { current(name("shop_magic_try_on_sphere1_start")), actor() },
-    actions = { { type = "stop_effect", effect_name = "SmallSphereMiddle", frame = 2 },
-        effect("End", 2, 100, 0.5, false, 1.5, 1, false), sound(2, "snd_smallsphere_end") }, locks = locks(false),
+    events = { "animation_end" },
+    align = { axes = { "X", "Y", "Z" }, pivot = { node = "Magic-Node2_1" }, position = SPHERE_NODE },
+    conditions = { { animation = "de128:moves/shop_magic_try_on_sphere1_start" }, SPHERE },
+    locks = locks(false),
+    timeline = {
+        [2] = { { stop_effect = "SmallSphereMiddle" }, sphere_effect("End", 100, 0.5, { scale = 1.5, follow = false }),
+            { sound = "snd_smallsphere_end" } },
+    },
 })
+
 return moves

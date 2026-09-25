@@ -53,7 +53,7 @@ public class ModelAnimation {
 public class InfoAnimation {
  public enum MGHNBEPCKIF { AnimationNone, AnimationMove, AnimationAttack }
  public string Name="custom"; public MGHNBEPCKIF Type=MGHNBEPCKIF.AnimationAttack;
- public int Priority=7, GOBJCKFGIPA=3, LHHAGECFIOL=12, MNHGBPOIHKG=2;
+ public int Priority=7, FirstFrame=3, AnimationEndFrame=12, MNHGBPOIHKG=2;
  public bool INFAGPDFGNL;
  public ConditionKeys Keys=new ConditionKeys();
  public ConditionKeys ILBCHANCOBP(){return Keys;}
@@ -85,7 +85,7 @@ public static class AiSnapshotTests {
   Check(result.Timing.NominalFrames==native.ONLKMFOENEH()&&result.Timing.NominalFrames==30&&result.Timing.NominalSeconds==0.5,"Native nominal timing mismatch");
   Check(!result.Timing.Looped,"Non-looping clip marked looping");
   Check(result.Inputs.Count==3&&result.Inputs[0].Control=="Kick"&&result.Inputs[0].Press=="tap"&&result.Inputs[1].Control=="Back"&&result.Inputs[1].Press=="hold"&&result.Inputs[2].Control=="Punch"&&result.Inputs[2].Press=="release","Native key combination mismatch");
-  native.Keys.RequiredKeys.IGEEOAGOMEM.Clear();native.INFAGPDFGNL=true;native.LHHAGECFIOL=22;
+  native.Keys.RequiredKeys.IGEEOAGOMEM.Clear();native.INFAGPDFGNL=true;native.AnimationEndFrame=22;
   Check(result.Inputs.Count==3&&result.Timing.LastSample==12&&!result.Timing.Looped,"Native mutation changed an existing snapshot");
   Check(AiSnapshotFixture.Snapshot(native).Timing.Looped,"Native looping flag missing");
   foreach(var type in new[]{InfoAnimation.MGHNBEPCKIF.AnimationNone,InfoAnimation.MGHNBEPCKIF.AnimationMove}){
@@ -100,7 +100,7 @@ public static class AiSnapshotTests {
   Check(AiSnapshotFixture.Snapshot(native).Inputs[0].Control=="Unknown","Unknown control leaked an unrelated enum label");
   native.Keys=null;Check(AiSnapshotFixture.Snapshot(native).Inputs.Count==0,"Missing keys did not yield empty metadata");
   foreach(int spacing in new[]{0,1,2,8}){
-   native.GOBJCKFGIPA=0;native.LHHAGECFIOL=59;native.MNHGBPOIHKG=spacing;
+   native.FirstFrame=0;native.AnimationEndFrame=59;native.MNHGBPOIHKG=spacing;
    Check(AiSnapshotFixture.Snapshot(native).Timing.NominalFrames==native.ONLKMFOENEH(),"Nominal timing spacing mismatch");
   }
   Reject(()=>new ModAiActionTiming(-1,4,0,false),"Negative sample accepted");

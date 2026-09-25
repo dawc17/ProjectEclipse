@@ -15,8 +15,6 @@ local dandy_lightning_chain = require("content.dandy_lightning_chain")
 local raid_boss_abilities = require("content.raid_boss_abilities")
 local widow_teleportation = require("content.widow_teleportation")
 
-local ZONE_TITLES = { "ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7" }
-
 -- Archive music ids name the packaged raid tracks under their "raids_" names.
 -- Ids without a packaged counterpart keep the native id (resolved by Sound.cs).
 local MUSIC = {
@@ -93,6 +91,15 @@ local function install(raid_charge_rule)
             end
         end
         error("Saturn's archived Blaster timing is missing or unsupported")
+    end
+    local function blackness_tactic(warrior)
+        for _, row in ipairs(warrior.perks or {}) do
+            if row.perk == "core:perks/PERK_GRASP_OF_DARKNESS" then
+                if row.frames == 800 then return blackness_grasp.tactic end
+                if row.frames == 700 then return blackness_grasp.power_tactic end
+            end
+        end
+        error("Blackness's archived Grasp timing is missing or unsupported")
     end
     local function dandy_tactic(warrior)
         for _, row in ipairs(warrior.perks or {}) do
@@ -197,16 +204,11 @@ local function install(raid_charge_rule)
     local zones, battles, fights = {}, {}, {}
     -- by_battle[archive battle][archive fight] = { handle, id } for story hooks.
     local by_battle = {}
+    -- Generated Power Mode rows contain only differences from the normal fight.
+    -- Resolve into a fresh table so registering a twin cannot mutate its source.
+    local fight_rows = {}
     for tier, zone_spec in ipairs(data.zones) do
         local zone_id = "underworld_tier_" .. tier
-        sf2.localization.register { id = "zones/" .. zone_id, language = "eng",
-            value = text.value(ZONE_TITLES[tier], "eng") }
-        for _, language in ipairs(text.languages) do
-            local value = text.value(ZONE_TITLES[tier], language)
-            if value and language ~= "eng" then
-                sf2.localization.register { id = "zones/" .. zone_id, language = language, value = value }
-            end
-        end
         local zone = sf2.zones.register { id = zone_id, file = zone_spec.file, underworld = true }
         zones[tier] = zone
         for _, spec in ipairs(zone_spec.battles) do
@@ -231,7 +233,19 @@ local function install(raid_charge_rule)
             }
             battles[spec.name] = battle
             by_battle[spec.name] = {}
-            for _, fight_spec in ipairs(spec.fights) do
+            fight_rows[spec.name] = {}
+            for _, row in ipairs(spec.fights) do
+                local fight_spec = row
+                if row.inherit then
+                    local base = assert(fight_rows[row.inherit] and fight_rows[row.inherit][row.name],
+                        "Missing normal Underworld fight " .. row.inherit .. "/" .. row.name)
+                    fight_spec = {}
+                    for key, value in pairs(base) do fight_spec[key] = value end
+                    for key, value in pairs(row) do
+                        if key ~= "inherit" then fight_spec[key] = value end
+                    end
+                end
+                fight_rows[spec.name][row.name] = fight_spec
                 local prefix = battle_id .. "_" .. lower_id(fight_spec.name)
                 local warriors = {}
                 for index, w in ipairs(fight_spec.warriors) do
@@ -240,7 +254,7 @@ local function install(raid_charge_rule)
                         (w.template == "Boss_Hermit_Young" and hermit_storm.tactic or
                         (w.template == "Girl_Drakaina" and war_whirl.tactic or
                         (w.template == "Cyborg_Gatekeeper" and gatekeeper_power_field.tactic or
-                        (w.template == "Girl_Blackness" and blackness_grasp.tactic or
+                        (w.template == "Girl_Blackness" and blackness_tactic(w) or
                         (w.template == "Girl_Saturn" and saturn_tactic(w) or
                         (w.template == "Man_Dandy" and dandy_tactic(w) or
                         (w.template == "Man_Hoaxen" and raid_boss_abilities.hoaxen or

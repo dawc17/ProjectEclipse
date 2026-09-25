@@ -16,14 +16,14 @@ local function install(final_ids, portraits)
         for _, line in ipairs(data[act]) do assert(portraits[line.portrait], "Missing verified portrait: " .. line.portrait) end
     end
     shared.register()
-    local scene, view, outro
+    local scene
     local function pending_act()
         for act = 1, 6 do
             if sf2.state.get("sensei_dialogue_pending_" .. act) and not sf2.state.get("sensei_complete_" .. act) then return act end
         end
     end
     shared.dialogue_pending = function() return pending_act() ~= nil end
-    local show_next = nil
+    local show_next = function() end
     local function complete(act)
         sf2.state.set { ["sensei_complete_" .. act] = true, ["sensei_dialogue_pending_" .. act] = false }
         show_next()
@@ -33,36 +33,22 @@ local function install(final_ids, portraits)
         end
     end
     show_next = function()
-        if scene ~= "map" or view or outro then return end
+        if scene ~= "map" then return end
         local act = pending_act()
         if not act then return end
-        local index = sf2.state.get("sensei_dialogue_next_" .. act)
-        assert(index >= 1 and index <= #data[act] + 1, "Invalid saved Sensei dialogue position")
-        local line = data[act][index]
-        if not line then
-            if act ~= 6 then complete(act); return end
-            local token = {}
-            outro = token
-            local accepted = sf2.ui.act_screen { lines = { { text = text.Sensei_arc_outro, frames = 180 } }, on_complete = function()
-                if outro ~= token or scene ~= "map" then return end
-                if not sf2.state.get("sensei_dialogue_pending_" .. act) then return end
-                outro = nil
-                complete(act)
-            end }
-            if not accepted and outro == token then outro = nil end
-            return
+        local steps = {}
+        for _, line in ipairs(data[act]) do
+            steps[#steps + 1] = { dialog = dialog.definition(line, text, portraits[line.portrait]) }
         end
-        local token = {}
-        local opened = dialog.open(line, text, portraits[line.portrait], function()
-            if view ~= token then return end
-            view = nil
-            sf2.state.set { ["sensei_dialogue_next_" .. act] = index + 1 }
-            if scene == "map" then show_next() end
-        end, function()
-            if view == token then view = nil end
-        end)
-        if opened then view = token end
+        if act == 6 then
+            steps[#steps + 1] = { act_screen = { lines = { { text = text.Sensei_arc_outro, frames = 180 } } } }
+        end
+        sf2.story.play_sequence {
+            position = "sensei_dialogue_next_" .. act, steps = steps,
+            on_complete = function() complete(act) end,
+        }
     end
+
     sf2.story.on("battle_result", function(event)
         local act = acts[event.fight]
         if not act or event.outcome ~= "win" or sf2.state.get("sensei_complete_" .. act) then return end
@@ -71,7 +57,6 @@ local function install(final_ids, portraits)
     end)
     sf2.story.on("scene_enter", function(event)
         scene = event.scene
-        outro = nil
         show_next()
     end)
 end

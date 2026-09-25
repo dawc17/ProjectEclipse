@@ -245,6 +245,23 @@ test('move perk-lock removal and initial perk rank are typed', () => {
     assert.equal(api.types.TemplatePerk.fields['initial_upgrade?'],'integer');
 });
 
+test('move short form is typed for conditions, points, timeline and presets', () => {
+    const api=require('../scripts/api-schema.cjs');
+    const move=api.types.MoveDefinition.fields;
+    assert.match(move['conditions?'],/Eclipse\.MoveShortCondition/);
+    assert.match(move['events?'],/^"controlled"\|/);
+    assert.match(move['direction?'],/"face_enemy"$/);
+    assert.equal(move['timeline?'],'Eclipse.MoveTimeline');
+    assert.match(move['tactic_distance?'],/Eclipse\.MoveShortTacticDistance/);
+    const condition=api.types.MoveShortCondition.fields;
+    for(const key of ['key?','not_mod?','not_interval?','not_animation?','controllable?','distance?','not_all?','any?'])assert(key in condition,key);
+    assert.match(api.types.MoveAlignment.fields.pivot,/Eclipse\.MoveShortPoint/);
+    assert.equal(api.types.MoveTimeline.fields['[integer]'],'Eclipse.MoveShortAction|Eclipse.MoveShortAction[]');
+    assert.match(api.types.MoveTimeline.fields['animation_end?'],/MoveShortAction/);
+    assert.equal(api.types.MoveInterval.fields['to?'],'integer');
+    assert.match(api.types.MoveAttack.fields['damage_terms?'],/MoveDamageTermMap/);
+});
+
 test('guarded move replacement has typed fields and requires patch capability', async () => {
     const api=require('../scripts/api-schema.cjs');
     assert.equal(api.functions['sf2.moves.replace'].capability,'content.patch');
@@ -252,10 +269,11 @@ test('guarded move replacement has typed fields and requires patch capability', 
     const fields=api.types.MoveReplacementDefinition.fields;
     assert.equal(fields.target,'string');
     assert.equal(fields.expected_file,'string');
-    assert.equal(fields.animation,'Eclipse.BinaryHandle');
+    assert.equal(fields.animation,'Eclipse.BinaryHandle|string');
     assert.equal(fields['templates?'],undefined);
     assert.equal(api.types.MoveAlignment.fields['shift_model_node?'],'string');
-    assert.equal(api.types.MoveDirectionCondition.fields.type,'"direction"');
+    assert.equal(api.types.MoveDirectionCondition,undefined);
+    assert.equal(api.types.MoveShortCondition.fields['direction?'],'"Me"|"Enemy"');
     const mod=await p.indexMod(template);
     const source=header+'sf2.moves.replace { id="step", target="ExistingStep", expected_file="old.bytes", animation=sf2.assets.binary("animations/step") }';
     assert(p.analyze(source,mod).issues.some(i=>i.capability==='content.patch'));
@@ -387,4 +405,14 @@ test('shifting guardian validates the form request contract', async () => {
  const dir=path.resolve(__dirname,'../../../Mods/example.shifting-guardian');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
+});
+
+test('sequence playback has compact typed steps and declares UI and saved-state capabilities', async () => {
+    const api=require('../scripts/api-schema.cjs');
+    assert.deepEqual(api.functions['sf2.story.play_sequence'].capability,['story.events','ui.create']);
+    assert.equal(api.types.StorySequenceDefinition.fields['position?'],'string');
+    for(const name of ['MoveEvent','MovePoint','MoveScheduledAction','MoveDamageTerm','MoveTacticDistance'])assert.equal(api.types[name],undefined);
+    const mod=await p.indexMod(template);
+    const issues=p.analyze(header+'sf2.story.play_sequence { position="next", steps={} }',mod).issues;
+    for(const cap of ['story.events','ui.create','state.read','state.write'])assert(issues.some(i=>i.capability===cap));
 });

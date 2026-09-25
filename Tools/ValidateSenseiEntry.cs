@@ -78,7 +78,7 @@ name = "Sensei entry checks"
 version = "1.0.0"
 authors = ["Eclipse tests"]
 entrypoint = "scripts/main.lua"
-capabilities = ["content.register", "story.progression", "state.read", "state.write", "ui.create"]
+capabilities = ["content.register", "story.events", "story.progression", "state.read", "state.write", "ui.create"]
 [[dependencies]]
 id = "core"
 version = ">=1.0 <2.0"
@@ -111,6 +111,7 @@ require("content.sensei_entry").install(normal,portraits)
         using(var tx=catalog.BeginRegistration(mod))
         using(var context=new MoonSharpScriptRuntime(null,null,null,bus).CreateContext(mod,new ModApiFacade(mod,assets,tx,state,entry=>errors.Add(entry.Message))))
         {
+            ModLocalizationLoader.Load(mod, new AssetResolver(new IAssetProvider[] { new LooseModProvider(mod) }), tx);
             context.ExecuteEntrypoint();tx.Commit();var save=Save();Check(state.Bind(save.DocumentElement,new[]{context}).Count==0,"Bind failed");bus.BindProfile();
             var archive=Read(Path.Combine(args[1],"Assets/DExml/quests.xml"));var english=Read(Path.Combine(args[1],"Assets/DExml/localizations/eng.xml"));
             string Text(string key)=>english.SelectSingleNode("//Word[@Title='"+key+"']").InnerText;

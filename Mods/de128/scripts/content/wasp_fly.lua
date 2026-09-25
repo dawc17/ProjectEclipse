@@ -3,21 +3,7 @@ local sf2 = require("sf2")
 -- The four archived Wasp Fly ranges replace the old core Super-button moves.
 -- All animation bytes are copied unchanged from recovered Resources. DE128
 -- never loads move XML at runtime.
-local point = function(object, part, player, x, y)
-    return { object = object, part = part, player = player, shift_x = x, shift_y = y }
-end
-local function sound(frame, name, voice)
-    return { type = "sound", frame = frame, sound = { core_sound = name, voice = voice } }
-end
-local function random(frame, ...)
-    return { type = "random_sound", frame = frame, core_sounds = { ... } }
-end
-local function effect(name, sequence, frame, x, y)
-    return { type = "effect", frame = frame, effect = {
-        name = name, core_sequence = sequence, scale = 1.35, time_scale = 1.9,
-        position = point("Nodes", "NPivot", "Me", x, y), follow = false,
-    } }
-end
+
 local edges = {
     "EArm_1", "EArm_2", "EHead", "EChest", "EForearm_1", "EForearm_2",
     "EHand_2", "EFingers_2", "EForearm_1", "EHand_1", "EFingers_1",
@@ -41,64 +27,69 @@ local variants = {
 local moves = {}
 for _, variant in ipairs(variants) do
     sf2.moves.patch { move = "WaspFly_" .. variant.suffix, disable = true }
-    local actions = {}
+    local timeline = {
+        [1] = { sound = "snd_wasp_fly_start" },
+        [4] = {
+            { play_sound = "snd_m_pl_attack3", voice = "Male" },
+            { play_sound = "snd_low_pl_attack3", voice = "MaleLow" },
+            { play_sound = "snd_f_pl_attack3", voice = "Female" },
+        },
+        [14] = { { sound = "snd_swish2" }, { sound = "snd_wasp_fly_mid" } },
+        [26] = { sound = "snd_wasp_fly_end" },
+        [variant.effect_end] = { effect = {
+            name = "WaspSpeedSplitWingsEnd", core_sequence = "mgc_wasp_speed_split_wings_end",
+            scale = 1.35, time_scale = 1.9,
+            position = { node = "NPivot", player = "Me", x = 140, y = 14 }, follow = false,
+        } },
+        strike = { sound = { "snd_hit1", "snd_hit2", "snd_hit3", "snd_hit4", "snd_hit5", "snd_hit6" } },
+    }
     if variant.effect_start then
         local start = variant.effect_start
-        actions[#actions + 1] = effect(start[1], start[2], 4, start[3], start[4])
+        table.insert(timeline[4], 1, { effect = {
+            name = start[1], core_sequence = start[2], scale = 1.35, time_scale = 1.9,
+            position = { node = "NPivot", player = "Me", x = start[3], y = start[4] }, follow = false,
+        } })
     end
-    actions[#actions + 1] = effect("WaspSpeedSplitWingsEnd", "mgc_wasp_speed_split_wings_end",
-        variant.effect_end, 140, 14)
-    actions[#actions + 1] = sound(4, "snd_m_pl_attack3", "Male")
-    actions[#actions + 1] = sound(4, "snd_low_pl_attack3", "MaleLow")
-    actions[#actions + 1] = sound(4, "snd_f_pl_attack3", "Female")
-    actions[#actions + 1] = random(14, "snd_swish2")
-    actions[#actions + 1] = random(1, "snd_wasp_fly_start")
-    actions[#actions + 1] = random(14, "snd_wasp_fly_mid")
-    actions[#actions + 1] = random(26, "snd_wasp_fly_end")
-    actions[#actions + 1] = { type = "random_sound", event = "Strike",
-        core_sounds = { "snd_hit1", "snd_hit2", "snd_hit3", "snd_hit4", "snd_hit5", "snd_hit6" } }
     moves[variant.suffix] = sf2.moves.register {
         id = "wasp_fly_" .. variant.suffix,
         animation = sf2.assets.binary("animations/" .. variant.binary),
         core_templates = { "1key", "WaspFly", "BossAbility", "Controlled", "SoundStrike" },
         mid_frames = 2, no_wall_repulsion = true, first_frame = 1, priority = 110,
         mirror_node = "NHeel_1",
-        align = { axes = { "X", "Z" }, pivot = point("Animation"),
-            position = point("Wall", "Back", "Me", variant.align_x) },
+        align = { axes = { "X", "Z" }, pivot = { animation = true },
+            position = { wall = "Back", player = "Me", x = variant.align_x } },
         conditions = {
-            { type = "keys", keys = { { key = "RaidCharge" } } },
-            { type = "mod_exists", name = "WaspFlyRecharge", ["not"] = true },
-            { type = "distance", axis = "X", minimum = variant.wall_min, maximum = variant.wall_max,
-                from = point("Wall", "Back", "Me"), to = point("Nodes", "NHeel_1", "Me") },
-            { type = "current_interval", name = "SemiUninterrupt", ["not"] = true },
-            { type = "mod_exists", name = "CurseBomb", player = "Enemy", ["not"] = true },
-            { type = "current_interval", name = "Uninterrupt", ["not"] = true },
-            { type = "round_stage", name = "Fight" },
-            { type = "all", ["not"] = true, conditions = {
-                { type = "current_animation", name = "$Move" },
-                { type = "current_interval", name = "SemiUninterrupt" },
+            { keys = { "RaidCharge" } },
+            { not_mod = "WaspFlyRecharge" },
+            { distance = "X", min = variant.wall_min, max = variant.wall_max, from = { wall = "Back", player = "Me" }, to = { node = "NHeel_1", player = "Me" } },
+            { not_interval = "SemiUninterrupt" },
+            { not_mod = "CurseBomb", player = "Enemy" },
+            { not_interval = "Uninterrupt" },
+            { stage = "Fight" },
+            { not_all = {
+                { animation = "$Move" },
+                { interval = "SemiUninterrupt" },
             } },
-            { type = "current_animation", name = "Physical", ["not"] = true },
+            { not_animation = "Physical" },
         },
         locks = {
-            { type = "perk", perk = sf2.perks.get("core:perks/PERK_WASPFLY") },
-            { type = "item", item_type = "Skeleton", item_subtype = "Skeleton" },
+            { perk = sf2.perks.get("core:perks/PERK_WASPFLY") },
+            { item = "Skeleton", subtype = "Skeleton" },
         },
         intervals = {
             { type = "Invulnerable", name = "Boss" },
-            { name = "Unstable", ["end"] = variant.unstable_end },
-            { name = "Uninterrupt", ["end"] = variant.end_frame },
-            { type = "Block", start = variant.block_start },
-            { name = "Throwable", start = variant.block_start },
-            { type = "Attack", start = variant.attack_start, ["end"] = variant.attack_end,
-                attack = { edges = edges, damage = 0.3,
-                    damage_terms = { { type = "WeaponDamage" }, { type = "UnarmedDamage", shift = -10 } },
+            { name = "Unstable", to = variant.unstable_end },
+            { name = "Uninterrupt", to = variant.end_frame },
+            { type = "Block", from = variant.block_start },
+            { name = "Throwable", from = variant.block_start },
+            { type = "Attack", from = variant.attack_start, to = variant.attack_end, attack = { edges = edges, damage = 0.3,
+                    damage_terms = { WeaponDamage = 0, UnarmedDamage = -10 },
                     impulse = { x = 350 }, hit = "WaspFly",
                     options = { ignores_block = true, ignores_all_invulnerable = true } } },
         },
-        actions = actions,
-        events = { "key_pressed", { type = "interval_end", name = "Uninterrupt" }, "animation_end" },
-        direction = { from = point("Nodes", "NPivot", "Me"), to = point("Nodes", "NPivot", "Enemy") },
+        timeline = timeline,
+        events = { "key_pressed", { interval_end = "Uninterrupt" }, "animation_end" },
+        direction = { from = { node = "NPivot", player = "Me" }, to = { node = "NPivot", player = "Enemy" } },
     }
 end
 

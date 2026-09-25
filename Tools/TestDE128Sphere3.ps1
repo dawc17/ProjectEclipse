@@ -47,7 +47,20 @@ function Normalize-Sphere([Xml.XmlElement]$element) {
    $null=$element.ReplaceChild($random,$child);$null=$random.AppendChild($child);Normalize-Sphere $random
   } else {Normalize-Sphere $child}
  }
- # Direct sections are selected by name. Action, condition and term order is retained.
+ # Native ConditionList evaluates these pure conditions as a short-circuit AND/OR,
+ # so their order does not change selection. Key sequences keep their order.
+ if($element.LocalName -in @('Conditions','Locks','Operator')) {
+  foreach($child in @($element.ChildNodes | Where-Object {$_ -is [Xml.XmlElement]} | Sort-Object OuterXml)) {$null=$element.AppendChild($child)}
+ }
+ # Native ModelAnimation dispatches frame and event actions separately, each call
+ # collecting only its own trigger in list order. Group by trigger, keeping order.
+ if($element.LocalName -eq 'Actions') {
+  $index=0
+  foreach($entry in @($element.ChildNodes | Where-Object {$_ -is [Xml.XmlElement]} | ForEach-Object {
+    [pscustomobject]@{Node=$_;Index=$index++;Key=$(if($_.HasAttribute('Frame')){'F'+([int]$_.GetAttribute('Frame')).ToString('D6')}else{'E'+$_.GetAttribute('Event')})}
+   } | Sort-Object Key,Index)) {$null=$element.AppendChild($entry.Node)}
+ }
+ # Direct sections are selected by name. Damage term order is retained.
  if($element.LocalName -eq 'Move' -or $element.LocalName -eq 'Interval') {
   foreach($child in @($element.ChildNodes | Where-Object {$_ -is [Xml.XmlElement]} | Sort-Object LocalName)) {$null=$element.AppendChild($child)}
  }

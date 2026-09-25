@@ -4,6 +4,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $fixture = Join-Path $root ('Temp/SenseiEntry-' + [Guid]::NewGuid().ToString('N'))
 $content = Join-Path $fixture 'Mods/fixture.notify/scripts/content'
 New-Item -ItemType Directory -Force $content | Out-Null
+Copy-Item -Recurse (Join-Path $root 'Mods/de128/localizations') (Join-Path (Split-Path -Parent $content | Split-Path -Parent) 'localizations')
 foreach ($name in @('sensei_state','sensei_entry','sensei_entry_data','sensei_entry_text','sensei_dialog')) {
     Copy-Item (Join-Path $root "Mods/de128/scripts/content/$name.lua") $content
 }

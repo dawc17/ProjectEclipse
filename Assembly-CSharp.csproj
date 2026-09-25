@@ -54,7 +54,6 @@
     <Analyzer Include="F:\UnityInstalls\6000.6.0f1\Editor\Data\BCLExtensions\TargetingPacks\netstandard2.1\analyzers\dotnet\roslyn4.0\cs\System.Text.Json.SourceGeneration.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\Eclipse\LightInTheDarknessRule.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeP2.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Fight\FightScene.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ProfilePerk.cs" />
@@ -248,6 +247,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Menu\MainMenu.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightResult.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AttributesRule.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\EffectAttachment.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\ContentTourChallBoss.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\IntervalSet.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\TrickInfo.cs" />
@@ -255,6 +255,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\AntichitingModule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkActionModificator.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\BaseScrollItem.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\LightInTheDarknessRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EventKeyPressed.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RecipePrice.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionInTheArea.cs" />
@@ -294,6 +295,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionList.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\SliderType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PhysicsController.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeSequence.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionBirth.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Dialogs\EventDialog.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Rendering\Interpolation\FightCameraInterpolation.cs" />
@@ -303,7 +305,6 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\BulletType.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionToggleBattle.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Rendering\Diagnostics\EffectFollowDiagnostics.cs" />
-    <Compile Include="Assets\Scripts\Eclipse\Rendering\EffectAttachment.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionShowSetTutorial.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\Renders\Model\CapsuleRender.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CocosAnimation.cs" />
@@ -474,6 +475,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\ConditionPerk.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\GFKEHPOBLFJ.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\StatisticsGeter.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntimeShortForm.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\EventParser.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AspectConstants.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\CharProgLevel.cs" />
@@ -1054,6 +1056,7 @@
     <None Include="Assets\Resources\textures\effects\magic\mgc_mushroom_end_xml.txt" />
     <None Include="Assets\vanillaXml\quest_extensions\update_quests.xml" />
     <None Include="Assets\DExml\quest_extensions\dynamic_discounts.xml" />
+    <None Include="Assets\Resources\shaders\EclipseLightInTheDarkness.shader" />
     <None Include="Assets\Resources\gamedata\locations\dojo_indian_event\params.txt" />
     <None Include="Assets\Resources\textures\effects\magic\chest_laser\mgc_ray_start_xml.txt" />
     <None Include="Assets\vanillaXml\quest_extensions\facebook.xml" />

@@ -116,19 +116,20 @@ To make the motion an attack, edit its existing registration: set `type = "ATTAC
 
 ```lua
 conditions = {
-    { type = "character", warrior = character },
-    { type = "keys", keys = { { key = "Kick", press = "Tap" } } },
-    { type = "current_interval", name = "Uninterrupt", ["not"] = true },
+    { character = character },
+    { keys = { { "Kick", press = "Tap" } } },
+    { not_interval = "Uninterrupt" },
 },
 events = { "key_pressed" },
 intervals = {
-    { type = "Uninterrupt", start = 0, ["end"] = 12 },
-    { type = "Attack", start = 6, ["end"] = 8, attack = {
+    { type = "Uninterrupt", from = 0, to = 12 },
+    { type = "Attack", from = 6, to = 8, attack = {
         edges = { "ECalf_2" }, damage = 0.12,
         damage_type = "UnarmedDamage", hit = "High",
         impulse = { x = 245, z = 350 },
     } },
 },
+
 ```
 
 These are fields inside a move definition, not a standalone Lua script. Attack edges must exist on the composed fighter. [Moves and tactics](../../api/moves-and-tactics/) documents all field defaults and limits. Use ordinary [combat callbacks](../../api/combat-callbacks/) for procedural effects instead of adding an operation language to the move table.

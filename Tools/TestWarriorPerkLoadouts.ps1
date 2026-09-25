@@ -54,6 +54,7 @@ function Load-Lua([string]$scriptText, [Xml.XmlNode]$additionalTemplates = $null
         $assets = [Eclipse.Modding.AssetResolver]::new([Eclipse.Modding.IAssetProvider[]]@([Eclipse.Modding.LooseModProvider]::new($mod)))
         $api = [Eclipse.Modding.ModApiFacade]::new($mod,$assets,$tx,$null)
         $context = [Eclipse.Modding.MoonSharpScriptRuntime]::new().CreateContext($mod,$api)
+        $null = [Eclipse.Modding.ModLocalizationLoader]::Load($mod, $assets, $tx)
         $context.ExecuteEntrypoint(); $tx.Commit()
     } catch {
         Check ($catalog.Warriors.Count -eq 0) 'Failed Lua registration leaked warriors.'

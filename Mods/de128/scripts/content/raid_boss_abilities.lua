@@ -36,7 +36,7 @@ sf2.moves.patch {
     input = { expected = "Up", value = "RaidCharge" },
     animation = { expected = "rats_wave.bytes",
         value = sf2.assets.binary("animations/magic_water_wave_player") },
-    conditions = { { type = "mod_exists", name = "Stun", ["not"] = true } },
+    conditions = { { not_mod = "Stun" } },
 }
 sf2.moves.patch {
     move = "PerkFearRayPlayer",
@@ -44,7 +44,7 @@ sf2.moves.patch {
     animation = { expected = "boss_fear_ability.bytes",
         value = sf2.assets.binary("animations/chest_laser_ray_player") },
     remove_interval = { name = "Evade", type = "Invulnerable", start = 0, ["end"] = 47 },
-    conditions = { { type = "mod_exists", name = "Stun", ["not"] = true } },
+    conditions = { { not_mod = "Stun" } },
 }
 
 local function tactic(id, moves, initial, cooldown, advance_for_range)
@@ -70,7 +70,10 @@ local function tactic(id, moves, initial, cooldown, advance_for_range)
                     if (not back_wall or back_wall < 120) and advance then return advance end
                     if back_wall and back_wall > 300 and retreat then return retreat end
                 elseif retreat then
-                    return retreat
+                    -- Open the native minimum-range gate, but do not repeat
+                    -- StepBack while the back wall leaves no room.
+                    local back_wall = event.back_wall_distance
+                    if not back_wall or back_wall > 120 then return retreat end
                 end
             end
             if #attacks > 0 then

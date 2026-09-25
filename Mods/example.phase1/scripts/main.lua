@@ -109,15 +109,15 @@ local showcase_step = sf2.moves.register {
     first_frame = 3,
     mirror_node = "NHeel_1",
     -- A deterministic opening step, not a new player movement binding.
-    events = { { type = sf2.moves.ROUND_STAGE_START, name = "Fight" } },
-    conditions = { { type = sf2.moves.PERK, perk = opening_focus } },
+    events = { { round_stage_start = "Fight" } },
+    conditions = { { perk = opening_focus } },
     intervals = { { type = "Block" }, { name = "Throwable" } },
 }
 
 sf2.moves.register_trigger {
     id = "showcase_step_sound",
     events = {
-        { type = sf2.moves.ANIMATION_START, name = "example.phase1:moves/showcase_step" },
+        { animation_start = "example.phase1:moves/showcase_step" },
     },
     actions = {
         { type = sf2.moves.SOUND, audio = showcase_audio, volume = 0.25 },

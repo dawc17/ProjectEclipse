@@ -122,23 +122,23 @@ $absoluteTransitions=[MovesParser].GetMethod('KFPHEGLHEMM',$staticFlags).Invoke(
 Check (!$absoluteTransitions[0].IsFrameShift -and $absoluteTransitions[0].FrameShift -eq 4) 'Absolute transition frame became a relative shift.'
 $emptyGraph='sf2.moves.register_template {id="empty"}'
 Check ((Fingerprint (Load-Lua $emptyGraph)) -ceq (Fingerprint (Load-Lua $emptyGraph.Replace('id="empty"','id="empty",locks={}')))) 'Empty graph changed existing content fingerprint.'
-foreach($mutation in @('data.transitions[1].frame_shift=3','data.align.position.shift_x=1','data.direction.to.part="NHeel_1"','data.locks[1].item_subtype="Sai"','data.transitions[1].conditions[1].name="OtherMove"')) {
+foreach($mutation in @('data.transitions[1].frame_shift=3','data.align.position.x=1','data.direction.to.node="NHeel_1"','data.locks[1].subtype="Sai"','data.transitions[1].conditions[1].animation="OtherMove"')) {
     $changed=Load-Lua $graphLua.Replace('local animation=',($mutation+"`n"+'local animation='))
     Check ($baseFingerprint -cne (Fingerprint $changed)) ('Graph field omitted from fingerprint: '+$mutation)
 }
 foreach($mutation in @(
     'data.transitions[1].first_frame=2', 'data.transitions[1].frame_shift=0.5',
     'data.transitions[1].frame_shift=100001', 'data.transitions[1].conditions={}',
-    'data.align.axes={"X","X"}', 'data.align.axes={"W"}', 'data.align.pivot.part=nil',
-    'data.align.pivot.shift_x=1', 'data.align.position.object="Floor"',
-    'data.direction.to.player=nil', 'data.direction.to.object="Animation"',
-    'data.align.position.shift_x=1/0', 'data.align.position.shift_z=1'
+    'data.align.axes={"X","X"}', 'data.align.axes={"W"}', 'data.align.pivot.node=nil',
+    'data.align.pivot.x=1', 'data.align.position={floor="Me"}',
+    'data.direction.to.player=nil', 'data.direction.to={animation="Enemy"}',
+    'data.align.position.x=1/0', 'data.align.position.shift_z=1'
 )) {
     $failure=$null;try {$null=Load-Lua $graphLua.Replace('local animation=',($mutation+"`n"+'local animation='))}catch{$failure=$_}
     Check ($null -ne $failure) ('Invalid graph accepted: '+$mutation)
 }
 $failure=$null
-try {$null=Load-Lua 'sf2.moves.register_template {id="bad",transitions={{frame_shift=2,conditions={{type="round_stage",name="Fight"}}}}}'}catch{$failure=$_}
+try {$null=Load-Lua 'sf2.moves.register_template {id="bad",transitions={{frame_shift=2,conditions={{stage="Fight"}}}}}'}catch{$failure=$_}
 Check ($null -ne $failure) 'Template transition accepted although native parser does not inherit it.'
 $duplicate='sf2.moves.extend_item_lock {move="SaiSpit",item_type="Weapon",source_subtype="Sai",subtype="ChineseSwords"}'
 $failure=$null;try {$null=Load-Lua ($duplicate+"`n"+$duplicate)}catch{$failure=$_}

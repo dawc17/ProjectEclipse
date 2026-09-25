@@ -4,6 +4,7 @@ $fixture = Join-Path $root ('Temp/RewardOnlyEquipment-' + [Guid]::NewGuid().ToSt
 New-Item -ItemType Directory -Path $fixture -Force | Out-Null
 $adapter = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs')
 $methods = foreach ($name in @('ApplyItems', 'ExternalEquipment', 'BuildItemNode', 'RemoveItems',
+    'ApplyInitialProfiles', 'ApplyShopPrices', 'ApplyItemPresentations',
     'ApplyLocalization', 'RemoveLocalization', 'OnLanguageChanged', 'Set', 'ThrowIfDisposed')) {
     $match = [regex]::Match($adapter, '(?ms)^        (?:public|private) [^\r\n]*\b' + $name + '\(.*?^        \}')
     if (!$match.Success) { throw "Cannot extract production adapter method: $name" }

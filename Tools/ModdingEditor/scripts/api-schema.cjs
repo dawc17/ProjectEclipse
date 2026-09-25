@@ -181,48 +181,68 @@ fn('story.before_fight',{fight:H('Fight'),on_before_fight:`fun(request:${E('Figh
 fn('story.resume_fight',{request:E('FightEntryRequest')},'boolean','story.progression');
 fn('story.cancel_fight',{request:E('FightEntryRequest')},'nil','story.progression');
 fn('story.fight_pending',{request:E('FightEntryRequest')},'boolean','story.progression');
+type('SequenceDialog', {'portrait?':H('Sprite'),lines:E('StoryDialogLine')+'[]',button:H('Localization'),'title?':H('Localization'),'mirrored?':'boolean','ignore_back?':'boolean'});
+type('SequenceActScreen', {lines:E('ActScreenLine')+'[]'});
+type('StorySequenceStep', {'dialog?':E('SequenceDialog'),'act_screen?':E('SequenceActScreen')});
+type('StorySequenceDefinition', {steps:E('StorySequenceStep')+'[]','position?':'string','on_complete?':'fun()','on_cancel?':'fun()','on_step?':'fun(index:integer):boolean|nil'});
+fn('story.play_sequence',{definition:E('StorySequenceDefinition')},'boolean',['story.events','ui.create']);
 fn('story.on',{event:'"purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"',callback:'fun(event: Eclipse.StoryEvent)'},E('StorySubscription'),'story.events');
 fn('story.off',{subscription:E('StorySubscription')},'nil','story.events');
 fn('story.is_active',{subscription:E('StorySubscription')},'boolean','story.events');
 fn('scenes.open',{destination:'"map"|"shop"|"profile"|"dojo"'},'boolean','presentation.navigate');
 type('LocationImage',{sprite:H('Sprite'),'x?':'number','y?':'number','width?':'number','height?':'number','opaque?':'boolean','flip_x?':'boolean','flip_y?':'boolean','mask?':'boolean',...Object.fromEntries(['motion_x','motion_y','rotation','opacity'].map(k=>[k+'?',E('LocationCurve')]))});type('FighterPositions',{player_x:'number',player_y:'number',enemy_x:'number',enemy_y:'number'});type('LocationLayer',{'type?':'integer','factor?':'number','scaling?':'boolean','images?':E('LocationImage')+'[]','fighters?':E('FighterPositions')});type('LocationDefinition',{id:'string','color?':'string',...Object.fromEntries(['wall','floor','position_y','width','height','min_width','friction_force','grid_size'].map(k=>[k+'?','number'])),'music?':H('Audio'),'music_choices?':H('Audio')+'[]','dojo?':'boolean',layers:E('LocationLayer')+'[]'});reg('locations.register','LocationDefinition','Location');fn('locations.name',{location:H('Location')},'string',null);fn('locations.select_dojo',{location:H('Location')},'nil','presentation.dojo');fn('locations.reset_dojo',{},'nil','presentation.dojo');fn('locations.selected_dojo',{},'string|nil','presentation.dojo');
 const moveEvent=enumOf('animation_end','animation_start','interval_end','interval_start','hit','strike','every_frame','birth','round_stage_start','mod_expires','key_pressed');
-type('MoveEvent',{type:moveEvent,'name?':'string','player?':'string'});
-const moveCondition=`${E('MovePerkCondition')}|${E('MoveNamedCondition')}|${E('MoveConditionGroup')}|${E('MoveCharacterCondition')}|${E('MoveKeysCondition')}|${E('MoveStageCondition')}|${E('MoveRoundResultCondition')}|${E('MoveScreenCondition')}|${E('MoveModCondition')}|${E('MoveActorCondition')}|${E('MoveBulletsCondition')}|${E('MoveDistanceCondition')}|${E('MoveDirectionCondition')}`;
-type('MoveDistanceCondition',{type:'"distance"',axis:enumOf('X','Y','Full'),from:E('MovePoint'),to:E('MovePoint'),'minimum?':'number','maximum?':'number','not?':'boolean'});
-type('MoveDirectionCondition',{type:'"direction"',player:enumOf('Me','Enemy'),from:E('MovePoint'),to:E('MovePoint'),'not?':'boolean'});
-type('MoveActorCondition',{type:'"actor_name"',name:'string','player?':enumOf('Me','Enemy','Parent','Child','EnemyChild','Both'),'not?':'boolean'});
-type('MoveBulletsCondition',{type:'"bullets"',bullet_type:enumOf('MagicBullet','RaidChargeBullet'),'minimum?':'integer','maximum?':'integer','player?':enumOf('Me','Enemy','Parent','Child','EnemyChild','Both'),'not?':'boolean'});
+
+const shortPlayer=enumOf('Me','Enemy','Parent','Child','EnemyChild','Both');
+const shortKey=enumOf('Up','Up-Forward','Forward','Down-Forward','Down','Down-Back','Back','Up-Back','Punch','Kick','Ranged','Magic','RaidCharge','Super');
+type('MoveShortPoint',{'node?':'string','wall?':enumOf('Front','Back'),'pivot?':'string|true','animation?':'string|true','floor?':'string|true','com?':'string|true','player?':enumOf('Me','Enemy','Parent','Child','EnemyChild'),'x?':'number','y?':'number'});
+const point=E('MoveShortPoint');
+type('MoveShortKey',{'[1]':shortKey,'press?':enumOf('Tap','Hold','Release')});
+const shortConditionFields={'key?':shortKey,'keys?':`(${shortKey}|${E('MoveShortKey')})[]`,'mod?':'string','interval?':'string','animation?':'string','stage?':enumOf('StartStance','Fight','EndStance','TryOn'),'round_result?':enumOf('Victory','Defeat'),'screen?':enumOf('ShopArmor','ShopWeapon','ShopHelm','ShopMissile','ShopMagic','ShopRuby','ShopFree','ShopRaidItemPack','Profile','Fight'),'actor?':'string','character?':H('Warrior'),'perk?':H('Perk'),'item?':enumOf('Weapon','Ranged','Magic','Armor','Helm','Skeleton'),'bullets?':enumOf('MagicBullet','RaidChargeBullet'),'distance?':enumOf('X','Y','Full'),'direction?':enumOf('Me','Enemy'),'all?':'table[]','any?':'table[]'};
+for(const k of Object.keys(shortConditionFields))shortConditionFields['not_'+k]=shortConditionFields[k];
+Object.assign(shortConditionFields,{'controllable?':'true','press?':enumOf('Tap','Hold','Release'),'subtype?':'string','name?':'string','player?':shortPlayer,'min?':'number','max?':'number','from?':point,'to?':point});
+type('MoveShortCondition',shortConditionFields);
+const moveCondition=E('MoveShortCondition');
+
+
+
+
 type('MoveVelocity',{'x?':'number','y?':'number','z?':'number','ax?':'number','ay?':'number','az?':'number','save_velocity?':'boolean'});
-type('MovePerkCondition',{type:'"perk"',perk:H('Perk'),'player?':'string','not?':'boolean'});type('MoveNamedCondition',{type:enumOf('current_animation','current_interval','item'),'name?':'string','player?':'string','item_type?':'string','item_subtype?':'string','not?':'boolean'});type('MoveConditionGroup',{type:enumOf('all','any'),conditions:`(${moveCondition})[]`,'not?':'boolean'});
-type('MoveCharacterCondition',{type:'"character"',warrior:H('Warrior'),'not?':'boolean'});
-type('MoveKey',{key:enumOf('Up','Up-Forward','Forward','Down-Forward','Down','Down-Back','Back','Up-Back','Punch','Kick','Ranged','Magic','RaidCharge','Super'),'press?':enumOf('Tap','Hold','Release')});
-type('MoveKeysCondition',{type:'"keys"',keys:E('MoveKey')+'[]','not?':'boolean'});
-type('MoveStageCondition',{type:'"round_stage"',name:enumOf('StartStance','Fight','EndStance','TryOn'),'player?':enumOf('Me','Enemy','Both'),'not?':'boolean'});
-type('MoveRoundResultCondition',{type:'"round_result"',name:enumOf('Victory','Defeat'),'player?':enumOf('Me','Enemy','Both'),'not?':'boolean'});
-type('MoveScreenCondition',{type:'"screen"',name:enumOf('ShopArmor','ShopWeapon','ShopHelm','ShopMissile','ShopMagic','ShopRuby','ShopFree','ShopRaidItemPack','Profile','Fight'),'player?':enumOf('Me','Enemy','Both'),'not?':'boolean'});
-type('MoveModCondition',{type:'"mod_exists"',name:'string','player?':enumOf('Me','Enemy','Both'),'not?':'boolean'});
-type('MoveDamageTerm',{type:enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'shift?':'number'});
+
+
+
+
+
+
+
+
+type('MoveDamageTermMap',{'WeaponDamage?':'number','RangedDamage?':'number','MagicDamage?':'number','UnarmedDamage?':'number'});
+
 type('MoveImpulse',{'x?':'number','y?':'number','z?':'number'});
 type('MoveAttackOptions',{'no_effect?':'boolean','no_critical?':'boolean','ignores_block?':'boolean','ignores_all_invulnerable?':'boolean','body_part?':enumOf('Body','Head'),'defense_types?':'('+enumOf('BodyDefense','HeadDefense')+')[]','ignores_invulnerable?':'string[]'});
-type('MoveAttack',{'edges?':'string[]','direct?':'boolean','hit_move?':H('Move'),'damage?':'number','damage_type?':enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'damage_terms?':E('MoveDamageTerm')+'[]','hit?':enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal','HighLong','NoReaction','WaspFly','Earthquake','ElectrocutionPowerfield'),'id?':'integer','impulse?':E('MoveImpulse'),'options?':E('MoveAttackOptions')});
-type('MoveInterval',{'type?':'string','name?':'string','start?':'integer','end?':'integer','attack?':E('MoveAttack')});
-type('MovePoint',{object:enumOf('Nodes','Pivot','Wall','Animation','Floor','COM'),'player?':enumOf('Me','Enemy','Parent','Child','EnemyChild'),'part?':'string','shift_x?':'number','shift_y?':'number'});
-type('MoveAlignment',{axes:'('+enumOf('X','Y','Z')+')[]',pivot:E('MovePoint'),position:E('MovePoint'),'shift_model_node?':'string'});
+type('MoveAttack',{'edges?':'string[]','direct?':'boolean','hit_move?':H('Move'),'damage?':'number','damage_type?':enumOf('UnarmedDamage','WeaponDamage','RangedDamage','MagicDamage'),'damage_terms?':E('MoveDamageTermMap'),'hit?':enumOf('High','Middle','Low','Spinning','HighHeavy','MiddleShortPlus','Physycal','HighLong','NoReaction','WaspFly','Earthquake','ElectrocutionPowerfield'),'id?':'integer','impulse?':E('MoveImpulse'),'options?':E('MoveAttackOptions')});
+type('MoveInterval',{'type?':'string','name?':'string','from?':'integer','to?':'integer','attack?':E('MoveAttack')});
+
+type('MoveAlignment',{axes:'('+enumOf('X','Y','Z')+')[]',pivot:point,position:point,'shift_model_node?':'string'});
 type('MoveImpulseDirection',{'reverse?':'boolean'});
-type('MoveDirection',{'from?':E('MovePoint'),'to?':E('MovePoint'),'impulse?':E('MoveImpulseDirection')});
-type('MoveTransition',{conditions:`(${moveCondition})[]`,'frame_shift?':'integer','first_frame?':'integer'});
-const move={id:'string','templates?':H('MoveTemplate')+'[]','core_templates?':'string[]','events?':`(${moveEvent}|${E('MoveEvent')})[]`,'conditions?':`(${moveCondition})[]`,'intervals?':E('MoveInterval')+'[]','locks?':`(${moveCondition})[]`,'align?':E('MoveAlignment'),'direction?':E('MoveDirection'),...Object.fromEntries(['type','mirror_node','tactic_equivalent','tactic_weapon'].map(k=>[k+'?','string'])),...Object.fromEntries(['priority','mid_frames','first_frame','end_frame'].map(k=>[k+'?','integer'])),'looped?':'boolean','ends_stage?':'boolean'};
+type('MoveDirection',{'from?':point,'to?':point,'impulse?':E('MoveImpulseDirection')});
+type('MoveTransition',{conditions:`(${moveCondition}|table[])[]`,'frame_shift?':'integer','first_frame?':'integer'});
+type('MoveShortEvent',{...Object.fromEntries(['interval_end','interval_start','round_stage_start','mod_expires','animation_start','animation_end','hit','strike','every_frame','birth','key_pressed'].map(k=>[k+'?','string'])),'player?':'string'});
+const move={id:'string','templates?':H('MoveTemplate')+'[]','core_templates?':'string[]','events?':`"controlled"|(${moveEvent}|${E('MoveShortEvent')})[]`,'conditions?':`(${moveCondition}|table[])[]`,'intervals?':E('MoveInterval')+'[]','locks?':`(${moveCondition}|table[])[]`,'align?':E('MoveAlignment'),'direction?':`${E('MoveDirection')}|"face_enemy"`,...Object.fromEntries(['type','mirror_node','tactic_equivalent','tactic_weapon'].map(k=>[k+'?','string'])),...Object.fromEntries(['priority','mid_frames','first_frame','end_frame'].map(k=>[k+'?','integer'])),'looped?':'boolean','ends_stage?':'boolean'};
 type('MoveEffectAttachment',{player:enumOf('Me','Enemy','Parent','Child','EnemyChild'),root_point:'string',attach_point:'string','offset_x?':'number','offset_y?':'number','start_rotation?':'number'});
-type('MoveEffect',{name:'string',core_sequence:'string','scale?':'number','time_scale?':'number','looped?':'boolean','on_background?':'boolean','position?':E('MovePoint'),'follow?':'boolean','attach?':E('MoveEffectAttachment')});
+type('MoveEffect',{name:'string',core_sequence:'string','scale?':'number','time_scale?':'number','looped?':'boolean','on_background?':'boolean','position?':point,'follow?':'boolean','attach?':E('MoveEffectAttachment')});
 type('MoveProjectile',{name:'string',core_skeleton:'string','copy_parent_type?':enumOf('Weapon','Ranged','Magic'),'item?':H('Item'),'core_start_animation?':'string','start_move?':H('Move')});
-type('MoveBulletChange',{type:enumOf('MagicBullet','RaidChargeBullet'),value:'integer'});
-type('MoveSound',{core_sound:'string','voice?':enumOf('Male','MaleLow','Female')});
+
+
 type('MoveShake',{'pause_time?':'integer','effect_time?':'integer','amplitude_x?':'number','amplitude_y?':'number','frequency_x?':'number','frequency_y?':'number'});
-type('MoveScheduledAction',{type:enumOf('random_sound','try_on_end','effect','stop_effect','stop_follow_effect','create_projectile','add_bullets','delete_actor','sound','stop_sound','shake_screen','play_animation'),'frame?':'integer','event?':enumOf('RoundStage','KeyPressed','KeyReleased','RoundStart','RoundEnd','Hit','Strike','WallHit','AnimationStart','AnimationEnd','IntervalStart','IntervalEnd','EveryFrame','Birth','ModExpires'),'core_sounds?':'string[]','core_sound?':'string','sound?':E('MoveSound'),'shake?':E('MoveShake'),'effect?':E('MoveEffect'),'effect_name?':'string','projectile?':E('MoveProjectile'),'bullets?':E('MoveBulletChange'),'player?':enumOf('Me','Enemy','Parent','Child','EnemyChild'),'move?':H('Move'),'core_animation?':'string','child_name?':'string'});
+
 type('MoveProfile',{rank:'integer',core_icon:'string','display_name?':H('Localization')});
-type('MoveTacticDistance',{axis:enumOf('X','Y','Full'),'minimum?':'number','maximum?':'number',from:E('MovePoint'),to:E('MovePoint')});
-const fullMove={...move,animation:H('Binary'),'transitions?':E('MoveTransition')+'[]','actions?':E('MoveScheduledAction')+'[]','profile?':E('MoveProfile'),'tactic_distance?':E('MoveTacticDistance'),'tactic_conditions?':`(${moveCondition})[]`,'no_wall_repulsion?':'boolean','no_interpolation_frames?':'boolean','no_magic_recharge?':'boolean','velocity?':E('MoveVelocity')};
+
+type('MoveShortTacticDistance',{distance:enumOf('X','Y','Full'),'min?':'number','max?':'number',from:point,to:point});
+type('MoveShortAction',{'sound?':'string|string[]','stop_sound?':'string','play_sound?':'string','voice?':enumOf('Male','MaleLow','Female'),'effect?':E('MoveEffect'),'stop_effect?':'string','stop_follow_effect?':'string','projectile?':E('MoveProjectile'),'add_bullets?':enumOf('MagicBullet','RaidChargeBullet'),'amount?':'integer','delete_actor?':enumOf('Me','Enemy','Parent','Child','EnemyChild'),'play_animation?':H('Move')+'|string','player?':enumOf('Me','Enemy','Parent','Child','EnemyChild'),'child_name?':'string','shake?':E('MoveShake'),'try_on_end?':'true'});
+const timelineEntry=`${E('MoveShortAction')}|${E('MoveShortAction')}[]`;
+type('MoveTimeline',{'[integer]':timelineEntry,...Object.fromEntries(['birth','round_stage','round_start','key_pressed','key_released','animation_start','interval_start','every_frame','strike','hit','wall_hit','interval_end','animation_end','mod_expires','round_end'].map(k=>[k+'?',timelineEntry]))});
+const fullMove={...move,animation:H('Binary')+'|string','transitions?':E('MoveTransition')+'[]','timeline?':E('MoveTimeline'),'profile?':E('MoveProfile'),'tactic_distance?':E('MoveShortTacticDistance'),'tactic_conditions?':`(${moveCondition}|table[])[]`,'no_wall_repulsion?':'boolean','no_interpolation_frames?':'boolean','no_magic_recharge?':'boolean','velocity?':E('MoveVelocity')};
 type('MoveTemplateDefinition',move);type('MoveDefinition',fullMove);reg('moves.register_template','MoveTemplateDefinition','MoveTemplate');reg('moves.register','MoveDefinition','Move');
 const replacementMove={...fullMove};delete replacementMove['templates?'];
 type('MoveReplacementDefinition',{...replacementMove,target:'string',expected_file:'string'});reg('moves.replace','MoveReplacementDefinition','Move','content.patch');

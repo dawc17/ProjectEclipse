@@ -4,6 +4,7 @@
 foreach($name in @('sensei_battles','sensei_battle_text','sensei_encounters','sensei_rewards','sensei_fight_rules','sensei_raid_charge')) {
     Copy-Item (Join-Path $root "Mods/de128/scripts/content/$name.lua") (Join-Path $package 'scripts/content')
 }
+Copy-Item -Recurse (Join-Path $root 'Mods/de128/localizations') (Join-Path $package 'localizations')
 $script:checks=0
 $script:ownedPreviews=0
 $zoneDoc=[Xml.XmlDocument]::new();$zones=$zoneDoc.CreateElement('Zones');$null=$zoneDoc.AppendChild($zones)
@@ -37,6 +38,7 @@ $textKeys=@{alias='Sensei_arc';title='Sensei_arc_Title';locked='Sensei_button_lo
 $translations=0
 foreach($localization in $catalog.Localizations) {
     if($localization.Id.Namespace.Value -ne "fixture.warriors"){continue}
+    if(!$localization.Id.LocalId.StartsWith('sensei.battle.')){continue}
     $key=$localization.Id.LocalId.Replace('sensei.battle.','')
     Check ($textKeys.ContainsKey($key)) 'Unexpected localization key.'
     foreach($value in $localization.Values.GetEnumerator()) {

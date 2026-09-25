@@ -197,6 +197,20 @@ async function main() {
     notify('textDocument/didChange', { textDocument: { uri: ruleUri, version: 2 }, contentChanges: [{ text: ruleText }] });
     await until(() => diagnostics.get(ruleKey)?.length === 0, 'cleared battle-rule diagnostics');
     console.log('PASS: complete snapshot-based battle rule has no diagnostics');
+    for (const file of ['war_whirl.lua', 'sphere1.lua', 'chinese_swords_data.lua', 'chinese_swords.lua', 'mind_throw.lua', 'sphere2.lua', 'hermit_storm.lua', 'gatekeeper_power_field.lua', 'combo_sphere3.lua', 'butcher_earthquake.lua', 'blackness_grasp.lua', 'widow_teleportation.lua', 'sphere3.lua', 'wasp_fly.lua', 'raid_boss_abilities.lua', 'shared_moves.lua', 'dandy_lightning_chain.lua', 'sensei_entry.lua', 'sensei_victory.lua', 'sensei_defeat.lua', 'underworld_story.lua']) {
+        const shortText = fs.readFileSync(path.join(root, '../../Mods/de128/scripts/content', file), 'utf8');
+        const shortUri = open('short-' + file, shortText + '\nsf2.price.coins("temporary test error")\n');
+        const shortKey = decodeURIComponent(shortUri).toLowerCase();
+        await until(() => (diagnostics.get(shortKey)?.length ?? 0) > 0, 'temporary short-form diagnostic');
+        notify('textDocument/didChange', { textDocument: { uri: shortUri, version: 2 }, contentChanges: [{ text: shortText }] });
+        try {
+            await until(() => diagnostics.get(shortKey)?.length === 0, 'cleared short-form diagnostics for ' + file);
+        } catch (error) {
+            console.error(file, JSON.stringify(diagnostics.get(shortKey), null, 2));
+            throw error;
+        }
+    }
+    console.log('PASS: all packaged short-form DE128 moves have no diagnostics');
     const upgradeFields=probe('upgrade-fields.lua','local sf2=require("sf2")\nsf2.perks.register { upgrades = { { | } } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',upgradeFields));
@@ -252,10 +266,10 @@ async function main() {
         const found=labels(await request('textDocument/completion',damageFields));
         return ['damage_terms','hit','impulse'].every(name=>found.some(value=>value.startsWith(name)));
     },'move attack fields');
-    const termFields=probe('move-term-fields.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="test",intervals={{type="Attack",attack={edges={"Edge"},damage_terms={{ | }}}}} }');
+    const termFields=probe('move-term-fields.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="test",intervals={{type="Attack",attack={edges={"Edge"},damage_terms={ | }}}} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',termFields));
-        return ['type','shift'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['WeaponDamage','MagicDamage','UnarmedDamage','RangedDamage'].every(name=>found.some(value=>value.startsWith(name)));
     },'move damage term fields');
     console.log('PASS: mixed move damage fields complete');
     const moveLockFields=probe('move-lock-fields.lua','local sf2=require("sf2")\nsf2.moves.extend_item_lock { | }');
@@ -297,58 +311,58 @@ async function main() {
     const moveGraphFields=probe('move-graph-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"), | }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveGraphFields));
-        return ['locks','transitions','align','direction','actions','profile','tactic_distance','tactic_conditions','no_wall_repulsion','no_interpolation_frames'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['locks','transitions','align','direction','timeline','profile','tactic_distance','tactic_conditions','no_wall_repulsion','no_interpolation_frames'].every(name=>found.some(value=>value.startsWith(name)));
     },'move graph fields');
     const alignFields=probe('move-align-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),align={axes={"X"},pivot={ | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',alignFields));
-        return ['object','part','player'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['node','pivot','player'].every(name=>found.some(value=>value.startsWith(name)));
     },'move alignment point fields');
     console.log('PASS: move graph and item lock extension fields complete');
     const replaceFields=probe('move-replace-fields.lua','local sf2=require("sf2")\nsf2.moves.replace { | }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',replaceFields));
-        return ['id','target','expected_file','animation','conditions','locks','align','actions'].every(name=>found.some(value=>value.startsWith(name))) && !found.some(value=>value.startsWith('templates'));
+        return ['id','target','expected_file','animation','conditions','locks','align','timeline'].every(name=>found.some(value=>value.startsWith(name))) && !found.some(value=>value.startsWith('templates'));
     },'guarded native move replacement fields');
-    const shiftNode=probe('move-shift-node.lua','local sf2=require("sf2")\nsf2.moves.replace { id="test",target="NativeMove",expected_file="old.bytes",animation=sf2.assets.binary("animations/new"),align={axes={"X"},pivot={object="Nodes",part="NPivot"},position={object="Pivot"}, | }}');
+    const shiftNode=probe('move-shift-node.lua','local sf2=require("sf2")\nsf2.moves.replace { id="test",target="NativeMove",expected_file="old.bytes",animation=sf2.assets.binary("animations/new"),align={axes={"X"},pivot={node="NPivot"},position={pivot=true}, | }}');
     await until(async()=>labels(await request('textDocument/completion',shiftNode)).some(value=>value.startsWith('shift_model_node')),'alignment shift model node');
-    const directionCondition=probe('move-direction-condition.lua','local sf2=require("sf2")\nsf2.moves.replace { id="test",target="NativeMove",expected_file="old.bytes",animation=sf2.assets.binary("animations/new"),conditions={{type="direction", | }} }');
+    const directionCondition=probe('move-direction-condition.lua','local sf2=require("sf2")\nsf2.moves.replace { id="test",target="NativeMove",expected_file="old.bytes",animation=sf2.assets.binary("animations/new"),conditions={{direction="Me", | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',directionCondition));
         return ['player','from','to'].every(name=>found.some(value=>value.startsWith(name)));
     },'native direction condition');
     console.log('PASS: guarded move replacement, alignment and direction condition complete');
-    const moveActionFields=probe('move-action-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{ | }} }');
+    const moveActionFields=probe('move-action-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),timeline={[1]={ | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveActionFields));
-        return ['type','frame','event','core_sounds'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['sound','effect','projectile','play_animation'].every(name=>found.some(value=>value.startsWith(name)));
     },'scheduled move action fields');
-    const stopSound=probe('move-stop-sound.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="stop_sound",event="Hit", | }} }');
+    const stopSound=probe('move-stop-sound.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),timeline={hit={ | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',stopSound));
-        return found.some(value=>value.startsWith('core_sound'));
+        return found.some(value=>value.startsWith('stop_sound'));
     },'native sound stop field');
-    const playAnimation=probe('move-play-animation.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="play_animation",frame=17, | }} }');
+    const playAnimation=probe('move-play-animation.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),timeline={[17]={ | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',playAnimation));
-        return ['move','core_animation','player','child_name'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['play_animation','player','child_name'].every(name=>found.some(value=>value.startsWith(name)));
     },'child animation action fields');
     const moveTacticFields=probe('move-tactic-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),tactic_distance={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveTacticFields));
-        return ['axis','minimum','maximum','from','to'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['distance','min','max','from','to'].every(name=>found.some(value=>value.startsWith(name)));
     },'move tactic distance fields');
     const tacticCondition=probe('move-tactic-conditions.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),tactic_conditions={{ | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',tacticCondition));
-        return ['type','name','player','conditions','minimum'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['animation','player','any','distance','min'].every(name=>found.some(value=>value.startsWith(name)));
     },'move tactic condition fields');
-    const roundResult=probe('move-round-result.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),conditions={{type="round_result", | }} }');
+    const roundResult=probe('move-round-result.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),conditions={{ | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',roundResult));
-        return ['name','player'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['round_result','player'].every(name=>found.some(value=>value.startsWith(name)));
     },'round result condition fields');
-    const backgroundEffect=probe('move-background-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="effect",frame=1,effect={name="storm",core_sequence="storm", | }}} }');
+    const backgroundEffect=probe('move-background-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),timeline={[1]={effect={name="storm",core_sequence="storm", | }}} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',backgroundEffect));
         return ['on_background','attach'].every(name=>found.some(value=>value.startsWith(name)));
@@ -358,6 +372,17 @@ async function main() {
         const found=labels(await request('textDocument/completion',moveProfileFields));
         return ['rank','core_icon','display_name'].every(name=>found.some(value=>value.startsWith(name)));
     },'move profile localization fields');
+    const sequenceFields=probe('story-sequence-fields.lua','local sf2=require("sf2")\nsf2.story.play_sequence { | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',sequenceFields));
+        return ['steps','position','on_complete','on_cancel','on_step'].every(name=>found.some(value=>value.startsWith(name)));
+    },'saved dialogue sequence fields');
+    const sequenceStep=probe('story-sequence-step.lua','local sf2=require("sf2")\nsf2.story.play_sequence { steps={{ | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',sequenceStep));
+        return ['dialog','act_screen'].every(name=>found.some(value=>value.startsWith(name)));
+    },'dialogue sequence step fields');
+    console.log('PASS: saved dialogue sequence and step fields complete');
     const rewardContext=probe('reward-configure-context.lua','local sf2=require("sf2")\nsf2.rewards.register { id="reward",items={{item=sf2.items.get("core:items/weapon/WEAPON_KNIVES"),configure=function(context)\n local value=context.|\n return {}\nend}} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',rewardContext));
@@ -558,26 +583,26 @@ async function main() {
     },'location curve point inference');
     console.log('PASS: procedural workflow and AI examples have no diagnostics; character, attack, location curve and callback fields complete');
 
-    const moveEffectProbe=probe('move-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="effect", actions={{ type="effect", effect={ | } }} }');
+    const moveEffectProbe=probe('move-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="effect", timeline={[1]={ effect={ | } }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',moveEffectProbe));
         return ['name','core_sequence','scale','time_scale','looped','position','follow','attach'].every(field=>result.some(value=>value.startsWith(field)));
     },'scheduled move effect fields');
-    const moveAttachProbe=probe('move-effect-attach.lua','local sf2=require("sf2")\nsf2.moves.register { id="effect", actions={{ type="effect", effect={name="shock",core_sequence="shock",attach={ | } } }} }');
+    const moveAttachProbe=probe('move-effect-attach.lua','local sf2=require("sf2")\nsf2.moves.register { id="effect", timeline={[1]={ effect={name="shock",core_sequence="shock",attach={ | } } }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',moveAttachProbe));
         return ['player','root_point','attach_point','offset_x','offset_y','start_rotation'].every(field=>result.some(value=>value.startsWith(field)));
     },'scheduled effect attachment fields');
 
-    const projectileProbe=probe('move-projectile.lua','local sf2=require("sf2")\nsf2.moves.register { id="projectile", actions={{ type="create_projectile", projectile={ | } }} }');
+    const projectileProbe=probe('move-projectile.lua','local sf2=require("sf2")\nsf2.moves.register { id="projectile", timeline={[1]={ projectile={ | } }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',projectileProbe));
         return ['name','core_skeleton','copy_parent_type','item','core_start_animation','start_move'].every(field=>result.some(value=>value.startsWith(field)));
     },'scheduled projectile fields');
-    const bulletsProbe=probe('move-bullets.lua','local sf2=require("sf2")\nsf2.moves.register { id="charge", actions={{ type="add_bullets", bullets={ | } }} }');
+    const bulletsProbe=probe('move-bullets.lua','local sf2=require("sf2")\nsf2.moves.register { id="charge", timeline={[1]={ | }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',bulletsProbe));
-        return ['type','value'].every(field=>result.some(value=>value.startsWith(field)));
+        return ['add_bullets','amount'].every(field=>result.some(value=>value.startsWith(field)));
     },'scheduled charge fields');
 
     const spellMotionProbe=probe('spell-motion.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", velocity={ | } }');
@@ -585,10 +610,10 @@ async function main() {
         const result=labels(await request('textDocument/completion',spellMotionProbe));
         return ['x','y','z','ax','ay','az','save_velocity'].every(field=>result.some(value=>value.startsWith(field)));
     },'spell velocity fields');
-    const chargeConditionProbe=probe('spell-condition.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ type="bullets", | }} }');
+    const chargeConditionProbe=probe('spell-condition.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ | }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',chargeConditionProbe));
-        return ['bullet_type','minimum','maximum','player','not'].every(field=>result.some(value=>value.startsWith(field)));
+        return ['bullets','min','max','player','not_bullets'].every(field=>result.some(value=>value.startsWith(field)));
     },'spell charge condition fields');
 
     const spellAttackProbe=probe('spell-attack.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", intervals={{ type="Attack", attack={options={ | }} }} }');
@@ -598,18 +623,18 @@ async function main() {
     },'spell attack options');
     const physicalHitProbe=probe('physical-hit.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="hit",intervals={{type="Attack",attack={edges={"Edge"},hit=|}}} }');
     await until(async()=>{ const found=labels(await request('textDocument/completion',physicalHitProbe)); return ['Physycal','HighLong','NoReaction'].every(name=>found.some(value=>value.includes(name))); },'native physical and long high-hit reaction completion');
-    for (const [kind,field,expected] of [['sound','sound',['core_sound','voice']],['shake_screen','shake',['pause_time','effect_time','amplitude_x','amplitude_y','frequency_x','frequency_y']]]) {
-        const point=probe('move-'+kind+'.lua',`local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="${kind}",frame=1,${field}={ | }}} }`);
-        await until(async()=>{ const found=labels(await request('textDocument/completion',point)); return expected.every(name=>found.some(value=>value.startsWith(name))); },kind+' nested fields');
+    for (const [kind,body,expected] of [['sound','{ | }',['play_sound','voice']],['shake','{shake={ | }}',['pause_time','effect_time','amplitude_x','amplitude_y','frequency_x','frequency_y']]]) {
+        const point=probe('move-'+kind+'.lua',`local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),timeline={[1]=${body}} }`);
+        await until(async()=>{ const found=labels(await request('textDocument/completion',point)); return expected.every(name=>found.some(value=>value.startsWith(name))); },kind+' action fields');
     }
     const hitMoveProbe=probe('owned-hit.lua','local sf2=require("sf2")\nsf2.moves.register_template { id="attack",intervals={{type="Attack",attack={ | }}} }');
     await until(async()=>labels(await request('textDocument/completion',hitMoveProbe)).some(value=>value.startsWith('hit_move')),'owned hit move field');
     const impulseDirectionProbe=probe('impulse-direction.lua','local sf2=require("sf2")\nsf2.moves.register { id="reaction",animation=sf2.assets.binary("animations/test"),direction={impulse={ | }} }');
     await until(async()=>labels(await request('textDocument/completion',impulseDirectionProbe)).some(value=>value.startsWith('reverse')),'impulse direction reverse field');
-    const distanceConditionProbe=probe('spell-distance.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ type="distance", | }} }');
+    const distanceConditionProbe=probe('spell-distance.lua','local sf2=require("sf2")\nsf2.moves.register { id="spell", conditions={{ | }} }');
     await until(async()=>{
         const result=labels(await request('textDocument/completion',distanceConditionProbe));
-        return ['axis','from','to','minimum','maximum','not'].every(field=>result.some(value=>value.startsWith(field)));
+        return ['distance','from','to','min','max','not_distance'].every(field=>result.some(value=>value.startsWith(field)));
     },'spell distance condition fields');
 
     const warriorPerkProbe=probe('warrior-perk.lua','local sf2=require("sf2")\nsf2.warriors.register {id="opponent",perks={{ | }}}');

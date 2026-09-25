@@ -18,6 +18,21 @@ is what the player reads. This is a simple key/value format; keep entries on
 single lines and use double-quoted values. See the [manifest guide](../../guides/manifest/)
 for the surrounding folder layout.
 
+Files load before the Lua entrypoint, so obtain their handles with
+`sf2.localization.key` instead of registering the translations again. The same
+handle works for dialogue titles, buttons, and dialogue lines. Native markup such
+as `{br}` is preserved as text; translation files do not execute Lua. Keep the
+same local key across language files, including case, and use the game's language
+codes. For a newline inside a value, write `\n` rather than splitting the entry
+across physical lines.
+
+```lua
+local sf2 = require("sf2")
+local welcome = sf2.localization.key("dialogue.welcome")
+-- Resolve when displaying a plain-string UI label:
+local label = sf2.localization.text(welcome)
+```
+
 ## sf2.localization.register
 
 Register one translation owned by your mod and get its localization handle.

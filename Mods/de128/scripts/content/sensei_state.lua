@@ -29,6 +29,8 @@ function result.register()
     for _, set in ipairs { "entered", "win_pending", "win_shown", "loss_pending", "loss_shown" } do
         fields["uw_" .. set] = { type = sf2.state.STRING, default = "," }
     end
+    fields.uw_sequence_next = { type = sf2.state.INTEGER, default = 1 }
+    fields.uw_sequence_key = { type = sf2.state.STRING, default = "" }
     sf2.state.register { version = 1, fields = fields }
     registered = true
 end

@@ -65,6 +65,26 @@ namespace Eclipse.Modding
                 ValidateFields(definition, function, "lines", "on_complete");
                 var callback = definition.Get("on_complete");
                 if (!callback.IsNil() && callback.Type != DataType.Function) throw new ModContentException("on_complete must be a Lua function.");
+                var lines = ReadActScreenLines(definition);
+                if (_actScreen != null || _sequence != null) return DynValue.False;
+                if (ModActScreenAccess.Open == null) throw new ModContentException("Act-screen presentation is unavailable in this host.");
+                bool ended = false;
+                var request = ModActScreenAccess.Open(lines, completed => {
+                    if (ended) return;
+                    ended = true;
+                    _actScreen = null;
+                    if (!completed || _disposed || callback.IsNil()) return;
+                    try { RunBounded(callback, Mod.Id + ":ui/act_screen:on_complete", MaxBehaviorInstructionSlices, Array.Empty<DynValue>()); }
+                    catch (Exception error) { _api.Log(ModLogLevel.Error, "Act-screen callback failed: " + error.Message); }
+                });
+                if (!ended) _actScreen = request;
+                else request?.Dispose();
+                return DynValue.NewBoolean(request != null);
+            }
+
+            private IReadOnlyList<ModActScreenLine> ReadActScreenLines(Table definition)
+            {
+                const string function = "act_screen";
                 var source = definition.Get("lines");
                 if (source.Type != DataType.Table || source.Table.Length < 1 || source.Table.Length > 32)
                     throw new ModContentException("Act screens require 1..32 lines.");
@@ -90,20 +110,7 @@ namespace Eclipse.Modding
                     if (total > 7200) throw new ModContentException("Act-screen text duration exceeds 7200 frames.");
                     lines.Add(new ModActScreenLine(_api.ReadLocalization(text, _language?.Invoke() ?? "eng"), (int)frames));
                 }
-                if (_actScreen != null) return DynValue.False;
-                if (ModActScreenAccess.Open == null) throw new ModContentException("Act-screen presentation is unavailable in this host.");
-                bool ended = false;
-                var request = ModActScreenAccess.Open(lines.AsReadOnly(), completed => {
-                    if (ended) return;
-                    ended = true;
-                    _actScreen = null;
-                    if (!completed || _disposed || callback.IsNil()) return;
-                    try { RunBounded(callback, Mod.Id + ":ui/act_screen:on_complete", MaxBehaviorInstructionSlices, Array.Empty<DynValue>()); }
-                    catch (Exception error) { _api.Log(ModLogLevel.Error, "Act-screen callback failed: " + error.Message); }
-                });
-                if (!ended) _actScreen = request;
-                else request?.Dispose();
-                return DynValue.NewBoolean(request != null);
+                return lines.AsReadOnly();
             }
 
             private DynValue OpenStoryDialog(CallbackArguments args)
@@ -117,6 +124,27 @@ namespace Eclipse.Modding
                 var cancel = definition.Get("on_cancel");
                 if (!complete.IsNil() && complete.Type != DataType.Function) throw new ModContentException("on_complete must be a Lua function.");
                 if (!cancel.IsNil() && cancel.Type != DataType.Function) throw new ModContentException("on_cancel must be a Lua function.");
+                var request = ReadStoryDialogRequest(definition);
+                if (_storyDialog != null || _sequence != null) return DynValue.False;
+                if (ModStoryDialogAccess.Open == null) throw new ModContentException("Story dialogs are unavailable in this host.");
+                bool ended = false;
+                var lease = ModStoryDialogAccess.Open(request, acknowledged => {
+                    if (ended) return;
+                    ended = true;
+                    _storyDialog = null;
+                    var callback = acknowledged ? complete : cancel;
+                    if (_disposed || callback.IsNil()) return;
+                    try { RunBounded(callback, Mod.Id + ":ui/story_dialog:" + (acknowledged ? "on_complete" : "on_cancel"), MaxBehaviorInstructionSlices, Array.Empty<DynValue>()); }
+                    catch (Exception error) { _api.Log(ModLogLevel.Error, "Story dialog callback failed: " + error.Message); }
+                });
+                if (!ended) _storyDialog = lease;
+                else lease?.Dispose();
+                return DynValue.NewBoolean(lease != null);
+            }
+
+            private ModStoryDialogRequest ReadStoryDialogRequest(Table definition)
+            {
+                const string function = "story_dialog";
                 string title = definition.Get("title").IsNil() ? string.Empty
                     : _api.NativeLocalizationKey(RequiredHandle(definition, "title", _localizationHandles, "localization", function));
                 string portrait = definition.Get("portrait").IsNil() ? string.Empty
@@ -146,22 +174,7 @@ namespace Eclipse.Modding
                         : _api.NativeLocalizationKey(RequiredHandle(value.Table, "button", _localizationHandles, "localization", function));
                     lines.Add(new ModStoryDialogLine(text, more));
                 }
-                if (_storyDialog != null) return DynValue.False;
-                if (ModStoryDialogAccess.Open == null) throw new ModContentException("Story dialogs are unavailable in this host.");
-                var request = new ModStoryDialogRequest(title, portrait, mirrored, lines.AsReadOnly(), button, ignoreBack);
-                bool ended = false;
-                var lease = ModStoryDialogAccess.Open(request, acknowledged => {
-                    if (ended) return;
-                    ended = true;
-                    _storyDialog = null;
-                    var callback = acknowledged ? complete : cancel;
-                    if (_disposed || callback.IsNil()) return;
-                    try { RunBounded(callback, Mod.Id + ":ui/story_dialog:" + (acknowledged ? "on_complete" : "on_cancel"), MaxBehaviorInstructionSlices, Array.Empty<DynValue>()); }
-                    catch (Exception error) { _api.Log(ModLogLevel.Error, "Story dialog callback failed: " + error.Message); }
-                });
-                if (!ended) _storyDialog = lease;
-                else lease?.Dispose();
-                return DynValue.NewBoolean(lease != null);
+                return new ModStoryDialogRequest(title, portrait, mirrored, lines.AsReadOnly(), button, ignoreBack);
             }
 
             private static string UiString(CallbackArguments args, int index, string function) =>

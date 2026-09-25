@@ -39,7 +39,7 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/CoreContentImporterP1C.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContent.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1B.cs',
-    'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1C.cs',
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1C.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModContentShopPrices.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP2.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP3.cs',
@@ -48,6 +48,8 @@ $sources = @(
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeUi.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs',
+    'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeShortForm.cs',
+    'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeSequence.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs'
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP3.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeFightEntry.cs'
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeTrialRules.cs'
@@ -62,7 +64,7 @@ $program = Join-Path $testRoot 'Program.cs'
 $exe = Join-Path $testRoot 'Phase1ShowcaseRuntime.dll'
 $adapterSource = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs')
 $adapterBase = Get-Content -Raw (Join-Path $root 'Assets/Scripts/Eclipse/Modding/LegacyContentAdapter.cs')
-$projectionMethods = foreach ($method in @('BuildLocationDocument', 'AppendLocationCurve', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition', 'BuildMovePoint', 'AppendMovePresentation', 'BuildMoveNode', 'MoveTemplateNames', 'AppendEvents', 'AppendConditions', 'MoveEventElement')) {
+$projectionMethods = foreach ($method in @('BuildLocationDocument', 'AppendLocationCurve', 'LocationAssetDirectory', 'LocationAssetLeaf', 'BuildMoveCondition', 'BuildMovePoint', 'AppendMovePresentation', 'BuildMoveNode', 'MoveTemplateNames', 'AppendEvents', 'AppendConditions', 'MoveEventElement', 'MoveRuntimeName')) {
     $match = [regex]::Match($adapterSource, '(?ms)^        private [^\r\n]*\b' + $method + '\(.*?^        \}')
     if (!$match.Success) { throw "Cannot extract production projection: $method" }
     $match.Value

@@ -4,11 +4,9 @@ $spellLua=@'
 local animation=sf2.assets.binary("animations/chinese")
 local options={no_effect=true,no_critical=true,ignores_block=true,body_part="Body",
  defense_types={"BodyDefense"},ignores_invulnerable={"Evade","Recovery","Dash","ShroudInterval"}}
-local distance={type="distance",axis="X",maximum=-250,
- from={object="Nodes",part="Magic-Node2_1"},to={object="Wall",part="Front"}}
-sf2.moves.register {id="sphere",animation=animation,conditions={distance},intervals={{type="Attack",start=13,
- attack={edges={"Fireball-Edge1"},damage=0.45,damage_terms={{type="MagicDamage"},{type="UnarmedDamage",shift=-25}},
- impulse={x=500},hit="High",options=options}}}}
+local distance={ distance = "X", max = -250, from = { node = "Magic-Node2_1" }, to = { wall = "Front" } }
+sf2.moves.register {id="sphere",animation=animation,conditions={distance},intervals={{ type = "Attack", from = 13, attack = {edges={"Fireball-Edge1"},damage=0.45,damage_terms={ MagicDamage = 0, UnarmedDamage = -25 },
+ impulse={x=500},hit="High",options=options} }}}
 '@
 $catalog=Load-Lua $spellLua
 $doc=Project $catalog
@@ -39,20 +37,20 @@ foreach($axis in @('X','Y')) {
   }
  }
 }
-$full=Project (Load-Lua $spellLua.Replace('axis="X"','axis="Full"'))
+$full=Project (Load-Lua $spellLua.Replace('distance = "X"','distance = "Full"'))
 Check (!$full.SelectSingleNode('//Move/Conditions/Distance').HasAttribute('Axis')) 'Full distance incorrectly projected as Y.'
 $fingerprint=Fingerprint $catalog
 foreach($mutation in @('options.no_effect=false','options.no_critical=false','options.ignores_block=false','options.body_part="Head"',
- 'options.defense_types={"HeadDefense"}','options.ignores_invulnerable={"Evade"}','distance.axis="Y"',
- 'distance.minimum=-500','distance.maximum=-251','distance["not"]=true','distance.from.player="Parent"',
- 'distance.from.part="Other"','distance.to.part="Back"','distance.from.shift_x=1','distance.to.shift_y=1')) {
+ 'options.defense_types={"HeadDefense"}','options.ignores_invulnerable={"Evade"}','distance.distance="Y"',
+ 'distance.min=-500','distance.max=-251','distance.not_distance=distance.distance;distance.distance=nil','distance.from.player="Parent"',
+ 'distance.from.node="Other"','distance.to.wall="Back"','distance.from.x=1','distance.to.y=1')) {
  Check ($fingerprint -cne (Fingerprint (Load-Lua $spellLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))))) ('Attack/distance fingerprint omitted: '+$mutation)
 }
 foreach($mutation in @('options.no_effect=1','options.no_critical="yes"','options.ignores_block={}','options.body_part="Foot"',
  'options.defense_types={"MagicDefense"}','options.defense_types={"BodyDefense","BodyDefense"}',
  'options.ignores_invulnerable={"Evade|Dash"}','options.ignores_invulnerable={"Evade","Evade"}',
- 'options.ignores_invulnerable={[2]="Evade"}','options.extra=1','distance.axis="Z"','distance.from.object="Animation"',
- 'distance.from=nil','distance.minimum=0','distance.maximum=1/0','distance.minimum=-1000001','distance.player="Enemy"',
+ 'options.ignores_invulnerable={[2]="Evade"}','options.extra=1','distance.distance="Z"','distance.from={animation=true}',
+ 'distance.from=nil','distance.min=0','distance.max=1/0','distance.min=-1000001','distance.player="Enemy"',
  'distance.from.unknown=true','distance["not"]=1')) {
  $failure=$null;try {$null=Load-Lua $spellLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))}catch{$failure=$_}
  Check ($null -ne $failure) ('Invalid spell attack/distance accepted: '+$mutation)

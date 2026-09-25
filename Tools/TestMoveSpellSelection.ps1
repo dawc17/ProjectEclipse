@@ -3,8 +3,8 @@
 $selectionLua=@'
 local animation=sf2.assets.binary("animations/chinese")
 local conditions={
- {type="actor_name",name="Sphere1"},
- {type="bullets",bullet_type="MagicBullet",minimum=1},
+ { actor = "Sphere1" },
+ { bullets = "MagicBullet", min = 1 },
 }
 local motion={x=30}
 sf2.moves.register {id="spell",animation=animation,conditions=conditions,velocity=motion,no_magic_recharge=true}
@@ -18,8 +18,8 @@ Check ((Shape $node.Velocity) -ceq (Shape $archive.SelectSingleNode('//Move[@Nam
 Check ($node.GetAttribute('NoMagicRecharge') -ceq '1') 'No-recharge flag missing.'
 foreach($negated in @($false,$true)) {
  foreach($bulletType in @('MagicBullet','RaidChargeBullet')) {
-  $lua=$selectionLua.Replace('minimum=1','minimum=1,maximum=2').Replace('MagicBullet',$bulletType)
-  if($negated) {$lua=$lua.Replace('name="Sphere1"','name="Sphere1",["not"]=true').Replace('minimum=1','["not"]=true,minimum=1')}
+  $lua=$selectionLua.Replace('min = 1','min = 1,max = 2').Replace('MagicBullet',$bulletType)
+  if($negated) {$lua=$lua.Replace('actor = "Sphere1"','not_actor = "Sphere1"').Replace('bullets =','not_bullets =')}
   $projection=Project (Load-Lua $lua)
   $native=[Collections.Generic.List[ConditionAnimation]]::new()
   [ConditionsParser]::ParseInside($native,$projection.SelectSingleNode('//Move/Conditions'))
@@ -47,15 +47,15 @@ $fullMove=[InfoAnimation]::new();$null=$velocityParser.Invoke($null,@($fullMove,
 Check ($fullMove.LBJFGCFGMDI().GetX() -eq -30 -and $fullMove.LBJFGCFGMDI().GetY() -eq 2 -and $fullMove.LBJFGCFGMDI().GetZ() -eq 3) 'Native velocity axes lost.'
 Check ($fullMove.NCENGIOMKOF().GetX() -eq 4 -and $fullMove.NCENGIOMKOF().GetY() -eq -5 -and $fullMove.NCENGIOMKOF().GetZ() -eq 6 -and $fullMove.HOPDDLNABCG()) 'Native acceleration/preserve flag lost.'
 $fingerprint=Fingerprint $catalog
-foreach($mutation in @('conditions[1].name="Other"','conditions[1].player="Parent"','conditions[1]["not"]=true',
- 'conditions[2].minimum=2','conditions[2].maximum=3','conditions[2].bullet_type="RaidChargeBullet"','conditions[2].player="Enemy"',
+foreach($mutation in @('conditions[1].actor="Other"','conditions[1].player="Parent"','conditions[1].not_actor=conditions[1].actor;conditions[1].actor=nil',
+ 'conditions[2].min=2','conditions[2].max=3','conditions[2].bullets="RaidChargeBullet"','conditions[2].player="Enemy"',
  'motion.x=31','motion.y=1','motion.z=1','motion.ax=1','motion.ay=1','motion.az=1','motion.save_velocity=true')) {
  Check ($fingerprint -cne (Fingerprint (Load-Lua $selectionLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))))) ('Spell field absent from fingerprint: '+$mutation)
 }
 Check ($fingerprint -cne (Fingerprint (Load-Lua $selectionLua.Replace('no_magic_recharge=true','no_magic_recharge=false')))) 'Recharge flag absent from fingerprint.'
-foreach($mutation in @('conditions[1].name=""','conditions[1].name="bad/path"','conditions[1].player="Everyone"','conditions[1].item_type="Magic"',
- 'conditions[2].bullet_type="Unknown"','conditions[2].minimum=-1','conditions[2].minimum=0.5','conditions[2].maximum=0',
- 'conditions[2].maximum=2147483648','conditions[2].maximum=1/0','conditions[2].name="bad"','conditions[2].player="Invalid"',
+foreach($mutation in @('conditions[1].actor=""','conditions[1].actor="bad/path"','conditions[1].player="Everyone"','conditions[1].item_type="Magic"',
+ 'conditions[2].bullets="Unknown"','conditions[2].min=-1','conditions[2].min=0.5','conditions[2].max=0',
+ 'conditions[2].max = 2147483648','conditions[2].max=1/0','conditions[2].name="bad"','conditions[2].player="Invalid"',
  'motion.x=1/0','motion.ax=0/0','motion.y=100001','motion.az=-100001','motion.save_velocity=1','motion.extra=1')) {
  $failure=$null;try {$null=Load-Lua $selectionLua.Replace('sf2.moves.register',($mutation+"`n"+'sf2.moves.register'))}catch{$failure=$_}
  Check ($null -ne $failure) ('Invalid spell declaration accepted: '+$mutation)

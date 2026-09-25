@@ -1640,11 +1640,16 @@ namespace Eclipse.Modding
             return _definitions.TryGetValue(owner, out definition);
         }
 
-        public void Unbind() { _bound.Clear(); }
+        public long BindingVersion { get; private set; }
+        public event Action BindingChanged;
+
+        public void Unbind() { BindingVersion++; BindingChanged?.Invoke(); _bound.Clear(); }
 
         public IReadOnlyList<ModDiagnostic> Bind(XmlNode warrior, IReadOnlyList<IModScriptContext> contexts)
         {
             if (warrior == null) throw new ArgumentNullException(nameof(warrior));
+            BindingVersion++;
+            BindingChanged?.Invoke();
             _bound.Clear();
             var diagnostics = new List<ModDiagnostic>();
             var contextByMod = new Dictionary<ModId, IModStateMigrationScriptContext>();

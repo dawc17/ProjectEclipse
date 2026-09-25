@@ -67,6 +67,7 @@ require("content.sensei_notifications").install(battles,finals)
         using(var context=new MoonSharpScriptRuntime(null,null,null,bus)
             .CreateContext(mod,new ModApiFacade(mod,assets,tx,state,entry=>errors.Add(entry.Message))))
         {
+            ModLocalizationLoader.Load(mod, new AssetResolver(new IAssetProvider[] { new LooseModProvider(mod) }), tx);
             context.ExecuteEntrypoint();tx.Commit();
             int translations=0;
             foreach(var pair in new Dictionary<string,string>{{"title","characterSensei"},{"intro","Sensei_remembers0"},{"more","Sensei_remembers1"},{"ending","Sensei_remembers2"}})

@@ -1183,6 +1183,32 @@ local StoryEvent = {}
 ---@field fight string
 local FightEntryRequest = {}
 
+---@class (exact) Eclipse.SequenceDialog
+---@field portrait? Eclipse.SpriteHandle
+---@field lines Eclipse.StoryDialogLine[]
+---@field button Eclipse.LocalizationHandle
+---@field title? Eclipse.LocalizationHandle
+---@field mirrored? boolean
+---@field ignore_back? boolean
+local SequenceDialog = {}
+
+---@class (exact) Eclipse.SequenceActScreen
+---@field lines Eclipse.ActScreenLine[]
+local SequenceActScreen = {}
+
+---@class (exact) Eclipse.StorySequenceStep
+---@field dialog? Eclipse.SequenceDialog
+---@field act_screen? Eclipse.SequenceActScreen
+local StorySequenceStep = {}
+
+---@class (exact) Eclipse.StorySequenceDefinition
+---@field steps Eclipse.StorySequenceStep[]
+---@field position? string
+---@field on_complete? fun()
+---@field on_cancel? fun()
+---@field on_step? fun(index:integer):boolean|nil
+local StorySequenceDefinition = {}
+
 ---@class (exact) Eclipse.LocationImage
 ---@field sprite Eclipse.SpriteHandle
 ---@field x? number
@@ -1231,45 +1257,68 @@ local LocationLayer = {}
 ---@field layers Eclipse.LocationLayer[]
 local LocationDefinition = {}
 
----@class (exact) Eclipse.MoveEvent
----@field type "animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"
+---@class (exact) Eclipse.MoveShortPoint
+---@field node? string
+---@field wall? "Front"|"Back"
+---@field pivot? string|true
+---@field animation? string|true
+---@field floor? string|true
+---@field com? string|true
+---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
+---@field x? number
+---@field y? number
+local MoveShortPoint = {}
+
+---@class (exact) Eclipse.MoveShortKey
+---@field [1] "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"
+---@field press? "Tap"|"Hold"|"Release"
+local MoveShortKey = {}
+
+---@class (exact) Eclipse.MoveShortCondition
+---@field key? "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"
+---@field keys? ("Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"|Eclipse.MoveShortKey)[]
+---@field mod? string
+---@field interval? string
+---@field animation? string
+---@field stage? "StartStance"|"Fight"|"EndStance"|"TryOn"
+---@field round_result? "Victory"|"Defeat"
+---@field screen? "ShopArmor"|"ShopWeapon"|"ShopHelm"|"ShopMissile"|"ShopMagic"|"ShopRuby"|"ShopFree"|"ShopRaidItemPack"|"Profile"|"Fight"
+---@field actor? string
+---@field character? Eclipse.WarriorHandle
+---@field perk? Eclipse.PerkHandle
+---@field item? "Weapon"|"Ranged"|"Magic"|"Armor"|"Helm"|"Skeleton"
+---@field bullets? "MagicBullet"|"RaidChargeBullet"
+---@field distance? "X"|"Y"|"Full"
+---@field direction? "Me"|"Enemy"
+---@field all? table[]
+---@field any? table[]
+---@field not_key? "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"
+---@field not_keys? ("Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"|Eclipse.MoveShortKey)[]
+---@field not_mod? string
+---@field not_interval? string
+---@field not_animation? string
+---@field not_stage? "StartStance"|"Fight"|"EndStance"|"TryOn"
+---@field not_round_result? "Victory"|"Defeat"
+---@field not_screen? "ShopArmor"|"ShopWeapon"|"ShopHelm"|"ShopMissile"|"ShopMagic"|"ShopRuby"|"ShopFree"|"ShopRaidItemPack"|"Profile"|"Fight"
+---@field not_actor? string
+---@field not_character? Eclipse.WarriorHandle
+---@field not_perk? Eclipse.PerkHandle
+---@field not_item? "Weapon"|"Ranged"|"Magic"|"Armor"|"Helm"|"Skeleton"
+---@field not_bullets? "MagicBullet"|"RaidChargeBullet"
+---@field not_distance? "X"|"Y"|"Full"
+---@field not_direction? "Me"|"Enemy"
+---@field not_all? table[]
+---@field not_any? table[]
+---@field controllable? true
+---@field press? "Tap"|"Hold"|"Release"
+---@field subtype? string
 ---@field name? string
----@field player? string
-local MoveEvent = {}
-
----@class (exact) Eclipse.MoveDistanceCondition
----@field type "distance"
----@field axis "X"|"Y"|"Full"
----@field from Eclipse.MovePoint
----@field to Eclipse.MovePoint
----@field minimum? number
----@field maximum? number
----@field not? boolean
-local MoveDistanceCondition = {}
-
----@class (exact) Eclipse.MoveDirectionCondition
----@field type "direction"
----@field player "Me"|"Enemy"
----@field from Eclipse.MovePoint
----@field to Eclipse.MovePoint
----@field not? boolean
-local MoveDirectionCondition = {}
-
----@class (exact) Eclipse.MoveActorCondition
----@field type "actor_name"
----@field name string
 ---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"|"Both"
----@field not? boolean
-local MoveActorCondition = {}
-
----@class (exact) Eclipse.MoveBulletsCondition
----@field type "bullets"
----@field bullet_type "MagicBullet"|"RaidChargeBullet"
----@field minimum? integer
----@field maximum? integer
----@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"|"Both"
----@field not? boolean
-local MoveBulletsCondition = {}
+---@field min? number
+---@field max? number
+---@field from? Eclipse.MoveShortPoint
+---@field to? Eclipse.MoveShortPoint
+local MoveShortCondition = {}
 
 ---@class (exact) Eclipse.MoveVelocity
 ---@field x? number
@@ -1281,77 +1330,12 @@ local MoveBulletsCondition = {}
 ---@field save_velocity? boolean
 local MoveVelocity = {}
 
----@class (exact) Eclipse.MovePerkCondition
----@field type "perk"
----@field perk Eclipse.PerkHandle
----@field player? string
----@field not? boolean
-local MovePerkCondition = {}
-
----@class (exact) Eclipse.MoveNamedCondition
----@field type "current_animation"|"current_interval"|"item"
----@field name? string
----@field player? string
----@field item_type? string
----@field item_subtype? string
----@field not? boolean
-local MoveNamedCondition = {}
-
----@class (exact) Eclipse.MoveConditionGroup
----@field type "all"|"any"
----@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
----@field not? boolean
-local MoveConditionGroup = {}
-
----@class (exact) Eclipse.MoveCharacterCondition
----@field type "character"
----@field warrior Eclipse.WarriorHandle
----@field not? boolean
-local MoveCharacterCondition = {}
-
----@class (exact) Eclipse.MoveKey
----@field key "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"
----@field press? "Tap"|"Hold"|"Release"
-local MoveKey = {}
-
----@class (exact) Eclipse.MoveKeysCondition
----@field type "keys"
----@field keys Eclipse.MoveKey[]
----@field not? boolean
-local MoveKeysCondition = {}
-
----@class (exact) Eclipse.MoveStageCondition
----@field type "round_stage"
----@field name "StartStance"|"Fight"|"EndStance"|"TryOn"
----@field player? "Me"|"Enemy"|"Both"
----@field not? boolean
-local MoveStageCondition = {}
-
----@class (exact) Eclipse.MoveRoundResultCondition
----@field type "round_result"
----@field name "Victory"|"Defeat"
----@field player? "Me"|"Enemy"|"Both"
----@field not? boolean
-local MoveRoundResultCondition = {}
-
----@class (exact) Eclipse.MoveScreenCondition
----@field type "screen"
----@field name "ShopArmor"|"ShopWeapon"|"ShopHelm"|"ShopMissile"|"ShopMagic"|"ShopRuby"|"ShopFree"|"ShopRaidItemPack"|"Profile"|"Fight"
----@field player? "Me"|"Enemy"|"Both"
----@field not? boolean
-local MoveScreenCondition = {}
-
----@class (exact) Eclipse.MoveModCondition
----@field type "mod_exists"
----@field name string
----@field player? "Me"|"Enemy"|"Both"
----@field not? boolean
-local MoveModCondition = {}
-
----@class (exact) Eclipse.MoveDamageTerm
----@field type "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
----@field shift? number
-local MoveDamageTerm = {}
+---@class (exact) Eclipse.MoveDamageTermMap
+---@field WeaponDamage? number
+---@field RangedDamage? number
+---@field MagicDamage? number
+---@field UnarmedDamage? number
+local MoveDamageTermMap = {}
 
 ---@class (exact) Eclipse.MoveImpulse
 ---@field x? number
@@ -1375,7 +1359,7 @@ local MoveAttackOptions = {}
 ---@field hit_move? Eclipse.MoveHandle
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
----@field damage_terms? Eclipse.MoveDamageTerm[]
+---@field damage_terms? Eclipse.MoveDamageTermMap
 ---@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"|"WaspFly"|"Earthquake"|"ElectrocutionPowerfield"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
@@ -1385,23 +1369,15 @@ local MoveAttack = {}
 ---@class (exact) Eclipse.MoveInterval
 ---@field type? string
 ---@field name? string
----@field start? integer
----@field end? integer
+---@field from? integer
+---@field to? integer
 ---@field attack? Eclipse.MoveAttack
 local MoveInterval = {}
 
----@class (exact) Eclipse.MovePoint
----@field object "Nodes"|"Pivot"|"Wall"|"Animation"|"Floor"|"COM"
----@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
----@field part? string
----@field shift_x? number
----@field shift_y? number
-local MovePoint = {}
-
 ---@class (exact) Eclipse.MoveAlignment
 ---@field axes ("X"|"Y"|"Z")[]
----@field pivot Eclipse.MovePoint
----@field position Eclipse.MovePoint
+---@field pivot Eclipse.MoveShortPoint
+---@field position Eclipse.MoveShortPoint
 ---@field shift_model_node? string
 local MoveAlignment = {}
 
@@ -1410,16 +1386,31 @@ local MoveAlignment = {}
 local MoveImpulseDirection = {}
 
 ---@class (exact) Eclipse.MoveDirection
----@field from? Eclipse.MovePoint
----@field to? Eclipse.MovePoint
+---@field from? Eclipse.MoveShortPoint
+---@field to? Eclipse.MoveShortPoint
 ---@field impulse? Eclipse.MoveImpulseDirection
 local MoveDirection = {}
 
 ---@class (exact) Eclipse.MoveTransition
----@field conditions (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field conditions (Eclipse.MoveShortCondition|table[])[]
 ---@field frame_shift? integer
 ---@field first_frame? integer
 local MoveTransition = {}
+
+---@class (exact) Eclipse.MoveShortEvent
+---@field interval_end? string
+---@field interval_start? string
+---@field round_stage_start? string
+---@field mod_expires? string
+---@field animation_start? string
+---@field animation_end? string
+---@field hit? string
+---@field strike? string
+---@field every_frame? string
+---@field birth? string
+---@field key_pressed? string
+---@field player? string
+local MoveShortEvent = {}
 
 ---@class (exact) Eclipse.MoveEffectAttachment
 ---@field player "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
@@ -1437,7 +1428,7 @@ local MoveEffectAttachment = {}
 ---@field time_scale? number
 ---@field looped? boolean
 ---@field on_background? boolean
----@field position? Eclipse.MovePoint
+---@field position? Eclipse.MoveShortPoint
 ---@field follow? boolean
 ---@field attach? Eclipse.MoveEffectAttachment
 local MoveEffect = {}
@@ -1451,16 +1442,6 @@ local MoveEffect = {}
 ---@field start_move? Eclipse.MoveHandle
 local MoveProjectile = {}
 
----@class (exact) Eclipse.MoveBulletChange
----@field type "MagicBullet"|"RaidChargeBullet"
----@field value integer
-local MoveBulletChange = {}
-
----@class (exact) Eclipse.MoveSound
----@field core_sound string
----@field voice? "Male"|"MaleLow"|"Female"
-local MoveSound = {}
-
 ---@class (exact) Eclipse.MoveShake
 ---@field pause_time? integer
 ---@field effect_time? integer
@@ -1470,48 +1451,68 @@ local MoveSound = {}
 ---@field frequency_y? number
 local MoveShake = {}
 
----@class (exact) Eclipse.MoveScheduledAction
----@field type "random_sound"|"try_on_end"|"effect"|"stop_effect"|"stop_follow_effect"|"create_projectile"|"add_bullets"|"delete_actor"|"sound"|"stop_sound"|"shake_screen"|"play_animation"
----@field frame? integer
----@field event? "RoundStage"|"KeyPressed"|"KeyReleased"|"RoundStart"|"RoundEnd"|"Hit"|"Strike"|"WallHit"|"AnimationStart"|"AnimationEnd"|"IntervalStart"|"IntervalEnd"|"EveryFrame"|"Birth"|"ModExpires"
----@field core_sounds? string[]
----@field core_sound? string
----@field sound? Eclipse.MoveSound
----@field shake? Eclipse.MoveShake
----@field effect? Eclipse.MoveEffect
----@field effect_name? string
----@field projectile? Eclipse.MoveProjectile
----@field bullets? Eclipse.MoveBulletChange
----@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
----@field move? Eclipse.MoveHandle
----@field core_animation? string
----@field child_name? string
-local MoveScheduledAction = {}
-
 ---@class (exact) Eclipse.MoveProfile
 ---@field rank integer
 ---@field core_icon string
 ---@field display_name? Eclipse.LocalizationHandle
 local MoveProfile = {}
 
----@class (exact) Eclipse.MoveTacticDistance
----@field axis "X"|"Y"|"Full"
----@field minimum? number
----@field maximum? number
----@field from Eclipse.MovePoint
----@field to Eclipse.MovePoint
-local MoveTacticDistance = {}
+---@class (exact) Eclipse.MoveShortTacticDistance
+---@field distance "X"|"Y"|"Full"
+---@field min? number
+---@field max? number
+---@field from Eclipse.MoveShortPoint
+---@field to Eclipse.MoveShortPoint
+local MoveShortTacticDistance = {}
+
+---@class (exact) Eclipse.MoveShortAction
+---@field sound? string|string[]
+---@field stop_sound? string
+---@field play_sound? string
+---@field voice? "Male"|"MaleLow"|"Female"
+---@field effect? Eclipse.MoveEffect
+---@field stop_effect? string
+---@field stop_follow_effect? string
+---@field projectile? Eclipse.MoveProjectile
+---@field add_bullets? "MagicBullet"|"RaidChargeBullet"
+---@field amount? integer
+---@field delete_actor? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
+---@field play_animation? Eclipse.MoveHandle|string
+---@field player? "Me"|"Enemy"|"Parent"|"Child"|"EnemyChild"
+---@field child_name? string
+---@field shake? Eclipse.MoveShake
+---@field try_on_end? true
+local MoveShortAction = {}
+
+---@class (exact) Eclipse.MoveTimeline
+---@field [integer] Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field birth? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field round_stage? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field round_start? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field key_pressed? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field key_released? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field animation_start? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field interval_start? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field every_frame? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field strike? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field hit? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field wall_hit? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field interval_end? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field animation_end? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field mod_expires? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+---@field round_end? Eclipse.MoveShortAction|Eclipse.MoveShortAction[]
+local MoveTimeline = {}
 
 ---@class (exact) Eclipse.MoveTemplateDefinition
 ---@field id string
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
----@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field events? "controlled"|("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveShortEvent)[]
+---@field conditions? (Eclipse.MoveShortCondition|table[])[]
 ---@field intervals? Eclipse.MoveInterval[]
----@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field locks? (Eclipse.MoveShortCondition|table[])[]
 ---@field align? Eclipse.MoveAlignment
----@field direction? Eclipse.MoveDirection
+---@field direction? Eclipse.MoveDirection|"face_enemy"
 ---@field type? string
 ---@field mirror_node? string
 ---@field tactic_equivalent? string
@@ -1528,12 +1529,12 @@ local MoveTemplateDefinition = {}
 ---@field id string
 ---@field templates? Eclipse.MoveTemplateHandle[]
 ---@field core_templates? string[]
----@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field events? "controlled"|("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveShortEvent)[]
+---@field conditions? (Eclipse.MoveShortCondition|table[])[]
 ---@field intervals? Eclipse.MoveInterval[]
----@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field locks? (Eclipse.MoveShortCondition|table[])[]
 ---@field align? Eclipse.MoveAlignment
----@field direction? Eclipse.MoveDirection
+---@field direction? Eclipse.MoveDirection|"face_enemy"
 ---@field type? string
 ---@field mirror_node? string
 ---@field tactic_equivalent? string
@@ -1544,12 +1545,12 @@ local MoveTemplateDefinition = {}
 ---@field end_frame? integer
 ---@field looped? boolean
 ---@field ends_stage? boolean
----@field animation Eclipse.BinaryHandle
+---@field animation Eclipse.BinaryHandle|string
 ---@field transitions? Eclipse.MoveTransition[]
----@field actions? Eclipse.MoveScheduledAction[]
+---@field timeline? Eclipse.MoveTimeline
 ---@field profile? Eclipse.MoveProfile
----@field tactic_distance? Eclipse.MoveTacticDistance
----@field tactic_conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field tactic_distance? Eclipse.MoveShortTacticDistance
+---@field tactic_conditions? (Eclipse.MoveShortCondition|table[])[]
 ---@field no_wall_repulsion? boolean
 ---@field no_interpolation_frames? boolean
 ---@field no_magic_recharge? boolean
@@ -1559,12 +1560,12 @@ local MoveDefinition = {}
 ---@class (exact) Eclipse.MoveReplacementDefinition
 ---@field id string
 ---@field core_templates? string[]
----@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field events? "controlled"|("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveShortEvent)[]
+---@field conditions? (Eclipse.MoveShortCondition|table[])[]
 ---@field intervals? Eclipse.MoveInterval[]
----@field locks? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field locks? (Eclipse.MoveShortCondition|table[])[]
 ---@field align? Eclipse.MoveAlignment
----@field direction? Eclipse.MoveDirection
+---@field direction? Eclipse.MoveDirection|"face_enemy"
 ---@field type? string
 ---@field mirror_node? string
 ---@field tactic_equivalent? string
@@ -1575,12 +1576,12 @@ local MoveDefinition = {}
 ---@field end_frame? integer
 ---@field looped? boolean
 ---@field ends_stage? boolean
----@field animation Eclipse.BinaryHandle
+---@field animation Eclipse.BinaryHandle|string
 ---@field transitions? Eclipse.MoveTransition[]
----@field actions? Eclipse.MoveScheduledAction[]
+---@field timeline? Eclipse.MoveTimeline
 ---@field profile? Eclipse.MoveProfile
----@field tactic_distance? Eclipse.MoveTacticDistance
----@field tactic_conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field tactic_distance? Eclipse.MoveShortTacticDistance
+---@field tactic_conditions? (Eclipse.MoveShortCondition|table[])[]
 ---@field no_wall_repulsion? boolean
 ---@field no_interpolation_frames? boolean
 ---@field no_magic_recharge? boolean
@@ -1644,7 +1645,7 @@ local MoveIntervalRemoval = {}
 ---@class (exact) Eclipse.MovePatch
 ---@field move string
 ---@field disable? boolean
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field conditions? (Eclipse.MoveShortCondition|table[])[]
 ---@field interval_start? Eclipse.MoveIntervalStartPatch
 ---@field interval_end? Eclipse.MoveIntervalEndPatch
 ---@field hit? Eclipse.MoveHitPatch
@@ -1674,8 +1675,8 @@ local HitEffectAction = {}
 
 ---@class (exact) Eclipse.TriggerDefinition
 ---@field id string
----@field events? ("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveEvent)[]
----@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]
+---@field events? "controlled"|("animation_end"|"animation_start"|"interval_end"|"interval_start"|"hit"|"strike"|"every_frame"|"birth"|"round_stage_start"|"mod_expires"|"key_pressed"|Eclipse.MoveShortEvent)[]
+---@field conditions? (Eclipse.MoveShortCondition|table[])[]
 ---@field actions? (Eclipse.SoundAction|Eclipse.HitEffectAction)[]
 local TriggerDefinition = {}
 
@@ -2868,6 +2869,14 @@ function story.cancel_fight(request) end
 ---@return boolean
 function story.fight_pending(request) end
 
+---Requires: `story.events` and `ui.create`. A saved `position` additionally requires `state.read`, `state.write` and a registered integer state field with default `1`.
+---When: In a story or fight-entry callback after profile binding. Playback cancels on scene entry, native presentation cancellation, profile rebinding or context disposal. Call it again from the appropriate story event to resume.
+---Returns: `boolean`: true when playback is accepted (possibly completed synchronously), false when another story sequence/dialog/act screen in this context is active or the host refuses the first step. Invalid definitions and unavailable hosts raise an error.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyplay_sequence)
+---@param definition Eclipse.StorySequenceDefinition
+---@return boolean
+function story.play_sequence(definition) end
+
 ---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
 ---When: During mod loading or a callback while the script is active, including before a profile loads.
 ---Returns: An opaque subscription handle.
@@ -3438,12 +3447,6 @@ moves.ROUND_STAGE_START = "round_stage_start"
 
 ---@type "mod_expires"
 moves.MOD_EXPIRES = "mod_expires"
-
----@type "current_animation"
-moves.CURRENT_ANIMATION = "current_animation"
-
----@type "current_interval"
-moves.CURRENT_INTERVAL = "current_interval"
 
 ---@type "item"
 moves.ITEM = "item"

@@ -222,16 +222,17 @@ namespace Eclipse.Modding
             foreach (var subscription in _subscriptions.ToArray()) subscription.Dispose();
         }
 
-        internal ModStorySubscription Subscribe(ModStoryScope scope, ModStoryEventKind kind, Action<ModStoryEvent> callback)
+        internal ModStorySubscription Subscribe(ModStoryScope scope, ModStoryEventKind kind, Action<ModStoryEvent> callback, bool lifecycle = false)
         {
             if (scope.Generation != _scopeGeneration) throw new ObjectDisposedException(nameof(ModStoryScope));
             if (callback == null) throw new ArgumentNullException(nameof(callback));
             if (!Enum.IsDefined(typeof(ModStoryEventKind), kind)) throw new ArgumentOutOfRangeException(nameof(kind));
-            int owned = 0;
-            foreach (var subscription in _subscriptions) if (subscription.Owner == scope.Owner) owned++;
-            if (_subscriptions.Count >= MaximumSubscriptions || owned >= MaximumSubscriptionsPerMod)
+            int owned = 0, total = 0;
+            foreach (var subscription in _subscriptions)
+                if (!subscription.IsLifecycle) { total++; if (subscription.Owner == scope.Owner) owned++; }
+            if (!lifecycle && (total >= MaximumSubscriptions || owned >= MaximumSubscriptionsPerMod))
                 throw new InvalidOperationException("Story subscription capacity exceeded.");
-            var result = new ModStorySubscription(this, scope, kind, callback);
+            var result = new ModStorySubscription(this, scope, kind, callback, lifecycle);
             _subscriptions.Add(result);
             return result;
         }
@@ -275,12 +276,12 @@ namespace Eclipse.Modding
                     {
                         if (!_bound || generation != _generation) break;
                         if (!listener.IsActive || listener.Kind != current.Kind) continue;
-                        if (callbacks >= MaximumCallbacksPerDispatch)
+                        if (!listener.IsLifecycle && callbacks >= MaximumCallbacksPerDispatch)
                         {
                             Report(listener.Owner, "Story callback dispatch limit reached; remaining notifications dropped.");
                             return;
                         }
-                        callbacks++;
+                        if (!listener.IsLifecycle) callbacks++;
                         try { listener.Invoke(current); }
                         catch (Exception error)
                         {
@@ -315,6 +316,15 @@ namespace Eclipse.Modding
             _subscriptions.Add(subscription);
             return subscription;
         }
+        // One engine-owned cleanup hook per scope, outside the Lua subscription quota.
+        private bool _hasSceneCleanup;
+        public void SetSceneCleanup(Action<ModStoryEvent> callback)
+        {
+            if (_disposed) throw new ObjectDisposedException(nameof(ModStoryScope));
+            if (_hasSceneCleanup) throw new InvalidOperationException("Scene cleanup is already installed.");
+            _subscriptions.Add(_events.Subscribe(this, ModStoryEventKind.SceneEnter, callback, true));
+            _hasSceneCleanup = true;
+        }
         internal void Remove(ModStorySubscription subscription) { _subscriptions.Remove(subscription); }
         public void Dispose()
         {
@@ -332,8 +342,9 @@ namespace Eclipse.Modding
         public ModId Owner => _scope.Owner;
         public ModStoryEventKind Kind { get; }
         public bool IsActive => _callback != null;
-        internal ModStorySubscription(ModStoryEvents events, ModStoryScope scope, ModStoryEventKind kind, Action<ModStoryEvent> callback)
-        { _events = events; _scope = scope; Kind = kind; _callback = callback; }
+        internal bool IsLifecycle { get; }
+        internal ModStorySubscription(ModStoryEvents events, ModStoryScope scope, ModStoryEventKind kind, Action<ModStoryEvent> callback, bool lifecycle)
+        { _events = events; _scope = scope; Kind = kind; _callback = callback; IsLifecycle = lifecycle; }
         internal void Invoke(ModStoryEvent notification) { _callback?.Invoke(notification); }
         public void Dispose()
         {

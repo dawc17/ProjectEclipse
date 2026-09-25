@@ -2,20 +2,7 @@ local sf2 = require("sf2")
 
 -- The archived storm keeps the native child actor's four unchanged moves, but
 -- changes the caster, idle continuation and victory transition.
-local function point(object, part, player, x, y)
-    return { object = object, part = part, player = player, shift_x = x, shift_y = y }
-end
-local function current(name)
-    return { type = "current_animation", name = "de128:moves/hermit_storm_" .. name }
-end
-local function spawn(frame, item)
-    return { type = "create_projectile", frame = frame, projectile = {
-        name = "HermitStorm", core_skeleton = "SkeletonMagic", item = item,
-    } }
-end
-local function sound(frame, name)
-    return { type = "random_sound", frame = frame, core_sounds = { name } }
-end
+
 local storm_item = sf2.items.get("core:items/magic/HERMIT_STORM")
 local storm_perk = sf2.perks.get("core:perks/PERK_HERMITSTORM")
 
@@ -28,43 +15,50 @@ local win = sf2.moves.register {
     core_templates = { "Win", "EndStance", "StageStance", "Stance" },
     mid_frames = 2, first_frame = 0, end_frame = 54, priority = 100,
     ends_stage = true, mirror_node = "NHeel_1",
-    align = { axes = { "X", "Z" }, pivot = point("Nodes", "NHeel_2"), position = point("Pivot", nil, "Me") },
-    transitions = { { frame_shift = 0, conditions = { current("idle"), current("win") } } },
-    locks = { { type = "item", item_type = "Skeleton", item_subtype = "Skeleton" } },
+    align = { axes = { "X", "Z" }, pivot = { node = "NHeel_2" }, position = { pivot = "Me" } },
+    transitions = { { frame_shift = 0, conditions = { { animation = "de128:moves/hermit_storm_idle" }, { animation = "de128:moves/hermit_storm_win" } } } },
+    locks = { { item = "Skeleton", subtype = "Skeleton" } },
     conditions = {
-        { type = "any", conditions = { current("win"), current("idle") } },
-        { type = "round_result", name = "Victory" },
-        { type = "round_stage", name = "EndStance" },
+        { any = { { animation = "de128:moves/hermit_storm_win" }, { animation = "de128:moves/hermit_storm_idle" } } },
+        { round_result = "Victory" },
+        { stage = "EndStance" },
     },
     intervals = { { name = "Uninterrupt" }, { type = "Block" }, { name = "Throwable" } },
-    events = { { type = "round_stage_start", name = "EndStance" },
-        { type = "interval_end", name = "Uninterrupt" }, "animation_end" },
-    direction = { from = point("Nodes", "NPivot", "Me"), to = point("Nodes", "NPivot", "Enemy") },
+    events = { { round_stage_start = "EndStance" },
+        { interval_end = "Uninterrupt" }, "animation_end" },
+    direction = { from = { node = "NPivot", player = "Me" }, to = { node = "NPivot", player = "Enemy" } },
 }
 
-local idle_actions = { spawn(25, storm_item), spawn(40, storm_item),
-    { type = "stop_effect", event = "Hit", effect_name = "HermitStormLevitation" } }
+local idle_actions = {
+        [25] = { projectile = {
+        name = "HermitStorm", core_skeleton = "SkeletonMagic", item = storm_item,
+    } },
+        [40] = { projectile = {
+        name = "HermitStorm", core_skeleton = "SkeletonMagic", item = storm_item,
+    } },
+        hit = { stop_effect = "HermitStormLevitation" },
+    }
 for _, frame in ipairs({ 3, 10, 18, 26, 34, 42, 50 }) do
-    idle_actions[#idle_actions + 1] = sound(frame, "snd_hermit_storm_idle")
+    idle_actions[frame] = { sound = "snd_hermit_storm_idle" }
 end
 local idle = sf2.moves.register {
     id = "hermit_storm_idle", animation = sf2.assets.binary("animations/hermit_super_attack_idle"),
     mid_frames = 2, first_frame = 3, end_frame = 54, priority = 999,
     mirror_node = "NHeel_1", tactic_equivalent = "StanceIdle", ends_stage = true,
-    align = { axes = { "X", "Z" }, pivot = point("Nodes", "NHeel_2"), position = point("Pivot", nil, "Me") },
+    align = { axes = { "X", "Z" }, pivot = { node = "NHeel_2" }, position = { pivot = "Me" } },
     events = { "animation_end" },
-    conditions = { { type = "any", conditions = { current("player"), current("idle"), current("win") } } },
-    locks = { { type = "perk", perk = storm_perk } },
-    intervals = { { name = "Unstable" }, { name = "SemiUninterrupt", start = 36 },
-        { name = "Uninterrupt", ["end"] = 35 } },
-    actions = idle_actions,
+    conditions = { { any = { { animation = "de128:moves/hermit_storm_player" }, { animation = "de128:moves/hermit_storm_idle" }, { animation = "de128:moves/hermit_storm_win" } } } },
+    locks = { { perk = storm_perk } },
+    intervals = { { name = "Unstable" }, { name = "SemiUninterrupt", from = 36 },
+        { name = "Uninterrupt", to = 35 } },
+    timeline = idle_actions,
 }
 
 local edges = { "EArm_1", "EArm_2", "EChest", "EForearm_1", "EForearm_2",
     "EHand_2", "EFingers_2", "EForearm_1", "EHand_1", "EFingers_1" }
-local terms = { { type = "WeaponDamage" }, { type = "UnarmedDamage", shift = -10 } }
+local terms = { WeaponDamage = 0, UnarmedDamage = -10 }
 local function attack(start, finish, hit)
-    return { type = "Attack", start = start, ["end"] = finish, attack = {
+    return { type = "Attack", from = start, to = finish, attack = {
         edges = edges, damage = 0.05, damage_terms = terms,
         impulse = { x = 345, y = -205, z = -350 }, hit = hit,
     } }
@@ -75,46 +69,46 @@ local player = sf2.moves.register {
     mid_frames = 2, no_wall_repulsion = true, first_frame = 1,
     priority = 110, mirror_node = "NHeel_1",
     tactic_conditions = {
-        { type = "distance", axis = "X", minimum = 100,
-            from = point("Pivot", nil, "Me"), to = point("Nodes", "NPivot", "Enemy") },
-        { type = "distance", axis = "X", minimum = 200,
-            from = point("Wall", "Back", "Me"), to = point("Nodes", "NHeel_1", "Me") },
-        { type = "distance", axis = "X", minimum = 200,
-            from = point("Nodes", "NHeel_1", "Me"), to = point("Wall", "Front", "Me") },
+        { distance = "X", min = 100, from = { pivot = "Me" }, to = { node = "NPivot", player = "Enemy" } },
+        { distance = "X", min = 200, from = { wall = "Back", player = "Me" }, to = { node = "NHeel_1", player = "Me" } },
+        { distance = "X", min = 200, from = { node = "NHeel_1", player = "Me" }, to = { wall = "Front", player = "Me" } },
     },
-    align = { axes = { "X", "Z" }, pivot = point("Nodes", "NHeel_1"), position = point("Pivot", nil, "Me") },
+    align = { axes = { "X", "Z" }, pivot = { node = "NHeel_1" }, position = { pivot = "Me" } },
     conditions = {
-        { type = "keys", keys = { { key = "RaidCharge" } } },
-        { type = "mod_exists", name = "HermitStormRecharge", ["not"] = true },
-        { type = "current_interval", name = "SemiUninterrupt", ["not"] = true },
-        { type = "current_interval", name = "Uninterrupt", ["not"] = true },
-        { type = "round_stage", name = "Fight" },
-        { type = "all", ["not"] = true, conditions = {
-            { type = "current_animation", name = "$Move" },
-            { type = "current_interval", name = "SemiUninterrupt" },
+        { keys = { "RaidCharge" } },
+        { not_mod = "HermitStormRecharge" },
+        { not_interval = "SemiUninterrupt" },
+        { not_interval = "Uninterrupt" },
+        { stage = "Fight" },
+        { not_all = {
+            { animation = "$Move" },
+            { interval = "SemiUninterrupt" },
         } },
-        { type = "current_animation", name = "Physical", ["not"] = true },
+        { not_animation = "Physical" },
     },
-    locks = { { type = "perk", perk = storm_perk },
-        { type = "item", item_type = "Skeleton", item_subtype = "Skeleton" } },
-    intervals = { { name = "Unstable" }, { name = "Uninterrupt", ["end"] = 36 },
-        { name = "SemiUninterrupt", start = 36 },
+    locks = { { perk = storm_perk },
+        { item = "Skeleton", subtype = "Skeleton" } },
+    intervals = { { name = "Unstable" }, { name = "Uninterrupt", to = 36 },
+        { name = "SemiUninterrupt", from = 36 },
         attack(8, 9, "High"), attack(11, 19, "Low"), attack(20, 27, "Low") },
-    actions = {
-        spawn(20, storm_item),
-        { type = "effect", frame = 19, effect = {
+    timeline = {
+        [20] = { projectile = {
+        name = "HermitStorm", core_skeleton = "SkeletonMagic", item = storm_item,
+    } },
+        [19] = { effect = {
             name = "HermitStormLevitation", core_sequence = "mgc_effect_levitation_middle",
             scale = 1.5, time_scale = 2, looped = true, on_background = true,
-            position = point("Nodes", "NStomach", "Me", 3, 15), follow = true,
+            position = { node = "NStomach", player = "Me", x = 3, y = 15 }, follow = true,
         } },
-        { type = "stop_effect", event = "Hit", effect_name = "HermitStormLevitation" },
-        sound(1, "snd_hermit_storm_start"), sound(31, "snd_hermit_storm_idle"),
-        sound(39, "snd_hermit_storm_idle"),
-        { type = "random_sound", event = "Strike", core_sounds = {
+        hit = { stop_effect = "HermitStormLevitation" },
+        [1] = { sound = "snd_hermit_storm_start" },
+        [31] = { sound = "snd_hermit_storm_idle" },
+        [39] = { sound = "snd_hermit_storm_idle" },
+        strike = { sound = {
             "snd_hit1", "snd_hit2", "snd_hit3", "snd_hit4", "snd_hit5", "snd_hit6" } },
     },
-    events = { "key_pressed", { type = "interval_end", name = "Uninterrupt" }, "animation_end" },
-    direction = { from = point("Nodes", "NPivot", "Me"), to = point("Nodes", "NPivot", "Enemy") },
+    events = { "key_pressed", { interval_end = "Uninterrupt" }, "animation_end" },
+    direction = { from = { node = "NPivot", player = "Me" }, to = { node = "NPivot", player = "Enemy" } },
 }
 
 local tactic = sf2.tactics.register {

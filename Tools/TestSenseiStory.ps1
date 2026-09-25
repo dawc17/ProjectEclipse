@@ -4,6 +4,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $fixture = Join-Path $root ('Temp/SenseiStory-' + [Guid]::NewGuid().ToString('N'))
 $content = Join-Path $fixture 'Mods/fixture.story/scripts/content'
 New-Item -ItemType Directory -Force $content | Out-Null
+Copy-Item -Recurse (Join-Path $root 'Mods/de128/localizations') (Join-Path (Split-Path -Parent $content | Split-Path -Parent) 'localizations')
 Get-ChildItem (Join-Path $root 'Mods/de128/scripts/content/sensei_*.lua') | Copy-Item -Destination $content
 # Shipped Sensei previews resolve through the real loose provider under the fixture namespace.
 Copy-Item -Recurse (Join-Path $root 'Mods/de128/assets') (Join-Path $fixture 'Mods/fixture.story/assets')

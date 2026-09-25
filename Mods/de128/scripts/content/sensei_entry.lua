@@ -18,43 +18,31 @@ local function install(normal, portraits)
         local flag = "sensei_entered_" .. sequence.act .. "_" .. sequence.index
         sf2.story.before_fight(normal[sequence.act][sequence.index], function(request)
             if sf2.state.get(flag) then return true end
-            local position = 1
-            local show_next = nil
-            local function acknowledge(card)
-                if not sf2.story.fight_pending(request) then return end
-                if card.launch then
+            local steps = {}
+            for _, card in ipairs(sequence.cards) do
+                if card.lines then
+                    local lines = {}
+                    for index, line in ipairs(card.lines) do lines[index] = { text = text[line.text], frames = line.frames } end
+                    steps[#steps + 1] = { act_screen = { lines = lines } }
+                else
+                    steps[#steps + 1] = { dialog = dialog.definition(card, text, portraits[card.portrait]) }
+                end
+            end
+            assert(sequence.cards[#sequence.cards].launch, "Sensei entry must end with its explicit Fight button")
+            local opened = sf2.story.play_sequence {
+                steps = steps,
+                on_step = function() return sf2.story.fight_pending(request) end,
+                on_complete = function()
+                    if not sf2.story.fight_pending(request) then return end
                     if sequence.mark_shogun_greeted then sf2.state.set { sensei_shogun_greeted = true } end
                     if sequence.complete_before_launch then sf2.state.set { [flag] = true } end
                     if sf2.story.resume_fight(request) then
                         if not sequence.complete_before_launch then sf2.state.set { [flag] = true } end
-                    else
-                        sf2.story.cancel_fight(request)
-                    end
-                    return
-                end
-                position = position + 1
-                show_next()
-            end
-            show_next = function()
-                if not sf2.story.fight_pending(request) then return end
-                local card = sequence.cards[position]
-                assert(card, "Sensei entry must end with its explicit Fight button")
-                if card.lines then
-                    local lines = {}
-                    for index, line in ipairs(card.lines) do lines[index] = { text = text[line.text], frames = line.frames } end
-                    if not sf2.ui.act_screen { lines = lines, on_complete = function()
-                        position = position + 1
-                        show_next()
-                    end } then sf2.story.cancel_fight(request) end
-                    return
-                end
-                -- Native story dialog; teardown before acknowledgement abandons the entry.
-                if not dialog.open(card, text, portraits[card.portrait], function() acknowledge(card) end,
-                    function() sf2.story.cancel_fight(request) end) then
-                    sf2.story.cancel_fight(request)
-                end
-            end
-            show_next()
+                    else sf2.story.cancel_fight(request) end
+                end,
+                on_cancel = function() sf2.story.cancel_fight(request) end,
+            }
+            if not opened then sf2.story.cancel_fight(request) end
             return nil -- The exact native entry remains held until the Fight button.
         end)
     end

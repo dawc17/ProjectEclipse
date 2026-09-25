@@ -5,11 +5,11 @@ local animation=sf2.assets.binary("animations/chinese")
 local child=sf2.moves.register {id="child",animation=animation}
 local projectile={name="Sphere1",core_skeleton="SkeletonMagic",copy_parent_type="Magic"}
 local actions={
- {type="create_projectile",frame=2,projectile=projectile},
- {type="add_bullets",frame=7,bullets={type="MagicBullet",value=-1}},
- {type="delete_actor",event="Strike",player="Me"},
-}
-sf2.moves.register {id="cast",animation=animation,actions=actions}
+        [2] = { projectile = projectile },
+        [7] = { add_bullets = "MagicBullet", amount = -1 },
+        strike = { delete_actor = "Me" },
+    }
+sf2.moves.register {id="cast",animation=animation,timeline = actions}
 '@
 $catalog=Load-Lua $projectileLua
 $doc=Project $catalog
@@ -63,19 +63,19 @@ foreach($mutation in @('projectile.copy_parent_type="Magic"','projectile.item=ni
 Set-Content -LiteralPath $manifest -Value $oldManifest
 $mod=[Eclipse.Modding.ModDiscovery]::DiscoverLoose((Join-Path $fixture 'Mods')).Mods[0]
 foreach($mutation in @('projectile.name="Other"','projectile.core_skeleton="OtherSkeleton"','projectile.copy_parent_type="Ranged"',
- 'projectile.core_start_animation="ShopMagicSphere1"','projectile.start_move=child','actions[2].bullets.type="RaidChargeBullet"',
- 'actions[2].bullets.value=-2','actions[3].player="Child"')) {
+ 'projectile.core_start_animation="ShopMagicSphere1"','projectile.start_move=child','actions[7].add_bullets="RaidChargeBullet"',
+ 'actions[7].amount=-2','actions.strike.delete_actor="Child"')) {
  $changed=$projectileLua.Replace('sf2.moves.register {id="cast"',($mutation+"`n"+'sf2.moves.register {id="cast"'))
  Check ($baseline -cne (Fingerprint (Load-Lua $changed))) ('Projectile fingerprint omitted: '+$mutation)
 }
 foreach($mutation in @('projectile.name=""','projectile.name="bad/path"','projectile.core_skeleton="bad/path"',
  'projectile.copy_parent_type="Armor"','projectile.copy_parent_type=nil','projectile.start_move="fixture.moves:moves/child"',
  'projectile.start_move=animation','projectile.start_move=child;projectile.core_start_animation="ShopMagicSphere1"',
- 'projectile.core_start_animation="../bad"','projectile.extra=true','actions[1].projectile=nil','actions[1].projectile="bad"',
- 'actions[1].effect_name="bad"','actions[2].bullets={}','actions[2].bullets.type="RangedBullet"','actions[2].bullets.value=0',
- 'actions[2].bullets.value=0.5','actions[2].bullets.value=1/0','actions[2].bullets.value=-100001','actions[2].bullets.value=100001',
- 'actions[2].bullets.extra=true','actions[2].player="Enemy"','actions[3].player=nil','actions[3].player="Everybody"',
- 'actions[3].projectile=projectile','actions[1].frame=-1','actions[1].frame=0.5','actions[1].event="Strike"')) {
+ 'projectile.core_start_animation="../bad"','projectile.extra=true','actions[2].projectile=nil','actions[2].projectile="bad"',
+ 'actions[2].effect_name="bad"','actions[2].bullets={}','actions[7].add_bullets="RangedBullet"','actions[7].amount=0',
+ 'actions[7].amount=0.5','actions[7].amount=1/0','actions[7].amount=-100001','actions[7].amount=100001',
+ 'actions[7].extra=true','actions[2].player="Enemy"','actions.strike.delete_actor=nil','actions.strike.delete_actor="Everybody"',
+ 'actions.strike.projectile=projectile','actions[2].frame=-1','actions[2].frame=0.5','actions[2].event="Strike"')) {
  $failure=$null
  try {$null=Load-Lua $projectileLua.Replace('sf2.moves.register {id="cast"',($mutation+"`n"+'sf2.moves.register {id="cast"'))}catch{$failure=$_}
  Check ($null -ne $failure) ('Invalid projectile accepted: '+$mutation)

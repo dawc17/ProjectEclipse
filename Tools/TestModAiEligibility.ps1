@@ -27,11 +27,11 @@ public class InfoAnimation {
  public string Name, Character="example.author:warriors/fighter";
  public bool HasKeys=true, Available=true;
  public int Evaluations;
- public class CapabilityTable { public List<InfoAnimation> NINJLLDJLFI=new List<InfoAnimation>(); }
+ public class CapabilityTable { public List<InfoAnimation> HigherPriorityMoves=new List<InfoAnimation>(); }
  public class Properties { public Directions ILOEBFFAEAN=new Directions(); }
  public class Directions { public int OLBDPMKCJIF; }
  public Properties MoveData=new Properties();
- public CapabilityTable ICANLHJKKNE=new CapabilityTable();
+ public CapabilityTable PriorityConflicts=new CapabilityTable();
  public object ILBCHANCOBP(){return HasKeys ? this : null;}
  public object FOLOOGCLPNE(){return Name;}
  public int CEDEDCLGJDE(ModelConditions c,int direction){return direction;}
@@ -76,7 +76,7 @@ public static class AiEligibilityTests {
   actor.Conditions.Uninterrupt=false;actor.Conditions.EclipseCharacterId="core:warriors/other";
   candidates=new List<InfoAnimation>(actor.Moves);Check(host.Filter(candidates)==0,"Authored clips leaked to another warrior");
   actor.Conditions.EclipseCharacterId="example.author:warriors/fighter";
-  var preferred=new InfoAnimation{Name="preferred"};actor.Moves.Add(preferred);primary.ICANLHJKKNE.NINJLLDJLFI.Add(preferred);
+  var preferred=new InfoAnimation{Name="preferred"};actor.Moves.Add(preferred);primary.PriorityConflicts.HigherPriorityMoves.Add(preferred);
   candidates=new List<InfoAnimation>{primary,kick};Check(host.Filter(candidates)==1&&candidates[0]==kick,"Playable priority competitor did not suppress primary input");
   preferred.Available=false;candidates=new List<InfoAnimation>{primary,kick};Check(host.Filter(candidates)==2,"Unavailable competitor suppressed authored clip");
   preferred.Available=true;preferred.HasKeys=false;candidates=new List<InfoAnimation>{primary};Check(host.Filter(candidates)==1,"Event-only competitor suppressed input-driven move");

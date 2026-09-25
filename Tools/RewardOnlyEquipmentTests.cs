@@ -182,6 +182,14 @@ public sealed class ItemInfo
 {
     public XmlNode NodeXML;
     public string Name => NodeXML.Attributes["Name"].Value;
+    // Reward-only equipment carries no initial profile, price or presentation override.
+    internal bool TryOverrideInitialProfile(int level, int upgradeLevel, IReadOnlyDictionary<string, int> stats,
+        string upgradeTemplate, string legacyPaidItem, bool clearLocalUpgrades, out IDisposable lifetime) =>
+        throw new NotSupportedException("No initial profiles in this fixture.");
+    internal bool TryOverrideShopPrice(long coins, long gems, out IDisposable lifetime) =>
+        throw new NotSupportedException("No shop prices in this fixture.");
+    internal bool TryOverridePresentation(string icon, string model, out IDisposable lifetime) =>
+        throw new NotSupportedException("No presentations in this fixture.");
 }
 public sealed class ItemSet { public string Name; }
 public sealed class ItemSets
@@ -196,6 +204,8 @@ public sealed class Items
     public int FailOnAdd;
     public int Count => _items.Count;
     public ItemInfo GetItemByName(string name) => _items.TryGetValue(name, out var item) ? item : null;
+    public List<ItemInfo> AllItems => new List<ItemInfo>(_items.Values);
+    public object GetUpgradeDataContainerByName(string name) => null;
     public ItemInfo AddExternalItem(XmlElement node)
     {
         if (++_adds == FailOnAdd) throw new InvalidOperationException("Injected late add failure.");
@@ -233,6 +243,9 @@ namespace Eclipse.Modding
         private readonly List<string> _itemSetNames = new List<string>();
         private readonly List<string> _localizationKeys = new List<string>();
         private Items _items;
+        private readonly List<IDisposable> _initialProfileLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _shopPriceLifetimes = new List<IDisposable>();
+        private readonly List<IDisposable> _presentationLifetimes = new List<IDisposable>();
         private bool _itemsApplied, _languageSubscribed, _disposed;
         public LegacyContentAdapter(ModContentCatalog content) { _content = content; }
         private int ResolveVanillaStat(string template, int level, string attribute) => level * 100 + 7;
