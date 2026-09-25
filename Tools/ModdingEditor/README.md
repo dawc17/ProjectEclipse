@@ -87,6 +87,8 @@ AI action completion respects authored native `tactic_conditions` and
 `{ type = "round_result", name = "Victory" }` or `"Defeat"` for end-of-round animations.
 Scheduled move effects accept `on_background = true` for the native background
 render layer; omission keeps the existing foreground behavior.
+Scheduled `stop_sound` actions accept `core_sound` and call the native sound
+stop path at a frame or event, including hit and animation end.
 Adds AI candidate `timing` (sample bounds, spacing, nominal duration,
 loop flag) and `inputs` (native controls and press types). Nested fields complete
 inside `on_decide`; nominal duration is not a prediction of completion or hits.

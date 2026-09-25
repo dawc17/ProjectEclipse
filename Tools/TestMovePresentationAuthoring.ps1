@@ -57,7 +57,8 @@ $resultLua=@'
 local animation=sf2.assets.binary("animations/chinese")
 sf2.moves.register {id="result",animation=animation,
  conditions={{type="round_result",name="Victory"}},
- actions={{type="effect",frame=1,effect={name="Storm",core_sequence="mgc_effect_levitation_middle",on_background=true}}}}
+ actions={{type="effect",frame=1,effect={name="Storm",core_sequence="mgc_effect_levitation_middle",on_background=true}},
+ {type="stop_sound",event="Hit",core_sound="snd_blade_fury"}}}
 '@
 $resultCatalog=Load-Lua $resultLua
 $resultNode=(Project $resultCatalog).SelectSingleNode('//Move[contains(@Name,"result")]')
@@ -66,6 +67,9 @@ Check ($resultNode.Conditions.RoundResult.GetAttribute('Name') -ceq 'Victory' -a
 $background=[ActionsParser]::Create($resultNode.Actions.Effect)
 Check ($resultNode.Actions.Effect.GetAttribute('OnBackground') -ceq '1' -and
     $background -is [ActionEffect] -and $background.JNAALMFCPCN()) 'Background effect did not reach the native renderer contract.'
+Check ($resultNode.Actions.StopSound.GetAttribute('Name') -ceq 'snd_blade_fury' -and
+    ([ActionsParser]::Create($resultNode.Actions.StopSound) -is [ActionStopSound])) 'Typed sound stop did not reach the native parser.'
+Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('snd_blade_fury','snd_other')))) 'Sound stop is absent from the fingerprint.'
 Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('on_background=true','on_background=false')))) 'Background effect is absent from the fingerprint.'
 Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('name="Victory"','name="Defeat"')))) 'Round result is absent from the fingerprint.'
 foreach($mutation in @('name="Draw"','name=""','name="Victory",item_type="Weapon"')) {
@@ -74,6 +78,10 @@ foreach($mutation in @('name="Draw"','name=""','name="Victory",item_type="Weapon
 }
 $failure=$null;try {$null=Load-Lua $resultLua.Replace('on_background=true','on_background="yes"')}catch{$failure=$_}
 Check ($null -ne $failure) 'Nonboolean background flag accepted.'
+foreach($mutation in @('core_sound=""','core_sound="../bad"','effect_name="Storm"')) {
+ $failure=$null;try {$null=Load-Lua $resultLua.Replace('core_sound="snd_blade_fury"',$mutation)}catch{$failure=$_}
+ Check ($null -ne $failure) ('Invalid sound stop accepted: '+$mutation)
+}
 Check ((Fingerprint $tacticCatalog) -cne (Fingerprint (Load-Lua ($tacticLua.Replace('minimum=250','minimum=251'))))) 'AI tactic conditions are absent from the fingerprint.'
 foreach($mutation in @('tactic_distance={axis="X",from={object="Pivot",player="Me"},to={object="Pivot",player="Enemy"}}','tactic_conditions={[2]=checks[1]}','tactic_conditions={}')) {
  $failure=$null

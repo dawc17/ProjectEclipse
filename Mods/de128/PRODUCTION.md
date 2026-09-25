@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.28.0**. Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.29.0**. Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3717,3 +3717,42 @@ adapter, **33** native metadata and **69** Lua decision checks; generator and ar
 editor generate/check/**38** project tests, LuaLS and VS Code integration; wiki
 build (**48** pages, **4,344** local links/assets); and `git diff --check`.
 The location audit still reports the known missing `fungus_raid/layer_0_2` image.
+
+### Step 63 — War's archived Whirl (0.29.0, 2026-09-25)
+
+The historical DE move archive changes War's boss ability from a Super-button
+cast to RaidCharge, removes the old invulnerable/unstable interval set, changes
+the attacking edges and damage from 0.45 to 0.40, and adds a Stun guard. DE128
+now installs the complete replacement move with the byte-identical packaged
+`boss_war_ability` animation and disables the old core selector. The move keeps
+both archived native AI distance gates, its eight-edge attack, block and named
+invulnerability bypass, three scheduled effects, timed middle-effect stop,
+sound cues and hit/end cleanup. Both normal and Power Mode `Girl_Drakaina`
+fighters use a scoped Aggressive-inheriting Lua tactic that chooses Whirl only
+when the native gates allow it. The generated Underworld table remains a source
+transcription; the live tactic override is asserted separately.
+
+Eclipse's move API now accepts `stop_sound` with an exact native `core_sound`
+name and frame or event timing. The typed Lua binding rejects unrelated fields
+and invalid names, the adapter emits native `StopSound`, and fingerprints include
+the sound identity. The wiki, editor schema/generated definitions, reusable
+snippet, starter guidance and editor guide changed with the public contract.
+DE128 ships no XML and never reads it at runtime.
+
+Isolated Unity 6 tests entered War's normal and Power Mode Underworld fights.
+Each installed the authored move, disabled the core selector, selected the
+RaidCharge cast, ran its attack interval and all three native effect stages,
+stopped the middle effect, and returned to the Underworld map. An offscreen
+normal-mode frame captured while the middle effect ran shows the red Whirl
+rendered around War. These runs establish that combat and effect sequence in
+the native editor; they do not establish interactive balance or audible sound
+quality. The historical move archive remains pending reconciliation against
+the unavailable full owner corpus.
+
+Verification: **14,689** DE128 foundation checks; move presentation **532**,
+effect **648** and projectile **737** combined checks; native normal and Power
+Mode War combat and map return; editor generate/check/**38** project tests,
+LuaLS and VS Code integration; wiki build (**48** pages, **4,344** local
+links/assets); four `dotnet msbuild` managed builds; **1,282** Underworld runtime
+assertions; pinned generator and art `--check`; and `git diff --check`. The
+location audit retains the known missing `fungus_raid/layer_0_2` image.

@@ -3683,10 +3683,11 @@
     },
     "MoveScheduledAction": {
       "fields": {
-        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"|\"sound\"|\"shake_screen\"",
+        "type": "\"random_sound\"|\"try_on_end\"|\"effect\"|\"stop_effect\"|\"stop_follow_effect\"|\"create_projectile\"|\"add_bullets\"|\"delete_actor\"|\"sound\"|\"stop_sound\"|\"shake_screen\"",
         "frame?": "integer",
         "event?": "\"RoundStage\"|\"KeyPressed\"|\"KeyReleased\"|\"RoundStart\"|\"RoundEnd\"|\"Hit\"|\"Strike\"|\"WallHit\"|\"AnimationStart\"|\"AnimationEnd\"|\"IntervalStart\"|\"IntervalEnd\"|\"EveryFrame\"|\"Birth\"|\"ModExpires\"",
         "core_sounds?": "string[]",
+        "core_sound?": "string",
         "sound?": "Eclipse.MoveSound",
         "shake?": "Eclipse.MoveShake",
         "effect?": "Eclipse.MoveEffect",

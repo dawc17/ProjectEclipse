@@ -400,7 +400,7 @@ namespace Eclipse.Modding
             var actions = document.CreateElement("Actions"); node.AppendChild(actions);
             foreach (var action in value.Actions)
             {
-                string tag = action.Kind == "sound" ? "Sound" : action.Kind == "shake_screen" ? "ShakeScreen" : action.Kind == "random_sound" ? "RandomSound" : action.Kind == "effect" ? "Effect"
+                string tag = action.Kind == "sound" ? "Sound" : action.Kind == "stop_sound" ? "StopSound" : action.Kind == "shake_screen" ? "ShakeScreen" : action.Kind == "random_sound" ? "RandomSound" : action.Kind == "effect" ? "Effect"
                     : action.Kind == "create_projectile" ? "CreatePlayer" : action.Kind == "add_bullets" ? "AddBullets"
                     : action.Kind == "delete_actor" ? "Delete" : action.Kind == "stop_effect" ? "StopEffect" : action.Kind == "stop_follow_effect" ? "StopFollowEffect" : "TryOnEnd";
                 var entry = document.CreateElement(tag); actions.AppendChild(entry);
@@ -439,6 +439,7 @@ namespace Eclipse.Modding
                     entry.AppendChild(weapon);
                 }
                 if (action.EffectName.Length != 0) Set(entry, "Name", action.EffectName);
+                if (action.StopSoundName.Length != 0) Set(entry, "Name", action.StopSoundName);
                 if (action.Effect != null)
                 {
                     var effect = action.Effect;

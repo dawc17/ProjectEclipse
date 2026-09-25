@@ -144,6 +144,13 @@
     ],
     "description": "Inside a move actions array; requires content.register and a compatible core effect/rig."
   },
+  "Eclipse stop native sound": {
+    "prefix": "eclipse-move-stop-sound",
+    "body": [
+      "{ type = \"stop_sound\", event = \"${1:AnimationEnd}\", core_sound = \"${2:snd_blade_fury}\" },"
+    ],
+    "description": "Stop an exact native sound when a move ends or is interrupted."
+  },
   "Eclipse scheduled projectile": {
     "prefix": "eclipse-move-projectile",
     "body": [

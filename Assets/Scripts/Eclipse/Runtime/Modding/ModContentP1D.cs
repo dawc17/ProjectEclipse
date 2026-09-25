@@ -717,6 +717,7 @@ namespace Eclipse.Modding
         public IReadOnlyList<string> CoreSounds { get; }
         public ModMoveEffect Effect { get; }
         public string EffectName { get; }
+        public string StopSoundName { get; }
         public ModMoveProjectile Projectile { get; }
         public ModMoveBulletChange Bullets { get; }
         public string DeletePlayer { get; }
@@ -724,9 +725,10 @@ namespace Eclipse.Modding
         public ModMoveShake Shake { get; }
         public ModMoveScheduledAction(string kind, int? frame, string eventName, string[] coreSounds = null,
             ModMoveEffect effect = null, string effectName = null, ModMoveProjectile projectile = null,
-            ModMoveBulletChange bullets = null, string deletePlayer = null, ModMoveSound sound = null, ModMoveShake shake = null)
+            ModMoveBulletChange bullets = null, string deletePlayer = null, ModMoveSound sound = null, ModMoveShake shake = null,
+            string stopSoundName = null)
         {
-            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor", "sound", "shake_screen" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
+            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor", "sound", "stop_sound", "shake_screen" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
             if (frame.HasValue == (eventName != null)) throw new ModContentException("Move action requires exactly one of frame or event.");
             if (frame < 0 || frame > 100000) throw new ModContentException("Action frame must be in 0..100000.");
             if (eventName != null && Array.IndexOf(new[] { "RoundStage", "KeyPressed", "KeyReleased", "RoundStart", "RoundEnd", "Hit", "Strike", "WallHit", "AnimationStart", "AnimationEnd", "IntervalStart", "IntervalEnd", "EveryFrame", "Birth", "ModExpires" }, eventName) < 0)
@@ -744,8 +746,10 @@ namespace Eclipse.Modding
             if (deletePlayer != null && Array.IndexOf(new[] { "Me", "Enemy", "Parent", "Child", "EnemyChild" }, deletePlayer) < 0)
                 throw new ModContentException("Unsupported delete actor player.");
             if ((kind == "sound") != (sound != null)) throw new ModContentException("Only sound actions require a sound table.");
+            if ((kind == "stop_sound") != (stopSoundName != null)) throw new ModContentException("Stop sound actions require core_sound exclusively.");
+            if (stopSoundName != null) ValidateSymbol(stopSoundName, "core sound");
             if ((kind == "shake_screen") != (shake != null)) throw new ModContentException("Only shake_screen actions require a shake table.");
-            Sound = sound; Shake = shake;
+            Sound = sound; Shake = shake; StopSoundName = stopSoundName ?? string.Empty;
             Projectile = projectile; Bullets = bullets; DeletePlayer = deletePlayer ?? string.Empty;
             Effect = effect; EffectName = effectName ?? string.Empty;
             foreach (var name in coreSounds) ValidateSymbol(name, "core sound");

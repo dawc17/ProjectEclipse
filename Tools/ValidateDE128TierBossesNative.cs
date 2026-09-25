@@ -31,6 +31,9 @@ public static class ValidateDE128TierBossesNative
     static int hermitStormSpawns, hermitIdleStormSpawns;
     static readonly HashSet<int> hermitAttackStarts = new HashSet<int>();
     static int hermitPlayerDefeatedAt = -1;
+    static int warEnteredAt = -1, warSelectedAt = -1;
+    static bool warAttack, warEffectStopped, warCaptured;
+    static readonly HashSet<string> warEffects = new HashSet<string>();
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
@@ -66,7 +69,8 @@ public static class ValidateDE128TierBossesNative
             if (combatException != null) throw new Exception("Native boss combat exception: " + combatException);
             double timeout = Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" ||
-                Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" ? 420 : 180;
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
@@ -195,6 +199,8 @@ public static class ValidateDE128TierBossesNative
                 !ObserveButcherWave(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" &&
                 !ObserveHermitWave(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" &&
+                !ObserveWarWhirl(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -256,6 +262,72 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveWarWhirl(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_boss_9_1" &&
+            Target.Id.ToString() != "de128:fights/uw_boss_9_hardmode_1")
+            throw new Exception("War Whirl acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (warEnteredAt < 0)
+        {
+            warEnteredAt = frame;
+            var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var authored = localMoves.SingleOrDefault(move => move.Name == "de128:moves/war_whirl_player");
+            if (authored == null || localMoves.Count(move => move.Name == "MagicWarAbilityPlayer" &&
+                move.SelectionConditions.Last().GetType().Name == "DisabledMoveCondition") != 1)
+                throw new Exception("War lacks her archived Whirl or retained the core selector.");
+            if (authored.ScheduledActions.Count(action => action is ActionStopSound stop &&
+                stop.get_Name() == "snd_blade_fury") != 2)
+                throw new Exception("War's native Whirl lost its two sound cleanup events.");
+            enemy.OCPMJKIEPIG().AddEventListener(2, value =>
+            {
+                if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name != "de128:moves/war_whirl_player" ||
+                    !(value is IntervalAttack attack)) return;
+                if (attack.Start != 14 || attack.EndFrame != 70 ||
+                    attack.HitReactions.SingleOrDefault()?.Name != "Physycal" || !attack.MOILKOLCNBP())
+                    throw new Exception("War's live Whirl attack lost its archived window, hit or block bypass.");
+                warAttack = true;
+            });
+            enemy.AddEventListener(7, value =>
+            {
+                if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name != "de128:moves/war_whirl_player" ||
+                    !(value is ActionEffect effect)) return;
+                warEffects.Add(effect.get_Name() + ":" + effect.EPDMGFELIMC());
+            });
+            enemy.AddEventListener(8, value =>
+            {
+                if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "de128:moves/war_whirl_player" &&
+                    value is ActionStopEffect effect && effect.get_Name() == "MagicWarWhirlffectMiddle")
+                    warEffectStopped = true;
+            });
+            Debug.Log(Prefix + "War's authored Whirl, disabled core selector and native sound cleanup loaded.");
+        }
+        if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "de128:moves/war_whirl_player" &&
+            warSelectedAt < 0)
+        {
+            warSelectedAt = frame;
+            Debug.Log(Prefix + "War selected archived Whirl at frame " + frame + ".");
+        }
+        if (!warCaptured && warSelectedAt >= 0 && frame - warSelectedAt >= 50 &&
+            frame - warSelectedAt <= 100 && GameObject.Find("MagicWarWhirlffectMiddle") != null)
+        {
+            CaptureCombatFrame(Target.Id.ToString() + "_war_whirl");
+            warCaptured = true;
+        }
+        if (frame - warEnteredAt < 1200) return false;
+        int decisionFrame = (int)typeof(ModelAi).GetField("_modDecisionFrame", Hidden)
+            .GetValue(enemy.EEIGOJBKFGE());
+        if (decisionFrame < 300 || warSelectedAt < 0 || !warAttack || !warEffectStopped || !warCaptured ||
+            !warEffects.Contains("MagicWarWhirlffectStart:mgc_war_ability_start") ||
+            !warEffects.Contains("MagicWarWhirlffectMiddle:mgc_war_ability_middle") ||
+            !warEffects.Contains("MagicWarWhirlffectMiddle:mgc_war_ability_end"))
+            throw new Exception("War's full Whirl sequence did not execute within 1200 frames: AI=" +
+                decisionFrame + " selected=" + warSelectedAt + " attack=" + warAttack +
+                " stop=" + warEffectStopped + " effects=" + string.Join(",", warEffects));
+        Debug.Log(Prefix + "War Whirl attacked and ran all three native effects with cleanup.");
+        return true;
+    }
 
     static bool ObserveHermitWave(Fight fight, Model enemy)
     {

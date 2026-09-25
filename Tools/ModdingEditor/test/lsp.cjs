@@ -290,6 +290,11 @@ async function main() {
         const found=labels(await request('textDocument/completion',moveActionFields));
         return ['type','frame','event','core_sounds'].every(name=>found.some(value=>value.startsWith(name)));
     },'scheduled move action fields');
+    const stopSound=probe('move-stop-sound.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="stop_sound",event="Hit", | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',stopSound));
+        return found.some(value=>value.startsWith('core_sound'));
+    },'native sound stop field');
     const moveTacticFields=probe('move-tactic-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),tactic_distance={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveTacticFields));

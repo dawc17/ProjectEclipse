@@ -456,6 +456,7 @@ namespace Eclipse.Modding
                         else if (kind == "add_bullets") ValidateFields(entry, function, "type", "frame", "event", "bullets");
                         else if (kind == "delete_actor") ValidateFields(entry, function, "type", "frame", "event", "player");
                         else if (kind == "sound") ValidateFields(entry, function, "type", "frame", "event", "sound");
+                        else if (kind == "stop_sound") ValidateFields(entry, function, "type", "frame", "event", "core_sound");
                         else if (kind == "shake_screen") ValidateFields(entry, function, "type", "frame", "event", "shake");
                         else ValidateFields(entry, function, "type", "frame", "event");
                         ModMoveSound sound = null;
@@ -512,7 +513,8 @@ namespace Eclipse.Modding
                             entry.Get("event").IsNil() ? null : RequiredString(entry, "event", function),
                             OptionalStringArray(entry, "core_sounds", function), effect,
                             kind == "stop_effect" || kind == "stop_follow_effect" ? RequiredString(entry, "effect_name", function) : null, projectile, bullets,
-                            kind == "delete_actor" ? RequiredString(entry, "player", function) : null, sound, shake));
+                            kind == "delete_actor" ? RequiredString(entry, "player", function) : null, sound, shake,
+                            kind == "stop_sound" ? RequiredString(entry, "core_sound", function) : null));
                     }
                     EnsureDenseArray(array, actions.Count, function + ".actions");
                 }

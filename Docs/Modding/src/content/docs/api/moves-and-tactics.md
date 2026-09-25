@@ -253,12 +253,23 @@ native capitalization, unlike the lowercase `events` registration table above.
   `Male`, `MaleLow`, or `Female`; omission allows any voice. The native action
   plays only when the actor's voice matches. Use separate actions for separate
   voice clips; `random_sound` remains unfiltered.
+- `type = "stop_sound"` requires `core_sound`, the exact name of a native sound
+  already playing. Schedule it on `Hit` or `AnimationEnd` to end a long clip when
+  a move is interrupted or finishes. This calls the native sound stop action;
+  the name is validated at registration, while the sound's existence is resolved
+  by the game.
 - `type = "shake_screen"` requires a `shake` table. All fields default to zero:
   `pause_time` and `effect_time` are integer native frame counts in 0–10,000;
   `amplitude_x`, `amplitude_y`, `frequency_x`, and `frequency_y` are finite native
   camera values in 0–1,000. Timing still uses exactly one outer `frame` or `event`.
   This schedules the existing native camera action; it does not apply damage.
   Unknown fields and payloads on unrelated action types are rejected.
+
+```lua
+{ type = "random_sound", frame = 3, core_sounds = { "snd_blade_fury" } },
+{ type = "stop_sound", event = "Hit", core_sound = "snd_blade_fury" },
+{ type = "stop_sound", event = "AnimationEnd", core_sound = "snd_blade_fury" },
+```
 
 - `type = "try_on_end"` signals native shop preview completion. It accepts no
   sound list. Typically use `event = "AnimationEnd"` on a shop-only move.

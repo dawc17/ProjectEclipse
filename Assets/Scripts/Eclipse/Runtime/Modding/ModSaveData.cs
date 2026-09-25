@@ -1264,6 +1264,7 @@ namespace Eclipse.Modding
                 }
                 if (action.DeletePlayer.Length != 0) { Append(canonical, "move-delete-v1"); Append(canonical, action.DeletePlayer); }
                 if (action.EffectName.Length != 0) { Append(canonical, "stop-move-effect-v1"); Append(canonical, action.EffectName); }
+                if (action.StopSoundName.Length != 0) { Append(canonical, "stop-move-sound-v1"); Append(canonical, action.StopSoundName); }
                 if (action.Effect != null)
                 {
                     var effect = action.Effect; Append(canonical, "move-effect-v1");
