@@ -39,7 +39,7 @@ PowerShell 5.1; Unity 2022's managed API is not compatible with the older host.
 
 ## Build Windows and Android
 
-Install Unity **2022.3.62f3** with Windows build support and **Android Build
+Install Unity **6000.6.0f1** with Windows build support and **Android Build
 Support**, including its SDK/NDK tools and OpenJDK. Use Unity's embedded Android
 toolchain rather than an unrelated system Java installation.
 
