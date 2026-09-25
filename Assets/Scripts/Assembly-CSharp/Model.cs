@@ -736,7 +736,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		get
 		{
-			return APICLPNBBAD();
+			return GetBackWallX();
 		}
 	}
 
@@ -1487,7 +1487,8 @@ public class Model : global::EventDispatcher<object>
 		return (KFCNPADAMHA() != 1) ? LBOLAOBGDEH.EDCHBILGFLD : LBOLAOBGDEH.NNCHJCLKHHA;
 	}
 
-	public float APICLPNBBAD()
+	// best guess for name
+	public float GetBackWallX()
 	{
 		return (KFCNPADAMHA() != 1) ? LBOLAOBGDEH.NNCHJCLKHHA : LBOLAOBGDEH.EDCHBILGFLD;
 	}

@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.33.0**. Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.34.0**. Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3944,3 +3944,60 @@ project tests, LuaLS and real VS Code integration; wiki build (**48** pages,
 **4,344** local links/assets); and `git diff --check`. The foundation runner
 now removes its own isolated fixture unless diagnostic retention is requested.
 The location audit retains the known missing `fungus_raid/layer_0_2` image.
+
+### Step 68 — Hoaxen, Hunter and Berstuuk native raid abilities (0.34.0, 2026-09-25)
+
+The reviewed owner `gamedata/animations/moves.xml` (SHA-256
+`7F4D181848DC3F430BA4AF1A8A024905D629FC77C499FF74832710C65D07B818`)
+uses RaidCharge for Hoaxen's Tentacles, Hunter's four wall-range Fly moves and
+Berstuuk's Root Potion. The packaged core moves use Super; Hunter's packaged
+priority is 1110 rather than the owner's 200. Guarded DE128 move patches change
+those original casters, preserving their native attacks and linked child graphs.
+The reviewed raid file (SHA-256
+`d012a1f47418def617d375743864e2256b00f4fd709f6785da45aa67a8c3fa7c`)
+supplies Hoaxen's 600-frame opening/recast, Hunter's 900-frame normal and
+800-frame Power Mode opening/recast, and Berstuuk's 300-frame opening with a
+600-frame recast. Scoped opponent tactics inherit Aggressive and use other
+legal attacks between casts. Hunter's tactic measures distance to the wall
+behind him and moves toward the range required by the native Fly conditions.
+
+Berstuuk's spawned Root Potion actor uses two hidden core item identities.
+Their generic packaged geometry lacks the reviewed attack and trigger edges.
+The art extractor reproducibly packs the owner's `mdl_vertical_trigger.xml`
+(SHA-256 `80464FC5C32176B721110902D80D6389394F1D972AC915401B436EE260D11172`)
+and `mdl_small_collision_box.xml` (SHA-256
+`78A23CD645D87FFF1B02C79287F2E1DA60416600B1CB41110D65F2C3C9DA6D13`)
+as DE128 `.modelz` assets. Item presentation patches attach those models.
+DE128 ships no XML and reads none at runtime.
+
+The reusable AI snapshot now exposes `event.back_wall_distance`, a nonnegative
+horizontal pivot-to-back-wall distance recomputed for each native decision.
+The public wiki, editor schema, generated definitions, example and editor
+guide describe it. Eclipse also handles a child created on the same frame its
+struck parent loses its rig; this prevents Root Potion's hitbox from failing
+native condition evaluation. The move input guard ignores a transient key
+inversion set by native AI after casting, so later fights can validate the
+same patched move. The guard still compares the authored controls and other
+condition fields. The inferred `Model.GetBackWallX` name carries the required
+deobfuscation comment.
+
+One Unity 6 native matrix entered all six fights in sequence. The observed
+first and second cast frames were Berstuuk Power 333/957, Hunter Power
+903/1749, Hoaxen normal 687/1370, Hoaxen Power 688/1345, Hunter normal
+959/2747 and Berstuuk normal 330/1024. All six rendered their arenas and
+fighter rigs, ran combat, captured an offscreen frame and returned to the
+Underworld map. Both Berstuuk fights spawned RootPotion, RootPotionTrigger
+and RootHitBox with the trigger's native attack interval. The unattended
+player was moved to satisfy caster and wall-range conditions; the matrix
+shows the abilities execute, not how often they would hit an interactive
+player. Interactive balance and audible sound quality remain untested.
+
+Verification: four managed `dotnet msbuild` builds; **14,872** DE128 foundation
+checks; **1,282** Underworld runtime assertions; AI snapshot and Lua decision
+tests; the six-fight native matrix; pinned Underworld generator and 52-artifact
+extractor `--check`; 58 upscaled location and 12 DE parameter checks;
+ModdingEditor generate/check/**38** project tests, LuaLS and real VS Code
+integration; wiki build (**48** pages, **4,344** local links/assets); and
+`git diff --check`. The location audit still reports missing
+`fungus_raid/layer_0_2`. The complete designated owner archive remains
+unavailable for source-to-source reconciliation.

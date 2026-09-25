@@ -1679,6 +1679,7 @@ local AiAction = {}
 ---@field opponent Eclipse.FighterSnapshot?
 ---@field frame integer
 ---@field seconds number
+---@field back_wall_distance? number
 ---@field actions Eclipse.AiAction[]
 local AiDecision = {}
 

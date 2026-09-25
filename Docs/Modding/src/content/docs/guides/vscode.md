@@ -70,6 +70,10 @@ Attach the returned behavior handle to a perk or enchantment to use it in combat
 Damage multipliers belong in `on_damage_resolving`; other callbacks cannot change
 the hit already being resolved. Follow the combat API reference when choosing events.
 
+Inside a tactic's `on_decide`, `event.` also completes `back_wall_distance`.
+Use it to choose forward or backward movement for moves with a native wall
+range requirement; guard for `nil` if the script also runs in an older host adapter.
+
 ## Understand warnings
 
 Open **View > Problems**. LuaLS checks names, argument types, required fields, and

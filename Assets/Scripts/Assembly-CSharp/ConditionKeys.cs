@@ -47,8 +47,9 @@ public class ConditionKeys : ConditionAnimation
 
 	public bool HasSameKeyRequirementAs(ConditionKeys other)
 	{
+		// Native AI sets RequiredKeys.IsInverted while dispatching a selected
+		// move. It is transient controller state, not part of the authored key.
 		return other != null && IsNot == other.IsNot && TargetModelType == other.TargetModelType &&
-			RequiredKeys.IsInverted == other.RequiredKeys.IsInverted &&
 			RequiredKeys.IsVariable(other.RequiredKeys) && other.RequiredKeys.IsVariable(RequiredKeys);
 	}
 }

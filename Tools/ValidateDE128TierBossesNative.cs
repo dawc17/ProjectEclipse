@@ -53,6 +53,14 @@ public static class ValidateDE128TierBossesNative
     static readonly HashSet<string> dandyPhases = new HashSet<string>();
     static readonly HashSet<string> dandyAttacks = new HashSet<string>();
     static readonly HashSet<string> dandyEffects = new HashSet<string>();
+    static int raidAbilityEnteredAt = -1, raidAbilitySelectedAt = -1, raidAbilitySecondAt = -1;
+    static bool raidAbilityWasCasting, raidAbilityAttack, raidAbilityChild, raidAbilityTrigger;
+    static bool raidAbilityHitbox, raidAbilityChildAttack;
+    static bool raidAbilityCaptured;
+    static int raidLastRangeAt = -100, raidLastRangeLogAt = -1000;
+    static Model raidTriggerModel;
+    static ModelEdge raidTriggerEdge;
+    static int raidTriggerSpawnAt = -1;
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
@@ -93,7 +101,8 @@ public static class ValidateDE128TierBossesNative
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_SATURN_BLASTER") == "1" ||
-                Environment.GetEnvironmentVariable("ECLIPSE_DE128_DANDY_CHAIN") == "1" ? 420 : 180;
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_DANDY_CHAIN") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_RAID_ABILITY") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
@@ -139,6 +148,15 @@ public static class ValidateDE128TierBossesNative
                 Debug.Log(Prefix + "Returned from " + Target.Id + " to the Underworld map.");
                 if (storyPresses > 0) storyIntros++;
                 targetIndex++;
+                raidAbilityEnteredAt = raidAbilitySelectedAt = raidAbilitySecondAt = -1;
+                raidAbilityWasCasting = raidAbilityAttack = raidAbilityChild = raidAbilityTrigger = false;
+                raidAbilityHitbox = raidAbilityChildAttack = false;
+                raidAbilityCaptured = false;
+                raidLastRangeAt = -100;
+                raidLastRangeLogAt = -1000;
+                raidTriggerModel = null;
+                raidTriggerEdge = null;
+                raidTriggerSpawnAt = -1;
                 started = EditorApplication.timeSinceStartup;
                 storyPresses = 0;
                 entryRequested = surrenderRequested = false;
@@ -232,6 +250,8 @@ public static class ValidateDE128TierBossesNative
                 !ObserveSaturnBlaster(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_DANDY_CHAIN") == "1" &&
                 !ObserveDandyChain(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_RAID_ABILITY") == "1" &&
+                !ObserveRaidAbility(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -293,6 +313,214 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static void ObserveRootHitBox(Model child, Fight fight)
+    {
+        if (child == null || child.get_Name() != "RootHitBox" || raidAbilityHitbox) return;
+        var moves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child);
+        if (child.Parameters.Weapon?.Name != "SMALL_COLLISION_BOX" ||
+            !moves.Any(move => move.Name == "RootPotionAttack"))
+            throw new Exception("Berstuuk's root hitbox lost its hidden item or attack move.");
+        raidAbilityHitbox = true;
+        child.OCPMJKIEPIG().AddEventListener(2, action =>
+        {
+            if (action is IntervalAttack) raidAbilityChildAttack = true;
+        });
+        Debug.Log(Prefix + "Root Potion child spawned at fight frame " +
+            fight.get_FightTimeInFrames() + ": RootHitBox");
+    }
+
+    static bool ObserveRaidAbility(Fight fight, Model enemy)
+    {
+        string id = Target.Id.ToString();
+        bool hoaxen = id.Contains("uw_boss_7_");
+        bool hunter = id.Contains("uw_boss_14_");
+        bool berstuuk = id.Contains("uw_boss_berstuuk_");
+        if (!hoaxen && !hunter && !berstuuk)
+            throw new Exception("Raid ability acceptance selected the wrong fight: " + id);
+        bool power = id.Contains("hardmode");
+        int initial = hoaxen ? 600 : hunter ? (power ? 800 : 900) : 300;
+        int cooldown = hunter ? initial : 600;
+        string caster = hoaxen ? "HoaxenSpikeStrikePlayer" :
+            hunter ? null : "AbilityRootPotionPlayer";
+        int frame = fight.get_FightTimeInFrames();
+        if (raidAbilityEnteredAt < 0)
+        {
+            raidAbilityEnteredAt = frame;
+            var moves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var names = hunter ? new[] { "HunterFly_150", "HunterFly_200", "HunterFly_300", "HunterFly_370" } :
+                new[] { caster };
+            var keyNode = new XmlDocument();
+            keyNode.LoadXml("<Keys><Key Type='RaidCharge' PressType='Tap'/></Keys>");
+            var expected = new ConditionKeys(keyNode.DocumentElement);
+            expected.Parse(keyNode.DocumentElement);
+            foreach (var name in names)
+            {
+                var move = moves.SingleOrDefault(value => value.Name == name);
+                if (move == null || (hunter && move.Priority != 200) ||
+                    !move.SelectionConditions.OfType<ConditionKeys>().Single().HasSameKeyRequirementAs(expected))
+                    throw new Exception("Archived raid caster lost its native move, input or priority: " + name +
+                        " found=" + (move != null) + " priority=" + move?.Priority +
+                        " keys=" + move?.SelectionConditions.OfType<ConditionKeys>().Count() +
+                        " sample=" + string.Join(",", moves.Where(value => value.Name.Contains("Hoaxen") ||
+                            value.Name.Contains("HunterFly") || value.Name.Contains("RootPotion"))
+                            .Select(value => value.Name)));
+                if ((hoaxen || hunter) && !move.MoveData.Intervals.OfType<IntervalAttack>().Any())
+                    throw new Exception("Archived raid strike lost its native attack interval: " + name);
+            }
+            enemy.OCPMJKIEPIG().AddEventListener(2, value =>
+            {
+                string stage = enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+                if (!(value is IntervalAttack attack) ||
+                    !(hunter ? stage != null && stage.StartsWith("HunterFly_", StringComparison.Ordinal) : stage == caster))
+                    return;
+                Debug.Log(Prefix + "Raid caster attack interval: " + stage + " start=" + attack.Start +
+                    " end=" + attack.EndFrame + " bypass=" + attack.MOILKOLCNBP());
+                raidAbilityAttack = true;
+            });
+            if (berstuuk)
+            {
+                enemy.AddEventListener(6, value =>
+                {
+                    var child = value as Model;
+                    if (child == null) return;
+                    string childName = child.get_Name();
+                    if (childName != "RootPotion" && childName != "RootPotionTrigger" &&
+                        childName != "RootHitBox") return;
+                    var childMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child);
+                    if (childName == "RootPotion")
+                    {
+                        raidAbilityChild = true;
+                        if (child.Parameters.Weapon?.Name != "ABILITY_ROOT_POTION" ||
+                            !childMoves.Any(move => move.Name == "RootPotionStart") ||
+                            !childMoves.Any(move => move.Name == "RootPotionFly"))
+                            throw new Exception("Berstuuk's root projectile lost its hidden item or linked phases.");
+                        child.OCPMJKIEPIG().AddEventListener(0, animation =>
+                            Debug.Log(Prefix + "Root Potion projectile phase: " +
+                                child.OCPMJKIEPIG().NNMAFFCCMHC()?.Name));
+                    }
+                    else if (childName == "RootPotionTrigger")
+                    {
+                        raidAbilityTrigger = true;
+                        raidTriggerModel = child;
+                        raidTriggerSpawnAt = fight.get_FightTimeInFrames();
+                        if (child.Parameters.Weapon?.Name != "MAGIC_VERTICAL_TRIGGER" ||
+                            !childMoves.Any(move => move.Name == "RootPotionTriggerFly"))
+                            throw new Exception("Berstuuk's root trigger lost its hidden item or flight move.");
+                        child.AddEventListener(6, value => ObserveRootHitBox(value as Model, fight));
+                        var model = child.CLDMEJKGLBA();
+                        var edges = model.HABIIJGLCMA().Concat(model.EKOGCJAAKDN())
+                            .Concat(model.ODDEMLAODPM()).Concat(model.BKAPPJMGPKP())
+                            .GroupBy(edge => edge.get_Name()).Select(group => group.First()).ToArray();
+                        raidTriggerEdge = edges.SingleOrDefault(edge => edge.get_Name() == "VerticalTrigger-Edge1");
+                        if (raidTriggerEdge == null)
+                            throw new Exception("Root trigger is missing its archived VerticalTrigger-Edge1 geometry.");
+                        Debug.Log(Prefix + "Root trigger collision edge loaded at X=" +
+                            raidTriggerEdge.FHGNPPBLIIL().GetX() + ".");
+                        child.OCPMJKIEPIG().AddEventListener(0, animation =>
+                            Debug.Log(Prefix + "Root Potion trigger phase: " +
+                                child.OCPMJKIEPIG().NNMAFFCCMHC()?.Name));
+                        child.OCPMJKIEPIG().AddEventListener(2, action =>
+                        {
+                            if (action is IntervalAttack attack)
+                                Debug.Log(Prefix + "Root Potion trigger attack interval: " +
+                                    attack.Start + ".." + attack.EndFrame);
+                        });
+                    }
+                    else ObserveRootHitBox(child, fight);
+                    Debug.Log(Prefix + "Root Potion child spawned at fight frame " +
+                        fight.get_FightTimeInFrames() + ": " + childName);
+                });
+            }
+            Debug.Log(Prefix + "Reviewed raid caster and native attack graph loaded: " + id);
+        }
+        string animation = enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+        if (berstuuk && !raidAbilityHitbox && raidTriggerModel != null && raidTriggerEdge != null &&
+            frame >= raidTriggerSpawnAt && frame <= raidTriggerSpawnAt + 20)
+        {
+            var player = (Model)typeof(Fight).GetField("_playerModel", Hidden).GetValue(fight);
+            float edgeX = raidTriggerEdge.FHGNPPBLIIL().GetX();
+            float playerX = player.PLBNCDCFPML().GetX();
+            player.ShiftModelPosition(new Vector3f(edgeX - playerX, 0f, 0f), true);
+        }
+        bool firstRange = raidAbilitySelectedAt < 0 && frame >= initial - 10;
+        bool secondRange = raidAbilitySelectedAt >= 0 && raidAbilitySecondAt < 0 &&
+            frame - raidAbilitySelectedAt >= cooldown - 10;
+        if (hunter && (firstRange || secondRange))
+        {
+            // Native retreat actions require the player within 401 units.
+            // Keep the unattended player close enough to pursue Hunter as he
+            // backs into the archived wall range for Fly.
+            var player = (Model)typeof(Fight).GetField("_playerModel", Hidden).GetValue(fight);
+            float enemyX = enemy.PLBNCDCFPML().GetX();
+            float playerX = player.PLBNCDCFPML().GetX();
+            float separation = playerX - enemyX;
+            if (Math.Abs(separation) > 330f)
+            {
+                float targetX = enemyX + (separation >= 0f ? 250f : -250f);
+                player.ShiftModelPosition(new Vector3f(targetX - playerX, 0f, 0f), true);
+            }
+        }
+        if ((hoaxen || berstuuk) && (firstRange || secondRange) && frame - raidLastRangeAt >= 30)
+        {
+            // The original caster's AI range gate needs space that the
+            // unattended player does not maintain during ordinary combat.
+            var player = (Model)typeof(Fight).GetField("_playerModel", Hidden).GetValue(fight);
+            float enemyX = enemy.PLBNCDCFPML().GetX();
+            float playerX = player.PLBNCDCFPML().GetX();
+            float direction = playerX >= enemyX ? 1f : -1f;
+            float targetRange = berstuuk ? 330f : 600f;
+            player.ShiftModelPosition(new Vector3f(enemyX + direction * targetRange - playerX, 0f, 0f), true);
+            float distance = (float)typeof(ModelAi).GetMethod("GetDistanceToEnemy", Hidden)
+                .Invoke(enemy.EEIGOJBKFGE(), new object[] { enemy });
+            if (distance < (hoaxen ? 400f : 250f))
+                throw new Exception("Raid ability could not establish native caster range: " + distance);
+            raidLastRangeAt = frame;
+            if (frame - raidLastRangeLogAt >= 300)
+            {
+                raidLastRangeLogAt = frame;
+                Debug.Log(Prefix + "Placed unattended player at raid caster range: " + distance + ".");
+            }
+        }
+        bool casting = hunter ? animation != null && animation.StartsWith("HunterFly_", StringComparison.Ordinal) :
+            animation == caster;
+        if (casting && !raidAbilityWasCasting)
+        {
+            if (raidAbilitySelectedAt < 0)
+            {
+                if (frame < initial) throw new Exception("Raid ability cast before archived opening delay: " + frame);
+                raidAbilitySelectedAt = frame;
+                Debug.Log(Prefix + "Selected " + animation + " at frame " + frame + ".");
+                CaptureCombatFrame(id + "_ability");
+                raidAbilityCaptured = true;
+            }
+            else if (raidAbilitySecondAt < 0)
+            {
+                if (frame - raidAbilitySelectedAt < cooldown)
+                    throw new Exception("Raid ability recast before archived cooldown: " + frame);
+                raidAbilitySecondAt = frame;
+                Debug.Log(Prefix + "Recast " + animation + " at frame " + frame + ".");
+            }
+        }
+        raidAbilityWasCasting = casting;
+        if (raidAbilitySelectedAt < 0 && frame - initial >= 1200)
+            throw new Exception("Raid ability never selected after its opening delay: " + id);
+        if (berstuuk && raidAbilitySelectedAt >= 0 && !raidAbilityHitbox &&
+            frame - raidAbilitySelectedAt >= 800)
+            throw new Exception("Root Potion trigger did not spawn its damage hitbox after a cast.");
+        if (raidAbilitySecondAt >= 0 && raidAbilityCaptured &&
+            (berstuuk ? raidAbilityChild && raidAbilityTrigger && raidAbilityHitbox && raidAbilityChildAttack : raidAbilityAttack))
+        {
+            Debug.Log(Prefix + "Native raid ability cast, attack and cooldown completed: " + id);
+            return true;
+        }
+        if (frame - raidAbilityEnteredAt >= 6000)
+            throw new Exception("Raid ability did not complete: " + id + " first=" + raidAbilitySelectedAt +
+                " second=" + raidAbilitySecondAt + " attack=" + raidAbilityAttack +
+                " child=" + raidAbilityChild + " trigger=" + raidAbilityTrigger +
+                " hitbox=" + raidAbilityHitbox + " childAttack=" + raidAbilityChildAttack);
+        return false;
+    }
 
     static bool ObserveDandyChain(Fight fight, Model enemy)
     {

@@ -816,11 +816,17 @@ namespace Eclipse.Modding
         public int Frame { get; }
         public double Seconds => Frame / 60d;
         public bool RoundActive { get; }
-        public ModCombatSnapshot(ModFighterSnapshot self, ModFighterSnapshot opponent, int frame, bool roundActive)
+        public double? BackWallDistance { get; }
+        public ModCombatSnapshot(ModFighterSnapshot self, ModFighterSnapshot opponent, int frame, bool roundActive,
+            double? backWallDistance = null)
         {
             Self = self ?? throw new ArgumentNullException(nameof(self));
             if (frame < 0) throw new ArgumentOutOfRangeException(nameof(frame));
+            if (backWallDistance.HasValue && (double.IsNaN(backWallDistance.Value) ||
+                double.IsInfinity(backWallDistance.Value) || backWallDistance.Value < 0))
+                throw new ArgumentOutOfRangeException(nameof(backWallDistance));
             Opponent = opponent; Frame = frame; RoundActive = roundActive;
+            BackWallDistance = backWallDistance;
         }
     }
 

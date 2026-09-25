@@ -243,6 +243,17 @@ internal static class DE128UnderworldTests
                 set.GetAttribute("Frames") == "500" ? "de128:tactics/dandy_lightning_chain_power" :
                 throw new Exception("Dandy's recast delay differs: " + where);
         }
+        if (template == "Man_Hoaxen" && xml.GetAttribute("Tactic") == "Aggressive")
+            tactic = "de128:tactics/hoaxen_tentacles";
+        if (template == "Man_Stalker" && xml.GetAttribute("Tactic") == "Aggressive")
+        {
+            var set = xml.SelectSingleNode("Perks/Perk[@Name='PERK_HUNTERFLY']/Set") as XmlElement;
+            tactic = set?.GetAttribute("Frames") == "900" ? "de128:tactics/hunter_fly" :
+                set?.GetAttribute("Frames") == "800" ? "de128:tactics/hunter_fly_power" :
+                throw new Exception("Hunter's archived Fly delay differs: " + where);
+        }
+        if (template == "Man_Berstuuk" && xml.GetAttribute("Tactic") == "Aggressive")
+            tactic = "de128:tactics/berstuuk_root_potion";
         Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();

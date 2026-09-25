@@ -651,7 +651,7 @@ dots or hyphens. At least one nonempty operation is required.
 | `interval_end` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
 | `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`, `HighLong`, `NoReaction`. |
 | `sound_frame` | `{ name, expected, value }`. Requires exactly one native direct Sound action with this clip name, scheduled at `expected`. Moves it to `value`. Event-driven and RandomSound actions are not supported by this selector. |
-| `input` | `{ expected, value }` replaces one direct native Keys condition. Both values are supported control names, such as `Super` and `RaidCharge`, with `Tap` timing. The move must have exactly one direct Keys condition, and its full key requirement must match `expected`. Other conditions remain intact. |
+| `input` | `{ expected, value }` replaces one direct native Keys condition. Both values are supported control names, such as `Super` and `RaidCharge`, with `Tap` timing. The move must have exactly one direct Keys condition, and its authored key requirement must match `expected`. Native AI may temporarily invert the parsed key state while dispatching a move; that transient state is ignored by this guard. Other conditions remain intact. |
 | `priority` | `{ expected, value }` replaces a native selection priority. Both are distinct integers in 0–100,000. The current priority must match `expected`. |
 
 Frame values must be distinct integers from 0 through 100000. Reaction names
@@ -796,8 +796,26 @@ waits still apply. `event.self` and `event.opponent` contain detached health,
 maximum health, health-bar count and position snapshots, as described in the
 [fighter reference](../fighter/). `event.frame` and `event.seconds` use the
 fight's advancing simulation clock, including while a fighter has not pressed
-a key. `event.actions` is an array of currently
-legal input-driven actions. It may be empty. Each candidate has these fields:
+a key. In a live fight, `event.back_wall_distance` is the nonnegative horizontal
+distance in arena units from this fighter's pivot to the wall behind its current
+facing. It is recomputed for each decision; older host-only adapters may omit it.
+Native move conditions can measure from a named body node instead, so keep
+some room inside a move's wall-distance limits. Inside `on_decide`, an opponent
+that needs room for a wall attack can steer toward a 120–300 unit band:
+
+```lua
+local step_forward, step_back
+for _, candidate in ipairs(event.actions) do
+    if candidate.name:find("StepForward", 1, true) then step_forward = candidate end
+    if candidate.name:find("StepBack", 1, true) then step_back = candidate end
+end
+local distance = event.back_wall_distance
+if distance and distance < 120 then return step_forward or "wait" end
+if distance and distance > 300 then return step_back or "wait" end
+```
+
+`event.actions` is an array of currently legal input-driven actions. It may be
+empty. Each candidate has these fields:
 
 | Field | Meaning |
 | --- | --- |

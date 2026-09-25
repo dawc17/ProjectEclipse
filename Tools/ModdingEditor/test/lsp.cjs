@@ -443,7 +443,10 @@ async function main() {
             .catch(error=>{throw new Error(error.message+'\n'+JSON.stringify(diagnostics.get(key)));});
     }
     const aiDecision=probe('ai-decision.lua','local sf2=require("sf2")\nsf2.tactics.register { id="brain",on_decide=function(memory,event)\n local value=event.|\nend }');
-    await until(async()=>labels(await request('textDocument/completion',aiDecision)).includes('actions'),'AI decision completion');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',aiDecision));
+        return found.includes('actions') && found.some(name=>name.startsWith('back_wall_distance'));
+    },'AI decision completion');
     const prepare=probe('prepare.lua','local sf2=require("sf2")\nsf2.modes.register { id="mode",fights={},on_prepare=function(request,event)\n local value=event.|\nend }');
     await until(async()=>labels(await request('textDocument/completion',prepare)).includes('step'),'mode preparation completion');
     const encounterPlan=probe('encounter-plan.lua','local sf2=require("sf2")\nsf2.modes.register { id="mode",fights={},on_prepare=function(request)\n sf2.modes.resolve(request, { | })\nend }');

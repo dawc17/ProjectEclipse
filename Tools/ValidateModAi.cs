@@ -26,6 +26,7 @@ static class Program
             "local observed=event.opponent.animation; assert(event.self.animation==nil and observed.name=='opponent kick' and observed.type=='attack' and observed.facing==-1); for _,interval in ipairs(observed.intervals) do if interval.type=='attack' then assert(interval.name=='contact'); interval.type='none'; observed.name='edited'; return event.actions[1] end end; error('missing attack observation')",
             "local timed=event.actions[2]; assert(timed.timing.first_sample==3 and timed.timing.last_sample==12 and timed.timing.mid_frames==2 and timed.timing.nominal_frames==30 and timed.timing.nominal_seconds==0.5 and not timed.timing.looped); assert(timed.inputs[1].control=='Kick' and timed.inputs[1].press=='tap' and timed.inputs[2].control=='Back' and timed.inputs[2].press=='hold'); assert(event.actions[1].timing==nil and #event.actions[1].inputs==0); timed.timing.nominal_frames=999; timed.inputs[1].control='Magic'; return timed",
             "local best; for _,a in ipairs(event.actions) do if a.type=='attack' and (not best or a.priority>best.priority) then best=a end end; assert(best and best.name=='kick' and best.priority==7); best.name='changed'; best.type='move'; best.priority=-100; return best",
+            "assert(event.back_wall_distance==250); return event.actions[1]",
             "if memory.saved then return memory.saved end; memory.saved=event.actions[1]; return memory.saved"
         })
         {
@@ -40,7 +41,7 @@ static class Program
                 string tactic = "example.charge-ui:tactics/brain";
                 Check(ai.HasAiHandler(tactic) && !ai.HasAiHandler("other.mod:tactics/brain"),"AI owner isolation failed");
                 var observed = new ModAnimationSnapshot("opponent kick","attack",-1,new[]{new ModAnimationIntervalSnapshot("contact","attack")});
-                var snapshot = new ModCombatSnapshot(new ModFighterSnapshot(40,50,1,10,0,0),new ModFighterSnapshot(30,50,1,60,0,0,observed),60,true);
+                var snapshot = new ModCombatSnapshot(new ModFighterSnapshot(40,50,1,10,0,0),new ModFighterSnapshot(30,50,1,60,0,0,observed),60,true,250);
                 var instance = new object();
                 var candidates = new[] { new ModAiActionSnapshot("punch","move",3), new ModAiActionSnapshot("kick","attack",7,
                     new ModAiActionTiming(3,12,2,false),new[]{new ModAiActionInput("Kick","tap"),new ModAiActionInput("Back","hold")}) };
@@ -69,6 +70,8 @@ static class Program
                     Check(candidates[1].Name=="kick" && candidates[1].Type=="attack" && candidates[1].Priority==7,"Lua mutated the host candidate");
                     Check(ai.TryDecideAi(tactic,instance,snapshot,candidates,out var again,out error) && again==1,"Candidate edits leaked into the next decision: "+error);
                 }
+                else if (body.StartsWith("assert(event.back_wall_distance"))
+                    Check(valid && first==0,"Back-wall observation failed: "+error);
                 else if (body=="return nil") Check(valid && first==null,"Native fallback failed");
                 else if (body.StartsWith("if memory.saved"))
                 {

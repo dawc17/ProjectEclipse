@@ -9,8 +9,9 @@ that resolves public core sprite IDs, so they are copied from Assets/Resources.
 Four Underworld music ids resolve to no packaged track; they ship as PCM WAV under
 assets/audio/underworld/<id>.wav: three from the drop's DE-named Music folder (newer) and
 fight_halloween2019 from the DE 1.0.6 reference, the only copy.
-Two Berstuuk opponent models from the drop ship as reproducible gzip-compressed
-geometry under assets/models/underworld/*.modelz. DE128's Lua never opens XML.
+Four Underworld opponent and hidden ability models from the drop ship as
+reproducible gzip-compressed geometry under assets/models/underworld/*.modelz.
+DE128's Lua never opens XML.
 The reviewed raid data selects twenty distinct upscaled hard-mode portraits from
 the owner's Users directory. They retain the source 200 pixels-per-unit setting.
 --check verifies the shipped copies against their sources.
@@ -44,7 +45,8 @@ MUSIC = {
     "fight_halloween2019": ROOT / "ResearchSources" / "ReferenceSF2DE106" / "ExportedProject" / "Assets" / "gamedata" / "music" / "fight_halloween2019.wav",
 }
 MODELS_DROP = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "models"
-MODELS = ("mdl_body_berstuuk_early", "mdl_head_berstuuk")
+MODELS = ("mdl_body_berstuuk_early", "mdl_head_berstuuk",
+          "mdl_vertical_trigger", "mdl_small_collision_box")
 RAID = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "raid_stages_default.xml"
 RAID_SHA256 = "d012a1f47418def617d375743864e2256b00f4fd709f6785da45aa67a8c3fa7c"
 USERS = ROOT / "ResearchSources" / "de128_assets" / "assets" / "Users"

@@ -12,6 +12,7 @@ local gatekeeper_power_field = require("content.gatekeeper_power_field")
 local blackness_grasp = require("content.blackness_grasp")
 local saturn_blaster = require("content.saturn_blaster")
 local dandy_lightning_chain = require("content.dandy_lightning_chain")
+local raid_boss_abilities = require("content.raid_boss_abilities")
 
 local ZONE_TITLES = { "ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7" }
 
@@ -99,6 +100,15 @@ local function install(raid_charge_rule)
             end
         end
         error("Dandy's archived Lightning Chain timing is missing or unsupported")
+    end
+    local function hunter_tactic(warrior)
+        for _, row in ipairs(warrior.perks or {}) do
+            if row.perk == "core:perks/PERK_HUNTERFLY" then
+                if row.frames == 900 then return raid_boss_abilities.hunter end
+                if row.frames == 800 then return raid_boss_abilities.hunter_power end
+            end
+        end
+        error("Hunter's archived Fly timing is missing or unsupported")
     end
 
     -- Templates, parents first (the generator orders them).
@@ -217,7 +227,10 @@ local function install(raid_charge_rule)
                         (w.template == "Cyborg_Gatekeeper" and gatekeeper_power_field.tactic or
                         (w.template == "Girl_Blackness" and blackness_grasp.tactic or
                         (w.template == "Girl_Saturn" and saturn_tactic(w) or
-                        (w.template == "Man_Dandy" and dandy_tactic(w) or w.tactic)))))))
+                        (w.template == "Man_Dandy" and dandy_tactic(w) or
+                        (w.template == "Man_Hoaxen" and raid_boss_abilities.hoaxen or
+                        (w.template == "Man_Stalker" and hunter_tactic(w) or
+                        (w.template == "Man_Berstuuk" and raid_boss_abilities.berstuuk or w.tactic))))))))))
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = tactic,
                         avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,

@@ -6,7 +6,14 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.33.0` restores
+DE128 is an ordinary downstream Eclipse mod. Version `0.34.0` restores
+Hoaxen's Tentacles, Hunter's four Fly attacks and Berstuuk's full Root Potion
+projectile, trigger and hitbox in both normal and Power Mode Underworld fights.
+The bosses use archived RaidCharge inputs and opening/recast timing; Hunter
+steers into the wall range required by his native Fly moves. Six fights passed
+native Unity acceptance with two casts and a return to the map each. Berstuuk's
+hidden Root Potion items use the archived model geometry. DE128 reads no XML
+at runtime. Version `0.33.0` restores
 Dandy's complete native Underworld Lightning Chain in normal and Power Mode.
 His RaidCharge cast creates the hidden chain actor, runs five linked phases
 with four damage-capable attack intervals and effects, then cleans up. The

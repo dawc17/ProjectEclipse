@@ -222,10 +222,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 27 &&
+        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 33 &&
             catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 10 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 14 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -248,6 +248,22 @@ internal static class DE128FoundationTests
             catalog.TryGetWarrior(warPowerFight.Warriors[0], out var warPowerWarrior) &&
             warPowerWarrior.Tactic == "de128:tactics/war_whirl",
             "War's normal or Power Mode fighter lost its Whirl-aware Aggressive tactic.");
+        foreach (var (fightId, tacticName) in new[] {
+            ("uw_boss_7_1", "hoaxen_tentacles"),
+            ("uw_boss_7_hardmode_1", "hoaxen_tentacles"),
+            ("uw_boss_14_1", "hunter_fly"),
+            ("uw_boss_14_hardmode_1", "hunter_fly_power"),
+            ("uw_boss_berstuuk_1", "berstuuk_root_potion"),
+            ("uw_boss_berstuuk_hardmode_1", "berstuuk_root_potion"),
+        })
+        {
+            string runtimeTactic = "de128:tactics/" + tacticName;
+            Check(catalog.Tactics.Any(tactic => tactic.RuntimeName == runtimeTactic && tactic.CoreTemplate == "Aggressive") &&
+                catalog.TryGetFight(DefinitionId.Parse("de128:fights/" + fightId), out var abilityFight) &&
+                catalog.TryGetWarrior(abilityFight.Warriors[0], out var abilityWarrior) &&
+                abilityWarrior.Tactic == runtimeTactic,
+                "Archived raid ability tactic is absent from " + fightId + ".");
+        }
         var quakePlayer = catalog.Moves.Single(move => move.Id.LocalId == "butcher_earthquake_player");
         var quakeStart = catalog.Moves.Single(move => move.Id.LocalId == "butcher_earthquake_start");
         var quakeSpawn = quakePlayer.Graph.Presentation.Actions.Single(action => action.Kind == "create_projectile").Projectile;
@@ -355,10 +371,17 @@ internal static class DE128FoundationTests
             catalog.ItemCombatSubtypes.Any(patch => patch.Item == CoreContentImporter.WeaponId("WEAPON_CHNY21_JIAN") && patch.Subtype == "ChineseSwords"),
             "Chinese swords binary/subtype registration changed.");
         Check(catalog.ItemAvailabilityPolicies.Count() == 244 && catalog.ItemInitialProfiles.Count == 221 &&
-            catalog.ItemShopPrices.Count == 99 && catalog.ItemPresentations.Count == 22 &&
+            catalog.ItemShopPrices.Count == 99 && catalog.ItemPresentations.Count == 24 &&
             catalog.ItemAvailabilityPolicies.Where(policy => policy.Item.Namespace.Value == "core").All(policy => policy.Owner.Value == "de128" &&
                 policy.Visibility == ModItemVisibility.ForceVisible && policy.MinimumLevel >= 1),
             "DE shop policies are incomplete after registration/rebuild/conflict.");
+        Check(catalog.ItemPresentations.Any(presentation =>
+                presentation.Item == CoreContentImporter.MagicId("MAGIC_VERTICAL_TRIGGER") &&
+                presentation.Model.ToString() == "de128:models/underworld/mdl_vertical_trigger") &&
+            catalog.ItemPresentations.Any(presentation =>
+                presentation.Item == CoreContentImporter.MagicId("SMALL_COLLISION_BOX") &&
+                presentation.Model.ToString() == "de128:models/underworld/mdl_small_collision_box"),
+            "Berstuuk's hidden Root Potion collision geometry is missing.");
         Check(ModPolicies.DeliverySeconds("shop", 120) == 120, "An unrelated timer was modified.");
         Check(catalog.TryGetItem(Sword, out var definition) && definition is WeaponDefinition,
             "The actual package did not register Desolator.");

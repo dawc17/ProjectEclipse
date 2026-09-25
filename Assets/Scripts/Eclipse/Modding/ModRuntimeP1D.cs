@@ -51,7 +51,10 @@ namespace Eclipse.Modding
                 var candidates = new ModAiActionSnapshot[actions.Count];
                 for (int i = 0; i < candidates.Length; i++)
                     candidates[i] = AiActionSnapshot(actions[i]);
-                return _scripts.DecideAi(tactic, instance, new ModCombatSnapshot(AiSnapshot(self), AiSnapshot(opponent), Math.Max(0,frame), true), candidates);
+                var selfSnapshot = AiSnapshot(self);
+                double backWallDistance = Math.Abs(selfSnapshot.X - self.GetBackWallX());
+                return _scripts.DecideAi(tactic, instance,
+                    new ModCombatSnapshot(selfSnapshot, AiSnapshot(opponent), Math.Max(0, frame), true, backWallDistance), candidates);
             }
             catch (Exception error) { Debug.LogWarning("[ModAI] Using native tactics after decision failure. " + error.Message); return null; }
         }

@@ -3934,6 +3934,7 @@
         "opponent": "Eclipse.FighterSnapshot?",
         "frame": "integer",
         "seconds": "number",
+        "back_wall_distance?": "number",
         "actions": "Eclipse.AiAction[]"
       }
     },

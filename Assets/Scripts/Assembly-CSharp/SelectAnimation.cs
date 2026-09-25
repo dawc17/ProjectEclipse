@@ -772,6 +772,11 @@ public class SelectAnimation
 		Model fGCODGKLHED = ACENLMONNPA.EGGEACCDAEK();
 		Model fGCODGKLHED2 = ACENLMONNPA.NMGNPBMFJKP(ModelType.KEIDBIOIFGA.MODEL_PARENT);
 		Model fGCODGKLHED3 = ACENLMONNPA.NMGNPBMFJKP(ModelType.KEIDBIOIFGA.MODEL_CHILD);
+		// A strike can delete a projectile and create its child in the same frame.
+		// The child may retain a parent reference after the parent's runtime rig is cleared.
+		if (fGCODGKLHED != null && fGCODGKLHED.COBOFMDFLJO() == null) fGCODGKLHED = null;
+		if (fGCODGKLHED2 != null && fGCODGKLHED2.COBOFMDFLJO() == null) fGCODGKLHED2 = null;
+		if (fGCODGKLHED3 != null && fGCODGKLHED3.COBOFMDFLJO() == null) fGCODGKLHED3 = null;
 		if (gDBOMJODDEA != null)
 		{
 			gDBOMJODDEA.IEEGPNLEKHH().AINGCNFDFMM(ACENLMONNPA, conditions.LPGJIICFIKF);

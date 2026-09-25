@@ -39,7 +39,9 @@ brains[2] = sf2.tactics.register {
         if event.seconds < (memory.ready or 0) then return "wait" end
         if not event.opponent then return nil end
         local distance = math.abs(event.self.position.x - event.opponent.position.x)
-        local step = action(event, distance < 140 and "StepBack" or "StepForward")
+        local near_back_wall = event.back_wall_distance and event.back_wall_distance < 90
+        local step = action(event, near_back_wall and "StepForward" or
+            (distance < 140 and "StepBack" or "StepForward"))
         if step then memory.ready = event.seconds + 0.4; return step end
         return nil
     end,

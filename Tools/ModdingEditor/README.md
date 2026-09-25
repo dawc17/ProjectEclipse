@@ -100,6 +100,9 @@ loop flag) and `inputs` (native controls and press types). Nested fields complet
 inside `on_decide`; nominal duration is not a prediction of completion or hits.
 Adds `type` (`none`, `move`, `attack`) and integer `priority` to AI
 action candidates, with completions in `on_decide` callbacks.
+AI decisions also expose optional `back_wall_distance` in arena units. Native
+fights supply it on every decision; older host-only adapters may omit it.
+The programmable AI starter uses it to avoid stepping into the back wall.
 Adds `kind = "grid"` with required `columns`, `cell_width` and
 `cell_height`, using the existing game-styled child widgets and `gap` spacing.
 Adds `sf2.ui.set_sprite(view, widget_id, sprite)` for changing a live image

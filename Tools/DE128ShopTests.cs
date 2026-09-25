@@ -43,7 +43,7 @@ internal static class DE128ShopTests
         check(policies.Length == 221, "Expected the complete DE shop availability cohort.");
         check(catalog.ItemInitialProfiles.Count == 221, "Expected initial DE progression for every restored shop item.");
         check(catalog.ItemShopPrices.Count == 99, "Expected archived shop prices to be restored.");
-        check(catalog.ItemPresentations.Count == 22, "Expected archived item icons and models to be restored.");
+        check(catalog.ItemPresentations.Count == 24, "Expected archived item icons and models to be restored.");
         check(catalog.ItemDefaultEnchantments.Count(value => policies.Any(policy => policy.Item == value.Item)) == 217,
             "Expected archived default enchantments for every changed shop item.");
         check(catalog.ItemInitialProfiles.Count(value => value.LegacyPaidItem == "none") == 129,

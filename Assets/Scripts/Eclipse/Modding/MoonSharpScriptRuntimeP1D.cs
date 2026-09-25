@@ -916,6 +916,8 @@ namespace Eclipse.Modding
                     eventTable.Set("opponent", FighterSnapshotTable(snapshot.Opponent));
                     eventTable.Set("frame", DynValue.NewNumber(snapshot.Frame));
                     eventTable.Set("seconds", DynValue.NewNumber(snapshot.Seconds));
+                    if (snapshot.BackWallDistance.HasValue)
+                        eventTable.Set("back_wall_distance", DynValue.NewNumber(snapshot.BackWallDistance.Value));
                     var list = new Table(_script);
                     var choices = new Dictionary<Table, int>();
                     for (int i = 0; i < actions.Count; i++)

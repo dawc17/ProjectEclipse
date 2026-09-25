@@ -35,7 +35,7 @@ using Eclipse.Modding;
 public class KeyData {
  public List<int> IGEEOAGOMEM=new List<int>(), CEPODJDDLBF=new List<int>(), HPEOJLAMIHC=new List<int>();
 }
-public class ConditionKeys { public KeyData FONEJOKEIEN=new KeyData(); }
+public class ConditionKeys { public KeyData RequiredKeys=new KeyData(); }
 public class IntervalAnimation {
  /* INTERVAL_ENUM */
  public string Name; public NGAJJDIEDGF Type;
@@ -76,16 +76,16 @@ public static class AiSnapshotTests {
  static void Check(bool condition,string message){checks++;if(!condition)throw new Exception(message);}
  static void Reject(Action action,string message){bool rejected=false;try{action();}catch(ArgumentException){rejected=true;}Check(rejected,message);}
  public static void Run(){
-  var native=new InfoAnimation();native.Keys.FONEJOKEIEN.IGEEOAGOMEM.Add((int)FightCID.Kick);
-  native.Keys.FONEJOKEIEN.CEPODJDDLBF.Add((int)FightCID.QuadrantBack);
-  native.Keys.FONEJOKEIEN.HPEOJLAMIHC.Add((int)FightCID.Punch);
+  var native=new InfoAnimation();native.Keys.RequiredKeys.IGEEOAGOMEM.Add((int)FightCID.Kick);
+  native.Keys.RequiredKeys.CEPODJDDLBF.Add((int)FightCID.QuadrantBack);
+  native.Keys.RequiredKeys.HPEOJLAMIHC.Add((int)FightCID.Punch);
   var result=AiSnapshotFixture.Snapshot(native);
   Check(result.Name=="custom"&&result.Type=="attack"&&result.Priority==7,"Native identity metadata mismatch");
   Check(result.Timing.FirstSample==3&&result.Timing.LastSample==12&&result.Timing.MidFrames==2,"Sample bounds lost");
   Check(result.Timing.NominalFrames==native.ONLKMFOENEH()&&result.Timing.NominalFrames==30&&result.Timing.NominalSeconds==0.5,"Native nominal timing mismatch");
   Check(!result.Timing.Looped,"Non-looping clip marked looping");
   Check(result.Inputs.Count==3&&result.Inputs[0].Control=="Kick"&&result.Inputs[0].Press=="tap"&&result.Inputs[1].Control=="Back"&&result.Inputs[1].Press=="hold"&&result.Inputs[2].Control=="Punch"&&result.Inputs[2].Press=="release","Native key combination mismatch");
-  native.Keys.FONEJOKEIEN.IGEEOAGOMEM.Clear();native.INFAGPDFGNL=true;native.LHHAGECFIOL=22;
+  native.Keys.RequiredKeys.IGEEOAGOMEM.Clear();native.INFAGPDFGNL=true;native.LHHAGECFIOL=22;
   Check(result.Inputs.Count==3&&result.Timing.LastSample==12&&!result.Timing.Looped,"Native mutation changed an existing snapshot");
   Check(AiSnapshotFixture.Snapshot(native).Timing.Looped,"Native looping flag missing");
   foreach(var type in new[]{InfoAnimation.MGHNBEPCKIF.AnimationNone,InfoAnimation.MGHNBEPCKIF.AnimationMove}){
@@ -93,10 +93,10 @@ public static class AiSnapshotTests {
   }
   string[] names={"Up","Up-Forward","Forward","Down-Forward","Down","Down-Back","Back","Up-Back","Punch","Kick","Ranged","Magic","RaidCharge","Super"};
   for(int i=0;i<names.Length;i++){
-   native.Keys.FONEJOKEIEN.IGEEOAGOMEM.Clear();native.Keys.FONEJOKEIEN.IGEEOAGOMEM.Add(i+1);
+   native.Keys.RequiredKeys.IGEEOAGOMEM.Clear();native.Keys.RequiredKeys.IGEEOAGOMEM.Add(i+1);
    Check(AiSnapshotFixture.Snapshot(native).Inputs[0].Control==names[i],"Control mapping mismatch: "+names[i]);
   }
-  native.Keys.FONEJOKEIEN.IGEEOAGOMEM.Clear();native.Keys.FONEJOKEIEN.IGEEOAGOMEM.Add(999);
+  native.Keys.RequiredKeys.IGEEOAGOMEM.Clear();native.Keys.RequiredKeys.IGEEOAGOMEM.Add(999);
   Check(AiSnapshotFixture.Snapshot(native).Inputs[0].Control=="Unknown","Unknown control leaked an unrelated enum label");
   native.Keys=null;Check(AiSnapshotFixture.Snapshot(native).Inputs.Count==0,"Missing keys did not yield empty metadata");
   foreach(int spacing in new[]{0,1,2,8}){
@@ -112,7 +112,7 @@ public static class AiSnapshotTests {
   bool immutable=false;try{((IList<ModAiActionInput>)copied.Inputs)[0]=source[0];}catch(NotSupportedException){immutable=true;}
   Check(immutable,"Snapshot input collection is writable");
   Reject(()=>new ModAiActionSnapshot("invalid",inputs:new ModAiActionInput[65]),"Unbounded input list accepted");
-  native.Keys=new ConditionKeys();for(int i=0;i<65;i++)native.Keys.FONEJOKEIEN.IGEEOAGOMEM.Add(9);
+  native.Keys=new ConditionKeys();for(int i=0;i<65;i++)native.Keys.RequiredKeys.IGEEOAGOMEM.Add(9);
   bool bounded=false;try{AiSnapshotFixture.Snapshot(native);}catch(ModContentException){bounded=true;}
   Check(bounded,"Adapter input list allocation was unbounded");
   var model=new Model();var active=model.Controller.KKNKJMCFIJK;
