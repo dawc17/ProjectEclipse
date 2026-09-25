@@ -883,7 +883,14 @@ namespace Eclipse.Modding
                     lifetime.Apply.Add(() => conditions.Add(parsed));
                     lifetime.Undo.Add(() => conditions.Remove(parsed));
                 }
-                if (patch.IntervalEnd != null) PrepareEnd(target, patch.IntervalEnd, lifetime);
+                if (patch.IntervalEnd != null && patch.IntervalStart != null &&
+                    patch.IntervalEnd.Name != patch.IntervalStart.Name)
+                {
+                    PrepareBounds(target, null, patch.IntervalEnd, lifetime);
+                    PrepareBounds(target, patch.IntervalStart, null, lifetime);
+                }
+                else if (patch.IntervalEnd != null || patch.IntervalStart != null)
+                    PrepareBounds(target, patch.IntervalStart, patch.IntervalEnd, lifetime);
                 if (patch.Hit != null) PrepareHit(target, patch.Hit, lifetime);
                 if (patch.SoundFrame != null) PrepareSound(target, patch.SoundFrame, lifetime);
                 if (patch.Input != null) PrepareInput(target, patch.Input, parse, lifetime);
@@ -903,27 +910,48 @@ namespace Eclipse.Modding
                 throw new InvalidOperationException("Native move field is not an integer: " + name);
             return value;
         }
-        private static void PrepareEnd(InfoAnimation move, ModMoveFramePatch patch, Lifetime lifetime)
+        private static void PrepareBounds(InfoAnimation move, ModMoveFramePatch startPatch,
+            ModMoveFramePatch endPatch, Lifetime lifetime)
         {
+            string name = (startPatch ?? endPatch).Name;
             IntervalAnimation interval = null;
             foreach (var candidate in move.MoveData.Intervals)
-                if ((candidate.NodeInterval != null ? Attribute(candidate.NodeInterval,"Name") : candidate.Name) == patch.Name)
+                if ((candidate.NodeInterval != null ? Attribute(candidate.NodeInterval,"Name") : candidate.Name) == name)
                 {
-                    if (interval != null) throw new InvalidOperationException("Ambiguous interval: " + move.Name + "/" + patch.Name);
+                    if (interval != null) throw new InvalidOperationException("Ambiguous interval: " + move.Name + "/" + name);
                     interval = candidate;
                 }
-            if (interval == null) throw new InvalidOperationException("Missing interval: " + move.Name + "/" + patch.Name);
+            if (interval == null) throw new InvalidOperationException("Missing interval: " + move.Name + "/" + name);
             var target = interval; var originalNode = target.NodeInterval;
             int start = originalNode == null ? target.Start : Integer(originalNode,"Start",0);
             int end = originalNode == null ? target.EndFrame : Integer(originalNode,"End",-1);
-            if (end != patch.Expected || patch.Value < start) throw new InvalidOperationException("Interval expected end mismatch: " + move.Name);
+            if ((startPatch != null && start != startPatch.Expected) ||
+                (endPatch != null && end != endPatch.Expected) ||
+                (startPatch?.Value ?? start) > (endPatch?.Value ?? end))
+                throw new InvalidOperationException("Interval expected bounds mismatch: " + move.Name);
             XmlNode replacement = originalNode?.CloneNode(true);
-            if (replacement != null) ((XmlElement)replacement).SetAttribute("End",patch.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
-            lifetime.Apply.Add(() => { if (replacement != null) target.NodeInterval = replacement; else target.EndFrame = patch.Value; });
+            if (replacement != null)
+            {
+                if (startPatch != null) ((XmlElement)replacement).SetAttribute("Start",startPatch.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                if (endPatch != null) ((XmlElement)replacement).SetAttribute("End",endPatch.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+            lifetime.Apply.Add(() =>
+            {
+                if (replacement != null) target.NodeInterval = replacement;
+                else
+                {
+                    if (startPatch != null) target.Start = startPatch.Value;
+                    if (endPatch != null) target.EndFrame = endPatch.Value;
+                }
+            });
             lifetime.Undo.Add(() =>
             {
                 if (replacement != null && ReferenceEquals(target.NodeInterval,replacement)) target.NodeInterval = originalNode;
-                else if (target.NodeInterval == null && target.EndFrame == patch.Value) target.EndFrame = patch.Expected;
+                else if (target.NodeInterval == null)
+                {
+                    if (startPatch != null && target.Start == startPatch.Value) target.Start = startPatch.Expected;
+                    if (endPatch != null && target.EndFrame == endPatch.Value) target.EndFrame = endPatch.Expected;
+                }
             });
         }
         private static void PrepareHit(InfoAnimation move, ModMoveHitPatch patch, Lifetime lifetime)
@@ -973,7 +1001,6 @@ namespace Eclipse.Modding
             lifetime.Apply.Add(() => target.SetScheduledFrame(patch.Value));
             lifetime.Undo.Add(() => { if (target.ScheduledFrame == patch.Value) target.SetScheduledFrame(patch.Expected); });
         }
-
         private static void PrepareInput(InfoAnimation move, ModMoveInputPatch patch,
             Func<ModMoveCondition, ConditionAnimation> parse, Lifetime lifetime)
         {

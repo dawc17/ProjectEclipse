@@ -6,7 +6,13 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.32.0` restores
+DE128 is an ordinary downstream Eclipse mod. Version `0.33.0` restores
+Dandy's complete native Underworld Lightning Chain in normal and Power Mode.
+His RaidCharge cast creates the hidden chain actor, runs five linked phases
+with four damage-capable attack intervals and effects, then cleans up. The
+opponent tactics use the archived 300-frame opening and 600/500-frame recast
+delays. Native Unity acceptance observes two complete casts and map return in each mode;
+the test player moves to the caster's required 450-unit range. Version `0.32.0` restores
 Saturn's native Underworld Blaster in normal and Power Mode. A guarded move
 patch changes the original caster to RaidCharge priority 200 while retaining
 its linked pistol and two damaging projectiles. Mode-specific tactics honor
@@ -528,6 +534,9 @@ controlled metadata for the declared art references. It does not decode art or r
 a Unity playtest. `Tools/TestRewardOnlyEquipment.ps1` checks the generic runtime
 adapter responsible for equipment with no purchase listing; its output states
 the native services substituted by that fixture.
+The foundation runner removes its new fixture after the run, including on failure.
+Pass `-KeepFixture` only when inspecting the generated case files or running a
+dependent check that needs the compiled test assembly.
 
 `Tools/TestRewardGrantNative.ps1` checks the configured reward bridge, actual
 canonical Eclipse Titan reward projection and recovered enchantment serialization.

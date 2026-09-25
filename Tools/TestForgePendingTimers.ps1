@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-& (Join-Path $PSScriptRoot 'TestDE128Foundation.ps1')
+& (Join-Path $PSScriptRoot 'TestDE128Foundation.ps1') -KeepFixture
 $production = Get-ChildItem (Join-Path $root 'Temp') -Directory -Filter 'DE128Foundation-*' | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 $assembly = Join-Path $production.FullName 'bin/Debug/net10.0/DE128Foundation.dll'
 $fixture = Join-Path $root ('Temp/ForgePending-' + [Guid]::NewGuid().ToString('N'))

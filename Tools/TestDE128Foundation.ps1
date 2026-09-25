@@ -1,3 +1,5 @@
+param([switch]$KeepFixture)
+
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $modSource = Join-Path $root 'Mods/de128'
@@ -19,6 +21,7 @@ $fixtureRoot = if ($env:DE128_FOUNDATION_FIXTURE_ROOT) {
 New-Item -ItemType Directory -Force -Path $fixtureRoot | Out-Null
 $fixture = Join-Path $fixtureRoot ('DE128Foundation-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
+try {
 $runtimeSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding') -Filter '*.cs' -File
 $bindingSources = Get-ChildItem -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding') -Filter 'MoonSharpScriptRuntime*.cs' -File
 $compileFiles = @($runtimeSources.FullName) + @($bindingSources.FullName) + @(
@@ -60,3 +63,16 @@ dotnet build $project --nologo --verbosity quiet
 if ($LASTEXITCODE -ne 0) { throw "DE128 fixture compilation failed: $LASTEXITCODE" }
 dotnet (Join-Path $fixture 'bin/Debug/net10.0/DE128Foundation.dll') $modSource $fixture $root
 if ($LASTEXITCODE -ne 0) { throw "DE128 foundation checks failed: $LASTEXITCODE" }
+} finally {
+    if (-not $KeepFixture) {
+        $ownedRoot = [System.IO.Path]::TrimEndingDirectorySeparator([System.IO.Path]::GetFullPath($fixtureRoot))
+        $ownedFixture = [System.IO.Path]::GetFullPath($fixture)
+        if ([System.IO.Path]::GetDirectoryName($ownedFixture) -ine $ownedRoot -or
+            [System.IO.Path]::GetFileName($ownedFixture) -notmatch '^DE128Foundation-[0-9a-f]{32}$') {
+            throw "Refusing to clean fixture outside its owned root: $ownedFixture"
+        }
+        if (Test-Path -LiteralPath $ownedFixture) {
+            Remove-Item -LiteralPath $ownedFixture -Recurse -Force
+        }
+    }
+}

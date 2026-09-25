@@ -629,7 +629,7 @@ Different additions to the same group compose. The source selector must exist be
 
 ## sf2.moves.patch
 
-**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_end?, hit?, sound_frame?, input?, priority? }`
+**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_start?, interval_end?, hit?, sound_frame?, input?, priority? }`
 
 **Returns:** Nothing.
 
@@ -647,6 +647,7 @@ dots or hyphens. At least one nonempty operation is required.
 | --- | --- |
 | `disable` | Boolean, default false. `true` adds a selection condition that always fails, so the native move stays registered but fighters cannot select it. Use when a complete replacement move is registered separately. |
 | `conditions` | Up to 32 additional typed move conditions, using the same records as `moves.register`. They are appended as extra requirements; existing conditions remain. |
+| `interval_start` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its start must equal `expected`; `value` becomes the start and cannot exceed its end. A missing native `Start` means zero. |
 | `interval_end` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
 | `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`, `HighLong`, `NoReaction`. |
 | `sound_frame` | `{ name, expected, value }`. Requires exactly one native direct Sound action with this clip name, scheduled at `expected`. Moves it to `value`. Event-driven and RandomSound actions are not supported by this selector. |
@@ -659,6 +660,9 @@ multiple reactions, multiple attacks, missing targets and ambiguous selectors
 are rejected. A patch does not supply a missing hit animation or sound asset.
 `disable = true` must be the only operation in its patch table.
 The entire native patch batch is validated before any of its edits apply.
+`interval_start` and `interval_end` may target the same interval in one patch;
+their combined bounds must remain valid. Both parsed and deferred native
+intervals restore their original bounds when the patch is removed.
 
 ```lua
 local sf2 = require("sf2")
@@ -683,6 +687,12 @@ sf2.moves.patch {
     move = "SaturnBlasterAbilityPlayer",
     input = { expected = "Super", value = "RaidCharge" },
     priority = { expected = 1000, value = 200 },
+}
+sf2.moves.patch {
+    move = "LightingChainPlayer",
+    input = { expected = "Super", value = "RaidCharge" },
+    priority = { expected = 9000, value = 200 },
+    interval_start = { name = "Uninterrupt", expected = 9, value = 0 },
 }
 ```
 

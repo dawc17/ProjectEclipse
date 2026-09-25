@@ -1106,6 +1106,21 @@ namespace Eclipse.Modding
                         }
                     }
                 }
+                if (patches.Exists(patch => patch.IntervalStart != null))
+                {
+                    Append(canonical, "move-combat-interval-start-v1");
+                    foreach (var patch in patches)
+                    {
+                        Append(canonical, patch.MoveName);
+                        Append(canonical, patch.IntervalStart != null);
+                        if (patch.IntervalStart != null)
+                        {
+                            Append(canonical, patch.IntervalStart.Name);
+                            Append(canonical, patch.IntervalStart.Expected);
+                            Append(canonical, patch.IntervalStart.Value);
+                        }
+                    }
+                }
             }
             if (content.MoveItemLockExtensions.Count > 0)
             {

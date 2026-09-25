@@ -266,13 +266,18 @@ async function main() {
     const movePatchFields=probe('move-patch-fields.lua','local sf2=require("sf2")\nsf2.moves.patch { | }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',movePatchFields));
-        return ['move','conditions','interval_end','hit','sound_frame','input','priority'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['move','conditions','interval_start','interval_end','hit','sound_frame','input','priority'].every(name=>found.some(value=>value.startsWith(name)));
     },'move patch fields');
     const movePatchFrame=probe('move-patch-frame.lua','local sf2=require("sf2")\nsf2.moves.patch { move="Test", interval_end={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',movePatchFrame));
         return ['name','expected','value'].every(name=>found.some(value=>value.startsWith(name)));
     },'move patch selector fields');
+    const movePatchStart=probe('move-patch-start.lua','local sf2=require("sf2")\nsf2.moves.patch { move="Test", interval_start={ | } }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',movePatchStart));
+        return ['name','expected','value'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move patch interval start fields');
     const movePatchInput=probe('move-patch-input.lua','local sf2=require("sf2")\nsf2.moves.patch { move="Test", input={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',movePatchInput));

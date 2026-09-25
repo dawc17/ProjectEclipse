@@ -132,6 +132,31 @@ internal static class MoveCombatPatchTests
             "Late priority failure partially applied input patch.");
         Check(inputMove.Priority == 1000 && ReferenceEquals(inputMove.SelectionConditions[0], originalInput),
             "Failed patch batch changed the original input.");
+        foreach (bool initialized in new[] { false, true })
+        {
+            var boundsMove = Move("Bounds", initialized);
+            var interval = boundsMove.MoveData.Intervals[0];
+            var originalNode = interval.NodeInterval;
+            using (Apply(new[] { boundsMove }, new MoveCombatPatch(Owner, "Bounds",
+                intervalStart: new ModMoveFramePatch("Uninterrupt", 2, 0),
+                intervalEnd: new ModMoveFramePatch("Uninterrupt", 42, 35))))
+            {
+                if (initialized)
+                    Check(interval.Start == 0 && interval.EndFrame == 35, "Parsed interval bounds did not apply together.");
+                else
+                    Check(interval.NodeInterval.Attributes["Start"].Value == "0" &&
+                        interval.NodeInterval.Attributes["End"].Value == "35" &&
+                        originalNode.Attributes["Start"].Value == "2", "Deferred interval bounds did not apply together.");
+            }
+            if (initialized)
+                Check(interval.Start == 2 && interval.EndFrame == 42, "Parsed interval bounds did not roll back.");
+            else
+                Check(ReferenceEquals(interval.NodeInterval, originalNode), "Deferred interval bounds did not roll back.");
+        }
+        Reject(new[] { Move() }, new[] { new MoveCombatPatch(Owner, "Test",
+            intervalStart: new ModMoveFramePatch("Uninterrupt", 9, 0)) }, "Wrong expected start accepted.");
+        Reject(new[] { Move() }, new[] { new MoveCombatPatch(Owner, "Test",
+            intervalStart: new ModMoveFramePatch("Uninterrupt", 2, 50)) }, "Start beyond end accepted.");
         var batch = Move("Batch");
         Reject(new[] { disabled, batch }, new[] { new MoveCombatPatch(Owner, "Disabled", disable: true),
             new MoveCombatPatch(Owner, "Batch", intervalEnd: new ModMoveFramePatch("Uninterrupt", 41, 40)) },

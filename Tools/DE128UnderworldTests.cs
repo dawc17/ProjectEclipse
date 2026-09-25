@@ -236,6 +236,13 @@ internal static class DE128UnderworldTests
                 set.GetAttribute("Frames") == "660" ? "de128:tactics/saturn_blaster" :
                 throw new Exception("Saturn's recast delay differs: " + where);
         }
+        if (template == "Man_Dandy" && xml.GetAttribute("Tactic") == "Aggressive")
+        {
+            var set = xml.SelectSingleNode("Perks/Perk[@Name='PERK_LIGHTING_CHAIN']/Set") as XmlElement;
+            tactic = set == null ? "de128:tactics/dandy_lightning_chain" :
+                set.GetAttribute("Frames") == "500" ? "de128:tactics/dandy_lightning_chain_power" :
+                throw new Exception("Dandy's recast delay differs: " + where);
+        }
         Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();
@@ -298,9 +305,12 @@ internal static class DE128UnderworldTests
             double? Get(string name) => settings.TryGetValue(name, out var v) ? double.Parse(v, CultureInfo.InvariantCulture) : (double?)null;
             bool Same(double? a, double? b) => a.HasValue == b.HasValue && (!a.HasValue || Near(a.Value, b.Value));
             var extra = settings.Keys.Where(k => k != "Aspect" && k != "Chance" && k != "ChanceFactor" && k != "Frames").ToArray();
+            var expectedFrames = Get("Frames");
+            if (perk.GetAttribute("Name") == "PERK_LIGHTING_CHAIN" && !expectedFrames.HasValue)
+                expectedFrames = 600; // reviewed DE perk base; core default is 300
             Check(row.Perk.ToString() == ("core:perks/" + perk.GetAttribute("Name")).ToLowerInvariant() &&
                 Same(row.Aspect, Get("Aspect")) && Same(row.Chance, Get("Chance")) && Same(row.ChanceFactor, Get("ChanceFactor")) &&
-                Same(row.Frames, Get("Frames")) && row.Parameters.Count == extra.Length &&
+                Same(row.Frames, expectedFrames) && row.Parameters.Count == extra.Length &&
                 extra.All(k => row.Parameters.TryGetValue(k, out var v) && Near(v, double.Parse(settings[k], CultureInfo.InvariantCulture))),
                 "Perk settings differ: " + where + " " + perk.GetAttribute("Name"));
         }

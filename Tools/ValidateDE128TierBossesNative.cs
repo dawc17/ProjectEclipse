@@ -46,6 +46,13 @@ public static class ValidateDE128TierBossesNative
     static bool saturnPistol, saturnBullet1, saturnBullet2, saturnBulletAttack1, saturnBulletAttack2;
     static bool saturnEffect1, saturnEffect2, saturnCaptured, saturnPistolDeleted;
     static readonly HashSet<string> saturnPistolPhases = new HashSet<string>();
+    static int dandyEnteredAt = -1, dandySelectedAt = -1, dandySecondAt = -1;
+    static bool dandyWasCasting, dandySpawned, dandyDeleted, dandyVisibleEffect, dandyCaptured;
+    static bool dandyFirstRangeSet, dandySecondRangeSet;
+    static Model dandyChild;
+    static readonly HashSet<string> dandyPhases = new HashSet<string>();
+    static readonly HashSet<string> dandyAttacks = new HashSet<string>();
+    static readonly HashSet<string> dandyEffects = new HashSet<string>();
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
@@ -85,7 +92,8 @@ public static class ValidateDE128TierBossesNative
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" ||
-                Environment.GetEnvironmentVariable("ECLIPSE_DE128_SATURN_BLASTER") == "1" ? 420 : 180;
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_SATURN_BLASTER") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_DANDY_CHAIN") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
@@ -222,6 +230,8 @@ public static class ValidateDE128TierBossesNative
                 !ObserveBlacknessGrasp(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_SATURN_BLASTER") == "1" &&
                 !ObserveSaturnBlaster(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_DANDY_CHAIN") == "1" &&
+                !ObserveDandyChain(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -283,6 +293,123 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveDandyChain(Fight fight, Model enemy)
+    {
+        bool power = Target.Id.ToString() == "de128:fights/uw_boss_dandy_hardmode_1";
+        if (!power && Target.Id.ToString() != "de128:fights/uw_boss_dandy_1")
+            throw new Exception("Dandy Lightning Chain acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (dandyEnteredAt < 0)
+        {
+            dandyEnteredAt = frame;
+            var moves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var caster = moves.SingleOrDefault(move => move.Name == "LightingChainPlayer");
+            var keyNode = new XmlDocument();
+            keyNode.LoadXml("<Keys><Key Type='RaidCharge' PressType='Tap'/></Keys>");
+            var expected = new ConditionKeys(keyNode.DocumentElement);
+            expected.Parse(keyNode.DocumentElement);
+            var interval = caster?.MoveData.Intervals.SingleOrDefault(value => value.Name == "Uninterrupt");
+            if (caster == null || caster.Priority != 200 || interval == null ||
+                interval.Start != 0 || interval.EndFrame != 39 ||
+                !caster.SelectionConditions.OfType<ConditionKeys>().Single().HasSameKeyRequirementAs(expected))
+                throw new Exception("Dandy's native caster lost its guarded input, priority or interval-start patch.");
+            enemy.AddEventListener(6, value =>
+            {
+                var child = value as Model;
+                if (child == null || child.get_Name() != "LightningChain") return;
+                dandyChild = child;
+                dandySpawned = true;
+                var childMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child);
+                if (child.Parameters.Weapon?.Name != "HERMIT_STORM" ||
+                    childMoves.Count(move => move.Name == "LightingChainStart" || move.Name == "LightingChain50" ||
+                        move.Name == "LightingChain150" || move.Name == "LightingChain300" ||
+                        move.Name == "LightingChain400") != 5)
+                    throw new Exception("Dandy's hidden chain actor lost its equipment or five native phases.");
+                child.AddEventListener(5, ignored => dandyDeleted = true);
+                child.OCPMJKIEPIG().AddEventListener(2, action =>
+                {
+                    string stage = child.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+                    if (action is IntervalAttack attack && attack.Start == 11 && attack.MOILKOLCNBP() &&
+                        stage != null) dandyAttacks.Add(stage);
+                });
+                child.AddEventListener(7, action =>
+                {
+                    string stage = child.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+                    if (action is ActionEffect effect && effect.get_Name() == "HermitStormMiddle" &&
+                        stage != null) dandyEffects.Add(stage);
+                });
+            });
+            Debug.Log(Prefix + "Dandy's native RaidCharge caster and five linked chain phases loaded.");
+        }
+        string animation = enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+        int cooldownFrames = power ? 500 : 600;
+        bool firstRange = !dandyFirstRangeSet && frame >= 450;
+        bool secondRange = dandySelectedAt >= 0 && !dandySecondRangeSet &&
+            frame - dandySelectedAt >= cooldownFrames;
+        if (firstRange || secondRange)
+        {
+            // The archived caster requires 450 X units. The unattended test
+            // player stays close while Dandy backs into the arena edge, so
+            // place that player at a valid native casting distance.
+            var player = (Model)typeof(Fight).GetField("_playerModel", Hidden).GetValue(fight);
+            float enemyX = enemy.PLBNCDCFPML().GetX();
+            float playerX = player.PLBNCDCFPML().GetX();
+            float direction = playerX >= enemyX ? 1f : -1f;
+            player.ShiftModelPosition(new Vector3f(enemyX + direction * 600f - playerX, 0f, 0f), true);
+            float distance = (float)typeof(ModelAi).GetMethod("GetDistanceToEnemy", Hidden)
+                .Invoke(enemy.EEIGOJBKFGE(), new object[] { enemy });
+            if (distance < 450f)
+                throw new Exception("Dandy's native test arena could not establish casting range: " + distance);
+            if (firstRange) dandyFirstRangeSet = true;
+            if (secondRange) dandySecondRangeSet = true;
+            Debug.Log(Prefix + "Placed test player at native Lightning Chain range: " + distance + ".");
+        }
+        bool casting = animation == "LightingChainPlayer";
+        if (casting && !dandyWasCasting)
+        {
+            if (dandySelectedAt < 0)
+            {
+                dandySelectedAt = frame;
+                if (frame < 300) throw new Exception("Dandy cast before the archived 300-frame opening delay.");
+                Debug.Log(Prefix + "Dandy selected Lightning Chain at frame " + frame + ".");
+            }
+            else if (dandySecondAt < 0)
+            {
+                int cooldown = power ? 500 : 600;
+                if (frame - dandySelectedAt < cooldown)
+                    throw new Exception("Dandy recast before the archived " + cooldown + "-frame cooldown.");
+                dandySecondAt = frame;
+                Debug.Log(Prefix + "Dandy recast Lightning Chain at frame " + frame + ".");
+            }
+        }
+        dandyWasCasting = casting;
+        string childAnimation = dandyChild?.OCPMJKIEPIG()?.NNMAFFCCMHC()?.Name;
+        if (childAnimation != null && childAnimation.StartsWith("LightingChain", StringComparison.Ordinal))
+            dandyPhases.Add(childAnimation);
+        if (GameObject.Find("HermitStormMiddle") != null) dandyVisibleEffect = true;
+        if (!dandyCaptured && dandyVisibleEffect)
+        {
+            CaptureCombatFrame(Target.Id.ToString() + "_chain");
+            dandyCaptured = true;
+        }
+        string[] phases = { "LightingChainStart", "LightingChain50", "LightingChain150",
+            "LightingChain300", "LightingChain400" };
+        string[] damaging = { "LightingChain50", "LightingChain150", "LightingChain300", "LightingChain400" };
+        if (dandySecondAt >= 0 && dandySpawned && dandyDeleted && dandyVisibleEffect && dandyCaptured &&
+            phases.All(dandyPhases.Contains) && damaging.All(dandyAttacks.Contains) &&
+            damaging.All(dandyEffects.Contains))
+        {
+            Debug.Log(Prefix + "Dandy's five native chain phases, four damaging pulses, effects and cleanup completed in combat.");
+            return true;
+        }
+        if (frame - dandyEnteredAt >= 6000)
+            throw new Exception("Dandy Lightning Chain did not complete: cast=" + dandySelectedAt +
+                " recast=" + dandySecondAt + " spawned=" + dandySpawned + " deleted=" + dandyDeleted +
+                " phases=" + string.Join(",", dandyPhases) + " attacks=" + string.Join(",", dandyAttacks) +
+                " effects=" + string.Join(",", dandyEffects) + " visible=" + dandyVisibleEffect);
+        return false;
+    }
 
     static bool ObserveSaturnBlaster(Fight fight, Model enemy)
     {

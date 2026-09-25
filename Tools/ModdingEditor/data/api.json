@@ -3798,6 +3798,13 @@
         "value": "integer"
       }
     },
+    "MoveIntervalStartPatch": {
+      "fields": {
+        "name": "\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"",
+        "expected": "integer",
+        "value": "integer"
+      }
+    },
     "MoveHitPatch": {
       "fields": {
         "expected": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"",
@@ -3828,6 +3835,7 @@
         "move": "string",
         "disable?": "boolean",
         "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "interval_start?": "Eclipse.MoveIntervalStartPatch",
         "interval_end?": "Eclipse.MoveIntervalEndPatch",
         "hit?": "Eclipse.MoveHitPatch",
         "sound_frame?": "Eclipse.MoveSoundFramePatch",

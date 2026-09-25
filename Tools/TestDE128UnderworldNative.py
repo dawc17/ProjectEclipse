@@ -32,6 +32,7 @@ def main() -> int:
     parser.add_argument("--gatekeeper-field", action="store_true", help="Observe Gatekeeper's attached RaidCharge Power Field and child attack")
     parser.add_argument("--blackness-grasp", action="store_true", help="Observe Blackness's complete Grasp cast, child transition and attack")
     parser.add_argument("--saturn-blaster", action="store_true", help="Observe Saturn's native RaidCharge Blaster and linked pistol/projectiles")
+    parser.add_argument("--dandy-chain", action="store_true", help="Observe Dandy's RaidCharge Lightning Chain and all five linked phases")
     parser.add_argument("--mercenary-wave", action="store_true", help="Reach Girl Fan in Mercenary survival and validate her native equipment")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
@@ -73,9 +74,12 @@ def main() -> int:
     if args.saturn_blaster and (args.fight not in ("de128:fights/uw_boss_12_1",
                                                   "de128:fights/uw_boss_12_hardmode_1") or args.win):
         parser.error("--saturn-blaster requires a Saturn normal or Power Mode --fight without --win.")
+    if args.dandy_chain and (args.fight not in ("de128:fights/uw_boss_dandy_1",
+                                                "de128:fights/uw_boss_dandy_hardmode_1") or args.win):
+        parser.error("--dandy-chain requires a Dandy normal or Power Mode --fight without --win.")
     if args.mercenary_wave and (args.fight != "de128:fights/uw_survival_mercenary_1" or args.win):
         parser.error("--mercenary-wave requires --fight de128:fights/uw_survival_mercenary_1 without --win.")
-    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.blackness_grasp, args.saturn_blaster, args.mercenary_wave)) > 1:
+    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.blackness_grasp, args.saturn_blaster, args.dandy_chain, args.mercenary_wave)) > 1:
         parser.error("Choose one survival wave acceptance at a time.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
@@ -183,6 +187,8 @@ def main() -> int:
         environment["ECLIPSE_DE128_BLACKNESS_GRASP"] = "1"
     if args.saturn_blaster:
         environment["ECLIPSE_DE128_SATURN_BLASTER"] = "1"
+    if args.dandy_chain:
+        environment["ECLIPSE_DE128_DANDY_CHAIN"] = "1"
     if args.mercenary_wave:
         environment["ECLIPSE_DE128_MERCENARY_WAVE"] = "1"
     if args.story_bosses:

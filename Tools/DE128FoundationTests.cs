@@ -222,10 +222,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 21 &&
+        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 27 &&
             catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 8 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 10 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -325,6 +325,28 @@ internal static class DE128FoundationTests
             catalog.TryGetWarrior(saturnPowerFight.Warriors[0], out var saturnPowerWarrior) &&
             saturnPowerWarrior.Tactic == "de128:tactics/saturn_blaster_power",
             "Saturn's guarded native Blaster patch or Underworld encounter is incomplete.");
+        var dandy = catalog.MoveCombatPatches.Single(patch => patch.MoveName == "LightingChainPlayer");
+        Check(dandy.Input?.Expected.Key == "Super" && dandy.Input.Value.Key == "RaidCharge" &&
+            dandy.Priority?.Expected == 9000 && dandy.Priority.Value == 200 && !dandy.Disable &&
+            dandy.IntervalStart?.Name == "Uninterrupt" && dandy.IntervalStart.Expected == 9 &&
+            dandy.IntervalStart.Value == 0 &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_dandy_1"), out var dandyFight) &&
+            catalog.TryGetWarrior(dandyFight.Warriors[0], out var dandyWarrior) &&
+            dandyWarrior.Tactic == "de128:tactics/dandy_lightning_chain" &&
+            dandyWarrior.PerkLoadout.Any(row => row.Perk.ToString() == "core:perks/perk_lighting_chain" && row.Frames == 600) &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_dandy_hardmode_1"), out var dandyPowerFight) &&
+            catalog.TryGetWarrior(dandyPowerFight.Warriors[0], out var dandyPowerWarrior) &&
+            dandyPowerWarrior.Tactic == "de128:tactics/dandy_lightning_chain_power" &&
+            dandyPowerWarrior.PerkLoadout.Any(row => row.Perk.ToString() == "core:perks/perk_lighting_chain" && row.Frames == 500),
+            "Dandy's guarded native Lightning Chain patch or Underworld timing is incomplete.");
+        foreach (var phase in new[] { "LightingChainStart", "LightingChain50", "LightingChain150",
+            "LightingChain300", "LightingChain400" })
+            Check(catalog.MoveCombatPatches.Any(patch => patch.MoveName == phase &&
+                patch.Conditions.Count == 1 && patch.Conditions[0].Kind == ModMoveConditionKind.ActorName &&
+                patch.Conditions[0].Name == "LightningChain") &&
+                catalog.MovePerkLockRemovals.Any(removal => removal.MoveName == phase &&
+                    removal.RuntimePerkName == "PERK_LIGHTING_CHAIN"),
+                "Dandy's spawned chain phase lacks its actor-name guard: " + phase);
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
             catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&
@@ -435,6 +457,15 @@ internal static class DE128FoundationTests
                 Check(oldMove.SelectSingleNode("Intervals/Interval[@Name='"+value.Name+"']").Attributes["End"].Value == value.Expected.ToString() &&
                     newMove.SelectSingleNode("Intervals/Interval[@Name='"+value.Name+"']").Attributes["End"].Value == value.Value.ToString(),"Move end patch differs from archive.");
             }
+            if (patch.IntervalStart != null)
+            {
+                var value = patch.IntervalStart;
+                var oldInterval = oldMove.SelectSingleNode("Intervals/Interval[@Name='"+value.Name+"']");
+                var newInterval = newMove.SelectSingleNode("Intervals/Interval[@Name='"+value.Name+"']");
+                Check((oldInterval.Attributes["Start"]?.Value ?? "0") == value.Expected.ToString() &&
+                    (newInterval.Attributes["Start"]?.Value ?? "0") == value.Value.ToString(),
+                    "Move start patch differs from archive.");
+            }
             if (patch.Hit != null)
                 Check(oldMove.SelectSingleNode("Intervals/Interval/Hit").Attributes["Name"].Value == patch.Hit.Expected &&
                     newMove.SelectSingleNode("Intervals/Interval/Hit").Attributes["Name"].Value == patch.Hit.Value,"Move reaction patch differs from archive.");
@@ -445,9 +476,15 @@ internal static class DE128FoundationTests
                     newMove.SelectSingleNode("Actions/RandomSound[Sound/@Name='"+value.Name+"']").Attributes["Frame"].Value == value.Value.ToString(),"Sound frame patch differs from archive.");
             }
             foreach (var condition in patch.Conditions)
-                Check(condition.Kind == ModMoveConditionKind.ModExists && condition.Name == "Stun" && condition.Not &&
-                    newMove.SelectSingleNode("Conditions/ModExists[@Name='Stun' and @Not='1']") != null &&
-                    oldMove.SelectSingleNode("Conditions/ModExists[@Name='Stun']") == null,"Added native condition differs from archive.");
+                if (condition.Kind == ModMoveConditionKind.ActorName)
+                    Check(patch.MoveName.StartsWith("LightingChain",StringComparison.Ordinal) &&
+                        condition.Name == "LightningChain" && !condition.Not &&
+                        newMove.SelectSingleNode("Locks/Perk[@Name='PERK_LIGHTING_CHAIN']") != null,
+                        "Spawned chain actor guard is not supported by the archived phase.");
+                else
+                    Check(condition.Kind == ModMoveConditionKind.ModExists && condition.Name == "Stun" && condition.Not &&
+                        newMove.SelectSingleNode("Conditions/ModExists[@Name='Stun' and @Not='1']") != null &&
+                        oldMove.SelectSingleNode("Conditions/ModExists[@Name='Stun']") == null,"Added native condition differs from archive.");
         }
         var peer = Peer(fixture,"fixture.move-patch-conflict","content.patch",
             "sf2.moves.patch { move='MassBombPlayer', conditions={{type='mod_exists',name='Other'}} }");
@@ -460,6 +497,7 @@ internal static class DE128FoundationTests
         foreach(string body in new[]{"move='Test'", "move='bad:name', hit={expected='High',value='Low'}",
             "move='Test', hit={expected='High',value='High'}", "move='Test', hit={expected='High',value='Unknown'}",
             "move='Test', interval_end={name='Attack',expected=42,value=40}","move='Test', interval_end={name='Uninterrupt',expected=42,value=-1}",
+            "move='Test', interval_start={name='Attack',expected=9,value=0}","move='Test', interval_start={name='Uninterrupt',expected=9,value=-1}",
             "move='Test', sound_frame={name='snd',expected=18,value=16.5}","move='Test', sound_frame={name='snd',expected=18,value=100001}",
             "move='Test', sound_frame={name='snd',expected=18,value=math.huge}","move='Test', hit=true",
             "move='Test', conditions={{type='unknown'}}","move='Test', hit={expected='High',value='Low',extra=1}"})
@@ -481,6 +519,7 @@ internal static class DE128FoundationTests
         string[] declarations={"", "sf2.moves.patch {move='Test',hit={expected='High',value='Low'}}",
             "sf2.moves.patch {move='Test',hit={expected='High',value='Middle'}}",
             "sf2.moves.patch {move='Test',interval_end={name='Uninterrupt',expected=42,value=40}}",
+            "sf2.moves.patch {move='Test',interval_start={name='Uninterrupt',expected=9,value=0}}",
             "sf2.moves.patch {move='Test',sound_frame={name='snd',expected=18,value=16}}",
             "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun'}}}",
             "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun',['not']=true}}}"};
@@ -1123,7 +1162,7 @@ end}
             CheckBase(rejected);
         }
 
-        foreach (string module in new[] { "timers", "equipment", "combat_equipment", "chinese_swords", "chinese_swords_data", "restored_weapons", "restored_equipment", "sphere1", "sphere2", "sphere3", "combo_sphere3", "shared_moves", "shop", "rewards", "combat_perks", "progression" })
+        foreach (string module in new[] { "timers", "equipment", "combat_equipment", "chinese_swords", "chinese_swords_data", "restored_weapons", "restored_equipment", "sphere1", "sphere2", "sphere3", "combo_sphere3", "shared_moves", "shop", "rewards", "combat_perks", "progression", "dandy_lightning_chain" })
         {
             var incomplete = CopyPackage(source, fixture, "missing-module-" + module, omit: "scripts/content/" + module + ".lua");
             var partial = new ModContentCatalog();

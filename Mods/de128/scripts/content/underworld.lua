@@ -11,6 +11,7 @@ local war_whirl = require("content.war_whirl")
 local gatekeeper_power_field = require("content.gatekeeper_power_field")
 local blackness_grasp = require("content.blackness_grasp")
 local saturn_blaster = require("content.saturn_blaster")
+local dandy_lightning_chain = require("content.dandy_lightning_chain")
 
 local ZONE_TITLES = { "ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7" }
 
@@ -72,8 +73,11 @@ local function install(raid_charge_rule)
         if not rows then return nil end
         local result = {}
         for index, row in ipairs(rows) do
+            local frames = row.frames
+            -- The reviewed DE perk base is 600; Eclipse's core definition is 300.
+            if row.perk == "core:perks/PERK_LIGHTING_CHAIN" and frames == nil then frames = 600 end
             result[index] = { perk = perk(row.perk), aspect = row.aspect, chance = row.chance,
-                chance_factor = row.chance_factor, frames = row.frames, parameters = row.parameters }
+                chance_factor = row.chance_factor, frames = frames, parameters = row.parameters }
         end
         return result
     end
@@ -86,6 +90,15 @@ local function install(raid_charge_rule)
             end
         end
         error("Saturn's archived Blaster timing is missing or unsupported")
+    end
+    local function dandy_tactic(warrior)
+        for _, row in ipairs(warrior.perks or {}) do
+            if row.perk == "core:perks/PERK_LIGHTING_CHAIN" then
+                if row.frames == nil then return dandy_lightning_chain.tactic end
+                if row.frames == 500 then return dandy_lightning_chain.power_tactic end
+            end
+        end
+        error("Dandy's archived Lightning Chain timing is missing or unsupported")
     end
 
     -- Templates, parents first (the generator orders them).
@@ -203,7 +216,8 @@ local function install(raid_charge_rule)
                         (w.template == "Girl_Drakaina" and war_whirl.tactic or
                         (w.template == "Cyborg_Gatekeeper" and gatekeeper_power_field.tactic or
                         (w.template == "Girl_Blackness" and blackness_grasp.tactic or
-                        (w.template == "Girl_Saturn" and saturn_tactic(w) or w.tactic))))))
+                        (w.template == "Girl_Saturn" and saturn_tactic(w) or
+                        (w.template == "Man_Dandy" and dandy_tactic(w) or w.tactic)))))))
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = tactic,
                         avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,

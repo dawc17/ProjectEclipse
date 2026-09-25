@@ -208,8 +208,18 @@ internal static class DECombatPerksTests
                         candidate.GetAttribute("Name") == perk.GetAttribute("Name")), "DE archive retains a supposedly removed move lock.");
                     expected.Add(name + "|" + CoreContentImporter.PerkId(perk.GetAttribute("Name")));
                 }
-        check(expected.Count == 6 && expected.SetEquals(catalog.MovePerkLockRemovals.Select(removal => removal.MoveName + "|" + removal.Perk)),
-            "Lua move-lock removals do not exactly cover the six XML moves, including both Suplex variants.");
+        check(expected.Count == 6, "The six archived combat-perk lock differences changed.");
+        string[] actorPhases = { "LightingChainStart", "LightingChain50", "LightingChain150",
+            "LightingChain300", "LightingChain400" };
+        foreach (string name in actorPhases)
+        {
+            string xpath = "/Movesxml/Moves/Move[@Name='" + name + "']/Locks/Perk[@Name='PERK_LIGHTING_CHAIN']";
+            check(canonical.SelectSingleNode(xpath) != null && archived.SelectSingleNode(xpath) != null,
+                "Dandy's spawned chain phase lost its native parent-perk lock: " + name);
+            expected.Add(name + "|" + CoreContentImporter.PerkId("PERK_LIGHTING_CHAIN"));
+        }
+        check(expected.Count == 11 && expected.SetEquals(catalog.MovePerkLockRemovals.Select(removal => removal.MoveName + "|" + removal.Perk)),
+            "Lua move-lock removals differ from the six archived perk changes and Dandy's five spawned-actor adaptations.");
     }
 
     private static void TestMaster(IModScriptContext script, ModContentCatalog catalog, int rank, double drain, Action<bool, string> check)

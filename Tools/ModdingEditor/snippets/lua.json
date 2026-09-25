@@ -145,6 +145,18 @@
       "$0"
     ]
   },
+  "Eclipse native interval start": {
+    "prefix": "eclipse-move-interval-start",
+    "description": "Patch one native interval start with an expected-value guard. Requires content.patch.",
+    "body": [
+      "-- Requires content.patch in mod.toml.",
+      "sf2.moves.patch {",
+      "    move = \"${1:LightingChainPlayer}\",",
+      "    interval_start = { name = \"${2:Uninterrupt}\", expected = ${3:9}, value = ${4:0} },",
+      "}",
+      "$0"
+    ]
+  },
   "Eclipse scheduled native effect": {
     "prefix": "eclipse-move-effect",
     "body": [

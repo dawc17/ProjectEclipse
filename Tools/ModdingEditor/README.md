@@ -417,7 +417,7 @@ snapshot, with integer values 0-1000000 (zero is distinct from absence). Normal
 upgrades and level-scaled acquisition still apply. The weapon starter explains
 these choices without changing its normal stats. See the equipment API reference.
 
-`sf2.moves.patch` completes extra conditions and guarded native interval-end,
+`sf2.moves.patch` completes extra conditions and guarded native interval-start/end,
 full-interval hit-reaction, direct-sound-frame, single Tap input and selection
 priority edits. One declaration owns each
 native move; expected values must match at native application and the whole patch

@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.32.0**. Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.33.0**. Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3892,4 +3892,55 @@ and Power Mode native first and second casts through map return; pinned
 Underworld generator and art `--check`; location audit; ModdingEditor
 generate/check/**38** project tests, LuaLS and VS Code integration; wiki
 build (**48** pages, **4,344** local links/assets); and `git diff --check`.
+The location audit retains the known missing `fungus_raid/layer_0_2` image.
+### Step 67 — Dandy's native Lightning Chain (0.33.0, 2026-09-25)
+
+The reviewed local owner `gamedata/animations/moves.xml` (SHA-256
+`7F4D181848DC3F430BA4AF1A8A024905D629FC77C499FF74832710C65D07B818`)
+sets `LightingChainPlayer` to RaidCharge Tap at priority 200, with the
+`Uninterrupt` interval beginning at frame zero. The packaged core move uses
+Super Tap at priority 9000 and begins that interval at frame nine. The older
+`Assets/DExml` copy has priority 9000, so the reviewed owner file controls
+this difference. DE128 patches the original caster in place to preserve its
+native `LightningChain` CreatePlayer action and five linked child phases.
+The child actor has the hidden `HERMIT_STORM` item but no inherited parent
+perk slot in Eclipse. Five scoped lock removals plus actor-name conditions
+make those phases playable only by that spawned chain. Four phases have
+damaging native attack intervals and scheduled effects.
+
+The reviewed raid source gives Dandy a 300-frame opening delay and the
+Lightning Chain perk's 600-frame normal or 500-frame Power Mode recast
+interval. Opponent-only tactics select the native cast when it becomes legal,
+use other attacks while cooling down, and fall back to Aggressive when the
+caster's 450-unit distance gate is unmet. This avoids repeated retreat at
+the arena edge when a player remains close. No XML ships in DE128 or is read
+at runtime.
+
+The reusable `sf2.moves.patch` contract now accepts a guarded
+`interval_start` selector on named native intervals. It checks the old start
+and the resulting bounds, supports combined start/end changes, restores
+parsed or deferred interval state on rollback, and participates in the
+content fingerprint. The public wiki and ModdingEditor schema, generated
+definitions, snippet, starter, guide and completion checks cover it.
+
+In isolated Unity 6 native combat, normal Dandy selected Lightning Chain at
+frame 470 and recast at frame 1416, after the 600-frame gate. Power Mode
+selected it at frame 503 and recast at frame 1091, after the 500-frame gate.
+Both runs observed the original caster, all five child phases, four
+damage-capable attack intervals and effects, child deletion, a rendered
+combat capture and return to the Underworld map. The unattended test player
+was placed about 600 units
+away to satisfy the native 450-unit caster gate; these results do not claim
+that a player who stays close will see the ability or that every interval
+contacts the player. Interactive balance and audible sound quality remain
+untested.
+
+Verification: four managed builds with `dotnet msbuild`; **72** move patch
+checks; **14,810** DE128 foundation checks; **1,282** Underworld runtime assertions;
+normal and Power Mode native first and second casts through map return;
+Underworld generator and art `--check`; 58 upscaled location and 12 DE
+parameter checks; location audit; ModdingEditor generate/check/**38**
+project tests, LuaLS and real VS Code integration; wiki build (**48** pages,
+**4,344** local links/assets); and `git diff --check`. The foundation runner
+now removes its own isolated fixture unless diagnostic retention is requested.
 The location audit retains the known missing `fungus_raid/layer_0_2` image.

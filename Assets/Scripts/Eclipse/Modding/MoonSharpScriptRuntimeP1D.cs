@@ -80,7 +80,7 @@ namespace Eclipse.Modding
                 {
                     const string function = "sf2.moves.patch";
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
-                    ValidateFields(table, function, "move", "conditions", "interval_end", "hit", "sound_frame", "input", "priority", "disable");
+                    ValidateFields(table, function, "move", "conditions", "interval_end", "interval_start", "hit", "sound_frame", "input", "priority", "disable");
                     ModMoveFramePatch Frame(string key)
                     {
                         DynValue value = table.Get(key); if (value.IsNil()) return null;
@@ -113,7 +113,8 @@ namespace Eclipse.Modding
                             RequiredInt(rawPriority.Table,"value",function));
                     }
                     _api.PatchMove(RequiredString(table,"move",function),ReadMoveConditions(table.Get("conditions"),function + ".conditions"),
-                        Frame("interval_end"), hit, Frame("sound_frame"), OptionalBool(table,"disable",false,function), input, priority);
+                        Frame("interval_end"), hit, Frame("sound_frame"), OptionalBool(table,"disable",false,function),
+                        input, priority, Frame("interval_start"));
                     return DynValue.Nil;
                 })));
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));

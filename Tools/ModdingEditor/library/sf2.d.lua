@@ -1560,6 +1560,12 @@ local MoveItemLockExtension = {}
 ---@field value integer
 local MoveIntervalEndPatch = {}
 
+---@class (exact) Eclipse.MoveIntervalStartPatch
+---@field name "Uninterrupt"|"SelfUninterrupt"|"Unstable"
+---@field expected integer
+---@field value integer
+local MoveIntervalStartPatch = {}
+
 ---@class (exact) Eclipse.MoveHitPatch
 ---@field expected "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"
 ---@field value "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"
@@ -1585,6 +1591,7 @@ local MovePriorityPatch = {}
 ---@field move string
 ---@field disable? boolean
 ---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]
+---@field interval_start? Eclipse.MoveIntervalStartPatch
 ---@field interval_end? Eclipse.MoveIntervalEndPatch
 ---@field hit? Eclipse.MoveHitPatch
 ---@field sound_frame? Eclipse.MoveSoundFramePatch
