@@ -32,7 +32,9 @@ LANGUAGES = ["cro", "eng", "fra", "ger", "hin", "hun", "ita", "kor", "por", "rom
 CATEGORY = {"Weapon": "weapon", "Armor": "armor", "Helm": "helm", "Ranged": "ranged", "Magic": "magic"}
 # Archive item names restored by DE128 under new identities (sensei_dependencies.lua evidence).
 RESTORED_ITEMS = {"Sphere1": "de128:items/magic/minor_charge_of_darkness",
-                  "Sphere2": "de128:items/magic/medium_charge_of_darkness"}
+                  "Sphere2": "de128:items/magic/medium_charge_of_darkness",
+                  "BODY_BERSTUUK": "de128:items/armor/berstuuk_form",
+                  "HEAD_BERSTUUK": "de128:items/helm/berstuuk_mask"}
 TARGET = {"Player": "player", "Bot": "opponent", "All": "all", None: "all"}
 ZONE_IDS = ["ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7"]
 
@@ -96,6 +98,8 @@ class Generator:
 
     def item(self, name):
         if name in RESTORED_ITEMS:
+            if name in ("BODY_BERSTUUK", "HEAD_BERSTUUK"):
+                self.text_key(name)
             return {"ref": RESTORED_ITEMS[name]}
         kind = self.core_items.get(name)
         if kind == "Skeleton":

@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.21.1**. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.22.0**. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3384,3 +3384,47 @@ LuaLS and VS Code integration, and wiki build (48 pages, 4,339 links/assets)
 passed. The art audit still identifies `fungus_raid/layer_0_2` as absent from
 installed sources. The headless encounter does not establish interactive
 combat balance, visual quality or all 76 fights; those remain for playtesting.
+
+### Step 56 — Berstuuk's archived rig and native Underworld encounter matrix (0.22.0, 2026-09-25)
+
+The archived `BODY_BERSTUUK` and `HEAD_BERSTUUK` opponent items now register as
+hidden DE128 armor and helm, with their archived localized names, icon IDs and
+body attributes. The Underworld generator resolves both template references to
+these definitions, leaving the normal shop untouched. The owner drop's
+`mdl_body_berstuuk_early.xml` (SHA-256
+`6beda935fb2010293f5df516ebb6550359bb4be140bbf3febbbded1f6baba811`)
+and `mdl_head_berstuuk.xml` (SHA-256
+`22f8faad2a0b0823a401c7ae71954a2522ec3f6e84c593a3bf33abd9432d6a3e`)
+are deterministically packed by `ExtractDE128UnderworldArt.py` as gzip model
+assets. No XML definition ships in DE128 and its Lua does not read XML.
+
+Eclipse's typed asset loader now recognizes `assets/models/*.modelz`, decodes
+strict UTF-8 geometry with a 64 MiB bound, and resolves qualified model IDs
+before the legacy development XML fallback. The first native Berstuuk run found
+that fallback was silently substituting generic body/head geometry despite the
+correct item IDs. The corrected native rig has **197** Berstuuk body macro nodes
+and **669** mask macro nodes. The public model-asset reference and character
+guide, editor file index, generated Lua definitions and starter notes were
+updated in the same change.
+
+The native encounter harness now selects eight tier bosses, 32 archived story
+bosses, all 76 fights, or one exact fight in an isolated Unity 6 project and
+profile. The tier sweep, 32-story-boss sweep and full 76-fight sweep passed:
+each fight entered, rendered arena sprites and fighter rigs, ran 30 frames,
+then surrendered to the Underworld map. The complete sweep exercised all 32
+first-entry story intros, including Berstuuk's 11 cards and both of his modes.
+The isolated fixture omits the stock movement-tutorial include and
+uses a disposable F: TAR cache; neither change affects the shipped project.
+
+The final Volcano regression also passed with all 66 native templates, 76
+fights and 104 opponent slots audited, expected alignment multipliers, three
+story cards, 60 live frames, 24 arena sprites and native raid-map return.
+
+Verification: Underworld generator and art extractor `--check`, DE128
+foundation **14,481**, Underworld runtime **1,282**, four managed builds,
+editor generate/check/**37** project tests, LuaLS and VS Code integration, and
+wiki build (**48** pages, **4,339** links/assets). The static art audit exits 0
+with the known absent `fungus_raid/layer_0_2` image. Ceremonial armor/helm,
+needles, four perk names and `LightInTheDarkness` still lack complete archived
+source or verified behavior. Native headless acceptance does not establish
+interactive visuals, long-form combat balance or outcome rewards.

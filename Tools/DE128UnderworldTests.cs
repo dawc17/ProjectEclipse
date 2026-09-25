@@ -28,6 +28,7 @@ internal static class DE128UnderworldTests
     private static readonly Dictionary<string, string> Restored = new Dictionary<string, string>
     {
         { "Sphere1", "de128:items/magic/minor_charge_of_darkness" }, { "Sphere2", "de128:items/magic/medium_charge_of_darkness" },
+        { "BODY_BERSTUUK", "de128:items/armor/berstuuk_form" }, { "HEAD_BERSTUUK", "de128:items/helm/berstuuk_mask" },
     };
     private static readonly HashSet<string> OwnedButtons = new HashSet<string>
     {

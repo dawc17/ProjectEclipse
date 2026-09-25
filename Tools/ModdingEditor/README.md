@@ -117,6 +117,8 @@ input callbacks. See the Custom UI reference for lifetime and input rules.
   `self.params` / `self.state`, and declared parameter/state key completion.
 - Local sprite/model/audio/binary and localization string completion, including
   aliases such as `local assets = sf2.assets`.
+  Local model references accept `assets/models/*.xml` or gzip-compressed
+  `assets/models/*.modelz`; the extension is omitted from Lua IDs.
 - F12 on local lookup strings opens their definition. Localization hovers show translations.
 - Warnings for missing local references, asset kind mismatches, undeclared
   dependencies/capabilities, invalid literal prices, and incorrect damage-scaling timing.

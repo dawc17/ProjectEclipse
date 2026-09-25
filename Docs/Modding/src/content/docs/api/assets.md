@@ -74,7 +74,7 @@ and atlas references. A PNG texture ID is not interchangeable with a sprite ID.
 
 ## sf2.assets.model
 
-Get a model handle for equipment.
+Get a model handle for equipment from a core asset or local geometry.
 
 **Signature:** `sf2.assets.model(reference)`
 
@@ -82,7 +82,8 @@ Get a model handle for equipment.
 
 **When:** Usually during registration.
 
-**Returns:** A model handle. The asset must exist and be classified as a model.
+**Returns:** A model handle. The asset must exist and be classified as a model;
+local models can use `.xml` or `.modelz`.
 
 ```lua
 local model = sf2.assets.model("core:gamedata/models/mdl_weapon_katana_ritual")
@@ -91,6 +92,25 @@ local model = sf2.assets.model("core:gamedata/models/mdl_weapon_katana_ritual")
 Using a known core model is the easiest starting point. The model, equipment
 category, and combat subtype must make sense together; a valid ID alone does
 not prove that a custom model will look or animate correctly.
+
+For a local model, put native model geometry at `assets/models/<name>.xml`, or
+gzip those UTF-8 bytes to `assets/models/<name>.modelz`. Both files use the ID
+`models/<name>` without an extension. `.modelz` keeps the package binary while
+the engine decodes the same model geometry; it does not turn gameplay XML into
+mod definitions. The decoded model is limited to 64 MiB. For example, this
+authoring command creates a reproducible compressed model:
+
+```python
+from pathlib import Path
+import gzip
+
+source = Path("my-model.xml").read_bytes()
+Path("assets/models/my-model.modelz").write_bytes(gzip.compress(source, mtime=0))
+```
+
+Use `sf2.assets.model("models/my-model")` for either form. The editor indexes
+the file and its kind; the game checks decoding and model compatibility when it
+loads the geometry.
 
 ## sf2.assets.audio
 

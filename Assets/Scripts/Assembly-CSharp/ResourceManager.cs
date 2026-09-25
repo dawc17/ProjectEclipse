@@ -650,6 +650,8 @@ public static class ResourceManager
 	{
         string replacement = Eclipse.Modding.ModRuntime.LoadCoreModelReplacement(ONEIGMLOGDC);
         if (replacement != null) return replacement;
+		string modModel = Eclipse.Modding.ModRuntime.LoadQualifiedModelText(ONEIGMLOGDC);
+		if (!string.IsNullOrEmpty(modModel)) return modModel;
 		if (TryDevXml(ONEIGMLOGDC, out var t0))
 		{
 			return t0;
@@ -681,14 +683,11 @@ public static class ResourceManager
 	{
         string replacement = Eclipse.Modding.ModRuntime.LoadCoreModelReplacement(ONEIGMLOGDC);
         if (replacement != null) return replacement;
+		string modModel = Eclipse.Modding.ModRuntime.LoadQualifiedModelText(ONEIGMLOGDC);
+		if (!string.IsNullOrEmpty(modModel)) return modModel;
 		if (TryDevXml(ONEIGMLOGDC, out var t1))
 		{
 			return t1;
-		}
-		string modModel = Eclipse.Modding.ModRuntime.LoadQualifiedModelText(ONEIGMLOGDC);
-		if (!string.IsNullOrEmpty(modModel))
-		{
-			return modModel;
 		}
 		ONEIGMLOGDC = ONEIGMLOGDC.TrimStart('\\', '/');
 		string text = SF2Paths.COGELDOPEJG(ONEIGMLOGDC);
@@ -715,6 +714,8 @@ public static class ResourceManager
 	{
         string replacement = Eclipse.Modding.ModRuntime.LoadCoreModelReplacement(ONEIGMLOGDC);
         if (replacement != null) return replacement;
+		string modModel = Eclipse.Modding.ModRuntime.LoadQualifiedModelText(ONEIGMLOGDC);
+		if (!string.IsNullOrEmpty(modModel)) return modModel;
 		if (TryDevXml(ONEIGMLOGDC, out var t2))
 		{
 			return t2;

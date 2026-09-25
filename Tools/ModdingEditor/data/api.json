@@ -204,11 +204,11 @@
       "params": {
         "reference": "string"
       },
-      "returns": "A model handle. The asset must exist and be classified as a model.",
+      "returns": "A model handle. The asset must exist and be classified as a model; local models can use `.xml` or `.modelz`.",
       "capability": null,
       "referenceKind": "model",
       "url": "https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsmodel",
-      "summary": "Get a model handle for equipment.",
+      "summary": "Get a model handle for equipment from a core asset or local geometry.",
       "requires": "No capability; cross-mod references require a dependency.",
       "when": "Usually during registration."
     },

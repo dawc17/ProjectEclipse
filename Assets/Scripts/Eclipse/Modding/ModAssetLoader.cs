@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Xml;
 using Eclipse.Content.TarAssets;
@@ -186,8 +187,8 @@ namespace Eclipse.Modding
             AssetBytes bytes;
             if (!_resolver.TryRead(id, out bytes)) return null;
             if (bytes.Metadata.Kind != AssetKind.Model)
-                throw new InvalidDataException("Asset is not model XML: " + id);
-            return DecodeText(bytes, id);
+                throw new InvalidDataException("Asset is not model geometry: " + id);
+            return DecodeModelText(bytes, id);
         }
 
         public string LoadText(AssetId id)
@@ -196,7 +197,7 @@ namespace Eclipse.Modding
             if (!_resolver.TryRead(id, out bytes)) return null;
             if (bytes.Metadata.Kind != AssetKind.Text && bytes.Metadata.Kind != AssetKind.Model)
                 throw new InvalidDataException("Asset is not text: " + id);
-            return DecodeText(bytes, id);
+            return bytes.Metadata.Kind == AssetKind.Model ? DecodeModelText(bytes, id) : DecodeText(bytes, id);
         }
 
         public byte[] LoadBinary(AssetId id)
@@ -267,6 +268,37 @@ namespace Eclipse.Modding
             catch (DecoderFallbackException exception)
             {
                 throw new InvalidDataException("Text asset is not valid UTF-8: " + id, exception);
+            }
+        }
+
+        private static string DecodeModelText(AssetBytes bytes, AssetId id)
+        {
+            if (bytes.Metadata.Format != ".modelz") return DecodeText(bytes, id);
+            try
+            {
+                using (var compressed = new MemoryStream(bytes.Data, false))
+                using (var gzip = new GZipStream(compressed, CompressionMode.Decompress))
+                using (var decoded = new MemoryStream())
+                {
+                    byte[] buffer = new byte[8192];
+                    int count;
+                    while ((count = gzip.Read(buffer, 0, buffer.Length)) != 0)
+                    {
+                        if (decoded.Length + count > MaxTextBytes)
+                            throw new InvalidDataException("Model asset exceeds decoded size limit: " + id);
+                        decoded.Write(buffer, 0, count);
+                    }
+                    return StrictUtf8.GetString(decoded.ToArray());
+                }
+            }
+            catch (DecoderFallbackException error)
+            {
+                throw new InvalidDataException("Compressed model is not valid UTF-8: " + id, error);
+            }
+            catch (InvalidDataException) { throw; }
+            catch (IOException error)
+            {
+                throw new InvalidDataException("Compressed model could not be decoded: " + id, error);
             }
         }
 

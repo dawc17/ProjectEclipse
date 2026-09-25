@@ -37,7 +37,7 @@ function manifest(text){
     return {data,issues,positions};
 }
 async function walk(root){const files=[],pending=[root];while(pending.length){let entries;const folder=pending.pop();try{entries=await fs.readdir(folder,{withFileTypes:true});}catch(e){if(e.code==='ENOENT')continue;throw e;}for(const entry of entries){if(entry.isSymbolicLink())continue;const file=path.join(folder,entry.name);if(entry.isDirectory())pending.push(file);else if(entry.isFile())files.push(file);if(files.length>MAX_FILES)throw new Error(`Mod contains more than ${MAX_FILES} indexed files.`);}}return files;}
-function assetKind(relative){const ext=path.extname(relative).toLowerCase(),id=slash(relative).toLowerCase();if(ext==='.asset')return 'sprite';if(ext==='.png')return 'texture';if(ext==='.xml'&&id.startsWith('models/'))return 'model';if(ext==='.wav')return 'audio';if(['.ogg','.mp3'].includes(ext))return 'unsupported-audio';if(['.xml','.toml','.json','.txt','.lua'].includes(ext))return 'text';return 'binary';}
+function assetKind(relative){const ext=path.extname(relative).toLowerCase(),id=slash(relative).toLowerCase();if(ext==='.asset')return 'sprite';if(ext==='.png')return 'texture';if(['.xml','.modelz'].includes(ext)&&id.startsWith('models/'))return 'model';if(ext==='.wav')return 'audio';if(['.ogg','.mp3'].includes(ext))return 'unsupported-audio';if(['.xml','.toml','.json','.txt','.lua'].includes(ext))return 'text';return 'binary';}
 function canonicalModuleName(module){
     if(typeof module!=='string'||!module.length||module.trim()!==module||module.includes('/')||module.includes('\\')||module.includes(':')||module.startsWith('.')||module.endsWith('.')||module.includes('..'))return null;
     return /^[A-Za-z0-9_.-]+$/.test(module)?module.toLowerCase():null;

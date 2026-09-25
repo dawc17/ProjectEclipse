@@ -9,12 +9,15 @@ that resolves public core sprite IDs, so they are copied from Assets/Resources.
 Four Underworld music ids resolve to no packaged track; they ship as PCM WAV under
 assets/audio/underworld/<id>.wav: three from the drop's DE-named Music folder (newer) and
 fight_halloween2019 from the DE 1.0.6 reference, the only copy.
+Two Berstuuk opponent models from the drop ship as reproducible gzip-compressed
+geometry under assets/models/underworld/*.modelz. DE128's Lua never opens XML.
 --check verifies the shipped copies against their sources.
 """
 
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import shutil
 import sys
@@ -37,6 +40,8 @@ MUSIC = {
     "ninja_in_the_night_old": MUSIC_DROP / "the_ninja_in_the_night_old.wav",
     "fight_halloween2019": ROOT / "ResearchSources" / "ReferenceSF2DE106" / "ExportedProject" / "Assets" / "gamedata" / "music" / "fight_halloween2019.wav",
 }
+MODELS_DROP = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "models"
+MODELS = ("mdl_body_berstuuk_early", "mdl_head_berstuuk")
 
 
 def sources():
@@ -85,11 +90,23 @@ def main() -> int:
         if not target.is_file() or sha256(target) != sha256(source):
             failures.append("audio " + name)
         rows.append((name + ".wav", sha256(source)))
+    models = ASSETS / "models" / "underworld"
+    if not args.check:
+        models.mkdir(parents=True, exist_ok=True)
+    for name in MODELS:
+        source = MODELS_DROP / (name + ".xml")
+        target = models / (name + ".modelz")
+        packed = gzip.compress(source.read_bytes(), mtime=0)
+        if not args.check:
+            target.write_bytes(packed)
+        if not target.is_file() or target.read_bytes() != packed:
+            failures.append("model geometry " + name)
+        rows.append((name + ".modelz <- " + name + ".xml", sha256(source)))
     for failure in failures:
         print("FAIL", failure)
     for name, digest in rows:
         print(digest, name)
-    print(f"{len(rows)} Underworld button/portrait sprites and music files {'verified' if not failures else 'FAILED'}")
+    print(f"{len(rows)} Underworld art and music files {'verified' if not failures else 'FAILED'}")
     return 1 if failures else 0
 
 

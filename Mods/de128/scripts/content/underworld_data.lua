@@ -360,7 +360,7 @@ return {
             voice = "Male",
             health_bars = 36,
             attributes = { ShieldStack = 36, EnchantmentResistance = 100 },
-            items = { "core:items/weapon/WEAPON_SICKLE_FALL_24", "core:items/ranged/RANGED_KUNAI_OF_WIND", "core:items/magic/MAGIC_BP_S1_GUARDIAN" },
+            items = { "core:items/weapon/WEAPON_SICKLE_FALL_24", "de128:items/armor/berstuuk_form", "de128:items/helm/berstuuk_mask", "core:items/ranged/RANGED_KUNAI_OF_WIND", "core:items/magic/MAGIC_BP_S1_GUARDIAN" },
             skeleton = "Skeleton",
         },
         {

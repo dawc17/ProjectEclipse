@@ -5,7 +5,9 @@ The owner-supplied archive is now the source of truth for DE content. See
 The download is currently blocked by Google Drive quota; prior archive comparisons
 below refer to the historical repository XML until reconciliation is performed.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.21.1` includes a
+DE128 is an ordinary downstream Eclipse mod. Version `0.22.0` restores
+Berstuuk's archived body and mask geometry and verifies all 76 Underworld
+encounters in a native Unity fixture. Version `0.21.1` includes a
 verified Underworld boss-alignment repair in the Eclipse template resolver.
 Version `0.21.0` restores
 normal shop availability and archived starting profiles for all 221 hidden core
@@ -32,14 +34,16 @@ before the first fight and speaks once after the first loss and first win.
 
 All data is generated from the archive by `Tools/GenerateDE128Underworld.py`;
 map buttons for the ten event raids and two May portraits ship under
-`assets/sprites/underworld/`. A few archived items and one rule (Berstuuk's
-body/head, ceremonial armor/helm, needles, LightInTheDarkness) cannot be
-resolved and are omitted (Step 51 in `PRODUCTION.md`). The manifest adds
-`presentation.navigate` for the dojo change. Automated checks compare
-everything with the archive. A headless Unity 6 test now enters Volcano
-through the native raid map and three story cards, renders the arena, runs the
-fight, and returns to Underworld on surrender. An interactive combat and
-presentation playtest remains outstanding.
+`assets/sprites/underworld/`. Berstuuk's hidden armor and mask use archived
+geometry packed as `.modelz` assets and load through the normal model handle
+API. DE128 Lua never opens XML. Ceremonial armor/helm, needles and the
+`LightInTheDarkness` rule remain unresolved from available sources (Step 56 in
+`PRODUCTION.md`). The manifest adds `presentation.navigate` for the dojo
+change. Automated checks compare the generated data with the archive. The
+headless Unity 6 fixture covers native entry, arena and fighter rigs, 30 combat
+frames and surrender/map return for every Underworld fight, plus the archived
+boss story sequence matrix. An interactive combat and presentation playtest
+remains outstanding.
 
 ## Sensei story (active since 0.19.0)
 

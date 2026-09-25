@@ -1555,10 +1555,20 @@ namespace Eclipse.Modding
 
         public static string LoadQualifiedModelText(string reference)
         {
+            if (_host == null || string.IsNullOrEmpty(reference)) return null;
+            string relative;
+            if (Eclipse.Content.ContentOverridePaths.TryGetGamedataRelativePath(reference, out relative) &&
+                relative.StartsWith("models/", StringComparison.OrdinalIgnoreCase))
+                reference = relative.Substring("models/".Length);
             if (!string.IsNullOrEmpty(reference) && reference.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
                 reference = reference.Substring(0, reference.Length - 4);
             AssetId id;
-            return TryParseQualified(reference, out id) ? Host.TypedAssets.LoadModelText(id) : null;
+            if (!TryParseQualified(reference, out id) ||
+                !id.Path.StartsWith("models/", StringComparison.Ordinal)) return null;
+            string text = Host.TypedAssets.LoadModelText(id);
+            if (string.IsNullOrEmpty(text))
+                throw new System.IO.FileNotFoundException("Qualified mod model is unavailable: " + id);
+            return text;
         }
 
         public static void Shutdown()

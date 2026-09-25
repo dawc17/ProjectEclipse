@@ -20,6 +20,7 @@ require("content.mind_throw")
 require("content.restored_equipment")
 require("content.shared_moves")
 require("content.shop")
+require("content.underworld_equipment")
 require("content.rewards")
 require("content.progression")
 -- Sensei story: guard templates and RaidCharge availability are synthesized from

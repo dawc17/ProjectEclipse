@@ -93,6 +93,8 @@ test('actual DE128 reachable Lua localization is indexed', async () => {
     assert.deepEqual(mod.issues,[]);
     assert(mod.localizations.has('item.titans_desolator'));
     assert(mod.localizations.get('item.titans_desolator').translations.some(x=>x.language==='eng'&&x.value==="Titan's Desolator"));
+    for(const name of ['mdl_body_berstuuk_early','mdl_head_berstuuk'])
+        assert.equal(mod.assets.get(`models/underworld/${name}`)?.kind,'model');
 });
 test('references, dependencies, capability requirements, and numeric limits', async () => {
     const mod = await p.indexMod(template);

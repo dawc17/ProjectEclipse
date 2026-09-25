@@ -2082,10 +2082,10 @@ function price.gems(amount) end
 ---@return Eclipse.SpriteHandle
 function assets.sprite(reference) end
 
----Get a model handle for equipment.
+---Get a model handle for equipment from a core asset or local geometry.
 ---Requires: No capability; cross-mod references require a dependency.
 ---When: Usually during registration.
----Returns: A model handle. The asset must exist and be classified as a model.
+---Returns: A model handle. The asset must exist and be classified as a model; local models can use `.xml` or `.modelz`.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/assets/#sf2assetsmodel)
 ---@param reference string
 ---@return Eclipse.ModelHandle

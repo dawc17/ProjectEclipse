@@ -80,8 +80,8 @@ Omit `--skin` when your scene contains no skin mesh. Repeat it for additional ov
 
 | File | Purpose |
 | --- | --- |
-| `assets/models/body.xml` | Native body rig and geometry. |
-| `assets/models/skin.xml` | Optional native geometric overlay. |
+| `assets/models/body.xml` or `body.modelz` | Native body rig and geometry. `.modelz` is gzip-compressed UTF-8 geometry; use the extensionless model ID in Lua. |
+| `assets/models/skin.xml` or `skin.modelz` | Optional native geometric overlay. |
 | `assets/animations/authored.bytes` | Baked native animation at 60 Hz, with `mid_frames = 0`. |
 | `assets/animations/authored.rig.json` | Node order and rig/animation fingerprints for validation. |
 | `frames.json` | Portable sampled animation source. |

@@ -4,6 +4,8 @@ local weapon = sf2.items.register_weapon {
     id = "training_blade",
     display_name = sf2.localization.key("weapon.training_blade"),
     icon = sf2.assets.sprite("sprites/weapon"),
+    -- A local model can live at assets/models/my-model.modelz; use
+    -- sf2.assets.model("models/my-model") without its file extension.
     model = sf2.assets.model("core:gamedata/models/mdl_weapon_katana_ritual"),
     subtype = "Katana",
     -- Omit initial_stats for normal power; { weapon_damage = 0 } stores zero,

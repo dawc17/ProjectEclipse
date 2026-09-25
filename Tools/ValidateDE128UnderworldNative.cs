@@ -22,7 +22,7 @@ public static class ValidateDE128UnderworldNative
     const string FightId = "de128:fights/uw_boss_1_1";
     static readonly BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
     static double started, lastReadinessReport, lastDialogPress;
-    static bool campaign, mapRequested, raidPrepared, entryRequested, surrenderRequested;
+    static bool campaign, mapRequested, raidPrepared, catalogAudited, entryRequested, surrenderRequested;
     static int cards, campaignCards;
     static readonly HashSet<ModStoryDialogPresenter> Acknowledged = new HashSet<ModStoryDialogPresenter>();
 
@@ -142,6 +142,11 @@ public static class ValidateDE128UnderworldNative
                 }
                 var definition = scripts.Content.Fights.FirstOrDefault(value => value.Id.ToString() == FightId);
                 if (definition == null) throw new Exception("Volcano fight missing from the live mod catalog.");
+                if (!catalogAudited)
+                {
+                    AuditUnderworldCatalog(scripts.Content);
+                    catalogAudited = true;
+                }
                 var encounter = ListSF.CHMCKGCDGCM(new FightIDS(scripts.Content.RuntimeFightId(definition.Id)));
                 if (encounter == null || !UnderworldZonePolicy.IsRaidZone(encounter.Battle.OAEIILGHJMG))
                     throw new Exception("The resolved Volcano encounter is not an Underworld fight.");
@@ -211,6 +216,20 @@ public static class ValidateDE128UnderworldNative
             if (location?.name != "vulcan_raid" || renderedSprites == 0)
                 throw new Exception("Volcano arena did not render its packaged sprites: " + location?.name +
                     " sprites=" + renderedSprites);
+            var weapon = new List<global::Pair<string, float>> {
+                new global::Pair<string, float>("WeaponDamage", 0f)
+            };
+            float playerStrike = GameUtils.GetAttributesHitMultiplier(true, player.Parameters,
+                enemy.Parameters, weapon, "BodyDefense");
+            float bossStrike = GameUtils.GetAttributesHitMultiplier(false, enemy.Parameters,
+                player.Parameters, weapon, "BodyDefense");
+            if (float.IsNaN(playerStrike) || float.IsInfinity(playerStrike) ||
+                float.IsNaN(bossStrike) || float.IsInfinity(bossStrike) ||
+                playerStrike < 0.01f || playerStrike > 100f || bossStrike < 0.01f || bossStrike > 100f)
+                throw new Exception("Volcano weapon/body alignment escaped the expected combat scale: " +
+                    playerStrike + " / " + bossStrike);
+            Debug.Log(Prefix + "Volcano weapon/body alignment multipliers: player=" + playerStrike +
+                " boss=" + bossStrike);
             Debug.Log(Prefix + "Volcano arena rendered " + renderedSprites + " native sprites; surrendering.");
             typeof(Fight).GetMethod("SurrenderButtonCallback", Hidden).Invoke(fight, new object[] { null });
             surrenderRequested = true;
@@ -220,6 +239,72 @@ public static class ValidateDE128UnderworldNative
 
     static ModStoryEvents StoryBus => (ModStoryEvents)typeof(ModRuntime)
         .GetField("StoryEvents", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+    static void AuditUnderworldCatalog(ModContentCatalog content)
+    {
+        var templates = content.WarriorTemplates.Where(value =>
+            value.Id.ToString().StartsWith("de128:warrior-templates/uw_", StringComparison.Ordinal)).ToArray();
+        if (templates.Length != 66)
+            throw new Exception("Expected 66 registered Underworld boss templates, found " + templates.Length);
+        var expected = new Dictionary<DefinitionId, int>();
+        int ExpectedRows(DefinitionId id)
+        {
+            if (expected.TryGetValue(id, out int known)) return known;
+            if (!content.TryGetWarriorTemplate(id, out var definition))
+                throw new Exception("Missing warrior template in live catalog: " + id);
+            int count;
+            if (definition.IsCore)
+            {
+                var core = ListSF.GetInstance().CNFBCBDPKCI(definition.LegacyName);
+                if (core?.KEJDJHAGBMK == null)
+                    throw new Exception("Missing native core warrior template: " + definition.LegacyName);
+                count = core.KEJDJHAGBMK.AttributeAlignments.Count;
+            }
+            else
+            {
+                var body = definition.Body;
+                count = (body.HasTemplate ? ExpectedRows(body.Template) : 0) + body.AttributeAlignments.Count;
+                var native = ListSF.GetInstance().CNFBCBDPKCI(definition.LegacyName);
+                int actual = native?.KEJDJHAGBMK?.AttributeAlignments.Count ?? -1;
+                if (actual != count)
+                    throw new Exception("Native template alignment inheritance differs: " + definition.Id +
+                        " expected=" + count + " actual=" + actual);
+            }
+            expected.Add(id, count);
+            return count;
+        }
+        foreach (var template in templates) ExpectedRows(template.Id);
+        var fights = content.Fights.Where(value =>
+            value.Id.ToString().StartsWith("de128:fights/uw_", StringComparison.Ordinal)).ToArray();
+        if (fights.Length != 76)
+            throw new Exception("Expected 76 registered Underworld fights, found " + fights.Length);
+        int opponents = 0;
+        foreach (var fight in fights)
+        {
+            var native = ListSF.CHMCKGCDGCM(new FightIDS(content.RuntimeFightId(fight.Id)));
+            if (native == null || !UnderworldZonePolicy.IsRaidZone(native.Battle?.OAEIILGHJMG) ||
+                native.OFKJMHPMCCD().Count != fight.Warriors.Count)
+                throw new Exception("Native Underworld fight or opponent roster differs: " + fight.Id);
+            if (!string.IsNullOrEmpty(fight.Location) && native.Location != fight.Location)
+                throw new Exception("Native Underworld arena differs: " + fight.Id + " at " + native.Location);
+            for (int i = 0; i < fight.Warriors.Count; i++)
+            {
+                if (!content.TryGetWarrior(fight.Warriors[i], out var warrior))
+                    throw new Exception("Missing Underworld opponent definition: " + fight.Warriors[i]);
+                int count = (warrior.HasTemplate ? ExpectedRows(warrior.Template) : 0) +
+                    warrior.AttributeAlignments.Count;
+                var model = native.OFKJMHPMCCD()[i];
+                if (model == null || model.AttributeAlignments.Count != count ||
+                    (warrior.HealthBars > 0 && model.ShieldTotal != warrior.HealthBars))
+                    throw new Exception("Native Underworld opponent inheritance differs: " + warrior.Id +
+                        " expected rows=" + count + " actual=" + model?.AttributeAlignments.Count);
+                opponents++;
+            }
+        }
+        if (opponents != 104)
+            throw new Exception("Expected 104 native Underworld opponent slots, found " + opponents);
+        Debug.Log(Prefix + "Audited 66 native boss templates, 76 raid fights and 104 opponent slots.");
+    }
 
     static void PressStoryButton(StoryDialog dialog)
     {

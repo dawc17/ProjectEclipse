@@ -133,7 +133,8 @@ namespace Eclipse.Modding
         {
             string ext = extension.ToLowerInvariant();
             if (ext == ".png") return AssetKind.Texture;
-            if (ext == ".xml" && logicalPath.StartsWith("models/", StringComparison.Ordinal)) return AssetKind.Model;
+            if ((ext == ".xml" || ext == ".modelz") &&
+                logicalPath.StartsWith("models/", StringComparison.Ordinal)) return AssetKind.Model;
             if (ext == ".wav") return AssetKind.Audio;
             if (ext == ".xml" || ext == ".toml" || ext == ".json" || ext == ".txt" || ext == ".lua")
                 return AssetKind.Text;
