@@ -2332,6 +2332,18 @@ namespace Eclipse.Modding
                 });
             }
 
+            internal static string ReadButtonId(Table table, string where)
+            {
+                string buttonId = RequiredString(table, "id", where);
+                if (buttonId.Length > 64 || buttonId.Length == 0)
+                    throw new ModContentException(where + ".id must be 1..64 ASCII letters, digits, '_' or '-'.");
+                foreach (char character in buttonId)
+                    if (!((character >= 'a' && character <= 'z') ||
+                          (character >= '0' && character <= '9') || character == '_' || character == '-'))
+                        throw new ModContentException(where + ".id must be lowercase ASCII letters, digits, '_' or '-'.");
+                return buttonId;
+            }
+
             private DynValue RegisterQuest(ScriptExecutionContext context, CallbackArguments args)
             {
                 const string function = "sf2.quests.register";
@@ -2922,15 +2934,13 @@ namespace Eclipse.Modding
                         case "eclipse": ValidateFields(action, where, "type", "enabled"); result.Add(ModQuestAction.ToggleEclipseMode(OptionalBool(action, "enabled", true, where))); break;
                         case "update_eclipse_battles": ValidateFields(action, where, "type"); result.Add(ModQuestAction.UpdateEclipseBattles()); break;
                         case "give_item": ValidateFields(action, where, "type", "item"); result.Add(ModQuestAction.GiveItem(RequiredHandle(action, "item", _itemHandles, "item", where))); break;
+                        case "hide_map_button":
+                            ValidateFields(action, where, "type", "id");
+                            result.Add(ModQuestAction.HideMapButton(Mod.Id.Value + "." + ReadButtonId(action, where)));
+                            break;
                         case "show_map_button":
                             ValidateFields(action, where, "type", "id", "image", "x", "y", "anchor_min_x", "anchor_max_x", "show_type");
-                            string buttonId = RequiredString(action, "id", where);
-                            if (buttonId.Length > 64 || buttonId.Length == 0)
-                                throw new ModContentException(where + ".id must be 1..64 ASCII letters, digits, '_' or '-'.");
-                            foreach (char character in buttonId)
-                                if (!((character >= 'a' && character <= 'z') ||
-                                      (character >= '0' && character <= '9') || character == '_' || character == '-'))
-                                    throw new ModContentException(where + ".id must be lowercase ASCII letters, digits, '_' or '-'.");
+                            string buttonId = ReadButtonId(action, where);
                             DynValue imageValue = action.Get("image");
                             string image;
                             if (imageValue.Type == DataType.Table)

@@ -533,6 +533,12 @@ namespace Eclipse.Modding
                 groups, marks, events, conditions, actions);
         }
 
+        public ModDojoButton RegisterDojoButton(string localId, AssetId image)
+        {
+            RequireCapability("content.register");
+            return RequireRegistration().RegisterDojoButton(localId, image);
+        }
+
         public bool HasCapability(string capability)
         {
             if (string.IsNullOrEmpty(capability)) return false;

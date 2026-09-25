@@ -16,8 +16,9 @@ using System.Collections.Generic;
 class Vector3f{public float X;public Vector3f(float x){X=x;}public Vector3f(Vector3f other){X=other.X;}}
 class Model{
 COPY
-public Vector3f ODCOKJKEDOJ=new Vector3f(1);public float HNILMKEAMAE=1,DIKMCKLIEBK;public int _perkColor=1,_perkSlowFactor=1,_perkSlowFrame;public bool _perkCollisionDisabled,FailColor;
-public void set_color(int value){_perkColor=value;if(FailColor){FailColor=false;throw new Exception("renderer");}}
+public Vector3f ODCOKJKEDOJ=new Vector3f(1);public float HNILMKEAMAE=1,DIKMCKLIEBK;public int? _perkColor=1;public int _perkSlowFactor=1,_perkSlowFrame;public bool _perkCollisionDisabled,FailColor;
+public class Presentation{public void SetSlow(int factor,int frame){}}public Presentation _presentation=new Presentation();
+void ApplyPerkColor(int? value){_perkColor=value;if(FailColor){FailColor=false;throw new Exception("renderer");}}
 }
 class ActionDefinition{public ActionType Type;public ActionType get_Type()=>Type;}
 class PerkActionSetAttributes:ActionDefinition{}

@@ -73,6 +73,11 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void Init(ModelParameters JCICKLIMBEF)
 		{
+			// Health and the delayed damage bar drain per tick; blend between ticks.
+			Eclipse.Rendering.Interpolation.TickPresentationSmoother.AttachFill(_healthBar,
+				Eclipse.Rendering.Interpolation.TickPresentationSmoother.Clock.Fight);
+			Eclipse.Rendering.Interpolation.TickPresentationSmoother.AttachFill(_hitBar,
+				Eclipse.Rendering.Interpolation.TickPresentationSmoother.Clock.Fight);
 			HEGIABHIPHA = JCICKLIMBEF;
 			JEBDBEIMPLK();
 		}

@@ -1297,6 +1297,7 @@ public class Fight
 
 	public void Draw()
 	{
+		Eclipse.Rendering.Interpolation.FightInterpolation.MarkDrawStep();
 		int num = ((!GameUtils.LDBMFAMEMPF) ? 1 : 2);
 		for (int i = 0; i < num; i++)
 		{
@@ -1578,10 +1579,12 @@ public class Fight
 		{
 			RenderFight();
             DrainModelTransitions();
+			Eclipse.Rendering.Interpolation.FightInterpolation.MarkFightStep();
 		}
 		if (isRenderCamera)
 		{
 			RenderCamera();
+			Eclipse.Rendering.Interpolation.FightInterpolation.MarkCameraStep();
 		}
 		frame++;
 	}
@@ -1839,7 +1842,7 @@ public class Fight
 		Model model = target == RuleAppliance.ApplianceOpponent ? CKNCPOABFBO : _playerModel;
 		if (model != null)
 		{
-			_Camera.KKFIJLOMOJI().UpdateLightInTheDarkness(model.PLBNCDCFPML(), radius, shape);
+			_Camera.KKFIJLOMOJI().UpdateLightInTheDarkness(model, radius, shape);
 		}
 	}
 

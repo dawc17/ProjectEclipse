@@ -418,7 +418,8 @@ public partial class InfoPerk
 	private void NPNJDBJABMG(PerksStage.ActionPerk action, bool remove)
 	{
 		PerkActionChangeModelColor color = (PerkActionChangeModelColor)action.AMKJNPOCODK;
-		action.KJDFJPBIGJC.set_color(remove ? UnityEngine.Color.white : color.Color);
+		if (remove) action.KJDFJPBIGJC.ClearPerkColor();
+		else action.KJDFJPBIGJC.SetPerkColor(color.Color);
 	}
 
 	private void KCELDPMGNMI(PerksStage.ActionPerk action, bool remove)

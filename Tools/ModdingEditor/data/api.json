@@ -1089,14 +1089,14 @@
     },
     "sf2.story.on": {
       "params": {
-        "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"map_button\"|\"item_acquired\"|\"battle_result\"",
+        "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"map_button\"|\"dojo_button\"|\"item_acquired\"|\"battle_result\"",
         "callback": "fun(event: Eclipse.StoryEvent)"
       },
       "returns": "An opaque subscription handle.",
       "capability": "story.events",
       "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon",
       "summary": "",
-      "requires": "`story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`) and a Lua function.",
+      "requires": "`story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `dojo_button`, `item_acquired` or `battle_result`) and a Lua function.",
       "when": "During mod loading or a callback while the script is active, including before a profile loads."
     },
     "sf2.story.off": {
@@ -1598,6 +1598,17 @@
       "summary": "",
       "requires": "An open owned view and a valid widget ID; no additional capability.",
       "when": "Enable/disable interaction using a boolean. A disabled ancestor prevents its descendants from activating. Disabling a root does not close its modal backdrop."
+    },
+    "sf2.ui.dojo_button": {
+      "params": {
+        "definition": "Eclipse.DojoButtonDefinition"
+      },
+      "returns": "The button's qualified name, `<mod-id>.<id>`, as a string.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uidojo_button",
+      "summary": "",
+      "requires": "`content.register`. `id` (required) is 1–64 lowercase ASCII letters, digits, `_` or `-`, unique within the mod. `image` (required) is a sprite handle from `sf2.assets.sprite`; the button uses the sprite's size, scaled down if it would be larger than the disciple button. A mod can register at most 4 dojo buttons. Nothing is saved to the profile: removing the mod or the registration removes the button. React to clicks with [`sf2.story.on(\"dojo_button\", ...)`](../story/#sf2storyon), which needs `story.events`.",
+      "when": "During loading, like other registrations. The button is added to the game's side menu whenever the dojo is the current screen. It sits below the disciple button's slot, whether or not the player has unlocked the disciple yet. Buttons from several mods stack downward in load order."
     },
     "sf2.quests.suppress": {
       "params": {
@@ -3042,7 +3053,7 @@
       "fields": {
         "text": "string",
         "color?": "string",
-        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]"
+        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_hide_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]"
       }
     },
     "Action_show_battle": {
@@ -3100,6 +3111,12 @@
         "value": "string"
       }
     },
+    "Action_hide_map_button": {
+      "fields": {
+        "type": "\"hide_map_button\"",
+        "id": "string"
+      }
+    },
     "Action_show_map_button": {
       "fields": {
         "type": "\"show_map_button\"",
@@ -3138,7 +3155,7 @@
         "marks?": "string[]",
         "events": "(\"session\"|\"activate\"|\"fight_enter\"|\"fight_end\"|\"raid_fight_enter\"|\"raid_fight_end\"|\"raid_enter\"|\"raid_end\"|\"reset_mode\"|\"raid_map_enter\"|\"raid_floor_changed\"|\"show_raid_loot\"|\"level_up\"|\"got_item\"|\"set_item_acquired\"|\"purchase\"|\"delivery\"|\"timer_end\"|\"enchantment\"|\"activate_perk\"|\"deactivate_perk\"|\"dialog\"|\"map_button\"|\"scene_loaded\"|\"shop_enter\")[]",
         "conditions?": "(Eclipse.Comparison|Eclipse.ConditionGroup)[]",
-        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]"
+        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_hide_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]"
       }
     },
     "SetMember": {
@@ -3401,7 +3418,7 @@
     },
     "StoryEvent": {
       "fields": {
-        "kind": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"map_button\"|\"item_acquired\"|\"battle_result\"",
+        "kind": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"map_button\"|\"dojo_button\"|\"item_acquired\"|\"battle_result\"",
         "fight?": "string",
         "outcome?": "\"win\"|\"loss\"|\"surrender\"|\"raid_timeout\"|\"raid_round_timeout\"",
         "eclipse?": "boolean",
@@ -4246,6 +4263,15 @@
         "ignore_back?": "boolean",
         "on_complete?": "fun()",
         "on_cancel?": "fun()"
+      }
+    },
+    "DojoButtonDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; qualified as modid.id in click events."
+        ],
+        "image": "Eclipse.SpriteHandle"
       }
     },
     "QuestSuppression": {

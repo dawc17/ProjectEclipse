@@ -214,29 +214,29 @@ public static class ValidateDE128DojoNative
                     return;
                 }
                 if (surface.Id != "dojo_changer" || surface.Mount != ModUiMount.Modal ||
-                    surface.WidgetCount != 36 || surface.Root.Style.Frame != "scroll" ||
+                    surface.WidgetCount != 76 || surface.Root.Style.Frame != "scroll" ||
                     surface.Read("choice_2").Text != "" ||
                     surface.Read("preview_2").Sprite?.ToString() !=
                         "de128:sprites/dojo_changer/new_year_24_china_dojo")
-                    throw new Exception("The mounted dojo selector is not the image-only scroll gallery.");
+                    throw new Exception("The mounted dojo selector is not the captioned medallion scroll gallery.");
                 var view = UnityEngine.Object.FindObjectOfType<ModUiView>();
-                var scroll = view == null ? null : view.GetComponentInChildren<ScrollRect>();
+                var scroll = view == null ? null : view.GetComponentInChildren<SFScrollRect>();
                 var artwork = view == null ? null : view.GetComponentsInChildren<Image>(true)
                     .SingleOrDefault(value => value.name == "preview_2");
                 var frame = view == null ? null : view.GetComponentsInChildren<Image>(true)
-                    .FirstOrDefault(value => value.name == "Upper roll");
-                if (scroll == null || scroll.verticalScrollbar == null ||
-                    scroll.content.rect.height <= scroll.viewport.rect.height ||
+                    .FirstOrDefault(value => value.name == "Upper roll center");
+                if (scroll == null || scroll.get_verticalScrollbar() == null ||
+                    scroll.get_content().rect.height <= scroll.get_viewport().rect.height ||
                     artwork == null || artwork.sprite == null || artwork.sprite.texture == null ||
                     frame == null || frame.sprite == null || frame.sprite.name != "CommonScrolls.Roll_center")
                     throw new Exception("The dojo gallery is missing native scroll behavior, preview art or rolled frame.");
                 Canvas.ForceUpdateCanvases();
-                float top = scroll.content.anchoredPosition.y;
-                scroll.verticalNormalizedPosition = 0;
+                float top = scroll.get_content().anchoredPosition.y;
+                scroll.set_verticalNormalizedPosition(0);
                 Canvas.ForceUpdateCanvases();
-                if (Mathf.Abs(scroll.content.anchoredPosition.y - top) < 100f)
+                if (Mathf.Abs(scroll.get_content().anchoredPosition.y - top) < 100f)
                     throw new Exception("The dojo preview grid cannot scroll through all ten images.");
-                scroll.verticalNormalizedPosition = 1;
+                scroll.set_verticalNormalizedPosition(1);
                 Canvas.ForceUpdateCanvases();
                 var artCorners = new Vector3[4];
                 artwork.rectTransform.GetWorldCorners(artCorners);

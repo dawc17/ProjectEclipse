@@ -624,7 +624,9 @@ public class Model : global::EventDispatcher<object>
 	private int _perkSlowFactor = 1;
 	private int _perkSlowFrame;
 	private bool _perkCollisionDisabled;
-	private Color _perkColor = Color.white;
+	private Color? _perkColor;
+
+	private Eclipse.Rendering.ModelPresentation _presentation;
 
 	private ModelAi HJOGNGDMAKJ;
 
@@ -1406,6 +1408,8 @@ public class Model : global::EventDispatcher<object>
 		GameObject gameObject = new GameObject("Mesh");
 		gameObject.transform.SetParent(_UnityObject.transform, false);
 		_MeshRender = gameObject.AddComponent<MeshRender>();
+		_presentation = Eclipse.Rendering.ModelPresentation.Attach(_UnityObject);
+		Eclipse.Rendering.WeaponTrail.Attach(_UnityObject, this);
 		NPKHMEHKFMM = 0;
 		JMHJDHLBHLK = -1;
 		FLKMDFDEJPP = true;
@@ -1556,16 +1560,18 @@ public class Model : global::EventDispatcher<object>
             ODCOKJKEDOJ = impulse;
             HNILMKEAMAE = hitScale; DIKMCKLIEBK = addedDamage;
             _perkSlowFactor = slow; _perkSlowFrame = slowFrame;
+            _presentation?.SetSlow(_perkSlowFactor, _perkSlowFrame);
             _perkCollisionDisabled = collision;
-            set_color(color);
+            ApplyPerkColor(color);
         };
         try
         {
             ODCOKJKEDOJ = new Vector3f(source.ODCOKJKEDOJ);
             HNILMKEAMAE = source.HNILMKEAMAE; DIKMCKLIEBK = source.DIKMCKLIEBK;
             _perkSlowFactor = source._perkSlowFactor; _perkSlowFrame = source._perkSlowFrame;
+            _presentation?.SetSlow(_perkSlowFactor, _perkSlowFrame);
             _perkCollisionDisabled = source._perkCollisionDisabled;
-            set_color(source._perkColor);
+            ApplyPerkColor(source._perkColor);
         }
         catch { restore(); throw; }
         return restore;
@@ -1911,22 +1917,49 @@ public class Model : global::EventDispatcher<object>
 		PEACCBDCNCN = value;
 	}
 
+	// Base fighter colour (ViewerModel assigns it when adding the model).
+	// Perk tints layer over it for this fighter only; clearing a tint returns
+	// to this colour rather than forcing white.
 	public void set_color(Color value)
 	{
+		_presentation?.SetBaseColor(value);
+	}
+
+	public void SetPerkColor(Color value)
+	{
+		ApplyPerkColor(value);
+	}
+
+	public void ClearPerkColor()
+	{
+		ApplyPerkColor(null);
+	}
+
+	private void ApplyPerkColor(Color? value)
+	{
 		_perkColor = value;
-		CapsuleRender.set_color(value);
-		_MeshRender.set_Color(value);
+		_presentation?.SetTint(value);
+	}
+
+	// The pivot as currently presented (render interpolation, including slow-down).
+	public Vector3f InterpolatedPivot()
+	{
+		float alpha = _presentation != null ? _presentation.Alpha : Eclipse.Rendering.Interpolation.FightInterpolation.FightAlpha;
+		Vector3f result = new Vector3f();
+		Eclipse.Rendering.Interpolation.FightInterpolation.SamplePosition(_ModelObject.HOFFDCFEBGA(), alpha, result);
+		return result;
 	}
 
 	public Color GetPerkColor()
 	{
-		return _perkColor;
+		return _perkColor ?? Color.white;
 	}
 
 	public void SetPerkSlowFactor(int value)
 	{
 		_perkSlowFactor = Mathf.Max(1, value);
 		_perkSlowFrame = 0;
+		_presentation?.SetSlow(_perkSlowFactor, _perkSlowFrame);
 	}
 
 	public void SetPerkCollisionDisabled(bool value)
@@ -1967,7 +2000,21 @@ public class Model : global::EventDispatcher<object>
 
 	public static Vector3f MHFFCMKNIKM(ModelObject LHBNIMGFKIB, ModelObject AAOIAEJJINO)
 	{
-		return ModelObject.MHFFCMKNIKM(LHBNIMGFKIB.HOFFDCFEBGA(), AAOIAEJJINO.HOFFDCFEBGA());
+		return Vector3f.Middle(CameraAnchor(LHBNIMGFKIB), CameraAnchor(AAOIAEJJINO));
+	}
+
+	// The pivot the camera follows. A slowed fighter only advances once per
+	// slow span, so hand the camera its position spread across that span at
+	// tick resolution; otherwise its follow velocity jerks on every advance.
+	private static Vector3f CameraAnchor(ModelObject body)
+	{
+		ModelNode pivot = body.HOFFDCFEBGA();
+		Model model = body.GetModel();
+		if (model == null || model._perkSlowFactor <= 1) return pivot.GetStart();
+		Vector3f result = new Vector3f();
+		Eclipse.Rendering.Interpolation.FightInterpolation.SamplePosition(pivot,
+			(float)model._perkSlowFrame / model._perkSlowFactor, result);
+		return result;
 	}
 
 	public static float GetDistanceModels(Model LHBNIMGFKIB, Model AAOIAEJJINO)
@@ -2070,6 +2117,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		_perkSlowFactor = 1;
 		_perkSlowFrame = 0;
+		_presentation?.SetSlow(1, 0);
 		_perkCollisionDisabled = false;
 		BIMGIFDAIGD();
 		EEDJEDBMIMI(ODLJHBDMEIJ, false);
@@ -2102,6 +2150,7 @@ public class Model : global::EventDispatcher<object>
 		if (_perkSlowFactor > 1)
 		{
 			_perkSlowFrame = (_perkSlowFrame + 1) % _perkSlowFactor;
+			_presentation?.SetSlow(_perkSlowFactor, _perkSlowFrame);
 			if (_perkSlowFrame != 0)
 				return;
 		}

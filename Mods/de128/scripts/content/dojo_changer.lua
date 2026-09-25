@@ -3,52 +3,70 @@ local sf2 = require("sf2")
 -- The remaining archived choices need missing installed art or params. Keep the
 -- order of the choices whose location dependencies have been audited.
 local choices = {
-    { location = "dojo" },
-    { location = "new_year_24_china_dojo" },
-    { location = "dojo_indian_event" },
-    { location = "dojo_indian_event_22" },
-    { location = "dojo_india24" },
-    { location = "haloween_dojo" },
-    { location = "haloween_dojo_2019" },
-    { location = "dojo_hw21" },
-    { location = "dojo_american_event_22" },
-    { location = "dojo_hw22" },
+    { location = "dojo", label = "DefaultDojo" },
+    { location = "new_year_24_china_dojo", label = "DojoChinese24" },
+    { location = "dojo_indian_event", label = "DojoIndia" },
+    { location = "dojo_indian_event_22", label = "DojoIndia22" },
+    { location = "dojo_india24", label = "DojoIndia24" },
+    { location = "haloween_dojo", label = "DojoHalloween" },
+    { location = "haloween_dojo_2019", label = "DojoHalloween19" },
+    { location = "dojo_hw21", label = "DojoHalloween21" },
+    { location = "dojo_american_event_22", label = "DojoAmerican22" },
+    { location = "dojo_hw22", label = "DojoStudio" },
 }
 
 for _, choice in ipairs(choices) do
     choice.preview = sf2.assets.sprite("sprites/dojo_changer/" .. choice.location)
+    choice.name = sf2.localization.key("dojo." .. choice.label)
 end
+local halo = sf2.assets.sprite("sprites/dojo_changer/selected_halo")
 local title = sf2.localization.key("dojo.DojoChangerTitle")
 local back = sf2.localization.key("dojo.BACK")
+
+-- Three medallions per row with their names underneath. The whole cell is a
+-- transparent button; the current dojo gets a gold halo and gold caption.
+local COLUMNS, CELL_W, CELL_H, GAP = 3, 158, 184, 10
 
 local function open_selector()
     local selected = sf2.locations.selected_dojo()
     local cells = {}
     for i, choice in ipairs(choices) do
-        local qualified = "core:locations/" .. choice.location
-        cells[i] = { id = "tile_" .. i, kind = "stack", width = 243, height = 168,
+        local current = selected == "core:locations/" .. choice.location
+        cells[i] = { id = "tile_" .. i, kind = "stack", width = CELL_W, height = CELL_H,
             children = {
-                { id = "choice_" .. i, kind = "button", width = 243, height = 168,
-                  style = { background_color = selected == qualified and "#E9C56B" or "#FFFFFF00" } },
-                { id = "preview_" .. i, kind = "image", width = 235, height = 160,
-                  sprite = choice.preview },
+                { id = "choice_" .. i, kind = "button", width = CELL_W, height = CELL_H,
+                  style = { background_color = "#FFFFFF00" } },
+                { id = "card_" .. i, kind = "column", width = CELL_W, height = CELL_H, gap = 4,
+                  children = {
+                    { id = "art_" .. i, kind = "stack", width = CELL_W, height = 140, children = {
+                        { id = "halo_" .. i, kind = "image", width = 140, height = 140,
+                          sprite = halo, visible = current },
+                        { id = "preview_" .. i, kind = "image", width = 118, height = 118,
+                          sprite = choice.preview },
+                    } },
+                    { id = "name_" .. i, kind = "text", width = CELL_W, height = 40,
+                      text = sf2.localization.text(choice.name),
+                      style = { font_size = 17, text_color = current and "#9A6A12" or nil } },
+                  } },
             } }
     end
+    local rows = math.ceil(#choices / COLUMNS)
     sf2.ui.open {
         id = "dojo_changer", mount = "modal",
-        root = { id = "panel", kind = "stack", width = 620, height = 590,
+        root = { id = "panel", kind = "stack", width = 580, height = 630,
             style = { frame = "scroll" }, children = {
                 { id = "content", kind = "column", width = 520, height = 480,
-                  gap = 12, children = {
+                  gap = 10, children = {
                     { id = "title", kind = "text", width = 520, height = 44,
-                      text = sf2.localization.text(title) },
-                    { id = "viewport", kind = "scroll", width = 520, height = 360,
+                      text = sf2.localization.text(title), style = { font_size = 28 } },
+                    { id = "viewport", kind = "scroll", width = 520, height = 366,
                       children = {
-                        { id = "choices", kind = "grid", width = 498, height = 888,
-                          columns = 2, cell_width = 243, cell_height = 168,
-                          gap = 12, children = cells },
+                        { id = "choices", kind = "grid", width = 494,
+                          height = rows * CELL_H + (rows - 1) * GAP,
+                          columns = COLUMNS, cell_width = CELL_W, cell_height = CELL_H,
+                          gap = GAP, children = cells },
                       } },
-                    { id = "close", kind = "button", width = 520, height = 52,
+                    { id = "close", kind = "button", width = 520, height = 50,
                       text = sf2.localization.text(back) },
                   } },
             } },
@@ -64,14 +82,17 @@ local function open_selector()
     }
 end
 
+-- The chooser lives in the dojo menu, below the disciple toggle's slot. Earlier
+-- versions saved a map button into profiles; remove it at each session start.
+sf2.ui.dojo_button { id = "dojo_changer",
+    image = sf2.assets.sprite("sprites/dojo_changer/credits") }
+
 sf2.quests.register {
     id = "dojo_changer_map_button", place = "map", events = { "session" },
-    actions = { { type = "show_map_button", id = "dojo_changer",
-        image = sf2.assets.sprite("sprites/dojo_changer/credits"), x = 240, y = -650,
-        anchor_min_x = 0, anchor_max_x = 0, show_type = "both" } },
+    actions = { { type = "hide_map_button", id = "dojo_changer" } },
 }
 
-sf2.story.on("map_button", function(event)
+sf2.story.on("dojo_button", function(event)
     if event.button == "de128.dojo_changer" then open_selector() end
 end)
 

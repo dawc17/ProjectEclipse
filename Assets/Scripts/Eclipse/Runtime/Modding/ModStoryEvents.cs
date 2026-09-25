@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Eclipse.Modding
 {
     // Host transport only. No Lua emit operation or borrowed native objects.
-    public enum ModStoryEventKind { Purchase, Enchantment, LevelUp, SceneEnter, ItemAcquired, BattleResult, MapButton }
+    public enum ModStoryEventKind { Purchase, Enchantment, LevelUp, SceneEnter, ItemAcquired, BattleResult, MapButton, DojoButton }
 
     public sealed class ModBattleEquipmentSnapshot
     {
@@ -74,12 +74,12 @@ namespace Eclipse.Modding
                     throw new ArgumentException("Scene entry requires a supported destination and no item or recipe.");
             }
             else if (scene != null) throw new ArgumentException("Scene values require a scene entry notification.");
-            if (kind == ModStoryEventKind.MapButton)
+            if (kind == ModStoryEventKind.MapButton || kind == ModStoryEventKind.DojoButton)
             {
                 if (string.IsNullOrWhiteSpace(button) || item.HasValue || recipe.HasValue)
-                    throw new ArgumentException("Map button notification requires a button name and no item or recipe.");
+                    throw new ArgumentException("Button notification requires a button name and no item or recipe.");
             }
-            else if (button != null) throw new ArgumentException("Button names require a map button notification.");
+            else if (button != null) throw new ArgumentException("Button names require a map or dojo button notification.");
             if (kind == ModStoryEventKind.LevelUp)
             {
                 if (item.HasValue || recipe.HasValue || !previousLevel.HasValue || !level.HasValue ||

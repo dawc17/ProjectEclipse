@@ -16,6 +16,8 @@ namespace Eclipse.Rendering.Interpolation
 
 		private bool _initialized;
 
+		private double _pushStep = double.NaN;
+
 		public Vector3 CurrentPosition
 		{
 			get { return _currentPosition; }
@@ -47,6 +49,7 @@ namespace Eclipse.Rendering.Interpolation
 			_previousRotation = _currentRotation;
 			_currentPosition = position;
 			_currentRotation = rotation;
+			_pushStep = Time.fixedTimeAsDouble;
 			// Keep the Unity transform authoritative between simulation and LateUpdate.
 			// LateUpdate only substitutes the visible interpolated pose before rendering.
 			Apply(1f);
@@ -54,10 +57,18 @@ namespace Eclipse.Rendering.Interpolation
 
 		private void LateUpdate()
 		{
-			if (_initialized)
+			if (!_initialized) return;
+			// An object not pushed on the latest step (a one-off placement, a
+			// stopped follow effect or a paused fight) rests at its current pose
+			// instead of sweeping from the previous one every fixed interval.
+			if (_pushStep != Time.fixedTimeAsDouble)
 			{
-				Apply(FightInterpolation.CurrentAlpha);
+				_previousPosition = _currentPosition;
+				_previousRotation = _currentRotation;
+				Apply(1f);
+				return;
 			}
+			Apply(FightInterpolation.FightAlpha);
 		}
 
 		private void Apply(float alpha)

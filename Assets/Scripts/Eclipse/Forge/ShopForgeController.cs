@@ -769,11 +769,16 @@ namespace Eclipse.Forge
 		}
 
 		// Dock against the animated properties panel in its own coordinate space.
+		// The visible enchantment art is the side panel's Panel/InfoPanel child,
+		// which sits far left of the ItemPropertiesPanel root rect; docking to the
+		// root put the recipe drawer on top of it.
 		public void UpdateDrawerPosition()
 		{
 			if (!_isOpen || _drawer == null || _propertiesRoot == null) return;
 			RectTransform drawer = (RectTransform)_drawer.transform;
-			Vector3 left = _propertiesRoot.TransformPoint(new Vector3(_propertiesRoot.rect.xMin, 0f, 0f));
+			RectTransform visible = _propertiesRoot.Find("Panel/InfoPanel") as RectTransform;
+			if (visible == null) visible = _propertiesRoot;
+			Vector3 left = visible.TransformPoint(new Vector3(visible.rect.xMin, 0f, 0f));
 			Vector3 local = drawer.parent.InverseTransformPoint(left);
 			Vector3 position = drawer.localPosition;
 			position.x = local.x - drawer.rect.width;

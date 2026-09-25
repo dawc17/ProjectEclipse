@@ -33,6 +33,42 @@ namespace Eclipse.Rendering.Interpolation
 			}
 		}
 
+		private static double _drawStep = double.NaN;
+		private static double _fightStep = double.NaN;
+		private static double _cameraStep = double.NaN;
+
+		// Fight.Draw marks each fixed step it drives, then which subsystems
+		// actually advanced. During pause or hit-stop the frozen poses still hold
+		// unequal previous/current values; interpolating them would replay the
+		// last tick over and over, so a frozen subsystem is shown at its current pose.
+		public static void MarkDrawStep() { _drawStep = Time.fixedTimeAsDouble; }
+		public static void MarkFightStep() { _fightStep = Time.fixedTimeAsDouble; }
+		public static void MarkCameraStep() { _cameraStep = Time.fixedTimeAsDouble; }
+
+		// True when an active fight drove the latest fixed step.
+		private static bool FightDriven
+		{
+			get { return _drawStep == Time.fixedTimeAsDouble; }
+		}
+
+		// A fight is currently being simulated (it drove the latest fixed step).
+		public static bool IsFightActive
+		{
+			get { return FightDriven; }
+		}
+
+		// Alpha for fighters, effects and other fight-simulation presentation.
+		public static float FightAlpha
+		{
+			get { return FightDriven && _fightStep != _drawStep ? 1f : CurrentAlpha; }
+		}
+
+		// Alpha for the fight camera, which keeps running during hit-stop.
+		public static float CameraAlpha
+		{
+			get { return FightDriven && _cameraStep != _drawStep ? 1f : CurrentAlpha; }
+		}
+
 		public static float CalculateAlpha(double renderTime, double fixedTime, float fixedDeltaTime)
 		{
 			if (fixedDeltaTime <= 0f || double.IsNaN(renderTime) || double.IsNaN(fixedTime))

@@ -617,6 +617,8 @@ namespace Eclipse.Modding
                     node.SetAttribute("AnchorMaxX", mapButton.AnchorMaxX.ToString("R", CultureInfo.InvariantCulture));
                     node.SetAttribute("ShowType", mapButton.ShowType);
                     return node;
+                case ModQuestActionKind.HideMapButton:
+                    node = document.CreateElement("HideMapButton"); node.SetAttribute("Name", action.Name); return node;
                 default: throw new ModContentException("Unsupported committed quest action '" + action.Kind + "'.");
             }
         }

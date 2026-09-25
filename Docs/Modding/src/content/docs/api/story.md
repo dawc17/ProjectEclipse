@@ -48,11 +48,16 @@ names its button `<mod-id>.<id>`; check that exact name before opening UI or
 navigating. It requires an active profile and follows the same subscription
 lifetime and error rules as other story events.
 
+`dojo_button` observes a press of a button registered with
+[`sf2.ui.dojo_button`](../ui/#sf2uidojo_button). Its `button` field is the same
+`<mod-id>.<id>` name that registration returned. It requires an active profile
+and follows the same rules as `map_button`.
+
 Each callback receives a fresh detached table:
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`. |
+| `kind` | `purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `dojo_button`, `item_acquired` or `battle_result`. |
 | `item` | Qualified item ID, or `nil` when unavailable in the catalog. |
 | `recipe` | Enchantment recipe ID: owned `namespace:forge-recipes/id` or native `core:forge-profiles/id`. `nil` for purchases or unknown recipes. |
 | `previous_count` | Count before `item_acquired`; otherwise `nil`. |
@@ -60,7 +65,7 @@ Each callback receives a fresh detached table:
 | `previous_level` | Original integer level for `level_up`; otherwise `nil`. |
 | `level` | Final integer level for `level_up`; otherwise `nil`. |
 | `scene` | For `scene_enter`: `map`, `shop`, `profile`, `dojo` or `fight`. Otherwise `nil`. |
-| `button` | Native button name for `map_button`; otherwise `nil`. |
+| `button` | Button name for `map_button` and `dojo_button`; otherwise `nil`. |
 
 Level-up events have `nil` item and recipe fields. Their values are captured at
 the end of experience processing rather than at the purchase/forge quest boundary.
@@ -92,7 +97,7 @@ API for persistent progress. Losing a handle does not cancel its subscription.
 **When:** During mod loading or a callback while the script is active, including
 before a profile loads.
 
-**Requires:** `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`) and a Lua function.
+**Requires:** `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `dojo_button`, `item_acquired` or `battle_result`) and a Lua function.
 
 ```lua
 local sf2 = require("sf2")

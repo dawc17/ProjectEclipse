@@ -909,7 +909,7 @@ local DialogLine = {}
 ---@class (exact) Eclipse.DialogButton
 ---@field text string
 ---@field color? string
----@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]
+---@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_hide_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]
 local DialogButton = {}
 
 ---@class (exact) Eclipse.Action_show_battle
@@ -958,6 +958,11 @@ local Action_give_item = {}
 ---@field value string
 local Action_set_variable = {}
 
+---@class (exact) Eclipse.Action_hide_map_button
+---@field type "hide_map_button"
+---@field id string
+local Action_hide_map_button = {}
+
 ---@class (exact) Eclipse.Action_show_map_button
 ---@field type "show_map_button"
 ---@field id string
@@ -992,7 +997,7 @@ local Action_story = {}
 ---@field marks? string[]
 ---@field events ("session"|"activate"|"fight_enter"|"fight_end"|"raid_fight_enter"|"raid_fight_end"|"raid_enter"|"raid_end"|"reset_mode"|"raid_map_enter"|"raid_floor_changed"|"show_raid_loot"|"level_up"|"got_item"|"set_item_acquired"|"purchase"|"delivery"|"timer_end"|"enchantment"|"activate_perk"|"deactivate_perk"|"dialog"|"map_button"|"scene_loaded"|"shop_enter")[]
 ---@field conditions? (Eclipse.Comparison|Eclipse.ConditionGroup)[]
----@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]
+---@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_hide_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]
 local QuestDefinition = {}
 
 ---@class (exact) Eclipse.SetMember
@@ -1179,7 +1184,7 @@ local BattleEquipmentSnapshot = {}
 local StorySubscription = {}
 
 ---@class (exact) Eclipse.StoryEvent
----@field kind "purchase"|"enchantment"|"level_up"|"scene_enter"|"map_button"|"item_acquired"|"battle_result"
+---@field kind "purchase"|"enchantment"|"level_up"|"scene_enter"|"map_button"|"dojo_button"|"item_acquired"|"battle_result"
 ---@field fight? string
 ---@field outcome? "win"|"loss"|"surrender"|"raid_timeout"|"raid_round_timeout"
 ---@field eclipse? boolean
@@ -1930,6 +1935,11 @@ local StoryDialogLine = {}
 ---@field on_complete? fun()
 ---@field on_cancel? fun()
 local StoryDialogDefinition = {}
+
+---@class (exact) Eclipse.DojoButtonDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; qualified as modid.id in click events.
+---@field image Eclipse.SpriteHandle
+local DojoButtonDefinition = {}
 
 ---@class (exact) Eclipse.QuestSuppression
 ---@field target string
@@ -2894,11 +2904,11 @@ function story.fight_pending(request) end
 ---@return boolean
 function story.play_sequence(definition) end
 
----Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`) and a Lua function.
+---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `dojo_button`, `item_acquired` or `battle_result`) and a Lua function.
 ---When: During mod loading or a callback while the script is active, including before a profile loads.
 ---Returns: An opaque subscription handle.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon)
----@param event "purchase"|"enchantment"|"level_up"|"scene_enter"|"map_button"|"item_acquired"|"battle_result"
+---@param event "purchase"|"enchantment"|"level_up"|"scene_enter"|"map_button"|"dojo_button"|"item_acquired"|"battle_result"
 ---@param callback fun(event: Eclipse.StoryEvent)
 ---@return Eclipse.StorySubscription
 function story.on(event, callback) end
@@ -3257,6 +3267,14 @@ function ui.set_visible(view, widget_id, visible) end
 ---@param widget_id string
 ---@param enabled boolean
 function ui.set_enabled(view, widget_id, enabled) end
+
+---Requires: `content.register`. `id` (required) is 1–64 lowercase ASCII letters, digits, `_` or `-`, unique within the mod. `image` (required) is a sprite handle from `sf2.assets.sprite`; the button uses the sprite's size, scaled down if it would be larger than the disciple button. A mod can register at most 4 dojo buttons. Nothing is saved to the profile: removing the mod or the registration removes the button. React to clicks with [`sf2.story.on("dojo_button", ...)`](../story/#sf2storyon), which needs `story.events`.
+---When: During loading, like other registrations. The button is added to the game's side menu whenever the dojo is the current screen. It sits below the disciple button's slot, whether or not the player has unlocked the disciple yet. Buttons from several mods stack downward in load order.
+---Returns: The button's qualified name, `<mod-id>.<id>`, as a string.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/ui/#sf2uidojo_button)
+---@param definition Eclipse.DojoButtonDefinition
+---@return string
+function ui.dojo_button(definition) end
 
 ---Requires: `content.patch`. The target must already be registered in your mod or an explicitly declared dependency. Declare `core` when targeting base quests.
 ---When: During registration, before the mod entrypoint returns. Changes take effect through Apply & Restart, before saved quests resume.

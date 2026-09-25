@@ -312,7 +312,7 @@ The indexer follows the runtime's safe dotted module-name form and visits each
 resolved module once. Dynamic requires and missing/unresolvable modules are not
 guessed, and unrelated scripts that are never required are not indexed.
 
-Adds typed UI style fields. Defaults reuse the game font, parchment, beveled buttons and combat bar textures; styles provide limited explicit overrides. A menu or modal root stack can set `style = { frame = "scroll" }` for the recovered rolled-paper frame and a visible scrollbar on its vertical scroll widget.
+Adds typed UI style fields. Defaults reuse the game font, parchment, beveled buttons and combat bar textures; styles provide limited explicit overrides. A menu or modal root stack can set `style = { frame = "scroll" }` for the recovered profile rolled-paper frame and the shop/profile desktop scrollbar on its vertical scroll widget. Scroll widgets use the game's elastic, inertial list scrolling.
 
 Adds mode/event/raid `on_result` completion and result types. The `templates/branching-trial` starter demonstrates saved alternating routes with original game assets.
 
@@ -379,6 +379,10 @@ describe the Lua contract. `show_map_button.image` accepts a sprite handle for
 mod artwork or an installed native `Textures/` path.
 Running `show_map_button` again with the same ID updates a saved button's
 presentation, so placement changes also apply to existing profiles.
+`hide_map_button` removes a mod's saved map button by the same ID.
+`ui.dojo_button { id, image }` registers a dojo-menu button below the disciple
+slot and returns its `<mod-id>.<id>` name; `story.on` accepts `dojo_button` for
+its clicks.
 
 Adds profile.level(), profile.item(ItemHandle) and ProfileItemSnapshot
 completion, plus profile.read capability diagnostics. See Player profile queries

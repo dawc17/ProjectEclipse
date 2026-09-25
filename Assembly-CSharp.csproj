@@ -272,6 +272,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionCheckPoint.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\HintPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AchievementInfo.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\RimLight.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UIFigures\UIRoundRect.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkEventAnimationStart.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\-PrivateImplementationDetails--f198b91c-f2c5-4211-a0cf-3cd1cbc59e09-\ArrayCopy1152.cs" />
@@ -506,6 +507,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\Core\Fights\ModelContainer.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Profile\SubItem.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionSessionSettings.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\WeaponTrail.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\RewardCurrency.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionHideMapButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\SFScrollRect.cs" />
@@ -524,6 +526,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\HotGroundRule.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Rendering\Interpolation\CameraRenderInterpolationDriver.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\PerkConditionCurrentInterval.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\Interpolation\TickPresentationSmoother.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UserItem.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\FightHolder.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ActionEffect.cs" />
@@ -532,6 +535,8 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\Recipe.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\UIFigures\UICircle.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Sequence.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\ModelPresentation.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\LocationAtmosphere.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\AchievementsController.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\MapButton.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionMenuBtnFlashing.cs" />
@@ -823,6 +828,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\FileDownloader.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Vector3f.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MELBIBHDPCE.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\UI\ModDojoButtons.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Map\MapButtonsPanel.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Nekki\SF2\GUI\Shop\ButtonPanel.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Modding\MoonSharpScriptRuntime.cs" />
@@ -1344,6 +1350,7 @@
     <None Include="Assets\vanillaXml\quest_extensions\raid_quests.xml" />
     <None Include="Assets\Resources\shaders\unlit - transparent grayscale colored 3.shader" />
     <None Include="Assets\Resources\gamedata\list.txt" />
+    <None Include="Assets\Resources\shaders\EclipseScreenEffects.shader" />
     <None Include="Assets\DExml\locations\capsules\capsules_params.xml" />
     <None Include="Assets\vanillaXml\locations\chess_yard\chess_yard_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_saturn_blade_xml.txt" />

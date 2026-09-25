@@ -15,7 +15,7 @@ namespace Eclipse.Modding
     public enum ModQuestActionKind
     {
         Dialog, StoryScreen, SetUserVariable, ShowBattle, ToggleBattle, SetMapFocus, StartFight,
-        StartCurrentFight, ToggleEclipseMode, UpdateEclipseBattles, GiveItem, ShowMapButton
+        StartCurrentFight, ToggleEclipseMode, UpdateEclipseBattles, GiveItem, ShowMapButton, HideMapButton
     }
     public enum ModQuestActionPlace { Map, Fight, Dojo }
 
@@ -161,6 +161,9 @@ namespace Eclipse.Modding
         public static ModQuestAction ShowMapButton(ModQuestMapButton button) =>
             new ModQuestAction(ModQuestActionKind.ShowMapButton, null, null, null, null, false,
                 default(DefinitionId), false, null, mapButton: button);
+        public static ModQuestAction HideMapButton(string name) =>
+            new ModQuestAction(ModQuestActionKind.HideMapButton, name, null, null, null, false,
+                default(DefinitionId), false, null);
     }
 
     public sealed class QuestDefinition
@@ -325,6 +328,9 @@ namespace Eclipse.Modding
                     throw new ModContentException("Quest dialog button requires at least one action.");
                 for (int i = 0; i < action.Button.Actions.Count; i++) ValidateQuestAction(action.Button.Actions[i], depth + 1);
             }
+            if (action.Kind == ModQuestActionKind.HideMapButton &&
+                (string.IsNullOrWhiteSpace(action.Name) || !action.Name.StartsWith(Mod.Id.Value + ".", StringComparison.Ordinal)))
+                throw new ModContentException("HideMapButton requires one of this mod's map button names.");
             if (action.Kind == ModQuestActionKind.SetUserVariable && string.IsNullOrWhiteSpace(action.Name))
                 throw new ModContentException("SetUserVariable requires a name.");
             if (action.Kind == ModQuestActionKind.ShowMapButton)

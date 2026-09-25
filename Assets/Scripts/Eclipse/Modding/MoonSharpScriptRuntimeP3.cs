@@ -45,6 +45,7 @@ namespace Eclipse.Modding
                     else if(name=="item_acquired")kind=ModStoryEventKind.ItemAcquired;
                     else if(name=="battle_result")kind=ModStoryEventKind.BattleResult;
                     else if(name=="map_button")kind=ModStoryEventKind.MapButton;
+                    else if(name=="dojo_button")kind=ModStoryEventKind.DojoButton;
                     else throw new ModContentException("Unsupported story event: "+name);
                     var callback=args.AsType(1,function,DataType.Function,false);
                     if(_disposed || _storyScope==null)throw new ModContentException("Story subscriptions are unavailable.");

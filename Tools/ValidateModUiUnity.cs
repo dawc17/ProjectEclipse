@@ -102,8 +102,8 @@ public static class ValidateModUiUnity
             surface.SetEnabled("root",false);
             Check(!view.MoveFocus(1) && !surface.TryClick("button"), "Disabled ancestor accepted input");
             surface.SetEnabled("root",true); view.MoveFocus(1);
-            var scroll = view.transform.Find("root/scroll").GetComponent<ScrollRect>();
-            Check(scroll.content != null && scroll.viewport.GetComponent<RectMask2D>() != null && !scroll.horizontal,
+            var scroll = view.transform.Find("root/scroll").GetComponent<Nekki.SF2.GUI.SFScrollRect>();
+            Check(scroll.get_content() != null && scroll.get_viewport().GetComponent<RectMask2D>() != null && !scroll.get_horizontal(),
                 "Scroll hierarchy/clipping missing");
             surface.Close();
             Check(!view.gameObject.activeSelf && events.currentSelectedGameObject == prior, "Close did not hide/restore focus immediately");
@@ -116,7 +116,7 @@ public static class ValidateModUiUnity
             gridSurface.SetInputAllowed(true);
             var gridView = ModUiView.Attach(gridSurface, canvas.GetComponent<RectTransform>());
             Canvas.ForceUpdateCanvases();
-            var gridScroll = gridView.GetComponentInChildren<ScrollRect>();
+            var gridScroll = gridView.GetComponentInChildren<Nekki.SF2.GUI.SFScrollRect>();
             var gridLayout = gridView.GetComponentInChildren<GridLayoutGroup>();
             var firstCell = gridLayout.transform.Find("cell0").GetComponent<RectTransform>();
             var secondCell = gridLayout.transform.Find("cell1").GetComponent<RectTransform>();
@@ -130,14 +130,14 @@ public static class ValidateModUiUnity
             Check(gridView.MoveFocus(1) && events.currentSelectedGameObject == firstCell.gameObject,"Grid first focus failed");
             Check(gridView.MoveFocus(1) && events.currentSelectedGameObject == thirdCell.gameObject,"Grid focus did not skip disabled cell");
             gridView.MoveFocus(1); gridView.MoveFocus(1);
-            Check(events.currentSelectedGameObject.name == "cell4" && gridScroll.content.anchoredPosition.y > 0,
+            Check(events.currentSelectedGameObject.name == "cell4" && gridScroll.get_content().anchoredPosition.y > 0,
                 "Keyboard focus did not reveal lower grid row");
             Check(gridView.ActivateSelected(),"Grid selected button did not activate");
             Check(gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell5", "Grid right did not follow row");
             Check(!gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell5", "Grid right wrapped at edge");
             Check(gridView.NavigateFocus(0,-1) && events.currentSelectedGameObject.name == "cell3", "Grid up did not follow column");
             Check(gridView.NavigateFocus(-1,0) && events.currentSelectedGameObject.name == "cell2", "Grid left did not follow row");
-            Check(gridView.NavigateFocus(0,-1) && events.currentSelectedGameObject.name == "cell0" && gridScroll.content.anchoredPosition.y == 0,
+            Check(gridView.NavigateFocus(0,-1) && events.currentSelectedGameObject.name == "cell0" && gridScroll.get_content().anchoredPosition.y == 0,
                 "Grid up did not reveal first row");
             Check(!gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell0", "Grid entered disabled neighbor or jumped rows");
             gridSurface.SetEnabled("cell1",true);
@@ -420,7 +420,7 @@ public static class ValidateModUiUnity
             button("disable").onClick.Invoke();
             for(int i=0;i<25&&EventSystem.current.currentSelectedGameObject!=button("item_12").gameObject;i++)view.MoveFocus(1);
             Check(EventSystem.current.currentSelectedGameObject==button("item_12").gameObject,"Grid lower-row keyboard reachability");
-            Check(view.GetComponentInChildren<ScrollRect>().content.anchoredPosition.y>0,"Grid lower row not revealed");
+            Check(view.GetComponentInChildren<Nekki.SF2.GUI.SFScrollRect>().get_content().anchoredPosition.y>0,"Grid lower row not revealed");
             Check(view.ActivateSelected(),"Grid keyboard activation");
             Check(view.GetComponentsInChildren<Text>().Any(t=>t.text=="Selected: Nunchaku"),"Grid keyboard label");
             button("close").onClick.Invoke();Check(surface.IsClosed,"Grid BACK did not close");

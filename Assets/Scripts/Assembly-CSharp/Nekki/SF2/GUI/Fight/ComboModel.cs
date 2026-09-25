@@ -112,6 +112,9 @@ namespace Nekki.SF2.GUI.Fight
 			}
 			ComboItem component = Object.Instantiate(_comboItemPrefab).GetComponent<ComboItem>();
 			component.Init(LFLGCDNKNJI, CHNAJMLHHPI);
+			// Labels slide 30 units per tick; show the slide smoothly between ticks.
+			Eclipse.Rendering.Interpolation.TickPresentationSmoother.AttachPosition(component.gameObject,
+				Eclipse.Rendering.Interpolation.TickPresentationSmoother.Clock.Camera);
 			return component;
 		}
 

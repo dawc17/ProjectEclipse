@@ -254,28 +254,32 @@ namespace Eclipse.UI
         {
             Clear(tab);
             Label(page, "Options", 76, 96, 550, 64, 46, Ink);
-            string[] tabs = { "Display", "Controls", "Controller", "Audio", "Accessibility" };
+            string[] tabs = SettingsTabs;
             for (int i = 0; i < tabs.Length; i++)
             {
                 string target = tabs[i];
-                var button = Button(page, target, 76 + i * 224, 180, 216, 48, () => { if (currentPage != target) Settings(target); });
+                var button = Button(page, target, 76 + i * 188, 180, 180, 48, () => { if (currentPage != target) Settings(target); });
                 if (tab == target) { var tint = button.colors; tint.normalColor = Red; button.colors = tint; }
             }
             if (tab == "Display")
             {
-                Row("Window mode", () => mode == FullScreenMode.Windowed ? "Windowed" : "Borderless fullscreen", 260, () =>
+                Row("Window mode", () => mode == FullScreenMode.Windowed ? "Windowed" : "Borderless fullscreen", 244, () =>
                 { mode = mode == FullScreenMode.Windowed ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed; });
-                Row("Resolution", () => resolution.x + " x " + resolution.y, 318, () =>
+                Row("Resolution", () => resolution.x + " x " + resolution.y, 296, () =>
                 { resolution = resolutions[(resolutions.IndexOf(resolution) + 1) % resolutions.Count]; });
-                Row("Frame limit", () => SF2DisplayFrameRate.MaxFrameRate == 0 ? "Display / VSync" : SF2DisplayFrameRate.MaxFrameRate + " FPS", 376, () =>
+                Row("Frame limit", () => SF2DisplayFrameRate.MaxFrameRate == 0 ? "Display / VSync" : SF2DisplayFrameRate.MaxFrameRate + " FPS", 348, () =>
                 { SF2DisplayFrameRate.SetMaxFrameRate(Caps[(Array.IndexOf(Caps, SF2DisplayFrameRate.MaxFrameRate) + 1) % Caps.Length]); });
-                Row("Frame interpolation", () => OnOff(SF2DisplayFrameRate.InterpolationEnabled), 434, () =>
+                Row("Frame interpolation", () => OnOff(SF2DisplayFrameRate.InterpolationEnabled), 400, () =>
                 { SF2DisplayFrameRate.ToggleInterpolation(); });
-                Row("Motion blur", () => OnOff(SF2DisplayFrameRate.MotionBlurEnabled), 492, () =>
+                Row("Motion blur", () => OnOff(SF2DisplayFrameRate.MotionBlurEnabled), 452, () =>
                 { SF2DisplayFrameRate.ToggleMotionBlur(); });
-                var apply = Button(page, "Apply display", 852, 568, 340, 48, ApplyDisplay);
+                Row("Anti-aliasing", () => SF2DisplayFrameRate.AntiAliasingLabel(SF2DisplayFrameRate.AntiAliasing), 504, () =>
+                { SF2DisplayFrameRate.CycleAntiAliasing(); });
+                Row("Background depth", () => SF2DisplayFrameRate.BackgroundDepthEnabled ? "Enhanced" : "Original", 556, () =>
+                { SF2DisplayFrameRate.ToggleBackgroundDepth(); });
+                var apply = Button(page, "Apply display", 852, 612, 340, 48, ApplyDisplay);
                 apply.interactable = !Application.isMobilePlatform;
-                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately.", 76, 544, 1120, 24, 15, Ink);
+                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately.", 76, 612, 740, 48, 15, Ink);
             }
             else if (tab == "Accessibility")
             {
@@ -288,6 +292,16 @@ namespace Eclipse.UI
                     if (dojo != null) dojo.fight.RefreshControllerLayout();
                 });
                 Label(page, "0% disables the effect. 100% restores the original intensity. Changes save immediately.", 76, 550, 1120, 40, 17, Ink);
+            }
+            else if (tab == "Experimental")
+            {
+                ExperimentalRow("Weapon trails", ExperimentalVisuals.Feature.WeaponTrails, 244);
+                ExperimentalRow("Depth haze", ExperimentalVisuals.Feature.DepthHaze, 296);
+                ExperimentalRow("Rim light", ExperimentalVisuals.Feature.RimLight, 348);
+                ExperimentalRow("Bloom", ExperimentalVisuals.Feature.Bloom, 400);
+                ExperimentalRow("Ambient particles", ExperimentalVisuals.Feature.AmbientParticles, 452);
+                ExperimentalRow("Impact effects", ExperimentalVisuals.Feature.ImpactEffects, 504);
+                Label(page, "Experimental fight visuals. They change the original look and may be adjusted or removed. Changes save immediately.", 76, 566, 1120, 48, 15, Ink);
             }
             else if (tab == "Audio")
             {
@@ -412,6 +426,13 @@ namespace Eclipse.UI
         }
 
         private static string OnOff(bool value) { return value ? "On" : "Off"; }
+
+        private static readonly string[] SettingsTabs = { "Display", "Controls", "Controller", "Audio", "Accessibility", "Experimental" };
+
+        private void ExperimentalRow(string name, ExperimentalVisuals.Feature feature, float y)
+        {
+            Row(name, () => OnOff(ExperimentalVisuals.Get(feature)), y, () => ExperimentalVisuals.Toggle(feature));
+        }
 
         private void ApplyDisplay()
         {
@@ -540,7 +561,7 @@ namespace Eclipse.UI
             rebuilding = false;
             if (controls.Count > 0)
             {
-                int tabIndex = Array.IndexOf(new[] { "Display", "Controls", "Controller", "Audio", "Accessibility" }, currentPage);
+                int tabIndex = Array.IndexOf(SettingsTabs, currentPage);
                 selected = Mathf.Max(0, tabIndex);
                 controls[selected].Select();
             }

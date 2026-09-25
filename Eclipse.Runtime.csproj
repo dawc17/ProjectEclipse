@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentShopPrices.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModWarriorTemplates.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModRuleGroups.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModDojoButtons.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\SF2DisplayFrameRate.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\VersionRange.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModPurchaseLedger.cs" />
@@ -74,6 +75,8 @@
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModContentP1D.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModDiagnostics.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\MotionBlur\SF2MotionBlur.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\ExperimentalVisuals.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Runtime\Presentation\EclipseScreenEffects.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModSaveData.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModStoryEvents.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Runtime\Modding\ModFightEntry.cs" />

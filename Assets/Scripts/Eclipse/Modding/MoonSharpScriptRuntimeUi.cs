@@ -53,6 +53,15 @@ namespace Eclipse.Modding
                     UiHandle(args, "sf2.ui.set_enabled").SetEnabled(UiString(args, 1, "sf2.ui.set_enabled"), UiArgument(args,2,DataType.Boolean,"sf2.ui.set_enabled").Boolean);
                     return DynValue.Nil;
                 })));
+                ui.Set("dojo_button", DynValue.NewCallback((ctx, args) => ApiCall("sf2.ui.dojo_button", () => {
+                    const string function = "sf2.ui.dojo_button";
+                    Table table = args.AsType(0, function, DataType.Table, false).Table;
+                    ValidateFields(table, function, "id", "image");
+                    string id = ReadButtonId(table, function);
+                    ModDojoButton button = _api.RegisterDojoButton(id,
+                        RequiredHandle(table, "image", _spriteHandles, "sprite", function));
+                    return DynValue.NewString(button.Name);
+                })));
                 root.Set("ui", DynValue.NewTable(ui));
             }
 

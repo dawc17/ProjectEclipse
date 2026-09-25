@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.40.2**. Step 74 restores four archived campaign recordings across 18 existing fights. Step 73 adds the ten-choice dojo changer. Step 72 packages the 29 music ids used by every archived Underworld battle so those encounters no longer request base-game substitute tracks. Step 71 restores the archived Complex forge pool split and Simple aspect deviation without changing shared prices. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in both Underworld modes; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.41.0**. The dojo chooser button moves into the dojo menu (0.41.0) after its restyle (0.40.3). Step 74 restores four archived campaign recordings across 18 existing fights. Step 73 adds the ten-choice dojo changer. Step 72 packages the 29 music ids used by every archived Underworld battle so those encounters no longer request base-game substitute tracks. Step 71 restores the archived Complex forge pool split and Simple aspect deviation without changing shared prices. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in both Underworld modes; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -4335,3 +4335,51 @@ sprite descriptors with their source files. The public UI schema, LuaLS
 definitions, wiki and native acceptance were updated with the reusable frame
 and scrolling contract. The target Unity 2022.3.62f3 editor and an interactive
 playtest at the player's resolution remain unavailable.
+
+### Dojo chooser restyle (0.40.3, 2026-09-25)
+
+Player screenshots of 0.40.2 showed small medallions in a sparse two-column
+grid, a stretched rectangular India 2024 image, a hexagonal button backing on
+the current dojo, and an opaque band around the frame's paper sides. The owner
+medallions keep a 612 px disc inside 1024 px of transparent padding, so their
+sprite descriptors now crop `rect=[198, 208, 617, 617]`; the PNGs remain exact
+owner copies. The reviewed drop still has no India 2024 medallion, so
+`Tools/ExtractDE128DojoPreviewArt.py` synthesizes one: the India I medallion
+frame with the India 2024 raid preview drawn into its inner window. It also
+generates the gold selection halo. Both are deterministic and covered by
+`--check`.
+
+The chooser shows three medallions per row with their archived localized
+names. Each cell is a transparent button; the current dojo gets the halo and a
+gold caption. The shared UI scroll frame now follows the recovered profile
+scroll: the paper covers only the root, its torn sides hang outside and the
+rolls overlap the top and bottom, so no parchment or colour is drawn behind the
+side and roll cut-outs. Scroll widgets use the recovered `SFScrollRect` with the
+TableView settings used by the shop and profile (elastic, inertia 0.135,
+wheel step), and framed scrolls get the same `DesktopScrollbars` bar.
+
+Verification: the foundation checks cover the 76-widget layout, localized
+captions, halo visibility and the crop descriptors; managed compilation passed.
+The target Unity 2022.3.62f3 editor and an interactive playtest at the
+player's resolution remain unavailable.
+
+### Dojo chooser button in the dojo (0.41.0, 2026-09-25)
+
+At the owner's request the paintbrush now lives in the dojo, not on the story
+map. Eclipse gained two generic API pieces for this. `sf2.ui.dojo_button`
+registers a presentation-only button in each scene's main menu. It is visible
+whenever the dojo is the current screen, sits below the disciple toggle's slot
+whether or not the disciple is unlocked, and reports clicks through a new
+`dojo_button` story event. The `hide_map_button` quest action wraps the native
+`HideMapButton`. DE128's session quest now runs it, so profiles that saved the
+0.39–0.40 map button lose it. Choosing a dojo while already in the dojo reloads
+the scene: `sf2.scenes.open("dojo")` now reloads when the saved choice resolves
+to a different location than the loaded one, using the same native transition
+as the disciple toggle.
+
+Verification: the foundation checks cover the dojo button registration, the
+cleanup action, and opening/selecting through a `dojo_button` event. Managed
+compilation and the editor generate/check/test passed. `Tools/ValidateDE128DojoNative.cs`
+still exercises the retired map-button placement and needs a rewrite for the
+dojo menu before it is run again. It was not run, and neither was an
+in-game playtest.

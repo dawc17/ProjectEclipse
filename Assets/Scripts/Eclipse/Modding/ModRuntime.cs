@@ -630,7 +630,8 @@ namespace Eclipse.Modding
                 current != ScreenType.ModuleProfile && current != ScreenType.ModuleDojo) return false;
             if (module.BOHBCFMJPCA() == null || module.NMCNDOPKFJD() != current ||
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != (int)current) return false;
-            if (current == target) return true;
+            // Reopening the dojo reloads it when its location choice changed.
+            if (current == target && !(target == ScreenType.ModuleDojo && global::Location.DojoSelectionChanged())) return true;
             _sceneNavigationInProgress = true;
             try
             {
@@ -1102,6 +1103,16 @@ namespace Eclipse.Modding
             if (_profileRoster == null || StoryEvents.ProfileGeneration != profileGeneration ||
                 !StoryEvents.HasSubscribers(ModStoryEventKind.SceneEnter)) return;
             StoryEvents.Publish(new ModStoryEvent(ModStoryEventKind.SceneEnter, null, scene: scene));
+        }
+
+        internal static IReadOnlyList<ModDojoButton> DojoButtons =>
+            _scripts?.Content?.DojoButtons ?? (IReadOnlyList<ModDojoButton>)Array.Empty<ModDojoButton>();
+
+        internal static void PublishDojoButton(string name)
+        {
+            if (_profileRoster == null || string.IsNullOrEmpty(name) ||
+                !StoryEvents.HasSubscribers(ModStoryEventKind.DojoButton)) return;
+            StoryEvents.Publish(new ModStoryEvent(ModStoryEventKind.DojoButton, null, button: name));
         }
 
         internal static void PublishLevelUp(Roster roster, int previousLevel, int profileGeneration)

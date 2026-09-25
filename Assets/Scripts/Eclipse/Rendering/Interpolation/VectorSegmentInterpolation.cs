@@ -14,6 +14,11 @@ namespace Eclipse.Rendering.Interpolation
 
 		public void Sample(Vector3 rawStart, Vector3 rawEnd, out Vector3 start, out Vector3 end)
 		{
+			Sample(rawStart, rawEnd, FightInterpolation.FightAlpha, out start, out end);
+		}
+
+		public void Sample(Vector3 rawStart, Vector3 rawEnd, float alpha, out Vector3 start, out Vector3 end)
+		{
 			if (!_initialized)
 			{
 				_previousStart = _currentStart = rawStart;
@@ -28,7 +33,6 @@ namespace Eclipse.Rendering.Interpolation
 				_currentEnd = rawEnd;
 			}
 
-			float alpha = FightInterpolation.CurrentAlpha;
 			start = Vector3.LerpUnclamped(_previousStart, _currentStart, alpha);
 			end = Vector3.LerpUnclamped(_previousEnd, _currentEnd, alpha);
 		}

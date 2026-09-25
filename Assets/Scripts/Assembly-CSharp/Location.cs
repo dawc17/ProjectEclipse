@@ -124,8 +124,24 @@ public class Location
 	public static string ResolveEntryLocation(BattleType type, string encounterLocation)
 	{
 		if (type != BattleType.FightNone) return encounterLocation;
+		_loadedDojoEncounter = encounterLocation;
+		return _loadedDojo = ResolveDojo(encounterLocation);
+	}
+
+	private static string _loadedDojo;
+	private static string _loadedDojoEncounter;
+
+	private static string ResolveDojo(string encounterLocation)
+	{
 		string fallback = !string.IsNullOrWhiteSpace(GameUtils.NIPABEEAMHJ) ? GameUtils.NIPABEEAMHJ : encounterLocation;
 		return Eclipse.Modding.ModRuntime.ResolveDojoLocation(fallback);
+	}
+
+	// True when the dojo choice now resolves to a different location than the
+	// one the current dojo scene loaded, so reopening the dojo must reload it.
+	public static bool DojoSelectionChanged()
+	{
+		return _loadedDojo != null && ResolveDojo(_loadedDojoEncounter) != _loadedDojo;
 	}
 
 	public Location(string JLEKBBJBLOE, string FGCHEGMCGPD, bool preferCustomLayout = false)

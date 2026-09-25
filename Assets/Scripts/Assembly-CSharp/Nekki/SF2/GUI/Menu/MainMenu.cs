@@ -705,6 +705,7 @@ namespace Nekki.SF2.GUI.Menu
 			{
 				return;
 			}
+			Eclipse.UI.ModDojoButtons.Update(btnDojoDisciple.transform as RectTransform, screen == ScreenType.ModuleDojo);
 			Roster roster = ListSF.CCDKHLAMKKO();
 			bool unlocked = roster != null && roster.FJGCOOAACLD("ShowDojoDisciple") &&
 				roster.GetSettingsXML("ShowDojoDisciple") != "0";

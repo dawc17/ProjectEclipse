@@ -111,7 +111,7 @@ $sources = @(
  'Assets/Scripts/Eclipse/Runtime/Modding/ModWarriorTemplates.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModSaveData.cs','Assets/Scripts/Eclipse/Runtime/Modding/CoreContentImporter.cs',
  'Assets/Scripts/Eclipse/Runtime/Modding/CoreContentImporterP1C.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModContent.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1B.cs',
  'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1C.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModContentShopPrices.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModContentP2.cs',
- 'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP3.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModSelection.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModLocalizationLoader.cs',
+ 'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP3.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModDojoButtons.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModSelection.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModLocalizationLoader.cs',
  'Assets/Scripts/Eclipse/Runtime/Modding/ModMovePerkLocks.cs',
  'Assets/Scripts/Eclipse/Runtime/Modding/ModTrialRules.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeUi.cs',
  'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeShortForm.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP2.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP3.cs','Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeFightEntry.cs',

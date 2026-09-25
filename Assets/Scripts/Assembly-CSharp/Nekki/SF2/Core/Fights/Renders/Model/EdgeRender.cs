@@ -9,6 +9,10 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 
 		private LineRenderer _Line;
 
+		private Eclipse.Rendering.ModelPresentation _Presentation;
+
+		private bool _PresentationResolved;
+
 		public ModelEdge EDPCJALFPLE
 		{
 			set
@@ -41,7 +45,12 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 
 		private void Update()
 		{
-			float alpha = FightInterpolation.CurrentAlpha;
+			if (!_PresentationResolved)
+			{
+				_Presentation = GetComponentInParent<Eclipse.Rendering.ModelPresentation>();
+				_PresentationResolved = true;
+			}
+			float alpha = Eclipse.Rendering.ModelPresentation.AlphaFor(_Presentation);
 			float x;
 			float y;
 			float z;

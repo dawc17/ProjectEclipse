@@ -2547,7 +2547,7 @@ namespace Eclipse.Modding
             _ranged.Count + _magic.Count + _itemRedirects.Count + _shopListings.Count + _perks.Count +
             _enchantments.Count + _behaviors.Count + _zones.Count + _battles.Count + _fights.Count +
             _warriors.Count + _fightRules.Count + _rewards.Count + _localizationPatches.Count + _fightPatches.Count +
-            _collectionPatches.Count + WarriorTemplateRegistrationCount + P1CRegistrationCount + P1BRegistrationCount + P1DRegistrationCount + _modes.Count + _timers.Count + _disabledFeatures.Count + _counters.Count + _achievements.Count + _replacements.Count;
+            _collectionPatches.Count + WarriorTemplateRegistrationCount + P1CRegistrationCount + P1BRegistrationCount + P1DRegistrationCount + DojoButtonRegistrationCount + _modes.Count + _timers.Count + _disabledFeatures.Count + _counters.Count + _achievements.Count + _replacements.Count;
 
         internal ModRegistrationTransaction(ModContentCatalog catalog, ModDescriptor mod)
         {
@@ -3431,6 +3431,7 @@ namespace Eclipse.Modding
             ApplyP1DCommit();
             ApplyP2Commit();
             ApplyP3Commit();
+            ApplyDojoButtonCommit();
             _completed = true;
             ClearPending();
         }
@@ -3732,6 +3733,7 @@ namespace Eclipse.Modding
             ClearP1CPending();
             ClearP1BPending();
             ClearP1DPending();
+            ClearDojoButtonPending();
             ClearP2Pending();
             ClearP3Pending();
         }

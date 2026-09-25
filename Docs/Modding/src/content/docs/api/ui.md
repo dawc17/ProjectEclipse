@@ -70,11 +70,12 @@ Each node is a table:
 | `style` | Game defaults | Optional style table; see below. |
 
 Rows and columns lay out their children in order; stacks center their children.
-Scroll is vertical with clipped content. A root stack can request the original
-game scroll frame with `style = { frame = "scroll" }` on a menu or modal;
-leave space inside it for the rolled ends and paper edges. A scroll widget
-inside that frame shows a draggable scrollbar as well as supporting mouse-wheel,
-drag and keyboard/controller focus scrolling. Default labels use the game font with
+Scroll is vertical with clipped content. It uses the game's own list scrolling,
+as in the shop and profile: drag with inertia, elastic edges that spring back,
+mouse-wheel steps and keyboard/controller focus scrolling. A root stack can
+request the original game scroll frame with `style = { frame = "scroll" }` on a
+menu or modal. A scroll widget inside that frame also shows the same desktop
+scrollbar as the shop and profile lists, hidden when its content fits. Default labels use the game font with
 a fallback. Menu/modal surfaces use the original parchment background; buttons
 use the native white beveled sprite and native button tints. Progress bars use
 the recovered combat bar textures. HUD roots stay transparent. Keep custom UI
@@ -257,7 +258,7 @@ They affect presentation only; they do not enable rich text or change input rule
 | `text_color` | Native dark text on parchment/buttons; pale gold on HUD labels | Text/buttons/toggles. |
 | `background_color` | Native sprite colors | Containers, buttons, toggles, progress and slider tracks. Use a container behind text. |
 | `fill_color` | Native combat bar colors | Progress widgets and sliders. |
-| `frame` | No extra frame | `scroll` on a menu/modal root `stack` only. Adds the game's paper sides and rolled ends; a nested vertical scroll gets a visible scrollbar. Inset content at least 45 units from the frame edges. |
+| `frame` | No extra frame | `scroll` on a menu/modal root `stack` only. Uses the profile scroll's paper for the root area, with torn sides hanging about 55 units outside the left and right edges and 74-unit rolls overlapping the top and bottom. Nothing opaque is drawn outside the paper and roll artwork. A nested vertical scroll gets the desktop scrollbar. Inset content at least 75 units from the top and bottom; it may use the full width. |
 
 Colors must be `#RRGGBB` or `#RRGGBBAA` hex strings (case-insensitive); omitted
 alpha means opaque. Sprite colors are multiplicative tints, so a color does not
@@ -274,11 +275,12 @@ widget kinds raise an error.
 ```
 
 For a scroll-framed chooser, center a smaller content column inside a root
-stack, leaving space for the original roll art. For example, a 520-unit root
-can contain a 420-unit column with a title, `scroll` widget and close button.
+stack, leaving space for the original roll art. For example, a 580×630 root
+can contain a 520×480 column with a title, `scroll` widget and close button;
+the scrollbar takes the scroll widget's rightmost 20 units.
 The scroll content must be taller than its viewport to move; use a fixed-height
 grid or column inside it. The [DE128 dojo chooser](https://github.com/dawc17/ProjectEclipse/blob/main/Mods/de128/scripts/content/dojo_changer.lua)
-shows clickable image previews in this layout.
+shows captioned, clickable medallions with a highlighted current choice in this layout.
 
 Text still wraps and clips within its authored dimensions. Provide enough width
 and height for translations and larger text. These options do not expose custom
@@ -440,6 +442,40 @@ combines a live HUD, a click handler, simulation ticks and a fresh outgoing-hit
 callback. Managed Lua and isolated Unity fixtures cover these components; full
 gameplay, physical input and visual acceptance remain pending.
 
+
+## sf2.ui.dojo_button
+
+**Signature:** `sf2.ui.dojo_button { id = "...", image = sprite }`
+
+**Returns:** The button's qualified name, `<mod-id>.<id>`, as a string.
+
+**When:** During loading, like other registrations. The button is added to the
+game's side menu whenever the dojo is the current screen. It sits below the
+disciple button's slot, whether or not the player has unlocked the disciple
+yet. Buttons from several mods stack downward in load order.
+
+**Requires:** `content.register`. `id` (required) is 1–64 lowercase ASCII
+letters, digits, `_` or `-`, unique within the mod. `image` (required) is a
+sprite handle from `sf2.assets.sprite`; the button uses the sprite's size,
+scaled down if it would be larger than the disciple button. A mod can register
+at most 4 dojo buttons. Nothing is saved to the profile: removing the mod or
+the registration removes the button. React to clicks with
+[`sf2.story.on("dojo_button", ...)`](../story/#sf2storyon), which needs
+`story.events`.
+
+```lua
+local name = sf2.ui.dojo_button { id = "wardrobe",
+    image = sf2.assets.sprite("sprites/wardrobe_button") }
+
+sf2.story.on("dojo_button", function(event)
+    if event.button == name then
+        -- Open an owned UI view here (requires ui.create).
+    end
+end)
+```
+
+A missing or unloadable image is logged and that button is skipped; the rest
+of the menu keeps working.
 
 ## on_click
 

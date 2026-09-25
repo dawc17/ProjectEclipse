@@ -165,6 +165,7 @@ public class Render
 		PIENHGGANDI();
 		CCEDPHBFFKK();
 		_UnityObject.transform.localScale = new Vector3(1f, -1f, 1f);
+		Eclipse.Rendering.LocationAtmosphere.Attach(_UnityObject, _location);
 	}
 
 	private void RefreshViewportMetrics()
@@ -248,6 +249,15 @@ public class Render
 		UpdateAdditionalDrawsLayer();
 	}
 
+	// Eclipse: set by Camera.RenderInterpolatedPresentation while it redraws the
+	// view between fixed ticks. Per-tick counters must not advance in that pass,
+	// and fighter-derived values use interpolated fighter positions.
+	internal bool PresentationPass;
+
+	private Model _lightTarget;
+	private float _lightRadius;
+	private float _lightShape;
+
 	public void PCIGCDELJAL(float DHDMNHCIPEH, float BGEEALIPKCC)
 	{
 		if (EMKDAHLGACK > BasicGUI.HNJBADGLFEC())
@@ -259,7 +269,10 @@ public class Render
 		color.a = (num + num * Mathf.Sin((float)Math.PI / (float)BasicGUI.HNJBADGLFEC() * (float)EMKDAHLGACK)) / 255f;
 		EAJGDJLHJFD.color = color;
 		EAJGDJLHJFD.transform.localPosition = new Vector3(DHDMNHCIPEH, BGEEALIPKCC, -40f);
-		EMKDAHLGACK++;
+		if (!PresentationPass)
+		{
+			EMKDAHLGACK++;
+		}
 	}
 
 	public void BHOMOMIPKGC(Vector3f NAAPALOFBCI, Vector3f IHFFJPLMIAL, float time, bool HKNHLNGMOJC, string HJCIKLIPILA, float NOOOCHHKECH)
@@ -320,8 +333,15 @@ public class Render
 			JALEODAIDEO = ((!(JALEODAIDEO < 0f)) ? num9 : (0f - num9));
 		}
 		List<LocationSelector> hFBEDCGJHLJ = _location.layers;
+		// Eclipse: optional background depth applies only to layers drawn behind
+		// the game layer; the game layer and foreground stay as authored.
+		bool behindGameLayer = true;
 		foreach (LocationSelector item in hFBEDCGJHLJ)
 		{
+			if (item.BBELALLBKHH())
+			{
+				behindGameLayer = false;
+			}
 			if (item.BBELALLBKHH() || item.OGBJCBMNJKC())
 			{
 				item.SetScale(NIKDOKGPFOI);
@@ -331,7 +351,12 @@ public class Render
 				float lIAILCGJBDK = KKICFAMLAAK * (1f - NIKDOKGPFOI);
 				item.SetPositionY(lIAILCGJBDK);
 			}
-			item.SetPositionX(JALEODAIDEO * item.JLBBJEELMGG());
+			float factor = item.JLBBJEELMGG();
+			if (behindGameLayer)
+			{
+				factor = SF2DisplayFrameRate.BackgroundLayerFactor(factor);
+			}
+			item.SetPositionX(JALEODAIDEO * factor);
 		}
 		float dHDMNHCIPEH = JALEODAIDEO - (_location.JMLAKAKDBBL / 2f - DHDMNHCIPEH) * NIKDOKGPFOI;
 		float bGEEALIPKCC = _location.gameLayer.MJNPBMOAFML().transform.localPosition.y - 2f * KKICFAMLAAK * NIKDOKGPFOI - 10f;
@@ -408,10 +433,13 @@ public class Render
 		KGJALFLDIBG /= 255f;
 		if (ALCGBGHPDCL != null)
 		{
+			bool firstShow = !ALCGBGHPDCL.gameObject.activeSelf;
 			ALCGBGHPDCL.gameObject.SetActive(true);
 			Vector3 position = _PerkActivationAreaInterpolation.CurrentPosition;
 			position.x = MGMMDGFPBLP;
-			_PerkActivationAreaInterpolation.Push(position, _PerkActivationAreaInterpolation.CurrentRotation);
+			// Place a newly shown area directly; only later moves interpolate.
+			if (firstShow) _PerkActivationAreaInterpolation.Snap(position, _PerkActivationAreaInterpolation.CurrentRotation);
+			else _PerkActivationAreaInterpolation.Push(position, _PerkActivationAreaInterpolation.CurrentRotation);
 			Color color = ALCGBGHPDCL.color;
 			color.a = KGJALFLDIBG;
 			ALCGBGHPDCL.color = color;
@@ -502,6 +530,20 @@ public class Render
 		_lightInTheDarkness.sharedMaterial = _lightInTheDarknessMaterial;
 	}
 
+	// Tracks the fighter so the presentation pass can recentre the mask on the
+	// interpolated pose instead of the raw per-tick position.
+	public void UpdateLightInTheDarkness(Model target, float radius, float shape)
+	{
+		_lightTarget = target; _lightRadius = radius; _lightShape = shape;
+		if (target != null) UpdateLightInTheDarkness(target.PLBNCDCFPML(), radius, shape);
+	}
+
+	internal void RefreshLightInTheDarkness()
+	{
+		if (_lightTarget != null && _lightInTheDarkness != null)
+			UpdateLightInTheDarkness(_lightTarget.InterpolatedPivot(), _lightRadius, _lightShape);
+	}
+
 	public void UpdateLightInTheDarkness(Vector3f position, float radius, float shape)
 	{
 		if (_lightInTheDarkness == null) return;
@@ -520,6 +562,7 @@ public class Render
 
 	public void RemoveLightInTheDarkness()
 	{
+		_lightTarget = null;
 		if (_lightInTheDarkness != null) UnityEngine.Object.Destroy(_lightInTheDarkness.gameObject);
 		if (_lightInTheDarknessMaterial != null) UnityEngine.Object.Destroy(_lightInTheDarknessMaterial);
 		if (_lightInTheDarknessSprite != null) UnityEngine.Object.Destroy(_lightInTheDarknessSprite);
@@ -586,7 +629,8 @@ public class Render
 
 	public float KMMOLDBJBIG()
 	{
-		return Mathf.Min(OEAGONAHCCA / (PFELMKLNBMC.FPNKBJPKKGB().LGGKNLPOCIH() + 300f), 1f);
+		float distance = PresentationPass ? PFELMKLNBMC.FPNKBJPKKGB().InterpolatedFighterDistance() : PFELMKLNBMC.FPNKBJPKKGB().LGGKNLPOCIH();
+		return Mathf.Min(OEAGONAHCCA / (distance + 300f), 1f);
 	}
 
 	public float KGCPMIDNKKI()

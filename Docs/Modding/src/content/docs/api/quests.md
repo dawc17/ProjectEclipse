@@ -118,6 +118,7 @@ host semantics, not as a general arithmetic or programming language.
 | `give_item` | Required `item` handle | Grant an item through the host. |
 | `set_variable` | Required strings `name`, `value` | Set a native user variable. |
 | `show_map_button` | Required `id`, `image`, `x`, `y`; optional `anchor_min_x=0.5`, `anchor_max_x=0.5`, `show_type="both"` | Add a native map button when this quest runs. |
+| `hide_map_button` | Required `id` | Remove this mod's map button `<mod-id>.<id>` from the map and the saved profile. Does nothing if it is absent. |
 | `dialog` | `title=""`, `image=""`, required `lines`; optional `button` | Display a dialog. |
 | `story` | Required `lines` | Display a story screen. |
 
@@ -152,6 +153,18 @@ sf2.story.on("map_button", function(event)
         -- Open an owned UI view here (requires ui.create).
     end
 end)
+```
+
+Map buttons are saved in the profile, so they stay after a mod stops showing
+them. To retire one, for example after moving the feature into the dojo with
+[`sf2.ui.dojo_button`](../ui/#sf2uidojo_button), run `hide_map_button` with the
+same `id` at session start:
+
+```lua
+sf2.quests.register {
+    id = "retire_arena_button", place = "map", events = { "session" },
+    actions = { { type = "hide_map_button", id = "arena" } },
+}
 ```
 
 A dialog's optional button is `{ text = "...", color = "Beige", actions = { ... } }`:

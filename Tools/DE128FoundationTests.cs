@@ -299,24 +299,19 @@ internal static class DE128FoundationTests
     private static void CheckDojoArchive(ModContentCatalog catalog)
     {
         var source = ReadXml(Path.Combine(_repository, "Assets/DExml/quests.xml"));
-        var button = catalog.Quests.Single().Actions.Single().MapButton;
+        var button = catalog.DojoButtons.Single();
         var archivedButton = source.SelectSingleNode("/Root/Quest[@Name='DojoChanger_MapButton']/Actions/ShowMapButton") as XmlElement;
+        // The archive shows the changer on the map; Eclipse keeps its icon and
+        // behavior but hosts it in the dojo menu below the disciple toggle.
         Check(archivedButton != null && button.Name == "de128.dojo_changer" && archivedButton.GetAttribute("Name") == "DojoChanger" &&
             archivedButton.GetAttribute("Image") == "Textures/Buttons/Map/credits" &&
-            button.Image == "de128:sprites/dojo_changer/credits" &&
+            button.Image.ToString() == "de128:sprites/dojo_changer/credits" &&
             File.ReadAllText(Path.Combine(_repository, "Mods/de128/assets/sprites/dojo_changer/credits.asset"))
                 .Contains("texture=textures/dojo_changer/credits.png") &&
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(
                 Path.Combine(_repository, "Mods/de128/assets/textures/dojo_changer/credits.png")))) ==
-                "208C19723A0BEDD9985D18F088D02341BAB0BEDFC3C9DA4061B13B3E55D2BE53" &&
-            // The archive's right-anchored (-3095, -645) lands entirely off screen
-            // in Eclipse's map canvas. Keep its icon and behavior, but place the
-            // button in the requested bottom-left map slot at common aspect ratios.
-            archivedButton.GetAttribute("X") == "-3095" && archivedButton.GetAttribute("Y") == "-645" &&
-            button.X == 240 && button.Y == -650 &&
-            button.AnchorMinX == 0 && button.AnchorMaxX == 0 &&
-            button.ShowType == archivedButton.GetAttribute("ShowType"),
-            "Dojo map button lost its visible Eclipse placement or archived identity.");
+                "208C19723A0BEDD9985D18F088D02341BAB0BEDFC3C9DA4061B13B3E55D2BE53",
+            "Dojo button lost its archived icon or identity.");
         var choices = new[] {
             ("dojo", "DefaultDojo"), ("new_year_24_china_dojo", "DojoChinese24"),
             ("dojo_indian_event", "DojoIndia"), ("dojo_indian_event_22", "DojoIndia22"),
@@ -332,7 +327,7 @@ internal static class DE128FoundationTests
         int previous = -1;
         foreach (var (location, label) in choices)
         {
-            var declaration = "{ location = \"" + location + "\" }";
+            var declaration = "{ location = \"" + location + "\", label = \"" + label + "\" }";
             int current = lua.IndexOf(declaration, StringComparison.Ordinal);
             Check(current > previous, "Dojo chooser order changed: " + location);
             previous = current;
@@ -340,6 +335,7 @@ internal static class DE128FoundationTests
             var texture = Path.Combine(_repository, "Mods/de128/assets/textures/dojo_changer", location + ".png");
             Check(File.Exists(asset) && File.Exists(texture) &&
                 File.ReadAllText(asset).Contains("texture=textures/dojo_changer/" + location + ".png") &&
+                File.ReadAllText(asset).Contains("rect=[198, 208, 617, 617]") &&
                 new FileInfo(texture).Length > 100000,
                 "Dojo preview is missing its packaged artwork: " + location);
             if (location != "dojo")
@@ -440,21 +436,23 @@ internal static class DE128FoundationTests
                 save.LoadXml("<Warrior><EclipseMods schema='1'/></Warrior>");
                 selection.Bind(save.DocumentElement);
                 events.BindProfile();
-                Check(events.HasSubscribers(ModStoryEventKind.MapButton), "DE128 did not subscribe to map-button clicks.");
-                events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "other.button"));
-                Check(view == null, "Unrelated map button opened the dojo selector.");
-                events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "de128.dojo_changer"));
-                Check(view != null && !view.IsClosed, "DE128 map button did not open its localized selector (view=" +
+                Check(events.HasSubscribers(ModStoryEventKind.DojoButton), "DE128 did not subscribe to dojo-button clicks.");
+                events.Publish(new ModStoryEvent(ModStoryEventKind.DojoButton, null, button: "other.button"));
+                Check(view == null, "Unrelated dojo button opened the dojo selector.");
+                events.Publish(new ModStoryEvent(ModStoryEventKind.DojoButton, null, button: "de128.dojo_changer"));
+                Check(view != null && !view.IsClosed, "DE128 dojo button did not open its localized selector (view=" +
                     (view == null ? "null" : "closed=" + view.IsClosed) + ", error=" + storyError + ").");
                 Check(view.Root.Kind == ModUiKind.Stack && view.Root.Style.Frame == "scroll" &&
-                    view.WidgetCount == 36 && view.Read("choice_2").Text == "" &&
+                    view.WidgetCount == 76 && view.Read("choice_2").Text == "" &&
+                    view.Read("name_2").Text == "Chinese New Year Dojo" &&
+                    !view.Read("halo_2").Visible &&
                     view.Read("preview_2").Sprite?.ToString() ==
                         "de128:sprites/dojo_changer/new_year_24_china_dojo" &&
                     view.Root.Children[0].Children[1].Kind == ModUiKind.Scroll,
-                    "DE128 dojo chooser lost its framed, image-only scroll gallery.");
+                    "DE128 dojo chooser lost its framed, captioned medallion scroll gallery.");
                 view.TryClick("close");
                 Check(view.IsClosed && selection.SavedLocation == "", "Closing the selector changed the dojo preference.");
-                events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "de128.dojo_changer"));
+                events.Publish(new ModStoryEvent(ModStoryEventKind.DojoButton, null, button: "de128.dojo_changer"));
                 Check(view != null && !view.IsClosed, "The selector did not reopen.");
                 view.TryClick("choice_2");
                 Check(view.IsClosed && selection.SavedLocation == "core:locations/new_year_24_china_dojo" &&
@@ -707,13 +705,14 @@ internal static class DE128FoundationTests
             catalog.Quests[0].Place == ModQuestActionPlace.Map &&
             catalog.Quests[0].Events.SequenceEqual(new[] { ModQuestEventKind.Session }) &&
             catalog.Quests[0].Actions.Count == 1 &&
-            catalog.Quests[0].Actions[0].Kind == ModQuestActionKind.ShowMapButton &&
-            catalog.Quests[0].Actions[0].MapButton.Name == "de128.dojo_changer" &&
+            catalog.Quests[0].Actions[0].Kind == ModQuestActionKind.HideMapButton &&
+            catalog.Quests[0].Actions[0].Name == "de128.dojo_changer" &&
+            catalog.DojoButtons.Count == 1 && catalog.DojoButtons[0].Name == "de128.dojo_changer" &&
             catalog.Warriors.Count(value => value.Id.LocalId.StartsWith("sensei_")) == 34 && catalog.Warriors.All(value => Owned(value.Id.LocalId)) &&
             catalog.Fights.Count(fight => !fight.IsCore && fight.Id.LocalId.StartsWith("sensei_act_")) == 23 &&
             catalog.Fights.Where(fight => !fight.IsCore).All(fight => Owned(fight.Id.LocalId)) &&
             catalog.FightRules.All(rule => Owned(rule.Id.LocalId)),
-            "DE128 must register only its reviewed dojo map quest alongside the existing story content.");
+            "DE128 must register only its dojo button and saved-map-button cleanup alongside the existing story content.");
         // Active Underworld: eight Underworld pages generated from the archived raid stages.
         var underworldZones = catalog.Zones.Where(zone => !zone.IsCore && zone.Underworld).ToArray();
         var underworldBattles = catalog.Battles.Where(battle => underworldZones.Any(zone => zone.Id == battle.Zone)).ToArray();

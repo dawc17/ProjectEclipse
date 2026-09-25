@@ -132,6 +132,15 @@ public class ViewerModel
 		}
 	}
 
+	// Distance between the two fighters' interpolated pivots, for presentation.
+	public float InterpolatedFighterDistance()
+	{
+		Model first = PHJPLPPEPJN != null ? PHJPLPPEPJN.GetModel() : null;
+		Model second = JMHBCFGBHIP != null ? JMHBCFGBHIP.GetModel() : null;
+		if (first == null || second == null) return LGGKNLPOCIH();
+		return Vector2f.JOIHAKCICMP(first.InterpolatedPivot(), second.InterpolatedPivot());
+	}
+
 	public float LGGKNLPOCIH()
 	{
 		if (PHJPLPPEPJN != null && JMHBCFGBHIP != null)
