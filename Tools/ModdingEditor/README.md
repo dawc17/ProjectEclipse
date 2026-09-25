@@ -421,11 +421,14 @@ upgrades and level-scaled acquisition still apply. The weapon starter explains
 these choices without changing its normal stats. See the equipment API reference.
 
 `sf2.moves.patch` completes extra conditions and guarded native interval-start/end,
-full-interval hit-reaction, direct-sound-frame, single Tap input and selection
-priority edits. One declaration owns each
+full-interval hit-reaction, direct-sound-frame, single Tap input, selection
+priority, binary animation-clip edits and guarded interval removal. The `animation` selector takes an exact
+native `.bytes` filename plus a binary handle for a mod-shipped clip. One declaration owns each
 native move; expected values must match at native application and the whole patch
 batch validates before edits. Frame values are integers 0-100000. The shared
 `MiddleShortPlus` native reaction is also available when authoring new attacks.
+`remove_interval` requires the exact native name, type, start and end; it removes
+one matching interval and restores it on unload.
 See the moves reference for ambiguous-target rejection and teardown behavior.
 
 Move patches also accept `disable = true` to make an existing move unselectable

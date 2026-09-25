@@ -132,6 +132,38 @@ internal static class MoveCombatPatchTests
             "Late priority failure partially applied input patch.");
         Check(inputMove.Priority == 1000 && ReferenceEquals(inputMove.SelectionConditions[0], originalInput),
             "Failed patch batch changed the original input.");
+        var clipMove = Move("Clip"); clipMove.FileName = "old_clip.bytes"; clipMove.AnimationEndFrame = 60;
+        var clipPatch = new MoveCombatPatch(Owner, "Clip", animation: new ModMoveAnimationPatch(
+            "old_clip.bytes", AssetId.Parse("fixture.move-patches:animations/new_clip")));
+        using (Apply(new[] { clipMove }, clipPatch))
+            Check(clipMove.FileName == "fixture.move-patches:animations/new_clip" && clipMove.AnimationEndFrame == 28,
+                "Parsed native clip was not replaced.");
+        Check(clipMove.FileName == "old_clip.bytes" && clipMove.AnimationEndFrame == 60,
+            "Clip patch did not restore the original parsed animation.");
+        Reject(new[] { clipMove }, new[] { new MoveCombatPatch(Owner, "Clip", animation:
+            new ModMoveAnimationPatch("wrong_clip.bytes", AssetId.Parse("fixture.move-patches:animations/new_clip"))) },
+            "Wrong expected native clip accepted.");
+        foreach (bool initialized in new[] { false, true })
+        {
+            var removeMove = Move("Remove", initialized);
+            var evade = new IntervalAnimation { Type = IntervalAnimation.IntervalType.INTERVAL_INVULNERABLE,
+                NodeInterval = Node("<Interval Name='Evade' Type='Invulnerable' Start='0' End='47'/>") };
+            if (initialized) evade.Init();
+            removeMove.MoveData.Intervals.Insert(1, evade);
+            var removal = new MoveCombatPatch(Owner, "Remove", removeInterval:
+                new ModMoveIntervalRemoval("Evade", "Invulnerable", 0, 47));
+            using (Apply(new[] { removeMove }, removal))
+                Check(!removeMove.MoveData.Intervals.Contains(evade) && removeMove.MoveData.Intervals.Count == 2,
+                    "Guarded native interval removal did not apply.");
+            Check(ReferenceEquals(removeMove.MoveData.Intervals[1], evade),
+                "Removed interval did not return to its original position.");
+            Reject(new[] { removeMove }, new[] { new MoveCombatPatch(Owner, "Remove", removeInterval:
+                new ModMoveIntervalRemoval("Evade", "Invulnerable", 0, 46)) },
+                "Wrong expected interval bounds accepted.");
+            Reject(new[] { removeMove }, new[] { new MoveCombatPatch(Owner, "Remove", removeInterval:
+                new ModMoveIntervalRemoval("Evade", "Block", 0, 47)) },
+                "Wrong expected interval type accepted.");
+        }
         foreach (bool initialized in new[] { false, true })
         {
             var boundsMove = Move("Bounds", initialized);
@@ -183,13 +215,17 @@ public class ConditionKeys : ConditionAnimation
 }
 public class InfoAnimation
 {
-    public string Name; public int Priority; public Data MoveData=new Data();
+    public string Name,FileName; public int Priority,AnimationEndFrame; public Data MoveData=new Data();
     public List<ConditionAnimation> SelectionConditions=new List<ConditionAnimation>();
     public List<ActionAnimation> ScheduledActions=new List<ActionAnimation>();
     public class Data { public List<IntervalAnimation> Intervals=new List<IntervalAnimation>(); }
+    public void ReplaceClip(string fileName,int endFrame)
+    { if(fileName.Contains("missing")) throw new InvalidOperationException("Missing clip");FileName=fileName;AnimationEndFrame=endFrame==0?28:endFrame; }
 }
 public class IntervalAnimation
 {
+    public enum IntervalType { INTERVAL_NONE, INTERVAL_UNINTERRUPT, INTERVAL_INVULNERABLE }
+    public IntervalType Type;
     public XmlNode NodeInterval;public string Name;public int Start,EndFrame;
     public virtual void Init() { Name=NodeInterval.Attributes["Name"]?.Value;Start=int.Parse(NodeInterval.Attributes["Start"].Value);EndFrame=int.Parse(NodeInterval.Attributes["End"].Value);NodeInterval=null; }
 }

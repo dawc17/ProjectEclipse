@@ -307,9 +307,11 @@ public class InfoAnimation
 
 	public int Id;
 
-	public int GOBJCKFGIPA;
+	// best guess for name
+	public int FirstFrame;
 
-	public int LHHAGECFIOL;
+	// best guess for name
+	public int AnimationEndFrame;
 
 	public string Name;
 
@@ -644,8 +646,8 @@ public class InfoAnimation
 		MNHGBPOIHKG = 0;
 		Priority = 0;
 		Id = 0;
-		GOBJCKFGIPA = 0;
-		LHHAGECFIOL = 0;
+		FirstFrame = 0;
+		AnimationEndFrame = 0;
 		FBKGDALBNDJ = false;
 		HECHJGBMHIC = false;
 		JEADCBJMEGC = false;
@@ -725,8 +727,8 @@ public class InfoAnimation
 		HLMKBLOHJGC.Clear();
 		foreach (IntervalAnimation item in MoveData.Intervals)
 		{
-			int num = ((item.Start < GOBJCKFGIPA) ? GOBJCKFGIPA : item.Start);
-			int num2 = ((item.GEJLNPIEDPF > LHHAGECFIOL) ? LHHAGECFIOL : item.GEJLNPIEDPF);
+			int num = ((item.Start < FirstFrame) ? FirstFrame : item.Start);
+			int num2 = ((item.GEJLNPIEDPF > AnimationEndFrame) ? AnimationEndFrame : item.GEJLNPIEDPF);
 			if (num <= frame && frame <= num2)
 			{
 				if (FGBOFDJKLJI == null || !FGBOFDJKLJI.Contains(item.Type))
@@ -842,9 +844,9 @@ public class InfoAnimation
 
 	public void HAILLLEPCHP(KeyFrames frames, int NHEIOIBOPHN, bool HOHEFHKJIOG)
 	{
-		int num = ((NHEIOIBOPHN <= -1) ? GOBJCKFGIPA : NHEIOIBOPHN);
+		int num = ((NHEIOIBOPHN <= -1) ? FirstFrame : NHEIOIBOPHN);
 		int num2 = _AnimationContainer[num].Length;
-		frames.HAILLLEPCHP(num, LHHAGECFIOL, HOHEFHKJIOG, _AnimationContainer);
+		frames.HAILLLEPCHP(num, AnimationEndFrame, HOHEFHKJIOG, _AnimationContainer);
 	}
 
 	public void ABEGFBOKPOI()
@@ -856,7 +858,7 @@ public class InfoAnimation
 			{
 				string iFKJHHPJPLP = Eclipse.Modding.ModAssetBinding.IsQualified(FileName) ?
 					FileName : SF2Paths.CBKLONCNPCP() + "/" + FileName;
-				OOICKIBOFGH(iFKJHHPJPLP);
+				LoadAnimationBinary(iFKJHHPJPLP);
 				if (_AnimationContainer != null)
 				{
 					DDPBDPEDIGC();
@@ -866,6 +868,40 @@ public class InfoAnimation
 			{
 				BAIMGDMKILA(aGAMDIHPFPF);
 			}
+		}
+	}
+
+	// Used by guarded content patches after the native parser has already loaded
+	// the original clip. Keep the parsed move identity and its linked actions.
+	public void ReplaceClip(string fileName, int endFrame)
+	{
+		string oldFileName = FileName;
+		int oldEndFrame = AnimationEndFrame;
+		int oldNodesCount = _NodesCount;
+		Vector3[][] oldContainer = _AnimationContainer;
+		try
+		{
+			FileName = fileName;
+			AnimationEndFrame = endFrame;
+			_AnimationContainer = null;
+			_NodesCount = 0;
+			// Reload directly: the parser's static cache is keyed only by filename,
+			// so an Apply & Restart with changed mod bytes must not reuse old frames.
+			string path = Eclipse.Modding.ModAssetBinding.IsQualified(fileName) ?
+				fileName : SF2Paths.CBKLONCNPCP() + "/" + fileName;
+			LoadAnimationBinary(path);
+			if (_AnimationContainer == null || _AnimationContainer.Length == 0 ||
+				FirstFrame < 0 || FirstFrame >= _AnimationContainer.Length)
+				throw new System.InvalidOperationException("Replacement animation clip is missing or incompatible: " + fileName);
+			_NodesCount = _AnimationContainer[FirstFrame].Length;
+		}
+		catch
+		{
+			FileName = oldFileName;
+			AnimationEndFrame = oldEndFrame;
+			_NodesCount = oldNodesCount;
+			_AnimationContainer = oldContainer;
+			throw;
 		}
 	}
 
@@ -939,12 +975,13 @@ public class InfoAnimation
 	{
 		foreach (IntervalAnimation item in value)
 		{
-			item.set_AnimationFinishFrame(LHHAGECFIOL);
+			item.set_AnimationFinishFrame(AnimationEndFrame);
 		}
 		MoveData.Intervals.AddRange(value);
 	}
 
-	private void OOICKIBOFGH(string path)
+	// best guess for name
+	private void LoadAnimationBinary(string path)
 	{
 		byte[] array = ResourceManager.GetBinary(path);
 		if (array != null && array.Length > 0)
@@ -971,9 +1008,9 @@ public class InfoAnimation
 					_AnimationContainer[i][j] = new Vector3(pHAPKCOJMHL.MMJAOEBFCLN(), 0f - pHAPKCOJMHL.MMJAOEBFCLN(), pHAPKCOJMHL.MMJAOEBFCLN());
 				}
 			}
-			if (LHHAGECFIOL == 0)
+			if (AnimationEndFrame == 0)
 			{
-				LHHAGECFIOL = num - 1;
+				AnimationEndFrame = num - 1;
 			}
 		}
 	}
@@ -982,9 +1019,9 @@ public class InfoAnimation
 	{
 		_AnimationContainer = EIJNHOPFLGI.Container;
 		int num = _AnimationContainer.Length;
-		if (LHHAGECFIOL == 0)
+		if (AnimationEndFrame == 0)
 		{
-			LHHAGECFIOL = num - 1;
+			AnimationEndFrame = num - 1;
 		}
 	}
 
@@ -1136,7 +1173,7 @@ public class InfoAnimation
 
 	public int PGOFHCBPLOE()
 	{
-		return LHHAGECFIOL - GOBJCKFGIPA + 1;
+		return AnimationEndFrame - FirstFrame + 1;
 	}
 
 	public uint BMBKLLNAKJK()
@@ -1399,7 +1436,7 @@ public class InfoAnimation
 				num = item.GEJLNPIEDPF;
 			}
 		}
-		int lHHAGECFIOL = LHHAGECFIOL;
+		int lHHAGECFIOL = AnimationEndFrame;
 		if (lHHAGECFIOL < num)
 		{
 			num = lHHAGECFIOL;
@@ -1413,12 +1450,12 @@ public class InfoAnimation
 
 	public int DKEJBCMFJEI(int frame)
 	{
-		return (frame - GOBJCKFGIPA + 1) * (MNHGBPOIHKG + 1) + 1;
+		return (frame - FirstFrame + 1) * (MNHGBPOIHKG + 1) + 1;
 	}
 
 	public int FALLOLJPMGF(int IHICCKAOPKG)
 	{
-		return GOBJCKFGIPA - 1 + (IHICCKAOPKG - 1) / (MNHGBPOIHKG + 1);
+		return FirstFrame - 1 + (IHICCKAOPKG - 1) / (MNHGBPOIHKG + 1);
 	}
 
 	public void DIGCECPPHOH(Vector3f value)
@@ -1614,7 +1651,7 @@ public class InfoAnimation
 
 	public Vector3[] BGHLLHNKFEM()
 	{
-		return _AnimationContainer[GOBJCKFGIPA];
+		return _AnimationContainer[FirstFrame];
 	}
 
 	private void DDPBDPEDIGC()

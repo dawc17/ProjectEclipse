@@ -35,6 +35,11 @@ child animations must keep referring to its native name.
 For an archived interval timing difference, use
 `interval_start = { name = "Uninterrupt", expected = 9, value = 0 }` alongside
 the input patch; the runtime checks the old bound and restores it on unload.
+Use `animation = { expected = "old_clip.bytes", value = sf2.assets.binary("animations/new_clip") }`
+when the original native move must play a packaged replacement clip. Ship
+`assets/animations/new_clip.bytes` and verify its nodes and frame timings in a fight.
+Use `remove_interval = { name = "Evade", type = "Invulnerable", start = 0, ["end"] = 47 }`
+only after verifying that exact interval is absent from the intended move.
 See the [move API reference](https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/)
 for `WaspFly` and `Earthquake` hit reactions, native `tactic_conditions`,
 projectiles equipped from an `item` handle, and the exclusive

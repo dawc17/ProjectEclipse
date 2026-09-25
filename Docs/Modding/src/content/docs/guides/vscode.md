@@ -74,6 +74,12 @@ Inside a tactic's `on_decide`, `event.` also completes `back_wall_distance`.
 Use it to choose forward or backward movement for moves with a native wall
 range requirement; guard for `nil` if the script also runs in an older host adapter.
 
+For a guarded native move patch, completion also covers `animation.expected`
+and `animation.value`. The value must be an `sf2.assets.binary` handle; put the
+replacement `.bytes` file under your mod's `assets/` directory and test its
+node layout and frame timing in combat. `remove_interval` completes the exact
+native `name`, `type`, `start`, and `end` selector for an unwanted combat interval.
+
 ## Understand warnings
 
 Open **View > Problems**. LuaLS checks names, argument types, required fields, and

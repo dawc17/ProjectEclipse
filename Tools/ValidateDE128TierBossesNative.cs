@@ -336,13 +336,16 @@ public static class ValidateDE128TierBossesNative
         bool hoaxen = id.Contains("uw_boss_7_");
         bool hunter = id.Contains("uw_boss_14_");
         bool berstuuk = id.Contains("uw_boss_berstuuk_");
-        if (!hoaxen && !hunter && !berstuuk)
+        bool arkhos = id.Contains("uw_boss_6_");
+        bool tenebris = id.Contains("uw_boss_10_");
+        if (!hoaxen && !hunter && !berstuuk && !arkhos && !tenebris)
             throw new Exception("Raid ability acceptance selected the wrong fight: " + id);
         bool power = id.Contains("hardmode");
-        int initial = hoaxen ? 600 : hunter ? (power ? 800 : 900) : 300;
+        int initial = hoaxen || arkhos || tenebris ? 600 : hunter ? (power ? 800 : 900) : 300;
         int cooldown = hunter ? initial : 600;
         string caster = hoaxen ? "HoaxenSpikeStrikePlayer" :
-            hunter ? null : "AbilityRootPotionPlayer";
+            hunter ? null : berstuuk ? "AbilityRootPotionPlayer" :
+            arkhos ? "RatWavePlayer" : "PerkFearRayPlayer";
         int frame = fight.get_FightTimeInFrames();
         if (raidAbilityEnteredAt < 0)
         {
@@ -367,6 +370,21 @@ public static class ValidateDE128TierBossesNative
                             .Select(value => value.Name)));
                 if ((hoaxen || hunter) && !move.MoveData.Intervals.OfType<IntervalAttack>().Any())
                     throw new Exception("Archived raid strike lost its native attack interval: " + name);
+                if (arkhos || tenebris)
+                {
+                    string clip = arkhos ? "magic_water_wave_player" : "chest_laser_ray_player";
+                    int frames = arkhos ? 29 : 61;
+                    if (move.FileName != "de128:animations/" + clip ||
+                        move.DIHJOPGKGFO() == null || move.DIHJOPGKGFO().Length != frames ||
+                        move.DFKIHADCFKG() != 67)
+                        throw new Exception("Archived raid caster did not load its replacement clip: " + name +
+                            " file=" + move.FileName + " frames=" + move.DIHJOPGKGFO()?.Length +
+                            " nodes=" + move.DFKIHADCFKG());
+                    if (tenebris && move.MoveData.Intervals.Any(interval =>
+                        interval.Name == "Evade" && interval.Type.ToString() == "INTERVAL_INVULNERABLE"))
+                        throw new Exception("Archived Fear Ray retained the core invulnerability interval.");
+                    Debug.Log(Prefix + "Loaded " + name + " archived clip: " + frames + " frames, 67 nodes.");
+                }
             }
             enemy.OCPMJKIEPIG().AddEventListener(2, value =>
             {
@@ -432,6 +450,30 @@ public static class ValidateDE128TierBossesNative
                         fight.get_FightTimeInFrames() + ": " + childName);
                 });
             }
+            if (arkhos || tenebris)
+            {
+                string childName = arkhos ? "RatWave" : "PerkFearRay";
+                string weapon = arkhos ? "MAGIC_RAT_WAVE" : "MAGIC_FEAR_RAY";
+                string childMove = arkhos ? "RatWaveMiddle" : "MagicFearRayStart";
+                enemy.AddEventListener(6, value =>
+                {
+                    var child = value as Model;
+                    if (child == null || child.get_Name() != childName) return;
+                    raidAbilityChild = true;
+                    var childMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child);
+                    if (child.Parameters.Weapon?.Name != weapon || !childMoves.Any(move => move.Name == childMove))
+                        throw new Exception("Archived raid projectile lost its hidden item or attack phase: " + childName);
+                    child.OCPMJKIEPIG().AddEventListener(2, action =>
+                    {
+                        if (action is IntervalAttack)
+                        {
+                            raidAbilityChildAttack = true;
+                            Debug.Log(Prefix + "Raid projectile attack interval: " + childName + ".");
+                        }
+                    });
+                    Debug.Log(Prefix + "Raid projectile spawned: " + childName + ".");
+                });
+            }
             Debug.Log(Prefix + "Reviewed raid caster and native attack graph loaded: " + id);
         }
         string animation = enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
@@ -461,7 +503,7 @@ public static class ValidateDE128TierBossesNative
                 player.ShiftModelPosition(new Vector3f(targetX - playerX, 0f, 0f), true);
             }
         }
-        if ((hoaxen || berstuuk) && (firstRange || secondRange) && frame - raidLastRangeAt >= 30)
+        if ((hoaxen || berstuuk || arkhos || tenebris) && (firstRange || secondRange) && frame - raidLastRangeAt >= 30)
         {
             // The original caster's AI range gate needs space that the
             // unattended player does not maintain during ordinary combat.
@@ -469,11 +511,22 @@ public static class ValidateDE128TierBossesNative
             float enemyX = enemy.PLBNCDCFPML().GetX();
             float playerX = player.PLBNCDCFPML().GetX();
             float direction = playerX >= enemyX ? 1f : -1f;
-            float targetRange = berstuuk ? 330f : 600f;
+            float targetRange = berstuuk ? 330f : tenebris ? 450f : arkhos ? 550f : 600f;
             player.ShiftModelPosition(new Vector3f(enemyX + direction * targetRange - playerX, 0f, 0f), true);
             float distance = (float)typeof(ModelAi).GetMethod("GetDistanceToEnemy", Hidden)
                 .Invoke(enemy.EEIGOJBKFGE(), new object[] { enemy });
-            if (distance < (hoaxen ? 400f : 250f))
+            if ((arkhos || tenebris) &&
+                (distance < (arkhos ? 425f : 310f) || (tenebris && distance > 590f)))
+            {
+                // The first side can be blocked by an arena wall after the
+                // opponent moves. Try the other side before rejecting range.
+                float shiftedX = player.PLBNCDCFPML().GetX();
+                player.ShiftModelPosition(new Vector3f(enemyX - direction * targetRange - shiftedX, 0f, 0f), true);
+                distance = (float)typeof(ModelAi).GetMethod("GetDistanceToEnemy", Hidden)
+                    .Invoke(enemy.EEIGOJBKFGE(), new object[] { enemy });
+            }
+            if (distance < (arkhos ? 425f : tenebris ? 310f : hoaxen ? 400f : 250f) ||
+                (tenebris && distance > 590f))
                 throw new Exception("Raid ability could not establish native caster range: " + distance);
             raidLastRangeAt = frame;
             if (frame - raidLastRangeLogAt >= 300)
@@ -509,7 +562,8 @@ public static class ValidateDE128TierBossesNative
             frame - raidAbilitySelectedAt >= 800)
             throw new Exception("Root Potion trigger did not spawn its damage hitbox after a cast.");
         if (raidAbilitySecondAt >= 0 && raidAbilityCaptured &&
-            (berstuuk ? raidAbilityChild && raidAbilityTrigger && raidAbilityHitbox && raidAbilityChildAttack : raidAbilityAttack))
+            (berstuuk ? raidAbilityChild && raidAbilityTrigger && raidAbilityHitbox && raidAbilityChildAttack :
+                arkhos || tenebris ? raidAbilityChild && raidAbilityChildAttack : raidAbilityAttack))
         {
             Debug.Log(Prefix + "Native raid ability cast, attack and cooldown completed: " + id);
             return true;

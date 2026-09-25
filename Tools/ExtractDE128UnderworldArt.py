@@ -11,6 +11,9 @@ assets/audio/underworld/<id>.wav: three from the drop's DE-named Music folder (n
 fight_halloween2019 from the DE 1.0.6 reference, the only copy.
 Four Underworld opponent and hidden ability models from the drop ship as
 reproducible gzip-compressed geometry under assets/models/underworld/*.modelz.
+Two archived boss caster clips are named by the reviewed owner moves XML;
+the matching packaged core binaries are copied byte-for-byte under
+assets/animations/ so guarded move patches can select them.
 DE128's Lua never opens XML.
 The reviewed raid data selects twenty distinct upscaled hard-mode portraits from
 the owner's Users directory. They retain the source 200 pixels-per-unit setting.
@@ -47,6 +50,8 @@ MUSIC = {
 MODELS_DROP = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "models"
 MODELS = ("mdl_body_berstuuk_early", "mdl_head_berstuuk",
           "mdl_vertical_trigger", "mdl_small_collision_box")
+ANIMATION_SOURCE = ROOT / "Assets" / "Resources" / "gamedata" / "animations" / "binary"
+ANIMATIONS = ("magic_water_wave_player", "chest_laser_ray_player")
 RAID = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "raid_stages_default.xml"
 RAID_SHA256 = "d012a1f47418def617d375743864e2256b00f4fd709f6785da45aa67a8c3fa7c"
 USERS = ROOT / "ResearchSources" / "de128_assets" / "assets" / "Users"
@@ -127,6 +132,17 @@ def main() -> int:
         if not target.is_file() or target.read_bytes() != packed:
             failures.append("model geometry " + name)
         rows.append((name + ".modelz <- " + name + ".xml", sha256(source)))
+    animations = ASSETS / "animations"
+    if not args.check:
+        animations.mkdir(parents=True, exist_ok=True)
+    for name in ANIMATIONS:
+        source = ANIMATION_SOURCE / (name + ".bytes")
+        target = animations / source.name
+        if not args.check:
+            shutil.copyfile(source, target)
+        if not target.is_file() or sha256(target) != sha256(source):
+            failures.append("animation " + name)
+        rows.append((source.name, sha256(source)))
     for failure in failures:
         print("FAIL", failure)
     for name, digest in rows:

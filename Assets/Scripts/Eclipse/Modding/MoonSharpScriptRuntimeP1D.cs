@@ -80,7 +80,7 @@ namespace Eclipse.Modding
                 {
                     const string function = "sf2.moves.patch";
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
-                    ValidateFields(table, function, "move", "conditions", "interval_end", "interval_start", "hit", "sound_frame", "input", "priority", "disable");
+                    ValidateFields(table, function, "move", "conditions", "interval_end", "interval_start", "hit", "sound_frame", "input", "priority", "animation", "remove_interval", "disable");
                     ModMoveFramePatch Frame(string key)
                     {
                         DynValue value = table.Get(key); if (value.IsNil()) return null;
@@ -112,9 +112,26 @@ namespace Eclipse.Modding
                         priority = new ModMovePriorityPatch(RequiredInt(rawPriority.Table,"expected",function),
                             RequiredInt(rawPriority.Table,"value",function));
                     }
+                    ModMoveAnimationPatch animation = null; DynValue rawAnimation = table.Get("animation");
+                    if (!rawAnimation.IsNil())
+                    {
+                        if (rawAnimation.Type != DataType.Table) throw new ModContentException(function + ".animation must be a table.");
+                        ValidateFields(rawAnimation.Table, function + ".animation", "expected", "value");
+                        animation = new ModMoveAnimationPatch(RequiredString(rawAnimation.Table,"expected",function),
+                            RequiredHandle(rawAnimation.Table,"value",_binaryHandles,"binary",function));
+                    }
+                    ModMoveIntervalRemoval removeInterval = null; DynValue rawRemoval = table.Get("remove_interval");
+                    if (!rawRemoval.IsNil())
+                    {
+                        if (rawRemoval.Type != DataType.Table) throw new ModContentException(function + ".remove_interval must be a table.");
+                        ValidateFields(rawRemoval.Table, function + ".remove_interval", "name", "type", "start", "end");
+                        removeInterval = new ModMoveIntervalRemoval(RequiredString(rawRemoval.Table,"name",function),
+                            RequiredString(rawRemoval.Table,"type",function), RequiredInt(rawRemoval.Table,"start",function),
+                            RequiredInt(rawRemoval.Table,"end",function));
+                    }
                     _api.PatchMove(RequiredString(table,"move",function),ReadMoveConditions(table.Get("conditions"),function + ".conditions"),
                         Frame("interval_end"), hit, Frame("sound_frame"), OptionalBool(table,"disable",false,function),
-                        input, priority, Frame("interval_start"));
+                        input, priority, Frame("interval_start"), animation, removeInterval);
                     return DynValue.Nil;
                 })));
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));

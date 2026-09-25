@@ -231,6 +231,8 @@ local function install(raid_charge_rule)
                         (w.template == "Man_Hoaxen" and raid_boss_abilities.hoaxen or
                         (w.template == "Man_Stalker" and hunter_tactic(w) or
                         (w.template == "Man_Berstuuk" and raid_boss_abilities.berstuuk or w.tactic))))))))))
+                    if w.template == "Man_Arkhos" then tactic = raid_boss_abilities.arkhos end
+                    if w.template == "Man_Tenebris" then tactic = raid_boss_abilities.tenebris end
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = tactic,
                         avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,

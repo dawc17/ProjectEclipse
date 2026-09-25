@@ -3830,6 +3830,20 @@
         "value": "integer"
       }
     },
+    "MoveAnimationPatch": {
+      "fields": {
+        "expected": "string",
+        "value": "Eclipse.BinaryHandle"
+      }
+    },
+    "MoveIntervalRemoval": {
+      "fields": {
+        "name": "string",
+        "type": "\"Attack\"|\"Block\"|\"Invulnerable\"|\"Invisible\"|\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"",
+        "start": "integer",
+        "end": "integer"
+      }
+    },
     "MovePatch": {
       "fields": {
         "move": "string",
@@ -3840,7 +3854,9 @@
         "hit?": "Eclipse.MoveHitPatch",
         "sound_frame?": "Eclipse.MoveSoundFramePatch",
         "input?": "Eclipse.MoveInputPatch",
-        "priority?": "Eclipse.MovePriorityPatch"
+        "priority?": "Eclipse.MovePriorityPatch",
+        "animation?": "Eclipse.MoveAnimationPatch",
+        "remove_interval?": "Eclipse.MoveIntervalRemoval"
       }
     },
     "MovePerkLockRemoval": {

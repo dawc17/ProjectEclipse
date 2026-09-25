@@ -28,6 +28,24 @@ sf2.moves.patch {
     move = "AbilityRootPotionPlayer",
     input = { expected = "Super", value = "RaidCharge" },
 }
+-- The reviewed Arkhos and Tenebris casts name different packaged binaries.
+-- Replace the loaded clip on the original move so its perk cooldown and
+-- native projectile graph keep referring to the same caster identity.
+sf2.moves.patch {
+    move = "RatWavePlayer",
+    input = { expected = "Up", value = "RaidCharge" },
+    animation = { expected = "rats_wave.bytes",
+        value = sf2.assets.binary("animations/magic_water_wave_player") },
+    conditions = { { type = "mod_exists", name = "Stun", ["not"] = true } },
+}
+sf2.moves.patch {
+    move = "PerkFearRayPlayer",
+    input = { expected = "Super", value = "RaidCharge" },
+    animation = { expected = "boss_fear_ability.bytes",
+        value = sf2.assets.binary("animations/chest_laser_ray_player") },
+    remove_interval = { name = "Evade", type = "Invulnerable", start = 0, ["end"] = 47 },
+    conditions = { { type = "mod_exists", name = "Stun", ["not"] = true } },
+}
 
 local function tactic(id, moves, initial, cooldown, advance_for_range)
     return sf2.tactics.name(sf2.tactics.register {
@@ -75,4 +93,6 @@ return {
     hunter = tactic("hunter_fly", hunter_moves, 900, 900, true),
     hunter_power = tactic("hunter_fly_power", hunter_moves, 800, 800, true),
     berstuuk = tactic("berstuuk_root_potion", { AbilityRootPotionPlayer = true }, 300, 600),
+    arkhos = tactic("arkhos_rat_wave", { RatWavePlayer = true }, 600, 600),
+    tenebris = tactic("tenebris_fear_ray", { PerkFearRayPlayer = true }, 600, 600),
 }

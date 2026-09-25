@@ -63,7 +63,7 @@ namespace Eclipse.Modding
         {
             string type = action.Type == InfoAnimation.MGHNBEPCKIF.AnimationAttack ? "attack" :
                 action.Type == InfoAnimation.MGHNBEPCKIF.AnimationMove ? "move" : "none";
-            var timing = new ModAiActionTiming(action.GOBJCKFGIPA, action.LHHAGECFIOL,
+            var timing = new ModAiActionTiming(action.FirstFrame, action.AnimationEndFrame,
                 action.MNHGBPOIHKG, action.NCEKKNIMHAG());
             var inputs = new System.Collections.Generic.List<ModAiActionInput>();
             var keys = action.ILBCHANCOBP()?.RequiredKeys;

@@ -222,10 +222,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 33 &&
+        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 35 &&
             catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 14 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 16 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -255,6 +255,10 @@ internal static class DE128FoundationTests
             ("uw_boss_14_hardmode_1", "hunter_fly_power"),
             ("uw_boss_berstuuk_1", "berstuuk_root_potion"),
             ("uw_boss_berstuuk_hardmode_1", "berstuuk_root_potion"),
+            ("uw_boss_6_1", "arkhos_rat_wave"),
+            ("uw_boss_6_hardmode_1", "arkhos_rat_wave"),
+            ("uw_boss_10_1", "tenebris_fear_ray"),
+            ("uw_boss_10_hardmode_1", "tenebris_fear_ray"),
         })
         {
             string runtimeTactic = "de128:tactics/" + tacticName;
@@ -498,6 +502,20 @@ internal static class DE128FoundationTests
                 Check(oldMove.SelectSingleNode("Actions/Sound[@Name='"+value.Name+"']").Attributes["Frame"].Value == value.Expected.ToString() &&
                     newMove.SelectSingleNode("Actions/RandomSound[Sound/@Name='"+value.Name+"']").Attributes["Frame"].Value == value.Value.ToString(),"Sound frame patch differs from archive.");
             }
+            if (patch.Animation != null)
+                Check(oldMove.GetAttribute("FileName") == patch.Animation.Expected &&
+                    newMove.GetAttribute("FileName") == Path.GetFileName(patch.Animation.Value.Path) + ".bytes",
+                    "Move clip patch differs from archive.");
+            if (patch.RemoveInterval != null)
+            {
+                var value = patch.RemoveInterval;
+                var oldInterval = (XmlElement)oldMove.SelectSingleNode("Intervals/Interval[@Name='" + value.Name + "']");
+                Check(oldInterval != null && oldInterval.GetAttribute("Type") == value.Type &&
+                    (oldInterval.GetAttribute("Start") == "" ? "0" : oldInterval.GetAttribute("Start")) == value.Start.ToString() &&
+                    oldInterval.GetAttribute("End") == value.End.ToString() &&
+                    newMove.SelectSingleNode("Intervals/Interval[@Name='" + value.Name + "']") == null,
+                    "Removed native interval differs from archive.");
+            }
             foreach (var condition in patch.Conditions)
                 if (condition.Kind == ModMoveConditionKind.ActorName)
                     Check(patch.MoveName.StartsWith("LightingChain",StringComparison.Ordinal) &&
@@ -545,7 +563,9 @@ internal static class DE128FoundationTests
             "sf2.moves.patch {move='Test',interval_start={name='Uninterrupt',expected=9,value=0}}",
             "sf2.moves.patch {move='Test',sound_frame={name='snd',expected=18,value=16}}",
             "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun'}}}",
-            "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun',['not']=true}}}"};
+            "sf2.moves.patch {move='Test',conditions={{type='mod_exists',name='Stun',['not']=true}}}",
+            "sf2.moves.patch {move='Test',remove_interval={name='Evade',type='Invulnerable',start=0,['end']=47}}",
+            "sf2.moves.patch {move='Test',remove_interval={name='Evade',type='Invulnerable',start=0,['end']=46}}"};
         Check(declarations.Select(Hash).Distinct().Count()==declarations.Length,"Move patch fields missing from compatibility fingerprint.");
     }
 

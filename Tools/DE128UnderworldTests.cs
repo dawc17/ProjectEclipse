@@ -254,6 +254,10 @@ internal static class DE128UnderworldTests
         }
         if (template == "Man_Berstuuk" && xml.GetAttribute("Tactic") == "Aggressive")
             tactic = "de128:tactics/berstuuk_root_potion";
+        if (template == "Man_Arkhos" && xml.GetAttribute("Tactic") == "Aggressive")
+            tactic = "de128:tactics/arkhos_rat_wave";
+        if (template == "Man_Tenebris" && xml.GetAttribute("Tactic") == "Aggressive")
+            tactic = "de128:tactics/tenebris_fear_ray";
         Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();

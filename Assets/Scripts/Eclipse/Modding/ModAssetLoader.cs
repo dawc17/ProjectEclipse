@@ -895,6 +895,8 @@ namespace Eclipse.Modding
                 if (patch.SoundFrame != null) PrepareSound(target, patch.SoundFrame, lifetime);
                 if (patch.Input != null) PrepareInput(target, patch.Input, parse, lifetime);
                 if (patch.Priority != null) PreparePriority(target, patch.Priority, lifetime);
+                if (patch.Animation != null) PrepareAnimation(target, patch.Animation, lifetime);
+                if (patch.RemoveInterval != null) PrepareRemoveInterval(target, patch.RemoveInterval, lifetime);
             }
             try { foreach (var apply in lifetime.Apply) apply(); }
             catch { lifetime.Dispose(); throw; }
@@ -1035,6 +1037,52 @@ namespace Eclipse.Modding
                 throw new InvalidOperationException("Move priority expected value mismatch: " + move.Name);
             lifetime.Apply.Add(() => move.Priority = patch.Value);
             lifetime.Undo.Add(() => { if (move.Priority == patch.Value) move.Priority = patch.Expected; });
+        }
+
+        private static void PrepareAnimation(InfoAnimation move, ModMoveAnimationPatch patch, Lifetime lifetime)
+        {
+            if (move.FileName != patch.Expected)
+                throw new InvalidOperationException("Move animation expected filename mismatch: " + move.Name);
+            string original = move.FileName;
+            int originalEndFrame = move.AnimationEndFrame;
+            string replacement = patch.Value.ToString();
+            lifetime.Apply.Add(() => move.ReplaceClip(replacement, 0));
+            lifetime.Undo.Add(() =>
+            {
+                if (move.FileName == replacement) move.ReplaceClip(original, originalEndFrame);
+            });
+        }
+
+        private static void PrepareRemoveInterval(InfoAnimation move, ModMoveIntervalRemoval patch, Lifetime lifetime)
+        {
+            var intervals = move.MoveData.Intervals;
+            IntervalAnimation target = null;
+            int originalIndex = -1;
+            string expectedType = "INTERVAL_" + patch.Type.Replace("SelfUninterrupt", "SELF_UNINTERRUPT").ToUpperInvariant();
+            for (int i = 0; i < intervals.Count; i++)
+            {
+                var candidate = intervals[i];
+                var node = candidate.NodeInterval;
+                string name = node != null ? Attribute(node, "Name") : candidate.Name;
+                string type = node != null ? Attribute(node, "Type") : null;
+                if (node != null && string.IsNullOrEmpty(type)) type = name;
+                if (name != patch.Name ||
+                    (node != null ? type != patch.Type : candidate.Type.ToString() != expectedType)) continue;
+                int start = node != null ? Integer(node, "Start", 0) : candidate.Start;
+                int end = node != null ? Integer(node, "End", -1) : candidate.EndFrame;
+                if (start != patch.Start || end != patch.End || target != null)
+                    throw new InvalidOperationException("Move interval removal expected selector mismatch: " + move.Name + "/" + patch.Name);
+                target = candidate;
+                originalIndex = i;
+            }
+            if (target == null) throw new InvalidOperationException("Missing move interval for removal: " + move.Name + "/" + patch.Name);
+            var matched = target;
+            int index = originalIndex;
+            lifetime.Apply.Add(() => intervals.Remove(matched));
+            lifetime.Undo.Add(() =>
+            {
+                if (!intervals.Contains(matched)) intervals.Insert(Math.Min(index, intervals.Count), matched);
+            });
         }
     }
 }

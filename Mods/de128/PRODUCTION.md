@@ -4001,3 +4001,47 @@ integration; wiki build (**48** pages, **4,344** local links/assets); and
 `git diff --check`. The location audit still reports missing
 `fungus_raid/layer_0_2`. The complete designated owner archive remains
 unavailable for source-to-source reconciliation.
+
+### Step 69 — Arkhos Rat Wave and Tenebris Fear Ray (0.35.0, 2026-09-25)
+
+The reviewed owner `gamedata/animations/moves.xml` (SHA-256
+`7F4D181848DC3F430BA4AF1A8A024905D629FC77C499FF74832710C65D07B818`)
+names `magic_water_wave_player.bytes` and `chest_laser_ray_player.bytes` for
+Arkhos and Tenebris. The packaged core instead loads `rats_wave.bytes` and
+`boss_fear_ability.bytes`, uses Up/Super rather than RaidCharge, and omits the
+owner's `Stun` gate. Its Fear Ray also adds an `Evade` Invulnerable interval
+from samples 0–47 that the owner move lacks. Both owner clips were found in
+packaged resources and copied byte for byte by the offline art extractor;
+the mod ships the binaries and no XML. Its 54-artifact `--check` pins them.
+
+Eclipse's guarded `sf2.moves.patch` now supports an exact native clip swap and
+an exact name/type/start/end interval removal. Clip replacement reloads the
+binary after native parsing and restores the original on unload; it reads
+fresh bytes across Apply & Restart rather than reusing a filename-only cache.
+Removal returns its interval to its original list position on unload. The
+three inferred `InfoAnimation` first frame, end frame and binary loader names
+carry the required deobfuscation comments. The
+public wiki, editor schema, generated LuaLS definitions, starter guide and
+editor guide describe both fields. DE128 uses these hooks on the original
+`RatWavePlayer` and `PerkFearRayPlayer`, preserving their perk locks and native
+child graphs. Scoped Aggressive tactics assign the owner's 600-frame initial
+and recast delays to both modes. The local owner drop supplies the reviewed
+raid timing; the designated full archive is still unavailable.
+
+Native Unity acceptance entered all four fights, placed the unattended
+player in each original caster's distance window, observed the 29/61-frame
+clips with 67 rig nodes, original projectile actors and attack intervals,
+two casts, rendered combat frames, and return to the Underworld map. It also
+checked that Tenebris's extra core invulnerability was removed. This proves
+the ability graph runs in these scenarios; interactive balance, contact
+frequency and audible sound quality remain untested. Source differences in
+the packaged sound action form remain a separate audiovisual parity check.
+
+Verification: four managed `dotnet msbuild` builds; **83** move patch checks;
+**14,911** DE128 foundation checks, including exact archived clip and interval
+comparisons; **1,282** Underworld runtime assertions; four-fight native
+matrix; Underworld generator and 54-artifact extractor `--check`; Underworld
+audit; ModdingEditor generate/check/**38** project tests, LuaLS and real VS
+Code integration; wiki build (**48** pages, **4,344** local links/assets);
+and `git diff --check`. The audit still reports the known missing
+`fungus_raid/layer_0_2` image.

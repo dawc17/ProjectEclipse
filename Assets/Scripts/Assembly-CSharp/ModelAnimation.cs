@@ -855,7 +855,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 				ClearIntervals();
 				ClearAttackingEdges();
 			}
-			int num = DBOLBEOCEME.GOBJCKFGIPA;
+			int num = DBOLBEOCEME.FirstFrame;
 			if (HHJGACBCGBP)
 			{
 				int num2 = LPFPGDJALED();
@@ -869,7 +869,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 			set_Sign(AOJJBKLCHJO);
 			BAOONIGFBMB = DBOLBEOCEME;
 			GKGEBAKLIDH = num;
-			EJJNHDCIEAD = BAOONIGFBMB.LHHAGECFIOL;
+			EJJNHDCIEAD = BAOONIGFBMB.AnimationEndFrame;
 			INFAGPDFGNL = BAOONIGFBMB.NCEKKNIMHAG();
 			if (GKGEBAKLIDH > EJJNHDCIEAD - 1)
 			{
@@ -1196,7 +1196,7 @@ public class ModelAnimation : global::EventDispatcher<object>
 	{
 		ModelNode lCDGOCIAIDK = CJELIBMCCMA();
 		float bDHBFDMBMFM = BDHBFDMBMFM;
-		int gOBJCKFGIPA = BAOONIGFBMB.GOBJCKFGIPA;
+		int gOBJCKFGIPA = BAOONIGFBMB.FirstFrame;
 		int num = LOIJGOPOGMO();
 		MIDMNJKJOFO = (num - gOBJCKFGIPA) * (BAOONIGFBMB.MNHGBPOIHKG + 1);
 		float num2 = 0f;

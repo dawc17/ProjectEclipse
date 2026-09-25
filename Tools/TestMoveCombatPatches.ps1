@@ -1,8 +1,14 @@
+param([switch]$KeepFixture)
+
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$fixtureRoot = if ($env:DE128_MOVE_PATCH_FIXTURE_ROOT) { $env:DE128_MOVE_PATCH_FIXTURE_ROOT } else { Join-Path $root 'Temp' }
+$fixtureRoot = if ($env:DE128_MOVE_PATCH_FIXTURE_ROOT) {
+    [System.IO.Path]::GetFullPath($env:DE128_MOVE_PATCH_FIXTURE_ROOT)
+} else { Join-Path $root 'Temp' }
+New-Item -ItemType Directory -Force -Path $fixtureRoot | Out-Null
 $fixture = Join-Path $fixtureRoot ('MoveCombatPatches-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
+try {
 $source = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/ModAssetLoader.cs')
 $marker = 'namespace Eclipse.Modding' + "`n" + '{' + "`n" + '    // Validate the complete batch first.'
 $source = $source.Replace("`r`n", "`n")
@@ -19,3 +25,16 @@ Set-Content -Encoding UTF8 -LiteralPath (Join-Path $fixture 'Fixture.csproj') -V
 Write-Output "Move combat patch fixture: $fixture"
 dotnet run --project (Join-Path $fixture 'Fixture.csproj')
 if ($LASTEXITCODE -ne 0) { throw 'Move combat patch checks failed.' }
+} finally {
+    if (-not $KeepFixture) {
+        $ownedRoot = [System.IO.Path]::TrimEndingDirectorySeparator([System.IO.Path]::GetFullPath($fixtureRoot))
+        $ownedFixture = [System.IO.Path]::GetFullPath($fixture)
+        if ([System.IO.Path]::GetDirectoryName($ownedFixture) -ine $ownedRoot -or
+            [System.IO.Path]::GetFileName($ownedFixture) -notmatch '^MoveCombatPatches-[0-9a-f]{32}$') {
+            throw "Refusing to clean fixture outside its owned root: $ownedFixture"
+        }
+        if (Test-Path -LiteralPath $ownedFixture) {
+            Remove-Item -LiteralPath $ownedFixture -Recurse -Force
+        }
+    }
+}

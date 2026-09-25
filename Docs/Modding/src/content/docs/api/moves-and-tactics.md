@@ -629,7 +629,7 @@ Different additions to the same group compose. The source selector must exist be
 
 ## sf2.moves.patch
 
-**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_start?, interval_end?, hit?, sound_frame?, input?, priority? }`
+**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_start?, interval_end?, hit?, sound_frame?, input?, priority?, animation?, remove_interval? }`
 
 **Returns:** Nothing.
 
@@ -638,8 +638,7 @@ its target after base animations are available, before a fight starts.
 
 **Requires:** `content.patch` and any dependencies required by referenced conditions.
 
-Patch selected fields of an existing native move without replacing its animation,
-other requirements, attacks or actions. `move` is an exact, case-sensitive native
+Patch selected fields of an existing native move. `move` is an exact, case-sensitive native
 name, not a move handle. Names contain 1-128 ASCII letters, digits, underscores,
 dots or hyphens. At least one nonempty operation is required.
 
@@ -653,6 +652,8 @@ dots or hyphens. At least one nonempty operation is required.
 | `sound_frame` | `{ name, expected, value }`. Requires exactly one native direct Sound action with this clip name, scheduled at `expected`. Moves it to `value`. Event-driven and RandomSound actions are not supported by this selector. |
 | `input` | `{ expected, value }` replaces one direct native Keys condition. Both values are supported control names, such as `Super` and `RaidCharge`, with `Tap` timing. The move must have exactly one direct Keys condition, and its authored key requirement must match `expected`. Native AI may temporarily invert the parsed key state while dispatching a move; that transient state is ignored by this guard. Other conditions remain intact. |
 | `priority` | `{ expected, value }` replaces a native selection priority. Both are distinct integers in 0–100,000. The current priority must match `expected`. |
+| `animation` | `{ expected, value }` replaces a parsed native move's clip. `expected` is its exact existing `.bytes` filename; `value` is a binary handle from `sf2.assets.binary` for a file shipped by the mod. The runtime loads the new clip and updates its frame count while keeping the move's name, conditions, actions and linked children. The clip must have usable frames; check its node layout and action timing against the fighter in combat. |
+| `remove_interval` | `{ name, type, start, ["end"] }` removes exactly one native interval. All four fields are required guards: the interval's name, type, and inclusive sample bounds must match. Supported types are `Attack`, `Block`, `Invulnerable`, `Invisible`, `Uninterrupt`, `SelfUninterrupt`, and `Unstable`; bounds are integers from 0 through 100000 with end at least start. A removed interval cannot also receive a bounds patch. Use this for a verified native combat difference, since removing an attack or protection window can substantially change a fight. |
 
 Frame values must be distinct integers from 0 through 100000. Reaction names
 must also differ. Hit records with explicit start/end bounds in a deferred move,
@@ -663,6 +664,7 @@ The entire native patch batch is validated before any of its edits apply.
 `interval_start` and `interval_end` may target the same interval in one patch;
 their combined bounds must remain valid. Both parsed and deferred native
 intervals restore their original bounds when the patch is removed.
+Removed intervals return to their original list position when the patch is removed.
 
 ```lua
 local sf2 = require("sf2")
@@ -694,13 +696,26 @@ sf2.moves.patch {
     priority = { expected = 9000, value = 200 },
     interval_start = { name = "Uninterrupt", expected = 9, value = 0 },
 }
+-- Requires assets/animations/wave_cast.bytes in this mod.
+sf2.moves.patch {
+    move = "RatWavePlayer",
+    input = { expected = "Up", value = "RaidCharge" },
+    animation = { expected = "rats_wave.bytes",
+        value = sf2.assets.binary("animations/wave_cast") },
+}
+sf2.moves.patch {
+    move = "PerkFearRayPlayer",
+    remove_interval = { name = "Evade", type = "Invulnerable", start = 0, ["end"] = 47 },
+}
 ```
 
 Only one `moves.patch` declaration may own a given move, including across mods;
 combine operations in one table. Conflicts reject the registration transaction.
 Expected source values make incompatible base data fail explicitly instead of
 silently applying a different edit. The input patch preserves the native move
-identity and its linked child animations. Existing item/perk-lock APIs remain separate.
+identity and its linked child animations. A clip replacement is loaded after the
+native parser, so a matching filename alone is insufficient: missing or malformed
+replacement bytes fail the native batch. Existing item/perk-lock APIs remain separate.
 
 The runtime supports deferred and already-parsed intervals. Removing the content
 restores its edited fields and removes its added condition objects, preserving

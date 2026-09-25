@@ -33,7 +33,7 @@ def main() -> int:
     parser.add_argument("--blackness-grasp", action="store_true", help="Observe Blackness's complete Grasp cast, child transition and attack")
     parser.add_argument("--saturn-blaster", action="store_true", help="Observe Saturn's native RaidCharge Blaster and linked pistol/projectiles")
     parser.add_argument("--dandy-chain", action="store_true", help="Observe Dandy's RaidCharge Lightning Chain and all five linked phases")
-    parser.add_argument("--raid-ability", action="store_true", help="Observe Hoaxen, Hunter or Berstuuk's native raid ability")
+    parser.add_argument("--raid-ability", action="store_true", help="Observe Hoaxen, Hunter, Berstuuk, Arkhos or Tenebris native raid abilities")
     parser.add_argument("--mercenary-wave", action="store_true", help="Reach Girl Fan in Mercenary survival and validate her native equipment")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
@@ -81,10 +81,12 @@ def main() -> int:
     raid_ability_fights = (
             "de128:fights/uw_boss_7_1", "de128:fights/uw_boss_7_hardmode_1",
             "de128:fights/uw_boss_14_1", "de128:fights/uw_boss_14_hardmode_1",
-            "de128:fights/uw_boss_berstuuk_1", "de128:fights/uw_boss_berstuuk_hardmode_1")
+            "de128:fights/uw_boss_berstuuk_1", "de128:fights/uw_boss_berstuuk_hardmode_1",
+            "de128:fights/uw_boss_6_1", "de128:fights/uw_boss_6_hardmode_1",
+            "de128:fights/uw_boss_10_1", "de128:fights/uw_boss_10_hardmode_1")
     raid_targets = args.fights.split(",") if args.fights else [args.fight] if args.fight else []
     if args.raid_ability and (not raid_targets or any(target not in raid_ability_fights for target in raid_targets) or args.win):
-        parser.error("--raid-ability requires Hoaxen, Hunter or Berstuuk fights without --win.")
+        parser.error("--raid-ability requires a supported raid ability fight without --win.")
     if args.mercenary_wave and (args.fight != "de128:fights/uw_survival_mercenary_1" or args.win):
         parser.error("--mercenary-wave requires --fight de128:fights/uw_survival_mercenary_1 without --win.")
     if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.blackness_grasp, args.saturn_blaster, args.dandy_chain, args.raid_ability, args.mercenary_wave)) > 1:
@@ -104,6 +106,9 @@ def main() -> int:
         "Assets/Scripts/Assembly-CSharp/ModelAi.cs",
         "Assets/Scripts/Assembly-CSharp/Model.cs",
         "Assets/Scripts/Assembly-CSharp/AnimationData.cs",
+        "Assets/Scripts/Assembly-CSharp/InfoAnimation.cs",
+        "Assets/Scripts/Assembly-CSharp/MovesParser.cs",
+        "Assets/Scripts/Assembly-CSharp/ModelAnimation.cs",
         "Assets/Scripts/Assembly-CSharp/ConditionKeys.cs",
         "Assets/Scripts/Assembly-CSharp/ConditionAnimation.cs",
         "Assets/Scripts/Assembly-CSharp/SelectAnimation.cs",

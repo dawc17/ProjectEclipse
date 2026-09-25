@@ -1587,6 +1587,18 @@ local MoveInputPatch = {}
 ---@field value integer
 local MovePriorityPatch = {}
 
+---@class (exact) Eclipse.MoveAnimationPatch
+---@field expected string
+---@field value Eclipse.BinaryHandle
+local MoveAnimationPatch = {}
+
+---@class (exact) Eclipse.MoveIntervalRemoval
+---@field name string
+---@field type "Attack"|"Block"|"Invulnerable"|"Invisible"|"Uninterrupt"|"SelfUninterrupt"|"Unstable"
+---@field start integer
+---@field end integer
+local MoveIntervalRemoval = {}
+
 ---@class (exact) Eclipse.MovePatch
 ---@field move string
 ---@field disable? boolean
@@ -1597,6 +1609,8 @@ local MovePriorityPatch = {}
 ---@field sound_frame? Eclipse.MoveSoundFramePatch
 ---@field input? Eclipse.MoveInputPatch
 ---@field priority? Eclipse.MovePriorityPatch
+---@field animation? Eclipse.MoveAnimationPatch
+---@field remove_interval? Eclipse.MoveIntervalRemoval
 local MovePatch = {}
 
 ---@class (exact) Eclipse.MovePerkLockRemoval

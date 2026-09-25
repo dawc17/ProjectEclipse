@@ -1121,6 +1121,36 @@ namespace Eclipse.Modding
                         }
                     }
                 }
+                if (patches.Exists(patch => patch.Animation != null))
+                {
+                    Append(canonical, "move-combat-animation-v1");
+                    foreach (var patch in patches)
+                    {
+                        Append(canonical, patch.MoveName);
+                        Append(canonical, patch.Animation != null);
+                        if (patch.Animation != null)
+                        {
+                            Append(canonical, patch.Animation.Expected);
+                            Append(canonical, patch.Animation.Value.ToString());
+                        }
+                    }
+                }
+                if (patches.Exists(patch => patch.RemoveInterval != null))
+                {
+                    Append(canonical, "move-combat-remove-interval-v1");
+                    foreach (var patch in patches)
+                    {
+                        Append(canonical, patch.MoveName);
+                        Append(canonical, patch.RemoveInterval != null);
+                        if (patch.RemoveInterval != null)
+                        {
+                            Append(canonical, patch.RemoveInterval.Name);
+                            Append(canonical, patch.RemoveInterval.Type);
+                            Append(canonical, patch.RemoveInterval.Start);
+                            Append(canonical, patch.RemoveInterval.End);
+                        }
+                    }
+                }
             }
             if (content.MoveItemLockExtensions.Count > 0)
             {

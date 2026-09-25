@@ -201,8 +201,8 @@ public static class MovesParser
 			pJAHIOELGGD.Id = childNode.Attributes["ID"].ParseInt();
 			pJAHIOELGGD.FileName = childNode.Attributes["FileName"].CIPOICEEIBK(string.Empty);
 			pJAHIOELGGD.MNHGBPOIHKG = childNode.Attributes["MidFrames"].ParseInt();
-			pJAHIOELGGD.GOBJCKFGIPA = childNode.Attributes["FirstFrame"].ParseInt();
-			pJAHIOELGGD.LHHAGECFIOL = childNode.Attributes["EndFrame"].ParseInt();
+			pJAHIOELGGD.FirstFrame = childNode.Attributes["FirstFrame"].ParseInt();
+			pJAHIOELGGD.AnimationEndFrame = childNode.Attributes["EndFrame"].ParseInt();
 			pJAHIOELGGD.Priority = childNode.Attributes["Priority"].ParseInt();
 			pJAHIOELGGD.PFELBJBNEEK(childNode.Attributes["NoMagicRecharge"].ParseBool());
 			pJAHIOELGGD.Type = InfoAnimation.MGHNBEPCKIF.AnimationNone;
