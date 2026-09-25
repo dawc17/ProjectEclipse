@@ -12,6 +12,19 @@ const workspace = path.join(root, '.test-runtime/vscode-workspace');
 // Keep the installed extensions shared, but isolate editor/session state.
 fs.mkdirSync(path.join(root, '.test-runtime'), { recursive: true });
 const profile = fs.mkdtempSync(path.join(root, '.test-runtime/vscode-profile-'));
+const profileMarker = path.join(profile, '.eclipse-vscode-test-profile');
+fs.writeFileSync(profileMarker, 'Owned Eclipse VS Code integration fixture\n');
+let profileCleaned = false;
+function cleanProfile() {
+    if (profileCleaned) return;
+    if (path.dirname(profile) !== path.join(root, '.test-runtime') ||
+        !/^vscode-profile-[a-z0-9]+$/i.test(path.basename(profile)) ||
+        !fs.existsSync(profileMarker) ||
+        fs.readFileSync(profileMarker, 'utf8').trim() !== 'Owned Eclipse VS Code integration fixture')
+        throw new Error(`Refusing to clean unverified VS Code fixture: ${profile}`);
+    fs.rmSync(profile, { recursive: true, force: true });
+    profileCleaned = true;
+}
 fs.mkdirSync(path.join(profile, 'User'), { recursive: true });
 fs.writeFileSync(path.join(profile, 'User/settings.json'), JSON.stringify({
     'extensions.autoUpdate': false,
@@ -35,5 +48,5 @@ const child = spawn(executable, [
     '--disable-workspace-trust', '--skip-welcome', '--skip-release-notes', '--disable-updates',
 ], { windowsHide: true, stdio: 'inherit' });
 const timer = setTimeout(() => { child.kill(); console.error('VS Code integration test timed out.'); process.exitCode = 1; }, 90000);
-child.on('error', error => { clearTimeout(timer); console.error(error); process.exitCode = 1; });
-child.on('exit', code => { clearTimeout(timer); process.exitCode = code ?? 1; });
+child.on('error', error => { clearTimeout(timer); console.error(error); process.exitCode = 1; cleanProfile(); });
+child.on('exit', code => { clearTimeout(timer); process.exitCode = code ?? 1; cleanProfile(); });

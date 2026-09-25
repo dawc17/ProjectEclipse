@@ -135,6 +135,9 @@ finite map coordinates. Anchors must be finite values between 0 and 1, with
 `anchor_min_x <= anchor_max_x`. `show_type` accepts `both`, `story` or `raid`.
 Place the quest on `map` and give it `events = { "session" }` for a button shown
 at session start. React to a click with [`sf2.story.on("map_button", ...)`](../story/#sf2storyon).
+If a profile already contains a button with the same name, running the action
+updates its saved image, placement, anchors and display mode. This lets a mod
+move a button in an update without leaving the old position in existing saves.
 The action supplies the native button only; the click callback decides what to
 do. For example:
 

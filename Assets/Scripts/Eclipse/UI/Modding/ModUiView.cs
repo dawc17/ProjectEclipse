@@ -49,11 +49,13 @@ namespace Eclipse.UI.Modding
                 if (surface.Mount != ModUiMount.CombatHud)
                 {
                     var paper = root.AddComponent<Image>();
-                    Skin(paper,"DialogScroll.Background_Center",new Color32(203,171,120,255));
+                    Skin(paper, surface.Root.Style.Frame == "scroll" ? "CommonScrolls.Roll_MAP" : "DialogScroll.Background_Center",
+                        new Color32(203,171,120,255));
                     paper.color = ColorOf(surface.Root.Style.BackgroundColor,paper.color);
                     paper.raycastTarget = false;
                 }
-                view.Build(surface.Root, rect);
+                var content = view.Build(surface.Root, rect);
+                if (surface.Root.Style.Frame == "scroll") view.AddScrollFrame(content);
                 surface.Changed += view.UpdateWidget;
                 surface.Closed += view.Release;
                 return view;
@@ -105,6 +107,39 @@ namespace Eclipse.UI.Modding
         {
             rect.anchorMin = Vector2.zero; rect.anchorMax = Vector2.one;
             rect.offsetMin = rect.offsetMax = Vector2.zero;
+        }
+
+        // The same paper edges and rolled ends used by the recovered shop and
+        // map scrolls. Decorations live under the stack so root visibility and
+        // scaling apply to the entire frame, without intercepting input.
+        private void AddScrollFrame(RectTransform parent)
+        {
+            FramePiece(parent, "Paper left", "CommonScrolls.Paper_left",
+                new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, .5f), new Vector2(32, 0), Vector2.zero);
+            FramePiece(parent, "Paper right", "CommonScrolls.Paper_right",
+                new Vector2(1, 0), new Vector2(1, 1), new Vector2(1, .5f), new Vector2(44, 0), Vector2.zero);
+            foreach (float edge in new[] { 0f, 1f })
+            {
+                FramePiece(parent, edge == 0 ? "Lower roll" : "Upper roll", "CommonScrolls.Roll_center",
+                    new Vector2(0, edge), new Vector2(1, edge), new Vector2(.5f, edge), new Vector2(-80, 42), Vector2.zero);
+                FramePiece(parent, edge == 0 ? "Lower left end" : "Upper left end", "CommonScrolls.Roll_left",
+                    new Vector2(0, edge), new Vector2(0, edge), new Vector2(0, edge), new Vector2(45, 42), Vector2.zero);
+                FramePiece(parent, edge == 0 ? "Lower right end" : "Upper right end", "CommonScrolls.Roll_left",
+                    new Vector2(1, edge), new Vector2(1, edge), new Vector2(0, edge), new Vector2(45, 42), Vector2.zero, true);
+            }
+        }
+
+        private void FramePiece(RectTransform parent, string name, string sprite,
+            Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot, Vector2 size, Vector2 position, bool mirror = false)
+        {
+            var rect = Rect(name, parent, 0, 0);
+            rect.anchorMin = anchorMin; rect.anchorMax = anchorMax; rect.pivot = pivot;
+            rect.sizeDelta = size; rect.anchoredPosition = position;
+            if (mirror) rect.localScale = new Vector3(-1, 1, 1);
+            var image = rect.gameObject.AddComponent<Image>();
+            Skin(image, sprite, new Color32(203,171,120,255));
+            image.type = Image.Type.Simple;
+            image.raycastTarget = false;
         }
 
         private RectTransform Build(ModUiNode node, RectTransform parent)
@@ -243,6 +278,8 @@ namespace Eclipse.UI.Modding
             if (node.Kind == ModUiKind.Scroll)
             {
                 var viewport = Rect("Viewport", rect, 0, 0); Stretch(viewport);
+                bool framed = surface.Root.Style.Frame == "scroll";
+                if (framed) viewport.offsetMax = new Vector2(-22, 0);
                 viewport.gameObject.AddComponent<RectMask2D>();
                 // Transparent but raycastable so wheel/drag reaches ScrollRect.
                 var hit = viewport.gameObject.AddComponent<Image>(); hit.color = Color.clear;
@@ -253,6 +290,26 @@ namespace Eclipse.UI.Modding
                 scroll.viewport = viewport; scroll.content = content;
                 scroll.horizontal = false; scroll.vertical = true;
                 scroll.movementType = ScrollRect.MovementType.Clamped;
+                if (framed)
+                {
+                    var track = Rect("Scrollbar", rect, 16, 0);
+                    track.anchorMin = new Vector2(1, 0); track.anchorMax = new Vector2(1, 1);
+                    track.pivot = new Vector2(1, .5f);
+                    track.sizeDelta = new Vector2(16, -8); track.anchoredPosition = new Vector2(-2, 0);
+                    var background = track.gameObject.AddComponent<Image>();
+                    Skin(background, "SlidersSettings.SettingsEmpty", new Color32(48,31,20,255));
+                    var thumb = Rect("Handle", track, 0, 0); Stretch(thumb);
+                    thumb.offsetMin = new Vector2(2, 0); thumb.offsetMax = new Vector2(-2, 0);
+                    var handle = thumb.gameObject.AddComponent<Image>();
+                    Skin(handle, "SlidersSettings.slider", new Color32(213,165,62,255));
+                    var bar = track.gameObject.AddComponent<Scrollbar>();
+                    bar.direction = Scrollbar.Direction.BottomToTop;
+                    bar.handleRect = thumb; bar.targetGraphic = handle;
+                    bar.navigation = new Navigation { mode = Navigation.Mode.None };
+                    scroll.verticalScrollbar = bar;
+                    scroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
+                    scroll.verticalNormalizedPosition = 1;
+                }
             }
             else foreach (var child in node.Children) Build(child, rect);
             UpdateWidget(node.Id);

@@ -6,7 +6,11 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.40.0` restores four
+DE128 is an ordinary downstream Eclipse mod. Version `0.40.2` gives the dojo
+chooser a padded game-style scroll with ten image previews and a draggable
+scrollbar. The paintbrush button sits in the bottom-left corner of the story map,
+beside the chapter title. Enable the mod, Apply & Restart, then click the
+paintbrush to choose a dojo. Version `0.40.0` restores four
 archived older recordings in the existing campaign: the Zone 1 and Zone 3
 intermission tournaments, Hermit's intermission fight, and the Zone 6
 burning-town quest fight. The 18 affected fights use mod-owned audio handles;

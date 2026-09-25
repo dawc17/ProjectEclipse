@@ -1597,6 +1597,7 @@
     <None Include="Assets\DExml\locations\ritual_battle_raid\ritual_battle_raid_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_magic_root_stun_start_2_xml.txt" />
     <None Include="Assets\vanillaXml\locations\saturn_raid\saturn_raid_params.xml" />
+    <None Include="Assets\Resources\gamedata\locations\new_year_24_china_dojo\params.txt" />
     <None Include="Assets\vanillaXml\locations\cave\cave_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_war_ability_start_xml.txt" />
     <None Include="Assets\vanillaXml\quest_extensions\energy.xml" />

@@ -4153,7 +4153,11 @@
         "text_align?": "\"left\"|\"center\"|\"right\"",
         "text_color?": "string",
         "background_color?": "string",
-        "fill_color?": "string"
+        "fill_color?": "string",
+        "frame?": [
+          "\"scroll\"",
+          "Root stack on a menu or modal; uses the recovered game scroll artwork."
+        ]
       }
     },
     "UiNode": {

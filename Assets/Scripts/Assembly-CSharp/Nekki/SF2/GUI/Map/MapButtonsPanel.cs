@@ -76,11 +76,10 @@ namespace Nekki.SF2.GUI.Map
 
 		public void RemoveButtons()
 		{
-			foreach (MapButton item in _buttons)
+			for (int i = _buttons.Count - 1; i >= 0; i--)
 			{
-				RemoveButton(item);
+				RemoveButton(_buttons[i]);
 			}
-			_buttons.Clear();
 		}
 
 		public void SetStoryButtonsVisible(bool visible)
@@ -105,6 +104,7 @@ namespace Nekki.SF2.GUI.Map
 
 		public void RemoveButton(MapButton KLNKEPMAGKF)
 		{
+			_buttons.Remove(KLNKEPMAGKF);
 			KLNKEPMAGKF.gameObject.SetActive(false);
 			Object.Destroy(KLNKEPMAGKF.gameObject);
 		}

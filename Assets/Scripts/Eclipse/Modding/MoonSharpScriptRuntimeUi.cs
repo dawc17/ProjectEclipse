@@ -344,7 +344,7 @@ namespace Eclipse.Modding
                 const string function = "UI style";
                 if (value.Type != DataType.Table) throw new ModContentException("UI style must be a table.");
                 var table = value.Table;
-                ValidateFields(table, function, "text_color", "background_color", "fill_color", "font_size", "text_align");
+                ValidateFields(table, function, "text_color", "background_color", "fill_color", "font_size", "text_align", "frame");
                 int? size = null;
                 if (!table.Get("font_size").IsNil())
                 {
@@ -355,7 +355,7 @@ namespace Eclipse.Modding
                 }
                 return new ModUiStyle(OptionalString(table,"text_color",null,function),
                     OptionalString(table,"background_color",null,function), OptionalString(table,"fill_color",null,function),
-                    size, OptionalString(table,"text_align",null,function));
+                    size, OptionalString(table,"text_align",null,function), OptionalString(table,"frame",null,function));
             }
 
             private static double UiNumber(Table table, string name)

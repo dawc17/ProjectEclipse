@@ -99,8 +99,9 @@ namespace Eclipse.Modding
         public ModUiColor FillColor { get; }
         public int? FontSize { get; }
         public string TextAlign { get; }
+        public string Frame { get; }
         public ModUiStyle(string textColor = null, string backgroundColor = null, string fillColor = null,
-            int? fontSize = null, string textAlign = null)
+            int? fontSize = null, string textAlign = null, string frame = null)
         {
             TextColor = textColor == null ? null : new ModUiColor(textColor);
             BackgroundColor = backgroundColor == null ? null : new ModUiColor(backgroundColor);
@@ -109,7 +110,9 @@ namespace Eclipse.Modding
                 throw new ArgumentOutOfRangeException(nameof(fontSize), "UI font size must be 8..128.");
             if (textAlign != null && textAlign != "left" && textAlign != "center" && textAlign != "right")
                 throw new ArgumentException("UI text alignment must be left, center or right.");
-            FontSize = fontSize; TextAlign = textAlign;
+            if (frame != null && frame != "scroll")
+                throw new ArgumentException("UI frame must be scroll.");
+            FontSize = fontSize; TextAlign = textAlign; Frame = frame;
         }
         internal void ValidateFor(ModUiKind kind)
         {
@@ -119,6 +122,8 @@ namespace Eclipse.Modding
                 throw new ArgumentException("Only progress widgets and sliders accept fill color.");
             if ((kind == ModUiKind.Text || kind == ModUiKind.Image) && BackgroundColor != null)
                 throw new ArgumentException("Use a container for a text or image background.");
+            if (Frame != null && kind != ModUiKind.Stack)
+                throw new ArgumentException("Scroll frames require a stack container.");
         }
     }
 
@@ -302,11 +307,21 @@ namespace Eclipse.Modding
             Root = root ?? throw new ArgumentNullException(nameof(root));
             Placement = placement ?? new ModUiPlacement();
             if (root.Width == 0 || root.Height == 0) throw new ArgumentException("UI root needs positive dimensions.");
+            if (root.Style.Frame != null && mount == ModUiMount.CombatHud)
+                throw new ArgumentException("Scroll frames are available on menu and modal surfaces only.");
+            RequireRootFrame(root, true);
             Index(root, null, 1);
             click = onClick;
             close = onClose;
             change = onChange;
             back = onBack;
+        }
+
+        private static void RequireRootFrame(ModUiNode node, bool root)
+        {
+            if (!root && node.Style.Frame != null)
+                throw new ArgumentException("Only the UI root accepts a scroll frame.");
+            foreach (var child in node.Children) RequireRootFrame(child, false);
         }
 
         private void Index(ModUiNode node, Widget parent, int depth)

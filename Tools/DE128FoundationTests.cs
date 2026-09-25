@@ -309,10 +309,14 @@ internal static class DE128FoundationTests
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(
                 Path.Combine(_repository, "Mods/de128/assets/textures/dojo_changer/credits.png")))) ==
                 "208C19723A0BEDD9985D18F088D02341BAB0BEDFC3C9DA4061B13B3E55D2BE53" &&
-            button.X.ToString(System.Globalization.CultureInfo.InvariantCulture) == archivedButton.GetAttribute("X") &&
-            button.Y.ToString(System.Globalization.CultureInfo.InvariantCulture) == archivedButton.GetAttribute("Y") &&
-            button.AnchorMinX == 1 && button.AnchorMaxX == 1 && button.ShowType == archivedButton.GetAttribute("ShowType"),
-            "Dojo map button differs from the archived native action.");
+            // The archive's right-anchored (-3095, -645) lands entirely off screen
+            // in Eclipse's map canvas. Keep its icon and behavior, but place the
+            // button in the requested bottom-left map slot at common aspect ratios.
+            archivedButton.GetAttribute("X") == "-3095" && archivedButton.GetAttribute("Y") == "-645" &&
+            button.X == 240 && button.Y == -650 &&
+            button.AnchorMinX == 0 && button.AnchorMaxX == 0 &&
+            button.ShowType == archivedButton.GetAttribute("ShowType"),
+            "Dojo map button lost its visible Eclipse placement or archived identity.");
         var choices = new[] {
             ("dojo", "DefaultDojo"), ("new_year_24_china_dojo", "DojoChinese24"),
             ("dojo_indian_event", "DojoIndia"), ("dojo_indian_event_22", "DojoIndia22"),
@@ -328,10 +332,16 @@ internal static class DE128FoundationTests
         int previous = -1;
         foreach (var (location, label) in choices)
         {
-            var declaration = "{ location = \"" + location + "\", label = \"" + label + "\" }";
+            var declaration = "{ location = \"" + location + "\" }";
             int current = lua.IndexOf(declaration, StringComparison.Ordinal);
-            Check(current > previous, "Dojo chooser order or label changed: " + location);
+            Check(current > previous, "Dojo chooser order changed: " + location);
             previous = current;
+            var asset = Path.Combine(_repository, "Mods/de128/assets/sprites/dojo_changer", location + ".asset");
+            var texture = Path.Combine(_repository, "Mods/de128/assets/textures/dojo_changer", location + ".png");
+            Check(File.Exists(asset) && File.Exists(texture) &&
+                File.ReadAllText(asset).Contains("texture=textures/dojo_changer/" + location + ".png") &&
+                new FileInfo(texture).Length > 100000,
+                "Dojo preview is missing its packaged artwork: " + location);
             if (location != "dojo")
             {
                 var load = source.SelectSingleNode("/Root/Quest[@Name='" + label + "_Load']/Actions/ChangeDojoLocation") as XmlElement;
@@ -436,6 +446,12 @@ internal static class DE128FoundationTests
                 events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "de128.dojo_changer"));
                 Check(view != null && !view.IsClosed, "DE128 map button did not open its localized selector (view=" +
                     (view == null ? "null" : "closed=" + view.IsClosed) + ", error=" + storyError + ").");
+                Check(view.Root.Kind == ModUiKind.Stack && view.Root.Style.Frame == "scroll" &&
+                    view.WidgetCount == 36 && view.Read("choice_2").Text == "" &&
+                    view.Read("preview_2").Sprite?.ToString() ==
+                        "de128:sprites/dojo_changer/new_year_24_china_dojo" &&
+                    view.Root.Children[0].Children[1].Kind == ModUiKind.Scroll,
+                    "DE128 dojo chooser lost its framed, image-only scroll gallery.");
                 view.TryClick("close");
                 Check(view.IsClosed && selection.SavedLocation == "", "Closing the selector changed the dojo preference.");
                 events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "de128.dojo_changer"));
@@ -1081,6 +1097,7 @@ internal static class DE128FoundationTests
             (Body: "return { enchantments = {{ perk = perk, aspect = math.huge }} }", Error: "finite"),
             (Body: "return { enchantments = {{ perk = perk, aspect = 2147483648 }} }", Error: "finite"),
             (Body: "return { enchantments = {{ perk = perk, chance = 1.1 }} }", Error: "chance"),
+            (Body: "return { enchantments = {{ perk = perk, chance_factor = 10001 }} }", Error: "chance_factor"),
             (Body: "return { enchantments = {{ perk = perk, frames = -1 }} }", Error: "frames"),
             (Body: "return { enchantments = {{ perk = perk, parameters = { Chance = 1 } }} }", Error: "parameter"),
             (Body: "return { enchantments = {{ perk = perk, parameters = { DamageFactor = 0/0 } }} }", Error: "finite"),
@@ -1097,7 +1114,7 @@ local perk = sf2.perks.get('core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON')
 sf2.rewards.register {id='valid', items={{item=weapon, upgrade=2, configure=function(context)
     assert(context.item_id == 'core:items/weapon/weapon_titan_giant_sword')
     return {level=context.player_level, enchantments={{perk=perk, aspect=123.45,
-        chance=0.3, frames=300, parameters={Base=-1000, DamageFactor=15850}}}}
+        chance_factor=2.5, chance=0.3, frames=300, parameters={Base=-1000, DamageFactor=15850}}}}
 end}}, choices={{items={{item=weapon, weight=3, configure=function(context) return {} end}}}}}
 ");
         for (int i = 0; i < cases.Length; i++)
@@ -1122,7 +1139,8 @@ end}}, choices={{items={{item=weapon, weight=3, configure=function(context) retu
                     "Reward callback expected '" + cases[i].Error + "', got " + failure);
                 var recovered = valid.Items[0].Configure(7);
                 Check(recovered.Level == 7 && valid.Items[0].UpgradeNumber == 2 &&
-                    recovered.Enchantments[0].Aspect == 123.45 && recovered.Enchantments[0].Chance == 0.3 &&
+                    recovered.Enchantments[0].Aspect == 123.45 && recovered.Enchantments[0].ChanceFactor == 2.5 &&
+                    recovered.Enchantments[0].Chance == 0.3 &&
                     recovered.Enchantments[0].Frames == 300 && recovered.Enchantments[0].Parameters["Base"] == -1000 &&
                     recovered.Enchantments[0].Parameters["DamageFactor"] == 15850,
                     "A failed callback leaked its scope or changed a later reward.");

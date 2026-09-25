@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using Eclipse.Modding;
 using Eclipse.UI.Modding;
 using Nekki.SF2.GUI;
@@ -11,6 +13,8 @@ using Nekki.SF2.GUI.Menu;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 // Runs only in the isolated project made by TestDE128DojoNative.py.
 [InitializeOnLoad]
@@ -21,9 +25,10 @@ public static class ValidateDE128DojoNative
     const string Choice = "new_year_24_china_dojo";
     static readonly BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
     static double started;
-    static bool campaign, mapRequested, clicked, selected;
+    static bool campaign, mapRequested, migrationChecked, clicked, selected, legacyStored;
     static double clickedAt;
     static double selectedAt;
+    static double legacyStoredAt;
     static double lastCardPress;
     static int campaignCards;
     static string phase;
@@ -78,6 +83,11 @@ public static class ValidateDE128DojoNative
             {
                 if (module.NMCNDOPKFJD() != ScreenType.ModuleDojo &&
                     module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+                var button = MapButtonController.ELEBLBJKDBI().MEPCBPIJLGB()
+                    .SingleOrDefault(value => value.Name == "de128.dojo_changer");
+                if (button == null || button.BIJFFONMDBC.x != 240f ||
+                    button.BIJFFONMDBC.y != -650f || button.AnchorMinX != 0f)
+                    throw new Exception("The saved off-screen map button was not repositioned after restart.");
                 string resolved = ModRuntime.ResolveDojoLocation("dojo");
                 string entry = Location.ResolveEntryLocation(BattleType.FightNone, "dojo");
                 if (resolved != Choice || entry != Choice)
@@ -129,17 +139,54 @@ public static class ValidateDE128DojoNative
                     .SingleOrDefault(value => value.Name == "de128.dojo_changer");
                 if (info == null) return;
                 if (info.NHKMCLPOMFK != "de128:sprites/dojo_changer/credits" ||
-                    info.AnchorMinX != 1f || info.AnchorMaxX != 1f ||
-                    info.BIJFFONMDBC.x != -3095f || info.BIJFFONMDBC.y != -645f ||
+                    info.AnchorMinX != 0f || info.AnchorMaxX != 0f ||
+                    info.BIJFFONMDBC.x != 240f || info.BIJFFONMDBC.y != -650f ||
                     info.EDMILHNJFAA() != MapButtonInfo.HNEJAKIGDBA.Both)
-                    throw new Exception("Native map-button presentation differs from the archived action.");
+                    throw new Exception("Native map-button presentation differs from the visible DE128 placement.");
+                if (!migrationChecked)
+                {
+                    var buttons = MapButtonController.ELEBLBJKDBI();
+                    buttons.GKIOOABOBFL(ArchivedButton(info));
+                    buttons.GKIOOABOBFL(info);
+                    buttons.GKIOOABOBFL(info);
+                    var saved = typeof(MapButtonController).GetField("_node", Hidden)
+                        .GetValue(buttons) as XmlNode;
+                    var entries = saved?.SelectNodes("Button[@Name='de128.dojo_changer']");
+                    if (buttons.MEPCBPIJLGB().Count(value => value.Name == info.Name) != 1 ||
+                        entries == null || entries.Count != 1 ||
+                        entries[0].Attributes?["X"]?.Value != "240" ||
+                        entries[0].Attributes?["Y"]?.Value != "-650")
+                        throw new Exception("A previously saved off-screen button was not replaced in the profile.");
+                    migrationChecked = true;
+                    return;
+                }
                 var button = UnityEngine.Object.FindObjectsOfType<MapButton>()
                     .SingleOrDefault(value => value.get_MapButtonInfo() == info);
                 if (button == null) return;
                 var image = typeof(MapButton).GetField("_image", Hidden).GetValue(button) as ResolutionImageLE;
                 if (image == null || image.sprite == null || image.sprite.texture == null)
                     throw new Exception("The installed map button did not render its DE128-owned sprite.");
-                button.ActivateAction();
+                var corners = new Vector3[4];
+                ((RectTransform)button.transform).GetWorldCorners(corners);
+                var canvas = button.GetComponentInParent<Canvas>();
+                var camera = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay
+                    ? canvas.worldCamera : null;
+                var lower = RectTransformUtility.WorldToScreenPoint(camera, corners[0]);
+                var upper = RectTransformUtility.WorldToScreenPoint(camera, corners[2]);
+                Debug.Log(Prefix + "button screen rect " + lower + " .. " + upper +
+                    " of " + Screen.width + "x" + Screen.height);
+                if (lower.x < 0 || upper.x > Screen.width || lower.y < 0 || upper.y > Screen.height)
+                    throw new Exception("The dojo map button is clipped by the screen despite loading its sprite.");
+                if (upper.y > Screen.height * 0.18f || upper.x > Screen.width * 0.2f)
+                    throw new Exception("The dojo map button is outside the bottom-left map slot.");
+                var events = EventSystem.current;
+                if (events == null) throw new Exception("The map has no EventSystem for button input.");
+                var pointer = new PointerEventData(events) { position = (lower + upper) * 0.5f };
+                var hits = new List<RaycastResult>();
+                events.RaycastAll(pointer, hits);
+                if (hits.Count == 0 || hits[0].gameObject.GetComponentInParent<MapButton>() != button)
+                    throw new Exception("The bottom-left dojo button is covered or cannot receive pointer input.");
+                ExecuteEvents.ExecuteHierarchy(hits[0].gameObject, pointer, ExecuteEvents.pointerClickHandler);
                 clicked = true;
                 clickedAt = EditorApplication.timeSinceStartup;
                 Debug.Log(Prefix + "native map button clicked");
@@ -167,9 +214,43 @@ public static class ValidateDE128DojoNative
                     return;
                 }
                 if (surface.Id != "dojo_changer" || surface.Mount != ModUiMount.Modal ||
-                    surface.WidgetCount != 14 || string.IsNullOrEmpty(surface.Read("choice_2").Text))
-                    throw new Exception("The mounted dojo selector has the wrong native UI shape.");
-                if (!surface.TryClick("choice_2")) return;
+                    surface.WidgetCount != 36 || surface.Root.Style.Frame != "scroll" ||
+                    surface.Read("choice_2").Text != "" ||
+                    surface.Read("preview_2").Sprite?.ToString() !=
+                        "de128:sprites/dojo_changer/new_year_24_china_dojo")
+                    throw new Exception("The mounted dojo selector is not the image-only scroll gallery.");
+                var view = UnityEngine.Object.FindObjectOfType<ModUiView>();
+                var scroll = view == null ? null : view.GetComponentInChildren<ScrollRect>();
+                var artwork = view == null ? null : view.GetComponentsInChildren<Image>(true)
+                    .SingleOrDefault(value => value.name == "preview_2");
+                var frame = view == null ? null : view.GetComponentsInChildren<Image>(true)
+                    .FirstOrDefault(value => value.name == "Upper roll");
+                if (scroll == null || scroll.verticalScrollbar == null ||
+                    scroll.content.rect.height <= scroll.viewport.rect.height ||
+                    artwork == null || artwork.sprite == null || artwork.sprite.texture == null ||
+                    frame == null || frame.sprite == null || frame.sprite.name != "CommonScrolls.Roll_center")
+                    throw new Exception("The dojo gallery is missing native scroll behavior, preview art or rolled frame.");
+                Canvas.ForceUpdateCanvases();
+                float top = scroll.content.anchoredPosition.y;
+                scroll.verticalNormalizedPosition = 0;
+                Canvas.ForceUpdateCanvases();
+                if (Mathf.Abs(scroll.content.anchoredPosition.y - top) < 100f)
+                    throw new Exception("The dojo preview grid cannot scroll through all ten images.");
+                scroll.verticalNormalizedPosition = 1;
+                Canvas.ForceUpdateCanvases();
+                var artCorners = new Vector3[4];
+                artwork.rectTransform.GetWorldCorners(artCorners);
+                var artCanvas = artwork.GetComponentInParent<Canvas>();
+                var artCamera = artCanvas != null && artCanvas.renderMode != RenderMode.ScreenSpaceOverlay
+                    ? artCanvas.worldCamera : null;
+                var artLower = RectTransformUtility.WorldToScreenPoint(artCamera, artCorners[0]);
+                var artUpper = RectTransformUtility.WorldToScreenPoint(artCamera, artCorners[2]);
+                var artPointer = new PointerEventData(EventSystem.current) { position = (artLower + artUpper) * .5f };
+                var artHits = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(artPointer, artHits);
+                if (artHits.Count == 0 || artHits[0].gameObject.GetComponentInParent<Button>()?.name != "choice_2")
+                    throw new Exception("The Chinese dojo image does not receive pointer clicks.");
+                ExecuteEvents.ExecuteHierarchy(artHits[0].gameObject, artPointer, ExecuteEvents.pointerClickHandler);
                 if (ModRuntime.ResolveDojoLocation("dojo") != Choice)
                     throw new Exception("Clicking the Chinese dojo did not update the profile choice.");
                 selected = true;
@@ -186,6 +267,16 @@ public static class ValidateDE128DojoNative
                 if (location != null && location.name != Choice)
                     throw new Exception("The dojo fight loaded a different location: " + location.name);
             }
+            if (!legacyStored)
+            {
+                var savedButton = MapButtonController.ELEBLBJKDBI().MEPCBPIJLGB()
+                    .Single(value => value.Name == "de128.dojo_changer");
+                MapButtonController.ELEBLBJKDBI().GKIOOABOBFL(ArchivedButton(savedButton));
+                legacyStored = true;
+                legacyStoredAt = EditorApplication.timeSinceStartup;
+                return;
+            }
+            if (EditorApplication.timeSinceStartup - legacyStoredAt < 2) return;
             Debug.Log(Prefix + "PASS select: native map button, mounted UI, profile preference and dojo transition.");
             Finish(0);
         }
@@ -202,4 +293,9 @@ public static class ValidateDE128DojoNative
 
     static bool NativeBlocked() => (bool)typeof(ModUiGameBridge).GetProperty("NativeInputBlocked",
         BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+    static MapButtonInfo ArchivedButton(MapButtonInfo current) =>
+        new MapButtonInfo(current.Name, current.NHKMCLPOMFK, "",
+            new Vector2(-3095f, -645f), anchorMinX: 1f, anchorMaxX: 1f,
+            BFBFKHHANJG: "Both");
 }

@@ -8,8 +8,11 @@ const assert = require('node:assert/strict');
 
 const root = path.resolve(__dirname, '..');
 const binary = process.argv[2] || path.join(root, '.test-runtime/luals-3.18.2/bin/lua-language-server.exe');
-const workspace = path.join(root, '.test-runtime/workspace');
-fs.mkdirSync(workspace, { recursive: true });
+const runtimeRoot = path.join(root, '.test-runtime');
+fs.mkdirSync(runtimeRoot, { recursive: true });
+const workspace = fs.mkdtempSync(path.join(runtimeRoot, 'lsp-workspace-'));
+const marker = path.join(workspace, 'eclipse-lsp-fixture.marker');
+fs.writeFileSync(marker, 'Owned Eclipse LuaLS integration fixture\n');
 const config = {
     runtime: { version: 'Lua 5.2' },
     workspace: { library: [path.join(root, 'library')], checkThirdParty: false },
@@ -17,7 +20,7 @@ const config = {
     telemetry: { enable: false },
 };
 fs.writeFileSync(path.join(workspace, '.luarc.json'), JSON.stringify(config));
-const server = spawn(binary, ['--logpath', path.join(root, '.test-runtime/log')], { windowsHide: true });
+const server = spawn(binary, ['--logpath', path.join(workspace, 'log')], { windowsHide: true });
 const pending = new Map();
 const diagnostics = new Map();
 let buffer = Buffer.alloc(0);
@@ -102,14 +105,14 @@ async function main() {
         const found = labels(await request('textDocument/completion', moduleProbe));
         return ['items', 'assets', 'localization', 'price', 'shop', 'log'].every(label => found.includes(label));
     }, 'module completion');
-    fs.writeFileSync(path.join(root, '.test-runtime/modules.json'), JSON.stringify(await request('textDocument/completion', moduleProbe), null, 2));
+    fs.writeFileSync(path.join(workspace, 'modules.json'), JSON.stringify(await request('textDocument/completion', moduleProbe), null, 2));
     console.log('PASS: require("sf2") resolves and completes API modules');
 
     const functionProbe = probe('functions.lua', 'local sf2 = require("sf2")\nsf2.items.|');
     await until(async () => {
         const result = await request('textDocument/completion', functionProbe);
-        fs.writeFileSync(path.join(root, '.test-runtime/completion.json'), JSON.stringify(result, null, 2));
-        fs.writeFileSync(path.join(root, '.test-runtime/hover.json'), JSON.stringify(await request('textDocument/hover', { textDocument: functionProbe.textDocument, position: { line: 1, character: 5 } }), null, 2));
+        fs.writeFileSync(path.join(workspace, 'completion.json'), JSON.stringify(result, null, 2));
+        fs.writeFileSync(path.join(workspace, 'hover.json'), JSON.stringify(await request('textDocument/hover', { textDocument: functionProbe.textDocument, position: { line: 1, character: 5 } }), null, 2));
         return labels(result).some(label => label.startsWith('register_weapon'));
     }, 'function completion');
     console.log('PASS: weapon function completion');
@@ -117,7 +120,7 @@ async function main() {
     const fieldsProbe = probe('fields.lua', 'local sf2 = require("sf2")\nsf2.items.register_weapon {\n    |\n}');
     await until(async () => {
         const result = await request('textDocument/completion', fieldsProbe);
-        fs.writeFileSync(path.join(root, '.test-runtime/fields.json'), JSON.stringify(result, null, 2));
+        fs.writeFileSync(path.join(workspace, 'fields.json'), JSON.stringify(result, null, 2));
         const fields = labels(result);
         return ['id', 'display_name', 'icon', 'model', 'subtype'].every(field => fields.some(label => label.replace(/\?$/, '') === field || label.startsWith(`${field} `)));
     }, 'weapon field completion');
@@ -393,6 +396,12 @@ async function main() {
         const found=labels(await request('textDocument/completion',rewardGrant));
         return ['item','upgrade','configure'].every(name=>found.some(value=>value===name||value===name+'?'||value.startsWith(name+' ')));
     },'reward grant fields');
+    const rewardEnchantment=probe('reward-configure-enchantment.lua',
+        '---@type Eclipse.RewardGrantEnchantment\nlocal enchantment = { | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',rewardEnchantment));
+        return ['perk','aspect','chance_factor','chance','frames','parameters'].every(name=>found.some(value=>value===name||value===name+'?'||value.startsWith(name+' ')));
+    },'reward enchantment configuration fields');
     console.log('PASS: reward grant configure completes and callback context is inferred');
     const outgoing=probe('outgoing.lua','local sf2=require("sf2")\nsf2.behaviors.register { id="test",on_damage_dealing=function(_,fighter,event)\n fighter:|\nend }');
     await until(async()=>{const found=labels(await request('textDocument/completion',outgoing));return ['scale_outgoing_damage','add_outgoing_damage'].every(method=>found.some(name=>name.startsWith(method)));},'outgoing fighter method inference');
@@ -445,7 +454,7 @@ async function main() {
     const uiPlacement=probe('ui-placement.lua','local sf2=require("sf2")\nsf2.ui.open { id="hud",mount="hud",placement={ | } }');
     await until(async()=>{
         const result=await request('textDocument/completion',uiPlacement);
-        fs.writeFileSync(path.join(root,'.test-runtime/ui-placement.json'),JSON.stringify(result,null,2));
+        fs.writeFileSync(path.join(workspace,'ui-placement.json'),JSON.stringify(result,null,2));
         return labels(result).some(name=>name.startsWith('anchor'));
     },'UI placement completion');
     console.log('PASS: UI layout nodes complete from the open definition');
@@ -667,7 +676,7 @@ async function main() {
     ].join('\n'));
     await until(() => (diagnostics.get(decodeURIComponent(invalidUri).toLowerCase())?.length ?? 0) >= 4, 'invalid sample diagnostics');
     const errors = diagnostics.get(decodeURIComponent(invalidUri).toLowerCase());
-    fs.writeFileSync(path.join(root, '.test-runtime/diagnostics.json'), JSON.stringify(errors, null, 2));
+    fs.writeFileSync(path.join(workspace, 'diagnostics.json'), JSON.stringify(errors, null, 2));
     for (const line of [4, 7, 8, 9]) assert(errors.some(d => d.range.start.line === line), `Missing diagnostic at line ${line + 1}: ${JSON.stringify(errors)}`);
     console.log('PASS: wrong handle, wrong scalar type, missing fields, and misspelled function are diagnosed');
     console.log('All LuaLS integration checks passed. This verifies editor behavior, not game execution.');
@@ -675,7 +684,18 @@ async function main() {
     notify('exit');
 }
 server.on('error', error => { console.error(error); process.exitCode = 1; });
-main().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => {
+main().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
     for (const entry of pending.values()) clearTimeout(entry.timer);
-    server.kill();
+    if (server.exitCode === null) {
+        const exited = new Promise(resolve => server.once('exit', resolve));
+        server.kill();
+        await Promise.race([exited, sleep(2000)]);
+    }
+    const actual = fs.realpathSync(workspace);
+    if (path.dirname(actual).toLowerCase() !== fs.realpathSync(runtimeRoot).toLowerCase() ||
+        !path.basename(actual).startsWith('lsp-workspace-') ||
+        fs.readFileSync(marker, 'utf8') !== 'Owned Eclipse LuaLS integration fixture\n') {
+        throw new Error('Refusing to clean an unverified LuaLS fixture: ' + actual);
+    }
+    fs.rmSync(actual, { recursive: true });
 });

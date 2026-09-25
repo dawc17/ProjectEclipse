@@ -27,8 +27,11 @@ for all 29 music IDs in the reviewed raid data. The mod ships PCM16 WAV files
 and resolves them by their archive IDs, so battles do not depend on the base
 game's substitute music. Battle mapping checks and a native Unity loader test
 cover all 29 clips; audible playback in a fight has not yet been verified.
-Its dojo chooser uses a declarative map-button quest and `map_button` story
-callback to select an installed core location through the saved dojo API. Ten
+Its dojo chooser places a paintbrush button at the bottom-left of the story map.
+It opens a padded game-style scroll with ten clickable dojo images, a visible
+scrollbar and a highlight for the current selection. It uses a declarative
+map-button quest and `map_button` story callback to select
+an installed core location through the saved dojo API. Ten
 archived choices have the required location data; two still need missing art or
 params. See <a href={pageUrl('api/quests')}>Quests</a> and
 <a href={pageUrl('api/locations-and-locales')}>Locations</a> for these APIs.

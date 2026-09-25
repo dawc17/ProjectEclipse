@@ -1865,6 +1865,7 @@ local UiHandle = {}
 ---@field text_color? string
 ---@field background_color? string
 ---@field fill_color? string
+---@field frame? "scroll" Root stack on a menu or modal; uses the recovered game scroll artwork.
 local UiStyle = {}
 
 ---@class (exact) Eclipse.UiNode

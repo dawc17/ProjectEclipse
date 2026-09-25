@@ -70,7 +70,11 @@ Each node is a table:
 | `style` | Game defaults | Optional style table; see below. |
 
 Rows and columns lay out their children in order; stacks center their children.
-Scroll is vertical with clipped content. Default labels use the game font with
+Scroll is vertical with clipped content. A root stack can request the original
+game scroll frame with `style = { frame = "scroll" }` on a menu or modal;
+leave space inside it for the rolled ends and paper edges. A scroll widget
+inside that frame shows a draggable scrollbar as well as supporting mouse-wheel,
+drag and keyboard/controller focus scrolling. Default labels use the game font with
 a fallback. Menu/modal surfaces use the original parchment background; buttons
 use the native white beveled sprite and native button tints. Progress bars use
 the recovered combat bar textures. HUD roots stay transparent. Keep custom UI
@@ -253,6 +257,7 @@ They affect presentation only; they do not enable rich text or change input rule
 | `text_color` | Native dark text on parchment/buttons; pale gold on HUD labels | Text/buttons/toggles. |
 | `background_color` | Native sprite colors | Containers, buttons, toggles, progress and slider tracks. Use a container behind text. |
 | `fill_color` | Native combat bar colors | Progress widgets and sliders. |
+| `frame` | No extra frame | `scroll` on a menu/modal root `stack` only. Adds the game's paper sides and rolled ends; a nested vertical scroll gets a visible scrollbar. Inset content at least 45 units from the frame edges. |
 
 Colors must be `#RRGGBB` or `#RRGGBBAA` hex strings (case-insensitive); omitted
 alpha means opaque. Sprite colors are multiplicative tints, so a color does not
@@ -267,6 +272,13 @@ widget kinds raise an error.
 { id = "title", kind = "text", width = 400, height = 48,
   text = "Battle rules", style = { font_size = 30, text_align = "left" } }
 ```
+
+For a scroll-framed chooser, center a smaller content column inside a root
+stack, leaving space for the original roll art. For example, a 520-unit root
+can contain a 420-unit column with a title, `scroll` widget and close button.
+The scroll content must be taller than its viewport to move; use a fixed-height
+grid or column inside it. The [DE128 dojo chooser](https://github.com/dawc17/ProjectEclipse/blob/main/Mods/de128/scripts/content/dojo_changer.lua)
+shows clickable image previews in this layout.
 
 Text still wraps and clips within its authored dimensions. Provide enough width
 and height for translations and larger text. These options do not expose custom

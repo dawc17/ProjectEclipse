@@ -104,7 +104,7 @@ internal static class RewardGrantNativeTests
             calls++; seenLevel = level;
             return new RewardGrantConfiguration(null, new[]
             {
-                new RewardGrantEnchantment(corePerk, 3639.75, chance: 0.3, frames: 300,
+                new RewardGrantEnchantment(corePerk, 3639.75, chanceFactor: 2.5, chance: 0.3, frames: 300,
                     parameters: new Dictionary<string, double> { { "DamageFactor", 15850 } }),
                 new RewardGrantEnchantment(depPerk)
             });
@@ -118,6 +118,7 @@ internal static class RewardGrantNativeTests
             "Bridge did not snapshot the pre-XP player level into a literal reward level.");
         Assert(configured.LDLPCOFHFKE.Count == 2 && configured.LDLPCOFHFKE[0].get_Name() == "FRENZY" &&
             configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["Aspect"] == "3639.75" &&
+            configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["ChanceFactor"] == "2.5" &&
             configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["Chance"] == "0.3" &&
             configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["Frames"] == "300" &&
             configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["DamageFactor"] == "15850" &&

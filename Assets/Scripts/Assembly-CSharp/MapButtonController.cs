@@ -57,13 +57,32 @@ public class MapButtonController : global::EventDispatcher<MapButtonInfo>
 		if (DJDNMAOEFBD != null)
 		{
 			MapButtonInfo eBMMANKELOA = ECMMPBEMCPE.Find((MapButtonInfo DHDMNHCIPEH) => DHDMNHCIPEH.Name.Equals(DJDNMAOEFBD.Name));
-			if (eBMMANKELOA == null)
+			if (eBMMANKELOA != null)
 			{
-				IPLIFIPBFAD(DJDNMAOEFBD);
-				ECMMPBEMCPE.Add(DJDNMAOEFBD);
-				CallEvent(0, DJDNMAOEFBD);
+				if (SamePresentation(eBMMANKELOA, DJDNMAOEFBD)) return;
+				// A quest can move a button across mod versions; replace the saved
+				// presentation and refresh any map that is already open.
+				KFEBGKAALIA(eBMMANKELOA.Name);
+				ECMMPBEMCPE.Remove(eBMMANKELOA);
+				CallEvent(1, eBMMANKELOA);
 			}
+			IPLIFIPBFAD(DJDNMAOEFBD);
+			ECMMPBEMCPE.Add(DJDNMAOEFBD);
+			CallEvent(0, DJDNMAOEFBD);
 		}
+	}
+
+	private static bool SamePresentation(MapButtonInfo current, MapButtonInfo next)
+	{
+		return current.NHKMCLPOMFK == next.NHKMCLPOMFK &&
+			current.Timer == next.Timer && current.HFBFPBGLBOM == next.HFBFPBGLBOM &&
+			(current.KMEDBHDDDJA == next.KMEDBHDDDJA ||
+				current.KMEDBHDDDJA == "Image" && string.IsNullOrEmpty(next.KMEDBHDDDJA)) &&
+			current.BIJFFONMDBC == next.BIJFFONMDBC &&
+			current.AnchorMinX == next.AnchorMinX && current.AnchorMaxX == next.AnchorMaxX &&
+			current.NEOIMNAHLAN == next.NEOIMNAHLAN &&
+			current.BOEJEFCDIAD == next.BOEJEFCDIAD && current.Pause == next.Pause &&
+			current.MLKPBAALMBC == next.MLKPBAALMBC;
 	}
 
 	public void DMCBGLJHBPA(MapButtonInfo DJDNMAOEFBD)

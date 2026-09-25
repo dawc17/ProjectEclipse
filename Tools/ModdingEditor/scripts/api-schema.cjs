@@ -269,7 +269,8 @@ type('CounterDefinition',{id:'string','maximum?':'integer'});reg('counters.regis
 for(const name of ['debug','info','warn','error']) fn('log.'+name,{message:'string'},'nil',null);
 type('UiHandle', { 'private __eclipseUi': 'true' });
 type('UiStyle', { 'font_size?':'integer','text_align?':enumOf('left','center','right'),
-    'text_color?':'string','background_color?':'string','fill_color?':'string' });
+    'text_color?':'string','background_color?':'string','fill_color?':'string',
+    'frame?':[enumOf('scroll'),'Root stack on a menu or modal; uses the recovered game scroll artwork.'] });
 type('UiNode', { id:'string', kind:enumOf('stack','row','column','scroll','text','button','progress','toggle','slider','image','grid'),
     'width?':'number','height?':'number','gap?':'number','text?':'string','value?':'number','checked?':'boolean',
     'visible?':'boolean','enabled?':'boolean','children?':E('UiNode')+'[]','style?':E('UiStyle'),'sprite?':H('Sprite'),'mirrored?':['boolean','Image only. Defaults to false; horizontally reflects the artwork without changing layout size.'],
