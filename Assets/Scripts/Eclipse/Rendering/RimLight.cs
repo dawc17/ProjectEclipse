@@ -6,16 +6,33 @@ namespace Eclipse.Rendering
 {
 	// Rim light (sf2.visuals.rim_light): body renderers draw an offset, coloured
 	// twin just behind themselves, so a thin lit edge shows on one side of the
-	// silhouette. The fight's location supplies the colour while a fight runs.
+	// silhouette. A fight's location supplies the colour; menu previews (shop,
+	// profile) use a warm neutral light.
 	public static class RimLight
 	{
 		private const float Depth = 0.05f;
+
+		private static readonly Color PreviewLight = new Color(0.95f, 0.87f, 0.72f, 1f);
 
 		public static Color? SceneColor { get; set; }
 
 		public static bool Active
 		{
-			get { return SceneColor.HasValue && FightInterpolation.IsFightActive && ModVisuals.Active(ModVisualEffect.RimLight) != null; }
+			get { return ModVisuals.Active(ModVisualEffect.RimLight) != null; }
+		}
+
+		// The rim colour now: the fight location's, or the preview light brightened
+		// and faded by the mod's lighten/alpha settings.
+		public static Color CurrentColor
+		{
+			get
+			{
+				if (SceneColor.HasValue) return SceneColor.Value;
+				ModVisualDefinition settings = ModVisuals.Active(ModVisualEffect.RimLight);
+				Color c = Color.Lerp(PreviewLight, Color.white, settings != null ? settings.Number("lighten") : 0.35f);
+				c.a = settings != null ? settings.Number("alpha") : 0.85f;
+				return c;
+			}
 		}
 
 		// Offset toward the upper left of the screen by a constant pixel distance,

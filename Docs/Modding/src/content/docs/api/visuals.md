@@ -28,6 +28,10 @@ Things to know first:
   player's profile and are not part of the content fingerprint, so adding or
   removing a visuals mod never affects saves. Setting values are stored per
   installation.
+- **Where they apply.** Weapon trails and the rim light also apply to fighter
+  previews in menus such as the shop and profile. Background depth, depth
+  haze, ambient particles, bloom and impact need a fight location and run only
+  in fights and the dojo.
 - **Accessibility.** The impact effect on critical hits is also scaled by the
   player's **Critical hit shake** accessibility slider.
 - **Defaults.** Every numeric field is optional. Omitted fields use the
@@ -170,8 +174,10 @@ sf2.visuals.depth_haze { strength = 0.35, setting = haze }
 
 **Requires:** `presentation.visuals`.
 
-Draws a thin lit edge on each fighter's upper-left side. Its colour is the
-location's background colour, brightened toward white by `lighten`.
+Draws a thin lit edge on each fighter's upper-left side. In fights its colour
+is the location's background colour; in menu previews such as the shop and
+profile it is a warm neutral light. Either way it is brightened toward white
+by `lighten`.
 
 | Field | Default | Range |
 | --- | --- | --- |

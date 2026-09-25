@@ -546,6 +546,12 @@ namespace Eclipse.Modding
             return RequireRegistration().RegisterVisual(effect, numbers, setting, color, defaultStyle, rules);
         }
 
+        public ModFxDefinition RegisterFx(ModFxKind kind, string localId, ModFxRequest request)
+        {
+            RequireCapability("presentation.visuals");
+            return RequireRegistration().RegisterFx(kind, localId, request);
+        }
+
         public ModDojoButton RegisterDojoButton(string localId, AssetId image)
         {
             RequireCapability("content.register");

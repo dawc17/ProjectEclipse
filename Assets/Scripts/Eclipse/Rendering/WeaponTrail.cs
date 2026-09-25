@@ -66,7 +66,7 @@ namespace Eclipse.Rendering
 		{
 			if (_mesh == null) return;
 			ModVisualDefinition settings = ModVisuals.Active(ModVisualEffect.WeaponTrails);
-			if (settings == null || _model == null || !FightInterpolation.IsFightActive)
+			if (settings == null || _model == null)
 			{
 				if (_blades.Count != 0) { ClearSamples(); _mesh.Clear(); }
 				return;
@@ -161,12 +161,24 @@ namespace Eclipse.Rendering
 		}
 
 		// "_1" or "_2" when every weighted control point is a skeleton weapon node of one hand.
+		// The loader binds control-point names to nodes and may release the name list,
+		// so read the bound nodes and fall back to the names.
 		private static string WeaponHand(ModelMacroNode macro)
 		{
-			string hand = null;
-			foreach (var child in macro.LMPPCKACMNB)
+			var names = new List<string>();
+			List<global::Pair<ModelNode, float>> bound = macro.LDEBJOPLCKO();
+			if (bound != null && bound.Count > 0)
 			{
-				string name = child.First;
+				foreach (var child in bound) names.Add(child?.First?.GetName());
+			}
+			else if (macro.LMPPCKACMNB != null)
+			{
+				foreach (var child in macro.LMPPCKACMNB) names.Add(child?.First);
+			}
+			if (names.Count == 0) return null;
+			string hand = null;
+			foreach (string name in names)
+			{
 				if (name == null || !name.StartsWith("Weapon-Node", System.StringComparison.Ordinal)) return null;
 				int underscore = name.LastIndexOf('_');
 				string suffix = underscore >= 0 ? name.Substring(underscore) : string.Empty;

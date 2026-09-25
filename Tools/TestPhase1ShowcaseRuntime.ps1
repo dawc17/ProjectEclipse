@@ -42,7 +42,7 @@ $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1C.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModContentShopPrices.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP2.cs',
-    'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP3.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModDojoButtons.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModVisuals.cs',
+    'Assets/Scripts/Eclipse/Runtime/Modding/ModContentP3.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModDojoButtons.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModVisuals.cs','Assets/Scripts/Eclipse/Runtime/Modding/ModFx.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModSelection.cs',
     'Assets/Scripts/Eclipse/Runtime/Modding/ModLocalizationLoader.cs',
     'Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntime.cs',

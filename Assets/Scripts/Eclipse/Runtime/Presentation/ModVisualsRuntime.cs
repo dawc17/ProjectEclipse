@@ -60,6 +60,70 @@ namespace Eclipse.Modding
 			return null;
 		}
 
+		private static bool SettingOn(string setting)
+		{
+			if (setting == null) return true;
+			foreach (ModSettingToggle toggle in _catalog.SettingToggles)
+				if (toggle.Name == setting) return ModSettingsStore.Get(toggle);
+			return false;
+		}
+
+		// sf2.fx effects of one kind whose switch (if any) is on, in load order.
+		public static List<ModFxDefinition> ActiveFx(ModFxKind kind)
+		{
+			var result = new List<ModFxDefinition>();
+			if (_catalog == null) return result;
+			foreach (ModFxDefinition definition in _catalog.Effects)
+				if (definition.Kind == kind && SettingOn(definition.Setting)) result.Add(definition);
+			return result;
+		}
+
+		// A stable key for the active set of one kind, so renderers rebuild only on change.
+		public static string ActiveFxKey(ModFxKind kind)
+		{
+			if (_catalog == null) return string.Empty;
+			var key = new System.Text.StringBuilder();
+			foreach (ModFxDefinition definition in _catalog.Effects)
+				if (definition.Kind == kind && SettingOn(definition.Setting)) key.Append(definition.Name).Append('|');
+			return key.ToString();
+		}
+
+		public static Color ToColor(ModUiColor color, Color fallback)
+		{
+			return color == null ? fallback : (Color)new Color32(color.R, color.G, color.B, color.A);
+		}
+
+		// All active sf2.fx.screen grades combined: saturation and contrast
+		// multiply, brightness adds, tints layer in load order, vignette takes the strongest.
+		public struct ScreenGrade
+		{
+			public bool Active;
+			public float Saturation, Contrast, Brightness, TintStrength, Vignette;
+			public Color Tint;
+		}
+
+		public static ScreenGrade CurrentGrade()
+		{
+			var grade = new ScreenGrade { Saturation = 1f, Contrast = 1f, Tint = Color.white };
+			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			{
+				grade.Active = true;
+				grade.Saturation *= definition.Number("saturation");
+				grade.Contrast *= definition.Number("contrast");
+				grade.Brightness += definition.Number("brightness");
+				float strength = definition.Number("tint_strength");
+				if (strength > 0f && definition.Color != null)
+				{
+					Color tint = ToColor(definition.Color, Color.white);
+					grade.Tint = grade.TintStrength <= 0f ? tint : Color.Lerp(grade.Tint, tint, strength);
+					grade.TintStrength = Mathf.Max(grade.TintStrength, strength);
+				}
+				grade.Vignette = Mathf.Max(grade.Vignette, definition.Number("vignette"));
+			}
+			grade.Brightness = Mathf.Clamp(grade.Brightness, -1f, 1f);
+			return grade;
+		}
+
 		// Spreads background layer factors: factor^(1+strength). Never larger than
 		// the authored factor, so a layer never travels beyond its art.
 		public static float BackgroundLayerFactor(float factor)
