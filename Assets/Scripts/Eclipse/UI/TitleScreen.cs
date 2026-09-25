@@ -275,8 +275,6 @@ namespace Eclipse.UI
                 { SF2DisplayFrameRate.ToggleMotionBlur(); });
                 Row("Anti-aliasing", () => SF2DisplayFrameRate.AntiAliasingLabel(SF2DisplayFrameRate.AntiAliasing), 504, () =>
                 { SF2DisplayFrameRate.CycleAntiAliasing(); });
-                Row("Background depth", () => SF2DisplayFrameRate.BackgroundDepthEnabled ? "Enhanced" : "Original", 556, () =>
-                { SF2DisplayFrameRate.ToggleBackgroundDepth(); });
                 var apply = Button(page, "Apply display", 852, 612, 340, 48, ApplyDisplay);
                 apply.interactable = !Application.isMobilePlatform;
                 Label(page, "Window and resolution changes require confirmation. Rendering options save immediately.", 76, 612, 740, 48, 15, Ink);
@@ -293,15 +291,9 @@ namespace Eclipse.UI
                 });
                 Label(page, "0% disables the effect. 100% restores the original intensity. Changes save immediately.", 76, 550, 1120, 40, 17, Ink);
             }
-            else if (tab == "Experimental")
+            else if (tab == "Mod settings")
             {
-                ExperimentalRow("Weapon trails", ExperimentalVisuals.Feature.WeaponTrails, 244);
-                ExperimentalRow("Depth haze", ExperimentalVisuals.Feature.DepthHaze, 296);
-                ExperimentalRow("Rim light", ExperimentalVisuals.Feature.RimLight, 348);
-                ExperimentalRow("Bloom", ExperimentalVisuals.Feature.Bloom, 400);
-                ExperimentalRow("Ambient particles", ExperimentalVisuals.Feature.AmbientParticles, 452);
-                ExperimentalRow("Impact effects", ExperimentalVisuals.Feature.ImpactEffects, 504);
-                Label(page, "Experimental fight visuals. They change the original look and may be adjusted or removed. Changes save immediately.", 76, 566, 1120, 48, 15, Ink);
+                ModSettingsPage();
             }
             else if (tab == "Audio")
             {
@@ -427,11 +419,48 @@ namespace Eclipse.UI
 
         private static string OnOff(bool value) { return value ? "On" : "Off"; }
 
-        private static readonly string[] SettingsTabs = { "Display", "Controls", "Controller", "Audio", "Accessibility", "Experimental" };
+        private static readonly string[] SettingsTabs = { "Display", "Controls", "Controller", "Audio", "Accessibility", "Mod settings" };
 
-        private void ExperimentalRow(string name, ExperimentalVisuals.Feature feature, float y)
+        private const int ModSettingsPerPage = 6;
+        private int modSettingsPage;
+
+        // Toggles registered by enabled mods through sf2.settings.toggle, grouped
+        // by mod in load order. Values are stored per installation and save immediately.
+        private void ModSettingsPage()
         {
-            Row(name, () => OnOff(ExperimentalVisuals.Get(feature)), y, () => ExperimentalVisuals.Toggle(feature));
+            var toggles = Eclipse.Modding.ModVisuals.Settings;
+            if (toggles.Count == 0)
+            {
+                Label(page, "No enabled mod provides settings. Enable a mod in the Mods menu, then Apply & Restart.", 76, 260, 1120, 48, 20, Ink);
+                return;
+            }
+            int pages = (toggles.Count + ModSettingsPerPage - 1) / ModSettingsPerPage;
+            modSettingsPage = Mathf.Clamp(modSettingsPage, 0, pages - 1);
+            for (int i = 0; i < ModSettingsPerPage; i++)
+            {
+                int index = modSettingsPage * ModSettingsPerPage + i;
+                if (index >= toggles.Count) break;
+                var toggle = toggles[index];
+                string owner = ModDisplayName(toggle.Owner);
+                Row(owner + ": " + toggle.Label, () => OnOff(Eclipse.Modding.ModSettingsStore.Get(toggle)), 244 + i * 52,
+                    () => Eclipse.Modding.ModSettingsStore.Set(toggle, !Eclipse.Modding.ModSettingsStore.Get(toggle)));
+            }
+            if (pages > 1)
+            {
+                Button(page, "< Previous", 76, 566, 220, 48, () => { modSettingsPage = (modSettingsPage + pages - 1) % pages; Settings("Mod settings"); });
+                Button(page, "Next >", 306, 566, 220, 48, () => { modSettingsPage = (modSettingsPage + 1) % pages; Settings("Mod settings"); });
+                Label(page, "Page " + (modSettingsPage + 1) + " of " + pages, 540, 566, 300, 48, 17, Ink);
+            }
+            Label(page, "Settings from enabled mods. Changes save immediately and apply to this installation.", 76, 620, 1120, 30, 15, Ink);
+        }
+
+        private static string ModDisplayName(Eclipse.Modding.ModId id)
+        {
+            var host = Eclipse.Modding.ModRuntime.IsInitialized ? Eclipse.Modding.ModRuntime.Host : null;
+            if (host != null)
+                foreach (var mod in host.EnabledMods)
+                    if (mod.Id == id) return mod.Manifest.Name;
+            return id.Value;
         }
 
         private void ApplyDisplay()

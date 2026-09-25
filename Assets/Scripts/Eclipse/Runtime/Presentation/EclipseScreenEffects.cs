@@ -1,15 +1,13 @@
+using Eclipse.Modding;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Experimental full-screen effects for fights: bloom on bright pixels (effects,
-// sparks, glowing art) and a short radial impact on heavy hits. Presentation
-// only; it passes frames through untouched while both options are off.
+// Mod-configured full-screen effects for fights (sf2.visuals.bloom and
+// sf2.visuals.impact): bloom on bright pixels and a short radial impact on heavy
+// hits. Presentation only; frames pass through untouched unless a mod enables them.
 [RequireComponent(typeof(Camera))]
 public sealed class EclipseScreenEffects : MonoBehaviour
 {
-	private const float Threshold = 0.82f;
-	private const float Knee = 0.12f;
-	private const float Intensity = 0.7f;
 	private const int Levels = 5;
 
 	private readonly RenderTexture[] _levels = new RenderTexture[Levels];
@@ -33,8 +31,9 @@ public sealed class EclipseScreenEffects : MonoBehaviour
 
 	private void OnRenderImage(RenderTexture source, RenderTexture destination)
 	{
-		bool bloom = ExperimentalVisuals.Bloom;
-		float impact = ExperimentalVisuals.CurrentImpact;
+		ModVisualDefinition bloomSettings = ModVisuals.Active(ModVisualEffect.Bloom);
+		bool bloom = bloomSettings != null && bloomSettings.Number("intensity") > 0f;
+		float impact = ModVisuals.CurrentImpact;
 		if ((!bloom && impact <= 0f) || !EnsureMaterial())
 		{
 			Graphics.Blit(source, destination);
@@ -45,8 +44,8 @@ public sealed class EclipseScreenEffects : MonoBehaviour
 		int count = 0;
 		if (bloom)
 		{
-			_material.SetFloat("_Threshold", Threshold);
-			_material.SetFloat("_Knee", Knee);
+			_material.SetFloat("_Threshold", bloomSettings.Number("threshold"));
+			_material.SetFloat("_Knee", Mathf.Max(bloomSettings.Number("knee"), 0.001f));
 			int width = source.width / 2, height = source.height / 2;
 			RenderTexture previous = source;
 			for (; count < Levels && width >= 4 && height >= 4; count++)
@@ -63,7 +62,7 @@ public sealed class EclipseScreenEffects : MonoBehaviour
 		}
 
 		_material.SetTexture("_BloomTex", bloomTexture != null ? (Texture)bloomTexture : Texture2D.blackTexture);
-		_material.SetFloat("_BloomIntensity", bloomTexture != null ? Intensity : 0f);
+		_material.SetFloat("_BloomIntensity", bloomTexture != null ? bloomSettings.Number("intensity") : 0f);
 		_material.SetFloat("_Impact", impact);
 		Graphics.Blit(source, destination, _material, 3);
 
@@ -82,7 +81,7 @@ public sealed class EclipseScreenEffects : MonoBehaviour
 		if (shader == null || !shader.isSupported)
 		{
 			_unsupported = true;
-			Debug.LogWarning("[Eclipse] Experimental screen effects shader is unavailable.");
+			Debug.LogWarning("[Eclipse] Screen effects shader is unavailable.");
 			return false;
 		}
 		_material = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };

@@ -533,6 +533,19 @@ namespace Eclipse.Modding
                 groups, marks, events, conditions, actions);
         }
 
+        public ModSettingToggle RegisterSettingToggle(string localId, string label, string description, bool value)
+        {
+            RequireCapability("ui.settings");
+            return RequireRegistration().RegisterSettingToggle(localId, label, description, value);
+        }
+
+        public ModVisualDefinition RegisterVisual(ModVisualEffect effect, IDictionary<string, float> numbers, string setting,
+            ModUiColor color, ModParticleStyle defaultStyle, IList<ModParticleRule> rules)
+        {
+            RequireCapability("presentation.visuals");
+            return RequireRegistration().RegisterVisual(effect, numbers, setting, color, defaultStyle, rules);
+        }
+
         public ModDojoButton RegisterDojoButton(string localId, AssetId image)
         {
             RequireCapability("content.register");

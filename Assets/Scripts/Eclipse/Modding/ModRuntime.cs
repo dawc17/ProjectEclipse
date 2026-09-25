@@ -232,6 +232,7 @@ namespace Eclipse.Modding
             ModPolicies.Content = null;
             _scripts = Host.StartScripts(new MoonSharpScriptRuntime(Eclipse.UI.Modding.ModUiGameBridge.Attach,
                 () => LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name, DojoSelection, StoryEvents), LogScript, ImportCoreContent);
+            ModVisuals.Bind(_scripts.Content);
             var dojoChoices = new List<DefinitionId>();
             foreach (var location in _scripts.Content.Locations)
                 if (location.IsDojo) dojoChoices.Add(location.Id);
@@ -1617,6 +1618,7 @@ namespace Eclipse.Modding
             _legacyContent = null;
             _scripts?.Dispose();
             _scripts = null;
+            ModVisuals.Bind(null);
             if (_host == null) return;
             _host.Dispose();
             _host = null;

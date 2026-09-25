@@ -12,7 +12,9 @@ It does not expose Unity scene objects, raw scene indexes or arbitrary scene loa
 **Signature:** `sf2.scenes.open(destination)`
 
 **Returns:** `true` if the native transition accepted the request or that scene
-is already current. `false` if navigation is currently unavailable or a native
+is already current. Opening `dojo` while already in the dojo reloads it when the
+saved dojo choice now resolves to a different location, so a new choice from
+[`sf2.locations.select_dojo`](../locations-and-locales/) appears immediately. `false` if navigation is currently unavailable or a native
 quest/tab gate consumed the request. A `true` result is not loading completion;
 observe `scene_enter` with [story subscriptions](../story/) for destination entry.
 

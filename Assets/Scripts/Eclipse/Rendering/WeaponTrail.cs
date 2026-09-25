@@ -1,20 +1,18 @@
 using System.Collections.Generic;
+using Eclipse.Modding;
 using Eclipse.Rendering.Interpolation;
 using UnityEngine;
 
 namespace Eclipse.Rendering
 {
-	// Experimental swing trail: a short ribbon between the weapon's grip and tip
-	// nodes, sampled every rendered frame from the interpolated pose. Segments
-	// fade with age and with how fast the tip moved, so idle weapons leave nothing.
+	// Swing trail (sf2.visuals.weapon_trails): a short ribbon between the weapon's
+	// grip and tip nodes, sampled every rendered frame from the interpolated pose.
+	// Segments fade with age and with how fast the tip moved, so idle weapons leave nothing.
 	public sealed class WeaponTrail : MonoBehaviour
 	{
-		private const float Lifetime = 0.11f;
-		private const int MaxSamples = 32;
-		private const float MinSpeed = 900f;   // model units per second before a trail shows
-		private const float FullSpeed = 2600f;
-		private const float MaxAlpha = 0.55f;
+		private const int MaxSamples = 48;
 		private const float MinBladeLength = 25f;
+		private float Lifetime = 0.11f;
 
 		private struct Sample { public Vector3 Grip, Tip; public float Time, Strength; }
 
@@ -57,12 +55,15 @@ namespace Eclipse.Rendering
 		private void LateUpdate()
 		{
 			if (_mesh == null) return;
-			if (!ExperimentalVisuals.WeaponTrails || _model == null || !FightInterpolation.IsFightActive)
+			ModVisualDefinition settings = ModVisuals.Active(ModVisualEffect.WeaponTrails);
+			if (settings == null || _model == null || !FightInterpolation.IsFightActive)
 			{
 				if (_samples.Count != 0) { _samples.Clear(); _mesh.Clear(); }
 				return;
 			}
 			ResolveBlades();
+			Lifetime = settings.Number("lifetime");
+			float minSpeed = settings.Number("min_speed"), fullSpeed = settings.Number("full_speed");
 			float now = Time.unscaledTime;
 			float alpha = _presentation != null ? _presentation.Alpha : FightInterpolation.FightAlpha;
 			// Trail the main-hand blade (the first group found).
@@ -77,14 +78,14 @@ namespace Eclipse.Rendering
 					Sample last = _samples[_samples.Count - 1];
 					float dt = Mathf.Max(now - last.Time, 1e-4f);
 					float speed = (tip - last.Tip).magnitude / dt;
-					strength = Mathf.Clamp01((speed - MinSpeed) / (FullSpeed - MinSpeed));
+					strength = Mathf.Clamp01((speed - minSpeed) / (fullSpeed - minSpeed));
 				}
 				if (_samples.Count == 0 || now > _samples[_samples.Count - 1].Time)
 					_samples.Add(new Sample { Grip = grip, Tip = tip, Time = now, Strength = strength });
 			}
 			while (_samples.Count > 0 && (now - _samples[0].Time > Lifetime || _samples.Count > MaxSamples))
 				_samples.RemoveAt(0);
-			Rebuild(now);
+			Rebuild(now, settings);
 		}
 
 		private static Vector3 Sample3(ModelNode node, float alpha)
@@ -132,17 +133,21 @@ namespace Eclipse.Rendering
 			return new Vector3(value.GetX(), value.GetY(), value.GetZ());
 		}
 
-		private void Rebuild(float now)
+		private void Rebuild(float now, ModVisualDefinition settings)
 		{
+			float maxAlpha = settings.Number("alpha");
 			_mesh.Clear();
 			if (_samples.Count < 2) return;
 			_vertices.Clear(); _colors.Clear(); _triangles.Clear();
-			Color tint = _presentation != null && _presentation.Tint.HasValue ? _presentation.Tint.Value : Color.black;
+			// An explicit colour wins; otherwise follow the fighter's own (perk) colour.
+			Color? explicitColor = ModVisuals.ColorOf(settings);
+			Color tint = explicitColor ?? (_presentation != null && _presentation.Tint.HasValue ? _presentation.Tint.Value : Color.black);
+			float colorAlpha = explicitColor.HasValue ? explicitColor.Value.a : 1f;
 			for (int i = 0; i < _samples.Count; i++)
 			{
 				Sample s = _samples[i];
 				float age = Mathf.Clamp01((now - s.Time) / Lifetime);
-				float a = MaxAlpha * (1f - age) * s.Strength;
+				float a = maxAlpha * colorAlpha * (1f - age) * s.Strength;
 				Color grip = tint; grip.a = a * 0.35f;
 				Color tip = tint; tip.a = a;
 				_vertices.Add(s.Grip); _colors.Add(grip);

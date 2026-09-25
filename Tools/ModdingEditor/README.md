@@ -383,6 +383,10 @@ presentation, so placement changes also apply to existing profiles.
 `ui.dojo_button { id, image }` registers a dojo-menu button below the disciple
 slot and returns its `<mod-id>.<id>` name; `story.on` accepts `dojo_button` for
 its clicks.
+`settings.toggle { id, label, description?, default? }` registers an Options > Mod settings switch
+(`ui.settings`) and `settings.get(handle)` reads it. `visuals.background_depth`, `weapon_trails`,
+`depth_haze`, `rim_light`, `bloom`, `ambient_particles` and `impact` configure the engine's optional
+fight visuals (`presentation.visuals`); each accepts an optional `setting` handle.
 
 Adds profile.level(), profile.item(ItemHandle) and ProfileItemSnapshot
 completion, plus profile.read capability diagnostics. See Player profile queries

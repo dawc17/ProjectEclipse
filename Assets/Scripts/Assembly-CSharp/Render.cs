@@ -354,7 +354,7 @@ public class Render
 			float factor = item.JLBBJEELMGG();
 			if (behindGameLayer)
 			{
-				factor = SF2DisplayFrameRate.BackgroundLayerFactor(factor);
+				factor = Eclipse.Modding.ModVisuals.BackgroundLayerFactor(factor);
 			}
 			item.SetPositionX(JALEODAIDEO * factor);
 		}

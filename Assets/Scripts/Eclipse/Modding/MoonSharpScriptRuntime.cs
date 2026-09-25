@@ -669,6 +669,7 @@ namespace Eclipse.Modding
                 _aiHandlers.Clear();
                 _aiInstances = new System.Runtime.CompilerServices.ConditionalWeakTable<object, Dictionary<string, AiMemory>>();
                 _spriteHandles.Clear();
+                _settingHandles.Clear();
                 _counterHandles.Clear();
                 _modelHandles.Clear();
                 _itemHandles.Clear();
@@ -1054,6 +1055,7 @@ namespace Eclipse.Modding
                 AddP2Modules(root);
                 AddP3Modules(root);
                 AddUiModule(root);
+                AddVisualsModule(root);
                 AddUnderworldModule(root);
 
                 DynValue value = DynValue.NewTable(root);

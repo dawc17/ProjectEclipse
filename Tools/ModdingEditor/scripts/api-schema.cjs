@@ -10,7 +10,7 @@ const fn = (name, params, returns = 'nil', capability = 'content.register', opti
 };
 const reg = (name, shape, result, capability) => fn(name, { definition: E(shape) }, result ? H(result) : 'nil', capability);
 const lookup = (name, result) => fn(name, { reference: 'string' }, H(result));
-for (const name of ['Sprite','Model','Audio','Binary','Localization','Item','Price','Perk','Behavior','Zone','Battle','WarriorTemplate','Warrior','Reward','Fight','Rule','Quest','ItemSet','ForgeProfile','ForgeRecipe','Location','MoveTemplate','Move','Trigger','Tactic','Counter']) {
+for (const name of ['Sprite','Model','Audio','Binary','Localization','Item','Price','Perk','Behavior','Zone','Battle','WarriorTemplate','Warrior','Reward','Fight','Rule','Quest','ItemSet','ForgeProfile','ForgeRecipe','Location','MoveTemplate','Move','Trigger','Tactic','Counter','Setting']) {
     type(`${name}Handle`, { [`private __eclipse${name}`]: 'true' });
 }
 for (const name of ['Weapon','Armor','Helm','Ranged','Magic','Consumable','Free','Seal']) type(`${name}Handle`, {}, 'ItemHandle');
@@ -298,6 +298,19 @@ fn('ui.set_visible',{view:H('Ui'),widget_id:'string',visible:'boolean'},'nil',nu
 fn('ui.set_enabled',{view:H('Ui'),widget_id:'string',enabled:'boolean'},'nil',null);
 type('DojoButtonDefinition',{id:['string','1-64 lowercase letters, digits, _ or -; qualified as modid.id in click events.'],image:H('Sprite')});
 fn('ui.dojo_button',{definition:E('DojoButtonDefinition')},'string','content.register');
+type('SettingToggleDefinition',{id:['string','1-64 lowercase letters, digits, _ or -; unique within the mod.'],label:['string','1-48 characters shown under Options > Mod settings.'],'description?':['string','Up to 160 characters.'],'default?':['boolean','Default false.']});
+fn('settings.toggle',{definition:E('SettingToggleDefinition')},H('Setting'),'ui.settings');
+fn('settings.get',{setting:H('Setting')},'boolean',null);
+const visual=(name,fields)=>{type(name,{...fields,'setting?':[H('Setting'),'Switch that turns the effect on and off; without one it is always on.']});return E(name);};
+fn('visuals.background_depth',{definition:visual('BackgroundDepthDefinition',{'strength?':['number','0-2, default 0.6.']})},'nil','presentation.visuals');
+fn('visuals.weapon_trails',{definition:visual('WeaponTrailsDefinition',{'lifetime?':['number','0.02-0.5 seconds, default 0.11.'],'min_speed?':['number','0-20000, default 900.'],'full_speed?':['number','1-40000 and above min_speed, default 2600.'],'alpha?':['number','0-1, default 0.55.'],'color?':['string','#RRGGBB or #RRGGBBAA; default follows the fighter colour.']})},'nil','presentation.visuals');
+fn('visuals.depth_haze',{definition:visual('DepthHazeDefinition',{'strength?':['number','0-1, default 0.4.']})},'nil','presentation.visuals');
+fn('visuals.rim_light',{definition:visual('RimLightDefinition',{'offset?':['number','0-12 pixels, default 2.5.'],'alpha?':['number','0-1, default 0.85.'],'lighten?':['number','0-1, default 0.35.']})},'nil','presentation.visuals');
+fn('visuals.bloom',{definition:visual('BloomDefinition',{'threshold?':['number','0-2, default 0.82.'],'knee?':['number','0-1, default 0.12.'],'intensity?':['number','0-4, default 0.7.']})},'nil','presentation.visuals');
+const particleStyle=enumOf('none','dust','snow','embers','petals');
+type('ParticleLocationRule',{match:['string[]','1-16 lowercase words matched against the location name.'],style:particleStyle});
+fn('visuals.ambient_particles',{definition:visual('AmbientParticlesDefinition',{'density?':['number','0-4, default 1.'],'default_style?':particleStyle,'locations?':[E('ParticleLocationRule')+'[]','Up to 32 rules; the first match wins.']})},'nil','presentation.visuals');
+fn('visuals.impact',{definition:visual('ImpactDefinition',{'critical?':['number','0-1, default 1.'],'head?':['number','0-1, default 0.6.'],'shock?':['number','0-1, default 0.4.'],'duration?':['number','0.05-2 seconds, default 0.3.']})},'nil','presentation.visuals');
 type("QuestSuppression",{target:"string"});reg("quests.suppress","QuestSuppression",null,"content.patch");
 type('ProfileEquipmentSnapshot',{'item?':'string','type?':'string','subtype?':'string',owned:'boolean',count:'integer','upgrade?':'integer',enchantments:['string[]','Qualified lower-case perk IDs of the current enchantments, in native order; unknown perks are omitted.']});fn('profile.equipment',{},E('ProfileEquipmentSnapshot')+'[]','profile.read');
 module.exports={types,functions,aliases,callbacks,storyCallbacks:['on_before_fight'],modeCallbacks:['on_result','on_prepare'],uiCallbacks:['on_complete','on_cancel','on_click','on_close','on_change','on_back'],aiCallbacks:['on_decide'],fighterMethods};

@@ -1125,7 +1125,7 @@
       "params": {
         "destination": "\"map\"|\"shop\"|\"profile\"|\"dojo\""
       },
-      "returns": "`true` if the native transition accepted the request or that scene is already current. `false` if navigation is currently unavailable or a native quest/tab gate consumed the request. A `true` result is not loading completion; observe `scene_enter` with [story subscriptions](../story/) for destination entry.",
+      "returns": "`true` if the native transition accepted the request or that scene is already current. Opening `dojo` while already in the dojo reloads it when the saved dojo choice now resolves to a different location, so a new choice from [`sf2.locations.select_dojo`](../locations-and-locales/) appears immediately. `false` if navigation is currently unavailable or a native quest/tab gate consumed the request. A `true` result is not loading completion; observe `scene_enter` with [story subscriptions](../story/) for destination entry.",
       "capability": "presentation.navigate",
       "url": "https://dawc17.github.io/ProjectEclipse/api/scenes/#sf2scenesopen",
       "summary": "",
@@ -1610,6 +1610,105 @@
       "requires": "`content.register`. `id` (required) is 1–64 lowercase ASCII letters, digits, `_` or `-`, unique within the mod. `image` (required) is a sprite handle from `sf2.assets.sprite`; the button uses the sprite's size, scaled down if it would be larger than the disciple button. A mod can register at most 4 dojo buttons. Nothing is saved to the profile: removing the mod or the registration removes the button. React to clicks with [`sf2.story.on(\"dojo_button\", ...)`](../story/#sf2storyon), which needs `story.events`.",
       "when": "During loading, like other registrations. The button is added to the game's side menu whenever the dojo is the current screen. It sits below the disciple button's slot, whether or not the player has unlocked the disciple yet. Buttons from several mods stack downward in load order."
     },
+    "sf2.settings.toggle": {
+      "params": {
+        "definition": "Eclipse.SettingToggleDefinition"
+      },
+      "returns": "A setting handle. Pass it as `setting` to a visuals function or to [`sf2.settings.get`](#sf2settingsget).",
+      "capability": "ui.settings",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2settingstoggle",
+      "summary": "",
+      "requires": "`ui.settings`.",
+      "when": "During loading. Register switches before the effects that use them."
+    },
+    "sf2.settings.get": {
+      "params": {
+        "setting": "Eclipse.SettingHandle"
+      },
+      "returns": "`true` or `false`, the switch's current value.",
+      "capability": null,
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2settingsget",
+      "summary": "",
+      "requires": "A handle from `sf2.settings.toggle` created by the same script context. No extra capability.",
+      "when": "Any time after the switch was registered, including from callbacks. The value can change while the game runs."
+    },
+    "sf2.visuals.background_depth": {
+      "params": {
+        "definition": "Eclipse.BackgroundDepthDefinition"
+      },
+      "returns": "Nothing.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsbackground_depth",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.visuals.weapon_trails": {
+      "params": {
+        "definition": "Eclipse.WeaponTrailsDefinition"
+      },
+      "returns": "Nothing.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsweapon_trails",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.visuals.depth_haze": {
+      "params": {
+        "definition": "Eclipse.DepthHazeDefinition"
+      },
+      "returns": "Nothing.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsdepth_haze",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.visuals.rim_light": {
+      "params": {
+        "definition": "Eclipse.RimLightDefinition"
+      },
+      "returns": "Nothing.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsrim_light",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.visuals.bloom": {
+      "params": {
+        "definition": "Eclipse.BloomDefinition"
+      },
+      "returns": "Nothing.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsbloom",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.visuals.ambient_particles": {
+      "params": {
+        "definition": "Eclipse.AmbientParticlesDefinition"
+      },
+      "returns": "Nothing.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsambient_particles",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.visuals.impact": {
+      "params": {
+        "definition": "Eclipse.ImpactDefinition"
+      },
+      "returns": "Nothing.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsimpact",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
     "sf2.quests.suppress": {
       "params": {
         "definition": "Eclipse.QuestSuppression"
@@ -1974,6 +2073,11 @@
     "CounterHandle": {
       "fields": {
         "private __eclipseCounter": "true"
+      }
+    },
+    "SettingHandle": {
+      "fields": {
+        "private __eclipseSetting": "true"
       }
     },
     "WeaponHandle": {
@@ -4272,6 +4376,168 @@
           "1-64 lowercase letters, digits, _ or -; qualified as modid.id in click events."
         ],
         "image": "Eclipse.SpriteHandle"
+      }
+    },
+    "SettingToggleDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "label": [
+          "string",
+          "1-48 characters shown under Options > Mod settings."
+        ],
+        "description?": [
+          "string",
+          "Up to 160 characters."
+        ],
+        "default?": [
+          "boolean",
+          "Default false."
+        ]
+      }
+    },
+    "BackgroundDepthDefinition": {
+      "fields": {
+        "strength?": [
+          "number",
+          "0-2, default 0.6."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off; without one it is always on."
+        ]
+      }
+    },
+    "WeaponTrailsDefinition": {
+      "fields": {
+        "lifetime?": [
+          "number",
+          "0.02-0.5 seconds, default 0.11."
+        ],
+        "min_speed?": [
+          "number",
+          "0-20000, default 900."
+        ],
+        "full_speed?": [
+          "number",
+          "1-40000 and above min_speed, default 2600."
+        ],
+        "alpha?": [
+          "number",
+          "0-1, default 0.55."
+        ],
+        "color?": [
+          "string",
+          "#RRGGBB or #RRGGBBAA; default follows the fighter colour."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off; without one it is always on."
+        ]
+      }
+    },
+    "DepthHazeDefinition": {
+      "fields": {
+        "strength?": [
+          "number",
+          "0-1, default 0.4."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off; without one it is always on."
+        ]
+      }
+    },
+    "RimLightDefinition": {
+      "fields": {
+        "offset?": [
+          "number",
+          "0-12 pixels, default 2.5."
+        ],
+        "alpha?": [
+          "number",
+          "0-1, default 0.85."
+        ],
+        "lighten?": [
+          "number",
+          "0-1, default 0.35."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off; without one it is always on."
+        ]
+      }
+    },
+    "BloomDefinition": {
+      "fields": {
+        "threshold?": [
+          "number",
+          "0-2, default 0.82."
+        ],
+        "knee?": [
+          "number",
+          "0-1, default 0.12."
+        ],
+        "intensity?": [
+          "number",
+          "0-4, default 0.7."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off; without one it is always on."
+        ]
+      }
+    },
+    "ParticleLocationRule": {
+      "fields": {
+        "match": [
+          "string[]",
+          "1-16 lowercase words matched against the location name."
+        ],
+        "style": "\"none\"|\"dust\"|\"snow\"|\"embers\"|\"petals\""
+      }
+    },
+    "AmbientParticlesDefinition": {
+      "fields": {
+        "density?": [
+          "number",
+          "0-4, default 1."
+        ],
+        "default_style?": "\"none\"|\"dust\"|\"snow\"|\"embers\"|\"petals\"",
+        "locations?": [
+          "Eclipse.ParticleLocationRule[]",
+          "Up to 32 rules; the first match wins."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off; without one it is always on."
+        ]
+      }
+    },
+    "ImpactDefinition": {
+      "fields": {
+        "critical?": [
+          "number",
+          "0-1, default 1."
+        ],
+        "head?": [
+          "number",
+          "0-1, default 0.6."
+        ],
+        "shock?": [
+          "number",
+          "0-1, default 0.4."
+        ],
+        "duration?": [
+          "number",
+          "0.05-2 seconds, default 0.3."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off; without one it is always on."
+        ]
       }
     },
     "QuestSuppression": {

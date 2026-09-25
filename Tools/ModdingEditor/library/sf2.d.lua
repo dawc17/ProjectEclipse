@@ -107,6 +107,10 @@ local TacticHandle = {}
 ---@field private __eclipseCounter true
 local CounterHandle = {}
 
+---@class (exact) Eclipse.SettingHandle
+---@field private __eclipseSetting true
+local SettingHandle = {}
+
 ---@class (exact) Eclipse.WeaponHandle: Eclipse.ItemHandle
 local WeaponHandle = {}
 
@@ -1941,6 +1945,66 @@ local StoryDialogDefinition = {}
 ---@field image Eclipse.SpriteHandle
 local DojoButtonDefinition = {}
 
+---@class (exact) Eclipse.SettingToggleDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field label string 1-48 characters shown under Options > Mod settings.
+---@field description? string Up to 160 characters.
+---@field default? boolean Default false.
+local SettingToggleDefinition = {}
+
+---@class (exact) Eclipse.BackgroundDepthDefinition
+---@field strength? number 0-2, default 0.6.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
+local BackgroundDepthDefinition = {}
+
+---@class (exact) Eclipse.WeaponTrailsDefinition
+---@field lifetime? number 0.02-0.5 seconds, default 0.11.
+---@field min_speed? number 0-20000, default 900.
+---@field full_speed? number 1-40000 and above min_speed, default 2600.
+---@field alpha? number 0-1, default 0.55.
+---@field color? string #RRGGBB or #RRGGBBAA; default follows the fighter colour.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
+local WeaponTrailsDefinition = {}
+
+---@class (exact) Eclipse.DepthHazeDefinition
+---@field strength? number 0-1, default 0.4.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
+local DepthHazeDefinition = {}
+
+---@class (exact) Eclipse.RimLightDefinition
+---@field offset? number 0-12 pixels, default 2.5.
+---@field alpha? number 0-1, default 0.85.
+---@field lighten? number 0-1, default 0.35.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
+local RimLightDefinition = {}
+
+---@class (exact) Eclipse.BloomDefinition
+---@field threshold? number 0-2, default 0.82.
+---@field knee? number 0-1, default 0.12.
+---@field intensity? number 0-4, default 0.7.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
+local BloomDefinition = {}
+
+---@class (exact) Eclipse.ParticleLocationRule
+---@field match string[] 1-16 lowercase words matched against the location name.
+---@field style "none"|"dust"|"snow"|"embers"|"petals"
+local ParticleLocationRule = {}
+
+---@class (exact) Eclipse.AmbientParticlesDefinition
+---@field density? number 0-4, default 1.
+---@field default_style? "none"|"dust"|"snow"|"embers"|"petals"
+---@field locations? Eclipse.ParticleLocationRule[] Up to 32 rules; the first match wins.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
+local AmbientParticlesDefinition = {}
+
+---@class (exact) Eclipse.ImpactDefinition
+---@field critical? number 0-1, default 1.
+---@field head? number 0-1, default 0.6.
+---@field shock? number 0-1, default 0.4.
+---@field duration? number 0.05-2 seconds, default 0.3.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
+local ImpactDefinition = {}
+
 ---@class (exact) Eclipse.QuestSuppression
 ---@field target string
 local QuestSuppression = {}
@@ -2045,6 +2109,9 @@ local scenes = {}
 ---@class Eclipse.Module_services
 local services = {}
 
+---@class Eclipse.Module_settings
+local settings = {}
+
 ---@class Eclipse.Module_shop
 local shop = {}
 
@@ -2065,6 +2132,9 @@ local ui = {}
 
 ---@class Eclipse.Module_underworld
 local underworld = {}
+
+---@class Eclipse.Module_visuals
+local visuals = {}
 
 ---@class Eclipse.Module_warriors
 local warriors = {}
@@ -2930,7 +3000,7 @@ function story.is_active(subscription) end
 
 ---Requires: `presentation.navigate`. `destination` is exactly one of `map`, `shop`, `profile` or `dojo`. Other values raise an error. Calling without a host navigation service also raises an error. Opening UI separately requires `ui.create`.
 ---When: After a profile and a menu scene have initialized. Intended for custom menu buttons. Navigation is rejected while a transition is underway, encounter preparation is pending, native input is blocked, a lock screen is active, or the source is a fight, loader, preloader or credits scene. Navigation during a UI `on_close` callback raises an error: cleanup must not initiate another transition.
----Returns: `true` if the native transition accepted the request or that scene is already current. `false` if navigation is currently unavailable or a native quest/tab gate consumed the request. A `true` result is not loading completion; observe `scene_enter` with [story subscriptions](../story/) for destination entry.
+---Returns: `true` if the native transition accepted the request or that scene is already current. Opening `dojo` while already in the dojo reloads it when the saved dojo choice now resolves to a different location, so a new choice from [`sf2.locations.select_dojo`](../locations-and-locales/) appears immediately. `false` if navigation is currently unavailable or a native quest/tab gate consumed the request. A `true` result is not loading completion; observe `scene_enter` with [story subscriptions](../story/) for destination entry.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/scenes/#sf2scenesopen)
 ---@param destination "map"|"shop"|"profile"|"dojo"
 ---@return boolean
@@ -3275,6 +3345,71 @@ function ui.set_enabled(view, widget_id, enabled) end
 ---@param definition Eclipse.DojoButtonDefinition
 ---@return string
 function ui.dojo_button(definition) end
+
+---Requires: `ui.settings`.
+---When: During loading. Register switches before the effects that use them.
+---Returns: A setting handle. Pass it as `setting` to a visuals function or to [`sf2.settings.get`](#sf2settingsget).
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2settingstoggle)
+---@param definition Eclipse.SettingToggleDefinition
+---@return Eclipse.SettingHandle
+function settings.toggle(definition) end
+
+---Requires: A handle from `sf2.settings.toggle` created by the same script context. No extra capability.
+---When: Any time after the switch was registered, including from callbacks. The value can change while the game runs.
+---Returns: `true` or `false`, the switch's current value.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2settingsget)
+---@param setting Eclipse.SettingHandle
+---@return boolean
+function settings.get(setting) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsbackground_depth)
+---@param definition Eclipse.BackgroundDepthDefinition
+function visuals.background_depth(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsweapon_trails)
+---@param definition Eclipse.WeaponTrailsDefinition
+function visuals.weapon_trails(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsdepth_haze)
+---@param definition Eclipse.DepthHazeDefinition
+function visuals.depth_haze(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsrim_light)
+---@param definition Eclipse.RimLightDefinition
+function visuals.rim_light(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsbloom)
+---@param definition Eclipse.BloomDefinition
+function visuals.bloom(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsambient_particles)
+---@param definition Eclipse.AmbientParticlesDefinition
+function visuals.ambient_particles(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: Nothing.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2visualsimpact)
+---@param definition Eclipse.ImpactDefinition
+function visuals.impact(definition) end
 
 ---Requires: `content.patch`. The target must already be registered in your mod or an explicitly declared dependency. Declare `core` when targeting base quests.
 ---When: During registration, before the mod entrypoint returns. Changes take effect through Apply & Restart, before saved quests resume.
@@ -3657,4 +3792,4 @@ function Fighter:show_status_icon(key, sprite, frames, stacks?) end
 ---@param key string
 function Fighter:clear_status_icon(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }

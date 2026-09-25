@@ -61,6 +61,7 @@ export default defineConfig({
           { slug: 'api/story' },
           { slug: 'api/scenes' },
           { slug: 'api/ui' },
+          { slug: 'api/visuals' },
           { slug: 'api/mod-state' },
           { slug: 'api/random' },
           { slug: 'api/achievements' },

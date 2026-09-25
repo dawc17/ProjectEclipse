@@ -569,10 +569,9 @@ public class Camera : global::EventDispatcher<object>
 		if (HJLADIDMFOM != null)
 		{
 			IONLHJIDACJ = HJLADIDMFOM;
-			// Experimental impact: heavier for critical hits, respecting the shake slider.
-			float impact = IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalShake :
-				IONLHJIDACJ.Type == "HeadHit" ? 0.6f : IONLHJIDACJ.Type == "Shock" ? 0.4f : 0f;
-			ExperimentalVisuals.TriggerImpact(impact);
+			// Mod-configured impact effect; critical hits respect the shake slider.
+			Eclipse.Modding.ModVisuals.TriggerImpact(IONLHJIDACJ.Type,
+				IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalShake : 1f);
 			bool wasPaused = HLDMKKKKAMI;
 			LLLNHELEKNF = IONLHJIDACJ.NHKPODHHDPF * (IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalPause : 1f);
 			OHNBKMHOMJI = true;
