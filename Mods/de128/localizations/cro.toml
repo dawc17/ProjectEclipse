@@ -523,3 +523,23 @@ titan_reward.HEAD_TITAN = "Titanova kaciga"
 titan_reward.MAGIC_MIND_THROW = "Titanovo bacanje umom"
 titan_reward.RANGED_TITANS_HARPOON = "Titanov harpun"
 # END GENERATED Titan rewards (Tools/GenerateDE128TitanRewardText.py)
+
+# BEGIN Forge recipe names (historical DE localization)
+forge.complex_2 = "Složeni recept II"
+forge.complex_3 = "Složeni recept III"
+# END Forge recipe names
+
+# BEGIN Dojo changer (historical DE localization)
+dojo.DojoChangerTitle = "ODABERI DOJO"
+dojo.DefaultDojo = "Standardni Dojo"
+dojo.DojoChinese24 = "Dojo Kineske Nove godine"
+dojo.DojoIndia = "Indijski Dojo I"
+dojo.DojoIndia22 = "Indijski Dojo II"
+dojo.DojoIndia24 = "Indijski Dojo III"
+dojo.DojoHalloween = "Dojo za Noć vještica I"
+dojo.DojoHalloween19 = "Dojo za Noć vještica II"
+dojo.DojoHalloween21 = "Dojo za Noć vještica III"
+dojo.DojoAmerican22 = "Američki Dojo II"
+dojo.DojoStudio = "Studio Dojo"
+dojo.BACK = "NATRAG"
+# END Dojo changer

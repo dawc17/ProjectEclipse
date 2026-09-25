@@ -179,7 +179,13 @@ namespace Eclipse.Modding
                     : null;
                 string eclipseKind = perk.IsCore ? null :
                     (perk.Kind == ModPerkKind.Combo ? "Combo" : "Single");
-                resolvedEnchantments.Add(new RewardItem.ConfiguredGrantEnchantment(runtimePerkName, aspect, eclipseKind));
+                var parameters = new SortedDictionary<string, string>(StringComparer.Ordinal);
+                foreach (var parameter in requested.Parameters)
+                    parameters.Add(parameter.Key, parameter.Value.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+                resolvedEnchantments.Add(new RewardItem.ConfiguredGrantEnchantment(runtimePerkName, aspect, eclipseKind,
+                    requested.ChanceFactor?.ToString("R", System.Globalization.CultureInfo.InvariantCulture),
+                    requested.Chance?.ToString("R", System.Globalization.CultureInfo.InvariantCulture),
+                    requested.Frames?.ToString(System.Globalization.CultureInfo.InvariantCulture), parameters));
             }
 
             int level = configuration.Level ?? playerLevel;
@@ -212,6 +218,10 @@ namespace Eclipse.Modding
             ModStoryDialogAccess.Clear();
             ModBattleAccess.Clear();
             DojoSelection.Clear();
+            DojoSelection.SetCoreLocationValidator(name =>
+                !string.IsNullOrEmpty(ResourceManager.GetBundledText(
+                    SF2Paths.OCAKEHJCNCC() + "/" + name + "/params.xml")));
+            DojoSelection.SetSaveRequested(() => _profileRoster?.GGGEHAGCLGC(true));
             _legacyContent?.Dispose();
             _legacyContent = null;
             _scripts?.Dispose();
@@ -1119,10 +1129,13 @@ namespace Eclipse.Modding
             ModStoryEventKind eventKind;
             if (kind == QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_PURCHASE) eventKind = ModStoryEventKind.Purchase;
             else if (kind == QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_ENCHANTMENT) eventKind = ModStoryEventKind.Enchantment;
+            else if (kind == QuestEvent.PMDPDMFLCIJ.QUEST_EVENT_MAP_BUTTON_PRESS) eventKind = ModStoryEventKind.MapButton;
             else return null;
             if (!StoryEvents.HasSubscribers(eventKind)) return null;
             try
             {
+                if (eventKind == ModStoryEventKind.MapButton)
+                    return new ModStoryEvent(eventKind, null, button: parameters.GCKANEECDHE);
                 string name = eventKind == ModStoryEventKind.Purchase
                     ? parameters.DLKPBAJDHBO?.Name : parameters.DPLEGFCHOCE?.OHCGEEEKEJH;
                 string xml = eventKind == ModStoryEventKind.Purchase ? parameters.DLKPBAJDHBO?.NodeXML?.OuterXml : null;

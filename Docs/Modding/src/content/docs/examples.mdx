@@ -22,8 +22,22 @@ Start with <a href={pageUrl('guides/first-weapon')}>Your first weapon</a> for co
 
 [DE128 source](https://github.com/dawc17/ProjectEclipse/tree/main/Mods/de128)
 shows a downstream mod split into Lua modules with an explicit startup order.
+Its Underworld battles use <a href={pageUrl('api/assets')}>audio asset handles</a>
+for all 29 music IDs in the reviewed raid data. The mod ships PCM16 WAV files
+and resolves them by their archive IDs, so battles do not depend on the base
+game's substitute music. Battle mapping checks and a native Unity loader test
+cover all 29 clips; audible playback in a fight has not yet been verified.
+Its dojo chooser uses a declarative map-button quest and `map_button` story
+callback to select an installed core location through the saved dojo API. Ten
+archived choices have the required location data; two still need missing art or
+params. See <a href={pageUrl('api/quests')}>Quests</a> and
+<a href={pageUrl('api/locations-and-locales')}>Locations</a> for these APIs.
 It makes new and saved pending forge orders eligible for instant completion and
 disables the six supported service groups.
+Its forge module also uses <a href={pageUrl('api/items-progression-forge')}>typed recipe and candidate APIs</a>
+to split the archived Complex enchantments across three recipes and adjust the
+Simple recipe's random power range. The added recipes borrow core Complex prices;
+the package leaves DE-only Abilities recipes for later work.
 It also defines Titan's Desolator with core art, native innate perks and a name
 registered through <a href={pageUrl('api/localization-patches')}>Lua localization</a>.
 The manifest requests `policy.timers`, `policy.services`, `content.register` and

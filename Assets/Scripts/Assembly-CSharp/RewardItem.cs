@@ -25,12 +25,22 @@ public class RewardItem : Rewardable
 		internal string Aspect { get; }
 
 		internal string EclipseKind { get; }
+		internal string ChanceFactor { get; }
+		internal string Chance { get; }
+		internal string Frames { get; }
+		internal IReadOnlyDictionary<string, string> Parameters { get; }
 
-		internal ConfiguredGrantEnchantment(string name, string aspect, string eclipseKind)
+		internal ConfiguredGrantEnchantment(string name, string aspect, string eclipseKind,
+			string chanceFactor = null, string chance = null, string frames = null,
+			IReadOnlyDictionary<string, string> parameters = null)
 		{
 			Name = name;
 			Aspect = aspect;
 			EclipseKind = eclipseKind;
+			ChanceFactor = chanceFactor;
+			Chance = chance;
+			Frames = frames;
+			Parameters = parameters;
 		}
 	}
 
@@ -85,10 +95,19 @@ public class RewardItem : Rewardable
 				perk.SetAttribute("Name", enchantments[i].Name);
 				if (!string.IsNullOrEmpty(enchantments[i].EclipseKind))
 					perk.SetAttribute(PerkStruct.EclipseKindAttribute, enchantments[i].EclipseKind);
-				if (!string.IsNullOrEmpty(enchantments[i].Aspect))
+				var enchantment = enchantments[i];
+				if (!string.IsNullOrEmpty(enchantment.Aspect) ||
+					!string.IsNullOrEmpty(enchantment.ChanceFactor) || !string.IsNullOrEmpty(enchantment.Chance) ||
+					!string.IsNullOrEmpty(enchantment.Frames) || (enchantment.Parameters != null && enchantment.Parameters.Count != 0))
 				{
 					XmlElement set = item.OwnerDocument.CreateElement("Set");
-					set.SetAttribute("Aspect", enchantments[i].Aspect);
+					if (!string.IsNullOrEmpty(enchantment.Aspect)) set.SetAttribute("Aspect", enchantment.Aspect);
+					if (!string.IsNullOrEmpty(enchantment.ChanceFactor)) set.SetAttribute("ChanceFactor", enchantment.ChanceFactor);
+					if (!string.IsNullOrEmpty(enchantment.Chance)) set.SetAttribute("Chance", enchantment.Chance);
+					if (!string.IsNullOrEmpty(enchantment.Frames)) set.SetAttribute("Frames", enchantment.Frames);
+					if (enchantment.Parameters != null)
+						foreach (var parameter in enchantment.Parameters)
+							set.SetAttribute(parameter.Key, parameter.Value);
 					perk.AppendChild(set);
 				}
 				enchantmentsNode.AppendChild(perk);

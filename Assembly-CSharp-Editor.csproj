@@ -62,6 +62,7 @@
     <Compile Include="Assets\Editor\DevSpriteCrashValidator.cs" />
     <Compile Include="Assets\Editor\ContentBrowserWindow.cs" />
     <Compile Include="Assets\Editor\LocalVersusInputSetup.cs" />
+    <Compile Include="Assets\Editor\ValidateDE128ShopArt.cs" />
     <Compile Include="Assets\Editor\LocalAnimationPreviewMenu.cs" />
     <Compile Include="Assets\Editor\ModdingDiagnostics.cs" />
     <Compile Include="Assets\Editor\DevXmlMigrationValidator.cs" />

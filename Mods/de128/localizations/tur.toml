@@ -523,3 +523,23 @@ titan_reward.HEAD_TITAN = "Titan'ın Miğferi"
 titan_reward.MAGIC_MIND_THROW = "Titan'ın Zihin Fırlatması"
 titan_reward.RANGED_TITANS_HARPOON = "Titan'ın Zıpkını"
 # END GENERATED Titan rewards (Tools/GenerateDE128TitanRewardText.py)
+
+# BEGIN Forge recipe names (historical DE localization)
+forge.complex_2 = "Karmaşık Tarif II"
+forge.complex_3 = "Karmaşık Tarif III"
+# END Forge recipe names
+
+# BEGIN Dojo changer (historical DE localization)
+dojo.DojoChangerTitle = "DOJO SEÇ"
+dojo.DefaultDojo = "Standart Dojo"
+dojo.DojoChinese24 = "Çin Yeni Yılı Dojosu"
+dojo.DojoIndia = "Hint Dojosu I"
+dojo.DojoIndia22 = "Hint Dojosu II"
+dojo.DojoIndia24 = "Hint Dojosu III"
+dojo.DojoHalloween = "Cadılar Bayramı Dojosu I"
+dojo.DojoHalloween19 = "Cadılar Bayramı Dojosu II"
+dojo.DojoHalloween21 = "Cadılar Bayramı Dojosu III"
+dojo.DojoAmerican22 = "Amerikan Dojosu II"
+dojo.DojoStudio = "Stüdyo Dojo"
+dojo.BACK = "GERİ"
+# END Dojo changer

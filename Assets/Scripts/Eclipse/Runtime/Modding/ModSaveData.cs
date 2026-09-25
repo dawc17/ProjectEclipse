@@ -12,10 +12,21 @@ namespace Eclipse.Modding
     public sealed class ModDojoSelection
     {
         private HashSet<DefinitionId> _choices = new HashSet<DefinitionId>();
+        private Func<string, bool> _installedCoreLocation;
+        private Action _requestSave;
         private XmlElement _mods;
         private XmlElement _selection;
         public bool IsBound => _mods != null;
         public string SavedLocation => _selection?.GetAttribute("location") ?? string.Empty;
+
+        // The game host supplies the same installed-params lookup used by Location.
+        // Keeping it here as a predicate leaves Eclipse.Runtime independent of
+        // recovered game types and lets missing base assets fall back safely.
+        public void SetCoreLocationValidator(Func<string, bool> installed) =>
+            _installedCoreLocation = installed ?? throw new ArgumentNullException(nameof(installed));
+
+        public void SetSaveRequested(Action request) =>
+            _requestSave = request ?? throw new ArgumentNullException(nameof(request));
 
         public void SetChoices(IEnumerable<DefinitionId> choices)
         {
@@ -59,8 +70,10 @@ namespace Eclipse.Modding
         public string Resolve(string fallback)
         {
             DefinitionId id;
-            return IsBound && DefinitionId.TryParse(SavedLocation, out id) && _choices.Contains(id)
-                ? id.ToString() : fallback;
+            if (!IsBound || !DefinitionId.TryParse(SavedLocation, out id)) return fallback;
+            if (IsCoreLocation(id))
+                return CoreInstalled(id.LocalId) ? id.LocalId : fallback;
+            return _choices.Contains(id) ? id.ToString() : fallback;
         }
 
         // Host validates caller capability/ownership before accepting a user selection.
@@ -69,17 +82,39 @@ namespace Eclipse.Modding
             RequireBound();
             if (!_choices.Contains(location)) throw new ModContentException("Dojo location is not an active choice: " + location);
             EnsureSelection().SetAttribute("location", location.ToString());
+            _requestSave?.Invoke();
+        }
+
+        public void SelectCore(DefinitionId location)
+        {
+            RequireBound();
+            if (!IsCoreLocation(location) || !CoreInstalled(location.LocalId))
+                throw new ModContentException("Core dojo location is not installed: " + location);
+            EnsureSelection().SetAttribute("location", location.ToString());
+            _requestSave?.Invoke();
+        }
+
+        private static bool IsCoreLocation(DefinitionId id) =>
+            id.Namespace.Value == "core" && id.Category == "locations" &&
+            !string.IsNullOrEmpty(id.LocalId) && id.LocalId.IndexOf('/') < 0;
+
+        private bool CoreInstalled(string name)
+        {
+            try { return _installedCoreLocation != null && _installedCoreLocation(name); }
+            catch { return false; }
         }
 
         public void Reset()
         {
             RequireBound();
             // Reset is explicit; ordinary resolution never rewrites absent-mod state.
-            _selection?.RemoveAttribute("location");
+            if (_selection == null || !_selection.HasAttribute("location")) return;
+            _selection.RemoveAttribute("location");
+            _requestSave?.Invoke();
         }
 
         public void Unbind() { _mods = null; _selection = null; }
-        public void Clear() { Unbind(); _choices.Clear(); }
+        public void Clear() { Unbind(); _choices.Clear(); _installedCoreLocation = null; _requestSave = null; }
         private void RequireBound()
         {
             if (!IsBound) throw new ModContentException("Dojo selection has no active profile.");
@@ -810,6 +845,14 @@ namespace Eclipse.Modding
             Append(canonical, action.Lines.Count);
             for (int i = 0; i < action.Lines.Count; i++)
             { Append(canonical, action.Lines[i].Text); Append(canonical, action.Lines[i].ButtonText); Append(canonical, action.Lines[i].Frames); }
+            if (action.MapButton != null)
+            {
+                Append(canonical, "quest-map-button-v1");
+                Append(canonical, action.MapButton.Name); Append(canonical, action.MapButton.Image);
+                Append(canonical, action.MapButton.X); Append(canonical, action.MapButton.Y);
+                Append(canonical, action.MapButton.AnchorMinX); Append(canonical, action.MapButton.AnchorMaxX);
+                Append(canonical, action.MapButton.ShowType);
+            }
             Append(canonical, action.Button != null);
             if (action.Button == null) return;
             Append(canonical, action.Button.Text); Append(canonical, action.Button.Color); Append(canonical, action.Button.Actions.Count);

@@ -159,6 +159,14 @@ static class Program
         Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.SceneEnter, Purchase.Item, scene:"map"), "scene item rejected");
         Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.SceneEnter, null, null, 1, 2, "map"), "scene level fields rejected");
         Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.Purchase, null, scene:"map"), "purchase destination rejected");
+        Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.MapButton, null), "missing map button name");
+        Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.MapButton, Purchase.Item, button:"example.dojo"), "map button item rejected");
+        Throws<ArgumentException>(() => new ModStoryEvent(ModStoryEventKind.Purchase, null, button:"example.dojo"), "button name on purchase rejected");
+        var mapButtonEvent = new ModStoryEvent(ModStoryEventKind.MapButton, null, button:"example.dojo");
+        Check(mapButtonEvent.Button=="example.dojo", "map button identity lost");
+        var mapButtons=new ModStoryEvents();mapButtons.BindProfile();
+        string clicked=null;mapButtons.CreateScope(A).Subscribe(ModStoryEventKind.MapButton,e=>clicked=e.Button);
+        Check(mapButtons.Publish(mapButtonEvent)&&clicked=="example.dojo", "map button dispatch lost identity");
         var results=new ModStoryEvents();
         Check(results.BeginEncounter()==null,"unbound encounter creation");
         Check(!results.TryBeginEncounterResult(null)&&!results.TryCompleteEncounterResult(null),"null encounter accepted");

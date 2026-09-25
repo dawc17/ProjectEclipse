@@ -74,6 +74,13 @@ public static class ValidateDE128ShopNative
             if (screen != ScreenType.ModuleDojo && screen != ScreenType.ModuleMap) return;
 
             int count = CheckCatalog();
+            if (phase == "forge")
+            {
+                CheckForge();
+                Debug.Log(Prefix + "PASS forge: five native recipes, split candidate pools, immutable shared prices, Simple deviations and localized names.");
+                Finish(0);
+                return;
+            }
             if (phase == "buy") Buy(roster);
             else if (phase == "reload") Reload(roster);
             else if (phase == "equip_upgrade") EquipUpgrade(roster);
@@ -118,6 +125,57 @@ public static class ValidateDE128ShopNative
         }
         if (count != 221) throw new Exception("Expected 221 live DE shop rows, found " + count);
         return count;
+    }
+
+    static void CheckForge()
+    {
+        var manager = ForgeManager.ELEBLBJKDBI();
+        if (manager.Recipes.Count != 5) throw new Exception("Expected three core and two DE128 forge recipes.");
+        var simple = manager.GetRecipeByName("Simple");
+        var complex = manager.GetRecipeByName("Complex");
+        var expected = new[] {
+            new { Id = "complex_2", Title = "Complex Recipe II", Perks = new[] {
+                "PERK_SKANDA_SET_KARMA", "PERK_GUST_SET_WIND_MAKER",
+                "PERK_DIRECTOR_SET_PLOT_TWIST", "PERK_TIME_SHIFT_SET_TIME_SHIFTER" } },
+            new { Id = "complex_3", Title = "Complex Recipe III", Perks = new[] {
+                "PERK_ARCANE_MARTIAL_ART_SET_NEO_WANDERER", "PERK_CORDYCEPS_FUNGUS_SET",
+                "PERK_MAGMA_VOLCANO_SET", "PERK_KARCER_HUNGER_SET" } },
+        };
+        if (simple == null || complex == null) throw new Exception("Base forge recipes are unavailable.");
+        var excludedField = typeof(Recipe).GetField("_excludedNativeCandidates", Hidden);
+        var externalField = typeof(Recipe).GetField("_externalEnchantments", Hidden);
+        var exclusions = excludedField?.GetValue(complex) as System.Collections.IDictionary;
+        if (exclusions == null) throw new Exception("Complex native exclusion projection is missing.");
+        foreach (var category in new[] { "Weapon", "Armor", "Helm", "Ranged", "Magic" })
+        {
+            var simpleItem = simple.Items.Single(item => item.ItemType == category);
+            if (simpleItem.MinDeviation != 15 || simpleItem.MaxDeviation != 75 || !simpleItem.RandomAspect)
+                throw new Exception("Simple native deviation changed: " + category);
+            var removed = exclusions[category] as System.Collections.IEnumerable;
+            var names = removed?.Cast<string>().ToArray();
+            if (names == null || names.Length != 8 ||
+                expected.SelectMany(pool => pool.Perks).Except(names).Any())
+                throw new Exception("Complex native pool split changed: " + category);
+            foreach (var pool in expected)
+            {
+                var recipe = manager.GetRecipeByName("de128:forge-recipes/" + pool.Id);
+                if (recipe == null || recipe.Items.Count != 5 ||
+                    recipe.Alias != "de128:localization/forge." + pool.Id ||
+                    LocalizationManager.GetString(recipe.Alias) != pool.Title)
+                    throw new Exception("DE128 forge recipe or localized title is missing: " + pool.Id);
+                var item = recipe.Items.Single(value => value.ItemType == category);
+                if (item.EnchantmentsNumber != 1 || item.BarScale != "Enchantment" ||
+                    item.RandomAspect || !ReferenceEquals(recipe.Prices[0], complex.Prices[0]))
+                    throw new Exception("DE128 forge item or immutable price binding changed: " + pool.Id + "/" + category);
+                var external = externalField?.GetValue(recipe) as System.Collections.IDictionary;
+                var candidates = external?[category] as System.Collections.IEnumerable;
+                var actual = candidates?.Cast<object>().Select(value =>
+                    ((PerkStruct)value.GetType().GetField("Perk",
+                        BindingFlags.Instance | BindingFlags.Public).GetValue(value)).get_Name()).ToArray();
+                if (actual == null || !actual.SequenceEqual(pool.Perks))
+                    throw new Exception("DE128 native forge candidates differ: " + pool.Id + "/" + category);
+            }
+        }
     }
 
     static void Buy(Roster roster)

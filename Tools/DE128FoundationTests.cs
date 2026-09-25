@@ -16,8 +16,8 @@ internal static class DE128FoundationTests
         { "paid_offers", "battle_pass", "ads", "rewarded_video", "online_services", "payments" };
     private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
     private static readonly string[] Capabilities =
-        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create", "presentation.navigate" };
-    private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create", "presentation.navigate" };
+        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create", "presentation.navigate", "presentation.dojo" };
+    private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create", "presentation.navigate", "presentation.dojo" };
     private static readonly DefinitionId Sword = DefinitionId.Parse("de128:items/weapon/titans_desolator");
     private static readonly DefinitionId CoreSword = CoreContentImporter.WeaponId("WEAPON_TITAN_GIANT_SWORD");
     private static XmlDocument _items;
@@ -85,6 +85,7 @@ internal static class DE128FoundationTests
         CoreContentImporter.ImportPerks(catalog, _perks.DocumentElement.ChildNodes.Cast<XmlNode>());
         CoreContentImporter.ImportStages(catalog, _stages.DocumentElement["Zones"]);
         CoreContentImporter.ImportWarriorTemplates(catalog, _stages.SelectSingleNode("Stages/Warriors/Templates"));
+        CoreContentImporter.ImportForgeEconomicProfiles(catalog, new[] { "Simple", "Medium", "Complex" });
     }
 
     private static void Check(bool condition, string message)
@@ -206,9 +207,268 @@ internal static class DE128FoundationTests
             Check(!catalog.ItemAvailabilityPolicies.Any(), "Failed or absent DE128 left shop policies registered.");
             Check(catalog.ItemCombatSubtypes.Count == 0 && catalog.ItemTacticSubtypes.Count == 0,
                 "Failed or absent DE128 left combat classification patches.");
+            Check(catalog.ForgeRecipeFamilies.Count == 0 && catalog.ForgeCandidateExclusions.Count == 0 &&
+                catalog.ForgeDeviations.Count == 0, "Failed or absent DE128 left forge changes.");
             Check(catalog.Moves.Count == 0 && catalog.MoveItemLockExtensions.Count == 0 && catalog.MoveCombatPatches.Count == 0,
                 "Failed or absent DE128 left moves or item-lock extensions.");
         }
+    }
+
+    private static void CheckForgeArchive(ModContentCatalog catalog)
+    {
+        var archived = ReadXml(Path.Combine(_repository, "Assets/DExml/forge.xml"));
+        var canonical = ReadXml(Path.Combine(_repository, "Assets/vanillaXml/forge.xml"));
+        var categories = Enum.GetValues<ModEquipmentKind>();
+        Check(categories.Length == 5, "Forge category coverage changed.");
+        string[] Candidates(XmlElement recipe) => recipe.SelectNodes("./Variations/Variation/Enchantments/Perk")
+            .Cast<XmlElement>().Select(perk => perk.GetAttribute("Name")).ToArray();
+        XmlElement Recipe(XmlDocument document, string name) =>
+            document.SelectSingleNode("/Forge/Recipes/Recipe[@Name='" + name + "']") as XmlElement
+            ?? throw new InvalidOperationException("Missing forge source recipe: " + name);
+        var original = Candidates(Recipe(canonical, "Complex"));
+        var first = Candidates(Recipe(archived, "Complex"));
+        var second = Candidates(Recipe(archived, "Complex2"));
+        var third = Candidates(Recipe(archived, "Complex3"));
+        Check(original.Length == 12 && first.Length == 4 && second.Length == 4 && third.Length == 4 &&
+            original.OrderBy(x => x).SequenceEqual(first.Concat(second).Concat(third).OrderBy(x => x)),
+            "The archived Complex split no longer matches the canonical twelve perks.");
+        var removed = second.Concat(third).ToHashSet(StringComparer.Ordinal);
+        foreach (var category in categories)
+        {
+            var exclusions = catalog.ForgeCandidateExclusions.Where(row =>
+                row.Profile == DefinitionId.Parse("core:forge-profiles/Complex") && row.Equipment == category)
+                .Select(row => row.Perk.LocalId).ToArray();
+            Check(exclusions.Length == 8 && exclusions.ToHashSet(StringComparer.OrdinalIgnoreCase)
+                .SetEquals(removed), "Complex native candidate exclusions differ: " + category);
+            var deviation = catalog.ForgeDeviations.Single(row => row.Profile ==
+                DefinitionId.Parse("core:forge-profiles/Simple") && row.Equipment == category);
+            var archivedItem = Recipe(archived, "Simple").SelectSingleNode(
+                "./Items/Item[@Type='" + category + "']") as XmlElement;
+            Check(archivedItem != null && deviation.Minimum == int.Parse(archivedItem.GetAttribute("MinDeviation")) &&
+                deviation.Maximum == int.Parse(archivedItem.GetAttribute("MaxDeviation")),
+                "Simple deviation differs from the archive: " + category);
+        }
+        foreach (var (sourceName, localId, names) in new[] {
+            ("Complex2", "complex_2", second), ("Complex3", "complex_3", third),
+        })
+        {
+            var family = catalog.ForgeRecipeFamilies.Single(row => row.Id.LocalId == localId);
+            var sourceRecipe = Recipe(archived, sourceName);
+            Check(family.EconomicProfile == DefinitionId.Parse("core:forge-profiles/Complex") &&
+                family.Items.Count == 5 && family.Candidates.Count == 20 &&
+                family.Alias == "de128:localization/forge." + localId,
+                "Complex family shape or economic profile changed: " + sourceName);
+            foreach (var category in categories)
+            {
+                var item = family.Items.Single(row => row.Equipment == category);
+                var sourceItem = sourceRecipe.SelectSingleNode("./Items/Item[@Type='" + category + "']") as XmlElement;
+                Check(sourceItem != null && item.Enchantments == int.Parse(sourceItem.GetAttribute("Enchantments")) &&
+                    item.BarScale == sourceItem.GetAttribute("BarScale") && !item.RandomAspect &&
+                    item.MinDeviation == 0 && item.MaxDeviation == 0,
+                    "Complex item settings differ: " + sourceName + "/" + category);
+                var candidates = family.Candidates.Where(row => row.Equipment == category)
+                    .Select(row => row.Perk.LocalId).ToArray();
+                Check(candidates.Length == 4 && candidates.SequenceEqual(names, StringComparer.OrdinalIgnoreCase),
+                    "Complex candidate pool differs: " + sourceName + "/" + category);
+                var priceName = sourceItem.GetAttribute("Prices");
+                var sourcePrices = sourceRecipe.SelectNodes("./Prices/PriceBlock[@Name='" + priceName + "']/Price")
+                    .Cast<XmlElement>().ToArray();
+                var corePrices = Recipe(canonical, "Complex")
+                    .SelectNodes("./Prices/PriceBlock[@Name='" + priceName + "']/Price")
+                    .Cast<XmlElement>().ToArray();
+                Check(sourcePrices.Length == corePrices.Length && sourcePrices.Length > 0 &&
+                    sourcePrices.Zip(corePrices).All(pair =>
+                        pair.First.Attributes.Cast<XmlAttribute>().All(attr =>
+                            pair.Second.GetAttribute(attr.Name) == attr.Value) &&
+                        pair.Second.Attributes.Count == pair.First.Attributes.Count),
+                    "Complex prices no longer match the immutable core profile: " + sourceName + "/" + category);
+            }
+            Check(catalog.TryGetLocalization(DefinitionId.Parse("de128:localization/forge." + localId),
+                out var title), "Forge recipe title was not registered: " + sourceName);
+            foreach (var language in Directory.EnumerateFiles(Path.Combine(_repository, "Mods/de128/localizations"), "*.toml")
+                .Select(Path.GetFileNameWithoutExtension))
+            {
+                var words = ReadXml(Path.Combine(_repository, "Assets/DExml/localizations", language + ".xml"));
+                var sourceTitle = words.SelectSingleNode("//Word[@Title='forgeRecipe" + sourceName + "']")?.InnerText;
+                Check(!string.IsNullOrEmpty(sourceTitle) && title.TryGet(language, out var translated) &&
+                    translated == sourceTitle, "Forge recipe localization differs: " + sourceName + "/" + language);
+            }
+        }
+    }
+
+    private static void CheckDojoArchive(ModContentCatalog catalog)
+    {
+        var source = ReadXml(Path.Combine(_repository, "Assets/DExml/quests.xml"));
+        var button = catalog.Quests.Single().Actions.Single().MapButton;
+        var archivedButton = source.SelectSingleNode("/Root/Quest[@Name='DojoChanger_MapButton']/Actions/ShowMapButton") as XmlElement;
+        Check(archivedButton != null && button.Name == "de128.dojo_changer" && archivedButton.GetAttribute("Name") == "DojoChanger" &&
+            archivedButton.GetAttribute("Image") == "Textures/Buttons/Map/credits" &&
+            button.Image == "de128:sprites/dojo_changer/credits" &&
+            File.ReadAllText(Path.Combine(_repository, "Mods/de128/assets/sprites/dojo_changer/credits.asset"))
+                .Contains("texture=textures/dojo_changer/credits.png") &&
+            Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(
+                Path.Combine(_repository, "Mods/de128/assets/textures/dojo_changer/credits.png")))) ==
+                "208C19723A0BEDD9985D18F088D02341BAB0BEDFC3C9DA4061B13B3E55D2BE53" &&
+            button.X.ToString(System.Globalization.CultureInfo.InvariantCulture) == archivedButton.GetAttribute("X") &&
+            button.Y.ToString(System.Globalization.CultureInfo.InvariantCulture) == archivedButton.GetAttribute("Y") &&
+            button.AnchorMinX == 1 && button.AnchorMaxX == 1 && button.ShowType == archivedButton.GetAttribute("ShowType"),
+            "Dojo map button differs from the archived native action.");
+        var choices = new[] {
+            ("dojo", "DefaultDojo"), ("new_year_24_china_dojo", "DojoChinese24"),
+            ("dojo_indian_event", "DojoIndia"), ("dojo_indian_event_22", "DojoIndia22"),
+            ("dojo_india24", "DojoIndia24"), ("haloween_dojo", "DojoHalloween"),
+            ("haloween_dojo_2019", "DojoHalloween19"), ("dojo_hw21", "DojoHalloween21"),
+            ("dojo_american_event_22", "DojoAmerican22"), ("dojo_hw22", "DojoStudio")
+        };
+        var lua = File.ReadAllText(Path.Combine(_repository, "Mods/de128/scripts/content/dojo_changer.lua"));
+        var languages = Directory.EnumerateFiles(Path.Combine(_repository, "Mods/de128/localizations"), "*.toml")
+            .Select(Path.GetFileNameWithoutExtension)
+            .ToDictionary(language => language, language => ReadXml(Path.Combine(
+                _repository, "Assets/DExml/localizations", language + ".xml")));
+        int previous = -1;
+        foreach (var (location, label) in choices)
+        {
+            var declaration = "{ location = \"" + location + "\", label = \"" + label + "\" }";
+            int current = lua.IndexOf(declaration, StringComparison.Ordinal);
+            Check(current > previous, "Dojo chooser order or label changed: " + location);
+            previous = current;
+            if (location != "dojo")
+            {
+                var load = source.SelectSingleNode("/Root/Quest[@Name='" + label + "_Load']/Actions/ChangeDojoLocation") as XmlElement;
+                Check(load != null && load.GetAttribute("Name") == location,
+                    "Dojo choice differs from the archived location: " + location);
+            }
+            foreach (var (language, words) in languages)
+            {
+                var original = words.SelectSingleNode("//Word[@Title='" + label + "']")?.InnerText;
+                Check(catalog.TryGetLocalization(DefinitionId.Parse("de128:localization/dojo." + label), out var localized) &&
+                    localized.TryGet(language, out var actual) && actual == original && !string.IsNullOrEmpty(original),
+                    "Dojo localization differs from the archive: " + label + "/" + language);
+            }
+        }
+    }
+
+    private static void CheckCampaignMusicArchive(ModContentCatalog catalog)
+    {
+        var archive = ReadXml(Path.Combine(_repository, "Assets/DExml/stages.xml"));
+        var sources = new[] {
+            (Zone: "ZONE_1", Battle: "Tournament_INTERMISSION", Track: "ninja_in_the_night_old", Folder: "campaign", Count: 8,
+                Hash: "7B673AFA2D1AF5B16417E758364FC2EB80654E3739F2CF943128D18D7D1592B5"),
+            (Zone: "ZONE_2", Battle: "BOSS_HERMIT_INTERMISSION", Track: "old_sensei_old", Folder: "campaign", Count: 1,
+                Hash: "1E21A2BF2F1BEE24621D48E30F2A3AF15BE878EA54B1ADF577F66E32EB29649C"),
+            (Zone: "ZONE_3", Battle: "Tournament_INTERMISSION", Track: "deadly_smoke_old", Folder: "campaign", Count: 8,
+                Hash: "2CA0DBA66AD2369358F6A853247C05C35D0E18B5D6C0EAA5ADD4E62C6ECA57F1"),
+            (Zone: "ZONE_6", Battle: "QuestBattle", Track: "burning_town_old", Folder: "campaign", Count: 1,
+                Hash: "99E7F90061C17540E4D4588CCCC39E680FD5FE0811B5B0D512B84CCB4CE01F93"),
+        };
+        var expected = new HashSet<DefinitionId>();
+        foreach (var source in sources)
+        {
+            string xpath = "/Stages/Zones/Zone[@Name='" + source.Zone + "']/Battle[@Name='" + source.Battle + "']";
+            var archivedBattle = archive.SelectSingleNode(xpath) as XmlElement;
+            var baseBattle = _stages.SelectSingleNode(xpath) as XmlElement;
+            Check(archivedBattle != null && baseBattle != null && archivedBattle.GetAttribute("Music") == source.Track &&
+                baseBattle.GetAttribute("Music") != source.Track,
+                "Campaign music source or canonical baseline changed: " + source.Zone + "/" + source.Battle);
+            var archivedFights = archivedBattle.SelectNodes("Fight").Cast<XmlElement>().ToArray();
+            var baseFights = baseBattle.SelectNodes("Fight").Cast<XmlElement>().ToArray();
+            Check(archivedFights.Length == source.Count && baseFights.Length == source.Count &&
+                archivedFights.Select(fight => fight.GetAttribute("Name")).SequenceEqual(
+                    baseFights.Select(fight => fight.GetAttribute("Name"))),
+                "Campaign battle fight set changed: " + source.Zone + "/" + source.Battle);
+            string filename = Path.Combine(_repository, "Mods/de128/assets/audio", source.Folder, source.Track + ".wav");
+            Check(File.Exists(filename) && Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(
+                File.ReadAllBytes(filename))) == source.Hash, "Campaign track differs from owner source: " + source.Track);
+            foreach (var baseFight in baseFights)
+            {
+                var id = CoreContentImporter.FightId(source.Zone, source.Battle, baseFight.GetAttribute("Name"));
+                expected.Add(id);
+                string music = "de128:audio/" + source.Folder + "/" + source.Track;
+                Check(catalog.TryGetFight(id, out var fight) && fight.Music == music &&
+                    fight.Battle == CoreContentImporter.BattleId(source.Zone, source.Battle),
+                    "Campaign fight music patch differs: " + id);
+                var projected = (XmlElement)baseFight.CloneNode(true);
+                ModFightPatchProjection.Apply(projected, fight, ModContentPolicies.FightMusic, catalog, null);
+                Check(projected.GetAttribute("Music") == music &&
+                    projected.InnerXml == baseFight.InnerXml &&
+                    projected.Attributes.Count == baseFight.Attributes.Count + (baseFight.HasAttribute("Music") ? 0 : 1),
+                    "Campaign music projection changed another fight field: " + id);
+            }
+        }
+        var patches = catalog.Patches.Where(patch => patch.Owner.Value == "de128" &&
+            patch.Field == ModContentPolicies.FightMusic).ToArray();
+        Check(expected.Count == 18 && patches.Length == expected.Count &&
+            new HashSet<DefinitionId>(patches.Select(patch => patch.Target)).SetEquals(expected),
+            "Campaign music patches differ from the 18 archived fight assignments.");
+    }
+
+    private static void CheckDojoInteraction(ModDescriptor mod)
+    {
+        var catalog = new ModContentCatalog();
+        ImportCore(catalog);
+        var assets = new AssetResolver(new IAssetProvider[] { new CoreMetadata(null), new LooseModProvider(mod) });
+        string storyError = null;
+        var events = new ModStoryEvents((owner, message) => storyError = owner + ": " + message);
+        var selection = new ModDojoSelection();
+        selection.SetCoreLocationValidator(name => name == "dojo" || name == "new_year_24_china_dojo");
+        ModUiSurface view = null;
+        string destination = null;
+        var priorNavigation = ModSceneAccess.Open;
+        ModSceneAccess.Open = scene => { destination = scene; return true; };
+        try
+        {
+            using (var transaction = catalog.BeginRegistration(mod))
+            using (var script = new MoonSharpScriptRuntime(surface => {
+                view = surface; surface.SetInputAllowed(true);
+            }, null, selection, events).CreateContext(mod,
+                new ModApiFacade(mod, assets, transaction, new ModStateRuntime(), null)))
+            {
+                ModLocalizationLoader.Load(mod, assets, transaction);
+                script.ExecuteEntrypoint();
+                transaction.Commit();
+                var save = new XmlDocument();
+                save.LoadXml("<Warrior><EclipseMods schema='1'/></Warrior>");
+                selection.Bind(save.DocumentElement);
+                events.BindProfile();
+                Check(events.HasSubscribers(ModStoryEventKind.MapButton), "DE128 did not subscribe to map-button clicks.");
+                events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "other.button"));
+                Check(view == null, "Unrelated map button opened the dojo selector.");
+                events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "de128.dojo_changer"));
+                Check(view != null && !view.IsClosed, "DE128 map button did not open its localized selector (view=" +
+                    (view == null ? "null" : "closed=" + view.IsClosed) + ", error=" + storyError + ").");
+                view.TryClick("close");
+                Check(view.IsClosed && selection.SavedLocation == "", "Closing the selector changed the dojo preference.");
+                events.Publish(new ModStoryEvent(ModStoryEventKind.MapButton, null, button: "de128.dojo_changer"));
+                Check(view != null && !view.IsClosed, "The selector did not reopen.");
+                view.TryClick("choice_2");
+                Check(view.IsClosed && selection.SavedLocation == "core:locations/new_year_24_china_dojo" &&
+                    destination == "dojo", "DE128 dojo choice did not save and navigate through its real Lua callback.");
+            }
+        }
+        finally { ModSceneAccess.Open = priorNavigation; }
+    }
+
+    private static void CheckMapButtonFingerprint(string fixture)
+    {
+        string Hash(string image, int x, string anchors, string showType)
+        {
+            string script = "sf2.quests.register{id='map_button',events={'session'},actions={{type='show_map_button'," +
+                "id='selector',image='" + image + "',x=" + x + ",y=-200," + anchors +
+                ",show_type='" + showType + "'}}}";
+            var peer = Peer(fixture, "fixture.map-fingerprint", "content.register", script);
+            var catalog = new ModContentCatalog();
+            Load(peer, catalog);
+            return ModSaveData.ComputeContentSetFingerprint(new[] { peer }, catalog);
+        }
+        var variants = new[] {
+            Hash("Textures/Buttons/Map/credits", -400, "anchor_min_x=0.5,anchor_max_x=0.5", "both"),
+            Hash("Textures/Buttons/Map/credits", -401, "anchor_min_x=0.5,anchor_max_x=0.5", "both"),
+            Hash("Textures/Buttons/Map/other", -400, "anchor_min_x=0.5,anchor_max_x=0.5", "both"),
+            Hash("Textures/Buttons/Map/credits", -400, "anchor_min_x=0.2,anchor_max_x=0.8", "both"),
+            Hash("Textures/Buttons/Map/credits", -400, "anchor_min_x=0.5,anchor_max_x=0.5", "story"),
+        };
+        Check(variants.Distinct().Count() == variants.Length,
+            "Native map-button image, placement or display mode is absent from the content fingerprint.");
     }
 
     private static void CheckDE(ModContentCatalog catalog)
@@ -219,6 +479,8 @@ internal static class DE128FoundationTests
         Check(ModPolicies.DeliverySeconds("forge", 120) == 0, "New forge orders are not instant.");
         Check(ModPolicies.SkipEnabled("forge"), "Already-pending orders lost their normal skip path.");
         Check(ModPolicies.CompletePending("forge"), "DE pending orders are not eligible for normal settlement.");
+        Check(catalog.ForgeRecipeFamilies.Count == 2 && catalog.ForgeCandidateExclusions.Count == 40 &&
+            catalog.ForgeDeviations.Count == 5, "DE forge pools or deviations are incomplete.");
         Check(Services.All(service => !ModPolicies.FeatureEnabled(service)), "A DE service gate is missing.");
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
@@ -424,12 +686,18 @@ internal static class DE128FoundationTests
             "Desolator reward changed its winning slot, mode or level gate.");
         // The only mod-owned opponents, fights and rules are the Sensei story's and the Underworld's.
         bool Owned(string id) => id.StartsWith("sensei_") || id.StartsWith("uw_");
-        Check(catalog.Modes.Count == 0 && catalog.Quests.Count == 0 &&
+        Check(catalog.Modes.Count == 0 && catalog.Quests.Count == 1 &&
+            catalog.Quests[0].Id.ToString() == "de128:quests/dojo_changer_map_button" &&
+            catalog.Quests[0].Place == ModQuestActionPlace.Map &&
+            catalog.Quests[0].Events.SequenceEqual(new[] { ModQuestEventKind.Session }) &&
+            catalog.Quests[0].Actions.Count == 1 &&
+            catalog.Quests[0].Actions[0].Kind == ModQuestActionKind.ShowMapButton &&
+            catalog.Quests[0].Actions[0].MapButton.Name == "de128.dojo_changer" &&
             catalog.Warriors.Count(value => value.Id.LocalId.StartsWith("sensei_")) == 34 && catalog.Warriors.All(value => Owned(value.Id.LocalId)) &&
             catalog.Fights.Count(fight => !fight.IsCore && fight.Id.LocalId.StartsWith("sensei_act_")) == 23 &&
             catalog.Fights.Where(fight => !fight.IsCore).All(fight => Owned(fight.Id.LocalId)) &&
             catalog.FightRules.All(rule => Owned(rule.Id.LocalId)),
-            "Disabled Ascension registered live modes, opponents, fights, rules or quests.");
+            "DE128 must register only its reviewed dojo map quest alongside the existing story content.");
         // Active Underworld: eight Underworld pages generated from the archived raid stages.
         var underworldZones = catalog.Zones.Where(zone => !zone.IsCore && zone.Underworld).ToArray();
         var underworldBattles = catalog.Battles.Where(battle => underworldZones.Any(zone => zone.Id == battle.Zone)).ToArray();
@@ -812,6 +1080,10 @@ internal static class DE128FoundationTests
             (Body: "return { enchantments = {{ perk = perk, aspect = 0/0 }} }", Error: "finite"),
             (Body: "return { enchantments = {{ perk = perk, aspect = math.huge }} }", Error: "finite"),
             (Body: "return { enchantments = {{ perk = perk, aspect = 2147483648 }} }", Error: "finite"),
+            (Body: "return { enchantments = {{ perk = perk, chance = 1.1 }} }", Error: "chance"),
+            (Body: "return { enchantments = {{ perk = perk, frames = -1 }} }", Error: "frames"),
+            (Body: "return { enchantments = {{ perk = perk, parameters = { Chance = 1 } }} }", Error: "parameter"),
+            (Body: "return { enchantments = {{ perk = perk, parameters = { DamageFactor = 0/0 } }} }", Error: "finite"),
             (Body: "local rows = {}; for i=1,65 do rows[i] = {perk=perk} end; return {enchantments=rows}", Error: "64"),
             (Body: "sf2.state.set { x = 1 }; return {}", Error: "sf2 operations are unavailable"),
             (Body: "sf2.profile.level(); return {}", Error: "sf2 operations are unavailable"),
@@ -824,7 +1096,8 @@ local weapon = sf2.items.get('core:items/weapon/WEAPON_TITAN_GIANT_SWORD')
 local perk = sf2.perks.get('core:perks/PERK_ITEM_SPECIAL_LIFESTEAL_WEAPON')
 sf2.rewards.register {id='valid', items={{item=weapon, upgrade=2, configure=function(context)
     assert(context.item_id == 'core:items/weapon/weapon_titan_giant_sword')
-    return {level=context.player_level, enchantments={{perk=perk, aspect=123.45}}}
+    return {level=context.player_level, enchantments={{perk=perk, aspect=123.45,
+        chance=0.3, frames=300, parameters={Base=-1000, DamageFactor=15850}}}}
 end}}, choices={{items={{item=weapon, weight=3, configure=function(context) return {} end}}}}}
 ");
         for (int i = 0; i < cases.Length; i++)
@@ -849,7 +1122,9 @@ end}}, choices={{items={{item=weapon, weight=3, configure=function(context) retu
                     "Reward callback expected '" + cases[i].Error + "', got " + failure);
                 var recovered = valid.Items[0].Configure(7);
                 Check(recovered.Level == 7 && valid.Items[0].UpgradeNumber == 2 &&
-                    recovered.Enchantments[0].Aspect == 123.45,
+                    recovered.Enchantments[0].Aspect == 123.45 && recovered.Enchantments[0].Chance == 0.3 &&
+                    recovered.Enchantments[0].Frames == 300 && recovered.Enchantments[0].Parameters["Base"] == -1000 &&
+                    recovered.Enchantments[0].Parameters["DamageFactor"] == 15850,
                     "A failed callback leaked its scope or changed a later reward.");
             }
         }
@@ -1209,6 +1484,11 @@ end}
         var enabled = new ModContentCatalog();
         Load(mod, enabled);
         CheckDE(enabled);
+        CheckCampaignMusicArchive(enabled);
+        CheckDojoArchive(enabled);
+        CheckDojoInteraction(mod);
+        CheckMapButtonFingerprint(fixture);
+        CheckForgeArchive(enabled);
         DE128ShopTests.Run(mod, enabled, repository, Check);
         DE128EquipmentTests.Run(mod, enabled, repository, Check);
         CheckSharedMovePatches(mod, enabled, fixture, repository);

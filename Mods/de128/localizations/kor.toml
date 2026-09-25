@@ -523,3 +523,23 @@ titan_reward.HEAD_TITAN = "타이탄의 투구"
 titan_reward.MAGIC_MIND_THROW = "타이탄의 마인드 스로우"
 titan_reward.RANGED_TITANS_HARPOON = "타이탄의 작살"
 # END GENERATED Titan rewards (Tools/GenerateDE128TitanRewardText.py)
+
+# BEGIN Forge recipe names (historical DE localization)
+forge.complex_2 = "복잡한 제조법 II"
+forge.complex_3 = "복잡한 제조법 III"
+# END Forge recipe names
+
+# BEGIN Dojo changer (historical DE localization)
+dojo.DojoChangerTitle = "도장 선택"
+dojo.DefaultDojo = "기본 도장"
+dojo.DojoChinese24 = "춘절 도장"
+dojo.DojoIndia = "인도 도장 I"
+dojo.DojoIndia22 = "인도 도장 II"
+dojo.DojoIndia24 = "인도 도장 III"
+dojo.DojoHalloween = "할로윈 도장 I"
+dojo.DojoHalloween19 = "할로윈 도장 II"
+dojo.DojoHalloween21 = "할로윈 도장 III"
+dojo.DojoAmerican22 = "아메리칸 도장 II"
+dojo.DojoStudio = "스튜디오 도장"
+dojo.BACK = "뒤로"
+# END Dojo changer

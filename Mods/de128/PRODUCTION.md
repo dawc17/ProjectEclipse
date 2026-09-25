@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.36.0**. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.40.0**. Step 74 restores four archived campaign recordings across 18 existing fights. Step 73 adds the ten-choice dojo changer. Step 72 packages the 29 music ids used by every archived Underworld battle so those encounters no longer request base-game substitute tracks. Step 71 restores the archived Complex forge pool split and Simple aspect deviation without changing shared prices. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in both Underworld modes; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -4135,3 +4135,137 @@ tests now compare condition lists as sets and actions grouped by trigger, which
 matches native `ConditionList` and `ModelAnimation` dispatch; all other fields
 remain strict. The remaining DE128 move files are still in the long form. No Unity
 playtest was run.
+
+### Step 71 — Forge recipe pools and Simple deviation (0.37.0, 2026-09-25)
+
+Historical `Assets/DExml/forge.xml` divides the twelve canonical Complex
+set enchantments into three four-perk recipes. The four Monk/Sentinel/Warlock/
+Guardian perks stay in Complex. DE128 excludes the other eight core perks from
+that native pool in each of the five equipment categories, then registers
+Complex II and III with their archived candidate order. The new recipes borrow
+the immutable core Complex economy profile: their 51 price rows per category
+match the canonical profile exactly. No shared material costs or aspect scale
+are patched. The Simple recipe's random aspect deviation changes from
+`-30..30` to the archived `15..75` in all five categories. Existing
+enchantments are unaffected. Fourteen localized recipe names come from the
+historical DE localization files.
+
+The Abilities, Abilities II and Abilities III recipes are still absent. Their
+archived costs do not match a core profile and several ability perks are
+DE-only; assigning another price or inert perk would misrepresent their
+behavior. The designated full owner archive remains unavailable, so the forge
+comparison is historical until reconciliation.
+
+Verification: the actual package passed **15,053** foundation checks, including
+all source candidate pools, five deviations, shared Complex price rows,
+fourteen localizations, rollback and re-enable. A fresh isolated Unity 6 run
+observed five live native recipes, the split candidate lists, Simple deviation,
+shared price objects and localized titles. `dotnet msbuild
+Assembly-CSharp.csproj /restore` passed, and the wiki built 48 pages with
+4,361 checked links/assets. The standalone forge adapter PowerShell harness
+could not start under the installed Visual Studio MSBuild because its .NET SDK
+resolver is missing; the Unity run exercised the actual adapter. No forge
+purchase, roll, save/reload or interactive UI playtest was performed.
+
+### Step 72 — Underworld battle music (0.38.0, 2026-09-25)
+
+The reviewed owner raid XML assigns 29 distinct music ids to its 76 battles.
+Only four of those ids previously had DE128 audio assets. The remaining ids
+resolved through base music names or fell through `Sound.cs` to a substitute,
+sometimes the default Samurai Spirit. DE128 now supplies a PCM16 WAV asset for
+each archived id and registers each battle with an `sf2.assets.audio` handle.
+The 25 added tracks come from the local DE 1.0.6 music reference or the owner's
+DE Music drop; OGG sources are decoded reproducibly by
+`Tools/ExtractDE128UnderworldArt.py` with ffmpeg. The extractor rejects any
+music id drift from the reviewed raid XML and verifies copied or decoded output,
+PCM16 format and all 79 Underworld extraction entries. The
+29 packaged WAVs total 345,230,334 bytes; this is the cost of the current loose
+asset loader's PCM16-only contract.
+
+Verification: the extractor's `--check` passed; the real package passed 15,053
+foundation checks, including all 76 battle music mappings. An isolated Unity 6
+editor run of `Tools/TestDE128MusicNative.py` loaded and decoded all 29 packaged
+tracks through the real `ModAssetLoader` as `AudioClip`s, then removed its
+fixture. The wiki built 48 pages and checked 4,362 local links/assets. No
+audible playback or in-game music playtest was run. These source names and
+assignments do not prove that every waveform is identical to a later DE128
+release; the designated full
+owner archive is still unavailable.
+
+### Dojo changer dependency audit (2026-09-25)
+
+The archived `DojoChanger` offers twelve locations. A bundle-aware check in
+`Tools/AuditDE128DojoLocations.py` now resolves their installed params, image
+sprites and Halloween sequence atlases against the actual packaged art. Ten
+choices have those dependencies. The canonical vanilla
+`new_year_24_china_dojo` params were installed under `Resources/gamedata` with
+the recovered Unity GUIDs; all 26 requested images resolve in the bundle.
+
+Two choices remain blocked: `dojo_american_event` lacks installed params and
+its matching bundle lacks the `layer_3_2` floor sprite used three times;
+`dojo_new_year_22` lacks installed params and every requested location sprite.
+The selector is now exposed for the ten complete choices in DE128 0.39.0. The audit creates and removes its
+temporary bundle extracts on each run. A dependency check does not establish
+visual fidelity or save/scene behavior in game.
+
+Verification: `AuditDE128DojoLocations.py --require` passed for all ten
+available choices and rejected `dojo_american_event`; canonical and installed
+China params match byte-for-byte, both restored GUIDs are unique under
+`Assets/`, and no dojo audit fixture remains in `Temp/`.
+
+### Step 73 — Dojo changer, ten art-backed choices (0.39.0, 2026-09-25)
+
+DE128 now registers the archived `DojoChanger` map button using the public
+`show_map_button` quest action. The archived `credits` icon is packaged as a
+DE128-owned sprite descriptor and PNG rather than relying on a base-game
+resource. Its Lua `map_button` callback opens a localized
+modal with the ten available choices in archive order. Selecting one saves the
+installed `core:locations/name` preference and requests dojo navigation; Back
+leaves the current choice intact. The public dojo API now validates installed
+native location params, while retaining its owned-location handle route. Missing
+core params at a later load cause a temporary native fallback without erasing
+the choice. All twelve UI labels used by this selector (title, ten choices and
+Back) were copied from the archived XML into each of DE128's fourteen existing
+localization files. The archived `ShowIntro` checkbox is not part of this selector.
+
+Verification: the actual Lua package passed 15,234 foundation checks, including
+archive button fields, ten location/label pairs, 140 choice translations and a
+synthetic native-click notification through the real selector callback. A
+content-fingerprint check also covers each map-button presentation field. The
+focused dojo and story-event harnesses passed. Managed compilation, editor
+generation/check/project tests, LuaLS integration with the installed server,
+VS Code integration and the wiki build passed. The default LuaLS command's
+pinned server binary is absent, so the runner was given the installed 3.19.1
+server explicitly.
+An isolated Unity 6 editor run rendered the mod-owned icon, activated the
+native map button, mounted and clicked the ten-choice modal, entered the
+Chinese dojo, and restored its choice after a Unity restart through the
+normal profile save cycle. The native fixture was removed by the runner. The
+test dismissed a fresh-profile tutorial card without advancing its unrelated
+fight-only action; it does not validate that tutorial flow. Interactive visual
+comparison in the target Unity 2022.3.62f3 editor remains open. The two
+incomplete choices remain open parity work, and the full owner archive remains
+unavailable.
+
+### Step 74 — Archived campaign music (0.40.0, 2026-09-25)
+
+The archived campaign stages assign four older recordings to four existing
+battles: `ninja_in_the_night_old` in Zone 1's intermission tournament (eight
+fights), `old_sensei_old` at Hermit's intermission fight, `deadly_smoke_old` in
+Zone 3's intermission tournament (eight fights), and `burning_town_old` at the
+Zone 6 quest fight. Canonical stages retain different music in these battles.
+The four PCM16 WAVs were copied byte-for-byte from the local owner Music drop;
+their packaged SHA-256 values are pinned in the foundation archive check.
+`ninja_in_the_night_old` and `burning_town_old` currently duplicate identical
+Underworld WAVs in the package.
+DE128 uses `sf2.assets.audio` handles and 18 public `sf2.fights.patch` music
+patches. No fight identity, opponent, reward, or progression field is replaced.
+The generic patch binding and editor contract now accept an audio handle as
+well as a native track name, matching fight and battle registration.
+
+The foundation check compares the four source battle assignments and all 18
+fight IDs with the archive, verifies the copied WAV hashes, and checks that
+native XML projection changes only `Music` on each core fight. The music
+native validator covers these four tracks alongside the 29 packaged
+Underworld tracks. Native decoding does not itself establish audible playback
+or a full-game campaign playtest; those remain open.

@@ -12,8 +12,12 @@ static class Program
  {
   var a=DefinitionId.Parse("example.garden:locations/garden");
   var b=DefinitionId.Parse("example.snow:locations/snow");
+  var core=DefinitionId.Parse("core:locations/dojo_india24");
+  bool installed=true;
   var runtime=new ModDojoSelection();runtime.SetChoices(new[]{a,b});
+  runtime.SetCoreLocationValidator(name=>installed&&name=="dojo_india24");
   Reject(()=>runtime.Select(a),"Selection allowed without profile");
+  Reject(()=>runtime.SelectCore(core),"Core selection allowed without profile");
   var first=Profile("<Unknown value='preserve'/>");string untouched=first.OuterXml;
   runtime.Bind(first.DocumentElement);Check(runtime.Resolve("dojo")=="dojo","Fresh fallback missing");
   Check(first.OuterXml==untouched,"Binding mutated fresh save");
@@ -32,6 +36,14 @@ static class Program
   runtime.Select(b);Check(runtime.Resolve("dojo")==b.ToString(),"Second profile choice missing");
   Check(first.OuterXml==saved,"Second profile changed first profile");
   runtime.Bind(first.DocumentElement);Check(runtime.Resolve("dojo")==a.ToString(),"Profile switch did not restore first choice");
+  runtime.SelectCore(core);Check(runtime.SavedLocation==core.ToString()&&runtime.Resolve("dojo")=="dojo_india24","Installed core dojo did not resolve to native name");
+  string coreSaved=first.OuterXml;installed=false;
+  Check(runtime.Resolve("dojo")=="dojo"&&first.OuterXml==coreSaved,"Missing core art changed saved preference");
+  Reject(()=>runtime.SelectCore(core),"Missing core location selectable");
+  installed=true;Check(runtime.Resolve("dojo")=="dojo_india24","Restored core location lost saved preference");
+  Reject(()=>runtime.SelectCore(DefinitionId.Parse("core:items/dojo_india24")),"Non-location core ID accepted");
+  Reject(()=>runtime.SelectCore(DefinitionId.Parse("core:locations/nested/dojo")),"Nested core location path accepted");
+  runtime.Select(a);
   Reject(()=>runtime.SetChoices(new[]{b,b}),"Duplicate choices accepted");
   Check(runtime.Resolve("dojo")==a.ToString(),"Failed registration replaced valid choices");
   Reject(()=>runtime.SetChoices(new[]{DefinitionId.Parse("example.garden:items/sword")}),"Non-location accepted");
@@ -49,6 +61,7 @@ static class Program
   runtime.Select(a);string beforeClear=first.OuterXml;runtime.Clear();
   Check(!runtime.IsBound&&runtime.Resolve("dojo")=="dojo"&&first.OuterXml==beforeClear,"Shutdown changed saved selection");
   runtime.Bind(first.DocumentElement);Check(runtime.Resolve("dojo")=="dojo","Clear retained active choices");
+  Reject(()=>runtime.SelectCore(core),"Clear retained the core location validator");
   Console.WriteLine("PASS: "+checks+" dojo preference save/lifetime checks; full-game scene and persistence acceptance remain pending.");
  }
 }

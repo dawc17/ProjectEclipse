@@ -8,6 +8,7 @@ assert(type(sf2.timers) == "table" and type(sf2.timers.set) == "function",
 -- Module order is explicit. Eclipse commits these declarations together.
 require("content.services")
 require("content.timers")
+require("content.forge")
 require("content.equipment")
 require("content.combat_equipment")
 require("content.chinese_swords")
@@ -32,6 +33,8 @@ require("content.underworld_equipment")
 require("content.titan_reward_equipment")
 require("content.rewards")
 require("content.progression")
+require("content.campaign_music")
+require("content.dojo_changer")
 -- Sensei story: guard templates and RaidCharge availability are synthesized from
 -- archive evidence (see sensei_guard_templates.lua, sensei_raid_charge_state.lua).
 require("content.sensei_story").install_default()
@@ -43,4 +46,4 @@ require("content.underworld_story").install(underworld)
 -- Disabled at the owner's request. Keep the prototype out of the active mod.
 -- require("content.ascension")
 
-sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Titan reward set, XML-evidenced combat perks, Sensei story and Underworld registered.")
+sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Titan reward set, XML-evidenced combat perks, campaign music, dojo changer, Sensei story and Underworld registered.")

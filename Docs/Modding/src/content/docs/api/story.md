@@ -42,11 +42,17 @@ closed, every animation has finished, or a combat round has started. Use combat
 callbacks for fighter authority. Custom UI opened here retains its normal native
 dialog/input rules and closes with the scene; use its `on_close` callback for cleanup.
 
+`map_button` observes a native map-button press after native quest processing.
+The event includes the button's native name. A mod's `show_map_button` action
+names its button `<mod-id>.<id>`; check that exact name before opening UI or
+navigating. It requires an active profile and follows the same subscription
+lifetime and error rules as other story events.
+
 Each callback receives a fresh detached table:
 
 | Field | Meaning |
 | --- | --- |
-| `kind` | `purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`. |
+| `kind` | `purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`. |
 | `item` | Qualified item ID, or `nil` when unavailable in the catalog. |
 | `recipe` | Enchantment recipe ID: owned `namespace:forge-recipes/id` or native `core:forge-profiles/id`. `nil` for purchases or unknown recipes. |
 | `previous_count` | Count before `item_acquired`; otherwise `nil`. |
@@ -54,6 +60,7 @@ Each callback receives a fresh detached table:
 | `previous_level` | Original integer level for `level_up`; otherwise `nil`. |
 | `level` | Final integer level for `level_up`; otherwise `nil`. |
 | `scene` | For `scene_enter`: `map`, `shop`, `profile`, `dojo` or `fight`. Otherwise `nil`. |
+| `button` | Native button name for `map_button`; otherwise `nil`. |
 
 Level-up events have `nil` item and recipe fields. Their values are captured at
 the end of experience processing rather than at the purchase/forge quest boundary.
@@ -85,7 +92,7 @@ API for persistent progress. Losing a handle does not cancel its subscription.
 **When:** During mod loading or a callback while the script is active, including
 before a profile loads.
 
-**Requires:** `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
+**Requires:** `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`) and a Lua function.
 
 ```lua
 local sf2 = require("sf2")
@@ -99,6 +106,14 @@ end)
 ```lua
 sf2.story.on("level_up", function(event)
     sf2.log.info("Level " .. event.previous_level .. " -> " .. event.level)
+end)
+```
+
+```lua
+sf2.story.on("map_button", function(event)
+    if event.button == sf2.mod.id .. ".arena" then
+        sf2.log.info("Arena map button pressed")
+    end
 end)
 ```
 

@@ -2307,7 +2307,7 @@ namespace Eclipse.Modding
                     DynValue roundTime = table.Get("round_time");
                     if (!roundTime.IsNil()) { _api.PatchFightRoundTime(target, RequiredInt(table, "round_time", function)); changed = true; }
                     if (!table.Get("location").IsNil()) { _api.PatchFightLocation(target, RequiredString(table, "location", function)); changed = true; }
-                    if (!table.Get("music").IsNil()) { _api.PatchFightMusic(target, RequiredString(table, "music", function)); changed = true; }
+                    if (!table.Get("music").IsNil()) { _api.PatchFightMusic(target, OptionalAudioOrString(table, "music", function)); changed = true; }
                     foreach (string field in new[] { "rules", "append_rules" })
                         if (!table.Get(field).IsNil())
                         {
@@ -2634,12 +2634,14 @@ namespace Eclipse.Modding
                         DynValue entry = enchantments.Table.Get(i);
                         string where = function + ".enchantments[" + i + "]";
                         if (entry.Type != DataType.Table) throw new ModContentException(where + " must be a table.");
-                        ValidateFields(entry.Table, where, "perk", "aspect");
+                        ValidateFields(entry.Table, where, "perk", "aspect", "chance_factor", "chance", "frames", "parameters");
                         DefinitionId perk = RequiredHandle(entry.Table, "perk", _perkHandles, "perk", where);
-                        DynValue aspect = entry.Table.Get("aspect");
-                        if (!aspect.IsNil() && aspect.Type != DataType.Number)
-                            throw new ModContentException(where + " aspect must be a number.");
-                        entries.Add(new RewardGrantEnchantment(perk, aspect.IsNil() ? (double?)null : aspect.Number));
+                        entries.Add(new RewardGrantEnchantment(perk,
+                            ReadWarriorPerkNumber(entry.Table.Get("aspect"), where + ".aspect"),
+                            ReadWarriorPerkNumber(entry.Table.Get("chance_factor"), where + ".chance_factor"),
+                            ReadWarriorPerkNumber(entry.Table.Get("chance"), where + ".chance"),
+                            entry.Table.Get("frames").IsNil() ? (int?)null : RequiredInt(entry.Table, "frames", where),
+                            ReadPerkParameters(entry.Table.Get("parameters"), where + ".parameters")));
                     }
                 }
                 return new RewardGrantConfiguration(level, entries.ToArray());
@@ -2920,6 +2922,37 @@ namespace Eclipse.Modding
                         case "eclipse": ValidateFields(action, where, "type", "enabled"); result.Add(ModQuestAction.ToggleEclipseMode(OptionalBool(action, "enabled", true, where))); break;
                         case "update_eclipse_battles": ValidateFields(action, where, "type"); result.Add(ModQuestAction.UpdateEclipseBattles()); break;
                         case "give_item": ValidateFields(action, where, "type", "item"); result.Add(ModQuestAction.GiveItem(RequiredHandle(action, "item", _itemHandles, "item", where))); break;
+                        case "show_map_button":
+                            ValidateFields(action, where, "type", "id", "image", "x", "y", "anchor_min_x", "anchor_max_x", "show_type");
+                            string buttonId = RequiredString(action, "id", where);
+                            if (buttonId.Length > 64 || buttonId.Length == 0)
+                                throw new ModContentException(where + ".id must be 1..64 ASCII letters, digits, '_' or '-'.");
+                            foreach (char character in buttonId)
+                                if (!((character >= 'a' && character <= 'z') ||
+                                      (character >= '0' && character <= '9') || character == '_' || character == '-'))
+                                    throw new ModContentException(where + ".id must be lowercase ASCII letters, digits, '_' or '-'.");
+                            DynValue imageValue = action.Get("image");
+                            string image;
+                            if (imageValue.Type == DataType.Table)
+                                image = RequiredHandle(action, "image", _spriteHandles, "sprite", where).ToString();
+                            else
+                            {
+                                image = RequiredString(action, "image", where);
+                                if (!image.StartsWith("Textures/", StringComparison.Ordinal) || image.Contains("..") ||
+                                    image.Contains("\\") || image.Length > 256)
+                                    throw new ModContentException(where + ".image must be a sprite handle or safe Textures/ asset path.");
+                            }
+                            if (action.Get("x").IsNil() || action.Get("y").IsNil())
+                                throw new ModContentException(where + " requires x and y.");
+                            string showType = OptionalString(action, "show_type", "both", where);
+                            showType = showType == "both" ? "Both" : showType == "story" ? "Story" :
+                                showType == "raid" ? "Raid" : throw new ModContentException(where + ".show_type must be both, story or raid.");
+                            result.Add(ModQuestAction.ShowMapButton(new ModQuestMapButton(
+                                Mod.Id.Value + "." + buttonId, image,
+                                OptionalFloat(action, "x", 0f, where), OptionalFloat(action, "y", 0f, where),
+                                OptionalFloat(action, "anchor_min_x", 0.5f, where),
+                                OptionalFloat(action, "anchor_max_x", 0.5f, where), showType)));
+                            break;
                         default: throw new ModContentException(where + " has unsupported action type '" + type + "'.");
                     }
                 }

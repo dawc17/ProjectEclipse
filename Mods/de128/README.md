@@ -6,7 +6,29 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.36.0` restores both
+DE128 is an ordinary downstream Eclipse mod. Version `0.40.0` restores four
+archived older recordings in the existing campaign: the Zone 1 and Zone 3
+intermission tournaments, Hermit's intermission fight, and the Zone 6
+burning-town quest fight. The 18 affected fights use mod-owned audio handles;
+their identities, opponents, rewards and progression remain the core versions.
+Version `0.39.0` adds the
+archived map dojo changer with ten selectable, art-backed locations and its
+mod-owned map icon. It uses the public map-button, UI and saved dojo APIs;
+native map selection and save/restart checks pass. The two remaining archive
+choices are held back until their missing location art and params are restored.
+Version `0.38.0` ships the exact
+music selected by all 76 archived Underworld battles. Its 29 distinct music
+ids resolve to DE128 audio assets instead of base-game substitute tracks;
+all 29 passed native Unity AudioClip decoding, while interactive playback still
+needs a game playtest. Version `0.37.0` splits the
+archived Complex forge pool into three recipes: the original retains four
+set enchantments, while Complex II and III each offer four others at the
+unchanged core Complex material prices. Simple rolls use the archived
+`15..75` aspect deviation in all five equipment categories. These changes
+use public recipe registration and targeted candidate/deviation APIs; they
+leave shared prices and already enchanted inventory unchanged. The historical
+DE-only Abilities recipes remain open because their price profile and ability
+perks are not yet provided by this mod. Version `0.36.0` restores both
 native phases of Widow Teleportation in twelve Underworld boss fights and
 Widow's Demon survival wave. It preserves the archived RaidCharge control,
 enemy safety gates, 100-unit finishing alignment, nine-edge strike, and
@@ -111,7 +133,15 @@ source hash and refuses an unreviewed revision. Map buttons for eleven event
 raids, twenty upscaled boss portraits and two May portraits ship under
 `assets/sprites/underworld/`. Berstuuk's hidden armor and mask use archived
 geometry packed as `.modelz` assets and load through the normal model handle
-API. DE128 Lua never opens XML. The core item-list compatibility loader supplies
+API. The 29 archived music ids ship as PCM16 WAV under `assets/audio/underworld/`;
+`Tools/ExtractDE128UnderworldArt.py` pins the complete id set to the reviewed
+raid XML and reproduces copies or OGG decodes from the owner's local sources.
+The 25 newly restored tracks use their own source audio, including event raid
+themes and old-version music, rather than the base game's fallback song.
+Run `python Tools/TestDE128MusicNative.py` from the repository root to decode
+all 29 packaged tracks in an isolated Unity editor project; the runner removes
+its project copy when Unity exits.
+DE128 Lua never opens XML. The core item-list compatibility loader supplies
 the hidden ceremonial armor, ceremonial helm and needles identities used by the
 archive. The `LightInTheDarkness` rule now follows the player in Blackness and
 Son of the Sun Power Mode through Eclipse's typed rule API. The

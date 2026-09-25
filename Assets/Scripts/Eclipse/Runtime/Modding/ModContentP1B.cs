@@ -15,7 +15,7 @@ namespace Eclipse.Modding
     public enum ModQuestActionKind
     {
         Dialog, StoryScreen, SetUserVariable, ShowBattle, ToggleBattle, SetMapFocus, StartFight,
-        StartCurrentFight, ToggleEclipseMode, UpdateEclipseBattles, GiveItem
+        StartCurrentFight, ToggleEclipseMode, UpdateEclipseBattles, GiveItem, ShowMapButton
     }
     public enum ModQuestActionPlace { Map, Fight, Dojo }
 
@@ -87,6 +87,24 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModQuestMapButton
+    {
+        public string Name { get; }
+        public string Image { get; }
+        public float X { get; }
+        public float Y { get; }
+        public float AnchorMinX { get; }
+        public float AnchorMaxX { get; }
+        public string ShowType { get; }
+
+        public ModQuestMapButton(string name, string image, float x, float y,
+            float anchorMinX, float anchorMaxX, string showType)
+        {
+            Name = name; Image = image; X = x; Y = y;
+            AnchorMinX = anchorMinX; AnchorMaxX = anchorMaxX; ShowType = showType;
+        }
+    }
+
     public sealed class ModQuestAction
     {
         private readonly ModQuestDialogLine[] _lines;
@@ -101,15 +119,17 @@ namespace Eclipse.Modding
         public bool HasReference { get; }
         public IReadOnlyList<ModQuestDialogLine> Lines => _lines;
         public ModQuestDialogButton Button => _button;
+        public ModQuestMapButton MapButton { get; }
 
         private ModQuestAction(ModQuestActionKind kind, string name, string value, string title, string image,
             bool flag, DefinitionId reference, bool hasReference, ModQuestDialogLine[] lines,
-            ModQuestDialogButton button = null)
+            ModQuestDialogButton button = null, ModQuestMapButton mapButton = null)
         {
             Kind = kind; Name = name ?? string.Empty; Value = value ?? string.Empty; Title = title ?? string.Empty;
             Image = image ?? string.Empty; Flag = flag; Reference = reference; HasReference = hasReference;
             _lines = lines == null ? Array.Empty<ModQuestDialogLine>() : (ModQuestDialogLine[])lines.Clone();
             _button = button;
+            MapButton = mapButton;
         }
 
         public static ModQuestAction Dialog(string title, string image, ModQuestDialogLine[] lines) =>
@@ -138,6 +158,9 @@ namespace Eclipse.Modding
             new ModQuestAction(ModQuestActionKind.UpdateEclipseBattles, null, null, null, null, false, default(DefinitionId), false, null);
         public static ModQuestAction GiveItem(DefinitionId item) =>
             new ModQuestAction(ModQuestActionKind.GiveItem, null, null, null, null, false, item, true, null);
+        public static ModQuestAction ShowMapButton(ModQuestMapButton button) =>
+            new ModQuestAction(ModQuestActionKind.ShowMapButton, null, null, null, null, false,
+                default(DefinitionId), false, null, mapButton: button);
     }
 
     public sealed class QuestDefinition
@@ -304,6 +327,24 @@ namespace Eclipse.Modding
             }
             if (action.Kind == ModQuestActionKind.SetUserVariable && string.IsNullOrWhiteSpace(action.Name))
                 throw new ModContentException("SetUserVariable requires a name.");
+            if (action.Kind == ModQuestActionKind.ShowMapButton)
+            {
+                var button = action.MapButton;
+                AssetId imageAsset;
+                if (button == null || string.IsNullOrWhiteSpace(button.Name) ||
+                    string.IsNullOrWhiteSpace(button.Image) ||
+                    (!(button.Image.StartsWith("Textures/", StringComparison.Ordinal) &&
+                       !button.Image.Contains("..") && !button.Image.Contains("\\") && button.Image.Length <= 256) &&
+                     !AssetId.TryParse(button.Image, out imageAsset)) ||
+                    float.IsNaN(button.X) || float.IsInfinity(button.X) ||
+                    float.IsNaN(button.Y) || float.IsInfinity(button.Y) ||
+                    float.IsNaN(button.AnchorMinX) || float.IsInfinity(button.AnchorMinX) ||
+                    float.IsNaN(button.AnchorMaxX) || float.IsInfinity(button.AnchorMaxX) ||
+                    button.AnchorMinX < 0f || button.AnchorMinX > 1f ||
+                    button.AnchorMaxX < button.AnchorMinX || button.AnchorMaxX > 1f ||
+                    (button.ShowType != "Both" && button.ShowType != "Story" && button.ShowType != "Raid"))
+                    throw new ModContentException("ShowMapButton has invalid placement or display fields.");
+            }
         }
 
         private void ValidateP1BCommit()

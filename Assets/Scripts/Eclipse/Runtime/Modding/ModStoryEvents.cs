@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Eclipse.Modding
 {
     // Host transport only. No Lua emit operation or borrowed native objects.
-    public enum ModStoryEventKind { Purchase, Enchantment, LevelUp, SceneEnter, ItemAcquired, BattleResult }
+    public enum ModStoryEventKind { Purchase, Enchantment, LevelUp, SceneEnter, ItemAcquired, BattleResult, MapButton }
 
     public sealed class ModBattleEquipmentSnapshot
     {
@@ -50,10 +50,11 @@ namespace Eclipse.Modding
         public int? PreviousCount { get; }
         public int? Count { get; }
         public ModBattleResultSnapshot Battle { get; }
+        public string Button { get; }
 
         public ModStoryEvent(ModStoryEventKind kind, DefinitionId? item, DefinitionId? recipe = null,
             int? previousLevel = null, int? level = null, string scene = null, int? previousCount = null, int? count = null,
-            ModBattleResultSnapshot battle = null)
+            ModBattleResultSnapshot battle = null, string button = null)
         {
             if (!Enum.IsDefined(typeof(ModStoryEventKind), kind)) throw new ArgumentOutOfRangeException(nameof(kind));
             if ((kind == ModStoryEventKind.BattleResult) != (battle != null) ||
@@ -73,6 +74,12 @@ namespace Eclipse.Modding
                     throw new ArgumentException("Scene entry requires a supported destination and no item or recipe.");
             }
             else if (scene != null) throw new ArgumentException("Scene values require a scene entry notification.");
+            if (kind == ModStoryEventKind.MapButton)
+            {
+                if (string.IsNullOrWhiteSpace(button) || item.HasValue || recipe.HasValue)
+                    throw new ArgumentException("Map button notification requires a button name and no item or recipe.");
+            }
+            else if (button != null) throw new ArgumentException("Button names require a map button notification.");
             if (kind == ModStoryEventKind.LevelUp)
             {
                 if (item.HasValue || recipe.HasValue || !previousLevel.HasValue || !level.HasValue ||
@@ -94,6 +101,7 @@ namespace Eclipse.Modding
             PreviousCount = previousCount;
             Count = count;
             Battle = battle;
+            Button = button;
         }
     }
 

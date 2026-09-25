@@ -194,13 +194,15 @@ test('core fight patch example validates with registered rule handles', async ()
     assert(api.types.FightPatch.fields['append_rules?']);
     assert(api.types.FightPatch.fields['warriors?']);
     assert(api.types.FightPatch.fields['reward_drops?']);
+    assert.equal(api.types.FightPatch.fields['music?'][0], 'Eclipse.AudioHandle|string');
     assert(api.types.RewardDropPatch.fields.reward);
 });
 
 test('reward grant configure callback has typed context and result contract', () => {
     const api=require('../scripts/api-schema.cjs');
     assert.deepEqual(api.types.RewardGrantContext.fields,{player_level:'integer',item_id:'string'});
-    assert.deepEqual(api.types.RewardGrantEnchantment.fields,{perk:'Eclipse.PerkHandle','aspect?':'number'});
+    assert.deepEqual(api.types.RewardGrantEnchantment.fields,{perk:'Eclipse.PerkHandle','aspect?':'number',
+        'chance_factor?':'number','chance?':'number','frames?':'integer','parameters?':'table<string, number>'});
     assert.deepEqual(api.types.RewardGrantConfiguration.fields,{'level?':'integer','enchantments?':'Eclipse.RewardGrantEnchantment[]'});
     assert.equal(api.types.ItemGrant.fields['configure?'],'fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration');
     assert.equal(api.types.RewardCandidate.fields['configure?'],'fun(context:Eclipse.RewardGrantContext):Eclipse.RewardGrantConfiguration');
@@ -354,6 +356,28 @@ test('dojo selector validates presentation capability and owned UI', async () =>
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
  const starter=await p.indexMod(template);
  assert(p.analyze(header+'sf2.locations.reset_dojo()',starter).issues.some(i=>i.message.includes('presentation.dojo')));
+});
+
+test('DE128 campaign music patches use packaged audio handles', async () => {
+    const directory = path.resolve(__dirname, '../../../Mods/de128');
+    const mod = await p.indexMod(directory);
+    assert.deepEqual(mod.issues, []);
+    const source = await fs.readFile(path.join(directory, 'scripts/content/campaign_music.lua'), 'utf8');
+    assert.deepEqual(p.analyze(source, mod).issues, []);
+    for (const track of ['ninja_in_the_night_old', 'old_sensei_old', 'deadly_smoke_old', 'burning_town_old'])
+        assert.equal(mod.assets.get(`audio/campaign/${track}`).kind, 'audio');
+});
+
+test('DE128 native map button uses a typed packaged sprite and click notification', async () => {
+ const dir=path.resolve(__dirname,'../../../Mods/de128');
+ const mod=await p.indexMod(dir);
+ assert.deepEqual(mod.issues,[]);
+ const source=await fs.readFile(path.join(dir,'scripts/content/dojo_changer.lua'),'utf8');
+ assert.deepEqual(p.analyze(source,mod).issues,[]);
+ assert.equal(mod.assets.get('sprites/dojo_changer/credits').kind,'sprite');
+ const api=require('../data/api.json');
+ assert.equal(api.types.Action_show_map_button.fields.image,'Eclipse.SpriteHandle|string');
+ assert.match(api.types.StoryEvent.fields.kind,/map_button/);
 });
 
 test('profile queries require read capability', async () => {

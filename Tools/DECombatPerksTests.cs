@@ -127,8 +127,10 @@ internal static class DECombatPerksTests
             check(mind.Fighter.Clears==2 && mind.Fighter.Flags.Count==0,"Projectile wall cleanup differs");
             animation("other","de128:moves/mind_throw_wall");
             check(mind.Fighter.Clears==3,"Archived unconditional wall clear lost");
-            check(catalog.Modes.Count == 0 && catalog.Quests.Count == 0 && catalog.Warriors.All(value => value.Id.LocalId.StartsWith("sensei_") || value.Id.LocalId.StartsWith("uw_")),
-                "Ascension remains active while loading the replacement package.");
+            check(catalog.Modes.Count == 0 && catalog.Quests.Count == 1 &&
+                catalog.Quests[0].Id.ToString() == "de128:quests/dojo_changer_map_button" &&
+                catalog.Warriors.All(value => value.Id.LocalId.StartsWith("sensei_") || value.Id.LocalId.StartsWith("uw_")),
+                "The dojo map button is the only active quest in the replacement package.");
             var ids = new[] { "master_of_style", "relentless" };
             foreach (string id in ids)
             {

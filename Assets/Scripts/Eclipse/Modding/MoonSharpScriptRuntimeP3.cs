@@ -44,6 +44,7 @@ namespace Eclipse.Modding
                     else if(name=="scene_enter")kind=ModStoryEventKind.SceneEnter;
                     else if(name=="item_acquired")kind=ModStoryEventKind.ItemAcquired;
                     else if(name=="battle_result")kind=ModStoryEventKind.BattleResult;
+                    else if(name=="map_button")kind=ModStoryEventKind.MapButton;
                     else throw new ModContentException("Unsupported story event: "+name);
                     var callback=args.AsType(1,function,DataType.Function,false);
                     if(_disposed || _storyScope==null)throw new ModContentException("Story subscriptions are unavailable.");
@@ -57,6 +58,7 @@ namespace Eclipse.Modding
                         value.Set("previous_count",notification.PreviousCount.HasValue?DynValue.NewNumber(notification.PreviousCount.Value):DynValue.Nil);
                         value.Set("count",notification.Count.HasValue?DynValue.NewNumber(notification.Count.Value):DynValue.Nil);
                         value.Set("scene",notification.Scene!=null?DynValue.NewString(notification.Scene):DynValue.Nil);
+                        value.Set("button",notification.Button!=null?DynValue.NewString(notification.Button):DynValue.Nil);
                         if(notification.Battle!=null)
                         {
                             var battle=notification.Battle;

@@ -181,15 +181,17 @@ and scene transitions still need a game test. See the Animated Arena example.
 
 ## sf2.locations.select_dojo
 
-**Signature:** `sf2.locations.select_dojo(location)`
+**Signature:** `sf2.locations.select_dojo(location_or_core_id)`
 
 **Returns:** `nil`.
 
 **When:** After a game profile has loaded, normally from a selector's UI callback.
 The new backdrop applies on the next dojo entry; it does not refresh an open dojo.
 
-**Requires:** `presentation.dojo` and this mod's registered location handle with
-`dojo = true`. UI creation separately requires `ui.create`.
+**Requires:** `presentation.dojo` and either this mod's registered location handle
+with `dojo = true`, or a `core:locations/name` string for an installed native
+location with `gamedata/locations/name/params.xml`. UI creation separately
+requires `ui.create`.
 
 ```lua
 -- arena is a location handle registered earlier with dojo = true.
@@ -198,15 +200,23 @@ sf2.locations.select_dojo(arena)
 sf2.ui.close(view)
 ```
 
-The host writes the preference into the current profile's existing save DOM.
-Normal game saving persists it; this operation does not force a disk flush.
+```lua
+-- Select an installed native dojo without copying its location definition.
+sf2.locations.select_dojo("core:locations/dojo_india24")
+```
+
+The host writes the preference into the current profile's existing save DOM and
+requests the normal profile save. The call does not synchronously flush to disk.
 The preference takes priority over the native quest-selected dojo, and never
 changes ordinary battle locations. No fighter or inventory definition is changed.
 
 The latest explicit selection replaces the previous preference. A mod can select
-only its own registered choices. No selection is made automatically when a mod
-loads. Invalid handles, non-dojo locations, unavailable profiles and missing
-capability raise an error before changing the preference.
+its own registered choices or an installed native location. No selection is made
+automatically when a mod loads. Invalid handles or core IDs, missing native
+params, non-dojo mod locations, unavailable profiles and missing capability raise
+an error before changing the preference. If a selected core location becomes
+unavailable on a later run, the host temporarily uses the native dojo and
+preserves the saved choice until its params return.
 
 ## sf2.locations.selected_dojo
 
@@ -236,8 +246,9 @@ preference. Reenabling the provider restores it at the next dojo entry.
 
 **When:** After a game profile has loaded, normally from a reset button.
 
-**Requires:** `presentation.dojo`. The saved choice must belong to this mod or
-already be empty; another mod's preference cannot be cleared by this function.
+**Requires:** `presentation.dojo`. The saved choice must belong to this mod, be
+a core location, or already be empty; another mod's preference
+cannot be cleared by this function.
 
 ```lua
 local selected = sf2.locations.selected_dojo()
@@ -246,7 +257,7 @@ if selected == nil or selected == sf2.locations.name(arena) then
 end
 ```
 
-Reset explicitly clears the preference; it preserves unrelated save data. The
+Reset explicitly clears the preference and requests a profile save; it preserves unrelated save data. The
 native/default dojo returns on the next entry. Switching profiles and shutting
 down unload the active binding. Unknown or malformed preference data is retained
 and selection operations remain unavailable for that profile.

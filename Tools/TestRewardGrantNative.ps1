@@ -1,8 +1,10 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$testRoot = Join-Path $root 'Temp/RewardGrantNative'
-
-New-Item -ItemType Directory -Force $testRoot | Out-Null
+$fixtureRoot = Join-Path $root 'Temp'
+$testRoot = Join-Path $fixtureRoot ('RewardGrantNative-' + [Guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $testRoot | Out-Null
+Set-Content -LiteralPath (Join-Path $testRoot '.reward-grant-fixture') -Value 'Owned reward grant native fixture'
+try {
 
 function Extract-Method([string]$source, [string]$signature) {
     $start = $source.IndexOf($signature, [StringComparison]::Ordinal)
@@ -118,3 +120,15 @@ if ($LASTEXITCODE -ne 0) { throw "Reward grant native fixture compile failed: $L
 $dll = Join-Path $testRoot 'bin/Debug/net10.0/RewardGrantNative.dll'
 dotnet $dll $root
 if ($LASTEXITCODE -ne 0) { throw "Reward grant native fixture failed: $LASTEXITCODE" }
+} finally {
+    $ownedRoot = [System.IO.Path]::TrimEndingDirectorySeparator([System.IO.Path]::GetFullPath($fixtureRoot))
+    $ownedFixture = [System.IO.Path]::GetFullPath($testRoot)
+    $marker = Join-Path $ownedFixture '.reward-grant-fixture'
+    if ([System.IO.Path]::GetDirectoryName($ownedFixture) -ine $ownedRoot -or
+        [System.IO.Path]::GetFileName($ownedFixture) -notmatch '^RewardGrantNative-[0-9a-f]{32}$' -or
+        !(Test-Path -LiteralPath $marker) -or
+        (Get-Content -Raw -LiteralPath $marker).Trim() -ne 'Owned reward grant native fixture') {
+        throw "Refusing to clean unverified reward grant fixture: $ownedFixture"
+    }
+    Remove-Item -LiteralPath $ownedFixture -Recurse -Force
+}

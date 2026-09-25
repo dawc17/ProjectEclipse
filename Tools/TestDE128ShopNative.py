@@ -43,7 +43,7 @@ def main() -> int:
     shutil.copy2(ROOT / "Tools/ValidateDE128ShopNative.cs", validator)
 
     phases = args.phases.split(",")
-    if not phases or any(phase not in ("buy", "reload", "equip_upgrade", "reload_equip_upgrade", "shop_preview", "inspect")
+    if not phases or any(phase not in ("buy", "reload", "equip_upgrade", "reload_equip_upgrade", "shop_preview", "inspect", "forge")
                          for phase in phases):
         parser.error("Unknown shop acceptance phase.")
     for phase in phases:
@@ -57,7 +57,8 @@ def main() -> int:
         evidence = [line.strip() for line in lines if "[DE128ShopNative]" in line or "error CS" in line]
         for line in evidence[-35:]:
             print(line, flush=True)
-        expected = ("[DE128ShopNative] PASS shop_preview:" if phase == "shop_preview" else
+        expected = ("[DE128ShopNative] PASS forge:" if phase == "forge" else
+                    "[DE128ShopNative] PASS shop_preview:" if phase == "shop_preview" else
                     f"[DE128ShopNative] PASS {phase}: 221 live catalog rows")
         if result.returncode != 0 or not any(expected in line for line in evidence):
             raise RuntimeError(f"Unity shop {phase} failed (exit {result.returncode}); inspect {log}")

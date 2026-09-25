@@ -523,3 +523,23 @@ titan_reward.HEAD_TITAN = "Casco de Titán"
 titan_reward.MAGIC_MIND_THROW = "Lanzamiento mental de Titán"
 titan_reward.RANGED_TITANS_HARPOON = "Arpón de Titán"
 # END GENERATED Titan rewards (Tools/GenerateDE128TitanRewardText.py)
+
+# BEGIN Forge recipe names (historical DE localization)
+forge.complex_2 = "Receta compleja II"
+forge.complex_3 = "Receta compleja III"
+# END Forge recipe names
+
+# BEGIN Dojo changer (historical DE localization)
+dojo.DojoChangerTitle = "ELEGIR DOJO"
+dojo.DefaultDojo = "Dojo estándar"
+dojo.DojoChinese24 = "Dojo del Año Nuevo Chino"
+dojo.DojoIndia = "Dojo Indio I"
+dojo.DojoIndia22 = "Dojo Indio II"
+dojo.DojoIndia24 = "Dojo Indio III"
+dojo.DojoHalloween = "Dojo de Halloween I"
+dojo.DojoHalloween19 = "Dojo de Halloween II"
+dojo.DojoHalloween21 = "Dojo de Halloween III"
+dojo.DojoAmerican22 = "Dojo americano II"
+dojo.DojoStudio = "Dojo del estudio"
+dojo.BACK = "ATRÁS"
+# END Dojo changer

@@ -1089,14 +1089,14 @@
     },
     "sf2.story.on": {
       "params": {
-        "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"item_acquired\"|\"battle_result\"",
+        "event": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"map_button\"|\"item_acquired\"|\"battle_result\"",
         "callback": "fun(event: Eclipse.StoryEvent)"
       },
       "returns": "An opaque subscription handle.",
       "capability": "story.events",
       "url": "https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon",
       "summary": "",
-      "requires": "`story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.",
+      "requires": "`story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`) and a Lua function.",
       "when": "During mod loading or a callback while the script is active, including before a profile loads."
     },
     "sf2.story.off": {
@@ -1156,13 +1156,13 @@
     },
     "sf2.locations.select_dojo": {
       "params": {
-        "location": "Eclipse.LocationHandle"
+        "location": "Eclipse.LocationHandle|string"
       },
       "returns": "`nil`.",
       "capability": "presentation.dojo",
       "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselect_dojo",
       "summary": "",
-      "requires": "`presentation.dojo` and this mod's registered location handle with `dojo = true`. UI creation separately requires `ui.create`.",
+      "requires": "`presentation.dojo` and either this mod's registered location handle with `dojo = true`, or a `core:locations/name` string for an installed native location with `gamedata/locations/name/params.xml`. UI creation separately requires `ui.create`.",
       "when": "After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo entry; it does not refresh an open dojo."
     },
     "sf2.locations.reset_dojo": {
@@ -1171,7 +1171,7 @@
       "capability": "presentation.dojo",
       "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsreset_dojo",
       "summary": "",
-      "requires": "`presentation.dojo`. The saved choice must belong to this mod or already be empty; another mod's preference cannot be cleared by this function.",
+      "requires": "`presentation.dojo`. The saved choice must belong to this mod, be a core location, or already be empty; another mod's preference cannot be cleared by this function.",
       "when": "After a game profile has loaded, normally from a reset button."
     },
     "sf2.locations.selected_dojo": {
@@ -2654,7 +2654,11 @@
     "RewardGrantEnchantment": {
       "fields": {
         "perk": "Eclipse.PerkHandle",
-        "aspect?": "number"
+        "aspect?": "number",
+        "chance_factor?": "number",
+        "chance?": "number",
+        "frames?": "integer",
+        "parameters?": "table<string, number>"
       }
     },
     "RewardGrantConfiguration": {
@@ -2759,7 +2763,10 @@
         "rounds?": "integer",
         "round_time?": "integer",
         "location?": "string",
-        "music?": "string",
+        "music?": [
+          "Eclipse.AudioHandle|string",
+          "Audio handle for mod-owned music, or an installed native track name."
+        ],
         "warriors?": "Eclipse.WarriorHandle[]",
         "reward_drops?": "Eclipse.RewardDropPatch[]",
         "rules?": "Eclipse.RuleHandle[]",
@@ -3035,7 +3042,7 @@
       "fields": {
         "text": "string",
         "color?": "string",
-        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_dialog|Eclipse.Action_story)[]"
+        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]"
       }
     },
     "Action_show_battle": {
@@ -3093,6 +3100,18 @@
         "value": "string"
       }
     },
+    "Action_show_map_button": {
+      "fields": {
+        "type": "\"show_map_button\"",
+        "id": "string",
+        "image": "Eclipse.SpriteHandle|string",
+        "x": "number",
+        "y": "number",
+        "anchor_min_x?": "number",
+        "anchor_max_x?": "number",
+        "show_type?": "\"both\"|\"story\"|\"raid\""
+      }
+    },
     "Action_dialog": {
       "fields": {
         "type": "\"dialog\"",
@@ -3119,7 +3138,7 @@
         "marks?": "string[]",
         "events": "(\"session\"|\"activate\"|\"fight_enter\"|\"fight_end\"|\"raid_fight_enter\"|\"raid_fight_end\"|\"raid_enter\"|\"raid_end\"|\"reset_mode\"|\"raid_map_enter\"|\"raid_floor_changed\"|\"show_raid_loot\"|\"level_up\"|\"got_item\"|\"set_item_acquired\"|\"purchase\"|\"delivery\"|\"timer_end\"|\"enchantment\"|\"activate_perk\"|\"deactivate_perk\"|\"dialog\"|\"map_button\"|\"scene_loaded\"|\"shop_enter\")[]",
         "conditions?": "(Eclipse.Comparison|Eclipse.ConditionGroup)[]",
-        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_dialog|Eclipse.Action_story)[]"
+        "actions": "(Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]"
       }
     },
     "SetMember": {
@@ -3382,7 +3401,7 @@
     },
     "StoryEvent": {
       "fields": {
-        "kind": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"item_acquired\"|\"battle_result\"",
+        "kind": "\"purchase\"|\"enchantment\"|\"level_up\"|\"scene_enter\"|\"map_button\"|\"item_acquired\"|\"battle_result\"",
         "fight?": "string",
         "outcome?": "\"win\"|\"loss\"|\"surrender\"|\"raid_timeout\"|\"raid_round_timeout\"",
         "eclipse?": "boolean",
@@ -3393,7 +3412,8 @@
         "count?": "integer",
         "previous_level?": "integer",
         "level?": "integer",
-        "scene?": "\"map\"|\"shop\"|\"profile\"|\"dojo\"|\"fight\""
+        "scene?": "\"map\"|\"shop\"|\"profile\"|\"dojo\"|\"fight\"",
+        "button?": "string"
       }
     },
     "FightEntryRequest": {

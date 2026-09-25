@@ -15,18 +15,20 @@ local dandy_lightning_chain = require("content.dandy_lightning_chain")
 local raid_boss_abilities = require("content.raid_boss_abilities")
 local widow_teleportation = require("content.widow_teleportation")
 
--- Archive music ids name the packaged raid tracks under their "raids_" names.
--- Ids without a packaged counterpart keep the native id (resolved by Sound.cs).
-local MUSIC = {
-    vulcan = "raids_vulcan", crystal = "raids_crystal", fungus = "raids_fungus", vortex = "raids_vortex",
-    fatum = "raids_fatum", hunger = "raids_hunger", drakaina = "raids_war", fear = "raids_fear",
-    holyman7 = "raids_arkhos", holyman8 = "raids_hoaxen", dark_ritual = "fight38_dark_ritual",
-    fight_halloween2022 = "hw22", raid_newyear18 = "new_year_18",
-}
-
 -- Event-raid map buttons absent from core art ship as DE128 sprites.
--- Archive music ids no packaged track provides; DE128 ships them (Tools/ExtractDE128UnderworldArt.py).
-local OWNED_MUSIC = { fight_halloween2019 = true, flying_rocks = true, halls_of_the_dead_heroes = true, ninja_in_the_night_old = true }
+-- Every archived Underworld battle music id is supplied by DE128, including
+-- tracks which the base game would otherwise resolve to a substitute.
+-- Sources and exact id coverage: Tools/ExtractDE128UnderworldArt.py.
+local OWNED_MUSIC = {
+    burning_town_old = true, crystal = true, dark_ritual = true, drakaina = true,
+    fatum = true, fear = true, fight_halloween2019 = true, fight_halloween2022 = true,
+    fight_independence_day = true, fight38_sakura_forest = true, fight43_bihu_india = true,
+    flying_rocks = true, fungus = true, halls_of_the_dead_heroes = true,
+    holyman7 = true, holyman8 = true, hunger = true, ninja_in_the_night_old = true,
+    raid_hw24 = true, raid_newyear18 = true, raids_berstuuk = true, raids_blackness = true,
+    raids_freeze = true, raids_gatekeeper = true, raids_hunter = true, raids_saturn = true,
+    raids_shurale = true, vortex = true, vulcan = true,
+}
 local OWNED_BUTTONS = {
     BattleBtnArchitect = true, BattleBtnHalloween = true, BattleBtnLamb = true, BattleBtnNrityu = true,
     BattleBtnPuppeteer = true, BattleBtnRakshasa = true, BattleBtnRavana = true, BattleBtnShurale = true,
@@ -197,7 +199,7 @@ local function install(raid_charge_rule)
 
     local owned_music = {}
     local function music(name)
-        if not OWNED_MUSIC[name] then return MUSIC[name] or name end
+        assert(OWNED_MUSIC[name], "Missing DE128 Underworld music source for " .. tostring(name))
         owned_music[name] = owned_music[name] or sf2.assets.audio("audio/underworld/" .. name)
         return owned_music[name]
     end
@@ -292,4 +294,4 @@ local function install(raid_charge_rule)
     return { zones = zones, battles = battles, fights = fights, templates = templates, by_battle = by_battle }
 end
 
-return { install = install, music = MUSIC }
+return { install = install }

@@ -117,12 +117,39 @@ host semantics, not as a general arithmetic or programming language.
 | `update_eclipse_battles` | None | Refresh Eclipse battle presentation. |
 | `give_item` | Required `item` handle | Grant an item through the host. |
 | `set_variable` | Required strings `name`, `value` | Set a native user variable. |
+| `show_map_button` | Required `id`, `image`, `x`, `y`; optional `anchor_min_x=0.5`, `anchor_max_x=0.5`, `show_type="both"` | Add a native map button when this quest runs. |
 | `dialog` | `title=""`, `image=""`, required `lines`; optional `button` | Display a dialog. |
 | `story` | Required `lines` | Display a story screen. |
 
 Dialog/story `lines` are strings or tables `{ text, button?, frames? }`.
 `text` is required; `button` defaults to `""` and `frames` to `0`.
 Presentation strings may be supported localization references.
+
+For `show_map_button`, `id` is 1–64 lowercase ASCII letters, digits, `_` or `-`.
+The native button name and the `map_button` notification's `button` field are
+`<mod-id>.<id>`, so mods can distinguish their clicks. `image` is either a typed
+sprite handle from `sf2.assets.sprite` (recommended for mod artwork) or an
+installed native `Textures/` path. A bare qualified asset ID string is not
+accepted; obtain its handle during loading. Coordinates are
+finite map coordinates. Anchors must be finite values between 0 and 1, with
+`anchor_min_x <= anchor_max_x`. `show_type` accepts `both`, `story` or `raid`.
+Place the quest on `map` and give it `events = { "session" }` for a button shown
+at session start. React to a click with [`sf2.story.on("map_button", ...)`](../story/#sf2storyon).
+The action supplies the native button only; the click callback decides what to
+do. For example:
+
+```lua
+sf2.quests.register {
+    id = "arena_button", place = "map", events = { "session" },
+    actions = { { type = "show_map_button", id = "arena",
+        image = sf2.assets.sprite("sprites/arena_button"), x = -400, y = -200 } },
+}
+sf2.story.on("map_button", function(event)
+    if event.button == sf2.mod.id .. ".arena" then
+        -- Open an owned UI view here (requires ui.create).
+    end
+end)
+```
 
 A dialog's optional button is `{ text = "...", color = "Beige", actions = { ... } }`:
 `text` and `actions` are required, while `color` defaults to `"Beige"`.

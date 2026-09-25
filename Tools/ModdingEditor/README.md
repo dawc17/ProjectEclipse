@@ -277,7 +277,10 @@ the weapon starter. Its Lua resolves localization through `sf2.mod.id`.
 
 Combat callbacks now complete `fighter:snapshot()` and its typed health, position, and clock result. The battle-rules template includes a health-dependent guard transition.
 
-Fight-patch completion includes `rules`, `append_rules`, `location`, and `music`. The `core-fight` template demonstrates editing an existing encounter; copy it manually as described for the battle-rules template.
+Fight-patch completion includes `rules`, `append_rules`, `location`, and `music`.
+The `music` field accepts an `AudioHandle` from `sf2.assets.audio` or a native
+track name. The `core-fight` template demonstrates editing an existing
+encounter; copy it manually as described for the battle-rules template.
 
 Adds perk `upgrades` completion with level, description and parameter fields. Runtime/native upgrade acceptance is tracked in `Mods/PRE_DE_WORK_LOG.md`.
 
@@ -369,6 +372,11 @@ Adds LocationDefinition.dojo and locations.select_dojo/selected_dojo/
 reset_dojo, with presentation.dojo capability diagnostics and completion. The
 Dojo Selector example is validated as a complete mod; callbacks run after profile
 loading, and changes apply on next dojo entry. See the public location guide.
+`select_dojo` also accepts an installed `core:locations/name` string. Quest
+completion includes `show_map_button` placement fields, and `story.on` accepts
+`map_button` with its `button` name in the event payload. These declarations
+describe the Lua contract. `show_map_button.image` accepts a sprite handle for
+mod artwork or an installed native `Textures/` path.
 
 Adds profile.level(), profile.item(ItemHandle) and ProfileItemSnapshot
 completion, plus profile.read capability diagnostics. See Player profile queries
@@ -392,6 +400,10 @@ UI; native quests can consume a request, and loading completion is asynchronous.
 Adds FightPatch.warriors: an optional array of 1–100 unique warrior handles for replacing an existing encounter's opponents. See the fight patch reference for preservation and conflict semantics.
 
 Adds FightPatch.reward_drops and typed RewardDropPatch entries for scoped item rewards. Currency and other native reward scopes are preserved; mixed economic choices reject replacement. See the fight patch reference for additive mode and level semantics.
+
+Reward grant configuration now completes enchantment chance, duration and
+bounded native numeric `parameters` alongside perk and aspect. These settings
+apply to the granted equipment copy, leaving the core item definition intact.
 
 Adds profile.perk and a detached learned/upgrade snapshot under profile.read. This queries learned progression, not active combat effects.
 

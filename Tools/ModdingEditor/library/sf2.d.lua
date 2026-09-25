@@ -599,6 +599,10 @@ local RewardGrantContext = {}
 ---@class (exact) Eclipse.RewardGrantEnchantment
 ---@field perk Eclipse.PerkHandle
 ---@field aspect? number
+---@field chance_factor? number
+---@field chance? number
+---@field frames? integer
+---@field parameters? table<string, number>
 local RewardGrantEnchantment = {}
 
 ---@class (exact) Eclipse.RewardGrantConfiguration
@@ -673,7 +677,7 @@ local RewardDropPatch = {}
 ---@field rounds? integer
 ---@field round_time? integer
 ---@field location? string
----@field music? string
+---@field music? Eclipse.AudioHandle|string Audio handle for mod-owned music, or an installed native track name.
 ---@field warriors? Eclipse.WarriorHandle[]
 ---@field reward_drops? Eclipse.RewardDropPatch[]
 ---@field rules? Eclipse.RuleHandle[]
@@ -905,7 +909,7 @@ local DialogLine = {}
 ---@class (exact) Eclipse.DialogButton
 ---@field text string
 ---@field color? string
----@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_dialog|Eclipse.Action_story)[]
+---@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]
 local DialogButton = {}
 
 ---@class (exact) Eclipse.Action_show_battle
@@ -954,6 +958,17 @@ local Action_give_item = {}
 ---@field value string
 local Action_set_variable = {}
 
+---@class (exact) Eclipse.Action_show_map_button
+---@field type "show_map_button"
+---@field id string
+---@field image Eclipse.SpriteHandle|string
+---@field x number
+---@field y number
+---@field anchor_min_x? number
+---@field anchor_max_x? number
+---@field show_type? "both"|"story"|"raid"
+local Action_show_map_button = {}
+
 ---@class (exact) Eclipse.Action_dialog
 ---@field type "dialog"
 ---@field title? string
@@ -977,7 +992,7 @@ local Action_story = {}
 ---@field marks? string[]
 ---@field events ("session"|"activate"|"fight_enter"|"fight_end"|"raid_fight_enter"|"raid_fight_end"|"raid_enter"|"raid_end"|"reset_mode"|"raid_map_enter"|"raid_floor_changed"|"show_raid_loot"|"level_up"|"got_item"|"set_item_acquired"|"purchase"|"delivery"|"timer_end"|"enchantment"|"activate_perk"|"deactivate_perk"|"dialog"|"map_button"|"scene_loaded"|"shop_enter")[]
 ---@field conditions? (Eclipse.Comparison|Eclipse.ConditionGroup)[]
----@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_dialog|Eclipse.Action_story)[]
+---@field actions (Eclipse.Action_show_battle|Eclipse.Action_toggle_battle|Eclipse.Action_map_focus|Eclipse.Action_fight|Eclipse.Action_current_fight|Eclipse.Action_eclipse|Eclipse.Action_update_eclipse_battles|Eclipse.Action_give_item|Eclipse.Action_set_variable|Eclipse.Action_show_map_button|Eclipse.Action_dialog|Eclipse.Action_story)[]
 local QuestDefinition = {}
 
 ---@class (exact) Eclipse.SetMember
@@ -1164,7 +1179,7 @@ local BattleEquipmentSnapshot = {}
 local StorySubscription = {}
 
 ---@class (exact) Eclipse.StoryEvent
----@field kind "purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"
+---@field kind "purchase"|"enchantment"|"level_up"|"scene_enter"|"map_button"|"item_acquired"|"battle_result"
 ---@field fight? string
 ---@field outcome? "win"|"loss"|"surrender"|"raid_timeout"|"raid_round_timeout"
 ---@field eclipse? boolean
@@ -1176,6 +1191,7 @@ local StorySubscription = {}
 ---@field previous_level? integer
 ---@field level? integer
 ---@field scene? "map"|"shop"|"profile"|"dojo"|"fight"
+---@field button? string
 local StoryEvent = {}
 
 ---@class (exact) Eclipse.FightEntryRequest
@@ -2877,11 +2893,11 @@ function story.fight_pending(request) end
 ---@return boolean
 function story.play_sequence(definition) end
 
----Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `item_acquired` or `battle_result`) and a Lua function.
+---Requires: `story.events`, an event name (`purchase`, `enchantment`, `level_up`, `scene_enter`, `map_button`, `item_acquired` or `battle_result`) and a Lua function.
 ---When: During mod loading or a callback while the script is active, including before a profile loads.
 ---Returns: An opaque subscription handle.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/story/#sf2storyon)
----@param event "purchase"|"enchantment"|"level_up"|"scene_enter"|"item_acquired"|"battle_result"
+---@param event "purchase"|"enchantment"|"level_up"|"scene_enter"|"map_button"|"item_acquired"|"battle_result"
 ---@param callback fun(event: Eclipse.StoryEvent)
 ---@return Eclipse.StorySubscription
 function story.on(event, callback) end
@@ -2925,14 +2941,14 @@ function locations.register(definition) end
 ---@return string
 function locations.name(location) end
 
----Requires: `presentation.dojo` and this mod's registered location handle with `dojo = true`. UI creation separately requires `ui.create`.
+---Requires: `presentation.dojo` and either this mod's registered location handle with `dojo = true`, or a `core:locations/name` string for an installed native location with `gamedata/locations/name/params.xml`. UI creation separately requires `ui.create`.
 ---When: After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo entry; it does not refresh an open dojo.
 ---Returns: `nil`.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselect_dojo)
----@param location Eclipse.LocationHandle
+---@param location Eclipse.LocationHandle|string
 function locations.select_dojo(location) end
 
----Requires: `presentation.dojo`. The saved choice must belong to this mod or already be empty; another mod's preference cannot be cleared by this function.
+---Requires: `presentation.dojo`. The saved choice must belong to this mod, be a core location, or already be empty; another mod's preference cannot be cleared by this function.
 ---When: After a game profile has loaded, normally from a reset button.
 ---Returns: `nil`.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsreset_dojo)

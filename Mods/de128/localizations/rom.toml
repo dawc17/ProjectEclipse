@@ -523,3 +523,23 @@ titan_reward.HEAD_TITAN = "Casca lui Titan"
 titan_reward.MAGIC_MIND_THROW = "Aruncarea Mentală a lui Titan"
 titan_reward.RANGED_TITANS_HARPOON = "Harponul lui Titan"
 # END GENERATED Titan rewards (Tools/GenerateDE128TitanRewardText.py)
+
+# BEGIN Forge recipe names (historical DE localization)
+forge.complex_2 = "Reţetă Complexă II"
+forge.complex_3 = "Reţetă Complexă III"
+# END Forge recipe names
+
+# BEGIN Dojo changer (historical DE localization)
+dojo.DojoChangerTitle = "ALEGE DOJO"
+dojo.DefaultDojo = "Dojo Standard"
+dojo.DojoChinese24 = "Dojo de Anul Nou Chinezesc"
+dojo.DojoIndia = "Dojo Indian I"
+dojo.DojoIndia22 = "Dojo Indian II"
+dojo.DojoIndia24 = "Dojo Indian III"
+dojo.DojoHalloween = "Dojo de Halloween I"
+dojo.DojoHalloween19 = "Dojo de Halloween II"
+dojo.DojoHalloween21 = "Dojo de Halloween III"
+dojo.DojoAmerican22 = "Dojo American II"
+dojo.DojoStudio = "Dojo Studio"
+dojo.BACK = "ÎNAPOI"
+# END Dojo changer

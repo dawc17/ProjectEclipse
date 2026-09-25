@@ -10,21 +10,12 @@ using Eclipse.Modding;
 // reviewed owner raid XML plus historical DE template and localization XML.
 // Reads sources directly; it does not reuse the generator. The documented
 // normalizations are asserted explicitly: Rounds 0 -> 1, restored Sphere1/2,
-// the music table, and unresolved names.
+// the owner music assets, and unresolved names.
 internal static class DE128UnderworldTests
 {
     private static Action<bool, string> _check;
     private static int _compared;
     private static readonly string[] Languages = { "cro", "eng", "fra", "ger", "hin", "hun", "ita", "kor", "por", "rom", "rus", "spa", "swe", "tur" };
-    private static readonly HashSet<string> OwnedMusic = new HashSet<string>
-        { "fight_halloween2019", "flying_rocks", "halls_of_the_dead_heroes", "ninja_in_the_night_old" };
-    private static readonly Dictionary<string, string> Music = new Dictionary<string, string>
-    {
-        { "vulcan", "raids_vulcan" }, { "crystal", "raids_crystal" }, { "fungus", "raids_fungus" }, { "vortex", "raids_vortex" },
-        { "fatum", "raids_fatum" }, { "hunger", "raids_hunger" }, { "drakaina", "raids_war" }, { "fear", "raids_fear" },
-        { "holyman7", "raids_arkhos" }, { "holyman8", "raids_hoaxen" }, { "dark_ritual", "fight38_dark_ritual" },
-        { "fight_halloween2022", "hw22" }, { "raid_newyear18", "new_year_18" },
-    };
     private static readonly Dictionary<string, string> Restored = new Dictionary<string, string>
     {
         { "Sphere1", "de128:items/magic/minor_charge_of_darkness" }, { "Sphere2", "de128:items/magic/medium_charge_of_darkness" },
@@ -149,9 +140,7 @@ internal static class DE128UnderworldTests
         Check(battle.Location == location && battle.Preview == xml.GetAttribute("Preview") && battle.Icon == xml.GetAttribute("Icon"),
             "Battle location/preview/icon differs: " + name);
         string music = xml.GetAttribute("Music");
-        // Ids no packaged track provides ship with DE128 as audio assets under their archive id.
-        string expected = OwnedMusic.Contains(music) ? "de128:audio/underworld/" + music
-            : Music.TryGetValue(music, out var mapped) ? mapped : music;
+        string expected = "de128:audio/underworld/" + music;
         Check(battle.Music == expected, "Battle music mapping differs: " + name + " (" + battle.Music + ")");
         string atlas = xml.GetAttribute("IconAtlas");
         if (OwnedButtons.Contains(atlas))

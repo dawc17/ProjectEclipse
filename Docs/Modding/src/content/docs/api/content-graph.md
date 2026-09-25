@@ -539,7 +539,8 @@ local titan_reward = sf2.rewards.register {
                 return {
                     level = context.player_level,
                     enchantments = {
-                        { perk = precision, aspect = 1940.5 },
+                        { perk = precision, aspect = 1940.5, chance = 0.2,
+                          parameters = { DamageFactor = 10000 } },
                     },
                 }
             end,
@@ -560,10 +561,17 @@ Return a table with either or both of these optional fields:
 | Result field | Type | Meaning |
 | --- | --- | --- |
 | `level` | Integer, 1–10,000 | Equipment level for this grant snapshot. Defaults to `context.player_level`. |
-| `enchantments` | Dense array, at most 64 entries | Grant-time enchantments. Each entry is `{ perk = perk_handle, aspect? = number }`. Duplicate perk IDs are rejected. |
+| `enchantments` | Dense array, at most 64 entries | Grant-time enchantments. Each entry has a `perk` handle and optional settings below. Duplicate perk IDs are rejected. |
 
-`aspect` must be finite and from `0` through `2147483647`; decimal values are
-accepted. Perk handles must already have been looked up or registered during mod
+Each enchantment entry accepts `aspect` (finite `0..2147483647`),
+`chance_factor` (finite `0..10000`), `chance` (finite `0..1`), `frames`
+(nonnegative integer), and `parameters` (up to 32 named native numeric `Set`
+attributes, each finite and within ±1 billion). Names must be 1–64 letters,
+digits or underscores, starting with a letter; the dedicated setting names
+cannot appear in `parameters`. The native perk must actually read a named
+parameter for it to have an effect. Omitted settings stay omitted in the saved
+perk rather than receiving synthetic defaults. Perk handles must already have
+been looked up or registered during mod
 registration and captured by the callback. An explicit empty `enchantments = {}`
 adds no grant-time enchantments and still preserves the item's normal acquisition
 defaults. Omitting `enchantments` also preserves those defaults. The existing
@@ -671,10 +679,12 @@ Replace supported fields on an existing registered fight.
 
 `target` is a fight definition ID string. Supply at least one changed field.
 `description` is a string; `rounds` is 1–100; `round_time` is 1–86400 seconds.
-`location` and `music` accept nonempty recovered runtime names,
-as in fight registration. For a registered custom location, use
-`sf2.locations.name(location)`. This changes the encounter's presentation; it does
-not register or validate the existence of an asset named by that string.
+`location` accepts a nonempty recovered runtime name. For a registered custom
+location, use `sf2.locations.name(location)`. `music` accepts an audio handle
+from `sf2.assets.audio` for a mod-owned track, or a nonempty native track name.
+An audio handle checks that the packaged asset exists when the mod loads;
+a native name is resolved by the game when the encounter starts. These fields
+change the encounter's presentation without changing its identity or progress.
 
 Use `append_rules = { rule, ... }` to keep existing rules and add your own in
 array order. Use `rules = { rule, ... }` to replace the entire rule list, including
@@ -745,6 +755,17 @@ sf2.fights.patch {
     append_rules = { guard },
     location = "dojo",
     music = "fight1_samurai_spirit",
+}
+```
+
+To supply music from the mod's `assets/audio/boss_theme.wav`, patch with a
+handle instead:
+
+```lua
+local boss_theme = sf2.assets.audio("audio/boss_theme")
+sf2.fights.patch {
+    target = "core:fights/zone_1/boss_lynx/1",
+    music = boss_theme,
 }
 ```
 

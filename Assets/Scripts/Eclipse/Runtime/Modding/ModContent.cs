@@ -1541,16 +1541,33 @@ namespace Eclipse.Modding
     {
         public DefinitionId Perk { get; }
         public double? Aspect { get; }
+        public double? ChanceFactor { get; }
+        public double? Chance { get; }
+        public int? Frames { get; }
+        public IReadOnlyDictionary<string, double> Parameters { get; }
 
-        public RewardGrantEnchantment(DefinitionId perk, double? aspect = null)
+        public RewardGrantEnchantment(DefinitionId perk, double? aspect = null, double? chanceFactor = null,
+            double? chance = null, int? frames = null, IReadOnlyDictionary<string, double> parameters = null)
         {
             if (perk.Category != "perks")
                 throw new ModContentException("Reward enchantment must reference a perk definition.");
             if (aspect.HasValue && (double.IsNaN(aspect.Value) || double.IsInfinity(aspect.Value) ||
                 aspect.Value < 0 || aspect.Value > int.MaxValue))
                 throw new ModContentException("Reward enchantment aspect must be finite and 0..2147483647.");
+            if (chanceFactor.HasValue && (double.IsNaN(chanceFactor.Value) || double.IsInfinity(chanceFactor.Value) ||
+                chanceFactor.Value < 0 || chanceFactor.Value > 10000))
+                throw new ModContentException("Reward enchantment chance_factor must be finite and 0..10000.");
+            if (chance.HasValue && (double.IsNaN(chance.Value) || double.IsInfinity(chance.Value) ||
+                chance.Value < 0 || chance.Value > 1))
+                throw new ModContentException("Reward enchantment chance must be finite and 0..1.");
+            if (frames < 0)
+                throw new ModContentException("Reward enchantment frames must be a nonnegative integer.");
             Perk = perk;
             Aspect = aspect;
+            ChanceFactor = chanceFactor;
+            Chance = chance;
+            Frames = frames;
+            Parameters = ModPerkParameters.Copy(parameters, "Reward enchantment");
         }
     }
 

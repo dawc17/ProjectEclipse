@@ -606,6 +606,17 @@ namespace Eclipse.Modding
                 case ModQuestActionKind.GiveItem:
                     node = document.CreateElement("GiveItem"); node.SetAttribute("Name", LegacyItemName(action.Reference));
                     node.SetAttribute("Quantity", "1"); return node;
+                case ModQuestActionKind.ShowMapButton:
+                    var mapButton = action.MapButton;
+                    node = document.CreateElement("ShowMapButton");
+                    node.SetAttribute("Name", mapButton.Name);
+                    node.SetAttribute("Image", mapButton.Image);
+                    node.SetAttribute("X", mapButton.X.ToString("R", CultureInfo.InvariantCulture));
+                    node.SetAttribute("Y", mapButton.Y.ToString("R", CultureInfo.InvariantCulture));
+                    node.SetAttribute("AnchorMinX", mapButton.AnchorMinX.ToString("R", CultureInfo.InvariantCulture));
+                    node.SetAttribute("AnchorMaxX", mapButton.AnchorMaxX.ToString("R", CultureInfo.InvariantCulture));
+                    node.SetAttribute("ShowType", mapButton.ShowType);
+                    return node;
                 default: throw new ModContentException("Unsupported committed quest action '" + action.Kind + "'.");
             }
         }

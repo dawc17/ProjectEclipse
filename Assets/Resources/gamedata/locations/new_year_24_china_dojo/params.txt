@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Root Music="6|7" Color="0x281409" Wall="305" Floor="80" Width="1960" Height="560">
+  <Layer Type="1" Factor="0.1" Atlas="dojo_bg" Path="Locations/dojo/">
+    <Image X="0" Y="-15" ClassName="background_1" Width="1024" Height="512" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="0.4" Atlas="dojo_atlas_layer1" Path="Locations/dojo/">
+    <Image X="-251" Y="50" ClassName="layer_1_1" Width="486" Height="324"/>
+    <Image X="265.5" Y="51.5" ClassName="layer_1_2" Width="237" Height="313"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="new_year_china_dojo_atlas_layer3" Scaling="1" Path="Locations/new_year_china_dojo/">
+    <Image X="-430" Y="86" ClassName="symbol_cult_of_the_sunleft" Width="294" Height="339" FlipX="1"/>
+    <Image X="414" Y="86" ClassName="symbol_cult_of_the_sunleft" Width="294" Height="339"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="new_year_china_dojo_atlas_layer2" Scaling="1" Path="Locations/new_year_china_dojo/">
+    <Image X="0" Y="20" ClassName="layer_2_1" Width="1536" Height="512"/>
+  </Layer>
+  <Layer Type="2" Factor="1">
+    <ModelsViewer PlayerPositionX="690" PlayerPositionY="-93" EnemyPositionX="973" EnemyPositionY="-105"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="dojo_atlas_layer3" Scaling="1" Path="Locations/dojo/">
+    <SimpleEffect X="480" Y="-15.312" Type="Picture" PictureLocation="local" ClassName="layer_4" Width="600" Height="529.375">
+      <Transparency Offset="0">
+        <Point Period="1.1" Value="45" Ease="-1"/>
+        <Point Period="3.5" Value="75" Ease="1"/>
+        <Point Period="2.1" Value="55" Ease="-1"/>
+        <Point Period="2.5" Value="75" Ease="1"/>
+      </Transparency>
+    </SimpleEffect>
+    <Image X="-570" Y="224.5" ClassName="dojo_floor_1" Width="256" Height="59" Color="0x281409"/>
+    <Image X="588" Y="224.5" ClassName="dojo_floor_2" Width="256" Height="59" Color="0x281409"/>
+    <Image X="-321" Y="224.5" ClassName="dojo_floor_1" Width="256" Height="59" Color="0x281409"/>
+    <Image X="181" Y="224.5" ClassName="dojo_floor_2" Width="256" Height="59" Color="0x281409"/>
+    <Image X="-67" Y="224.5" ClassName="dojo_floor_1" Width="256" Height="59" Color="0x281409"/>
+    <Image X="433" Y="224.5" ClassName="dojo_floor_2" Width="256" Height="59" Color="0x281409"/>
+    <Image X="-10" Y="-203.5" ClassName="dojo_punch_bag_holder" Width="310" Height="145" Color="0x281409"/>
+    <Image X="-685.912" Y="0" ClassName="left_wall" Width="74.175" Height="560" Color="0x281409"/>
+    <Image X="683.81" Y="0" ClassName="right_wall" Width="78.379" Height="560" Color="0x281409"/>
+    <Image X="-890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x281409" IsOpaque="1"/>
+    <Image X="890" Y="0" ClassName="pixel_1" Width="350" Height="860" Color="0x281409" IsOpaque="1"/>
+    <Image X="0" Y="-426" ClassName="pixel_1" Width="1960" Height="400" Color="0x281409" IsOpaque="1"/>
+    <Image X="0" Y="470" ClassName="pixel_1" Width="1960" Height="500" Color="0x281409" IsOpaque="1"/>
+  </Layer>
+  <Layer Type="1" Factor="1" Atlas="new_year_china_dojo_atlas_layer3" Scaling="1" Path="Locations/new_year_china_dojo/">
+    <Image X="-500" Y="-127" ClassName="lamp_left" Width="141" Height="218"/>
+    <Image X="-300" Y="-127" ClassName="lamp_left" Width="141" Height="218"/>
+    <Image X="-100" Y="-127" ClassName="lamp_left" Width="141" Height="218"/>
+    <Image X="100" Y="-127" ClassName="lamp_left" Width="141" Height="218"/>
+    <Image X="300" Y="-127" ClassName="lamp_left" Width="141" Height="218"/>
+    <Image X="500" Y="-127" ClassName="lamp_left" Width="141" Height="218"/>
+  </Layer>
+</Root>

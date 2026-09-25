@@ -245,6 +245,15 @@ namespace Eclipse.Modding
                 const string function = "sf2.locations.select_dojo";
                 return ApiCall(function, () => {
                     var selection = RequireDojo(function);
+                    if (args[0].Type == DataType.String)
+                    {
+                        DefinitionId core;
+                        if (!DefinitionId.TryParse(args[0].String, out core) ||
+                            core.Namespace.Value != "core" || core.Category != "locations")
+                            throw new ModContentException(function + " requires a core:locations/name ID or this mod's dojo handle.");
+                        selection.SelectCore(core);
+                        return DynValue.Nil;
+                    }
                     var handle = args.AsType(0, function, DataType.Table, false).Table;
                     if (!_locationHandles.TryGetValue(handle, out var id) || id.Namespace != Mod.Id)
                         throw new ModContentException(function + " requires this mod's registered location handle.");
@@ -259,7 +268,8 @@ namespace Eclipse.Modding
                 return ApiCall(function, () => {
                     var selection = RequireDojo(function);
                     DefinitionId saved;
-                    if (DefinitionId.TryParse(selection.SavedLocation, out saved) && saved.Namespace != Mod.Id)
+                    if (DefinitionId.TryParse(selection.SavedLocation, out saved) &&
+                        saved.Namespace != Mod.Id && saved.Namespace.Value != "core")
                         throw new ModContentException(function + " cannot reset another mod's selected dojo.");
                     selection.Reset();
                     return DynValue.Nil;

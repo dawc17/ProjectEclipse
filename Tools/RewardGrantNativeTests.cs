@@ -65,7 +65,9 @@ internal static class RewardGrantNativeTests
         RewardItem clone = source.CloneForConfiguredGrant(52, new[]
         {
             new RewardItem.ConfiguredGrantEnchantment("FRENZY", "3639.75", null),
-            new RewardItem.ConfiguredGrantEnchantment("dep:perks/aura", null, "Combo")
+            new RewardItem.ConfiguredGrantEnchantment("dep:perks/aura", null, "Combo"),
+            new RewardItem.ConfiguredGrantEnchantment("WEAKNESS", "1950", null, null, "0.41", "300",
+                new Dictionary<string, string> { { "Base", "-20000" } })
         });
         Assert(source.LDLPCOFHFKE.Count == 1 && source.CMEFKONFDKN() == 0,
             "Configured clone mutated the shared source reward.");
@@ -73,11 +75,15 @@ internal static class RewardGrantNativeTests
             "Configured clone lost level, upgrade, drop, or presentation state.");
         Assert(clone.HasEclipseGrantConfiguration && clone.EclipseGrantIndex == 0,
             "Configured clone lost its internal reward marker.");
-        Assert(clone.LDLPCOFHFKE.Count == 2 && clone.LDLPCOFHFKE[0].get_Name() == "FRENZY" &&
+        Assert(clone.LDLPCOFHFKE.Count == 3 && clone.LDLPCOFHFKE[0].get_Name() == "FRENZY" &&
             clone.LDLPCOFHFKE[0].Pairs.Single().Value == "3639.75",
             "Configured clone did not retain the decimal aspect literal.");
         Assert(clone.LDLPCOFHFKE[1].Pairs.Count == 0 && clone.LDLPCOFHFKE[1].EclipseKind == "Combo",
             "Aspect-less external enchantment lost its kind or gained a synthetic aspect.");
+        Assert(clone.LDLPCOFHFKE[2].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)
+            .OrderBy(pair => pair.Key).SequenceEqual(new Dictionary<string, string> {
+                { "Aspect", "1950" }, { "Base", "-20000" }, { "Chance", "0.41" }, { "Frames", "300" }
+            }.OrderBy(pair => pair.Key)), "Configured enchantment lost native chance, duration or perk parameters.");
     }
 
     private static void TestRuntimeBridge()
@@ -98,7 +104,8 @@ internal static class RewardGrantNativeTests
             calls++; seenLevel = level;
             return new RewardGrantConfiguration(null, new[]
             {
-                new RewardGrantEnchantment(corePerk, 3639.75),
+                new RewardGrantEnchantment(corePerk, 3639.75, chance: 0.3, frames: 300,
+                    parameters: new Dictionary<string, double> { { "DamageFactor", 15850 } }),
                 new RewardGrantEnchantment(depPerk)
             });
         });
@@ -110,7 +117,10 @@ internal static class RewardGrantNativeTests
         Assert(calls == 1 && seenLevel == 52 && configured.CMEFKONFDKN() == 52,
             "Bridge did not snapshot the pre-XP player level into a literal reward level.");
         Assert(configured.LDLPCOFHFKE.Count == 2 && configured.LDLPCOFHFKE[0].get_Name() == "FRENZY" &&
-            configured.LDLPCOFHFKE[0].Pairs.Single().Value == "3639.75" &&
+            configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["Aspect"] == "3639.75" &&
+            configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["Chance"] == "0.3" &&
+            configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["Frames"] == "300" &&
+            configured.LDLPCOFHFKE[0].Pairs.ToDictionary(pair => pair.Key, pair => pair.Value)["DamageFactor"] == "15850" &&
             configured.LDLPCOFHFKE[1].get_Name() == depPerk.ToString() && configured.LDLPCOFHFKE[1].EclipseKind == "Combo",
             "Bridge did not convert validated perk identities/aspects into native payloads.");
         Assert(source.CMEFKONFDKN() == 0 && source.LDLPCOFHFKE.Count == 0,
@@ -260,12 +270,14 @@ internal static class RewardGrantNativeTests
     {
         ListSF.Reset(52, new ItemInfo("fixture:items/desolator", "Weapon", 52));
         GameUtils.FDEJIIDIPBI.Register("FRENZY", PerkInfoItem.DNPGIEGCGKH.SINGLE);
-        RewardItem reward = ParseRewardItem("<Item Name='fixture:items/desolator'><Enchantments><Perk Name='FRENZY'><Set Aspect='3639.75'/></Perk></Enchantments></Item>");
+        RewardItem reward = ParseRewardItem("<Item Name='fixture:items/desolator'><Enchantments><Perk Name='FRENZY'><Set Aspect='3639.75' Chance='0.3' Frames='300' DamageFactor='15850'/></Perk></Enchantments></Item>");
         var user = new UserItem();
         user.GDBFNNLHPOB(reward.LDLPCOFHFKE, 52, 52);
         XmlNode saved = user.Node.SelectSingleNode("Enchantments/Perk[@Name='FRENZY']/Set");
-        Assert(saved != null && saved.Attributes["Aspect"].Value == "3639.75",
-            "Recovered UserItem enchantment serialization changed the decimal aspect literal.");
+        Assert(saved != null && saved.Attributes["Aspect"].Value == "3639.75" &&
+            saved.Attributes["Chance"].Value == "0.3" && saved.Attributes["Frames"].Value == "300" &&
+            saved.Attributes["DamageFactor"].Value == "15850",
+            "Recovered UserItem enchantment serialization lost configured native settings.");
     }
 
     public static int Main(string[] args)
@@ -472,7 +484,14 @@ namespace Eclipse.Modding
     {
         public DefinitionId Perk { get; }
         public double? Aspect { get; }
-        public RewardGrantEnchantment(DefinitionId perk, double? aspect = null) { Perk = perk; Aspect = aspect; }
+        public double? ChanceFactor { get; }
+        public double? Chance { get; }
+        public int? Frames { get; }
+        public IReadOnlyDictionary<string, double> Parameters { get; }
+        public RewardGrantEnchantment(DefinitionId perk, double? aspect = null, double? chanceFactor = null,
+            double? chance = null, int? frames = null, IReadOnlyDictionary<string, double> parameters = null)
+        { Perk = perk; Aspect = aspect; ChanceFactor = chanceFactor; Chance = chance; Frames = frames;
+            Parameters = parameters ?? new Dictionary<string, double>(); }
     }
     public sealed class RewardGrantConfiguration
     {
