@@ -6,7 +6,11 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.25.0` restores the
+DE128 is an ordinary downstream Eclipse mod. Version `0.26.0` restores Wasp's
+four archived Fly attacks in the Demon survival wave, with the native RaidCharge
+input, cooldown, wall ranges, hit behavior, effects and a Fly-aware Aggressive
+tactic. The native test advances through three opponents, observes the ability
+in combat and returns to the Underworld map. Version `0.25.0` restores the
 two archived Underworld spotlight encounters and three hidden core equipment
 identities used by late raid opponents. Version `0.24.0` reconciles the
 local owner Underworld raid file, restores twenty boss portraits and Haunted

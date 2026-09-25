@@ -90,11 +90,32 @@ internal static class MoveCombatPatchTests
         life.Dispose();Check(later.MoveData.Intervals[0].EndFrame==39 && ((IntervalAttack)later.MoveData.Intervals[1]).HitReactions[0].Name=="Low" && later.ScheduledActions[0].ScheduledFrame==20,"Rollback overwrote later field changes.");
         var shared=Move(); var other=Move("Other");other.MoveData.Intervals[0].NodeInterval=shared.MoveData.Intervals[0].NodeInterval;
         life=Apply(new[]{shared,other},Patch());other.MoveData.Intervals[0].Init();Check(other.MoveData.Intervals[0].EndFrame==42,"Patch leaked through shared template node.");life.Dispose();
+        var disabled = Move("Disabled"); var original = disabled.SelectionConditions[0];
+        using (Apply(new[] { disabled }, new MoveCombatPatch(Owner, "Disabled", disable: true)))
+        {
+            Check(disabled.SelectionConditions.Count == 2 && ReferenceEquals(disabled.SelectionConditions[0], original), "Disable condition did not append.");
+            Check(!disabled.SelectionConditions[1].IsEqual(new ModelConditions()) &&
+                !disabled.SelectionConditions[1].IsEqual(new Model(), disabled), "Disabled move remained selectable.");
+        }
+        Check(disabled.SelectionConditions.SequenceEqual(new[] { original }), "Disabled move rollback changed original conditions.");
+        var batch = Move("Batch");
+        Reject(new[] { disabled, batch }, new[] { new MoveCombatPatch(Owner, "Disabled", disable: true),
+            new MoveCombatPatch(Owner, "Batch", intervalEnd: new ModMoveFramePatch("Uninterrupt", 41, 40)) },
+            "Late validation failure partially disabled a move.");
+        Check(disabled.SelectionConditions.SequenceEqual(new[] { original }), "Failed batch left a disabled move.");
         Console.WriteLine("PASS: "+count+" production move-patch batch/rollback checks. Controlled native containers exercise deferred and parsed intervals; native Unity acceptance is separate.");
     }
 }
 
-public class ConditionAnimation { }
+public class Model { }
+public class ModelConditions { }
+public class ConditionAnimation
+{
+    public enum ConditionType { NONE }
+    public ConditionAnimation(ConditionType type = ConditionType.NONE) { }
+    public virtual bool IsEqual(ModelConditions conditions) => true;
+    public virtual bool IsEqual(Model model, InfoAnimation animation) => true;
+}
 public class InfoAnimation
 {
     public string Name; public Data MoveData=new Data();

@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.24.0**. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.26.0**. Step 60 restores Wasp's complete Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3567,3 +3567,46 @@ Offscreen native frames of normal and Power Mode Blackness show the expected
 arena-wide view becoming a lit circle around the player. It
 does not reach Girl Fan's later survival wave or establish interactive visual
 quality and long-form combat balance.
+
+### Step 60 — Wasp's archived Fly ability and a real Underworld victory (0.26.0, 2026-09-25)
+
+The packaged core Wasp moves use the older `Super` input and shortened attack
+graphs. The historical DE move archive defines four wall-range variants of
+`WaspFly` with `RaidCharge`, the `WaspFlyRecharge` guard, precise intervals,
+11 attacking edges, native `WaspFly` hit reaction, invulnerability bypass,
+sounds and wing effects. DE128 now registers all four as typed move definitions
+and disables the four older core selectors through a reversible `moves.patch`
+operation. Their binary animations are byte-for-byte copies of the packaged
+resources; no sprite layout or serialized Unity asset was edited. The mod
+ships no XML and reads none at runtime.
+
+The first native survival run found the authored moves missing from Wasp's
+fighter despite appearing in the global catalog. Eclipse had written a core
+perk handle into the native move lock using its namespaced ID; native fighters
+hold the legacy perk name. The adapter now resolves core perk handles when it
+emits move conditions. A second run loaded all four moves and passed their
+perk/skeleton locks, but inherited `Aggressive` sometimes went an entire wave
+without selecting Fly. DE128 therefore gives only `Boss_Wasp_Young` in the
+Demon survival encounter a tactic inheriting Aggressive. Its Lua decision
+chooses an eligible Fly candidate after two seconds and otherwise falls back
+to native Aggressive behavior. Native cooldown, wall range and interruption
+conditions still govern eligibility. The generated raid table remains an
+unchanged transcription of the reviewed owner source; the one live tactic
+override is asserted explicitly by the archive comparison fixture.
+
+An isolated Unity 6 run advanced through Lynx, Hermit and Butcher and reached
+Wasp's fourth survival wave. It verified four authored moves on the fighter,
+four disabled core selectors and both native locks; Wasp selected the new Fly
+move, its parsed attack retained `WaspFly` and full block/invulnerability
+bypass, and it remained active through the attack interval. The fight then
+returned to the Underworld map. A separate native Volcano win fixture verifies
+the real result card, reward settlement, saved win and map return; it is a
+regression check for the route used by the new survival test.
+
+Verification: four managed builds; **14,635** DE128 foundation checks;
+**1,282** Underworld runtime assertions; move-patch batch/rollback fixture
+**58** checks; Underworld generator and art `--check`; native Wasp wave and
+Volcano victory; editor generate/check/**38** project tests, LuaLS and VS Code
+integration; wiki build (**48** pages, **4,344** local links/assets). The
+location audit still reports the known missing `fungus_raid/layer_0_2` image.
+No interactive player playtest or visual review of Fly's effects was run.

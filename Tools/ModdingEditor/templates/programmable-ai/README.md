@@ -17,6 +17,15 @@ These are Lua decisions over legal moves, not new animations or imported art.
 Native move conditions and attack interruption rules still apply. Editing
 `on_decide` changes behavior without authoring another XML table.
 
+When you register a complete replacement for an existing native move, call
+`sf2.moves.patch { move = "ExactNativeName", disable = true }` during mod loading
+and give the fighter a tactic whose `on_decide` returns the authored move from
+`event.actions` when it is available. A disabled move remains in the native
+catalog but cannot be selected. The replacement still needs its own animation,
+conditions, attack intervals and assets. See the [move API reference](https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/)
+for `WaspFly` hit reactions and the exclusive
+`ignores_all_invulnerable`/`ignores_invulnerable` options.
+
 Test each distinct behavior in combat, including pause/resume, knockdowns and
 weapon loss. The Lua fixture checks ownership, state, stale actions and bounded
 execution; those checks do not establish full-game visual or combat acceptance.

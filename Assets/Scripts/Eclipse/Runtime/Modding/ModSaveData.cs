@@ -1081,6 +1081,11 @@ namespace Eclipse.Modding
                     Append(canonical, patch.Hit != null);
                     if (patch.Hit != null) { Append(canonical, patch.Hit.Expected); Append(canonical, patch.Hit.Value); }
                 }
+                if (patches.Exists(patch => patch.Disable))
+                {
+                    Append(canonical, "move-combat-disable-v1");
+                    foreach (var patch in patches) { Append(canonical, patch.MoveName); Append(canonical, patch.Disable); }
+                }
             }
             if (content.MoveItemLockExtensions.Count > 0)
             {
@@ -1162,6 +1167,7 @@ namespace Eclipse.Modding
                             var options = attack.Options; Append(canonical, "move-attack-options-v1");
                             Append(canonical, options.NoEffect); Append(canonical, options.NoCritical); Append(canonical, options.IgnoresBlock);
                             Append(canonical, options.BodyPart); AppendStrings(canonical, options.DefenseTypes); AppendStrings(canonical, options.IgnoresInvulnerable);
+                            if (options.IgnoresAllInvulnerable) Append(canonical, "ignores-all-invulnerable-v1");
                         }
                         if (attack.DamageTerms.Count != 1 || attack.DamageTerms[0].Shift != 0)
                         {

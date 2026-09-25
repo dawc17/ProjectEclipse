@@ -40,7 +40,7 @@ Events can be a type string or `{ type = ..., name = "...", player = "..." }`. T
 
 Conditions use `type` and optional `["not"] = true` (default `false`). Available types:
 
-- `"perk"` (`sf2.moves.PERK`): requires a `perk` handle; optional `player` string.
+- `"perk"` (`sf2.moves.PERK`): requires a `perk` handle; optional `player` string. Core handles resolve to the native perk name when the move is installed.
 - `"all"` / `"any"` (`ALL` / `ANY`): require a nonempty `conditions` array.
 - `"current_animation"`, `"current_interval"`, `"item"` (`CURRENT_ANIMATION`, `CURRENT_INTERVAL`, `ITEM`): accept native `name`, `player`, `item_type`, and `item_subtype` strings, default empty.
 
@@ -110,7 +110,7 @@ An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices
 | `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
 | `damage_terms` | Optional array of 1–4 `{ type, shift = 0 }` tables. `type` uses the same four attribute names, each at most once. `shift` must be finite in −1,000…1,000. |
-| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, or `NoReaction`. |
+| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, `NoReaction`, or `WaspFly`. |
 | `hit_move` | Optional move handle selecting an authored hit reaction. Mutually exclusive with `hit`. The referenced move must exist and be accessible when registration commits. |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
@@ -122,6 +122,7 @@ The optional `attack.options` table exposes native spell attack rules:
 | `no_effect` | Boolean, default false; suppresses the attack's normal hit effect. Separately scheduled effects remain independent. |
 | `no_critical` | Boolean, default false; suppresses critical hits for this attack. |
 | `ignores_block` | Boolean, default false; explicitly bypasses all block intervals. Native ranged/magic damage handling may also bypass block. |
+| `ignores_all_invulnerable` | Boolean, default false; bypasses every invulnerability interval. Cannot be combined with `ignores_invulnerable`. Use only for attacks whose source move explicitly calls for this behavior. |
 | `body_part` | Optional `Body` or `Head`; omitting it retains the native parser's default selection. |
 | `defense_types` | Optional array of up to two unique `BodyDefense`/`HeadDefense` attribute names, default empty. Uses the native defense calculation; these are not literal damage reductions. |
 | `ignores_invulnerable` | Optional array of up to 32 unique native invulnerability interval names, default empty. Names follow scheduled-action symbol rules. Only listed intervals are bypassed; names are not verified against loaded graphs at registration. |
@@ -545,7 +546,7 @@ Different additions to the same group compose. The source selector must exist be
 
 ## sf2.moves.patch
 
-**Signature:** `sf2.moves.patch { move, conditions?, interval_end?, hit?, sound_frame? }`
+**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_end?, hit?, sound_frame? }`
 
 **Returns:** Nothing.
 
@@ -561,6 +562,7 @@ dots or hyphens. At least one nonempty operation is required.
 
 | Field | Meaning |
 | --- | --- |
+| `disable` | Boolean, default false. `true` adds a selection condition that always fails, so the native move stays registered but fighters cannot select it. Use when a complete replacement move is registered separately. |
 | `conditions` | Up to 32 additional typed move conditions, using the same records as `moves.register`. They are appended as extra requirements; existing conditions remain. |
 | `interval_end` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
 | `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`, `HighLong`, `NoReaction`. |
@@ -570,6 +572,7 @@ Frame values must be distinct integers from 0 through 100000. Reaction names
 must also differ. Hit records with explicit start/end bounds in a deferred move,
 multiple reactions, multiple attacks, missing targets and ambiguous selectors
 are rejected. A patch does not supply a missing hit animation or sound asset.
+`disable = true` must be the only operation in its patch table.
 The entire native patch batch is validated before any of its edits apply.
 
 ```lua
@@ -590,6 +593,7 @@ sf2.moves.patch {
     move = "ShopRangedTryOnHeavyPlayer",
     sound_frame = { name = "snd_disk", expected = 18, value = 16 },
 }
+sf2.moves.patch { move = "WaspFly_150", disable = true }
 ```
 
 Only one `moves.patch` declaration may own a given move, including across mods;
@@ -602,7 +606,7 @@ restores its edited fields and removes its added condition objects, preserving
 unrelated conditions and later field values that no longer equal the patch's
 values. This is content teardown during Apply & Restart, not an API for changing
 moves mid-fight. Patch owners, selectors, expected values, replacements and
-conditions participate in compatibility fingerprints. Mods without patches retain
+conditions and `disable` participate in compatibility fingerprints. Mods without patches retain
 their previous fingerprint representation.
 
 ## sf2.moves.remove_perk_lock

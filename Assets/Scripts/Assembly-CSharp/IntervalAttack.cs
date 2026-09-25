@@ -378,7 +378,9 @@ public class IntervalAttack : IntervalAnimation
 		{
 			LLCADDDKFKH = true;
 			string text2 = xmlNode2.Attributes["Name"].CIPOICEEIBK(string.Empty);
-			IBANLECAADN = new List<string>(text2.Split('|'));
+			// An empty native list bypasses every invulnerability interval, just as
+			// the adjacent IgnoresBlock parser does for an absent Name attribute.
+			IBANLECAADN = new List<string>(text2.Split(new[] { '|' }, System.StringSplitOptions.RemoveEmptyEntries));
 		}
 		XmlNode xmlNode3 = NodeInterval["AttackingParts"];
 		if (xmlNode3 != null)

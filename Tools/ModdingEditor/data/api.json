@@ -3565,6 +3565,7 @@
         "no_effect?": "boolean",
         "no_critical?": "boolean",
         "ignores_block?": "boolean",
+        "ignores_all_invulnerable?": "boolean",
         "body_part?": "\"Body\"|\"Head\"",
         "defense_types?": "(\"BodyDefense\"|\"HeadDefense\")[]",
         "ignores_invulnerable?": "string[]"
@@ -3578,7 +3579,7 @@
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
         "damage_terms?": "Eclipse.MoveDamageTerm[]",
-        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"",
+        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"|\"WaspFly\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse",
         "options?": "Eclipse.MoveAttackOptions"
@@ -3787,6 +3788,7 @@
     "MovePatch": {
       "fields": {
         "move": "string",
+        "disable?": "boolean",
         "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
         "interval_end?": "Eclipse.MoveIntervalEndPatch",
         "hit?": "Eclipse.MoveHitPatch",

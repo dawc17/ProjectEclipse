@@ -211,8 +211,15 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 35 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 5,
-            "Chinese swords combat/preview registrations or lock extensions are incomplete.");
+        Check(catalog.Moves.Count == 39 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 9 &&
+            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 4,
+            "Archived move registrations, Wasp replacements or lock extensions are incomplete.");
+        Check(catalog.Tactics.Count == 1 && catalog.Tactics.Single().RuntimeName == "de128:tactics/wasp_fly" &&
+            catalog.Tactics.Single().CoreTemplate == "Aggressive" &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
+            catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
+            waspWarrior.Tactic == "de128:tactics/wasp_fly",
+            "Wasp's Underworld fighter lost its Fly-aware Aggressive tactic.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
             catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&
@@ -740,7 +747,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 35 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 39 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,

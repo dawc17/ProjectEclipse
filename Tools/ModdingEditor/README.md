@@ -411,6 +411,12 @@ batch validates before edits. Frame values are integers 0-100000. The shared
 `MiddleShortPlus` native reaction is also available when authoring new attacks.
 See the moves reference for ambiguous-target rejection and teardown behavior.
 
+Move patches also accept `disable = true` to make an existing move unselectable
+while a complete replacement is registered. Move attacks accept the `WaspFly`
+reaction and `options.ignores_all_invulnerable = true`. The latter is exclusive
+with the named `ignores_invulnerable` list. Core perk handles in move locks are
+resolved to their native perk names when installed.
+
 Scheduled move actions also support `effect`, `stop_effect`, and
 `stop_follow_effect`. Effect tables describe an existing core sequence, model-local
 name, scale/time scale, loop flag and optional following position. Completion is

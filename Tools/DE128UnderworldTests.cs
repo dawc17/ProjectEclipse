@@ -214,7 +214,11 @@ internal static class DE128UnderworldTests
     {
         string template = xml.GetAttribute("Template");
         Check(warrior.HasTemplate && warrior.Template.ToString() == Template(template), "Opponent template differs: " + where);
-        Check(warrior.Tactic == xml.GetAttribute("Tactic") && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
+        // The archived Aggressive tactic can skip Fly for a full survival wave.
+        // This exact fighter inherits Aggressive and selects Fly when native conditions permit.
+        string tactic = where == "uw_survival_demon_1 opponent 4" && template == "Boss_Wasp_Young" &&
+            xml.GetAttribute("Tactic") == "Aggressive" ? "de128:tactics/wasp_fly" : xml.GetAttribute("Tactic");
+        Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();
         foreach (var attribute in new[] { "MagicInitialCharge", "WarriorPower" })

@@ -80,7 +80,7 @@ namespace Eclipse.Modding
                 {
                     const string function = "sf2.moves.patch";
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
-                    ValidateFields(table, function, "move", "conditions", "interval_end", "hit", "sound_frame");
+                    ValidateFields(table, function, "move", "conditions", "interval_end", "hit", "sound_frame", "disable");
                     ModMoveFramePatch Frame(string key)
                     {
                         DynValue value = table.Get(key); if (value.IsNil()) return null;
@@ -97,7 +97,7 @@ namespace Eclipse.Modding
                         hit = new ModMoveHitPatch(RequiredString(rawHit.Table,"expected",function),RequiredString(rawHit.Table,"value",function));
                     }
                     _api.PatchMove(RequiredString(table,"move",function),ReadMoveConditions(table.Get("conditions"),function + ".conditions"),
-                        Frame("interval_end"), hit, Frame("sound_frame"));
+                        Frame("interval_end"), hit, Frame("sound_frame"), OptionalBool(table,"disable",false,function));
                     return DynValue.Nil;
                 })));
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));
@@ -729,10 +729,11 @@ namespace Eclipse.Modding
                 {
                     if (table.Get("options").Type != DataType.Table) throw new ModContentException("Attack options require a table.");
                     var spec = table.Get("options").Table;
-                    ValidateFields(spec, function + ".options", "no_effect", "no_critical", "ignores_block", "body_part", "defense_types", "ignores_invulnerable");
+                    ValidateFields(spec, function + ".options", "no_effect", "no_critical", "ignores_block", "body_part", "defense_types", "ignores_invulnerable", "ignores_all_invulnerable");
                     options = new ModMoveAttackOptions(OptionalBool(spec, "no_effect", false, function), OptionalBool(spec, "no_critical", false, function),
                         OptionalBool(spec, "ignores_block", false, function), spec.Get("body_part").IsNil() ? null : RequiredString(spec, "body_part", function),
-                        OptionalStringArray(spec, "defense_types", function), OptionalStringArray(spec, "ignores_invulnerable", function));
+                        OptionalStringArray(spec, "defense_types", function), OptionalStringArray(spec, "ignores_invulnerable", function),
+                        OptionalBool(spec, "ignores_all_invulnerable", false, function));
                 }
                 return new ModMoveAttack(OptionalStringArray(table,"edges",function),UiNumber(table,"damage"),
                     table.Get("damage_type").IsNil() ? null : RequiredString(table,"damage_type",function),

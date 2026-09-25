@@ -259,10 +259,12 @@ namespace Eclipse.Modding
                         var options = attack.Options;
                         if (options.NoEffect) Set(item, "NoEffect", "1");
                         if (options.IgnoresBlock) item.AppendChild(document.CreateElement("IgnoresBlock"));
-                        if (options.IgnoresInvulnerable.Count != 0)
+                        if (options.IgnoresInvulnerable.Count != 0 || options.IgnoresAllInvulnerable)
                         {
                             var ignores = document.CreateElement("IgnoresInvulnerable");
-                            Set(ignores, "Name", string.Join("|", options.IgnoresInvulnerable)); item.AppendChild(ignores);
+                            if (!options.IgnoresAllInvulnerable)
+                                Set(ignores, "Name", string.Join("|", options.IgnoresInvulnerable));
+                            item.AppendChild(ignores);
                         }
                         if (!attack.Direct)
                         {
@@ -499,7 +501,17 @@ namespace Eclipse.Modding
                 value.Kind == ModMoveConditionKind.CurrentInterval ? "CurrentInterval" :
                 value.Kind == ModMoveConditionKind.Perk ? "Perk" : "Item";
             XmlElement node = document.CreateElement(element);
-            if (value.Name.Length != 0) Set(node, value.Kind == ModMoveConditionKind.ActorName ? "Value" : "Name", value.Name);
+            if (value.Name.Length != 0)
+            {
+                string name = value.Name;
+                if (value.Kind == ModMoveConditionKind.Perk)
+                {
+                    if (!_content.TryGetPerk(DefinitionId.Parse(name), out var perk))
+                        throw new ModContentException("Move condition references missing perk: " + name);
+                    name = perk.IsCore && !string.IsNullOrEmpty(perk.LegacyName) ? perk.LegacyName : perk.Id.ToString();
+                }
+                Set(node, value.Kind == ModMoveConditionKind.ActorName ? "Value" : "Name", name);
+            }
             if (value.Bullets != null)
             {
                 Set(node, "Type", value.Bullets.Type);

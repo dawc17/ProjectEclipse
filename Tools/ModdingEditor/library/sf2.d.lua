@@ -1348,6 +1348,7 @@ local MoveImpulse = {}
 ---@field no_effect? boolean
 ---@field no_critical? boolean
 ---@field ignores_block? boolean
+---@field ignores_all_invulnerable? boolean
 ---@field body_part? "Body"|"Head"
 ---@field defense_types? ("BodyDefense"|"HeadDefense")[]
 ---@field ignores_invulnerable? string[]
@@ -1360,7 +1361,7 @@ local MoveAttackOptions = {}
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
 ---@field damage_terms? Eclipse.MoveDamageTerm[]
----@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"
+---@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"|"WaspFly"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
 ---@field options? Eclipse.MoveAttackOptions
@@ -1548,6 +1549,7 @@ local MoveSoundFramePatch = {}
 
 ---@class (exact) Eclipse.MovePatch
 ---@field move string
+---@field disable? boolean
 ---@field conditions? (Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]
 ---@field interval_end? Eclipse.MoveIntervalEndPatch
 ---@field hit? Eclipse.MoveHitPatch

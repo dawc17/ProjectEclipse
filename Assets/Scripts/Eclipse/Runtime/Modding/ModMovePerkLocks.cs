@@ -194,20 +194,24 @@ namespace Eclipse.Modding
         public ModMoveFramePatch IntervalEnd { get; }
         public ModMoveHitPatch Hit { get; }
         public ModMoveFramePatch SoundFrame { get; }
+        public bool Disable { get; }
         public MoveCombatPatch(ModId owner, string moveName, ModMoveCondition[] conditions = null,
-            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null)
+            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null,
+            bool disable = false)
         {
             ValidateName(moveName);
             conditions = conditions ?? new ModMoveCondition[0];
             if (conditions.Length > 32) throw new ModContentException("Move patch accepts at most 32 added conditions.");
             foreach (var condition in conditions)
                 if (condition == null) throw new ModContentException("Move patch conditions cannot contain null.");
-            if (conditions.Length == 0 && intervalEnd == null && hit == null && soundFrame == null)
+            if (conditions.Length == 0 && intervalEnd == null && hit == null && soundFrame == null && !disable)
                 throw new ModContentException("Move patch must change at least one supported field.");
+            if (disable && (conditions.Length != 0 || intervalEnd != null || hit != null || soundFrame != null))
+                throw new ModContentException("A disabled move cannot also receive combat field patches.");
             if (intervalEnd != null && Array.IndexOf(new[] { "Uninterrupt", "SelfUninterrupt", "Unstable" }, intervalEnd.Name) < 0)
                 throw new ModContentException("interval_end requires Uninterrupt, SelfUninterrupt or Unstable.");
             Owner = owner; MoveName = moveName; Conditions = Array.AsReadOnly((ModMoveCondition[])conditions.Clone());
-            IntervalEnd = intervalEnd; Hit = hit; SoundFrame = soundFrame;
+            IntervalEnd = intervalEnd; Hit = hit; SoundFrame = soundFrame; Disable = disable;
         }
         internal static void ValidateName(string name)
         {
@@ -237,10 +241,11 @@ namespace Eclipse.Modding
     {
         private readonly List<MoveCombatPatch> _moveCombatPatches = new List<MoveCombatPatch>();
         public void PatchMove(string moveName, ModMoveCondition[] conditions = null,
-            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null)
+            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null,
+            bool disable = false)
         {
             ThrowIfCompleted();
-            var patch = new MoveCombatPatch(Mod.Id, moveName, conditions, intervalEnd, hit, soundFrame);
+            var patch = new MoveCombatPatch(Mod.Id, moveName, conditions, intervalEnd, hit, soundFrame, disable);
             foreach (var prior in _moveCombatPatches)
                 if (prior.MoveName == patch.MoveName) throw new ModContentException("Duplicate move combat patch: " + moveName);
             EnsureCapacityForNewRegistration();
@@ -251,10 +256,11 @@ namespace Eclipse.Modding
     public sealed partial class ModApiFacade
     {
         public void PatchMove(string moveName, ModMoveCondition[] conditions = null,
-            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null)
+            ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null,
+            bool disable = false)
         {
             RequireCapability("content.patch");
-            RequireRegistration().PatchMove(moveName, conditions, intervalEnd, hit, soundFrame);
+            RequireRegistration().PatchMove(moveName, conditions, intervalEnd, hit, soundFrame, disable);
         }
     }
 }

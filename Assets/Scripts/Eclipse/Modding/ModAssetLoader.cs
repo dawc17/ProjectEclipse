@@ -831,6 +831,13 @@ namespace Eclipse.Modding
     // between application and removal, so rollback handles both representations.
     internal static class MoveCombatPatchRuntime
     {
+        private sealed class DisabledMoveCondition : ConditionAnimation
+        {
+            internal DisabledMoveCondition() : base(ConditionType.NONE) { }
+            public override bool IsEqual(ModelConditions conditions) => false;
+            public override bool IsEqual(Model model, InfoAnimation animation) => false;
+        }
+
         internal sealed class Lifetime : IDisposable
         {
             internal readonly List<Action> Apply = new List<Action>();
@@ -861,6 +868,13 @@ namespace Eclipse.Modding
                     }
                 if (move == null || move.MoveData == null) throw new InvalidOperationException("Missing native move: " + patch.MoveName);
                 var target = move;
+                if (patch.Disable)
+                {
+                    var condition = new DisabledMoveCondition();
+                    var conditions = target.SelectionConditions;
+                    lifetime.Apply.Add(() => conditions.Add(condition));
+                    lifetime.Undo.Add(() => conditions.Remove(condition));
+                }
                 foreach (var condition in patch.Conditions)
                 {
                     var parsed = parse(condition);

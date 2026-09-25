@@ -415,13 +415,17 @@ namespace Eclipse.Modding
         public string BodyPart { get; }
         public IReadOnlyList<string> DefenseTypes { get; }
         public IReadOnlyList<string> IgnoresInvulnerable { get; }
-        public bool HasContent => NoEffect || NoCritical || IgnoresBlock || BodyPart.Length != 0 || DefenseTypes.Count != 0 || IgnoresInvulnerable.Count != 0;
+        public bool IgnoresAllInvulnerable { get; }
+        public bool HasContent => NoEffect || NoCritical || IgnoresBlock || IgnoresAllInvulnerable || BodyPart.Length != 0 || DefenseTypes.Count != 0 || IgnoresInvulnerable.Count != 0;
         public ModMoveAttackOptions(bool noEffect = false, bool noCritical = false, bool ignoresBlock = false,
-            string bodyPart = null, string[] defenseTypes = null, string[] ignoresInvulnerable = null)
+            string bodyPart = null, string[] defenseTypes = null, string[] ignoresInvulnerable = null,
+            bool ignoresAllInvulnerable = false)
         {
             if (bodyPart != null && bodyPart != "Body" && bodyPart != "Head") throw new ModContentException("Attack body_part must be Body or Head.");
             defenseTypes = defenseTypes ?? Array.Empty<string>(); ignoresInvulnerable = ignoresInvulnerable ?? Array.Empty<string>();
             if (defenseTypes.Length > 2 || ignoresInvulnerable.Length > 32) throw new ModContentException("Attack supports at most 2 defense types and 32 invulnerability names.");
+            if (ignoresAllInvulnerable && ignoresInvulnerable.Length != 0)
+                throw new ModContentException("Use ignores_all_invulnerable or named ignores_invulnerable intervals, not both.");
             var seen = new HashSet<string>(StringComparer.Ordinal);
             foreach (var name in defenseTypes)
                 if ((name != "BodyDefense" && name != "HeadDefense") || !seen.Add(name)) throw new ModContentException("Invalid or duplicate defense type.");
@@ -432,6 +436,7 @@ namespace Eclipse.Modding
                 if (!seen.Add(name)) throw new ModContentException("Duplicate invulnerability interval.");
             }
             NoEffect = noEffect; NoCritical = noCritical; IgnoresBlock = ignoresBlock; BodyPart = bodyPart ?? string.Empty;
+            IgnoresAllInvulnerable = ignoresAllInvulnerable;
             DefenseTypes = Array.AsReadOnly((string[])defenseTypes.Clone()); IgnoresInvulnerable = Array.AsReadOnly((string[])ignoresInvulnerable.Clone());
         }
     }
@@ -467,7 +472,7 @@ namespace Eclipse.Modding
             if (hitMove.HasValue && (hit != null || hitMove.Value.Category != "moves"))
                 throw new ModContentException("Attack accepts hit or a moves-category hit_move, not both.");
             HitMove = hitMove; hit = hit ?? (hitMove.HasValue ? string.Empty : "High");
-            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction"},hit)<0)
+            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction","WaspFly"},hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
             Direct = direct; Options = options ?? new ModMoveAttackOptions();

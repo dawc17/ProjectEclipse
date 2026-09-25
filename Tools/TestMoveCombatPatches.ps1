@@ -1,6 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
-$fixture = Join-Path $root ('Temp/MoveCombatPatches-' + [Guid]::NewGuid().ToString('N'))
+$fixtureRoot = if ($env:DE128_MOVE_PATCH_FIXTURE_ROOT) { $env:DE128_MOVE_PATCH_FIXTURE_ROOT } else { Join-Path $root 'Temp' }
+$fixture = Join-Path $fixtureRoot ('MoveCombatPatches-' + [Guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $fixture | Out-Null
 $source = Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Eclipse/Modding/ModAssetLoader.cs')
 $marker = 'namespace Eclipse.Modding' + "`n" + '{' + "`n" + '    // Validate the complete batch first.'

@@ -23,6 +23,8 @@ def main() -> int:
     parser.add_argument("--story-bosses", action="store_true", help="Play the 32 boss fights with archived story sequences")
     parser.add_argument("--all-fights", action="store_true", help="Play all 76 native Underworld fights")
     parser.add_argument("--fight", help="Play one exact de128:fights/uw_* ID")
+    parser.add_argument("--win", action="store_true", help="Complete --fight through the native victory, reward and map path")
+    parser.add_argument("--wasp-wave", action="store_true", help="Reach the fourth Demon survival fighter and observe her Fly ability")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
                         help="Assert the saved Titan reward set is equipped on the native fighter")
@@ -41,6 +43,10 @@ def main() -> int:
             parser.error("--fights requires 1–76 distinct exact de128:fights/uw_* IDs.")
     if args.require_titan_equipment and not args.fight:
         parser.error("--require-titan-equipment requires one exact --fight ID.")
+    if args.win and not args.fight:
+        parser.error("--win requires one exact --fight ID.")
+    if args.wasp_wave and (args.fight != "de128:fights/uw_survival_demon_1" or args.win):
+        parser.error("--wasp-wave requires --fight de128:fights/uw_survival_demon_1 without --win.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
     if (fixture / "Temp/UnityLockfile").exists():
@@ -52,8 +58,14 @@ def main() -> int:
     for relative in (
         "Assets/Scripts/Assembly-CSharp/ListSF.cs",
         "Assets/Scripts/Assembly-CSharp/ResourceManager.cs",
+        "Assets/Scripts/Assembly-CSharp/IntervalAttack.cs",
+        "Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs",
         "Assets/Scripts/Eclipse/Modding/ModAssetLoader.cs",
         "Assets/Scripts/Eclipse/Modding/ModRuntime.cs",
+        "Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs",
+        "Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs",
+        "Assets/Scripts/Eclipse/Runtime/Modding/ModMovePerkLocks.cs",
+        "Assets/Scripts/Eclipse/Runtime/Modding/ModSaveData.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/LooseModProvider.cs",
     ):
         shutil.copy2(ROOT / relative, fixture / relative)
@@ -86,8 +98,10 @@ def main() -> int:
         raise RuntimeError("The native TAR cache root changed; review fixture isolation.")
     cache.write_text(cache_text.replace(default_root, fixture_root, 1), encoding="utf-8")
     matrix = args.tier_bosses or args.story_bosses or args.all_fights or args.fight or args.fights
-    validator_name = "ValidateDE128TierBossesNative" if matrix else "ValidateDE128UnderworldNative"
-    prefix = "[DE128TierBossesNative]" if matrix else "[DE128UnderworldNative]"
+    validator_name = "ValidateDE128UnderworldWinNative" if args.win else (
+        "ValidateDE128TierBossesNative" if matrix else "ValidateDE128UnderworldNative")
+    prefix = "[DE128UnderworldWinNative]" if args.win else (
+        "[DE128TierBossesNative]" if matrix else "[DE128UnderworldNative]")
     validator = fixture / f"Assets/Editor/{validator_name}.cs"
     validator.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / f"Tools/{validator_name}.cs", validator)
@@ -107,6 +121,8 @@ def main() -> int:
         environment["ECLIPSE_DE128_UNDERWORLD_TARGETS"] = args.fights
     if args.require_titan_equipment:
         environment["ECLIPSE_DE128_TITAN_EQUIPMENT"] = "1"
+    if args.wasp_wave:
+        environment["ECLIPSE_DE128_WASP_WAVE"] = "1"
     if args.story_bosses:
         environment["ECLIPSE_DE128_UNDERWORLD_MATRIX"] = "story"
         source = (ROOT / "Mods/de128/scripts/content/underworld_story_data.lua").read_text(encoding="utf-8")

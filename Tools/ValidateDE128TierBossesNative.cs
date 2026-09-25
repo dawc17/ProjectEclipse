@@ -21,9 +21,10 @@ public static class ValidateDE128TierBossesNative
     const string Prefix = "[DE128TierBossesNative] ";
     static readonly BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
     static readonly BindingFlags HiddenStatic = BindingFlags.Static | BindingFlags.NonPublic;
-    static double started, lastPress, lastReport;
+    static double started, lastPress, lastReport, lastWaveDefeat;
     static bool campaign, mapRequested, raidPrepared, entryRequested, surrenderRequested, ownerArtValidated;
     static int targetIndex, storyPresses, storyIntros;
+    static int waspWaveDefeats, waspEnteredAt = -1, waspFirstFlyAt = -1, waspLastFlyAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
 
@@ -176,6 +177,8 @@ public static class ValidateDE128TierBossesNative
             if (enemy == null || player == null) return;
             player.Parameters.set_IsImmortalityEnabled(true);
             if (fight.get_FightTimeInFrames() < 30) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_WASP_WAVE") == "1" &&
+                !ObserveWaspWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
             if (live?.FightId?.ToString() != new FightIDS(scripts.Content.RuntimeFightId(Target.Id)).ToString() ||
                 enemy.CLDMEJKGLBA() == null || player.CLDMEJKGLBA() == null)
@@ -235,6 +238,72 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveWaspWave(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_survival_demon_1")
+            throw new Exception("Wasp wave acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (enemy.Parameters.Weapon?.Name != "WEAPON_WASP_NAGINATA")
+        {
+            if (waspEnteredAt >= 0) throw new Exception("Wasp left her wave before ability acceptance.");
+            if (waspWaveDefeats > 12) throw new Exception("Wasp did not enter after twelve survival defeats.");
+            if (EditorApplication.timeSinceStartup - lastWaveDefeat < 0.7) return false;
+            lastWaveDefeat = EditorApplication.timeSinceStartup;
+            if (fight.DebugDefeatOpponent())
+            {
+                waspWaveDefeats++;
+                Debug.Log(Prefix + "Advanced Demon survival to Wasp: defeat " + waspWaveDefeats +
+                    ", current weapon=" + enemy.Parameters.Weapon?.Name + ".");
+            }
+            return false;
+        }
+        if (waspEnteredAt < 0)
+        {
+            waspEnteredAt = frame;
+            var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var registered = AnimationData.Animations.Where(move => move.Name.StartsWith("de128:moves/wasp_fly_", StringComparison.Ordinal))
+                .Select(move => move.Name).ToArray();
+            var loaded = localMoves.Where(move => move.Name.StartsWith("de128:moves/wasp_fly_", StringComparison.Ordinal))
+                .Select(move => move.Name).ToArray();
+            if (registered.Length != 4 || loaded.Length != 4 ||
+                localMoves.Count(move => move.Name.StartsWith("WaspFly_", StringComparison.Ordinal) &&
+                    !move.Name.EndsWith("_PVP", StringComparison.Ordinal) &&
+                    move.SelectionConditions.Last().GetType().Name == "DisabledMoveCondition") != 4)
+                throw new Exception("Wasp did not receive four selectable DE moves and four disabled core versions.");
+            var perks = enemy.Parameters.JBIOECDAAKP();
+            var items = enemy.Parameters.PJNJIJIODHE();
+            var locks = new ModelConditions { OJIAKDDCGLB = items, POBNMMADAJJ = perks,
+                IBBALIJOJMC = enemy.Parameters.IBBALIJOJMC };
+            if (localMoves.Where(move => move.Name.StartsWith("de128:moves/wasp_fly_", StringComparison.Ordinal))
+                .Any(move => !move.HPPGNJJCEGF(locks, move.MoveData.Locks)))
+                throw new Exception("Wasp's DE Fly move failed its live perk or skeleton lock.");
+            Debug.Log(Prefix + "Wasp Fly registered=" + string.Join(",", registered) +
+                " fighter moves=" + string.Join(",", loaded) + "; native core versions disabled.");
+            Debug.Log(Prefix + "Reached Wasp at frame " + frame + " after " + waspWaveDefeats +
+                " native survival defeats.");
+        }
+        bool flying = enemy.FHBLLPCEAHG()?.CNPFHBMGDFP("WaspFly") == true;
+        if (flying && waspFirstFlyAt < 0)
+        {
+            waspFirstFlyAt = frame;
+            var active = enemy.OCPMJKIEPIG().NNMAFFCCMHC();
+            var attack = active?.MoveData.Intervals.OfType<IntervalAttack>().SingleOrDefault();
+            if (attack == null || !attack.MOILKOLCNBP() || !attack.NPHDDMAIGKN() ||
+                attack.DNPLIFOABPB()?.Count != 0 || attack.KBENFIOADCG()?.Count != 0 ||
+                attack.HitReactions.SingleOrDefault()?.Name != "WaspFly")
+                throw new Exception("Wasp's live Fly attack lost its archived hit or bypass behavior.");
+            Debug.Log(Prefix + "Wasp selected Fly at frame " + frame + ".");
+        }
+        if (flying) waspLastFlyAt = frame;
+        if (frame - waspEnteredAt < 720) return false;
+        if (waspFirstFlyAt < 0)
+            throw new Exception("Wasp did not use her archived Fly ability within 720 native combat frames.");
+        if (waspLastFlyAt - waspFirstFlyAt < 20)
+            throw new Exception("Wasp's Fly did not play through its attack interval.");
+        Debug.Log(Prefix + "Wasp Fly remained active through frame " + waspLastFlyAt + ".");
+        return true;
+    }
 
     static bool IsSpotlightFight(string id) => id == "de128:fights/uw_boss_13_hardmode_1" ||
         id == "de128:fights/uw_boss_son_of_the_sun_hardmode_1";
