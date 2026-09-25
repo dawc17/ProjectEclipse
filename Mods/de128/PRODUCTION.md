@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.23.0**. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload and equipped-fight acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.24.0**. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3479,3 +3479,52 @@ native reward bridge **33**; all four managed builds; editor generate/check,
 `git diff --check`. The headless run does not test the actual Titan win screen or
 interactive harpoon/Mind Throw attack visuals. A game playtest remains needed
 for those presentation paths and combat balance.
+
+### Step 58 — Reconcile the local owner raid source and presentation art (0.24.0, 2026-09-25)
+
+The local owner drop's `gamedata/raid_stages_default.xml` has SHA-256
+`d012a1f47418def617d375743864e2256b00f4fd709f6785da45aa67a8c3fa7c`.
+A positional semantic comparison with historical `Assets/DExml` finds exactly
+**37** differences: 21 avatar references (20 distinct new portraits), seven
+corrected perk names, five deleted `Health="0.25"` perk parameters, one removed
+Wind Maker `Frames="720"` override, Invisible's preview, and Haunted Prince's
+icon and atlas. The owner file supplies the corrections directly: two damage
+absorption names, four armor Overheat instances, and Wasp's Fly ability now
+resolve to existing core perks. The historical names had been omitted, leaving
+six boss encounters short of seven perk instances. The generator uses the
+reviewed owner raid file and pins its hash, so a changed source requires review
+before regeneration. The 66 template bodies and 14-language text remain
+generated from the available historical files. This reconciles the local raid
+file; the separately designated 1.6 GB corpus still awaits acquisition.
+
+The 20 new hard-mode portraits ship as DE128 sprites from the owner Users
+directory at the source 200 pixels per unit. Haunted Prince receives both
+300×300 map-button states from the owner atlas directories. Invisible's new
+preview resolves from the installed core catalog. `ExtractDE128UnderworldArt.py`
+copies and hash-checks those 22 new sprites alongside the existing Underworld
+art; it never edits Unity sprite vertices or source `.meta` files. The
+`underworld.lua` adapter uses typed sprite handles only for the 20 owned
+portraits; the older `boss_wind_wolf_new` name remains a core resource.
+
+The native Unity 6 fixture played all **29** fights whose battle rows differ
+from historical XML. Each entered the intended arena, loaded fighter rigs,
+ran 30 combat frames and returned to the raid map. One archived story intro
+appeared on that isolated profile. The same fixture decoded all 20 owner
+portraits at 200 pixels per unit and both Prince map-button states. The earlier
+full 76-fight sweep used the historical raid source; this run covers every
+changed battle in the owner revision. Separately, the new
+`TestDE128TitanRewardNative.py --phases win` mode played the real final Eclipse
+Titan encounter to its native victory screen, verified the five ordered reward
+items and settled them through the normal result continuation.
+
+Verification: pinned-source generator and 50-art-file extractor `--check`;
+DE128 foundation **14,594** checks; Underworld runtime **1,282** assertions;
+all four managed builds; editor generate/check/**37** project tests, LuaLS and
+VS Code integration; wiki build (**48** pages, **4,339** links/assets); static
+location audit (same known missing `fungus_raid/layer_0_2` image); 29 changed
+native fights, 22 decoded sprites and the real Titan victory path.
+`git diff --check` passed, no `.meta` GUID changed, and DE128 ships no XML.
+Interactive portrait/map visuals, Wasp ability timing and long-form combat
+balance remain for a game playtest. Ceremonial armor/helm,
+`RANGED_NEEDLES` and the `LightInTheDarkness` visual rule remain unresolved;
+none were invented.

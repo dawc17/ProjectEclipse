@@ -97,6 +97,16 @@ test('actual DE128 reachable Lua localization is indexed', async () => {
         assert.equal(mod.assets.get(`models/underworld/${name}`)?.kind,'model');
     for(const name of ['mdl_body_titan','mdl_head_titan','mdl_ranged_titans_harpoon','mdl_magic_fireball'])
         assert.equal(mod.assets.get(`models/titan/${name}`)?.kind,'model');
+    for(const name of ['boss_architect_hummer_new','boss_arkhos_hardmode_new','boss_bison_hard_new',
+        'boss_crystal_hardmode_new','boss_fatum_hardmode_new','boss_fire_hardmode_new',
+        'boss_hoaxen_hardmode_new','boss_hunger_hardmode_new','boss_lamb_fungus_hard_new',
+        'boss_lamb_hard_new','boss_lamb_hunger_hard_new','boss_mushroom_hardmode_new',
+        'boss_rakshasa_hardmode_new','boss_ravana_hard_new','boss_saturn_hard_new',
+        'boss_tenebris_hardmode_new','boss_vortex_hardmode_new','boss_war_hardmode_new',
+        'boss_whisper_hardmode_new','new_man_shuang_gou_hardmode_new'])
+        assert.equal(mod.assets.get(`sprites/underworld/${name}`)?.kind,'sprite');
+    for(const state of ['base','active'])
+        assert.equal(mod.assets.get(`sprites/underworld/battlebtnprince_${state}`)?.kind,'sprite');
 });
 test('references, dependencies, capability requirements, and numeric limits', async () => {
     const mod = await p.indexMod(template);

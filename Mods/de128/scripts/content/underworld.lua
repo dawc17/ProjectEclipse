@@ -22,8 +22,29 @@ local OWNED_MUSIC = { fight_halloween2019 = true, flying_rocks = true, halls_of_
 local OWNED_BUTTONS = {
     BattleBtnArchitect = true, BattleBtnHalloween = true, BattleBtnLamb = true, BattleBtnNrityu = true,
     BattleBtnPuppeteer = true, BattleBtnRakshasa = true, BattleBtnRavana = true, BattleBtnShurale = true,
-    BattleBtnSnowflake = true, BattleBtnWindWolf = true,
+    BattleBtnSnowflake = true, BattleBtnWindWolf = true, BattleBtnPrince = true,
 }
+-- Only these twenty owner portraits are packaged by DE128. The older
+-- boss_wind_wolf_new name is already a native core resource.
+local OWNED_AVATARS = {
+    boss_architect_hummer_new = true, boss_arkhos_hardmode_new = true,
+    boss_bison_hard_new = true, boss_crystal_hardmode_new = true,
+    boss_fatum_hardmode_new = true, boss_fire_hardmode_new = true,
+    boss_hoaxen_hardmode_new = true, boss_hunger_hardmode_new = true,
+    boss_lamb_fungus_hard_new = true, boss_lamb_hard_new = true,
+    boss_lamb_hunger_hard_new = true, boss_mushroom_hardmode_new = true,
+    boss_rakshasa_hardmode_new = true, boss_ravana_hard_new = true,
+    boss_saturn_hard_new = true, boss_tenebris_hardmode_new = true,
+    boss_vortex_hardmode_new = true, boss_war_hardmode_new = true,
+    boss_whisper_hardmode_new = true, new_man_shuang_gou_hardmode_new = true,
+}
+
+local function avatar(name)
+    if OWNED_AVATARS[name] then
+        return sf2.assets.sprite("sprites/underworld/" .. name)
+    end
+    return name
+end
 
 local BATTLE_TYPES = { final = sf2.battles.FINAL, survival = sf2.battles.SURVIVAL }
 
@@ -62,7 +83,7 @@ local function install(raid_charge_rule)
         templates[spec.name] = sf2.warriors.register_template {
             id = "uw_" .. lower_id(spec.name), template = spec.parent and template(spec.parent) or nil,
             first_name = spec.first_name and text.key(spec.first_name) or nil,
-            avatar = spec.avatar, voice = spec.voice, health_bars = spec.health_bars,
+            avatar = avatar(spec.avatar), voice = spec.voice, health_bars = spec.health_bars,
             attributes = spec.attributes, items = item_list(spec.items), skeleton = spec.skeleton,
         }
     end
@@ -157,7 +178,7 @@ local function install(raid_charge_rule)
                 for index, w in ipairs(fight_spec.warriors) do
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = w.tactic,
-                        avatar = w.avatar, health_bars = w.health_bars, attributes = w.attributes,
+                        avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,
                         attribute_alignments = w.alignments, perks = perk_rows(w.perks),
                         items = item_list(w.items), skeleton = w.skeleton,
                     }

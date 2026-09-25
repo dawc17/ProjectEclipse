@@ -55,9 +55,9 @@ def plist_frames(path):
 
 
 def audit():
-    # The active DE128 package is generated from this archived 76-battle source;
+    # The active DE128 package is generated from this reviewed 76-battle source;
     # the canonical vanilla file contains only three ordinary raid battles.
-    stages = ET.parse(ASSETS / 'DExml/raid_stages_default.xml').getroot()
+    stages = ET.parse(ROOT / 'ResearchSources/de128_assets/gamedata/raid_stages_default.xml').getroot()
     # LocationSpriteCache resolves loose Resources first and then the packaged
     # art catalog. The upscaled DE locations are in CORE_LOCATIONS, not as loose
     # Resources files, so checking that directory alone invents missing art.

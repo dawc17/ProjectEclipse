@@ -275,7 +275,7 @@ internal static class DE128FoundationTests
             underworldBattles.Count(battle => battle.PowerMode == ModPowerMode.Normal) == 36 &&
             underworldBattles.Count(battle => battle.PowerMode == ModPowerMode.Power) == 36 &&
             underworldBattles.Count(battle => battle.PowerMode == ModPowerMode.Always) == 4 &&
-            underworldBattles.Count(battle => battle.Icons != null) == 25,
+            underworldBattles.Count(battle => battle.Icons != null) == 26,
             "Underworld pages, Power Mode twins or shipped map buttons differ from the archive.");
         var underworldRewards = catalog.Rewards.Where(reward => reward.Id.LocalId.StartsWith("uw_")).ToArray();
         Check(catalog.Fights.Count(fight => fight.Id.LocalId.StartsWith("uw_")) == 76 && underworldRewards.Length == 180 &&

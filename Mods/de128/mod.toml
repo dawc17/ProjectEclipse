@@ -1,7 +1,7 @@
 schema = 1
 id = "de128"
 name = "DE128 - Definitive Edition"
-version = "0.23.0"
+version = "0.24.0"
 authors = ["Dawid Czaplicki"]
 entrypoint = "scripts/main.lua"
 capabilities = ["policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create", "presentation.navigate"]

@@ -1,7 +1,7 @@
-"""Copy DE128's Underworld map-button sprites from the owner's asset drop.
+"""Copy DE128's Underworld presentation art from the owner's asset drop.
 
 Source: ResearchSources/de128_assets/assets/Atlases (owner-supplied DE art; these
-ten event-raid button atlases exist nowhere in core). Each 300x300 PNG is copied
+eleven event-raid button atlases exist nowhere in core). Each 300x300 PNG is copied
 byte-for-byte and gets a line-based mod sprite descriptor. Lock states are not in
 the drop; the game falls back to its native lock art. Two story portraits (character_may_1,
 character_may_4) are native Unity resources missing from the packaged-art catalog
@@ -11,6 +11,8 @@ assets/audio/underworld/<id>.wav: three from the drop's DE-named Music folder (n
 fight_halloween2019 from the DE 1.0.6 reference, the only copy.
 Two Berstuuk opponent models from the drop ship as reproducible gzip-compressed
 geometry under assets/models/underworld/*.modelz. DE128's Lua never opens XML.
+The reviewed raid data selects twenty distinct upscaled hard-mode portraits from
+the owner's Users directory. They retain the source 200 pixels-per-unit setting.
 --check verifies the shipped copies against their sources.
 """
 
@@ -21,6 +23,7 @@ import gzip
 import hashlib
 import shutil
 import sys
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -30,7 +33,7 @@ BUTTONS = {
     "BattleBtnArchitect": "architect_raid", "BattleBtnHalloween": "halloween_raid", "BattleBtnLamb": "lamb_raid",
     "BattleBtnNrityu": "nrityu_raid", "BattleBtnPuppeteer": "puppeteer_raid", "BattleBtnRakshasa": "rakshasa_raid",
     "BattleBtnRavana": "ravana_raid", "BattleBtnShurale": "shurale_raid", "BattleBtnSnowflake": "snowflake_raid",
-    "BattleBtnWindWolf": "wind_wolf_raid",
+    "BattleBtnWindWolf": "wind_wolf_raid", "BattleBtnPrince": "prince",
 }
 PORTRAITS = ("character_may_1", "character_may_4")
 MUSIC_DROP = ROOT / "ResearchSources" / "de128_assets" / "assets" / "Music"
@@ -42,15 +45,35 @@ MUSIC = {
 }
 MODELS_DROP = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "models"
 MODELS = ("mdl_body_berstuuk_early", "mdl_head_berstuuk")
+RAID = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "raid_stages_default.xml"
+RAID_SHA256 = "d012a1f47418def617d375743864e2256b00f4fd709f6785da45aa67a8c3fa7c"
+USERS = ROOT / "ResearchSources" / "de128_assets" / "assets" / "Users"
+
+
+def upscaled_avatars():
+    if hashlib.sha256(RAID.read_bytes()).hexdigest() != RAID_SHA256:
+        raise ValueError("Owner raid source changed; review its portrait references before extraction")
+    raid = ET.parse(RAID).getroot()
+    names = sorted({node.get("Avatar") for node in raid.iter("Warrior")
+                    if (node.get("Avatar") or "").endswith("_new")})
+    if len(names) != 20:
+        raise ValueError(f"Reviewed raid source has {len(names)} upscaled avatars, expected 20")
+    return names
 
 
 def sources():
     for atlas, icon in BUTTONS.items():
         for state, prefix in (("Base", "base"), ("Active", "active")):
             folder = atlas + state
-            yield DROP / folder / (folder + "." + prefix + "_" + icon + ".png"), atlas.lower() + "_" + prefix
+            yield DROP / folder / (folder + "." + prefix + "_" + icon + ".png"), atlas.lower() + "_" + prefix, 100
     for name in PORTRAITS:
-        yield ROOT / "Assets" / "Resources" / "ui" / "users" / (name + ".png"), name
+        yield ROOT / "Assets" / "Resources" / "ui" / "users" / (name + ".png"), name, 100
+    for name in upscaled_avatars():
+        source = USERS / (name + ".png")
+        meta = (USERS / (name + ".png.meta")).read_text(encoding="utf-8")
+        if "spriteMode: 1" not in meta or "spritePixelsToUnits: 200" not in meta:
+            raise ValueError(f"Reviewed raid portrait import settings changed: {name}")
+        yield source, name, 200
 
 
 def sha256(path: Path) -> str:
@@ -68,10 +91,10 @@ def main() -> int:
         textures.mkdir(parents=True, exist_ok=True)
         sprites.mkdir(parents=True, exist_ok=True)
     rows = []
-    for source, name in sources():
+    for source, name, pixels_per_unit in sources():
         target = textures / (name + ".png")
         descriptor = sprites / (name + ".asset")
-        body = "type=sprite\ntexture=textures/underworld/" + name + ".png\npixels_per_unit=100\n"
+        body = "type=sprite\ntexture=textures/underworld/" + name + f".png\npixels_per_unit={pixels_per_unit}\n"
         if not args.check:
             shutil.copyfile(source, target)
             descriptor.write_text(body, encoding="utf-8", newline="\n")

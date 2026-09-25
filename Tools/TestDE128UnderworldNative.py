@@ -23,16 +23,22 @@ def main() -> int:
     parser.add_argument("--story-bosses", action="store_true", help="Play the 32 boss fights with archived story sequences")
     parser.add_argument("--all-fights", action="store_true", help="Play all 76 native Underworld fights")
     parser.add_argument("--fight", help="Play one exact de128:fights/uw_* ID")
+    parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
                         help="Assert the saved Titan reward set is equipped on the native fighter")
     parser.add_argument("--timeout", type=int, default=1200)
     args = parser.parse_args()
     if not args.unity_editor.is_file() or args.timeout < 1 or not re.fullmatch(r"[A-Za-z0-9_-]{0,32}", args.profile_tag):
         parser.error("An installed Unity editor and positive timeout are required.")
-    if sum((args.tier_bosses, args.story_bosses, args.all_fights, bool(args.fight))) > 1:
+    if sum((args.tier_bosses, args.story_bosses, args.all_fights, bool(args.fight), bool(args.fights))) > 1:
         parser.error("Choose one encounter matrix at a time.")
     if args.fight and not re.fullmatch(r"de128:fights/uw_[a-z0-9_]+", args.fight):
         parser.error("--fight requires an exact de128:fights/uw_* ID.")
+    if args.fights:
+        selected = args.fights.split(",")
+        if (len(selected) > 76 or len(set(selected)) != len(selected) or
+                any(not re.fullmatch(r"de128:fights/uw_[a-z0-9_]+", value) for value in selected)):
+            parser.error("--fights requires 1–76 distinct exact de128:fights/uw_* IDs.")
     if args.require_titan_equipment and not args.fight:
         parser.error("--require-titan-equipment requires one exact --fight ID.")
 
@@ -79,7 +85,7 @@ def main() -> int:
     if cache_text.count(default_root) != 1:
         raise RuntimeError("The native TAR cache root changed; review fixture isolation.")
     cache.write_text(cache_text.replace(default_root, fixture_root, 1), encoding="utf-8")
-    matrix = args.tier_bosses or args.story_bosses or args.all_fights or args.fight
+    matrix = args.tier_bosses or args.story_bosses or args.all_fights or args.fight or args.fights
     validator_name = "ValidateDE128TierBossesNative" if matrix else "ValidateDE128UnderworldNative"
     prefix = "[DE128TierBossesNative]" if matrix else "[DE128UnderworldNative]"
     validator = fixture / f"Assets/Editor/{validator_name}.cs"
@@ -96,6 +102,9 @@ def main() -> int:
     if args.fight:
         environment["ECLIPSE_DE128_UNDERWORLD_MATRIX"] = "single"
         environment["ECLIPSE_DE128_UNDERWORLD_TARGETS"] = args.fight
+    if args.fights:
+        environment["ECLIPSE_DE128_UNDERWORLD_MATRIX"] = "subset"
+        environment["ECLIPSE_DE128_UNDERWORLD_TARGETS"] = args.fights
     if args.require_titan_equipment:
         environment["ECLIPSE_DE128_TITAN_EQUIPMENT"] = "1"
     if args.story_bosses:

@@ -32,6 +32,14 @@ The owner subsequently requested continuing production from the available reposi
 data while deferring this download. Historical XML may be used for continued work,
 but reconciliation against the designated corpus remains required when accessible.
 
+A separate local owner asset drop at `ResearchSources/de128_assets/` contains
+gameplay XML and exported art used by recent DE128 work. Its reviewed
+`gamedata/raid_stages_default.xml` has SHA-256
+`d012a1f47418def617d375743864e2256b00f4fd709f6785da45aa67a8c3fa7c`;
+the Underworld generator pins that exact file. This drop is not verified to be
+the designated 1.6 GB `Assets.7z`, so its local reconciliation does not close
+the full-corpus audit below.
+
 ## Reconciliation requirements
 
 - Treat `Assets/DExml` and earlier production comparisons as historical evidence,

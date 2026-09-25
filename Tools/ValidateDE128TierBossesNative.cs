@@ -22,7 +22,7 @@ public static class ValidateDE128TierBossesNative
     static readonly BindingFlags Hidden = BindingFlags.Instance | BindingFlags.NonPublic;
     static readonly BindingFlags HiddenStatic = BindingFlags.Static | BindingFlags.NonPublic;
     static double started, lastPress, lastReport;
-    static bool campaign, mapRequested, raidPrepared, entryRequested, surrenderRequested;
+    static bool campaign, mapRequested, raidPrepared, entryRequested, surrenderRequested, ownerArtValidated;
     static int targetIndex, storyPresses, storyIntros;
     static List<FightDefinition> targets;
     static string combatException;
@@ -123,6 +123,7 @@ public static class ValidateDE128TierBossesNative
                 if (scene == null) return;
                 if (!raidPrepared)
                 {
+                    ValidateOwnerRaidArt();
                     scene.SwitchToRaidMap();
                     var container = (MapContainer)typeof(MapScene).GetField("_storyContainer", Hidden).GetValue(scene);
                     if (container.GetZonesCount() != 8)
@@ -227,14 +228,48 @@ public static class ValidateDE128TierBossesNative
 
     static FightDefinition Target => targets[targetIndex];
 
+    static void ValidateOwnerRaidArt()
+    {
+        if (ownerArtValidated) return;
+        string[] avatars = {
+            "boss_architect_hummer_new", "boss_arkhos_hardmode_new", "boss_bison_hard_new",
+            "boss_crystal_hardmode_new", "boss_fatum_hardmode_new", "boss_fire_hardmode_new",
+            "boss_hoaxen_hardmode_new", "boss_hunger_hardmode_new", "boss_lamb_fungus_hard_new",
+            "boss_lamb_hard_new", "boss_lamb_hunger_hard_new", "boss_mushroom_hardmode_new",
+            "boss_rakshasa_hardmode_new", "boss_ravana_hard_new", "boss_saturn_hard_new",
+            "boss_tenebris_hardmode_new", "boss_vortex_hardmode_new", "boss_war_hardmode_new",
+            "boss_whisper_hardmode_new", "new_man_shuang_gou_hardmode_new"
+        };
+        var loader = ModRuntime.Host.TypedAssets;
+        foreach (string name in avatars)
+        {
+            var sprite = loader.LoadSprite(AssetId.Parse("de128:sprites/underworld/" + name));
+            if (sprite == null || sprite.texture == null || sprite.vertices.Length < 3 ||
+                sprite.rect.width < 600 || sprite.rect.height < 700 ||
+                Math.Abs(sprite.pixelsPerUnit - 200) > 0.01f)
+                throw new Exception("Owner raid avatar did not decode at source scale: " + name);
+        }
+        foreach (string state in new[] { "base", "active" })
+        {
+            var sprite = loader.LoadSprite(AssetId.Parse("de128:sprites/underworld/battlebtnprince_" + state));
+            if (sprite == null || sprite.texture == null || sprite.vertices.Length < 3 ||
+                sprite.rect.width != 300 || sprite.rect.height != 300)
+                throw new Exception("Prince map button did not decode: " + state);
+        }
+        ownerArtValidated = true;
+        Debug.Log(Prefix + "Decoded 20 owner raid avatars and both Prince map button sprites.");
+    }
+
     static List<FightDefinition> SelectTargets(ModContentCatalog content)
     {
         string requested = Environment.GetEnvironmentVariable("ECLIPSE_DE128_UNDERWORLD_TARGETS");
         if (!string.IsNullOrEmpty(requested))
         {
             var ids = requested.Split(',');
-            bool single = Environment.GetEnvironmentVariable("ECLIPSE_DE128_UNDERWORLD_MATRIX") == "single";
-            if (ids.Length != (single ? 1 : 32) || ids.Distinct(StringComparer.Ordinal).Count() != ids.Length)
+            string matrix = Environment.GetEnvironmentVariable("ECLIPSE_DE128_UNDERWORLD_MATRIX");
+            bool countValid = matrix == "single" ? ids.Length == 1 :
+                matrix == "subset" ? ids.Length >= 1 && ids.Length <= 76 : ids.Length == 32;
+            if (!countValid || ids.Distinct(StringComparer.Ordinal).Count() != ids.Length)
                 throw new Exception("The requested encounter matrix has an invalid fight list.");
             var storyFights = new List<FightDefinition>();
             foreach (string id in ids)

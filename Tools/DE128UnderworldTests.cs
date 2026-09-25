@@ -7,10 +7,10 @@ using System.Xml;
 using Eclipse.Modding;
 
 // Compares every Underworld definition the actual DE128 package registers with the
-// archived DE XML (raid_stages_default.xml, stages.xml templates, localizations).
-// Reads the archive directly; it does not reuse the generator. The documented
-// normalizations are asserted explicitly: Rounds 0 -> 1, restored Sphere1/2, the
-// music table, and names the DE data itself cannot resolve.
+// reviewed owner raid XML plus historical DE template and localization XML.
+// Reads sources directly; it does not reuse the generator. The documented
+// normalizations are asserted explicitly: Rounds 0 -> 1, restored Sphere1/2,
+// the music table, and unresolved names.
 internal static class DE128UnderworldTests
 {
     private static Action<bool, string> _check;
@@ -34,6 +34,17 @@ internal static class DE128UnderworldTests
     {
         "BattleBtnArchitect", "BattleBtnHalloween", "BattleBtnLamb", "BattleBtnNrityu", "BattleBtnPuppeteer",
         "BattleBtnRakshasa", "BattleBtnRavana", "BattleBtnShurale", "BattleBtnSnowflake", "BattleBtnWindWolf",
+        "BattleBtnPrince",
+    };
+    private static readonly HashSet<string> OwnedAvatars = new HashSet<string>
+    {
+        "boss_architect_hummer_new", "boss_arkhos_hardmode_new", "boss_bison_hard_new",
+        "boss_crystal_hardmode_new", "boss_fatum_hardmode_new", "boss_fire_hardmode_new",
+        "boss_hoaxen_hardmode_new", "boss_hunger_hardmode_new", "boss_lamb_fungus_hard_new",
+        "boss_lamb_hard_new", "boss_lamb_hunger_hard_new", "boss_mushroom_hardmode_new",
+        "boss_rakshasa_hardmode_new", "boss_ravana_hard_new", "boss_saturn_hard_new",
+        "boss_tenebris_hardmode_new", "boss_vortex_hardmode_new", "boss_war_hardmode_new",
+        "boss_whisper_hardmode_new", "new_man_shuang_gou_hardmode_new",
     };
 
     private static ModContentCatalog _catalog;
@@ -44,6 +55,8 @@ internal static class DE128UnderworldTests
     private static void Check(bool value, string message) { _compared++; _check(value, message); }
     private static string Key(string key) => ("de128:localization/uw." + key).ToLowerInvariant();
     private static string Lower(string name) => new string(name.Select(c => char.IsLetterOrDigit(c) || c == '_' ? char.ToLowerInvariant(c) : '_').ToArray());
+    private static string Avatar(string name) => OwnedAvatars.Contains(name)
+        ? "de128:sprites/underworld/" + name.ToLowerInvariant() : name;
     private static float F(XmlElement e, string attribute) => float.Parse(e.GetAttribute(attribute), CultureInfo.InvariantCulture);
     private static bool Near(double a, double b) => Math.Abs(a - b) <= 1e-4 * Math.Max(1, Math.Abs(b));
 
@@ -51,7 +64,7 @@ internal static class DE128UnderworldTests
     {
         _catalog = catalog; _check = check; _compared = 0;
         XmlDocument Read(string relative) { var d = new XmlDocument { XmlResolver = null }; d.Load(Path.Combine(repository, relative)); return d; }
-        var raid = Read("Assets/DExml/raid_stages_default.xml");
+        var raid = Read("ResearchSources/de128_assets/gamedata/raid_stages_default.xml");
         _templates = Read("Assets/DExml/stages.xml").SelectNodes("//Templates/Template").Cast<XmlElement>()
             .GroupBy(t => t.GetAttribute("Name")).ToDictionary(g => g.Key, g => g.First());
         _coreTemplates = new HashSet<string>(Read("Assets/vanillaXml/stages.xml").SelectNodes("//Templates/Template").Cast<XmlElement>().Select(t => t.GetAttribute("Name")));
@@ -189,7 +202,7 @@ internal static class DE128UnderworldTests
     {
         string template = xml.GetAttribute("Template");
         Check(warrior.HasTemplate && warrior.Template.ToString() == Template(template), "Opponent template differs: " + where);
-        Check(warrior.Tactic == xml.GetAttribute("Tactic") && warrior.Avatar == xml.GetAttribute("Avatar") &&
+        Check(warrior.Tactic == xml.GetAttribute("Tactic") && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();
         foreach (var attribute in new[] { "MagicInitialCharge", "WarriorPower" })
@@ -215,7 +228,7 @@ internal static class DE128UnderworldTests
         Check(parent.Length == 0 ? !body.HasTemplate : body.HasTemplate && body.Template.ToString() == Template(parent), "Template parent differs: " + name);
         if (xml.HasAttribute("FirstName")) keys.Add(xml.GetAttribute("FirstName"));
         Check(body.FirstName == (xml.HasAttribute("FirstName") ? Key(xml.GetAttribute("FirstName")) : string.Empty) &&
-            body.Avatar == xml.GetAttribute("Avatar") && body.Voice == xml.GetAttribute("Voice") &&
+            body.Avatar == Avatar(xml.GetAttribute("Avatar")) && body.Voice == xml.GetAttribute("Voice") &&
             body.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Template fields differ: " + name);
         var expected = xml.Attributes.Cast<XmlAttribute>().Where(a => !new[] { "Name", "Template", "FirstName", "Avatar", "Voice", "ShieldTotal" }.Contains(a.Name)).ToArray();
         Check(body.Attributes.Count == expected.Length && expected.All(a => body.Attributes.TryGetValue(a.Name, out var v) &&
