@@ -27,6 +27,10 @@ public static class ValidateDE128TierBossesNative
     static int waspWaveDefeats, waspEnteredAt = -1, waspFirstFlyAt = -1, waspLastFlyAt = -1;
     static int butcherWaveDefeats, butcherEnteredAt = -1, butcherSelectedAt = -1;
     static bool butcherChildSpawned, butcherChildMove, butcherChildAttack, butcherChildDeleted;
+    static int hermitWaveDefeats, hermitEnteredAt = -1, hermitSelectedAt = -1, hermitIdleAt = -1;
+    static int hermitStormSpawns, hermitIdleStormSpawns;
+    static readonly HashSet<int> hermitAttackStarts = new HashSet<int>();
+    static int hermitPlayerDefeatedAt = -1;
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
@@ -61,7 +65,8 @@ public static class ValidateDE128TierBossesNative
         {
             if (combatException != null) throw new Exception("Native boss combat exception: " + combatException);
             double timeout = Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" ||
-                Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" ? 420 : 180;
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
@@ -164,6 +169,8 @@ public static class ValidateDE128TierBossesNative
             var fight = Fight.GetCurrentFight();
             if (fight == null)
             {
+                if (hermitPlayerDefeatedAt >= 0)
+                    throw new Exception("Hermit finished the round without selecting his authored victory move.");
                 if (EditorApplication.timeSinceStartup - lastPress < 0.2) return;
                 var presenter = UnityEngine.Object.FindObjectsOfType<ModStoryDialogPresenter>()
                     .FirstOrDefault(value => value != null && value.gameObject.activeInHierarchy);
@@ -186,6 +193,8 @@ public static class ValidateDE128TierBossesNative
                 !ObserveWaspWave(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_BUTCHER_WAVE") == "1" &&
                 !ObserveButcherWave(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" &&
+                !ObserveHermitWave(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -247,6 +256,105 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveHermitWave(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_survival_demon_1")
+            throw new Exception("Hermit wave acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (enemy.Parameters.Weapon?.Name != "WEAPON_HERMIT_SWORDS")
+        {
+            if (hermitEnteredAt >= 0) throw new Exception("Hermit left his wave before Storm acceptance.");
+            if (hermitWaveDefeats > 1) throw new Exception("Hermit did not enter after one survival defeat.");
+            if (EditorApplication.timeSinceStartup - lastWaveDefeat < 0.7) return false;
+            lastWaveDefeat = EditorApplication.timeSinceStartup;
+            if (fight.DebugDefeatOpponent())
+            {
+                hermitWaveDefeats++;
+                Debug.Log(Prefix + "Advanced Demon survival to Hermit: defeat " + hermitWaveDefeats + ".");
+            }
+            return false;
+        }
+        if (hermitEnteredAt < 0)
+        {
+            hermitEnteredAt = frame;
+            if (hermitWaveDefeats != 1)
+                throw new Exception("Hermit entered outside his second archived survival wave.");
+            var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            foreach (string name in new[] { "player", "idle", "win" })
+                if (localMoves.Count(move => move.Name == "de128:moves/hermit_storm_" + name) != 1)
+                    throw new Exception("Hermit lacks the authored Storm " + name + " move.");
+            foreach (string name in new[] { "HermitStormPlayer", "HermitStormPlayerIdle", "Win_HermitStorm" })
+                if (localMoves.Any(move => move.Name == name &&
+                    move.SelectionConditions.Last().GetType().Name != "DisabledMoveCondition"))
+                    throw new Exception("Hermit retained the core " + name + " selector.");
+            enemy.AddEventListener(6, value =>
+            {
+                var child = value as Model;
+                if (child?.get_Name() != "HermitStorm") return;
+                if (child.Parameters.Weapon?.Name != "HERMIT_STORM")
+                    throw new Exception("Hermit Storm child did not equip the native hidden item: " +
+                        child.Parameters.Weapon?.Name);
+                hermitStormSpawns++;
+                if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "de128:moves/hermit_storm_idle")
+                    hermitIdleStormSpawns++;
+                Debug.Log(Prefix + "Hermit Storm child spawn " + hermitStormSpawns + ".");
+            });
+            enemy.OCPMJKIEPIG().AddEventListener(2, value =>
+            {
+                if (enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name != "de128:moves/hermit_storm_player" ||
+                    !(value is IntervalAttack attack)) return;
+                if (attack.Start != 8 && attack.Start != 11 && attack.Start != 20)
+                    throw new Exception("Hermit Storm used an unauthored attack interval: " + attack.Start);
+                hermitAttackStarts.Add(attack.Start);
+            });
+            Debug.Log(Prefix + "Reached Hermit after one native survival defeat; three DE Storm moves are installed.");
+        }
+        string active = enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+        if (hermitPlayerDefeatedAt >= 0)
+        {
+            if (active == "de128:moves/hermit_storm_win")
+            {
+                Debug.Log(Prefix + "PASS: Hermit selected his authored victory move after a native player defeat.");
+                Finish(0);
+                return false;
+            }
+            if (frame - hermitPlayerDefeatedAt > 240)
+                throw new Exception("Hermit did not select his authored victory move after player defeat; active=" + active);
+            return false;
+        }
+        if (active == "de128:moves/hermit_storm_player" && hermitSelectedAt < 0)
+        {
+            hermitSelectedAt = frame;
+            Debug.Log(Prefix + "Hermit selected archived Storm at frame " + frame + ".");
+        }
+        if (active == "de128:moves/hermit_storm_idle" && hermitIdleAt < 0)
+        {
+            hermitIdleAt = frame;
+            Debug.Log(Prefix + "Hermit entered archived Storm idle at frame " + frame + ".");
+        }
+        if (frame - hermitEnteredAt < 1200) return false;
+        int decisionFrame = (int)typeof(ModelAi).GetField("_modDecisionFrame", Hidden)
+            .GetValue(enemy.EEIGOJBKFGE());
+        if (decisionFrame < 300 || hermitSelectedAt < 0 || hermitIdleAt < 0 ||
+            hermitStormSpawns < 3 || hermitIdleStormSpawns < 2 ||
+            !hermitAttackStarts.SetEquals(new[] { 8, 11, 20 }))
+            throw new Exception("Hermit's Storm sequence did not execute within 1200 frames: AI=" +
+                decisionFrame + " selected=" + hermitSelectedAt + " idle=" + hermitIdleAt +
+                " spawns=" + hermitStormSpawns + " idleSpawns=" + hermitIdleStormSpawns +
+                " attacks=" + string.Join(",", hermitAttackStarts));
+        Debug.Log(Prefix + "Hermit Storm caster, idle, attack intervals and two hidden-item spawns completed in native combat.");
+        if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_VICTORY") == "1")
+        {
+            bool defeated = (bool)typeof(Fight).GetMethod("KillModel", Hidden)
+                .Invoke(fight, new object[] { true, false });
+            if (!defeated) return false;
+            hermitPlayerDefeatedAt = frame;
+            Debug.Log(Prefix + "Defeated the native player to test Hermit's victory transition.");
+            return false;
+        }
+        return true;
+    }
 
     static bool ObserveButcherWave(Fight fight, Model enemy)
     {

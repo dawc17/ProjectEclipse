@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.27.0**. Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.28.0**. Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3671,3 +3671,49 @@ Code integration; and wiki build (**48** pages, **4,344** local links/assets).
 Neither interactive combat balance nor audible/visual quality of Earthquake's
 effect was established. The survival tests surrendered after the observed wave;
 they did not claim a full Mercenary or Demon reward victory.
+
+### Step 62 — Hermit's Storm sequence (0.28.0, 2026-09-25)
+
+The checked-in historical DE move archive changes Hermit's Storm caster, idle
+continuation and victory transition. DE128 now registers those three moves from
+byte-identical packaged animation binaries and disables the older core selectors
+where they exist on the fighter. The unchanged `HermitStormMiddle*` child moves
+remain core. The caster retains the archived RaidCharge input, three native AI
+distance gates, ten contact edges in each of three attack intervals, frame-20
+hidden-item Storm spawn, frame-19 background levitation effect and sound schedule.
+The idle continuation spawns two more Storm children at frames 25 and 40. The
+victory move requires both the native end stance and Victory round result. Only
+the second Demon survival opponent receives an Aggressive-inheriting Lua tactic
+that chooses an eligible cast; the generated raid data remains a reviewed source
+transcription with this live override tested separately.
+
+Eclipse's reusable move API now accepts typed `round_result` conditions with
+`Victory` or `Defeat`, and scheduled effect `on_background = true`. Both reach
+the native move parser and affect authored-content fingerprints. The Lua AI
+candidate list now respects native tactic gates as well as move conditions,
+preventing a callback from selecting a cast outside its authored AI range.
+Butcher's Lua tactic uses that same native eligibility gate; a new native
+regression run confirmed its full Earthquake child attack and deletion still
+execute. The wiki, editor schema and generated definitions, editor guidance,
+template and LuaLS completion checks changed with the public contract. DE128
+still reads no XML at runtime.
+
+An isolated Unity 6 run advanced through Lynx to Hermit's second Demon survival
+wave. It observed all three new moves installed, the caster selected at frame
+563, the three attack intervals, native `HERMIT_STORM` item on spawned children,
+idle continuation and its additional spawns, then surrendered to the Underworld
+map. A separate native run repeated the sequence, defeated the player through
+the fight's native kill path and observed the authored victory move selected.
+These tests establish execution of the full move graph and transition, while
+the checked-in archive remains historical evidence pending the full owner
+corpus. Interactive combat balance and audible/visual quality of the effect
+were not assessed.
+
+Verification: four `dotnet msbuild` managed builds; **14,672** DE128 foundation
+checks; **1,282** Underworld runtime assertions; move presentation **524**, effect
+**640** and projectile **729** combined checks; Lua AI **14** shortlist, **56**
+adapter, **33** native metadata and **69** Lua decision checks; generator and art
+`--check`; native Hermit cast/map return, Hermit victory and Butcher regression;
+editor generate/check/**38** project tests, LuaLS and VS Code integration; wiki
+build (**48** pages, **4,344** local links/assets); and `git diff --check`.
+The location audit still reports the known missing `fungus_raid/layer_0_2` image.

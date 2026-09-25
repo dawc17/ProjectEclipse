@@ -446,6 +446,7 @@ namespace Eclipse.Modding
                     Set(entry, "Scale", effect.Scale.ToString("R", CultureInfo.InvariantCulture));
                     Set(entry, "TimeScale", effect.TimeScale.ToString("R", CultureInfo.InvariantCulture));
                     Set(entry, "Looped", effect.Looped ? "1" : "0");
+                    if (effect.OnBackground) Set(entry, "OnBackground", "1");
                     if (effect.Position != null)
                     {
                         var position = BuildMovePoint(document, "Position", effect.Position);
@@ -502,6 +503,7 @@ namespace Eclipse.Modding
                 value.Kind == ModMoveConditionKind.ActorName ? "Name" :
                 value.Kind == ModMoveConditionKind.Bullets ? "Bullets" :
                 value.Kind == ModMoveConditionKind.RoundStage ? "RoundStage" :
+                value.Kind == ModMoveConditionKind.RoundResult ? "RoundResult" :
                 value.Kind == ModMoveConditionKind.ModExists ? "ModExists" :
                 value.Kind == ModMoveConditionKind.Screen ? "Screen" :
                 value.Kind == ModMoveConditionKind.Character ? "EclipseCharacter" :

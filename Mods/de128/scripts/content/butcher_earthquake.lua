@@ -105,10 +105,6 @@ local tactic = sf2.tactics.register {
     id = "butcher_earthquake", template = "Aggressive",
     on_decide = function(memory, event)
         if event.seconds < (memory.next_quake or 0) then return nil end
-        local enemy_move = event.opponent.animation and event.opponent.animation.name or ""
-        if enemy_move:find("Jump", 1, true) then return nil end
-        local distance = math.abs(event.self.position.x - event.opponent.position.x)
-        if distance < 250 and not enemy_move:find("Fall", 1, true) then return nil end
         for _, action in ipairs(event.actions) do
             if action.name == "de128:moves/butcher_earthquake_player" then
                 memory.next_quake = event.seconds + 6

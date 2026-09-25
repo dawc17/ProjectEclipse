@@ -82,6 +82,11 @@ Adds `sf2.forge.exclude_candidate { profile, perk, equipment }` with
 typed core profile/perk handles and a `content.patch` capability diagnostic.
 Adds optional `animation` observations to both sides of AI decisions
 and `fighter:snapshot()`: current name/type, facing and active named intervals.
+AI action completion respects authored native `tactic_conditions` and
+`tactic_distance` gates. Move conditions also support
+`{ type = "round_result", name = "Victory" }` or `"Defeat"` for end-of-round animations.
+Scheduled move effects accept `on_background = true` for the native background
+render layer; omission keeps the existing foreground behavior.
 Adds AI candidate `timing` (sample bounds, spacing, nominal duration,
 loop flag) and `inputs` (native controls and press types). Nested fields complete
 inside `on_decide`; nominal duration is not a prediction of completion or hits.

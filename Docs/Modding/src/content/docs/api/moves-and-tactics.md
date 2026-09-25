@@ -89,15 +89,23 @@ Arrays must have consecutive integer indices starting at 1. Building an array wi
 
 Repeated keys are preserved: two `{ key = "Punch", press = "Tap" }` entries require the native double-tap sequence. Entries are passed to the native Tap/Hold/Release groups in authored order; this is not a general timing or input-history scripting language.
 
-Three additional named condition types are available in moves, templates and triggers:
+Four additional named condition types are available in moves, templates and triggers:
 
 | `type` | Required `name` | Meaning |
 | --- | --- | --- |
 | `round_stage` | `StartStance`, `Fight`, `EndStance`, or `TryOn` | Matches the native round stage. |
+| `round_result` | `Victory` or `Defeat` | Matches the selected fighter's completed-round result; useful with `round_stage = "EndStance"` for victory or loss moves. |
 | `screen` | `ShopArmor`, `ShopWeapon`, `ShopHelm`, `ShopMissile`, `ShopMagic`, `ShopRuby`, `ShopFree`, `ShopRaidItemPack`, `Profile`, or `Fight` | Matches the native combat/preview scene. |
 | `mod_exists` | Native effect name, e.g. `MOD_TITAN` | Tests an active combat modification, **not** an installed Lua mod. |
 
-These types accept optional `["not"] = true` and `player = "Me"`, `"Enemy"`, or `"Both"` (default `Me`). Player selection matters for `mod_exists`; round stage and screen are shared native state. Names must contain 1–128 characters without surrounding whitespace. Unknown stage/screen names and item-specific fields are rejected. Use the native name of an effect that actually exists; registration does not resolve effect names.
+These types accept optional `["not"] = true` and `player = "Me"`, `"Enemy"`, or `"Both"` (default `Me`). Player selection matters for `round_result` and `mod_exists`; round stage and screen are shared native state. Names must contain 1–128 characters without surrounding whitespace. Unknown stage/result/screen names and item-specific fields are rejected. Use the native name of an effect that actually exists; registration does not resolve effect names.
+
+```lua
+conditions = {
+    { type = "round_result", name = "Victory" },
+    { type = "round_stage", name = "EndStance" },
+}
+```
 
 An interval accepts `type`, `name`, optional `start` and `["end"]` frame indices, and optional `attack`. At least one of `type` or `name` must be nonempty. Frame indices are integers from 0 to 100,000; when both are supplied, end must not precede start. Omitted bounds retain the native interval behavior. Use stored animation sample indices within the move's frame range. `mid_frames` changes interpolation time between samples, not the indices used for these bounds.
 
@@ -259,6 +267,8 @@ native capitalization, unlike the lowercase `events` registration table above.
   active effect on the native model; required `core_sequence` selects an existing
   native effect sequence. Optional `scale` and `time_scale` default to 1 and must
   be finite numbers greater than 0 and at most 100. `looped` defaults to false.
+  `on_background` defaults to false; true selects the native background effect
+  layer for effects such as a boss's levitation aura.
   Optional `position` uses the move point format below, except `Animation` is not
   supported by native effect positions. `follow` defaults to false and requires
   `position` when true. Omit `position` for the native model-owned/default placement.
@@ -722,7 +732,7 @@ legal input-driven actions. It may be empty. Each candidate has these fields:
 | `timing` | Detached nominal clip timing, described below. Older name-only host adapters leave this `nil`. |
 | `inputs` | Array of `{ control, press }` entries from the native key combination used to dispatch this action. Empty if key metadata is unavailable. |
 
-The host filters move conditions, equipment availability and priority before
+The host filters move conditions, native tactic conditions, equipment availability and priority before
 Lua sees this list; a selected action still goes through normal input dispatch.
 
 **Requires:** `content.register` when registering the tactic and a warrior whose

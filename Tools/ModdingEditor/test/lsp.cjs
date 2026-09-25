@@ -300,6 +300,16 @@ async function main() {
         const found=labels(await request('textDocument/completion',tacticCondition));
         return ['type','name','player','conditions','minimum'].every(name=>found.some(value=>value.startsWith(name)));
     },'move tactic condition fields');
+    const roundResult=probe('move-round-result.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),conditions={{type="round_result", | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',roundResult));
+        return ['name','player'].every(name=>found.some(value=>value.startsWith(name)));
+    },'round result condition fields');
+    const backgroundEffect=probe('move-background-effect.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{type="effect",frame=1,effect={name="storm",core_sequence="storm", | }}} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',backgroundEffect));
+        return found.some(value=>value.startsWith('on_background'));
+    },'background effect field');
     const moveProfileFields=probe('move-profile-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),profile={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveProfileFields));

@@ -53,6 +53,27 @@ sf2.moves.register {id="tactic",animation=animation,tactic_conditions=checks}
 $tacticCatalog=Load-Lua $tacticLua
 $tacticNode=(Project $tacticCatalog).SelectSingleNode('//Move[contains(@Name,"tactic")]/Tactics')
 Check ((Shape $tacticNode) -ceq (Shape $archive.SelectSingleNode('//Move[@Name="ButcherEarthquakePlayer"]/Tactics'))) 'Archived compound AI tactic conditions did not project exactly.'
+$resultLua=@'
+local animation=sf2.assets.binary("animations/chinese")
+sf2.moves.register {id="result",animation=animation,
+ conditions={{type="round_result",name="Victory"}},
+ actions={{type="effect",frame=1,effect={name="Storm",core_sequence="mgc_effect_levitation_middle",on_background=true}}}}
+'@
+$resultCatalog=Load-Lua $resultLua
+$resultNode=(Project $resultCatalog).SelectSingleNode('//Move[contains(@Name,"result")]')
+Check ($resultNode.Conditions.RoundResult.GetAttribute('Name') -ceq 'Victory' -and
+    ([ConditionsParser]::Create($resultNode.Conditions.RoundResult) -is [ConditionRoundResult])) 'Typed round result did not reach the native condition parser.'
+$background=[ActionsParser]::Create($resultNode.Actions.Effect)
+Check ($resultNode.Actions.Effect.GetAttribute('OnBackground') -ceq '1' -and
+    $background -is [ActionEffect] -and $background.JNAALMFCPCN()) 'Background effect did not reach the native renderer contract.'
+Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('on_background=true','on_background=false')))) 'Background effect is absent from the fingerprint.'
+Check ((Fingerprint $resultCatalog) -cne (Fingerprint (Load-Lua $resultLua.Replace('name="Victory"','name="Defeat"')))) 'Round result is absent from the fingerprint.'
+foreach($mutation in @('name="Draw"','name=""','name="Victory",item_type="Weapon"')) {
+ $failure=$null;try {$null=Load-Lua $resultLua.Replace('name="Victory"',$mutation)}catch{$failure=$_}
+ Check ($null -ne $failure) ('Invalid round result accepted: '+$mutation)
+}
+$failure=$null;try {$null=Load-Lua $resultLua.Replace('on_background=true','on_background="yes"')}catch{$failure=$_}
+Check ($null -ne $failure) 'Nonboolean background flag accepted.'
 Check ((Fingerprint $tacticCatalog) -cne (Fingerprint (Load-Lua ($tacticLua.Replace('minimum=250','minimum=251'))))) 'AI tactic conditions are absent from the fingerprint.'
 foreach($mutation in @('tactic_distance={axis="X",from={object="Pivot",player="Me"},to={object="Pivot",player="Enemy"}}','tactic_conditions={[2]=checks[1]}','tactic_conditions={}')) {
  $failure=$null

@@ -16,6 +16,8 @@ Win to advance; losing retries the same opponent. The complete run repeats.
 These are Lua decisions over legal moves, not new animations or imported art.
 Native move conditions and attack interruption rules still apply. Editing
 `on_decide` changes behavior without authoring another XML table.
+The candidate list also obeys native `tactic_conditions` and `tactic_distance`
+gates, so a callback cannot choose a move outside its authored AI range.
 `event.frame` and `event.seconds` advance with the live fight even when a
 fighter has not pressed a key; use them for decision delays and cooldowns.
 

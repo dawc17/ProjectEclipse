@@ -1273,6 +1273,7 @@ namespace Eclipse.Modding
                     Append(canonical, effect.Looped); Append(canonical, effect.Follow);
                     Append(canonical, effect.Position != null);
                     if (effect.Position != null) AppendMovePoint(canonical, effect.Position);
+                    if (effect.OnBackground) Append(canonical, "move-effect-background-v1");
                 }
             }
         }

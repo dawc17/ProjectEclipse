@@ -462,6 +462,7 @@ public class ModelAi
                 _modDecisionFrame = decisionFrame;
                 var available = new List<InfoAnimation>(_Model.MCFPDHOLNGB());
                 if (GetPlayableAnimations(available) == 0) available.Clear();
+                else available.RemoveAll(move => !IsTacticPlayableAnimations(move));
                 int? chosen = Eclipse.Modding.ModRuntime.DecideAi(modTactic, this, _Model, FNKFIMEDNLP, decisionFrame, available);
                 _modDecisionOwned = chosen.HasValue;
                 if (chosen.HasValue) return chosen.Value >= 0 && chosen.Value < available.Count ? available[chosen.Value] : null;

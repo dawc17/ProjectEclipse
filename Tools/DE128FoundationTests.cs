@@ -211,10 +211,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 41 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 11 &&
-            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 6,
+        Check(catalog.Moves.Count == 44 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 14 &&
+            catalog.MoveCombatPatches.Count(patch => patch.Disable) == 9,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 2 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 3 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -224,6 +224,11 @@ internal static class DE128FoundationTests
             catalog.TryGetWarrior(butcherFight.Warriors[2], out var butcherWarrior) &&
             butcherWarrior.Tactic == "de128:tactics/butcher_earthquake",
             "Butcher's Underworld fighter lost its Earthquake-aware Aggressive tactic.");
+        Check(catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/hermit_storm" && tactic.CoreTemplate == "Aggressive") &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var hermitFight) &&
+            catalog.TryGetWarrior(hermitFight.Warriors[1], out var hermitWarrior) &&
+            hermitWarrior.Tactic == "de128:tactics/hermit_storm",
+            "Hermit's Underworld fighter lost its Storm-aware Aggressive tactic.");
         var quakePlayer = catalog.Moves.Single(move => move.Id.LocalId == "butcher_earthquake_player");
         var quakeStart = catalog.Moves.Single(move => move.Id.LocalId == "butcher_earthquake_start");
         var quakeSpawn = quakePlayer.Graph.Presentation.Actions.Single(action => action.Kind == "create_projectile").Projectile;
@@ -233,6 +238,17 @@ internal static class DE128FoundationTests
             quakeStart.Intervals.Single().Attack.Hit == "Earthquake" &&
             quakeStart.Intervals.Single().Attack.Options.IgnoresBlock,
             "Butcher's authored caster, hidden-item projectile or native hit graph is incomplete.");
+        var stormPlayer = catalog.Moves.Single(move => move.Id.LocalId == "hermit_storm_player");
+        var stormIdle = catalog.Moves.Single(move => move.Id.LocalId == "hermit_storm_idle");
+        var stormWin = catalog.Moves.Single(move => move.Id.LocalId == "hermit_storm_win");
+        Check(stormPlayer.Graph.Presentation.TacticConditions.Count == 3 &&
+            stormPlayer.Intervals.Count(interval => interval.Attack != null && interval.Attack.Edges.Count == 10) == 3 &&
+            stormPlayer.Graph.Presentation.Actions.Single(action => action.Kind == "create_projectile").Frame == 20 &&
+            stormPlayer.Graph.Presentation.Actions.Single(action => action.Effect != null).Effect.OnBackground &&
+            stormIdle.Graph.Presentation.Actions.Count(action => action.Kind == "create_projectile" &&
+                action.Projectile.Item == CoreContentImporter.MagicId("HERMIT_STORM")) == 2 &&
+            stormWin.Conditions.Any(condition => condition.Kind == ModMoveConditionKind.RoundResult && condition.Name == "Victory"),
+            "Hermit's archived caster, twin storm continuation or victory condition is incomplete.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
             catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&
@@ -760,7 +776,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 41 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 44 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,

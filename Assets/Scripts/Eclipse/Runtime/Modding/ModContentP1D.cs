@@ -284,7 +284,7 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets, Distance }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets, Distance, RoundResult }
 
     public sealed class ModMoveKey
     {
@@ -353,7 +353,7 @@ namespace Eclipse.Modding
                 throw new ModContentException("A keys condition requires 1..14 keys.");
             // Native KeyData preserves repeated taps as a sequence. Do not deduplicate it.
             foreach(var key in Keys) if(key==null) throw new ModContentException("Null move key.");
-            if (kind == ModMoveConditionKind.RoundStage || kind == ModMoveConditionKind.ModExists || kind == ModMoveConditionKind.Screen)
+            if (kind == ModMoveConditionKind.RoundStage || kind == ModMoveConditionKind.RoundResult || kind == ModMoveConditionKind.ModExists || kind == ModMoveConditionKind.Screen)
             {
                 if (string.IsNullOrWhiteSpace(Name) || Name.Length > 128 || Name != Name.Trim())
                     throw new ModContentException("Named move condition requires a name of 1..128 characters without surrounding whitespace.");
@@ -363,6 +363,8 @@ namespace Eclipse.Modding
                     throw new ModContentException("Named move condition does not accept item fields.");
                 if (kind == ModMoveConditionKind.RoundStage && Array.IndexOf(new[]{"StartStance","Fight","EndStance","TryOn"}, Name) < 0)
                     throw new ModContentException("Unsupported round_stage name.");
+                if (kind == ModMoveConditionKind.RoundResult && Name != "Victory" && Name != "Defeat")
+                    throw new ModContentException("Unsupported round_result name.");
                 if (kind == ModMoveConditionKind.Screen && Array.IndexOf(new[]{"ShopArmor","ShopWeapon","ShopHelm","ShopMissile","ShopMagic","ShopRuby","ShopFree","ShopRaidItemPack","Profile","Fight"}, Name) < 0)
                     throw new ModContentException("Unsupported screen name.");
             }
@@ -615,10 +617,11 @@ namespace Eclipse.Modding
         public double Scale { get; }
         public double TimeScale { get; }
         public bool Looped { get; }
+        public bool OnBackground { get; }
         public ModMovePoint Position { get; }
         public bool Follow { get; }
         public ModMoveEffect(string name, string coreSequence, double scale = 1, double timeScale = 1,
-            bool looped = false, ModMovePoint position = null, bool follow = false)
+            bool looped = false, ModMovePoint position = null, bool follow = false, bool onBackground = false)
         {
             ModMoveScheduledAction.ValidateSymbol(name, "effect");
             ModMoveScheduledAction.ValidateSymbol(coreSequence, "core effect sequence");
@@ -629,7 +632,7 @@ namespace Eclipse.Modding
                 throw new ModContentException("Effect position uses a distance point, not Animation.");
             if (follow && position == null) throw new ModContentException("Following an effect requires a position.");
             Name = name; CoreSequence = coreSequence; Scale = scale; TimeScale = timeScale;
-            Looped = looped; Position = position; Follow = follow;
+            Looped = looped; Position = position; Follow = follow; OnBackground = onBackground;
         }
     }
 

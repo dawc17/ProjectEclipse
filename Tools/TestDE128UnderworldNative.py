@@ -26,6 +26,8 @@ def main() -> int:
     parser.add_argument("--win", action="store_true", help="Complete --fight through the native victory, reward and map path")
     parser.add_argument("--wasp-wave", action="store_true", help="Reach the fourth Demon survival fighter and observe her Fly ability")
     parser.add_argument("--butcher-wave", action="store_true", help="Reach the third Demon survival fighter and observe Earthquake")
+    parser.add_argument("--hermit-wave", action="store_true", help="Reach the second Demon survival fighter and observe Storm")
+    parser.add_argument("--hermit-victory", action="store_true", help="Defeat the player after Hermit's Storm and observe the authored victory move")
     parser.add_argument("--mercenary-wave", action="store_true", help="Reach Girl Fan in Mercenary survival and validate her native equipment")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
@@ -51,9 +53,13 @@ def main() -> int:
         parser.error("--wasp-wave requires --fight de128:fights/uw_survival_demon_1 without --win.")
     if args.butcher_wave and (args.fight != "de128:fights/uw_survival_demon_1" or args.win):
         parser.error("--butcher-wave requires --fight de128:fights/uw_survival_demon_1 without --win.")
+    if args.hermit_wave and (args.fight != "de128:fights/uw_survival_demon_1" or args.win):
+        parser.error("--hermit-wave requires --fight de128:fights/uw_survival_demon_1 without --win.")
+    if args.hermit_victory and (args.fight != "de128:fights/uw_survival_demon_1" or args.win):
+        parser.error("--hermit-victory requires --fight de128:fights/uw_survival_demon_1 without --win.")
     if args.mercenary_wave and (args.fight != "de128:fights/uw_survival_mercenary_1" or args.win):
         parser.error("--mercenary-wave requires --fight de128:fights/uw_survival_mercenary_1 without --win.")
-    if sum((args.wasp_wave, args.butcher_wave, args.mercenary_wave)) > 1:
+    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.mercenary_wave)) > 1:
         parser.error("Choose one survival wave acceptance at a time.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
@@ -134,6 +140,11 @@ def main() -> int:
         environment["ECLIPSE_DE128_WASP_WAVE"] = "1"
     if args.butcher_wave:
         environment["ECLIPSE_DE128_BUTCHER_WAVE"] = "1"
+    if args.hermit_wave:
+        environment["ECLIPSE_DE128_HERMIT_WAVE"] = "1"
+    if args.hermit_victory:
+        environment["ECLIPSE_DE128_HERMIT_WAVE"] = "1"
+        environment["ECLIPSE_DE128_HERMIT_VICTORY"] = "1"
     if args.mercenary_wave:
         environment["ECLIPSE_DE128_MERCENARY_WAVE"] = "1"
     if args.story_bosses:

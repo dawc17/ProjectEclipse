@@ -501,11 +501,11 @@ namespace Eclipse.Modding
                         {
                             if (entry.Get("effect").Type != DataType.Table) throw new ModContentException("Effect action requires an effect table.");
                             var spec = entry.Get("effect").Table;
-                            ValidateFields(spec, function + ".effect", "name", "core_sequence", "scale", "time_scale", "looped", "position", "follow");
+                            ValidateFields(spec, function + ".effect", "name", "core_sequence", "scale", "time_scale", "looped", "position", "follow", "on_background");
                             effect = new ModMoveEffect(RequiredString(spec, "name", function), RequiredString(spec, "core_sequence", function),
                                 OptionalFloat(spec, "scale", 1, function), OptionalFloat(spec, "time_scale", 1, function),
                                 OptionalBool(spec, "looped", false, function), spec.Get("position").IsNil() ? null : ReadMovePoint(spec.Get("position"), function + ".effect.position"),
-                                OptionalBool(spec, "follow", false, function));
+                                OptionalBool(spec, "follow", false, function), OptionalBool(spec, "on_background", false, function));
                         }
                         actions.Add(new ModMoveScheduledAction(kind,
                             entry.Get("frame").IsNil() ? (int?)null : RequiredInt(entry, "frame", function),
@@ -634,7 +634,7 @@ namespace Eclipse.Modding
                     ValidateFields(table,function,"type","warrior","not");
                     return new ModMoveCondition(kind,RequiredHandle(table,"warrior",_warriorHandles,"warrior",function).ToString(),not:OptionalBool(table,"not",false,function));
                 }
-                if (kind == ModMoveConditionKind.RoundStage || kind == ModMoveConditionKind.ModExists || kind == ModMoveConditionKind.Screen)
+                if (kind == ModMoveConditionKind.RoundStage || kind == ModMoveConditionKind.RoundResult || kind == ModMoveConditionKind.ModExists || kind == ModMoveConditionKind.Screen)
                 {
                     ValidateFields(table, function, "type", "name", "player", "not");
                     return new ModMoveCondition(kind, RequiredString(table, "name", function),
@@ -1008,6 +1008,7 @@ namespace Eclipse.Modding
                     case "perk": return ModMoveConditionKind.Perk;
                     case "keys": return ModMoveConditionKind.Keys;
                     case "round_stage": return ModMoveConditionKind.RoundStage;
+                    case "round_result": return ModMoveConditionKind.RoundResult;
                     case "mod_exists": return ModMoveConditionKind.ModExists;
                     case "screen": return ModMoveConditionKind.Screen;
                     case "character": return ModMoveConditionKind.Character;
