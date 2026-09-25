@@ -4045,3 +4045,49 @@ audit; ModdingEditor generate/check/**38** project tests, LuaLS and real VS
 Code integration; wiki build (**48** pages, **4,344** local links/assets);
 and `git diff --check`. The audit still reports the known missing
 `fungus_raid/layer_0_2` image.
+
+### Step 70 — Widow's native Teleportation (0.36.0, 2026-09-25)
+
+The reviewed local owner `gamedata/animations/moves.xml` (SHA-256
+`7F4D181848DC3F430BA4AF1A8A024905D629FC77C499FF74832710C65D07B818`)
+defines both `WidowTeleportationStart` and `WidowTeleportationEnd`. The
+packaged core start instead uses Super, two distance gates, a Skeleton lock
+and a 300-frame button cooldown. The owner start uses RaidCharge Tap, the
+TeleportationRecharge gate, 15 exclusions for airborne enemy animations and
+the enemy-facing condition. The owner finish shifts `NPivot` to the enemy at
+100 units and attacks with nine body edges, 0.28 damage, block bypass and a
+High hit. Its two animation binaries match the packaged native copies byte
+for byte. DE128 ships those binaries and typed Lua definitions; it reads no
+XML at runtime. The full designated owner archive remains unavailable for
+source-to-source reconciliation.
+
+Eclipse now supports guarded `sf2.moves.replace` for complete native move
+definitions. It checks the exact original name and `.bytes` filename,
+rejects competing owners, rebuilds priority tables and restores originals
+when the mod unloads. The typed API also adds a move-facing `direction`
+condition and `align.shift_model_node`. Replacement content and these fields
+participate in save fingerprints. The public wiki and ModdingEditor schema,
+generated LuaLS definitions, guide and tests were updated together. The
+newly used recovered identifiers have the required best-guess comments.
+
+The mod attaches four timing variants of an Aggressive tactic to the 13
+archived Teleportation opponents. They hold the move until the owner's
+300-, 480-, 600- or 660-frame opening delay and observe the same recast
+interval while choosing other legal attacks between casts. Native Unity 6
+acceptance entered all twelve boss fights and advanced four Demon survival
+waves to Widow. Each loaded both replacement phases, selected the opening
+move, reached the native finishing strike, rendered its arena and returned
+to the Underworld map. Eleven bosses and Widow also recast after their
+cooldown. Wind Wolf Power's archived 720-frame hot-ground rule ends an idle
+test player's round before its 600-frame recast; the test checks its first
+cast and damaging finish before that rule. Contact balance, audible sound
+quality and manual interactive play remain untested.
+
+Verification: four managed `dotnet msbuild` builds; **14,939** DE128
+foundation checks; **1,282** Underworld runtime assertions; twelve-boss
+and Widow survival native matrices; pinned Underworld generator and
+54-artifact extractor `--check`; Underworld audit; ModdingEditor
+generate/check/**39** project tests, LuaLS and real VS Code integration;
+wiki build (**48** pages, **4,351** local links/assets); and
+`git diff --check`. The audit retains the known missing
+`fungus_raid/layer_0_2` image.

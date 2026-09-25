@@ -79,6 +79,12 @@ and `animation.value`. The value must be an `sf2.assets.binary` handle; put the
 replacement `.bytes` file under your mod's `assets/` directory and test its
 node layout and frame timing in combat. `remove_interval` completes the exact
 native `name`, `type`, `start`, and `end` selector for an unwanted combat interval.
+For a complete native move replacement, type `sf2.moves.replace`. Completion offers
+the required `target`, `expected_file`, and binary `animation`, plus the typed
+move graph. `align.shift_model_node` and `direction` conditions are also covered.
+Add `content.patch` to the manifest. The editor can validate the table shape;
+test the filename guard, fighter rig and strike in a running fight. See
+[native move replacement](../../api/moves-and-tactics/#sf2movesreplace).
 
 ## Understand warnings
 

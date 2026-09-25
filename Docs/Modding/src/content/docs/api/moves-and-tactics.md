@@ -46,6 +46,7 @@ Conditions use `type` and optional `["not"] = true` (default `false`). Available
 
 - `"character"`: requires a registered `warrior` handle; matches only that character, including copies of its model parameters.
 - `"keys"`: requires 1–14 `keys`, each `{ key = "Kick", press = "Tap" }`. `press` defaults to `Tap`; alternatives are `Hold` and `Release`. Keys are `Up`, `Up-Forward`, `Forward`, `Down-Forward`, `Down`, `Down-Back`, `Back`, `Up-Back`, `Punch`, `Kick`, `Ranged`, `Magic`, `RaidCharge`, and `Super`.
+- `"direction"`: requires `player = "Me"` or `"Enemy"` and `from`/`to` point tables with explicit players. Tests which way that fighter faces relative to the two points. It is a condition, separate from the move's top-level `direction` setting.
 
 Character and key conditions use string literals, without constant aliases. Combine them with `key_pressed` to bind an authored move to a fighter's controls.
 
@@ -504,7 +505,7 @@ direction = {
 
 Point tables have required `object`, optional `player` and `part`, and optional finite `shift_x`/`shift_y` offsets in −100,000…100,000 (default 0). `Nodes` requires an exact nonempty part name of at most 128 characters. Supported players are `Me`, `Enemy`, `Parent`, `Child`, and `EnemyChild`; availability of those model relationships is a separate runtime requirement.
 
-- `align` requires 1–3 unique `axes` (`X`, `Y`, `Z`) plus `pivot` and `position` points. Alignment supports `Nodes`, `Pivot`, `Animation`, and `Wall` objects; omitted players default to `Me` in the native parser. Only the **position** may have nonzero offsets; pivot offsets and `shift_z` are rejected because the recovered parser does not apply them.
+- `align` requires 1–3 unique `axes` (`X`, `Y`, `Z`) plus `pivot` and `position` points. Alignment supports `Nodes`, `Pivot`, `Animation`, and `Wall` objects; omitted players default to `Me` in the native parser. Optional `shift_model_node` selects the exact native rig node shifted during alignment, such as `NPivot`. Only the **position** may have nonzero offsets; pivot offsets and `shift_z` are rejected because the recovered parser does not apply them.
 - `direction` accepts either `from` and `to` points with explicit players, or `impulse = { reverse = false }`. The two forms are mutually exclusive. Impulse mode uses the native incoming-impulse facing calculation; `reverse` is a boolean and defaults to false. With true it faces against the incoming impulse. No impulse is applied. Point-based directions require both points. These support `Nodes`, `Pivot`, `Wall`, `Floor`, and `COM` objects. `Animation` is not a native direction point and is rejected. Direction uses the existing native facing calculation; it does not move the character.
 
 Names and points are not asset lookups at registration. A valid declaration can still reference an absent rig node. Test contact, mirroring, position and transitions in a fight. Graph fields are fingerprinted; omitted/empty graph fields retain existing fingerprints. Lists are copied at registration, so later Lua table edits do not mutate registered content.
@@ -558,6 +559,33 @@ local opening_step = sf2.moves.register {
 ```
 
 This demonstrates the definition's shape. Choose event and condition restrictions suitable for the equipment, fighter, and fight that should use your move. Unrestricted moves can affect more fighters than intended.
+
+## sf2.moves.replace
+
+**Signature:** `sf2.moves.replace(definition)`
+
+**Returns:** A move handle. Its runtime name is the existing native `target`; its mod ID is the supplied local `id`.
+
+**When:** During mod loading. The typed definition is applied after native animations load and before fights use them. Removing the mod restores the original move.
+
+**Requires:** `content.patch`, a `core` dependency for core assets, and a binary animation shipped by the mod.
+
+Replace one existing native move with a complete typed definition while keeping its name. Supply the fields of [`sf2.moves.register`](#sf2movesregister), plus required `target` (exact native move name) and `expected_file` (the original native `.bytes` filename). `templates` is unavailable; use existing `core_templates` and define all other behavior in the replacement. The target must exist exactly once and its loaded filename must match the guard. Duplicate targets and mismatched guards fail during native application. Its normal registration fields, conditions, locks, intervals, actions and positioning all come from the new definition; omitted fields are not inherited from the original move. Refer to the [shared field tables](#shared-move-fields) and validate rig nodes and attack contact in an actual fight.
+
+```lua
+-- Supply assets/animations/guarded_step.bytes in your mod.
+local step = sf2.moves.replace {
+    id = "guarded_step", target = "ExistingStep",
+    expected_file = "existing_step.bytes",
+    animation = sf2.assets.binary("animations/guarded_step"),
+    core_templates = { "Step", "Controlled" },
+    priority = 120,
+    conditions = { { type = "keys", keys = { { key = "RaidCharge" } } } },
+    intervals = { { name = "Uninterrupt", ["end"] = 12 } },
+}
+```
+
+The original name stays available to native perk triggers and child transitions. A handle can also be used in a registered tactic or another mod move. Existing fighter availability still depends on the new locks and animation rig. The guard checks the loaded original filename, not the content hash of the replacement binary. Two mods cannot own the same native target. Native parsing and teardown are atomic; a failed replacement leaves the original move loaded. Save compatibility fingerprints include the target, guard and full new definition. The game receives typed Lua content; mods do not load XML at runtime.
 
 ## sf2.moves.register_trigger
 

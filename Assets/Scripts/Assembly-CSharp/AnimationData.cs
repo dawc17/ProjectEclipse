@@ -3,11 +3,14 @@ using System.Xml;
 
 public static class AnimationData
 {
-	private static Dictionary<string, TemplateAnimation> KKANPMPHNNA = new Dictionary<string, TemplateAnimation>();
+	// best guess for name
+	private static Dictionary<string, TemplateAnimation> _TemplatesByName = new Dictionary<string, TemplateAnimation>();
 
-	private static readonly Dictionary<string, InfoAnimation> BKCEJLOBCNB = new Dictionary<string, InfoAnimation>();
+	// best guess for name
+	private static readonly Dictionary<string, InfoAnimation> _AnimationsByName = new Dictionary<string, InfoAnimation>();
 
-	private static readonly List<InfoAnimation> LNKJIIGBEDA = new List<InfoAnimation>();
+	// best guess for name
+	private static readonly List<InfoAnimation> _Animations = new List<InfoAnimation>();
 
 	private static readonly List<Trick> AGBJABJNGEA = new List<Trick>();
 
@@ -58,12 +61,12 @@ public static class AnimationData
 
 	public static List<InfoAnimation> CCANGHENJAE()
 	{
-		return LNKJIIGBEDA;
+		return _Animations;
 	}
 
 	public static int DJDLCMCLOJN()
 	{
-		return LNKJIIGBEDA.Count;
+		return _Animations.Count;
 	}
 
 	public static List<Trick> BFNFDDLNHPA()
@@ -82,9 +85,9 @@ public static class AnimationData
 		{
 			return _WeaponTypeList;
 		}
-		for (int i = 0; i < LNKJIIGBEDA.Count; i++)
+		for (int i = 0; i < _Animations.Count; i++)
 		{
-			List<string> list = LNKJIIGBEDA[i].OIDIJEOMJCB();
+			List<string> list = _Animations[i].OIDIJEOMJCB();
 			if (list.Count == 0)
 			{
 				continue;
@@ -112,52 +115,141 @@ public static class AnimationData
 
 	public static void Load(string PMFEIPCHENB, bool OOJAEKEOEFJ)
 	{
-		MovesParser.Parse(PMFEIPCHENB, LNKJIIGBEDA, KKANPMPHNNA, AGBJABJNGEA, NMILPLHGCMA, OOJAEKEOEFJ);
+		MovesParser.Parse(PMFEIPCHENB, _Animations, _TemplatesByName, AGBJABJNGEA, NMILPLHGCMA, OOJAEKEOEFJ);
 		InfoAnimation pJAHIOELGGD = null;
-		for (int i = 0; i < LNKJIIGBEDA.Count; i++)
+		for (int i = 0; i < _Animations.Count; i++)
 		{
-			pJAHIOELGGD = LNKJIIGBEDA[i];
-			BKCEJLOBCNB[pJAHIOELGGD.Name] = pJAHIOELGGD;
+			pJAHIOELGGD = _Animations[i];
+			_AnimationsByName[pJAHIOELGGD.Name] = pJAHIOELGGD;
 		}
 		CreateCapabilityTables();
 	}
 
 	internal static int AddExternalMoves(XmlDocument document)
 	{
-		int before = LNKJIIGBEDA.Count;
-		int added = MovesParser.ParseAdditional(document, LNKJIIGBEDA, KKANPMPHNNA, AGBJABJNGEA, NMILPLHGCMA);
+		int before = _Animations.Count;
+		int added = MovesParser.ParseAdditional(document, _Animations, _TemplatesByName, AGBJABJNGEA, NMILPLHGCMA);
 		if (added == 0) return 0;
 
-		List<InfoAnimation> newMoves = LNKJIIGBEDA.GetRange(before, added);
+		List<InfoAnimation> newMoves = _Animations.GetRange(before, added);
 		for (int i = 0; i < newMoves.Count; i++)
-			BKCEJLOBCNB.Add(newMoves[i].Name, newMoves[i]);
+			_AnimationsByName.Add(newMoves[i].Name, newMoves[i]);
 
 		// Existing lower-priority moves may now transition into newly added moves. Only
 		// compare old entries against the new tail to avoid duplicating established tables.
 		for (int i = 0; i < before; i++)
-			CreateCapabilityTable(LNKJIIGBEDA[i], newMoves);
+			CreateCapabilityTable(_Animations[i], newMoves);
 		for (int i = 0; i < newMoves.Count; i++)
-			CreateCapabilityTable(newMoves[i], LNKJIIGBEDA);
+			CreateCapabilityTable(newMoves[i], _Animations);
 		_WeaponTypeList.Clear();
 		return added;
 	}
 
+	internal sealed class ExternalMoveReplacementLifetime : System.IDisposable
+	{
+		internal sealed class Entry
+		{
+			internal int Index;
+			internal InfoAnimation Original;
+			internal InfoAnimation Replacement;
+		}
+
+		internal readonly List<Entry> Entries = new List<Entry>();
+		private bool _disposed;
+
+		public void Dispose()
+		{
+			if (_disposed) return;
+			_disposed = true;
+			bool restored = false;
+			for (int i = Entries.Count - 1; i >= 0; i--)
+			{
+				Entry entry = Entries[i];
+				if (entry.Index >= _Animations.Count ||
+					!ReferenceEquals(_Animations[entry.Index], entry.Replacement)) continue;
+				_Animations[entry.Index] = entry.Original;
+				if (_AnimationsByName.TryGetValue(entry.Original.Name, out InfoAnimation current) &&
+					ReferenceEquals(current, entry.Replacement)) _AnimationsByName[entry.Original.Name] = entry.Original;
+				restored = true;
+			}
+			if (restored) RebuildCapabilityTables();
+		}
+	}
+
+	internal static ExternalMoveReplacementLifetime ReplaceExternalMoves(XmlDocument document,
+		IReadOnlyDictionary<string, string> expectedFiles)
+	{
+		if (document == null || document["Movesxml"]?["Moves"] == null || expectedFiles == null)
+			throw new System.ArgumentException("Native move replacements require moves and expected filenames.");
+		if (document.SelectNodes("/Movesxml/Templates/Template").Count != 0 ||
+			document.SelectNodes("/Movesxml/Triggers/Trigger").Count != 0)
+			throw new System.InvalidOperationException("Native move replacements cannot add templates or triggers.");
+		var parsed = new List<InfoAnimation>();
+		MovesParser.ParseAdditional(document, parsed, _TemplatesByName, new List<Trick>(), new List<Trigger>());
+		if (parsed.Count != expectedFiles.Count)
+			throw new System.InvalidOperationException("Native replacement count does not match its guards.");
+		var lifetime = new ExternalMoveReplacementLifetime();
+		var names = new HashSet<string>(System.StringComparer.Ordinal);
+		foreach (InfoAnimation replacement in parsed)
+		{
+			if (!names.Add(replacement.Name) ||
+				!expectedFiles.TryGetValue(replacement.Name, out string expectedFile))
+				throw new System.InvalidOperationException("Unguarded or duplicate native replacement: " + replacement.Name);
+			int index = -1;
+			for (int i = 0; i < _Animations.Count; i++)
+				if (_Animations[i].Name == replacement.Name)
+				{
+					if (index >= 0) throw new System.InvalidOperationException("Ambiguous native replacement target: " + replacement.Name);
+					index = i;
+				}
+			if (index < 0 || _Animations[index].FileName != expectedFile ||
+				!_AnimationsByName.TryGetValue(replacement.Name, out InfoAnimation mapped) ||
+				!ReferenceEquals(mapped, _Animations[index]))
+				throw new System.InvalidOperationException("Native replacement expected filename or target mismatch: " + replacement.Name);
+			lifetime.Entries.Add(new ExternalMoveReplacementLifetime.Entry {
+				Index = index, Original = _Animations[index], Replacement = replacement });
+		}
+		try
+		{
+			foreach (var entry in lifetime.Entries)
+			{
+				_Animations[entry.Index] = entry.Replacement;
+				_AnimationsByName[entry.Replacement.Name] = entry.Replacement;
+			}
+			RebuildCapabilityTables();
+			return lifetime;
+		}
+		catch
+		{
+			lifetime.Dispose();
+			throw;
+		}
+	}
+
+	private static void RebuildCapabilityTables()
+	{
+		foreach (InfoAnimation move in _Animations)
+			move.PriorityConflicts.HigherPriorityMoves.Clear();
+		CreateCapabilityTables();
+		_WeaponTypeList.Clear();
+	}
+
 	public static void BCILLFEBJHK()
 	{
-		LNKJIIGBEDA.Clear();
-		BKCEJLOBCNB.Clear();
+		_Animations.Clear();
+		_AnimationsByName.Clear();
 		InfoAnimation.EGLKBMCHPNN();
 		AGBJABJNGEA.Clear();
-		KKANPMPHNNA.Clear();
+		_TemplatesByName.Clear();
 		NMILPLHGCMA.Clear();
 		MovesParser.CHILAIJNEHG();
 	}
 
 	public static void CreateCapabilityTables()
 	{
-		foreach (InfoAnimation lNKJIIGBEDum in LNKJIIGBEDA)
+		foreach (InfoAnimation lNKJIIGBEDum in _Animations)
 		{
-			CreateCapabilityTable(lNKJIIGBEDum, LNKJIIGBEDA);
+			CreateCapabilityTable(lNKJIIGBEDum, _Animations);
 		}
 	}
 
@@ -201,7 +293,7 @@ public static class AnimationData
 			}
 			if (flag)
 			{
-				DBOLBEOCEME.ICANLHJKKNE.NINJLLDJLFI.Add(item);
+				DBOLBEOCEME.PriorityConflicts.HigherPriorityMoves.Add(item);
 			}
 		}
 	}
@@ -215,7 +307,7 @@ public static class AnimationData
 		dGJJDPIAEAO.IBBALIJOJMC = NFNJJIGAKNN;
 		dGJJDPIAEAO.POBNMMADAJJ = MAFPBEFKNGE;
 		dGJJDPIAEAO.CFPLPALGCMK = CFKCGBEONAM;
-		foreach (InfoAnimation lNKJIIGBEDum in LNKJIIGBEDA)
+		foreach (InfoAnimation lNKJIIGBEDum in _Animations)
 		{
 			list = lNKJIIGBEDum.MoveData.Locks;
 			if (lNKJIIGBEDum.HPPGNJJCEGF(dGJJDPIAEAO, list) && (JHJPMONBIDI == null || !lNKJIIGBEDum.CheckAnimationName(JHJPMONBIDI)))
@@ -255,24 +347,24 @@ public static class AnimationData
 
 	public static void NEBELEFIDMB(string name, List<InfoAnimation> OEMALIFPGPO)
 	{
-		if (KKANPMPHNNA.ContainsKey(name))
+		if (_TemplatesByName.ContainsKey(name))
 		{
 			if (OEMALIFPGPO.Count == 0)
 			{
-				OEMALIFPGPO.AddRange(KKANPMPHNNA[name].LDEBJOPLCKO());
+				OEMALIFPGPO.AddRange(_TemplatesByName[name].LDEBJOPLCKO());
 			}
 			else
 			{
-				OEMALIFPGPO.AddIfNotExist(KKANPMPHNNA[name].LDEBJOPLCKO());
+				OEMALIFPGPO.AddIfNotExist(_TemplatesByName[name].LDEBJOPLCKO());
 			}
 		}
 	}
 
 	public static TemplateAnimation ANEMJNGKFDB(string name)
 	{
-		if (KKANPMPHNNA.ContainsKey(name))
+		if (_TemplatesByName.ContainsKey(name))
 		{
-			return KKANPMPHNNA[name];
+			return _TemplatesByName[name];
 		}
 		return null;
 	}
@@ -285,7 +377,7 @@ public static class AnimationData
 		}
 		string item = "Stance";
 		string mENAJEAJJBE = LGCMGHAFEDD.Name;
-		foreach (InfoAnimation lNKJIIGBEDum in LNKJIIGBEDA)
+		foreach (InfoAnimation lNKJIIGBEDum in _Animations)
 		{
 			List<string> list = lNKJIIGBEDum.FOLOOGCLPNE();
 			List<string> list2 = lNKJIIGBEDum.OIDIJEOMJCB();
@@ -316,7 +408,7 @@ public static class AnimationData
 	public static InfoAnimation BCIFKBJAFEC(string name, bool ADCNNABFIDL = true)
 	{
 		InfoAnimation value = null;
-		if (BKCEJLOBCNB.TryGetValue(name, out value))
+		if (_AnimationsByName.TryGetValue(name, out value))
 		{
 			return value;
 		}
@@ -333,7 +425,7 @@ public static class AnimationData
 
 	public static void GAPACJBBJKL(List<string> GKHEPKGMEFI, List<InfoAnimation> FKFEKLNOAGE = null)
 	{
-		List<InfoAnimation> list = ((FKFEKLNOAGE != null) ? FKFEKLNOAGE : LNKJIIGBEDA);
+		List<InfoAnimation> list = ((FKFEKLNOAGE != null) ? FKFEKLNOAGE : _Animations);
 		foreach (InfoAnimation item in list)
 		{
 			InfoAnimation.MovePivot iLOEBFFAEAN = item.MoveData.ILOEBFFAEAN;

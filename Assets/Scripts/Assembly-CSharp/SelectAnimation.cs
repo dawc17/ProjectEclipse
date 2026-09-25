@@ -463,7 +463,7 @@ public class SelectAnimation
 			int num2 = 0;
 			for (int i = 0; i < MAHEJFLCCHP.Count; i++)
 			{
-				InfoAnimation.CapabilityTable iCANLHJKKNE = MAHEJFLCCHP[i].FGICHADOEHF.ICANLHJKKNE;
+				InfoAnimation.CapabilityTable iCANLHJKKNE = MAHEJFLCCHP[i].FGICHADOEHF.PriorityConflicts;
 				bool flag = true;
 				for (int j = 0; j < MAHEJFLCCHP.Count; j++)
 				{

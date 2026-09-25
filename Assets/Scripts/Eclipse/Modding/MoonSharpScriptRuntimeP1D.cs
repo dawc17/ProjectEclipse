@@ -136,6 +136,7 @@ namespace Eclipse.Modding
                 })));
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));
                 moves.Set("register", DynValue.NewCallback(RegisterMove));
+                moves.Set("replace", DynValue.NewCallback(ReplaceMove));
                 moves.Set("register_trigger", DynValue.NewCallback(RegisterMoveTrigger));
                 moves.Set("remove_perk_lock", DynValue.NewCallback(RemoveMovePerkLock));
                 root.Set("moves", DynValue.NewTable(moves));
@@ -405,11 +406,36 @@ namespace Eclipse.Modding
                 });
             }
 
-            private static void ValidateMoveNodeFields(Table table, string function, bool animation)
+            private DynValue ReplaceMove(ScriptExecutionContext context, CallbackArguments args)
             {
-                var fields = new List<string> { "id", "templates", "core_templates", "events", "conditions", "intervals",
+                const string function = "sf2.moves.replace";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () =>
+                {
+                    ValidateMoveNodeFields(table, function, true, true);
+                    MoveDefinition value = _api.ReplaceMove(RequiredString(table, "id", function),
+                        RequiredString(table, "target", function), RequiredString(table, "expected_file", function),
+                        RequiredHandle(table, "animation", _binaryHandles, "binary", function),
+                        OptionalStringArray(table, "core_templates", function), ReadMoveEvents(table.Get("events"), function + ".events"),
+                        ReadMoveConditions(table.Get("conditions"), function + ".conditions"),
+                        ReadMoveIntervals(table.Get("intervals"), function + ".intervals"),
+                        OptionalStringAllowEmpty(table, "type", string.Empty, function), OptionalInt(table, "priority", 0, function),
+                        OptionalInt(table, "mid_frames", 0, function), OptionalInt(table, "first_frame", 0, function),
+                        OptionalInt(table, "end_frame", 0, function), OptionalStringAllowEmpty(table, "mirror_node", string.Empty, function),
+                        OptionalStringAllowEmpty(table, "tactic_equivalent", string.Empty, function),
+                        OptionalStringAllowEmpty(table, "tactic_weapon", string.Empty, function),
+                        OptionalBool(table, "looped", false, function), OptionalBool(table, "ends_stage", false, function), ReadMoveGraph(table, function));
+                    return NewHandle(_moveHandles, value.Id);
+                });
+            }
+
+            private static void ValidateMoveNodeFields(Table table, string function, bool animation, bool replacement = false)
+            {
+                var fields = new List<string> { "id", "core_templates", "events", "conditions", "intervals",
                     "type", "priority", "mid_frames", "first_frame", "end_frame", "mirror_node", "tactic_equivalent",
                     "tactic_weapon", "looped", "ends_stage", "locks", "align", "direction" };
+                if (replacement) fields.AddRange(new[] { "target", "expected_file" });
+                else fields.Add("templates");
                 if (animation) { fields.AddRange(new[] { "animation", "transitions", "actions", "profile", "tactic_distance", "tactic_conditions", "no_wall_repulsion", "no_interpolation_frames", "no_magic_recharge", "velocity" }); }
                 ValidateFields(table, function, fields.ToArray());
             }
@@ -445,9 +471,10 @@ namespace Eclipse.Modding
                 if(!table.Get("align").IsNil())
                 {
                     var value=table.Get("align");if(value.Type!=DataType.Table) throw new ModContentException("Align requires a table.");
-                    var entry=value.Table;ValidateFields(entry,function+".align","axes","pivot","position");
+                    var entry=value.Table;ValidateFields(entry,function+".align","axes","pivot","position","shift_model_node");
                     align=new ModMoveAlignment(OptionalStringArray(entry,"axes",function),ReadMovePoint(entry.Get("pivot"),function+".align.pivot"),
-                        ReadMovePoint(entry.Get("position"),function+".align.position"));
+                        ReadMovePoint(entry.Get("position"),function+".align.position"),
+                        entry.Get("shift_model_node").IsNil() ? null : RequiredString(entry,"shift_model_node",function));
                 }
                 ModMoveDirection direction=null;
                 if(!table.Get("direction").IsNil())
@@ -673,6 +700,14 @@ namespace Eclipse.Modding
                     return new ModMoveCondition(kind, not: OptionalBool(table, "not", false, function),
                         distance: new ModMoveDistance(RequiredString(table, "axis", function), ReadMovePoint(table.Get("from"), function + ".from"),
                             ReadMovePoint(table.Get("to"), function + ".to"), OptionalFloat(table, "minimum", -1000000, function), OptionalFloat(table, "maximum", 1000000, function)));
+                }
+                if (kind == ModMoveConditionKind.Direction)
+                {
+                    ValidateFields(table, function, "type", "player", "from", "to", "not");
+                    return new ModMoveCondition(kind, player: RequiredString(table, "player", function),
+                        not: OptionalBool(table, "not", false, function),
+                        direction: new ModMoveDirection(ReadMovePoint(table.Get("from"), function + ".from"),
+                            ReadMovePoint(table.Get("to"), function + ".to")));
                 }
                 if (kind == ModMoveConditionKind.ActorName || kind == ModMoveConditionKind.Bullets)
                 {
@@ -1070,6 +1105,7 @@ namespace Eclipse.Modding
                     case "screen": return ModMoveConditionKind.Screen;
                     case "character": return ModMoveConditionKind.Character;
                     case "distance": return ModMoveConditionKind.Distance;
+                    case "direction": return ModMoveConditionKind.Direction;
                     case "actor_name": return ModMoveConditionKind.ActorName;
                     case "bullets": return ModMoveConditionKind.Bullets;
                     case "current_animation": return ModMoveConditionKind.CurrentAnimation;

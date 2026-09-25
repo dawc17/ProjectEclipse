@@ -83,13 +83,14 @@ public class InfoAnimation
 
 	public class CapabilityTable
 	{
-		public List<InfoAnimation> NINJLLDJLFI = new List<InfoAnimation>();
+		// best guess for name
+		public List<InfoAnimation> HigherPriorityMoves = new List<InfoAnimation>();
 
 		public bool IsThePriority(InfoAnimation DBOLBEOCEME)
 		{
-			for (int i = 0; i < NINJLLDJLFI.Count; i++)
+			for (int i = 0; i < HigherPriorityMoves.Count; i++)
 			{
-				if (NINJLLDJLFI[i] == DBOLBEOCEME)
+				if (HigherPriorityMoves[i] == DBOLBEOCEME)
 				{
 					return false;
 				}
@@ -369,7 +370,8 @@ public class InfoAnimation
 
 	private Vector3[][] _AnimationContainer;
 
-	public CapabilityTable ICANLHJKKNE = new CapabilityTable();
+	// best guess for name
+	public CapabilityTable PriorityConflicts = new CapabilityTable();
 
 	private static readonly List<AnimationContainerStruct> LECLDGFPOEA = new List<AnimationContainerStruct>();
 

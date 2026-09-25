@@ -42,6 +42,18 @@ namespace Eclipse.Modding
                 tacticWeapon, looped, endsStage, graph);
         }
 
+        public MoveDefinition ReplaceMove(string localId, string target, string expectedNativeFile,
+            AssetId animation, string[] coreTemplates, ModMoveEvent[] events, ModMoveCondition[] conditions,
+            ModMoveInterval[] intervals, string type, int priority, int midFrames, int firstFrame,
+            int endFrame, string mirrorNode, string tacticEquivalent, string tacticWeapon, bool looped,
+            bool endsStage, ModMoveGraph graph = null)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().RegisterMoveReplacement(localId, target, expectedNativeFile,
+                animation, coreTemplates, events, conditions, intervals, type, priority, midFrames,
+                firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage, graph);
+        }
+
         public MoveTriggerDefinition RegisterMoveTrigger(string localId, ModMoveEvent[] events,
             ModMoveCondition[] conditions, ModMoveAction[] actions)
         {

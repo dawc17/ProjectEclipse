@@ -245,6 +245,22 @@ test('move perk-lock removal and initial perk rank are typed', () => {
     assert.equal(api.types.TemplatePerk.fields['initial_upgrade?'],'integer');
 });
 
+test('guarded move replacement has typed fields and requires patch capability', async () => {
+    const api=require('../scripts/api-schema.cjs');
+    assert.equal(api.functions['sf2.moves.replace'].capability,'content.patch');
+    assert.equal(api.functions['sf2.moves.replace'].returns,'Eclipse.MoveHandle');
+    const fields=api.types.MoveReplacementDefinition.fields;
+    assert.equal(fields.target,'string');
+    assert.equal(fields.expected_file,'string');
+    assert.equal(fields.animation,'Eclipse.BinaryHandle');
+    assert.equal(fields['templates?'],undefined);
+    assert.equal(api.types.MoveAlignment.fields['shift_model_node?'],'string');
+    assert.equal(api.types.MoveDirectionCondition.fields.type,'"direction"');
+    const mod=await p.indexMod(template);
+    const source=header+'sf2.moves.replace { id="step", target="ExistingStep", expected_file="old.bytes", animation=sf2.assets.binary("animations/step") }';
+    assert(p.analyze(source,mod).issues.some(i=>i.capability==='content.patch'));
+});
+
 test('perk upgrade example and starter validate assets, localization and branch definitions', async () => {
     for (const relative of ['../../../Mods/example.perk-upgrades', '../templates/perk-upgrades']) {
         const directory = path.resolve(__dirname, relative);

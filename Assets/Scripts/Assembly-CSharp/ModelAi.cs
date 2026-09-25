@@ -1010,11 +1010,11 @@ public class ModelAi
 		{
 			return false;
 		}
-		InfoAnimation.CapabilityTable iCANLHJKKNE = DBOLBEOCEME.ICANLHJKKNE;
-		int count = iCANLHJKKNE.NINJLLDJLFI.Count;
+		InfoAnimation.CapabilityTable iCANLHJKKNE = DBOLBEOCEME.PriorityConflicts;
+		int count = iCANLHJKKNE.HigherPriorityMoves.Count;
 		if (0 < count)
 		{
-			foreach (InfoAnimation item in iCANLHJKKNE.NINJLLDJLFI)
+			foreach (InfoAnimation item in iCANLHJKKNE.HigherPriorityMoves)
 			{
 				if (list.Contains(item) && item.ILBCHANCOBP() != null)
 				{

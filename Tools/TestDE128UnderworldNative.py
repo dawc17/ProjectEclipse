@@ -34,6 +34,8 @@ def main() -> int:
     parser.add_argument("--saturn-blaster", action="store_true", help="Observe Saturn's native RaidCharge Blaster and linked pistol/projectiles")
     parser.add_argument("--dandy-chain", action="store_true", help="Observe Dandy's RaidCharge Lightning Chain and all five linked phases")
     parser.add_argument("--raid-ability", action="store_true", help="Observe Hoaxen, Hunter, Berstuuk, Arkhos or Tenebris native raid abilities")
+    parser.add_argument("--teleportation", action="store_true", help="Observe a Teleportation cast, finishing strike and native recast in a raid boss fight")
+    parser.add_argument("--widow-wave", action="store_true", help="Reach Widow in Demon survival and observe both Teleportation phases")
     parser.add_argument("--mercenary-wave", action="store_true", help="Reach Girl Fan in Mercenary survival and validate her native equipment")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
@@ -89,7 +91,20 @@ def main() -> int:
         parser.error("--raid-ability requires a supported raid ability fight without --win.")
     if args.mercenary_wave and (args.fight != "de128:fights/uw_survival_mercenary_1" or args.win):
         parser.error("--mercenary-wave requires --fight de128:fights/uw_survival_mercenary_1 without --win.")
-    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.blackness_grasp, args.saturn_blaster, args.dandy_chain, args.raid_ability, args.mercenary_wave)) > 1:
+    teleport_fights = (
+        "de128:fights/uw_boss_1_1", "de128:fights/uw_boss_1_hardmode_1",
+        "de128:fights/uw_boss_wolf_wind_1", "de128:fights/uw_boss_wolf_wind_hardmode_1",
+        "de128:fights/uw_boss_architect_1_1", "de128:fights/uw_boss_architect_1_hardmode_1",
+        "de128:fights/uw_boss_architect_2_1", "de128:fights/uw_boss_architect_2_hardmode_1",
+        "de128:fights/uw_boss_son_of_the_sun_hardmode_1",
+        "de128:fights/uw_boss_morgana_1", "de128:fights/uw_boss_morgana_hardmode_1",
+        "de128:fights/uw_boss_haunted_prince_1")
+    teleport_targets = args.fights.split(",") if args.fights else [args.fight] if args.fight else []
+    if args.teleportation and (not teleport_targets or any(target not in teleport_fights for target in teleport_targets) or args.win):
+        parser.error("--teleportation requires Teleportation boss fights without --win.")
+    if args.widow_wave and (args.fight != "de128:fights/uw_survival_demon_1" or args.win):
+        parser.error("--widow-wave requires --fight de128:fights/uw_survival_demon_1 without --win.")
+    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.blackness_grasp, args.saturn_blaster, args.dandy_chain, args.raid_ability, args.mercenary_wave, args.teleportation, args.widow_wave)) > 1:
         parser.error("Choose one specialized native acceptance at a time.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
@@ -127,6 +142,7 @@ def main() -> int:
         "Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/ModScripting.cs",
+        "Assets/Scripts/Eclipse/Runtime/Modding/ModScriptingP1D.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/ModMovePerkLocks.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/ModSaveData.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/LooseModProvider.cs",
@@ -205,6 +221,10 @@ def main() -> int:
         environment["ECLIPSE_DE128_DANDY_CHAIN"] = "1"
     if args.raid_ability:
         environment["ECLIPSE_DE128_RAID_ABILITY"] = "1"
+    if args.teleportation:
+        environment["ECLIPSE_DE128_TELEPORTATION"] = "1"
+    if args.widow_wave:
+        environment["ECLIPSE_DE128_WIDOW_WAVE"] = "1"
     if args.mercenary_wave:
         environment["ECLIPSE_DE128_MERCENARY_WAVE"] = "1"
     if args.story_bosses:

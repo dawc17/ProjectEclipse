@@ -305,6 +305,19 @@ async function main() {
         return ['object','part','player'].every(name=>found.some(value=>value.startsWith(name)));
     },'move alignment point fields');
     console.log('PASS: move graph and item lock extension fields complete');
+    const replaceFields=probe('move-replace-fields.lua','local sf2=require("sf2")\nsf2.moves.replace { | }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',replaceFields));
+        return ['id','target','expected_file','animation','conditions','locks','align','actions'].every(name=>found.some(value=>value.startsWith(name))) && !found.some(value=>value.startsWith('templates'));
+    },'guarded native move replacement fields');
+    const shiftNode=probe('move-shift-node.lua','local sf2=require("sf2")\nsf2.moves.replace { id="test",target="NativeMove",expected_file="old.bytes",animation=sf2.assets.binary("animations/new"),align={axes={"X"},pivot={object="Nodes",part="NPivot"},position={object="Pivot"}, | }}');
+    await until(async()=>labels(await request('textDocument/completion',shiftNode)).some(value=>value.startsWith('shift_model_node')),'alignment shift model node');
+    const directionCondition=probe('move-direction-condition.lua','local sf2=require("sf2")\nsf2.moves.replace { id="test",target="NativeMove",expected_file="old.bytes",animation=sf2.assets.binary("animations/new"),conditions={{type="direction", | }} }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',directionCondition));
+        return ['player','from','to'].every(name=>found.some(value=>value.startsWith(name)));
+    },'native direction condition');
+    console.log('PASS: guarded move replacement, alignment and direction condition complete');
     const moveActionFields=probe('move-action-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"),actions={{ | }} }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',moveActionFields));

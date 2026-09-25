@@ -258,6 +258,15 @@ internal static class DE128UnderworldTests
             tactic = "de128:tactics/arkhos_rat_wave";
         if (template == "Man_Tenebris" && xml.GetAttribute("Tactic") == "Aggressive")
             tactic = "de128:tactics/tenebris_fear_ray";
+        var teleportPerk = xml.SelectSingleNode("Perks/Perk[@Name='PERK_TELEPORTATION']") as XmlElement;
+        if (teleportPerk != null)
+        {
+            var set = teleportPerk.SelectSingleNode("Set") as XmlElement;
+            string frames = set?.GetAttribute("Frames") ?? string.Empty;
+            tactic = "de128:tactics/" + (frames == "300" ? "widow_teleportation_fast" :
+                frames == "480" ? "widow_teleportation_power" :
+                frames == "660" ? "widow_teleportation_slow" : "widow_teleportation");
+        }
         Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();
@@ -322,6 +331,8 @@ internal static class DE128UnderworldTests
             var extra = settings.Keys.Where(k => k != "Aspect" && k != "Chance" && k != "ChanceFactor" && k != "Frames").ToArray();
             var expectedFrames = Get("Frames");
             if (perk.GetAttribute("Name") == "PERK_LIGHTING_CHAIN" && !expectedFrames.HasValue)
+                expectedFrames = 600; // reviewed DE perk base; core default is 300
+            if (perk.GetAttribute("Name") == "PERK_TELEPORTATION" && !expectedFrames.HasValue)
                 expectedFrames = 600; // reviewed DE perk base; core default is 300
             Check(row.Perk.ToString() == ("core:perks/" + perk.GetAttribute("Name")).ToLowerInvariant() &&
                 Same(row.Aspect, Get("Aspect")) && Same(row.Chance, Get("Chance")) && Same(row.ChanceFactor, Get("ChanceFactor")) &&

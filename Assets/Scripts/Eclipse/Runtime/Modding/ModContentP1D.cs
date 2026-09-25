@@ -284,7 +284,7 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets, Distance, RoundResult }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets, Distance, RoundResult, Direction }
 
     public sealed class ModMoveKey
     {
@@ -324,9 +324,10 @@ namespace Eclipse.Modding
         public IReadOnlyList<ModMoveKey> Keys { get; }
         public ModMoveBulletRange Bullets { get; }
         public ModMoveDistance Distance { get; }
+        public ModMoveDirection Direction { get; }
 
         public ModMoveCondition(ModMoveConditionKind kind, string name = null, string player = null,
-            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null, ModMoveKey[] keys = null, ModMoveBulletRange bullets = null, ModMoveDistance distance = null)
+            string itemType = null, string itemSubType = null, bool not = false, ModMoveCondition[] children = null, ModMoveKey[] keys = null, ModMoveBulletRange bullets = null, ModMoveDistance distance = null, ModMoveDirection direction = null)
         {
             Kind = kind;
             Name = name ?? string.Empty;
@@ -338,6 +339,13 @@ namespace Eclipse.Modding
             Bullets = bullets;
             if ((kind == ModMoveConditionKind.Distance) != (distance != null)) throw new ModContentException("Only distance conditions require a distance payload.");
             Distance = distance;
+            if ((kind == ModMoveConditionKind.Direction) != (direction != null) || (direction != null && direction.UsesImpulse))
+                throw new ModContentException("Only direction conditions require from/to points.");
+            Direction = direction;
+            if (kind == ModMoveConditionKind.Direction && (Name.Length != 0 || ItemType.Length != 0 || ItemSubType.Length != 0))
+                throw new ModContentException("Direction condition does not accept name or item fields.");
+            if (kind == ModMoveConditionKind.Direction && Player != "Me" && Player != "Enemy")
+                throw new ModContentException("Direction condition player must be Me or Enemy.");
             if (kind == ModMoveConditionKind.Distance && (Name.Length != 0 || Player.Length != 0 || ItemType.Length != 0 || ItemSubType.Length != 0))
                 throw new ModContentException("Distance uses from/to players, not named/item condition fields.");
             if (kind == ModMoveConditionKind.ActorName || kind == ModMoveConditionKind.Bullets)
@@ -561,7 +569,8 @@ namespace Eclipse.Modding
         public IReadOnlyList<string> Axes { get; }
         public ModMovePoint Pivot { get; }
         public ModMovePoint Position { get; }
-        public ModMoveAlignment(string[] axes,ModMovePoint pivot,ModMovePoint position)
+        public string ShiftModelNode { get; }
+        public ModMoveAlignment(string[] axes,ModMovePoint pivot,ModMovePoint position,string shiftModelNode = null)
         {
             if(axes==null||axes.Length<1||axes.Length>3) throw new ModContentException("Align axes requires 1..3 unique axes.");
             var seen=new HashSet<string>(StringComparer.Ordinal);
@@ -571,7 +580,9 @@ namespace Eclipse.Modding
             foreach(var point in new[]{pivot,position})
                 if(point.Object=="Floor"||point.Object=="COM") throw new ModContentException("Align supports Nodes, Pivot, Animation or Wall points.");
             if(pivot.ShiftX!=0||pivot.ShiftY!=0) throw new ModContentException("Align pivot shifts are unsupported; shift the position instead.");
+            if (shiftModelNode != null) ModMoveScheduledAction.ValidateSymbol(shiftModelNode, "align shift model node");
             Axes=Array.AsReadOnly((string[])axes.Clone());Pivot=pivot;Position=position;
+            ShiftModelNode=shiftModelNode ?? string.Empty;
         }
     }
 
@@ -917,7 +928,7 @@ namespace Eclipse.Modding
         private readonly ModMoveCondition[] _conditions;
         private readonly ModMoveInterval[] _intervals;
         public DefinitionId Id { get; }
-        public string RuntimeName => Id.ToString();
+        public virtual string RuntimeName => Id.ToString();
         public IReadOnlyList<DefinitionId> Templates => _templates;
         public IReadOnlyList<string> CoreTemplates => _coreTemplates;
         public IReadOnlyList<ModMoveEvent> Events => _events;
@@ -975,15 +986,28 @@ namespace Eclipse.Modding
     public sealed class MoveDefinition : MoveNodeDefinition
     {
         public AssetId Animation { get; }
+        public string ReplacementTarget { get; }
+        public string ExpectedNativeFile { get; }
+        public override string RuntimeName => ReplacementTarget ?? base.RuntimeName;
         internal MoveDefinition(DefinitionId id, AssetId animation, DefinitionId[] templates, string[] coreTemplates,
             ModMoveEvent[] events, ModMoveCondition[] conditions, ModMoveInterval[] intervals, string type,
             int priority, int midFrames, int firstFrame, int endFrame, string mirrorNode, string tacticEquivalent,
-            string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null)
+            string tacticWeapon, bool looped, bool endsStage, ModMoveGraph graph = null,
+            string replacementTarget = null, string expectedNativeFile = null)
             : base(id, templates, coreTemplates, events, conditions, intervals, type, priority, midFrames, firstFrame,
                 endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage, graph)
         {
             if (string.IsNullOrEmpty(animation.Path)) throw new ModContentException("Move requires a binary animation asset.");
+            if (replacementTarget != null)
+            {
+                MoveCombatPatch.ValidateName(replacementTarget);
+                MoveCombatPatch.ValidateName(expectedNativeFile);
+                if (!expectedNativeFile.EndsWith(".bytes", StringComparison.Ordinal) || templates?.Length > 0)
+                    throw new ModContentException("Move replacement requires an exact native .bytes filename and core templates only.");
+            }
             Animation = animation;
+            ReplacementTarget = replacementTarget;
+            ExpectedNativeFile = expectedNativeFile;
         }
     }
 
@@ -1137,6 +1161,12 @@ namespace Eclipse.Modding
             _locations.ValidateCanAdd(locations);
             _moveTemplates.ValidateCanAdd(templates);
             _moves.ValidateCanAdd(moves);
+            var replacementTargets = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var move in _moves.Values)
+                if (move.ReplacementTarget != null) replacementTargets.Add(move.ReplacementTarget);
+            foreach (var move in moves)
+                if (move.ReplacementTarget != null && !replacementTargets.Add(move.ReplacementTarget))
+                    throw new ModContentException("Native move replacement already owned: " + move.ReplacementTarget);
             _moveTriggers.ValidateCanAdd(triggers);
             _tactics.ValidateCanAdd(tactics);
         }
@@ -1222,6 +1252,25 @@ namespace Eclipse.Modding
             DefinitionId id = Qualify("moves", localId);
             var value = new MoveDefinition(id, animation, templates, coreTemplates, events, conditions, intervals, type,
                 priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon, looped, endsStage, graph);
+            AddP1D(_p1dMoves, id, value);
+            return value;
+        }
+
+        public MoveDefinition RegisterMoveReplacement(string localId, string target, string expectedNativeFile,
+            AssetId animation, string[] coreTemplates, ModMoveEvent[] events, ModMoveCondition[] conditions,
+            ModMoveInterval[] intervals, string type, int priority, int midFrames, int firstFrame,
+            int endFrame, string mirrorNode, string tacticEquivalent, string tacticWeapon, bool looped,
+            bool endsStage, ModMoveGraph graph = null)
+        {
+            ThrowIfCompleted();
+            ValidateAssetReference(animation, "replacement move animation");
+            DefinitionId id = Qualify("moves", localId);
+            var value = new MoveDefinition(id, animation, null, coreTemplates, events, conditions, intervals,
+                type, priority, midFrames, firstFrame, endFrame, mirrorNode, tacticEquivalent, tacticWeapon,
+                looped, endsStage, graph, target, expectedNativeFile);
+            foreach (var prior in _p1dMoves.Values)
+                if (prior.ReplacementTarget == target)
+                    throw new ModContentException("Duplicate native move replacement: " + target);
             AddP1D(_p1dMoves, id, value);
             return value;
         }

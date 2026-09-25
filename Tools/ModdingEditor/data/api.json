@@ -1191,6 +1191,17 @@
       "requires": "`content.register`, plus dependencies for external templates or assets.",
       "when": "During mod loading."
     },
+    "sf2.moves.replace": {
+      "params": {
+        "definition": "Eclipse.MoveReplacementDefinition"
+      },
+      "returns": "A move handle. Its runtime name is the existing native `target`; its mod ID is the supplied local `id`.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/#sf2movesreplace",
+      "summary": "",
+      "requires": "`content.patch`, a `core` dependency for core assets, and a binary animation shipped by the mod.",
+      "when": "During mod loading. The typed definition is applied after native animations load and before fights use them. Removing the mod restores the original move."
+    },
     "sf2.moves.extend_item_lock": {
       "params": {
         "definition": "Eclipse.MoveItemLockExtension"
@@ -3449,6 +3460,15 @@
         "not?": "boolean"
       }
     },
+    "MoveDirectionCondition": {
+      "fields": {
+        "type": "\"direction\"",
+        "player": "\"Me\"|\"Enemy\"",
+        "from": "Eclipse.MovePoint",
+        "to": "Eclipse.MovePoint",
+        "not?": "boolean"
+      }
+    },
     "MoveActorCondition": {
       "fields": {
         "type": "\"actor_name\"",
@@ -3499,7 +3519,7 @@
     "MoveConditionGroup": {
       "fields": {
         "type": "\"all\"|\"any\"",
-        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "not?": "boolean"
       }
     },
@@ -3615,7 +3635,8 @@
       "fields": {
         "axes": "(\"X\"|\"Y\"|\"Z\")[]",
         "pivot": "Eclipse.MovePoint",
-        "position": "Eclipse.MovePoint"
+        "position": "Eclipse.MovePoint",
+        "shift_model_node?": "string"
       }
     },
     "MoveImpulseDirection": {
@@ -3632,7 +3653,7 @@
     },
     "MoveTransition": {
       "fields": {
-        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "conditions": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "frame_shift?": "integer",
         "first_frame?": "integer"
       }
@@ -3733,9 +3754,9 @@
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
         "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "intervals?": "Eclipse.MoveInterval[]",
-        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "align?": "Eclipse.MoveAlignment",
         "direction?": "Eclipse.MoveDirection",
         "type?": "string",
@@ -3756,9 +3777,9 @@
         "templates?": "Eclipse.MoveTemplateHandle[]",
         "core_templates?": "string[]",
         "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "intervals?": "Eclipse.MoveInterval[]",
-        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "align?": "Eclipse.MoveAlignment",
         "direction?": "Eclipse.MoveDirection",
         "type?": "string",
@@ -3776,11 +3797,45 @@
         "actions?": "Eclipse.MoveScheduledAction[]",
         "profile?": "Eclipse.MoveProfile",
         "tactic_distance?": "Eclipse.MoveTacticDistance",
-        "tactic_conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "tactic_conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "no_wall_repulsion?": "boolean",
         "no_interpolation_frames?": "boolean",
         "no_magic_recharge?": "boolean",
         "velocity?": "Eclipse.MoveVelocity"
+      }
+    },
+    "MoveReplacementDefinition": {
+      "fields": {
+        "id": "string",
+        "core_templates?": "string[]",
+        "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "intervals?": "Eclipse.MoveInterval[]",
+        "locks?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "align?": "Eclipse.MoveAlignment",
+        "direction?": "Eclipse.MoveDirection",
+        "type?": "string",
+        "mirror_node?": "string",
+        "tactic_equivalent?": "string",
+        "tactic_weapon?": "string",
+        "priority?": "integer",
+        "mid_frames?": "integer",
+        "first_frame?": "integer",
+        "end_frame?": "integer",
+        "looped?": "boolean",
+        "ends_stage?": "boolean",
+        "animation": "Eclipse.BinaryHandle",
+        "transitions?": "Eclipse.MoveTransition[]",
+        "actions?": "Eclipse.MoveScheduledAction[]",
+        "profile?": "Eclipse.MoveProfile",
+        "tactic_distance?": "Eclipse.MoveTacticDistance",
+        "tactic_conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
+        "no_wall_repulsion?": "boolean",
+        "no_interpolation_frames?": "boolean",
+        "no_magic_recharge?": "boolean",
+        "velocity?": "Eclipse.MoveVelocity",
+        "target": "string",
+        "expected_file": "string"
       }
     },
     "MoveItemLockExtension": {
@@ -3848,7 +3903,7 @@
       "fields": {
         "move": "string",
         "disable?": "boolean",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "interval_start?": "Eclipse.MoveIntervalStartPatch",
         "interval_end?": "Eclipse.MoveIntervalEndPatch",
         "hit?": "Eclipse.MoveHitPatch",
@@ -3883,7 +3938,7 @@
       "fields": {
         "id": "string",
         "events?": "(\"animation_end\"|\"animation_start\"|\"interval_end\"|\"interval_start\"|\"hit\"|\"strike\"|\"every_frame\"|\"birth\"|\"round_stage_start\"|\"mod_expires\"|\"key_pressed\"|Eclipse.MoveEvent)[]",
-        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
+        "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition|Eclipse.MoveDirectionCondition)[]",
         "actions?": "(Eclipse.SoundAction|Eclipse.HitEffectAction)[]"
       }
     },

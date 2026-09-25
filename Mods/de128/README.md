@@ -6,13 +6,20 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.35.0` restores Arkhos's
+DE128 is an ordinary downstream Eclipse mod. Version `0.36.0` restores both
+native phases of Widow Teleportation in twelve Underworld boss fights and
+Widow's Demon survival wave. It preserves the archived RaidCharge control,
+enemy safety gates, 100-unit finishing alignment, nine-edge strike, and
+encounter-specific opening and recast timing. All thirteen encounters passed
+native Unity acceptance; the Wind Wolf Power arena's early hot-ground rule
+allows only the opening cast and strike in its unattended test. DE128 reads no
+XML at runtime. Version `0.35.0` restores Arkhos's
 Rat Wave and Tenebris's Fear Ray in normal and Power Mode Underworld fights.
 Their original native casters use the archived RaidCharge input, mod-shipped
 binary clips, 600-frame opening and recast gates, and native projectile attacks.
 Tenebris no longer inherits the packaged core's extra invulnerability window.
 The four fights passed native Unity casts, attacks, recasts and map return.
-DE128 reads no XML at runtime. Version `0.34.0` restores
+Version `0.34.0` restores
 Hoaxen's Tentacles, Hunter's four Fly attacks and Berstuuk's full Root Potion
 projectile, trigger and hitbox in both normal and Power Mode Underworld fights.
 The bosses use archived RaidCharge inputs and opening/recast timing; Hunter

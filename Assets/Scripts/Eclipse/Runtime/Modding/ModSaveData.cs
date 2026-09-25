@@ -1061,7 +1061,16 @@ namespace Eclipse.Modding
             var moves = new List<MoveDefinition>(content.Moves);
             moves.Sort((left, right) => CompareIds(left.Id, right.Id));
             Append(canonical, "moves"); Append(canonical, moves.Count);
-            for (int i = 0; i < moves.Count; i++) AppendMoveNode(canonical, moves[i], moves[i].Animation.ToString());
+            for (int i = 0; i < moves.Count; i++)
+            {
+                AppendMoveNode(canonical, moves[i], moves[i].Animation.ToString());
+                if (moves[i].ReplacementTarget != null)
+                {
+                    Append(canonical, "native-move-replacement-v1");
+                    Append(canonical, moves[i].ReplacementTarget);
+                    Append(canonical, moves[i].ExpectedNativeFile);
+                }
+            }
 
             if (content.MoveCombatPatches.Count > 0)
             {
@@ -1260,6 +1269,8 @@ namespace Eclipse.Modding
                 if(node.Graph.Align!=null)
                 {
                     AppendStrings(canonical,node.Graph.Align.Axes);AppendMovePoint(canonical,node.Graph.Align.Pivot);AppendMovePoint(canonical,node.Graph.Align.Position);
+                    if (node.Graph.Align.ShiftModelNode.Length != 0)
+                    { Append(canonical,"align-shift-model-node-v1"); Append(canonical,node.Graph.Align.ShiftModelNode); }
                 }
                 Append(canonical,node.Graph.Direction!=null);
                 if(node.Graph.Direction!=null)
@@ -1390,6 +1401,12 @@ namespace Eclipse.Modding
                 Append(canonical, distance.Axis); Append(canonical, distance.Minimum.ToString("R", CultureInfo.InvariantCulture));
                 Append(canonical, distance.Maximum.ToString("R", CultureInfo.InvariantCulture));
                 AppendMovePoint(canonical, distance.From); AppendMovePoint(canonical, distance.To);
+            }
+            if (condition.Direction != null)
+            {
+                Append(canonical, "move-direction-condition-v1");
+                AppendMovePoint(canonical, condition.Direction.From);
+                AppendMovePoint(canonical, condition.Direction.To);
             }
             if (condition.Bullets != null)
             {

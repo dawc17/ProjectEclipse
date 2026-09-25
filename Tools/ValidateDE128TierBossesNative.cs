@@ -62,6 +62,9 @@ public static class ValidateDE128TierBossesNative
     static ModelEdge raidTriggerEdge;
     static int raidTriggerSpawnAt = -1;
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
+    static int teleportEnteredAt = -1, teleportSelectedAt = -1, teleportFinishedAt = -1, teleportSecondAt = -1;
+    static int widowWaveDefeats;
+    static bool teleportWasCasting, teleportAttack, teleportCaptured;
     static List<FightDefinition> targets;
     static string combatException;
 
@@ -102,6 +105,8 @@ public static class ValidateDE128TierBossesNative
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_SATURN_BLASTER") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_DANDY_CHAIN") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_TELEPORTATION") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_WIDOW_WAVE") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_RAID_ABILITY") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
@@ -157,6 +162,8 @@ public static class ValidateDE128TierBossesNative
                 raidTriggerModel = null;
                 raidTriggerEdge = null;
                 raidTriggerSpawnAt = -1;
+                teleportEnteredAt = teleportSelectedAt = teleportFinishedAt = teleportSecondAt = -1;
+                teleportWasCasting = teleportAttack = teleportCaptured = false;
                 started = EditorApplication.timeSinceStartup;
                 storyPresses = 0;
                 entryRequested = surrenderRequested = false;
@@ -252,6 +259,10 @@ public static class ValidateDE128TierBossesNative
                 !ObserveDandyChain(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_RAID_ABILITY") == "1" &&
                 !ObserveRaidAbility(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_TELEPORTATION") == "1" &&
+                !ObserveTeleportation(fight, enemy, false)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_WIDOW_WAVE") == "1" &&
+                !ObserveTeleportation(fight, enemy, true)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -313,6 +324,122 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveTeleportation(Fight fight, Model enemy, bool widowWave)
+    {
+        string id = Target.Id.ToString();
+        int frame = fight.get_FightTimeInFrames();
+        if (widowWave)
+        {
+            if (id != "de128:fights/uw_survival_demon_1")
+                throw new Exception("Widow acceptance selected the wrong survival fight.");
+            if (!enemy.Parameters.JBIOECDAAKP().Any(perk => perk.Name == "PERK_TELEPORTATION"))
+            {
+                if (teleportEnteredAt >= 0) throw new Exception("Widow left her wave before Teleportation acceptance.");
+                if (widowWaveDefeats > 12) throw new Exception("Widow did not enter Demon survival.");
+                if (EditorApplication.timeSinceStartup - lastWaveDefeat < 0.7) return false;
+                lastWaveDefeat = EditorApplication.timeSinceStartup;
+                if (fight.DebugDefeatOpponent())
+                {
+                    widowWaveDefeats++;
+                    Debug.Log(Prefix + "Advanced Demon survival to Widow: defeat " + widowWaveDefeats + ".");
+                }
+                return false;
+            }
+        }
+        int cooldown = id.Contains("uw_boss_1_hardmode") ? 300 :
+            id.Contains("uw_boss_architect_") && id.Contains("hardmode") ? 480 :
+            id.Contains("uw_boss_son_of_the_sun_hardmode") ? 660 : 600;
+        if (teleportEnteredAt < 0)
+        {
+            teleportEnteredAt = frame;
+            var moves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var start = moves.SingleOrDefault(move => move.Name == "WidowTeleportationStart");
+            var finish = moves.SingleOrDefault(move => move.Name == "WidowTeleportationEnd");
+            if (start == null || finish == null || start.FileName != "de128:animations/widow_teleportation_start" ||
+                finish.FileName != "de128:animations/widow_teleportation_end" ||
+                start.Priority != 110 || finish.Priority != 450)
+                throw new Exception("Teleportation did not replace both guarded native moves: " + id);
+            var keyNode = new XmlDocument();
+            keyNode.LoadXml("<Keys><Key Type='RaidCharge' PressType='Tap'/></Keys>");
+            var expected = new ConditionKeys(keyNode.DocumentElement);
+            expected.Parse(keyNode.DocumentElement);
+            if (!start.SelectionConditions.OfType<ConditionKeys>().Single().HasSameKeyRequirementAs(expected) ||
+                start.SelectionConditions.Any(condition => condition.Type == ConditionAnimation.ConditionType.DISTANCE) ||
+                start.SelectionConditions.Count(condition => condition.Type == ConditionAnimation.ConditionType.DIRECTION) != 1 ||
+                start.SelectionConditions.Count(condition => condition.Type == ConditionAnimation.ConditionType.CURRENT_ANIMATION &&
+                    condition.TargetModelType == ModelType.KEIDBIOIFGA.MODEL_OTHER && condition.IsNot) < 15 ||
+                start.MoveData.Locks.Any(condition => condition.Type == ConditionAnimation.ConditionType.ITEM) ||
+                finish.MoveData.ILOEBFFAEAN.BONDKHGGCDD != "NPivot" ||
+                Math.Abs(finish.MoveData.ILOEBFFAEAN.LDNPHPGEOPJ.GetX() - 100f) > 0.01f)
+                throw new Exception("Teleportation lost its archived input, safety exclusions or alignment: " + id);
+            var attack = finish.MoveData.Intervals.OfType<IntervalAttack>().SingleOrDefault();
+            string[] edges = { "EForearm_1", "EHand_1", "EFingers_1", "EArm_1", "EArm_2",
+                "EForearm_2", "EHand_2", "EFingers_2", "EChest" };
+            if (attack == null || attack.Start != 3 || attack.EndFrame != 4 ||
+                Math.Abs(attack.GHGGNMBCMNM() - 0.28f) > 0.0001f ||
+                !attack.MHNFFFIOIDH.SequenceEqual(edges) || !attack.HitReactions.Any(hit => hit.Name == "High"))
+                throw new Exception("Teleportation finishing strike lost its body geometry or damage: " + id);
+            var locks = new ModelConditions { OJIAKDDCGLB = enemy.Parameters.PJNJIJIODHE(),
+                POBNMMADAJJ = enemy.Parameters.JBIOECDAAKP(), IBBALIJOJMC = enemy.Parameters.IBBALIJOJMC };
+            if (!start.HPPGNJJCEGF(locks, start.MoveData.Locks) ||
+                !finish.HPPGNJJCEGF(locks, finish.MoveData.Locks))
+                throw new Exception("Teleportation perk locks reject its actual fighter: " + id);
+            enemy.OCPMJKIEPIG().AddEventListener(2, value =>
+            {
+                if (value is IntervalAttack &&
+                    enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name == "WidowTeleportationEnd")
+                    teleportAttack = true;
+            });
+            Debug.Log(Prefix + "Loaded both archived Teleportation phases for " + id +
+                "; 15 enemy exclusions, 100-unit alignment, nine-edge 0.28 strike.");
+        }
+        string animation = enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+        bool casting = animation == "WidowTeleportationStart";
+        if (casting && !teleportWasCasting)
+        {
+            if (teleportSelectedAt < 0)
+            {
+                if (!widowWave && frame < cooldown)
+                    throw new Exception("Teleportation cast before its archived opening delay: " + frame);
+                teleportSelectedAt = frame;
+                Debug.Log(Prefix + "Selected Teleportation at frame " + frame + ".");
+                CaptureCombatFrame(id + "_teleportation");
+                teleportCaptured = true;
+            }
+            else if (teleportSecondAt < 0)
+            {
+                if (frame - teleportSelectedAt < cooldown)
+                    throw new Exception("Teleportation recast before its archived cooldown: " + frame);
+                teleportSecondAt = frame;
+                Debug.Log(Prefix + "Recast Teleportation at frame " + frame + ".");
+            }
+        }
+        teleportWasCasting = casting;
+        if (animation == "WidowTeleportationEnd" && teleportFinishedAt < 0)
+        {
+            if (teleportSelectedAt < 0) throw new Exception("Teleportation ended without its start phase.");
+            teleportFinishedAt = frame;
+            Debug.Log(Prefix + "Teleportation transitioned to the native finishing move at frame " + frame + ".");
+        }
+        // Wind Wolf Power's archived HOT_GROUND rule resolves at 720 frames,
+        // before a 600-frame Teleportation recast can follow its opening cast.
+        if (!widowWave && id == "de128:fights/uw_boss_wolf_wind_hardmode_1" &&
+            teleportSelectedAt >= 0 && teleportFinishedAt >= 0 && teleportAttack && teleportCaptured)
+        {
+            Debug.Log(Prefix + "Native Teleportation start and finishing strike completed before Wind Wolf Power's 720-frame hot ground: " + id);
+            return true;
+        }
+        if (teleportSecondAt >= 0 && teleportFinishedAt >= 0 && teleportAttack && teleportCaptured)
+        {
+            Debug.Log(Prefix + "Native Teleportation start, finishing strike and recast completed: " + id);
+            return true;
+        }
+        if (frame - teleportEnteredAt >= 3000)
+            throw new Exception("Teleportation did not complete: " + id + " first=" + teleportSelectedAt +
+                " finish=" + teleportFinishedAt + " attack=" + teleportAttack + " second=" + teleportSecondAt);
+        return false;
+    }
 
     static void ObserveRootHitBox(Model child, Fight fight)
     {

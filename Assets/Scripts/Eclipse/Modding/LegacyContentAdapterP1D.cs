@@ -12,6 +12,7 @@ namespace Eclipse.Modding
         private ExternalCombatContentRuntime.MovePerkLockRollback _p1dMovePerkLockRollback;
         private ExternalCombatContentRuntime.MoveItemLockRollback _moveItemLockRollback;
         private MoveCombatPatchRuntime.Lifetime _moveCombatPatchLifetime;
+        private AnimationData.ExternalMoveReplacementLifetime _moveReplacementLifetime;
         private bool _p1dApplied;
 
         public void ApplyP1DContent()
@@ -160,6 +161,22 @@ namespace Eclipse.Modding
             if (_content.MoveTemplates.Count == 0 && _content.Moves.Count == 0 && _content.MoveTriggers.Count == 0 &&
                 _content.MovePerkLockRemovals.Count == 0 && _content.MoveItemLockExtensions.Count == 0 && _content.MoveCombatPatches.Count == 0)
                 return;
+            var expectedFiles = new Dictionary<string, string>(StringComparer.Ordinal);
+            var replacementDocument = new XmlDocument { XmlResolver = null };
+            XmlElement replacementRoot = replacementDocument.CreateElement("Movesxml");
+            replacementDocument.AppendChild(replacementRoot);
+            XmlElement replacementMoves = replacementDocument.CreateElement("Moves");
+            replacementRoot.AppendChild(replacementMoves);
+            foreach (MoveDefinition definition in _content.Moves)
+            {
+                if (definition.ReplacementTarget == null) continue;
+                if (expectedFiles.ContainsKey(definition.ReplacementTarget))
+                    throw new ModContentException("Duplicate native move replacement: " + definition.ReplacementTarget);
+                expectedFiles.Add(definition.ReplacementTarget, definition.ExpectedNativeFile);
+                replacementMoves.AppendChild(BuildMoveNode(replacementDocument, "Move", definition, definition.Animation));
+            }
+            if (expectedFiles.Count != 0)
+                _moveReplacementLifetime = AnimationData.ReplaceExternalMoves(replacementDocument, expectedFiles);
             _moveCombatPatchLifetime = MoveCombatPatchRuntime.Apply(AnimationData.Animations,_content.MoveCombatPatches,
                 condition =>
                 {
@@ -170,7 +187,7 @@ namespace Eclipse.Modding
                 });
             _p1dMovePerkLockRollback = ExternalCombatContentRuntime.ApplyMovePerkLocks(_content.MovePerkLockRemovals);
             _moveItemLockRollback = ExternalCombatContentRuntime.ApplyItemLockExtensions(AnimationData.Animations,_content.MoveItemLockExtensions);
-            if (_content.MoveTemplates.Count != 0 || _content.Moves.Count != 0 || _content.MoveTriggers.Count != 0)
+            if (_content.MoveTemplates.Count != 0 || _content.Moves.Count > expectedFiles.Count || _content.MoveTriggers.Count != 0)
                 ExternalCombatContentRuntime.ApplyMoves(BuildMovesDocument());
         }
 
@@ -188,7 +205,8 @@ namespace Eclipse.Modding
             foreach (MoveTemplateDefinition definition in _content.MoveTemplates)
                 templates.AppendChild(BuildMoveNode(document, "Template", definition, default(AssetId)));
             foreach (MoveDefinition definition in _content.Moves)
-                moves.AppendChild(BuildMoveNode(document, "Move", definition, definition.Animation));
+                if (definition.ReplacementTarget == null)
+                    moves.AppendChild(BuildMoveNode(document, "Move", definition, definition.Animation));
             foreach (MoveTriggerDefinition definition in _content.MoveTriggers)
                 triggers.AppendChild(BuildTriggerNode(document, definition));
             return document;
@@ -231,6 +249,7 @@ namespace Eclipse.Modding
             {
                 var align=definition.Graph.Align;var entry=document.CreateElement("Align");node.AppendChild(entry);
                 Set(entry,"Axis",string.Join("|",align.Axes));
+                if (align.ShiftModelNode.Length != 0) Set(entry,"ShiftModelNode",align.ShiftModelNode);
                 entry.AppendChild(BuildMovePoint(document,"Pivot",align.Pivot));entry.AppendChild(BuildMovePoint(document,"Position",align.Position));
             }
             if(definition.Graph.Direction!=null)
@@ -501,6 +520,15 @@ namespace Eclipse.Modding
                 entry.AppendChild(BuildMovePoint(document, "From", distance.From)); entry.AppendChild(BuildMovePoint(document, "To", distance.To));
                 return entry;
             }
+            if (value.Kind == ModMoveConditionKind.Direction)
+            {
+                var entry = document.CreateElement("Direction");
+                Set(entry, "Player", value.Player);
+                if (value.Not) Set(entry, "Not", "1");
+                entry.AppendChild(BuildMovePoint(document, "From", value.Direction.From));
+                entry.AppendChild(BuildMovePoint(document, "To", value.Direction.To));
+                return entry;
+            }
             if(value.Kind==ModMoveConditionKind.Keys)
             {
                 var keys=document.CreateElement("Keys");
@@ -678,6 +706,8 @@ namespace Eclipse.Modding
             _p1dTactics.Clear();
             _moveCombatPatchLifetime?.Dispose();
             _moveCombatPatchLifetime = null;
+            _moveReplacementLifetime?.Dispose();
+            _moveReplacementLifetime = null;
             _moveItemLockRollback?.Dispose();
             _moveItemLockRollback = null;
             ExternalCombatContentRuntime.RemoveMovePerkLocks(_p1dMovePerkLockRollback);

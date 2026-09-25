@@ -13,6 +13,7 @@ local blackness_grasp = require("content.blackness_grasp")
 local saturn_blaster = require("content.saturn_blaster")
 local dandy_lightning_chain = require("content.dandy_lightning_chain")
 local raid_boss_abilities = require("content.raid_boss_abilities")
+local widow_teleportation = require("content.widow_teleportation")
 
 local ZONE_TITLES = { "ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7" }
 
@@ -77,6 +78,7 @@ local function install(raid_charge_rule)
             local frames = row.frames
             -- The reviewed DE perk base is 600; Eclipse's core definition is 300.
             if row.perk == "core:perks/PERK_LIGHTING_CHAIN" and frames == nil then frames = 600 end
+            if row.perk == "core:perks/PERK_TELEPORTATION" and frames == nil then frames = 600 end
             result[index] = { perk = perk(row.perk), aspect = row.aspect, chance = row.chance,
                 chance_factor = row.chance_factor, frames = frames, parameters = row.parameters }
         end
@@ -109,6 +111,19 @@ local function install(raid_charge_rule)
             end
         end
         error("Hunter's archived Fly timing is missing or unsupported")
+    end
+    local function teleport_tactic(warrior)
+        for _, row in ipairs(warrior.perks or {}) do
+            if row.perk == "core:perks/PERK_TELEPORTATION" then
+                local frames = row.frames or 600
+                if frames == 600 then return widow_teleportation.normal end
+                if frames == 300 then return widow_teleportation.fast end
+                if frames == 480 then return widow_teleportation.power end
+                if frames == 660 then return widow_teleportation.slow end
+                error("Unsupported archived Teleportation timing " .. tostring(frames))
+            end
+        end
+        return nil
     end
 
     -- Templates, parents first (the generator orders them).
@@ -233,6 +248,7 @@ local function install(raid_charge_rule)
                         (w.template == "Man_Berstuuk" and raid_boss_abilities.berstuuk or w.tactic))))))))))
                     if w.template == "Man_Arkhos" then tactic = raid_boss_abilities.arkhos end
                     if w.template == "Man_Tenebris" then tactic = raid_boss_abilities.tenebris end
+                    tactic = teleport_tactic(w) or tactic
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = tactic,
                         avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,

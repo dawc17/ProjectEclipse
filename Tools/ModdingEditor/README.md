@@ -431,6 +431,15 @@ batch validates before edits. Frame values are integers 0-100000. The shared
 one matching interval and restores it on unload.
 See the moves reference for ambiguous-target rejection and teardown behavior.
 
+`sf2.moves.replace` authors a complete typed definition for an existing native
+move while preserving its name for perk and transition links. It requires
+`content.patch`, an exact `target` and `expected_file` guard, plus a mod-shipped
+binary animation. LuaLS offers the same move fields as `moves.register` except
+mod-owned `templates`; use `core_templates`. Alignment now offers
+`shift_model_node`, and move conditions can test a fighter's `direction` from
+two points. The editor checks declaration shape; only a native fight confirms
+the target filename, rig alignment and contact.
+
 Move patches also accept `disable = true` to make an existing move unselectable
 while a complete replacement is registered. Move attacks accept the `WaspFly` and `Earthquake`
 reaction and `options.ignores_all_invulnerable = true`. The latter is exclusive

@@ -222,10 +222,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 35 &&
+        Check(catalog.Moves.Count == 52 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 35 &&
             catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 16 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 20 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -467,6 +467,83 @@ internal static class DE128FoundationTests
         foreach (int level in new[] { 4, 8, 11, 14, 17 })
             Check(catalog.TryGetProgressionBranch(level, out var branch) && branch.Entries.Count == 2,
                 "XML-evidenced DE perk branch is missing at " + level);
+    }
+
+    private static void CheckTeleportation(ModContentCatalog catalog)
+    {
+        var moves = catalog.Moves.Where(move => move.ReplacementTarget != null).ToArray();
+        Check(moves.Length == 2 && moves.Select(move => move.ReplacementTarget).OrderBy(name => name).SequenceEqual(
+            new[] { "WidowTeleportationEnd", "WidowTeleportationStart" }),
+            "The two native Teleportation phases were not replaced together.");
+        var start = moves.Single(move => move.ReplacementTarget == "WidowTeleportationStart");
+        var finish = moves.Single(move => move.ReplacementTarget == "WidowTeleportationEnd");
+        Check(start.ExpectedNativeFile == "widow_teleportation_start.bytes" &&
+            start.Animation.ToString() == "de128:animations/widow_teleportation_start" &&
+            finish.ExpectedNativeFile == "widow_teleportation_end.bytes" &&
+            finish.Animation.ToString() == "de128:animations/widow_teleportation_end" &&
+            start.CoreTemplates.SequenceEqual(new[] { "1key", "BossAbility", "Controlled", "SoundStrike" }) &&
+            finish.CoreTemplates.SequenceEqual(new[] { "ChangeDirection" }) &&
+            start.Templates.Count == 0 && finish.Templates.Count == 0,
+            "Teleportation binary provenance or native template graph differs.");
+        Check(start.Conditions.First().Kind == ModMoveConditionKind.Keys &&
+            start.Conditions.First().Keys.Single().Key == "RaidCharge" &&
+            start.Conditions.Count(condition => condition.Kind == ModMoveConditionKind.CurrentAnimation &&
+                condition.Player == "Enemy" && condition.Not) == 15 &&
+            start.Conditions.Count(condition => condition.Kind == ModMoveConditionKind.Direction) == 1 &&
+            start.Conditions.All(condition => condition.Kind != ModMoveConditionKind.Distance) &&
+            start.Graph.Locks.Count == 1 && start.Graph.Locks[0].Kind == ModMoveConditionKind.Perk &&
+            finish.Conditions.Count(condition => condition.Kind == ModMoveConditionKind.CurrentAnimation &&
+                condition.Player == "Enemy" && condition.Not) == 15 &&
+            finish.Graph.Align.ShiftModelNode == "NPivot" && finish.Graph.Align.Position.ShiftX == 100,
+            "Teleportation input, enemy safety gates or alignment differs from the archive.");
+        var attack = finish.Intervals.Single(interval => interval.Attack != null).Attack;
+        Check(attack.Edges.SequenceEqual(new[] { "EForearm_1", "EHand_1", "EFingers_1", "EArm_1", "EArm_2",
+            "EForearm_2", "EHand_2", "EFingers_2", "EChest" }) && Math.Abs(attack.Damage - 0.28) < 0.0001 &&
+            attack.Options.IgnoresBlock && attack.Hit == "High" &&
+            attack.DamageTerms.Count == 2 && attack.DamageTerms[1].Type == "UnarmedDamage" &&
+            Math.Abs(attack.DamageTerms[1].Shift + 10) < 0.0001,
+            "Teleportation's finishing strike lost its owner damage and body edges.");
+        var fighters = catalog.Warriors.Where(warrior => warrior.PerkLoadout.Any(perk =>
+            string.Equals(perk.Perk.ToString(), "core:perks/PERK_TELEPORTATION", StringComparison.OrdinalIgnoreCase))).ToArray();
+        Check(fighters.Length == 13 && fighters.All(warrior => warrior.Tactic.StartsWith(
+            "de128:tactics/widow_teleportation", StringComparison.Ordinal)) &&
+            fighters.All(warrior => warrior.PerkLoadout.Single(perk =>
+                string.Equals(perk.Perk.ToString(), "core:perks/PERK_TELEPORTATION", StringComparison.OrdinalIgnoreCase)).Frames.HasValue),
+            "One of thirteen Teleportation fighters lost its reviewed cooldown or tactic.");
+    }
+
+    private static void CheckMoveReplacementContract(string fixture, ModContentCatalog enabled, string repository)
+    {
+        var peer = Peer(fixture, "fixture.move-replacement", "content.patch", "");
+        string assetDirectory = Path.Combine(peer.RootPath, "assets", "animations");
+        Directory.CreateDirectory(assetDirectory);
+        File.Copy(Path.Combine(repository, "Mods", "de128", "assets", "animations", "widow_teleportation_start.bytes"),
+            Path.Combine(assetDirectory, "replacement.bytes"));
+        string Declaration(string target, string expected, int priority = 110) =>
+            "sf2.moves.replace { id='replacement', target='" + target + "', expected_file='" + expected +
+            "', animation=sf2.assets.binary('animations/replacement'), priority=" + priority + " }";
+        File.WriteAllText(Path.Combine(peer.RootPath, "scripts", "main.lua"),
+            "local sf2=require('sf2')\n" + Declaration("WidowTeleportationStart", "old.bytes"), Utf8);
+        var conflict = new ModContentCatalog();
+        ExpectFailure(peer, enabled, "Native move replacement already owned: WidowTeleportationStart");
+        Check(enabled.Moves.Count(move => move.ReplacementTarget == "WidowTeleportationStart") == 1,
+            "Conflicting native replacement changed the installed DE move.");
+        void SetScript(string body) => File.WriteAllText(Path.Combine(peer.RootPath, "scripts", "main.lua"),
+            "local sf2=require('sf2')\n" + body, Utf8);
+        SetScript(Declaration("TestMove", "old.bytes") + "\n" + Declaration("TestMove", "old.bytes"));
+        ExpectFailure(peer, conflict, "Duplicate native move replacement: TestMove");
+        Check(conflict.Moves.Count == 0, "Duplicate replacement leaked a partial registration.");
+        string Hash(string target, string expected, int priority)
+        {
+            SetScript(Declaration(target, expected, priority));
+            var content = new ModContentCatalog(); Load(peer, content);
+            return ModSaveData.ComputeContentSetFingerprint(new[] { peer }, content);
+        }
+        Check(new[] { Hash("TestMove", "old.bytes", 110), Hash("OtherMove", "old.bytes", 110),
+            Hash("TestMove", "other.bytes", 110), Hash("TestMove", "old.bytes", 111) }.Distinct().Count() == 4,
+            "Native replacement target, filename guard or definition is missing from the compatibility fingerprint.");
+        SetScript(Declaration("TestMove", "old.xml"));
+        ExpectFailure(peer, new ModContentCatalog(), "exact native .bytes filename");
     }
 
     private static void CheckSharedMovePatches(ModDescriptor mod, ModContentCatalog catalog, string fixture, string repository)
@@ -934,7 +1011,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 50 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 52 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,
@@ -1131,6 +1208,8 @@ end}
         DE128ShopTests.Run(mod, enabled, repository, Check);
         DE128EquipmentTests.Run(mod, enabled, repository, Check);
         CheckSharedMovePatches(mod, enabled, fixture, repository);
+        CheckTeleportation(enabled);
+        CheckMoveReplacementContract(fixture, enabled, repository);
         CheckShopContracts(source, fixture, mod, enabled);
         CheckCombatEquipment(source, fixture, repository, mod, enabled);
         CheckInitialProfileBinding(source, fixture, mod, enabled);
@@ -1205,7 +1284,7 @@ end}
             CheckBase(rejected);
         }
 
-        foreach (string module in new[] { "timers", "equipment", "combat_equipment", "chinese_swords", "chinese_swords_data", "restored_weapons", "restored_equipment", "sphere1", "sphere2", "sphere3", "combo_sphere3", "shared_moves", "shop", "rewards", "combat_perks", "progression", "dandy_lightning_chain" })
+        foreach (string module in new[] { "timers", "equipment", "combat_equipment", "chinese_swords", "chinese_swords_data", "restored_weapons", "restored_equipment", "sphere1", "sphere2", "sphere3", "combo_sphere3", "shared_moves", "shop", "rewards", "combat_perks", "progression", "dandy_lightning_chain", "widow_teleportation" })
         {
             var incomplete = CopyPackage(source, fixture, "missing-module-" + module, omit: "scripts/content/" + module + ".lua");
             var partial = new ModContentCatalog();
