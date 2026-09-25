@@ -80,7 +80,7 @@ namespace Eclipse.Modding
                 {
                     const string function = "sf2.moves.patch";
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
-                    ValidateFields(table, function, "move", "conditions", "interval_end", "hit", "sound_frame", "disable");
+                    ValidateFields(table, function, "move", "conditions", "interval_end", "hit", "sound_frame", "input", "priority", "disable");
                     ModMoveFramePatch Frame(string key)
                     {
                         DynValue value = table.Get(key); if (value.IsNil()) return null;
@@ -96,8 +96,24 @@ namespace Eclipse.Modding
                         ValidateFields(rawHit.Table,function + ".hit","expected","value");
                         hit = new ModMoveHitPatch(RequiredString(rawHit.Table,"expected",function),RequiredString(rawHit.Table,"value",function));
                     }
+                    ModMoveInputPatch input = null; DynValue rawInput = table.Get("input");
+                    if (!rawInput.IsNil())
+                    {
+                        if (rawInput.Type != DataType.Table) throw new ModContentException(function + ".input must be a table.");
+                        ValidateFields(rawInput.Table, function + ".input", "expected", "value");
+                        input = new ModMoveInputPatch(RequiredString(rawInput.Table,"expected",function),
+                            RequiredString(rawInput.Table,"value",function));
+                    }
+                    ModMovePriorityPatch priority = null; DynValue rawPriority = table.Get("priority");
+                    if (!rawPriority.IsNil())
+                    {
+                        if (rawPriority.Type != DataType.Table) throw new ModContentException(function + ".priority must be a table.");
+                        ValidateFields(rawPriority.Table, function + ".priority", "expected", "value");
+                        priority = new ModMovePriorityPatch(RequiredInt(rawPriority.Table,"expected",function),
+                            RequiredInt(rawPriority.Table,"value",function));
+                    }
                     _api.PatchMove(RequiredString(table,"move",function),ReadMoveConditions(table.Get("conditions"),function + ".conditions"),
-                        Frame("interval_end"), hit, Frame("sound_frame"), OptionalBool(table,"disable",false,function));
+                        Frame("interval_end"), hit, Frame("sound_frame"), OptionalBool(table,"disable",false,function), input, priority);
                     return DynValue.Nil;
                 })));
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));

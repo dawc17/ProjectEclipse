@@ -1086,6 +1086,26 @@ namespace Eclipse.Modding
                     Append(canonical, "move-combat-disable-v1");
                     foreach (var patch in patches) { Append(canonical, patch.MoveName); Append(canonical, patch.Disable); }
                 }
+                if (patches.Exists(patch => patch.Input != null || patch.Priority != null))
+                {
+                    Append(canonical, "move-combat-input-priority-v1");
+                    foreach (var patch in patches)
+                    {
+                        Append(canonical, patch.MoveName);
+                        Append(canonical, patch.Input != null);
+                        if (patch.Input != null)
+                        {
+                            Append(canonical, patch.Input.Expected.Key);
+                            Append(canonical, patch.Input.Value.Key);
+                        }
+                        Append(canonical, patch.Priority != null);
+                        if (patch.Priority != null)
+                        {
+                            Append(canonical, patch.Priority.Expected);
+                            Append(canonical, patch.Priority.Value);
+                        }
+                    }
+                }
             }
             if (content.MoveItemLockExtensions.Count > 0)
             {

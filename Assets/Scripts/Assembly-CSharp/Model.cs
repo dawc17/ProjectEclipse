@@ -2193,7 +2193,7 @@ public class Model : global::EventDispatcher<object>
 			}
 			else
 			{
-				KeyData fONEJOKEIEN = bHDEBDIHDFM.FONEJOKEIEN;
+				KeyData fONEJOKEIEN = bHDEBDIHDFM.RequiredKeys;
 				_Animation.GJGDKFAAGOD = pJAHIOELGGD;
 				fONEJOKEIEN.IsInverted = true;
 				PlayAnimation(fONEJOKEIEN);

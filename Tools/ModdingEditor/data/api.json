@@ -3811,6 +3811,18 @@
         "value": "integer"
       }
     },
+    "MoveInputPatch": {
+      "fields": {
+        "expected": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\"",
+        "value": "\"Up\"|\"Up-Forward\"|\"Forward\"|\"Down-Forward\"|\"Down\"|\"Down-Back\"|\"Back\"|\"Up-Back\"|\"Punch\"|\"Kick\"|\"Ranged\"|\"Magic\"|\"RaidCharge\"|\"Super\""
+      }
+    },
+    "MovePriorityPatch": {
+      "fields": {
+        "expected": "integer",
+        "value": "integer"
+      }
+    },
     "MovePatch": {
       "fields": {
         "move": "string",
@@ -3818,7 +3830,9 @@
         "conditions?": "(Eclipse.MovePerkCondition|Eclipse.MoveNamedCondition|Eclipse.MoveConditionGroup|Eclipse.MoveCharacterCondition|Eclipse.MoveKeysCondition|Eclipse.MoveStageCondition|Eclipse.MoveRoundResultCondition|Eclipse.MoveScreenCondition|Eclipse.MoveModCondition|Eclipse.MoveActorCondition|Eclipse.MoveBulletsCondition|Eclipse.MoveDistanceCondition)[]",
         "interval_end?": "Eclipse.MoveIntervalEndPatch",
         "hit?": "Eclipse.MoveHitPatch",
-        "sound_frame?": "Eclipse.MoveSoundFramePatch"
+        "sound_frame?": "Eclipse.MoveSoundFramePatch",
+        "input?": "Eclipse.MoveInputPatch",
+        "priority?": "Eclipse.MovePriorityPatch"
       }
     },
     "MovePerkLockRemoval": {

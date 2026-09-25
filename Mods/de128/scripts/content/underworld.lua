@@ -10,6 +10,7 @@ local hermit_storm = require("content.hermit_storm")
 local war_whirl = require("content.war_whirl")
 local gatekeeper_power_field = require("content.gatekeeper_power_field")
 local blackness_grasp = require("content.blackness_grasp")
+local saturn_blaster = require("content.saturn_blaster")
 
 local ZONE_TITLES = { "ZONE_RAID", "ZONE_RAID1", "ZONE_RAID2", "ZONE_RAID3", "ZONE_RAID4", "ZONE_RAID5", "ZONE_RAID6", "ZONE_RAID7" }
 
@@ -75,6 +76,16 @@ local function install(raid_charge_rule)
                 chance_factor = row.chance_factor, frames = row.frames, parameters = row.parameters }
         end
         return result
+    end
+    local function saturn_tactic(warrior)
+        for _, row in ipairs(warrior.perks or {}) do
+            if row.perk == "core:perks/PERK_SUPER_BLASTER" and
+                row.parameters and row.parameters.InitialFrames == 300 then
+                if row.frames == 660 then return saturn_blaster.tactic end
+                if row.frames == 550 then return saturn_blaster.power_tactic end
+            end
+        end
+        error("Saturn's archived Blaster timing is missing or unsupported")
     end
 
     -- Templates, parents first (the generator orders them).
@@ -191,7 +202,8 @@ local function install(raid_charge_rule)
                         (w.template == "Boss_Hermit_Young" and hermit_storm.tactic or
                         (w.template == "Girl_Drakaina" and war_whirl.tactic or
                         (w.template == "Cyborg_Gatekeeper" and gatekeeper_power_field.tactic or
-                        (w.template == "Girl_Blackness" and blackness_grasp.tactic or w.tactic)))))
+                        (w.template == "Girl_Blackness" and blackness_grasp.tactic or
+                        (w.template == "Girl_Saturn" and saturn_tactic(w) or w.tactic))))))
                     warriors[index] = sf2.warriors.register {
                         id = prefix .. "_w" .. index, template = template(w.template), tactic = tactic,
                         avatar = avatar(w.avatar), health_bars = w.health_bars, attributes = w.attributes,

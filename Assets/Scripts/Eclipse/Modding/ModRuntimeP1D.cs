@@ -63,7 +63,7 @@ namespace Eclipse.Modding
             var timing = new ModAiActionTiming(action.GOBJCKFGIPA, action.LHHAGECFIOL,
                 action.MNHGBPOIHKG, action.NCEKKNIMHAG());
             var inputs = new System.Collections.Generic.List<ModAiActionInput>();
-            var keys = action.ILBCHANCOBP()?.FONEJOKEIEN;
+            var keys = action.ILBCHANCOBP()?.RequiredKeys;
             if (keys != null)
             {
                 AppendAiInputs(inputs, keys.IGEEOAGOMEM, "tap");

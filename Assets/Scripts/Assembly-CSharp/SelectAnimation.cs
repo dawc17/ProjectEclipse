@@ -529,7 +529,7 @@ public class SelectAnimation
 			ConditionKeys bHDEBDIHDFM2 = item4.FGICHADOEHF.ILBCHANCOBP();
 			if (bHDEBDIHDFM != null && bHDEBDIHDFM2 != null)
 			{
-				if (bHDEBDIHDFM2.IsEqual(bHDEBDIHDFM.FONEJOKEIEN, true))
+				if (bHDEBDIHDFM2.IsEqual(bHDEBDIHDFM.RequiredKeys, true))
 				{
 					list.Add(item4);
 				}

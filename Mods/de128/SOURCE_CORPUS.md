@@ -48,6 +48,15 @@ Its caster priority is 200 there; the older `Assets/DExml` move file says
 byte for byte; see Step 65 in `PRODUCTION.md` for their hashes and live checks.
 This review does not establish equivalence with the designated `Assets.7z`.
 
+Saturn's Blaster was reviewed against the same local `moves.xml`. Its caster
+uses RaidCharge Tap at priority 200; the packaged core caster uses Super Tap at
+priority 1000. The original linked pistol, projectile, and cleanup moves are
+retained. The local `raid_stages_default.xml` gives the Saturn opponents a
+300-frame opening delay and recast delays of 660 frames normally and 550 in
+Power Mode. Native acceptance observes both casts and the complete first cast
+in each mode. This review likewise does not establish equivalence with the
+designated archive.
+
 ## Reconciliation requirements
 
 - Treat `Assets/DExml` and earlier production comparisons as historical evidence,

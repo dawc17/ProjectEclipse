@@ -6,7 +6,13 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.31.0` restores
+DE128 is an ordinary downstream Eclipse mod. Version `0.32.0` restores
+Saturn's native Underworld Blaster in normal and Power Mode. A guarded move
+patch changes the original caster to RaidCharge priority 200 while retaining
+its linked pistol and two damaging projectiles. Mode-specific tactics honor
+the archived 300-frame opening delay and 660/550-frame recast delays. Native
+Unity tests observe both casts, the projectile graph and map return in each
+mode. Version `0.31.0` restores
 Blackness's three-phase Underworld Grasp in normal and Power Mode: the
 RaidCharge cast creates a named BlackHand, transitions it into its damaging
 attack, shows the hand effect, and respects the 600-frame opening cooldown.

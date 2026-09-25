@@ -156,7 +156,7 @@ namespace Nekki.SF2.GUI.Profile
 			}
 			_keys.gameObject.SetActive(true);
 			float num = 0f;
-			KeyData fONEJOKEIEN = BJONHDGCNFE.ILBCHANCOBP().FONEJOKEIEN;
+			KeyData fONEJOKEIEN = BJONHDGCNFE.ILBCHANCOBP().RequiredKeys;
 			for (int i = 0; i < fONEJOKEIEN.CEPODJDDLBF.Count; i++)
 			{
 				ResolutionImage keyIcon = GetKeyIcon(fONEJOKEIEN.CEPODJDDLBF[i]);

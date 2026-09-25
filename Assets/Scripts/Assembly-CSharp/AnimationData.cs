@@ -184,10 +184,10 @@ public static class AnimationData
 			bool flag = false;
 			foreach (ConditionKeys item2 in list)
 			{
-				KeyData fONEJOKEIEN = item2.FONEJOKEIEN;
+				KeyData fONEJOKEIEN = item2.RequiredKeys;
 				foreach (ConditionKeys item3 in list2)
 				{
-					KeyData fONEJOKEIEN2 = item3.FONEJOKEIEN;
+					KeyData fONEJOKEIEN2 = item3.RequiredKeys;
 					if (fONEJOKEIEN2.IsVariable(fONEJOKEIEN))
 					{
 						flag = true;

@@ -266,13 +266,18 @@ async function main() {
     const movePatchFields=probe('move-patch-fields.lua','local sf2=require("sf2")\nsf2.moves.patch { | }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',movePatchFields));
-        return ['move','conditions','interval_end','hit','sound_frame'].every(name=>found.some(value=>value.startsWith(name)));
+        return ['move','conditions','interval_end','hit','sound_frame','input','priority'].every(name=>found.some(value=>value.startsWith(name)));
     },'move patch fields');
     const movePatchFrame=probe('move-patch-frame.lua','local sf2=require("sf2")\nsf2.moves.patch { move="Test", interval_end={ | } }');
     await until(async()=>{
         const found=labels(await request('textDocument/completion',movePatchFrame));
         return ['name','expected','value'].every(name=>found.some(value=>value.startsWith(name)));
     },'move patch selector fields');
+    const movePatchInput=probe('move-patch-input.lua','local sf2=require("sf2")\nsf2.moves.patch { move="Test", input={ | } }');
+    await until(async()=>{
+        const found=labels(await request('textDocument/completion',movePatchInput));
+        return ['expected','value'].every(name=>found.some(value=>value.startsWith(name)));
+    },'move patch input fields');
     console.log('PASS: scoped native move patches and expected-value selectors complete');
     const moveGraphFields=probe('move-graph-fields.lua','local sf2=require("sf2")\nsf2.moves.register { id="move",animation=sf2.assets.binary("animations/test"), | }');
     await until(async()=>{

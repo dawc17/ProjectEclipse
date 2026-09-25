@@ -222,10 +222,10 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 20 &&
+        Check(catalog.Moves.Count == 50 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 21 &&
             catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
-        Check(catalog.Tactics.Count == 6 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
+        Check(catalog.Tactics.Count == 8 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
             catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_survival_demon_1"), out var waspFight) &&
             catalog.TryGetWarrior(waspFight.Warriors[3], out var waspWarrior) &&
             waspWarrior.Tactic == "de128:tactics/wasp_fly",
@@ -315,6 +315,16 @@ internal static class DE128FoundationTests
             catalog.TryGetWarrior(blacknessPowerFight.Warriors[0], out var blacknessPowerWarrior) &&
             blacknessPowerWarrior.Tactic == "de128:tactics/blackness_grasp",
             "Blackness's caster, timed child transition, attacking hand or two tactics are incomplete.");
+        var saturn = catalog.MoveCombatPatches.Single(patch => patch.MoveName == "SaturnBlasterAbilityPlayer");
+        Check(saturn.Input?.Expected.Key == "Super" && saturn.Input.Value.Key == "RaidCharge" &&
+            saturn.Priority?.Expected == 1000 && saturn.Priority.Value == 200 && !saturn.Disable &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_12_1"), out var saturnFight) &&
+            catalog.TryGetWarrior(saturnFight.Warriors[0], out var saturnWarrior) &&
+            saturnWarrior.Tactic == "de128:tactics/saturn_blaster" &&
+            catalog.TryGetFight(DefinitionId.Parse("de128:fights/uw_boss_12_hardmode_1"), out var saturnPowerFight) &&
+            catalog.TryGetWarrior(saturnPowerFight.Warriors[0], out var saturnPowerWarrior) &&
+            saturnPowerWarrior.Tactic == "de128:tactics/saturn_blaster_power",
+            "Saturn's guarded native Blaster patch or Underworld encounter is incomplete.");
         var slash = catalog.Moves.Single(move => move.Id.LocalId == "chinese_swords_super_slash");
         Check(slash.Graph.Presentation.Profile.DisplayName.HasValue &&
             catalog.TryGetLocalization(slash.Graph.Presentation.Profile.DisplayName.Value, out var moveTitle) &&

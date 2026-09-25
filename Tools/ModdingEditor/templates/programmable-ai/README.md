@@ -28,7 +28,11 @@ When you register a complete replacement for an existing native move, call
 and give the fighter a tactic whose `on_decide` returns the authored move from
 `event.actions` when it is available. A disabled move remains in the native
 catalog but cannot be selected. The replacement still needs its own animation,
-conditions, attack intervals and assets. See the [move API reference](https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/)
+conditions, attack intervals and assets. Use guarded
+`input = { expected = "Super", value = "RaidCharge" }` and
+`priority = { expected = 1000, value = 200 }` patches when the original move's
+child animations must keep referring to its native name.
+See the [move API reference](https://dawc17.github.io/ProjectEclipse/api/moves-and-tactics/)
 for `WaspFly` and `Earthquake` hit reactions, native `tactic_conditions`,
 projectiles equipped from an `item` handle, and the exclusive
 `ignores_all_invulnerable`/`ignores_invulnerable` options.

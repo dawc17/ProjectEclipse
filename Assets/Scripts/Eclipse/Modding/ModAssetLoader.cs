@@ -886,6 +886,8 @@ namespace Eclipse.Modding
                 if (patch.IntervalEnd != null) PrepareEnd(target, patch.IntervalEnd, lifetime);
                 if (patch.Hit != null) PrepareHit(target, patch.Hit, lifetime);
                 if (patch.SoundFrame != null) PrepareSound(target, patch.SoundFrame, lifetime);
+                if (patch.Input != null) PrepareInput(target, patch.Input, parse, lifetime);
+                if (patch.Priority != null) PreparePriority(target, patch.Priority, lifetime);
             }
             try { foreach (var apply in lifetime.Apply) apply(); }
             catch { lifetime.Dispose(); throw; }
@@ -970,6 +972,42 @@ namespace Eclipse.Modding
             var target = sound;
             lifetime.Apply.Add(() => target.SetScheduledFrame(patch.Value));
             lifetime.Undo.Add(() => { if (target.ScheduledFrame == patch.Value) target.SetScheduledFrame(patch.Expected); });
+        }
+
+        private static void PrepareInput(InfoAnimation move, ModMoveInputPatch patch,
+            Func<ModMoveCondition, ConditionAnimation> parse, Lifetime lifetime)
+        {
+            var expected = parse(new ModMoveCondition(ModMoveConditionKind.Keys,
+                keys: new[] { patch.Expected })) as ConditionKeys;
+            var replacement = parse(new ModMoveCondition(ModMoveConditionKind.Keys,
+                keys: new[] { patch.Value })) as ConditionKeys;
+            if (expected == null || replacement == null)
+                throw new InvalidOperationException("Move input patch could not parse native keys: " + move.Name);
+            var conditions = move.SelectionConditions;
+            int index = -1;
+            for (int i = 0; i < conditions.Count; i++)
+                if (conditions[i] is ConditionKeys)
+                {
+                    if (index >= 0) throw new InvalidOperationException("Ambiguous native key condition: " + move.Name);
+                    index = i;
+                }
+            var original = index >= 0 ? conditions[index] as ConditionKeys : null;
+            if (original == null || !original.HasSameKeyRequirementAs(expected))
+                throw new InvalidOperationException("Move input expected key mismatch: " + move.Name);
+            lifetime.Apply.Add(() => conditions[index] = replacement);
+            lifetime.Undo.Add(() =>
+            {
+                int currentIndex = conditions.IndexOf(replacement);
+                if (currentIndex >= 0) conditions[currentIndex] = original;
+            });
+        }
+
+        private static void PreparePriority(InfoAnimation move, ModMovePriorityPatch patch, Lifetime lifetime)
+        {
+            if (move.Priority != patch.Expected)
+                throw new InvalidOperationException("Move priority expected value mismatch: " + move.Name);
+            lifetime.Apply.Add(() => move.Priority = patch.Value);
+            lifetime.Undo.Add(() => { if (move.Priority == patch.Value) move.Priority = patch.Expected; });
         }
     }
 }

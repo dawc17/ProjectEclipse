@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Xml;
 using Eclipse.Modding;
 using Eclipse.Underworld;
 using Nekki.SF2.GUI;
@@ -40,6 +41,11 @@ public static class ValidateDE128TierBossesNative
     static int blacknessEnteredAt = -1, blacknessSelectedAt = -1;
     static bool blacknessChild, blacknessTransition, blacknessAttack, blacknessDeleted, blacknessEffect, blacknessCaptured;
     static Model blacknessHand;
+    static int saturnEnteredAt = -1, saturnSelectedAt = -1, saturnSecondAt = -1;
+    static bool saturnWasCasting;
+    static bool saturnPistol, saturnBullet1, saturnBullet2, saturnBulletAttack1, saturnBulletAttack2;
+    static bool saturnEffect1, saturnEffect2, saturnCaptured, saturnPistolDeleted;
+    static readonly HashSet<string> saturnPistolPhases = new HashSet<string>();
     static int mercenaryWaveDefeats, mercenaryEnteredAt = -1;
     static List<FightDefinition> targets;
     static string combatException;
@@ -78,7 +84,8 @@ public static class ValidateDE128TierBossesNative
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_HERMIT_WAVE") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_WAR_WHIRL") == "1" ||
                 Environment.GetEnvironmentVariable("ECLIPSE_DE128_GATEKEEPER_FIELD") == "1" ||
-                Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" ? 420 : 180;
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" ||
+                Environment.GetEnvironmentVariable("ECLIPSE_DE128_SATURN_BLASTER") == "1" ? 420 : 180;
             if (EditorApplication.timeSinceStartup - started > timeout)
                 throw new Exception("Timed out on boss " + targetIndex + " of " + (targets?.Count ?? 0) +
                     ": entry=" + entryRequested + " cards=" + storyPresses +
@@ -213,6 +220,8 @@ public static class ValidateDE128TierBossesNative
                 !ObserveGatekeeperField(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_BLACKNESS_GRASP") == "1" &&
                 !ObserveBlacknessGrasp(fight, enemy)) return;
+            if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_SATURN_BLASTER") == "1" &&
+                !ObserveSaturnBlaster(fight, enemy)) return;
             if (Environment.GetEnvironmentVariable("ECLIPSE_DE128_MERCENARY_WAVE") == "1" &&
                 !ObserveMercenaryWave(fight, enemy)) return;
             var live = fight.OGNINOBBHIG();
@@ -274,6 +283,106 @@ public static class ValidateDE128TierBossesNative
     }
 
     static FightDefinition Target => targets[targetIndex];
+
+    static bool ObserveSaturnBlaster(Fight fight, Model enemy)
+    {
+        if (Target.Id.ToString() != "de128:fights/uw_boss_12_1" &&
+            Target.Id.ToString() != "de128:fights/uw_boss_12_hardmode_1")
+            throw new Exception("Saturn Blaster acceptance selected the wrong fight.");
+        int frame = fight.get_FightTimeInFrames();
+        if (saturnEnteredAt < 0)
+        {
+            saturnEnteredAt = frame;
+            var localMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(enemy);
+            var caster = localMoves.SingleOrDefault(move => move.Name == "SaturnBlasterAbilityPlayer");
+            var keyNode = new XmlDocument();
+            keyNode.LoadXml("<Keys><Key Type='RaidCharge' PressType='Tap'/></Keys>");
+            var expected = new ConditionKeys(keyNode.DocumentElement);
+            expected.Parse(keyNode.DocumentElement);
+            if (caster == null || caster.Priority != 200 ||
+                localMoves.Count(move => move.Name == "SaturnBlasterAbilityPlayer") != 1 ||
+                localMoves.Count(move => move.Name == "SaturnBlasterAbilityPlayerHideWeapon" ||
+                    move.Name == "SaturnBlasterAbilityStrikePlayer") != 2 ||
+                !caster.SelectionConditions.OfType<ConditionKeys>().Single().HasSameKeyRequirementAs(expected))
+                throw new Exception("Saturn's native caster lost its guarded RaidCharge/priority patch or linked player moves.");
+            enemy.AddEventListener(6, value =>
+            {
+                var child = value as Model;
+                if (child == null) return;
+                string name = child.get_Name();
+                var childMoves = (List<InfoAnimation>)typeof(Model).GetField("OHAMEHHMEAL", Hidden).GetValue(child);
+                if (name == "SaturnBlaster")
+                {
+                    saturnPistol = true;
+                    if (child.Parameters.Weapon?.Name != "ABILITY_SATURN_BLASTER" ||
+                        childMoves.Count(move => move.Name == "SaturnBlasterModel" ||
+                            move.Name == "SaturnBlasterModelHide" || move.Name == "SaturnBlasterModelStrike") != 3)
+                        throw new Exception("Saturn's native pistol lost its hidden item or linked move phases.");
+                    child.AddEventListener(5, ignored => saturnPistolDeleted = true);
+                }
+                else if (name == "SaturnBlasterBullet" || name == "SaturnBlasterBullet2")
+                {
+                    bool first = name == "SaturnBlasterBullet";
+                    if (child.Parameters.Weapon?.Name != "MAGIC_PROJECTILE" ||
+                        !childMoves.Any(move => move.Name == (first ? "SaturnProjectileStart1" : "SaturnProjectileStart2")))
+                        throw new Exception("Saturn's native projectile lost its hidden item or flight move: " + name);
+                    if (first) saturnBullet1 = true; else saturnBullet2 = true;
+                    child.OCPMJKIEPIG().AddEventListener(2, action =>
+                    {
+                        if (action is IntervalAttack attack && attack.Start == 2 && attack.MOILKOLCNBP())
+                        {
+                            if (first) saturnBulletAttack1 = true; else saturnBulletAttack2 = true;
+                        }
+                    });
+                }
+            });
+            Debug.Log(Prefix + "Saturn's native RaidCharge caster, pistol branches and two projectile moves loaded.");
+        }
+        string animation = enemy.OCPMJKIEPIG().NNMAFFCCMHC()?.Name;
+        bool casting = animation == "SaturnBlasterAbilityPlayer";
+        if (casting && !saturnWasCasting)
+        {
+            if (saturnSelectedAt < 0)
+            {
+                saturnSelectedAt = frame;
+                if (frame < 300) throw new Exception("Saturn cast before the archived 300-frame opening cooldown.");
+                Debug.Log(Prefix + "Saturn selected Blaster at frame " + frame + ".");
+            }
+            else if (saturnSecondAt < 0)
+            {
+                int cooldown = Target.Id.ToString().Contains("hardmode") ? 550 : 660;
+                if (frame - saturnSelectedAt < cooldown)
+                    throw new Exception("Saturn recast before the archived " + cooldown + "-frame cooldown.");
+                saturnSecondAt = frame;
+                Debug.Log(Prefix + "Saturn recast Blaster at frame " + frame + ".");
+            }
+        }
+        saturnWasCasting = casting;
+        if (animation == "SaturnBlasterAbilityPlayerHideWeapon" ||
+            animation == "SaturnBlasterAbilityStrikePlayer") saturnPistolPhases.Add(animation);
+        if (GameObject.Find("SaturnShot1") != null) saturnEffect1 = true;
+        if (GameObject.Find("SaturnShot2") != null) saturnEffect2 = true;
+        if (!saturnCaptured && (saturnEffect1 || saturnEffect2))
+        {
+            CaptureCombatFrame(Target.Id.ToString() + "_blaster");
+            saturnCaptured = true;
+        }
+        if (saturnSecondAt >= 0 && saturnPistol &&
+            saturnBullet1 && saturnBullet2 && saturnBulletAttack1 && saturnBulletAttack2 &&
+            saturnEffect1 && saturnEffect2 && saturnCaptured && saturnPistolPhases.Count > 0 &&
+            saturnPistolDeleted)
+        {
+            Debug.Log(Prefix + "Saturn's cast, pistol branch, dual damaging projectiles, effects and cleanup completed in native combat.");
+            return true;
+        }
+        if (frame - saturnEnteredAt >= 6000)
+            throw new Exception("Saturn Blaster did not complete in native combat: cast=" + saturnSelectedAt +
+                " recast=" + saturnSecondAt + " pistol=" + saturnPistol + " bullets=" + saturnBullet1 + "/" + saturnBullet2 +
+                " attacks=" + saturnBulletAttack1 + "/" + saturnBulletAttack2 +
+                " effects=" + saturnEffect1 + "/" + saturnEffect2 +
+                " branch=" + string.Join(",", saturnPistolPhases) + " deleted=" + saturnPistolDeleted);
+        return false;
+    }
 
     static bool ObserveBlacknessGrasp(Fight fight, Model enemy)
     {

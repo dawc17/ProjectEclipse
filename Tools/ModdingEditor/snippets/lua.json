@@ -132,6 +132,19 @@
       "$0"
     ]
   },
+  "Eclipse native move input and priority": {
+    "prefix": "eclipse-move-input",
+    "description": "Retarget one native Tap input and selection priority with expected-value guards. Requires content.patch.",
+    "body": [
+      "-- Requires content.patch in mod.toml.",
+      "sf2.moves.patch {",
+      "    move = \"${1:SaturnBlasterAbilityPlayer}\",",
+      "    input = { expected = \"${2:Super}\", value = \"${3:RaidCharge}\" },",
+      "    priority = { expected = ${4:1000}, value = ${5:200} },",
+      "}",
+      "$0"
+    ]
+  },
   "Eclipse scheduled native effect": {
     "prefix": "eclipse-move-effect",
     "body": [

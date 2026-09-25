@@ -39,7 +39,8 @@ public class ConditionAnimation
 
 	public bool IsNot;
 
-	public ModelType.KEIDBIOIFGA NPEAOKLDJHA
+	// best guess for name
+	public ModelType.KEIDBIOIFGA TargetModelType
 	{
 		get
 		{

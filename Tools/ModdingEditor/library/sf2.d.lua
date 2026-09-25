@@ -1571,6 +1571,16 @@ local MoveHitPatch = {}
 ---@field value integer
 local MoveSoundFramePatch = {}
 
+---@class (exact) Eclipse.MoveInputPatch
+---@field expected "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"
+---@field value "Up"|"Up-Forward"|"Forward"|"Down-Forward"|"Down"|"Down-Back"|"Back"|"Up-Back"|"Punch"|"Kick"|"Ranged"|"Magic"|"RaidCharge"|"Super"
+local MoveInputPatch = {}
+
+---@class (exact) Eclipse.MovePriorityPatch
+---@field expected integer
+---@field value integer
+local MovePriorityPatch = {}
+
 ---@class (exact) Eclipse.MovePatch
 ---@field move string
 ---@field disable? boolean
@@ -1578,6 +1588,8 @@ local MoveSoundFramePatch = {}
 ---@field interval_end? Eclipse.MoveIntervalEndPatch
 ---@field hit? Eclipse.MoveHitPatch
 ---@field sound_frame? Eclipse.MoveSoundFramePatch
+---@field input? Eclipse.MoveInputPatch
+---@field priority? Eclipse.MovePriorityPatch
 local MovePatch = {}
 
 ---@class (exact) Eclipse.MovePerkLockRemoval

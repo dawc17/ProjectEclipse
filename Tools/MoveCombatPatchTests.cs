@@ -24,7 +24,8 @@ internal static class MoveCombatPatchTests
         new[] { new ModMoveCondition(ModMoveConditionKind.ModExists,"Stun",not:true) },
         new ModMoveFramePatch("Uninterrupt",42,40),new ModMoveHitPatch("High","MiddleShortPlus"),new ModMoveFramePatch("snd_disk",18,16));
     private static MoveCombatPatchRuntime.Lifetime Apply(InfoAnimation[] moves, params MoveCombatPatch[] patches)
-        => MoveCombatPatchRuntime.Apply(moves,patches,_ => new ConditionAnimation());
+        => MoveCombatPatchRuntime.Apply(moves,patches,condition => condition.Kind == ModMoveConditionKind.Keys
+            ? new ConditionKeys(condition.Keys.Single().Key) : new ConditionAnimation());
     private static void Reject(InfoAnimation[] moves, MoveCombatPatch[] patches, string reason)
     {
         bool rejected = false; try { Apply(moves,patches); } catch (InvalidOperationException) { rejected = true; }
@@ -98,6 +99,39 @@ internal static class MoveCombatPatchTests
                 !disabled.SelectionConditions[1].IsEqual(new Model(), disabled), "Disabled move remained selectable.");
         }
         Check(disabled.SelectionConditions.SequenceEqual(new[] { original }), "Disabled move rollback changed original conditions.");
+        var inputMove = Move("Input"); inputMove.Priority = 1000;
+        inputMove.SelectionConditions[0] = new ConditionKeys("Super");
+        var originalInput = inputMove.SelectionConditions[0];
+        var inputPatch = new MoveCombatPatch(Owner, "Input", input: new ModMoveInputPatch("Super", "RaidCharge"),
+            priority: new ModMovePriorityPatch(1000, 200));
+        using (Apply(new[] { inputMove }, inputPatch))
+        {
+            Check(inputMove.Priority == 200 && inputMove.SelectionConditions[0] is ConditionKeys changed &&
+                changed.Key == "RaidCharge", "Native input/priority patch did not apply.");
+        }
+        Check(inputMove.Priority == 1000 && ReferenceEquals(inputMove.SelectionConditions[0], originalInput),
+            "Input/priority rollback did not restore the original native move.");
+        var inserted = new ConditionAnimation();
+        var shiftedInput = Apply(new[] { inputMove }, inputPatch);
+        inputMove.SelectionConditions.Insert(0, inserted);
+        shiftedInput.Dispose();
+        Check(inputMove.SelectionConditions.SequenceEqual(new[] { inserted, originalInput }),
+            "Input rollback damaged a later sibling insertion.");
+        inputMove.SelectionConditions.Remove(inserted);
+        Reject(new[] { inputMove }, new[] { new MoveCombatPatch(Owner, "Input",
+            input: new ModMoveInputPatch("Magic", "RaidCharge")) }, "Wrong expected input accepted.");
+        Reject(new[] { inputMove }, new[] { new MoveCombatPatch(Owner, "Input",
+            priority: new ModMovePriorityPatch(900, 200)) }, "Wrong expected priority accepted.");
+        var ambiguousInput = Move("Input"); ambiguousInput.SelectionConditions[0] = new ConditionKeys("Super");
+        ambiguousInput.SelectionConditions.Add(new ConditionKeys("Super"));
+        Reject(new[] { ambiguousInput }, new[] { new MoveCombatPatch(Owner, "Input",
+            input: new ModMoveInputPatch("Super", "RaidCharge")) }, "Ambiguous native input accepted.");
+        var lateInput = Move("LateInput"); lateInput.SelectionConditions[0] = new ConditionKeys("Super");
+        Reject(new[] { inputMove, lateInput }, new[] { inputPatch,
+            new MoveCombatPatch(Owner, "LateInput", priority: new ModMovePriorityPatch(1000, 200)) },
+            "Late priority failure partially applied input patch.");
+        Check(inputMove.Priority == 1000 && ReferenceEquals(inputMove.SelectionConditions[0], originalInput),
+            "Failed patch batch changed the original input.");
         var batch = Move("Batch");
         Reject(new[] { disabled, batch }, new[] { new MoveCombatPatch(Owner, "Disabled", disable: true),
             new MoveCombatPatch(Owner, "Batch", intervalEnd: new ModMoveFramePatch("Uninterrupt", 41, 40)) },
@@ -116,9 +150,15 @@ public class ConditionAnimation
     public virtual bool IsEqual(ModelConditions conditions) => true;
     public virtual bool IsEqual(Model model, InfoAnimation animation) => true;
 }
+public class ConditionKeys : ConditionAnimation
+{
+    public string Key;
+    public ConditionKeys(string key) { Key = key; }
+    public bool HasSameKeyRequirementAs(ConditionKeys other) => other != null && Key == other.Key;
+}
 public class InfoAnimation
 {
-    public string Name; public Data MoveData=new Data();
+    public string Name; public int Priority; public Data MoveData=new Data();
     public List<ConditionAnimation> SelectionConditions=new List<ConditionAnimation>();
     public List<ActionAnimation> ScheduledActions=new List<ActionAnimation>();
     public class Data { public List<IntervalAnimation> Intervals=new List<IntervalAnimation>(); }

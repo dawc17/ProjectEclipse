@@ -228,6 +228,14 @@ internal static class DE128UnderworldTests
             tactic = "de128:tactics/gatekeeper_power_field";
         if (template == "Girl_Blackness" && xml.GetAttribute("Tactic") == "Aggressive")
             tactic = "de128:tactics/blackness_grasp";
+        if (template == "Girl_Saturn" && xml.GetAttribute("Tactic") == "Aggressive")
+        {
+            var set = xml.SelectSingleNode("Perks/Perk[@Name='PERK_SUPER_BLASTER']/Set") as XmlElement;
+            Check(set != null && set.GetAttribute("InitialFrames") == "300", "Saturn's opening delay differs: " + where);
+            tactic = set.GetAttribute("Frames") == "550" ? "de128:tactics/saturn_blaster_power" :
+                set.GetAttribute("Frames") == "660" ? "de128:tactics/saturn_blaster" :
+                throw new Exception("Saturn's recast delay differs: " + where);
+        }
         Check(warrior.Tactic == tactic && warrior.Avatar == Avatar(xml.GetAttribute("Avatar")) &&
             warrior.HealthBars == (xml.HasAttribute("ShieldTotal") ? int.Parse(xml.GetAttribute("ShieldTotal")) : 0), "Opponent fields differ: " + where);
         var attributes = new Dictionary<string, float>();

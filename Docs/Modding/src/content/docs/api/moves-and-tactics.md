@@ -629,7 +629,7 @@ Different additions to the same group compose. The source selector must exist be
 
 ## sf2.moves.patch
 
-**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_end?, hit?, sound_frame? }`
+**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_end?, hit?, sound_frame?, input?, priority? }`
 
 **Returns:** Nothing.
 
@@ -650,6 +650,8 @@ dots or hyphens. At least one nonempty operation is required.
 | `interval_end` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
 | `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`, `HighLong`, `NoReaction`. |
 | `sound_frame` | `{ name, expected, value }`. Requires exactly one native direct Sound action with this clip name, scheduled at `expected`. Moves it to `value`. Event-driven and RandomSound actions are not supported by this selector. |
+| `input` | `{ expected, value }` replaces one direct native Keys condition. Both values are supported control names, such as `Super` and `RaidCharge`, with `Tap` timing. The move must have exactly one direct Keys condition, and its full key requirement must match `expected`. Other conditions remain intact. |
+| `priority` | `{ expected, value }` replaces a native selection priority. Both are distinct integers in 0–100,000. The current priority must match `expected`. |
 
 Frame values must be distinct integers from 0 through 100000. Reaction names
 must also differ. Hit records with explicit start/end bounds in a deferred move,
@@ -677,12 +679,18 @@ sf2.moves.patch {
     sound_frame = { name = "snd_disk", expected = 18, value = 16 },
 }
 sf2.moves.patch { move = "WaspFly_150", disable = true }
+sf2.moves.patch {
+    move = "SaturnBlasterAbilityPlayer",
+    input = { expected = "Super", value = "RaidCharge" },
+    priority = { expected = 1000, value = 200 },
+}
 ```
 
 Only one `moves.patch` declaration may own a given move, including across mods;
 combine operations in one table. Conflicts reject the registration transaction.
 Expected source values make incompatible base data fail explicitly instead of
-silently applying a different edit. Existing item/perk-lock APIs remain separate.
+silently applying a different edit. The input patch preserves the native move
+identity and its linked child animations. Existing item/perk-lock APIs remain separate.
 
 The runtime supports deferred and already-parsed intervals. Removing the content
 restores its edited fields and removes its added condition objects, preserving

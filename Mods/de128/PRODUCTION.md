@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.31.0**. Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.32.0**. Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in normal and Power Mode combat; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -3850,3 +3850,46 @@ The foundation harness now shares immutable package media through Windows
 hard links so its negative-case matrix runs without multiplying large audio
 copies. The location audit retains the known missing
 `fungus_raid/layer_0_2` image.
+
+### Step 66 — Saturn's native Blaster (0.32.0, 2026-09-25)
+
+The reviewed local owner `gamedata/animations/moves.xml` (SHA-256
+`7F4D181848DC3F430BA4AF1A8A024905D629FC77C499FF74832710C65D07B818`)
+sets `SaturnBlasterAbilityPlayer` to RaidCharge Tap at priority 200. The
+packaged core move uses Super Tap at priority 1000. Its linked player hide or
+strike branch, hidden `ABILITY_SATURN_BLASTER` pistol with three phases, and
+two `MAGIC_PROJECTILE` bullets are otherwise available natively. DE128
+changes the original caster in place so those references still resolve. The
+owner raid file prescribes a 300-frame opening delay and recast intervals of
+660 frames in normal mode and 550 in Power Mode. Scoped tactics inherit
+Aggressive, use other legal attacks during cooldown, and back away to meet
+the caster's 450-unit AI distance gate. The tactic variant is selected from
+the archived opponent perk row. DE128 ships no XML and reads none at runtime.
+
+Eclipse's reusable `sf2.moves.patch` API now accepts guarded native `input`
+and `priority` replacements. An input patch requires exactly one direct
+native Keys condition matching the full expected Tap key requirement; a
+priority patch requires an exact old value. The patch batch validates before
+mutation and rolls back by object identity, preserving later condition
+insertions. The patch participates in the content fingerprint. Recovered
+identifier guesses used by this adapter carry the required comments. The
+public wiki and ModdingEditor schema, generated definitions, snippet, starter,
+guide, and completion checks describe the new fields.
+
+Isolated Unity 6 native runs selected Saturn's Blaster at frame 527 in both
+fights. Normal mode recast at frame 1408, after its 660-frame gate; Power
+Mode recast at frame 1248, after its 550-frame gate. Each run observed the
+original caster, pistol phases, both damaging projectiles, two shot effects,
+the hide branch, pistol deletion, offscreen combat capture, and return to
+the Underworld map. These runs establish combat behavior in the isolated
+fixture; interactive balance, audible sound quality, and a playtest in the
+repository's stated Unity 2022.3.62f3 target remain unverified. The complete
+designated owner archive remains unavailable for reconciliation.
+
+Verification: four managed builds; **66** move patch checks; **14,721**
+DE128 foundation checks; **1,282** Underworld runtime assertions; normal
+and Power Mode native first and second casts through map return; pinned
+Underworld generator and art `--check`; location audit; ModdingEditor
+generate/check/**38** project tests, LuaLS and VS Code integration; wiki
+build (**48** pages, **4,344** local links/assets); and `git diff --check`.
+The location audit retains the known missing `fungus_raid/layer_0_2` image.

@@ -31,6 +31,7 @@ def main() -> int:
     parser.add_argument("--war-whirl", action="store_true", help="Observe War's archived RaidCharge Whirl in her Underworld boss fight")
     parser.add_argument("--gatekeeper-field", action="store_true", help="Observe Gatekeeper's attached RaidCharge Power Field and child attack")
     parser.add_argument("--blackness-grasp", action="store_true", help="Observe Blackness's complete Grasp cast, child transition and attack")
+    parser.add_argument("--saturn-blaster", action="store_true", help="Observe Saturn's native RaidCharge Blaster and linked pistol/projectiles")
     parser.add_argument("--mercenary-wave", action="store_true", help="Reach Girl Fan in Mercenary survival and validate her native equipment")
     parser.add_argument("--fights", help="Comma-separated exact de128:fights/uw_* IDs to play in one native run")
     parser.add_argument("--require-titan-equipment", action="store_true",
@@ -69,9 +70,12 @@ def main() -> int:
     if args.blackness_grasp and (args.fight not in ("de128:fights/uw_boss_13_1",
                                                   "de128:fights/uw_boss_13_hardmode_1") or args.win):
         parser.error("--blackness-grasp requires a Blackness normal or Power Mode --fight without --win.")
+    if args.saturn_blaster and (args.fight not in ("de128:fights/uw_boss_12_1",
+                                                  "de128:fights/uw_boss_12_hardmode_1") or args.win):
+        parser.error("--saturn-blaster requires a Saturn normal or Power Mode --fight without --win.")
     if args.mercenary_wave and (args.fight != "de128:fights/uw_survival_mercenary_1" or args.win):
         parser.error("--mercenary-wave requires --fight de128:fights/uw_survival_mercenary_1 without --win.")
-    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.blackness_grasp, args.mercenary_wave)) > 1:
+    if sum((args.wasp_wave, args.butcher_wave, args.hermit_wave, args.hermit_victory, args.war_whirl, args.gatekeeper_field, args.blackness_grasp, args.saturn_blaster, args.mercenary_wave)) > 1:
         parser.error("Choose one survival wave acceptance at a time.")
 
     fixture = owned_native_fixture(args.reuse_native) if args.reuse_native else prepare_native(args.unity_editor.resolve())[0]
@@ -87,6 +91,12 @@ def main() -> int:
         "Assets/Scripts/Assembly-CSharp/IntervalAttack.cs",
         "Assets/Scripts/Assembly-CSharp/ModelAi.cs",
         "Assets/Scripts/Assembly-CSharp/Model.cs",
+        "Assets/Scripts/Assembly-CSharp/AnimationData.cs",
+        "Assets/Scripts/Assembly-CSharp/ConditionKeys.cs",
+        "Assets/Scripts/Assembly-CSharp/ConditionAnimation.cs",
+        "Assets/Scripts/Assembly-CSharp/SelectAnimation.cs",
+        "Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Profile/PerkContent.cs",
+        "Assets/Scripts/Assembly-CSharp/Nekki/SF2/GUI/Profile/TrickSubItem.cs",
         "Assets/Scripts/Assembly-CSharp/ModelObject.cs",
         "Assets/Scripts/Assembly-CSharp/ActionEffect.cs",
         "Assets/Scripts/Assembly-CSharp/CurrentEffect.cs",
@@ -96,6 +106,7 @@ def main() -> int:
         "Assets/Scripts/Eclipse/Modding/LegacyContentAdapterP1D.cs",
         "Assets/Scripts/Eclipse/Modding/ModAssetLoader.cs",
         "Assets/Scripts/Eclipse/Modding/ModRuntime.cs",
+        "Assets/Scripts/Eclipse/Modding/ModRuntimeP1D.cs",
         "Assets/Scripts/Eclipse/Modding/MoonSharpScriptRuntimeP1D.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/ModContentP1D.cs",
         "Assets/Scripts/Eclipse/Runtime/Modding/ModMovePerkLocks.cs",
@@ -170,6 +181,8 @@ def main() -> int:
         environment["ECLIPSE_DE128_GATEKEEPER_FIELD"] = "1"
     if args.blackness_grasp:
         environment["ECLIPSE_DE128_BLACKNESS_GRASP"] = "1"
+    if args.saturn_blaster:
+        environment["ECLIPSE_DE128_SATURN_BLASTER"] = "1"
     if args.mercenary_wave:
         environment["ECLIPSE_DE128_MERCENARY_WAVE"] = "1"
     if args.story_bosses:

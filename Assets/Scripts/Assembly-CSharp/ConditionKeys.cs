@@ -2,7 +2,8 @@ using System.Xml;
 
 public class ConditionKeys : ConditionAnimation
 {
-	public KeyData FONEJOKEIEN = new KeyData();
+	// best guess for name
+	public KeyData RequiredKeys = new KeyData();
 
 	public KeyData GNNEIPGALBE;
 
@@ -16,31 +17,38 @@ public class ConditionKeys : ConditionAnimation
 			switch (childNode.Attributes["PressType"].CIPOICEEIBK(string.Empty))
 			{
 			case "Hold":
-				FONEJOKEIEN.CEPODJDDLBF.Add((int)item);
+				RequiredKeys.CEPODJDDLBF.Add((int)item);
 				break;
 			case "Tap":
-				FONEJOKEIEN.IGEEOAGOMEM.Add((int)item);
+				RequiredKeys.IGEEOAGOMEM.Add((int)item);
 				break;
 			case "Release":
-				FONEJOKEIEN.HPEOJLAMIHC.Add((int)item);
+				RequiredKeys.HPEOJLAMIHC.Add((int)item);
 				break;
 			}
 		}
-		FONEJOKEIEN.ResetPressType();
-		GNNEIPGALBE = new KeyData(FONEJOKEIEN);
+		RequiredKeys.ResetPressType();
+		GNNEIPGALBE = new KeyData(RequiredKeys);
 		GNNEIPGALBE.Reverse(-1);
 	}
 
 	public override bool IsEqual(ModelConditions conditions)
 	{
-		KeyData oHGJEGDLEJK = ((!conditions.BJACLIMKPAE.IsInverted && conditions.PCAOCHAIBJC <= 0) ? GNNEIPGALBE : FONEJOKEIEN);
+		KeyData oHGJEGDLEJK = ((!conditions.BJACLIMKPAE.IsInverted && conditions.PCAOCHAIBJC <= 0) ? GNNEIPGALBE : RequiredKeys);
 		bool flag = !conditions.IDCHHGHAENM || oHGJEGDLEJK.IsVariable(conditions.BJACLIMKPAE);
 		return (!IsNot) ? flag : (!flag);
 	}
 
 	public bool IsEqual(KeyData KDKEJHHKCDB, bool ANCFHGGJOJB)
 	{
-		bool flag = !ANCFHGGJOJB || FONEJOKEIEN.IsVariable(KDKEJHHKCDB);
+		bool flag = !ANCFHGGJOJB || RequiredKeys.IsVariable(KDKEJHHKCDB);
 		return (!IsNot) ? flag : (!flag);
+	}
+
+	public bool HasSameKeyRequirementAs(ConditionKeys other)
+	{
+		return other != null && IsNot == other.IsNot && TargetModelType == other.TargetModelType &&
+			RequiredKeys.IsInverted == other.RequiredKeys.IsInverted &&
+			RequiredKeys.IsVariable(other.RequiredKeys) && other.RequiredKeys.IsVariable(RequiredKeys);
 	}
 }
