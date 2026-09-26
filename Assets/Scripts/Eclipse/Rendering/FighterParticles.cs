@@ -12,6 +12,8 @@ namespace Eclipse.Rendering
 	//   streams behind a moving node;
 	// - particles with placement = "hit": a burst at the contact point when this
 	//   fighter is struck;
+	// - particles with placement = "contact": bursts where the fighter lands, is
+	//   knocked down, skids along the floor or plays a wall-hit recoil (see UpdateMotion);
 	// - sf2.fx.shadow: a soft oval on the floor under the fighter that shrinks and
 	//   fades as the fighter rises;
 	// - the rim-light ink weight, which rises while the fighter casts magic;
@@ -68,6 +70,21 @@ namespace Eclipse.Rendering
 		private ModelPresentation _presentation;
 		private readonly List<Emitter> _emitters = new List<Emitter>();
 		private readonly List<Burst> _bursts = new List<Burst>();
+		private readonly List<Burst> _contacts = new List<Burst>();
+
+		// Motion triggers, in fighter units (a standing fighter is about 300 tall).
+		private const float AirborneHeight = 30f, GroundedHeight = 10f, MinimumFall = 45f;
+		private const float KnockdownHeight = 60f, KnockdownSpeed = 120f, KnockdownCooldown = 0.6f;
+		private const float SlideSpeed = 420f, SlideInterval = 0.07f;
+		// The recoil moves the fighter plays when knocked into the arena wall (moves.xml).
+		private static readonly string[] WallHitMoves = { "WallHit", "WallHitFall" };
+		// A jump this large in one frame is a reposition (round start), not motion.
+		private const float Teleport = 150f;
+		private float _pivotHeight, _lowestX, _localCenterX, _minX, _minXY, _maxX, _maxXY;
+		private float _previousCenter = float.NaN, _previousPivot, _peak;
+		private bool _airborne, _hasPivot;
+		private float _nextKnockdown, _nextSlide;
+		private bool _inWallHit;
 		private readonly List<Shadow> _shadows = new List<Shadow>();
 		private string _key;
 		private int _nodeCount = -1;
@@ -137,6 +154,7 @@ namespace Eclipse.Rendering
 				emitter.System.transform.localPosition = new Vector3(x, y, -0.1f);
 			}
 			UpdateGround(alpha);
+			UpdateMotion();
 			UpdateShadows(alpha);
 			UpdateInk();
 			UpdateLights(alpha);
@@ -149,14 +167,16 @@ namespace Eclipse.Rendering
 			string location = inFight ? LocationAtmosphere.CurrentLocationName : null;
 			var active = new List<ModFxDefinition>();
 			var bursts = new List<ModFxDefinition>();
+			var contacts = new List<ModFxDefinition>();
 			var key = new StringBuilder();
 			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Particles))
 			{
-				if (definition.Placement != ModFxPlacement.Node && definition.Placement != ModFxPlacement.Hit) continue;
+				if (definition.Placement != ModFxPlacement.Node && definition.Placement != ModFxPlacement.Hit &&
+					definition.Placement != ModFxPlacement.Contact) continue;
 				if (definition.Scenes == ModFxScenes.Fights && !inFight) continue;
 				if (inFight && !definition.MatchesLocation(location)) continue;
 				if (!FighterMatches(definition.Fighters)) continue;
-				(definition.Placement == ModFxPlacement.Hit ? bursts : active).Add(definition);
+				(definition.Placement == ModFxPlacement.Hit ? bursts : definition.Placement == ModFxPlacement.Contact ? contacts : active).Add(definition);
 				key.Append(definition.Name).Append('|');
 			}
 			Dictionary<string, ModelNode> nodes = _model.CLDMEJKGLBA()?.HKCFFKKFFFE();
@@ -170,6 +190,10 @@ namespace Eclipse.Rendering
 			_bursts.Clear();
 			foreach (ModFxDefinition definition in bursts)
 				_bursts.Add(new Burst { Definition = definition, System = FxBuilder.CreateBurst(transform, definition) });
+			foreach (Burst old in _contacts) if (old.System != null) Destroy(old.System.gameObject);
+			_contacts.Clear();
+			foreach (ModFxDefinition definition in contacts)
+				_contacts.Add(new Burst { Definition = definition, System = FxBuilder.CreateBurst(transform, definition) });
 			ModelObject body = _model.CLDMEJKGLBA();
 			if (body == null) return;
 			foreach (ModFxDefinition definition in active)
@@ -289,14 +313,15 @@ namespace Eclipse.Rendering
 		{
 			_hasFloorSample = false;
 			if (!FightInterpolation.IsFightActive || _model.NJDJHGDMCIJ() != null) return;
-			if (!ModVisuals.HasActiveFx(ModFxKind.Shadow) && !ModVisuals.HasActiveFx(ModFxKind.Stain)) return;
+			if (!ModVisuals.HasActiveFx(ModFxKind.Shadow) && !ModVisuals.HasActiveFx(ModFxKind.Stain) && !WantsMotion()) return;
 			Dictionary<string, ModelNode> nodes = _model.CLDMEJKGLBA()?.HKCFFKKFFFE();
 			if (nodes == null) return;
 			// Heights are measured upward on screen: the fight camera may show world
 			// +y pointing down, so "lowest" follows the camera, not the world axis.
 			float sign = ScreenUp();
 			// Skeleton nodes are named N*; weapon macro nodes are left out.
-			float lowest = float.MaxValue, sumX = 0f; int count = 0;
+			float lowest = float.MaxValue, sumX = 0f, localSum = 0f, lowestX = 0f; int count = 0;
+			_minX = float.MaxValue; _maxX = float.MinValue;
 			foreach (var pair in nodes)
 			{
 				if (pair.Value == null || pair.Key == null || pair.Key.Length < 2 || pair.Key[0] != 'N') continue;
@@ -304,14 +329,122 @@ namespace Eclipse.Rendering
 				FightInterpolation.SamplePosition(pair.Value, alpha, out x, out y, out z);
 				Vector3 world = transform.TransformPoint(new Vector3(x, y, 0f));
 				float height = world.y * sign;
-				if (height < lowest) lowest = height;
-				sumX += world.x; count++;
+				if (height < lowest) { lowest = height; lowestX = world.x; }
+				sumX += world.x; localSum += x; count++;
+				// The body's extent along the arena, in the same units as the walls.
+				if (x < _minX) { _minX = x; _minXY = y; }
+				if (x > _maxX) { _maxX = x; _maxXY = y; }
 			}
 			if (count == 0) return;
+			_lowestX = lowestX;
+			_localCenterX = localSum / count;
+			ModelNode pivot = _model.CLDMEJKGLBA()?.HOFFDCFEBGA();
+			_hasPivot = pivot != null;
+			if (_hasPivot)
+			{
+				float px, py, pz;
+				FightInterpolation.SamplePosition(pivot, alpha, out px, out py, out pz);
+				_pivotHeight = transform.TransformPoint(new Vector3(px, py, 0f)).y * sign;
+			}
 			Fight fight = Fight.GetCurrentFight();
 			if (fight != _groundFight || sign != _groundSign) { _groundFight = fight; _groundY = float.MaxValue; _groundSign = sign; }
 			if (lowest < _groundY) _groundY = lowest;
 			_lowest = lowest; _centerX = sumX / count; _hasFloorSample = true;
+		}
+
+		// Contact particles, or a screen effect waiting on a motion trigger.
+		private bool WantsMotion()
+		{
+			if (_contacts.Count != 0) return true;
+			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Screen))
+				if (ModFxParameters.IsMotionTrigger(definition.Trigger)) return true;
+			return false;
+		}
+
+		// Reads the fighter's movement against the floor and the arena walls and fires
+		// the motion triggers. Presentation only: it never changes the fight. Uses game
+		// time, so nothing fires while paused and slow motion slows the checks too.
+		private void UpdateMotion()
+		{
+			if (!_hasFloorSample || _groundY == float.MaxValue || !WantsMotion() || !_hasPivot)
+			{
+				_previousCenter = float.NaN;
+				return;
+			}
+			float dt = Time.deltaTime;
+			if (dt <= 0f) return;
+			float unit = Mathf.Max(Mathf.Abs(transform.lossyScale.y), 1e-5f);
+			float height = (_lowest - _groundY) / unit;
+			float pivot = (_pivotHeight - _groundY) / unit;
+			float center = _localCenterX, previousCenter = _previousCenter, previousPivot = _previousPivot;
+			_previousCenter = center;
+			_previousPivot = pivot;
+			UpdateWallHit();
+			if (float.IsNaN(previousCenter) || Mathf.Abs(center - previousCenter) > Teleport) { _airborne = false; return; }
+			float vx = (center - previousCenter) / dt;
+			float vy = (pivot - previousPivot) / dt;
+			float now = Time.time;
+
+			// Landing: a real fall (not a hop) that ends with the feet on the floor.
+			if (height > AirborneHeight)
+			{
+				if (!_airborne) { _airborne = true; _peak = height; }
+				else if (height > _peak) _peak = height;
+			}
+			else if (_airborne && height < GroundedHeight)
+			{
+				_airborne = false;
+				if (_peak > MinimumFall) Fire(ModFxTrigger.Land, FloorPoint(_lowestX));
+			}
+			// Knockdown: the body's centre drops to the floor while falling.
+			if (previousPivot >= KnockdownHeight && pivot < KnockdownHeight && vy < -KnockdownSpeed && now >= _nextKnockdown)
+			{
+				_nextKnockdown = now + KnockdownCooldown;
+				Fire(ModFxTrigger.Knockdown, FloorPoint(_centerX));
+			}
+			// Slide: feet on the floor while the body moves fast along it (skids, pushback, dashes).
+			if (height < GroundedHeight && Mathf.Abs(vx) > SlideSpeed && now >= _nextSlide)
+			{
+				_nextSlide = now + SlideInterval;
+				Fire(ModFxTrigger.Slide, FloorPoint(_lowestX));
+			}
+		}
+
+		// Wall: fires once when the fighter starts a wall-hit recoil (WallHit, or
+		// WallHitFall straight from another move), at the edge of the body facing
+		// the nearer arena wall.
+		private void UpdateWallHit()
+		{
+			InfoAnimation current = _model.OCPMJKIEPIG()?.NNMAFFCCMHC();
+			bool inWallHit = false;
+			if (current != null)
+				foreach (string move in WallHitMoves)
+					if (current.CNPFHBMGDFP(move)) { inWallHit = true; break; }
+			bool started = inWallHit && !_inWallHit;
+			_inWallHit = inWallHit;
+			if (!started || !FightInterpolation.IsFightActive) return;
+			float left = GameUtils.CKOPPGCIHPL(), right = GameUtils.FBOGLADLJML();
+			bool leftWall = right > left ? _minX - left < right - _maxX : _localCenterX < 0f;
+			Fire(ModFxTrigger.Wall, leftWall ? new Vector3(_minX, _minXY, 0f) : new Vector3(_maxX, _maxXY, 0f));
+		}
+
+		// A point on the floor under a world x, in this fighter's local space.
+		private Vector3 FloorPoint(float worldX)
+		{
+			Vector3 local = transform.InverseTransformPoint(new Vector3(worldX, _groundSign * _groundY, transform.position.z));
+			return new Vector3(local.x, local.y, 0f);
+		}
+
+		private void Fire(ModFxTrigger trigger, Vector3 point)
+		{
+			ModVisuals.NotifyMotion(trigger);
+			foreach (Burst contact in _contacts)
+			{
+				if (contact.System == null || contact.Definition.Trigger != trigger) continue;
+				// In front of the fighter's feet, so the dust reads over the body.
+				contact.System.transform.localPosition = new Vector3(point.x, point.y, -0.15f);
+				contact.System.Emit(Mathf.Max(1, Mathf.RoundToInt(contact.Definition.Number("count"))));
+			}
 		}
 
 		// +1 when world +y points up on screen, -1 when the camera shows it pointing down.

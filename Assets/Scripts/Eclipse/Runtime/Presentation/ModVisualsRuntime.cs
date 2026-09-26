@@ -34,7 +34,7 @@ namespace Eclipse.Modding
 		private static float _impactDuration = 0.3f;
 
 		// When each fight event last fired (unscaled seconds), for triggered effects.
-		private static readonly float[] _triggerTimes = { -1f, -1f, -1f, -1f, -1f };
+		private static readonly float[] _triggerTimes = { -1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f, -1f };
 
 		public static void Bind(ModContentCatalog catalog)
 		{
@@ -104,6 +104,12 @@ namespace Eclipse.Modding
 				if (critical) _triggerTimes[(int)ModFxTrigger.Critical] = now;
 			}
 			if (ko) _triggerTimes[(int)ModFxTrigger.Ko] = now;
+		}
+
+		// Records a fighter's landing, knockdown, slide or wall impact for triggered screen effects.
+		public static void NotifyMotion(ModFxTrigger trigger)
+		{
+			if (ModFxParameters.IsMotionTrigger(trigger)) _triggerTimes[(int)trigger] = Time.unscaledTime;
 		}
 
 		// 0..1 strength of a triggered effect now: full for `hold`, then an

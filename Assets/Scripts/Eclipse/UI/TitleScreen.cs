@@ -16,6 +16,8 @@ namespace Eclipse.UI
         private static readonly Color Ink = new Color32(30, 25, 22, 255);
         private static readonly Color Paper = new Color32(223, 207, 177, 255);
         private static readonly Color Red = new Color32(147, 39, 31, 255);
+        private static readonly Color RedBright = new Color32(186, 52, 36, 255);
+        private static readonly Color Scrim = new Color(20f / 255f, 14f / 255f, 11f / 255f, .62f);
         private static readonly int[] Caps = { 0, 60, 120, 144, 165, 240, 360 };
         private int bindingAction = -1;
         private int bindingFrame;
@@ -25,7 +27,7 @@ namespace Eclipse.UI
         private readonly Dictionary<int, Text> bindingLabels = new Dictionary<int, Text>();
         private RectTransform page;
         private RectTransform viewport;
-        private RectTransform paperBackground, settingsBackground, footerBackground, footerHint;
+        private RectTransform paperBackground, settingsBackground, footerBackground;
         private RectTransform skyLeft, skyRight;
         private Font font;
         private Material logoInk;
@@ -48,12 +50,30 @@ namespace Eclipse.UI
         private float confirmUntil;
         private Text countdown;
         private readonly List<Vector2Int> resolutions = new List<Vector2Int>();
+        // Presentation: first-open intro, the Home brush highlight and page entrances.
+        private static bool introPlayed;
+        private static bool splashShown;
+        private bool splashing;
+        private const float ContentLift = 44f;
+        private int contentStart;
+        private string previousPage;
+        private InkStroke homeStroke;
+        private RectTransform leafLayer;
+        private Text versusCaption;
+        private GameObject versusRow;
+        // Focusable Home entries: top and height of each row.
+        private readonly Dictionary<GameObject, Vector2> homeRows = new Dictionary<GameObject, Vector2>();
+        private GameObject strokeTarget;
+        private float strokeY, strokeVelocity, strokeFill;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetSession()
         {
             enteredCampaign = false;
             IsOpen = false;
+            introPlayed = false;
+            seasonChosen = false;
+            splashShown = false;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -126,29 +146,137 @@ namespace Eclipse.UI
             resolution = new Vector2Int(Screen.width, Screen.height);
             if (!resolutions.Contains(resolution)) resolutions.Add(resolution);
             mode = Screen.fullScreenMode == FullScreenMode.Windowed ? FullScreenMode.Windowed : FullScreenMode.FullScreenWindow;
+            if (!splashShown && !Application.isBatchMode)
+            {
+                splashShown = true;
+                splashing = true;
+                StartCoroutine(PlaySplash());
+            }
+            else Home();
+        }
+
+        // Launch splash: fade from black to the splash art, hold, fade back to black, then open
+        // the title (which fades up from black with its entrance). Any key or click skips ahead.
+        private System.Collections.IEnumerator PlaySplash()
+        {
+            // Black lead-in, fade in, hold, fade out, black rest. Time advances per rendered frame
+            // and never by more than 1/20 s, so launch hitches cannot swallow the fade-in.
+            const float Lead = .8f, FadeIn = 3f, Hold = 1f, FadeOut = 2.2f, Rest = .5f;
+            const float Total = Lead + FadeIn + Hold + FadeOut + Rest;
+            var layer = Rect(transform, "Splash", 0, 0, 1280, 720);
+            layer.anchorMin = Vector2.zero; layer.anchorMax = Vector2.one; layer.offsetMin = layer.offsetMax = Vector2.zero;
+            var black = layer.gameObject.AddComponent<Image>();
+            black.color = Color.black;
+            var art = Rect(layer, "Splash art", 0, 0, 0, 0);
+            art.anchorMin = Vector2.zero; art.anchorMax = Vector2.one; art.offsetMin = art.offsetMax = Vector2.zero;
+            art.pivot = new Vector2(.5f, .5f);
+            var image = art.gameObject.AddComponent<RawImage>();
+            image.texture = Resources.Load<Texture2D>("EclipseTitle/splash");
+            image.color = new Color(1f, 1f, 1f, 0f);
+            image.raycastTarget = false;
+            if (image.texture != null)
+            {
+                var fit = art.gameObject.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+                fit.aspectRatio = (float)image.texture.width / image.texture.height;
+            }
+            // Let the first (often slow) launch frames pass on black before starting the clock.
+            for (int i = 0; i < 3; i++) yield return null;
+            float t = 0f;
+            float fadeOutAt = Lead + FadeIn + Hold;
+            while (t < Total)
+            {
+                t += Mathf.Min(Time.unscaledDeltaTime, .05f);
+                if (t > Lead && t < fadeOutAt - .5f && (UnityEngine.Input.anyKeyDown || UnityEngine.Input.GetMouseButtonDown(0)))
+                {
+                    // Skip: fade out from wherever the fade-in had reached.
+                    float shown = Mathf.Clamp01((t - Lead) / FadeIn);
+                    fadeOutAt = t - (1f - shown) * FadeOut;
+                }
+                float alpha = t < fadeOutAt ? Mathf.Clamp01((t - Lead) / FadeIn) : 1f - Mathf.Clamp01((t - fadeOutAt) / FadeOut);
+                alpha = alpha * alpha * (3f - 2f * alpha);
+                image.color = new Color(1f, 1f, 1f, alpha);
+                // A slow push-in while it is on screen.
+                float zoom = 1.025f - .025f * Mathf.Clamp01((t - Lead) / (FadeIn + Hold + FadeOut));
+                art.localScale = new Vector3(zoom, zoom, 1f);
+                if (t >= fadeOutAt + FadeOut + Rest) break;
+                yield return null;
+            }
             Home();
+            Destroy(layer.gameObject);
+            splashing = false;
+        }
+
+        private void Start()
+        {
+            // ShowOptions sets optionsOnly after Awake; the in-game options overlay stays quiet.
+            if (optionsOnly) return;
+            // Returning to the title can leave the game's own menu or fight music loaded; stop it
+            // (this also lets the map start its menu theme afresh after the title closes).
+            try { SoundController.NDBJCCIBAIO(); }
+            catch (Exception error) { Debug.LogWarning("[Title] Could not stop game music: " + error.Message); }
+            // The track follows the scene; on a cold launch it rises slowly under the splash.
+            ChooseSeason();
+            EclipseUiAudio.StartTitleMusic(SceneMusic, splashing ? 4f : 1.2f);
         }
 
         private void Clear(string name)
         {
+            previousPage = currentPage;
             bindingAction = -1;
             bindingLabels.Clear();
             currentPage = name;
             rebuilding = true;
             controls.Clear();
             selected = 0;
-            foreach (Transform child in page) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
+            foreach (Transform child in page)
+            {
+                if (child == leafLayer) continue;
+                child.gameObject.SetActive(false);
+                Destroy(child.gameObject);
+            }
+            homeStroke = null;
+            homeRows.Clear();
+            strokeTarget = null;
             paperBackground = Box(page, "Paper", 0, 0, 1280, 720, Paper);
-            DrawAutumnGate();
+            DrawScenery();
+            // Seasonal particles drift across the whole (up to 21:9) scene. The layer survives
+            // page rebuilds so they keep moving instead of respawning, and sits behind every page.
+            if (leafLayer == null)
+            {
+                LayoutViewport();
+                LayoutPanorama(Vector2.zero);
+                leafLayer = Rect(page, "Seasonal particles", 0, 0, 1280, 720);
+                ScatterParticles(leafLayer);
+            }
+            leafLayer.SetAsLastSibling();
             settingsBackground = null;
+            bool panelPage = name != "Home" && name != "Loading";
+            bool fromHome = previousPage == "Home";
             if (name != "Home")
-                settingsBackground = Box(page, "Settings paper", 0, 0, 1280, 720, new Color(Paper.r, Paper.g, Paper.b, .96f));
-            footerBackground = Box(page, "Footer", 0, 674, 1280, 46, new Color32(132, 40, 14, 245));
-            footerHint = Label(page, "ARROWS  Select     ENTER  Confirm     ESC  Back", 620, 680, 610, 30, 16, Paper, TextAnchor.MiddleRight).rectTransform;
+            {
+                // The autumn scene stays visible behind an ink wash; content sits on a paper card.
+                settingsBackground = Box(page, "Ink wash", 0, 0, 1280, 720, name == "Loading" ? Ink : Scrim);
+                if (fromHome || name == "Loading") UiReveal.Play(settingsBackground, 0f, name == "Loading" ? .45f : .28f, Vector2.zero);
+            }
+            if (panelPage)
+            {
+                var card = Rect(page, "Paper card", 40, 26, 1200, 636);
+                var paper = card.gameObject.AddComponent<PaperPanel>();
+                paper.color = Paper;
+                paper.raycastTarget = false;
+                if (fromHome) UiReveal.Play(card, .02f, .34f, new Vector2(0, -16), .965f);
+            }
+            DrawFooter();
+            contentStart = page.childCount;
             LayoutViewport();
         }
 
-        private void LateUpdate() { LayoutViewport(); }
+        private void LateUpdate()
+        {
+            LayoutViewport();
+            ApplyParallax();
+        }
 
         private void LayoutViewport()
         {
@@ -160,6 +288,8 @@ namespace Eclipse.UI
             viewport.sizeDelta = new Vector2(width, height);
             float left = (1280f - width) * .5f;
             float top = (720f - height) * .5f;
+            viewLeft = left;
+            viewWidth = width;
             // Keep the authored gate, logo and controls at their original proportions.
             // Only the surrounding scenery, paper and footer fill the wider viewport.
             Place(paperBackground, left, top, width, height);
@@ -167,7 +297,6 @@ namespace Eclipse.UI
             Place(skyLeft, left, top, width * .5f, height - 46);
             Place(skyRight, 640, top, width * .5f, height - 46);
             Place(footerBackground, left, top + height - 46, width, 46);
-            Place(footerHint, left + width - 660, top + height - 40, 610, 30);
         }
 
         private static void Place(RectTransform rect, float x, float y, float width, float height)
@@ -177,11 +306,22 @@ namespace Eclipse.UI
             rect.sizeDelta = new Vector2(width, height);
         }
 
+        // The gate and the two trees are tiles of one painting (wall, ground and leaf carpet run
+        // across their edges), so they must move together; only the sky behind has its own depth.
+        private const float GroundPlaneDepth = .6f;
+
         private void DrawAutumnGate()
         {
             const string root = "Textures/Locations/autumn/";
             skyLeft = PackedPicture("Sky left", root + "autumn_bg", 0, 0, 640, 674, new Rect(0, 0, 1, .5f))?.rectTransform;
             skyRight = PackedPicture("Sky right", root + "autumn_bg", 640, 0, 640, 674, new Rect(0, .5f, 1, .5f))?.rectTransform;
+            AddLayer(skyLeft, .15f, true);
+            AddLayer(skyRight, .15f, true);
+            // The eclipse sits in the strip of sky above the roof, behind the gate and trees.
+            DrawSun(24f);
+            sunRoot.anchoredPosition = new Vector2(862, -46);
+            AddLayer(sunRoot, .2f);
+            groundY = 662f;
             // Original TexturePacker sourceSize is 512 square for all three tiles.
             // sourceColorRect trims 24 pixels above the trees and 66 above the gate.
             // Preserve those offsets and one scale so roof, wall and ground edges meet.
@@ -197,11 +337,12 @@ namespace Eclipse.UI
                 rect.pivot = new Vector2(.5f, .5f);
                 rect.anchoredPosition = new Vector2(244 - 396, -(originY + 24 * scale + 244 * scale));
                 rect.localRotation = Quaternion.Euler(0, 0, 90);
+                AddLayer(rect, GroundPlaneDepth);
             }
-            PackedPicture("Right tree", root + "autumn_atlas_layer1", 1036, originY + 24 * scale, 792, 488 * scale,
-                new Rect(3f / 1024, 533f / 1024, 512f / 1024, 488f / 1024));
-            PackedPicture("Gate", root + "autumn_atlas_layer1", 244, 22, 792, 446 * scale,
-                new Rect(3f / 1024, 83f / 1024, 512f / 1024, 446f / 1024));
+            AddLayer(PackedPicture("Right tree", root + "autumn_atlas_layer1", 1036, originY + 24 * scale, 792, 488 * scale,
+                new Rect(3f / 1024, 533f / 1024, 512f / 1024, 488f / 1024))?.rectTransform, GroundPlaneDepth);
+            AddLayer(PackedPicture("Gate", root + "autumn_atlas_layer1", 244, 22, 792, 446 * scale,
+                new Rect(3f / 1024, 83f / 1024, 512f / 1024, 446f / 1024))?.rectTransform, GroundPlaneDepth);
         }
 
         private RawImage PackedPicture(string name, string address, float x, float y, float w, float h, Rect uv)
@@ -215,7 +356,7 @@ namespace Eclipse.UI
                 texture.filterMode = FilterMode.Bilinear;
                 autumnTextures.Add(address, texture);
             }
-            var image = Rect(page, name, x, y, w, h).gameObject.AddComponent<RawImage>();
+            var image = Rect(scenery, name, x, y, w, h).gameObject.AddComponent<RawImage>();
             image.texture = texture;
             image.uvRect = uv;
             image.raycastTarget = false;
@@ -237,18 +378,119 @@ namespace Eclipse.UI
                 new Rect(292f / 1024, 368f / 1024, 618f / 1024, 489f / 1024));
             Picture(page, "Logo right", "ui/fullscreen/startLoading_right", logoX + 618 * logoScale, logoY, 610 * logoScale, 489 * logoScale,
                 new Rect(0, 368f / 1024, 610f / 1024, 489f / 1024));
-            Label(page, "PROJECT ECLIPSE", 405, 211, 470, 28, 16, Paper, TextAnchor.MiddleCenter);
-            Button(page, "CAMPAIGN", 405, 280, 470, 60, BeginCampaign);
-            Button(page, "MULTIPLAYER", 405, 355, 470, 60, () =>
+            DrawPlaque();
+            DrawMenuWash();
+            // One brush stroke under the labels glides to whichever entry has focus.
+            var stroke = Rect(page, "Brush highlight", 385, 280, 510, 60);
+            homeStroke = stroke.gameObject.AddComponent<InkStroke>();
+            homeStroke.color = new Color(Red.r, Red.g, Red.b, .92f);
+            homeStroke.raycastTarget = false;
+            homeStroke.Fill = 0f;
+            // Campaign leads; Quit lives in the footer (and on Esc).
+            var campaign = HomeButton("CAMPAIGN", 272, 74, BeginCampaign, UiSound.Begin, 38);
+            string progress = ContinueLine();
+            if (progress != null)
+            {
+                var caption = campaign.GetComponentInChildren<Text>();
+                caption.rectTransform.anchoredPosition += new Vector2(0, 8);
+                campaign.GetComponent<EclipseUiButton>().Rehome();
+                var line = Label(campaign.transform, progress.ToUpperInvariant(), 0, 52, 470, 18, 12,
+                    new Color(Paper.r, Paper.g, Paper.b, .75f), TextAnchor.MiddleCenter);
+                line.horizontalOverflow = HorizontalWrapMode.Overflow;
+            }
+            versusRow = HomeButton("MULTIPLAYER", 360, 56, () =>
             {
                 Eclipse.Multiplayer.LocalVersusSession.RequestEntry();
                 BeginCampaign();
-            });
-            Label(page, "LOCAL VERSUS", 405, 408, 470, 20, 12, Ink, TextAnchor.MiddleCenter);
-            Button(page, "MODS", 405, 433, 470, 56, OpenMods);
-            Button(page, "OPTIONS", 405, 494, 470, 56, () => Settings("Display"));
-            Button(page, "QUIT GAME", 405, 555, 470, 56, QuitPrompt);
+            }, UiSound.Begin, 29);
+            versusCaption = Label(page, "LOCAL VERSUS", 405, 407, 470, 18, 12, new Color(Paper.r, Paper.g, Paper.b, .7f), TextAnchor.MiddleCenter);
+            HomeButton("MODS", 440, 52, OpenMods, UiSound.Open, 27);
+            HomeButton("OPTIONS", 496, 52, () => Settings("Display"), UiSound.Open, 27);
             FocusFirst();
+        }
+
+        private GameObject HomeButton(string text, float y, float h, Action action, UiSound sound, int size)
+        {
+            var button = Button(page, text, 405, y, 470, h, action, sound);
+            button.GetComponentInChildren<Text>().fontSize = size;
+            homeRows[button.gameObject] = new Vector2(y, h);
+            return button.gameObject;
+        }
+
+        // Eases the brush stroke to the focused Home entry and repaints it on each move.
+        private void UpdateHomeStroke()
+        {
+            if (homeStroke == null) return;
+            var focused = EventSystem.current == null ? null : EventSystem.current.currentSelectedGameObject;
+            Vector2 row;
+            // Wait for the entry itself to finish its entrance before painting under it.
+            if (focused == null || !homeRows.TryGetValue(focused, out row) || focused.GetComponent<UiReveal>() != null)
+            {
+                strokeFill = Mathf.MoveTowards(strokeFill, 0f, Time.unscaledDeltaTime / .12f);
+                homeStroke.Fill = strokeFill;
+                return;
+            }
+            float targetY = row.x;
+            if (focused != strokeTarget)
+            {
+                if (strokeTarget == null) { strokeY = targetY; strokeVelocity = 0f; }
+                strokeTarget = focused;
+                strokeFill = 0f;
+                homeStroke.Seed = UnityEngine.Random.Range(1, 999);
+            }
+            strokeY = Mathf.SmoothDamp(strokeY, targetY, ref strokeVelocity, .07f, Mathf.Infinity, Time.unscaledDeltaTime);
+            strokeFill = Mathf.MoveTowards(strokeFill, 1f, Time.unscaledDeltaTime / .2f);
+            homeStroke.Fill = 1f - (1f - strokeFill) * (1f - strokeFill);
+            var rect = homeStroke.rectTransform;
+            rect.anchoredPosition = new Vector2(385, -strokeY);
+            rect.sizeDelta = new Vector2(510, Mathf.Lerp(rect.sizeDelta.y, row.y + 4f, Time.unscaledDeltaTime * 14f));
+        }
+
+        // Entrance for everything built after the page's backgrounds. The Home menu and
+        // first page open stagger in; switching Options tabs only moves the tab body.
+        private void RevealContent()
+        {
+            bool tabSwitch = Array.IndexOf(SettingsTabs, currentPage) >= 0 && Array.IndexOf(SettingsTabs, previousPage) >= 0
+                && currentPage != previousPage;
+            // Redrawing the same page (a mod toggle, paging) should update in place, not replay.
+            if (currentPage == previousPage && currentPage != "Home") return;
+            bool intro = currentPage == "Home" && !introPlayed && !optionsOnly;
+            float start = intro ? .55f : currentPage == "Home" ? .04f : tabSwitch ? 0f : .1f;
+            int order = 0;
+            for (int i = contentStart; i < page.childCount; i++)
+            {
+                var child = page.GetChild(i) as RectTransform;
+                if (child == null || child.GetComponent<InkStroke>() != null) continue;
+                float top = -child.anchoredPosition.y;
+                if (tabSwitch && top < 230f - ContentLift) continue;
+                bool sign = currentPage == "Home" && top < 240f;
+                Vector2 offset = sign ? new Vector2(0, 22) : tabSwitch ? new Vector2(18, 0) : new Vector2(0, -14);
+                float delay = sign ? (intro ? .2f : 0f) : start + Mathf.Min(order++ * (tabSwitch ? .015f : .03f), .4f);
+                UiReveal.Play(child, delay, sign ? .6f : .3f, offset);
+            }
+            if (intro)
+            {
+                introPlayed = true;
+                // Open from black: the ink lifts off the scene.
+                var veil = Box(transform, "Intro veil", 0, 0, 1280, 720, Ink);
+                veil.anchorMin = Vector2.zero; veil.anchorMax = Vector2.one; veil.offsetMin = veil.offsetMax = Vector2.zero;
+                veil.GetComponent<Image>().raycastTarget = false;
+                StartCoroutine(FadeAway(veil.GetComponent<Image>(), .1f, 1.4f));
+            }
+        }
+
+        private static System.Collections.IEnumerator FadeAway(Graphic graphic, float delay, float duration)
+        {
+            float start = Time.unscaledTime + delay;
+            Color color = graphic.color;
+            while (graphic != null)
+            {
+                float t = Mathf.Clamp01((Time.unscaledTime - start) / duration);
+                color.a = 1f - t * t * (3f - 2f * t);
+                graphic.color = color;
+                if (t >= 1f) { Destroy(graphic.gameObject); yield break; }
+                yield return null;
+            }
         }
         private void Settings(string tab)
         {
@@ -258,8 +500,8 @@ namespace Eclipse.UI
             for (int i = 0; i < tabs.Length; i++)
             {
                 string target = tabs[i];
-                var button = Button(page, target, 76 + i * 188, 180, 180, 48, () => { if (currentPage != target) Settings(target); });
-                if (tab == target) { var tint = button.colors; tint.normalColor = Red; button.colors = tint; }
+                Button(page, target, 76 + i * 188, 180, 180, 48, () => { if (currentPage != target) Settings(target); },
+                    UiSound.Tab, Look.Tab, tab == target);
             }
             if (tab == "Display")
             {
@@ -275,9 +517,9 @@ namespace Eclipse.UI
                 { SF2DisplayFrameRate.ToggleMotionBlur(); });
                 Row("Anti-aliasing", () => SF2DisplayFrameRate.AntiAliasingLabel(SF2DisplayFrameRate.AntiAliasing), 504, () =>
                 { SF2DisplayFrameRate.CycleAntiAliasing(); });
-                var apply = Button(page, "Apply display", 852, 612, 340, 48, ApplyDisplay);
+                var apply = Button(page, "Apply display", 852, 604, 340, 48, ApplyDisplay);
                 apply.interactable = !Application.isMobilePlatform;
-                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately.", 76, 612, 740, 48, 15, Ink);
+                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately.", 76, 558, 1120, 36, 15, Ink);
             }
             else if (tab == "Accessibility")
             {
@@ -311,7 +553,7 @@ namespace Eclipse.UI
                     float y = 280 + (i % 5) * 48;
                     Label(page, ControllerPage ? Eclipse.Input.FightControllerBindings.Names[i] : Eclipse.Input.FightKeyBindings.Names[i], x, y, 260, 34, 21, Ink);
                     var keyButton = Button(page, BindingLabel(i),
-                        x + 270, y, 236, 34, () => BeginBinding(action));
+                        x + 270, y, 236, 38, () => BeginBinding(action), UiSound.Confirm, Look.Field);
                     bindingLabels.Add(i, keyButton.GetComponentInChildren<Text>());
                 }
                 Text movementLabel = null;
@@ -331,7 +573,7 @@ namespace Eclipse.UI
                     bindingStatus.text = ControllerPage ? "Default controller controls restored." : "Default keyboard controls restored.";
                 });
             }
-            Button(page, "Back", 76, 604, 220, 48, Back);
+            Button(page, "Back", 76, 604, 220, 48, Back, UiSound.Back);
             FocusFirst();
         }
 
@@ -344,7 +586,7 @@ namespace Eclipse.UI
                 action();
                 label.text = value() + "   >";
                 PlayerPrefs.Save();
-            });
+            }, UiSound.Toggle, Look.Field);
             label = button.GetComponentInChildren<Text>();
             return label;
         }
@@ -480,7 +722,7 @@ namespace Eclipse.UI
                 PlayerPrefs.SetInt("Eclipse.Fullscreen", mode == FullScreenMode.Windowed ? 0 : 1);
                 PlayerPrefs.Save(); Settings("Display");
             });
-            Button(page, "Revert", 650, 442, 470, 64, RevertDisplay);
+            Button(page, "Revert", 650, 442, 470, 64, RevertDisplay, UiSound.Back);
             FocusFirst();
         }
 
@@ -497,7 +739,7 @@ namespace Eclipse.UI
             Clear("Quit");
             Label(page, "Leave the shadows?", 100, 220, 1080, 70, 46, Ink);
             Label(page, "Close the game and return to your desktop.", 100, 310, 1080, 50, 26, Ink);
-            Button(page, "Stay", 100, 440, 470, 64, Home);
+            Button(page, "Stay", 100, 440, 470, 64, Home, UiSound.Back);
             Button(page, "Quit game", 650, 440, 470, 64, () =>
             {
                 PlayerPrefs.Save();
@@ -525,15 +767,22 @@ namespace Eclipse.UI
         {
             if (leaving) return;
             leaving = true;
-            enterAt = Time.realtimeSinceStartup + .15f;
+            // The loading screen fades in over the title (and the gong) and stays up until the
+            // campaign or the local versus lobby is actually on screen.
+            enterAt = Time.realtimeSinceStartup + .6f;
             PlayerPrefs.Save();
-            Clear("Loading");
-            Label(page, "Entering the shadows...", 100, 290, 1080, 100, 44, Ink, TextAnchor.MiddleCenter);
+            EclipseUiAudio.StopTitleMusic();
+            EclipseLoadingOverlay.Show();
         }
 
         private void Update()
         {
-            if (GameSessionRestart.IsRestarting) return;
+            UpdateHomeStroke();
+            UpdateParallax();
+            UpdateGust();
+            UpdateEclipse();
+            UpdateInputDevice();
+            if (GameSessionRestart.IsRestarting || splashing) return;
             if (bindingAction >= 0) { CaptureControllerBinding(); return; }
             if (Time.frameCount == bindingFrame) return;
             if (leaving)
@@ -547,10 +796,13 @@ namespace Eclipse.UI
                 countdown.text = "Reverting in " + Mathf.CeilToInt(confirmUntil - Time.realtimeSinceStartup) + " seconds.";
                 if (Time.realtimeSinceStartup >= confirmUntil) { RevertDisplay(); return; }
             }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Escape)) { Back(); return; }
+            bool padConfirm, padBack;
+            int padHorizontal;
+            int padVertical = PadNavigation(out padConfirm, out padBack, out padHorizontal);
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Escape) || padBack) { EclipseUiAudio.Play(UiSound.Back); Back(); return; }
             // Explicit navigation avoids dependence on the recovered EventSystem's input axes.
             int delta = UnityEngine.Input.GetKeyDown(KeyCode.DownArrow) || UnityEngine.Input.GetKeyDown(KeyCode.Tab) ? 1 :
-                UnityEngine.Input.GetKeyDown(KeyCode.UpArrow) ? -1 : 0;
+                UnityEngine.Input.GetKeyDown(KeyCode.UpArrow) ? -1 : padVertical;
             if (controls.Count == 0) return;
             var active = EventSystem.current == null ? null : EventSystem.current.currentSelectedGameObject;
             int activeIndex = controls.FindIndex(c => c != null && c.gameObject == active);
@@ -563,10 +815,10 @@ namespace Eclipse.UI
             var slider = controls[selected] as Slider;
             if (slider != null)
             {
-                if (UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow)) slider.value -= .05f;
-                if (UnityEngine.Input.GetKeyDown(KeyCode.RightArrow)) slider.value += .05f;
+                if (UnityEngine.Input.GetKeyDown(KeyCode.LeftArrow) || padHorizontal < 0) slider.value -= .05f;
+                if (UnityEngine.Input.GetKeyDown(KeyCode.RightArrow) || padHorizontal > 0) slider.value += .05f;
             }
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.Space))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.Space) || padConfirm)
             {
                 var button = controls[selected] as Button;
                 if (button != null && button.interactable) button.onClick.Invoke();
@@ -576,19 +828,63 @@ namespace Eclipse.UI
         private void OptionSlider(string title, float y, float value, UnityEngine.Events.UnityAction<float> changed)
         {
             var label = Label(page, title + "  " + Mathf.RoundToInt(value * 100) + "%", 76, y, 480, 40, 24, Ink);
-            var track = Box(page, title, 580, y, 580, 40, new Color32(120, 105, 84, 255));
-            var handle = Box(track, "Handle", 0, 0, 24, 40, Red);
-            var slider = track.gameObject.AddComponent<Slider>();
-            slider.targetGraphic = handle.GetComponent<Image>();
+            // A transparent hit area holding a thin ink groove, a red fill and a round knob.
+            var root = Box(page, title, 580, y, 580, 40, Color.clear);
+            var groove = Stretched(Box(root, "Groove", 0, 0, 0, 0, new Color(Ink.r, Ink.g, Ink.b, .22f)), 0f, 1f, 8f);
+            groove.GetComponent<Image>().raycastTarget = false;
+            var fillArea = Stretched(Rect(root, "Fill area", 0, 0, 0, 0), 0f, 1f, 8f);
+            var fill = Box(fillArea, "Fill", 0, 0, 0, 0, Red);
+            fill.anchorMin = Vector2.zero; fill.anchorMax = new Vector2(0, 1); fill.pivot = new Vector2(0, .5f);
+            fill.anchoredPosition = Vector2.zero; fill.sizeDelta = Vector2.zero;
+            fill.GetComponent<Image>().raycastTarget = false;
+            var handleArea = Stretched(Rect(root, "Knob area", 0, 0, 0, 0), 0f, 1f, 40f);
+            var handle = Rect(handleArea, "Knob", 0, 0, 0, 0);
+            handle.anchorMin = handle.anchorMax = handle.pivot = new Vector2(.5f, .5f);
+            handle.anchoredPosition = Vector2.zero; handle.sizeDelta = new Vector2(30, 30);
+            var knob = handle.gameObject.AddComponent<UiDisc>();
+            knob.color = Ink;
+            knob.SetRing(Paper, 3f);
+            var slider = root.gameObject.AddComponent<Slider>();
+            slider.fillRect = fill;
             slider.handleRect = handle;
+            slider.targetGraphic = knob;
             slider.minValue = 0; slider.maxValue = 1; slider.value = value;
-            slider.onValueChanged.AddListener(v => { changed(v); label.text = title + "  " + Mathf.RoundToInt(v * 100) + "%"; });
+            int notch = Mathf.RoundToInt(value * 20);
+            slider.onValueChanged.AddListener(v =>
+            {
+                changed(v);
+                label.text = title + "  " + Mathf.RoundToInt(v * 100) + "%";
+                int now = Mathf.RoundToInt(v * 20);
+                if (now != notch) { notch = now; EclipseUiAudio.Play(UiSound.Tick); }
+            });
+            EclipseUiButton.Attach(slider, knob, null, Ink, Red, Paper, Paper, 0f, 0f, 0f);
             controls.Add(slider);
+        }
+
+        // Spans the parent horizontally (inset by the knob radius) at a fixed height, centred.
+        private static RectTransform Stretched(RectTransform rect, float min, float max, float height)
+        {
+            rect.anchorMin = new Vector2(min, .5f);
+            rect.anchorMax = new Vector2(max, .5f);
+            rect.pivot = new Vector2(.5f, .5f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = new Vector2(-30f, height);
+            return rect;
         }
 
         private void FocusFirst()
         {
             rebuilding = false;
+            // Pages were authored for a full-screen sheet; on the card they sit higher, closing
+            // the gap above the title and keeping the bottom buttons inside the card.
+            if (currentPage != "Home")
+                for (int i = contentStart; i < page.childCount; i++)
+                {
+                    var child = page.GetChild(i) as RectTransform;
+                    if (child != null) child.anchoredPosition += new Vector2(0, ContentLift);
+                }
+            RevealContent();
+            EclipseUiAudio.SuppressFocusSound();
             if (controls.Count > 0)
             {
                 int tabIndex = Array.IndexOf(SettingsTabs, currentPage);
@@ -600,6 +896,7 @@ namespace Eclipse.UI
         private void OnDestroy()
         {
             ClearPendingModZip();
+            if (!optionsOnly) EclipseUiAudio.StopTitleMusic();
             foreach (var texture in autumnTextures.Values) Destroy(texture);
             if (logoInk != null) Destroy(logoInk);
             if (confirmUntil > 0) Screen.SetResolution(oldResolution.x, oldResolution.y, oldMode);
@@ -612,6 +909,14 @@ namespace Eclipse.UI
             }
             if (ownedEventSystem != null) Destroy(ownedEventSystem.gameObject);
             optionsClosed?.Invoke();
+        }
+
+        private InkStroke Stroke(Transform parent, string name, float x, float y, float w, float h, string seed)
+        {
+            var stroke = Rect(parent, name, x, y, w, h).gameObject.AddComponent<InkStroke>();
+            stroke.raycastTarget = false;
+            stroke.Seed = seed.GetHashCode() & 0xffff;
+            return stroke;
         }
 
         private static RectTransform Rect(Transform parent, string name, float x, float y, float w, float h)
@@ -651,34 +956,56 @@ namespace Eclipse.UI
             return label;
         }
 
-        private Button Button(Transform parent, string text, float x, float y, float w, float h, Action action)
+        // Plate: a brush-stroke button for actions. Field: an editable value or binding shown as
+        // text on an ink underline. Tab: a caption with a brush underline marking the open tab.
+        private enum Look { Plate, Field, Tab }
+
+        private Button Button(Transform parent, string text, float x, float y, float w, float h, Action action,
+            UiSound sound = UiSound.Confirm, Look look = Look.Plate, bool current = false)
         {
             var rect = Rect(parent, text, x, y, w, h);
-            rect.gameObject.AddComponent<CanvasRenderer>();
-            Graphic graphic = currentPage == "Home"
-                ? (Graphic)rect.gameObject.AddComponent<Image>()
-                : rect.gameObject.AddComponent<TitleRibbon>();
-            graphic.color = Color.white;
+            // A transparent hit area covers the whole control; the visible parts are children.
+            var hit = rect.gameObject.AddComponent<Image>();
+            hit.color = Color.clear;
             var button = rect.gameObject.AddComponent<Button>();
-            button.targetGraphic = graphic;
-            var colors = button.colors;
-            colors.normalColor = Ink;
-            colors.highlightedColor = colors.selectedColor = Red;
-            colors.pressedColor = new Color32(105, 30, 24, 255);
-            colors.disabledColor = new Color(Ink.r, Ink.g, Ink.b, .42f);
+            button.targetGraphic = hit;
+            EclipseUiButton fx;
             if (currentPage == "Home")
             {
-                colors.normalColor = Color.clear;
-                colors.highlightedColor = colors.selectedColor = new Color32(255, 106, 52, 255);
-                colors.pressedColor = new Color32(230, 79, 28, 255);
-                colors.disabledColor = Color.clear;
+                // Home entries have no plate: the shared brush stroke marks focus instead.
+                var caption = Label(rect, text, 0, 0, w, h, 30, Paper, TextAnchor.MiddleCenter);
+                var outline = caption.gameObject.AddComponent<Shadow>();
+                outline.effectColor = new Color(Ink.r, Ink.g, Ink.b, .7f);
+                outline.effectDistance = new Vector2(1.5f, -2f);
+                fx = EclipseUiButton.Attach(button, null, caption, Color.clear, Color.clear,
+                    new Color(Paper.r, Paper.g, Paper.b, .88f), Paper, 0f, .07f);
             }
-            colors.fadeDuration = 0f;
-            button.colors = colors;
-            if (currentPage == "Home")
-                Label(rect, text, 0, 0, w, h, 30, Ink, TextAnchor.MiddleCenter);
-            else Label(rect, text, 30, 0, w - 70, h, h > 50 ? 28 : 22, Paper);
-            if (action != null) button.onClick.AddListener(() => { if (!rebuilding && bindingAction < 0) action(); });
+            else if (look == Look.Plate)
+            {
+                var plate = Stroke(rect, "Plate", 0, 0, w, h, text);
+                var caption = Label(rect, text, 30, 0, w - 60, h, h > 50 ? 28 : 22, Paper);
+                fx = EclipseUiButton.Attach(button, plate, caption, Ink, Red, Paper, Paper, 6f, .02f);
+            }
+            else if (look == Look.Field)
+            {
+                var line = Stroke(rect, "Underline", 0, h - 9, w, 7, text);
+                var caption = Label(rect, text, 14, 0, w - 28, h - 6, h > 40 ? 24 : 21, Ink);
+                fx = EclipseUiButton.Attach(button, line, caption, new Color(Ink.r, Ink.g, Ink.b, .35f), Red, Ink, Red, 6f, 0f, .03f);
+            }
+            else
+            {
+                var line = Stroke(rect, "Underline", 14, h - 10, w - 28, 8, text);
+                var caption = Label(rect, text, 0, 0, w, h - 8, 21, current ? Red : Ink, TextAnchor.MiddleCenter);
+                fx = EclipseUiButton.Attach(button, line, caption, current ? Red : Color.clear,
+                    current ? RedBright : new Color(Ink.r, Ink.g, Ink.b, .55f), current ? Red : Ink, Red, 0f, .03f);
+            }
+            if (action != null) button.onClick.AddListener(() =>
+            {
+                if (rebuilding || bindingAction >= 0) return;
+                fx.Punch();
+                EclipseUiAudio.Play(sound);
+                action();
+            });
             controls.Add(button);
             return button;
         }

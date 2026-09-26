@@ -159,13 +159,15 @@ namespace Eclipse.Modding
                     string placement = OptionalString(table, "placement", defaultPlacement, function);
                     request.Placement = placement == "background" ? ModFxPlacement.Background : placement == "behind" ? ModFxPlacement.Behind
                         : placement == "front" ? ModFxPlacement.Front : placement == "node" ? ModFxPlacement.Node
-                        : placement == "hit" ? ModFxPlacement.Hit
-                        : throw new ModContentException(function + ".placement must be background, behind, front, node or hit.");
+                        : placement == "hit" ? ModFxPlacement.Hit : placement == "contact" ? ModFxPlacement.Contact
+                        : throw new ModContentException(function + ".placement must be background, behind, front, node, hit or contact.");
                     string trigger = OptionalString(table, "trigger", "always", function);
                     request.Trigger = trigger == "always" ? ModFxTrigger.Always : trigger == "hit" ? ModFxTrigger.Hit
                         : trigger == "critical" ? ModFxTrigger.Critical : trigger == "block" ? ModFxTrigger.Block
-                        : trigger == "ko" ? ModFxTrigger.Ko
-                        : throw new ModContentException(function + ".trigger must be always, hit, critical, block or ko.");
+                        : trigger == "ko" ? ModFxTrigger.Ko : trigger == "land" ? ModFxTrigger.Land
+                        : trigger == "knockdown" ? ModFxTrigger.Knockdown : trigger == "slide" ? ModFxTrigger.Slide
+                        : trigger == "wall" ? ModFxTrigger.Wall
+                        : throw new ModContentException(function + ".trigger must be always, hit, critical, block, ko, land, knockdown, slide or wall.");
                     string shape = OptionalString(table, "shape", "rect", function);
                     request.Shape = shape == "rect" ? ModFxShape.Rect : shape == "shaft" ? ModFxShape.Shaft : shape == "glow" ? ModFxShape.Glow
                         : throw new ModContentException(function + ".shape must be rect, shaft or glow.");

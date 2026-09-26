@@ -94,6 +94,7 @@ namespace Eclipse.Rendering
 			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Particles))
 			{
 				if (definition.Placement == ModFxPlacement.Node || definition.Placement == ModFxPlacement.Hit ||
+					definition.Placement == ModFxPlacement.Contact ||
 					!definition.MatchesLocation(_location.name)) continue;
 				Transform parent; float z;
 				Place(definition, out parent, out z);

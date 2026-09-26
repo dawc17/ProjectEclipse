@@ -25,6 +25,8 @@ namespace Eclipse.Multiplayer
         private int inputFrame;
         private Page page;
         public bool IsShowing { get; private set; }
+        // Lets the loading overlay step aside once the local versus lobby is up.
+        public static bool LobbyVisible => instance != null && instance.IsShowing && instance.page == Page.Lobby;
 
         private enum Page { Hidden, Lobby, Pause, Result }
 
@@ -208,15 +210,37 @@ namespace Eclipse.Multiplayer
         {
             panel.gameObject.SetActive(true);
             for (int i = panel.childCount - 1; i >= 0; i--) { panel.GetChild(i).gameObject.SetActive(false); Destroy(panel.GetChild(i).gameObject); }
-            SetImage(panel, Ink);
-            var paper = Rect(panel, "Paper"); paper.anchorMin = paper.anchorMax = paper.pivot = new Vector2(.5f, .5f); paper.sizeDelta = new Vector2(760, 660); AddImage(paper, Paper);
-            var header = Rect(paper, "Header"); header.anchorMin = new Vector2(0, 1); header.anchorMax = new Vector2(1, 1); header.pivot = new Vector2(.5f, 1); header.sizeDelta = new Vector2(0, 92); AddImage(header, Red); Label(header, title, 38, Paper, TextAnchor.MiddleCenter);
+            // The lobby has no match behind it; pause and results keep the fight visible under an ink wash.
+            SetImage(panel, page == Page.Lobby ? Ink : new Color(20f / 255f, 14f / 255f, 11f / 255f, .7f));
+            var paper = Rect(panel, "Paper"); paper.anchorMin = paper.anchorMax = paper.pivot = new Vector2(.5f, .5f); paper.sizeDelta = new Vector2(760, 660);
+            var card = paper.gameObject.AddComponent<Eclipse.UI.PaperPanel>(); card.color = Paper; card.raycastTarget = true;
+            // Title painted on a red brush stroke rather than a flat band.
+            var header = Rect(paper, "Header"); header.anchorMin = new Vector2(0, 1); header.anchorMax = new Vector2(1, 1); header.pivot = new Vector2(.5f, 1); header.anchoredPosition = new Vector2(0, -14); header.sizeDelta = new Vector2(-40, 82);
+            var stroke = header.gameObject.AddComponent<Eclipse.UI.InkStroke>(); stroke.color = Red; stroke.raycastTarget = false; stroke.Seed = title.Length * 31;
+            Label(header, title, 38, Paper, TextAnchor.MiddleCenter);
+            Eclipse.UI.UiReveal.Play(paper, 0f, .34f, new Vector2(0, -18), .96f);
+            StartCoroutine(PaintStroke(stroke));
             var sub = Label(paper, subtitle, 21, Ink, TextAnchor.MiddleCenter); sub.rectTransform.anchorMin = new Vector2(0, 1); sub.rectTransform.anchorMax = new Vector2(1, 1); sub.rectTransform.pivot = new Vector2(.5f, 1); sub.rectTransform.anchoredPosition = new Vector2(0, -105); sub.rectTransform.sizeDelta = new Vector2(-40, 48);
             var body = Rect(paper, "Options"); body.anchorMin = body.anchorMax = body.pivot = new Vector2(.5f, 1); body.anchoredPosition = new Vector2(0, -150); body.sizeDelta = new Vector2(650, 400);
             var layout = body.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>(); layout.spacing = 9; layout.childControlHeight = layout.childControlWidth = true; layout.childForceExpandHeight = false; layout.childForceExpandWidth = true;
             build(body);
             status = Label(paper, "", 16, Red, TextAnchor.MiddleCenter); status.rectTransform.anchorMin = new Vector2(0, 0); status.rectTransform.anchorMax = new Vector2(1, 0); status.rectTransform.pivot = new Vector2(.5f, 0); status.rectTransform.anchoredPosition = new Vector2(0, 14); status.rectTransform.sizeDelta = new Vector2(-40, 52);
-            IsShowing = true; Cursor.visible = true; Cursor.lockState = CursorLockMode.None; FocusFirst(body);
+            IsShowing = true; Cursor.visible = true; Cursor.lockState = CursorLockMode.None;
+            Eclipse.UI.EclipseUiAudio.SuppressFocusSound();
+            Eclipse.UI.EclipseUiAudio.Play(Eclipse.UI.UiSound.Open);
+            FocusFirst(body);
+        }
+
+        private static System.Collections.IEnumerator PaintStroke(Eclipse.UI.InkStroke stroke)
+        {
+            float start = Time.unscaledTime + .12f;
+            while (stroke != null)
+            {
+                float t = Mathf.Clamp01((Time.unscaledTime - start) / .32f);
+                stroke.Fill = 1f - (1f - t) * (1f - t);
+                if (t >= 1f) yield break;
+                yield return null;
+            }
         }
 
         private void AddChoice(RectTransform parent, string caption, Func<string> value, Action cycle)
@@ -225,16 +249,23 @@ namespace Eclipse.Multiplayer
             var horizontal = row.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>(); horizontal.spacing = 12; horizontal.childControlWidth = horizontal.childControlHeight = true; horizontal.childForceExpandWidth = false;
             var left = Label(row, caption, 22, Ink, TextAnchor.MiddleLeft); left.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
             UnityEngine.UI.Text valueLabel = null;
-            var button = AddButton(row, value() + "   >", () => { cycle(); valueLabel.text = value() + "   >"; }, 340);
+            var button = AddButton(row, value() + "   >", () => { cycle(); valueLabel.text = value() + "   >"; }, 340, Eclipse.UI.UiSound.Toggle);
             valueLabel = button.GetComponentInChildren<UnityEngine.UI.Text>();
         }
 
-        private UnityEngine.UI.Button AddButton(RectTransform parent, string text, Action action, float width = -1)
+        private UnityEngine.UI.Button AddButton(RectTransform parent, string text, Action action, float width = -1,
+            Eclipse.UI.UiSound? sound = null)
         {
             var rect = Rect(parent, text); var element = rect.gameObject.AddComponent<UnityEngine.UI.LayoutElement>(); element.preferredHeight = 46; if (width > 0) { element.minWidth = element.preferredWidth = width; element.flexibleWidth = 0; }
-            var image = rect.gameObject.AddComponent<UnityEngine.UI.Image>(); image.color = Color.white;
-            var button = rect.gameObject.AddComponent<UnityEngine.UI.Button>(); button.targetGraphic = image; var colors = button.colors; colors.normalColor = Ink; colors.highlightedColor = colors.selectedColor = Red; colors.pressedColor = new Color32(105, 30, 24, 255); colors.fadeDuration = 0; button.colors = colors;
-            Label(rect, text, 22, Paper, TextAnchor.MiddleCenter); button.onClick.AddListener(() => action()); return button;
+            // A brush-stroke plate; the stroke itself is also the hit area.
+            var plate = rect.gameObject.AddComponent<Eclipse.UI.InkStroke>(); plate.color = Ink; plate.Seed = text.GetHashCode() & 0xffff;
+            var button = rect.gameObject.AddComponent<UnityEngine.UI.Button>(); button.targetGraphic = plate;
+            var label = Label(rect, text, 22, Paper, TextAnchor.MiddleCenter);
+            var fx = Eclipse.UI.EclipseUiButton.Attach(button, plate, label, Ink, Red, Paper, Paper, 6f, .02f);
+            var cue = sound ?? (text == "START MATCH" || text == "REMATCH" ? Eclipse.UI.UiSound.Begin
+                : text == "RETURN TO TITLE" || text == "RESUME" ? Eclipse.UI.UiSound.Back : Eclipse.UI.UiSound.Confirm);
+            button.onClick.AddListener(() => { fx.Punch(); Eclipse.UI.EclipseUiAudio.Play(cue); action(); });
+            return button;
         }
 
         private UnityEngine.UI.Text Label(Transform parent, string text, int size, Color color, TextAnchor alignment)

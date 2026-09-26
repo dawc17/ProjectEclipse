@@ -49,6 +49,11 @@ Things to know first:
   grades with a `trigger` fire once per matching hit instead: `hit` is any unblocked
   hit, `critical` a critical hit, `block` a blocked hit (particles only) and
   `ko` the hit that empties a fighter's health.
+- **Motion triggers.** Contact particles and screen grades can also fire from
+  how a fighter moves: `land` when a fall ends on the floor, `knockdown` when
+  the body hits the floor, `slide` repeatedly while the feet skid fast along the
+  floor (contact particles only) and `wall` when a fighter plays a wall-hit
+  recoil. See [contact particles](#contact-particles).
 - **Accessibility.** The impact effect on critical hits is also scaled by the
   player's **Critical hit shake** accessibility slider.
 - **Defaults.** Every numeric field is optional. Omitted fields use the
@@ -110,11 +115,13 @@ Adds a particle emitter. With `placement = "background"`, `"behind"` or
 flowing behind it as it moves. With `placement = "hit"` nothing plays until a
 fighter is struck: then `count` particles burst from the contact point, fly
 outward at `speed_min`–`speed_max`, fall with `gravity` and fade out. For hit
-particles, `fighters` selects the fighter being struck.
+particles, `fighters` selects the fighter being struck. With
+`placement = "contact"` the particles burst where a fighter meets the floor or
+a wall; see [contact particles](#contact-particles).
 
 | Field | Default | Meaning |
 | --- | --- | --- |
-| `placement` | `"behind"` (`"node"` when `node` is set) | `background`: on the background layer nearest `depth`. `behind`: just behind the fighters. `front`: in front of the fighters. `node`: at a fighter node. |
+| `placement` | `"behind"` (`"node"` when `node` is set) | `background`: on the background layer nearest `depth`. `behind`: just behind the fighters. `front`: in front of the fighters. `node`: at a fighter node. `hit`: a burst at each matching hit. `contact`: a burst at each matching landing, knockdown, skid or wall impact. |
 | `node` | — | Required for node placement. See the node table. |
 | `fighters` | `"both"` | Node placement only: `both`, `player` or `opponent`. In menu previews the fighter counts as the player. |
 | `scenes` | `"fights"` | Node placement only: `everywhere` also runs on menu previews. |
@@ -130,11 +137,11 @@ particles, `fighters` selects the fighter being struck.
 | `spin` | `0` | 0–1: random start rotation, 1 is a full turn. |
 | `depth` | `0.3` | 0–1 for background placement: 0 nearest the fighters, 1 the farthest layer. |
 | `area_width`, `area_height` | `1.1`, `1.1` | 0–2: emission area as a fraction of the location size. |
-| `radius` | `20` | 0–500: emission radius around a node or hit point. |
+| `radius` | `20` | 0–500: emission radius around a node, hit or contact point. |
 | `x`, `y` | `0`, `0` | Location placements: centre of the emission area, as an offset from the location centre in location units; up is positive. A stage is about 2300 × 512 units, with the floor about 80 units above its bottom edge. |
-| `trigger` | `"hit"` for hit placement | Hit placement only: `hit`, `critical`, `block` or `ko`. Other placements run continuously and do not accept a trigger. |
-| `speed_min`, `speed_max` | `0`, `0` | 0–5000: outward burst speed of hit particles; min must not exceed max. The `velocity_*` ranges are added on top. |
-| `gravity` | `0` | −5000 to 5000: downward pull on hit particles in units per second squared; negative values rise. |
+| `trigger` | `"hit"` for hit placement, `"land"` for contact placement | Hit placement: `hit`, `critical`, `block` or `ko`. Contact placement: `land`, `knockdown`, `slide` or `wall`. Other placements run continuously and do not accept a trigger. |
+| `speed_min`, `speed_max` | `0`, `0` | 0–5000: outward burst speed of hit and contact particles; min must not exceed max. The `velocity_*` ranges are added on top. |
+| `gravity` | `0` | −5000 to 5000: downward pull on hit and contact particles in units per second squared; negative values rise. |
 
 Particles appear only in fights (and on previews for node particles with
 `scenes = "everywhere"`). Every particle fades in and out.
@@ -153,6 +160,49 @@ sf2.fx.particles {
     color = "#FFD27A", end_color = "#FF5A1E00", count = 10,
     lifetime_min = 0.18, lifetime_max = 0.35, size_min = 2, size_max = 5,
     speed_min = 250, speed_max = 700, gravity = 900, radius = 4,
+}
+```
+
+### Contact particles
+
+Contact particles (`placement = "contact"`) are bursts that play where a fighter
+meets the arena: dust from the floor, or grit knocked off a wall. Nothing plays
+until the fighter's movement matches the `trigger`, then `count` particles burst
+at the contact point, just in front of the fighter, and behave like hit
+particles (`speed_*`, `gravity`, `velocity_*`, `radius`, fading out).
+
+| Trigger | Fires when | Where |
+| --- | --- | --- |
+| `land` (default) | A fall from more than about 45 units above the floor ends with the feet on the floor. Small hops do not count. | On the floor under the lowest part of the body. |
+| `knockdown` | The body's centre drops below about 60 units above the floor while falling fast. At most once every 0.6 seconds per fighter. | On the floor under the body's centre. |
+| `slide` | The feet are on the floor while the body moves along it faster than about 420 units per second: skids, pushback and dashes. Repeats about every 0.07 seconds, so keep `count` small. | On the floor under the feet. |
+| `wall` | The fighter starts a wall-hit recoil: the `WallHit` or `WallHitFall` move the game plays when a fighter is knocked into the arena wall. Walking or being pushed against a wall does not count. | At the edge of the body facing the nearer wall. |
+
+A standing fighter is about 300 units tall, for scale. `fighters` selects the
+fighter that is moving. Contact particles run in fights; with
+`scenes = "everywhere"` landings, knockdowns and skids also play on menu
+previews, but `wall` needs a fight's arena walls.
+
+The triggers are read from the fighter's animated pose, not from the fight's
+rules, so they only add presentation: they never change the fight. They use
+game time, so nothing fires while the game is paused. A fighter placed at a new
+position (such as at the start of a round) does not count as sliding.
+
+```lua
+-- Dust from heavy landings, and debris from wall impacts.
+sf2.fx.particles {
+    id = "landing_dust", placement = "contact", trigger = "land",
+    color = "#C9B89A66", end_color = "#C9B89A00", count = 12, radius = 16,
+    lifetime_min = 0.45, lifetime_max = 0.9, size_min = 16, size_max = 34,
+    speed_min = 10, speed_max = 40, velocity_x_min = -140, velocity_x_max = 140,
+    velocity_y_min = 15, velocity_y_max = 60, noise = 15,
+}
+
+sf2.fx.particles {
+    id = "wall_debris", placement = "contact", trigger = "wall",
+    color = "#5E4E3EFF", end_color = "#5E4E3E00", count = 16, radius = 20, spin = 1,
+    lifetime_min = 0.5, lifetime_max = 0.9, size_min = 3, size_max = 8,
+    speed_min = 200, speed_max = 480, gravity = 900,
 }
 ```
 
@@ -243,9 +293,11 @@ allow. When several grades are active they combine: saturation and contrast
 multiply, brightness adds, tints layer in load order, halation adds, and the
 strongest vignette, grain and accent win.
 
-With a `trigger` other than `always`, the grade is off until a matching hit.
+With a `trigger` other than `always`, the grade is off until a matching hit or,
+for `land`, `knockdown` and `wall`, a matching movement by either fighter (see
+[contact particles](#contact-particles) for when they fire).
 It then applies fully for `hold` seconds and eases smoothly back to nothing
-over `duration` seconds. Each new matching hit restarts it. Hold and duration are
+over `duration` seconds. Each new matching hit or movement restarts it. Hold and duration are
 measured in real time, so they are not stretched by slow motion.
 
 | Field | Default | Meaning |
@@ -256,7 +308,7 @@ measured in real time, so they are not stretched by slow motion.
 | `tint`, `tint_strength` | `nil`, `0` | A colour multiplied into the picture, and how strongly (0–1). |
 | `vignette` | `0` | 0–1 darkening toward the edges. |
 | `vignette_x`, `vignette_y` | `0`, `0` | −1 to 1: moves the vignette's centre; `-0.35, 0.25` centres it up and to the left, so the lower right is darkest. |
-| `trigger` | `"always"` | `always`, `hit`, `critical` or `ko`. |
+| `trigger` | `"always"` | `always`, `hit`, `critical`, `ko`, `land`, `knockdown` or `wall`. `slide` is not accepted because it repeats while a fighter skids. |
 | `duration` | `0.25` | 0.02–10 seconds for a triggered grade to fade out. |
 | `hold` | `0` | 0–10 seconds a triggered grade stays at full strength first. |
 | `time_scale` | `1` | 0.05–1, triggered grades only: game speed while the grade is at full strength. Speed returns to normal as the grade fades, so slow motion lasts exactly as long as the grade. The slowest active grade wins. It never overrides a pause or another speed change already in effect. |
@@ -685,4 +737,6 @@ sf2.visuals.impact { critical = 1, head = 0, shock = 0, setting = impact }
 The API contract (fields, defaults, ranges, triggers, shapes, capabilities,
 conflicts and the shipped Chiaroscuro package) is checked headlessly. The
 rendering itself, including hit timing, floor detection for shadows and glint
-placement, is only verified by playing the game.
+placement, and when the motion triggers (`land`, `knockdown`, `slide`, `wall`)
+fire, is only verified by playing the game. The `land`, `knockdown` and `slide`
+thresholds may be tuned.

@@ -2031,13 +2031,13 @@ local ImpactDefinition = {}
 ---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
 ---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
 ---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
----@field placement? "background"|"behind"|"front"|"node"|"hit" Default behind; node when node is given; hit bursts at each hit.
----@field trigger? "always"|"hit"|"critical"|"block"|"ko" Hit placement only: hit (default), critical, block or ko.
+---@field placement? "background"|"behind"|"front"|"node"|"hit"|"contact" Default behind; node when node is given; hit bursts at each hit; contact bursts at landings, knockdowns, skids and wall impacts.
+---@field trigger? "always"|"hit"|"critical"|"block"|"ko"|"land"|"knockdown"|"slide"|"wall" Hit placement: hit (default), critical, block or ko. Contact placement: land (default), knockdown, slide or wall.
 ---@field x? number Location placements: area centre offset.
 ---@field y? number Location placements: area centre offset, up is positive.
----@field speed_min? number 0-5000 hit burst speed, default 0.
----@field speed_max? number 0-5000 hit burst speed, default 0.
----@field gravity? number -5000 to 5000 downward pull on hit particles, default 0.
+---@field speed_min? number 0-5000 hit or contact burst speed, default 0.
+---@field speed_max? number 0-5000 hit or contact burst speed, default 0.
+---@field gravity? number -5000 to 5000 downward pull on hit or contact particles, default 0.
 ---@field node? string Fighter node for placement = "node", e.g. "Weapon-Node2_1".
 ---@field fighters? "both"|"player"|"opponent"
 ---@field scenes? "fights"|"everywhere"
@@ -2114,7 +2114,7 @@ local FxTrailDefinition = {}
 ---@field vignette? number 0-1, default 0.
 ---@field vignette_x? number -1 to 1 vignette centre, default 0.
 ---@field vignette_y? number -1 to 1 vignette centre, default 0.
----@field trigger? "always"|"hit"|"critical"|"ko" Default always.
+---@field trigger? "always"|"hit"|"critical"|"ko"|"land"|"knockdown"|"wall" Default always.
 ---@field duration? number 0.02-10 seconds fade of a triggered grade, default 0.25.
 ---@field hold? number 0-10 seconds at full strength, default 0.
 ---@field time_scale? number 0.05-1 game speed while a triggered grade is active, default 1.

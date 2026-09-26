@@ -4,8 +4,9 @@ Light, shadow and depth for Shadow Fight 2 fights: enhanced background depth,
 weapon trails, depth haze, a rim light that turns to ink while casting magic,
 light shafts with drifting dust, a slow-motion knockout fade that keeps only
 the blood's colour, film halation and grain, blood stains that stay on the
-floor for the round, and light from fire weapons, electric weapons and magic
-that falls on the stage and the fighters. Enable the mod in the Mods menu and Apply & Restart. Each effect can
+floor for the round, light from fire weapons, electric weapons and magic
+that falls on the stage and the fighters, dust kicked up by landings, knockdowns
+and skids, and wall impacts that throw off debris with a brief jolt of the picture. Enable the mod in the Mods menu and Apply & Restart. Each effect can
 then be switched off separately under Options > Mod settings.
 
 The effects are drawn by Eclipse; this mod only turns them on and tunes them

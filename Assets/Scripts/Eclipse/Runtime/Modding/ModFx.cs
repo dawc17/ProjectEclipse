@@ -14,13 +14,17 @@ namespace Eclipse.Modding
 
 	// Where an effect lives. Background follows a background layer chosen by
 	// depth; Behind sits behind the fighters; Front sits in front of them; Node
-	// follows a node of each selected fighter; Hit bursts at a hit's contact point.
-	public enum ModFxPlacement { Background, Behind, Front, Node, Hit }
+	// follows a node of each selected fighter; Hit bursts at a hit's contact point;
+	// Contact bursts where a fighter meets the floor or a wall (the motion triggers).
+	public enum ModFxPlacement { Background, Behind, Front, Node, Hit, Contact }
 
-	// What starts an effect. Always runs continuously; the others fire once per
+	// What starts an effect. Always runs continuously. The hit triggers fire once per
 	// matching hit: Hit is any damaging unblocked hit, Critical a critical hit,
-	// Block a blocked hit and Ko the hit that empties a fighter's health.
-	public enum ModFxTrigger { Always, Hit, Critical, Block, Ko }
+	// Block a blocked hit and Ko the hit that empties a fighter's health. The motion
+	// triggers come from how a fighter moves: Land when a fall ends on the floor,
+	// Knockdown when the body hits the floor, Slide repeatedly while the feet skid
+	// fast along the floor, and Wall when a fighter starts a wall-hit recoil move.
+	public enum ModFxTrigger { Always, Hit, Critical, Block, Ko, Land, Knockdown, Slide, Wall }
 
 	// Built-in overlay art when no sprite is given: Rect is a flat fill, Shaft a
 	// soft vertical light beam and Glow a soft round light.
@@ -175,6 +179,12 @@ namespace Eclipse.Modding
 			};
 
 		public static IReadOnlyList<(string Name, float Default, float Min, float Max)> For(ModFxKind kind) => Table[kind];
+
+		public static bool IsHitTrigger(ModFxTrigger trigger) =>
+			trigger == ModFxTrigger.Hit || trigger == ModFxTrigger.Critical || trigger == ModFxTrigger.Block || trigger == ModFxTrigger.Ko;
+
+		public static bool IsMotionTrigger(ModFxTrigger trigger) =>
+			trigger == ModFxTrigger.Land || trigger == ModFxTrigger.Knockdown || trigger == ModFxTrigger.Slide || trigger == ModFxTrigger.Wall;
 	}
 
 	public sealed partial class ModContentCatalog
@@ -253,24 +263,36 @@ namespace Eclipse.Modding
 				throw new ModContentException(kind + " does not accept nodes or weapon.");
 			if (request.Placement == ModFxPlacement.Hit && kind != ModFxKind.Particles)
 				throw new ModContentException("Only particles can be placed at hits.");
+			if (request.Placement == ModFxPlacement.Contact && kind != ModFxKind.Particles)
+				throw new ModContentException("Only particles can be placed at contacts.");
 			ModFxTrigger trigger = request.Trigger;
 			if (kind == ModFxKind.Particles && request.Placement == ModFxPlacement.Hit)
 			{
 				if (trigger == ModFxTrigger.Always) trigger = ModFxTrigger.Hit;
+				if (!ModFxParameters.IsHitTrigger(trigger))
+					throw new ModContentException("Hit particles trigger on hit, critical, block or ko; use placement = \"contact\" for land, knockdown, slide or wall.");
+			}
+			else if (kind == ModFxKind.Particles && request.Placement == ModFxPlacement.Contact)
+			{
+				if (trigger == ModFxTrigger.Always) trigger = ModFxTrigger.Land;
+				if (!ModFxParameters.IsMotionTrigger(trigger))
+					throw new ModContentException("Contact particles trigger on land, knockdown, slide or wall.");
 			}
 			else if (kind == ModFxKind.Stain)
 			{
 				if (trigger == ModFxTrigger.Always) trigger = ModFxTrigger.Hit;
-				if (trigger == ModFxTrigger.Block) throw new ModContentException("Stains trigger on hit, critical or ko.");
+				if (trigger == ModFxTrigger.Block || ModFxParameters.IsMotionTrigger(trigger))
+					throw new ModContentException("Stains trigger on hit, critical or ko.");
 			}
 			else if (kind == ModFxKind.Screen)
 			{
-				if (trigger == ModFxTrigger.Block) throw new ModContentException("Screen effects trigger always, on hit, critical or ko.");
+				if (trigger == ModFxTrigger.Block || trigger == ModFxTrigger.Slide)
+					throw new ModContentException("Screen effects trigger always, on hit, critical, ko, land, knockdown or wall.");
 				if (trigger == ModFxTrigger.Always && numbers["time_scale"] < 1f)
 					throw new ModContentException("Screen.time_scale needs a trigger; a grade that is always on cannot slow the game.");
 			}
 			else if (trigger != ModFxTrigger.Always)
-				throw new ModContentException("Only screen effects and hit particles accept a trigger.");
+				throw new ModContentException("Only screen effects, stains and hit or contact particles accept a trigger.");
 			if (kind != ModFxKind.Overlay && request.Shape != ModFxShape.Rect)
 				throw new ModContentException("Only overlays accept a shape.");
 			if (kind != ModFxKind.Screen && (request.AccentColor != null || request.HalationColor != null))

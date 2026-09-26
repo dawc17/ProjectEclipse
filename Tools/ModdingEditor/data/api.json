@@ -4696,12 +4696,12 @@
           "Lowercase location-name words; the effect never runs where one matches."
         ],
         "placement?": [
-          "\"background\"|\"behind\"|\"front\"|\"node\"|\"hit\"",
-          "Default behind; node when node is given; hit bursts at each hit."
+          "\"background\"|\"behind\"|\"front\"|\"node\"|\"hit\"|\"contact\"",
+          "Default behind; node when node is given; hit bursts at each hit; contact bursts at landings, knockdowns, skids and wall impacts."
         ],
         "trigger?": [
-          "\"always\"|\"hit\"|\"critical\"|\"block\"|\"ko\"",
-          "Hit placement only: hit (default), critical, block or ko."
+          "\"always\"|\"hit\"|\"critical\"|\"block\"|\"ko\"|\"land\"|\"knockdown\"|\"slide\"|\"wall\"",
+          "Hit placement: hit (default), critical, block or ko. Contact placement: land (default), knockdown, slide or wall."
         ],
         "x?": [
           "number",
@@ -4713,15 +4713,15 @@
         ],
         "speed_min?": [
           "number",
-          "0-5000 hit burst speed, default 0."
+          "0-5000 hit or contact burst speed, default 0."
         ],
         "speed_max?": [
           "number",
-          "0-5000 hit burst speed, default 0."
+          "0-5000 hit or contact burst speed, default 0."
         ],
         "gravity?": [
           "number",
-          "-5000 to 5000 downward pull on hit particles, default 0."
+          "-5000 to 5000 downward pull on hit or contact particles, default 0."
         ],
         "node?": [
           "string",
@@ -4977,7 +4977,7 @@
           "-1 to 1 vignette centre, default 0."
         ],
         "trigger?": [
-          "\"always\"|\"hit\"|\"critical\"|\"ko\"",
+          "\"always\"|\"hit\"|\"critical\"|\"ko\"|\"land\"|\"knockdown\"|\"wall\"",
           "Default always."
         ],
         "duration?": [

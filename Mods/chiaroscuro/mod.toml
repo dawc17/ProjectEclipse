@@ -1,7 +1,7 @@
 schema = 1
 id = "chiaroscuro"
 name = "Chiaroscuro - Cinematic Visuals"
-version = "1.2.0"
+version = "1.3.0"
 authors = ["Dawid Czaplicki"]
 entrypoint = "scripts/main.lua"
 capabilities = ["presentation.visuals", "ui.settings"]

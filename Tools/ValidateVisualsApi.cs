@@ -74,7 +74,8 @@ static class Program
             Check(depth.Number("strength") == 0.6f, "Background depth strength was not read.");
         // While particle styles are shipped, each location gets at most one, first match winning.
         var styles = catalog.Effects.Where(e => e.Kind == ModFxKind.Particles &&
-            e.Placement != ModFxPlacement.Hit && e.Placement != ModFxPlacement.Node).ToList();
+            e.Placement != ModFxPlacement.Hit && e.Placement != ModFxPlacement.Node &&
+            e.Placement != ModFxPlacement.Contact).ToList();
         foreach (string location in new[] { "mountains_ny_25", "hw24_ancient_temple", "uw_boss_arena", "new_year_24_china_dojo", "dojo", "bridge", "hw_ny" })
             Check(styles.Count(e => e.MatchesLocation(location)) <= 1, "More than one particle style runs in " + location + ".");
 
@@ -83,6 +84,12 @@ static class Program
         Check(catalog.Effects.Where(e => e.Kind == ModFxKind.Particles && e.Placement == ModFxPlacement.Hit)
             .All(e => e.Trigger == ModFxTrigger.Hit || e.Trigger == ModFxTrigger.Block || e.Trigger == ModFxTrigger.Critical),
             "Chiaroscuro hit sparks lost their trigger.");
+        // Contact bursts fire only from motion triggers; any screen effect on a motion trigger
+        // is a one-off event (never the continuous slide).
+        Check(catalog.Effects.Where(e => e.Kind == ModFxKind.Particles && e.Placement == ModFxPlacement.Contact)
+            .All(e => ModFxParameters.IsMotionTrigger(e.Trigger)) &&
+            catalog.Effects.Where(e => e.Kind == ModFxKind.Screen).All(e => e.Trigger != ModFxTrigger.Slide),
+            "Chiaroscuro contact bursts or motion screen effects use the wrong trigger.");
         var knockouts = catalog.Effects.Where(e => e.Kind == ModFxKind.Screen && e.Trigger == ModFxTrigger.Ko).ToList();
         Check(knockouts.Count == 0 || knockouts.Any(ko => ko.Number("saturation") == 0f && ko.AccentColor != null &&
             ko.Number("accent_strength") > 0f && ko.Number("time_scale") < 1f), "The knockout fade no longer keeps an accent colour or slows time.");
@@ -206,6 +213,28 @@ static class Program
         Rejects(fixtures, "fx-glint-nodes", "'presentation.visuals'", "sf2.fx.glint{id='g',nodes={'NPivot'}}", "nodes");
         Rejects(fixtures, "fx-shadow-everywhere", "'presentation.visuals'", "sf2.fx.shadow{id='s',scenes='everywhere'}", "run everywhere");
         Rejects(fixtures, "fx-speed-order", "'presentation.visuals'", "sf2.fx.particles{id='p',placement='hit',speed_min=9,speed_max=3}", "speed_min");
+        // Motion triggers: contact particles on landings, knockdowns, slides and walls, and
+        // screen effects on the one-off motion events.
+        var motion = Load(Fixture(fixtures, "fixture.fx-motion", "'presentation.visuals'",
+            "sf2.fx.particles{id='land',placement='contact',count=12,gravity=300}\n" +
+            "sf2.fx.particles{id='drop',placement='contact',trigger='knockdown'}\n" +
+            "sf2.fx.particles{id='skid',placement='contact',trigger='slide'}\n" +
+            "sf2.fx.particles{id='crack',placement='contact',trigger='wall'}\n" +
+            "sf2.fx.screen{id='thud',trigger='wall',brightness=0.2,duration=0.2}\n" +
+            "sf2.fx.screen{id='fall',trigger='knockdown',vignette=0.3}\n"));
+        Func<string, ModFxDefinition> moved = id => motion.Effects.Single(e => e.Name == "fixture.fx-motion." + id);
+        Check(moved("land").Placement == ModFxPlacement.Contact && moved("land").Trigger == ModFxTrigger.Land &&
+            moved("land").Number("count") == 12f && moved("drop").Trigger == ModFxTrigger.Knockdown &&
+            moved("skid").Trigger == ModFxTrigger.Slide && moved("crack").Trigger == ModFxTrigger.Wall,
+            "Contact particles or their motion triggers were not read.");
+        Check(moved("thud").Kind == ModFxKind.Screen && moved("thud").Trigger == ModFxTrigger.Wall &&
+            moved("fall").Trigger == ModFxTrigger.Knockdown, "Screen motion triggers were not read.");
+        Rejects(fixtures, "fx-contact-hit", "'presentation.visuals'", "sf2.fx.particles{id='p',placement='contact',trigger='hit'}", "Contact particles trigger");
+        Rejects(fixtures, "fx-hit-motion", "'presentation.visuals'", "sf2.fx.particles{id='p',placement='hit',trigger='land'}", "placement = \"contact\"");
+        Rejects(fixtures, "fx-contact-overlay", "'presentation.visuals'", "sf2.fx.overlay{id='o',placement='contact'}", "at contacts");
+        Rejects(fixtures, "fx-screen-slide", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='slide'}", "Screen effects trigger");
+        Rejects(fixtures, "fx-stain-wall", "'presentation.visuals'", "sf2.fx.stain{id='s',trigger='wall'}", "Stains trigger");
+        Rejects(fixtures, "fx-placement-name", "'presentation.visuals'", "sf2.fx.particles{id='p',placement='floor'}", "placement must be");
         // Several mods may add the same kind of effect.
         var stacked = new ModContentCatalog();
         Load(Fixture(fixtures, "fixture.fx-a", "'presentation.visuals'", "sf2.fx.screen{id='grade',vignette=0.2}"), stacked);
