@@ -1,0 +1,4 @@
+<linker>
+  <!-- MoonSharp registers Lua standard-library methods through reflection. -->
+  <assembly fullname="MoonSharp.Interpreter" preserve="all" />
+</linker>

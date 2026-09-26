@@ -276,6 +276,12 @@ namespace Eclipse.Modding
             };
             Debug.Log("[ModScripts] " + _scripts.RuntimeName + "; " + _scripts.ActiveMods.Count +
                 " mod(s) active; " + _scripts.Diagnostics.Count + " diagnostic(s).");
+            foreach (ModDiagnostic diagnostic in _scripts.Diagnostics)
+            {
+                string message = "[ModScripts] " + diagnostic;
+                if (diagnostic.Severity == ModDiagnosticSeverity.Error) Debug.LogError(message);
+                else Debug.LogWarning(message);
+            }
             return _scripts;
         }
 
