@@ -176,6 +176,58 @@ the next mode update can introduce/show the variant. Existing variant locks and
 fight history are preserved. These checks run at native mode-update boundaries,
 not as a general rule for custom encounter-launch code.
 
+## sf2.battles.patch
+
+Move an existing battle's button on its map page.
+
+**Signature:** `sf2.battles.patch { target, x?, y? }`
+
+**Returns:** `nil`.
+
+**When:** Entrypoint, after the target's owner has committed its definitions.
+Core battles are always committed first.
+
+**Requires:** `content.patch` and a dependency on the target's owner (for example
+`core`).
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `target` | String | Required | Qualified battle ID, such as `core:battles/zone_6/duel`. |
+| `x` | Integer, −10,000–10,000 | Keep current | New horizontal map position. |
+| `y` | Integer, −10,000–10,000 | Keep current | New vertical map position. |
+
+Supply `x`, `y` or both. The coordinates use the same map-page space as
+[`sf2.battles.register`](#sf2battlesregister): positive `x` is right, positive
+`y` is up. Only the placement changes. The battle keeps its identity, type,
+fights, art, lock state and saved progress, so existing saves are unaffected.
+
+Core battle IDs follow `core:battles/<zone>/<battle>`, with the zone and battle
+names from `stages.xml` in lower case. Each Eclipse-mode or intermission twin is
+a separate battle; move it too if it shares the spot, as with Act 6's Duel below.
+
+```lua
+local sf2 = require("sf2")
+-- Declare content.patch and a dependency on core in mod.toml.
+-- Act 6's Duel normally sits at (-370, 50); move it and its intermission twin.
+sf2.battles.patch { target = "core:battles/zone_6/duel", x = -300, y = 100 }
+sf2.battles.patch { target = "core:battles/zone_6/duel_intermission", x = -300, y = 100 }
+```
+
+Limits and errors:
+
+- Place your own battles with `x` and `y` in `sf2.battles.register`. Patching
+  a battle registered by your own mod is an error.
+- One mod may patch a battle's placement once. A second mod that patches the same
+  battle is rejected as a conflict, and its registration rolls back.
+- Unknown targets, non-battle IDs, missing `x` and `y`, non-integer or
+  out-of-range coordinates and any other field raise an error.
+- The placement is part of the saved content fingerprint. Disabling the mod and
+  restarting restores the original position.
+
+Registration, conflicts, rollback and fingerprinting have automated tests. The
+native map applies the new position when the game loads its stages; this has
+been compiled but not yet checked on the in-game map.
+
 ## sf2.battles.set_locked
 
 Change the saved lock of a revealed battle owned by this mod.

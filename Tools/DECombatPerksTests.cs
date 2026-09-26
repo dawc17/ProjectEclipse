@@ -129,7 +129,8 @@ internal static class DECombatPerksTests
             check(mind.Fighter.Clears==3,"Archived unconditional wall clear lost");
             check(catalog.Modes.Count == 0 && catalog.Quests.Count == 1 &&
                 catalog.Quests[0].Id.ToString() == "de128:quests/dojo_changer_map_button" &&
-                catalog.Warriors.All(value => value.Id.LocalId.StartsWith("sensei_") || value.Id.LocalId.StartsWith("uw_")),
+                catalog.Warriors.All(value => value.Id.LocalId.StartsWith("sensei_") || value.Id.LocalId.StartsWith("uw_") ||
+                    value.Id.LocalId.StartsWith("challenger_")),
                 "The dojo map button is the only active quest in the replacement package.");
             var ids = new[] { "master_of_style", "relentless" };
             foreach (string id in ids)

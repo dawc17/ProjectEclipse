@@ -6,7 +6,13 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.42.3` shortens the old
+DE128 is an ordinary downstream Eclipse mod. Version `0.43.1` moves Act 6's
+Duel clear of Old Wounds and places Ronin and Nova as in the shipped game.
+Version `0.43.0` restores the
+seven archived Challenger duels (Trickster, Hawk, Rose, Fisher, Outcast, Ronin
+and Nova). They appear on the Act 1-6 maps after the first normal win over
+Titan, and the first win against each grants that Challenger's weapon at the
+player's level with its archived enchantment. Version `0.42.3` shortens the old
 Axe Kick's cancel window to Front Kick's first three frames. Version `0.42.1` lets the second
 Kick of the old Axe Kick and Wall Run cancel Front Kick or Back Kick at once,
 and lets computer opponents choose the restored moves. Version `0.42.0` restores the

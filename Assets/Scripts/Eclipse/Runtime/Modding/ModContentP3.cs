@@ -187,12 +187,57 @@ namespace Eclipse.Modding
         public IReadOnlyCollection<ModCounterDefinition> Counters => CounterDefinitions.Values;
         public IReadOnlyCollection<ModAchievementDefinition> Achievements => AchievementDefinitions.Values;
         public IReadOnlyCollection<ModAssetReplacement> AssetReplacements => ReplacementDefinitions.Values;
+        // Validated before any registry changes so a conflicting commit leaves the catalog untouched.
+        internal void ValidateBattlePositionPatch(ModContentPatchRecord record)
+        {
+            ModContentPolicies.RequirePatchAllowed(record.Target, record.Field, record.Operation);
+            if (!_battles.TryGet(record.Target, out _)) throw new ModContentException("Battle patch target is not registered: '" + record.Target + "'.");
+            if (_patchByKey.TryGetValue(new ModContentPatchKey(record.Target, record.Field), out var existing)) throw PatchConflict(existing, record);
+        }
+        internal void ApplyBattlePositionPatch(ModContentPatchRecord record, int? x, int? y)
+        {
+            _battles.TryGet(record.Target, out var battle);
+            _battles.Replace(record.Target, battle.WithPosition(x ?? battle.X, y ?? battle.Y));
+            _patchByKey.Add(new ModContentPatchKey(record.Target, record.Field), record);
+            _patches.Add(record);
+        }
     }
     public sealed partial class ModRegistrationTransaction
     {
         private readonly Dictionary<DefinitionId,ModCounterDefinition> _counters = new Dictionary<DefinitionId,ModCounterDefinition>();
         private readonly Dictionary<DefinitionId,ModAchievementDefinition> _achievements = new Dictionary<DefinitionId,ModAchievementDefinition>();
         private readonly Dictionary<AssetId,ModAssetReplacement> _replacements = new Dictionary<AssetId,ModAssetReplacement>();
+        // Staged sf2.battles.patch map placements, keyed by committed target battle.
+        private readonly Dictionary<DefinitionId,BattlePositionPatch> _battlePositions = new Dictionary<DefinitionId,BattlePositionPatch>();
+        private sealed class BattlePositionPatch
+        {
+            public ModContentPatchRecord Record; public int? X; public int? Y;
+        }
+        public const int BattlePositionLimit = 10000;
+        public DefinitionId PatchBattlePosition(string reference, int? x, int? y)
+        {
+            ThrowIfCompleted();
+            if (string.IsNullOrWhiteSpace(reference)) throw new ModContentException("Battle patch target must not be empty.");
+            if (!x.HasValue && !y.HasValue) throw new ModContentException("Battle patch needs x or y.");
+            foreach (int? value in new[] { x, y })
+                if (value.HasValue && (value.Value < -BattlePositionLimit || value.Value > BattlePositionLimit))
+                    throw new ModContentException("Battle position must be within -" + BattlePositionLimit + ".." + BattlePositionLimit + ".");
+            DefinitionId id;
+            try { id = DefinitionId.Parse(reference); }
+            catch (FormatException exception) { throw new ModContentException(exception.Message, exception); }
+            if (id.Category != "battles") throw new ModContentException("Battle patch target must use the battles category: '" + id + "'.");
+            if (id.Namespace == Mod.Id) throw new ModContentException("Set x and y when registering your own battle instead of patching '" + id + "'.");
+            if (!CanReferenceNamespace(id.Namespace))
+                throw new ModContentException("Mod '" + Mod.Id + "' cannot patch undeclared namespace '" + id.Namespace + "'.");
+            if (!_catalog.TryGetBattle(id, out _)) throw new ModContentException("Battle patch target is not registered: '" + id + "'.");
+            ModContentPolicies.RequirePatchAllowed(id, ModContentPolicies.BattlePosition, ModContentPatchOperation.Replace);
+            if (_battlePositions.ContainsKey(id))
+                throw new ModContentException("Duplicate battle patch for '" + id + "' field '" + ModContentPolicies.BattlePosition + "'.");
+            EnsureCapacityForNewRegistration();
+            _battlePositions.Add(id, new BattlePositionPatch {
+                Record = new ModContentPatchRecord(Mod.Id, id, ModContentPolicies.BattlePosition, ModContentPatchOperation.Replace), X = x, Y = y });
+            return id;
+        }
         public ModCounterDefinition RegisterCounter(string localId, int maximum)
         {
             ThrowIfCompleted(); EnsureCapacityForNewRegistration();
@@ -221,6 +266,7 @@ namespace Eclipse.Modding
         }
         private void ValidateP3Commit()
         {
+            foreach(var value in _battlePositions.Values) _catalog.ValidateBattlePositionPatch(value.Record);
             foreach(var value in _counters.Values) if (_catalog.CounterDefinitions.ContainsKey(value.Id)) throw new ModContentException("Counter conflict: "+value.Id);
             foreach(var value in _achievements.Values)
             {
@@ -245,11 +291,17 @@ namespace Eclipse.Modding
             foreach(var p in _counters) _catalog.CounterDefinitions.Add(p.Key,p.Value);
             foreach(var p in _achievements) _catalog.AchievementDefinitions.Add(p.Key,p.Value);
             foreach(var p in _replacements) _catalog.ReplacementDefinitions.Add(p.Key,p.Value);
+            foreach(var p in _battlePositions) _catalog.ApplyBattlePositionPatch(p.Value.Record, p.Value.X, p.Value.Y);
         }
-        private void ClearP3Pending() { _counters.Clear(); _achievements.Clear(); _replacements.Clear(); }
+        private void ClearP3Pending() { _counters.Clear(); _achievements.Clear(); _replacements.Clear(); _battlePositions.Clear(); }
     }
     public sealed partial class ModApiFacade
     {
+        public DefinitionId PatchBattlePosition(string target, int? x, int? y)
+        {
+            RequireCapability("content.patch");
+            return RequireRegistration().PatchBattlePosition(target, x, y);
+        }
         public ModCounterDefinition RegisterCounter(string id,int maximum) { RequireCapability("content.register"); return RequireRegistration().RegisterCounter(id,maximum); }
         public ModAchievementDefinition RegisterAchievement(string id,DefinitionId counter,DefinitionId title,DefinitionId description,AssetId icon,int threshold,bool hidden)
         { RequireCapability("content.register"); return RequireRegistration().RegisterAchievement(id,counter,title,description,icon,threshold,hidden); }

@@ -728,6 +728,10 @@ public class Roster : MELBIBHDPCE
 		OFKGMKADHBD = node.Attributes["CurrentZone"].CIPOICEEIBK(string.Empty);
 		HKINOMCMDDL.Parse(node);
 		JHJLHNHCPMP = node.Attributes["EclipseMode"].CIPOICEEIBK("Off") == "On";
+		// The mask is otherwise only set by the eclipse.xml toggle quests, so a
+		// profile restored in Eclipse mode showed the daytime map until toggled.
+		// Match the colors those quests apply for each mode.
+		_MapMaskColor = JHJLHNHCPMP ? ColorUtils.DAAIIECAAFO("#83624BFF") : Color.white;
 		FPCJCIIBLND = node["Items"];
 		JEMDPOAHOAP.Parse(FPCJCIIBLND);
 		IOFKIODDAMJ = node["Battles"];

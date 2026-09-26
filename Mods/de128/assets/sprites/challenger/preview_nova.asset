@@ -1,0 +1,3 @@
+type=sprite
+texture=textures/challenger/preview_nova.png
+pixels_per_unit=100

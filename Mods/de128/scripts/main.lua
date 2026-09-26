@@ -35,15 +35,18 @@ require("content.titan_reward_equipment")
 require("content.rewards")
 require("content.progression")
 require("content.campaign_music")
+require("content.map_positions")
 require("content.dojo_changer")
 -- Sensei story: guard templates and RaidCharge availability are synthesized from
 -- archive evidence (see sensei_guard_templates.lua, sensei_raid_charge_state.lua).
 require("content.sensei_story").install_default()
 -- Underworld: all eight archived tiers, sharing the story's RaidCharge rule, plus
 -- the archived intro (after Lynx 2), toggle gating and the 32 bosses' dialogues.
-local underworld = require("content.underworld").install(
-    require("content.sensei_raid_charge").register(require("content.sensei_raid_charge_state").create()))
+local raid_charge = require("content.sensei_raid_charge").register(require("content.sensei_raid_charge_state").create())
+local underworld = require("content.underworld").install(raid_charge)
 require("content.underworld_story").install(underworld)
+-- Challengers: seven post-Titan duels whose first win grants the opponent's weapon.
+require("content.challengers").install(raid_charge)
 -- Disabled at the owner's request. Keep the prototype out of the active mod.
 -- require("content.ascension")
 

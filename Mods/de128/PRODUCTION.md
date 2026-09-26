@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.42.3**. Front Kick's axe-kick cancel window is 0-2 (0.42.3; the archive's 0-4 in 0.42.2). The restored double-kick moves cancel their starters at once and the AI uses the restored moves (0.42.1); the archived default unarmed moves return (0.42.0). The dojo chooser button moves into the dojo menu (0.41.0) after its restyle (0.40.3). Step 74 restores four archived campaign recordings across 18 existing fights. Step 73 adds the ten-choice dojo changer. Step 72 packages the 29 music ids used by every archived Underworld battle so those encounters no longer request base-game substitute tracks. Step 71 restores the archived Complex forge pool split and Simple aspect deviation without changing shared prices. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in both Underworld modes; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.43.1**. Act 6 map placements are corrected (0.43.1); the seven post-Titan Challenger duels are active (0.43.0). Front Kick's axe-kick cancel window is 0-2 (0.42.3; the archive's 0-4 in 0.42.2). The restored double-kick moves cancel their starters at once and the AI uses the restored moves (0.42.1); the archived default unarmed moves return (0.42.0). The dojo chooser button moves into the dojo menu (0.41.0) after its restyle (0.40.3). Step 74 restores four archived campaign recordings across 18 existing fights. Step 73 adds the ten-choice dojo changer. Step 72 packages the 29 music ids used by every archived Underworld battle so those encounters no longer request base-game substitute tracks. Step 71 restores the archived Complex forge pool split and Simple aspect deviation without changing shared prices. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in both Underworld modes; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -4477,3 +4477,90 @@ playtest.
 At the owner's request the `FrontKick` window is 0-2: `SemiUninterrupt` 0-2 and
 `Uninterrupt` from 3. This deliberately differs from the archive's 0-4.
 Foundation checks pin the values. No Unity run or playtest.
+
+### Challenger duels (0.43.0, 2026-09-26)
+
+The owner stages and quest files define seven Challenger duels: Trickster
+(Act 1), Hawk (2), Rose (3), Fisher (4), Outcast (5), and Ronin and Nova (6).
+`scripts/content/challengers.lua` registers them as FINAL battles on the core
+zone maps with the owner's positions (Ronin and Nova: historical positions, see
+0.43.1), locations, previews and map buttons. Each
+fight has three 150-second rounds, no replays and one Aggressive opponent. The
+opponent uses its archived Default-based template (name, voice, 100
+EnchantmentResistance, loadout), its three alignment rows, MagicInitialCharge
+5000, WarriorPower 1880 and one weapon enchantment at aspect 100000. All seven
+fights share four rules: Anti-Shock on the opponent, DamageFactor -8500 on the
+player and +1000 on the opponent, and the existing conditional RaidCharge rule.
+Reward slot 0 has prize base 1. Slot 1 adds 27 gems, experience (0 for
+Trickster, 1 for the others) and the opponent's weapon.
+
+`UnlockChallengerBattles` reveals all seven entries, unlocked, after the first
+win over normal-mode Titan (`ZONE_7|C3_BOSS_TITAN|6`). DE128 checks this on each
+map entry, so older saves that already beat Titan catch up, and records the
+archived `ChallengerBattlesUnlocked` flag as `challengers_revealed` after all
+seven reveals succeed.
+
+Each `DropWeapon_<Name>` quest becomes a configured grant in the winning reward
+slot: the weapon at the player's level, with aspect `3639 / 100 * level + 60`
+plus the quest's Chance, Frames, Base and DamageFactor values. Native ownership
+filtering skips a weapon the player already owns, matching the archived
+Quantity check. Hawk and Ronin's archived `PERK_ITEM_SPECIAL_BLOODRAGE_WEAPON_STRANGER`
+exists only in DE. It is core Bloodrage Weapon with `Base=-1000`,
+`DamageFactor=15850`, `Chance=0.3`. The drop quests repeat exactly those values,
+so the grant uses the core perk with them; the foundation check verifies this.
+When a win actually grants the weapon (an `item_acquired` from zero plus the
+Challenger's win, in either order), the archived drop dialog appears on the
+next map entry. It shows the weapon name, the drop image and the drop line, and
+its OK button opens the shop. The archived button also selects the Weapon tab
+and item, but the navigation API cannot do that yet. Pending dialogs are saved
+as `challenger_drops_pending`; the two new fields bring the shared state schema
+to 60 of 64.
+
+The seven portraits, drop images, previews and base/active map buttons are
+copied byte-for-byte from the owner drop, as are seven owner music WAVs. The
+archived music ids (`samurai_spirit`, `blade_dance`, `ronin`, `heavenly_clouds`,
+`fuji`, `sky_isles`, `the_monastery`) are not native tracks. Rebuild or check
+with `Tools/ExtractDE128ChallengerArt.py [--check]`. All 37 text keys (battle
+names and descriptions, opponent names, drop lines, weapon names, OK) are
+copied from the 14 archived languages by
+`Tools/GenerateDE128ChallengerText.py [--check]`; the owner English table
+matches the archive.
+
+Verification: `Tools/DE128ChallengerTests.cs` (run by
+`TestDE128Foundation.ps1`) makes 751 comparisons between the registered content
+and the owner stages, quests, perks and archived translations. It also plays 29
+story checks through the production bindings: no reveal before a normal Titan
+win or after an Eclipse-only one; a refused reveal is retried; the drop dialog is
+deferred to the map, survives interruption and opens the shop once after the last
+pending drop; and there is no dialog without a new grant. The full foundation
+suite passed (16,108 checks). No Unity run or in-game playtest was done. Native
+combat, reward settlement, map-button rendering and audio playback remain unverified.
+
+### Act 6 map placements (0.43.1, 2026-09-26)
+
+A player screenshot of 0.43.0 showed Ronin and Nova away from their places in a
+reference screenshot of the shipped game, and Act 6's Duel under Sensei's Old
+Wounds button. Fitting the six unmoved Act 6 battles between the two images gives
+about 1.17 px per map unit. On that fit the reference Ronin sits at about
+(-455, 131) and Nova at about (-224, -238). These match the historical
+`Assets/DExml` positions (-455, 130) and (-225, -245), not the owner drop's
+(-505, 100) and (295, -220). The Challengers now use the historical values. The
+reference Duel sits at (-300, 100), which is the owner stages' Duel position.
+
+Eclipse gained `sf2.battles.patch { target, x?, y? }`. It moves a committed core
+or dependency battle's map button without changing its identity, fights, art or
+saved progress, and it takes part in patch conflict detection and the content
+fingerprint. The recovered `Battle` modding seam now re-reads X/Y when its source
+definition is replaced or restored, so disabling the mod restores the original
+placement. `scripts/content/map_positions.lua` applies the owner stages'
+placement for exactly the three core battles it moves from vanilla: `ZONE_6|Duel`,
+`ZONE_6|Duel_INTERMISSION` (-370, 50 -> -300, 100) and `ZONE_7|BOSS_TITAN_LOCKED`
+(-150, -30 -> -120, -80).
+
+Verification: foundation checks recompute the vanilla/owner placement diff and
+require DE128's patches to match it. They also cover y-only patches, the
+fingerprint, bounds, unknown fields and targets, own-battle rejection, duplicate
+patches, the capability and cross-mod conflict rollback (16,155 checks). The
+fight-patch suite, managed compilation, editor generate/check/test and the wiki
+build passed. The native map projection has been compiled but not run. No Unity
+run or in-game playtest was done.

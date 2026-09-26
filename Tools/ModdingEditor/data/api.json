@@ -467,6 +467,17 @@
       "requires": "`content.register`.",
       "when": "Entrypoint, after the zone."
     },
+    "sf2.battles.patch": {
+      "params": {
+        "definition": "Eclipse.BattlePatch"
+      },
+      "returns": "`nil`.",
+      "capability": "content.patch",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlespatch",
+      "summary": "Move an existing battle's button on its map page.",
+      "requires": "`content.patch` and a dependency on the target's owner (for example `core`).",
+      "when": "Entrypoint, after the target's owner has committed its definitions. Core battles are always committed first."
+    },
     "sf2.battles.set_locked": {
       "params": {
         "battle": "Eclipse.BattleHandle",
@@ -2757,6 +2768,22 @@
         "shift": "number",
         "priority?": "integer",
         "mode?": "\"all\"|\"normal\"|\"eclipse\""
+      }
+    },
+    "BattlePatch": {
+      "fields": {
+        "target": [
+          "string",
+          "Qualified core or dependency battle ID, such as core:battles/zone_6/duel."
+        ],
+        "x?": [
+          "integer",
+          "New map x, -10000..10000; omit to keep."
+        ],
+        "y?": [
+          "integer",
+          "New map y, -10000..10000; omit to keep."
+        ]
       }
     },
     "WarriorPerk": {

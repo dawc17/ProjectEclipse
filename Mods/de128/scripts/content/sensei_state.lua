@@ -31,6 +31,10 @@ function result.register()
     end
     fields.uw_sequence_next = { type = sf2.state.INTEGER, default = 1 }
     fields.uw_sequence_key = { type = sf2.state.STRING, default = "" }
+    -- Challengers (challengers.lua): the archived ChallengerBattlesUnlocked flag and
+    -- the Challenger keys whose weapon-drop dialog is still due, as ",key,key,".
+    fields.challengers_revealed = { type = sf2.state.BOOLEAN, default = false }
+    fields.challenger_drops_pending = { type = sf2.state.STRING, default = "," }
     sf2.state.register { version = 1, fields = fields }
     registered = true
 end

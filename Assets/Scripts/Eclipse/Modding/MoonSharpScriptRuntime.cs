@@ -958,6 +958,15 @@ namespace Eclipse.Modding
                 battles.Set("FINAL", DynValue.NewString("final"));
                 battles.Set("FINAL_TITAN", DynValue.NewString("final_titan"));
                 battles.Set("register", DynValue.NewCallback(RegisterBattle));
+                battles.Set("patch", DynValue.NewCallback((ctx,args)=>ApiCall("sf2.battles.patch",()=>{
+                    const string function="sf2.battles.patch";
+                    Table table=args.AsType(0,function,DataType.Table,false).Table;
+                    ValidateFields(table,function,"target","x","y");
+                    _api.PatchBattlePosition(RequiredString(table,"target",function),
+                        table.Get("x").IsNil()?(int?)null:RequiredInt(table,"x",function),
+                        table.Get("y").IsNil()?(int?)null:RequiredInt(table,"y",function));
+                    return DynValue.Nil;
+                })));
                 battles.Set("set_locked", DynValue.NewCallback((ctx,args)=>ApiCall("sf2.battles.set_locked",()=>{
                     const string function="sf2.battles.set_locked";
                     var battle=ReadProgressionBattle(args,function);

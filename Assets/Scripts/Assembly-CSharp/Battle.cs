@@ -601,7 +601,14 @@ public class Battle
 			return false;
 		}
 		JNIIGKNBCCL(node);
+		ReadMapPositionForModding(node);
 		return true;
+	}
+
+	// sf2.battles.patch changes only the map placement; ListSF reads it the same way.
+	private void ReadMapPositionForModding(XmlNode node)
+	{
+		_pos = new Vector2(node.Attributes["X"].ParseInt(), node.Attributes["Y"].ParseInt());
 	}
 
 	public bool RestoreSourceDefinitionForModding(XmlNode node, out string error)
@@ -621,6 +628,7 @@ public class Battle
 		// Live mod unloading is intentionally unsupported. Restoring the stored source is
 		// sufficient for the next lazy parse/reinitialization without touching a running fight.
 		JNIIGKNBCCL(node);
+		ReadMapPositionForModding(node);
 		return true;
 	}
 

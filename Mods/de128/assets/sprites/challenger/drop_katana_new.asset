@@ -1,0 +1,3 @@
+type=sprite
+texture=textures/challenger/drop_katana_new.png
+pixels_per_unit=200

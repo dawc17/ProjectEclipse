@@ -548,6 +548,12 @@ local BattleDefinition = {}
 ---@field mode? "all"|"normal"|"eclipse"
 local AttributeAlignment = {}
 
+---@class (exact) Eclipse.BattlePatch
+---@field target string Qualified core or dependency battle ID, such as core:battles/zone_6/duel.
+---@field x? integer New map x, -10000..10000; omit to keep.
+---@field y? integer New map y, -10000..10000; omit to keep.
+local BattlePatch = {}
+
 ---@class (exact) Eclipse.WarriorPerk
 ---@field perk Eclipse.PerkHandle
 ---@field aspect? number Core perks only; finite 0..2147483647. Omit to inherit.
@@ -2683,6 +2689,14 @@ function zones.get(reference) end
 ---@param definition Eclipse.BattleDefinition
 ---@return Eclipse.BattleHandle
 function battles.register(definition) end
+
+---Move an existing battle's button on its map page.
+---Requires: `content.patch` and a dependency on the target's owner (for example `core`).
+---When: Entrypoint, after the target's owner has committed its definitions. Core battles are always committed first.
+---Returns: `nil`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/content-graph/#sf2battlespatch)
+---@param definition Eclipse.BattlePatch
+function battles.patch(definition) end
 
 ---Change the saved lock of a revealed battle owned by this mod.
 ---Requires: `story.progression`, this script's own battle handle and a boolean `locked`. Strings, forged handles, core battles and other mods' battles are not accepted. Register entries first, then reveal them before changing locks.

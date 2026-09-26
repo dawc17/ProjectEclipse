@@ -409,14 +409,23 @@ namespace Eclipse.Modding
             for (int i = 0; i < _content.Patches.Count; i++)
             {
                 ModContentPatchRecord patch = _content.Patches[i];
-                if (patch.Target.Category != "fights") continue;
-                FightDefinition fight;
-                if (!_content.TryGetFight(patch.Target, out fight) || !fight.IsCore) continue;
                 BattleDefinition battleDefinition;
                 ZoneDefinition zoneDefinition;
-                if (!_content.TryGetBattle(fight.Battle, out battleDefinition) ||
-                    !_content.TryGetZone(battleDefinition.Zone, out zoneDefinition))
-                    throw new ModContentException("Core fight patch lost projected battle/zone identity: '" + patch.Target + "'.");
+                FightDefinition fight = null;
+                if (patch.Target.Category == "battles" && patch.Field == "battle/position")
+                {
+                    // sf2.battles.patch: the recovered Battle re-reads X/Y from its replaced source.
+                    if (!_content.TryGetBattle(patch.Target, out battleDefinition) || !battleDefinition.IsCore) continue;
+                }
+                else
+                {
+                    if (patch.Target.Category != "fights") continue;
+                    if (!_content.TryGetFight(patch.Target, out fight) || !fight.IsCore) continue;
+                    if (!_content.TryGetBattle(fight.Battle, out battleDefinition))
+                        throw new ModContentException("Core fight patch lost projected battle/zone identity: '" + patch.Target + "'.");
+                }
+                if (!_content.TryGetZone(battleDefinition.Zone, out zoneDefinition))
+                    throw new ModContentException("Core patch lost projected battle/zone identity: '" + patch.Target + "'.");
 
                 XmlNode battleNode;
                 BattleSourceBinding binding;
@@ -435,6 +444,12 @@ namespace Eclipse.Modding
                     _battleSourceBindings.Add(binding);
                 }
 
+                if (fight == null)
+                {
+                    ((XmlElement)battleNode).SetAttribute("X", battleDefinition.X.ToString(CultureInfo.InvariantCulture));
+                    ((XmlElement)battleNode).SetAttribute("Y", battleDefinition.Y.ToString(CultureInfo.InvariantCulture));
+                    continue;
+                }
                 XmlElement fightNode = FindFightNode(battleNode, fight.LegacyName);
                 if (fightNode == null)
                     throw new ModContentException("Recovered fight for core patch is unavailable: '" + fight.Id + "'.");

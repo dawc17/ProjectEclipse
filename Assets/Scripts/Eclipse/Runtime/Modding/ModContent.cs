@@ -132,6 +132,7 @@ namespace Eclipse.Modding
         public const string FightRounds = "fight/rounds";
         public const string FightRoundTime = "fight/round-time";
         public const string ZoneBattleChildren = "children/battles/";
+        public const string BattlePosition = "battle/position";
         public const string QuestEnabled = "quest/enabled";
 
         public static ModContentFieldPolicy GetFieldPolicy(DefinitionId target, string field)
@@ -147,6 +148,7 @@ namespace Eclipse.Modding
                 return ModContentFieldPolicy.Replaceable;
             if (target.Category == "zones" && field.StartsWith(ZoneBattleChildren, StringComparison.Ordinal))
                 return ModContentFieldPolicy.Appendable;
+            if (target.Category == "battles" && field == BattlePosition) return ModContentFieldPolicy.Replaceable;
             return ModContentFieldPolicy.ReadOnly;
         }
 
@@ -1010,6 +1012,12 @@ namespace Eclipse.Modding
             _readOnlyFights = Array.AsReadOnly(_fights);
             LegacyXml = legacyXml;
         }
+
+        // Map placement is the only patchable battle field; identity, fights and art stay.
+        internal BattleDefinition WithPosition(int x, int y) =>
+            new BattleDefinition(Id, Zone, LegacyName, Kind, x, y, Alias, Title, Icon, Preview, Description,
+                Location, Music, RewardImage, ShowResistance, _fights, IconAtlas, EclipseToggleName,
+                LegacyXml, PowerMode, Icons);
     }
 
     public sealed class FightDefinition

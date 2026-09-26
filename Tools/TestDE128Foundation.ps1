@@ -30,6 +30,7 @@ $compileFiles = @($runtimeSources.FullName) + @($bindingSources.FullName) + @(
     (Join-Path $PSScriptRoot 'DE128EquipmentTests.cs'),
     (Join-Path $PSScriptRoot 'DE128UnderworldTests.cs'),
     (Join-Path $PSScriptRoot 'DE128UnderworldStoryTests.cs'),
+    (Join-Path $PSScriptRoot 'DE128ChallengerTests.cs'),
     (Join-Path $PSScriptRoot 'SenseiDialogFixture.cs'),
     (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ShopAvailabilityPolicy.cs'),
     (Join-Path $root 'Assets/Scripts/Eclipse/Content/ItemListCompatibility.cs'),

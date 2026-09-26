@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -462,6 +463,80 @@ internal static class DE128FoundationTests
         finally { ModSceneAccess.Open = priorNavigation; }
     }
 
+    // sf2.battles.patch: DE128 moves exactly the core battles whose owner stages.xml
+    // placement differs from vanilla, and the API rejects unsafe or conflicting edits.
+    private static void CheckBattlePositions(ModDescriptor mod, ModContentCatalog enabled, string fixture)
+    {
+        Dictionary<string, (string X, string Y)> Positions(string relative)
+        {
+            var result = new Dictionary<string, (string, string)>();
+            foreach (XmlElement zone in ReadXml(Path.Combine(_repository, relative)).SelectNodes("/Stages/Zones/Zone"))
+                foreach (XmlElement battle in zone.SelectNodes("Battle[@X]"))
+                    result[CoreContentImporter.BattleId(zone.GetAttribute("Name"), battle.GetAttribute("Name")).ToString()] =
+                        (battle.GetAttribute("X"), battle.GetAttribute("Y"));
+            return result;
+        }
+        var vanilla = Positions("Assets/vanillaXml/stages.xml");
+        var owner = Positions("ResearchSources/de128_assets/gamedata/stages.xml");
+        var moved = vanilla.Keys.Where(id => owner.TryGetValue(id, out var value) && value != vanilla[id]).OrderBy(id => id).ToArray();
+        var patched = enabled.Patches.Where(patch => patch.Field == "battle/position").ToArray();
+        Check(moved.Length == 3 && patched.Length == 3 &&
+            patched.Select(patch => patch.Target.ToString()).OrderBy(id => id).SequenceEqual(moved) &&
+            patched.All(patch => patch.Owner == mod.Id && patch.Operation == ModContentPatchOperation.Replace),
+            "DE128 battle placements differ from the owner stage diff: " + string.Join(",", moved));
+        foreach (string id in moved)
+            Check(enabled.TryGetBattle(DefinitionId.Parse(id), out var battle) &&
+                battle.X.ToString(CultureInfo.InvariantCulture) == owner[id].X &&
+                battle.Y.ToString(CultureInfo.InvariantCulture) == owner[id].Y, "Patched battle position differs: " + id);
+        var untouched = new ModContentCatalog(); ImportCore(untouched);
+        Check(untouched.TryGetBattle(DefinitionId.Parse("core:battles/zone_6/duel"), out var original) &&
+            original.X == -370 && original.Y == 50 && enabled.Battles.Count(b => b.IsCore) == untouched.Battles.Count,
+            "Core Duel changed outside the patch, or the core battle set changed.");
+
+        string Fingerprint(string body)
+        {
+            var peer = Peer(fixture, "fixture.battle-position-" + Math.Abs(body.GetHashCode()), "content.patch", body);
+            var catalog = new ModContentCatalog(); Load(peer, catalog);
+            return ModSaveData.ComputeContentSetFingerprint(new[] { peer }, catalog);
+        }
+        string duel = "core:battles/zone_6/duel";
+        var hashes = new[] {
+            Fingerprint("sf2.battles.patch { target='" + duel + "', x=-300, y=100 }"),
+            Fingerprint("sf2.battles.patch { target='" + duel + "', x=-301, y=100 }"),
+            Fingerprint("sf2.battles.patch { target='" + duel + "', y=100 }"),
+        };
+        Check(hashes.Distinct().Count() == 3, "Battle placement is absent from the content fingerprint.");
+        var partial = new ModContentCatalog();
+        Load(Peer(fixture, "fixture.battle-position-y", "content.patch", "sf2.battles.patch { target='" + duel + "', y=100 }"), partial);
+        Check(partial.TryGetBattle(DefinitionId.Parse(duel), out var half) && half.X == -370 && half.Y == 100 &&
+            half.Fights.SequenceEqual(original.Fights) && half.LegacyName == original.LegacyName && half.Kind == original.Kind,
+            "A y-only battle patch changed other battle fields.");
+
+        var failures = new[] {
+            ("sf2.battles.patch { target='" + duel + "' }", "needs x or y"),
+            ("sf2.battles.patch { target='" + duel + "', x=10001 }", "-10000..10000"),
+            ("sf2.battles.patch { target='" + duel + "', x=1.5 }", "integer"),
+            ("sf2.battles.patch { target='" + duel + "', x=1, title='x' }", "title"),
+            ("sf2.battles.patch { target='core:fights/zone_6/duel/1', x=1 }", "battles category"),
+            ("sf2.battles.patch { target='core:battles/zone_6/missing', x=1 }", "not registered"),
+            ("sf2.battles.patch { target='" + duel + "', x=1 }\nsf2.battles.patch { target='" + duel + "', y=1 }", "Duplicate battle patch"),
+            ("local z=sf2.zones.register{id='z',file='Map1.1'}\nsf2.battles.register{id='b',zone=z,type=sf2.battles.STORY}\n" +
+                "sf2.battles.patch { target=sf2.mod.id..':battles/b', x=1 }", "registering your own battle"),
+        };
+        for (int i = 0; i < failures.Length; i++)
+            ExpectFailure(Peer(fixture, "fixture.battle-position-bad" + i, "content.patch", failures[i].Item1, "content.register"),
+                new ModContentCatalog(), failures[i].Item2);
+        ExpectFailure(Peer(fixture, "fixture.battle-position-capability", "content.register",
+            "sf2.battles.patch { target='" + duel + "', x=1 }"), new ModContentCatalog(), "content.patch");
+        // A second owner of the same placement conflicts and leaves the first intact.
+        var shared = new ModContentCatalog();
+        Load(Peer(fixture, "fixture.battle-position-first", "content.patch", "sf2.battles.patch { target='" + duel + "', x=5 }"), shared);
+        ExpectFailure(mod, shared, "battle/position");
+        Check(shared.TryGetBattle(DefinitionId.Parse(duel), out var kept) && kept.X == 5 && kept.Y == 50 &&
+            shared.Patches.Count(patch => patch.Field == "battle/position") == 1 && !shared.Battles.Any(b => b.Id.Namespace.Value == "de128"),
+            "A conflicting battle placement leaked DE128 content or replaced the first owner's patch.");
+    }
+
     private static void CheckMapButtonFingerprint(string fixture)
     {
         string Hash(string image, int x, string anchors, string showType)
@@ -696,7 +771,8 @@ internal static class DE128FoundationTests
         Check(catalog.TryGetLocalization(weapon.DisplayName, out var title) &&
             title.Id.Namespace.Value == "de128" && title.GetOrEnglish("eng") == "Titan's Desolator",
             "Desolator's mod-owned English title is missing.");
-        Check(catalog.Rewards.Count(value => !value.Id.LocalId.StartsWith("sensei_act_") && !value.Id.LocalId.StartsWith("uw_")) == 1 &&
+        Check(catalog.Rewards.Count(value => !value.Id.LocalId.StartsWith("sensei_act_") && !value.Id.LocalId.StartsWith("uw_") &&
+            !value.Id.LocalId.StartsWith("challenger_")) == 1 &&
             catalog.Rewards.Count(value => value.Id.LocalId.StartsWith("sensei_act_")) == 57 && catalog.TryGetReward(
             DefinitionId.Parse("de128:rewards/titans_desolator"), out var reward) &&
             reward.Items.Count == 5 && reward.Items[0].Item == Sword &&
@@ -714,8 +790,9 @@ internal static class DE128FoundationTests
         Check(drop.ResultIndex == 1 && drop.Mode == ModRuleMode.Eclipse && !drop.MinimumLevel.HasValue &&
             !drop.MaximumLevel.HasValue && drop.Reward.Id.ToString() == "de128:rewards/titans_desolator",
             "Desolator reward changed its winning slot, mode or level gate.");
-        // The only mod-owned opponents, fights and rules are the Sensei story's and the Underworld's.
-        bool Owned(string id) => id.StartsWith("sensei_") || id.StartsWith("uw_");
+        // The only mod-owned opponents, fights and rules are the Sensei story's, the Underworld's
+        // and the Challengers'.
+        bool Owned(string id) => id.StartsWith("sensei_") || id.StartsWith("uw_") || id.StartsWith("challenger_");
         Check(catalog.Modes.Count == 0 && catalog.Quests.Count == 1 &&
             catalog.Quests[0].Id.ToString() == "de128:quests/dojo_changer_map_button" &&
             catalog.Quests[0].Place == ModQuestActionPlace.Map &&
@@ -741,7 +818,8 @@ internal static class DE128FoundationTests
         var underworldRewards = catalog.Rewards.Where(reward => reward.Id.LocalId.StartsWith("uw_")).ToArray();
         Check(catalog.Fights.Count(fight => fight.Id.LocalId.StartsWith("uw_")) == 76 && underworldRewards.Length == 180 &&
             underworldRewards.Sum(reward => reward.Currencies.Count) == 108 &&
-            catalog.WarriorTemplates.Count(template => template.Body != null && template.Id.Namespace.Value == "de128") == 66 &&
+            catalog.WarriorTemplates.Count(template => template.Body != null && template.Id.Namespace.Value == "de128" &&
+                template.Id.LocalId.StartsWith("uw_")) == 66 &&
             catalog.Warriors.Count(value => value.Id.LocalId.StartsWith("uw_")) == 104,
             "Underworld fights, rewards, forge drops, templates or opponents differ from the archive.");
         // Active Sensei story: synthesized guards (Default + voice) and the restored Sphere1.
@@ -754,7 +832,8 @@ internal static class DE128FoundationTests
                 value.Voice == "Male" && value.Items.Any(item => item.ToString() == "de128:items/magic/minor_charge_of_darkness")),
             "Sensei guard voices or the prince's restored Sphere1 differ.");
         Check(catalog.Battles.Count(value => !value.IsCore && value.Id.LocalId.StartsWith("sensei_act_")) == 12 &&
-            catalog.Battles.Where(value => !value.IsCore && value.Preview.StartsWith("de128:")).Count() == 10,
+            catalog.Battles.Where(value => !value.IsCore && value.Preview.StartsWith("de128:") &&
+                !value.Id.LocalId.StartsWith("challenger_")).Count() == 10,
             "Sensei battles or shipped previews missing from the active package.");
         Check(!catalog.Localizations.Any(value => value.Id.Namespace.Value == "de128" &&
             (value.Id.LocalId.StartsWith("ascension") || value.Id.LocalId == "zones/ascension")),
@@ -1068,6 +1147,8 @@ internal static class DE128FoundationTests
             CheckDE(catalog);
             int underworld = DE128UnderworldTests.Run(catalog, _repository, (ok, message) => Check(ok, message));
             Console.WriteLine("Underworld archive comparisons: " + underworld);
+            Console.WriteLine("Challenger archive comparisons: " +
+                DE128ChallengerTests.RunContent(catalog, _repository, (ok, message) => Check(ok, message)));
             var reward = catalog.Rewards.Single(value => value.Id.LocalId == "titans_desolator");
             Check(reward.TryGetGrant(0, out actualGrant) && !reward.TryGetGrant(-1, out _) &&
                 !reward.TryGetGrant(5, out _), "Reward flat index validation failed.");
@@ -1523,6 +1604,7 @@ end}
         CheckDojoArchive(enabled);
         CheckDojoInteraction(mod);
         CheckMapButtonFingerprint(fixture);
+        CheckBattlePositions(mod, enabled, fixture);
         CheckForgeArchive(enabled);
         DE128ShopTests.Run(mod, enabled, repository, Check);
         DE128EquipmentTests.Run(mod, enabled, repository, Check);
@@ -1627,6 +1709,8 @@ end}
         CheckLocalizationReferences(fixture);
         CheckRewardConfiguration(mod, fixture);
         Console.WriteLine("Underworld story checks: " + DE128UnderworldStoryTests.Run(mod, repository,
+            (descriptor, content, bus, state) => LoadLive(descriptor, content, bus, state), Check));
+        Console.WriteLine("Challenger story checks: " + DE128ChallengerTests.RunStory(mod, repository,
             (descriptor, content, bus, state) => LoadLive(descriptor, content, bus, state), Check));
         CheckTrialFingerprints(fixture);
         CheckInitialStats(fixture);
