@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Eclipse/Runtime/Modding/ModId.cs" Link="ModId.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Runtime/Modding/ModManifest.cs" Link="ModManifest.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Runtime/Modding/ModManifestReader.cs" Link="ModManifestReader.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Runtime/Modding/SemanticVersion.cs" Link="SemanticVersion.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Runtime/Modding/VersionRange.cs" Link="VersionRange.cs" />
+    <Compile Include="../../Assets/Scripts/Eclipse/Runtime/Modding/ModZipInstaller.cs" Link="ModZipInstaller.cs" />
+  </ItemGroup>
+</Project>

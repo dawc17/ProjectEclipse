@@ -517,6 +517,7 @@ namespace Eclipse.UI
             else if (optionsOnly) { IsOpen = false; Destroy(gameObject); }
             else if (currentPage == "Home") QuitPrompt();
             else if (currentPage == "Mod details") DrawMods();
+            else if (currentPage == "Mod ZIP") CancelModZip();
             else Home();
         }
 
@@ -598,6 +599,7 @@ namespace Eclipse.UI
 
         private void OnDestroy()
         {
+            ClearPendingModZip();
             foreach (var texture in autumnTextures.Values) Destroy(texture);
             if (logoInk != null) Destroy(logoInk);
             if (confirmUntil > 0) Screen.SetResolution(oldResolution.x, oldResolution.y, oldMode);

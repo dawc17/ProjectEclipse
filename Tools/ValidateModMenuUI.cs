@@ -46,6 +46,7 @@ public class ModMenuUIRunner : MonoBehaviour
         Capture(title.GetComponent<Canvas>(), "mod-menu-home.png");
         homeButtons.Single(b => b.name == "MODS").onClick.Invoke();
         Require(title.GetComponentsInChildren<Text>().Any(t => t.text.Contains("Always enabled")), "Core lock label missing.");
+        Require(title.GetComponentsInChildren<Button>().Any(b => b.name == "Install ZIP"), "ZIP installer entry missing.");
         var toggle = title.GetComponentsInChildren<Button>().First(b => b.name == "Enabled");
         toggle.onClick.Invoke();
         Require(!File.Exists(settings), "UI persisted draft before Apply.");
