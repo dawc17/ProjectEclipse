@@ -54,6 +54,10 @@ The [Phase 2 API](P2_API.md) and [showcase](example.phase2/README.md) remain sup
 Place each mod in `Mods/<folder>/` with a `mod.toml` manifest. See `example.weapon`
 for the minimal weapon slice, `example.loadout` for armor, helm, ranged, and magic,
 and `example.enchantment` for the reusable behavior + typed perk/enchantment slice.
+On Windows and Android, the title-screen **Mods > Install ZIP** action also accepts
+an archive with `mod.toml` at its root or in one enclosing folder. It validates
+and extracts the mod into the normal Mods directory. Confirm **Replace mod** to
+update an installed mod, then choose **Apply & Restart**.
 
 ## Enabling and disabling mods
 

@@ -15,7 +15,7 @@ $manifest.dependencies | Add-Member -NotePropertyName 'com.unity.ugui' -NoteProp
 $manifest | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $manifestPath
 Copy-Item -Path (Join-Path $root 'Assets/Scripts/Eclipse/Runtime/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Runtime/Modding') -Force
 Copy-Item -Exclude ModModeRuntime.cs -Path (Join-Path $root 'Assets/Scripts/Eclipse/Modding/*.cs') -Destination (Join-Path $fixture 'Assets/Scripts/Eclipse/Modding') -Force
-foreach ($name in @('TitleScreen', 'TitleScreenMods', 'TitleRibbon', 'GameSessionRestart', 'ReturnToTitleButton', 'BattleTouchControls')) {
+foreach ($name in @('TitleScreen', 'TitleScreenMods', 'ModZipPicker', 'TitleRibbon', 'GameSessionRestart', 'ReturnToTitleButton', 'BattleTouchControls')) {
     Copy-Item -LiteralPath (Join-Path $root "Assets/Scripts/Eclipse/UI/$name.cs") -Destination (Join-Path $fixture "Assets/$name.cs") -Force
 }
 foreach ($source in @('Assets/Scripts/Eclipse/Input/FightKeyBindings.cs', 'Assets/Scripts/Eclipse/Runtime/Presentation/SF2DisplayFrameRate.cs', 'Tools/ModMenuUIStubs.cs', 'Tools/ValidateModMenuUI.cs')) {
