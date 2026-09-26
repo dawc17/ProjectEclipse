@@ -886,7 +886,9 @@ public class ModelAnimation : global::EventDispatcher<object>
 			{
 				SetInterruptFrames(BAOONIGFBMB.DFKIHADCFKG());
 			}
-			BAOONIGFBMB.HAILLLEPCHP(_Frames, num, !AEKEELJMLDC);
+			// A frame-shifted continuation starts from the previous move's frame, which can pass
+			// this animation's end. Load keyframes from the clamped start, not the raw value.
+			BAOONIGFBMB.HAILLLEPCHP(_Frames, GKGEBAKLIDH, !AEKEELJMLDC);
 			PhysicsNodes();
 			SetCurrentNode();
 			MirrorNodes();

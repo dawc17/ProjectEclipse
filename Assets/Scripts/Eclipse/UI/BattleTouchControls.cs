@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Eclipse.UI
 {
@@ -20,8 +21,50 @@ namespace Eclipse.UI
                 !Application.isEditor && Application.platform == RuntimePlatform.Android ? 1 : 0) != 0; }
         }
 
+        // Touches this far outside a control's art (fraction of its smaller side) still hit it.
+        public const float TouchLeniency = 0.15f;
+        private const float LayoutAspect = 16f / 9f;
+        private static readonly Dictionary<RectTransform, Vector2> AuthoredPositions = new Dictionary<RectTransform, Vector2>();
+
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Reset() { Groups.Clear(); }
+        private static void Reset() { Groups.Clear(); AuthoredPositions.Clear(); }
+
+        // Grows every raycast target under the control so near-misses still register.
+        public static void ApplyTouchLeniency(GameObject target)
+        {
+            if (target == null) return;
+            foreach (var graphic in target.GetComponentsInChildren<Graphic>(true))
+            {
+                if (!graphic.raycastTarget) continue;
+                Rect rect = graphic.rectTransform.rect;
+                float pad = Mathf.Min(Mathf.Abs(rect.width), Mathf.Abs(rect.height)) * TouchLeniency;
+                graphic.raycastPadding = new Vector4(-pad, -pad, -pad, -pad);
+            }
+        }
+
+        // Past 16:9 the canvas widens (up to WideScreenController's 21:9 cap). Keep the
+        // left and right control groups where a 16:9 screen places them.
+        public static void KeepSixteenByNinePositions(RectTransform container, RectTransform left, RectTransform right)
+        {
+            if (container == null) return;
+            Rect rect = container.rect;
+            float extra = rect.height > 0f ? Mathf.Max(0f, (rect.width - rect.height * LayoutAspect) * .5f) : 0f;
+            Place(left, extra);
+            Place(right, -extra);
+        }
+
+        private static void Place(RectTransform target, float shift)
+        {
+            if (target == null) return;
+            Vector2 authored;
+            if (!AuthoredPositions.TryGetValue(target, out authored))
+            {
+                authored = target.anchoredPosition;
+                AuthoredPositions.Add(target, authored);
+            }
+            Vector2 wanted = authored + new Vector2(shift, 0f);
+            if (target.anchoredPosition != wanted) target.anchoredPosition = wanted;
+        }
 
         public static void Toggle()
         {

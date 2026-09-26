@@ -109,6 +109,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 			_Current = this;
             Eclipse.UI.BattleTouchControls.ApplyPlatformVisibility(_joystick.gameObject);
             Eclipse.UI.BattleTouchControls.ApplyPlatformVisibility(_actionButtons.gameObject);
+            Eclipse.UI.BattleTouchControls.ApplyTouchLeniency(_joystick.gameObject);
+            Eclipse.UI.BattleTouchControls.ApplyTouchLeniency(_actionButtons.gameObject);
 		}
 
 		private void OnDestroy()
@@ -137,6 +139,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 			private void Update()
 			{
+            Eclipse.UI.BattleTouchControls.KeepSixteenByNinePositions((RectTransform)transform,
+                _joystick.transform.parent as RectTransform, (RectTransform)_actionButtons.transform);
             SyncModUiCapture();
 				if (!_localVersusInputEnabled) NBMONJPAMHI.Render();
 				if (JKDKBHNKCPH)

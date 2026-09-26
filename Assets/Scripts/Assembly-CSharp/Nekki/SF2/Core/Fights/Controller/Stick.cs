@@ -258,9 +258,11 @@ namespace Nekki.SF2.Core.Fights.Controller
 		}
 
         private FightCID visualDirection;
+        // While a finger holds the stick the knob follows it; the 8-way visual is for keys and pads.
+        private bool touching;
         public void SetInputDirectionVisual(FightCID direction, bool pressed)
         {
-            if (direction < FightCID.QuadrantUp || direction > FightCID.QuadrantUpBack) return;
+            if (touching || direction < FightCID.QuadrantUp || direction > FightCID.QuadrantUpBack) return;
             if (pressed) visualDirection = direction;
             else if (visualDirection == direction) visualDirection = FightCID.QuadrantZero;
             bool active = visualDirection != FightCID.QuadrantZero;
@@ -269,7 +271,7 @@ namespace Nekki.SF2.Core.Fights.Controller
             _normalController.gameObject.SetActive(!active);
             _selectedController.gameObject.SetActive(active);
             float angle = (int)visualDirection * Mathf.PI / 4f - Mathf.PI / 4f;
-            float radius = ((RectTransform)_normalTexture.transform).rect.width * .2f;
+            float radius = OMMKBOAPGDP;
             _selectedController.transform.localPosition = active
                 ? new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0) * radius : Vector3.zero;
         }
@@ -279,8 +281,11 @@ namespace Nekki.SF2.Core.Fights.Controller
 			Vector2 localPoint;
 			RectTransformUtility.ScreenPointToLocalPointInRectangle(GetComponent<RectTransform>(), BHOLFGOGPCP.position, BHOLFGOGPCP.pressEventCamera, out localPoint);
 			float num = EDFBJIILGJB(localPoint);
-			if (num <= FKBJMDLAOMM)
+			float accept = 1f + 2f * Eclipse.UI.BattleTouchControls.TouchLeniency;
+			if (num <= FKBJMDLAOMM * accept * accept)
 			{
+				touching = true;
+				visualDirection = FightCID.QuadrantZero;
 				if (num <= HBHNJPMNMIM)
 				{
 					JMKEKMFHKBG = true;
@@ -325,6 +330,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		public void OnPointerUp(PointerEventData BHOLFGOGPCP)
 		{
+			touching = false;
 			JMKEKMFHKBG = false;
 			LHKEJOONODP(false);
 			if ((bool)_flashing)
