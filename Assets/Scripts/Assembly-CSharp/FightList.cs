@@ -770,7 +770,11 @@ public class FightList
 		case Rule.BCBLLMPAMLP.RuleDescription:
 			return (DescriptionRule)HNBFMAKFJAM;
 		case Rule.BCBLLMPAMLP.RuleRandom:
-			return IOMIAAJBPAA(((RandomRule)HNBFMAKFJAM).GHLEKCGJAEP());
+		{
+			// A map preview can run before the fight rolls its random rule; nothing is picked yet.
+			Rule selected = ((RandomRule)HNBFMAKFJAM).GHLEKCGJAEP();
+			return selected == null ? null : IOMIAAJBPAA(selected);
+		}
 		case Rule.BCBLLMPAMLP.RuleComplex:
 		{
 			DescriptionRule result = null;
