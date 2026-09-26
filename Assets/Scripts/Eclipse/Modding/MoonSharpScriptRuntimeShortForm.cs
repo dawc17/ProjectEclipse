@@ -16,7 +16,7 @@ namespace Eclipse.Modding
             private static readonly string[] ShortConditionKinds =
             {
                 "key", "keys", "mod", "interval", "animation", "stage", "round_result", "screen", "actor",
-                "character", "perk", "item", "bullets", "distance", "direction", "all", "any",
+                "character", "perk", "item", "bullets", "distance", "direction", "all", "any", "player_number",
             };
 
             private static readonly string[] ShortPointObjects = { "node", "pivot", "wall", "animation", "floor", "com" };
@@ -35,7 +35,7 @@ namespace Eclipse.Modding
             private static readonly string[] ShortActionKinds =
             {
                 "sound", "stop_sound", "play_sound", "effect", "stop_effect", "stop_follow_effect", "projectile",
-                "add_bullets", "delete_actor", "play_animation", "shake", "try_on_end",
+                "add_bullets", "delete_actor", "play_animation", "shake", "try_on_end", "create_player",
             };
 
             private static readonly string[] ShortEventKinds =
@@ -220,6 +220,13 @@ namespace Eclipse.Modding
                         OptionalStringAllowEmpty(table, "player", string.Empty, function), ShortString(table, key, function),
                         OptionalStringAllowEmpty(table, "subtype", string.Empty, function), negated);
                 }
+                if (kind == "player_number")
+                {
+                    ValidateFields(table, function, key, "player");
+                    int number = RequiredInt(table, key, function);
+                    return new ModMoveCondition(parsed, number.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        OptionalStringAllowEmpty(table, "player", string.Empty, function), not: negated);
+                }
                 if (kind == "bullets")
                 {
                     ValidateFields(table, function, key, "min", "max", "player");
@@ -356,6 +363,10 @@ namespace Eclipse.Modding
                     case "shake":
                         ValidateFields(table, function, kind);
                         action = NewShortTable("type", "shake_screen", "shake", value);
+                        break;
+                    case "create_player":
+                        ValidateFields(table, function, kind);
+                        action = NewShortTable("type", "create_player", "items", value);
                         break;
                     default:
                         ValidateFields(table, function, kind);

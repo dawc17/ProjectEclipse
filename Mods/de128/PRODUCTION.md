@@ -1,6 +1,6 @@
 # DE128 production record
 
-Current manifest: **0.41.0**. The dojo chooser button moves into the dojo menu (0.41.0) after its restyle (0.40.3). Step 74 restores four archived campaign recordings across 18 existing fights. Step 73 adds the ten-choice dojo changer. Step 72 packages the 29 music ids used by every archived Underworld battle so those encounters no longer request base-game substitute tracks. Step 71 restores the archived Complex forge pool split and Simple aspect deviation without changing shared prices. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in both Underworld modes; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
+Current manifest: **0.42.3**. Front Kick's axe-kick cancel window is 0-2 (0.42.3; the archive's 0-4 in 0.42.2). The restored double-kick moves cancel their starters at once and the AI uses the restored moves (0.42.1); the archived default unarmed moves return (0.42.0). The dojo chooser button moves into the dojo menu (0.41.0) after its restyle (0.40.3). Step 74 restores four archived campaign recordings across 18 existing fights. Step 73 adds the ten-choice dojo changer. Step 72 packages the 29 music ids used by every archived Underworld battle so those encounters no longer request base-game substitute tracks. Step 71 restores the archived Complex forge pool split and Simple aspect deviation without changing shared prices. A post-0.36.0 review (below Step 70) corrects Blackness's Grasp tactic timing, wall-pinned retreats, Widow's Wasp Fly gate and native move-table bookkeeping; Step 70 restores Widow's native Teleportation start and end moves; Step 69 restores Arkhos's Rat Wave and Tenebris's Fear Ray on their original native casters; Step 68 restores Hoaxen's, Hunter's and Berstuuk's complete native raid abilities in normal and Power Mode, with six fights verified through repeated casts and map return; Step 67 restores Dandy's complete native Lightning Chain and verifies two casts in normal and Power Mode; Step 66 restores Saturn's linked Blaster graph, including two native casts in normal and Power Mode; Step 65 restores Blackness's complete Grasp cast and hand attack in both Underworld modes; Step 64 restores Gatekeeper's full Power Field and native node-attached effects in both Underworld modes; Step 63 restores War's full Whirl cast and verifies normal and Power Mode native combat; Step 62 restores Hermit's complete Storm sequence and verifies both its cast and victory branch natively; Step 61 restores Butcher's Earthquake and reaches Girl Fan in native survival combat; Step 60 restores Wasp's Fly move family and observes it in the live Demon survival wave; Step 59 restores two raid spotlights and three hidden stage equipment identities. Step 58 reconciles the reviewed local owner raid source and art, with 29 changed fights verified natively. Step 57 completes the five-item final Eclipse Titan reward with native grant, reload, equipped-fight and real victory-screen acceptance. Step 56 restores Berstuuk's archived rig and verifies all 76 native Underworld encounters. Step 55 repairs inherited boss alignments and verifies a native Underworld encounter through map return. Steps 52–54 restore all 221 archived normal-shop listings, with native purchase/save, equip, upgrade and shop-scene acceptance. Step 51 ports the Underworld; Step 49 activates the Sensei story; earlier activated content is recorded in Step 31;
 Steps 32–48 add encounter perk settings, reward economy, saved fight queries,
 map/notification support, rule enforcement, pending Sensei Story assembly and owned Sensei art.
 The following overview describes earlier milestones. Step 12 activates both ChineseSwords moves, ten lock
@@ -4383,3 +4383,97 @@ compilation and the editor generate/check/test passed. `Tools/ValidateDE128DojoN
 still exercises the retired map-button placement and needs a rewrite for the
 dojo menu before it is run again. It was not run, and neither was an
 in-game playtest.
+
+### Archived default unarmed moves (0.42.0, 2026-09-26)
+
+The Definitive Edition archive (`Assets/DExml/animations/moves.xml`) has five
+unarmed moves that vanilla 2.41.9 lacks. None of their inputs collide with a
+vanilla move. `scripts/content/unarmed_moves.lua` registers them with four
+companion moves:
+
+| Move | Input | Notes |
+| --- | --- | --- |
+| `front_jump_scissors_kick` | Up-Forward + Kick, Kick | Also chains from `FrontJumpKick`; style factor 1.1; profile rank 209 |
+| `axe_kick_old` | Forward + Kick, Kick | Overhead hit, attack id 431 |
+| `wall_run_up` | Back + Kick, Kick near the back wall or after `BackKick` | Profile text `Wall_Keys` |
+| `air_punch` | Down-Forward + Punch | Fists tactic weapon |
+| `throw_leg_push` / `throw_leg_push_v` | Back + Kick at throw range | Throw with its victim move and `standup_after_leg_fall` |
+| `throw_leg_push_profile` / `throw_leg_push_v_profile` | Profile preview | Spawns a helper fighter; rank 404, `Throw_Keys` |
+
+The seven animations are copied unchanged from the recovered binary animation
+set into `assets/animations/`; the DE128 drop has no newer copies. The five
+archived move titles are copied into all 14 localizations by
+`Tools/GenerateDE128MoveNames.py`.
+
+Eclipse's move API gained the generic pieces these moves need: a
+`player_number` condition, the `create_player` timeline action, the
+`profile.keys_description` field, a `style_factor` field and the full native
+hit-reaction list. The archive's undefined `LegFall` template tag is replaced by
+a stand-up event on the end of `throw_leg_push_v`. `TacticWalNode` and
+`TacticWallShift` are not reproduced because the native engine never parses them.
+
+Verification: `Tools/TestDE128UnarmedMoves.ps1` projects the Lua through the
+binding and legacy adapter and matches all nine moves with the archive
+(`Tools/CompareDE128UnarmedMoves.py`). The foundation checks cover the move
+count and names. Managed compilation, the editor generate/check/test and the
+wiki build passed. Gap: the archive also adds these moves to AI reaction lists in
+`tacticSettings.xml`, and there is no tactic-table API yet. AI opponents therefore
+do not choose them deliberately. No Unity run or in-game playtest was done.
+
+### Instant double kicks and AI use (0.42.1, 2026-09-26)
+
+Owner playtest of 0.42.0: the old Axe Kick only came out after a full Front
+Kick, and Wall Run only after a Back Kick. Both inputs are double taps. The
+first Kick starts the starter, and the second may cancel it only while the
+starter is inside `SemiUninterrupt` and outside `Uninterrupt`. Vanilla
+`FrontKick` is `Uninterrupt` from frame 0, so the second Kick waited for it to
+finish. The archive gave it a 0-4 window. `BackKick`'s 0-4 window is shorter
+than a quick double tap.
+
+DE128 now patches both starters so the window lasts until the frame before
+their hit:
+- `FrontKick` gains `SemiUninterrupt` 0-7, and its `Uninterrupt` starts at 8.
+- `BackKick`'s `SemiUninterrupt` ends at 6, and its `Uninterrupt` starts at 7.
+
+`axe_kick_old` also continues from Front Kick's current frame (`frame_shift =
+-1`, the vanilla Double Punch pattern) instead of restarting. The first Kick
+alone still gives a normal Front Kick or Back Kick.
+
+The computer opponent's tactic tables are precomputed for native moves. The
+DE 1.0.6 tables (`ResearchSources/ReferenceSF2DE106`) have no rows for these
+moves either. Each attack now names a native `tactic_equivalent` of similar
+timing and range: Front Jump Kick, Front Kick, Double Jump Kick and Two Foot
+Jump Kick. The throw already reaches the AI through its `Throw` template.
+
+Eclipse gained the pieces this needs:
+- `sf2.moves.patch` accepts `add_interval`, and its interval bounds accept
+  `SemiUninterrupt`.
+- Native AI table rows now also offer any mod move whose tactic equivalent is
+  the offered move, with the same wait and the usual playability checks.
+  Native moves gain no alternatives.
+
+The archive's AI reactions to Hermit's Storm and to a player's Wall Run
+(`tacticSettings.xml` `PlayerAnimation` entries) have no API yet and are not
+restored.
+
+Verification: the move-patch tests cover `add_interval` for deferred and
+parsed moves, rollback and rejection. Foundation checks pin both starter
+patches and the four equivalents. The archive comparison still matches all
+nine moves, apart from the documented Axe Kick continuation and the
+equivalents. Managed compilation, the editor generate/check/test and the wiki
+build passed. No Unity run or playtest; the AI change is unverified in a live
+fight.
+
+### Front Kick cancel window (0.42.2, 2026-09-26)
+
+Owner playtest of 0.42.1: the axe kick could be cancelled into far too late in
+Front Kick. The `FrontKick` patch now uses the archive's values: `SemiUninterrupt`
+0-4, with `Uninterrupt` from 5. `BackKick` keeps its 0-6 window. Foundation
+checks pin the new values; the other checks are unchanged. No Unity run or
+playtest.
+
+### Tighter Front Kick cancel window (0.42.3, 2026-09-26)
+
+At the owner's request the `FrontKick` window is 0-2: `SemiUninterrupt` 0-2 and
+`Uninterrupt` from 3. This deliberately differs from the archive's 0-4.
+Foundation checks pin the values. No Unity run or playtest.

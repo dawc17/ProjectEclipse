@@ -2139,6 +2139,9 @@ public class Fight
 		EGHPHELLOGO.KJDFJPBIGJC.LogDamage(gHHCDAFIKJE.EEDJBBOCFNL, BHLIBKKJNKH(hFIIPNLCIEE), gHHCDAFIKJE.DefenceAttribute);
 		float eclipseHealthBefore = EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB();
 		UpdateLife(EGHPHELLOGO.KJDFJPBIGJC, 0f - gHHCDAFIKJE.EEDJBBOCFNL);
+		// Presentation only: sf2.fx hit bursts and hit/critical/ko screen effects.
+		Eclipse.Rendering.FighterParticles.Hit(EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE.Point, gHHCDAFIKJE.DNGKOMPMPCD, gHHCDAFIKJE.DFOHNJEBDED,
+			eclipseHealthBefore > 0f && EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB() <= 0f, EGHPHELLOGO.GAIBPAGPEGK);
 		if (_eclipseFightBeginDispatched)
 		{
 			var observation = new ModDamageEvent(round.round, eclipseHealthBefore,
@@ -3011,6 +3014,8 @@ public class Fight
 			item.Parameters.HANOHOBGGJF();
 		}
 		EPBDEDGLHJE.DEHPKPPDIIA();
+		// Presentation only: each round starts on a clean floor.
+		Eclipse.Rendering.FighterParticles.ClearStains();
 		DispatchEclipseCombatEvent();
 		DispatchEclipseCombatEvent(ModEffectEvent.RoundBegin);
         DispatchEclipseOpponent(ModEffectEvent.FightBegin);

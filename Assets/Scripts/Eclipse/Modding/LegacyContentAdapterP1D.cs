@@ -391,10 +391,12 @@ namespace Eclipse.Modding
             }
             if (value.NoWallRepulsion) Set(node, "NoWallRepulsion", "1");
             if (value.NoInterpolationFrames) Set(node, "NoInterpolationFrames", "1");
+            if (value.StyleFactor.HasValue) Set(node, "StyleFactor", value.StyleFactor.Value.ToString("R", CultureInfo.InvariantCulture));
             if (value.Profile != null)
             {
                 var profile = document.CreateElement("Profile"); Set(profile, "Show", "1");
                 Set(profile, "Rank", value.Profile.Rank.ToString(CultureInfo.InvariantCulture)); Set(profile, "Icon", value.Profile.CoreIcon);
+                if (value.Profile.KeysDescription.Length != 0) Set(profile, "KeysDescription", value.Profile.KeysDescription);
                 if (value.Profile.DisplayName.HasValue) Set(profile, "DisplayName", value.Profile.DisplayName.Value.ToString());
                 node.AppendChild(profile);
             }
@@ -420,7 +422,7 @@ namespace Eclipse.Modding
             foreach (var action in value.Actions)
             {
                 string tag = action.Kind == "sound" ? "Sound" : action.Kind == "stop_sound" ? "StopSound" : action.Kind == "shake_screen" ? "ShakeScreen" : action.Kind == "random_sound" ? "RandomSound" : action.Kind == "effect" ? "Effect"
-                    : action.Kind == "create_projectile" ? "CreatePlayer" : action.Kind == "add_bullets" ? "AddBullets"
+                    : action.Kind == "create_projectile" || action.Kind == "create_player" ? "CreatePlayer" : action.Kind == "add_bullets" ? "AddBullets"
                     : action.Kind == "delete_actor" ? "Delete" : action.Kind == "stop_effect" ? "StopEffect" : action.Kind == "stop_follow_effect" ? "StopFollowEffect" : action.Kind == "play_animation" ? "PlayAnimation" : "TryOnEnd";
                 var entry = document.CreateElement(tag); actions.AppendChild(entry);
                 if (action.Sound != null)
@@ -456,6 +458,11 @@ namespace Eclipse.Modding
                     if (projectile.Item.HasValue) Set(weapon, "Name", LegacyItemName(projectile.Item.Value));
                     else Set(weapon, "CopyParentType", projectile.CopyParentType);
                     entry.AppendChild(weapon);
+                }
+                foreach (var created in action.CreatedItems)
+                {
+                    var item = document.CreateElement("Item"); Set(item, "Type", created.Type);
+                    Set(item, "Name", created.Name); entry.AppendChild(item);
                 }
                 if (action.EffectName.Length != 0) Set(entry, "Name", action.EffectName);
                 if (action.StopSoundName.Length != 0) Set(entry, "Name", action.StopSoundName);
@@ -527,6 +534,14 @@ namespace Eclipse.Modding
                 if (value.Not) Set(entry, "Not", "1");
                 entry.AppendChild(BuildMovePoint(document, "From", value.Direction.From));
                 entry.AppendChild(BuildMovePoint(document, "To", value.Direction.To));
+                return entry;
+            }
+            if (value.Kind == ModMoveConditionKind.PlayerNumber)
+            {
+                var entry = document.CreateElement("Player");
+                if (value.Player.Length != 0) Set(entry, "Player", value.Player);
+                Set(entry, "Number", value.Name);
+                if (value.Not) Set(entry, "Not", "1");
                 return entry;
             }
             if(value.Kind==ModMoveConditionKind.Keys)

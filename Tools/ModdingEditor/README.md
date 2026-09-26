@@ -387,6 +387,9 @@ its clicks.
 (`ui.settings`) and `settings.get(handle)` reads it. `visuals.background_depth`, `weapon_trails`,
 `depth_haze`, `rim_light`, `bloom`, `ambient_particles` and `impact` configure the engine's optional
 fight visuals (`presentation.visuals`); each accepts an optional `setting` handle.
+`fx.particles`, `fx.overlay`, `fx.trail`, `fx.screen`, `fx.shadow`, `fx.glint`, `fx.light` and `fx.stain` add stackable
+custom effects built from mod sprites and typed numbers; each returns its `<mod-id>.<id>` name.
+Hit particles, stains and screen grades accept a `trigger` (`hit`, `critical`, `block` for particles, `ko`).
 
 Adds profile.level(), profile.item(ItemHandle) and ProfileItemSnapshot
 completion, plus profile.read capability diagnostics. See Player profile queries

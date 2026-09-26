@@ -904,6 +904,7 @@ namespace Eclipse.Modding
                 if (patch.Priority != null) PreparePriority(target, patch.Priority, lifetime);
                 if (patch.Animation != null) PrepareAnimation(target, patch.Animation, lifetime);
                 if (patch.RemoveInterval != null) PrepareRemoveInterval(target, patch.RemoveInterval, lifetime);
+                if (patch.AddInterval != null) PrepareAddInterval(target, patch.AddInterval, lifetime);
             }
             if (changesConflicts && rebuildPriorityConflicts != null) lifetime.Apply.Add(rebuildPriorityConflicts);
             try { foreach (var apply in lifetime.Apply) apply(); }
@@ -1059,6 +1060,30 @@ namespace Eclipse.Modding
             {
                 if (move.FileName == replacement) move.ReplaceClip(original, originalEndFrame);
             });
+        }
+
+        private static void PrepareAddInterval(InfoAnimation move, ModMoveIntervalAddition patch, Lifetime lifetime)
+        {
+            var intervals = move.MoveData.Intervals;
+            if (intervals.Count == 0)
+                throw new InvalidOperationException("add_interval requires a move with native intervals: " + move.Name);
+            // Native intervals parse lazily on the move's first use. Match the
+            // existing list so the added one is parsed with it, or parse it now.
+            bool deferred = false;
+            foreach (var candidate in intervals)
+            {
+                if (candidate.NodeInterval != null) deferred = true;
+                string name = candidate.NodeInterval != null ? Attribute(candidate.NodeInterval, "Name") : candidate.Name;
+                if (name == patch.Name) throw new InvalidOperationException("Move already has interval: " + move.Name + "/" + patch.Name);
+            }
+            var node = new XmlDocument().CreateElement("Interval");
+            node.SetAttribute("Name", patch.Name);
+            node.SetAttribute("Start", patch.Start.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            node.SetAttribute("End", patch.End.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            var added = new IntervalAnimation(default) { NodeInterval = node };
+            if (!deferred) added.Init();
+            lifetime.Apply.Add(() => intervals.Add(added));
+            lifetime.Undo.Add(() => intervals.Remove(added));
         }
 
         private static void PrepareRemoveInterval(InfoAnimation move, ModMoveIntervalRemoval patch, Lifetime lifetime)

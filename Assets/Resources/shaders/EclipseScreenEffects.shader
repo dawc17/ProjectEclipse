@@ -4,6 +4,7 @@ Shader "Hidden/Eclipse/ScreenEffects"
     {
         _MainTex ("Source", 2D) = "white" {}
         _BloomTex ("Bloom", 2D) = "black" {}
+        _HalationTex ("Halation", 2D) = "black" {}
     }
 
     CGINCLUDE
@@ -11,11 +12,35 @@ Shader "Hidden/Eclipse/ScreenEffects"
 
     sampler2D _MainTex;
     sampler2D _BloomTex;
+    sampler2D _HalationTex;
     float4 _MainTex_TexelSize;
     float _Threshold;
     float _Knee;
     float _BloomIntensity;
     float _Impact;
+    float _Saturation;
+    float _Contrast;
+    float _Brightness;
+    float4 _Tint;
+    float _TintStrength;
+    float _Vignette;
+    float4 _VignetteCenter;
+    float _Grain;
+    float _GrainTime;
+    float _Halation;
+    float4 _HalationColor;
+    float _AccentStrength;
+    float _AccentWidth;
+    float _AccentHue;
+
+    half HueOf(half3 c)
+    {
+        half4 k = half4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+        half4 p = lerp(half4(c.bg, k.wz), half4(c.gb, k.xy), step(c.b, c.g));
+        half4 q = lerp(half4(p.xyw, c.r), half4(c.r, p.yzx), step(p.x, c.r));
+        half d = q.x - min(q.w, q.y);
+        return abs(q.z + (q.w - q.y) / (6.0 * d + 1e-4));
+    }
 
     half3 Prefilter(half3 c)
     {
@@ -118,6 +143,35 @@ Shader "Hidden/Eclipse/ScreenEffects"
                 if (_MainTex_TexelSize.y < 0) bloomUV.y = 1 - bloomUV.y;
                 #endif
                 color.rgb += tex2D(_BloomTex, bloomUV).rgb * _BloomIntensity;
+                // Halation: a warm glow bleeding from highlights, as on film.
+                color.rgb += tex2D(_HalationTex, bloomUV).rgb * _HalationColor.rgb * _Halation;
+
+                // sf2.fx.screen grading (identity when no grade is active).
+                half luma = dot(color.rgb, half3(0.299, 0.587, 0.114));
+                half saturation = _Saturation;
+                if (_AccentStrength > 0.001)
+                {
+                    // Pixels near the accent hue keep their colour through desaturation.
+                    half chroma = max(color.r, max(color.g, color.b)) - min(color.r, min(color.g, color.b));
+                    half distance = abs(HueOf(color.rgb) - _AccentHue);
+                    distance = min(distance, 1.0 - distance);
+                    half keep = (1.0 - smoothstep(0.0, _AccentWidth, distance)) * saturate(chroma * 4.0) * _AccentStrength;
+                    saturation = lerp(saturation, max(saturation, 1.0), keep);
+                }
+                color.rgb = lerp(luma.xxx, color.rgb, saturation);
+                color.rgb = (color.rgb - 0.5) * _Contrast + 0.5 + _Brightness;
+                color.rgb = lerp(color.rgb, color.rgb * _Tint.rgb, _TintStrength);
+                // The vignette centre moves with _VignetteCenter (-1..1 of the half
+                // screen), so the dark falls mostly on the side away from the light.
+                float2 fromVignette = fromCenter - _VignetteCenter.xy * 0.5;
+                float edge = saturate((length(fromVignette) * 1.41421356 - 0.35) / 0.65);
+                color.rgb *= 1 - _Vignette * edge * edge;
+                if (_Grain > 0.001)
+                {
+                    float n = frac(sin(dot(uv * 431.7 + _GrainTime * 17.3, float2(12.9898, 78.233))) * 43758.5453);
+                    color.rgb += (n - 0.5) * _Grain * 0.16;
+                }
+                color.rgb = saturate(color.rgb);
                 return color;
             }
             ENDCG

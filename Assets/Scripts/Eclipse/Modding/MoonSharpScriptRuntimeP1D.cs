@@ -78,7 +78,7 @@ namespace Eclipse.Modding
                 {
                     const string function = "sf2.moves.patch";
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
-                    ValidateFields(table, function, "move", "conditions", "interval_end", "interval_start", "hit", "sound_frame", "input", "priority", "animation", "remove_interval", "disable");
+                    ValidateFields(table, function, "move", "conditions", "interval_end", "interval_start", "hit", "sound_frame", "input", "priority", "animation", "remove_interval", "add_interval", "disable");
                     ModMoveFramePatch Frame(string key)
                     {
                         DynValue value = table.Get(key); if (value.IsNil()) return null;
@@ -127,9 +127,17 @@ namespace Eclipse.Modding
                             RequiredString(rawRemoval.Table,"type",function), RequiredInt(rawRemoval.Table,"start",function),
                             RequiredInt(rawRemoval.Table,"end",function));
                     }
+                    ModMoveIntervalAddition addInterval = null; DynValue rawAddition = table.Get("add_interval");
+                    if (!rawAddition.IsNil())
+                    {
+                        if (rawAddition.Type != DataType.Table) throw new ModContentException(function + ".add_interval must be a table.");
+                        ValidateFields(rawAddition.Table, function + ".add_interval", "name", "start", "end");
+                        addInterval = new ModMoveIntervalAddition(RequiredString(rawAddition.Table,"name",function),
+                            RequiredInt(rawAddition.Table,"start",function), RequiredInt(rawAddition.Table,"end",function));
+                    }
                     _api.PatchMove(RequiredString(table,"move",function),ReadMoveConditions(table.Get("conditions"),function + ".conditions"),
                         Frame("interval_end"), hit, Frame("sound_frame"), OptionalBool(table,"disable",false,function),
-                        input, priority, Frame("interval_start"), animation, removeInterval);
+                        input, priority, Frame("interval_start"), animation, removeInterval, addInterval);
                     return DynValue.Nil;
                 })));
                 moves.Set("register_template", DynValue.NewCallback(RegisterMoveTemplate));
@@ -444,7 +452,7 @@ namespace Eclipse.Modding
                     "tactic_weapon", "looped", "ends_stage", "locks", "align", "direction" };
                 if (replacement) fields.AddRange(new[] { "target", "expected_file" });
                 else fields.Add("templates");
-                if (animation) { fields.AddRange(new[] { "animation", "transitions", "timeline", "profile", "tactic_distance", "tactic_conditions", "no_wall_repulsion", "no_interpolation_frames", "no_magic_recharge", "velocity" }); }
+                if (animation) { fields.AddRange(new[] { "animation", "transitions", "timeline", "profile", "tactic_distance", "tactic_conditions", "no_wall_repulsion", "no_interpolation_frames", "no_magic_recharge", "velocity", "style_factor" }); }
                 ValidateFields(table, function, fields.ToArray());
             }
 
@@ -522,6 +530,7 @@ namespace Eclipse.Modding
                         else if (kind == "stop_sound") ValidateFields(entry, function, "type", "frame", "event", "core_sound");
                         else if (kind == "play_animation") ValidateFields(entry, function, "type", "frame", "event", "move", "core_animation", "player", "child_name");
                         else if (kind == "shake_screen") ValidateFields(entry, function, "type", "frame", "event", "shake");
+                        else if (kind == "create_player") ValidateFields(entry, function, "type", "frame", "event", "items");
                         else ValidateFields(entry, function, "type", "frame", "event");
                         ModMoveSound sound = null;
                         if (kind == "sound")
@@ -540,6 +549,22 @@ namespace Eclipse.Modding
                             ValidateFields(spec, function + ".shake", "pause_time", "effect_time", "amplitude_x", "amplitude_y", "frequency_x", "frequency_y");
                             shake = new ModMoveShake(OptionalInt(spec, "pause_time", 0, function), OptionalInt(spec, "effect_time", 0, function),
                                 UiNumber(spec, "amplitude_x"), UiNumber(spec, "amplitude_y"), UiNumber(spec, "frequency_x"), UiNumber(spec, "frequency_y"));
+                        }
+                        ModMoveCreatedItem[] createdItems = null;
+                        if (kind == "create_player")
+                        {
+                            // { { "Skeleton", "Skeleton" }, { "Armor", "Body" }, ... }: type then core item name.
+                            var list = RequireArray(entry.Get("items"), function + ".create_player");
+                            var items = new List<ModMoveCreatedItem>();
+                            for (int item = 1; !list.Get(item).IsNil(); item++)
+                            {
+                                var pair = list.Get(item);
+                                if (pair.Type != DataType.Table || pair.Table.Get(1).Type != DataType.String || pair.Table.Get(2).Type != DataType.String || !pair.Table.Get(3).IsNil())
+                                    throw new ModContentException(function + ".create_player entries must be { type, core_item_name }.");
+                                items.Add(new ModMoveCreatedItem(pair.Table.Get(1).String, pair.Table.Get(2).String));
+                            }
+                            EnsureDenseArray(list, items.Count, function + ".create_player");
+                            createdItems = items.ToArray();
                         }
                         ModMoveProjectile projectile = null;
                         if (kind == "create_projectile")
@@ -596,7 +621,7 @@ namespace Eclipse.Modding
                                 ? RequiredString(entry, "core_animation", function) : null,
                             kind == "play_animation" ? RequiredString(entry, "player", function) : null,
                             kind == "play_animation" && !entry.Get("child_name").IsNil()
-                                ? RequiredString(entry, "child_name", function) : null));
+                                ? RequiredString(entry, "child_name", function) : null, createdItems));
                     }
                     EnsureDenseArray(array, actions.Count, function + ".actions");
                 }
@@ -605,9 +630,10 @@ namespace Eclipse.Modding
                 {
                     if (table.Get("profile").Type != DataType.Table) throw new ModContentException("Profile requires a table.");
                     var entry = table.Get("profile").Table;
-                    ValidateFields(entry, function, "rank", "core_icon", "display_name");
+                    ValidateFields(entry, function, "rank", "core_icon", "display_name", "keys_description");
                     profile = new ModMoveProfile(RequiredInt(entry, "rank", function), RequiredString(entry, "core_icon", function),
-                        entry.Get("display_name").IsNil() ? (DefinitionId?)null : RequiredHandle(entry, "display_name", _localizationHandles, "localization", function));
+                        entry.Get("display_name").IsNil() ? (DefinitionId?)null : RequiredHandle(entry, "display_name", _localizationHandles, "localization", function),
+                        entry.Get("keys_description").IsNil() ? null : RequiredString(entry, "keys_description", function));
                 }
                 ModMoveTacticDistance distance = null;
                 if (!table.Get("tactic_distance").IsNil())
@@ -632,7 +658,8 @@ namespace Eclipse.Modding
                 return new ModMovePresentation(actions.ToArray(), profile, distance,
                     OptionalBool(table, "no_wall_repulsion", false, function), OptionalBool(table, "no_interpolation_frames", false, function),
                     OptionalBool(table, "no_magic_recharge", false, function), velocity,
-                    table.Get("tactic_conditions").IsNil() ? null : ReadMoveConditions(table.Get("tactic_conditions"), function + ".tactic_conditions"));
+                    table.Get("tactic_conditions").IsNil() ? null : ReadMoveConditions(table.Get("tactic_conditions"), function + ".tactic_conditions"),
+                    table.Get("style_factor").IsNil() ? (double?)null : OptionalFloat(table, "style_factor", 1, function));
             }
 
             private DynValue RegisterMoveTrigger(ScriptExecutionContext context, CallbackArguments args)
@@ -1024,6 +1051,7 @@ namespace Eclipse.Modding
                     case "direction": return ModMoveConditionKind.Direction;
                     case "actor_name": return ModMoveConditionKind.ActorName;
                     case "bullets": return ModMoveConditionKind.Bullets;
+                    case "player_number": return ModMoveConditionKind.PlayerNumber;
                     case "current_animation": return ModMoveConditionKind.CurrentAnimation;
                     case "current_interval": return ModMoveConditionKind.CurrentInterval;
                     case "item": return ModMoveConditionKind.Item;

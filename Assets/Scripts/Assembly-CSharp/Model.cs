@@ -1410,6 +1410,7 @@ public class Model : global::EventDispatcher<object>
 		_MeshRender = gameObject.AddComponent<MeshRender>();
 		_presentation = Eclipse.Rendering.ModelPresentation.Attach(_UnityObject);
 		Eclipse.Rendering.WeaponTrail.Attach(_UnityObject, this);
+		Eclipse.Rendering.FighterParticles.Attach(_UnityObject, this);
 		NPKHMEHKFMM = 0;
 		JMHJDHLBHLK = -1;
 		FLKMDFDEJPP = true;

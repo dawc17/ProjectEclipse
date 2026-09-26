@@ -175,6 +175,33 @@ internal static class MoveCombatPatchTests
         }
         foreach (bool initialized in new[] { false, true })
         {
+            var addMove = Move("Add", initialized);
+            using (Apply(new[] { addMove }, new MoveCombatPatch(Owner, "Add",
+                intervalStart: new ModMoveFramePatch("Uninterrupt", 2, 8),
+                addInterval: new ModMoveIntervalAddition("SemiUninterrupt", 0, 7))))
+            {
+                var added = addMove.MoveData.Intervals.Last();
+                Check(addMove.MoveData.Intervals.Count == 3, "Added interval missing.");
+                if (initialized)
+                    Check(added.NodeInterval == null && added.Name == "SemiUninterrupt" && added.Start == 0 && added.EndFrame == 7,
+                        "Added interval was not parsed alongside parsed intervals.");
+                else
+                {
+                    Check(added.NodeInterval.Attributes["Name"].Value == "SemiUninterrupt" &&
+                        added.NodeInterval.Attributes["End"].Value == "7", "Added interval was not deferred with its move.");
+                    foreach (var value in addMove.MoveData.Intervals) value.Init();
+                    Check(added.Start == 0 && added.EndFrame == 7, "Deferred added interval parsed wrong bounds.");
+                }
+            }
+            Check(addMove.MoveData.Intervals.Count == 2, "Added interval was not removed on rollback.");
+            Reject(new[] { addMove }, new[] { new MoveCombatPatch(Owner, "Add",
+                addInterval: new ModMoveIntervalAddition("Uninterrupt", 0, 7)) }, "Duplicate named interval accepted.");
+            bool invalid = false;
+            try { new ModMoveIntervalAddition("Evade", 0, 7); } catch (ModContentException) { invalid = true; }
+            Check(invalid, "Unsupported added interval name accepted.");
+        }
+        foreach (bool initialized in new[] { false, true })
+        {
             var boundsMove = Move("Bounds", initialized);
             var interval = boundsMove.MoveData.Intervals[0];
             var originalNode = interval.NodeInterval;
@@ -235,6 +262,8 @@ public class IntervalAnimation
 {
     public enum IntervalType { INTERVAL_NONE, INTERVAL_UNINTERRUPT, INTERVAL_INVULNERABLE }
     public IntervalType Type;
+    public IntervalAnimation() { }
+    public IntervalAnimation(IntervalType type) { Type = type; }
     public XmlNode NodeInterval;public string Name;public int Start,EndFrame;
     public virtual void Init() { Name=NodeInterval.Attributes["Name"]?.Value;Start=int.Parse(NodeInterval.Attributes["Start"].Value);EndFrame=int.Parse(NodeInterval.Attributes["End"].Value);NodeInterval=null; }
 }

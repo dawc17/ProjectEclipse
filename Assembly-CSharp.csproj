@@ -386,6 +386,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\BattlePeriodic.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\NoBulletsReplenishmentRule.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\Bezier.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\FighterParticles.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ArgsDict.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\OCELJLPIHMD.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\DeflatedString.cs" />
@@ -957,6 +958,7 @@
     <Compile Include="Assets\Scripts\Assembly-CSharp\RandomTactic.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\QuestActionGiveCurrency.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ABMMAALFNFD.cs" />
+    <Compile Include="Assets\Scripts\Eclipse\Rendering\FxBuilder.cs" />
     <Compile Include="Assets\Scripts\Eclipse\Multiplayer\LocalVersusMenu.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\MoneyStruct.cs" />
     <Compile Include="Assets\Scripts\Assembly-CSharp\ItemRule.cs" />
@@ -1210,6 +1212,7 @@
     <None Include="Assets\DExml\locations\war_raid\war_raid_params.xml" />
     <None Include="Assets\vanillaXml\locations\bamboo_grove\bamboo_grove_params.xml" />
     <None Include="Assets\Resources\textures\effects\magic\mgc_hw24_cards_wheel_vfx_xml.txt" />
+    <None Include="Assets\Resources\shaders\EclipseFxAdditive.shader" />
     <None Include="Assets\DExml\quest_extensions\energy.xml" />
     <None Include="Assets\Resources\gamedata\localizations\chn_tr.txt" />
     <None Include="Assets\DExml\locations\flying_rocks\flying_rocks_params.xml" />

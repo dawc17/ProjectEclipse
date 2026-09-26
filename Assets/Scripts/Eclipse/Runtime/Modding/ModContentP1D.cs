@@ -284,7 +284,7 @@ namespace Eclipse.Modding
         }
     }
 
-    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets, Distance, RoundResult, Direction }
+    public enum ModMoveConditionKind { CurrentAnimation, CurrentInterval, Item, All, Any, Perk, Keys, Character, RoundStage, ModExists, Screen, ActorName, Bullets, Distance, RoundResult, Direction, PlayerNumber }
 
     public sealed class ModMoveKey
     {
@@ -348,6 +348,14 @@ namespace Eclipse.Modding
                 throw new ModContentException("Direction condition player must be Me or Enemy.");
             if (kind == ModMoveConditionKind.Distance && (Name.Length != 0 || Player.Length != 0 || ItemType.Length != 0 || ItemSubType.Length != 0))
                 throw new ModContentException("Distance uses from/to players, not named/item condition fields.");
+            // Native <Player Number="n">: which of the two fight slots the model occupies.
+            if (kind == ModMoveConditionKind.PlayerNumber)
+            {
+                if (Name != "1" && Name != "2") throw new ModContentException("player_number must be 1 or 2.");
+                if (Player != "" && Array.IndexOf(new[] { "Me", "Enemy", "Parent", "Child", "EnemyChild" }, Player) < 0)
+                    throw new ModContentException("Unsupported condition player.");
+                if (ItemType.Length != 0 || ItemSubType.Length != 0) throw new ModContentException("player_number does not accept item fields.");
+            }
             if (kind == ModMoveConditionKind.ActorName || kind == ModMoveConditionKind.Bullets)
             {
                 if (kind == ModMoveConditionKind.ActorName) ModMoveScheduledAction.ValidateSymbol(Name, "actor");
@@ -453,6 +461,9 @@ namespace Eclipse.Modding
 
     public sealed class ModMoveAttack
     {
+        // Every hit reaction name used by the shipped vanilla and Definitive Edition moves.
+        public static readonly string[] NativeHitReactions = { "Earthquake", "Electrocution", "ElectrocutionPowerfield", "HermitStorm", "High", "HighHeavy", "HighHeavyDeflect", "HighLong", "HighPlus", "HighShort", "HighShortPlus", "HoaxenPierce", "Low", "LowHeavy", "LowHeavyDeflect", "LowPull", "Middle", "MiddleHeavy", "MiddleHeavyDeflect", "MiddlePlus", "MiddleShort", "MiddleShortPlus", "MindThrowHit", "MindThrowHitNormal", "NoReaction", "Overhead", "OverheadHeavy", "OverheadHeavyDeflect", "Physycal", "RatWaveHit", "RootHit", "Spinning", "SpinningHeavy", "SpinningHeavyDeflect", "Sweep", "SweepHeavy", "SweepHeavyDeflect", "TitanHighHeavy", "TitanMiddleHeavy", "TitanOverhead", "TitanSweep", "TitansHarpoonHit", "TitansHarpoonHitGrab", "TitansHarpoonStrikeFall", "TornadoHit", "ToxicCloud", "WaspFly", "WaterWaveHit" };
+
         public IReadOnlyList<string> Edges { get; }
         public bool Direct { get; }
         public int Id { get; }
@@ -482,7 +493,7 @@ namespace Eclipse.Modding
             if (hitMove.HasValue && (hit != null || hitMove.Value.Category != "moves"))
                 throw new ModContentException("Attack accepts hit or a moves-category hit_move, not both.");
             HitMove = hitMove; hit = hit ?? (hitMove.HasValue ? string.Empty : "High");
-            if (!hitMove.HasValue && Array.IndexOf(new[]{"High","Middle","Low","Spinning","HighHeavy","MiddleShortPlus","Physycal","HighLong","NoReaction","WaspFly","Earthquake","ElectrocutionPowerfield"},hit)<0)
+            if (!hitMove.HasValue && Array.IndexOf(NativeHitReactions, hit)<0)
                 throw new ModContentException("Unsupported hit reaction.");
             foreach(var value in new[]{x,y,z}) if(double.IsNaN(value) || double.IsInfinity(value) || Math.Abs(value)>100000) throw new ModContentException("Invalid attack impulse.");
             Direct = direct; Options = options ?? new ModMoveAttackOptions();
@@ -764,13 +775,14 @@ namespace Eclipse.Modding
         public string DeletePlayer { get; }
         public ModMoveSound Sound { get; }
         public ModMoveShake Shake { get; }
+        public IReadOnlyList<ModMoveCreatedItem> CreatedItems { get; }
         public ModMoveScheduledAction(string kind, int? frame, string eventName, string[] coreSounds = null,
             ModMoveEffect effect = null, string effectName = null, ModMoveProjectile projectile = null,
             ModMoveBulletChange bullets = null, string deletePlayer = null, ModMoveSound sound = null, ModMoveShake shake = null,
             string stopSoundName = null, DefinitionId? playMove = null, string coreAnimation = null,
-            string playPlayer = null, string childName = null)
+            string playPlayer = null, string childName = null, ModMoveCreatedItem[] createdItems = null)
         {
-            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor", "sound", "stop_sound", "shake_screen", "play_animation" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
+            if (Array.IndexOf(new[] { "random_sound", "try_on_end", "effect", "stop_effect", "stop_follow_effect", "create_projectile", "add_bullets", "delete_actor", "sound", "stop_sound", "shake_screen", "play_animation", "create_player" }, kind) < 0) throw new ModContentException("Unknown scheduled move action.");
             if (frame.HasValue == (eventName != null)) throw new ModContentException("Move action requires exactly one of frame or event.");
             if (frame < 0 || frame > 100000) throw new ModContentException("Action frame must be in 0..100000.");
             if (eventName != null && Array.IndexOf(new[] { "RoundStage", "KeyPressed", "KeyReleased", "RoundStart", "RoundEnd", "Hit", "Strike", "WallHit", "AnimationStart", "AnimationEnd", "IntervalStart", "IntervalEnd", "EveryFrame", "Birth", "ModExpires" }, eventName) < 0)
@@ -804,6 +816,11 @@ namespace Eclipse.Modding
             else if (playMove.HasValue || coreAnimation != null || playPlayer != null || childName != null)
                 throw new ModContentException("Only play_animation accepts animation target fields.");
             if ((kind == "shake_screen") != (shake != null)) throw new ModContentException("Only shake_screen actions require a shake table.");
+            createdItems = createdItems ?? Array.Empty<ModMoveCreatedItem>();
+            if (kind == "create_player" && (createdItems.Length < 1 || createdItems.Length > 8 || Array.IndexOf(createdItems, null) >= 0))
+                throw new ModContentException("create_player requires 1..8 items.");
+            if (kind != "create_player" && createdItems.Length != 0) throw new ModContentException("Only create_player accepts items.");
+            CreatedItems = Array.AsReadOnly((ModMoveCreatedItem[])createdItems.Clone());
             Sound = sound; Shake = shake; StopSoundName = stopSoundName ?? string.Empty;
             PlayMove = playMove; CoreAnimation = coreAnimation ?? string.Empty;
             PlayPlayer = playPlayer ?? string.Empty; ChildName = childName ?? string.Empty;
@@ -821,13 +838,30 @@ namespace Eclipse.Modding
         }
     }
 
+    // One piece of equipment worn by a create_player preview actor (native <Item Type Name>).
+    public sealed class ModMoveCreatedItem
+    {
+        public string Type { get; }
+        public string Name { get; }
+        public ModMoveCreatedItem(string type, string name)
+        {
+            if (Array.IndexOf(new[] { "Skeleton", "Armor", "Helm", "Weapon", "Ranged", "Magic" }, type) < 0)
+                throw new ModContentException("create_player item type must be Skeleton, Armor, Helm, Weapon, Ranged or Magic.");
+            ModMoveScheduledAction.ValidateSymbol(name, "created item");
+            Type = type; Name = name;
+        }
+    }
+
     public sealed class ModMoveProfile
     {
         public int Rank { get; }
         public string CoreIcon { get; }
         public DefinitionId? DisplayName { get; }
-        public ModMoveProfile(int rank, string coreIcon, DefinitionId? displayName = null)
+        public string KeysDescription { get; }
+        public ModMoveProfile(int rank, string coreIcon, DefinitionId? displayName = null, string keysDescription = null)
         {
+            if (keysDescription != null) ModMoveScheduledAction.ValidateSymbol(keysDescription, "profile keys description");
+            KeysDescription = keysDescription ?? string.Empty;
             if (rank < 0 || rank > 100000) throw new ModContentException("Profile rank must be in 0..100000.");
             ModMoveScheduledAction.ValidateSymbol(coreIcon, "profile icon");
             if (displayName.HasValue && displayName.Value.Category != "localization") throw new ModContentException("Move profile display_name requires a localization handle.");
@@ -879,11 +913,17 @@ namespace Eclipse.Modding
         public bool NoInterpolationFrames { get; }
         public bool NoMagicRecharge { get; }
         public ModMoveVelocity Velocity { get; }
-        public bool HasContent => Actions.Count != 0 || Profile != null || TacticDistance != null || TacticConditions.Count != 0 || NoWallRepulsion || NoInterpolationFrames || NoMagicRecharge || Velocity != null;
+        public double? StyleFactor { get; }
+        public bool HasContent => Actions.Count != 0 || Profile != null || TacticDistance != null || TacticConditions.Count != 0 || NoWallRepulsion || NoInterpolationFrames || NoMagicRecharge || Velocity != null
+            || StyleFactor.HasValue;
         public ModMovePresentation(ModMoveScheduledAction[] actions = null, ModMoveProfile profile = null,
             ModMoveTacticDistance tacticDistance = null, bool noWallRepulsion = false, bool noInterpolationFrames = false, bool noMagicRecharge = false, ModMoveVelocity velocity = null,
-            ModMoveCondition[] tacticConditions = null)
+            ModMoveCondition[] tacticConditions = null, double? styleFactor = null)
         {
+            // Native StyleFactor: this move's weight in the style meter (default 1).
+            if (styleFactor.HasValue && (double.IsNaN(styleFactor.Value) || styleFactor.Value < 0 || styleFactor.Value > 100))
+                throw new ModContentException("style_factor must be in 0..100.");
+            StyleFactor = styleFactor;
             actions = actions ?? Array.Empty<ModMoveScheduledAction>();
             bool hasTacticConditions = tacticConditions != null;
             tacticConditions = tacticConditions ?? Array.Empty<ModMoveCondition>();

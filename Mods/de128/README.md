@@ -6,7 +6,14 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.41.0` moves the dojo
+DE128 is an ordinary downstream Eclipse mod. Version `0.42.3` shortens the old
+Axe Kick's cancel window to Front Kick's first three frames. Version `0.42.1` lets the second
+Kick of the old Axe Kick and Wall Run cancel Front Kick or Back Kick at once,
+and lets computer opponents choose the restored moves. Version `0.42.0` restores the
+archived default unarmed moves missing from vanilla: Front Jump Scissors Kick
+(Up-Forward + Kick, Kick), the old Axe Kick (Forward + Kick, Kick), Wall Run
+(Back + Kick, Kick near the back wall), Air Punch (Down-Forward + Punch) and the
+leg-push throw (Back + Kick at close range). Version `0.41.0` moves the dojo
 chooser's paintbrush from the story map into the dojo menu, below the disciple
 button's slot, and removes the old map button from existing saves. Version `0.40.3` shows the dojo
 chooser as three columns of named medallions, marks the current dojo with a gold

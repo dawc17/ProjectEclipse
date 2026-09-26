@@ -87,6 +87,7 @@ separately, so order between different triggers does not affect execution.
 | `{ projectile = { name = "Sphere", core_skeleton = "SkeletonMagic", copy_parent_type = "Magic" } }` | Create a native child projectile actor. |
 | `{ add_bullets = "MagicBullet", amount = -1 }` | Change the current model's charge. |
 | `{ delete_actor = "Me" }` | Delete the selected native actor. |
+| `{ create_player = { { "Skeleton", "Skeleton" }, { "Armor", "Body" }, { "Weapon", "Fists" } } }` | Spawn a native helper fighter wearing 1–8 core items, each `{ type, core_item_name }` with type `Skeleton`, `Armor`, `Helm`, `Weapon`, `Ranged` or `Magic`. Used by profile previews that show a move performed on a partner; the spawned actor is the move's `Child`. |
 | `{ play_animation = move, player = "Child", child_name = "Hand" }` | Start a registered move on the selected actor. A string instead of the handle names a core animation. |
 | `{ shake = { effect_time = 30, amplitude_x = 7, frequency_x = 1 } }` | Schedule native camera shake. |
 | `{ try_on_end = true }` | Complete a shop preview. |
@@ -122,7 +123,8 @@ Both move registration functions accept the following fields:
 | `type` | Native move category string, default empty. |
 | `priority` | Integer priority, default `0`. |
 | `mid_frames`, `first_frame`, `end_frame` | Nonnegative integers, default `0`. |
-| `mirror_node`, `tactic_equivalent`, `tactic_weapon` | Native animation/tactic name strings, default empty. |
+| `mirror_node`, `tactic_weapon` | Native animation/tactic name strings, default empty. |
+| `tactic_equivalent` | Optional exact name of a native move, default empty. The computer opponent's tactic tables are precomputed for native moves and have no rows for mod moves. With an equivalent, the AI treats this move as the named one when it reads its own or its opponent's current move. Wherever a table row offers the equivalent as a response, it also offers this move, with the same wait. The move's own conditions, locks and wall checks still decide whether it is playable. Pick a native move with similar hit timing and range, for example `FrontKick` for a quick grounded kick. Native moves never gain these extra choices. A name that matches no move logs a native error and has no effect. |
 | `looped`, `ends_stage` | Booleans, default `false`. |
 
 Use existing core definitions as a reference for native names and animation nodes. A valid Lua table does not guarantee that an animation will suit the fighter skeleton.
@@ -145,6 +147,7 @@ Conditions name their kind directly. Prefix that key with `not_` to negate it.
 - `{ character = warrior }` matches a registered character, including copies of its model parameters.
 - `{ key = "Kick" }` tests one input. `{ keys = { "Punch", "Punch", { "Forward", press = "Hold" } } }` tests an ordered sequence of 1–14 inputs. `press` defaults to `Tap`; alternatives are `Hold` and `Release`. Keys are `Up`, `Up-Forward`, `Forward`, `Down-Forward`, `Down`, `Down-Back`, `Back`, `Up-Back`, `Punch`, `Kick`, `Ranged`, `Magic`, `RaidCharge`, and `Super`.
 - `{ direction = "Enemy", from = ..., to = ... }` tests the facing of `Me` or `Enemy` relative to two points with explicit players. It is separate from the move's top-level `direction` setting.
+- `{ player_number = 2, player = "Enemy" }` tests which fight slot (1 or 2) the selected model occupies. `player` defaults to `Me`; `Enemy`, `Parent`, `Child` and `EnemyChild` are also accepted. The recovered throw moves use it so a throw works for both fighters.
 
 Character and key conditions use string literals, without constant aliases. Combine them with `key_pressed` to bind an authored move to a fighter's controls.
 
@@ -215,7 +218,7 @@ An interval accepts `type`, `name`, optional `from` and `to` frame indices, and 
 | `damage` | Finite multiplier 0–16, default 0. Applied through the selected native damage attribute. |
 | `damage_type` | Single unshifted attribute: `UnarmedDamage` (default), `WeaponDamage`, `RangedDamage`, or `MagicDamage`. Mutually exclusive with `damage_terms`. |
 | `damage_terms` | Optional map of 1–4 attributes to shifts, such as `{ WeaponDamage = 0, UnarmedDamage = -10 }`. Keys use the same four attribute names; shifts must be finite in −1,000…1,000. |
-| `hit` | `High` (default), `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal` (the native spelling for physical fall), `HighLong`, `NoReaction`, `WaspFly`, `Earthquake`, or `ElectrocutionPowerfield`. |
+| `hit` | A native hit reaction, default `High`. Accepted: `Earthquake`, `Electrocution`, `ElectrocutionPowerfield`, `HermitStorm`, `High`, `HighHeavy`, `HighHeavyDeflect`, `HighLong`, `HighPlus`, `HighShort`, `HighShortPlus`, `HoaxenPierce`, `Low`, `LowHeavy`, `LowHeavyDeflect`, `LowPull`, `Middle`, `MiddleHeavy`, `MiddleHeavyDeflect`, `MiddlePlus`, `MiddleShort`, `MiddleShortPlus`, `MindThrowHit`, `MindThrowHitNormal`, `NoReaction`, `Overhead`, `OverheadHeavy`, `OverheadHeavyDeflect`, `Physycal`, `RatWaveHit`, `RootHit`, `Spinning`, `SpinningHeavy`, `SpinningHeavyDeflect`, `Sweep`, `SweepHeavy`, `SweepHeavyDeflect`, `TitanHighHeavy`, `TitanMiddleHeavy`, `TitanOverhead`, `TitanSweep`, `TitansHarpoonHit`, `TitansHarpoonHitGrab`, `TitansHarpoonStrikeFall`, `TornadoHit`, `ToxicCloud`, `WaspFly`, `WaterWaveHit`. `Physycal` is the native spelling for a physical fall. These are the reactions used by the shipped vanilla and Definitive Edition moves. |
 | `hit_move` | Optional move handle selecting an authored hit reaction. Mutually exclusive with `hit`. The referenced move must exist and be accessible when registration commits. |
 | `id` | Integer 0–999, default 0; native attack identity. |
 | `impulse` | Optional `{x=0,y=0,z=0}` in native physics axes; each component finite and within ±100,000. |
@@ -303,7 +306,8 @@ rejects them. They require the same `content.register` capability as the move.
 | Field | Meaning/default |
 | --- | --- |
 | `timeline` | Frame/event table containing up to 64 scheduled actions in total, default empty. |
-| `profile` | Optional `{ rank, core_icon }` entry shown in the native moves list. `rank` is a required integer in 0–100,000; `core_icon` is an existing native icon name such as `Trick7.super_slash`. Omit the table for no entry. |
+| `profile` | Optional `{ rank, core_icon }` entry shown in the native moves list. `rank` is a required integer in 0–100,000; `core_icon` is an existing native icon name such as `Trick7.super_slash`. Optional `keys_description` names a native localization key that replaces the drawn key sequence with text, such as `Throw_Keys` or `Wall_Keys`. Omit the table for no entry. |
+| `style_factor` | Optional number 0–100 (native default 1): how much this move counts toward the style meter. |
 | `tactic_distance` | Optional native AI distance requirement with required `distance`, `from`, and `to`. `distance` is `X`, `Y`, or `Full` (planar distance). `min`/`max` default to −1,000,000/+1,000,000, must be finite within those bounds, and minimum must not exceed maximum. Points use the table format below, require explicit players and cannot use `Animation`. This restricts native tactic eligibility; it does not itself configure an AI tactic table. |
 | `tactic_conditions` | Optional dense array of 1–32 typed move conditions evaluated by native AI when considering this move. It supports the same condition shapes and `all`/`any` groups as `conditions`; it does not change player input eligibility. Use this for AI rules that combine distance with another state, such as allowing a cast when the opponent is falling. Mutually exclusive with `tactic_distance`; omit both for no authored AI gate. |
 | `no_wall_repulsion` | Boolean, default false. Uses the native move flag to suppress wall repulsion. |
@@ -739,7 +743,7 @@ Different additions to the same group compose. The source selector must exist be
 
 ## sf2.moves.patch
 
-**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_start?, interval_end?, hit?, sound_frame?, input?, priority?, animation?, remove_interval? }`
+**Signature:** `sf2.moves.patch { move, disable?, conditions?, interval_start?, interval_end?, hit?, sound_frame?, input?, priority?, animation?, remove_interval?, add_interval? }`
 
 **Returns:** Nothing.
 
@@ -756,14 +760,15 @@ dots or hyphens. At least one nonempty operation is required.
 | --- | --- |
 | `disable` | Boolean, default false. `true` adds a selection condition that always fails, so the native move stays registered but fighters cannot select it. Use when a complete replacement move is registered separately. |
 | `conditions` | Up to 32 additional typed move conditions, using the same records as `moves.register`. They are appended as extra requirements; existing conditions remain. |
-| `interval_start` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its start must equal `expected`; `value` becomes the start and cannot exceed its end. A missing native `Start` means zero. |
-| `interval_end` | `{ name, expected, value }`. `name` is `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
+| `interval_start` | `{ name, expected, value }`. `name` is `SemiUninterrupt`, `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its start must equal `expected`; `value` becomes the start and cannot exceed its end. A missing native `Start` means zero. |
+| `interval_end` | `{ name, expected, value }`. `name` is `SemiUninterrupt`, `Uninterrupt`, `SelfUninterrupt` or `Unstable`. Exactly one matching named interval must exist. Its end must equal `expected`; `value` becomes the end and cannot precede its start. |
 | `hit` | `{ expected, value }`. Requires exactly one attack interval with exactly one full-interval reaction matching `expected`. Replaces only its reaction name. Supported names: `High`, `Middle`, `Low`, `Spinning`, `HighHeavy`, `MiddleShortPlus`, `Physycal`, `HighLong`, `NoReaction`. |
 | `sound_frame` | `{ name, expected, value }`. Requires exactly one native direct Sound action with this clip name, scheduled at `expected`. Moves it to `value`. Event-driven and RandomSound actions are not supported by this selector. |
 | `input` | `{ expected, value }` replaces one direct native Keys condition. Both values are supported control names, such as `Super` and `RaidCharge`, with `Tap` timing. The move must have exactly one direct Keys condition, and its authored key requirement must match `expected`. Native AI may temporarily invert the parsed key state while dispatching a move; that transient state is ignored by this guard. Other conditions remain intact. |
 | `priority` | `{ expected, value }` replaces a native selection priority. Both are distinct integers in 0–100,000. The current priority must match `expected`. |
 | `animation` | `{ expected, value }` replaces a parsed native move's clip. `expected` is its exact existing `.bytes` filename; `value` is a binary handle from `sf2.assets.binary` for a file shipped by the mod. The runtime loads the new clip and updates its frame count while keeping the move's name, conditions, actions and linked children. The clip must have usable frames; check its node layout and action timing against the fighter in combat. |
 | `remove_interval` | `{ name, type, start, ["end"] }` removes exactly one native interval. All four fields are required guards: the interval's name, type, and inclusive sample bounds must match. Supported types are `Attack`, `Block`, `Invulnerable`, `Invisible`, `Uninterrupt`, `SelfUninterrupt`, and `Unstable`; bounds are integers from 0 through 100000 with end at least start. A removed interval cannot also receive a bounds patch. Use this for a verified native combat difference, since removing an attack or protection window can substantially change a fight. |
+| `add_interval` | `{ name, start, ["end"] }` adds one named interval. `name` is `SemiUninterrupt`, `Uninterrupt`, `SelfUninterrupt`, `Unstable` or `Throwable`; `start` and `end` are required inclusive frames from 0 through 100000, with end at least start. The move must already have native intervals and no interval of the same name. The added interval cannot also be bounds-patched or removed in the same patch. It is parsed together with the move's own intervals and is removed when the patch is removed. A common use is a `SemiUninterrupt` window, during which double-tap follow-ups (moves allowed to cancel `1key`/`2key` moves) can cancel this move. |
 
 Frame values must be distinct integers from 0 through 100000. Reaction names
 must also differ. Hit records with explicit start/end bounds in a deferred move,
@@ -795,6 +800,12 @@ sf2.moves.patch {
     sound_frame = { name = "snd_disk", expected = 18, value = 16 },
 }
 sf2.moves.patch { move = "WaspFly_150", disable = true }
+-- Let a quick second Kick cancel FrontKick's first five frames.
+sf2.moves.patch {
+    move = "FrontKick",
+    add_interval = { name = "SemiUninterrupt", start = 0, ["end"] = 4 },
+    interval_start = { name = "Uninterrupt", expected = 0, value = 5 },
+}
 sf2.moves.patch {
     move = "SaturnBlasterAbilityPlayer",
     input = { expected = "Super", value = "RaidCharge" },

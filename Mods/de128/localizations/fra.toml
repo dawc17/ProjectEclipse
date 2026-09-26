@@ -543,3 +543,11 @@ dojo.DojoAmerican22 = "Dojo américain II"
 dojo.DojoStudio = "Dojo du studio"
 dojo.BACK = "RETOUR"
 # END Dojo changer
+
+# BEGIN GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)
+moves.AirPunch = "Coup de poing aérien"
+moves.AxeKickOld = "Coup de pied marteau"
+moves.FrontJumpScissorsKick = "Coup de pied ciseaux sauté"
+moves.ThrowLegPushProfile = "Poussée de jambe"
+moves.WallRunUp = "Course murale"
+# END GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)

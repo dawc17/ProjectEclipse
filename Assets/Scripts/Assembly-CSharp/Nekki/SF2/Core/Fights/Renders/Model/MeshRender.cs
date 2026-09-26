@@ -86,7 +86,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 			if (!active) return;
 			_RimRenderer.transform.localPosition = Eclipse.Rendering.RimLight.LocalOffset(base.transform);
 			if (_RimBlock == null) _RimBlock = new MaterialPropertyBlock();
-			_RimBlock.SetVector("_Color", Eclipse.Rendering.RimLight.CurrentColor);
+			_RimBlock.SetVector("_Color", Eclipse.Rendering.RimLight.ColorFor(base.transform));
 			_RimRenderer.SetPropertyBlock(_RimBlock);
 		}
 

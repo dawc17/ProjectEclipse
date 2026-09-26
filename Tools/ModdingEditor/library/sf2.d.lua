@@ -1309,6 +1309,7 @@ local MoveShortKey = {}
 ---@field round_result? "Victory"|"Defeat"
 ---@field screen? "ShopArmor"|"ShopWeapon"|"ShopHelm"|"ShopMissile"|"ShopMagic"|"ShopRuby"|"ShopFree"|"ShopRaidItemPack"|"Profile"|"Fight"
 ---@field actor? string
+---@field player_number? 1|2
 ---@field character? Eclipse.WarriorHandle
 ---@field perk? Eclipse.PerkHandle
 ---@field item? "Weapon"|"Ranged"|"Magic"|"Armor"|"Helm"|"Skeleton"
@@ -1326,6 +1327,7 @@ local MoveShortKey = {}
 ---@field not_round_result? "Victory"|"Defeat"
 ---@field not_screen? "ShopArmor"|"ShopWeapon"|"ShopHelm"|"ShopMissile"|"ShopMagic"|"ShopRuby"|"ShopFree"|"ShopRaidItemPack"|"Profile"|"Fight"
 ---@field not_actor? string
+---@field not_player_number? 1|2
 ---@field not_character? Eclipse.WarriorHandle
 ---@field not_perk? Eclipse.PerkHandle
 ---@field not_item? "Weapon"|"Ranged"|"Magic"|"Armor"|"Helm"|"Skeleton"
@@ -1385,7 +1387,7 @@ local MoveAttackOptions = {}
 ---@field damage? number
 ---@field damage_type? "UnarmedDamage"|"WeaponDamage"|"RangedDamage"|"MagicDamage"
 ---@field damage_terms? Eclipse.MoveDamageTermMap
----@field hit? "High"|"Middle"|"Low"|"Spinning"|"HighHeavy"|"MiddleShortPlus"|"Physycal"|"HighLong"|"NoReaction"|"WaspFly"|"Earthquake"|"ElectrocutionPowerfield"
+---@field hit? "Earthquake"|"Electrocution"|"ElectrocutionPowerfield"|"HermitStorm"|"High"|"HighHeavy"|"HighHeavyDeflect"|"HighLong"|"HighPlus"|"HighShort"|"HighShortPlus"|"HoaxenPierce"|"Low"|"LowHeavy"|"LowHeavyDeflect"|"LowPull"|"Middle"|"MiddleHeavy"|"MiddleHeavyDeflect"|"MiddlePlus"|"MiddleShort"|"MiddleShortPlus"|"MindThrowHit"|"MindThrowHitNormal"|"NoReaction"|"Overhead"|"OverheadHeavy"|"OverheadHeavyDeflect"|"Physycal"|"RatWaveHit"|"RootHit"|"Spinning"|"SpinningHeavy"|"SpinningHeavyDeflect"|"Sweep"|"SweepHeavy"|"SweepHeavyDeflect"|"TitanHighHeavy"|"TitanMiddleHeavy"|"TitanOverhead"|"TitanSweep"|"TitansHarpoonHit"|"TitansHarpoonHitGrab"|"TitansHarpoonStrikeFall"|"TornadoHit"|"ToxicCloud"|"WaspFly"|"WaterWaveHit"
 ---@field id? integer
 ---@field impulse? Eclipse.MoveImpulse
 ---@field options? Eclipse.MoveAttackOptions
@@ -1480,6 +1482,7 @@ local MoveShake = {}
 ---@field rank integer
 ---@field core_icon string
 ---@field display_name? Eclipse.LocalizationHandle
+---@field keys_description? string
 local MoveProfile = {}
 
 ---@class (exact) Eclipse.MoveShortTacticDistance
@@ -1491,6 +1494,7 @@ local MoveProfile = {}
 local MoveShortTacticDistance = {}
 
 ---@class (exact) Eclipse.MoveShortAction
+---@field create_player? string[][]
 ---@field sound? string|string[]
 ---@field stop_sound? string
 ---@field play_sound? string
@@ -1580,6 +1584,7 @@ local MoveTemplateDefinition = {}
 ---@field no_interpolation_frames? boolean
 ---@field no_magic_recharge? boolean
 ---@field velocity? Eclipse.MoveVelocity
+---@field style_factor? number
 local MoveDefinition = {}
 
 ---@class (exact) Eclipse.MoveReplacementDefinition
@@ -1611,6 +1616,7 @@ local MoveDefinition = {}
 ---@field no_interpolation_frames? boolean
 ---@field no_magic_recharge? boolean
 ---@field velocity? Eclipse.MoveVelocity
+---@field style_factor? number
 ---@field target string
 ---@field expected_file string
 local MoveReplacementDefinition = {}
@@ -1623,13 +1629,13 @@ local MoveReplacementDefinition = {}
 local MoveItemLockExtension = {}
 
 ---@class (exact) Eclipse.MoveIntervalEndPatch
----@field name "Uninterrupt"|"SelfUninterrupt"|"Unstable"
+---@field name "SemiUninterrupt"|"Uninterrupt"|"SelfUninterrupt"|"Unstable"
 ---@field expected integer
 ---@field value integer
 local MoveIntervalEndPatch = {}
 
 ---@class (exact) Eclipse.MoveIntervalStartPatch
----@field name "Uninterrupt"|"SelfUninterrupt"|"Unstable"
+---@field name "SemiUninterrupt"|"Uninterrupt"|"SelfUninterrupt"|"Unstable"
 ---@field expected integer
 ---@field value integer
 local MoveIntervalStartPatch = {}
@@ -1667,6 +1673,12 @@ local MoveAnimationPatch = {}
 ---@field end integer
 local MoveIntervalRemoval = {}
 
+---@class (exact) Eclipse.MoveIntervalAddition
+---@field name "SemiUninterrupt"|"Uninterrupt"|"SelfUninterrupt"|"Unstable"|"Throwable"
+---@field start integer
+---@field end integer
+local MoveIntervalAddition = {}
+
 ---@class (exact) Eclipse.MovePatch
 ---@field move string
 ---@field disable? boolean
@@ -1679,6 +1691,7 @@ local MoveIntervalRemoval = {}
 ---@field priority? Eclipse.MovePriorityPatch
 ---@field animation? Eclipse.MoveAnimationPatch
 ---@field remove_interval? Eclipse.MoveIntervalRemoval
+---@field add_interval? Eclipse.MoveIntervalAddition
 local MovePatch = {}
 
 ---@class (exact) Eclipse.MovePerkLockRemoval
@@ -1975,6 +1988,8 @@ local DepthHazeDefinition = {}
 ---@field offset? number 0-12 pixels, default 2.5.
 ---@field alpha? number 0-1, default 0.85.
 ---@field lighten? number 0-1, default 0.35.
+---@field ink? number 0-1: rim turns to ink_color while casting magic, default 0.
+---@field ink_color? string #RRGGBB or #RRGGBBAA ink colour.
 ---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
 local RimLightDefinition = {}
 
@@ -2004,6 +2019,176 @@ local AmbientParticlesDefinition = {}
 ---@field duration? number 0.05-2 seconds, default 0.3.
 ---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
 local ImpactDefinition = {}
+
+---@class (exact) Eclipse.FxParticlesDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field placement? "background"|"behind"|"front"|"node"|"hit" Default behind; node when node is given; hit bursts at each hit.
+---@field trigger? "always"|"hit"|"critical"|"block"|"ko" Hit placement only: hit (default), critical, block or ko.
+---@field x? number Location placements: area centre offset.
+---@field y? number Location placements: area centre offset, up is positive.
+---@field speed_min? number 0-5000 hit burst speed, default 0.
+---@field speed_max? number 0-5000 hit burst speed, default 0.
+---@field gravity? number -5000 to 5000 downward pull on hit particles, default 0.
+---@field node? string Fighter node for placement = "node", e.g. "Weapon-Node2_1".
+---@field fighters? "both"|"player"|"opponent"
+---@field scenes? "fights"|"everywhere"
+---@field blend? "alpha"|"additive"
+---@field sprite? Eclipse.SpriteHandle
+---@field color? string #RRGGBB or #RRGGBBAA start colour.
+---@field end_color? string Colour at the end of each particle's life.
+---@field count? number 1-1000, default 100.
+---@field lifetime_min? number Seconds, default 6.
+---@field lifetime_max? number Seconds, default 10.
+---@field size_min? number Default 3.
+---@field size_max? number Default 6.
+---@field velocity_x_min? number Default -10.
+---@field velocity_x_max? number Default 10.
+---@field velocity_y_min? number Default -10.
+---@field velocity_y_max? number Default 10.
+---@field noise? number 0-500, default 5.
+---@field spin? number 0-1, default 0.
+---@field depth? number 0-1 for background placement, default 0.3.
+---@field area_width? number 0-2 x location width, default 1.1.
+---@field area_height? number 0-2 x location height, default 1.1.
+---@field radius? number Node emitter radius, default 20.
+local FxParticlesDefinition = {}
+
+---@class (exact) Eclipse.FxOverlayDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field placement? "background"|"front" Default background.
+---@field blend? "alpha"|"additive"
+---@field sprite? Eclipse.SpriteHandle
+---@field color? string #RRGGBB or #RRGGBBAA.
+---@field alpha? number 0-1, default 1.
+---@field depth? number 0-1 for background placement, default 0.3.
+---@field x? number Offset from the location centre.
+---@field y? number Offset from the location centre, up is positive.
+---@field width? number 0 covers the view.
+---@field height? number 0 covers the view.
+---@field shape? "rect"|"shaft"|"glow" Built-in art without a sprite, default rect.
+---@field angle? number -180 to 180 degrees, default 0.
+---@field flicker? number 0-1 opacity waver, default 0.
+---@field flicker_speed? number 0.1-30, default 6.
+local FxOverlayDefinition = {}
+
+---@class (exact) Eclipse.FxTrailDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field weapon? boolean Trail the weapon blade. Use this or nodes.
+---@field nodes? string[] Exactly two node names: inner end, moving end.
+---@field fighters? "both"|"player"|"opponent"
+---@field scenes? "fights"|"everywhere"
+---@field blend? "alpha"|"additive"
+---@field color? string Default follows the fighter colour.
+---@field lifetime? number 0.02-1 seconds, default 0.11.
+---@field min_speed? number Default 900.
+---@field full_speed? number Default 2600.
+---@field alpha? number 0-1, default 0.55.
+---@field start_alpha? number 0-1 at the inner end, default 0.35.
+local FxTrailDefinition = {}
+
+---@class (exact) Eclipse.FxScreenDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field saturation? number 0-2, default 1.
+---@field contrast? number 0-2, default 1.
+---@field brightness? number -1 to 1, default 0.
+---@field tint? string #RRGGBB multiply colour.
+---@field tint_strength? number 0-1, default 0.
+---@field vignette? number 0-1, default 0.
+---@field vignette_x? number -1 to 1 vignette centre, default 0.
+---@field vignette_y? number -1 to 1 vignette centre, default 0.
+---@field trigger? "always"|"hit"|"critical"|"ko" Default always.
+---@field duration? number 0.02-10 seconds fade of a triggered grade, default 0.25.
+---@field hold? number 0-10 seconds at full strength, default 0.
+---@field time_scale? number 0.05-1 game speed while a triggered grade is active, default 1.
+---@field grain? number 0-1, default 0.
+---@field halation? number 0-2, default 0.
+---@field halation_threshold? number 0-2, default 0.75.
+---@field halation_color? string #RRGGBB halation colour.
+---@field flicker? number 0-1 brightness wobble, default 0.
+---@field flicker_speed? number 0.1-30, default 6.
+---@field accent? string #RRGGBB hue kept through desaturation.
+---@field accent_strength? number 0-1, default 0.
+---@field accent_width? number 0.01-0.5 hue tolerance, default 0.08.
+local FxScreenDefinition = {}
+
+---@class (exact) Eclipse.FxShadowDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field fighters? "both"|"player"|"opponent"
+---@field color? string #RRGGBB or #RRGGBBAA, default black.
+---@field alpha? number 0-1, default 0.45.
+---@field width? number 1-2000, default 150.
+---@field height? number 1-1000, default 28.
+---@field fade_height? number 1-5000, default 350.
+---@field min_scale? number 0-1, default 0.35.
+local FxShadowDefinition = {}
+
+---@class (exact) Eclipse.FxGlintDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field fighters? "both"|"player"|"opponent"
+---@field scenes? "fights"|"everywhere"
+---@field color? string #RRGGBB or #RRGGBBAA, default warm white.
+---@field interval? number 0.2-60 seconds, default 3.
+---@field duration? number 0.05-3 seconds, default 0.35.
+---@field size? number 1-400, default 22.
+---@field alpha? number 0-1, default 0.9.
+---@field max_speed? number 0-20000, default 250.
+local FxGlintDefinition = {}
+
+---@class (exact) Eclipse.FxLightDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field source? "weapon"|"magic" Default weapon.
+---@field weapons? string[] Weapon lights: lowercase words found in glowing weapon names.
+---@field fighters? "both"|"player"|"opponent"
+---@field scenes? "fights"|"everywhere"
+---@field color? string #RRGGBB light colour.
+---@field radius? number 10-5000 reach in fighter units, default 320.
+---@field intensity? number 0-2, default 1.
+---@field fighter_light? number 0-1, default 0.8.
+---@field glow? number 0-1 stage glow opacity, default 0.3.
+---@field glow_size? number 1-5000, default 380.
+---@field flicker? number 0-1, default 0.15.
+---@field flicker_speed? number 0.1-30, default 8.
+local FxLightDefinition = {}
+
+---@class (exact) Eclipse.FxStainDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
+---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
+---@field match? string[] Lowercase location-name words; the effect runs only where one matches. Default: everywhere.
+---@field exclude? string[] Lowercase location-name words; the effect never runs where one matches.
+---@field trigger? "hit"|"critical"|"ko" Default hit.
+---@field fighters? "both"|"player"|"opponent"
+---@field color? string #RRGGBB or #RRGGBBAA, default dark red.
+---@field sprite? Eclipse.SpriteHandle
+---@field blend? "alpha"|"additive"
+---@field alpha? number 0-1, default 0.8.
+---@field count? number 1-12 per hit, default 3.
+---@field size_min? number 1-400, default 10.
+---@field size_max? number 1-400, default 26.
+---@field spread? number 0-400, default 40.
+---@field flatten? number 0.1-1, default 0.35.
+---@field limit? number 1-200 kept, default 60.
+local FxStainDefinition = {}
 
 ---@class (exact) Eclipse.QuestSuppression
 ---@field target string
@@ -2045,6 +2230,9 @@ local fights = {}
 
 ---@class Eclipse.Module_forge
 local forge = {}
+
+---@class Eclipse.Module_fx
+local fx = {}
 
 ---@class Eclipse.Module_items
 local items = {}
@@ -3411,6 +3599,70 @@ function visuals.ambient_particles(definition) end
 ---@param definition Eclipse.ImpactDefinition
 function visuals.impact(definition) end
 
+---Requires: `presentation.visuals`. A `sprite` must be a handle from `sf2.assets.sprite`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxparticles)
+---@param definition Eclipse.FxParticlesDefinition
+---@return string
+function fx.particles(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxoverlay)
+---@param definition Eclipse.FxOverlayDefinition
+---@return string
+function fx.overlay(definition) end
+
+---Requires: `presentation.visuals`. Give exactly one of `weapon = true` or two `nodes`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxtrail)
+---@param definition Eclipse.FxTrailDefinition
+---@return string
+function fx.trail(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxscreen)
+---@param definition Eclipse.FxScreenDefinition
+---@return string
+function fx.screen(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxshadow)
+---@param definition Eclipse.FxShadowDefinition
+---@return string
+function fx.shadow(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxglint)
+---@param definition Eclipse.FxGlintDefinition
+---@return string
+function fx.glint(definition) end
+
+---Requires: `presentation.visuals`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxlight)
+---@param definition Eclipse.FxLightDefinition
+---@return string
+function fx.light(definition) end
+
+---Requires: `presentation.visuals`. A `sprite` must be a handle from `sf2.assets.sprite`.
+---When: During loading.
+---Returns: The effect's name, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxstain)
+---@param definition Eclipse.FxStainDefinition
+---@return string
+function fx.stain(definition) end
+
 ---Requires: `content.patch`. The target must already be registered in your mod or an explicitly declared dependency. Declare `core` when targeting base quests.
 ---When: During registration, before the mod entrypoint returns. Changes take effect through Apply & Restart, before saved quests resume.
 ---Returns: Nothing.
@@ -3792,4 +4044,4 @@ function Fighter:show_status_icon(key, sprite, frames, stacks?) end
 ---@param key string
 function Fighter:clear_status_icon(key) end
 
-return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }
+return { achievements = achievements, assets = assets, battles = battles, behaviors = behaviors, counters = counters, enchantments = enchantments, events = events, fights = fights, forge = forge, fx = fx, items = items, itemsets = itemsets, locales = locales, localization = localization, locations = locations, log = log, mod = mod, modes = modes, moves = moves, perks = perks, price = price, profile = profile, progression = progression, quests = quests, raids = raids, random = random, rewards = rewards, rules = rules, scenes = scenes, services = services, settings = settings, shop = shop, state = state, story = story, tactics = tactics, timers = timers, ui = ui, underworld = underworld, visuals = visuals, warriors = warriors, zones = zones }

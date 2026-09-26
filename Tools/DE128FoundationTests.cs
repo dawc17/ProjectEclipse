@@ -499,7 +499,23 @@ internal static class DE128FoundationTests
         Check(ModPolicies.FeatureEnabled("campaign"), "An unrelated feature was disabled.");
         Check(catalog.ItemCombatSubtypes.Count == 5 && catalog.ItemTacticSubtypes.Count == 0,
             "DE combat classification patches are incomplete.");
-        Check(catalog.Moves.Count == 52 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 35 &&
+        // Nine restored DE default-moveset moves (unarmed_moves.lua); archive equality: Tools/TestDE128UnarmedMoves.ps1.
+        Check(new[] { "front_jump_scissors_kick", "axe_kick_old", "wall_run_up", "air_punch", "throw_leg_push", "throw_leg_push_v",
+                "standup_after_leg_fall", "throw_leg_push_profile", "throw_leg_push_v_profile" }
+            .All(id => catalog.Moves.Any(move => move.Id.ToString() == "de128:moves/" + id)),
+            "DE default-moveset additions are missing.");
+        var equivalents = new Dictionary<string, string> { ["front_jump_scissors_kick"] = "FrontJumpKick",
+            ["axe_kick_old"] = "FrontKick", ["wall_run_up"] = "DoubleJumpKick", ["air_punch"] = "TwoFootJumpKick" };
+        Check(equivalents.All(entry => catalog.Moves.Any(move => move.Id.ToString() == "de128:moves/" + entry.Key &&
+            move.TacticEquivalent == entry.Value)), "Restored default moves lost their AI table equivalents.");
+        var frontKick = catalog.MoveCombatPatches.SingleOrDefault(patch => patch.MoveName == "FrontKick");
+        var backKick = catalog.MoveCombatPatches.SingleOrDefault(patch => patch.MoveName == "BackKick");
+        Check(frontKick?.AddInterval?.Name == "SemiUninterrupt" && frontKick.AddInterval.Start == 0 && frontKick.AddInterval.End == 2 &&
+            frontKick.IntervalStart?.Name == "Uninterrupt" && frontKick.IntervalStart.Expected == 0 && frontKick.IntervalStart.Value == 3 &&
+            backKick?.IntervalEnd?.Name == "SemiUninterrupt" && backKick.IntervalEnd.Expected == 4 && backKick.IntervalEnd.Value == 6 &&
+            backKick.IntervalStart?.Name == "Uninterrupt" && backKick.IntervalStart.Expected == 5 && backKick.IntervalStart.Value == 7,
+            "Double-kick starters lost their cancel windows.");
+        Check(catalog.Moves.Count == 61 && catalog.MoveItemLockExtensions.Count == 10 && catalog.MoveCombatPatches.Count == 37 &&
             catalog.MoveCombatPatches.Count(patch => patch.Disable) == 15,
             "Archived move registrations, boss ability replacements or lock extensions are incomplete.");
         Check(catalog.Tactics.Count == 21 && catalog.Tactics.Any(tactic => tactic.RuntimeName == "de128:tactics/wasp_fly" && tactic.CoreTemplate == "Aggressive") &&
@@ -837,7 +853,9 @@ internal static class DE128FoundationTests
     {
         var archive = ReadXml(Path.Combine(repository,"Assets/DExml/animations/moves.xml"));
         var vanilla = ReadXml(Path.Combine(repository,"Assets/vanillaXml/animations/moves.xml"));
-        foreach (var patch in catalog.MoveCombatPatches)
+        // The double-kick starter windows go past the archive on purpose; their
+        // exact values are checked with the restored default moves.
+        foreach (var patch in catalog.MoveCombatPatches.Where(patch => patch.MoveName != "FrontKick" && patch.MoveName != "BackKick"))
         {
             var oldMove = (XmlElement)vanilla.SelectSingleNode("//Moves/Move[@Name='"+patch.MoveName+"']");
             var newMove = (XmlElement)archive.SelectSingleNode("//Moves/Move[@Name='"+patch.MoveName+"']");
@@ -1307,7 +1325,7 @@ assert(sf2.localization.key('core:localization/WEAPON_TITAN_GIANT_SWORD'))
             var expected = (XmlElement)archive.SelectSingleNode("/List/Items/Item[@Name='" + item.LegacyName + "']");
             Check(expected.GetAttribute("SubType") == patch.Subtype && original.GetAttribute("SubType") != patch.Subtype,
                 "Subtype is not an exact archive delta: " + item.LegacyName);
-            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 52 &&
+            bool ownedFamily = patch.Subtype == "ChineseSwords" && catalog.Moves.Count == 61 &&
                 catalog.Moves.Count(move => move.Graph.Locks.Any(condition => condition.Kind == ModMoveConditionKind.Item && condition.ItemSubType == "ChineseSwords")) == 2 &&
                 catalog.MoveItemLockExtensions.Count == 10;
             Check(moves.SelectNodes("//Item[@SubType='" + patch.Subtype + "']").Count > 0 || ownedFamily,

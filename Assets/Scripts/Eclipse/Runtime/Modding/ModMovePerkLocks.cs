@@ -239,6 +239,20 @@ namespace Eclipse.Modding
         }
     }
 
+    public sealed class ModMoveIntervalAddition
+    {
+        internal static readonly string[] Names = { "SemiUninterrupt", "Uninterrupt", "SelfUninterrupt", "Unstable", "Throwable" };
+        public string Name { get; }
+        public int Start { get; }
+        public int End { get; }
+        public ModMoveIntervalAddition(string name, int start, int end)
+        {
+            if (Array.IndexOf(Names, name) < 0 || start < 0 || end < start || end > 100000)
+                throw new ModContentException("add_interval requires SemiUninterrupt, Uninterrupt, SelfUninterrupt, Unstable or Throwable and valid bounds in 0..100000.");
+            Name = name; Start = start; End = end;
+        }
+    }
+
     public sealed class MoveCombatPatch
     {
         public ModId Owner { get; }
@@ -252,12 +266,13 @@ namespace Eclipse.Modding
         public ModMovePriorityPatch Priority { get; }
         public ModMoveAnimationPatch Animation { get; }
         public ModMoveIntervalRemoval RemoveInterval { get; }
+        public ModMoveIntervalAddition AddInterval { get; }
         public bool Disable { get; }
         public MoveCombatPatch(ModId owner, string moveName, ModMoveCondition[] conditions = null,
             ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null,
             bool disable = false, ModMoveInputPatch input = null, ModMovePriorityPatch priority = null,
             ModMoveFramePatch intervalStart = null, ModMoveAnimationPatch animation = null,
-            ModMoveIntervalRemoval removeInterval = null)
+            ModMoveIntervalRemoval removeInterval = null, ModMoveIntervalAddition addInterval = null)
         {
             ValidateName(moveName);
             conditions = conditions ?? new ModMoveCondition[0];
@@ -265,20 +280,23 @@ namespace Eclipse.Modding
             foreach (var condition in conditions)
                 if (condition == null) throw new ModContentException("Move patch conditions cannot contain null.");
             if (conditions.Length == 0 && intervalEnd == null && intervalStart == null && hit == null && soundFrame == null &&
-                input == null && priority == null && animation == null && removeInterval == null && !disable)
+                input == null && priority == null && animation == null && removeInterval == null && addInterval == null && !disable)
                 throw new ModContentException("Move patch must change at least one supported field.");
             if (disable && (conditions.Length != 0 || intervalEnd != null || intervalStart != null || hit != null || soundFrame != null ||
-                input != null || priority != null || animation != null || removeInterval != null))
+                input != null || priority != null || animation != null || removeInterval != null || addInterval != null))
                 throw new ModContentException("A disabled move cannot also receive combat field patches.");
-            if (intervalEnd != null && Array.IndexOf(new[] { "Uninterrupt", "SelfUninterrupt", "Unstable" }, intervalEnd.Name) < 0)
-                throw new ModContentException("interval_end requires Uninterrupt, SelfUninterrupt or Unstable.");
-            if (intervalStart != null && Array.IndexOf(new[] { "Uninterrupt", "SelfUninterrupt", "Unstable" }, intervalStart.Name) < 0)
-                throw new ModContentException("interval_start requires Uninterrupt, SelfUninterrupt or Unstable.");
+            if (intervalEnd != null && Array.IndexOf(new[] { "SemiUninterrupt", "Uninterrupt", "SelfUninterrupt", "Unstable" }, intervalEnd.Name) < 0)
+                throw new ModContentException("interval_end requires SemiUninterrupt, Uninterrupt, SelfUninterrupt or Unstable.");
+            if (intervalStart != null && Array.IndexOf(new[] { "SemiUninterrupt", "Uninterrupt", "SelfUninterrupt", "Unstable" }, intervalStart.Name) < 0)
+                throw new ModContentException("interval_start requires SemiUninterrupt, Uninterrupt, SelfUninterrupt or Unstable.");
+            if (addInterval != null && (addInterval.Name == intervalStart?.Name || addInterval.Name == intervalEnd?.Name ||
+                addInterval.Name == removeInterval?.Name))
+                throw new ModContentException("An added interval cannot also be bounds-patched or removed in the same patch.");
             if (removeInterval != null && (removeInterval.Name == intervalStart?.Name || removeInterval.Name == intervalEnd?.Name))
                 throw new ModContentException("A removed interval cannot also receive a bounds patch.");
             Owner = owner; MoveName = moveName; Conditions = Array.AsReadOnly((ModMoveCondition[])conditions.Clone());
             IntervalEnd = intervalEnd; IntervalStart = intervalStart; Hit = hit; SoundFrame = soundFrame;
-            Input = input; Priority = priority; Animation = animation; RemoveInterval = removeInterval; Disable = disable;
+            Input = input; Priority = priority; Animation = animation; RemoveInterval = removeInterval; AddInterval = addInterval; Disable = disable;
         }
         internal static void ValidateName(string name)
         {
@@ -311,11 +329,11 @@ namespace Eclipse.Modding
             ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null,
             bool disable = false, ModMoveInputPatch input = null, ModMovePriorityPatch priority = null,
             ModMoveFramePatch intervalStart = null, ModMoveAnimationPatch animation = null,
-            ModMoveIntervalRemoval removeInterval = null)
+            ModMoveIntervalRemoval removeInterval = null, ModMoveIntervalAddition addInterval = null)
         {
             ThrowIfCompleted();
             var patch = new MoveCombatPatch(Mod.Id, moveName, conditions, intervalEnd, hit, soundFrame,
-                disable, input, priority, intervalStart, animation, removeInterval);
+                disable, input, priority, intervalStart, animation, removeInterval, addInterval);
             foreach (var prior in _moveCombatPatches)
                 if (prior.MoveName == patch.MoveName) throw new ModContentException("Duplicate move combat patch: " + moveName);
             EnsureCapacityForNewRegistration();
@@ -329,11 +347,11 @@ namespace Eclipse.Modding
             ModMoveFramePatch intervalEnd = null, ModMoveHitPatch hit = null, ModMoveFramePatch soundFrame = null,
             bool disable = false, ModMoveInputPatch input = null, ModMovePriorityPatch priority = null,
             ModMoveFramePatch intervalStart = null, ModMoveAnimationPatch animation = null,
-            ModMoveIntervalRemoval removeInterval = null)
+            ModMoveIntervalRemoval removeInterval = null, ModMoveIntervalAddition addInterval = null)
         {
             RequireCapability("content.patch");
             RequireRegistration().PatchMove(moveName, conditions, intervalEnd, hit, soundFrame,
-                disable, input, priority, intervalStart, animation, removeInterval);
+                disable, input, priority, intervalStart, animation, removeInterval, addInterval);
         }
     }
 }

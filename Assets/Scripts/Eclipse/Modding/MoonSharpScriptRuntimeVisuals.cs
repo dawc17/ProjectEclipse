@@ -38,7 +38,7 @@ namespace Eclipse.Modding
                 visuals.Set("background_depth", DynValue.NewCallback(Visual("background_depth", ModVisualEffect.BackgroundDepth)));
                 visuals.Set("weapon_trails", DynValue.NewCallback(Visual("weapon_trails", ModVisualEffect.WeaponTrails, "color")));
                 visuals.Set("depth_haze", DynValue.NewCallback(Visual("depth_haze", ModVisualEffect.DepthHaze)));
-                visuals.Set("rim_light", DynValue.NewCallback(Visual("rim_light", ModVisualEffect.RimLight)));
+                visuals.Set("rim_light", DynValue.NewCallback(Visual("rim_light", ModVisualEffect.RimLight, "ink_color")));
                 visuals.Set("bloom", DynValue.NewCallback(Visual("bloom", ModVisualEffect.Bloom)));
                 visuals.Set("ambient_particles", DynValue.NewCallback(Visual("ambient_particles", ModVisualEffect.AmbientParticles, "default_style", "locations")));
                 visuals.Set("impact", DynValue.NewCallback(Visual("impact", ModVisualEffect.Impact)));
@@ -46,10 +46,14 @@ namespace Eclipse.Modding
 
                 var fx = new Table(_script);
                 fx.Set("particles", DynValue.NewCallback(Fx("particles", ModFxKind.Particles,
-                    "placement", "node", "fighters", "blend", "sprite", "color", "end_color")));
-                fx.Set("overlay", DynValue.NewCallback(Fx("overlay", ModFxKind.Overlay, "placement", "blend", "sprite", "color")));
+                    "placement", "node", "fighters", "blend", "sprite", "color", "end_color", "trigger")));
+                fx.Set("overlay", DynValue.NewCallback(Fx("overlay", ModFxKind.Overlay, "placement", "blend", "sprite", "color", "shape")));
                 fx.Set("trail", DynValue.NewCallback(Fx("trail", ModFxKind.Trail, "weapon", "nodes", "fighters", "blend", "color")));
-                fx.Set("screen", DynValue.NewCallback(Fx("screen", ModFxKind.Screen, "tint")));
+                fx.Set("screen", DynValue.NewCallback(Fx("screen", ModFxKind.Screen, "tint", "trigger", "accent", "halation_color")));
+                fx.Set("shadow", DynValue.NewCallback(Fx("shadow", ModFxKind.Shadow, "fighters", "color")));
+                fx.Set("glint", DynValue.NewCallback(Fx("glint", ModFxKind.Glint, "fighters", "color")));
+                fx.Set("light", DynValue.NewCallback(Fx("light", ModFxKind.Light, "source", "weapons", "fighters", "color")));
+                fx.Set("stain", DynValue.NewCallback(Fx("stain", ModFxKind.Stain, "trigger", "fighters", "color", "sprite")));
                 root.Set("fx", DynValue.NewTable(fx));
             }
 
@@ -79,10 +83,11 @@ namespace Eclipse.Modding
                     }
 
                     ModUiColor color = null;
-                    if (!table.Get("color").IsNil())
+                    string colorField = table.Get("ink_color").IsNil() ? "color" : "ink_color";
+                    if (!table.Get(colorField).IsNil())
                     {
-                        try { color = new ModUiColor(RequiredString(table, "color", function)); }
-                        catch (Exception error) { throw new ModContentException(function + ".color: " + error.Message); }
+                        try { color = new ModUiColor(RequiredString(table, colorField, function)); }
+                        catch (Exception error) { throw new ModContentException(function + "." + colorField + ": " + error.Message); }
                     }
 
                     ModParticleStyle defaultStyle = ModParticleStyle.Dust;
@@ -125,7 +130,7 @@ namespace Eclipse.Modding
                 return (ctx, args) => ApiCall(function, () =>
                 {
                     Table table = args.AsType(0, function, DataType.Table, false).Table;
-                    var allowed = new List<string> { "id", "setting", "match", "scenes" };
+                    var allowed = new List<string> { "id", "setting", "match", "exclude", "scenes" };
                     foreach (var parameter in ModFxParameters.For(kind)) allowed.Add(parameter.Name);
                     allowed.AddRange(extra);
                     ValidateFields(table, function, allowed.ToArray());
@@ -143,6 +148,7 @@ namespace Eclipse.Modding
                         request.Setting = toggle.Name;
                     }
                     request.Match = OptionalWords(table, "match", function);
+                    request.Exclude = OptionalWords(table, "exclude", function);
                     request.Nodes = OptionalWords(table, "nodes", function, false);
                     if (!table.Get("node").IsNil()) request.Nodes = new[] { RequiredString(table, "node", function) };
 
@@ -153,7 +159,16 @@ namespace Eclipse.Modding
                     string placement = OptionalString(table, "placement", defaultPlacement, function);
                     request.Placement = placement == "background" ? ModFxPlacement.Background : placement == "behind" ? ModFxPlacement.Behind
                         : placement == "front" ? ModFxPlacement.Front : placement == "node" ? ModFxPlacement.Node
-                        : throw new ModContentException(function + ".placement must be background, behind, front or node.");
+                        : placement == "hit" ? ModFxPlacement.Hit
+                        : throw new ModContentException(function + ".placement must be background, behind, front, node or hit.");
+                    string trigger = OptionalString(table, "trigger", "always", function);
+                    request.Trigger = trigger == "always" ? ModFxTrigger.Always : trigger == "hit" ? ModFxTrigger.Hit
+                        : trigger == "critical" ? ModFxTrigger.Critical : trigger == "block" ? ModFxTrigger.Block
+                        : trigger == "ko" ? ModFxTrigger.Ko
+                        : throw new ModContentException(function + ".trigger must be always, hit, critical, block or ko.");
+                    string shape = OptionalString(table, "shape", "rect", function);
+                    request.Shape = shape == "rect" ? ModFxShape.Rect : shape == "shaft" ? ModFxShape.Shaft : shape == "glow" ? ModFxShape.Glow
+                        : throw new ModContentException(function + ".shape must be rect, shaft or glow.");
                     if (kind == ModFxKind.Particles && request.Nodes != null && request.Nodes.Length != 0 && table.Get("placement").IsNil())
                         request.Placement = ModFxPlacement.Node;
                     string fighters = OptionalString(table, "fighters", "both", function);
@@ -163,9 +178,15 @@ namespace Eclipse.Modding
                     request.Blend = blend == "alpha" ? ModFxBlend.Alpha : blend == "additive" ? ModFxBlend.Additive
                         : throw new ModContentException(function + ".blend must be alpha or additive.");
                     request.Weapon = OptionalBool(table, "weapon", false, function);
+                    string source = OptionalString(table, "source", "weapon", function);
+                    request.Source = source == "weapon" ? ModFxLightSource.Weapon : source == "magic" ? ModFxLightSource.Magic
+                        : throw new ModContentException(function + ".source must be weapon or magic.");
+                    request.Weapons = OptionalWords(table, "weapons", function);
                     if (!table.Get("sprite").IsNil()) request.Sprite = RequiredHandle(table, "sprite", _spriteHandles, "sprite", function);
                     request.Color = OptionalColor(table, "color", function);
                     request.EndColor = OptionalColor(table, "end_color", function);
+                    request.AccentColor = OptionalColor(table, "accent", function);
+                    request.HalationColor = OptionalColor(table, "halation_color", function);
                     if (request.Color == null) request.Color = OptionalColor(table, "tint", function);
 
                     ModFxDefinition definition = _api.RegisterFx(kind, id, request);

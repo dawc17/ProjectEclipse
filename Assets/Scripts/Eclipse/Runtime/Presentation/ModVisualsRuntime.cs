@@ -33,11 +33,91 @@ namespace Eclipse.Modding
 		private static float _impactStart = -1f;
 		private static float _impactDuration = 0.3f;
 
+		// When each fight event last fired (unscaled seconds), for triggered effects.
+		private static readonly float[] _triggerTimes = { -1f, -1f, -1f, -1f, -1f };
+
 		public static void Bind(ModContentCatalog catalog)
 		{
 			_catalog = catalog;
 			_impactStart = -1f;
+			ResetTriggers();
 			ModSettingsStore.Install();
+		}
+
+		// The running fight's location name; screen effects use it for match/exclude.
+		public static string CurrentLocation { get; set; }
+
+		public static void ResetTriggers()
+		{
+			for (int i = 0; i < _triggerTimes.Length; i++) _triggerTimes[i] = -1f;
+		}
+
+		// Slow motion from triggered screen grades (time_scale < 1): the game
+		// speed follows the grade's strength, so it returns as the grade fades.
+		// The value is only written while this code owns it: it starts from normal
+		// speed, and if anything else changes the speed (a pause dialog, the debug
+		// sprint) it lets go without restoring.
+		private static float _writtenTimeScale = -1f;
+
+		public static float CurrentTimeScale()
+		{
+			float scale = 1f;
+			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			{
+				if (definition.Trigger == ModFxTrigger.Always || definition.Number("time_scale") >= 1f) continue;
+				if (!definition.MatchesLocation(CurrentLocation)) continue;
+				float w = TriggerWeight(definition);
+				if (w > 0f) scale = Mathf.Min(scale, Mathf.Lerp(1f, definition.Number("time_scale"), w));
+			}
+			return scale;
+		}
+
+		public static void UpdateTimeScale()
+		{
+			float target = CurrentTimeScale();
+			if (_writtenTimeScale < 0f)
+			{
+				if (target >= 0.999f || Time.timeScale != 1f) return;
+				Time.timeScale = _writtenTimeScale = target;
+				return;
+			}
+			if (Time.timeScale != _writtenTimeScale) { _writtenTimeScale = -1f; return; }
+			if (target >= 0.999f) { Time.timeScale = 1f; _writtenTimeScale = -1f; return; }
+			Time.timeScale = _writtenTimeScale = target;
+		}
+
+		public static void ReleaseTimeScale()
+		{
+			if (_writtenTimeScale >= 0f && Time.timeScale == _writtenTimeScale) Time.timeScale = 1f;
+			_writtenTimeScale = -1f;
+		}
+
+		// Records a resolved hit for triggered screen effects. A ko also counts as
+		// a hit (and a critical ko as a critical).
+		public static void NotifyHit(bool critical, bool blocked, bool ko)
+		{
+			float now = Time.unscaledTime;
+			if (blocked) _triggerTimes[(int)ModFxTrigger.Block] = now;
+			else
+			{
+				_triggerTimes[(int)ModFxTrigger.Hit] = now;
+				if (critical) _triggerTimes[(int)ModFxTrigger.Critical] = now;
+			}
+			if (ko) _triggerTimes[(int)ModFxTrigger.Ko] = now;
+		}
+
+		// 0..1 strength of a triggered effect now: full for `hold`, then an
+		// ease-out fade over `duration`. Always-on effects are 1.
+		public static float TriggerWeight(ModFxDefinition definition)
+		{
+			if (definition.Trigger == ModFxTrigger.Always) return 1f;
+			float start = _triggerTimes[(int)definition.Trigger];
+			if (start < 0f) return 0f;
+			float t = Time.unscaledTime - start - definition.Number("hold");
+			if (t <= 0f) return 1f;
+			float fade = 1f - t / definition.Number("duration");
+			// Smooth at both ends: no sudden drop after the pop-in, no snap at the end.
+			return fade <= 0f ? 0f : fade * fade * (3f - 2f * fade);
 		}
 
 		// A definition's colour as a Unity colour, when it has one.
@@ -78,6 +158,15 @@ namespace Eclipse.Modding
 			return result;
 		}
 
+		// Whether any effect of one kind is active, without building a list.
+		public static bool HasActiveFx(ModFxKind kind)
+		{
+			if (_catalog == null) return false;
+			foreach (ModFxDefinition definition in _catalog.Effects)
+				if (definition.Kind == kind && SettingOn(definition.Setting)) return true;
+			return false;
+		}
+
 		// A stable key for the active set of one kind, so renderers rebuild only on change.
 		public static string ActiveFxKey(ModFxKind kind)
 		{
@@ -93,34 +182,77 @@ namespace Eclipse.Modding
 			return color == null ? fallback : (Color)new Color32(color.R, color.G, color.B, color.A);
 		}
 
-		// All active sf2.fx.screen grades combined: saturation and contrast
-		// multiply, brightness adds, tints layer in load order, vignette takes the strongest.
+		// All active sf2.fx.screen grades for the current location combined:
+		// saturation and contrast multiply, brightness adds, tints layer in load
+		// order, vignette, grain and accent take the strongest, halation adds.
+		// A triggered grade is scaled by its current strength (0 = no change).
 		public struct ScreenGrade
 		{
 			public bool Active;
 			public float Saturation, Contrast, Brightness, TintStrength, Vignette;
-			public Color Tint;
+			public Vector2 VignetteCenter;
+			public float Grain, Halation, HalationThreshold, AccentStrength, AccentWidth;
+			public Color Tint, HalationColor, Accent;
 		}
+
+		private static readonly Color DefaultHalation = new Color(1f, 0.62f, 0.42f, 1f);
 
 		public static ScreenGrade CurrentGrade()
 		{
-			var grade = new ScreenGrade { Saturation = 1f, Contrast = 1f, Tint = Color.white };
+			var grade = new ScreenGrade { Saturation = 1f, Contrast = 1f, Tint = Color.white, HalationColor = DefaultHalation,
+				HalationThreshold = 0.75f, Accent = Color.red, AccentWidth = 0.08f };
+			float now = Time.unscaledTime;
 			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
 			{
+				if (!definition.MatchesLocation(CurrentLocation)) continue;
+				float w = TriggerWeight(definition);
+				if (w <= 0f) continue;
 				grade.Active = true;
-				grade.Saturation *= definition.Number("saturation");
-				grade.Contrast *= definition.Number("contrast");
-				grade.Brightness += definition.Number("brightness");
-				float strength = definition.Number("tint_strength");
+				grade.Saturation *= Mathf.Lerp(1f, definition.Number("saturation"), w);
+				grade.Contrast *= Mathf.Lerp(1f, definition.Number("contrast"), w);
+				grade.Brightness += definition.Number("brightness") * w;
+				float flicker = definition.Number("flicker");
+				if (flicker > 0f)
+				{
+					// Two out-of-step waves read as an irregular flame rather than a pulse.
+					float speed = definition.Number("flicker_speed");
+					float n = Mathf.PerlinNoise(now * speed * 0.5f, definition.Name.Length * 7.31f) - 0.5f;
+					n += (Mathf.PerlinNoise(now * speed * 1.7f, 3.7f) - 0.5f) * 0.5f;
+					grade.Brightness += n * flicker * 0.25f * w;
+				}
+				float strength = definition.Number("tint_strength") * w;
 				if (strength > 0f && definition.Color != null)
 				{
 					Color tint = ToColor(definition.Color, Color.white);
 					grade.Tint = grade.TintStrength <= 0f ? tint : Color.Lerp(grade.Tint, tint, strength);
 					grade.TintStrength = Mathf.Max(grade.TintStrength, strength);
 				}
-				grade.Vignette = Mathf.Max(grade.Vignette, definition.Number("vignette"));
+				float vignette = definition.Number("vignette") * w;
+				if (vignette > grade.Vignette)
+				{
+					grade.Vignette = vignette;
+					grade.VignetteCenter = new Vector2(definition.Number("vignette_x"), definition.Number("vignette_y"));
+				}
+				grade.Grain = Mathf.Max(grade.Grain, definition.Number("grain") * w);
+				float halation = definition.Number("halation") * w;
+				if (halation > 0f)
+				{
+					if (grade.Halation <= 0f || definition.HalationColor != null)
+						grade.HalationColor = ToColor(definition.HalationColor, DefaultHalation);
+					grade.HalationThreshold = grade.Halation <= 0f ? definition.Number("halation_threshold")
+						: Mathf.Min(grade.HalationThreshold, definition.Number("halation_threshold"));
+					grade.Halation += halation;
+				}
+				float accent = definition.Number("accent_strength") * w;
+				if (accent > grade.AccentStrength && definition.AccentColor != null)
+				{
+					grade.AccentStrength = accent;
+					grade.Accent = ToColor(definition.AccentColor, Color.red);
+					grade.AccentWidth = definition.Number("accent_width");
+				}
 			}
 			grade.Brightness = Mathf.Clamp(grade.Brightness, -1f, 1f);
+			grade.Halation = Mathf.Min(grade.Halation, 2f);
 			return grade;
 		}
 

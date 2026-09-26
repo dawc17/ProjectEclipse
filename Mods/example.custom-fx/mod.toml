@@ -1,0 +1,7 @@
+schema = 1
+id = "example.custom-fx"
+name = "Custom FX Showcase"
+version = "1.0.0"
+entrypoint = "scripts/main.lua"
+authors = ["Eclipse"]
+capabilities = ["presentation.visuals", "ui.settings"]

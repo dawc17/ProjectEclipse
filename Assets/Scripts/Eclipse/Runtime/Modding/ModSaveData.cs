@@ -1203,6 +1203,21 @@ namespace Eclipse.Modding
                         }
                     }
                 }
+                if (patches.Exists(patch => patch.AddInterval != null))
+                {
+                    Append(canonical, "move-combat-add-interval-v1");
+                    foreach (var patch in patches)
+                    {
+                        Append(canonical, patch.MoveName);
+                        Append(canonical, patch.AddInterval != null);
+                        if (patch.AddInterval != null)
+                        {
+                            Append(canonical, patch.AddInterval.Name);
+                            Append(canonical, patch.AddInterval.Start);
+                            Append(canonical, patch.AddInterval.End);
+                        }
+                    }
+                }
             }
             if (content.MoveItemLockExtensions.Count > 0)
             {
@@ -1341,6 +1356,8 @@ namespace Eclipse.Modding
             Append(canonical, value.Profile != null);
             if (value.Profile != null) { Append(canonical, value.Profile.Rank); Append(canonical, value.Profile.CoreIcon); }
             if (value.Profile?.DisplayName != null) { Append(canonical, "move-profile-title-v1"); Append(canonical, value.Profile.DisplayName.Value.ToString()); }
+            if (value.Profile != null && value.Profile.KeysDescription.Length != 0) { Append(canonical, "move-profile-keys-v1"); Append(canonical, value.Profile.KeysDescription); }
+            if (value.StyleFactor.HasValue) { Append(canonical, "move-style-factor-v1"); Append(canonical, value.StyleFactor.Value.ToString("R", CultureInfo.InvariantCulture)); }
             Append(canonical, value.TacticDistance != null);
             if (value.TacticDistance != null)
             {
@@ -1382,6 +1399,11 @@ namespace Eclipse.Modding
                     Append(canonical, "move-bullets-v1"); Append(canonical, action.Bullets.Type); Append(canonical, action.Bullets.Value);
                 }
                 if (action.DeletePlayer.Length != 0) { Append(canonical, "move-delete-v1"); Append(canonical, action.DeletePlayer); }
+                if (action.CreatedItems.Count != 0)
+                {
+                    Append(canonical, "move-create-player-v1"); Append(canonical, action.CreatedItems.Count);
+                    foreach (var item in action.CreatedItems) { Append(canonical, item.Type); Append(canonical, item.Name); }
+                }
                 if (action.EffectName.Length != 0) { Append(canonical, "stop-move-effect-v1"); Append(canonical, action.EffectName); }
                 if (action.StopSoundName.Length != 0) { Append(canonical, "stop-move-sound-v1"); Append(canonical, action.StopSoundName); }
                 if (action.Kind == "play_animation")

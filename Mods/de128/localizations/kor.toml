@@ -543,3 +543,11 @@ dojo.DojoAmerican22 = "아메리칸 도장 II"
 dojo.DojoStudio = "스튜디오 도장"
 dojo.BACK = "뒤로"
 # END Dojo changer
+
+# BEGIN GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)
+moves.AirPunch = "공중 펀치"
+moves.AxeKickOld = "내려찍기"
+moves.FrontJumpScissorsKick = "가위 점프 발차기"
+moves.ThrowLegPushProfile = "다리 밀기"
+moves.WallRunUp = "벽 타기"
+# END GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)

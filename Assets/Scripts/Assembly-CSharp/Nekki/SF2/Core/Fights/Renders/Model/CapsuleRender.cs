@@ -100,7 +100,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 			if (!_RimLine.gameObject.activeSelf) _RimLine.gameObject.SetActive(true);
 			_RimLine.transform.localPosition = Eclipse.Rendering.RimLight.LocalOffset(base.transform);
 			_RimLine.startWidth = _RimLine.endWidth = _Stroke;
-			Color color = Eclipse.Rendering.RimLight.CurrentColor;
+			Color color = Eclipse.Rendering.RimLight.ColorFor(base.transform);
 			_RimLine.startColor = _RimLine.endColor = color;
 			_RimLine.SetPosition(0, start);
 			_RimLine.SetPosition(1, end);

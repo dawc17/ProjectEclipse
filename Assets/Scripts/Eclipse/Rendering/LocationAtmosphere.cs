@@ -5,8 +5,9 @@ using UnityEngine;
 namespace Eclipse.Rendering
 {
 	// Location presentation driven by sf2.visuals (depth_haze, rim_light and
-	// ambient_particles), attached to a fight's render root. Everything it
-	// creates stays inactive unless a mod enables the matching effect.
+	// ambient_particles) and by location-attached sf2.fx particles and overlays,
+	// attached to a fight's render root. Everything it creates stays inactive
+	// unless a mod enables the matching effect.
 	public sealed class LocationAtmosphere : MonoBehaviour
 	{
 		private const float OverlayDepth = -2.9f;   // in front of a layer's own art, behind the next layer
@@ -20,11 +21,22 @@ namespace Eclipse.Rendering
 		private Sprite _whiteSprite;
 		private Material _particleMaterial;
 		private Texture2D _particleTexture;
+		private string _fxKey;
+		private readonly List<GameObject> _fxObjects = new List<GameObject>();
+
+		private struct Flicker { public SpriteRenderer Renderer; public Color Base; public float Amount, Speed, Seed; }
+		private readonly List<Flicker> _flickers = new List<Flicker>();
+
+		// The running fight's location name, for fighter effects matched by location.
+		public static string CurrentLocationName { get; private set; }
 
 		public static void Attach(GameObject root, Location location)
 		{
 			var atmosphere = root.GetComponent<LocationAtmosphere>() ?? root.AddComponent<LocationAtmosphere>();
 			atmosphere._location = location;
+			CurrentLocationName = location?.name;
+			ModVisuals.CurrentLocation = location?.name;
+			ModVisuals.ResetTriggers();
 		}
 
 		private void LateUpdate()
@@ -50,6 +62,117 @@ namespace Eclipse.Rendering
 				BuildParticles(particleSettings);
 			}
 			if (_particles != null && _particles.activeSelf != particles) _particles.SetActive(particles);
+
+			string fxKey = ModVisuals.ActiveFxKey(ModFxKind.Particles) + "#" + ModVisuals.ActiveFxKey(ModFxKind.Overlay);
+			if (fxKey != _fxKey)
+			{
+				_fxKey = fxKey;
+				BuildLocationFx();
+			}
+			// Flickering overlays: two out-of-step noise waves on the alpha, like a flame.
+			float now = Time.unscaledTime;
+			foreach (Flicker flicker in _flickers)
+			{
+				if (flicker.Renderer == null) continue;
+				float n = Mathf.PerlinNoise(now * flicker.Speed * 0.5f, flicker.Seed) * 0.7f +
+					Mathf.PerlinNoise(now * flicker.Speed * 1.7f, flicker.Seed + 3.1f) * 0.3f;
+				Color c = flicker.Base;
+				c.a *= Mathf.Clamp01(1f - flicker.Amount * n);
+				flicker.Renderer.color = c;
+			}
+		}
+
+		// sf2.fx particles (background/behind/front) and overlays for this location.
+		private void BuildLocationFx()
+		{
+			foreach (GameObject old in _fxObjects) if (old != null) Destroy(old);
+			_fxObjects.Clear();
+			_flickers.Clear();
+			if (_location.gameLayer == null) return;
+			float width = Mathf.Max(_location.JMLAKAKDBBL, 1f);
+			float height = Mathf.Max(_location.FEIHFIPFNKF, 1f);
+			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Particles))
+			{
+				if (definition.Placement == ModFxPlacement.Node || definition.Placement == ModFxPlacement.Hit ||
+					!definition.MatchesLocation(_location.name)) continue;
+				Transform parent; float z;
+				Place(definition, out parent, out z);
+				if (parent == null) continue;
+				var area = new Vector2(width * definition.Number("area_width"), height * definition.Number("area_height"));
+				// The render root is mirrored vertically; flip back so +y is up.
+				// Location coordinates are centred and mirrored vertically: +y is up after the flip.
+				ParticleSystem system = FxBuilder.CreateEmitter(parent,
+					new Vector3(definition.Number("x"), -definition.Number("y"), z), new Vector3(1f, -1f, 1f), definition, area, false);
+				_fxObjects.Add(system.gameObject);
+			}
+			foreach (ModFxDefinition definition in ModVisuals.ActiveFx(ModFxKind.Overlay))
+			{
+				if (!definition.MatchesLocation(_location.name)) continue;
+				Transform parent; float z;
+				Place(definition, out parent, out z);
+				if (parent == null) continue;
+				_fxObjects.Add(CreateOverlay(parent, z, definition));
+			}
+		}
+
+		// Background: the background layer whose parallax factor is nearest
+		// (1 - depth), in front of its art. Behind/Front: the fighters' layer.
+		private void Place(ModFxDefinition definition, out Transform parent, out float z)
+		{
+			parent = null; z = 0f;
+			if (definition.Placement == ModFxPlacement.Behind) { parent = _location.gameLayer.MJNPBMOAFML().transform; z = 1f; return; }
+			if (definition.Placement == ModFxPlacement.Front) { parent = _location.gameLayer.MJNPBMOAFML().transform; z = -2.5f; return; }
+			float target = 1f - definition.Number("depth");
+			float best = float.MaxValue;
+			foreach (LocationSelector layer in _location.layers)
+			{
+				if (layer.BBELALLBKHH()) break;
+				float distance = Mathf.Abs(layer.JLBBJEELMGG() - target);
+				if (distance < best) { best = distance; parent = layer.MJNPBMOAFML().transform; }
+			}
+			z = -2.8f;
+			if (parent == null) { parent = _location.gameLayer.MJNPBMOAFML().transform; z = 1f; }
+		}
+
+		private GameObject CreateOverlay(Transform parent, float z, ModFxDefinition definition)
+		{
+			var overlay = new GameObject("Effect " + definition.Name).AddComponent<SpriteRenderer>();
+			Sprite sprite = FxBuilder.LoadSprite(definition.Sprite, definition.Name);
+			Sprite shape = FxBuilder.ShapeSprite(definition.Shape);
+			overlay.sprite = sprite ?? shape;
+			overlay.sharedMaterial = FxBuilder.MaterialFor(overlay.sprite.texture, definition.Blend);
+			overlay.transform.SetParent(parent, false);
+			// Location coordinates are centred and mirrored vertically: +y is up after the flip.
+			overlay.transform.localPosition = new Vector3(definition.Number("x"), -definition.Number("y"), z);
+			// The parent is mirrored vertically, so a local turn reads reversed on screen.
+			overlay.transform.localRotation = Quaternion.Euler(0f, 0f, -definition.Number("angle"));
+			float w = definition.Number("width"), h = definition.Number("height");
+			Vector2 size = overlay.sprite.bounds.size;
+			if ((w <= 0f || h <= 0f) && sprite == null && definition.Shape != ModFxShape.Rect)
+			{
+				// A beam or glow without a size: a quarter of the stage wide, full height for beams.
+				float stageW = Mathf.Max(_location.JMLAKAKDBBL, 1f), stageH = Mathf.Max(_location.FEIHFIPFNKF, 1f);
+				w = w > 0f ? w : stageW * 0.25f;
+				h = h > 0f ? h : (definition.Shape == ModFxShape.Shaft ? stageH * 1.2f : w);
+			}
+			if (w <= 0f || h <= 0f)
+			{
+				// No size: cover the whole view (a sprite keeps its aspect and fills the width).
+				float cover = Mathf.Max(_location.JMLAKAKDBBL, _location.FEIHFIPFNKF) * 3f;
+				if (sprite == null) overlay.transform.localScale = new Vector3(40000f, -40000f, 1f);
+				else overlay.transform.localScale = new Vector3(cover / Mathf.Max(size.x, 1e-3f), -cover / Mathf.Max(size.x, 1e-3f), 1f);
+			}
+			else
+			{
+				overlay.transform.localScale = new Vector3(w / Mathf.Max(size.x, 1e-3f), -h / Mathf.Max(size.y, 1e-3f), 1f);
+			}
+			Color color = ModVisuals.ToColor(definition.Color, Color.white);
+			color.a *= definition.Number("alpha");
+			overlay.color = color;
+			if (definition.Number("flicker") > 0f)
+				_flickers.Add(new Flicker { Renderer = overlay, Base = color, Amount = definition.Number("flicker"),
+					Speed = definition.Number("flicker_speed"), Seed = _flickers.Count * 13.7f + 1.3f });
+			return overlay.gameObject;
 		}
 
 		// Aerial perspective: layer i should show haze h_i = strength * (1 - factor).
@@ -270,6 +393,8 @@ namespace Eclipse.Rendering
 		private void OnDestroy()
 		{
 			RimLight.SceneColor = null;
+			if (CurrentLocationName == _location?.name) CurrentLocationName = null;
+			if (ModVisuals.CurrentLocation == _location?.name) ModVisuals.CurrentLocation = null;
 			if (_particleMaterial != null) Destroy(_particleMaterial);
 			if (_particleTexture != null) Destroy(_particleTexture);
 		}

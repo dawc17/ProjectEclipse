@@ -20,6 +20,7 @@ require("content.combo_sphere3")
 require("content.mind_throw")
 require("content.restored_equipment")
 require("content.shared_moves")
+require("content.unarmed_moves")
 require("content.wasp_fly")
 require("content.butcher_earthquake")
 require("content.hermit_storm")
@@ -46,4 +47,4 @@ require("content.underworld_story").install(underworld)
 -- Disabled at the owner's request. Keep the prototype out of the active mod.
 -- require("content.ascension")
 
-sf2.log.info("DE128 " .. sf2.mod.version .. " policies, Titan reward set, XML-evidenced combat perks, campaign music, dojo changer, Sensei story and Underworld registered.")
+sf2.log.info("DE128 " .. sf2.mod.version .. " registered.")

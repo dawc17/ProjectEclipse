@@ -1,6 +1,7 @@
 -- Chiaroscuro: light, shadow and depth for Shadow Fight 2 fights.
 -- Every effect is a switch under Options > Mod settings. The engine draws the
--- effects; this mod only chooses them and tunes their numbers.
+-- effects; this mod builds them from sf2.fx blocks where one exists and uses
+-- sf2.visuals presets for the rest (depth, haze, rim light).
 local sf2 = require("sf2")
 
 local function toggle(id, label, description)
@@ -11,33 +12,66 @@ local depth = toggle("background_depth", "Background depth",
     "Far background layers move less, so the scene reads deeper.")
 local trails = toggle("weapon_trails", "Weapon trails", "Short trails behind fast weapon swings.")
 local haze = toggle("depth_haze", "Depth haze", "Distant layers fade toward the sky colour.")
-local rim = toggle("rim_light", "Rim light", "A thin lit edge on each fighter.")
-local bloom = toggle("bloom", "Bloom", "Bright effects and art glow.")
-local particles = toggle("ambient_particles", "Ambient particles", "Dust, snow, embers or petals per location.")
-local impact = toggle("impact", "Impact effects", "Radial blur and colour split on heavy hits.")
+local rim = toggle("rim_light", "Rim light", "A thin lit edge on each fighter; it turns to ink while casting magic.")
+local shafts = toggle("light_shafts", "Light shafts", "Soft beams of light, with drifting dust, in lit interiors and forests.")
+local knockout = toggle("knockout_fade", "Knockout fade", "The final hit slows time and drains the colour from everything but the blood.")
+local film = toggle("film_look", "Film look", "Warm halation around highlights and a fine grain.")
+local stains = toggle("stains", "Stains", "Hits leave blood on the floor until the round ends.")
+local glow = toggle("weapon_light", "Weapon and magic light", "Fire and electric weapons and magic light the stage and the fighters near them.")
 
 sf2.visuals.background_depth { strength = 0.6, setting = depth }
 
-sf2.visuals.weapon_trails { lifetime = 0.11, min_speed = 900, full_speed = 2600, alpha = 0.55, setting = trails }
+-- Blade trails in the fighter's own colour, in fights and menu previews.
+sf2.fx.trail {
+    id = "weapon_trails", setting = trails, weapon = true, scenes = "everywhere",
+    lifetime = 0.11, min_speed = 900, full_speed = 2600, alpha = 0.55, start_alpha = 0.35,
+}
 
 sf2.visuals.depth_haze { strength = 0.4, setting = haze }
 
-sf2.visuals.rim_light { offset = 2.5, alpha = 0.85, lighten = 0.35, setting = rim }
+sf2.visuals.rim_light { offset = 2.5, alpha = 0.85, lighten = 0.35, ink = 0.85, ink_color = "#1A0C26", setting = rim }
 
-sf2.visuals.bloom { threshold = 0.82, knee = 0.12, intensity = 0.7, setting = bloom }
+-- Light shafts: three slanted beams from the upper left, on the nearest
+-- background layer, where the art suggests a light source overhead.
+local lit = { "dojo", "temple", "ruins", "forest", "grove", "cave", "statue", "village", "castle", "sakura", "waterfall", "gate" }
+local unlit = { "night", "dark", "haloween", "hw", "moon", "spaceship", "neural", "vortex" }
+for index, beam in ipairs {
+    { x = -720, width = 190, angle = -16, alpha = 0.10 },
+    { x = -120, width = 260, angle = -14, alpha = 0.08 },
+    { x = 560, width = 170, angle = -18, alpha = 0.07 },
+} do
+    sf2.fx.overlay {
+        id = "light_shaft_" .. index, setting = shafts, match = lit, exclude = unlit,
+        placement = "background", depth = 0.05, shape = "shaft", blend = "additive", color = "#FFE3B8",
+        x = beam.x, y = 70, width = beam.width, height = 760, angle = beam.angle, alpha = beam.alpha,
+    }
+end
 
--- Styles are picked from words in the location's name; everything else gets dust.
-sf2.visuals.ambient_particles {
-    density = 1,
-    default_style = "dust",
-    locations = {
-        { match = { "ny", "newyear", "xmas", "christmas", "winter", "snow", "ice", "frost" }, style = "snow" },
-        { match = { "hw", "haloween", "halloween", "volcano", "fire", "burn", "burning", "magma",
-                    "lava", "hell", "inferno", "uw", "underworld" }, style = "embers" },
-        { match = { "china", "chinese", "sakura", "spring", "cherry", "india", "indian" }, style = "petals" },
-    },
-    setting = particles,
+-- Dust that catches the light, drifting through the middle of the stage.
+sf2.fx.particles {
+    id = "light_dust", setting = shafts, match = lit, exclude = unlit, placement = "front", blend = "additive",
+    color = "#FFE9C4B0", count = 45, lifetime_min = 6, lifetime_max = 11, size_min = 1.2, size_max = 3.2,
+    velocity_x_min = -6, velocity_x_max = 10, velocity_y_min = -4, velocity_y_max = 6, noise = 8,
+    area_width = 0.6, area_height = 0.8, y = 60,
 }
 
--- Critical hits are also scaled by the accessibility "Critical hit shake" slider.
-sf2.visuals.impact { critical = 1, head = 0.6, shock = 0.4, duration = 0.3, setting = impact }
+-- Knockout: a bright pop on the final hit, then everything but the blood turns
+-- grey in slow motion and eases back, colour and speed returning together.
+sf2.fx.screen { id = "knockout_pop", setting = knockout, trigger = "ko", brightness = 0.4, contrast = 1.25, duration = 0.3 }
+sf2.fx.screen {
+    id = "knockout_fade", setting = knockout, trigger = "ko", saturation = 0, contrast = 1.35, brightness = -0.05,
+    vignette = 0.6, accent = "#B01010", accent_strength = 1, accent_width = 0.05,
+    hold = 0.25, duration = 2.8, time_scale = 0.25,
+}
+
+sf2.fx.screen { id = "film_look", setting = film, halation = 0.35, halation_threshold = 0.7, halation_color = "#FFA070", grain = 0.22 }
+
+-- Blood on the floor: a few drops per hit, a pool under the knockout.
+sf2.fx.stain { id = "hit_stains", setting = stains, trigger = "hit", color = "#4A0606", alpha = 0.8,
+    count = 2, size_min = 8, size_max = 20, spread = 30, limit = 50 }
+sf2.fx.stain { id = "knockout_stain", setting = stains, trigger = "ko", color = "#3C0404", alpha = 0.9,
+    count = 5, size_min = 20, size_max = 42, spread = 45, flatten = 0.3, limit = 10 }
+
+-- Light from magic.
+sf2.fx.light { id = "magic_light", setting = glow, source = "magic", color = "#C8B8FF",
+    radius = 420, intensity = 1.2, glow = 0.35, glow_size = 460, flicker = 0.1 }

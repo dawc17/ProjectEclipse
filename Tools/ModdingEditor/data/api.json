@@ -1709,6 +1709,94 @@
       "requires": "`presentation.visuals`.",
       "when": "During loading."
     },
+    "sf2.fx.particles": {
+      "params": {
+        "definition": "Eclipse.FxParticlesDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxparticles",
+      "summary": "",
+      "requires": "`presentation.visuals`. A `sprite` must be a handle from `sf2.assets.sprite`.",
+      "when": "During loading."
+    },
+    "sf2.fx.overlay": {
+      "params": {
+        "definition": "Eclipse.FxOverlayDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxoverlay",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.fx.trail": {
+      "params": {
+        "definition": "Eclipse.FxTrailDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxtrail",
+      "summary": "",
+      "requires": "`presentation.visuals`. Give exactly one of `weapon = true` or two `nodes`.",
+      "when": "During loading."
+    },
+    "sf2.fx.screen": {
+      "params": {
+        "definition": "Eclipse.FxScreenDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxscreen",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.fx.shadow": {
+      "params": {
+        "definition": "Eclipse.FxShadowDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxshadow",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.fx.glint": {
+      "params": {
+        "definition": "Eclipse.FxGlintDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxglint",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.fx.light": {
+      "params": {
+        "definition": "Eclipse.FxLightDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxlight",
+      "summary": "",
+      "requires": "`presentation.visuals`.",
+      "when": "During loading."
+    },
+    "sf2.fx.stain": {
+      "params": {
+        "definition": "Eclipse.FxStainDefinition"
+      },
+      "returns": "The effect's name, `<mod-id>.<id>`.",
+      "capability": "presentation.visuals",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/visuals/#sf2fxstain",
+      "summary": "",
+      "requires": "`presentation.visuals`. A `sprite` must be a handle from `sf2.assets.sprite`.",
+      "when": "During loading."
+    },
     "sf2.quests.suppress": {
       "params": {
         "definition": "Eclipse.QuestSuppression"
@@ -3655,6 +3743,7 @@
         "round_result?": "\"Victory\"|\"Defeat\"",
         "screen?": "\"ShopArmor\"|\"ShopWeapon\"|\"ShopHelm\"|\"ShopMissile\"|\"ShopMagic\"|\"ShopRuby\"|\"ShopFree\"|\"ShopRaidItemPack\"|\"Profile\"|\"Fight\"",
         "actor?": "string",
+        "player_number?": "1|2",
         "character?": "Eclipse.WarriorHandle",
         "perk?": "Eclipse.PerkHandle",
         "item?": "\"Weapon\"|\"Ranged\"|\"Magic\"|\"Armor\"|\"Helm\"|\"Skeleton\"",
@@ -3672,6 +3761,7 @@
         "not_round_result?": "\"Victory\"|\"Defeat\"",
         "not_screen?": "\"ShopArmor\"|\"ShopWeapon\"|\"ShopHelm\"|\"ShopMissile\"|\"ShopMagic\"|\"ShopRuby\"|\"ShopFree\"|\"ShopRaidItemPack\"|\"Profile\"|\"Fight\"",
         "not_actor?": "string",
+        "not_player_number?": "1|2",
         "not_character?": "Eclipse.WarriorHandle",
         "not_perk?": "Eclipse.PerkHandle",
         "not_item?": "\"Weapon\"|\"Ranged\"|\"Magic\"|\"Armor\"|\"Helm\"|\"Skeleton\"",
@@ -3736,7 +3826,7 @@
         "damage?": "number",
         "damage_type?": "\"UnarmedDamage\"|\"WeaponDamage\"|\"RangedDamage\"|\"MagicDamage\"",
         "damage_terms?": "Eclipse.MoveDamageTermMap",
-        "hit?": "\"High\"|\"Middle\"|\"Low\"|\"Spinning\"|\"HighHeavy\"|\"MiddleShortPlus\"|\"Physycal\"|\"HighLong\"|\"NoReaction\"|\"WaspFly\"|\"Earthquake\"|\"ElectrocutionPowerfield\"",
+        "hit?": "\"Earthquake\"|\"Electrocution\"|\"ElectrocutionPowerfield\"|\"HermitStorm\"|\"High\"|\"HighHeavy\"|\"HighHeavyDeflect\"|\"HighLong\"|\"HighPlus\"|\"HighShort\"|\"HighShortPlus\"|\"HoaxenPierce\"|\"Low\"|\"LowHeavy\"|\"LowHeavyDeflect\"|\"LowPull\"|\"Middle\"|\"MiddleHeavy\"|\"MiddleHeavyDeflect\"|\"MiddlePlus\"|\"MiddleShort\"|\"MiddleShortPlus\"|\"MindThrowHit\"|\"MindThrowHitNormal\"|\"NoReaction\"|\"Overhead\"|\"OverheadHeavy\"|\"OverheadHeavyDeflect\"|\"Physycal\"|\"RatWaveHit\"|\"RootHit\"|\"Spinning\"|\"SpinningHeavy\"|\"SpinningHeavyDeflect\"|\"Sweep\"|\"SweepHeavy\"|\"SweepHeavyDeflect\"|\"TitanHighHeavy\"|\"TitanMiddleHeavy\"|\"TitanOverhead\"|\"TitanSweep\"|\"TitansHarpoonHit\"|\"TitansHarpoonHitGrab\"|\"TitansHarpoonStrikeFall\"|\"TornadoHit\"|\"ToxicCloud\"|\"WaspFly\"|\"WaterWaveHit\"",
         "id?": "integer",
         "impulse?": "Eclipse.MoveImpulse",
         "options?": "Eclipse.MoveAttackOptions"
@@ -3841,7 +3931,8 @@
       "fields": {
         "rank": "integer",
         "core_icon": "string",
-        "display_name?": "Eclipse.LocalizationHandle"
+        "display_name?": "Eclipse.LocalizationHandle",
+        "keys_description?": "string"
       }
     },
     "MoveShortTacticDistance": {
@@ -3855,6 +3946,7 @@
     },
     "MoveShortAction": {
       "fields": {
+        "create_player?": "string[][]",
         "sound?": "string|string[]",
         "stop_sound?": "string",
         "play_sound?": "string",
@@ -3946,7 +4038,8 @@
         "no_wall_repulsion?": "boolean",
         "no_interpolation_frames?": "boolean",
         "no_magic_recharge?": "boolean",
-        "velocity?": "Eclipse.MoveVelocity"
+        "velocity?": "Eclipse.MoveVelocity",
+        "style_factor?": "number"
       }
     },
     "MoveReplacementDefinition": {
@@ -3979,6 +4072,7 @@
         "no_interpolation_frames?": "boolean",
         "no_magic_recharge?": "boolean",
         "velocity?": "Eclipse.MoveVelocity",
+        "style_factor?": "number",
         "target": "string",
         "expected_file": "string"
       }
@@ -3993,14 +4087,14 @@
     },
     "MoveIntervalEndPatch": {
       "fields": {
-        "name": "\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"",
+        "name": "\"SemiUninterrupt\"|\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"",
         "expected": "integer",
         "value": "integer"
       }
     },
     "MoveIntervalStartPatch": {
       "fields": {
-        "name": "\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"",
+        "name": "\"SemiUninterrupt\"|\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"",
         "expected": "integer",
         "value": "integer"
       }
@@ -4044,6 +4138,13 @@
         "end": "integer"
       }
     },
+    "MoveIntervalAddition": {
+      "fields": {
+        "name": "\"SemiUninterrupt\"|\"Uninterrupt\"|\"SelfUninterrupt\"|\"Unstable\"|\"Throwable\"",
+        "start": "integer",
+        "end": "integer"
+      }
+    },
     "MovePatch": {
       "fields": {
         "move": "string",
@@ -4056,7 +4157,8 @@
         "input?": "Eclipse.MoveInputPatch",
         "priority?": "Eclipse.MovePriorityPatch",
         "animation?": "Eclipse.MoveAnimationPatch",
-        "remove_interval?": "Eclipse.MoveIntervalRemoval"
+        "remove_interval?": "Eclipse.MoveIntervalRemoval",
+        "add_interval?": "Eclipse.MoveIntervalAddition"
       }
     },
     "MovePerkLockRemoval": {
@@ -4464,6 +4566,14 @@
           "number",
           "0-1, default 0.35."
         ],
+        "ink?": [
+          "number",
+          "0-1: rim turns to ink_color while casting magic, default 0."
+        ],
+        "ink_color?": [
+          "string",
+          "#RRGGBB or #RRGGBBAA ink colour."
+        ],
         "setting?": [
           "Eclipse.SettingHandle",
           "Switch that turns the effect on and off; without one it is always on."
@@ -4537,6 +4647,571 @@
         "setting?": [
           "Eclipse.SettingHandle",
           "Switch that turns the effect on and off; without one it is always on."
+        ]
+      }
+    },
+    "FxParticlesDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "placement?": [
+          "\"background\"|\"behind\"|\"front\"|\"node\"|\"hit\"",
+          "Default behind; node when node is given; hit bursts at each hit."
+        ],
+        "trigger?": [
+          "\"always\"|\"hit\"|\"critical\"|\"block\"|\"ko\"",
+          "Hit placement only: hit (default), critical, block or ko."
+        ],
+        "x?": [
+          "number",
+          "Location placements: area centre offset."
+        ],
+        "y?": [
+          "number",
+          "Location placements: area centre offset, up is positive."
+        ],
+        "speed_min?": [
+          "number",
+          "0-5000 hit burst speed, default 0."
+        ],
+        "speed_max?": [
+          "number",
+          "0-5000 hit burst speed, default 0."
+        ],
+        "gravity?": [
+          "number",
+          "-5000 to 5000 downward pull on hit particles, default 0."
+        ],
+        "node?": [
+          "string",
+          "Fighter node for placement = \"node\", e.g. \"Weapon-Node2_1\"."
+        ],
+        "fighters?": "\"both\"|\"player\"|\"opponent\"",
+        "scenes?": "\"fights\"|\"everywhere\"",
+        "blend?": "\"alpha\"|\"additive\"",
+        "sprite?": "Eclipse.SpriteHandle",
+        "color?": [
+          "string",
+          "#RRGGBB or #RRGGBBAA start colour."
+        ],
+        "end_color?": [
+          "string",
+          "Colour at the end of each particle's life."
+        ],
+        "count?": [
+          "number",
+          "1-1000, default 100."
+        ],
+        "lifetime_min?": [
+          "number",
+          "Seconds, default 6."
+        ],
+        "lifetime_max?": [
+          "number",
+          "Seconds, default 10."
+        ],
+        "size_min?": [
+          "number",
+          "Default 3."
+        ],
+        "size_max?": [
+          "number",
+          "Default 6."
+        ],
+        "velocity_x_min?": [
+          "number",
+          "Default -10."
+        ],
+        "velocity_x_max?": [
+          "number",
+          "Default 10."
+        ],
+        "velocity_y_min?": [
+          "number",
+          "Default -10."
+        ],
+        "velocity_y_max?": [
+          "number",
+          "Default 10."
+        ],
+        "noise?": [
+          "number",
+          "0-500, default 5."
+        ],
+        "spin?": [
+          "number",
+          "0-1, default 0."
+        ],
+        "depth?": [
+          "number",
+          "0-1 for background placement, default 0.3."
+        ],
+        "area_width?": [
+          "number",
+          "0-2 x location width, default 1.1."
+        ],
+        "area_height?": [
+          "number",
+          "0-2 x location height, default 1.1."
+        ],
+        "radius?": [
+          "number",
+          "Node emitter radius, default 20."
+        ]
+      }
+    },
+    "FxOverlayDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "placement?": [
+          "\"background\"|\"front\"",
+          "Default background."
+        ],
+        "blend?": "\"alpha\"|\"additive\"",
+        "sprite?": "Eclipse.SpriteHandle",
+        "color?": [
+          "string",
+          "#RRGGBB or #RRGGBBAA."
+        ],
+        "alpha?": [
+          "number",
+          "0-1, default 1."
+        ],
+        "depth?": [
+          "number",
+          "0-1 for background placement, default 0.3."
+        ],
+        "x?": [
+          "number",
+          "Offset from the location centre."
+        ],
+        "y?": [
+          "number",
+          "Offset from the location centre, up is positive."
+        ],
+        "width?": [
+          "number",
+          "0 covers the view."
+        ],
+        "height?": [
+          "number",
+          "0 covers the view."
+        ],
+        "shape?": [
+          "\"rect\"|\"shaft\"|\"glow\"",
+          "Built-in art without a sprite, default rect."
+        ],
+        "angle?": [
+          "number",
+          "-180 to 180 degrees, default 0."
+        ],
+        "flicker?": [
+          "number",
+          "0-1 opacity waver, default 0."
+        ],
+        "flicker_speed?": [
+          "number",
+          "0.1-30, default 6."
+        ]
+      }
+    },
+    "FxTrailDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "weapon?": [
+          "boolean",
+          "Trail the weapon blade. Use this or nodes."
+        ],
+        "nodes?": [
+          "string[]",
+          "Exactly two node names: inner end, moving end."
+        ],
+        "fighters?": "\"both\"|\"player\"|\"opponent\"",
+        "scenes?": "\"fights\"|\"everywhere\"",
+        "blend?": "\"alpha\"|\"additive\"",
+        "color?": [
+          "string",
+          "Default follows the fighter colour."
+        ],
+        "lifetime?": [
+          "number",
+          "0.02-1 seconds, default 0.11."
+        ],
+        "min_speed?": [
+          "number",
+          "Default 900."
+        ],
+        "full_speed?": [
+          "number",
+          "Default 2600."
+        ],
+        "alpha?": [
+          "number",
+          "0-1, default 0.55."
+        ],
+        "start_alpha?": [
+          "number",
+          "0-1 at the inner end, default 0.35."
+        ]
+      }
+    },
+    "FxScreenDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "saturation?": [
+          "number",
+          "0-2, default 1."
+        ],
+        "contrast?": [
+          "number",
+          "0-2, default 1."
+        ],
+        "brightness?": [
+          "number",
+          "-1 to 1, default 0."
+        ],
+        "tint?": [
+          "string",
+          "#RRGGBB multiply colour."
+        ],
+        "tint_strength?": [
+          "number",
+          "0-1, default 0."
+        ],
+        "vignette?": [
+          "number",
+          "0-1, default 0."
+        ],
+        "vignette_x?": [
+          "number",
+          "-1 to 1 vignette centre, default 0."
+        ],
+        "vignette_y?": [
+          "number",
+          "-1 to 1 vignette centre, default 0."
+        ],
+        "trigger?": [
+          "\"always\"|\"hit\"|\"critical\"|\"ko\"",
+          "Default always."
+        ],
+        "duration?": [
+          "number",
+          "0.02-10 seconds fade of a triggered grade, default 0.25."
+        ],
+        "hold?": [
+          "number",
+          "0-10 seconds at full strength, default 0."
+        ],
+        "time_scale?": [
+          "number",
+          "0.05-1 game speed while a triggered grade is active, default 1."
+        ],
+        "grain?": [
+          "number",
+          "0-1, default 0."
+        ],
+        "halation?": [
+          "number",
+          "0-2, default 0."
+        ],
+        "halation_threshold?": [
+          "number",
+          "0-2, default 0.75."
+        ],
+        "halation_color?": [
+          "string",
+          "#RRGGBB halation colour."
+        ],
+        "flicker?": [
+          "number",
+          "0-1 brightness wobble, default 0."
+        ],
+        "flicker_speed?": [
+          "number",
+          "0.1-30, default 6."
+        ],
+        "accent?": [
+          "string",
+          "#RRGGBB hue kept through desaturation."
+        ],
+        "accent_strength?": [
+          "number",
+          "0-1, default 0."
+        ],
+        "accent_width?": [
+          "number",
+          "0.01-0.5 hue tolerance, default 0.08."
+        ]
+      }
+    },
+    "FxShadowDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "fighters?": "\"both\"|\"player\"|\"opponent\"",
+        "color?": [
+          "string",
+          "#RRGGBB or #RRGGBBAA, default black."
+        ],
+        "alpha?": [
+          "number",
+          "0-1, default 0.45."
+        ],
+        "width?": [
+          "number",
+          "1-2000, default 150."
+        ],
+        "height?": [
+          "number",
+          "1-1000, default 28."
+        ],
+        "fade_height?": [
+          "number",
+          "1-5000, default 350."
+        ],
+        "min_scale?": [
+          "number",
+          "0-1, default 0.35."
+        ]
+      }
+    },
+    "FxGlintDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "fighters?": "\"both\"|\"player\"|\"opponent\"",
+        "scenes?": "\"fights\"|\"everywhere\"",
+        "color?": [
+          "string",
+          "#RRGGBB or #RRGGBBAA, default warm white."
+        ],
+        "interval?": [
+          "number",
+          "0.2-60 seconds, default 3."
+        ],
+        "duration?": [
+          "number",
+          "0.05-3 seconds, default 0.35."
+        ],
+        "size?": [
+          "number",
+          "1-400, default 22."
+        ],
+        "alpha?": [
+          "number",
+          "0-1, default 0.9."
+        ],
+        "max_speed?": [
+          "number",
+          "0-20000, default 250."
+        ]
+      }
+    },
+    "FxLightDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "source?": [
+          "\"weapon\"|\"magic\"",
+          "Default weapon."
+        ],
+        "weapons?": [
+          "string[]",
+          "Weapon lights: lowercase words found in glowing weapon names."
+        ],
+        "fighters?": "\"both\"|\"player\"|\"opponent\"",
+        "scenes?": "\"fights\"|\"everywhere\"",
+        "color?": [
+          "string",
+          "#RRGGBB light colour."
+        ],
+        "radius?": [
+          "number",
+          "10-5000 reach in fighter units, default 320."
+        ],
+        "intensity?": [
+          "number",
+          "0-2, default 1."
+        ],
+        "fighter_light?": [
+          "number",
+          "0-1, default 0.8."
+        ],
+        "glow?": [
+          "number",
+          "0-1 stage glow opacity, default 0.3."
+        ],
+        "glow_size?": [
+          "number",
+          "1-5000, default 380."
+        ],
+        "flicker?": [
+          "number",
+          "0-1, default 0.15."
+        ],
+        "flicker_speed?": [
+          "number",
+          "0.1-30, default 8."
+        ]
+      }
+    },
+    "FxStainDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; unique within the mod."
+        ],
+        "setting?": [
+          "Eclipse.SettingHandle",
+          "Switch that turns the effect on and off."
+        ],
+        "match?": [
+          "string[]",
+          "Lowercase location-name words; the effect runs only where one matches. Default: everywhere."
+        ],
+        "exclude?": [
+          "string[]",
+          "Lowercase location-name words; the effect never runs where one matches."
+        ],
+        "trigger?": [
+          "\"hit\"|\"critical\"|\"ko\"",
+          "Default hit."
+        ],
+        "fighters?": "\"both\"|\"player\"|\"opponent\"",
+        "color?": [
+          "string",
+          "#RRGGBB or #RRGGBBAA, default dark red."
+        ],
+        "sprite?": "Eclipse.SpriteHandle",
+        "blend?": "\"alpha\"|\"additive\"",
+        "alpha?": [
+          "number",
+          "0-1, default 0.8."
+        ],
+        "count?": [
+          "number",
+          "1-12 per hit, default 3."
+        ],
+        "size_min?": [
+          "number",
+          "1-400, default 10."
+        ],
+        "size_max?": [
+          "number",
+          "1-400, default 26."
+        ],
+        "spread?": [
+          "number",
+          "0-400, default 40."
+        ],
+        "flatten?": [
+          "number",
+          "0.1-1, default 0.35."
+        ],
+        "limit?": [
+          "number",
+          "1-200 kept, default 60."
         ]
       }
     },

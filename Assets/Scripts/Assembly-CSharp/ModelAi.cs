@@ -2027,11 +2027,62 @@ public class ModelAi
 					if (0 < num)
 					{
 						OEMALIFPGPO.Add(new Decision(item.FGICHADOEHF, num));
+						AddModTacticAlternatives(item.FGICHADOEHF, num, OEMALIFPGPO);
 					}
 				}
 			}
 		}
 		return OEMALIFPGPO.Count - count;
+	}
+
+	private List<InfoAnimation> _modTacticSource;
+
+	private int _modTacticSourceCount = -1;
+
+	private readonly Dictionary<InfoAnimation, List<InfoAnimation>> _modTacticAlternatives = new Dictionary<InfoAnimation, List<InfoAnimation>>();
+
+	// The shipped tables have no rows for mod moves. A mod move that names a
+	// native TacticEquivalent is also offered wherever a row offers that
+	// equivalent, with the same wait; the usual playability checks still apply.
+	// Native moves never gain alternatives, so vanilla decisions are unchanged.
+	private void AddModTacticAlternatives(InfoAnimation equivalent, int wait, List<Decision> decisions)
+	{
+		if (equivalent == null)
+		{
+			return;
+		}
+		List<InfoAnimation> available = _Model.MCFPDHOLNGB();
+		if (available == null)
+		{
+			return;
+		}
+		if (!ReferenceEquals(available, _modTacticSource) || available.Count != _modTacticSourceCount)
+		{
+			_modTacticSource = available;
+			_modTacticSourceCount = available.Count;
+			_modTacticAlternatives.Clear();
+			foreach (InfoAnimation move in available)
+			{
+				InfoAnimation native = move?.IMFGMAAEMIC();
+				// Mod runtime names are content IDs; native move names never contain ':'.
+				if (native == null || move.Name == null || move.Name.IndexOf(':') < 0)
+				{
+					continue;
+				}
+				if (!_modTacticAlternatives.TryGetValue(native, out var list))
+				{
+					_modTacticAlternatives.Add(native, list = new List<InfoAnimation>());
+				}
+				list.Add(move);
+			}
+		}
+		if (_modTacticAlternatives.TryGetValue(equivalent, out var alternatives))
+		{
+			foreach (InfoAnimation move in alternatives)
+			{
+				decisions.Add(new Decision(move, wait));
+			}
+		}
 	}
 
 	private int GetModelDirection(Model ACENLMONNPA, Model FNKFIMEDNLP)

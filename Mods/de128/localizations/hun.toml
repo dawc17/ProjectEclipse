@@ -543,3 +543,11 @@ dojo.DojoAmerican22 = "Amerikai dojo II"
 dojo.DojoStudio = "Stúdió dojo"
 dojo.BACK = "VISSZA"
 # END Dojo changer
+
+# BEGIN GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)
+moves.AirPunch = "Légi ütés"
+moves.AxeKickOld = "Fejszerúgás"
+moves.FrontJumpScissorsKick = "Ollózó ugrórúgás"
+moves.ThrowLegPushProfile = "Lábtolás"
+moves.WallRunUp = "Falfutás"
+# END GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)

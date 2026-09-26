@@ -543,3 +543,11 @@ dojo.DojoAmerican22 = "Američki Dojo II"
 dojo.DojoStudio = "Studio Dojo"
 dojo.BACK = "NATRAG"
 # END Dojo changer
+
+# BEGIN GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)
+moves.AirPunch = "Zračni udarac"
+moves.AxeKickOld = "Udarac sjekirom"
+moves.FrontJumpScissorsKick = "Udarac škaricama u skoku"
+moves.ThrowLegPushProfile = "Guranje nogom"
+moves.WallRunUp = "Trčanje po zidu"
+# END GENERATED Unarmed move names (Tools/GenerateDE128MoveNames.py)
