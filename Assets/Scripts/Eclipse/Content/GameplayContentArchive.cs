@@ -15,15 +15,26 @@ namespace Eclipse.Content
     {
         public const string ResourcePath = "SF2Content/gameplay";
         public const string EditorSourceDirectoryName = "vanillaXml";
+        // Developer builds only: a loose XML folder beside the executable replaces
+        // the packaged archive so testers can edit gameplay data between launches.
+        public const string EditableDirectoryName = "GameplayXml";
+        public const string EditableMarkerFileName = "eclipse-editable-xml.txt";
         private const string Magic = "SF2XML1";
         private const int MaxFiles = 10000;
         private const int MaxFileBytes = 64 * 1024 * 1024;
         private const long MaxTotalBytes = 512L * 1024 * 1024;
 
+        private static string _editableRoot;
+        private static bool _editableRootInit;
+
         public static string GetXmlRoot()
         {
             if (Application.isEditor)
                 return Path.Combine(Application.dataPath, EditorSourceDirectoryName);
+
+            string editable = GetEditableRoot();
+            if (editable != null)
+                return editable;
 
             TextAsset asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)
@@ -38,14 +49,52 @@ namespace Eclipse.Content
             }
         }
 
-        public static byte[] CreateArchive(string sourceDirectory)
+        // Only honoured on desktop players, and only when the build step wrote the
+        // marker, so a stray folder never silently replaces shipped content.
+        private static string GetEditableRoot()
         {
-            string root = Path.GetFullPath(sourceDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
-                + Path.DirectorySeparatorChar;
-            string[] files = Directory.GetFiles(root, "*", SearchOption.AllDirectories)
+            if (_editableRootInit)
+                return _editableRoot;
+            _editableRootInit = true;
+            if (Application.platform != RuntimePlatform.WindowsPlayer &&
+                Application.platform != RuntimePlatform.LinuxPlayer)
+                return null;
+            DirectoryInfo gameDirectory = Directory.GetParent(Application.dataPath);
+            if (gameDirectory == null)
+                return null;
+            string root = Path.Combine(gameDirectory.FullName, EditableDirectoryName);
+            if (!File.Exists(Path.Combine(root, EditableMarkerFileName)))
+                return null;
+            if (!File.Exists(Path.Combine(root, "stages.xml")))
+            {
+                Debug.LogWarning("[OfflineContent] Editable XML folder " + root +
+                    " has no stages.xml; using packaged gameplay XML.");
+                return null;
+            }
+            Debug.LogWarning("[OfflineContent] Using editable gameplay XML from " + root);
+            _editableRoot = root;
+            return root;
+        }
+
+        // Absolute paths of the files that make up packaged gameplay XML.
+        public static string[] GetSourceFiles(string root)
+        {
+            return Directory.GetFiles(root, "*", SearchOption.AllDirectories)
                 .Where(path => !path.EndsWith(".meta", StringComparison.OrdinalIgnoreCase))
                 .Where(path => !path.Substring(root.Length).Replace('\\', '/').StartsWith("models/", StringComparison.OrdinalIgnoreCase))
                 .OrderBy(path => path, StringComparer.Ordinal).ToArray();
+        }
+
+        public static string NormalizeSourceRoot(string sourceDirectory)
+        {
+            return Path.GetFullPath(sourceDirectory).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+                + Path.DirectorySeparatorChar;
+        }
+
+        public static byte[] CreateArchive(string sourceDirectory)
+        {
+            string root = NormalizeSourceRoot(sourceDirectory);
+            string[] files = GetSourceFiles(root);
             if (files.Length == 0 || files.Length > MaxFiles)
                 throw new InvalidDataException("Invalid gameplay XML file count.");
             using (var output = new MemoryStream())

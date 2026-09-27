@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using Eclipse.Content;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -10,6 +11,7 @@ public static class EclipsePlayerBuild
 {
     private const string WindowsOutputVariable = "ECLIPSE_WINDOWS_OUTPUT";
     private const string AndroidOutputVariable = "ECLIPSE_ANDROID_OUTPUT";
+    private const string EditableXmlOutputVariable = "ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT";
 
     [MenuItem("SF2/Build/Windows x86_64")]
     public static void BuildWindows()
@@ -17,6 +19,43 @@ public static class EclipsePlayerBuild
         BuildPlayer(
             BuildTarget.StandaloneWindows64,
             ResolveOutputPath(WindowsOutputVariable, "Builds/Windows/Eclipse.exe"));
+    }
+
+    // Tester build: gameplay XML is also written loose beside the executable and
+    // the player reads it from there on every launch instead of the packaged copy.
+    [MenuItem("SF2/Build/Windows x86_64 (Editable XML)")]
+    public static void BuildWindowsEditableXml()
+    {
+        string outputPath = ResolveOutputPath(EditableXmlOutputVariable, "Builds/WindowsEditableXml/Eclipse.exe");
+        BuildPlayer(BuildTarget.StandaloneWindows64, outputPath);
+        WriteEditableXml(Path.GetDirectoryName(outputPath));
+    }
+
+    private static void WriteEditableXml(string gameDirectory)
+    {
+        string source = GameplayContentArchive.NormalizeSourceRoot(
+            Path.Combine(Application.dataPath, GameplayContentArchive.EditorSourceDirectoryName));
+        string target = Path.Combine(gameDirectory, GameplayContentArchive.EditableDirectoryName);
+        // Replace the folder wholesale so files deleted from vanillaXml do not linger.
+        if (Directory.Exists(target))
+        {
+            if (!File.Exists(Path.Combine(target, GameplayContentArchive.EditableMarkerFileName)))
+                throw new BuildFailedException("Refusing to replace " + target + ": it was not written by this build step.");
+            Directory.Delete(target, true);
+        }
+        string[] files = GameplayContentArchive.GetSourceFiles(source);
+        foreach (string file in files)
+        {
+            string destination = Path.Combine(target, file.Substring(source.Length));
+            Directory.CreateDirectory(Path.GetDirectoryName(destination));
+            File.Copy(file, destination);
+        }
+        File.WriteAllText(Path.Combine(target, GameplayContentArchive.EditableMarkerFileName),
+            "This Eclipse build loads gameplay XML from this folder instead of its packaged copy.\r\n" +
+            "Edit any file here and restart the game to apply the change.\r\n" +
+            "Delete this marker file to go back to the packaged XML.\r\n" +
+            "Source: Assets/" + GameplayContentArchive.EditorSourceDirectoryName + " at build time.\r\n");
+        Debug.Log("[EclipseBuild] Editable XML: " + files.Length + " files -> " + target);
     }
 
     [MenuItem("SF2/Build/Android ARM64 APK")]

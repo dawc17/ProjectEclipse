@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('All', 'Windows', 'Android')][string]$Target = 'All',
+    [ValidateSet('All', 'Windows', 'Android', 'WindowsEditableXml')][string]$Target = 'All',
     [string]$Unity = 'F:\UnityInstalls\2022.3.62f3\Editor\Unity.exe',
     [string]$ProjectPath = (Split-Path -Parent $PSScriptRoot),
     [string]$OutputDirectory = ''
@@ -30,15 +30,19 @@ New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 
 $plans = @(
     @{ Name = 'Windows'; Platform = 'Win64'; Method = 'BuildWindows'; File = 'Windows/Eclipse.exe' },
-    @{ Name = 'Android'; Platform = 'Android'; Method = 'BuildAndroid'; File = 'Android/Eclipse.apk' }
+    @{ Name = 'Android'; Platform = 'Android'; Method = 'BuildAndroid'; File = 'Android/Eclipse.apk' },
+    @{ Name = 'WindowsEditableXml'; Platform = 'Win64'; Method = 'BuildWindowsEditableXml'; File = 'WindowsEditableXml/Eclipse.exe' }
 )
 $previousWindowsOutput = $env:ECLIPSE_WINDOWS_OUTPUT
 $previousAndroidOutput = $env:ECLIPSE_ANDROID_OUTPUT
+$previousEditableXmlOutput = $env:ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT
 try {
     $env:ECLIPSE_WINDOWS_OUTPUT = Join-Path $OutputDirectory 'Windows/Eclipse.exe'
     $env:ECLIPSE_ANDROID_OUTPUT = Join-Path $OutputDirectory 'Android/Eclipse.apk'
+    $env:ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT = Join-Path $OutputDirectory 'WindowsEditableXml/Eclipse.exe'
     foreach ($plan in $plans) {
-        if ($Target -ne 'All' -and $Target -ne $plan.Name) { continue }
+        # The editable-XML tester build is only produced on request, never by 'All'.
+        if ($Target -ne $plan.Name -and ($Target -ne 'All' -or $plan.Name -eq 'WindowsEditableXml')) { continue }
         $log = Join-Path $OutputDirectory ('build-' + $plan.Name.ToLowerInvariant() + '.log')
         $arguments = @(
             '-batchmode', '-quit', '-projectPath', ('"' + $ProjectPath + '"'),
@@ -61,4 +65,5 @@ try {
 } finally {
     $env:ECLIPSE_WINDOWS_OUTPUT = $previousWindowsOutput
     $env:ECLIPSE_ANDROID_OUTPUT = $previousAndroidOutput
+    $env:ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT = $previousEditableXmlOutput
 }
