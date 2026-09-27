@@ -37,12 +37,18 @@ namespace Eclipse.Rendering
 			{
 				ModVisualDefinition settings = ModVisuals.Active(ModVisualEffect.RimLight);
 				if (settings == null) return new Color(1f, 1f, 1f, 0f);
-				if (SceneColor.HasValue) return SceneColor.Value;
-				Color c = Color.Lerp(PreviewLight, Color.white, settings.Number("lighten"));
+				Color c = SceneColor ?? Color.Lerp(PreviewLight, Color.white, settings.Number("lighten"));
+				float peak = Mathf.Max(c.r, Mathf.Max(c.g, c.b));
+				// Keep peak brightness and alpha; change only the light's hue.
+				c = Color.Lerp(c, new Color(peak, peak * .88f, peak * .68f, c.a), settings.Number("warmth"));
+				float warmedPeak = Mathf.Max(c.r, Mathf.Max(c.g, c.b));
+				if (warmedPeak > 0f) c *= peak / warmedPeak;
 				c.a = settings.Number("alpha");
 				return c;
 			}
 		}
+
+		public static float Softness => ModVisuals.Active(ModVisualEffect.RimLight)?.Number("softness") ?? 0f;
 
 		// The rim colour for one fighter's renderer: CurrentColor, turned toward a
 		// nearby light's colour, then toward the ink colour while that fighter casts

@@ -8,7 +8,12 @@ namespace Eclipse.UI
     {
         public static bool IsRestarting { get; private set; }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        public static void ArrivedAtTitle() { IsRestarting = false; }
+        public static void ArrivedAtTitle()
+        {
+            // GameLoaderScene calls this after stopping the outgoing profile.
+            Eclipse.Saves.CampaignSaveSession.Clear();
+            IsRestarting = false;
+        }
 
         public static bool TryRestart(Action savePreferences, out string error)
         {

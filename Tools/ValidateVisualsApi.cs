@@ -119,6 +119,15 @@ static class Program
         Rejects(fixtures, "no-settings", "'presentation.visuals'", "sf2.settings.toggle{id='a',label='A'}", "ui.settings");
         Rejects(fixtures, "unknown-field", "'presentation.visuals'", "sf2.visuals.bloom{glow=1}", "glow");
         Rejects(fixtures, "range", "'presentation.visuals'", "sf2.visuals.depth_haze{strength=3}", "strength");
+        Rejects(fixtures, "rim-warmth", "'presentation.visuals'", "sf2.visuals.rim_light{warmth=1.1}", "warmth");
+        Rejects(fixtures, "rim-softness", "'presentation.visuals'", "sf2.visuals.rim_light{softness=-1}", "softness");
+        var rimDefaults = Load(Fixture(fixtures, "fixture.rimdefaults", "'presentation.visuals'", "sf2.visuals.rim_light{}"))
+            .Visuals[ModVisualEffect.RimLight];
+        Check(rimDefaults.Number("warmth") == 0 && rimDefaults.Number("softness") == 0, "Existing rim defaults changed.");
+        var softRim = Load(Fixture(fixtures, "fixture.softrim", "'presentation.visuals'",
+            "sf2.visuals.rim_light{warmth=0.65,softness=1.25}" )).Visuals[ModVisualEffect.RimLight];
+        Check(softRim.Number("warmth") == 0.65f && softRim.Number("softness") == 1.25f &&
+            softRim.Number("alpha") == 0.85f && softRim.Number("lighten") == 0.35f, "Rim controls changed intensity defaults.");
         Rejects(fixtures, "speeds", "'presentation.visuals'", "sf2.visuals.weapon_trails{min_speed=500,full_speed=400}", "full_speed");
         Rejects(fixtures, "duplicate", "'presentation.visuals'", "sf2.visuals.bloom{}\nsf2.visuals.bloom{}", "Duplicate visual effect");
         Rejects(fixtures, "style", "'presentation.visuals'", "sf2.visuals.ambient_particles{default_style='rain'}", "default_style");
@@ -128,7 +137,9 @@ static class Program
         Rejects(fixtures, "setting-id", "'ui.settings'", "sf2.settings.toggle{id='Bad Id',label='A'}", "Setting id");
 
         // sf2.fx building blocks: the shipped showcase through real Lua.
-        var showcase = Load(ModDiscovery.DiscoverLoose(mods).Mods.Single(m => m.Id.Value == "example.custom-fx"));
+        var showcaseMods = ModDiscovery.DiscoverLoose(mods).Mods.Concat(
+            ModDiscovery.DiscoverLoose(Path.Combine(Path.GetDirectoryName(mods), "ArchivedMods")).Mods);
+        var showcase = Load(showcaseMods.First(m => m.Id.Value == "example.custom-fx"));
         Check(showcase.Effects.Count == 5 && showcase.SettingToggles.Count == 5 &&
             showcase.Effects.All(e => e.Setting != null && e.Owner.Value == "example.custom-fx"), "Custom FX showcase must register five gated effects.");
         var sparks = showcase.Effects.Single(e => e.Name == "example.custom-fx.blade_sparks");
@@ -170,9 +181,19 @@ static class Program
             "sf2.visuals.rim_light{ink=0.8,ink_color='#1A0C26'}\n" +
             "sf2.fx.light{id='fire',weapons={'fire','flame'},color='#FF8A3A',radius=300,scenes='everywhere'}\n" +
             "sf2.fx.light{id='magic',source='magic',glow=0}\n" +
-            "sf2.fx.stain{id='blood',count=4,size_min=5,size_max=9,limit=12}\n" +
+            "sf2.fx.stain{id='blood',count=4,size_min=5,size_max=9,limit=12,speed_min=90,speed_max=210,gravity=900,lift=80,merge_radius=16,max_pool_size=70}\n" +
             "sf2.fx.stain{id='pool',trigger='ko'}\n"));
         Func<string, ModFxDefinition> block = id => blocks.Effects.Single(e => e.Name == "fixture.fx-blocks." + id);
+        Check(block("blood").Number("speed_min") == 90 && block("blood").Number("speed_max") == 210 &&
+            block("blood").Number("gravity") == 900 && block("blood").Number("lift") == 80 &&
+            block("blood").Number("merge_radius") == 16 && block("blood").Number("max_pool_size") == 70,
+            "Droplet and accumulation fields were not read.");
+        Check(block("pool").Number("speed_max") == 0 && block("pool").Number("merge_radius") == 0,
+            "Legacy stains must remain instant and independent by default.");
+        Rejects(fixtures, "stain-speed-order", "'presentation.visuals'", "sf2.fx.stain{id='s',speed_min=300,speed_max=100}", "speed_min");
+        Rejects(fixtures, "stain-gravity", "'presentation.visuals'", "sf2.fx.stain{id='s',gravity=0}", "gravity");
+        Rejects(fixtures, "stain-radius", "'presentation.visuals'", "sf2.fx.stain{id='s',merge_radius=-1}", "merge_radius");
+        Rejects(fixtures, "stain-pool-size", "'presentation.visuals'", "sf2.fx.stain{id='s',merge_radius=10,max_pool_size=5}", "max_pool_size");
         Check(block("shadow").Kind == ModFxKind.Shadow && block("shadow").Number("width") == 120f && block("shadow").Color.R == 0x10 &&
             block("shadow").Number("fade_height") == 350f, "Shadow was not read.");
         Check(block("glint").Kind == ModFxKind.Glint && block("glint").Weapon && block("glint").Scenes == ModFxScenes.Everywhere &&

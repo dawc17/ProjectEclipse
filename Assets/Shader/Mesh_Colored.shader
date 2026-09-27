@@ -1,6 +1,7 @@
 Shader "Mesh/Colored" {
 	Properties {
 		_Color ("Color", Vector) = (0,0,0,1)
+		[HideInInspector] _FloorDecalMask ("Floor decal mask", Float) = 0
 	}
 	//DummyShaderTextExporter
 	SubShader{
@@ -11,6 +12,8 @@ Shader "Mesh/Colored" {
 		// Unity's default back-face culling drops roughly half of those triangles,
 		// leaving holes in hair/clothing and incomplete weapon blades.
 		Cull Off
+		// Reserve bit 6 for fighter silhouettes; stage sprites leave it intact.
+		Stencil { Ref [_FloorDecalMask] ReadMask 64 WriteMask 64 Comp Always Pass Replace }
 
 		Pass
 		{

@@ -22,6 +22,7 @@ namespace Eclipse.Launcher
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            ServicePointManager.DefaultConnectionLimit = 3;
             try
             {
                 string root = args.Length == 2 && args[0] == "--root" ? Path.GetFullPath(args[1]) : AppDomain.CurrentDomain.BaseDirectory;
@@ -158,7 +159,7 @@ namespace Eclipse.Launcher
             if (busy) return;
             busy = true; RefreshButtons();
             try { await action(); }
-            catch (Exception ex) { status.Text = ex.Message + "\nYour installed build is still available."; }
+            catch (Exception ex) { status.Text = ex.GetBaseException().Message + "\nYour installed build is still available."; }
             finally { busy = false; RefreshButtons(); }
         }
         private async Task Check()
@@ -167,9 +168,20 @@ namespace Eclipse.Launcher
             string manifestPath = Path.Combine(root, "manifest-" + Guid.NewGuid().ToString("N") + ".tmp");
             try
             {
-                string url = UpdateCore.Repository + "/releases/" +
-                    (state.channel == "stable" ? "latest/download/stable.json" : "download/beta/beta.json");
-                await Task.Run(() => UpdateCore.Download(url, manifestPath, 1024 * 1024, null));
+                string prefix = UpdateCore.Repository + "/releases/" +
+                    (state.channel == "stable" ? "latest/download/" : "download/beta/");
+                await Task.Run(() => {
+                    try { UpdateCore.Download(prefix + state.channel + "-v2.json", manifestPath, UpdateCore.ManifestLimit, null); }
+                    catch (WebException ex)
+                    {
+                        var response = ex.Response as HttpWebResponse;
+                        bool missing = response != null && response.StatusCode == HttpStatusCode.NotFound;
+                        if (response != null) response.Close();
+                        if (!missing) throw;
+                        if (File.Exists(manifestPath)) File.Delete(manifestPath);
+                        UpdateCore.Download(prefix + state.channel + ".json", manifestPath, 1024 * 1024, null);
+                    }
+                });
                 string text = File.ReadAllText(manifestPath);
                 var manifest = UpdateCore.Json.Deserialize<Manifest>(text);
                 UpdateCore.ValidateManifest(manifest);
@@ -184,6 +196,19 @@ namespace Eclipse.Launcher
         {
             Manifest manifest = candidate;
             string stage = Path.Combine(root, "staging", Guid.NewGuid().ToString("N"));
+            if (manifest.format == 2)
+            {
+                string destination = Path.Combine(stage, "game");
+                status.Text = "Updating game; reusing unchanged data…";
+                IProgress<int> reporting = new Progress<int>(value => progress.Value = value);
+                await Task.Run(() => IncrementalUpdate.Install(root, UpdateCore.GameDirectory(root, state),
+                    destination, manifest, IncrementalUpdate.Download,
+                    bytes => reporting.Report((int)Math.Min(100, bytes * 100 / manifest.unpackedSize))));
+                UpdateCore.Activate(root, state, destination, manifest.version);
+                candidate = null;
+                status.Text = "Update installed. Click Play. The updated launcher is used on next launch.";
+                return;
+            }
             Directory.CreateDirectory(stage);
             string archive = Path.Combine(stage, "game.zip");
             using (var output = File.Create(archive))

@@ -57,6 +57,12 @@ namespace Eclipse.Rendering.Interpolation
 			get { return FightDriven; }
 		}
 
+		// The fight is being drawn but its simulation did not advance (pause or hit-stop).
+		public static bool IsFightFrozen
+		{
+			get { return FightDriven && _fightStep != _drawStep; }
+		}
+
 		// Alpha for fighters, effects and other fight-simulation presentation.
 		public static float FightAlpha
 		{

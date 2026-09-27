@@ -10,6 +10,10 @@ namespace Eclipse.Rendering
 	// effects, and sf2.fx.glint highlights that run along a still blade. Each trail is a short ribbon between two points of the fighter,
 	// sampled every rendered frame from the interpolated pose. Segments fade with
 	// age and with how fast the far point moved, so still limbs leave nothing.
+	// Trails run on fight time: they linger in slow-motion and hold still during
+	// hit-stop. Between frames the blade is swept as an arc around the grip, so
+	// fast swings stay round at low frame rates, and the ribbon tapers toward
+	// the tip as it ages.
 	//
 	// Weapon art is built from macro nodes: weighted combinations of the
 	// skeleton's Weapon-Node1..4_N control points, extending beyond them. So a
@@ -18,15 +22,35 @@ namespace Eclipse.Rendering
 	// farthest macro nodes driven by that hand.
 	public sealed class WeaponTrail : MonoBehaviour
 	{
-		private const int MaxSamples = 48;
+		private const int MaxSamples = 256;
 		private const float MinBladeLength = 25f;
+		// Arc sweep between frames: at most this many degrees per ribbon segment.
+		private const float MaxArcStep = 5f;
+		private const int MaxArcSegments = 12;
+		// Time constant of the tip-speed smoothing, in seconds.
+		private const float SpeedSmoothing = 0.015f;
+		// How far the grip end slides toward the tip by the end of a sample's life.
+		private const float Taper = 0.75f;
+		// Anything faster is a teleport, round reset or facing flip, not a swing.
+		private const float MaxGripSpeed = 8000f;
+		private const float MaxTurnPerFrame = 160f;
 
-		private struct Sample { public Vector3 Grip, Tip; public float Time, Strength; }
+		// A blade pose: grip position plus the blade's angle (degrees, unwrapped) and length.
+		private struct Sample
+		{
+			public Vector3 Grip; public float Angle, Length, Time, Strength;
+			public Vector3 Tip => Grip + Direction(Angle) * Length;
+		}
 
 		private sealed class Blade
 		{
 			public ModelNode Grip, Tip;
 			public readonly List<Sample> Samples = new List<Sample>();
+			// The last pose read from the model, and the grip before it (for the arc curve).
+			public bool HasLast;
+			public Sample Last;
+			public Vector3 PreviousGrip;
+			public float Speed;
 		}
 
 		private sealed class Stream
@@ -52,6 +76,8 @@ namespace Eclipse.Rendering
 		private readonly List<Vector3> _vertices = new List<Vector3>();
 		private readonly List<Color> _colors = new List<Color>();
 		private readonly List<int> _triangles = new List<int>();
+		// Fight time for this fighter's trails: scaled, and stopped while the fight is frozen.
+		private float _clock;
 
 		public static void Attach(GameObject root, Model model)
 		{
@@ -62,14 +88,14 @@ namespace Eclipse.Rendering
 		private void Start()
 		{
 			_presentation = GetComponent<ModelPresentation>();
-			_alphaMesh = CreateLayer("Trails", ModFxBlend.Alpha, out _);
-			_additiveMesh = CreateLayer("Trails (additive)", ModFxBlend.Additive, out _additiveRenderer);
-			_glintMesh = CreateLayer("Glints", ModFxBlend.Additive, out MeshRenderer glints);
+			_alphaMesh = CreateLayer("Trails", TrailMaterial(false), out _);
+			_additiveMesh = CreateLayer("Trails (additive)", TrailMaterial(true), out _additiveRenderer);
+			_glintMesh = CreateLayer("Glints", FxBuilder.MaterialFor(null, ModFxBlend.Additive), out MeshRenderer glints);
 			// Glints sit in front of the body; trails stay behind it.
 			glints.transform.localPosition = new Vector3(0f, 0f, -0.05f);
 		}
 
-		private Mesh CreateLayer(string name, ModFxBlend blend, out MeshRenderer renderer)
+		private Mesh CreateLayer(string name, Material material, out MeshRenderer renderer)
 		{
 			var child = new GameObject(name);
 			child.transform.SetParent(transform, false);
@@ -79,7 +105,7 @@ namespace Eclipse.Rendering
 			mesh.MarkDynamic();
 			child.AddComponent<MeshFilter>().sharedMesh = mesh;
 			renderer = child.AddComponent<MeshRenderer>();
-			renderer.sharedMaterial = FxBuilder.MaterialFor(null, blend);
+			renderer.sharedMaterial = material;
 			renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 			renderer.receiveShadows = false;
 			return mesh;
@@ -89,30 +115,118 @@ namespace Eclipse.Rendering
 		{
 			if (_alphaMesh == null || _model == null) return;
 			RefreshStreams();
-			float now = Time.unscaledTime;
+			// Scaled time in fights so slow-motion slows the trail with the swing;
+			// menu previews keep running whatever the time scale.
+			float dt = FightInterpolation.IsFightActive ? Time.deltaTime : Time.unscaledDeltaTime;
+			bool advancing = dt > 0f && !FightInterpolation.IsFightFrozen;
+			if (advancing) _clock += dt;
+			float now = _clock;
 			float alpha = _presentation != null ? _presentation.Alpha : FightInterpolation.FightAlpha;
 			foreach (Stream stream in _streams)
 				foreach (Blade blade in stream.Blades)
 				{
-					Vector3 grip = Sample3(blade.Grip, alpha);
-					Vector3 tip = Sample3(blade.Tip, alpha);
+					Sample pose = Pose(blade, alpha, now);
+					if (!advancing) { Hold(blade, pose); continue; }
 					List<Sample> samples = blade.Samples;
-					float strength = 0f;
-					if (samples.Count > 0)
+					float step = blade.HasLast ? Mathf.Max(now - blade.Last.Time, 1e-4f) : 0f;
+					if (blade.HasLast && IsDiscontinuous(blade.Last, pose, step))
 					{
-						Sample last = samples[samples.Count - 1];
-						float dt = Mathf.Max(now - last.Time, 1e-4f);
-						float speed = (tip - last.Tip).magnitude / dt;
-						strength = Mathf.Clamp01((speed - stream.MinSpeed) / (stream.FullSpeed - stream.MinSpeed));
+						samples.Clear();
+						blade.HasLast = false;
+						blade.Speed = 0f;
 					}
-					if (samples.Count == 0 || now > samples[samples.Count - 1].Time)
-						samples.Add(new Sample { Grip = grip, Tip = tip, Time = now, Strength = strength });
+					if (blade.HasLast)
+					{
+						pose.Angle = blade.Last.Angle + Mathf.DeltaAngle(blade.Last.Angle, pose.Angle);
+						float speed = (pose.Tip - blade.Last.Tip).magnitude / step;
+						blade.Speed = Mathf.Lerp(blade.Speed, speed, 1f - Mathf.Exp(-step / SpeedSmoothing));
+					}
+					pose.Strength = stream.FullSpeed > stream.MinSpeed
+						? Mathf.Clamp01((blade.Speed - stream.MinSpeed) / (stream.FullSpeed - stream.MinSpeed))
+						: 1f;
+					if (blade.HasLast && samples.Count > 0) AddArc(blade, pose);
+					else samples.Add(pose);
 					while (samples.Count > 0 && (now - samples[0].Time > stream.Lifetime || samples.Count > MaxSamples))
 						samples.RemoveAt(0);
+					blade.PreviousGrip = blade.HasLast ? blade.Last.Grip : pose.Grip;
+					blade.Last = pose;
+					blade.HasLast = true;
 				}
 			Rebuild(_alphaMesh, false, now);
 			Rebuild(_additiveMesh, true, now);
 			RebuildGlints(now);
+		}
+
+		private static Vector3 Direction(float degrees)
+		{
+			float r = degrees * Mathf.Deg2Rad;
+			return new Vector3(Mathf.Cos(r), Mathf.Sin(r), 0f);
+		}
+
+		private static Sample Pose(Blade blade, float alpha, float now)
+		{
+			Vector3 grip = Sample3(blade.Grip, alpha);
+			Vector3 blade3 = Sample3(blade.Tip, alpha) - grip;
+			return new Sample
+			{
+				Grip = grip, Length = blade3.magnitude, Time = now,
+				Angle = Mathf.Atan2(blade3.y, blade3.x) * Mathf.Rad2Deg,
+			};
+		}
+
+		// While the fight is frozen the ribbon holds; its head follows the pose the
+		// fighter is shown in, so the blade and trail stay joined.
+		private static void Hold(Blade blade, Sample pose)
+		{
+			if (!blade.HasLast) return;
+			pose.Angle = blade.Last.Angle + Mathf.DeltaAngle(blade.Last.Angle, pose.Angle);
+			pose.Time = blade.Last.Time;
+			pose.Strength = blade.Last.Strength;
+			blade.Last = pose;
+			List<Sample> samples = blade.Samples;
+			if (samples.Count == 0) return;
+			Sample head = samples[samples.Count - 1];
+			head.Grip = pose.Grip; head.Angle = pose.Angle; head.Length = pose.Length;
+			samples[samples.Count - 1] = head;
+		}
+
+		// Teleports, round resets and facing flips move the blade farther in one
+		// frame than any swing could; start a fresh ribbon rather than streak across.
+		private static bool IsDiscontinuous(Sample last, Sample pose, float step)
+		{
+			float moved = (pose.Grip - last.Grip).magnitude;
+			float reach = Mathf.Max(Mathf.Max(last.Length, pose.Length), MinBladeLength);
+			return moved / step > MaxGripSpeed || moved > 3f * reach
+				|| Mathf.Abs(Mathf.DeltaAngle(last.Angle, pose.Angle)) > MaxTurnPerFrame;
+		}
+
+		// Sweeps from the last pose to this one: the blade turns about the grip while
+		// the grip follows a Catmull-Rom curve, split so no segment turns more than MaxArcStep.
+		private static void AddArc(Blade blade, Sample pose)
+		{
+			Sample from = blade.Last;
+			float turn = Mathf.Abs(pose.Angle - from.Angle);
+			int segments = Mathf.Clamp(Mathf.CeilToInt(turn / MaxArcStep), 1, MaxArcSegments);
+			Vector3 p0 = blade.PreviousGrip, p1 = from.Grip, p2 = pose.Grip, p3 = pose.Grip + (pose.Grip - from.Grip);
+			for (int i = 1; i < segments; i++)
+			{
+				float t = (float)i / segments;
+				blade.Samples.Add(new Sample
+				{
+					Grip = CatmullRom(p0, p1, p2, p3, t),
+					Angle = Mathf.Lerp(from.Angle, pose.Angle, t),
+					Length = Mathf.Lerp(from.Length, pose.Length, t),
+					Time = Mathf.Lerp(from.Time, pose.Time, t),
+					Strength = Mathf.Lerp(from.Strength, pose.Strength, t),
+				});
+			}
+			blade.Samples.Add(pose);
+		}
+
+		private static Vector3 CatmullRom(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t)
+		{
+			float t2 = t * t, t3 = t2 * t;
+			return 0.5f * (2f * p1 + (p2 - p0) * t + (2f * p0 - 5f * p1 + 4f * p2 - p3) * t2 + (3f * p1 - p0 - 3f * p2 + p3) * t3);
 		}
 
 		// Rebuilds the trail list when the active effects or the model's nodes change.
@@ -325,17 +439,23 @@ namespace Eclipse.Rendering
 					{
 						Sample s = samples[i];
 						float age = Mathf.Clamp01((now - s.Time) / stream.Lifetime);
-						float a = stream.Alpha * colorAlpha * (1f - age) * s.Strength;
+						float fade = (1f - age) * (1f - age);
+						float a = stream.Alpha * colorAlpha * fade * s.Strength;
 						Color grip = tint; grip.a = a * stream.StartAlpha;
 						Color tip = tint; tip.a = a;
-						_vertices.Add(s.Grip); _colors.Add(grip);
-						_vertices.Add(s.Tip); _colors.Add(tip);
-						if (i > 0)
-						{
-							int v = first + i * 2;
-							_triangles.Add(v - 2); _triangles.Add(v - 1); _triangles.Add(v);
-							_triangles.Add(v - 1); _triangles.Add(v + 1); _triangles.Add(v);
-						}
+						// Older parts narrow toward the tip, giving the swing a crescent.
+						Vector3 tipPoint = s.Tip;
+						Vector3 gripPoint = Vector3.Lerp(s.Grip, tipPoint, Taper * age);
+						_vertices.Add(gripPoint); _colors.Add(grip);
+						_vertices.Add(tipPoint); _colors.Add(tip);
+					}
+					// Newest segments first: the trail shader draws each pixel once, so
+					// where a reversing swing folds over itself the fresher part wins.
+					for (int i = samples.Count - 1; i > 0; i--)
+					{
+						int v = first + i * 2;
+						_triangles.Add(v - 2); _triangles.Add(v - 1); _triangles.Add(v);
+						_triangles.Add(v - 1); _triangles.Add(v + 1); _triangles.Add(v);
 					}
 				}
 			}
@@ -361,7 +481,7 @@ namespace Eclipse.Rendering
 				if (stream.StartTime < 0f && now >= stream.NextTime)
 				{
 					int blade = Random.Range(0, stream.Blades.Count);
-					if (BladeSpeed(stream.Blades[blade]) <= stream.MaxSpeed) { stream.StartTime = now; stream.GlintBlade = blade; }
+					if (stream.Blades[blade].Speed <= stream.MaxSpeed) { stream.StartTime = now; stream.GlintBlade = blade; }
 				}
 				if (stream.StartTime < 0f) continue;
 				float t = (now - stream.StartTime) / stream.Duration;
@@ -389,14 +509,6 @@ namespace Eclipse.Rendering
 			_glintMesh.RecalculateBounds();
 		}
 
-		private static float BladeSpeed(Blade blade)
-		{
-			List<Sample> samples = blade.Samples;
-			if (samples.Count < 2) return 0f;
-			Sample a = samples[samples.Count - 2], b = samples[samples.Count - 1];
-			return (b.Tip - a.Tip).magnitude / Mathf.Max(b.Time - a.Time, 1e-4f);
-		}
-
 		// Two thin diamonds (long across, long up) around a bright centre.
 		private void AddStar(Vector3 centre, float size, Color color)
 		{
@@ -415,6 +527,29 @@ namespace Eclipse.Rendering
 					_triangles.Add(c); _triangles.Add(c + 1 + i); _triangles.Add(c + 1 + (i + 1) % 4);
 				}
 			}
+		}
+
+		private static Material _alphaTrail, _additiveTrail;
+		private static bool _trailShaderMissing;
+
+		// Eclipse's trail shader draws each pixel of a ribbon once (no double-dark
+		// folds); without it, fall back to the shared effect materials.
+		private static Material TrailMaterial(bool additive)
+		{
+			Material cached = additive ? _additiveTrail : _alphaTrail;
+			if (cached != null) return cached;
+			Shader shader = _trailShaderMissing ? null : Resources.Load<Shader>("shaders/EclipseTrail");
+			if (shader == null || !shader.isSupported)
+			{
+				if (!_trailShaderMissing) Debug.LogWarning("[Eclipse] Trail shader is unavailable; trails may darken where they overlap.");
+				_trailShaderMissing = true;
+				return FxBuilder.MaterialFor(null, additive ? ModFxBlend.Additive : ModFxBlend.Alpha);
+			}
+			var material = new Material(shader) { hideFlags = HideFlags.HideAndDontSave };
+			material.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+			material.SetFloat("_DstBlend", (float)(additive ? UnityEngine.Rendering.BlendMode.One : UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha));
+			if (additive) _additiveTrail = material; else _alphaTrail = material;
+			return material;
 		}
 
 		private void OnDestroy()

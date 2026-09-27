@@ -8,8 +8,18 @@ const { createMod } = require('../src/scaffold.cjs');
 const template = path.resolve(__dirname, '../templates/weapon');
 const header = 'local sf2 = require("sf2")\n';
 
+test('floor stain starter validates and exposes flight and accumulation fields', async () => {
+    const directory = path.resolve(__dirname, '../templates/floor-stains');
+    const mod = await p.indexMod(directory);
+    assert.deepEqual(mod.issues, []);
+    assert.deepEqual(p.analyze(await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8'), mod).issues, []);
+    const fields = require('../data/api.json').types.FxStainDefinition.fields;
+    for (const name of ['speed_min', 'speed_max', 'gravity', 'lift', 'merge_radius', 'max_pool_size'])
+        assert.equal(fields[name + '?'][0], 'number');
+});
+
 for (const name of ['programmable-ai', 'generated-expedition', 'shifting-guardian']) test(name+' example and starter share a valid public contract', async () => {
-    const directory=path.resolve(__dirname,'../../../Mods/example.'+name);
+    const directory=path.resolve(__dirname,'../../../ArchivedMods/example.'+name);
     const mod=await p.indexMod(directory);
     assert.deepEqual(mod.issues,[]);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
@@ -175,7 +185,7 @@ test('scaffold creates a valid mod, refuses overwrite, and prevents path escape'
 
 
 test('battle rule starter is recognized by the authored API contract', async () => {
-    const directory = path.resolve(__dirname, '../../../Mods/example.battle-rules');
+    const directory = path.resolve(__dirname, '../../../ArchivedMods/example.battle-rules');
     const mod = await p.indexMod(directory);
     assert.deepEqual(mod.issues, []);
     const result = p.analyze(await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8'), mod);
@@ -186,7 +196,7 @@ test('battle rule starter is recognized by the authored API contract', async () 
 });
 
 test('core fight patch example validates with registered rule handles', async () => {
-    const directory = path.resolve(__dirname, '../../../Mods/example.core-fight');
+    const directory = path.resolve(__dirname, '../../../ArchivedMods/example.core-fight');
     const mod = await p.indexMod(directory);
     assert.deepEqual(mod.issues, []);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory, 'scripts/main.lua'), 'utf8'), mod).issues, []);
@@ -282,7 +292,7 @@ test('guarded move replacement has typed fields and requires patch capability', 
 });
 
 test('perk upgrade example and starter validate assets, localization and branch definitions', async () => {
-    for (const relative of ['../../../Mods/example.perk-upgrades', '../templates/perk-upgrades']) {
+    for (const relative of ['../../../ArchivedMods/example.perk-upgrades', '../templates/perk-upgrades']) {
         const directory = path.resolve(__dirname, relative);
         const mod = await p.indexMod(directory);
         assert.deepEqual(mod.issues, [], relative);
@@ -291,34 +301,34 @@ test('perk upgrade example and starter validate assets, localization and branch 
 });
 
 test('outgoing rule example validates its callback and capability', async () => {
-    const directory=path.resolve(__dirname,'../../../Mods/example.outgoing-rule');
+    const directory=path.resolve(__dirname,'../../../ArchivedMods/example.outgoing-rule');
     const mod=await p.indexMod(directory);
     assert.deepEqual(mod.issues,[]);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 
 test('combo reserve example validates native activity callbacks', async () => {
-    const directory=path.resolve(__dirname,'../../../Mods/example.combo-reserve');
+    const directory=path.resolve(__dirname,'../../../ArchivedMods/example.combo-reserve');
     const mod=await p.indexMod(directory);
     assert.deepEqual(mod.issues,[]);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 
 test('charge UI example validates owned handles and callback capability', async () => {
-    const directory=path.resolve(__dirname,'../../../Mods/example.charge-ui');
+    const directory=path.resolve(__dirname,'../../../ArchivedMods/example.charge-ui');
     const mod=await p.indexMod(directory);
     assert.deepEqual(mod.issues,[]);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 test('branching mode example validates its callback and roster', async () => {
-    const directory=path.resolve(__dirname,'../../../Mods/example.branching-trial');
+    const directory=path.resolve(__dirname,'../../../ArchivedMods/example.branching-trial');
     const mod=await p.indexMod(directory);
     assert.deepEqual(mod.issues,[]);
     assert.deepEqual(p.analyze(await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 
 test('saved random streams require both capabilities and seeded starter validates', async () => {
-    const directory=path.resolve(__dirname,'../../../Mods/example.seeded-trial');
+    const directory=path.resolve(__dirname,'../../../ArchivedMods/example.seeded-trial');
     const mod=await p.indexMod(directory);
     assert.deepEqual(mod.issues,[]);
     const source=await fs.readFile(path.join(directory,'scripts/main.lua'),'utf8');
@@ -335,9 +345,9 @@ test('saved random streams require both capabilities and seeded starter validate
 
 
 test('quest suppression requires patch capability and example validates', async () => {
-    const mod=await p.indexMod(path.resolve(__dirname,'../../../Mods/example.quest-suppression'));
+    const mod=await p.indexMod(path.resolve(__dirname,'../../../ArchivedMods/example.quest-suppression'));
     assert.deepEqual(mod.issues,[]);
-    assert.deepEqual(p.analyze(await fs.readFile(path.resolve(__dirname,'../../../Mods/example.quest-suppression/scripts/main.lua'),'utf8'),mod).issues,[]);
+    assert.deepEqual(p.analyze(await fs.readFile(path.resolve(__dirname,'../../../ArchivedMods/example.quest-suppression/scripts/main.lua'),'utf8'),mod).issues,[]);
     const starter=await p.indexMod(template);
     const issues=p.analyze(header+'sf2.quests.suppress { target="core:quests/quests.xml/example" }',starter).issues;
     assert(issues.some(i=>i.message.includes('content.patch')));
@@ -345,13 +355,13 @@ test('quest suppression requires patch capability and example validates', async 
 
 
 test('animated arena validates typed curve authoring', async () => {
- const dir=path.resolve(__dirname,'../../../Mods/example.animated-arena');
+ const dir=path.resolve(__dirname,'../../../ArchivedMods/example.animated-arena');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 
 test('dojo selector validates presentation capability and owned UI', async () => {
- const dir=path.resolve(__dirname,'../../../Mods/example.dojo-selector');
+ const dir=path.resolve(__dirname,'../../../ArchivedMods/example.dojo-selector');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
  const starter=await p.indexMod(template);
@@ -399,7 +409,7 @@ test('battle progression operations require story progression capability', async
 });
 
 test('story observer example validates', async () => {
- const dir=path.resolve(__dirname,'../../../Mods/example.story-observer');
+ const dir=path.resolve(__dirname,'../../../ArchivedMods/example.story-observer');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
@@ -407,26 +417,26 @@ test('story observer example validates', async () => {
 test('scene navigation capability and example validate', async () => {
  const starter=await p.indexMod(template);
  assert(p.analyze(header+'sf2.scenes.open("shop")',starter).issues.some(i=>i.message.includes('presentation.navigate')));
- const dir=path.resolve(__dirname,'../../../Mods/example.scene-menu');
+ const dir=path.resolve(__dirname,'../../../ArchivedMods/example.scene-menu');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 
 
 test('Eclipse reward example validates its manifest and reward patch', async () => {
- const dir=path.resolve(__dirname,'../../../Mods/example.eclipse-reward');
+ const dir=path.resolve(__dirname,'../../../ArchivedMods/example.eclipse-reward');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 
 test('katana achievement example validates', async () => {
- const dir=path.resolve(__dirname,'../../../Mods/example.katana-achievement');
+ const dir=path.resolve(__dirname,'../../../ArchivedMods/example.katana-achievement');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });
 
 test('shifting guardian validates the form request contract', async () => {
- const dir=path.resolve(__dirname,'../../../Mods/example.shifting-guardian');
+ const dir=path.resolve(__dirname,'../../../ArchivedMods/example.shifting-guardian');
  const mod=await p.indexMod(dir);assert.deepEqual(mod.issues,[]);
  assert.deepEqual(p.analyze(await fs.readFile(path.join(dir,'scripts/main.lua'),'utf8'),mod).issues,[]);
 });

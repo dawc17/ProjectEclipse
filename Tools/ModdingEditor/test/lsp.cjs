@@ -126,6 +126,14 @@ async function main() {
     }, 'weapon field completion');
     console.log('PASS: all five weapon table fields complete without manual type annotations');
 
+    const stainProbe = probe('stains.lua', 'local sf2 = require("sf2")\nsf2.fx.stain {\n    |\n}');
+    await until(async () => {
+        const fields = labels(await request('textDocument/completion', stainProbe));
+        return ['speed_min', 'speed_max', 'gravity', 'lift', 'merge_radius', 'max_pool_size']
+            .every(field => fields.some(label => label.replace(/\?$/, '') === field || label.startsWith(`${field} `)));
+    }, 'stain flight and accumulation completion');
+    console.log('PASS: stain flight and accumulation fields complete');
+
     const hoverProbe = probe('hover.lua', 'local sf2 = require("sf2")\nlocal register = sf2.items.register_wea|pon');
     await until(async () => {
         const hover = JSON.stringify(await request('textDocument/hover', hoverProbe));
@@ -490,7 +498,7 @@ async function main() {
 
     for (const name of ['programmable-ai','generated-expedition','animated-arena','dojo-selector']) {
         const source=fs.readFileSync((name==='animated-arena'||name==='dojo-selector')
-            ? path.join(root,'../../Mods/example.'+name+'/scripts/main.lua')
+            ? path.join(root,'../../ArchivedMods/example.'+name+'/scripts/main.lua')
             : path.join(root,'templates',name,'scripts/main.lua'),'utf8');
         const uri=open(name+'.lua',source+'\nsf2.price.coins("temporary error")');
         const key=decodeURIComponent(uri).toLowerCase();

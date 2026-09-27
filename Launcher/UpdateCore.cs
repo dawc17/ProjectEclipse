@@ -14,6 +14,8 @@ namespace Eclipse.Launcher
         public string url;
         public string sha256;
         public long size;
+        public long unpackedSize;
+        public string contentSha256;
     }
     public sealed class Manifest
     {
@@ -22,6 +24,7 @@ namespace Eclipse.Launcher
         public string notes;
         public long unpackedSize;
         public DownloadPart[] parts;
+        public PackageFile[] files;
     }
     public sealed class InstallState
     {
@@ -34,7 +37,8 @@ namespace Eclipse.Launcher
     public static class UpdateCore
     {
         public const string Repository = "https://github.com/dawc17/ProjectEclipse";
-        public static readonly JavaScriptSerializer Json = new JavaScriptSerializer { MaxJsonLength = 1024 * 1024 };
+        public const int ManifestLimit = 16 * 1024 * 1024;
+        public static readonly JavaScriptSerializer Json = new JavaScriptSerializer { MaxJsonLength = ManifestLimit };
 
         public static void ValidateVersion(string value)
         {
@@ -77,6 +81,7 @@ namespace Eclipse.Launcher
         }
         public static void ValidateManifest(Manifest manifest)
         {
+            if (manifest != null && manifest.format == 2) { IncrementalUpdate.Validate(manifest); return; }
             if (manifest == null || manifest.format != 1) throw new InvalidDataException("Unsupported update format.");
             ValidateVersion(manifest.version);
             if (manifest.parts == null || manifest.parts.Length == 0 || manifest.parts.Length > 128 ||
@@ -89,6 +94,15 @@ namespace Eclipse.Launcher
                     part.url == null || !part.url.StartsWith(Repository + "/releases/download/", StringComparison.Ordinal))
                     throw new InvalidDataException("Invalid release asset.");
             }
+        }
+        public static bool IsReleaseUrl(string value)
+        {
+            Uri uri;
+            return value != null && Uri.TryCreate(value, UriKind.Absolute, out uri) &&
+                uri.Scheme == "https" && uri.Host == "github.com" && uri.IsDefaultPort &&
+                uri.UserInfo.Length == 0 && uri.Query.Length == 0 && uri.Fragment.Length == 0 &&
+                uri.AbsolutePath.StartsWith("/dawc17/ProjectEclipse/releases/download/", StringComparison.Ordinal) &&
+                !value.Contains("%") && !value.Contains("\\");
         }
         public static void VerifyPart(string path, DownloadPart part)
         {

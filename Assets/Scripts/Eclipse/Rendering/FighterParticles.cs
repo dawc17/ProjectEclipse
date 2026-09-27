@@ -48,6 +48,9 @@ namespace Eclipse.Rendering
 		// The floor as a height measured upward on screen (see ScreenUp); MaxValue until found.
 		private static float _groundY = float.MaxValue;
 		private static float _groundSign = 1f;
+		// Unlike the legacy world-space shadow sample, droplet collision must not
+		// drift when the camera pans or zooms the arena's render hierarchy.
+		private static float _stainGroundY = float.MaxValue;
 
 		// Lights found this frame, and the complete set from the previous frame
 		// that fighters are lit by (every fighter sees every light, whatever order
@@ -56,7 +59,6 @@ namespace Eclipse.Rendering
 		private static List<LightSample> _lightsBuilding = new List<LightSample>();
 		private static List<LightSample> _lightsReady = new List<LightSample>();
 		private static int _lightFrame = -1;
-		private static readonly Dictionary<string, Queue<GameObject>> Stains = new Dictionary<string, Queue<GameObject>>();
 		private static Sprite[] _stainSprites;
 
 		private readonly List<SpriteRenderer> _glows = new List<SpriteRenderer>();
@@ -102,9 +104,16 @@ namespace Eclipse.Rendering
 		// Removes every stain; the fight calls this when a round begins.
 		public static void ClearStains()
 		{
-			foreach (Queue<GameObject> queue in Stains.Values)
-				while (queue.Count > 0) { GameObject stain = queue.Dequeue(); if (stain != null) Destroy(stain); }
-			Stains.Clear();
+			foreach (FighterParticles fighter in Live)
+				if (fighter != null)
+				{
+					Transform container = fighter.transform.parent != null ? fighter.transform.parent : fighter.transform;
+					FloorStainEffects effects = container.GetComponent<FloorStainEffects>();
+					if (effects != null) effects.Clear();
+				}
+			_groundFight = null;
+			_groundY = float.MaxValue;
+			_stainGroundY = float.MaxValue;
 		}
 
 		public static void Attach(GameObject root, Model model)
@@ -116,7 +125,7 @@ namespace Eclipse.Rendering
 		// Called by the fight once a strike is resolved. `point` is the contact
 		// point in fighter coordinates; `ko` is the hit that emptied the health.
 		// A projectile attacker has struck, so its light goes out.
-		public static void Hit(Model victim, Vector3f point, bool critical, bool blocked, bool ko, Model attacker = null)
+		public static void Hit(Model victim, Vector3f point, bool critical, bool blocked, bool ko, Model attacker = null, Vector3f impulse = null)
 		{
 			ModVisuals.NotifyHit(critical, blocked, ko);
 			if (attacker != null && attacker.NJDJHGDMCIJ() != null)
@@ -126,7 +135,8 @@ namespace Eclipse.Rendering
 			foreach (FighterParticles fighter in Live)
 				if (fighter != null && fighter._model == victim)
 				{
-					fighter.EmitHit(new Vector3(point.GetX(), point.GetY(), 0f), critical, blocked, ko);
+					fighter.EmitHit(new Vector3(point.GetX(), point.GetY(), 0f), critical, blocked, ko,
+						impulse != null ? new Vector2(impulse.GetX(), impulse.GetY()) : Vector2.zero);
 					return;
 				}
 		}
@@ -205,7 +215,7 @@ namespace Eclipse.Rendering
 			}
 		}
 
-		private void EmitHit(Vector3 point, bool critical, bool blocked, bool ko)
+		private void EmitHit(Vector3 point, bool critical, bool blocked, bool ko, Vector2 impulse)
 		{
 			foreach (Burst burst in _bursts)
 			{
@@ -224,46 +234,28 @@ namespace Eclipse.Rendering
 				if (!stain.MatchesLocation(LocationAtmosphere.CurrentLocationName) || !FighterMatches(stain.Fighters)) continue;
 				bool fire = stain.Trigger == ModFxTrigger.Hit || (stain.Trigger == ModFxTrigger.Critical && critical) ||
 					(stain.Trigger == ModFxTrigger.Ko && ko);
-				if (fire) SpawnStains(stain, point);
+				if (fire) SpawnStains(stain, point, impulse, ko ? 1.5f : critical ? 1.25f : 1f);
 			}
 		}
 
-		// Splats on the floor below the hit, parented to the fight's render container
-		// so they stay where they landed as the fighters move on.
-		private void SpawnStains(ModFxDefinition d, Vector3 point)
+		// Arena-owned droplets land independently of the struck fighter's movement.
+		private void SpawnStains(ModFxDefinition d, Vector3 point, Vector2 impulse, float strength)
 		{
 			Transform container = transform.parent != null ? transform.parent : transform;
-			float unit = Mathf.Max(Mathf.Abs(transform.lossyScale.y), 1e-5f);
-			Vector3 hit = transform.TransformPoint(point);
-			float depth = transform.TransformPoint(new Vector3(0f, 0f, 0.06f)).z;
-			if (!Stains.TryGetValue(d.Name, out var queue)) Stains[d.Name] = queue = new Queue<GameObject>();
+			FloorStainEffects effects = FloorStainEffects.For(container);
+			Vector3 hit = container.InverseTransformPoint(transform.TransformPoint(point));
+			hit.z = -0.1f;
+			float up = Mathf.Sign(container.TransformVector(Vector3.up).y * _groundSign);
+			float floor = _stainGroundY * up;
+			Vector3 direction = container.InverseTransformVector(transform.TransformVector(impulse));
 			Sprite custom = FxBuilder.LoadSprite(d.Sprite, d.Name);
 			int count = Mathf.RoundToInt(d.Number("count"));
 			for (int i = 0; i < count; i++)
 			{
-				var stain = new GameObject("Effect " + d.Name).AddComponent<SpriteRenderer>();
-				stain.sprite = custom != null ? custom : StainSprite(Random.Range(0, 3));
-				stain.sharedMaterial = FxBuilder.MaterialFor(stain.sprite.texture, d.Blend);
-				stain.transform.SetParent(container, true);
-				float spread = d.Number("spread") * unit;
-				Vector3 place = new Vector3(hit.x + Random.Range(-spread, spread), hit.y, depth);
-				place.y = _groundSign * _groundY;
-				stain.transform.position = place;
-				float size = Random.Range(d.Number("size_min"), d.Number("size_max")) * unit;
-				Vector2 bounds = stain.sprite.bounds.size;
-				Vector3 parentScale = container.lossyScale;
-				float sx = size / Mathf.Max(bounds.x, 1e-3f) / Mathf.Max(Mathf.Abs(parentScale.x), 1e-5f);
-				float sy = size * d.Number("flatten") / Mathf.Max(bounds.y, 1e-3f) / Mathf.Max(Mathf.Abs(parentScale.y), 1e-5f);
-				stain.transform.localScale = new Vector3(Random.value < 0.5f ? -sx : sx, sy, 1f);
 				Color color = ModVisuals.ToColor(d.Color, new Color(0.35f, 0.03f, 0.03f, 1f));
 				color.a *= d.Number("alpha") * Random.Range(0.75f, 1f);
-				stain.color = color;
-				queue.Enqueue(stain.gameObject);
-				while (queue.Count > Mathf.RoundToInt(d.Number("limit")))
-				{
-					GameObject oldest = queue.Dequeue();
-					if (oldest != null) Destroy(oldest);
-				}
+				effects.Spawn(d, hit, direction, floor, up, custom != null ? custom : StainSprite(Random.Range(0, 3)),
+					Random.Range(d.Number("size_min"), d.Number("size_max")), color, strength);
 			}
 		}
 
@@ -319,6 +311,9 @@ namespace Eclipse.Rendering
 			// Heights are measured upward on screen: the fight camera may show world
 			// +y pointing down, so "lowest" follows the camera, not the world axis.
 			float sign = ScreenUp();
+			Transform arena = transform.parent != null ? transform.parent : transform;
+			float arenaUp = Mathf.Sign(arena.TransformVector(Vector3.up).y * sign);
+			float lowestArena = float.MaxValue;
 			// Skeleton nodes are named N*; weapon macro nodes are left out.
 			float lowest = float.MaxValue, sumX = 0f, localSum = 0f, lowestX = 0f; int count = 0;
 			_minX = float.MaxValue; _maxX = float.MinValue;
@@ -329,6 +324,7 @@ namespace Eclipse.Rendering
 				FightInterpolation.SamplePosition(pair.Value, alpha, out x, out y, out z);
 				Vector3 world = transform.TransformPoint(new Vector3(x, y, 0f));
 				float height = world.y * sign;
+				lowestArena = Mathf.Min(lowestArena, arena.InverseTransformPoint(world).y * arenaUp);
 				if (height < lowest) { lowest = height; lowestX = world.x; }
 				sumX += world.x; localSum += x; count++;
 				// The body's extent along the arena, in the same units as the walls.
@@ -347,8 +343,13 @@ namespace Eclipse.Rendering
 				_pivotHeight = transform.TransformPoint(new Vector3(px, py, 0f)).y * sign;
 			}
 			Fight fight = Fight.GetCurrentFight();
-			if (fight != _groundFight || sign != _groundSign) { _groundFight = fight; _groundY = float.MaxValue; _groundSign = sign; }
+			if (fight != _groundFight || sign != _groundSign)
+			{
+				_groundFight = fight; _groundY = float.MaxValue; _groundSign = sign;
+				_stainGroundY = float.MaxValue;
+			}
 			if (lowest < _groundY) _groundY = lowest;
+			_stainGroundY = Mathf.Min(_stainGroundY, lowestArena);
 			_lowest = lowest; _centerX = sumX / count; _hasFloorSample = true;
 		}
 

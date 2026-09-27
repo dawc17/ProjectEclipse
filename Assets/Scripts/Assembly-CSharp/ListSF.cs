@@ -274,22 +274,22 @@ public class ListSF
 
 	public static string PFMBKJMEDEF()
 	{
-		return string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+		return string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 	}
 
 	public static string IDIFECNLMKO()
 	{
-		return string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), Constants.GHKPPHAAMBL);
+		return string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), Constants.GHKPPHAAMBL);
 	}
 
 	public static string OPBLKCABALC()
 	{
-		return string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), Constants.BICBNMCJFLK);
+		return string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), Constants.BICBNMCJFLK);
 	}
 
 	public static string GPKBMLALFIM()
 	{
-		return string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), "assets/packs.xml");
+		return string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), "assets/packs.xml");
 	}
 
 	// best guess for name
@@ -1347,7 +1347,7 @@ public class ListSF
 			CCDKHLAMKKO().KGFJPLKOABI();
 			CCDKHLAMKKO().PMIIHIFGIIN();
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append(SF2Paths.APHDBIBDMDG());
+			stringBuilder.Append(SF2Paths.GetUserDataDirectory());
 			stringBuilder.Append("/");
 			stringBuilder.Append(Constants.OJMIJINKBPJ);
 			XmlUtils.ONLDJNLKKAL(IEDEFCBFJAD, stringBuilder.ToString());
@@ -1459,7 +1459,7 @@ public class ListSF
 		{
 			return nKGLHEGIKKP.BKBHIMEEDBG().JBPHIAEPHAH();
 		}
-		XmlDocument xmlDocument = XmlUtils.OpenXMLDocument(SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+		XmlDocument xmlDocument = XmlUtils.OpenXMLDocument(SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 		int num = HFPJDOEEDCA();
 		XmlNode xmlNode = xmlDocument["Users"];
 		foreach (XmlNode item in xmlNode)
@@ -2550,7 +2550,7 @@ public class ListSF
 		{
             _localVersusProfile = Eclipse.Multiplayer.LocalVersusSession.IsActive;
 			Eclipse.Modding.ModRuntime.UnbindProfile();
-		IEDEFCBFJAD = XmlUtils.AIFIAKNJMHG(SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+		IEDEFCBFJAD = XmlUtils.AIFIAKNJMHG(SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 		if (IEDEFCBFJAD == null)
 		{
 			ANEHEDFAPCH = new Roster(null, null);

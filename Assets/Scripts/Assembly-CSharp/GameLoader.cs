@@ -40,12 +40,12 @@ public static class GameLoader
 
 	public static void SetVersion(string APFECPFKMMH)
 	{
-		XmlDocument xmlDocument = XmlUtils.AIFIAKNJMHG(SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+		XmlDocument xmlDocument = XmlUtils.AIFIAKNJMHG(SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 		if (xmlDocument != null)
 		{
 			xmlDocument["Root"]["Versions"]["Version"].SetAttribute("Value", APFECPFKMMH);
-			string kPFELJFPGHJ = string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
-			string kPFELJFPGHJ2 = string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), Constants.GHKPPHAAMBL);
+			string kPFELJFPGHJ = string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
+			string kPFELJFPGHJ2 = string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), Constants.GHKPPHAAMBL);
 			XmlUtils.ONLDJNLKKAL(xmlDocument, kPFELJFPGHJ);
 			XmlUtils.ONLDJNLKKAL(xmlDocument, kPFELJFPGHJ2);
 		}

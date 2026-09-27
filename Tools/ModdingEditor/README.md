@@ -390,6 +390,19 @@ fight visuals (`presentation.visuals`); each accepts an optional `setting` handl
 `fx.particles`, `fx.overlay`, `fx.trail`, `fx.screen`, `fx.shadow`, `fx.glint`, `fx.light` and `fx.stain` add stackable
 custom effects built from mod sprites and typed numbers; each returns its `<mod-id>.<id>` name.
 Hit particles, stains and screen grades accept a `trigger` (`hit`, `critical`, `block` for particles, `ko`).
+For `fx.stain`, set `speed_min`/`speed_max` to launch directional droplets that
+land as floor splats. `gravity` and `lift` control flight; `merge_radius` and
+`max_pool_size` enable capped accumulation within one effect ID. Defaults retain
+instant separate stains. Pools are masked against fighters and clear on round
+reset or when their setting is disabled. Copy `templates/floor-stains` for a
+complete visual-only starter. For example:
+
+```lua
+sf2.fx.stain { id = "blood", speed_min = 90, speed_max = 210,
+    gravity = 900, lift = 90, merge_radius = 16, max_pool_size = 70,
+    size_min = 8, size_max = 20, count = 3, limit = 50 }
+```
+
 
 Adds profile.level(), profile.item(ItemHandle) and ProfileItemSnapshot
 completion, plus profile.read capability diagnostics. See Player profile queries
@@ -561,3 +574,5 @@ the inherited rows. Leave it out to keep the parent's alignment rows.
 Owned fight intros use `sf2.story.before_fight(fight, function(request) ... end)` with `story.progression`. Typed request completion supports `resume_fight`, `cancel_fight` and `fight_pending`; return `true` for immediate entry or `nil` for deferred UI. See Story events for native entry, lifetime, and instruction limits.
 
 Move definitions use compact condition keys, points, timelines and damage maps exclusively. Legacy move types are removed from completion. `sf2.story.play_sequence` provides typed dialog/act-screen steps and optional saved state cursors; see the story reference for callback and resume behavior.
+
+Rim-light definitions support optional `warmth` (0–1) and `softness` (0–3 screen pixels). Both default to zero; use them to warm and feather the edge without changing `alpha` or `lighten`. See the visuals reference for an example.

@@ -70,6 +70,7 @@ namespace Eclipse.UI
         private static void ResetSession()
         {
             enteredCampaign = false;
+            Eclipse.Saves.CampaignSaveSession.Clear();
             IsOpen = false;
             introPlayed = false;
             seasonChosen = false;
@@ -225,6 +226,8 @@ namespace Eclipse.UI
             previousPage = currentPage;
             bindingAction = -1;
             bindingLabels.Clear();
+            campaignNameField = null;
+            campaignNameSubmit = null;
             currentPage = name;
             rebuilding = true;
             controls.Clear();
@@ -366,12 +369,12 @@ namespace Eclipse.UI
         private void Home()
         {
             Clear("Home");
-            Box(page, "Sign frame", 522, 80, 236, 112, new Color32(164, 120, 66, 255));
-            Box(page, "Sign border", 527, 85, 226, 102, Ink);
-            Box(page, "Sign wood", 531, 89, 218, 94, new Color32(73, 43, 29, 255));
+            Box(page, "Sign frame", 483, 62, 314, 148, new Color32(164, 120, 66, 255));
+            Box(page, "Sign border", 489, 68, 302, 136, Ink);
+            Box(page, "Sign wood", 494, 73, 292, 126, new Color32(73, 43, 29, 255));
             for (int i = 1; i < 4; i++)
-                Box(page, "Wood grain", 531, 89 + i * 23, 218, 1, new Color32(103, 66, 43, 255));
-            const float logoScale = 1f / 6f;
+                Box(page, "Wood grain", 494, 73 + i * 31, 292, 1, new Color32(103, 66, 43, 255));
+            const float logoScale = 1f / 4.5f;
             const float logoX = 640 - (618 + 610) * logoScale / 2;
             const float logoY = 136 - 489 * logoScale / 2;
             Picture(page, "Logo left", "ui/fullscreen/startLoading_left", logoX, logoY, 618 * logoScale, 489 * logoScale,
@@ -387,25 +390,15 @@ namespace Eclipse.UI
             homeStroke.raycastTarget = false;
             homeStroke.Fill = 0f;
             // Campaign leads; Quit lives in the footer (and on Esc).
-            var campaign = HomeButton("CAMPAIGN", 272, 74, BeginCampaign, UiSound.Begin, 38);
-            string progress = ContinueLine();
-            if (progress != null)
-            {
-                var caption = campaign.GetComponentInChildren<Text>();
-                caption.rectTransform.anchoredPosition += new Vector2(0, 8);
-                campaign.GetComponent<EclipseUiButton>().Rehome();
-                var line = Label(campaign.transform, progress.ToUpperInvariant(), 0, 52, 470, 18, 12,
-                    new Color(Paper.r, Paper.g, Paper.b, .75f), TextAnchor.MiddleCenter);
-                line.horizontalOverflow = HorizontalWrapMode.Overflow;
-            }
+            HomeButton("CAMPAIGN", 272, 74, OpenCampaignSaves, UiSound.Open, 34);
             versusRow = HomeButton("MULTIPLAYER", 360, 56, () =>
             {
                 Eclipse.Multiplayer.LocalVersusSession.RequestEntry();
                 BeginCampaign();
-            }, UiSound.Begin, 29);
-            versusCaption = Label(page, "LOCAL VERSUS", 405, 407, 470, 18, 12, new Color(Paper.r, Paper.g, Paper.b, .7f), TextAnchor.MiddleCenter);
-            HomeButton("MODS", 440, 52, OpenMods, UiSound.Open, 27);
-            HomeButton("OPTIONS", 496, 52, () => Settings("Display"), UiSound.Open, 27);
+            }, UiSound.Begin, 27);
+            versusCaption = Label(page, "LOCAL VERSUS", 405, 407, 470, 22, 15, SceneryAccent, TextAnchor.MiddleCenter);
+            HomeButton("MODS", 440, 52, OpenMods, UiSound.Open, 25);
+            HomeButton("OPTIONS", 496, 52, () => Settings("Display"), UiSound.Open, 25);
             FocusFirst();
         }
 
@@ -760,6 +753,7 @@ namespace Eclipse.UI
             else if (currentPage == "Home") QuitPrompt();
             else if (currentPage == "Mod details") DrawMods();
             else if (currentPage == "Mod ZIP") CancelModZip();
+            else if (currentPage == "New campaign" || currentPage == "Rename campaign" || currentPage == "Delete campaign") DrawCampaignSaves();
             else Home();
         }
 
@@ -800,6 +794,19 @@ namespace Eclipse.UI
             int padHorizontal;
             int padVertical = PadNavigation(out padConfirm, out padBack, out padHorizontal);
             if (UnityEngine.Input.GetKeyDown(KeyCode.Escape) || padBack) { EclipseUiAudio.Play(UiSound.Back); Back(); return; }
+            if (campaignNameField != null && campaignNameField.isFocused)
+            {
+                // Let text entry own letters, spaces and arrows; they must not submit
+                // a button or change the title's selection while naming a campaign.
+                if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || padConfirm) campaignNameSubmit?.Invoke();
+                else if (UnityEngine.Input.GetKeyDown(KeyCode.Tab) || padVertical != 0)
+                {
+                    campaignNameField.DeactivateInputField();
+                    selected = Mathf.Clamp(controls.IndexOf(campaignNameField) + 1, 0, controls.Count - 1);
+                    controls[selected].Select();
+                }
+                return;
+            }
             // Explicit navigation avoids dependence on the recovered EventSystem's input axes.
             int delta = UnityEngine.Input.GetKeyDown(KeyCode.DownArrow) || UnityEngine.Input.GetKeyDown(KeyCode.Tab) ? 1 :
                 UnityEngine.Input.GetKeyDown(KeyCode.UpArrow) ? -1 : padVertical;

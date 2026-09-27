@@ -12,7 +12,9 @@ if (Test-Path -LiteralPath $testRoot) {
     Remove-Item -LiteralPath $resolvedFixture -Recurse -Force
 }
 New-Item -ItemType Directory -Force $modsRoot | Out-Null
-Copy-Item -Recurse -Force (Join-Path $root 'Mods/example.phase1') $modRoot
+$example = Join-Path $root 'Mods/example.phase1'
+if (!(Test-Path -LiteralPath $example)) { $example = Join-Path $root 'ArchivedMods/example.phase1' }
+Copy-Item -Recurse -Force $example $modRoot
 
 $sources = @(
     'Assets/Scripts/Eclipse/Runtime/Modding/ModId.cs',

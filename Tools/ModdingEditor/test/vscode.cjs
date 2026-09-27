@@ -38,6 +38,21 @@ exports.run = async function () {
         assert(found, 'VS Code did not offer register_weapon through the installed Lua extension');
         passed.push('PASS: real VS Code Lua extension provides weapon completion after enabling the preview');
 
+        const stainUri = vscode.Uri.joinPath(folder.uri, 'scripts', 'stain-completion.lua');
+        fs.writeFileSync(stainUri.fsPath, 'local sf2=require("sf2")\nsf2.fx.stain {\n    \n}');
+        await vscode.workspace.openTextDocument(stainUri);
+        let stainsFound = false;
+        const stainDeadline = Date.now() + 30000;
+        while (Date.now() < stainDeadline) {
+            const result = await vscode.commands.executeCommand('vscode.executeCompletionItemProvider', stainUri, new vscode.Position(2, 4));
+            const labels = (result?.items ?? []).map(item => typeof item.label === 'string' ? item.label : item.label.label);
+            if (['speed_min', 'speed_max', 'gravity', 'lift', 'merge_radius', 'max_pool_size'].every(field => labels.some(label => label.startsWith(field))))
+            { stainsFound = true; break; }
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+        assert(stainsFound, 'Stain flight and accumulation completion missing');
+        passed.push('PASS: stain flight and accumulation completion');
+
         const controlUri=vscode.Uri.joinPath(folder.uri,'scripts','control-completion.lua');
         fs.writeFileSync(controlUri.fsPath,'local sf2=require("sf2")\nsf2.behaviors.register { id="controls",on_round_begin=function(_,fighter)\n fighter:\nend }');
         await vscode.workspace.openTextDocument(controlUri);

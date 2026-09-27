@@ -5,6 +5,38 @@ description: Preserve owned items and progress when a mod is disabled or updated
 
 A player's saved mod content depends on stable IDs. Decide your manifest ID and local content IDs before publishing, then preserve them across updates.
 
+## Campaign save selection
+
+Choose **Campaign** on the title screen to create, select, rename, or delete a
+campaign. The list has four entries per page and no fixed save-slot limit;
+available disk space and filesystem performance remain practical limits. Names
+are 1–48 characters and may be duplicated: each campaign has a separate internal
+ID. Deleting a campaign requires confirmation and removes all of its saved
+progress, including mod state.
+
+Each campaign stores its normal XML profiles, backups, hashes, pending write
+records, and profile-local settings under
+`CampaignSaves/<id>/userdata/`, beside the original `userdata/` directory in the
+game's persistent-data location. `campaign.xml` in the campaign directory holds
+its display name and dates. Mod state remains inside the selected profile; mods
+do not need a new save API or a hard-coded campaign path. Enabled mods and
+installation-wide mod settings are shared across campaigns.
+
+The first visit copies an existing legacy profile and its companion files into
+**Existing campaign**, leaving the original `userdata/` intact. Developer
+`SaveProfiles` archives are not copied. This import happens only once; deleting
+the imported campaign does not import it again. New campaigns start from the
+normal default profile using currently enabled content. Return to the title to
+switch campaigns. A campaign open in another game process cannot be opened,
+renamed, or deleted until that process releases it.
+
+Unreadable campaign metadata is isolated to its own list entry. Save-directory
+symbolic links and junctions are refused. Filesystem checks cover import retries,
+independent profiles, more than 130 saves, locking, and deletion boundaries;
+full-game switching and title-screen visual validation remain unverified.
+
+## Content compatibility fingerprints
+
 Forge candidate exclusions and deviation overrides participate in the content compatibility fingerprint. Changing an override's bounds is detected even when the mod version stays the same. These changes affect future rolls; existing equipment enchantments retain their saved values.
 
 Default equipment enchantment loadouts also participate in that fingerprint, including entry order and optional aspects. Changing or disabling a loadout restores acquisition defaults without rewriting enchantments already saved on inventory items.

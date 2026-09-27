@@ -815,7 +815,7 @@ public class SelectAnimation
 		conditions.IsWinner = ACENLMONNPA.Parameters.IsWinner;
 		conditions.EndRoundType = ACENLMONNPA.Parameters.EndRoundType;
 		conditions.IDCHHGHAENM = ACENLMONNPA.IDCHHGHAENM;
-		conditions.BOECCPNHAII = (int)ACENLMONNPA.GHHCDAFIKJE.IIIDIKABLOJ.GetX();
+		conditions.BOECCPNHAII = (int)ACENLMONNPA.GHHCDAFIKJE.Impulse.GetX();
 		conditions.BFLPOMAHPJD = (ObscuredFloat)(ACENLMONNPA.Parameters.KKMCHCNOHMB());
 		conditions.KGCJIBCACBH = ACENLMONNPA.Parameters.CIDCNCDFONA;
 		conditions.PKMHOICGDIM = ACENLMONNPA.GLEKCPCMINJ();

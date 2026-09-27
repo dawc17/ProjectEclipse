@@ -4593,6 +4593,14 @@
           "number",
           "0-1, default 0.35."
         ],
+        "warmth?": [
+          "number",
+          "0-1 warm ivory tint, default 0; preserves peak brightness."
+        ],
+        "softness?": [
+          "number",
+          "0-3 screen pixels of outer feathering, default 0."
+        ],
         "ink?": [
           "number",
           "0-1: rim turns to ink_color while casting magic, default 0."
@@ -5238,7 +5246,31 @@
         ],
         "limit?": [
           "number",
-          "1-200 kept, default 60."
+          "1-200 landed pools kept, default 60."
+        ],
+        "speed_min?": [
+          "number",
+          "0-2000 arena units/s, default 0. Must not exceed speed_max."
+        ],
+        "speed_max?": [
+          "number",
+          "0-2000 arena units/s, default 0 (instant stains). Positive enables droplets."
+        ],
+        "gravity?": [
+          "number",
+          "50-5000 arena units/s squared, default 900."
+        ],
+        "lift?": [
+          "number",
+          "0-1000 upward arena units/s, default 80."
+        ],
+        "merge_radius?": [
+          "number",
+          "0-400 arena units, default 0 (no accumulation)."
+        ],
+        "max_pool_size?": [
+          "number",
+          "1-1600 arena units, default 120. Must be at least size_max when merging."
         ]
       }
     },

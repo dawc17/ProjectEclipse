@@ -1,0 +1,7 @@
+schema = 1
+id = "example.floor-stains"
+name = "Floor Stains"
+version = "1.0.0"
+authors = ["Your Name"]
+entrypoint = "scripts/main.lua"
+capabilities = ["presentation.visuals", "ui.settings"]

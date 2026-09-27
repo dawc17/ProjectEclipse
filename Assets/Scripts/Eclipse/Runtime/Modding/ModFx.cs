@@ -172,7 +172,9 @@ namespace Eclipse.Modding
 				{ ModFxKind.Stain, new[] {
 					("count", 3f, 1f, 12f), ("size_min", 10f, 1f, 400f), ("size_max", 26f, 1f, 400f),
 					("spread", 40f, 0f, 400f), ("flatten", 0.35f, 0.1f, 1f), ("alpha", 0.8f, 0f, 1f),
-					("limit", 60f, 1f, 200f) } },
+					("limit", 60f, 1f, 200f), ("speed_min", 0f, 0f, 2000f), ("speed_max", 0f, 0f, 2000f),
+					("gravity", 900f, 50f, 5000f), ("lift", 80f, 0f, 1000f),
+					("merge_radius", 0f, 0f, 400f), ("max_pool_size", 120f, 1f, 1600f) } },
 				{ ModFxKind.Glint, new[] {
 					("interval", 3f, 0.2f, 60f), ("duration", 0.35f, 0.05f, 3f), ("size", 22f, 1f, 400f),
 					("alpha", 0.9f, 0f, 1f), ("max_speed", 250f, 0f, 20000f) } },
@@ -228,6 +230,8 @@ namespace Eclipse.Modding
 			RequireOrdered(numbers, kind, "velocity_x_min", "velocity_x_max");
 			RequireOrdered(numbers, kind, "velocity_y_min", "velocity_y_max");
 			RequireOrdered(numbers, kind, "speed_min", "speed_max");
+			if (kind == ModFxKind.Stain && numbers["merge_radius"] > 0f && numbers["max_pool_size"] < numbers["size_max"])
+				throw new ModContentException("Stain.max_pool_size must be at least size_max when merge_radius is positive.");
 			if (kind == ModFxKind.Trail && numbers["full_speed"] <= numbers["min_speed"])
 				throw new ModContentException("Trail.full_speed must be greater than min_speed.");
 

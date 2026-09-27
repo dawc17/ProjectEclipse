@@ -4,7 +4,7 @@ $fixture=Join-Path $root ('Temp/ProfileSaveBoundary-'+[Guid]::NewGuid().ToString
 New-Item -ItemType Directory -Path $fixture | Out-Null
 function Read-Method($file,$signature) {
  $source=Get-Content -Raw -LiteralPath (Join-Path $root $file)
- $match=[regex]::Match($source,'(?ms)^\t'+[regex]::Escape($signature)+'.*?^\t\}')
+ $match=[regex]::Match($source,'(?ms)^\t+'+[regex]::Escape($signature)+'.*?^\t\}')
  if(!$match.Success){throw "Method not found: $signature"}
  return $match.Value
 }
@@ -25,7 +25,7 @@ namespace UnityEngine {public static class Debug {public static void LogExceptio
 namespace Nekki.SF2.Core.Exceptions {public class HackDetectedException:Exception {public HackDetectedException(string s):base(s){}}}
 static class SystemProperties {public static string GLLJKPBHELE()=>"fixture-device";}
 static class GameSettings {public static bool Hashes;public static bool HCAJHNKLLGB()=>Hashes;}
-static class SF2Paths {public static string Folder;public static string APHDBIBDMDG()=>Folder;}
+static class SF2Paths {public static string Folder;public static string GetUserDataDirectory()=>Folder;}
 static class Constants {public const string OJMIJINKBPJ="users.xml",GHKPPHAAMBL="users_backup.xml";}
 static class XmlUtils {
  public enum EBLFEPIOMOL {Normal,ForcedExternal,ForcedResourced}
@@ -34,7 +34,9 @@ static class XmlUtils {
  /* READ */
 }
 namespace Eclipse.Modding {static class ModRuntime {static int _profileMutationState=0; /* ADAPTERS */ }}
+namespace Eclipse.Multiplayer {public static class LocalVersusSession {public static bool IsActive;}}
 class Program {
+ private bool _localVersusProfile;
  public bool GJEJCLBAPMP=true;public XmlDocument IEDEFCBFJAD;
  public Program CCDKHLAMKKO()=>this;public void KGFJPLKOABI(){} public void PMIIHIFGIIN(){}
  /* SAVE */

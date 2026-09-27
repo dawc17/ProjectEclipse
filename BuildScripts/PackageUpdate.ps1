@@ -4,12 +4,23 @@ param(
     [ValidateSet('stable','beta')][string]$Channel = 'stable',
     [string]$ReleaseTag = '',
     [string]$Notes = '',
-    [string]$OutputDirectory = ''
+    [string]$OutputDirectory = '',
+    [string]$PreviousManifest = '',
+    [string]$LegacyManifest = '',
+    [switch]$IncludeLegacy
 )
 $ErrorActionPreference = 'Stop'
 if ($Version -notmatch '^\d{1,6}\.\d{1,6}\.\d{1,6}$') { throw 'Version must be major.minor.patch.' }
-if (!$ReleaseTag) { $ReleaseTag = if ($Channel -eq 'beta') { 'beta' } else { "v$Version" } }
+if (!$ReleaseTag) { $ReleaseTag = if ($Channel -eq 'beta') { "v$Version-beta" } else { "v$Version" } }
 if ($ReleaseTag -notmatch '^[A-Za-z0-9._-]+$') { throw 'Invalid release tag.' }
+if ($ReleaseTag -eq 'beta') { throw 'Use a version-specific release tag; the beta release only holds channel manifests.' }
+if ($PreviousManifest) { $PreviousManifest = (Resolve-Path -LiteralPath $PreviousManifest).Path }
+if ($LegacyManifest) {
+    if ($IncludeLegacy) { throw 'Choose IncludeLegacy or LegacyManifest, not both.' }
+    $LegacyManifest = (Resolve-Path -LiteralPath $LegacyManifest).Path
+    $legacy = Get-Content -LiteralPath $LegacyManifest -Raw | ConvertFrom-Json
+    if ($legacy.format -ne 1 -or !$legacy.parts) { throw 'LegacyManifest must be a format 1 bridge manifest.' }
+}
 $GameDirectory = (Resolve-Path -LiteralPath $GameDirectory).Path
 foreach ($file in @('Eclipse.exe','UnityPlayer.dll','Eclipse_Data')) {
     if (!(Test-Path -LiteralPath (Join-Path $GameDirectory $file))) { throw "Missing $file" }
@@ -20,6 +31,22 @@ if (Test-Path -LiteralPath $OutputDirectory) { throw "Output already exists: $Ou
 if ($OutputDirectory.StartsWith($GameDirectory.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Output must be outside the game directory.' }
 New-Item -ItemType Directory -Path $OutputDirectory | Out-Null
 & "$PSScriptRoot/BuildLauncher.ps1" -OutputDirectory (Join-Path $OutputDirectory 'launcher')
+$compiler = Join-Path $env:WINDIR 'Microsoft.NET/Framework64/v4.0.30319/csc.exe'
+$source = Join-Path (Split-Path -Parent $PSScriptRoot) 'Launcher'
+$builder = Join-Path $OutputDirectory 'PackageBuilder.exe'
+& $compiler /nologo /target:exe "/out:$builder" /r:System.Web.Extensions.dll /r:System.IO.Compression.dll /r:System.IO.Compression.FileSystem.dll (Join-Path $source 'PackageBuilder.cs') (Join-Path $source 'UpdateCore.cs') (Join-Path $source 'IncrementalUpdate.cs')
+if ($LASTEXITCODE -ne 0) { throw 'Package builder compilation failed.' }
+# Windows PowerShell drops empty native arguments; pass paths/notes via quoted arguments.
+$builderArgs = @($GameDirectory, $OutputDirectory, $Version, $Channel, $ReleaseTag, $Notes, $PreviousManifest)
+$argumentLine = ($builderArgs | ForEach-Object { '"' + ($_ -replace '(\\*)"', '$1$1\"' -replace '(\\+)$', '$1$1') + '"' }) -join ' '
+$process = Start-Process -FilePath $builder -ArgumentList $argumentLine -Wait -PassThru -NoNewWindow
+if ($process.ExitCode -ne 0) { throw 'Incremental packaging failed.' }
+Remove-Item -LiteralPath $builder
+if (!$IncludeLegacy) {
+    if ($LegacyManifest) { Copy-Item -LiteralPath $LegacyManifest -Destination (Join-Path $OutputDirectory "$Channel.json") }
+    Write-Output "Ready in $OutputDirectory. Upload the new .gz objects, launcher/EclipseLauncher.exe and $Channel-v2.json. Nothing was published."
+    return
+}
 Add-Type -AssemblyName System.IO.Compression
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $zipPath = Join-Path $OutputDirectory 'game.zip'
@@ -28,7 +55,7 @@ $unpacked = 0L
 try {
     foreach ($file in Get-ChildItem -LiteralPath $GameDirectory -Recurse -File) {
         $relative = $file.FullName.Substring($GameDirectory.Length).TrimStart('\','/').Replace('\','/')
-        if ($relative -match '^(Mods|versions|staging|launcher)(/|$)' -or $relative -match '^launcher-state\.' -or
+        if ($relative -match '^(Mods|versions|staging|launcher|download-cache)(/|$)' -or $relative -match '^launcher-state\.' -or
             $relative -match '(^|/)(EclipseLauncher\.exe|launcher\.lock)$' -or $relative -match '(BackUpThisFolder_ButDontShipItWithYourGame|BurstDebugInformation_DoNotShip)') { continue }
         if ($file.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw "Do not package links: $relative" }
         [IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip, $file.FullName, $relative, [IO.Compression.CompressionLevel]::Optimal) | Out-Null
@@ -63,4 +90,4 @@ try {
 } finally { $inputStream.Dispose() }
 $manifest = @{ format = 1; version = $Version; notes = $Notes; unpackedSize = $unpacked; parts = $parts }
 [IO.File]::WriteAllText((Join-Path $OutputDirectory "$Channel.json"), ($manifest | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
-Write-Output "Ready in $OutputDirectory. Upload $Channel.json and every .part file to release $ReleaseTag. Distribute launcher/EclipseLauncher.exe to players. No release was published."
+Write-Output "Bridge package ready in $OutputDirectory. Publish both manifests and all new .gz/.partNNN assets. Do not upload game.zip. Nothing was published."

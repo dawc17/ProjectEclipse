@@ -258,6 +258,20 @@ the weapon's blade (each hand separately). `nodes` gives the inner end first
 and the moving end second. The ribbon only appears while the moving end is
 faster than `min_speed`, at full strength from `full_speed`.
 
+Every trail, including the [weapon trail preset](#sf2visualsweapon_trails),
+behaves the same way:
+
+- **Fight time.** `lifetime` and speeds are measured in fight time. In
+  slow motion a trail lasts longer and still appears on slowed swings. It holds
+  still during hit-stop and pause, then continues. Menu previews use real time.
+- **Shape.** Between frames the line is swept as an arc around its inner end,
+  so fast swings look round at any frame rate. Older parts of the ribbon narrow
+  toward the moving end, giving a crescent, and fade out smoothly.
+- **Overlaps.** Where a swing reverses and the ribbon folds over itself, the
+  overlap is drawn once, so it does not turn darker or brighter.
+- **Jumps.** A fighter that teleports, resets for a new round or snaps to a new
+  facing starts a fresh ribbon instead of drawing a streak across the screen.
+
 | Field | Default | Meaning |
 | --- | --- | --- |
 | `weapon` | `false` | Follow the weapon blade. |
@@ -452,7 +466,7 @@ sf2.fx.light { id = "magic_light", source = "magic", color = "#C8B8FF", radius =
 
 ## sf2.fx.stain
 
-**Signature:** `sf2.fx.stain { id = "...", trigger = "hit", color = "#590808", alpha = 0.8, count = 3, size_min = 10, size_max = 26, spread = 40, flatten = 0.35, limit = 60, sprite = handle, blend = "alpha", fighters = "both" }`
+**Signature:** `sf2.fx.stain { id = "...", trigger = "hit", color = "#590808", alpha = 0.8, count = 3, size_min = 10, size_max = 26, spread = 40, flatten = 0.35, limit = 60, speed_min = 90, speed_max = 210, gravity = 900, lift = 80, merge_radius = 16, max_pool_size = 120, sprite = handle, blend = "alpha", fighters = "both" }`
 
 **Returns:** The effect's name, `<mod-id>.<id>`.
 
@@ -461,13 +475,42 @@ sf2.fx.light { id = "magic_light", source = "magic", color = "#C8B8FF", radius =
 **Requires:** `presentation.visuals`. A `sprite` must be a handle from
 `sf2.assets.sprite`.
 
-Leaves splats on the floor under matching hits. Each hit drops `count` splats
-on the floor below the contact point, scattered up to `spread` to either side,
-flattened by `flatten` so they lie on the ground. They stay where they landed
-until the next round begins. When more than `limit` of this effect's splats
-exist, the oldest go first. Blocked hits never stain. Without a sprite, three
-built-in splat shapes are used at random. The floor is found the same way as for
-[`sf2.fx.shadow`](#sf2fxshadow). Stains run in fights only.
+Leaves splats on the floor under matching hits. With the default `speed_max = 0`,
+`count` splats appear immediately below the contact point, scattered up to `spread`
+to either side. Set a positive `speed_max` to launch visible droplets instead.
+Droplets follow the strike's impulse direction with a small random angular spread,
+an upward `lift`, and downward `gravity`. Critical hits multiply launch speed by
+1.25; knockouts by 1.5 (these multipliers do not stack). No damage or physics changes.
+For droplets, `spread` adds random horizontal speed in arena units per second;
+the splat appears where the droplet crosses the floor, without another random offset.
+A zero impulse launches upward. Airborne drops use 75% of their eventual splat
+width, with height equal to 80% of that airborne width, so the spray stays visible
+at normal fight zoom. Flight follows game time, including slow motion,
+and freezes while the fight is paused.
+
+Landed splats are flattened by `flatten` and stay in arena coordinates until the
+next round begins. They draw over foreground floor artwork, with fighter silhouettes
+masked out so blood does not paint over feet. The built-in renderer needs a stencil
+buffer for this mask. Blocked hits never stain. Without a sprite, three built-in
+splat shapes are used at random. A custom `sprite` is used for both drops and splats.
+The floor is sampled from fighter skeletons as for [`sf2.fx.shadow`](#sf2fxshadow);
+this is a flat arena plane, not collision against the floor sprite's pixels.
+Stains run in fights only.
+
+Set `merge_radius` above zero to enable accumulation. A landing merges into the
+nearest unsaturated pool of the **same effect ID** within that horizontal distance.
+Its area and opacity increase, keeping its original position and irregular shape.
+Width stops at `max_pool_size`; subsequent landings create new pools once nearby
+pools are full. Different effect IDs never merge, even within the same mod.
+`max_pool_size` must be at least `size_max` when merging is enabled.
+
+`limit` counts landed pools, removing the oldest when necessary. The arena also
+caps all stain effects together at 128 airborne droplets and 512 landed pools,
+recycling the oldest at capacity. Droplets still airborne after eight game seconds
+are discarded. Renderers are reused, with at most 128 inactive renderers cached.
+Turning off an effect's setting removes its droplets and pools; round reset and
+arena teardown clear them too. Existing definitions keep instant, separate stains
+unless they opt into the new fields.
 
 | Field | Default | Meaning |
 | --- | --- | --- |
@@ -477,13 +520,23 @@ built-in splat shapes are used at random. The floor is found the same way as for
 | `alpha` | `0.8` | 0–1 opacity (each splat varies slightly). |
 | `count` | `3` | 1–12 splats per hit. |
 | `size_min`, `size_max` | `10`, `26` | 1–400 splat width in fighter units; min must not exceed max. |
-| `spread` | `40` | 0–400: horizontal scatter around the hit. |
+| `spread` | `40` | 0–400: instant splat scatter in arena units, or extra droplet horizontal speed in arena units/s. |
 | `flatten` | `0.35` | 0.1–1: splat height as a fraction of its width. |
-| `limit` | `60` | 1–200 splats of this effect kept at once. |
+| `limit` | `60` | 1–200 landed pools of this effect kept at once. |
 | `sprite`, `blend` | Built-in, `"alpha"` | Your own splat image, and `alpha` or `additive`. |
+| `speed_min`, `speed_max` | `0`, `0` | Launch speed, 0-2000 arena units/s before critical/KO scaling; minimum must not exceed maximum. Zero maximum keeps instant stains. |
+| `gravity` | `900` | Downward acceleration, 50-5000 arena units/s squared. |
+| `lift` | `80` | Upward launch velocity added to the spray, 0-1000 arena units/s. |
+| `merge_radius` | `0` | Horizontal centre distance for accumulation, 0-400 arena units. Zero disables merging. |
+| `max_pool_size` | `120` | Maximum accumulated width, 1-1600 arena units; at least `size_max` when merging. |
 
 ```lua
-sf2.fx.stain { id = "hit_stains", color = "#4A0606", count = 2, size_min = 8, size_max = 20, limit = 50 }
+sf2.fx.stain {
+  id = "hit_stains", color = "#4A0606", count = 3,
+  size_min = 8, size_max = 20, limit = 50,
+  speed_min = 90, speed_max = 210, gravity = 900, lift = 90,
+  merge_radius = 16, max_pool_size = 70,
+}
 sf2.fx.stain { id = "knockout_stain", trigger = "ko", count = 5, size_min = 20, size_max = 42 }
 ```
 
@@ -579,6 +632,8 @@ Draws a short ribbon from the main-hand weapon's grip to its tip. Each part of
 the ribbon fades out over `lifetime` seconds, and only appears when the tip is
 moving faster than `min_speed` (model units per second), at full strength from
 `full_speed`. Fists and weapons shorter than a small blade length draw no trail.
+The ribbon runs on fight time, sweeps round arcs and tapers.
+See [sf2.fx.trail](#sf2fxtrail) for details.
 
 | Field | Default | Range |
 | --- | --- | --- |
@@ -618,7 +673,7 @@ sf2.visuals.depth_haze { strength = 0.35, setting = haze }
 
 ## sf2.visuals.rim_light
 
-**Signature:** `sf2.visuals.rim_light { offset = 2.5, alpha = 0.85, lighten = 0.35, ink = 0, ink_color = "#12081C", setting = handle }`
+**Signature:** `sf2.visuals.rim_light { offset = 2.5, alpha = 0.85, lighten = 0.35, warmth = 0, softness = 0, ink = 0, ink_color = "#12081C", setting = handle }`
 
 **Returns:** Nothing.
 
@@ -633,17 +688,28 @@ by `lighten`. With `ink` above 0, a fighter's rim eases toward `ink_color`
 while that fighter casts magic (any move with the native `MagicPlayer`
 template), so the lit edge becomes a dark outline, then eases back.
 
+`warmth` blends the background-derived light toward warm ivory while preserving
+its peak RGB value and configured alpha. Nearby weapon/magic lights and casting
+ink still apply their own colors afterward. `softness` adds a smooth outer fringe
+in screen pixels, leaving the solid rim's color and intensity intact. Zero keeps
+the original hard edge. The fringe follows mesh boundary edges, including in menu
+previews; it does not blur the fighter or its internal triangle edges. These
+options default to zero for existing mods. Native visual validation is pending.
+
 | Field | Default | Range |
 | --- | --- | --- |
 | `offset` | `2.5` | 0–12 screen pixels |
 | `alpha` | `0.85` | 0–1 |
 | `lighten` | `0.35` | 0–1 |
+| `warmth` | `0` | 0–1: blend toward warm ivory, preserving peak brightness. |
+| `softness` | `0` | 0–3 screen pixels of outer feathering. |
 | `ink` | `0` | 0–1: how far the rim turns to `ink_color` during magic casts. |
 | `ink_color` | `"#12081C"` | `#RRGGBB` or `#RRGGBBAA` ink colour. |
 | `setting` | `nil` | A setting handle. |
 
 ```lua
-sf2.visuals.rim_light { offset = 3, ink = 0.85, ink_color = "#1A0C26", setting = rim }
+sf2.visuals.rim_light { offset = 2.5, alpha = 0.85, lighten = 0.35,
+    warmth = 0.65, softness = 1.25, ink = 0.85, ink_color = "#1A0C26", setting = rim }
 ```
 
 ## sf2.visuals.bloom

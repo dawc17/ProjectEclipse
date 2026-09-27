@@ -15,6 +15,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 		private static Shader _Shader;
 
 		private static Material _SharedMaterial;
+		private static Material _RimMaterial;
 
 		private MeshRenderer _Renderer;
 
@@ -27,6 +28,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 		private MeshRenderer _RimRenderer;
 
 		private MaterialPropertyBlock _RimBlock;
+		private Eclipse.Rendering.RimFeather _RimFeather;
 
 		public Color get_Color()
 		{
@@ -53,6 +55,9 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 			{
 				_Shader = Shader.Find("Mesh/Colored");
 				_SharedMaterial = new Material(_Shader);
+				// Stencil is material render state, not a per-renderer tint property.
+				_SharedMaterial.SetFloat("_FloorDecalMask", 64f);
+				_RimMaterial = new Material(_Shader);
 			}
 			_Mesh = new Mesh();
 			base.gameObject.AddComponent<MeshFilter>().mesh = _Mesh;
@@ -64,7 +69,7 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 			rim.transform.SetParent(base.transform, false);
 			rim.AddComponent<MeshFilter>().sharedMesh = _Mesh;
 			_RimRenderer = rim.AddComponent<MeshRenderer>();
-			_RimRenderer.sharedMaterial = _SharedMaterial;
+			_RimRenderer.sharedMaterial = _RimMaterial;
 			_RimRenderer.shadowCastingMode = ShadowCastingMode.Off;
 			_RimRenderer.receiveShadows = false;
 			_RimRenderer.lightProbeUsage = LightProbeUsage.Off;
@@ -88,6 +93,11 @@ namespace Nekki.SF2.Core.Fights.Renders.Model
 			if (_RimBlock == null) _RimBlock = new MaterialPropertyBlock();
 			_RimBlock.SetVector("_Color", Eclipse.Rendering.RimLight.ColorFor(base.transform));
 			_RimRenderer.SetPropertyBlock(_RimBlock);
+			float softness = Eclipse.Rendering.RimLight.Softness;
+			if (_RimFeather == null && softness > 0f)
+				_RimFeather = Eclipse.Rendering.RimFeather.Create(_RimRenderer.transform, JBLMEBBICJI.Triangles, JBLMEBBICJI.Vertices.Length);
+			if (_RimFeather != null)
+				_RimFeather.Refresh(JBLMEBBICJI.Vertices, softness, Eclipse.Rendering.RimLight.ColorFor(base.transform));
 		}
 
 		// Per-renderer override of the shared material's colour; clearing it

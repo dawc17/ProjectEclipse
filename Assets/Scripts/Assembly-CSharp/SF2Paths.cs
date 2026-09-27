@@ -164,7 +164,7 @@ public static class SF2Paths
 	{
 		get
 		{
-			return APHDBIBDMDG();
+			return GetUserDataDirectory();
 		}
 	}
 
@@ -281,7 +281,13 @@ public static class SF2Paths
 		return KKIDGPBOBNI() + "/locations";
 	}
 
-	public static string APHDBIBDMDG()
+	// best guess for name
+	public static string GetUserDataDirectory()
+	{
+		return (Eclipse.Saves.CampaignSaveSession.UserDataDirectory ?? GetLegacyUserDataDirectory()).Replace('\\', '/');
+	}
+
+	public static string GetLegacyUserDataDirectory()
 	{
 		return FFKEDOBDLOL + "/userdata";
 	}
@@ -350,9 +356,9 @@ public static class SF2Paths
 
 	public static void EJGMLNCEPNC()
 	{
-		if (!Directory.Exists(APHDBIBDMDG()))
+		if (!Directory.Exists(GetUserDataDirectory()))
 		{
-			Directory.CreateDirectory(APHDBIBDMDG());
+			Directory.CreateDirectory(GetUserDataDirectory());
 		}
 		if (!Directory.Exists(GBOFOFGDMBN()))
 		{

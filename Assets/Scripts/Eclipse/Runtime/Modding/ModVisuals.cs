@@ -61,7 +61,7 @@ namespace Eclipse.Modding
 					("full_speed", 2600f, 1f, 40000f), ("alpha", 0.55f, 0f, 1f) } },
 				{ ModVisualEffect.DepthHaze, new[] { ("strength", 0.4f, 0f, 1f) } },
 				{ ModVisualEffect.RimLight, new[] { ("offset", 2.5f, 0f, 12f), ("alpha", 0.85f, 0f, 1f), ("lighten", 0.35f, 0f, 1f),
-					("ink", 0f, 0f, 1f) } },
+					("ink", 0f, 0f, 1f), ("warmth", 0f, 0f, 1f), ("softness", 0f, 0f, 3f) } },
 				{ ModVisualEffect.Bloom, new[] { ("threshold", 0.82f, 0f, 2f), ("knee", 0.12f, 0f, 1f), ("intensity", 0.7f, 0f, 4f) } },
 				{ ModVisualEffect.AmbientParticles, new[] { ("density", 1f, 0f, 4f) } },
 				{ ModVisualEffect.Impact, new[] { ("critical", 1f, 0f, 1f), ("head", 0.6f, 0f, 1f), ("shock", 0.4f, 0f, 1f),

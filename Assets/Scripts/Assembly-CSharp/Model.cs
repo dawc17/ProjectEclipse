@@ -314,7 +314,8 @@ public class Model : global::EventDispatcher<object>
 
 		public Vector3f AOFLADELDFB;
 
-		public Vector3f IIIDIKABLOJ = new Vector3f();
+		// best guess for name
+		public Vector3f Impulse = new Vector3f();
 
 		public ModelEdge CMGLHHEJEBN;
 
@@ -2985,7 +2986,7 @@ public class Model : global::EventDispatcher<object>
 		GHHCDAFIKJE.GAIBPAGPEGK = HFGPAELCNMF;
 		GHHCDAFIKJE.Target = ((!Parameters.IsPlayer) ? 1 : 0);
 		GHHCDAFIKJE.CMGLHHEJEBN = GCFJNDJBBOI;
-		GHHCDAFIKJE.IIIDIKABLOJ.Set(KKIKIDNALOL);
+		GHHCDAFIKJE.Impulse.Set(KKIKIDNALOL);
 		GHHCDAFIKJE.ALIHGFIJEDN = AOBJMMHGMPG;
 		GHHCDAFIKJE.PBPDKJNKFCJ = HFGPAELCNMF._Animation.NNMAFFCCMHC();
 		GHHCDAFIKJE.Point = NAAPALOFBCI;
@@ -3074,7 +3075,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		if (PPIAOBPLGOK != null)
 		{
-			_Strike.Strike(GHHCDAFIKJE.CMGLHHEJEBN, GHHCDAFIKJE.AOFLADELDFB, GHHCDAFIKJE.IIIDIKABLOJ);
+			_Strike.Strike(GHHCDAFIKJE.CMGLHHEJEBN, GHHCDAFIKJE.AOFLADELDFB, GHHCDAFIKJE.Impulse);
 			_Physics.IterativeProcess();
 		}
 	}

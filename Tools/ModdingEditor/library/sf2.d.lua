@@ -1994,6 +1994,8 @@ local DepthHazeDefinition = {}
 ---@field offset? number 0-12 pixels, default 2.5.
 ---@field alpha? number 0-1, default 0.85.
 ---@field lighten? number 0-1, default 0.35.
+---@field warmth? number 0-1 warm ivory tint, default 0; preserves peak brightness.
+---@field softness? number 0-3 screen pixels of outer feathering, default 0.
 ---@field ink? number 0-1: rim turns to ink_color while casting magic, default 0.
 ---@field ink_color? string #RRGGBB or #RRGGBBAA ink colour.
 ---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off; without one it is always on.
@@ -2193,7 +2195,13 @@ local FxLightDefinition = {}
 ---@field size_max? number 1-400, default 26.
 ---@field spread? number 0-400, default 40.
 ---@field flatten? number 0.1-1, default 0.35.
----@field limit? number 1-200 kept, default 60.
+---@field limit? number 1-200 landed pools kept, default 60.
+---@field speed_min? number 0-2000 arena units/s, default 0. Must not exceed speed_max.
+---@field speed_max? number 0-2000 arena units/s, default 0 (instant stains). Positive enables droplets.
+---@field gravity? number 50-5000 arena units/s squared, default 900.
+---@field lift? number 0-1000 upward arena units/s, default 80.
+---@field merge_radius? number 0-400 arena units, default 0 (no accumulation).
+---@field max_pool_size? number 1-1600 arena units, default 120. Must be at least size_max when merging.
 local FxStainDefinition = {}
 
 ---@class (exact) Eclipse.QuestSuppression

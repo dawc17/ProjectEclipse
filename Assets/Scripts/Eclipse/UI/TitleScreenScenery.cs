@@ -40,6 +40,11 @@ namespace Eclipse.UI
         private static Season season;
         private static bool seasonChosen;
 
+        // Opaque seasonal accents keep secondary copy distinct from the main
+        // paper-colored labels: amber leaves at the gate, pink petals at night.
+        private static Color SceneryAccent => season == Season.Spring
+            ? new Color32(255, 196, 214, 255) : new Color32(250, 171, 62, 255);
+
         private sealed class Layer { public RectTransform Rect; public Vector2 Home; public float Depth; public bool Live; }
         private readonly List<Layer> layers = new List<Layer>();
         private RectTransform scenery;
@@ -337,7 +342,7 @@ namespace Eclipse.UI
         // is eclipsed in step with the sky.
         private void DrawPlaque()
         {
-            plaque = Rect(page, "Eclipse plaque", 640, 192, 0, 0);
+            plaque = Rect(page, "Eclipse plaque", 640, 210, 0, 0);
             plaque.pivot = new Vector2(.5f, 1f);
             var wood = (Color)new Color32(73, 43, 29, 255);
             Box(plaque, "Cord left", -72, 0, 2, 12, Ink);
@@ -368,44 +373,11 @@ namespace Eclipse.UI
             wash.raycastTarget = false;
         }
 
-        // "Act VI  ·  Level 52" from the local save, shown under Campaign. Absent on a new install.
-        private static string ContinueLine()
-        {
-            try
-            {
-                string path = Path.Combine(Application.persistentDataPath, "userdata", "users.xml");
-                if (!File.Exists(path)) return null;
-                var document = new XmlDocument { XmlResolver = null };
-                using (var reader = XmlReader.Create(path, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
-                    document.Load(reader);
-                var warrior = document.SelectSingleNode("//Warrior[@ID='1']") as XmlElement;
-                if (warrior == null) return null;
-                string zone = warrior.GetAttribute("CurrentZone");
-                string level = warrior.GetAttribute("Level");
-                int act;
-                string actText = zone.StartsWith("ZONE_", StringComparison.Ordinal) && int.TryParse(zone.Substring(5), out act) && act > 0
-                    ? "Act " + Roman(act) : null;
-                if (string.IsNullOrEmpty(level)) return actText;
-                return actText == null ? "Level " + level : actText + "   ·   Level " + level;
-            }
-            catch (Exception error)
-            {
-                Debug.Log("[Title] No readable save summary: " + error.Message);
-                return null;
-            }
-        }
-
-        private static string Roman(int value)
-        {
-            string[] numerals = { "", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X" };
-            return value < numerals.Length ? numerals[value] : value.ToString();
-        }
-
         // --- Footer --------------------------------------------------------------------------
 
         private void DrawFooter()
         {
-            footerBackground = Box(page, "Footer", 0, 674, 1280, 46, new Color(.09f, .066f, .052f, .94f));
+            footerBackground = Box(page, "Footer", 0, 674, 1280, 46, new Color(.09f, .066f, .052f, .78f));
             var rule = Box(footerBackground, "Rule", 0, 0, 0, 2, Red);
             rule.anchorMin = new Vector2(0, 1); rule.anchorMax = new Vector2(1, 1); rule.sizeDelta = new Vector2(0, 2); rule.anchoredPosition = Vector2.zero;
             footerBrand = Label(footerBackground, Brand(), 28, 9, 640, 30, 14, new Color(Paper.r, Paper.g, Paper.b, .6f));

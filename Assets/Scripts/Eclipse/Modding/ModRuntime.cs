@@ -85,7 +85,7 @@ namespace Eclipse.Modding
         {
             var comparison = Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
             string full = Path.GetFullPath(path);
-            string directory = SF2Paths.APHDBIBDMDG();
+            string directory = SF2Paths.GetUserDataDirectory();
             return string.Equals(full, Path.GetFullPath(Path.Combine(directory, Constants.OJMIJINKBPJ)), comparison) ||
                 string.Equals(full, Path.GetFullPath(Path.Combine(directory, Constants.GHKPPHAAMBL)), comparison);
         }

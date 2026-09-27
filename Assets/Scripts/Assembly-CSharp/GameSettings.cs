@@ -219,13 +219,13 @@ public static class GameSettings
 			pAMHFPMEPCH.SetVersion(xmlNode.Attributes["Value"].CIPOICEEIBK(string.Empty));
 			pAMHFPMEPCH.DPHPJFGOLMJ(0);
 		}
-		XmlDocument xmlDocument2 = XmlUtils.AIFIAKNJMHG(SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+		XmlDocument xmlDocument2 = XmlUtils.AIFIAKNJMHG(SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 		if (xmlDocument2 == null)
 		{
-			xmlDocument2 = XmlUtils.AIFIAKNJMHG(SF2Paths.APHDBIBDMDG(), Constants.GHKPPHAAMBL);
+			xmlDocument2 = XmlUtils.AIFIAKNJMHG(SF2Paths.GetUserDataDirectory(), Constants.GHKPPHAAMBL);
 			if (xmlDocument2 != null)
 			{
-				string kPFELJFPGHJ = string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+				string kPFELJFPGHJ = string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 				XmlUtils.ONLDJNLKKAL(xmlDocument2, kPFELJFPGHJ);
 			}
 		}
@@ -262,7 +262,7 @@ public static class GameSettings
 		{
 			VersionContainer pAMHFPMEPCH = SystemProperties.KCJMMIEBLHL();
 			VersionContainer pAMHFPMEPCH2 = new VersionContainer();
-			string oNEIGMLOGDC = ((!EAJBNEBGFDP.DFBLLGKPPFC) ? SF2Paths.APHDBIBDMDG() : SF2Paths.KKIDGPBOBNI());
+			string oNEIGMLOGDC = ((!EAJBNEBGFDP.DFBLLGKPPFC) ? SF2Paths.GetUserDataDirectory() : SF2Paths.KKIDGPBOBNI());
 			XmlDocument xmlDocument = null;
 			xmlDocument = ((!EAJBNEBGFDP.DFBLLGKPPFC) ? XmlUtils.OpenXMLDocument(oNEIGMLOGDC, Constants.OJMIJINKBPJ) : XmlUtils.OpenXMLDocument(oNEIGMLOGDC, "usersDefault.xml", XmlUtils.EBLFEPIOMOL.Normal, true, XmlCryptoUtils.NNLGALNDJCL()));
 			if (xmlDocument != null)
@@ -276,7 +276,7 @@ public static class GameSettings
 					pAMHFPMEPCH2.SetVersion(aHLPODLKBEP);
 				}
 				SystemProperties.BFBMCAALLHF(pAMHFPMEPCH, pAMHFPMEPCH2);
-				string kPFELJFPGHJ = string.Format("{0}/{1}", SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+				string kPFELJFPGHJ = string.Format("{0}/{1}", SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 				XmlUtils.ONLDJNLKKAL(xmlDocument, kPFELJFPGHJ);
 			}
 			else
@@ -290,7 +290,7 @@ public static class GameSettings
 
 	public static string DGBHBMFEOAA()
 	{
-		XmlDocument xmlDocument = XmlUtils.AIFIAKNJMHG(SF2Paths.APHDBIBDMDG(), Constants.OJMIJINKBPJ);
+		XmlDocument xmlDocument = XmlUtils.AIFIAKNJMHG(SF2Paths.GetUserDataDirectory(), Constants.OJMIJINKBPJ);
 		if (xmlDocument != null)
 		{
 			XmlDocument xmlDocument2 = XmlUtils.OpenXMLDocument(SF2Paths.KKIDGPBOBNI(), "versionController.xml");

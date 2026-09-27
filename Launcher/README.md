@@ -11,10 +11,23 @@ the launcher beside the Windows player. Unity's editor menu alone does not.
 Players put the launcher in a writable folder, optionally alongside an existing
 `Eclipse.exe`, and run it. Check/install buttons, stable/beta selection and an
 automatic-check preference are provided. Updates download into unique staging
-folders, verify every part's SHA-256 and length, validate/extract the ZIP, then
+folders, verify every downloaded block and reconstructed file, then
 switch a small state file atomically. The installed build is playable offline.
 Failed downloads leave the active version untouched; staging files can be removed
 manually while the launcher is closed. Old versions are retained for rollback.
+
+Incremental packages reuse matching 16 MiB blocks from the installed build and
+download missing GZip objects with up to three file workers. Partial downloads
+and verified objects persist under `download-cache/`; retry resumes a partial
+object when the server supports HTTP Range, or restarts that object if it does
+not. A complete block and each assembled file must pass SHA-256 before activation.
+The progress bar measures assembled game bytes, including reused bytes.
+
+Cache and old version retention are currently manual. With the launcher closed,
+`download-cache/` can be removed to reclaim space; the next update will fetch any
+needed objects again. Keep the active and previous version directories for Play
+and rollback. Incremental updates still create a complete new version directory,
+so allow disk space for both installations plus cached compressed downloads.
 
 The root launcher forwards to the launcher included in the active game package,
 so launcher updates take effect at the next launch without overwriting a running
@@ -36,31 +49,99 @@ there. Standalone game launches retain the original adjacent-Mods behavior.
 
 ## Publishing
 
-1. Build Windows with the existing `BuildScripts/BuildPlayers.ps1 -Target Windows`.
-2. Package a build (three numeric version components, increasing per channel):
+Build Windows with `BuildScripts/BuildPlayers.ps1 -Target Windows`. Versions have
+three numeric components and must increase per channel. Packaging never contacts
+GitHub. Stop the build before packaging; source files must not change.
 
-   ```powershell
-   .\BuildScripts\PackageUpdate.ps1 -Version 1.0.1 -GameDirectory 'F:\path\to\Windows' -Notes 'Instant purchases and reward fixes'
-   ```
+### First release with the new updater
 
-3. Create a **draft** release tagged `v1.0.1` in `dawc17/ProjectEclipse`. Upload
-   `stable.json`, all `.partNNN` files and `launcher/EclipseLauncher.exe`, then
-   publish and mark it latest. Do not upload the intermediate `game.zip`.
-4. Users run the root launcher and install the offered version.
+Create one bridge package containing both incremental assets and the legacy full
+ZIP. Adjust these example versions to exceed all previously distributed builds:
 
-Stable checks `releases/latest/download/stable.json`. Beta checks
-`releases/download/beta/beta.json`: use `-Channel beta` and publish the assets on
-the `beta` prerelease. Upload all parts before replacing the beta manifest.
-Retain version-specific parts while clients may still be downloading them.
+```powershell
+.\BuildScripts\PackageUpdate.ps1 -Version 1.0.6 -GameDirectory 'F:\path\to\Windows' -IncludeLegacy
+.\BuildScripts\PublishUpdate.ps1 -PackageDirectory '.\BuildScripts\out\Releases\stable-1.0.6' -ReleaseTag v1.0.6 -Plan
+```
+
+`-Plan` checks local upload lengths/hashes and reports upload bytes without network
+calls. Install and authenticate GitHub CLI (`gh auth login`), then create a
+**draft** release tagged `v1.0.6` in `dawc17/ProjectEclipse`. The upload script
+requires an existing draft and never changes the source tag:
+
+```powershell
+.\BuildScripts\PublishUpdate.ps1 -PackageDirectory '.\BuildScripts\out\Releases\stable-1.0.6' -ReleaseTag v1.0.6
+# After reviewing the draft, repeat with -Publish to publish and mark latest.
+```
+
+The script uploads only the named payloads, both manifests and the standalone
+launcher. It excludes the intermediate `game.zip`. Reruns skip completed assets
+only when GitHub reports matching size and SHA-256; different existing assets
+cause an error instead of being overwritten. It verifies all retained references
+before upload and all new assets before publication. Assets without a reported
+GitHub digest fail verification and need separate operator investigation.
+
+Old launchers read `stable.json` and install the full bridge build. On the next
+launch, its bundled new updater reads `stable-v2.json`. The first bridge release
+therefore uploads both representations once. Its version must exceed all
+distributed legacy-launcher versions and it must contain this new updater.
+
+### Subsequent releases
+
+Supply the previous published incremental manifest to reuse objects already
+hosted, and preserve the bridge manifest unchanged:
+
+```powershell
+.\BuildScripts\PackageUpdate.ps1 -Version 1.0.7 -GameDirectory 'F:\path\to\Windows' -PreviousManifest '.\BuildScripts\out\Releases\stable-1.0.6\stable-v2.json' -LegacyManifest '.\BuildScripts\out\Releases\stable-1.0.6\stable.json'
+.\BuildScripts\PublishUpdate.ps1 -PackageDirectory '.\BuildScripts\out\Releases\stable-1.0.7' -ReleaseTag v1.0.7 -Plan
+```
+
+Create the new draft, upload and review it, then run the publisher with `-Publish`.
+Only new `.gz` objects are emitted; unchanged objects keep their original release
+URLs. Every latest stable release carries the old bridge `stable.json` so legacy
+clients can still upgrade. **Retain every release referenced by a supported
+manifest, including the bridge release.** Fresh installs need those objects.
+
+Without `-PreviousManifest`, packaging creates a self-contained incremental
+package and uploads all objects again. Without `-IncludeLegacy` or
+`-LegacyManifest`, local packaging works but the publisher refuses distribution.
+Fixed-size blocks do not realign after inserted bytes: rebuilding large Unity
+files can still change many blocks. First installs still transfer the complete
+compressed game. Actual savings depend on build changes.
+
+### Channels and limits
+
+New launchers check `releases/latest/download/stable-v2.json`, or
+`releases/download/beta/beta-v2.json`. Only HTTP 404 falls back to the corresponding
+legacy manifest; corrupt manifests and other HTTP failures remain errors.
 Changing channels only offers numerically newer versions, never silent downgrades.
-Publishing is explicit; packaging does not contact or modify GitHub.
 
-The ZIP is split at 1.9 GB to fit GitHub's under-2-GiB asset limit:
-https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases
-Expect disk space for the old installation, downloaded ZIP and extracted update.
-Version directories are immutable; never republish different files with the same
-version. A failed activation after directory placement can leave an unreferenced
-version directory; inspect and move it aside before retrying that same version.
+For beta, use `-Channel beta` on both scripts. Payloads use immutable version tags
+(default `v<version>-beta`) in draft **prereleases**. Create a public prerelease
+tagged `beta` for the channel index first. On `-Publish`, the script publishes the
+versioned payload before replacing the two manifests on `beta`. If channel upload
+fails after publication, manually upload the verified `beta.json` and
+`beta-v2.json` to `beta` before announcing the update. Do not reuse or move
+version-specific tags.
+
+GitHub permits at most 1000 assets per release and each must be below 2 GiB.
+The publisher checks the asset count; larger packages need another layout or
+host. Legacy ZIP parts remain 1.9 GB. See
+[GitHub limits](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases).
+Version directories are immutable. Never republish different files with the same
+version. A failed activation can leave an unreferenced version directory; inspect
+and move it aside before retrying that same version.
+
+### Incremental manifest contract
+
+Format 2 uses `version`, `notes`, `unpackedSize`, `files`, and `parts`.
+Each file has a relative `path`, byte `size`, whole-file `sha256`, and ordered
+`chunks` containing uncompressed SHA-256 IDs. Every nonfinal block is 16 MiB.
+Empty files have zero chunks and the hash of empty bytes. Each unique part has
+its `contentSha256` ID, `unpackedSize`, compressed `sha256`, compressed `size`,
+and immutable GitHub release `url`. Compression is GZip; object filenames use
+the content hash. Paths, dimensions, required files, duplicates and file/directory
+collisions are checked before installation. Manifests are limited to 16 MiB.
+Bootstrap state stays format 1; download format is independent.
 
 Trust is HTTPS plus the release account and SHA-256 from its manifest. There is
 no private token bundled in the launcher and no independent signing key yet.
@@ -74,10 +155,15 @@ player build is created by compiling the launcher alone.
 
 ## Verification
 
-Run `BuildScripts/TestLauncher.ps1` for the core failure/installation tests. Pass
-`-PackageDirectory <packager output>` to also verify a packaged manifest, every
-part hash, ZIP reassembly, and extraction. Test fixtures remain under ignored
-`BuildScripts/out/Launcher`. These tests do not launch Unity or publish a release.
+Run `BuildScripts/TestLauncher.ps1` for core failure/installation tests, incremental
+reuse, reconstruction, corrupt caches and resume response handling. Pass
+`-PackageDirectory <self-contained stable packager output>` to verify packaged
+hashes and reconstruct both formats present. That optional check requires every
+referenced payload to be present locally; it does not fetch retained releases.
+Run `BuildScripts/TestPublishing.ps1` for real packaging and simulated GitHub
+upload, rerun, reference-retention and publication checks. GitHub is mocked.
+Fixtures remain under ignored `BuildScripts/out/Launcher`. These tests do not
+launch Unity, measure live network throughput, or publish a release.
 Before distribution, exercise a draft/test-channel release with a real player:
 fresh install, offline Play, update from a loose old build, shared mods, and
 manual rollback. Keep the launcher in a user-writable directory.

@@ -3,7 +3,7 @@ $root=Split-Path $PSScriptRoot -Parent
 $source=Get-Content -Raw -LiteralPath (Join-Path $root 'Assets/Scripts/Assembly-CSharp/ListSF.cs')
 $methods=@()
 foreach($name in @('PBNNPBEDOOJ','NHAMDLEDOHM','Reset')){
- $match=[regex]::Match($source,'(?ms)^\t(?:private|public static) [^\r\n]+ '+$name+'\(.*?^\t\}')
+ $match=[regex]::Match($source,'(?ms)^\t+(?:private|public static) [^\r\n]+ '+$name+'\(.*?^\t\}')
  if(!$match.Success){throw "Production profile method not found: $name"}
  $methods+=$match.Value
 }
@@ -15,7 +15,8 @@ public static class Extensions {
  public static int ParseInt(this XmlAttribute a){return a==null?0:int.Parse(a.Value);}
 }
 public static class XmlUtils {public static XmlDocument Input; public static XmlDocument AIFIAKNJMHG(string a,string b)=>Input;}
-public static class SF2Paths {public static string APHDBIBDMDG()=>"";}
+public static class SF2Paths {public static string GetUserDataDirectory()=>"";}
+namespace Eclipse.Multiplayer {public static class LocalVersusSession {public static bool IsActive;}}
 public static class Constants {public static string OJMIJINKBPJ="";}
 public static class GameUtils {public static string GetDefaultItem(string slot)=>"default";}
 public class ModelParameters {public XmlNode Node;public void NOBKKLBJFIL(){}}
@@ -48,6 +49,7 @@ public class NativeLoader {
  private static Roster ANEHEDFAPCH;
  private static Items _items=new Items();
  private XmlDocument IEDEFCBFJAD;
+ private bool _localVersusProfile;
  private XmlNode _CurrentUserNode;
  public static Roster Active=>ANEHEDFAPCH;
  private static Items GetItems()=>_items;

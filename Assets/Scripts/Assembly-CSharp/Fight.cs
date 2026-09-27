@@ -2101,7 +2101,7 @@ public class Fight
 			}
 			if (gHHCDAFIKJE.DNGKOMPMPCD)
 			{
-				_Camera.LCBPCEHILJD(gHHCDAFIKJE.Point, gHHCDAFIKJE.IIIDIKABLOJ);
+				_Camera.LCBPCEHILJD(gHHCDAFIKJE.Point, gHHCDAFIKJE.Impulse);
 			}
 		}
 		if (!gHHCDAFIKJE.DFOHNJEBDED)
@@ -2141,7 +2141,7 @@ public class Fight
 		UpdateLife(EGHPHELLOGO.KJDFJPBIGJC, 0f - gHHCDAFIKJE.EEDJBBOCFNL);
 		// Presentation only: sf2.fx hit bursts and hit/critical/ko screen effects.
 		Eclipse.Rendering.FighterParticles.Hit(EGHPHELLOGO.KJDFJPBIGJC, gHHCDAFIKJE.Point, gHHCDAFIKJE.DNGKOMPMPCD, gHHCDAFIKJE.DFOHNJEBDED,
-			eclipseHealthBefore > 0f && EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB() <= 0f, EGHPHELLOGO.GAIBPAGPEGK);
+			eclipseHealthBefore > 0f && EGHPHELLOGO.KJDFJPBIGJC.KKMCHCNOHMB() <= 0f, EGHPHELLOGO.GAIBPAGPEGK, gHHCDAFIKJE.Impulse);
 		if (_eclipseFightBeginDispatched)
 		{
 			var observation = new ModDamageEvent(round.round, eclipseHealthBefore,

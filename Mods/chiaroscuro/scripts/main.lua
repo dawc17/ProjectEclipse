@@ -31,7 +31,8 @@ sf2.fx.trail {
 
 sf2.visuals.depth_haze { strength = 0.4, setting = haze }
 
-sf2.visuals.rim_light { offset = 2.5, alpha = 0.85, lighten = 0.35, ink = 0.85, ink_color = "#1A0C26", setting = rim }
+sf2.visuals.rim_light { offset = 2.5, alpha = 0.85, lighten = 0.35, warmth = 0.65, softness = 1.25,
+    ink = 0.85, ink_color = "#1A0C26", setting = rim }
 
 -- Light shafts: three slanted beams from the upper left, on the nearest
 -- background layer, where the art suggests a light source overhead.
@@ -66,13 +67,15 @@ sf2.fx.screen {
     hold = 0.25, duration = 2.8, time_scale = 0.25,
 }
 
-sf2.fx.screen { id = "film_look", setting = film, halation = 0.35, halation_threshold = 0.7, halation_color = "#FFA070", grain = 0.22 }
+sf2.fx.screen { id = "film_look", setting = film, halation = 0.20, halation_threshold = 0.7, halation_color = "#FFA070", grain = 0.22 }
 
--- Blood on the floor: a few drops per hit, a pool under the knockout.
-sf2.fx.stain { id = "hit_stains", setting = stains, trigger = "hit", color = "#4A0606", alpha = 0.8,
-    count = 2, size_min = 8, size_max = 20, spread = 30, limit = 50 }
-sf2.fx.stain { id = "knockout_stain", setting = stains, trigger = "ko", color = "#3C0404", alpha = 0.9,
-    count = 5, size_min = 20, size_max = 42, spread = 45, flatten = 0.3, limit = 10 }
+-- Directional droplets land on the floor and build up into capped pools.
+sf2.fx.stain { id = "hit_stains", setting = stains, trigger = "hit", color = "#FFFFFF", alpha = 0.8,
+    count = 5, size_min = 8, size_max = 20, spread = 30, limit = 50,
+    speed_min = 90, speed_max = 210, gravity = 900, lift = 90, merge_radius = 16, max_pool_size = 70 }
+sf2.fx.stain { id = "knockout_stain", setting = stains, trigger = "ko", color = "#FFFFFF", alpha = 0.9,
+    count = 8, size_min = 20, size_max = 42, spread = 45, flatten = 0.3, limit = 10,
+    speed_min = 70, speed_max = 160, gravity = 900, lift = 60, merge_radius = 30, max_pool_size = 110 }
 
 -- Light from magic.
 sf2.fx.light { id = "magic_light", setting = glow, source = "magic", color = "#C8B8FF",

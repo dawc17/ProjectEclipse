@@ -33,6 +33,13 @@ its version folders. Android uses `Application.persistentDataPath/Mods`, normall
 access that location from a file manager. Restart Eclipse after manually adding
 or updating mod files.
 
+The Windows Eclipse launcher keeps shared mods in `<launcher folder>/Mods`
+when it starts the game. Incremental game updates assemble a separate game
+version and leave that shared folder and saves untouched. Keep your mods there
+rather than modifying files inside a launcher's `versions` directory: game
+updates verify and restore the published game files. Rolling back a game version
+does not roll back mod files or saves.
+
 Toggle the installed mods, then choose **Apply & Restart**. The game saves and reloads to the title screen;
 enter Campaign to load the new selection. **Back / Cancel** discards unapplied
 changes. In game, open the main **Menu** and choose **Return to Title** to reach
