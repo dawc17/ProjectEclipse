@@ -6,7 +6,7 @@ The designated 1.6 GB download is still blocked by Google Drive quota. A
 separate local owner drop supplies the reviewed raid file and art used below;
 older comparisons remain historical until the full corpus can be reconciled.
 
-DE128 is an ordinary downstream Eclipse mod. Version `0.43.1` moves Act 6's
+DE128 is an ordinary downstream Eclipse mod. Version `0.43.2` adds upscaled map buttons. Version `0.43.1` moves Act 6's
 Duel clear of Old Wounds and places Ronin and Nova as in the shipped game.
 Version `0.43.0` restores the
 seven archived Challenger duels (Trickster, Hawk, Rose, Fisher, Outcast, Ronin
@@ -631,3 +631,34 @@ both disabled Ascension modules remain inert when required directly.
 [Production notes](PRODUCTION.md) record source evidence, known API gaps and the
 next candidate. Development proceeds in substantial steps with status reports. This foundation
 does not claim complete DE parity or a completed game playtest.
+
+## Upscaled map buttons
+
+The owner-supplied `ResearchSources/DENew/Buttons` drop supplies 268 PNGs: 232
+core images registered for 460 normal/low-resolution atlas member IDs, plus 36
+existing DE128 raid/challenger base and active states. PNG bytes are preserved.
+Descriptor pixels-per-unit values retain each original button's native UI size.
+The mod now requires `assets.replace`; restart after changing the installed mod.
+
+Run `py -3.12 Tools/ImportDE128MapButtons.py` to import, or add `--check` to verify
+the copies, geometry settings and exact targets against shipped TAR metadata.
+`MAP_BUTTONS.json` lists coverage and the 28 unused inputs: 18 DE-owned pressed
+states (no public battle icon field) and 10 BattleBtnStart states (no matching
+core atlas). The supplied Duel/Survival images contain blocky outer shapes; these
+are retained from the owner's source artwork. Unity/game visual validation is
+still required.
+
+The package is about 535 MiB unpacked. ZIP installation requires an Eclipse build
+with the 1 GiB unpacked limit; older 512 MiB installers reject it.
+
+## Menu and VS art (0.43.3)
+
+DENew/Output supplies all five existing scroll section buttons (Dojo, Map, Shop,
+Profile, Settings), their normal/active art, the highlight, disciple and punching
+bag icons. The VS background uses two descriptor crops of VS_Fon.png so the
+existing panels still animate separately; the enemies screen shares these assets.
+Run `py -3.12 Tools/ImportDE128MenuArt.py --check` to verify the copied files.
+This requires a rebuilt Eclipse player with loose UI sprite replacement support.
+MENU_ART.json records the exact targets. Exit and pushed images have no matching
+core sprite/state in the current scroll; Preloader.png is outside this change.
+Unity/player visual verification is pending.

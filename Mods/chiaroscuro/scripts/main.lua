@@ -14,7 +14,7 @@ local trails = toggle("weapon_trails", "Weapon trails", "Short trails behind fas
 local haze = toggle("depth_haze", "Depth haze", "Distant layers fade toward the sky colour.")
 local rim = toggle("rim_light", "Rim light", "A thin lit edge on each fighter; it turns to ink while casting magic.")
 local shafts = toggle("light_shafts", "Light shafts", "Soft beams of light, with drifting dust, in lit interiors and forests.")
-local knockout = toggle("knockout_fade", "Knockout fade", "The final hit slows time and drains the colour from everything but the blood.")
+local knockout = toggle("knockout_fade", "Knockout fade", "The final hit slows time, muffles the fight and drains the colour from everything but the blood.")
 local film = toggle("film_look", "Film look", "Warm halation around highlights and a fine grain.")
 local stains = toggle("stains", "Stains", "Hits leave blood on the floor until the round ends.")
 local glow = toggle("weapon_light", "Weapon and magic light", "Fire and electric weapons and magic light the stage and the fighters near them.")
@@ -59,12 +59,26 @@ sf2.fx.particles {
 }
 
 -- Knockout: a bright pop on the final hit, then everything but the blood turns
--- grey in slow motion and eases back, colour and speed returning together.
-sf2.fx.screen { id = "knockout_pop", setting = knockout, trigger = "ko", brightness = 0.4, contrast = 1.25, duration = 0.3 }
+-- grey in slow motion and eases back, colour and speed returning together. The
+-- fight's audio sinks under a low-pass while the time-shift swell (about as long
+-- as the fade) plays clear above it. The pop lands with one impact picked at
+-- random; the volumes even out their loudness (heavyimpact is about 9 dB hotter
+-- than the rest, snap2 about 9 dB quieter).
+local function impact(name, volume)
+    return { sound = sf2.assets.audio("audio/" .. name), volume = volume }
+end
+sf2.fx.screen {
+    id = "knockout_pop", setting = knockout, trigger = "ko", brightness = 0.4, contrast = 1.25, duration = 0.3,
+    sound = {
+        impact("heavyimpact", 0.3), impact("impact1", 0.85), impact("impact2", 0.85),
+        impact("punch2", 0.85), impact("wetimpact", 0.85), impact("snap2", 1),
+    },
+}
 sf2.fx.screen {
     id = "knockout_fade", setting = knockout, trigger = "ko", saturation = 0, contrast = 1.35, brightness = -0.05,
     vignette = 0.6, accent = "#B01010", accent_strength = 1, accent_width = 0.05,
     hold = 0.25, duration = 2.8, time_scale = 0.25,
+    sound = "snd_time_shift", sound_volume = 0.8, muffle = 0.75,
 }
 
 sf2.fx.screen { id = "film_look", setting = film, halation = 0.20, halation_threshold = 0.7, halation_color = "#FFA070", grain = 0.22 }

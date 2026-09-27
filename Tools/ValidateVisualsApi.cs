@@ -93,6 +93,9 @@ static class Program
         var knockouts = catalog.Effects.Where(e => e.Kind == ModFxKind.Screen && e.Trigger == ModFxTrigger.Ko).ToList();
         Check(knockouts.Count == 0 || knockouts.Any(ko => ko.Number("saturation") == 0f && ko.AccentColor != null &&
             ko.Number("accent_strength") > 0f && ko.Number("time_scale") < 1f), "The knockout fade no longer keeps an accent colour or slows time.");
+        Check(knockouts.Count == 0 || (knockouts.Any(ko => ko.Sounds.Count > 1 && ko.Sounds.All(sound => sound.Reference.StartsWith("chiaroscuro:audio/"))) &&
+            knockouts.Any(ko => ko.Number("muffle") > 0f && ko.Sounds.Count == 1)),
+            "The knockout lost its random impact sounds or its muffled time-shift swell.");
         Check(catalog.Effects.Where(e => e.Kind == ModFxKind.Light && e.Source == ModFxLightSource.Weapon)
             .All(e => e.Weapons.Count > 0 && e.MatchesWeapon("WEAPON_FIRE_BATONS", "FireBatons") != e.MatchesWeapon("WEAPON_ELECTRO_BATONS", "ElectroBatons")),
             "Each weapon light should pick out either fire or electric weapons.");
@@ -176,7 +179,9 @@ static class Program
             "sf2.fx.particles{id='sparks',placement='hit',speed_min=100,speed_max=300,gravity=500}\n" +
             "sf2.fx.particles{id='crit',placement='hit',trigger='critical'}\n" +
             "sf2.fx.overlay{id='beam',shape='shaft',angle=-15,flicker=0.3}\n" +
-            "sf2.fx.screen{id='ko',trigger='ko',saturation=0,accent='#B01010',accent_strength=1,hold=1,duration=2,time_scale=0.25}\n" +
+            "sf2.fx.screen{id='ko',trigger='ko',saturation=0,accent='#B01010',accent_strength=1,hold=1,duration=2,time_scale=0.25,\n" +
+            "  sound='snd_time_shift',sound_volume=0.7,muffle=0.8}\n" +
+            "sf2.fx.screen{id='hits',trigger='ko',sound={'snd_hit1',{sound='snd_hit2',volume=0.4},'snd_hit3'}}\n" +
             "sf2.fx.screen{id='look',grain=0.2,halation=0.3,halation_color='#FFA070',vignette=0.4,vignette_x=-0.3,flicker=0.2}\n" +
             "sf2.visuals.rim_light{ink=0.8,ink_color='#1A0C26'}\n" +
             "sf2.fx.light{id='fire',weapons={'fire','flame'},color='#FF8A3A',radius=300,scenes='everywhere'}\n" +
@@ -205,6 +210,12 @@ static class Program
         Check(block("ko").Trigger == ModFxTrigger.Ko && block("ko").AccentColor.R == 0xB0 && block("ko").Number("hold") == 1f &&
             block("ko").Number("time_scale") == 0.25f,
             "Triggered screen grade was not read.");
+        Check(block("ko").Sounds.Count == 1 && block("ko").Sounds[0].Reference == "snd_time_shift" && block("ko").Sounds[0].Volume == 1f &&
+            block("ko").Number("sound_volume") == 0.7f && block("ko").Number("muffle") == 0.8f &&
+            block("look").Sounds.Count == 0 && block("look").Number("sound_volume") == 1f && block("look").Number("muffle") == 0f,
+            "Screen sound, sound volume or muffle was not read.");
+        Check(block("hits").Sounds.Select(s => s.Reference + "@" + s.Volume).SequenceEqual(new[] { "snd_hit1@1", "snd_hit2@0.4", "snd_hit3@1" }),
+            "Screen sound choices or their volumes were not read.");
         Check(block("look").HalationColor != null && block("look").Number("grain") == 0.2f && block("look").Number("vignette_x") == -0.3f,
             "Screen grain, halation or vignette centre was not read.");
         Check(blocks.Visuals[ModVisualEffect.RimLight].Number("ink") == 0.8f && blocks.Visuals[ModVisualEffect.RimLight].Color.B == 0x26,
@@ -229,6 +240,14 @@ static class Program
         Rejects(fixtures, "fx-trigger-name", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='miss'}", "trigger must be");
         Rejects(fixtures, "fx-shape", "'presentation.visuals'", "sf2.fx.overlay{id='o',shape='star'}", "shape must be");
         Rejects(fixtures, "fx-slow-always", "'presentation.visuals'", "sf2.fx.screen{id='s',time_scale=0.5}", "time_scale needs a trigger");
+        Rejects(fixtures, "fx-sound-always", "'presentation.visuals'", "sf2.fx.screen{id='s',sound='snd_gong'}", "sound needs a trigger");
+        Rejects(fixtures, "fx-sound-kind", "'presentation.visuals'", "sf2.fx.overlay{id='o',sound='snd_gong'}", "'sound'");
+        Rejects(fixtures, "fx-sound-name", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='ko',sound='snd gong'}", "native sound name");
+        Rejects(fixtures, "fx-sound-volume", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='ko',sound='snd_gong',sound_volume=2}", "sound_volume");
+        Rejects(fixtures, "fx-sound-empty", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='ko',sound={}}", "empty array");
+        Rejects(fixtures, "fx-sound-entry-volume", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='ko',sound={{sound='snd_gong',volume=3}}}", "volume must be");
+        Rejects(fixtures, "fx-sound-entry-field", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='ko',sound={{sound='snd_gong',pitch=2}}}", "'pitch'");
+        Rejects(fixtures, "fx-muffle", "'presentation.visuals'", "sf2.fx.screen{id='s',trigger='ko',muffle=1.5}", "muffle");
         Rejects(fixtures, "fx-shape-kind", "'presentation.visuals'", "sf2.fx.screen{id='s',shape='glow'}", "shape");
         Rejects(fixtures, "fx-accent-kind", "'presentation.visuals'", "sf2.fx.overlay{id='o',accent='#FF0000'}", "accent");
         Rejects(fixtures, "fx-glint-nodes", "'presentation.visuals'", "sf2.fx.glint{id='g',nodes={'NPivot'}}", "nodes");

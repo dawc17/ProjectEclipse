@@ -12,7 +12,9 @@ files; saved mod progress is kept. After installation, choose **Apply & Restart*
 and enter Campaign. This also works for a ZIP containing one enclosing folder
 around `mod.toml`. Each ZIP must contain one mod, including its declared
 `scripts/*.lua` entrypoint. The installer rejects unsafe paths and symbolic links,
-and limits packages to 10,000 entries, 256 MiB per file, and 512 MiB unpacked.
+and limits packages to 10,000 entries, 256 MiB per file, and 1 GiB unpacked.
+Older builds enforce a 512 MiB total limit; update the game before importing a
+larger package such as DE128 with its upscaled map buttons.
 
 On Android, the system file picker can select a ZIP from Downloads or another
 document provider. You do not need to browse into `Android/data` or grant Eclipse

@@ -10,6 +10,24 @@ namespace Eclipse.UI
         private RectTransform rect;
         public static void Apply(Image image, string name)
         {
+            if (name == "Stripe.left" || name == "Stripe.right")
+            {
+                ProceduralVsStripe.Attach(image, name);
+                return;
+            }
+            if (name == "VS_Fon_left.img" || name == "VS_Fon_right.img")
+            {
+                // The recovered panels were fixed at 1600 canvas units each.
+                // Stretch each half to the viewport so wide displays cannot
+                // expose the fight behind the VS/enemies screen at the edges.
+                RectTransform panel = image.rectTransform;
+                bool left = name == "VS_Fon_left.img";
+                panel.anchorMin = new Vector2(left ? 0f : 0.5f, 0f);
+                panel.anchorMax = new Vector2(left ? 0.5f : 1f, 1f);
+                panel.offsetMin = new Vector2(-1f, 0f);
+                panel.offsetMax = new Vector2(1f, 0f);
+                return;
+            }
             if (name != "Logo.left" && name != "Logo.right" &&
                 name != "FightPause.PauseLeft" && name != "FightPause.PauseRight") return;
             if (image.sprite == null) return;
@@ -35,5 +53,6 @@ namespace Eclipse.UI
             layout.rect.anchoredPosition = layout.originalPosition + centerOffset +
                 Vector2.Scale(size - layout.originalSize, layout.rect.pivot - new Vector2(.5f, .5f));
         }
+
     }
 }

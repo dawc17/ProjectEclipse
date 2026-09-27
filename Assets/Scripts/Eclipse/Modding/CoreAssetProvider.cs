@@ -22,6 +22,8 @@ namespace Eclipse.Modding
             else if (PackagedArtCatalog.ContainsExactAddress(id.Path))
                 kind = PackagedArtCatalog.Load<UnityEngine.AudioClip>(id.Path) != null ? AssetKind.Audio :
                     PackagedArtCatalog.Load<UnityEngine.Texture2D>(id.Path) != null ? AssetKind.Texture : AssetKind.Unknown;
+            else if (LoadLooseUiSprite(id.Path) != null)
+                kind = AssetKind.Sprite;
             else
                 return false;
             metadata = new AssetMetadata(id, kind, AssetSourceKind.Core, string.Empty, -1,
@@ -34,7 +36,17 @@ namespace Eclipse.Modding
             asset = null;
             if (id.Namespace != Core) return false;
             asset = PackagedArtCatalog.Load<T>(id.Path);
+            if (asset == null && typeof(T) == typeof(UnityEngine.Sprite))
+                asset = LoadLooseUiSprite(id.Path) as T;
             return asset != null;
+        }
+
+        // Some UI art remains in Resources rather than the packaged art catalog.
+        // Resolve only an existing sprite at an exact UI resource path.
+        private static UnityEngine.Sprite LoadLooseUiSprite(string path)
+        {
+            return path.StartsWith("ui/", System.StringComparison.Ordinal)
+                ? UnityEngine.Resources.Load<UnityEngine.Sprite>(path) : null;
         }
 
         public bool TryLoadUnityAssets<T>(AssetId id, out T[] assets) where T : UnityEngine.Object

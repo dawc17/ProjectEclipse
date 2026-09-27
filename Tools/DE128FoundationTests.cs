@@ -17,7 +17,7 @@ internal static class DE128FoundationTests
         { "paid_offers", "battle_pass", "ads", "rewarded_video", "online_services", "payments" };
     private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
     private static readonly string[] Capabilities =
-        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create", "presentation.navigate", "presentation.dojo" };
+        { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create", "presentation.navigate", "presentation.dojo", "assets.replace" };
     private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create", "presentation.navigate", "presentation.dojo" };
     private static readonly DefinitionId Sword = DefinitionId.Parse("de128:items/weapon/titans_desolator");
     private static readonly DefinitionId CoreSword = CoreContentImporter.WeaponId("WEAPON_TITAN_GIANT_SWORD");
@@ -1555,6 +1555,12 @@ end}
     private static void Run(string source, string fixture, string repository)
     {
         _repository = repository;
+        // Exact shipped member identities verified against TAR metadata by
+        // ImportDE128MapButtons.py --check; this fixture does not decode Unity art.
+        foreach (string report in new[] { "MAP_BUTTONS.json", "MENU_ART.json" })
+        using (var buttons = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(source, report))))
+            foreach (var target in buttons.RootElement.GetProperty("core_targets").EnumerateArray())
+                RestoredAssets[AssetId.Parse(target.GetString()).Path] = AssetKind.Sprite;
         _items = ReadXml(Path.Combine(repository, "Assets/vanillaXml/list.xml"));
         Check(Eclipse.Content.ItemListCompatibility.AddHistoricalStageAliases(_items) == 3,
             "Eclipse core stage aliases changed.");

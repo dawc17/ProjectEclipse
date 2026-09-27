@@ -88,6 +88,7 @@ namespace Nekki.SF2.GUI.Shop
 				spriteState.pressedSprite = sprite;
 			}
 			FGDFEHNEGCF = true;
+			base.spriteState = spriteState;
 		}
 
 		private Sprite PPBEKKDIJKC(Sprite GBIOHMNNEJI)

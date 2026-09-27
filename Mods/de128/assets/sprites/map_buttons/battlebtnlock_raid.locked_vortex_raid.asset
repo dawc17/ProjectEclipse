@@ -1,0 +1,4 @@
+type=sprite
+texture=textures/map_buttons/battlebtnlock_raid.locked_vortex_raid.png
+pixels_per_unit=200
+pivot=[0.5,0.5]

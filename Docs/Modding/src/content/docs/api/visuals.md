@@ -314,6 +314,19 @@ It then applies fully for `hold` seconds and eases smoothly back to nothing
 over `duration` seconds. Each new matching hit or movement restarts it. Hold and duration are
 measured in real time, so they are not stretched by slow motion.
 
+A triggered grade can also carry sound. `sound` plays once each time the
+trigger fires, at `sound_volume` times the player's sound volume (silent when
+sound is muted). Give it an array to pick one sound at random each time, and
+give each choice its own `volume` to even out sounds of different loudness.
+Sounds start on the frame the trigger fires, since every effect sound is loaded
+when a fight starts. They play in real time, so slow motion does not stretch them.
+Trim silence from the start of your files, because it delays the sound.
+`muffle` puts a low-pass filter over every other game sound while the grade is
+active. The filter follows the grade's strength, so the fight sounds muffled
+at full strength and clears again as the grade fades. Effect sounds skip the
+filter, which keeps a knockout sting clear while the fight goes dull
+underneath. When several grades muffle at once, the strongest wins.
+
 | Field | Default | Meaning |
 | --- | --- | --- |
 | `saturation` | `1` | 0–2. 0 is black and white. |
@@ -331,6 +344,9 @@ measured in real time, so they are not stretched by slow motion.
 | `halation_color` | `"#FF9E6B"` | Colour of the halation glow. |
 | `flicker`, `flicker_speed` | `0`, `6` | 0–1 irregular brightness wobble like firelight, and its speed (0.1–30). |
 | `accent`, `accent_strength`, `accent_width` | `nil`, `0`, `0.08` | A colour whose hue keeps its saturation when the grade removes colour, how strongly (0–1), and how close a hue must be (0.01–0.5 of the colour wheel). |
+| `sound` | `nil` | Triggered grades only. A native sound name such as `"snd_time_shift"` (letters, digits, `_`, `-` and `/`), an audio handle from [`sf2.assets.audio`](../assets/#sf2assetsaudio) for a sound your mod ships, a table `{ sound = <name or handle>, volume = 0..1 }`, or an array of 1–16 of these to pick one from at random. A choice's `volume` (default 1) multiplies `sound_volume`. A native name that a mod has replaced plays the replacement. A missing sound is skipped with one warning in the log. |
+| `sound_volume` | `1` | 0–1 volume of `sound`, multiplied by the player's sound volume. |
+| `muffle` | `0` | 0–1 low-pass filter over the other game sounds while the grade is active. 1 leaves only a dull thud. Works on always-on grades too, for example an underwater location. |
 
 ```lua
 sf2.fx.screen {
@@ -343,6 +359,23 @@ sf2.fx.screen {
     id = "knockout_fade", trigger = "ko", saturation = 0, contrast = 1.15,
     accent = "#B01010", accent_strength = 1, accent_width = 0.06,
     hold = 1.2, duration = 1.6, time_scale = 0.3, -- slow motion while grey
+    sound = "snd_time_shift", sound_volume = 0.8, -- a clear swell over...
+    muffle = 0.75,                                -- ...a muffled fight
+}
+
+-- A sound the mod ships, on every critical hit, with no change to the picture.
+local sting = sf2.assets.audio("audio/crit_sting")
+sf2.fx.screen { id = "crit_sting", trigger = "critical", sound = sting, sound_volume = 0.6 }
+
+-- One of three impacts at random on the knockout hit. The heavy one is much
+-- louder than the others, so its own volume brings it down to match.
+sf2.fx.screen {
+    id = "knockout_impact", trigger = "ko",
+    sound = {
+        { sound = sf2.assets.audio("audio/heavy_impact"), volume = 0.3 },
+        sf2.assets.audio("audio/impact"),
+        "snd_super_hit1",
+    },
 }
 ```
 

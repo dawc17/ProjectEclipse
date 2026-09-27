@@ -2103,6 +2103,11 @@ local FxOverlayDefinition = {}
 ---@field start_alpha? number 0-1 at the inner end, default 0.35.
 local FxTrailDefinition = {}
 
+---@class (exact) Eclipse.FxSound
+---@field sound Eclipse.AudioHandle|string Audio handle or native sound name.
+---@field volume? number 0-1 volume of this choice, multiplied by sound_volume, default 1.
+local FxSound = {}
+
 ---@class (exact) Eclipse.FxScreenDefinition
 ---@field id string 1-64 lowercase letters, digits, _ or -; unique within the mod.
 ---@field setting? Eclipse.SettingHandle Switch that turns the effect on and off.
@@ -2129,6 +2134,9 @@ local FxTrailDefinition = {}
 ---@field accent? string #RRGGBB hue kept through desaturation.
 ---@field accent_strength? number 0-1, default 0.
 ---@field accent_width? number 0.01-0.5 hue tolerance, default 0.08.
+---@field sound? Eclipse.AudioHandle|string|Eclipse.FxSound|(Eclipse.AudioHandle|string|Eclipse.FxSound)[] Triggered grades only: plays once each time the trigger fires. Audio handle for a sound the mod ships, a native sound name such as snd_time_shift, a { sound, volume } table, or an array of up to 16 of these to pick one from at random.
+---@field sound_volume? number 0-1 volume of sound, scaled by the sound setting, default 1.
+---@field muffle? number 0-1 low-pass on the other game audio while the grade is active, default 0.
 local FxScreenDefinition = {}
 
 ---@class (exact) Eclipse.FxShadowDefinition
@@ -2502,7 +2510,7 @@ function assets.sprite(reference) end
 ---@return Eclipse.ModelHandle
 function assets.model(reference) end
 
----Get an audio handle for location, battle or fight music, or a move's sound action.
+---Get an audio handle for location, battle or fight music, a move's sound action, or a triggered screen effect's `sound`.
 ---Requires: No capability; cross-mod references require a dependency.
 ---When: During registration before using the handle.
 ---Returns: An audio handle. Missing or non-audio assets raise an error.

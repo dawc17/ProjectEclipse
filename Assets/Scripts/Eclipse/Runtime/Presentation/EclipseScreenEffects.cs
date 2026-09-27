@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 // Mod-configured full-screen effects for fights (sf2.visuals.bloom,
 // sf2.visuals.impact and sf2.fx.screen): bloom on bright pixels, a short radial
-// impact on heavy hits, and colour grading with a vignette, grain, halation and
+// impact on heavy hits, audio muffle, and colour grading with a vignette, grain, halation and
 // an accent colour kept through desaturation. Presentation only; frames pass
 // through untouched unless a mod enables one of them.
 [RequireComponent(typeof(Camera))]
@@ -32,10 +32,11 @@ public sealed class EclipseScreenEffects : MonoBehaviour
 			camera.gameObject.AddComponent<EclipseScreenEffects>();
 	}
 
-	// Slow motion from triggered sf2.fx.screen grades follows unscaled time.
+	// Slow motion and muffle from triggered sf2.fx.screen grades follow unscaled time.
 	private void Update()
 	{
 		ModVisuals.UpdateTimeScale();
+		ModVisuals.UpdateMuffle();
 	}
 
 	private void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -133,6 +134,7 @@ public sealed class EclipseScreenEffects : MonoBehaviour
 	private void OnDestroy()
 	{
 		ModVisuals.ReleaseTimeScale();
+		ModVisuals.ReleaseMuffle();
 		if (_material != null) Destroy(_material);
 	}
 }

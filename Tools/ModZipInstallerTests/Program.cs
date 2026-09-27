@@ -8,7 +8,7 @@ internal static class Program
     private const string Manifest = "schema = 1\nid = \"example.zip\"\nname = \"ZIP test\"\n" +
         "version = \"1.0.0\"\nauthors = [\"Tester\"]\nentrypoint = \"scripts/main.lua\"\ncapabilities = []\n";
 
-    private static int Main()
+    private static int Main(string[] args)
     {
         string root = Path.Combine(Path.GetTempPath(), "eclipse-mod-zip-test-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
@@ -58,6 +58,17 @@ internal static class Program
                 archive.CreateEntry("scripts/link.lua").ExternalAttributes = (0xA000 | 0x1FF) << 16;
             ExpectFailure<InvalidDataException>(() => ModZipInstaller.Inspect(symlink, mods));
 
+            string large = Path.Combine(root, "large.zip");
+            CreateSizedZip(large, 3, 180); // 540 MiB: larger than the old cap.
+            ModZipInstaller.Inspect(large, mods);
+            string oversized = Path.Combine(root, "oversized.zip");
+            CreateSizedZip(oversized, 6, 180);
+            ExpectFailure<InvalidDataException>(() => ModZipInstaller.Inspect(oversized, mods));
+            string oversizedFile = Path.Combine(root, "oversized-file.zip");
+            CreateSizedZip(oversizedFile, 1, 257);
+            ExpectFailure<InvalidDataException>(() => ModZipInstaller.Inspect(oversizedFile, mods));
+            foreach (string package in args) ModZipInstaller.Inspect(package, mods);
+
             Console.WriteLine("ModZipInstaller PASS: root/wrapped ZIPs, replacement, refusal, unsafe paths/IDs and preservation of installed files.");
             return 0;
         }
@@ -71,6 +82,19 @@ internal static class Program
         {
             using var writer = new StreamWriter(archive.CreateEntry(file.Name).Open());
             writer.Write(file.Content);
+        }
+    }
+
+    private static void CreateSizedZip(string path, int count, int sizeMiB)
+    {
+        using var archive = ZipFile.Open(path, ZipArchiveMode.Create);
+        using (var writer = new StreamWriter(archive.CreateEntry("mod.toml").Open())) writer.Write(Manifest);
+        using (var writer = new StreamWriter(archive.CreateEntry("scripts/main.lua").Open())) writer.Write("return 1");
+        var block = new byte[1024 * 1024];
+        for (int index = 0; index < count; index++)
+        {
+            using var stream = archive.CreateEntry("assets/data" + index, CompressionLevel.Fastest).Open();
+            for (int mib = 0; mib < sizeMiB; mib++) stream.Write(block, 0, block.Length);
         }
     }
 

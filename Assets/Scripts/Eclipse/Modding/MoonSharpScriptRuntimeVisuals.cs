@@ -49,7 +49,7 @@ namespace Eclipse.Modding
                     "placement", "node", "fighters", "blend", "sprite", "color", "end_color", "trigger")));
                 fx.Set("overlay", DynValue.NewCallback(Fx("overlay", ModFxKind.Overlay, "placement", "blend", "sprite", "color", "shape")));
                 fx.Set("trail", DynValue.NewCallback(Fx("trail", ModFxKind.Trail, "weapon", "nodes", "fighters", "blend", "color")));
-                fx.Set("screen", DynValue.NewCallback(Fx("screen", ModFxKind.Screen, "tint", "trigger", "accent", "halation_color")));
+                fx.Set("screen", DynValue.NewCallback(Fx("screen", ModFxKind.Screen, "tint", "trigger", "accent", "halation_color", "sound")));
                 fx.Set("shadow", DynValue.NewCallback(Fx("shadow", ModFxKind.Shadow, "fighters", "color")));
                 fx.Set("glint", DynValue.NewCallback(Fx("glint", ModFxKind.Glint, "fighters", "color")));
                 fx.Set("light", DynValue.NewCallback(Fx("light", ModFxKind.Light, "source", "weapons", "fighters", "color")));
@@ -190,10 +190,61 @@ namespace Eclipse.Modding
                     request.AccentColor = OptionalColor(table, "accent", function);
                     request.HalationColor = OptionalColor(table, "halation_color", function);
                     if (request.Color == null) request.Color = OptionalColor(table, "tint", function);
+                    request.Sounds = OptionalSounds(table, "sound", function);
 
                     ModFxDefinition definition = _api.RegisterFx(kind, id, request);
                     return DynValue.NewString(definition.Name);
                 });
+            }
+
+            // One sound, or an array to pick from at random. Each sound is a native
+            // sound name ("snd_gong"), a handle from sf2.assets.audio, or a table
+            // { sound = <name or handle>, volume = 0..1 }.
+            private List<ModFxSound> OptionalSounds(Table table, string field, string function)
+            {
+                DynValue value = table.Get(field);
+                if (value.IsNil()) return null;
+                string where = function + "." + field;
+                var sounds = new List<ModFxSound>();
+                if (value.Type != DataType.Table || _audioHandles.ContainsKey(value.Table))
+                {
+                    sounds.Add(new ModFxSound(SoundReference(value, where)));
+                    return sounds;
+                }
+                if (!value.Table.Get("sound").IsNil())
+                {
+                    sounds.Add(SoundEntry(value.Table, where));
+                    return sounds;
+                }
+                Table array = RequireArray(value, where);
+                for (int i = 1; ; i++)
+                {
+                    DynValue entry = array.Get(i);
+                    if (entry.IsNil()) break;
+                    string at = where + "[" + i + "]";
+                    sounds.Add(entry.Type == DataType.Table && !_audioHandles.ContainsKey(entry.Table)
+                        ? SoundEntry(entry.Table, at) : new ModFxSound(SoundReference(entry, at)));
+                }
+                EnsureDenseArray(array, sounds.Count, where);
+                if (sounds.Count == 0) throw new ModContentException(where + " must not be an empty array.");
+                return sounds;
+            }
+
+            private ModFxSound SoundEntry(Table entry, string where)
+            {
+                ValidateFields(entry, where, "sound", "volume");
+                return new ModFxSound(SoundReference(entry.Get("sound"), where + ".sound"), OptionalFloat(entry, "volume", 1f, where));
+            }
+
+            private string SoundReference(DynValue value, string where)
+            {
+                if (value.Type == DataType.Table && _audioHandles.TryGetValue(value.Table, out AssetId audio)) return audio.ToString();
+                if (value.Type != DataType.String || value.String.Length == 0)
+                    throw new ModContentException(where + " must be a native sound name or a handle from sf2.assets.audio.");
+                foreach (char c in value.String)
+                    if (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && !(c >= '0' && c <= '9') && c != '_' && c != '-' && c != '/')
+                        throw new ModContentException(where + " must be a native sound name or a handle from sf2.assets.audio.");
+                return value.String;
             }
 
             private static string[] OptionalWords(Table table, string field, string function, bool lowercaseOnly = true)

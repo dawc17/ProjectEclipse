@@ -114,7 +114,8 @@ loads the geometry.
 
 ## sf2.assets.audio
 
-Get an audio handle for location, battle or fight music, or a move's sound action.
+Get an audio handle for location, battle or fight music, a move's sound action,
+or a triggered screen effect's `sound`.
 
 **Signature:** `sf2.assets.audio(reference)`
 
@@ -130,7 +131,8 @@ local music = sf2.assets.audio("audio/arena")
 ```
 
 This only resolves the asset. To hear it, attach it to a location, a battle or
-fight `music` field, or a supported sound action; there is no general `play()`
+fight `music` field, a supported sound action, or the `sound` of a triggered
+[`sf2.fx.screen`](../visuals/#sf2fxscreen); there is no general `play()`
 method on the returned handle.
 
 ## sf2.assets.binary

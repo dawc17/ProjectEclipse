@@ -6,6 +6,8 @@ assert(type(sf2.timers) == "table" and type(sf2.timers.set) == "function",
     "DE128 requires the public sf2.timers.set API.")
 
 -- Module order is explicit. Eclipse commits these declarations together.
+require("content.map_buttons")
+require("content.menu_art")
 require("content.services")
 require("content.timers")
 require("content.forge")

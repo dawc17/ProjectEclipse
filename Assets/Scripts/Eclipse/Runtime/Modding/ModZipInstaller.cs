@@ -24,7 +24,7 @@ namespace Eclipse.Modding
         private const int MaxEntries = 10000;
         private const long MaxManifestBytes = 1024 * 1024;
         private const long MaxFileBytes = 256L * 1024 * 1024;
-        private const long MaxTotalBytes = 512L * 1024 * 1024;
+        private const long MaxTotalBytes = 1024L * 1024 * 1024;
 
         private sealed class ArchivePlan
         {
@@ -149,7 +149,7 @@ namespace Eclipse.Modding
                 if (path.EndsWith("/", StringComparison.Ordinal)) continue;
                 if (!paths.Add(path)) throw new InvalidDataException("Duplicate ZIP path: " + path);
                 if (entry.Length > MaxFileBytes || declaredBytes > MaxTotalBytes - entry.Length)
-                    throw new InvalidDataException("Mod ZIP exceeds the 512 MiB unpacked limit.");
+                    throw new InvalidDataException("Mod ZIP exceeds the 256 MiB per-file or 1 GiB total unpacked limit.");
                 declaredBytes += entry.Length;
                 files.Add(entry);
                 if (path == "mod.toml" || (path.EndsWith("/mod.toml", StringComparison.Ordinal) &&

@@ -1,0 +1,44 @@
+{
+  "core_targets": [
+    "core:ui/atlases/menubuttons.btn_disciple",
+    "core:ui/atlases/menubuttons.btn_punching_bag",
+    "core:ui/atlases/menubuttons.dojo_active",
+    "core:ui/atlases/menubuttons.dojo_normal",
+    "core:ui/atlases/menubuttons.highlight_menu",
+    "core:ui/atlases/menubuttons.map_active",
+    "core:ui/atlases/menubuttons.map_normal",
+    "core:ui/atlases/menubuttons.profile_active",
+    "core:ui/atlases/menubuttons.profile_normal",
+    "core:ui/atlases/menubuttons.settings_active",
+    "core:ui/atlases/menubuttons.settings_normal",
+    "core:ui/atlases/menubuttons.shop_active",
+    "core:ui/atlases/menubuttons.shop_normal",
+    "core:ui/fullscreen/vs_fon_left.img",
+    "core:ui/fullscreen/vs_fon_right.img"
+  ],
+  "used_images": [
+    "MenuButtons.Dojo_active.png",
+    "MenuButtons.Dojo_normal.png",
+    "MenuButtons.Highlight_menu.png",
+    "MenuButtons.Map_active.png",
+    "MenuButtons.Map_normal.png",
+    "MenuButtons.Profile_active.png",
+    "MenuButtons.Profile_normal.png",
+    "MenuButtons.Settings_active.png",
+    "MenuButtons.Settings_normal.png",
+    "MenuButtons.Shop_active.png",
+    "MenuButtons.Shop_normal.png",
+    "MenuButtons.btn_disciple.png",
+    "MenuButtons.btn_punching_bag.png",
+    "VS_Fon.png"
+  ],
+  "unused_images": [
+    "MenuButtons.Dojo_pushed.png",
+    "MenuButtons.Exit_active.png",
+    "MenuButtons.Exit_normal.png",
+    "MenuButtons.Map_pushed.png",
+    "MenuButtons.Profile_pushed.png",
+    "MenuButtons.Shop_pushed.png",
+    "Preloader.png"
+  ]
+}

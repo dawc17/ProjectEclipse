@@ -1,7 +1,7 @@
 """Copy DE128's Underworld presentation art from the owner's asset drop.
 
 Source: ResearchSources/de128_assets/assets/Atlases (owner-supplied DE art; these
-eleven event-raid button atlases exist nowhere in core). Each 300x300 PNG is copied
+eleven event-raid button atlases exist nowhere in core). Buttons now come from ResearchSources/DENew/Buttons at 600x600 and 200 PPU. Each PNG is copied
 byte-for-byte and gets a line-based mod sprite descriptor. Lock states are not in
 the drop; the game falls back to its native lock art. Two story portraits (character_may_1,
 character_may_4) are native Unity resources missing from the packaged-art catalog
@@ -102,7 +102,7 @@ def sources():
     for atlas, icon in BUTTONS.items():
         for state, prefix in (("Base", "base"), ("Active", "active")):
             folder = atlas + state
-            yield DROP / folder / (folder + "." + prefix + "_" + icon + ".png"), atlas.lower() + "_" + prefix, 100
+            yield ROOT / "ResearchSources/DENew/Buttons" / folder / (folder + "." + prefix + "_" + icon + ".png"), atlas.lower() + "_" + prefix, 200
     for name in PORTRAITS:
         yield ROOT / "Assets" / "Resources" / "ui" / "users" / (name + ".png"), name, 100
     for name in upscaled_avatars():

@@ -104,12 +104,91 @@ namespace Eclipse.Modding
 				if (critical) _triggerTimes[(int)ModFxTrigger.Critical] = now;
 			}
 			if (ko) _triggerTimes[(int)ModFxTrigger.Ko] = now;
+			if (blocked) PlayTriggerSounds(ModFxTrigger.Block);
+			else
+			{
+				PlayTriggerSounds(ModFxTrigger.Hit);
+				if (critical) PlayTriggerSounds(ModFxTrigger.Critical);
+			}
+			if (ko) PlayTriggerSounds(ModFxTrigger.Ko);
 		}
 
 		// Records a fighter's landing, knockdown, slide or wall impact for triggered screen effects.
 		public static void NotifyMotion(ModFxTrigger trigger)
 		{
-			if (ModFxParameters.IsMotionTrigger(trigger)) _triggerTimes[(int)trigger] = Time.unscaledTime;
+			if (!ModFxParameters.IsMotionTrigger(trigger)) return;
+			_triggerTimes[(int)trigger] = Time.unscaledTime;
+			PlayTriggerSounds(trigger);
+		}
+
+		// Plays a screen effect's sound; installed by the game assembly, which
+		// resolves native and mod audio. Arguments: sound reference, volume 0..1.
+		public static Action<string, float> PlayEffectSound;
+
+		// Each effect on the trigger plays one of its sounds, picked at random.
+		private static void PlayTriggerSounds(ModFxTrigger trigger)
+		{
+			if (PlayEffectSound == null || _catalog == null) return;
+			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			{
+				if (definition.Sounds.Count == 0 || definition.Trigger != trigger || !definition.MatchesLocation(CurrentLocation)) continue;
+				ModFxSound sound = definition.Sounds[UnityEngine.Random.Range(0, definition.Sounds.Count)];
+				PlayEffectSound(sound.Reference, sound.Volume * definition.Number("sound_volume"));
+			}
+		}
+
+		// Every sound the active screen effects can play, so they can be loaded
+		// before the fight and start without delay on the frame their trigger fires.
+		public static List<string> EffectSoundReferences()
+		{
+			var references = new List<string>();
+			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+				foreach (ModFxSound sound in definition.Sounds)
+					if (!references.Contains(sound.Reference)) references.Add(sound.Reference);
+			return references;
+		}
+
+		// Muffle from active sf2.fx.screen grades: the strongest one, scaled by its
+		// current strength, drives a low-pass filter on the audio listener that this
+		// code adds and owns. Screen effect sounds bypass it and stay clear.
+		private const float OpenCutoff = 22000f, MuffledCutoff = 700f;
+		private static AudioLowPassFilter _muffleFilter;
+
+		public static float CurrentMuffle()
+		{
+			float muffle = 0f;
+			foreach (ModFxDefinition definition in ActiveFx(ModFxKind.Screen))
+			{
+				if (definition.Number("muffle") <= 0f || !definition.MatchesLocation(CurrentLocation)) continue;
+				muffle = Mathf.Max(muffle, definition.Number("muffle") * TriggerWeight(definition));
+			}
+			return muffle;
+		}
+
+		public static void UpdateMuffle()
+		{
+			float muffle = CurrentMuffle();
+			if (muffle <= 0.001f)
+			{
+				if (_muffleFilter != null) _muffleFilter.enabled = false;
+				return;
+			}
+			if (_muffleFilter == null)
+			{
+				AudioListener listener = UnityEngine.Object.FindObjectOfType<AudioListener>();
+				if (listener == null) return;
+				_muffleFilter = listener.gameObject.AddComponent<AudioLowPassFilter>();
+			}
+			// Exponential so the sweep sounds even: every step closes the same number of octaves.
+			_muffleFilter.cutoffFrequency = OpenCutoff * Mathf.Pow(MuffledCutoff / OpenCutoff, muffle);
+			_muffleFilter.lowpassResonanceQ = 1f;
+			_muffleFilter.enabled = true;
+		}
+
+		public static void ReleaseMuffle()
+		{
+			if (_muffleFilter != null) UnityEngine.Object.Destroy(_muffleFilter);
+			_muffleFilter = null;
 		}
 
 		// 0..1 strength of a triggered effect now: full for `hold`, then an

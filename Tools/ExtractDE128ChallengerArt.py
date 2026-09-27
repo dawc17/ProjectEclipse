@@ -3,7 +3,7 @@
 Source: ResearchSources/de128_assets (the owner's 2026-09-23 DE drop). Core has
 none of these images or tracks: the seven opponent portraits and weapon-drop
 images (Users/, 200 pixels per unit), the seven battle previews (Battles/) and
-map-button base/active states (Atlases/, 300x300). Lock and pressed states are
+map-button base/active states (DENew/Buttons/, 600x600 at 200 PPU). Lock and pressed states are
 not used; the game falls back to its native lock art. The archived music ids
 (samurai_spirit, blade_dance, ...) are not native tracks, so the matching owner
 PCM16 WAVs ship under assets/audio/challenger/<id>.wav.
@@ -20,6 +20,7 @@ import hashlib
 import re
 import re
 import shutil
+import struct
 import sys
 from pathlib import Path
 
@@ -43,7 +44,7 @@ def sprites():
         atlas = "BattleBtn" + icon.capitalize()
         for state, prefix in (("Base", "base"), ("Active", "active")):
             folder = atlas + state
-            yield DROP / "Atlases" / folder / (folder + "." + prefix + "_" + icon + ".png"), atlas.lower() + "_" + prefix, 100
+            yield ROOT / "ResearchSources/DENew/Buttons" / folder / (folder + "." + prefix + "_" + icon + ".png"), atlas.lower() + "_" + prefix, 200
         yield DROP / "Battles" / ("preview_" + icon + ".png"), "preview_" + icon, 100
         for name in (avatar, drop):
             yield DROP / "Users" / (name + ".png"), name, 200
@@ -54,6 +55,11 @@ def sha256(path: Path) -> str:
 
 
 def pixels_per_unit(source: Path) -> int:
+    if source.is_relative_to(ROOT / "ResearchSources/DENew/Buttons"):
+        header = source.read_bytes()[:24]
+        if header[:8] != b"\x89PNG\r\n\x1a\n" or struct.unpack(">II", header[16:24]) != (600, 600):
+            raise ValueError(f"Upscaled button dimensions changed: {source}")
+        return 200
     meta = source.with_name(source.name + ".meta").read_text(encoding="utf-8")
     found = re.search(r"^\s*spritePixelsToUnits: (\d+)\s*$", meta, re.MULTILINE)
     if found and int(found.group(1)) in (100, 200):

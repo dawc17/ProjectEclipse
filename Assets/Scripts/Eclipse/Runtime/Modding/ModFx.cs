@@ -38,6 +38,15 @@ namespace Eclipse.Modding
 	// (fighter-attached effects only; location effects exist only in fights).
 	public enum ModFxScenes { Fights, Everywhere }
 
+	// One choice of a screen effect's sound: a native sound name or a qualified mod
+	// audio asset, and its own volume (0..1) so choices of different loudness match.
+	public sealed class ModFxSound
+	{
+		public string Reference { get; }
+		public float Volume { get; }
+		public ModFxSound(string reference, float volume = 1f) { Reference = reference; Volume = volume; }
+	}
+
 	public sealed class ModFxDefinition
 	{
 		private readonly Dictionary<string, float> _numbers;
@@ -45,6 +54,7 @@ namespace Eclipse.Modding
 		private readonly string[] _exclude;
 		private readonly string[] _nodes;
 		private string[] _weapons = Array.Empty<string>();
+		private ModFxSound[] _sounds = Array.Empty<ModFxSound>();
 
 		public string Name { get; }
 		public ModId Owner { get; }
@@ -67,6 +77,8 @@ namespace Eclipse.Modding
 		public IReadOnlyList<string> Weapons => _weapons;
 		public bool Weapon { get; }
 		public IReadOnlyList<string> Nodes => _nodes;
+		// A screen effect's sounds; one is picked at random each time the trigger fires.
+		public IReadOnlyList<ModFxSound> Sounds => _sounds;
 
 		internal ModFxDefinition(string name, ModId owner, ModFxKind kind, string setting, string[] match, string[] exclude, ModFxScenes scenes,
 			ModFxPlacement placement, ModFxFighters fighters, ModFxBlend blend, AssetId? sprite, ModUiColor color,
@@ -81,6 +93,8 @@ namespace Eclipse.Modding
 		}
 
 		public float Number(string name) => _numbers[name];
+
+		internal void SetSounds(ModFxSound[] sounds) => _sounds = sounds ?? Array.Empty<ModFxSound>();
 
 		internal void SetLightSource(ModFxLightSource source, string[] weapons)
 		{
@@ -131,6 +145,7 @@ namespace Eclipse.Modding
 		public string[] Weapons;
 		public bool Weapon;
 		public string[] Nodes;
+		public List<ModFxSound> Sounds;
 		public Dictionary<string, float> Numbers = new Dictionary<string, float>(StringComparer.Ordinal);
 	}
 
@@ -161,7 +176,8 @@ namespace Eclipse.Modding
 					("grain", 0f, 0f, 1f), ("halation", 0f, 0f, 2f), ("halation_threshold", 0.75f, 0f, 2f),
 					("flicker", 0f, 0f, 1f), ("flicker_speed", 6f, 0.1f, 30f),
 					("accent_strength", 0f, 0f, 1f), ("accent_width", 0.08f, 0.01f, 0.5f),
-					("duration", 0.25f, 0.02f, 10f), ("hold", 0f, 0f, 10f), ("time_scale", 1f, 0.05f, 1f) } },
+					("duration", 0.25f, 0.02f, 10f), ("hold", 0f, 0f, 10f), ("time_scale", 1f, 0.05f, 1f),
+					("sound_volume", 1f, 0f, 1f), ("muffle", 0f, 0f, 1f) } },
 				{ ModFxKind.Shadow, new[] {
 					("alpha", 0.45f, 0f, 1f), ("width", 150f, 1f, 2000f), ("height", 28f, 1f, 1000f),
 					("fade_height", 350f, 1f, 5000f), ("min_scale", 0.35f, 0f, 1f) } },
@@ -199,6 +215,7 @@ namespace Eclipse.Modding
 	public sealed partial class ModRegistrationTransaction
 	{
 		public const int MaxEffectsPerMod = 32;
+		public const int MaxEffectSounds = 16;
 		private readonly List<ModFxDefinition> _pendingFx = new List<ModFxDefinition>();
 		private int FxRegistrationCount => _pendingFx.Count;
 
@@ -294,11 +311,25 @@ namespace Eclipse.Modding
 					throw new ModContentException("Screen effects trigger always, on hit, critical, ko, land, knockdown or wall.");
 				if (trigger == ModFxTrigger.Always && numbers["time_scale"] < 1f)
 					throw new ModContentException("Screen.time_scale needs a trigger; a grade that is always on cannot slow the game.");
+				if (trigger == ModFxTrigger.Always && request.Sounds != null && request.Sounds.Count != 0)
+					throw new ModContentException("Screen.sound needs a trigger; it plays once each time the trigger fires.");
 			}
 			else if (trigger != ModFxTrigger.Always)
 				throw new ModContentException("Only screen effects, stains and hit or contact particles accept a trigger.");
 			if (kind != ModFxKind.Overlay && request.Shape != ModFxShape.Rect)
 				throw new ModContentException("Only overlays accept a shape.");
+			ModFxSound[] sounds = request.Sounds != null ? request.Sounds.ToArray() : Array.Empty<ModFxSound>();
+			if (kind != ModFxKind.Screen && sounds.Length != 0)
+				throw new ModContentException("Only screen effects accept a sound.");
+			if (sounds.Length > MaxEffectSounds)
+				throw new ModContentException("Screen.sound accepts at most " + MaxEffectSounds + " sounds.");
+			foreach (ModFxSound sound in sounds)
+			{
+				if (sound == null || string.IsNullOrEmpty(sound.Reference) || sound.Reference.Length > 256)
+					throw new ModContentException("Screen.sound entries must be 1..256 characters.");
+				if (float.IsNaN(sound.Volume) || sound.Volume < 0f || sound.Volume > 1f)
+					throw new ModContentException("Screen.sound volume must be between 0 and 1.");
+			}
 			if (kind != ModFxKind.Screen && (request.AccentColor != null || request.HalationColor != null))
 				throw new ModContentException("Only screen effects accept accent and halation colours.");
 			string[] weapons = request.Weapons ?? Array.Empty<string>();
@@ -331,6 +362,7 @@ namespace Eclipse.Modding
 				request.Color, request.EndColor, request.Weapon || kind == ModFxKind.Glint, (string[])nodes.Clone(), numbers,
 				trigger, request.Shape, request.AccentColor, request.HalationColor);
 			if (kind == ModFxKind.Light) definition.SetLightSource(request.Source, (string[])weapons.Clone());
+			definition.SetSounds(sounds);
 			_pendingFx.Add(definition);
 			return definition;
 		}
