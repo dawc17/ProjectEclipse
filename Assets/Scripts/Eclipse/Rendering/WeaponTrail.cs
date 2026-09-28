@@ -81,7 +81,7 @@ namespace Eclipse.Rendering
 
 		public static void Attach(GameObject root, Model model)
 		{
-			var trail = root.GetComponent<WeaponTrail>() ?? root.AddComponent<WeaponTrail>();
+			var trail = Eclipse.UI.ComponentUtility.Ensure<WeaponTrail>(root);
 			trail._model = model;
 		}
 

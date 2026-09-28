@@ -171,6 +171,7 @@ namespace Nekki.SF2.GUI.Fight
 				BMIDCILCFNK.OnSurrender.AddListener(HNHMFDIFEML);
 				BMIDCILCFNK.OnPlay.AddListener(CHJNNHEJFKO);
 				BMIDCILCFNK.Init();
+				Eclipse.UI.FightPauseCinematic.Play(BMIDCILCFNK.gameObject);
 			}
 		}
 
@@ -178,8 +179,8 @@ namespace Nekki.SF2.GUI.Fight
 		{
 			if (BMIDCILCFNK != null)
 			{
-				BMIDCILCFNK.gameObject.SetActive(false);
-				Object.Destroy(BMIDCILCFNK.gameObject);
+				// Eclipse: fades out over the resumed fight instead of cutting.
+				Eclipse.UI.FightPauseCinematic.Close(BMIDCILCFNK.gameObject);
 				BMIDCILCFNK = null;
 			}
 		}

@@ -25,7 +25,7 @@ namespace Eclipse.Rendering
         private bool _shaderChecked;
 
         public static FloorStainEffects For(Transform container)
-            => container.GetComponent<FloorStainEffects>() ?? container.gameObject.AddComponent<FloorStainEffects>();
+            => Eclipse.UI.ComponentUtility.Ensure<FloorStainEffects>(container.gameObject);
 
         public void Clear()
         {

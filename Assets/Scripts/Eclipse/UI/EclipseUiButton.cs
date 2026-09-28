@@ -27,7 +27,7 @@ namespace Eclipse.UI
         public static EclipseUiButton Attach(Selectable target, Graphic body, Text label, Color normal, Color highlight,
             Color labelNormal, Color labelHighlight, float slide = 8f, float grow = .03f, float squash = .05f)
         {
-            var fx = target.gameObject.GetComponent<EclipseUiButton>() ?? target.gameObject.AddComponent<EclipseUiButton>();
+            var fx = Eclipse.UI.ComponentUtility.Ensure<EclipseUiButton>(target.gameObject);
             fx.target = target; fx.body = body; fx.label = label;
             fx.slide = slide; fx.grow = grow; fx.squash = squash;
             target.transition = Selectable.Transition.None;

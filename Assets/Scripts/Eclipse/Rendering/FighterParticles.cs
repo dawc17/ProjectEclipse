@@ -118,7 +118,7 @@ namespace Eclipse.Rendering
 
 		public static void Attach(GameObject root, Model model)
 		{
-			var particles = root.GetComponent<FighterParticles>() ?? root.AddComponent<FighterParticles>();
+			var particles = Eclipse.UI.ComponentUtility.Ensure<FighterParticles>(root);
 			particles._model = model;
 		}
 

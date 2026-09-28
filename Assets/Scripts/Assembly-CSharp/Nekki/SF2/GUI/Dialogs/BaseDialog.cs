@@ -151,6 +151,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			{
 				BHLHODFNHHO();
 			}
+			Eclipse.UI.DialogCinematic.Play(base.gameObject, _content);
 		}
 
 		private void OnDestroy()

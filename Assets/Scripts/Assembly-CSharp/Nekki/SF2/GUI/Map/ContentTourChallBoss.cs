@@ -94,7 +94,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				_replaysLabel.gameObject.SetActive(true);
 				BattleReplayable bKKPCBGAEHC = (BattleReplayable)DPOOIONCEOA;
-				_replaysLabel.set_text(LocalizationManager.GetString("replays") + " " + bKKPCBGAEHC.HLBOMMKJAAO());
+				_replaysLabel.set_text(Eclipse.UI.BattleInfoText.Replays(bKKPCBGAEHC));
 			}
 			else
 			{

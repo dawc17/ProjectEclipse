@@ -236,6 +236,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			BackKeyManager.get_Instance().AddBackKeyController(this);
 			_scroll.gameObject.SetActive(true);
 			_scroll.Expand(0.5f);
+			Eclipse.UI.NotificationReveal.Play(base.gameObject, _image != null ? _image.gameObject : null, _label != null ? _label.gameObject : null);
 		}
 
 		private void Close()

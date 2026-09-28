@@ -33,6 +33,8 @@ public static class ValidateModUiUnity
         EditorApplication.EnterPlaymode();
     }
     static void Check(bool value, string message) { checks++; if (!value) throw new Exception(message); }
+    // A closed view either hides at once or fades out without taking input (ModUiFade).
+    static bool Gone(GameObject view) { var group = view.GetComponent<CanvasGroup>(); return !view.activeSelf || (group != null && !group.blocksRaycasts && !group.interactable); }
     static void Run()
     {
         SessionState.SetBool(Pending, false);
@@ -106,7 +108,7 @@ public static class ValidateModUiUnity
             Check(scroll.get_content() != null && scroll.get_viewport().GetComponent<RectMask2D>() != null && !scroll.get_horizontal(),
                 "Scroll hierarchy/clipping missing");
             surface.Close();
-            Check(!view.gameObject.activeSelf && events.currentSelectedGameObject == prior, "Close did not hide/restore focus immediately");
+            Check(Gone(view.gameObject) && events.currentSelectedGameObject == prior, "Close did not hide/restore focus immediately");
             var cells = new List<ModUiNode>();
             for (int i = 0; i < 6; i++) cells.Add(new ModUiNode("cell" + i, ModUiKind.Button, 0, 0, text: "Item " + i, enabled: i != 1));
             var gridSurface = scope.Open("grid", ModUiMount.Menu,
@@ -144,7 +146,7 @@ public static class ValidateModUiUnity
             Check(gridView.NavigateFocus(1,0) && events.currentSelectedGameObject.name == "cell1", "Enabled grid neighbor remained unreachable");
             Check(gridView.NavigateFocus(0,1) && events.currentSelectedGameObject.name == "cell3", "Grid down advanced in linear order");
             gridSurface.Close();
-            Check(events.currentSelectedGameObject == prior && !gridView.gameObject.activeSelf,"Grid close left focus or view behind");
+            Check(events.currentSelectedGameObject == prior && Gone(gridView.gameObject),"Grid close left focus or view behind");
             Check(!view.ActivateSelected(), "Closed view retained input");
             ModUiCloseReason? destroyedReason=null;
             var second = scope.Open("second",ModUiMount.Menu,tree,_=>clicks++,onClose:reason=>destroyedReason=reason);

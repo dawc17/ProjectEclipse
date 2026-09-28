@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace Eclipse.UI
 {
     // Short fade through black between the menu modules (dojo, shop, profile, map), including
-    // a dojo reload for a new location or the bag/disciple toggle. The native flow swaps the
+    // a dojo reload for a new location or the bag/disciple toggle, and into and out of fights. The native flow swaps the
     // scene in two hard cuts (current -> Loader -> destination); this overlay freezes the last
     // rendered frame, dims it before loading, reveals the loader and fades out once the
     // destination has actually arrived (in the dojo: once the fighters are posed).
@@ -27,7 +27,8 @@ namespace Eclipse.UI
         private static bool IsMenu(ScreenType screen)
         {
             return screen == ScreenType.ModuleDojo || screen == ScreenType.ModuleShop ||
-                   screen == ScreenType.ModuleProfile || screen == ScreenType.ModuleMap;
+                   screen == ScreenType.ModuleProfile || screen == ScreenType.ModuleMap ||
+                   screen == ScreenType.ModuleFight;
         }
 
         // Called by Module right before it starts a module scene load.
@@ -75,13 +76,19 @@ namespace Eclipse.UI
         {
             // Module waits for this capture/fade before unloading the outgoing scene.
             yield return new WaitForEndOfFrame();
-            try { snapshot = ScreenCapture.CaptureScreenshotAsTexture(); }
-            catch (System.Exception) { snapshot = null; }
-            if (snapshot != null) { frozen.texture = snapshot; frozen.enabled = true; }
-            group.alpha = 1f;
+            // Entering a fight already passes through the map's full-screen EnterScreen and the
+            // loader; dimming that to black first would flash. Only the arrival fades.
+            bool dimOut = target != ScreenType.ModuleFight;
+            if (dimOut)
+            {
+                try { snapshot = ScreenCapture.CaptureScreenshotAsTexture(); }
+                catch (System.Exception) { snapshot = null; }
+                if (snapshot != null) { frozen.texture = snapshot; frozen.enabled = true; }
+                group.alpha = 1f;
+            }
 
             float start = Time.unscaledTime;
-            for (float t = 0f; t < 1f; )
+            for (float t = dimOut ? 0f : 1f; t < 1f; )
             {
                 t = Mathf.Clamp01((Time.unscaledTime - start) / FadeIn);
                 black.color = new Color(0f, 0f, 0f, snapshot != null ? Smooth(t) : 1f);
@@ -96,10 +103,15 @@ namespace Eclipse.UI
             beginLoad?.Invoke();
 
             float readySince = -1f;
+            // Without the dim-out, stay clear until the loader has appeared: the outgoing scene
+            // (the EnterScreen) is still showing for the frames before it.
+            bool loaderSeen = dimOut;
             while (Time.unscaledTime - start < Timeout)
             {
                 // Let the native loader (including mod splash replacements) remain visible.
-                group.alpha = Nekki.SF2.GUI.Scenes.LoaderScene.get_Current() != null ? 0f : 1f;
+                bool loading = Nekki.SF2.GUI.Scenes.LoaderScene.get_Current() != null;
+                loaderSeen |= loading;
+                group.alpha = loading || !loaderSeen ? 0f : 1f;
                 if (Arrived()) { if (readySince < 0f) readySince = Time.unscaledTime; }
                 else readySince = -1f;
                 if (readySince >= 0f && Time.unscaledTime - readySince >= Settle) break;
@@ -129,6 +141,8 @@ namespace Eclipse.UI
                 if (!active.isLoaded || active.buildIndex != (int)target) return false;
                 var module = Module.GetInstance();
                 if (module == null || module.GetCurrentScreenType() != target) return false;
+                // The dojo reveals once both fighters are posed. A fight reveals as soon as its
+                // scene is active: its VS screen covers the fighters while they load.
                 if (target != ScreenType.ModuleDojo) return true;
                 var fight = Fight.GetCurrentFight();
                 if (fight == null) return false;

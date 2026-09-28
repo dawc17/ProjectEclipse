@@ -31,6 +31,10 @@ namespace Eclipse.UI.Modding
         private Font font;
         private GameObject previousSelection;
         private bool disposed;
+        // Entrance: the content settles from slightly smaller with a small overshoot, on top
+        // of the scale FitToSafeArea chose.
+        private const float EntranceSeconds = .3f;
+        private float fitScale = 1f, openedAt = -1f;
 
         public static ModUiView Attach(ModUiSurface surface, RectTransform mount)
         {
@@ -60,6 +64,7 @@ namespace Eclipse.UI.Modding
                 if (surface.Root.Style.Frame == "scroll") view.AddScrollFrame(content);
                 surface.Changed += view.UpdateWidget;
                 surface.Closed += view.Release;
+                view.openedAt = surface.Mount == ModUiMount.CombatHud ? -1f : Time.unscaledTime;
                 return view;
             }
             catch
@@ -220,6 +225,7 @@ namespace Eclipse.UI.Modding
                 colors.disabledColor = new Color32(200,200,200,128);
                 view.Button.colors = colors;
                 view.Button.onClick.AddListener(() => surface.TryClick(node.Id));
+                PressBounce.Attach(rect.gameObject);
                 buttons.Add(node.Id);
                 var label = Rect("Label", rect, 0, 0); Stretch(label);
                 label.offsetMin = new Vector2(8, 4); label.offsetMax = new Vector2(-8, -4);
@@ -344,12 +350,29 @@ namespace Eclipse.UI.Modding
             width = Mathf.Max(0,width); height = Mathf.Max(0,height);
             var rect = GetComponent<RectTransform>();
             float scale = Mathf.Min(1,width/(float)surface.Root.Width,height/(float)surface.Root.Height);
-            rect.localScale = Vector3.one * scale;
+            fitScale = scale;
+            rect.localScale = Vector3.one * scale * EntranceScale();
             float scaledWidth=(float)surface.Root.Width*scale, scaledHeight=(float)surface.Root.Height*scale;
             float minX=rect.pivot.x*scaledWidth, minY=rect.pivot.y*scaledHeight;
             float pivotX=Mathf.Clamp(rect.anchorMin.x*width+(float)surface.Placement.X,minX,Mathf.Max(minX,width-(1-rect.pivot.x)*scaledWidth));
             float pivotY=Mathf.Clamp(rect.anchorMin.y*height-(float)surface.Placement.Y,minY,Mathf.Max(minY,height-(1-rect.pivot.y)*scaledHeight));
             rect.anchoredPosition=new Vector2(pivotX-rect.anchorMin.x*width,pivotY-rect.anchorMin.y*height);
+        }
+
+        private float EntranceScale()
+        {
+            if (openedAt < 0f) return 1f;
+            float t = Mathf.Clamp01((Time.unscaledTime - openedAt) / EntranceSeconds);
+            if (t >= 1f) { openedAt = -1f; return 1f; }
+            const float s = 1.4f;
+            float u = t - 1f;
+            return Mathf.Lerp(.93f, 1f, u * u * ((s + 1f) * u + s) + 1f);
+        }
+
+        private void Update()
+        {
+            if (openedAt < 0f || disposed) return;
+            transform.localScale = Vector3.one * fitScale * EntranceScale();
         }
 
         // Input is routed here only for the foreground surface by its coordinator.
@@ -460,8 +483,10 @@ namespace Eclipse.UI.Modding
                     EventSystem.current.SetSelectedGameObject(previousSelection != null && previousSelection.activeInHierarchy ? previousSelection : null);
             }
             widgets.Clear(); buttons.Clear(); previousSelection = null;
-            gameObject.SetActive(false);
-            if (destroy) Destroy(gameObject);
+            openedAt = -1f;
+            // A closing view fades out with its layer instead of vanishing.
+            if (destroy) ModUiFade.Out(gameObject);
+            else gameObject.SetActive(false);
         }
 
         private void OnDestroy()

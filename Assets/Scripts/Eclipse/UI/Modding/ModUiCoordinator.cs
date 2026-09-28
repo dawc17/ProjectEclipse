@@ -75,6 +75,7 @@ namespace Eclipse.UI.Modding
                 entries.Add(surface, entry);
                 layers.Add(surface);
                 UpdateSafeAreas(true);
+                ModUiFade.In(root);
             }
             catch
             {
@@ -106,7 +107,8 @@ namespace Eclipse.UI.Modding
                 if (entry.Surface.IsClosed)
                 {
                     entries.Remove(entry.Surface);
-                    if (entry.Root != null) { entry.Root.SetActive(false); Destroy(entry.Root); }
+                    // The closed layer (backdrop and content) fades out, then destroys itself.
+                    if (entry.Root != null) ModUiFade.Out(entry.Root);
                     continue;
                 }
                 bool visible = !blocked && entry.Surface.Read(entry.Surface.Root.Id).Visible;

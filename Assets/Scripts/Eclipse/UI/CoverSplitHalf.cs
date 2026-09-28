@@ -15,7 +15,7 @@ namespace Eclipse.UI
 
         public static void Attach(Image image, bool left)
         {
-            var cover = image.GetComponent<CoverSplitHalf>() ?? image.gameObject.AddComponent<CoverSplitHalf>();
+            var cover = Eclipse.UI.ComponentUtility.Ensure<CoverSplitHalf>(image.gameObject);
             cover.image = image;
             cover.left = left;
             cover.enabled = true;

@@ -32,7 +32,7 @@ namespace Eclipse.Rendering
 
 		public static void Attach(GameObject root, Location location)
 		{
-			var atmosphere = root.GetComponent<LocationAtmosphere>() ?? root.AddComponent<LocationAtmosphere>();
+			var atmosphere = Eclipse.UI.ComponentUtility.Ensure<LocationAtmosphere>(root);
 			atmosphere._location = location;
 			CurrentLocationName = location?.name;
 			ModVisuals.CurrentLocation = location?.name;

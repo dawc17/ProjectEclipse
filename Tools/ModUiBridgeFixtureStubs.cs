@@ -15,6 +15,7 @@ namespace Eclipse.Modding {
 namespace Eclipse.UI {
     public static class TitleScreen { public static bool IsOpen; }
     public static class GameSessionRestart { public static bool IsRestarting; }
+    public static class DojoPicker { public static bool HandleBack() { return false; } }
 }
 public static class GamePad {
     public enum Stick { Dpad, LeftStick }
