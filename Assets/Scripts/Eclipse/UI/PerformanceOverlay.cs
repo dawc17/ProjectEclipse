@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
@@ -11,9 +12,11 @@ namespace Eclipse.Diagnostics
 	/// <summary>
 	/// Player-facing performance overlay. F3 (or Options > Display) cycles
 	/// Off / Compact / Detailed; F4 saves a report players can send with a bug.
-	/// Fight code brackets its simulation and AI work with the static timing
-	/// helpers so a frame drop can be attributed to AI, fight simulation,
-	/// garbage collection or rendering.
+	/// Fight code brackets its simulation step and each fighter's AI with the
+	/// static timing helpers (AI time is nested inside simulation time). Frame
+	/// timing stats split the rest into CPU main thread, render thread and GPU,
+	/// and the GC allocation counter shows how much garbage each frame creates.
+	/// Loading screens are kept out of the gameplay statistics.
 	/// </summary>
 	[DefaultExecutionOrder(-32000)]
 	public sealed class PerformanceOverlay : MonoBehaviour
@@ -30,7 +33,13 @@ namespace Eclipse.Diagnostics
 		private const int SpikeCapacity = 64;
 		private const float TextRefreshSeconds = 0.25f;
 		private const float SpikeMinimumMs = 20f;
+		// Frames this soon after a scene change still belong to its loading work.
+		private const float SceneSettleSeconds = 1f;
 		private const int GraphHeight = 60;
+		private const float GraphTopMs = 25f;
+		// Whole-session fight histogram: 0.1 ms buckets up to 100 ms, then one overflow bucket.
+		private const float HistogramBucketMs = 0.1f;
+		private const int HistogramBuckets = 1001;
 
 		private struct Sample
 		{
@@ -38,17 +47,19 @@ namespace Eclipse.Diagnostics
 			public float AiMs;
 			public float SimMs;
 			public int SimTicks;
+			public float CpuMainMs;
+			public float RenderThreadMs;
+			public float GpuMs;
+			public float AllocKb;
 			public bool Gc;
+			public bool Loading;
+			public bool InFight;
 		}
 
 		private struct Spike
 		{
 			public float Time;
-			public float FrameMs;
-			public float AiMs;
-			public float SimMs;
-			public bool Gc;
-			public bool InFight;
+			public Sample Frame;
 			public string Scene;
 		}
 
@@ -69,14 +80,25 @@ namespace Eclipse.Diagnostics
 		private readonly float[] _sortScratch = new float[SampleCount];
 		private readonly Spike[] _spikes = new Spike[SpikeCapacity];
 		private readonly Color32[] _graphPixels = new Color32[SampleCount * GraphHeight];
+		private readonly int[] _fightHistogram = new int[HistogramBuckets];
+		private readonly FrameTiming[] _frameTimings = new FrameTiming[1];
+		private ProfilerRecorder _allocRecorder;
+		private long _lastThreadAllocBytes = -1;
 		private int _sampleIndex;
 		private int _sampleFilled;
 		private int _spikeIndex;
 		private int _spikeTotal;
+		private int _gameplaySpikeTotal;
 		private int _lastGcCount;
 		private int _gcStartCount;
+		private int _fightFrames;
+		private double _fightFrameMsTotal;
+		private double _fightAllocKbTotal;
+		private int _fightGcCount;
 		private float _sessionStart;
+		private float _sceneChangedAt;
 		private float _nextTextRefresh;
+		private bool _graphDirty;
 		private string _summary = string.Empty;
 		private string _status = string.Empty;
 		private float _statusUntil;
@@ -107,13 +129,18 @@ namespace Eclipse.Diagnostics
 		public static void SetMode(Mode mode)
 		{
 			LoadMode();
+			bool wasCollecting = _collecting;
 			_mode = mode;
 			_collecting = mode != Mode.Off;
 			PlayerPrefs.SetInt(ModePlayerPref, (int)mode);
 			PlayerPrefs.Save();
-			if (_instance != null && _collecting)
+			if (_instance != null && _collecting != wasCollecting)
 			{
-				_instance.ResetStats();
+				_instance.SetRecording(_collecting);
+				if (_collecting)
+				{
+					_instance.ResetStats();
+				}
 			}
 		}
 
@@ -163,6 +190,11 @@ namespace Eclipse.Diagnostics
 			_collecting = _mode != Mode.Off;
 		}
 
+		private static bool IsLoadingScene(string scene)
+		{
+			return scene == "Loader" || scene == "GameLoader" || scene == "Preloader";
+		}
+
 		[RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
 		private static void EnsureInstance()
 		{
@@ -178,11 +210,15 @@ namespace Eclipse.Diagnostics
 		private void Awake()
 		{
 			LoadMode();
+			SceneManager.activeSceneChanged += OnActiveSceneChanged;
+			SetRecording(_collecting);
 			ResetStats();
 		}
 
 		private void OnDestroy()
 		{
+			SceneManager.activeSceneChanged -= OnActiveSceneChanged;
+			SetRecording(false);
 			if (_instance == this)
 			{
 				_instance = null;
@@ -197,17 +233,65 @@ namespace Eclipse.Diagnostics
 			}
 		}
 
+		private void OnActiveSceneChanged(Scene from, Scene to)
+		{
+			_sceneChangedAt = Time.unscaledTime;
+		}
+
+		private void SetRecording(bool recording)
+		{
+			// The allocation counter is available in release players; it only
+			// records while the overlay is on.
+			if (recording && !_allocRecorder.Valid)
+			{
+				_allocRecorder = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame");
+			}
+			else if (!recording && _allocRecorder.Valid)
+			{
+				_allocRecorder.Dispose();
+			}
+		}
+
+		// Profiler counters are missing from release players, so fall back to the
+		// main thread's allocation total (where the game allocates).
+		private float ReadAllocKb()
+		{
+			if (_allocRecorder.Valid && _allocRecorder.LastValue > 0)
+			{
+				return _allocRecorder.LastValue / 1024f;
+			}
+			long bytes;
+			try
+			{
+				bytes = GC.GetAllocatedBytesForCurrentThread();
+			}
+			catch (Exception)
+			{
+				return -1f;
+			}
+			long previous = _lastThreadAllocBytes;
+			_lastThreadAllocBytes = bytes;
+			return previous < 0 || bytes <= 0 ? -1f : (bytes - previous) / 1024f;
+		}
+
 		private void ResetStats()
 		{
 			_sampleIndex = 0;
 			_sampleFilled = 0;
 			_spikeIndex = 0;
 			_spikeTotal = 0;
+			_gameplaySpikeTotal = 0;
 			_aiTicks = 0;
 			_simTicks = 0;
 			_simTickCount = 0;
 			_lastGcCount = GC.CollectionCount(0);
 			_gcStartCount = _lastGcCount;
+			Array.Clear(_fightHistogram, 0, _fightHistogram.Length);
+			_fightFrames = 0;
+			_fightFrameMsTotal = 0;
+			_fightAllocKbTotal = 0;
+			_fightGcCount = 0;
+			_lastThreadAllocBytes = -1;
 			_sessionStart = Time.unscaledTime;
 			_nextTextRefresh = 0f;
 		}
@@ -229,95 +313,170 @@ namespace Eclipse.Diagnostics
 			}
 
 			// Runs first each frame, so the accumulators hold the previous frame.
+			// Frame timing stats arrive a few frames late; they are close enough
+			// for averages and for attributing sustained drops.
+			float cpuMain = -1f, renderThread = -1f, gpu = -1f;
+			FrameTimingManager.CaptureFrameTimings();
+			if (FrameTimingManager.GetLatestTimings(1, _frameTimings) > 0)
+			{
+				cpuMain = (float)_frameTimings[0].cpuMainThreadFrameTime;
+				renderThread = (float)_frameTimings[0].cpuRenderThreadFrameTime;
+				gpu = (float)_frameTimings[0].gpuFrameTime;
+			}
+
 			int gcCount = GC.CollectionCount(0);
+			string scene = SceneManager.GetActiveScene().name;
 			Sample sample = new Sample
 			{
 				FrameMs = Time.unscaledDeltaTime * 1000f,
 				AiMs = (float)(_aiTicks * TicksToMs),
 				SimMs = (float)(_simTicks * TicksToMs),
 				SimTicks = _simTickCount,
-				Gc = gcCount != _lastGcCount
+				CpuMainMs = cpuMain,
+				RenderThreadMs = renderThread,
+				GpuMs = gpu,
+				AllocKb = ReadAllocKb(),
+				Gc = gcCount != _lastGcCount,
+				Loading = IsLoadingScene(scene) || Time.unscaledTime - _sceneChangedAt < SceneSettleSeconds,
+				InFight = Fight.GetCurrentFight() != null
 			};
 			_lastGcCount = gcCount;
 			_aiTicks = 0;
 			_simTicks = 0;
 			_simTickCount = 0;
 
-			// Skip the first frames after enabling or loading: they include the
-			// hitch of the change itself.
+			// Skip the first frames after start: they include startup itself.
 			if (Time.frameCount > 2)
 			{
-				RecordSample(sample);
+				RecordSample(sample, scene);
 			}
 			if (Time.unscaledTime >= _nextTextRefresh)
 			{
 				_nextTextRefresh = Time.unscaledTime + TextRefreshSeconds;
 				_summary = BuildSummary(_mode == Mode.Detailed);
+				_graphDirty = true;
 			}
 		}
 
-		private void RecordSample(Sample sample)
+		private void RecordSample(Sample sample, string scene)
 		{
-			float median = _sampleFilled >= 30 ? Percentile(0.5f) : 0f;
+			float median = Percentile(0.5f, out int gameplayCount);
 			_samples[_sampleIndex] = sample;
 			_sampleIndex = (_sampleIndex + 1) % SampleCount;
 			_sampleFilled = Mathf.Min(_sampleFilled + 1, SampleCount);
 
-			if (median > 0f && sample.FrameMs >= SpikeMinimumMs &&
-				sample.FrameMs >= Mathf.Max(median * 2f, median + 8f))
+			if (sample.InFight && !sample.Loading)
+			{
+				int bucket = Mathf.Min((int)(sample.FrameMs / HistogramBucketMs), HistogramBuckets - 1);
+				_fightHistogram[bucket]++;
+				_fightFrames++;
+				_fightFrameMsTotal += sample.FrameMs;
+				if (sample.AllocKb > 0f)
+				{
+					_fightAllocKbTotal += sample.AllocKb;
+				}
+				if (sample.Gc)
+				{
+					_fightGcCount++;
+				}
+			}
+
+			bool spike = sample.FrameMs >= SpikeMinimumMs &&
+				(gameplayCount < 30 || sample.FrameMs >= Mathf.Max(median * 2f, median + 8f));
+			if (spike)
 			{
 				_spikes[_spikeIndex] = new Spike
 				{
 					Time = Time.unscaledTime - _sessionStart,
-					FrameMs = sample.FrameMs,
-					AiMs = sample.AiMs,
-					SimMs = sample.SimMs,
-					Gc = sample.Gc,
-					InFight = Fight.GetCurrentFight() != null,
-					Scene = SceneManager.GetActiveScene().name
+					Frame = sample,
+					Scene = scene
 				};
 				_spikeIndex = (_spikeIndex + 1) % SpikeCapacity;
 				_spikeTotal++;
+				if (!sample.Loading)
+				{
+					_gameplaySpikeTotal++;
+				}
 			}
 		}
 
-		private float Percentile(float fraction)
+		// Percentile of the frame times in the window, ignoring loading frames.
+		private float Percentile(float fraction, out int count)
 		{
-			// Order is irrelevant for a percentile, so the ring buffer is copied as is.
+			count = 0;
 			for (int i = 0; i < _sampleFilled; i++)
 			{
-				_sortScratch[i] = _samples[i].FrameMs;
+				if (!_samples[i].Loading)
+				{
+					_sortScratch[count++] = _samples[i].FrameMs;
+				}
 			}
-			Array.Sort(_sortScratch, 0, _sampleFilled);
-			int index = Mathf.Clamp(Mathf.RoundToInt(fraction * (_sampleFilled - 1)), 0, _sampleFilled - 1);
+			if (count == 0)
+			{
+				return 0f;
+			}
+			Array.Sort(_sortScratch, 0, count);
+			int index = Mathf.Clamp(Mathf.RoundToInt(fraction * (count - 1)), 0, count - 1);
 			return _sortScratch[index];
 		}
 
-		private static string SpikeCause(float frameMs, float aiMs, float simMs, bool gc)
+		private float FightPercentile(float fraction)
 		{
-			if (aiMs >= frameMs * 0.35f)
+			int target = Mathf.CeilToInt(fraction * _fightFrames);
+			int seen = 0;
+			for (int i = 0; i < HistogramBuckets; i++)
+			{
+				seen += _fightHistogram[i];
+				if (seen >= target)
+				{
+					return (i + 0.5f) * HistogramBucketMs;
+				}
+			}
+			return 0f;
+		}
+
+		private static string SpikeCause(Sample s)
+		{
+			if (s.Loading)
+			{
+				return "loading";
+			}
+			if (s.AiMs >= s.FrameMs * 0.35f)
 			{
 				return "enemy AI";
 			}
-			if (simMs - aiMs >= frameMs * 0.35f)
+			if (s.SimMs - s.AiMs >= s.FrameMs * 0.35f)
 			{
 				return "fight simulation";
 			}
-			return gc ? "garbage collection" : "rendering / other";
+			if (s.Gc)
+			{
+				return "garbage collection";
+			}
+			if (s.GpuMs > 0f && s.GpuMs >= s.FrameMs * 0.6f && s.GpuMs > s.CpuMainMs)
+			{
+				return "GPU";
+			}
+			if (s.CpuMainMs > 0f)
+			{
+				return "CPU main thread (scripts / rendering setup)";
+			}
+			return "rendering / other";
 		}
 
 		private string BuildSummary(bool detailed)
 		{
-			if (_sampleFilled == 0)
-			{
-				return "Measuring...";
-			}
-
 			float total = 0f, worst = 0f, aiTotal = 0f, aiWorst = 0f, simTotal = 0f, simWorst = 0f;
-			int simTicks = 0;
+			float cpuTotal = 0f, renderTotal = 0f, gpuTotal = 0f, allocTotal = 0f;
+			int count = 0, simTicks = 0, timingCount = 0, allocCount = 0;
 			for (int i = 0; i < _sampleFilled; i++)
 			{
 				Sample s = _samples[i];
+				if (s.Loading)
+				{
+					continue;
+				}
+				count++;
 				total += s.FrameMs;
 				worst = Mathf.Max(worst, s.FrameMs);
 				aiTotal += s.AiMs;
@@ -325,13 +484,29 @@ namespace Eclipse.Diagnostics
 				simTotal += s.SimMs;
 				simWorst = Mathf.Max(simWorst, s.SimMs);
 				simTicks += s.SimTicks;
+				if (s.CpuMainMs > 0f)
+				{
+					timingCount++;
+					cpuTotal += s.CpuMainMs;
+					renderTotal += Mathf.Max(s.RenderThreadMs, 0f);
+					gpuTotal += Mathf.Max(s.GpuMs, 0f);
+				}
+				if (s.AllocKb >= 0f)
+				{
+					allocCount++;
+					allocTotal += s.AllocKb;
+				}
 			}
-			float average = total / _sampleFilled;
-			float onePercentLow = Percentile(0.99f);
+			if (count == 0)
+			{
+				return "Loading...";
+			}
+			float average = total / count;
+			float onePercentLow = Percentile(0.99f, out _);
 
-			StringBuilder text = new StringBuilder(512);
+			StringBuilder text = new StringBuilder(768);
 			text.Append("FPS ").Append(Mathf.RoundToInt(1000f / Mathf.Max(average, 0.01f)))
-				.Append("   ").Append(average.ToString("0.0")).Append(" ms");
+				.Append("   ").Append(average.ToString("0.00")).Append(" ms");
 			text.Append("\n1% low ").Append(Mathf.RoundToInt(1000f / Mathf.Max(onePercentLow, 0.01f)))
 				.Append(" FPS   worst ").Append(worst.ToString("0.0")).Append(" ms");
 			if (!detailed)
@@ -339,24 +514,58 @@ namespace Eclipse.Diagnostics
 				return text.ToString();
 			}
 
-			text.Append("\nEnemy AI  avg ").Append((aiTotal / _sampleFilled).ToString("0.00"))
-				.Append(" / max ").Append(aiWorst.ToString("0.00")).Append(" ms");
-			text.Append("\nFight sim avg ").Append((simTotal / _sampleFilled).ToString("0.00"))
-				.Append(" / max ").Append(simWorst.ToString("0.00")).Append(" ms  (")
-				.Append((simTicks / (float)_sampleFilled).ToString("0.0")).Append(" ticks/frame)");
-			text.Append("\nGC ").Append(GC.CollectionCount(0) - _gcStartCount).Append(" collections   heap ")
-				.Append((Profiler.GetMonoUsedSizeLong() / 1048576f).ToString("0.0")).Append(" MB");
-			text.Append("\nSpikes ").Append(_spikeTotal);
-			if (_spikeTotal > 0)
+			if (timingCount > 0)
 			{
-				Spike last = _spikes[(_spikeIndex + SpikeCapacity - 1) % SpikeCapacity];
-				text.Append("   last ").Append(last.FrameMs.ToString("0")).Append(" ms: ")
-					.Append(SpikeCause(last.FrameMs, last.AiMs, last.SimMs, last.Gc));
+				text.Append("\nCPU main ").Append((cpuTotal / timingCount).ToString("0.00"))
+					.Append("  render ").Append((renderTotal / timingCount).ToString("0.00"))
+					.Append("  GPU ").Append((gpuTotal / timingCount).ToString("0.00")).Append(" ms");
 			}
-			text.Append("\n").Append(Screen.width).Append("x").Append(Screen.height)
-				.Append("  vsync ").Append(QualitySettings.vSyncCount)
-				.Append("  cap ").Append(Application.targetFrameRate <= 0 ? "none" : Application.targetFrameRate.ToString());
+			else
+			{
+				text.Append("\nCPU/GPU split unavailable on this device");
+			}
+			text.Append("\nEnemy AI ").Append((aiTotal / count).ToString("0.00"))
+				.Append(" / max ").Append(aiWorst.ToString("0.00"))
+				.Append("   fight sim ").Append((simTotal / count).ToString("0.00"))
+				.Append(" / max ").Append(simWorst.ToString("0.00")).Append(" ms");
+			text.Append("\nSim ticks/frame ").Append((simTicks / (float)count).ToString("0.00"));
+			if (allocCount > 0)
+			{
+				float allocPerFrame = allocTotal / allocCount;
+				text.Append("   garbage ").Append(allocPerFrame.ToString("0.0")).Append(" KB/frame (")
+					.Append((allocPerFrame * 1000f / average / 1024f).ToString("0.0")).Append(" MB/s)");
+			}
+			text.Append("\nGC ").Append(GC.CollectionCount(0) - _gcStartCount).Append(" collections   heap ")
+				.Append((Profiler.GetMonoUsedSizeLong() / 1048576f).ToString("0")).Append(" MB");
+			text.Append("\nSpikes ").Append(_gameplaySpikeTotal).Append(" (+")
+				.Append(_spikeTotal - _gameplaySpikeTotal).Append(" loading)");
+			Spike? last = LastGameplaySpike();
+			if (last.HasValue)
+			{
+				text.Append("   last ").Append(last.Value.Frame.FrameMs.ToString("0")).Append(" ms: ")
+					.Append(SpikeCause(last.Value.Frame));
+			}
+			if (_fightFrames > 0)
+			{
+				float fightAverage = (float)(_fightFrameMsTotal / _fightFrames);
+				text.Append("\nAll fights: ").Append(Mathf.RoundToInt(1000f / fightAverage)).Append(" FPS avg, 1% low ")
+					.Append(Mathf.RoundToInt(1000f / Mathf.Max(FightPercentile(0.99f), 0.01f))).Append(" FPS");
+			}
 			return text.ToString();
+		}
+
+		private Spike? LastGameplaySpike()
+		{
+			int count = Mathf.Min(_spikeTotal, SpikeCapacity);
+			for (int i = 1; i <= count; i++)
+			{
+				Spike spike = _spikes[(_spikeIndex - i + SpikeCapacity) % SpikeCapacity];
+				if (!spike.Frame.Loading)
+				{
+					return spike;
+				}
+			}
+			return null;
 		}
 
 		private void SaveReport()
@@ -378,8 +587,8 @@ namespace Eclipse.Diagnostics
 
 		private string BuildReport()
 		{
-			StringBuilder report = new StringBuilder(32768);
-			report.AppendLine("Eclipse performance report");
+			StringBuilder report = new StringBuilder(49152);
+			report.AppendLine("Eclipse performance report (format 2)");
 			report.AppendLine("Created: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 			report.AppendLine("Game version: " + Application.version + "  Unity " + Application.unityVersion);
 			report.AppendLine("OS: " + SystemInfo.operatingSystem);
@@ -394,35 +603,73 @@ namespace Eclipse.Diagnostics
 				", frame limit " + SF2DisplayFrameRate.MaxFrameRate + ", interpolation " + SF2DisplayFrameRate.InterpolationEnabled +
 				", motion blur " + SF2DisplayFrameRate.MotionBlurEnabled + ", MSAA " + QualitySettings.antiAliasing +
 				", quality " + QualitySettings.names[QualitySettings.GetQualityLevel()]);
+			report.AppendLine("Frame timing stats: " + (FrameTimingManager.IsFeatureEnabled() ? "on" : "off") +
+				"   GC counter: " + (_allocRecorder.Valid ? "profiler" : "thread allocations"));
 			report.AppendLine("Scene: " + SceneManager.GetActiveScene().name + (Fight.GetCurrentFight() != null ? " (in fight)" : string.Empty));
 			report.AppendLine("Session: " + (Time.unscaledTime - _sessionStart).ToString("0") + " s measured");
 			report.AppendLine();
+			report.AppendLine("Current window (last " + SampleCount + " frames, loading excluded):");
 			report.AppendLine(BuildSummary(true));
 			report.AppendLine();
 
+			if (_fightFrames > 0)
+			{
+				report.AppendLine("All fights this session (" + _fightFrames + " frames, loading excluded):");
+				float fightAverage = (float)(_fightFrameMsTotal / _fightFrames);
+				report.AppendLine("  average " + fightAverage.ToString("0.00") + " ms (" + Mathf.RoundToInt(1000f / fightAverage) + " FPS)");
+				report.AppendLine("  median " + FightPercentile(0.5f).ToString("0.00") + " ms, 90% " + FightPercentile(0.9f).ToString("0.00") +
+					" ms, 99% " + FightPercentile(0.99f).ToString("0.00") + " ms, 99.9% " + FightPercentile(0.999f).ToString("0.00") + " ms");
+				if (Application.targetFrameRate > 0)
+				{
+					float budget = 1000f / Application.targetFrameRate * 1.05f;
+					int over = 0;
+					for (int i = Mathf.Min((int)(budget / HistogramBucketMs), HistogramBuckets - 1); i < HistogramBuckets; i++)
+					{
+						over += _fightHistogram[i];
+					}
+					report.AppendLine("  frames slower than the " + Application.targetFrameRate + " FPS cap: " +
+						(100f * over / _fightFrames).ToString("0.0") + "%");
+				}
+				report.AppendLine("  garbage " + (_fightAllocKbTotal / _fightFrames).ToString("0.0") + " KB/frame, " +
+					_fightGcCount + " GC frames");
+				report.AppendLine();
+			}
+
 			int spikeCount = Mathf.Min(_spikeTotal, SpikeCapacity);
-			report.AppendLine("Frame spikes (latest " + spikeCount + " of " + _spikeTotal + "):");
-			report.AppendLine("time_s,frame_ms,ai_ms,fight_sim_ms,gc,in_fight,scene,likely_cause");
+			report.AppendLine("Frame spikes (latest " + spikeCount + " of " + _spikeTotal + ", " + _gameplaySpikeTotal + " outside loading):");
+			report.AppendLine("time_s,frame_ms,ai_ms,fight_sim_ms,cpu_main_ms,render_thread_ms,gpu_ms,alloc_kb,gc,loading,in_fight,scene,likely_cause");
 			for (int i = 0; i < spikeCount; i++)
 			{
 				Spike s = _spikes[(_spikeIndex - spikeCount + i + SpikeCapacity) % SpikeCapacity];
-				report.Append(s.Time.ToString("0.00")).Append(',').Append(s.FrameMs.ToString("0.00")).Append(',')
-					.Append(s.AiMs.ToString("0.000")).Append(',').Append(s.SimMs.ToString("0.000")).Append(',')
-					.Append(s.Gc ? 1 : 0).Append(',').Append(s.InFight ? 1 : 0).Append(',').Append(s.Scene).Append(',')
-					.AppendLine(SpikeCause(s.FrameMs, s.AiMs, s.SimMs, s.Gc));
+				report.Append(s.Time.ToString("0.00")).Append(',');
+				AppendSample(report, s.Frame);
+				report.Append(',').Append(s.Scene).Append(',').AppendLine(SpikeCause(s.Frame));
 			}
 			report.AppendLine();
 
-			report.AppendLine("Last " + _sampleFilled + " frames (oldest first):");
-			report.AppendLine("frame_ms,ai_ms,fight_sim_ms,sim_ticks,gc");
+			report.AppendLine("Last " + _sampleFilled + " frames (oldest first; CPU/GPU timings lag a few frames):");
+			report.AppendLine("frame_ms,ai_ms,fight_sim_ms,cpu_main_ms,render_thread_ms,gpu_ms,alloc_kb,gc,loading,in_fight,sim_ticks");
 			for (int i = 0; i < _sampleFilled; i++)
 			{
 				Sample s = _samples[(_sampleIndex - _sampleFilled + i + SampleCount) % SampleCount];
-				report.Append(s.FrameMs.ToString("0.00")).Append(',').Append(s.AiMs.ToString("0.000")).Append(',')
-					.Append(s.SimMs.ToString("0.000")).Append(',').Append(s.SimTicks).Append(',')
-					.Append(s.Gc ? 1 : 0).AppendLine();
+				AppendSample(report, s);
+				report.Append(',').Append(s.SimTicks).AppendLine();
 			}
 			return report.ToString();
+		}
+
+		private static void AppendSample(StringBuilder report, Sample s)
+		{
+			report.Append(s.FrameMs.ToString("0.00")).Append(',')
+				.Append(s.AiMs.ToString("0.000")).Append(',')
+				.Append(s.SimMs.ToString("0.000")).Append(',')
+				.Append(s.CpuMainMs.ToString("0.00")).Append(',')
+				.Append(s.RenderThreadMs.ToString("0.00")).Append(',')
+				.Append(s.GpuMs.ToString("0.00")).Append(',')
+				.Append(s.AllocKb.ToString("0.0")).Append(',')
+				.Append(s.Gc ? 1 : 0).Append(',')
+				.Append(s.Loading ? 1 : 0).Append(',')
+				.Append(s.InFight ? 1 : 0);
 		}
 
 		private void ShowStatus(string message)
@@ -438,8 +685,7 @@ namespace Eclipse.Diagnostics
 			{
 				return;
 			}
-			if (Event.current.type != EventType.Repaint && Event.current.type != EventType.MouseDown &&
-				Event.current.type != EventType.MouseUp)
+			if (Event.current.type != EventType.Repaint)
 			{
 				return;
 			}
@@ -450,56 +696,60 @@ namespace Eclipse.Diagnostics
 			GUI.matrix = Matrix4x4.Scale(new Vector3(scale, scale, 1f));
 			float screenWidth = Screen.width / scale;
 
+			const float detailedTextHeight = 150f;
 			if (_collecting)
 			{
 				bool detailed = _mode == Mode.Detailed;
-				float width = detailed ? 330f : 190f;
-				float height = detailed ? 128f + GraphHeight + 34f : 46f;
+				float width = detailed ? 360f : 190f;
+				float height = detailed ? detailedTextHeight + GraphHeight + 34f : 46f;
 				Rect panel = new Rect(screenWidth - width - 12f, 12f, width, height);
 				GUI.DrawTexture(panel, _background);
-				GUI.Label(new Rect(panel.x + 8f, panel.y + 4f, width - 16f, 124f), _summary, _textStyle);
+				GUI.Label(new Rect(panel.x + 8f, panel.y + 4f, width - 16f, detailedTextHeight), _summary, _textStyle);
 				if (detailed)
 				{
-					Rect graphRect = new Rect(panel.x + 8f, panel.y + 128f, width - 16f, GraphHeight);
-					if (Event.current.type == EventType.Repaint)
+					Rect graphRect = new Rect(panel.x + 8f, panel.y + detailedTextHeight, width - 16f, GraphHeight);
+					// Redrawn with the text so the overlay costs little itself.
+					if (_graphDirty)
 					{
+						_graphDirty = false;
 						UpdateGraph();
 					}
 					GUI.DrawTexture(graphRect, _graph);
 					GUI.Label(new Rect(panel.x + 8f, graphRect.yMax + 2f, width - 16f, 30f),
-						"green frame  magenta AI  blue fight sim  line 60 FPS\nF3 hide   F4 save report", _smallStyle);
+						"green frame  magenta AI  blue fight sim  grey loading  line = cap\nF3 hide   F4 save report", _smallStyle);
 				}
 			}
 
 			if (showStatus)
 			{
-				GUI.Label(new Rect(screenWidth - 612f, _collecting && _mode == Mode.Detailed ? 240f : 64f, 600f, 40f),
-					_status, _smallStyle);
+				GUI.Label(new Rect(screenWidth - 612f, _collecting && _mode == Mode.Detailed ? detailedTextHeight + GraphHeight + 52f : 64f,
+					600f, 40f), _status, _smallStyle);
 			}
 			GUI.matrix = oldMatrix;
 		}
 
 		private void UpdateGraph()
 		{
-			// Each column is one frame, scaled so the top is 50 ms (20 FPS).
-			const float maxMs = 50f;
+			// Each column is one frame; the top is GraphTopMs (40 FPS).
 			Color32 clear = new Color32(0, 0, 0, 0);
 			Color32 frame = new Color32(90, 200, 110, 230);
 			Color32 slow = new Color32(235, 80, 60, 240);
+			Color32 loading = new Color32(120, 120, 120, 200);
 			Color32 ai = new Color32(230, 70, 220, 240);
 			Color32 sim = new Color32(70, 140, 255, 240);
-			Color32 guide = new Color32(255, 255, 255, 90);
-			int guideRow = Mathf.RoundToInt(16.67f / maxMs * (GraphHeight - 1));
+			Color32 guide = new Color32(255, 255, 255, 110);
+			float budgetMs = Application.targetFrameRate > 0 ? 1000f / Application.targetFrameRate : 1000f / 60f;
+			int guideRow = Mathf.Clamp(Mathf.RoundToInt(budgetMs / GraphTopMs * GraphHeight) - 1, 0, GraphHeight - 1);
 			for (int x = 0; x < SampleCount; x++)
 			{
 				int age = SampleCount - 1 - x;
 				bool has = age < _sampleFilled;
 				Sample s = has ? _samples[(_sampleIndex - 1 - age + SampleCount) % SampleCount] : default(Sample);
-				int frameRows = has ? Mathf.Clamp(Mathf.CeilToInt(s.FrameMs / maxMs * GraphHeight), 1, GraphHeight) : 0;
-				int aiRows = has ? Mathf.Clamp(Mathf.CeilToInt(s.AiMs / maxMs * GraphHeight), 0, frameRows) : 0;
+				int frameRows = has ? Mathf.Clamp(Mathf.CeilToInt(s.FrameMs / GraphTopMs * GraphHeight), 1, GraphHeight) : 0;
+				int aiRows = has ? Mathf.Clamp(Mathf.CeilToInt(s.AiMs / GraphTopMs * GraphHeight), 0, frameRows) : 0;
 				// Fight simulation time includes the AI it runs, so stack only the remainder.
-				int simRows = has ? Mathf.Clamp(Mathf.CeilToInt((s.SimMs - s.AiMs) / maxMs * GraphHeight), 0, frameRows - aiRows) : 0;
-				Color32 top = s.FrameMs > 33.4f ? slow : frame;
+				int simRows = has ? Mathf.Clamp(Mathf.CeilToInt((s.SimMs - s.AiMs) / GraphTopMs * GraphHeight), 0, frameRows - aiRows) : 0;
+				Color32 top = s.Loading ? loading : s.FrameMs > budgetMs * 1.5f ? slow : frame;
 				for (int y = 0; y < GraphHeight; y++)
 				{
 					Color32 color = y < aiRows ? ai : y < aiRows + simRows ? sim : y < frameRows ? top : clear;

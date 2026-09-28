@@ -9,19 +9,31 @@ namespace Eclipse.Modding
 	{
 		private static string Key(ModSettingToggle toggle) => "Eclipse.ModSetting." + toggle.Name;
 
+		// Body renderers query settings several times per renderer per frame. A
+		// PlayerPrefs read is a registry lookup on Windows plus a key string, so
+		// values are cached; Set is the only writer. Keyed by name and default
+		// because an unset value resolves to the toggle's own default.
+		private static readonly Dictionary<(string, bool), bool> _cache = new Dictionary<(string, bool), bool>();
+
 		// Makes sf2.settings.get and the visuals read this store.
 		public static void Install() { ModSettingValues.Read = Get; }
 
 		public static bool Get(ModSettingToggle toggle)
 		{
 			if (toggle == null) return false;
-			return PlayerPrefs.GetInt(Key(toggle), toggle.Default ? 1 : 0) != 0;
+			var cacheKey = (toggle.Name, toggle.Default);
+			if (_cache.TryGetValue(cacheKey, out bool value)) return value;
+			value = PlayerPrefs.GetInt(Key(toggle), toggle.Default ? 1 : 0) != 0;
+			_cache[cacheKey] = value;
+			return value;
 		}
 
 		public static void Set(ModSettingToggle toggle, bool value)
 		{
 			if (toggle == null) return;
 			PlayerPrefs.SetInt(Key(toggle), value ? 1 : 0);
+			_cache[(toggle.Name, false)] = value;
+			_cache[(toggle.Name, true)] = value;
 		}
 	}
 
