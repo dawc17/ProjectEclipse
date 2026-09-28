@@ -632,8 +632,10 @@ namespace Eclipse.UI
             {
                 OptionSlider("Music volume", 290, SoundController.GetMusicVolume(), SoundController.SetMusicVolume);
                 OptionSlider("Sound volume", 390, SoundController.GetSoundVolume(), SoundController.SetSoundVolume);
-                Row("Intro video on entering a save", () => OnOff(IntroVideoSetting.Enabled), 490, IntroVideoSetting.Toggle);
-                Label(page, "The intro video can be skipped with any key.", 76, 550, 1120, 40, 17, Ink);
+                Row("Intro video on entering a save", () => OnOff(IntroVideoSetting.Enabled), 462, IntroVideoSetting.Toggle);
+                Row("Discord Rich Presence", () => DiscordPresence.Supported ? OnOff(DiscordPresence.Enabled) : "Windows only",
+                    514, DiscordPresence.Toggle);
+                Label(page, "The intro video can be skipped with any key. Rich Presence shows your activity while Discord is running.", 76, 566, 1120, 30, 16, Ink);
             }
             else
             {

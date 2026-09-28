@@ -77,6 +77,8 @@ MUSIC = {
     "vortex": MUSIC_REFERENCE / "raids_vortex.ogg",
     "vulcan": MUSIC_REFERENCE / "raids_vulcan.ogg",
 }
+# Tracks with a lossless album counterpart are rendered by ImportSoundtrackFlacs.py instead.
+from ImportSoundtrackFlacs import OWNED_MOD_PATHS as SOUNDTRACK_OWNED
 MODELS_DROP = ROOT / "ResearchSources" / "de128_assets" / "gamedata" / "models"
 MODELS = ("mdl_body_berstuuk_early", "mdl_head_berstuuk",
           "mdl_vertical_trigger", "mdl_small_collision_box")
@@ -168,6 +170,9 @@ def main() -> int:
         audio.mkdir(parents=True, exist_ok=True)
     for name, source in MUSIC.items():
         target = audio / (name + ".wav")
+        if "audio/underworld/" + name + ".wav" in SOUNDTRACK_OWNED:
+            rows.append((name + ".wav <- soundtrack FLAC (ImportSoundtrackFlacs.py)", ""))
+            continue
         if source.suffix == ".wav":
             if not args.check:
                 render_audio(source, target)

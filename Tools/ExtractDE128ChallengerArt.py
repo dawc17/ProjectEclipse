@@ -27,6 +27,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 DROP = ROOT / "ResearchSources" / "de128_assets" / "assets"
 ASSETS = ROOT / "Mods" / "de128" / "assets"
+# Tracks with a lossless album counterpart are rendered by ImportSoundtrackFlacs.py instead.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ImportSoundtrackFlacs import OWNED_MOD_PATHS as SOUNDTRACK_OWNED
 # Archive icon, opponent avatar, drop image, music id and owner WAV per Challenger.
 CHALLENGERS = {
     "trickster": ("man_nunchaku_new", "drop_nunchaku_new", "samurai_spirit", "the_samurai_spirit"),
@@ -96,6 +99,9 @@ def main() -> int:
     for _, _, music, wav in CHALLENGERS.values():
         source = DROP / "Music" / (wav + ".wav")
         target = audio / (music + ".wav")
+        if "audio/challenger/" + music + ".wav" in SOUNDTRACK_OWNED:
+            count += 1
+            continue
         if not args.check:
             shutil.copyfile(source, target)
         if not target.is_file() or sha256(target) != sha256(source):
