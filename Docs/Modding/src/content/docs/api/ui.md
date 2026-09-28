@@ -279,8 +279,9 @@ stack, leaving space for the original roll art. For example, a 580×630 root
 can contain a 520×480 column with a title, `scroll` widget and close button;
 the scrollbar takes the scroll widget's rightmost 20 units.
 The scroll content must be taller than its viewport to move; use a fixed-height
-grid or column inside it. The [DE128 dojo chooser](https://github.com/dawc17/ProjectEclipse/blob/main/Mods/de128/scripts/content/dojo_changer.lua)
-shows captioned, clickable medallions with a highlighted current choice in this layout.
+grid or column inside it. To let players choose a dojo, you do not need to build this yourself:
+[`sf2.locations.dojo_picker`](../locations-and-locales/#sf2locationsdojo_picker)
+declares a ready-made, animated picker.
 
 Text still wraps and clips within its authored dimensions. Provide enough width
 and height for translations and larger text. These options do not expose custom
@@ -476,6 +477,9 @@ end)
 
 A missing or unloadable image is logged and that button is skipped; the rest
 of the menu keeps working.
+
+For a dojo selector, [`sf2.locations.dojo_picker`](../locations-and-locales/#sf2locationsdojo_picker)
+registers the button and a ready-made picker in one declaration.
 
 ## on_click
 

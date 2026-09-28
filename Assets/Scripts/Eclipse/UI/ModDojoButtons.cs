@@ -64,7 +64,11 @@ namespace Eclipse.UI
                 rect.anchoredPosition = new Vector2(0f, top);
                 top -= rect.sizeDelta.y + Gap;
                 string name = definition.Name;
-                item.GetComponent<Button>().onClick.AddListener(() => ModRuntime.PublishDojoButton(name));
+                item.GetComponent<Button>().onClick.AddListener(() =>
+                {
+                    // A declared dojo picker opens natively; other buttons reach Lua.
+                    if (!DojoPicker.TryOpen(name)) ModRuntime.PublishDojoButton(name);
+                });
             }
             host.sizeDelta = new Vector2(host.sizeDelta.x, -top);
             return host;

@@ -1185,7 +1185,7 @@
       "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselect_dojo",
       "summary": "",
       "requires": "`presentation.dojo` and either this mod's registered location handle with `dojo = true`, or a `core:locations/name` string for an installed native location with `gamedata/locations/name/params.xml`. UI creation separately requires `ui.create`.",
-      "when": "After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo entry; it does not refresh an open dojo."
+      "when": "After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo or shop entry; it does not refresh an already open scene. The shop renders the selected dojo's native layers and ambient effects behind its fighter preview and controls, including registered mod locations."
     },
     "sf2.locations.reset_dojo": {
       "params": {},
@@ -1204,6 +1204,17 @@
       "summary": "",
       "requires": "`presentation.dojo`.",
       "when": "After a game profile has loaded."
+    },
+    "sf2.locations.dojo_picker": {
+      "params": {
+        "definition": "Eclipse.DojoPickerDefinition"
+      },
+      "returns": "The qualified name of the picker's dojo-menu button, `<mod-id>.<id>`.",
+      "capability": "content.register",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsdojo_picker",
+      "summary": "",
+      "requires": "`content.register` and `presentation.dojo`. No `ui.create` is needed: Eclipse draws the picker itself.",
+      "when": "During loading (at the top level of your scripts). It is a registration, not something to call from a callback."
     },
     "sf2.moves.register_template": {
       "params": {
@@ -3762,6 +3773,42 @@
         "music_choices?": "Eclipse.AudioHandle[]",
         "dojo?": "boolean",
         "layers": "Eclipse.LocationLayer[]"
+      }
+    },
+    "DojoPickerChoice": {
+      "fields": {
+        "location": [
+          "Eclipse.LocationHandle|string",
+          "A core:locations/<name> ID or a dojo location handle registered by this mod."
+        ],
+        "name": [
+          "Eclipse.LocalizationHandle",
+          "Shown under the large medallion."
+        ],
+        "preview": [
+          "Eclipse.SpriteHandle",
+          "The medallion art; square art works best."
+        ]
+      }
+    },
+    "DojoPickerDefinition": {
+      "fields": {
+        "id": [
+          "string",
+          "1-64 lowercase letters, digits, _ or -; the dojo-menu button is named modid.id."
+        ],
+        "button": [
+          "Eclipse.SpriteHandle",
+          "The dojo-menu button image."
+        ],
+        "title?": [
+          "Eclipse.LocalizationHandle",
+          "Heading; defaults to CHOOSE YOUR DOJO."
+        ],
+        "choices": [
+          "Eclipse.DojoPickerChoice[]",
+          "1-64 choices in display order."
+        ]
       }
     },
     "MoveShortPoint": {

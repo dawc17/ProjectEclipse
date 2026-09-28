@@ -141,6 +141,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			{
             Eclipse.UI.BattleTouchControls.KeepSixteenByNinePositions((RectTransform)transform,
                 _joystick.transform.parent as RectTransform, (RectTransform)_actionButtons.transform);
+            Eclipse.UI.ControlLayout.Apply((RectTransform)transform);
             SyncModUiCapture();
 				if (!_localVersusInputEnabled) NBMONJPAMHI.Render();
 				if (JKDKBHNKCPH)

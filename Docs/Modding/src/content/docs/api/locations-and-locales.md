@@ -179,6 +179,72 @@ playback position. Apply & Restart is required after changing the definition.
 Native selection/projection tests pass; audible playback, volume/mute behavior
 and scene transitions still need a game test. See the Animated Arena example.
 
+## sf2.locations.dojo_picker
+
+**Signature:** `sf2.locations.dojo_picker { id = "...", button = sprite, title = key, choices = { { location = ..., name = key, preview = sprite }, ... } }`
+
+**Returns:** The qualified name of the picker's dojo-menu button, `<mod-id>.<id>`.
+
+**When:** During loading (at the top level of your scripts). It is a
+registration, not something to call from a callback.
+
+**Requires:** `content.register` and `presentation.dojo`. No `ui.create` is
+needed: Eclipse draws the picker itself.
+
+Declares a ready-made dojo picker. Eclipse adds your button to the dojo's side
+menu (below the disciple toggle, like [`sf2.ui.dojo_button`](../ui/#sf2uidojo_button))
+and opens the picker when it is pressed. You only describe the choices; no Lua
+runs while the picker is open.
+
+The picker shows a large medallion of the focused dojo with its name, over a
+dimmed scene tinted by a soft, slowly turning copy of the same art. A strip of
+all the medallions sits underneath and glides with the focus; the focused one is
+enlarged and the others shrink and fade with distance. Changing the focus slides
+the new medallion in from that side. The dojo the player is using now is tinted
+gold and labelled **CURRENT DOJO**.
+
+| Control | Action |
+| --- | --- |
+| Left/Right arrows, `A`/`D`, mouse wheel, D-pad or left stick, the `<` `>` arrows, clicking a medallion in the strip | Move the focus (holding repeats). |
+| `Enter`, `Space`, gamepad `A`, clicking the large medallion or the focused strip medallion | Enter that dojo: the medallion pulses, the choice is saved as with [`sf2.locations.select_dojo`](#sf2locationsselect_dojo) and the dojo reloads through the usual scene fade. Choosing the current dojo just closes the picker. |
+| `Esc`, `Backspace`, gamepad `B` | Close without changing anything. |
+
+| Field | Required/default | Meaning |
+| --- | --- | --- |
+| `id` | Required | 1–64 lowercase ASCII letters, digits, `_` or `-`. The button is named `<mod-id>.<id>` and counts toward your mod's four dojo buttons. |
+| `button` | Required | Sprite handle for the dojo-menu button. |
+| `title` | `"CHOOSE YOUR DOJO"` | Localization handle for the heading (shown in capitals). |
+| `choices` | Required | 1–64 choices, in display order, without duplicate locations. |
+| `choices[i].location` | Required | A `core:locations/<name>` string or a location handle this mod registered with `dojo = true`. |
+| `choices[i].name` | Required | Localization handle shown under the large medallion (in capitals). |
+| `choices[i].preview` | Required | Sprite handle for the medallion. Square art with a transparent surround works best; it is drawn at up to 330 × 330 units. |
+
+A mod may declare one picker. Choices whose native location is not installed,
+or whose preview fails to load, are left out when the picker opens; if none
+remain the button does nothing and a warning is logged. The button does not send
+a `dojo_button` [story event](../story/); plain `sf2.ui.dojo_button` buttons
+still do.
+
+```lua
+local sf2 = require("sf2")
+
+local choices = {}
+for _, name in ipairs({ "dojo", "dojo_india24", "haloween_dojo_2019" }) do
+    choices[#choices + 1] = {
+        location = "core:locations/" .. name,
+        name = sf2.localization.key("dojo_name." .. name),
+        preview = sf2.assets.sprite("sprites/dojos/" .. name),
+    }
+end
+
+sf2.locations.dojo_picker {
+    id = "dojo_picker",
+    button = sf2.assets.sprite("sprites/dojos/button"),
+    title = sf2.localization.key("dojo_picker.title"),
+    choices = choices,
+}
+```
+
 ## sf2.locations.select_dojo
 
 **Signature:** `sf2.locations.select_dojo(location_or_core_id)`

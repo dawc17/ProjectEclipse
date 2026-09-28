@@ -42,9 +42,11 @@ namespace Eclipse.Modding
         }
 
         // Some UI art remains in Resources rather than the packaged art catalog.
-        // Resolve only an existing sprite at an exact UI resource path.
+        // Resolve only an existing sprite at an exact UI resource path. The menu loader
+        // panels are aliases of the loading panels (see Eclipse.UI.LoaderArt).
         private static UnityEngine.Sprite LoadLooseUiSprite(string path)
         {
+            path = Eclipse.UI.LoaderArt.ResolveAlias(path);
             return (path.StartsWith("ui/", System.StringComparison.Ordinal) ||
                     path.StartsWith("textures/logos/", System.StringComparison.Ordinal))
                 ? UnityEngine.Resources.Load<UnityEngine.Sprite>(path) : null;

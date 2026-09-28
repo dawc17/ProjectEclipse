@@ -90,6 +90,7 @@ namespace Nekki.SF2.GUI.Scenes
 			{
 				_LoaderType1.SetActive(false);
 				_LoaderType2.SetActive(true);
+				Eclipse.UI.LoaderArt.ApplyMenuSplash(_LoaderType2, get_PrevScene(), LMGJJNACLFG);
 			}
 			StartCoroutine(OBHAPHKNGFE());
 		}

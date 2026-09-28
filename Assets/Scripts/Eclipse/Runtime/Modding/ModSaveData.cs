@@ -94,6 +94,10 @@ namespace Eclipse.Modding
             _requestSave?.Invoke();
         }
 
+        // Whether Select/SelectCore would accept this location right now.
+        public bool CanSelect(DefinitionId location) =>
+            IsBound && (IsCoreLocation(location) ? CoreInstalled(location.LocalId) : _choices.Contains(location));
+
         private static bool IsCoreLocation(DefinitionId id) =>
             id.Namespace.Value == "core" && id.Category == "locations" &&
             !string.IsNullOrEmpty(id.LocalId) && id.LocalId.IndexOf('/') < 0;

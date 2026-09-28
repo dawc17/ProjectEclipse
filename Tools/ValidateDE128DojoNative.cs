@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using Eclipse.Modding;
+using Eclipse.UI;
 using Eclipse.UI.Modding;
 using Nekki.SF2.GUI;
 using Nekki.SF2.GUI.Dialogs;
@@ -194,65 +195,20 @@ public static class ValidateDE128DojoNative
             }
             if (!selected)
             {
-                var coordinator = UnityEngine.Object.FindObjectOfType<ModUiCoordinator>();
-                var surface = coordinator == null ? null : coordinator.Foreground;
-                if (surface == null || surface.IsClosed)
+                // DE128 declares its picker; Eclipse draws it natively.
+                var picker = UnityEngine.Object.FindObjectOfType<DojoPicker>();
+                if (picker == null || !DojoPicker.IsOpen)
                 {
                     if (EditorApplication.timeSinceStartup - clickedAt > 20)
-                    {
-                        var bridge = UnityEngine.Object.FindObjectOfType<ModUiGameBridge>();
-                        var entries = coordinator == null ? null :
-                            typeof(ModUiCoordinator).GetField("entries", Hidden).GetValue(coordinator) as System.Collections.IDictionary;
-                        var gate = NativeBlocked();
-                        var bus = typeof(ModRuntime).GetField("StoryEvents",
-                            BindingFlags.Static | BindingFlags.NonPublic)?.GetValue(null) as ModStoryEvents;
-                        throw new Exception("Selector unavailable after native click: bridge=" + (bridge != null) +
-                            " coordinator=" + (coordinator != null) + " entries=" + (entries?.Count ?? -1) +
-                            " nativeBlocked=" + gate + " subscribers=" +
-                            (bus != null && bus.HasSubscribers(ModStoryEventKind.MapButton)));
-                    }
+                        throw new Exception("Dojo picker unavailable after native click: nativeBlocked=" + NativeBlocked());
                     return;
                 }
-                if (surface.Id != "dojo_changer" || surface.Mount != ModUiMount.Modal ||
-                    surface.WidgetCount != 76 || surface.Root.Style.Frame != "scroll" ||
-                    surface.Read("choice_2").Text != "" ||
-                    surface.Read("preview_2").Sprite?.ToString() !=
-                        "de128:sprites/dojo_changer/new_year_24_china_dojo")
-                    throw new Exception("The mounted dojo selector is not the captioned medallion scroll gallery.");
-                var view = UnityEngine.Object.FindObjectOfType<ModUiView>();
-                var scroll = view == null ? null : view.GetComponentInChildren<SFScrollRect>();
-                var artwork = view == null ? null : view.GetComponentsInChildren<Image>(true)
-                    .SingleOrDefault(value => value.name == "preview_2");
-                var frame = view == null ? null : view.GetComponentsInChildren<Image>(true)
-                    .FirstOrDefault(value => value.name == "Upper roll center");
-                if (scroll == null || scroll.get_verticalScrollbar() == null ||
-                    scroll.get_content().rect.height <= scroll.get_viewport().rect.height ||
-                    artwork == null || artwork.sprite == null || artwork.sprite.texture == null ||
-                    frame == null || frame.sprite == null || frame.sprite.name != "CommonScrolls.Roll_center")
-                    throw new Exception("The dojo gallery is missing native scroll behavior, preview art or rolled frame.");
-                Canvas.ForceUpdateCanvases();
-                float top = scroll.get_content().anchoredPosition.y;
-                scroll.set_verticalNormalizedPosition(0);
-                Canvas.ForceUpdateCanvases();
-                if (Mathf.Abs(scroll.get_content().anchoredPosition.y - top) < 100f)
-                    throw new Exception("The dojo preview grid cannot scroll through all ten images.");
-                scroll.set_verticalNormalizedPosition(1);
-                Canvas.ForceUpdateCanvases();
-                var artCorners = new Vector3[4];
-                artwork.rectTransform.GetWorldCorners(artCorners);
-                var artCanvas = artwork.GetComponentInParent<Canvas>();
-                var artCamera = artCanvas != null && artCanvas.renderMode != RenderMode.ScreenSpaceOverlay
-                    ? artCanvas.worldCamera : null;
-                var artLower = RectTransformUtility.WorldToScreenPoint(artCamera, artCorners[0]);
-                var artUpper = RectTransformUtility.WorldToScreenPoint(artCamera, artCorners[2]);
-                var artPointer = new PointerEventData(EventSystem.current) { position = (artLower + artUpper) * .5f };
-                var artHits = new List<RaycastResult>();
-                EventSystem.current.RaycastAll(artPointer, artHits);
-                if (artHits.Count == 0 || artHits[0].gameObject.GetComponentInParent<Button>()?.name != "choice_2")
-                    throw new Exception("The Chinese dojo image does not receive pointer clicks.");
-                ExecuteEvents.ExecuteHierarchy(artHits[0].gameObject, artPointer, ExecuteEvents.pointerClickHandler);
-                if (ModRuntime.ResolveDojoLocation("dojo") != Choice)
-                    throw new Exception("Clicking the Chinese dojo did not update the profile choice.");
+                var choices = DojoPicker.OpenChoices;
+                var art = picker.GetComponentsInChildren<Image>(true).Where(value => value.sprite != null && value.sprite.texture != null).ToArray();
+                if (choices.Length < 2 || choices[1] != "core:locations/" + Choice || art.Length < choices.Length + 1)
+                    throw new Exception("The dojo picker is missing its ordered choices or medallion art (" + string.Join(",", choices) + ").");
+                if (!DojoPicker.PickForValidation(1))
+                    throw new Exception("The dojo picker did not accept the Chinese dojo.");
                 selected = true;
                 selectedAt = EditorApplication.timeSinceStartup;
                 Debug.Log(Prefix + "Chinese dojo selected; waiting for the native profile save cycle");
@@ -260,6 +216,8 @@ public static class ValidateDE128DojoNative
             }
             if (module.GetCurrentScreenType() != ScreenType.ModuleDojo ||
                 EditorApplication.timeSinceStartup - selectedAt < 2) return;
+            if (ModRuntime.ResolveDojoLocation("dojo") != Choice)
+                throw new Exception("Picking the Chinese dojo did not update the profile choice.");
             var fight = Fight.GetCurrentFight();
             if (fight != null)
             {
@@ -277,7 +235,7 @@ public static class ValidateDE128DojoNative
                 return;
             }
             if (EditorApplication.timeSinceStartup - legacyStoredAt < 2) return;
-            Debug.Log(Prefix + "PASS select: native map button, mounted UI, profile preference and dojo transition.");
+            Debug.Log(Prefix + "PASS select: native map button, dojo picker, profile preference and dojo transition.");
             Finish(0);
         }
         catch (Exception error) { Debug.LogError(Prefix + "FAIL: " + error); Finish(1); }

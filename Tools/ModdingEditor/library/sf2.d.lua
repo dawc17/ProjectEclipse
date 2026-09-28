@@ -1294,6 +1294,19 @@ local LocationLayer = {}
 ---@field layers Eclipse.LocationLayer[]
 local LocationDefinition = {}
 
+---@class (exact) Eclipse.DojoPickerChoice
+---@field location Eclipse.LocationHandle|string A core:locations/<name> ID or a dojo location handle registered by this mod.
+---@field name Eclipse.LocalizationHandle Shown under the large medallion.
+---@field preview Eclipse.SpriteHandle The medallion art; square art works best.
+local DojoPickerChoice = {}
+
+---@class (exact) Eclipse.DojoPickerDefinition
+---@field id string 1-64 lowercase letters, digits, _ or -; the dojo-menu button is named modid.id.
+---@field button Eclipse.SpriteHandle The dojo-menu button image.
+---@field title? Eclipse.LocalizationHandle Heading; defaults to CHOOSE YOUR DOJO.
+---@field choices Eclipse.DojoPickerChoice[] 1-64 choices in display order.
+local DojoPickerDefinition = {}
+
 ---@class (exact) Eclipse.MoveShortPoint
 ---@field node? string
 ---@field wall? "Front"|"Back"
@@ -3256,7 +3269,7 @@ function locations.register(definition) end
 function locations.name(location) end
 
 ---Requires: `presentation.dojo` and either this mod's registered location handle with `dojo = true`, or a `core:locations/name` string for an installed native location with `gamedata/locations/name/params.xml`. UI creation separately requires `ui.create`.
----When: After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo entry; it does not refresh an open dojo.
+---When: After a game profile has loaded, normally from a selector's UI callback. The new backdrop applies on the next dojo or shop entry; it does not refresh an already open scene. The shop renders the selected dojo's native layers and ambient effects behind its fighter preview and controls, including registered mod locations.
 ---Returns: `nil`.
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselect_dojo)
 ---@param location Eclipse.LocationHandle|string
@@ -3274,6 +3287,14 @@ function locations.reset_dojo() end
 ---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsselected_dojo)
 ---@return string|nil
 function locations.selected_dojo() end
+
+---Requires: `content.register` and `presentation.dojo`. No `ui.create` is needed: Eclipse draws the picker itself.
+---When: During loading (at the top level of your scripts). It is a registration, not something to call from a callback.
+---Returns: The qualified name of the picker's dojo-menu button, `<mod-id>.<id>`.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/locations-and-locales/#sf2locationsdojo_picker)
+---@param definition Eclipse.DojoPickerDefinition
+---@return string
+function locations.dojo_picker(definition) end
 
 ---Requires: `content.register`.
 ---When: During mod loading, before moves that use the template.

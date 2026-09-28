@@ -8,6 +8,13 @@ namespace Eclipse.UI
     {
         private Vector2 originalSize, originalPosition;
         private RectTransform rect;
+        private static bool IsLoaderPanel(string name)
+        {
+            return name == "loading_left.img" || name == "loading_right.img" ||
+                   name == "startLoading_left.img" || name == "startLoading_right.img" ||
+                   name == LoaderArt.MenuLeft || name == LoaderArt.MenuRight;
+        }
+
         public static void Apply(Image image, string name)
         {
             if (name == "Stripe.left" || name == "Stripe.right")
@@ -26,6 +33,13 @@ namespace Eclipse.UI
                 panel.anchorMax = new Vector2(left ? 0.5f : 1f, 1f);
                 panel.offsetMin = new Vector2(-1f, 0f);
                 panel.offsetMax = new Vector2(1f, 0f);
+                return;
+            }
+            if (IsLoaderPanel(name))
+            {
+                // Replaced loading art keeps its own aspect ratio; the base art keeps its layout.
+                if (image.sprite != null && LoaderArt.Replaced(name)) CoverSplitHalf.Attach(image, name.Contains("_left"));
+                else CoverSplitHalf.Detach(image);
                 return;
             }
             if (name != "Logo.left" && name != "Logo.right" &&

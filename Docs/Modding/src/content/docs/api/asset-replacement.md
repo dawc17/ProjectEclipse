@@ -59,6 +59,30 @@ descriptors with complementary `rect` crops. Their individual panel animations
 continue to work. DE128 uses two 1280 × 1080 crops of its supplied 2560 × 1080
 background. The same core panels are also used by the enemies screen.
 
+### Loading screens
+
+These two-panel full-screen backgrounds can be replaced like the VS panels:
+
+| Targets | Shown |
+| --- | --- |
+| `core:ui/fullscreen/loading_left.img`, `core:ui/fullscreen/loading_right.img` | The map's entry screen after pressing **Fight**, and the loader into and out of fights and other screens. |
+| `core:ui/fullscreen/menu_loading_left.img`, `core:ui/fullscreen/menu_loading_right.img` | The loader when moving between the dojo, shop, profile and map (including a dojo reload). Optional: without a replacement these show the `loading_*` art, exactly as the base game does. |
+| `core:ui/fullscreen/startLoading_left.img`, `core:ui/fullscreen/startLoading_right.img` | The loader when a save is first entered. |
+
+A replaced loading panel keeps the replacement's own aspect ratio: the pair is
+scaled to cover the whole screen, centred, and whatever does not fit is
+cropped at the edges (top and bottom on wide displays, the sides on narrower
+ones). It is never stretched. Keep important parts of the picture, such as a
+logo, near the centre. The base art keeps its original layout.
+
+```lua
+-- One 2560 x 1080 PNG split into two sprite descriptors with complementary rects:
+-- sprites/menu_loading_left.asset  -> rect=[0,0,1280,1080]
+-- sprites/menu_loading_right.asset -> rect=[1280,0,1280,1080]
+sf2.assets.replace { target = "core:ui/fullscreen/menu_loading_left.img", replacement = "sprites/menu_loading_left" }
+sf2.assets.replace { target = "core:ui/fullscreen/menu_loading_right.img", replacement = "sprites/menu_loading_right" }
+```
+
 The module loader draws `core:textures/logos/logo.left` and
 `core:textures/logos/logo.right` over its background panels. If your replacement
 background already contains a logo, replace both logo sprites with a transparent

@@ -558,6 +558,13 @@ namespace Eclipse.Modding
             return RequireRegistration().RegisterDojoButton(localId, image);
         }
 
+        public ModDojoPicker RegisterDojoPicker(string localId, AssetId button, DefinitionId? title, IList<ModDojoPickerChoice> choices)
+        {
+            RequireCapability("content.register");
+            RequireCapability("presentation.dojo");
+            return RequireRegistration().RegisterDojoPicker(localId, button, title, choices);
+        }
+
         public bool HasCapability(string capability)
         {
             if (string.IsNullOrEmpty(capability)) return false;

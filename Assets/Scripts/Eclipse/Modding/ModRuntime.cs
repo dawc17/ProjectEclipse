@@ -1125,6 +1125,54 @@ namespace Eclipse.Modding
         internal static IReadOnlyList<ModDojoButton> DojoButtons =>
             _scripts?.Content?.DojoButtons ?? (IReadOnlyList<ModDojoButton>)Array.Empty<ModDojoButton>();
 
+        internal static ModDojoPicker FindDojoPicker(string buttonName)
+        {
+            var pickers = _scripts?.Content?.DojoPickers;
+            if (pickers == null || _profileRoster == null) return null;
+            foreach (var picker in pickers)
+                if (picker.Button.Name == buttonName) return picker;
+            return null;
+        }
+
+        // The saved dojo choice, or the base dojo when nothing is saved.
+        internal static DefinitionId SelectedDojo
+        {
+            get
+            {
+                DefinitionId id;
+                return DefinitionId.TryParse(DojoSelection.SavedLocation, out id) ? id : DefinitionId.Parse("core:locations/dojo");
+            }
+        }
+
+        internal static bool CanChooseDojo(DefinitionId location) => DojoSelection.CanSelect(location);
+
+        // Saves the choice and reloads the dojo (Module then plays the menu scene fade).
+        internal static bool TryChooseDojo(DefinitionId location)
+        {
+            try
+            {
+                if (!DojoSelection.CanSelect(location)) return false;
+                if (location.Namespace.Value == "core") DojoSelection.SelectCore(location);
+                else DojoSelection.Select(location);
+                return TryNavigateScene("dojo");
+            }
+            catch (Exception error)
+            {
+                Debug.LogWarning("[Mods] Dojo choice failed: " + error.Message);
+                return false;
+            }
+        }
+
+        internal static string LocalizedText(DefinitionId key, string fallback)
+        {
+            LocalizationDefinition definition;
+            if (_scripts?.Content == null || !_scripts.Content.TryGetLocalization(key, out definition)) return fallback;
+            string language = LocalizationManager.ILAJKOBCHFH == null ? LocalizationManager.POIPGLLCCKC : LocalizationManager.ILAJKOBCHFH.name;
+            string value;
+            if (definition.TryGet(language, out value) && !string.IsNullOrEmpty(value)) return value;
+            return definition.TryGet("eng", out value) && !string.IsNullOrEmpty(value) ? value : fallback;
+        }
+
         internal static void PublishDojoButton(string name)
         {
             if (_profileRoster == null || string.IsNullOrEmpty(name) ||

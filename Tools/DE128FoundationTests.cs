@@ -18,7 +18,7 @@ internal static class DE128FoundationTests
     private static readonly UTF8Encoding Utf8 = new UTF8Encoding(false);
     private static readonly string[] Capabilities =
         { "policy.services", "policy.timers", "content.register", "content.patch", "combat.modify_outgoing_hit", "combat.effects", "story.events", "story.progression", "profile.read", "state.read", "state.write", "ui.create", "presentation.navigate", "presentation.dojo", "assets.replace" };
-    private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create", "presentation.navigate", "presentation.dojo" };
+    private static readonly HashSet<string> CallTimeCapabilities = new HashSet<string> { "profile.read", "state.read", "ui.create", "presentation.navigate" };
     private static readonly DefinitionId Sword = DefinitionId.Parse("de128:items/weapon/titans_desolator");
     private static readonly DefinitionId CoreSword = CoreContentImporter.WeaponId("WEAPON_TITAN_GIANT_SWORD");
     private static XmlDocument _items;
@@ -438,27 +438,26 @@ internal static class DE128FoundationTests
                 save.LoadXml("<Warrior><EclipseMods schema='1'/></Warrior>");
                 selection.Bind(save.DocumentElement);
                 events.BindProfile();
-                Check(events.HasSubscribers(ModStoryEventKind.DojoButton), "DE128 did not subscribe to dojo-button clicks.");
-                events.Publish(new ModStoryEvent(ModStoryEventKind.DojoButton, null, button: "other.button"));
-                Check(view == null, "Unrelated dojo button opened the dojo selector.");
-                events.Publish(new ModStoryEvent(ModStoryEventKind.DojoButton, null, button: "de128.dojo_changer"));
-                Check(view != null && !view.IsClosed, "DE128 dojo button did not open its localized selector (view=" +
-                    (view == null ? "null" : "closed=" + view.IsClosed) + ", error=" + storyError + ").");
-                Check(view.Root.Kind == ModUiKind.Stack && view.Root.Style.Frame == "scroll" &&
-                    view.WidgetCount == 76 && view.Read("choice_2").Text == "" &&
-                    view.Read("name_2").Text == "Chinese New Year Dojo" &&
-                    !view.Read("halo_2").Visible &&
-                    view.Read("preview_2").Sprite?.ToString() ==
-                        "de128:sprites/dojo_changer/new_year_24_china_dojo" &&
-                    view.Root.Children[0].Children[1].Kind == ModUiKind.Scroll,
-                    "DE128 dojo chooser lost its framed, captioned medallion scroll gallery.");
-                view.TryClick("close");
-                Check(view.IsClosed && selection.SavedLocation == "", "Closing the selector changed the dojo preference.");
-                events.Publish(new ModStoryEvent(ModStoryEventKind.DojoButton, null, button: "de128.dojo_changer"));
-                Check(view != null && !view.IsClosed, "The selector did not reopen.");
-                view.TryClick("choice_2");
-                Check(view.IsClosed && selection.SavedLocation == "core:locations/new_year_24_china_dojo" &&
-                    destination == "dojo", "DE128 dojo choice did not save and navigate through its real Lua callback.");
+                // The picker is declared; Eclipse draws it and performs the selection.
+                Check(!events.HasSubscribers(ModStoryEventKind.DojoButton), "DE128 still handles dojo-button clicks in Lua.");
+                var picker = catalog.DojoPickers.Single();
+                string Eng(DefinitionId key) =>
+                    catalog.TryGetLocalization(key, out var text) && text.TryGet("eng", out var value) ? value : null;
+                Check(picker.Owner.Value == "de128" && picker.Button.Name == "de128.dojo_changer" &&
+                    catalog.DojoButtons.Single().Name == "de128.dojo_changer" &&
+                    picker.Title.HasValue && !string.IsNullOrEmpty(Eng(picker.Title.Value)) &&
+                    picker.Choices.Count == 10 &&
+                    picker.Choices[0].Location.ToString() == "core:locations/dojo" &&
+                    picker.Choices[1].Location.ToString() == "core:locations/new_year_24_china_dojo" &&
+                    Eng(picker.Choices[1].Name) == "Chinese New Year Dojo" &&
+                    picker.Choices[1].Preview.ToString() == "de128:sprites/dojo_changer/new_year_24_china_dojo",
+                    "DE128 dojo picker lost its button, localized title or ordered medallion choices.");
+                var chinese = picker.Choices[1].Location;
+                Check(selection.CanSelect(chinese) && !selection.CanSelect(picker.Choices[2].Location) &&
+                    selection.SavedLocation == "", "Dojo picker availability does not follow the installed locations.");
+                selection.SelectCore(chinese);
+                Check(selection.SavedLocation == "core:locations/new_year_24_china_dojo" && view == null && destination == null,
+                    "Dojo picker choice did not save through the dojo selection.");
             }
         }
         finally { ModSceneAccess.Open = priorNavigation; }

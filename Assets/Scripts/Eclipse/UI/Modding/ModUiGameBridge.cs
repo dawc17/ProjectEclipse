@@ -66,6 +66,7 @@ namespace Eclipse.UI.Modding
 
         public static bool TryHandleBack()
         {
+            if (DojoPicker.HandleBack()) return true;
             if (backHandledFrame == Time.frameCount) return true;
             if (current == null) return consumedFrame == Time.frameCount;
             current.RefreshNativeBlock();

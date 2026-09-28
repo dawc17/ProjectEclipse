@@ -896,6 +896,17 @@ public class QuestActionUpdateEclipseBattles : QuestAction
 				if (selectedBattle == eclipseBattle) selectedReplacement = normalBattle;
 				continue;
 			}
+			if (normalBattle.MNHLGELMOEJ() != ConditionStatus.StatusComplete)
+			{
+				// An unfinished battle is fought as itself in Eclipse mode: its Eclipse="1"
+				// rules make it the harder version. The replay counterpart only takes over
+				// once every fight of the normal battle has been won (the archived Eclipse
+				// tutorial deliberately sends the player to an unfinished tournament).
+				SetBattleHidden(normalBattle, false, changedBattles);
+				SetBattleHidden(eclipseBattle, true, changedBattles);
+				if (selectedBattle == eclipseBattle) selectedReplacement = normalBattle;
+				continue;
+			}
 			if (eclipseBattle.NNPNEABKHPP() == null)
 			{
 				// The newer UpdateEclipseBattles action also introduces the replay

@@ -653,7 +653,11 @@ namespace Eclipse.UI
                     movementLabel = Row("Movement: D-pad +", () => Eclipse.Input.FightControllerBindings.MovementStick == GamePad.Stick.LeftStick ? "Left stick" : "Right stick",
                         520, Eclipse.Input.FightControllerBindings.ToggleStick);
                 else
+                {
                     Row("Battle touch controls", () => OnOff(BattleTouchControls.Visible), 520, BattleTouchControls.Toggle);
+                    // Drag-and-drop placement of the joystick and buttons over a mock fight.
+                    Button(page, "Touch layout...", 316, 604, 300, 48, () => ControlLayoutEditor.Open(null));
+                }
                 bindingStatus = Label(page, ControllerPage ? "Select an action, then press a controller button or trigger. Esc cancels. Controller 1."
                     : "Combine movement keys for diagonals (e.g. W+D). Select an action to rebind; Esc cancels.", 76, 562, 1120, 38, 16, Ink);
                 Button(page, "Restore defaults", 852, 604, 340, 48, () =>
@@ -877,7 +881,7 @@ namespace Eclipse.UI
             UpdateGust();
             UpdateEclipse();
             UpdateInputDevice();
-            if (GameSessionRestart.IsRestarting || splashing) return;
+            if (GameSessionRestart.IsRestarting || splashing || ControlLayoutEditor.BlocksInput) return;
             if (currentPage == "Checking")
             {
                 if (ReleaseCheck.Current != ReleaseCheck.Result.Pending) Home();

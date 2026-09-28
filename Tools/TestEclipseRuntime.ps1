@@ -311,4 +311,28 @@ foreach($reverse in @($false,$true)) {
         }
     }
 }
-Write-Output "PASS: $checks Eclipse assertions across $($definitions.Count) replay segments (three cycles each, saved progress, action integration, locked pairs, intermission ownership and map refresh)."
+# An unlocked but unfinished battle is fought as itself in Eclipse mode (its Eclipse="1"
+# rules make it harder). Its replay counterpart must not replace it, even when an old
+# save already exposed the counterpart and hid the normal entry.
+$openZone = New-Object Zone -ArgumentList @('ZONE_2','open')
+$openNormal = New-BattleFixture $stages.SelectSingleNode('//Zone[@Name="ZONE_2"]/Battle[@Name="BOSS_HERMIT"]') 0
+$openEclipse = New-BattleFixture $hermit 0
+# Non-replayable fixtures start complete; leave the last fight of this one unwon.
+$openNormal.GetFights()[$openNormal.GetFights().Count - 1].Status = [ConditionStatus]::StatusOpen
+foreach ($entry in @($openNormal, $openEclipse)) { $entry.EENNGGIMMMI($openZone); $openZone.LGIIBNJFADA.Add($entry) }
+[EclipseRuntimeTest.ListSF]::Instance.Battles.Clear()
+foreach ($entry in @($openNormal, $openEclipse)) { [EclipseRuntimeTest.ListSF]::Instance.Battles.Add($entry) }
+$openNormal.NNPNEABKHPP().HCEOCBOFIGC($true)
+$openEclipse.NNPNEABKHPP().HCEOCBOFIGC($false)
+$map.Zone.Selected = $openEclipse
+[EclipseRuntimeTest.ListSF]::Roster.EclipseMode = $true
+$adds = [EclipseRuntimeTest.ListSF]::Roster.Adds
+Assert-True ($openNormal.MNHLGELMOEJ() -ne [ConditionStatus]::StatusComplete) 'Fixture battle is unexpectedly complete'
+$update.DEJMHFMLKIC($null)
+Assert-True (!$openNormal.KBPNDJPMCCG() -and $openEclipse.KBPNDJPMCCG()) 'Unfinished battle was replaced by its Eclipse replay'
+Assert-True ([object]::ReferenceEquals($map.Zone.Selected, $openNormal)) 'Selection did not return to the unfinished battle'
+Assert-True ([EclipseRuntimeTest.ListSF]::Roster.Adds -eq $adds) 'Unfinished battle introduced a replay counterpart'
+$openEclipse.FOMHAGJJCLJ($null)
+$update.DEJMHFMLKIC($null)
+Assert-True ([EclipseRuntimeTest.ListSF]::Roster.Adds -eq $adds -and $null -eq $openEclipse.NNPNEABKHPP()) 'Unfinished battle acquired a saved replay counterpart'
+Write-Output "PASS: $checks Eclipse assertions across $($definitions.Count) replay segments (three cycles each, saved progress, action integration, locked pairs, intermission ownership, unfinished battles and map refresh)."

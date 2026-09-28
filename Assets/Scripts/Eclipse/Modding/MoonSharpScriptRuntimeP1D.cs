@@ -43,6 +43,7 @@ namespace Eclipse.Modding
                 locations.Set("select_dojo", DynValue.NewCallback(SelectDojo));
                 locations.Set("reset_dojo", DynValue.NewCallback(ResetDojo));
                 locations.Set("selected_dojo", DynValue.NewCallback(SelectedDojo));
+                locations.Set("dojo_picker", DynValue.NewCallback(DojoPicker));
                 root.Set("locations", DynValue.NewTable(locations));
 
                 var moves = new Table(_script);
@@ -282,6 +283,52 @@ namespace Eclipse.Modding
                     selection.Reset();
                     return DynValue.Nil;
                 });
+            }
+
+            // sf2.locations.dojo_picker { id, button = sprite, title = key?, choices = { { location, name, preview }, ... } }
+            private DynValue DojoPicker(ScriptExecutionContext context, CallbackArguments args)
+            {
+                const string function = "sf2.locations.dojo_picker";
+                Table table = args.AsType(0, function, DataType.Table, false).Table;
+                return ApiCall(function, () => {
+                    ValidateFields(table, function, "id", "button", "title", "choices");
+                    string id = ReadButtonId(table, function);
+                    AssetId button = RequiredHandle(table, "button", _spriteHandles, "sprite", function);
+                    DefinitionId? title = null;
+                    if (!table.Get("title").IsNil())
+                        title = RequiredHandle(table, "title", _localizationHandles, "localization", function);
+                    Table array = RequireArray(table.Get("choices"), function + ".choices");
+                    var choices = new List<ModDojoPickerChoice>();
+                    for (int i = 1; ; i++)
+                    {
+                        DynValue item = array.Get(i);
+                        if (item.IsNil()) break;
+                        string at = function + ".choices[" + i + "]";
+                        if (item.Type != DataType.Table) throw new ModContentException(at + " must be a table.");
+                        Table choice = item.Table;
+                        ValidateFields(choice, at, "location", "name", "preview");
+                        choices.Add(new ModDojoPickerChoice(PickerLocation(choice.Get("location"), at),
+                            RequiredHandle(choice, "name", _localizationHandles, "localization", at),
+                            RequiredHandle(choice, "preview", _spriteHandles, "sprite", at)));
+                    }
+                    if (array.Length != choices.Count) throw new ModContentException(function + ".choices must be a sequence without gaps.");
+                    return DynValue.NewString(_api.RegisterDojoPicker(id, button, title, choices).Button.Name);
+                });
+            }
+
+            // A "core:locations/<name>" string or a dojo location handle registered by this mod.
+            private DefinitionId PickerLocation(DynValue value, string function)
+            {
+                if (value.Type == DataType.String)
+                {
+                    DefinitionId core;
+                    if (!DefinitionId.TryParse(value.String, out core) || core.Namespace.Value != "core" || core.Category != "locations")
+                        throw new ModContentException(function + ".location must be a core:locations/name ID or this mod's dojo handle.");
+                    return core;
+                }
+                if (value.Type != DataType.Table || !_locationHandles.TryGetValue(value.Table, out var id) || id.Namespace != Mod.Id)
+                    throw new ModContentException(function + ".location must be a core:locations/name ID or this mod's dojo handle.");
+                return id;
             }
 
             private DynValue SelectedDojo(ScriptExecutionContext context, CallbackArguments args)
