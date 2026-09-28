@@ -1,4 +1,0 @@
-type=sprite
-texture=textures/dojo_changer/dojo_india24.png
-rect=[198, 208, 617, 617]
-pixels_per_unit=100
