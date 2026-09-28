@@ -32,7 +32,7 @@ public class QuestActionChangeScene : QuestAction
 
 	private void OCOEIOEDCLE(ScreenType KAHMHPNJBGI)
 	{
-		ScreenType iPKNDMINFMJ = Module.GetInstance().NMCNDOPKFJD();
+		ScreenType iPKNDMINFMJ = Module.GetInstance().GetCurrentScreenType();
 		bool flag = false;
 		bool flag2 = KAHMHPNJBGI == iPKNDMINFMJ;
 		bool flag3 = KAHMHPNJBGI != ScreenType.ModuleFight;

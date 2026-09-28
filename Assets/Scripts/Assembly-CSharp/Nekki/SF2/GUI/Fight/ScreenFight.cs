@@ -76,6 +76,9 @@ namespace Nekki.SF2.GUI.Fight
 		private bool KJIAPGDFEIK;
 
 		private float timer;
+		private float bannerDuration;
+		private Eclipse.UI.FightPopupCinematic bannerAnimation;
+		private Eclipse.UI.FightPopupCinematic roundAnimation;
 
 		[SerializeField]
 		private GameObject vsScreenPrefab;
@@ -264,6 +267,8 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void ClearPictures()
 		{
+			bannerAnimation?.Reset();
+			roundAnimation?.Reset();
 			if (image != null)
 			{
 				image.gameObject.SetActive(false);
@@ -348,6 +353,17 @@ namespace Nekki.SF2.GUI.Fight
 		private void StartScreen(float LLIJBPJPHEL)
 		{
 			timer = LLIJBPJPHEL;
+			bannerDuration = timer;
+			if (image != null && image.gameObject.activeSelf)
+			{
+				if (bannerAnimation == null) bannerAnimation = new Eclipse.UI.FightPopupCinematic(image.rectTransform);
+				bannerAnimation.Play(timer);
+			}
+			if (round != null && round.gameObject.activeSelf)
+			{
+				if (roundAnimation == null) roundAnimation = new Eclipse.UI.FightPopupCinematic(round.rectTransform);
+				roundAnimation.Play(timer);
+			}
 			Start();
 		}
 
@@ -370,6 +386,8 @@ namespace Nekki.SF2.GUI.Fight
 			if (!KCANPMPILKI && KJIAPGDFEIK)
 			{
 				timer -= Time.deltaTime;
+				bannerAnimation?.Evaluate(bannerDuration - timer);
+				roundAnimation?.Evaluate(bannerDuration - timer);
 				if (timer <= 0f)
 				{
 					Stop();

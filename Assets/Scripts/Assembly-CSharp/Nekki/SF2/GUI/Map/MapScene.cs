@@ -111,6 +111,10 @@ namespace Nekki.SF2.GUI.Map
 		private NMFLNANKNOJ LDOJANLOFHI;
 
 		private bool _raidPowerMode;
+		private Color storyMask = Color.white;
+		private Color raidNormalMask = Color.white;
+		private Color raidPowerMask = Color.white;
+		private float raidMaskDuration = .8f;
 
 		private UnderworldMapControls _underworldControls;
 
@@ -290,7 +294,23 @@ namespace Nekki.SF2.GUI.Map
 
 		public void SetStoryZonesBackgroundMask(Color color)
 		{
-			_storyContainer.SetZonesBackgroundMask(color);
+			storyMask = color;
+			if (LDOJANLOFHI == NMFLNANKNOJ.StoryMode) _storyContainer.SetZonesBackgroundMask(color);
+		}
+
+		public void FadeStoryZonesBackgroundMask(Color color, float duration)
+		{
+			storyMask = color;
+			if (LDOJANLOFHI == NMFLNANKNOJ.StoryMode) _storyContainer.FadeZonesBackgroundMask(color, duration);
+		}
+
+		public void SetRaidMapColors(Color normal, Color power, float duration)
+		{
+			raidNormalMask = normal;
+			raidPowerMask = power;
+			raidMaskDuration = duration;
+			if (LDOJANLOFHI == NMFLNANKNOJ.RaidMode)
+				_storyContainer.FadeZonesBackgroundMask(_raidPowerMode ? power : normal, duration);
 		}
 
 		public void SelectFight(string IGGFGLLIGCG, int frames = 0)
@@ -519,6 +539,7 @@ namespace Nekki.SF2.GUI.Map
 			_raidPowerMode = !_raidPowerMode;
 			_storyContainer.SetRaidPowerMode(_raidPowerMode);
 			UpdateCurrentZone();
+			_storyContainer.FadeZonesBackgroundMask(_raidPowerMode ? raidPowerMask : raidNormalMask, raidMaskDuration);
 			IOHMLGLJELB();
 			UpdateRaidControls();
 			Debug.Log("[Underworld] Power Mode " + (_raidPowerMode ? "enabled" : "disabled"));
@@ -582,6 +603,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				_storyContainer.AddStoryZones();
 			}
+			_storyContainer.SetZonesBackgroundMask(mode == NMFLNANKNOJ.RaidMode ? raidNormalMask : storyMask);
 			_storyContainer.OpenRightNow();
 			LPMGMNCGLOJ();
 			LastFight focus = (mode == NMFLNANKNOJ.RaidMode) ? JBAPLBALJII : JOBMMLPAKBF;

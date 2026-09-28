@@ -266,7 +266,7 @@ namespace Nekki.SF2.GUI.Dialogs
 
 		private bool HDLDBIJDEIL()
 		{
-			switch (Module.GetInstance().NMCNDOPKFJD())
+			switch (Module.GetInstance().GetCurrentScreenType())
 			{
 			case ScreenType.ModulePreloader:
 			case ScreenType.ModuleCreditsScreen:

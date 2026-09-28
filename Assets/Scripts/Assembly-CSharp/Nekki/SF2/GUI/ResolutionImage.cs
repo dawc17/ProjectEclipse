@@ -215,6 +215,14 @@ namespace Nekki.SF2.GUI
 					JGIGOMLGLPN = normalizedName.Substring(num + 1);
 				}
 			}
+			// Control packs also apply to the standalone recovered sprite path. AtlasCache
+			// preserves mod replacement priority and supplies original sizing for the pack.
+			if (JGIGOMLGLPN.StartsWith("FightButtons.", System.StringComparison.OrdinalIgnoreCase) &&
+				(texturePath ?? string.Empty).Replace('\\', '/').TrimEnd('/').Equals("UI/Atlases", System.StringComparison.OrdinalIgnoreCase))
+			{
+				Sprite control = AtlasCache.GetSpriteFromAtlas("UI/Atlases/FightButtons", JGIGOMLGLPN);
+				if (control != null) return control;
+			}
 			// Shop panels prepend Enchantments. to XML names such as
 			// SkillsEnch02.EnchantmentBleeding. Resolve the transparent shop glyph
 			// before generic atlas/member lookups: the recovered art also contains

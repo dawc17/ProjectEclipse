@@ -324,7 +324,7 @@ namespace Nekki.SF2.Core.Quests
 				NGOFBFGBICM.ELEBLBJKDBI().HIHDEKHLHKP(DOKAIKMLLDK.get_Name());
 				DHKJBMDEODI.Add(DOKAIKMLLDK);
 				KBFJLHJMCDO(DOKAIKMLLDK.get_Name());
-				ScreenType iPKNDMINFMJ = Module.GetInstance().NMCNDOPKFJD();
+				ScreenType iPKNDMINFMJ = Module.GetInstance().GetCurrentScreenType();
 				if (!GPBPGAPMAMN && !_isRunActions && iPKNDMINFMJ != ScreenType.ModuleFight)
 				{
 					GPBPGAPMAMN = true;

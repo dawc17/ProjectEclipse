@@ -129,7 +129,7 @@ public static class ValidateDE128TierBossesNative
             if (scripts.Diagnostics.Count != 0 || scripts.StateDiagnostics.Count != 0)
                 throw new Exception("DE128 diagnostics: " + string.Join("; ", scripts.Diagnostics) +
                     "; state=" + string.Join("; ", scripts.StateDiagnostics));
-            if (!mapRequested && module.NMCNDOPKFJD() == ScreenType.ModuleDojo)
+            if (!mapRequested && module.GetCurrentScreenType() == ScreenType.ModuleDojo)
             {
                 var menu = MainMenu.get_Instance();
                 if (menu == null) return;
@@ -143,7 +143,7 @@ public static class ValidateDE128TierBossesNative
             }
             if (surrenderRequested)
             {
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+                if (module.GetCurrentScreenType() != ScreenType.ModuleMap) return;
                 var returned = UnityEngine.Object.FindObjectOfType<MapScene>();
                 if (returned == null) return;
                 if (IsSpotlightFight(Target.Id.ToString()) && GameObject.Find("LightInTheDarkness") != null)
@@ -183,7 +183,7 @@ public static class ValidateDE128TierBossesNative
             }
             if (!entryRequested)
             {
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+                if (module.GetCurrentScreenType() != ScreenType.ModuleMap) return;
                 var scene = UnityEngine.Object.FindObjectOfType<MapScene>();
                 if (scene == null) return;
                 if (!raidPrepared)
@@ -1432,7 +1432,7 @@ public static class ValidateDE128TierBossesNative
             Debug.Log(Prefix + "Reached Wasp at frame " + frame + " after " + waspWaveDefeats +
                 " native survival defeats.");
         }
-        bool flying = enemy.FHBLLPCEAHG()?.CNPFHBMGDFP("WaspFly") == true;
+        bool flying = enemy.GetCurrentAnimation()?.CNPFHBMGDFP("WaspFly") == true;
         if (flying && waspFirstFlyAt < 0)
         {
             waspFirstFlyAt = frame;

@@ -832,6 +832,17 @@
       "requires": "`story.progression` and a battle handle registered by this mod on a zone with `underworld = true`. Strings, core battles and other mods' battles are rejected.",
       "when": "A callback after the profile has loaded, typically right before you show the toggle."
     },
+    "sf2.underworld.set_map_colors": {
+      "params": {
+        "definition": "Eclipse.UnderworldMapColors"
+      },
+      "returns": "`true` when stored on the current map; `false` when the map is not ready, including scene/profile transitions, pending encounters and native input locks.",
+      "capability": "story.progression",
+      "url": "https://dawc17.github.io/ProjectEclipse/api/underworld/#sf2underworldset_map_colors",
+      "summary": "Choose the Underworld background tint for normal and Power Mode. Clicking Power Mode blends between these colors without changing battle rules or the story map.",
+      "requires": "`story.progression`. Required `normal` and `power` are hex colors in `#RRGGBB` or `#RRGGBBAA` form. `duration` is a finite number from 0 to 5 seconds, default `0.8`; zero changes immediately. Colors multiply the map artwork, so `#FFFFFF` preserves its original colors. Omitted alpha is opaque.",
+      "when": "In a callback on the map, usually `scene_enter`. UI cleanup calls raise an error. The colors last until the map scene is rebuilt; reapply them on entry. If several callbacks set them, the last successful call wins."
+    },
     "sf2.quests.register": {
       "params": {
         "definition": "Eclipse.QuestDefinition"
@@ -1367,7 +1378,7 @@
       "returns": "`nil`.",
       "capability": "policy.timers",
       "url": "https://dawc17.github.io/ProjectEclipse/api/timers-and-services/#sf2timersset",
-      "summary": "Set the delivery duration and early-skip policy for new forge orders, optionally making already-paid pending orders eligible for immediate normal completion.",
+      "summary": "Set the delivery duration and early-skip policy for new forge orders, optionally making already-paid pending orders eligible for immediate normal completion, or set a shared time limit for timed battles.",
       "requires": "`policy.timers`.",
       "when": "Entrypoint."
     },
@@ -3229,6 +3240,19 @@
         "rounds?": "integer[]"
       }
     },
+    "UnderworldMapColors": {
+      "fields": {
+        "normal": [
+          "string",
+          "#RRGGBB or #RRGGBBAA; white preserves the map art."
+        ],
+        "power": "string",
+        "duration?": [
+          "number",
+          "0..5 seconds, default 0.8."
+        ]
+      }
+    },
     "VariableOperand": {
       "fields": {
         "kind": "\"variable\"",
@@ -4369,10 +4393,19 @@
     },
     "TimerPolicy": {
       "fields": {
-        "subsystem": "\"forge\"",
-        "seconds": "integer",
-        "skip_enabled?": "boolean",
-        "complete_pending?": "boolean"
+        "subsystem": "\"forge\"|\"battle\"",
+        "seconds": [
+          "integer",
+          "Forge: 0..31536000; battle: 1..86400."
+        ],
+        "skip_enabled?": [
+          "boolean",
+          "Forge only; leave true for battle."
+        ],
+        "complete_pending?": [
+          "boolean",
+          "Forge only; leave false for battle."
+        ]
       }
     },
     "CounterDefinition": {

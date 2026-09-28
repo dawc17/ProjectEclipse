@@ -27,7 +27,7 @@ public class FightList {}
 public static class LocalizationManager { public class Language {} }
 public class ParametersQuest { public QuestParameters Context=new QuestParameters(); }
 public class RosterQuest { public enum NOKCOAHJIPB { None } public int Deletes; public ParametersQuest Saved=new ParametersQuest(); public ParametersQuest get_Parameters(){return Saved;} public void LCIHKPPGNPF(){Deletes++;} }
-public class Module { public static Module GetInstance(){return new Module();} public Nekki.SF2.GUI.ScreenType NMCNDOPKFJD(){return Nekki.SF2.GUI.ScreenType.Map;} }
+public class Module { public static Module GetInstance(){return new Module();} public Nekki.SF2.GUI.ScreenType GetCurrentScreenType(){return Nekki.SF2.GUI.ScreenType.Map;} }
 public class NGOFBFGBICM { public static NGOFBFGBICM ELEBLBJKDBI(){return new NGOFBFGBICM();} public void HIHDEKHLHKP(string n){} }
 public class ListSF { public static ListSF GetInstance(){return new ListSF();} public void EJANJEEGOOE(){} public static FightList CHMCKGCDGCM(FightIDS id){return null;} }
 public class SystemProperties { public static bool DBBOCENKMGD(){return true;} }

@@ -137,6 +137,15 @@ public class Location
 		return Eclipse.Modding.ModRuntime.ResolveDojoLocation(fallback);
 	}
 
+	// A menu preview resolves the same saved/mod choice without changing the
+	// currently loaded training scene's selection bookkeeping.
+	public static Location CreateDojoPreview()
+	{
+		var location = new Location(ResolveDojo("dojo"), string.Empty);
+		location.init();
+		return location;
+	}
+
 	// True when the dojo choice now resolves to a different location than the
 	// one the current dojo scene loaded, so reopening the dojo must reload it.
 	public static bool DojoSelectionChanged()

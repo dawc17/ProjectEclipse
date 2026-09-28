@@ -45,7 +45,7 @@ Boot screens and arbitrary direct engine loads outside those loaders are not
 covered. There is no configuration-text, arbitrary XML, deletion, or global
 native-animation replacement escape hatch.
 
-Exact existing `core:ui/...` Sprite resources are also supported when they are
+Exact existing `core:ui/...` and `core:textures/logos/...` Sprite resources are also supported when they are
 stored outside the packaged art catalog. For example, menu art can target
 `core:ui/atlases/MenuButtons.Dojo_normal`, and the two VS background panels can
 target `core:ui/fullscreen/VS_Fon_left.img` and
@@ -58,6 +58,12 @@ A single replacement PNG can supply both VS panels through two sprite
 descriptors with complementary `rect` crops. Their individual panel animations
 continue to work. DE128 uses two 1280 × 1080 crops of its supplied 2560 × 1080
 background. The same core panels are also used by the enemies screen.
+
+The module loader draws `core:textures/logos/logo.left` and
+`core:textures/logos/logo.right` over its background panels. If your replacement
+background already contains a logo, replace both logo sprites with a transparent
+sprite as well to avoid drawing it twice. DE128's loading-art import does this;
+disabling that mod restores the base logo sprites.
 
 ## Keeping upscaled buttons the same size
 

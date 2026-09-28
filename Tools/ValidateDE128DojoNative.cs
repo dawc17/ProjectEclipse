@@ -81,8 +81,8 @@ public static class ValidateDE128DojoNative
                     "; state=" + string.Join("; ", scripts.StateDiagnostics));
             if (phase == "reload")
             {
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleDojo &&
-                    module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+                if (module.GetCurrentScreenType() != ScreenType.ModuleDojo &&
+                    module.GetCurrentScreenType() != ScreenType.ModuleMap) return;
                 var button = MapButtonController.ELEBLBJKDBI().MEPCBPIJLGB()
                     .SingleOrDefault(value => value.Name == "de128.dojo_changer");
                 if (button == null || button.BIJFFONMDBC.x != 240f ||
@@ -103,7 +103,7 @@ public static class ValidateDE128DojoNative
                 return;
             }
             if (phase != "select") throw new Exception("Unknown phase: " + phase);
-            if (!mapRequested && module.NMCNDOPKFJD() == ScreenType.ModuleDojo)
+            if (!mapRequested && module.GetCurrentScreenType() == ScreenType.ModuleDojo)
             {
                 var menu = MainMenu.get_Instance();
                 if (menu == null) return;
@@ -113,7 +113,7 @@ public static class ValidateDE128DojoNative
             }
             if (!clicked)
             {
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleMap ||
+                if (module.GetCurrentScreenType() != ScreenType.ModuleMap ||
                     UnityEngine.Object.FindObjectOfType<MapScene>() == null) return;
                 if (NativeBlocked())
                 {
@@ -258,7 +258,7 @@ public static class ValidateDE128DojoNative
                 Debug.Log(Prefix + "Chinese dojo selected; waiting for the native profile save cycle");
                 return;
             }
-            if (module.NMCNDOPKFJD() != ScreenType.ModuleDojo ||
+            if (module.GetCurrentScreenType() != ScreenType.ModuleDojo ||
                 EditorApplication.timeSinceStartup - selectedAt < 2) return;
             var fight = Fight.GetCurrentFight();
             if (fight != null)

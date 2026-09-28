@@ -69,7 +69,7 @@ namespace Nekki.SF2.GUI.Common
 		private static string CKAAKEHFAML(Model ACENLMONNPA)
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			InfoAnimation pJAHIOELGGD = ACENLMONNPA.FHBLLPCEAHG();
+			InfoAnimation pJAHIOELGGD = ACENLMONNPA.GetCurrentAnimation();
 			int num = -1;
 			if (ACENLMONNPA.NLHFJIEHKMM())
 			{

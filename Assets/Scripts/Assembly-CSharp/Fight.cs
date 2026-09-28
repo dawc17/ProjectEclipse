@@ -1722,7 +1722,8 @@ public class Fight
 		return string.Empty;
 	}
 
-	public void HIIGDMMGBBD(bool ONFJJLFGNCH = false)
+	// best guess for name
+	public void TogglePauseMenu(bool ONFJJLFGNCH = false)
 	{
 		if (FightDefinition.get_Type() != BattleType.FightNone)
 		{
@@ -2201,6 +2202,12 @@ public class Fight
 				_Camera.FIEBIONJCCI(pIHIIMOOICM);
 			}
 		}
+		// Eclipse: the archival DE CriticalEffect trigger plays snd_crit with the critical hit
+		// effect; the shipped moves data only carries the effect, so play the sound once here.
+		if (gHHCDAFIKJE.DNGKOMPMPCD && !gHHCDAFIKJE.DFOHNJEBDED)
+		{
+			Sound.IFKCCDAIADF("snd_crit");
+		}
 		EGHPHELLOGO.KJDFJPBIGJC.POCBCFMBKLO = gHHCDAFIKJE.DNGKOMPMPCD;
 		EGHPHELLOGO.KJDFJPBIGJC.set_IsShock(gHHCDAFIKJE.APCAKCCOMLO);
 		RuleAppliance eJPOJJKKICO = ((!EGHPHELLOGO.KJDFJPBIGJC.EPCNJLEHJCB()) ? RuleAppliance.AppliancePlayer : RuleAppliance.ApplianceOpponent);
@@ -2216,7 +2223,7 @@ public class Fight
 		bool lGNDOAHHHNP = (ObscuredFloat)(kMMJCHDKBDO.KKMCHCNOHMB()) == 0f;
 		if (EGHPHELLOGO.GAIBPAGPEGK.EPCNJLEHJCB())
 		{
-			InfoAnimation dBOLBEOCEME = EGHPHELLOGO.GAIBPAGPEGK.FHBLLPCEAHG();
+			InfoAnimation dBOLBEOCEME = EGHPHELLOGO.GAIBPAGPEGK.GetCurrentAnimation();
 			MOBFFOHPCOE.NELEDHIIDCG(dBOLBEOCEME, gHHCDAFIKJE.JMDIIIFJMFH, gHHCDAFIKJE.LOONMILKCFK, gHHCDAFIKJE.NIKPBGPPFEP, lGNDOAHHHNP, gHHCDAFIKJE.DFOHNJEBDED, gHHCDAFIKJE.APCAKCCOMLO);
 			return;
 		}
@@ -2905,7 +2912,7 @@ public class Fight
 		round.processing = false;
 		round.roundTotal = FightDefinition.RoundsToWin;
 		round.time = 0;
-		round.timeTotal = (ObscuredInt)(FightDefinition.RoundTime);
+		round.timeTotal = FightDefinition.EffectiveRoundTime;
 		List<ModelParameters> list = null;
 		int num = 0;
 		Battle cNAOMDMIGLJ = FightDefinition.Battle;
@@ -4122,8 +4129,8 @@ public class Fight
 	{
 		DPONLGICLEH.MPLPEMOFHGI.KOJNCHKPLLN = KOJNCHKPLLN;
 		DPONLGICLEH.EKBMBILHBMC.KOJNCHKPLLN = KOJNCHKPLLN;
-		DPONLGICLEH.MPLPEMOFHGI.LKLHCEEMINM = _playerModel.FHBLLPCEAHG();
-		DPONLGICLEH.EKBMBILHBMC.LKLHCEEMINM = CKNCPOABFBO.FHBLLPCEAHG();
+		DPONLGICLEH.MPLPEMOFHGI.LKLHCEEMINM = _playerModel.GetCurrentAnimation();
+		DPONLGICLEH.EKBMBILHBMC.LKLHCEEMINM = CKNCPOABFBO.GetCurrentAnimation();
 		DPONLGICLEH.MPLPEMOFHGI.DPBGICDNFAM = (FightStatistics.EMKEIEJMONM)_playerModel.PACHBHGEIGN;
 		DPONLGICLEH.EKBMBILHBMC.DPBGICDNFAM = (FightStatistics.EMKEIEJMONM)CKNCPOABFBO.PACHBHGEIGN;
 		DPONLGICLEH.MPLPEMOFHGI.CBLNOFELDOE = _playerModel.LAGNKLAADPO();
@@ -4227,7 +4234,7 @@ public class Fight
 		Model nPPONCJECLA = _playerModel;
 		if (ABKBEJBICOA.IsPlayer)
 		{
-			int bAINMLLIKOL = (ObscuredInt)(FightDefinition.RoundTime) - preFight.get_TimeLeft();
+			int bAINMLLIKOL = FightDefinition.EffectiveRoundTime - preFight.get_TimeLeft();
 			ComboStatistic statistic = preFight.GetStatistic(0);
 			MOBFFOHPCOE.SetTime(bAINMLLIKOL);
 			float bAINMLLIKOL2 = (ObscuredFloat)(ABKBEJBICOA.KKMCHCNOHMB());

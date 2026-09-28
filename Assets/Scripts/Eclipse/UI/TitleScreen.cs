@@ -102,7 +102,8 @@ namespace Eclipse.UI
             screen.Settings("Display");
         }
 
-        public static void PrepareForRestart() { enteredCampaign = false; }
+        // A restart returns to Home with its full intro entrance (the veil lifting off the scene).
+        public static void PrepareForRestart() { enteredCampaign = false; introPlayed = false; }
 
         private void Awake()
         {
@@ -156,8 +157,9 @@ namespace Eclipse.UI
             else Home();
         }
 
-        // Launch splash: fade from black to the splash art, hold, fade back to black, then open
-        // the title (which fades up from black with its entrance). Any key or click skips ahead.
+        // Launch splash: a short "this game is free" notice, then fade from black to the splash
+        // art with its credit line, hold, fade back to black, then open the title (which fades up
+        // from black with its entrance). Any key or click skips ahead.
         private System.Collections.IEnumerator PlaySplash()
         {
             // Black lead-in, fade in, hold, fade out, black rest. Time advances per rendered frame
@@ -181,8 +183,15 @@ namespace Eclipse.UI
                 fit.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
                 fit.aspectRatio = (float)image.texture.width / image.texture.height;
             }
+            // The credit sits under the figure and shares its fade and push-in.
+            var credit = Label(art, "TEAM DEFINITIVE™", 0, 0, 0, 0, 30, Paper, TextAnchor.MiddleCenter);
+            var creditRect = credit.rectTransform;
+            creditRect.anchorMin = new Vector2(0f, .25f); creditRect.anchorMax = new Vector2(1f, .31f);
+            creditRect.offsetMin = creditRect.offsetMax = Vector2.zero;
+            credit.color = new Color(Paper.r, Paper.g, Paper.b, 0f);
             // Let the first (often slow) launch frames pass on black before starting the clock.
             for (int i = 0; i < 3; i++) yield return null;
+            yield return PlayDisclaimer(layer);
             float t = 0f;
             float fadeOutAt = Lead + FadeIn + Hold;
             while (t < Total)
@@ -197,6 +206,7 @@ namespace Eclipse.UI
                 float alpha = t < fadeOutAt ? Mathf.Clamp01((t - Lead) / FadeIn) : 1f - Mathf.Clamp01((t - fadeOutAt) / FadeOut);
                 alpha = alpha * alpha * (3f - 2f * alpha);
                 image.color = new Color(1f, 1f, 1f, alpha);
+                credit.color = new Color(Paper.r, Paper.g, Paper.b, alpha * .9f);
                 // A slow push-in while it is on screen.
                 float zoom = 1.025f - .025f * Mathf.Clamp01((t - Lead) / (FadeIn + Hold + FadeOut));
                 art.localScale = new Vector3(zoom, zoom, 1f);
@@ -206,6 +216,36 @@ namespace Eclipse.UI
             Home();
             Destroy(layer.gameObject);
             splashing = false;
+        }
+
+        // The first thing a player sees: Eclipse is free. Fades in, holds, fades out; a key or
+        // click cuts the hold short.
+        private System.Collections.IEnumerator PlayDisclaimer(RectTransform layer)
+        {
+            const float FadeIn = .7f, Hold = 3.2f, FadeOut = .7f, Rest = .4f;
+            var group = Rect(layer, "Disclaimer", 0, 0, 0, 0);
+            group.anchorMin = Vector2.zero; group.anchorMax = Vector2.one; group.offsetMin = group.offsetMax = Vector2.zero;
+            var fade = group.gameObject.AddComponent<CanvasGroup>();
+            fade.alpha = 0f;
+            fade.blocksRaycasts = false;
+            var heading = Label(group, "THIS GAME IS FREE", 0, 0, 0, 0, 34, Paper, TextAnchor.MiddleCenter);
+            heading.rectTransform.anchorMin = new Vector2(0f, .52f); heading.rectTransform.anchorMax = new Vector2(1f, .6f);
+            heading.rectTransform.offsetMin = heading.rectTransform.offsetMax = Vector2.zero;
+            var body = Label(group, "Eclipse is a free, non-commercial fan project. It is not sold, and it is not affiliated with or endorsed by Nekki.\nIf you paid for it, you were scammed.",
+                0, 0, 0, 0, 20, new Color(Paper.r, Paper.g, Paper.b, .8f), TextAnchor.UpperCenter);
+            body.rectTransform.anchorMin = new Vector2(.18f, .34f); body.rectTransform.anchorMax = new Vector2(.82f, .5f);
+            body.rectTransform.offsetMin = body.rectTransform.offsetMax = Vector2.zero;
+            body.lineSpacing = 1.15f;
+            float t = 0f, fadeOutAt = FadeIn + Hold;
+            while (t < fadeOutAt + FadeOut + Rest)
+            {
+                t += Mathf.Min(Time.unscaledDeltaTime, .05f);
+                if (t > FadeIn && t < fadeOutAt && (UnityEngine.Input.anyKeyDown || UnityEngine.Input.GetMouseButtonDown(0))) fadeOutAt = t;
+                float alpha = t < fadeOutAt ? Mathf.Clamp01(t / FadeIn) : 1f - Mathf.Clamp01((t - fadeOutAt) / FadeOut);
+                fade.alpha = alpha * alpha * (3f - 2f * alpha);
+                yield return null;
+            }
+            Destroy(group.gameObject);
         }
 
         private void Start()
@@ -315,6 +355,7 @@ namespace Eclipse.UI
 
         private void DrawAutumnGate()
         {
+            if (DrawUpscaledAutumnGate()) return;
             const string root = "Textures/Locations/autumn/";
             skyLeft = PackedPicture("Sky left", root + "autumn_bg", 0, 0, 640, 674, new Rect(0, 0, 1, .5f))?.rectTransform;
             skyRight = PackedPicture("Sky right", root + "autumn_bg", 640, 0, 640, 674, new Rect(0, .5f, 1, .5f))?.rectTransform;
@@ -346,6 +387,54 @@ namespace Eclipse.UI
                 new Rect(3f / 1024, 533f / 1024, 512f / 1024, 488f / 1024))?.rectTransform, GroundPlaneDepth);
             AddLayer(PackedPicture("Gate", root + "autumn_atlas_layer1", 244, 22, 792, 446 * scale,
                 new Rect(3f / 1024, 83f / 1024, 512f / 1024, 446f / 1024))?.rectTransform, GroundPlaneDepth);
+        }
+
+        // The upscaled autumn location (Tools/ImportUpscaledLocations.py): one sky painting and
+        // one ground-plane painting holding the wall, the gate and both trees. Framed so the gate
+        // sits under the sign and the trees stand either side of the menu, floor above the footer.
+        private readonly Dictionary<Texture2D, FilterMode> filteredTextures = new Dictionary<Texture2D, FilterMode>();
+
+        private bool DrawUpscaledAutumnGate()
+        {
+            const string root = "Textures/Locations/autumn/";
+            var sky = UpscaledTexture(root + "background_1");
+            var ground = UpscaledTexture(root + "layer1_1");
+            if (sky == null || ground == null) return false;
+            // 3:1 sky, overscanned for 21:9 and parallax.
+            // Not skyLeft/skyRight: LayoutViewport resizes those to the old half-sky tiles.
+            // Use its fixed home: unlike those tiles, its position is not reset each frame.
+            AddLayer(Picture(scenery, "Sky", sky, 640 - 1110, -30, 2220, 740), .15f);
+            DrawSun(24f);
+            sunRoot.anchoredPosition = new Vector2(1000, -92);
+            AddLayer(sunRoot, .2f);
+            // 5:1 painting; its gate roof spans the middle fifth. 2800 wide puts the roof at ~560.
+            const float width = 2800f, height = width * 1024f / 5120f, bottom = 692f;
+            groundY = 662f;
+            AddLayer(Picture(scenery, "Gate and trees", ground, 640 - width / 2, bottom - height, width, height), GroundPlaneDepth);
+            return true;
+        }
+
+        private Texture2D UpscaledTexture(string address)
+        {
+            var sprite = Eclipse.Content.PackagedArtCatalog.Load<Sprite>(address);
+            if (sprite == null || sprite.texture == null) return null;
+            // The location imports use point filtering for 1:1 fight rendering; the title
+            // shows them reduced, so filter smoothly here and restore it on close.
+            var texture = sprite.texture;
+            if (texture.filterMode != FilterMode.Bilinear && !filteredTextures.ContainsKey(texture))
+            {
+                filteredTextures.Add(texture, texture.filterMode);
+                texture.filterMode = FilterMode.Bilinear;
+            }
+            return texture;
+        }
+
+        private RectTransform Picture(RectTransform parent, string name, Texture2D texture, float x, float y, float w, float h)
+        {
+            var image = Rect(parent, name, x, y, w, h).gameObject.AddComponent<RawImage>();
+            image.texture = texture;
+            image.raycastTarget = false;
+            return image.rectTransform;
         }
 
         private RawImage PackedPicture(string name, string address, float x, float y, float w, float h, Rect uv)
@@ -393,7 +482,7 @@ namespace Eclipse.UI
             homeStroke.color = new Color(Red.r, Red.g, Red.b, .92f);
             homeStroke.raycastTarget = false;
             homeStroke.Fill = 0f;
-            // Campaign leads; Quit lives in the footer (and on Esc).
+            // Campaign leads; Quit closes the list (and stays on Esc and the footer).
             HomeButton("CAMPAIGN", 272, 74, OpenCampaignSaves, UiSound.Open, 34);
             versusRow = HomeButton("MULTIPLAYER", 360, 56, () =>
             {
@@ -403,6 +492,7 @@ namespace Eclipse.UI
             versusCaption = Label(page, "LOCAL VERSUS", 405, 407, 470, 22, 15, SceneryAccent, TextAnchor.MiddleCenter);
             HomeButton("MODS", 440, 52, OpenMods, UiSound.Open, 25);
             HomeButton("OPTIONS", 496, 52, () => Settings("Display"), UiSound.Open, 25);
+            HomeButton("QUIT", 548, 48, QuitPrompt, UiSound.Open, 23);
             FocusFirst();
         }
 
@@ -518,19 +608,21 @@ namespace Eclipse.UI
                 { Eclipse.Diagnostics.PerformanceOverlay.CycleMode(); });
                 var apply = Button(page, "Apply display", 852, 604, 340, 48, ApplyDisplay);
                 apply.interactable = !Application.isMobilePlatform;
-                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately. F4 saves a performance report while the overlay is on.", 76, 610, 760, 44, 15, Ink);
+                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately. F4 saves a performance report while the overlay is on.", 316, 604, 520, 48, 14, Ink);
             }
             else if (tab == "Accessibility")
             {
-                OptionSlider("Critical hit pause", 290, AccessibilitySettings.CriticalPause, AccessibilitySettings.SetCriticalPause);
-                OptionSlider("Critical hit shake", 390, AccessibilitySettings.CriticalShake, AccessibilitySettings.SetCriticalShake);
-                Row("Control size", () => GraphicsController.LargeControlsEnabled() ? "Large" : "Small", 490, () =>
+                OptionSlider("Critical hit pause", 260, AccessibilitySettings.CriticalPause, AccessibilitySettings.SetCriticalPause);
+                OptionSlider("Critical hit shake", 350, AccessibilitySettings.CriticalShake, AccessibilitySettings.SetCriticalShake);
+                Row("Control size", () => GraphicsController.LargeControlsEnabled() ? "Large" : "Small", 430, () =>
                 {
                     GraphicsController.ToggleControlSize();
                     var dojo = Scene<DojoScene>.get_Current();
                     if (dojo != null) dojo.fight.RefreshControllerLayout();
                 });
-                Label(page, "0% disables the effect. 100% restores the original intensity. Changes save immediately.", 76, 550, 1120, 40, 17, Ink);
+                ControlTexturePacks.Refresh();
+                Row("Control texture pack", () => ControlTexturePacks.Label, 482, ControlTexturePacks.Cycle);
+                Label(page, "Hit effects: 0% disables, 100% restores the original intensity. Control packs apply to the next fight or dojo load.", 76, 546, 1120, 40, 17, Ink);
             }
             else if (tab == "Mod settings")
             {
@@ -540,7 +632,8 @@ namespace Eclipse.UI
             {
                 OptionSlider("Music volume", 290, SoundController.GetMusicVolume(), SoundController.SetMusicVolume);
                 OptionSlider("Sound volume", 390, SoundController.GetSoundVolume(), SoundController.SetSoundVolume);
-
+                Row("Intro video on entering a save", () => OnOff(IntroVideoSetting.Enabled), 490, IntroVideoSetting.Toggle);
+                Label(page, "The intro video can be skipped with any key.", 76, 550, 1120, 40, 17, Ink);
             }
             else
             {
@@ -686,13 +779,15 @@ namespace Eclipse.UI
                 Row(owner + ": " + toggle.Label, () => OnOff(Eclipse.Modding.ModSettingsStore.Get(toggle)), 244 + i * 52,
                     () => Eclipse.Modding.ModSettingsStore.Set(toggle, !Eclipse.Modding.ModSettingsStore.Get(toggle)));
             }
+            // Paging and the note share the Back row, to its right, so nothing overlaps it.
+            string note = "Settings from enabled mods. Changes save immediately and apply to this installation.";
             if (pages > 1)
             {
-                Button(page, "< Previous", 76, 566, 220, 48, () => { modSettingsPage = (modSettingsPage + pages - 1) % pages; Settings("Mod settings"); });
-                Button(page, "Next >", 306, 566, 220, 48, () => { modSettingsPage = (modSettingsPage + 1) % pages; Settings("Mod settings"); });
-                Label(page, "Page " + (modSettingsPage + 1) + " of " + pages, 540, 566, 300, 48, 17, Ink);
+                Button(page, "< Previous", 852, 604, 165, 48, () => { modSettingsPage = (modSettingsPage + pages - 1) % pages; Settings("Mod settings"); });
+                Button(page, "Next >", 1027, 604, 165, 48, () => { modSettingsPage = (modSettingsPage + 1) % pages; Settings("Mod settings"); });
+                note = "Page " + (modSettingsPage + 1) + " of " + pages + ".  " + note;
             }
-            Label(page, "Settings from enabled mods. Changes save immediately and apply to this installation.", 76, 620, 1120, 30, 15, Ink);
+            Label(page, note, 316, 604, 520, 48, 14, Ink);
         }
 
         private static string ModDisplayName(Eclipse.Modding.ModId id)
@@ -916,6 +1011,7 @@ namespace Eclipse.UI
             ClearPendingModZip();
             if (!optionsOnly) EclipseUiAudio.StopTitleMusic();
             foreach (var texture in autumnTextures.Values) Destroy(texture);
+            foreach (var pair in filteredTextures) if (pair.Key != null) pair.Key.filterMode = pair.Value;
             if (logoInk != null) Destroy(logoInk);
             if (confirmUntil > 0) Screen.SetResolution(oldResolution.x, oldResolution.y, oldMode);
             IsOpen = false;

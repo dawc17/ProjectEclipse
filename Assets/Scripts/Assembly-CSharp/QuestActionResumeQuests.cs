@@ -35,7 +35,7 @@ public class QuestActionResumeQuests : QuestAction
 				}
 			}
 		}
-		ScreenType iPKNDMINFMJ = Module.GetInstance().NMCNDOPKFJD();
+		ScreenType iPKNDMINFMJ = Module.GetInstance().GetCurrentScreenType();
 		bool flag = false;
 		if (num == 0 && (iPKNDMINFMJ == ScreenType.ModulePreloader || iPKNDMINFMJ == ScreenType.ModuleNone || flag))
 		{

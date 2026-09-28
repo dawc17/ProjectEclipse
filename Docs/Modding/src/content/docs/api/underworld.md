@@ -131,6 +131,39 @@ the battle, or select it on the story map. Use
 [`sf2.battles.focus`](../content-graph/#sf2battlesfocus) to select an entry that
 is already visible on the current map.
 
+## sf2.underworld.set_map_colors
+
+Choose the Underworld background tint for normal and Power Mode. Clicking Power
+Mode blends between these colors without changing battle rules or the story map.
+
+**Signature:** `sf2.underworld.set_map_colors { normal, power, duration? } -> boolean`
+
+**Returns:** `true` when stored on the current map; `false` when the map is not
+ready, including scene/profile transitions, pending encounters and native input locks.
+
+**When:** In a callback on the map, usually `scene_enter`. UI cleanup calls raise
+an error. The colors last until the map scene is rebuilt; reapply them on entry.
+If several callbacks set them, the last successful call wins.
+
+**Requires:** `story.progression`. Required `normal` and `power` are hex colors
+in `#RRGGBB` or `#RRGGBBAA` form. `duration` is a finite number from 0 to 5 seconds,
+default `0.8`; zero changes immediately. Colors multiply the map artwork, so
+`#FFFFFF` preserves its original colors. Omitted alpha is opaque.
+
+```lua
+sf2.story.on("scene_enter", function(event)
+    if event.scene == "map" then
+        sf2.underworld.set_map_colors {
+            normal = "#FFFFFF", power = "#BA8A82", duration = 0.8,
+        }
+    end
+end)
+```
+
+The setting can be made while the story map is visible; it takes effect when the
+Underworld opens. It is presentation state, is not written to a save, and does not
+toggle Power Mode or recolor its checkbox. Both colors default to white.
+
 ## Tell the story
 
 Boss introductions and after-fight lines use the regular story tools:

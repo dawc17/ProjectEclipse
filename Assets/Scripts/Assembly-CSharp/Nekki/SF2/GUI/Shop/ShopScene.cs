@@ -209,6 +209,7 @@ namespace Nekki.SF2.GUI.Shop
 			base.Init(data);
 			PDDJMHMJACO = data as DelayedStrike;
 			set_Instance(this);
+			Eclipse.Rendering.ShopDojoBackdrop.Attach(gameObject, _backgroundLeft, _backgroundRight);
 			ODCDHJGNPEM = IMDHIBMOAIG<PaymentUI>();
 			ODCDHJGNPEM.get_OnProductsUpdateEvent().AddListener(LCHCKOKGFHK);
 			if (ListSF.CCDKHLAMKKO() != null && ListSF.CCDKHLAMKKO().KHCNHPCPFII() != null)
@@ -286,7 +287,7 @@ namespace Nekki.SF2.GUI.Shop
 			if (_tryItemButton != null)
 			{
 				Transform forgeParent = _shopUIGroup != null ? _shopUIGroup.transform : transform;
-				_forgeController = new Eclipse.Forge.ShopForgeController(this, _mainMenu, _tryItemButton, forgeParent, KDFADLAANLM, _shopTableView != null ? _shopTableView.transform.parent as RectTransform : null, _itemParam != null ? _itemParam.transform as RectTransform : null, _itemProperties != null ? _itemProperties.transform as RectTransform : null);
+				_forgeController = new Eclipse.Forge.ShopForgeController(this, _mainMenu, _tryItemButton, forgeParent, KDFADLAANLM, _shopTableView != null ? _shopTableView.transform.parent as RectTransform : null, _itemParam != null ? _itemParam.transform as RectTransform : null, _itemProperties != null ? _itemProperties.transform as RectTransform : null, _hintPanel);
 			}
 			if (_modelContainer != null)
 			{

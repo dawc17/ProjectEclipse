@@ -48,6 +48,8 @@ public class FightList
 
 	public ObscuredInt RoundTime;
 
+	public int EffectiveRoundTime => _type == BattleType.FightNone ? (int)RoundTime : Eclipse.Modding.ModPolicies.BattleSeconds((int)RoundTime);
+
 	// best guess for name
 	public int RewardIndex;
 

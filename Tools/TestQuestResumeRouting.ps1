@@ -39,7 +39,7 @@ public class RosterQuest {
 }
 public class Module {
  static readonly Module instance=new Module();public static int Changes;public static Module GetInstance(){return instance;}
- public ScreenType NMCNDOPKFJD(){return ScreenType.ModuleMap;} public static void DLOKJOHNDID(ScreenType s,int n=0){Changes++;}
+ public ScreenType GetCurrentScreenType(){return ScreenType.ModuleMap;} public static void DLOKJOHNDID(ScreenType s,int n=0){Changes++;}
 }
 public static class LLLOJBFMONN { public static void Error(string f,string n){throw new Exception(f+n);} }
 public class ListSF {

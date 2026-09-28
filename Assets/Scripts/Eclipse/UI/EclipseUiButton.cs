@@ -5,11 +5,12 @@ using UnityEngine.UI;
 namespace Eclipse.UI
 {
     // Animated focus for Eclipse menu controls. Hovering focuses the control, so mouse,
-    // keyboard and gamepad share one highlight. Colours ease instead of snapping, the label
+    // keyboard and gamepad share one highlight; leaving with the pointer releases a focus
+    // the pointer gave. Colours ease instead of snapping, the label
     // slides slightly and a press gives a short squash. Runs on unscaled time.
     [DisallowMultipleComponent]
     public sealed class EclipseUiButton : MonoBehaviour, ISelectHandler, IDeselectHandler, IPointerEnterHandler,
-        IPointerDownHandler, IPointerUpHandler
+        IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
         private const float FocusSeconds = .14f;
         private Selectable target;
@@ -19,7 +20,7 @@ namespace Eclipse.UI
         private Vector2 labelHome;
         private float slide, grow, squash;
         private float focus, press;
-        private bool selected, pressed;
+        private bool selected, pressed, hovered;
 
         public float Focus => focus;
 
@@ -54,12 +55,20 @@ namespace Eclipse.UI
         }
 
         public void OnSelect(BaseEventData data) { selected = true; EclipseUiAudio.Play(UiSound.Focus); }
-        public void OnDeselect(BaseEventData data) { selected = false; pressed = false; }
+        public void OnDeselect(BaseEventData data) { selected = false; pressed = false; hovered = false; }
 
         public void OnPointerEnter(PointerEventData data)
         {
             if (target == null || !target.IsInteractable() || EventSystem.current == null) return;
-            if (EventSystem.current.currentSelectedGameObject != gameObject) target.Select();
+            if (EventSystem.current.currentSelectedGameObject != gameObject) { target.Select(); hovered = true; }
+        }
+
+        // Only a hover focus is dropped; keyboard or gamepad focus stays where it was put.
+        public void OnPointerExit(PointerEventData data)
+        {
+            if (!hovered || EventSystem.current == null) return;
+            hovered = false;
+            if (EventSystem.current.currentSelectedGameObject == gameObject) EventSystem.current.SetSelectedGameObject(null);
         }
 
         public void OnPointerDown(PointerEventData data) { if (target != null && target.IsInteractable()) pressed = true; }

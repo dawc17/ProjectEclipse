@@ -234,6 +234,18 @@ async function main() {
         return ['skip_enabled','complete_pending'].every(name=>found.some(value=>value.startsWith(name)));
     },'pending forge timer policy fields');
       console.log('PASS: pending forge timer policy fields complete');
+      const mapColors=probe('underworld-colors.lua','local sf2=require("sf2")\nsf2.underworld.set_map_colors { | }');
+      await until(async()=>{
+          const found=labels(await request('textDocument/completion',mapColors));
+          return ['normal','power','duration'].every(name=>found.some(value=>value.startsWith(name)));
+      },'Underworld map color fields');
+      const battleTimerText='local sf2=require("sf2")\nsf2.timers.set { subsystem="battle", seconds=150 }';
+      const battleTimerUri=open('battle-timer.lua',battleTimerText+'\nsf2.price.coins("temporary error")');
+      const battleTimerKey=decodeURIComponent(battleTimerUri).toLowerCase();
+      await until(()=>(diagnostics.get(battleTimerKey)?.length ?? 0)>0,'temporary battle timer diagnostic');
+      notify('textDocument/didChange',{textDocument:{uri:battleTimerUri,version:2},contentChanges:[{text:battleTimerText}]});
+      await until(()=>diagnostics.get(battleTimerKey)?.length===0,'cleared battle timer diagnostics');
+      console.log('PASS: Underworld colors complete and battle timer validates');
       const shopFields=probe('shop-fields.lua','local sf2=require("sf2")\nsf2.shop.set_availability { item=sf2.items.get("core:items/weapon/WEAPON_KNIVES"), | }');
       await until(async()=>{
           const found=labels(await request('textDocument/completion',shopFields));

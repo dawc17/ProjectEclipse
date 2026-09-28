@@ -69,7 +69,7 @@ public static class ValidateDE128UnderworldWinNative
             if (EditorApplication.timeSinceStartup - started > 240)
                 throw new Exception("Timed out: entry=" + entryRequested + " result=" + resultSeen +
                     " continued=" + continued + " wins=" + winCalls + " cards=" + resultCards +
-                    " screen=" + Module.GetInstance()?.NMCNDOPKFJD());
+                    " screen=" + Module.GetInstance()?.GetCurrentScreenType());
             if (!campaign && Eclipse.UI.TitleScreen.IsOpen)
             {
                 var title = UnityEngine.Object.FindObjectOfType<Eclipse.UI.TitleScreen>();
@@ -87,7 +87,7 @@ public static class ValidateDE128UnderworldWinNative
             if (scripts.Diagnostics.Count != 0 || scripts.StateDiagnostics.Count != 0)
                 throw new Exception("DE128 diagnostics: " + string.Join("; ", scripts.Diagnostics) +
                     "; state=" + string.Join("; ", scripts.StateDiagnostics));
-            if (!mapRequested && module.NMCNDOPKFJD() == ScreenType.ModuleDojo)
+            if (!mapRequested && module.GetCurrentScreenType() == ScreenType.ModuleDojo)
             {
                 var menu = MainMenu.get_Instance();
                 if (menu == null) return;
@@ -99,7 +99,7 @@ public static class ValidateDE128UnderworldWinNative
                 mapRequested = true;
                 return;
             }
-            if (!entryRequested && module.NMCNDOPKFJD() == ScreenType.ModuleMap)
+            if (!entryRequested && module.GetCurrentScreenType() == ScreenType.ModuleMap)
             {
                 var scene = UnityEngine.Object.FindObjectOfType<MapScene>();
                 if (scene == null) return;
@@ -149,7 +149,7 @@ public static class ValidateDE128UnderworldWinNative
             }
             if (continued)
             {
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+                if (module.GetCurrentScreenType() != ScreenType.ModuleMap) return;
                 var scene = UnityEngine.Object.FindObjectOfType<MapScene>();
                 if (scene == null || scene.GetCurrentState() != MapScene.NMFLNANKNOJ.RaidMode) return;
                 if (ModProfileAccess.Fight(DefinitionId.Parse(targetId)).Wins != 1)

@@ -62,7 +62,7 @@ public static class ValidateDE128ShopNative
             var scripts = ModRuntime.Scripts;
             var roster = ListSF.CCDKHLAMKKO();
             if (scripts == null || roster == null || Module.GetInstance() == null) return;
-            var screen = Module.GetInstance().NMCNDOPKFJD();
+            var screen = Module.GetInstance().GetCurrentScreenType();
             if (scripts.Diagnostics.Count != 0)
                 throw new Exception("Mod initialization diagnostics: " + string.Join("; ", scripts.Diagnostics));
             string phase = Environment.GetEnvironmentVariable("ECLIPSE_DE128_SHOP_PHASE");

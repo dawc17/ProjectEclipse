@@ -58,7 +58,9 @@ namespace Nekki.SF2.GUI
 			}
 			if (_LayoutElement != null)
 			{
-				_LayoutElement.minWidth = CalculateLengthOfMessage();
+				// Text's layout generator requests dynamic-font glyphs before measuring.
+				// GetCharacterInfo alone can return zero before the first rendered frame.
+				_LayoutElement.minWidth = Mathf.Ceil(preferredWidth);
 			}
 		}
 	}

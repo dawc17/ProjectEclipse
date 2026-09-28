@@ -883,6 +883,12 @@ local Rule_group = {}
 ---@field rounds? integer[]
 local Rule_random = {}
 
+---@class (exact) Eclipse.UnderworldMapColors
+---@field normal string #RRGGBB or #RRGGBBAA; white preserves the map art.
+---@field power string
+---@field duration? number 0..5 seconds, default 0.8.
+local UnderworldMapColors = {}
+
 ---@class (exact) Eclipse.VariableOperand
 ---@field kind "variable"
 ---@field name string
@@ -1862,10 +1868,10 @@ local ModeDefinition = {}
 local RaidDefinition = {}
 
 ---@class (exact) Eclipse.TimerPolicy
----@field subsystem "forge"
----@field seconds integer
----@field skip_enabled? boolean
----@field complete_pending? boolean
+---@field subsystem "forge"|"battle"
+---@field seconds integer Forge: 0..31536000; battle: 1..86400.
+---@field skip_enabled? boolean Forge only; leave true for battle.
+---@field complete_pending? boolean Forge only; leave false for battle.
 local TimerPolicy = {}
 
 ---@class (exact) Eclipse.CounterDefinition
@@ -3003,6 +3009,15 @@ function underworld.set_toggle_visible(visible) end
 ---@return boolean
 function underworld.set_focus(battle) end
 
+---Choose the Underworld background tint for normal and Power Mode. Clicking Power Mode blends between these colors without changing battle rules or the story map.
+---Requires: `story.progression`. Required `normal` and `power` are hex colors in `#RRGGBB` or `#RRGGBBAA` form. `duration` is a finite number from 0 to 5 seconds, default `0.8`; zero changes immediately. Colors multiply the map artwork, so `#FFFFFF` preserves its original colors. Omitted alpha is opaque.
+---When: In a callback on the map, usually `scene_enter`. UI cleanup calls raise an error. The colors last until the map scene is rebuilt; reapply them on entry. If several callbacks set them, the last successful call wins.
+---Returns: `true` when stored on the current map; `false` when the map is not ready, including scene/profile transitions, pending encounters and native input locks.
+---[Full reference](https://dawc17.github.io/ProjectEclipse/api/underworld/#sf2underworldset_map_colors)
+---@param definition Eclipse.UnderworldMapColors
+---@return boolean
+function underworld.set_map_colors(definition) end
+
 ---Create a quest that responds to selected game events.
 ---Requires: `content.register`, plus dependencies for referenced content.
 ---When: Entrypoint, after the battle/fight/item definitions used by the quest.
@@ -3377,7 +3392,7 @@ function modes.cancel(request) end
 ---@return boolean
 function modes.is_pending(request) end
 
----Set the delivery duration and early-skip policy for new forge orders, optionally making already-paid pending orders eligible for immediate normal completion.
+---Set the delivery duration and early-skip policy for new forge orders, optionally making already-paid pending orders eligible for immediate normal completion, or set a shared time limit for timed battles.
 ---Requires: `policy.timers`.
 ---When: Entrypoint.
 ---Returns: `nil`.

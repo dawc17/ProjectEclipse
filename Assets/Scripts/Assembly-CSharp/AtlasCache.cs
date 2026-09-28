@@ -30,6 +30,20 @@ public static class AtlasCache
 	public static Sprite GetSpriteFromAtlas(string ONNKJLOGHGH, string CMMPHNJDOCF)
 	{
         if (Eclipse.Modding.ModRuntime.TryLoadCoreSpriteReplacement(ONNKJLOGHGH, CMMPHNJDOCF, out var replacement)) return replacement;
+        // Selected on-screen control texture pack (FightButtons only); sized from the recovered sprite.
+        if (Eclipse.UI.ControlTexturePacks.TryGetSprite(ONNKJLOGHGH, CMMPHNJDOCF, RecoveredSpriteLoader, out var packed)) return packed;
+		return LoadRecoveredSprite(ONNKJLOGHGH, CMMPHNJDOCF);
+	}
+
+	private static readonly System.Func<string, string, Sprite> RecoveredSpriteLoader = LoadRecoveredSprite;
+
+	private static Sprite LoadRecoveredSprite(string ONNKJLOGHGH, string CMMPHNJDOCF)
+	{
+		if (ONNKJLOGHGH == Eclipse.UI.ControlTexturePacks.AtlasPath)
+		{
+			Sprite standalone = Resources.Load<Sprite>("ui/atlases/" + CMMPHNJDOCF);
+			if (standalone != null) return standalone;
+		}
 		Sprite[] array = ENFOJMFEGJH(ONNKJLOGHGH);
 		if ((array == null || array.Length == 0) && !string.IsNullOrEmpty(ONNKJLOGHGH))
 		{

@@ -283,7 +283,7 @@ public static class ValidateLocalVersusNative
         Check(one.Parameters.IsPlayer && !two.Parameters.IsPlayer, "Fighter sides retain native identities");
         Check(one.Parameters.UserControlled && two.Parameters.UserControlled &&
             !one.Parameters.AiControlled && !two.Parameters.AiControlled, "Both fighters are controlled without AI");
-        Check(one.FHBLLPCEAHG() != null && two.FHBLLPCEAHG() != null, "Both native fighters have animations");
+        Check(one.GetCurrentAnimation() != null && two.GetCurrentAnimation() != null, "Both native fighters have animations");
         Check(!ReferenceEquals(one.Parameters, two.Parameters) &&
             !ReferenceEquals(one.Parameters.Armor, two.Parameters.Armor), "Fighters own separate parameters and equipment");
     }

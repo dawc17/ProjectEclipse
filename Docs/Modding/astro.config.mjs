@@ -27,6 +27,7 @@ export default defineConfig({
           { slug: 'guides/gymnast' },
           { slug: 'api/installing-mods' },
           { slug: 'guides/troubleshooting' },
+          { slug: 'guides/control-texture-packs' },
         ] },
         { label: 'Understand modding', items: [
           { slug: 'guides/core-concepts' },

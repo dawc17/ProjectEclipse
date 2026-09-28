@@ -31,7 +31,7 @@ public class QuestActionChangeTab : QuestAction
 		empty = lNIDLHOIHIM.ToString();
 		_TabType = EPIGNANCLDB(empty);
 		_ScreenType = BODGLLCANLF(_TabType);
-		ScreenType iPKNDMINFMJ = Module.GetInstance().NMCNDOPKFJD();
+		ScreenType iPKNDMINFMJ = Module.GetInstance().GetCurrentScreenType();
 		if (iPKNDMINFMJ == _ScreenType)
 		{
 			switch (_ScreenType)

@@ -826,17 +826,55 @@ namespace Nekki.SF2.GUI
 				}
 				scrollDelta.y = 0f;
 			}
-			Vector2 anchoredPosition = m_Content.anchoredPosition;
 			// Recovered prefabs use 1 canvas unit per notch, imperceptible at the
             // authored 2048px UI scale. Keep configured sensitivity as a multiplier.
+            // Eclipse: notches accumulate into a target that LateUpdate eases toward,
+            // instead of jumping the content a full notch in one frame.
             StopMovement();
-            anchoredPosition += scrollDelta * m_ScrollSensitivity * 100f;
+            Vector2 anchoredPosition = (wheelActive ? wheelTarget : m_Content.anchoredPosition) + scrollDelta * m_ScrollSensitivity * 100f;
 			if (m_MovementType != MDMLKCMBBPA.Unrestricted)
 			{
 				anchoredPosition += CalculateOffset(anchoredPosition - m_Content.anchoredPosition);
 			}
-			IKIMIDOGICB(anchoredPosition);
-			JKFDJGELEID();
+			wheelTarget = anchoredPosition;
+			wheelLast = m_Content.anchoredPosition;
+			wheelActive = true;
+		}
+
+		private const float WheelEaseRate = 16f;
+
+		private Vector2 wheelTarget;
+
+		private Vector2 wheelLast;
+
+		private bool wheelActive;
+
+		protected void CancelWheel()
+		{
+			wheelActive = false;
+		}
+
+		// Eases the content toward the accumulated mouse-wheel target (unscaled time).
+		private void StepWheel(float deltaTime)
+		{
+			// Any other writer (drag, scrollbar, tween, code-driven scroll) takes over.
+			if (HDDEPEAELAM || m_Content.anchoredPosition != wheelLast)
+			{
+				wheelActive = false;
+				return;
+			}
+			if (m_MovementType != MDMLKCMBBPA.Unrestricted)
+			{
+				wheelTarget += CalculateOffset(wheelTarget - m_Content.anchoredPosition);
+			}
+			Vector2 position = Vector2.Lerp(m_Content.anchoredPosition, wheelTarget, 1f - Mathf.Exp(-WheelEaseRate * deltaTime));
+			if ((position - wheelTarget).sqrMagnitude < 0.25f)
+			{
+				position = wheelTarget;
+				wheelActive = false;
+			}
+			IKIMIDOGICB(position);
+			wheelLast = m_Content.anchoredPosition;
 		}
 
 		public virtual void OnInitializePotentialDrag(PointerEventData BHOLFGOGPCP)
@@ -856,6 +894,7 @@ namespace Nekki.SF2.GUI
 				RectTransformUtility.ScreenPointToLocalPointInRectangle(BIOPKLNFEJI(), BHOLFGOGPCP.position, BHOLFGOGPCP.pressEventCamera, out KPFNKIFLDPL);
 				IDMLKGACFNO = m_Content.anchoredPosition;
 				HDDEPEAELAM = true;
+				wheelActive = false;
 			}
 		}
 
@@ -921,6 +960,10 @@ namespace Nekki.SF2.GUI
 			NFOKADBDILL();
 			JKFDJGELEID();
 			float unscaledDeltaTime = Time.unscaledDeltaTime;
+			if (wheelActive)
+			{
+				StepWheel(unscaledDeltaTime);
+			}
 			Vector2 vector = CalculateOffset(Vector2.zero);
 			if (!HDDEPEAELAM && (vector != Vector2.zero || BKHKAOENMIG != Vector2.zero) && m_MovementType != MDMLKCMBBPA.SF2)
 			{

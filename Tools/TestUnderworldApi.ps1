@@ -144,6 +144,7 @@ Check (Fails 'local z=sf2.zones.register{id="u",underworld=true}; sf2.battles.re
 # sf2.underworld: story.progression capability, typed arguments and the host seam.
 $battle = 'local z=sf2.zones.register{id="u",underworld=true}; local b=sf2.battles.register{id="b",zone=z,type=sf2.battles.FINAL}; '
 Check (Fails 'sf2.underworld.set_toggle_visible(false)' 'story.progression') 'Toggle visibility ignored its capability.'
+Check (Fails 'sf2.underworld.set_map_colors{normal="#FFFFFF",power="#BA8A82"}' 'story.progression') 'Map colors ignored their capability.'
 Check (Fails ($battle + 'sf2.underworld.set_focus(b)') 'story.progression') 'Focus ignored its capability.'
 $manifest = Join-Path $mod.RootPath 'mod.toml'
 $original = Get-Content -Raw $manifest
@@ -152,6 +153,20 @@ $mod = [Eclipse.Modding.ModDiscovery]::DiscoverLoose((Join-Path $fixture 'Mods')
 try {
     [Eclipse.Modding.ModUnderworldAccess]::Clear()
     Check (Fails 'sf2.underworld.set_toggle_visible(true)' 'unavailable in this host') 'Toggle without a host did not report it.'
+    Check (Fails 'sf2.underworld.set_map_colors{normal="#FFFFFF",power="#BA8A82"}' 'unavailable in this host') 'Map colors accepted without a host.'
+    $script:colorCalls = 0
+    [Eclipse.Modding.ModUnderworldAccess]::SetMapColors = [Func[Eclipse.Modding.ModUiColor,Eclipse.Modding.ModUiColor,single,bool]]{
+        param($normal, $power, $duration)
+        Check ($normal.R -eq 255 -and $power.R -eq 186 -and $power.A -eq 128 -and [Math]::Abs($duration - .8) -lt .001) 'Color components or default duration differ.'
+        $script:colorCalls++; return $false
+    }
+    $null = Load-Lua 'assert(sf2.underworld.set_map_colors{normal="#FFFFFF",power="#BA8A8280"} == false)'
+    Check ($script:colorCalls -eq 1) 'Unavailable map result did not propagate.'
+    foreach ($invalid in @('duration=-1', 'duration=6', 'duration=0/0', 'duration="fast"', 'unexpected=true')) {
+        Check (Fails ('sf2.underworld.set_map_colors{normal="#FFFFFF",power="#BA8A82",' + $invalid + '}') 'sf2.underworld.set_map_colors') ('Invalid map colors accepted: ' + $invalid)
+    }
+    Check (Fails 'sf2.underworld.set_map_colors{normal="red",power="#BA8A82"}' 'color') 'Non-hex map color accepted.'
+    Check ($script:colorCalls -eq 1) 'Invalid colors reached the host.'
     $script:toggles = [Collections.Generic.List[bool]]::new(); $script:focused = [Collections.Generic.List[string]]::new()
     [Eclipse.Modding.ModUnderworldAccess]::SetToggleVisible = [Func[bool,bool]]{ param($visible) $script:toggles.Add($visible); return $true }
     [Eclipse.Modding.ModUnderworldAccess]::SetFocus = [Func[Eclipse.Modding.DefinitionId,bool]]{ param($id) $script:focused.Add($id.ToString()); return $false }
@@ -161,6 +176,26 @@ try {
     Check (Fails 'sf2.underworld.set_focus("fixture.warriors:battles/b")' 'sf2.underworld.set_focus') 'A string focus argument was accepted.'
 } finally {
     [Eclipse.Modding.ModUnderworldAccess]::Clear()
+    Set-Content $manifest $original
+}
+
+# Battle timer policy uses the same transactional ownership as forge delivery.
+Set-Content $manifest ($original.Replace('["content.register"]', '["content.register", "policy.timers"]'))
+$mod = [Eclipse.Modding.ModDiscovery]::DiscoverLoose((Join-Path $fixture 'Mods')).Mods[0]
+try {
+    $policy = Load-Lua 'sf2.timers.set{subsystem="battle",seconds=150}'
+    [Eclipse.Modding.ModPolicies]::Content = $policy
+    Check ([Eclipse.Modding.ModPolicies]::BattleSeconds(99) -eq 150) 'Battle policy not applied.'
+    Check ([Eclipse.Modding.ModPolicies]::BattleSeconds(0) -eq 0 -and [Eclipse.Modding.ModPolicies]::BattleSeconds(-1) -eq -1) 'Untimed battles changed.'
+    Check ([Eclipse.Modding.ModPolicies]::DeliverySeconds('forge',120) -eq 120) 'Battle policy changed forge delivery.'
+    foreach ($seconds in @(0,-1,86401)) { Check (Fails ('sf2.timers.set{subsystem="battle",seconds=' + $seconds + '}') 'timer') 'Invalid battle duration accepted.' }
+    Check (Fails 'sf2.timers.set{subsystem="battle",seconds=150,complete_pending=true}' 'Battle timer') 'Battle policy accepted pending forge completion.'
+    Check (Fails 'sf2.timers.set{subsystem="battle",seconds=150,skip_enabled=false}' 'Battle timer') 'Battle policy accepted forge skip control.'
+    Check (Fails 'sf2.timers.set{subsystem="battle",seconds=150};sf2.timers.set{subsystem="battle",seconds=200}' 'Duplicate timer') 'Duplicate timer policy accepted.'
+    [Eclipse.Modding.ModPolicies]::Content = $null
+    Check ([Eclipse.Modding.ModPolicies]::BattleSeconds(99) -eq 99) 'Removing policy did not restore base duration.'
+} finally {
+    [Eclipse.Modding.ModPolicies]::Content = $null
     Set-Content $manifest $original
 }
 Write-Output "PASS: $script:checks Underworld API checks (templates, perk parameters, rule groups, random areas, currency drops, Power Mode, map-button sprites, fingerprints, validation, sf2.underworld capability/host seam). Production bindings and adapter projection; no Unity scene."

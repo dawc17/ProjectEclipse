@@ -18,3 +18,9 @@ in the battle-rule reference.
 
 `Tools/TestFightPatches.ps1` checks registration against the canonical stage catalog,
 projection, and runtime rule selection. A full Unity encounter playtest is pending.
+# Optional battle timer policy
+
+To apply a shared limit to timed battles, add `policy.timers` to your manifest and
+call `sf2.timers.set { subsystem = "battle", seconds = 150 }` during loading.
+This overrides individual `round_time` values; training and untimed fights remain
+unchanged. For a change to only this encounter, use `round_time` in its fight patch.

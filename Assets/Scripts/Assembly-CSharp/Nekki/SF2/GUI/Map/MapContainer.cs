@@ -175,6 +175,15 @@ namespace Nekki.SF2.GUI.Map
 			return _mapPanel.HasZone(HLJKOKMKMLM);
 		}
 
+		public void FadeZonesBackgroundMask(Color color, float duration)
+		{
+			_backgroundMask = color;
+			foreach (ZoneScrollItem item in _mapPanel.GetZones())
+			{
+				item.FadeBackgroundColor(color, duration);
+			}
+		}
+
 		public void SetZonesBackgroundMask(Color color)
 		{
 			_backgroundMask = color;

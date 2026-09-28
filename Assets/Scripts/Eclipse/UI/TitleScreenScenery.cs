@@ -367,7 +367,7 @@ namespace Eclipse.UI
         // A soft ink wash behind the menu keeps the labels legible on every scene.
         private void DrawMenuWash()
         {
-            var wash = Rect(page, "Menu wash", 300, 232, 680, 360).gameObject.AddComponent<RawImage>();
+            var wash = Rect(page, "Menu wash", 300, 232, 680, 384).gameObject.AddComponent<RawImage>();
             wash.texture = SoftDot();
             wash.color = new Color(Ink.r, Ink.g, Ink.b, .62f);
             wash.raycastTarget = false;

@@ -55,6 +55,7 @@ public class BackKeyManager : SFMonoBehaviour<object>
 		{
 			OnBackKeyClicked();
 		}
+		Eclipse.Input.FightPauseKey.Tick(BOFDPBGOPEI.Count);
 	}
 
 	public void OnBackKeyClicked()
@@ -72,7 +73,7 @@ public class BackKeyManager : SFMonoBehaviour<object>
 			FightScene current = Scene<FightScene>.get_Current();
 			if (current != null && current.Fight != null)
 			{
-				current.Fight.HIIGDMMGBBD(true);
+				current.Fight.TogglePauseMenu(true);
 			}
 			break;
 		}

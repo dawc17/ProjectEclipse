@@ -1949,7 +1949,7 @@ public class Roster : MELBIBHDPCE
 			if (dKBDLDGOFDN != null)
 			{
 				ScreenType iPKNDMINFMJ = (ScreenType)dKBDLDGOFDN.ELBKKOPHLHK();
-				ScreenType iPKNDMINFMJ2 = Module.GetInstance().NMCNDOPKFJD();
+				ScreenType iPKNDMINFMJ2 = Module.GetInstance().GetCurrentScreenType();
 				if (iPKNDMINFMJ == ScreenType.ModuleFight && iPKNDMINFMJ != iPKNDMINFMJ2)
 				{
 					Module.DLOKJOHNDID(ScreenType.ModuleDojo);

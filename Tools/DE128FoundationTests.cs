@@ -194,6 +194,7 @@ internal static class DE128FoundationTests
     {
         ModPolicies.Content = catalog;
         Check(ModPolicies.DeliverySeconds("forge", 120) == 120, "Base forge duration was not restored.");
+        Check(ModPolicies.BattleSeconds(99) == 99, "Base battle duration was not restored.");
         Check(ModPolicies.SkipEnabled("forge"), "Base forge skipping was not restored.");
         Check(!ModPolicies.CompletePending("forge"), "Base pending orders were accelerated.");
         Check(Services.All(ModPolicies.FeatureEnabled), "A failed or absent mod left service disables behind.");
@@ -563,8 +564,11 @@ internal static class DE128FoundationTests
     private static void CheckDE(ModContentCatalog catalog)
     {
         ModPolicies.Content = catalog;
-        Check(catalog.TimerPolicies.Count == 1 && catalog.TryGetTimer("forge", out var timer) &&
+        Check(catalog.TimerPolicies.Count == 2 && catalog.TryGetTimer("forge", out var timer) &&
             timer.Owner.Value == "de128", "The forge policy is not exclusively owned by DE128.");
+        Check(catalog.TryGetTimer("battle", out var battleTimer) && battleTimer.Owner.Value == "de128" &&
+            ModPolicies.BattleSeconds(99) == 150 && ModPolicies.BattleSeconds(999) == 150 &&
+            ModPolicies.BattleSeconds(0) == 0, "DE battle limits differ or changed an untimed fight.");
         Check(ModPolicies.DeliverySeconds("forge", 120) == 0, "New forge orders are not instant.");
         Check(ModPolicies.SkipEnabled("forge"), "Already-pending orders lost their normal skip path.");
         Check(ModPolicies.CompletePending("forge"), "DE pending orders are not eligible for normal settlement.");

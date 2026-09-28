@@ -4,7 +4,7 @@ public class QuestActionUpdateScreen : QuestAction
 	{
 		base.DEJMHFMLKIC(GFIHPBCEEOB);
 		Module module = Module.GetInstance();
-		ScreenType currentScreen = module.NMCNDOPKFJD();
+		ScreenType currentScreen = module.GetCurrentScreenType();
 		// UpdateScreen can be resumed from the save before the first real module
 		// has been selected. ModuleNone is a sentinel (enum value 8), not a scene
 		// build index; attempting to reload it strands the Loader scene.

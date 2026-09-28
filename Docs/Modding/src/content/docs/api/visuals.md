@@ -41,10 +41,13 @@ Things to know first:
   installation.
 - **Where they apply.** Fighter effects (trails, glints, node particles, the
   rim light) can also run on fighter previews in menus such as the shop and
-  profile; for `sf2.fx` effects set `scenes = "everywhere"`. Location, hit and
-  screen effects (overlays, location and hit particles, contact shadows, screen
-  grades, background depth, depth haze, ambient particles, bloom and impact) run
-  only in fights and the dojo.
+  profile; for `sf2.fx` effects set `scenes = "everywhere"`. The shop renders the
+  selected dojo's animated layers, location overlays, ambient particles and depth
+  haze, and supports continuous screen grades and bloom on its world camera.
+  Location `match`/`exclude` filters use that dojo's name. Screen-space shop controls
+  remain outside the world-camera effects. Background parallax responds to the
+  moving fight camera; the shop uses a fixed view. Hit effects, contact shadows,
+  stains and combat-triggered grades still require their fight events.
 - **Triggers.** Most effects run continuously. Hit particles, stains and screen
   grades with a `trigger` fire once per matching hit instead: `hit` is any unblocked
   hit, `critical` a critical hit, `block` a blocked hit (particles only) and
@@ -143,8 +146,9 @@ a wall; see [contact particles](#contact-particles).
 | `speed_min`, `speed_max` | `0`, `0` | 0–5000: outward burst speed of hit and contact particles; min must not exceed max. The `velocity_*` ranges are added on top. |
 | `gravity` | `0` | −5000 to 5000: downward pull on hit and contact particles in units per second squared; negative values rise. |
 
-Particles appear only in fights (and on previews for node particles with
-`scenes = "everywhere"`). Every particle fades in and out.
+Location particles also appear in the dojo and the shop's selected-dojo backdrop.
+Node particles appear on menu previews with `scenes = "everywhere"`; hit/contact
+particles require fight events. Every particle fades in and out.
 
 ```lua
 sf2.fx.particles {

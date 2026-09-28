@@ -93,6 +93,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			_btnMissile.AddEventListener(0, ButtonPress);
 			_btnMissile.AddEventListener(1, ButtonRelease);
 			_btnMagic.Init();
+			_btnMagic.FillSmoothingRate = 10f; // Eclipse: ease the magic charge ring (presentation only)
 			_btnMagic.ButtonId = 12;
 			_btnMagic.AddEventListener(2, ButtonClick);
 			_btnMagic.AddEventListener(0, ButtonPress);

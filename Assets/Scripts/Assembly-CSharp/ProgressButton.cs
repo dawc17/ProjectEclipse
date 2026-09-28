@@ -18,6 +18,13 @@ public class ProgressButton : SFButton
 
 	private Tween _tween;
 
+	// Eclipse: presentation-only easing of the circular fill. The gameplay percentage
+	// (ILDDBLFPPPG) still changes immediately; only the drawn fill chases it.
+	[System.NonSerialized]
+	public float FillSmoothingRate;
+
+	private float _displayedFill = -1f;
+
 	public void Init()
 	{
 		if (_picComplete != null)
@@ -48,8 +55,32 @@ public class ProgressButton : SFButton
 		}
 		if (_picCircleProgressBar != null)
 		{
-			_picCircleProgressBar.fillAmount = ILDDBLFPPPG / 100f;
+			if (FillSmoothingRate <= 0f || _displayedFill < 0f)
+			{
+				_displayedFill = ILDDBLFPPPG / 100f;
+				_picCircleProgressBar.fillAmount = _displayedFill;
+			}
 		}
+	}
+
+	private void LateUpdate()
+	{
+		if (FillSmoothingRate <= 0f || _picCircleProgressBar == null)
+		{
+			return;
+		}
+		float target = ILDDBLFPPPG / 100f;
+		if (_displayedFill == target)
+		{
+			return;
+		}
+		float t = 1f - Mathf.Exp(-FillSmoothingRate * Time.unscaledDeltaTime);
+		_displayedFill = Mathf.Lerp(_displayedFill, target, t);
+		if (Mathf.Abs(_displayedFill - target) < 0.002f)
+		{
+			_displayedFill = target;
+		}
+		_picCircleProgressBar.fillAmount = _displayedFill;
 	}
 
 	public void SetPercentage(float EJHLCDFHNPA, float BFJBKLCLIHP)

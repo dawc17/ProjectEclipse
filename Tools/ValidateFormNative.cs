@@ -75,7 +75,7 @@ public static class ValidateFormNative
             {
                 var scripts = ModRuntime.Scripts;
                 if (scripts == null || ListSF.CCDKHLAMKKO() == null || Module.GetInstance() == null) return;
-                var screen = Module.GetInstance().NMCNDOPKFJD();
+                var screen = Module.GetInstance().GetCurrentScreenType();
                 if (screen != ScreenType.ModuleDojo && screen != ScreenType.ModuleMap) return;
                 var definition = scripts.Content.Fights.FirstOrDefault(f => f.Id.ToString() == "example.shifting-guardian:fights/guardian");
                 if (definition == null) throw new Exception("Shifting Guardian did not register.");

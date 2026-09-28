@@ -186,7 +186,9 @@ and scene transitions still need a game test. See the Animated Arena example.
 **Returns:** `nil`.
 
 **When:** After a game profile has loaded, normally from a selector's UI callback.
-The new backdrop applies on the next dojo entry; it does not refresh an open dojo.
+The new backdrop applies on the next dojo or shop entry; it does not refresh an
+already open scene. The shop renders the selected dojo's native layers and ambient
+effects behind its fighter preview and controls, including registered mod locations.
 
 **Requires:** `presentation.dojo` and either this mod's registered location handle
 with `dojo = true`, or a `core:locations/name` string for an installed native

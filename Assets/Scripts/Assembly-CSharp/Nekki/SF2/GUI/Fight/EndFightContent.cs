@@ -66,6 +66,8 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void Init(FightResult HEIADONEACH, VerticalLayoutGroup KPAICOOKACB, Button OBMBALDIBEB)
 		{
+			if (_buttonOk != null)
+				((RectTransform)_buttonOk.transform).anchoredPosition = Vector2.zero;
 			_animationFinishButton = OBMBALDIBEB;
 			MPFLHOFEOGI = HEIADONEACH;
 			_currentLine = 0;

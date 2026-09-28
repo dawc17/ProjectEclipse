@@ -244,6 +244,7 @@ namespace Eclipse.Modding
             ModBattleAccess.Reveal = TryRevealBattle;
             ModBattleAccess.Focus = TryFocusBattle;
             ModUnderworldAccess.SetToggleVisible = TrySetUnderworldToggle;
+            ModUnderworldAccess.SetMapColors = TrySetUnderworldMapColors;
             ModUnderworldAccess.SetFocus = TrySetUnderworldFocus;
             ModProfileAccess.Item = ReadProfileItem;
             ModProfileAccess.Perk = ReadProfilePerk;
@@ -579,6 +580,15 @@ namespace Eclipse.Modding
             return true;
         }
 
+        internal static bool TrySetUnderworldMapColors(ModUiColor normal, ModUiColor power, float duration)
+        {
+            var map = ReadyProgressionMap();
+            if (map == null) return false;
+            map.SetRaidMapColors(new Color32(normal.R, normal.G, normal.B, normal.A),
+                new Color32(power.R, power.G, power.B, power.A), duration);
+            return true;
+        }
+
         // Stores the Underworld map focus (opened on the next switch to that map)
         // without revealing, saving or selecting anything else.
         internal static bool TrySetUnderworldFocus(DefinitionId id)
@@ -635,7 +645,7 @@ namespace Eclipse.Modding
             // A combat exit must go through the native surrender/result workflow.
             if (current != ScreenType.ModuleMap && current != ScreenType.ModuleShop &&
                 current != ScreenType.ModuleProfile && current != ScreenType.ModuleDojo) return false;
-            if (module.BOHBCFMJPCA() == null || module.NMCNDOPKFJD() != current ||
+            if (module.BOHBCFMJPCA() == null || module.GetCurrentScreenType() != current ||
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex != (int)current) return false;
             // Reopening the dojo reloads it when its location choice changed.
             if (current == target && !(target == ScreenType.ModuleDojo && global::Location.DojoSelectionChanged())) return true;
@@ -781,7 +791,7 @@ namespace Eclipse.Modding
         {
             var saved = _lotteryProfileNode?["EclipseLotteryClaim"];
             if (_profileRoster == null || saved?["BattleEnd"] == null || saved["BattleEnd"].GetAttribute("Dispatched") == "1") return;
-            if (Module.GetInstance().NMCNDOPKFJD() == ScreenType.ModuleFight) return;
+            if (Module.GetInstance().GetCurrentScreenType() == ScreenType.ModuleFight) return;
             try
             {
                 if (saved.GetAttribute("State") == "claimed") { CompleteBattleLottery(); return; }

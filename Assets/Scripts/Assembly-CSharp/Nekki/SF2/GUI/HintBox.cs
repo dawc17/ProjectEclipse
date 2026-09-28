@@ -55,18 +55,39 @@ namespace Nekki.SF2.GUI
 			{
 				header.SetAlias(BHJILACALPJ);
 				description.SetAlias(LNGIMAAHIFE);
-				RectTransform rectTransform = (RectTransform)base.transform;
-				RectTransform rectTransform2 = (RectTransform)header.transform;
-				RectTransform rectTransform3 = (RectTransform)description.transform;
-				float preferredHeight = header.preferredHeight;
-				float preferredHeight2 = description.preferredHeight;
-				float num = Mathf.Abs(backgroudTransform.offsetMax.y);
-				float num2 = preferredHeight + preferredHeight2;
-				num2 += num;
-				num2 += backgroudLayout.spacing;
-				num2 += (float)backgroudLayout.padding.top;
-				num2 += (float)backgroudLayout.padding.bottom;
-				rectTransform.sizeDelta = new Vector2(rectTransform.rect.width, num2);
+				ResizeToContent();
+			}
+		}
+
+		// Composed lists are already localized; preserve explicit inline icon sizes.
+		public void SetListContent(string titleAlias, string content)
+		{
+			header.SetAlias(titleAlias);
+			description.SetAlias(string.Empty);
+			description.text = content;
+			ResizeToContent();
+		}
+
+		private void ResizeToContent()
+		{
+			// Establish the available text width before measuring wrapped content.
+			LayoutRebuilder.ForceRebuildLayoutImmediate(backgroudTransform);
+			float height = header.preferredHeight + description.preferredHeight
+				+ Mathf.Abs(backgroudTransform.offsetMax.y) + backgroudLayout.spacing
+				+ backgroudLayout.padding.top + backgroudLayout.padding.bottom;
+			RectTransform rect = get_RectTransform();
+			rect.sizeDelta = new Vector2(rect.rect.width, height);
+			LayoutRebuilder.ForceRebuildLayoutImmediate(backgroudTransform);
+		}
+
+		// Eclipse: keeps the arrow on the icon when the box is shifted to stay on screen.
+		public void SetArrowOffset(float offset, float limit)
+		{
+			if (arrow != null)
+			{
+				RectTransform rectTransform = arrow.rectTransform;
+				float x = (limit > 0f) ? Mathf.Clamp(offset, -limit, limit) : 0f;
+				rectTransform.anchoredPosition = new Vector2(x, rectTransform.anchoredPosition.y);
 			}
 		}
 

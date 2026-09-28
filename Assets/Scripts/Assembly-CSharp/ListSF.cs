@@ -1707,7 +1707,7 @@ public class ListSF
 
 	public void KBCBLOMDKCA(FightList KGKDKENMAOA)
 	{
-		if (Module.GetInstance().NMCNDOPKFJD() != ScreenType.ModuleMap)
+		if (Module.GetInstance().GetCurrentScreenType() != ScreenType.ModuleMap)
 		{
 		}
 	}
@@ -2528,8 +2528,8 @@ public class ListSF
 		ALJEKDDKPJJ(HJOHKOEICAP);
 		if (GameUtils.OBJEKOBDMOE)
 		{
-			bool flag = Module.GetInstance().NMCNDOPKFJD() != ScreenType.ModulePreloader;
-			bool flag2 = Module.GetInstance().NMCNDOPKFJD() != ScreenType.ModuleFight;
+			bool flag = Module.GetInstance().GetCurrentScreenType() != ScreenType.ModulePreloader;
+			bool flag2 = Module.GetInstance().GetCurrentScreenType() != ScreenType.ModuleFight;
 			bool flag3 = Fight.GetCurrentFight() != null && Fight.GetCurrentFight().get_isFightNone();
 			if (flag && (flag2 || flag3))
 			{

@@ -722,6 +722,12 @@ public class ProfileScene : Scene<ProfileScene>
 			{
 				_perksCtrl.LAJJAAAGDLI(perkCell.get_RowNumber());
 			}
+			// Eclipse: bring the next level's choices into view once this one is learned.
+			PerkCell learnedCell = perkSubItem.ParentCell as PerkCell;
+			if (learnedCell != null && learnedCell.get_RowNumber() + 1 < _perksTable.NumberOfRows())
+			{
+				_perksTable.ScrollToCell(learnedCell.get_RowNumber() + 1, 0.5f);
+			}
 			_tricksCtrl.LLIMHAHIMML();
 			mainMenu.UpdateNewPerks();
 			if (perkSubItem.IsInfoAnimation())

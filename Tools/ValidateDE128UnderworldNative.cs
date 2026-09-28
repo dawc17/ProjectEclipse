@@ -75,7 +75,7 @@ public static class ValidateDE128UnderworldNative
                     "; state=" + string.Join("; ", scripts.StateDiagnostics));
             if (!entryRequested)
             {
-                if (module.NMCNDOPKFJD() == ScreenType.ModuleDojo && !mapRequested)
+                if (module.GetCurrentScreenType() == ScreenType.ModuleDojo && !mapRequested)
                 {
                     var menu = MainMenu.get_Instance();
                     if (menu == null) return;
@@ -89,7 +89,7 @@ public static class ValidateDE128UnderworldNative
                     mapRequested = true;
                     return;
                 }
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+                if (module.GetCurrentScreenType() != ScreenType.ModuleMap) return;
                 var scene = UnityEngine.Object.FindObjectOfType<MapScene>();
                 if (scene == null) return;
                 if (!raidPrepared)
@@ -164,7 +164,7 @@ public static class ValidateDE128UnderworldNative
             }
             if (surrenderRequested)
             {
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+                if (module.GetCurrentScreenType() != ScreenType.ModuleMap) return;
                 var returnedMap = UnityEngine.Object.FindObjectOfType<MapScene>();
                 if (returnedMap == null) return;
                 if (returnedMap.GetCurrentState() != MapScene.NMFLNANKNOJ.RaidMode)

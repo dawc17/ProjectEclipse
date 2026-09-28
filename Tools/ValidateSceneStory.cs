@@ -23,7 +23,7 @@ public class Module {
  public class Info {public object Data;}
  public Info DMCJGOMOJEF=new Info();public ScreenType Requested=ScreenType.ModuleMap;
  public static Module Value=new Module();public static Module GetInstance()=>Value;
- public ScreenType NMCNDOPKFJD()=>Requested;
+ public ScreenType GetCurrentScreenType()=>Requested;
  public void NFEBHLDPHHI(object scene){Trace.Steps.Add("module");}
 }
 public class OwnerBase:UnityEngine.Component {protected virtual void Awake(){Trace.Steps.Add("base");}}

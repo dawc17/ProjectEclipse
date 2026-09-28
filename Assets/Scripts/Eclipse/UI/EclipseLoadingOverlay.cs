@@ -95,7 +95,7 @@ namespace Eclipse.UI
                 if (Nekki.SF2.GUI.Scenes.LoaderScene.get_Current() != null) return false;
                 var module = Module.GetInstance();
                 if (module == null || !SceneManager.GetActiveScene().isLoaded) return false;
-                var screen = module.NMCNDOPKFJD();
+                var screen = module.GetCurrentScreenType();
                 if (screen == ScreenType.ModuleMap || screen == ScreenType.ModuleShop || screen == ScreenType.ModuleProfile) return true;
                 if (screen != ScreenType.ModuleDojo && screen != ScreenType.ModuleFight) return false;
                 return FightersPosed(Fight.GetCurrentFight());
@@ -108,9 +108,9 @@ namespace Eclipse.UI
         {
             if (fight == null) return false;
             var player = fight.GetPlayerModel();
-            if (player == null || player.FHBLLPCEAHG() == null) return false;
+            if (player == null || player.GetCurrentAnimation() == null) return false;
             var enemy = fight.GetEnemyModel();
-            return enemy == null || enemy.FHBLLPCEAHG() != null;
+            return enemy == null || enemy.GetCurrentAnimation() != null;
         }
 
         private void Update()

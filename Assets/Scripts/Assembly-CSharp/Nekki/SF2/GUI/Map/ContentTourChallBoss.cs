@@ -40,57 +40,52 @@ namespace Nekki.SF2.GUI.Map
 		private bool LFOMLGFOIDI = true;
 
 		private int ALHECCDENMO;
+		private bool showDescription;
+		private float descriptionOpacity;
+		private CanvasGroup difficultyOpacity;
 
 		private void Update()
 		{
 			if (LFOMLGFOIDI)
 			{
-				CFFCPCEKCIE();
+				descriptionOpacity = Mathf.MoveTowards(descriptionOpacity, showDescription ? 1f : 0f, Time.unscaledDeltaTime / .25f);
+				ApplyDescriptionOpacity();
 			}
 		}
 
 		public void Init(Battle DPOOIONCEOA, FightList KOMGFJOCEDN)
 		{
 			_bricksPanel.Init(DPOOIONCEOA, KOMGFJOCEDN);
-			NAMOMLIKKIA(DPOOIONCEOA, KOMGFJOCEDN);
 			MKHMHMAOKOA(DPOOIONCEOA);
 			bool mMDLKOPCFLK = (DPOOIONCEOA.get_Type() != BattleType.FightBosses && DPOOIONCEOA.get_Type() != BattleType.FightBossesReplayable && DPOOIONCEOA.get_Type() != BattleType.FightFinalTitan) || !KJHIOOFNKEG(KOMGFJOCEDN);
 			_prizePanel.Init(-1, mMDLKOPCFLK, KOMGFJOCEDN);
 			_difficultyPanel.gameObject.SetActive(DPOOIONCEOA.KCIKELGFHOA() != 0);
 			_difficultyPanel.GetComponent<CanvasGroup>().alpha = 1f;
 			_difficultyPanel.Init(GameUtils.JEILJMPPEGL(KOMGFJOCEDN));
+			NAMOMLIKKIA(DPOOIONCEOA, KOMGFJOCEDN);
 			FBOAIDMKGEB();
 		}
 
 		private void NAMOMLIKKIA(Battle DPOOIONCEOA, FightList KOMGFJOCEDN)
 		{
-			if (DPOOIONCEOA.get_Type() == BattleType.FightChallenge || DPOOIONCEOA.get_Type() == BattleType.FightReplayable)
-			{
-				string text = KOMGFJOCEDN.GJOAJAIJHOE();
-				if (text != string.Empty)
-				{
-					_lblDescription.SetAlias(text);
-				}
-				bool flag = KOMGFJOCEDN != null && !KOMGFJOCEDN.ECEFCOJPBPG();
-				_lblDescription.gameObject.SetActive(!flag);
-				LFOMLGFOIDI = text != string.Empty;
-				if (LFOMLGFOIDI)
-				{
-					DFMHJKAIJJK(OIMAMAGKGIA());
-				}
-				else
-				{
-					BIEHOAACFGA = 255f;
-					JEJJAFNDNJP = 255f;
-				}
-				_lblDescription.HNIHBGAOAIH(JEJJAFNDNJP / 255f);
-			}
-			else
-			{
-				LFOMLGFOIDI = false;
-				_lblDescription.gameObject.SetActive(false);
-				_difficultyPanel.GetComponent<CanvasGroup>().alpha = 1f;
-			}
+			bool challenge = DPOOIONCEOA.get_Type() == BattleType.FightChallenge || DPOOIONCEOA.get_Type() == BattleType.FightReplayable;
+			string description = KOMGFJOCEDN != null ? KOMGFJOCEDN.GJOAJAIJHOE() : string.Empty;
+			if (string.IsNullOrEmpty(description)) description = DPOOIONCEOA.GJOAJAIJHOE();
+			LFOMLGFOIDI = challenge && !string.IsNullOrEmpty(description) && KOMGFJOCEDN != null && KOMGFJOCEDN.ECEFCOJPBPG();
+			_lblDescription.gameObject.SetActive(LFOMLGFOIDI);
+			if (LFOMLGFOIDI) _lblDescription.SetAlias(description);
+			_challangeTouchZone.interactable = LFOMLGFOIDI;
+			difficultyOpacity = _difficultyPanel.GetComponent<CanvasGroup>();
+			showDescription = LFOMLGFOIDI;
+			descriptionOpacity = showDescription ? 1f : 0f;
+			ApplyDescriptionOpacity();
+		}
+
+		private void ApplyDescriptionOpacity()
+		{
+			float eased = Mathf.SmoothStep(0f, 1f, descriptionOpacity);
+			_lblDescription.HNIHBGAOAIH(eased);
+			if (difficultyOpacity != null) difficultyOpacity.alpha = 1f - eased;
 		}
 
 		private void MKHMHMAOKOA(Battle DPOOIONCEOA)
@@ -238,15 +233,7 @@ namespace Nekki.SF2.GUI.Map
 		{
 			if (LFOMLGFOIDI)
 			{
-				DFMHJKAIJJK(JEJJAFNDNJP < BIEHOAACFGA);
-				if (_lblDescription != null)
-				{
-					_lblDescription.HNIHBGAOAIH(JEJJAFNDNJP / 255f);
-				}
-				if (_difficultyPanel != null)
-				{
-					_difficultyPanel.GetComponent<CanvasGroup>().alpha = BIEHOAACFGA;
-				}
+				showDescription = !showDescription;
 			}
 		}
 	}

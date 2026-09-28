@@ -82,6 +82,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 
 		private void Update()
 		{
+			EaseVisualKnob();
 			if (!CANIGBPEKFA || !_flashing)
 			{
 				return;
@@ -266,14 +267,40 @@ namespace Nekki.SF2.Core.Fights.Controller
             if (pressed) visualDirection = direction;
             else if (visualDirection == direction) visualDirection = FightCID.QuadrantZero;
             bool active = visualDirection != FightCID.QuadrantZero;
-            _normalTexture.gameObject.SetActive(!active);
-            _selectedTexture.gameObject.SetActive(active);
-            _normalController.gameObject.SetActive(!active);
-            _selectedController.gameObject.SetActive(active);
-            float angle = (int)visualDirection * Mathf.PI / 4f - Mathf.PI / 4f;
-            float radius = OMMKBOAPGDP;
-            _selectedController.transform.localPosition = active
-                ? new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0) * radius : Vector3.zero;
+            if (active)
+            {
+                // Coming from rest, the knob leaves the centre rather than a stale touch position.
+                if (!visualKnobEasing && !_selectedController.gameObject.activeSelf)
+                    _selectedController.transform.localPosition = Vector3.zero;
+                LHKEJOONODP(true);
+                float angle = (int)visualDirection * Mathf.PI / 4f - Mathf.PI / 4f;
+                visualKnobTarget = new Vector3(Mathf.Sin(angle), Mathf.Cos(angle), 0) * OMMKBOAPGDP;
+            }
+            else visualKnobTarget = Vector3.zero;
+            visualKnobEasing = true;
+        }
+
+        // Keyboard/pad knob: glide toward the 8-way target and back to centre on release
+        // (unscaled, so it still settles while the fight is paused). Touch stays direct.
+        private Vector3 visualKnobTarget;
+        private bool visualKnobEasing;
+        private const float VisualKnobRate = 26f;
+        private void EaseVisualKnob()
+        {
+            if (!visualKnobEasing) return;
+            if (touching) { visualKnobEasing = false; return; }
+            Transform knob = _selectedController.transform;
+            Vector3 position = Vector3.Lerp(knob.localPosition, visualKnobTarget,
+                1f - Mathf.Exp(-VisualKnobRate * Time.unscaledDeltaTime));
+            if ((position - visualKnobTarget).sqrMagnitude < 0.25f) position = visualKnobTarget;
+            knob.localPosition = position;
+            if (position != visualKnobTarget) return;
+            visualKnobEasing = false;
+            if (visualDirection == FightCID.QuadrantZero)
+            {
+                knob.localPosition = Vector3.zero;
+                LHKEJOONODP(false);
+            }
         }
 
         public void OnPointerDown(PointerEventData BHOLFGOGPCP)

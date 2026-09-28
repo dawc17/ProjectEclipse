@@ -32,6 +32,16 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void Init(FightResult HEIADONEACH)
 		{
+			// The recovered shadow is a fixed-width strip scaled 22x. Fill the
+			// actual viewport so wide windows do not leave a bright uncovered edge.
+			var background = transform.Find("Background") as RectTransform;
+			if (background != null)
+			{
+				background.localScale = Vector3.one;
+				background.anchorMin = Vector2.zero;
+				background.anchorMax = Vector2.one;
+				background.offsetMin = background.offsetMax = Vector2.zero;
+			}
 			EnableFinishButton(false);
 			MPFLHOFEOGI = HEIADONEACH;
 			if (_resultHeader != null)
@@ -40,6 +50,7 @@ namespace Nekki.SF2.GUI.Fight
 				bool flag2 = MPFLHOFEOGI.EKBAHCGBNEM();
 				_resultHeader.set_SpriteName(flag ? GLNMNCPDNFJ : ((!flag2) ? ADGALAFHMHH : IBAIBAAPGDG));
 				_resultHeader.SetNativeSize();
+				Eclipse.UI.UiReveal.Play(_resultHeader.rectTransform, 0f, .45f, new Vector2(0f, 45f), 1.18f);
 			}
 			if (_endFightContentPrefab != null)
 			{
@@ -53,6 +64,7 @@ namespace Nekki.SF2.GUI.Fight
 					GameUtils.FKMEIHGOFDD(MPFLHOFEOGI);
 				});
 				_endFightContent.AnimationEndEvent.AddListener(MLPIMHGLKDI);
+				Eclipse.UI.UiReveal.Play(_endFightContent.transform as RectTransform, .12f, .45f, Vector2.zero, .96f);
 			}
 		}
 

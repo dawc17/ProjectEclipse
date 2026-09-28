@@ -35,14 +35,16 @@ namespace Eclipse.Underworld.UI
 			host.transform.SetParent(parent, false);
 			RectTransform rect = (RectTransform)host.transform;
 			// The enemy bar's local right edge is its SCREEN-left edge. Anchor
-			// there so the counter follows the HUD at every canvas resolution.
-			rect.anchorMin = rect.anchorMax = new Vector2(1f, 0f);
-			rect.pivot = new Vector2(0f, 1f);
-			rect.anchoredPosition = new Vector2(-12f, -2f);
+			// there so the counter follows the HUD at every canvas resolution,
+			// and sit the counter inside the bar, vertically centred on it.
+			// Negative local X moves toward screen-right (into the bar).
+			rect.anchorMin = rect.anchorMax = new Vector2(1f, 0.5f);
+			rect.pivot = new Vector2(0f, 0.5f);
+			rect.anchoredPosition = new Vector2(-24f, 0f);
 			// The right-hand life bar is rotated ~180 degrees around Y in the
 			// prefab. Counter-rotate its text, not the draining bar itself.
 			rect.localRotation = Quaternion.Inverse(parent.localRotation);
-			rect.sizeDelta = new Vector2(115f, 42f);
+			rect.sizeDelta = new Vector2(150f, 43f);
 			GameObject countObject = new GameObject("Count", typeof(RectTransform), typeof(Text));
 			countObject.layer = host.layer;
 			countObject.transform.SetParent(host.transform, false);
@@ -52,7 +54,8 @@ namespace Eclipse.Underworld.UI
 			count.rectTransform.offsetMin = Vector2.zero;
 			count.rectTransform.offsetMax = Vector2.zero;
 			count.font = font;
-			count.fontSize = 32;
+			count.fontSize = 46;
+			count.fontStyle = FontStyle.Bold;
 			// Sakkal Majalla's line metrics exceed this compact HUD rect. The
 			// default Truncate mode discards the entire first line, even though
 			// its glyphs fit. Do not wrap or truncate this single-line counter.
@@ -61,6 +64,13 @@ namespace Eclipse.Underworld.UI
 			count.alignment = TextAnchor.MiddleLeft;
 			count.color = new Color(1f, 0.84f, 0.55f, 1f);
 			count.raycastTarget = false;
+			// Legible over both the blue fill and the dark drained backing.
+			Outline outline = countObject.AddComponent<Outline>();
+			outline.effectColor = new Color(0f, 0f, 0f, 0.9f);
+			outline.effectDistance = new Vector2(2f, -2f);
+			Shadow shadow = countObject.AddComponent<Shadow>();
+			shadow.effectColor = new Color(0f, 0f, 0f, 0.6f);
+			shadow.effectDistance = new Vector2(3f, -4f);
 			UnderworldRaidShieldBar bar = host.AddComponent<UnderworldRaidShieldBar>();
 			bar._parameters = parameters;
 			bar._count = count;

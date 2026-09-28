@@ -26,7 +26,7 @@ public sealed class EclipseScreenEffects : MonoBehaviour
 
 	private static void OnSceneLoaded(Scene scene, LoadSceneMode mode)
 	{
-		if (scene.name != "Fight" && scene.name != "Dojo") return;
+		if (scene.name != "Fight" && scene.name != "Dojo" && scene.name != "Shop") return;
 		Camera camera = Camera.main;
 		if (camera != null && camera.GetComponent<EclipseScreenEffects>() == null)
 			camera.gameObject.AddComponent<EclipseScreenEffects>();

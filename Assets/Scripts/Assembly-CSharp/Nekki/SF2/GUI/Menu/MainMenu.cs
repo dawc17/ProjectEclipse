@@ -308,7 +308,7 @@ namespace Nekki.SF2.GUI.Menu
 			Scroll.AddEventListener(4, NPPDCDCLJKN);
 			Scroll.Collapse(0f);
 			NIGAFHNNOPH();
-			ScreenType cCGJDFLIKFN = Module.GetInstance().NMCNDOPKFJD();
+			ScreenType cCGJDFLIKFN = Module.GetInstance().GetCurrentScreenType();
 			UpdateCurrentButton(cCGJDFLIKFN);
 		}
 
@@ -410,7 +410,7 @@ namespace Nekki.SF2.GUI.Menu
 
 		private void OnDojoDiscipleChanged(bool value)
 		{
-			if (Module.GetInstance().NMCNDOPKFJD() == ScreenType.ModuleDojo)
+			if (Module.GetInstance().GetCurrentScreenType() == ScreenType.ModuleDojo)
 			{
 				OnClickButton(BGGGJCMEGPH.MENU_DOJO_DISCIPLE);
 			}
@@ -696,7 +696,7 @@ namespace Nekki.SF2.GUI.Menu
 			ResolutionImage resolutionImage = btnDojoDisciple.targetGraphic as ResolutionImage;
 			resolutionImage.set_SpriteName((!flag) ? "MenuButtons.btn_disciple" : "MenuButtons.btn_punching_bag");
 			Roster roster = ListSF.CCDKHLAMKKO();
-			UpdateDojoDiscipleVisibility(Module.GetInstance().NMCNDOPKFJD());
+			UpdateDojoDiscipleVisibility(Module.GetInstance().GetCurrentScreenType());
 		}
 
 		private void UpdateDojoDiscipleVisibility(ScreenType screen)
@@ -854,7 +854,7 @@ namespace Nekki.SF2.GUI.Menu
 
 		private void GAALGNEPKEF()
 		{
-			ScreenType cCGJDFLIKFN = Module.GetInstance().NMCNDOPKFJD();
+			ScreenType cCGJDFLIKFN = Module.GetInstance().GetCurrentScreenType();
 			if (HNCLEDJDODK != GetButtonFromScreen(cCGJDFLIKFN))
 			{
 				CloseMenu(0.25f);

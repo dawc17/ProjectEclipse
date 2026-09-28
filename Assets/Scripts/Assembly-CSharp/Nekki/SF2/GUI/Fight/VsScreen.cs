@@ -133,6 +133,9 @@ namespace Nekki.SF2.GUI.Fight
 				});
 				s.AppendInterval(afterNameShowPause);
 				GLAMMHFCJPN = moveAvatarTime + afterMoveAvatarPause + vsImageScaleTime + afterVsImageScalePause + vsStripeFillTime + afterVsStripeFillPause + afterNameShowPause;
+				// Keep the countdown and visual sequence on the same, shorter timeline.
+				s.timeScale = 1.5f;
+				GLAMMHFCJPN /= 1.5f;
 			}
 		}
 	}

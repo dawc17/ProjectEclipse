@@ -75,7 +75,8 @@ namespace Eclipse.Modding
     {
         public static Func<bool, bool> SetToggleVisible;
         public static Func<DefinitionId, bool> SetFocus;
-        public static void Clear() { SetToggleVisible = null; SetFocus = null; }
+        public static Func<ModUiColor, ModUiColor, float, bool> SetMapColors;
+        public static void Clear() { SetToggleVisible = null; SetFocus = null; SetMapColors = null; }
     }
 
     public static class ModBattleAccess

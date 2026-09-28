@@ -2301,7 +2301,7 @@ public static class GameUtils
         var storyEntry = Eclipse.Modding.ModRuntime.TryStoryFightEntry(storyFight,
             () => StartFight(storyFight, FLLKCPMJOEL, DPOOIONCEOA, CDFICPGIBEE, IINNCMDDLGE));
         if (storyEntry.HasValue) return storyEntry.Value;
-		ScreenType iPKNDMINFMJ = Module.GetInstance().NMCNDOPKFJD();
+		ScreenType iPKNDMINFMJ = Module.GetInstance().GetCurrentScreenType();
 		FightList jDIPBIHBGPF = null;
 		if (iPKNDMINFMJ == ScreenType.ModuleDojo || iPKNDMINFMJ == ScreenType.ModuleFight)
 		{
@@ -2821,7 +2821,7 @@ public static class GameUtils
 		{
 			LLLOJBFMONN.INNGABABJPC(string.Empty);
 			LLLOJBFMONN.INNGABABJPC("------------------------------Print texture cache ------------------------------");
-			LLLOJBFMONN.INNGABABJPC("------------------------------Screen: " + Module.INIOOEKJIDI(Module.GetInstance().NMCNDOPKFJD()) + " ------------------------------");
+			LLLOJBFMONN.INNGABABJPC("------------------------------Screen: " + Module.INIOOEKJIDI(Module.GetInstance().GetCurrentScreenType()) + " ------------------------------");
 		}
 	}
 }

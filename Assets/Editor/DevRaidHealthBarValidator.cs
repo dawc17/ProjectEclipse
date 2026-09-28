@@ -81,7 +81,8 @@ public static class DevRaidHealthBarValidator
                 Vector3 label = canvas.transform.InverseTransformPoint(text.transform.position);
                 float left = corners.Min(c => canvas.transform.InverseTransformPoint(c).x);
                 float bottom = corners.Min(c => canvas.transform.InverseTransformPoint(c).y);
-                Require(label.x > left && label.x < left + 130 && label.y < bottom, "Counter below screen-left end");
+                float top = corners.Max(c => canvas.transform.InverseTransformPoint(c).y);
+                Require(label.x > left && label.x < left + 180 && label.y > bottom && label.y < top, "Counter inside screen-left end");
                 if (row == 3)
                 {
                     // Reusing this widget for a story enemy must restore its original skin.

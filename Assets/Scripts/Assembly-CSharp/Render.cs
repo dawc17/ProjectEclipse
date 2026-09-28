@@ -168,6 +168,25 @@ public class Render
 		Eclipse.Rendering.LocationAtmosphere.Attach(_UnityObject, _location);
 	}
 
+	// Reuse native location layers/animation and mod atmosphere in menu previews.
+	// The shop's fighter preview keeps its own authored position and renderer.
+	public void UpdateMenuBackdrop(UnityEngine.Camera camera, bool advanceAnimation)
+	{
+		if (camera == null || _location == null || _location.JMLAKAKDBBL <= 0f || _location.FEIHFIPFNKF <= 0f) return;
+		float height = camera.orthographicSize * 2f;
+		float scale = Mathf.Max(height / _location.FEIHFIPFNKF, height * camera.aspect / _location.JMLAKAKDBBL);
+		_UnityObject.transform.position = new Vector3(camera.transform.position.x, camera.transform.position.y, 100f + _location.layers.Count * 3f);
+		_UnityObject.transform.localScale = new Vector3(scale, -scale, 1f);
+		EAJGDJLHJFD.gameObject.SetActive(false);
+		if (advanceAnimation) JACOKNMGNDF();
+	}
+
+	public void DestroyMenuBackdrop()
+	{
+		Clear();
+		UnityEngine.Object.Destroy(_UnityObject);
+	}
+
 	private void RefreshViewportMetrics()
 	{
 		if (_location == null || _location.FEIHFIPFNKF <= 0f || _location.JMLAKAKDBBL <= 0f)

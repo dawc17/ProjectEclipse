@@ -54,7 +54,7 @@ public static class ValidateDE128TitanWinNative
         {
             if (EditorApplication.timeSinceStartup - started > 240)
                 throw new Exception("Timed out: fight=" + fightRequested + " result=" + resultSeen +
-                    " calls=" + winCalls + " screen=" + Module.GetInstance()?.NMCNDOPKFJD());
+                    " calls=" + winCalls + " screen=" + Module.GetInstance()?.GetCurrentScreenType());
             if (!campaign && Eclipse.UI.TitleScreen.IsOpen)
             {
                 var title = UnityEngine.Object.FindObjectOfType<Eclipse.UI.TitleScreen>();
@@ -71,7 +71,7 @@ public static class ValidateDE128TitanWinNative
             if (scripts == null || roster == null || module == null) return;
             if (scripts.Diagnostics.Count != 0 || scripts.StateDiagnostics.Count != 0)
                 throw new Exception("DE128 diagnostics: " + string.Join("; ", scripts.Diagnostics));
-            if (!mapRequested && module.NMCNDOPKFJD() == ScreenType.ModuleDojo)
+            if (!mapRequested && module.GetCurrentScreenType() == ScreenType.ModuleDojo)
             {
                 var menu = MainMenu.get_Instance();
                 if (menu == null) return;
@@ -82,7 +82,7 @@ public static class ValidateDE128TitanWinNative
                 Debug.Log(Prefix + "Advanced profile entered Eclipse mode at level 52.");
                 return;
             }
-            if (!fightRequested && module.NMCNDOPKFJD() == ScreenType.ModuleMap)
+            if (!fightRequested && module.GetCurrentScreenType() == ScreenType.ModuleMap)
             {
                 if (Names.Any(name => roster.KHCNHPCPFII().CMGOCLGHNLH(name) != null))
                     throw new Exception("Titan victory acceptance needs a profile without prior reward items.");
@@ -116,8 +116,8 @@ public static class ValidateDE128TitanWinNative
             }
             if (resultContinued)
             {
-                if (module.NMCNDOPKFJD() != ScreenType.ModuleMap &&
-                    module.NMCNDOPKFJD() != ScreenType.ModuleDojo) return;
+                if (module.GetCurrentScreenType() != ScreenType.ModuleMap &&
+                    module.GetCurrentScreenType() != ScreenType.ModuleDojo) return;
                 var inventory = roster.KHCNHPCPFII();
                 if (Names.Any(name => inventory.CMGOCLGHNLH(name) == null))
                     throw new Exception("Actual victory did not settle all Titan items.");

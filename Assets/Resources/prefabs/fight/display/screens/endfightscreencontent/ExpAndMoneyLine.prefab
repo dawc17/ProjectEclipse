@@ -401,11 +401,11 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: 75d4c026cf7ab77438ad17c90355a640, type: 3}
-    m_FontSize: 140
+    m_FontSize: 170
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1
-    m_MaxSize: 140
+    m_MaxSize: 170
     m_Alignment: 4
     m_AlignByGeometry: 1
     m_RichText: 1
@@ -425,7 +425,7 @@ MonoBehaviour:
   UseLocalizationFont: 1
   FontType: 0
   UseLabelFontSize: 1
-  _labelFontSize: 140
+  _labelFontSize: 170
   UseLabelLineSpacing: 0
   _labelLineSpacing: 0
   _Alias:
@@ -685,11 +685,11 @@ MonoBehaviour:
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: 75d4c026cf7ab77438ad17c90355a640, type: 3}
-    m_FontSize: 140
+    m_FontSize: 170
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 1
-    m_MaxSize: 140
+    m_MaxSize: 170
     m_Alignment: 4
     m_AlignByGeometry: 1
     m_RichText: 1
@@ -709,7 +709,7 @@ MonoBehaviour:
   UseLocalizationFont: 1
   FontType: 0
   UseLabelFontSize: 1
-  _labelFontSize: 140
+  _labelFontSize: 170
   UseLabelLineSpacing: 0
   _labelLineSpacing: 0
   _Alias:

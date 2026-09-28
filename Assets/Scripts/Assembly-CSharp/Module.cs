@@ -126,8 +126,12 @@ public class Module : global::EventDispatcher<object>
 		jLINNJGCFOG.DMCJGOMOJEF.ScreenType = HBGBPDEGKFE;
 		jLINNJGCFOG.DMCJGOMOJEF.Data = data;
 		jLINNJGCFOG.DMCJGOMOJEF.Dlg = ODDEOFKLIAG;
-		jLINNJGCFOG.OAAFAINKKMI();
-		jLINNJGCFOG.CallEvent(0, jLINNJGCFOG.DMCJGOMOJEF);
+		Action load = () =>
+		{
+			jLINNJGCFOG.OAAFAINKKMI();
+			jLINNJGCFOG.CallEvent(0, jLINNJGCFOG.DMCJGOMOJEF);
+		};
+		if (!Eclipse.UI.MenuSceneFade.Begin(jLINNJGCFOG.DMCJGOMOJEF.HKJFKDEEIDJ, HBGBPDEGKFE, load)) load();
 		return true;
 	}
 
@@ -160,7 +164,8 @@ public class Module : global::EventDispatcher<object>
 		}
 	}
 
-	public ScreenType NMCNDOPKFJD()
+	// best guess for name
+	public ScreenType GetCurrentScreenType()
 	{
 		return DMCJGOMOJEF.ScreenType;
 	}
@@ -347,7 +352,7 @@ public class Module : global::EventDispatcher<object>
 
 	public void NPMIHDFCBBH()
 	{
-		ScreenType hBGBPDEGKFE = NMCNDOPKFJD();
+		ScreenType hBGBPDEGKFE = GetCurrentScreenType();
 		DLOKJOHNDID(hBGBPDEGKFE);
 	}
 }

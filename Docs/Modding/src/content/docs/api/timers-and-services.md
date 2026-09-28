@@ -1,6 +1,6 @@
 ---
 title: Timers and service settings
-description: Set the supported forge delivery policy and disable optional service groups.
+description: Set forge delivery and battle timer policies and disable optional service groups.
 ---
 
 These functions declare mod policy during startup. They do not expose arbitrary
@@ -9,7 +9,8 @@ configuration files. Multiple mods must respect the ownership rules below.
 ## sf2.timers.set
 
 Set the delivery duration and early-skip policy for new forge orders, optionally
-making already-paid pending orders eligible for immediate normal completion.
+making already-paid pending orders eligible for immediate normal completion, or
+set a shared time limit for timed battles.
 
 **Signature:** `sf2.timers.set { subsystem, seconds, skip_enabled?, complete_pending? }`
 
@@ -21,9 +22,9 @@ making already-paid pending orders eligible for immediate normal completion.
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `subsystem` | String | Required | Currently only `"forge"`. |
-| `seconds` | Integer, 0–31536000 | Required | Delivery duration; zero is instant. |
-| `skip_enabled` | Boolean | `true` | Whether early completion is allowed. |
+| `subsystem` | String | Required | `"forge"` or `"battle"`. |
+| `seconds` | Integer | Required | Forge: 0–31536000, zero is instant. Battle: 1–86400 seconds per round. |
+| `skip_enabled` | Boolean | `true` | Forge early completion; leave at its default for battle timers. |
 | `complete_pending` | Boolean | `false` | With `seconds = 0`, make saved, already-paid forge orders eligible for normal completion on the next delivery update. Rejected for nonzero durations. |
 
 ```lua
@@ -34,7 +35,21 @@ sf2.timers.set {
 ```
 
 Only one mod may own a subsystem's timer policy. Competing declarations fail
-rather than choosing the last-loaded mod. With the default `complete_pending = false`,
+rather than choosing the last-loaded mod.
+
+```lua
+sf2.timers.set { subsystem = "battle", seconds = 150 }
+```
+
+The battle policy overrides positive round limits in core and mod fights when
+each round is prepared. Training (`FightNone`) and untimed fights retain their
+native behavior. It overrides a fight's declared `round_time` while enabled, but
+does not rewrite its definition or save. Disabling the mod restores the original
+limit. The policy does not change simulation speed, animation timing or raid
+session deadlines. Battle policies reject `skip_enabled = false` and
+`complete_pending = true`; those options belong to forge delivery.
+
+For forge policies, with the default `complete_pending = false`,
 existing saved deadlines retain their original behavior. With `true`, their displayed
 remaining time is zero and the normal delivery update applies the enchantment,
 clears the pending order, and saves the result. This is ordinary completion, so it

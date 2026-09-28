@@ -36,7 +36,7 @@ namespace Eclipse.Modding
             if (claim == null) { Finish(); return; }
             if (!claim.IsCurrent) { Dispose(); return; }
             if (dialog != null && !dialog.Surface.IsClosed) return;
-            if (module.NMCNDOPKFJD() == ScreenType.ModuleFight) return;
+            if (module.GetCurrentScreenType() == ScreenType.ModuleFight) return;
             dialog = new ModLotteryDialog(LocalizationManager.GetStringOrDefault("ClanRewardTxt", "Reward"), claim.PreviewText, claim.TryClaim,
                 Finish, _ => { }, error => Debug.LogException(error),
                 (key, fallback) => LocalizationManager.GetStringOrDefault(key, fallback), ModRuntime.ResolveLotteryArtwork(claim));

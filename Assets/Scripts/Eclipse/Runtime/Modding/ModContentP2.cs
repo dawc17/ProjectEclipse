@@ -75,8 +75,10 @@ namespace Eclipse.Modding
         public bool CompletePending { get; }
         internal ModTimerPolicy(ModId owner, string subsystem, int seconds, bool skipEnabled, bool completePending = false)
         {
-            if (subsystem != "forge") throw new ModContentException("Unsupported timer subsystem: " + subsystem);
+            if (subsystem != "forge" && subsystem != "battle") throw new ModContentException("Unsupported timer subsystem: " + subsystem);
             if (seconds < 0 || seconds > 31536000) throw new ModContentException("Timer seconds must be 0..31536000.");
+            if (subsystem == "battle" && (seconds < 1 || seconds > 86400 || completePending || !skipEnabled))
+                throw new ModContentException("Battle timer requires 1..86400 seconds and does not support forge completion/skip options.");
             if (completePending && seconds != 0) throw new ModContentException("complete_pending requires seconds = 0.");
             Owner = owner; Subsystem = subsystem; Seconds = seconds; SkipEnabled = skipEnabled;
             CompletePending = completePending;
@@ -195,6 +197,7 @@ namespace Eclipse.Modding
     {
         public static ModContentCatalog Content { get; set; }
         public static int DeliverySeconds(string subsystem, int original) => Content != null && Content.TryGetTimer(subsystem, out var policy) ? policy.Seconds : original;
+        public static int BattleSeconds(int original) => original > 0 ? DeliverySeconds("battle", original) : original;
         public static bool SkipEnabled(string subsystem) => Content == null || !Content.TryGetTimer(subsystem, out var policy) || policy.SkipEnabled;
         public static bool CompletePending(string subsystem) => Content != null && Content.TryGetTimer(subsystem, out var policy) && policy.CompletePending;
         public static bool FeatureEnabled(string feature) => Content == null || Content.FeatureEnabled(feature);

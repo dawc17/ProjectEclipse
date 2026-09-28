@@ -86,7 +86,7 @@ public class QuestActionShop : QuestAction
 
 	private void GOMCDIMDNON()
 	{
-		ScreenType iPKNDMINFMJ = Module.GetInstance().NMCNDOPKFJD();
+		ScreenType iPKNDMINFMJ = Module.GetInstance().GetCurrentScreenType();
 		ShopScene current = Scene<ShopScene>.get_Current();
 		bool flag = current != null;
 		bool flag2 = iPKNDMINFMJ == ScreenType.ModuleShop;

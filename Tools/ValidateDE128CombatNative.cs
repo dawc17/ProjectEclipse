@@ -86,7 +86,7 @@ public static class ValidateDE128CombatNative
                     var blocker = typeof(Eclipse.UI.Modding.ModUiGameBridge).GetProperty("NativeInputBlocked", flags);
                     var lockScreen = Nekki.SF2.GUI.LockScreen.get_Instance();
                     Debug.Log("[DE128Native] Map gates: scene=" + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name +
-                        " act=" + actPhase + " module=" + Module.GetInstance()?.NMCNDOPKFJD() +
+                        " act=" + actPhase + " module=" + Module.GetInstance()?.GetCurrentScreenType() +
                         " input=" + blocker?.GetValue(null) + " lock=" + (lockScreen != null && lockScreen.gameObject.activeInHierarchy) +
                         " mutation=" + typeof(ModRuntime).GetField("_profileMutationState", flags).GetValue(null) +
                         " quest=" + Nekki.SF2.Core.Quests.QuestsManager.get_Instance()?.CurrentQuestName);
@@ -101,7 +101,7 @@ public static class ValidateDE128CombatNative
             if (!entered)
             {
                 if (ModRuntime.Scripts == null || ListSF.CCDKHLAMKKO() == null || Module.GetInstance() == null) return;
-                var screen = Module.GetInstance().NMCNDOPKFJD();
+                var screen = Module.GetInstance().GetCurrentScreenType();
                 if (screen != ScreenType.ModuleDojo && screen != ScreenType.ModuleMap) return;
                 if (!mapLockChecked)
                 {

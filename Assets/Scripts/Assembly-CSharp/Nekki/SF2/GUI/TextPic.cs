@@ -123,6 +123,10 @@ namespace Nekki.SF2.GUI
 				string prefix = AIBLJIIKGIG.Substring(0, item2.Index);
                 prefix = BPNAJICGHEH.Replace(prefix, "\uFFFC");
                 prefix = Regex.Replace(prefix, "</?(?:b|i|size|color|material)(?:=[^>]*)?>", "", RegexOptions.IgnoreCase);
+                // Eclipse: since Unity 2019.1 the text generator emits no quad for whitespace
+                // or line breaks. Counting them pointed past the <quad>, which then drew the
+                // font atlas instead of being collapsed under the icon overlay.
+                prefix = Regex.Replace(prefix, @"\s", "");
                 int item = prefix.Length * 4 + 3;
 				PHPKKMKLNOA.Add(item);
 				FFCOKBMOANO.RemoveAll((ResolutionImage KHPKDMGDMAB) => KHPKDMGDMAB == null);

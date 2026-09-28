@@ -60,6 +60,9 @@ namespace Nekki.SF2.GUI.Fight
 					HCPNFPMHFCM = string.Format("{0}{1}", HCPNFPMHFCM, "{" + BBLOBPOCGNM + "}");
 				}
 				textLabel.SetAlias(HCPNFPMHFCM);
+				// The recovered label has a zero-width rect. Give the localized text
+				// a measurable box before its entrance tween captures the destination.
+				textLabel.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(1f, textLabel.preferredWidth));
 				IINGLPEOPNN = textLabel.transform.localPosition;
 				textLabel.transform.localPosition = basePos;
 			}

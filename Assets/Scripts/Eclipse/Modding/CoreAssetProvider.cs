@@ -45,7 +45,8 @@ namespace Eclipse.Modding
         // Resolve only an existing sprite at an exact UI resource path.
         private static UnityEngine.Sprite LoadLooseUiSprite(string path)
         {
-            return path.StartsWith("ui/", System.StringComparison.Ordinal)
+            return (path.StartsWith("ui/", System.StringComparison.Ordinal) ||
+                    path.StartsWith("textures/logos/", System.StringComparison.Ordinal))
                 ? UnityEngine.Resources.Load<UnityEngine.Sprite>(path) : null;
         }
 

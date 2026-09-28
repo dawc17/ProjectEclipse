@@ -1,5 +1,12 @@
 # Eclipse Modding for VS Code
 
+`sf2.underworld.set_map_colors { normal = "#FFFFFF", power = "#BA8A82", duration = 0.8 }`
+sets map-scoped normal/Power Mode background tints from a ready map callback and
+requires `story.progression`. Reapply on map entry. `duration` is 0–5 seconds.
+`sf2.timers.set { subsystem = "battle", seconds = 150 }` requires `policy.timers`
+at startup and overrides timed battle rounds; training and untimed fights are excluded.
+Battle seconds are 1–86400; omit the forge-only completion/skip options.
+
 `sf2.battles.set_locked(battle, locked)` requires `story.progression` and an owned
 battle handle. It changes a revealed entry on an initialized, unblocked map and
 returns whether the request was accepted. The boolean argument is strict; see the

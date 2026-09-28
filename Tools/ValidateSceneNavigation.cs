@@ -1,6 +1,11 @@
 using System;
 using Eclipse.Modding;
 public enum SliderType {None}
+public static class Location { public static bool DojoSelectionChanged()=>false; }
+namespace Eclipse.UI { public static class MenuSceneFade {
+ public static bool Deferred; public static Action Pending;
+ public static bool Begin(ScreenType from,ScreenType to,Action load) { if(!Deferred)return false;Pending=load;return true; }
+}}
 public class QuestParameters {public string GAEPENBCCPB,BPPAPLLPBIJ="Map",GMDFCHJBJGO;public object OIKHBNOANPP;}
 public class ListSF {public static readonly ListSF Value=new ListSF();public QuestParameters Parameters=new QuestParameters();public static ListSF GetInstance()=>Value;public QuestParameters BNMLDPNCMLB()=>Parameters;}
 public static class GameUtils {
@@ -16,7 +21,7 @@ public class Module {
  public int Transitions;public Action OnTransition;
  public static Module GetInstance()=>Value;
  public object BOHBCFMJPCA()=>Holder;
- public ScreenType NMCNDOPKFJD()=>DMCJGOMOJEF.ScreenType;
+ public ScreenType GetCurrentScreenType()=>DMCJGOMOJEF.ScreenType;
  public static string INIOOEKJIDI(ScreenType type)=>type.ToString();
  public static SliderType PDLBAGNMFIN(ScreenType type,object data)=>SliderType.None;
  public void OAAFAINKKMI(){Transitions++;OnTransition?.Invoke();}
@@ -39,6 +44,7 @@ static class Program {
  static int checks;
  static void Check(bool value,string message){checks++;if(!value)throw new Exception(message);}
  static void Reset(){
+  Eclipse.UI.MenuSceneFade.Deferred=false;Eclipse.UI.MenuSceneFade.Pending=null;
   ModRuntime._profileRoster=new object();Module.Value=new Module();SceneManagerSF.Current=ScreenType.ModuleMap;
   UnityEngine.SceneManagement.SceneManager.Index=4;GameUtils.SceneGate=GameUtils.TabGate=GameUtils.Throw=false;GameUtils.Gates=0;
   ModModeRuntime.HasPendingPreparation=false;Eclipse.UI.Modding.ModUiGameBridge.NativeInputBlocked=false;Nekki.SF2.GUI.LockScreen.Value=null;
@@ -69,6 +75,10 @@ static class Program {
   Check(!ModRuntime.TryNavigateScene("shop")&&Module.Value.Transitions==0&&GameUtils.Gates==2,"tab quest gate bypassed");
   Reset();bool nested=true;Module.Value.OnTransition=()=>nested=ModRuntime.TryNavigateScene("profile");
   Check(ModRuntime.TryNavigateScene("shop")&&!nested&&Module.Value.Transitions==1,"nested navigation not rejected");
+  Reset();Eclipse.UI.MenuSceneFade.Deferred=true;
+  Check(ModRuntime.TryNavigateScene("shop")&&Module.Value.Transitions==0&&Eclipse.UI.MenuSceneFade.Pending!=null,"fade did not defer the accepted load");
+  Eclipse.UI.MenuSceneFade.Pending();
+  Check(Module.Value.Transitions==1,"deferred fade did not resume native loading");
   Reset();GameUtils.Throw=true;bool threw=false;try{ModRuntime.TryNavigateScene("shop");}catch(Exception){threw=true;}
   GameUtils.Throw=false;Check(threw&&ModRuntime.TryNavigateScene("shop"),"exception retained reentry lock or was masked");
   foreach(var invalid in new[]{"fight","loader","credits","Map","",null}){

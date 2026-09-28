@@ -18,7 +18,8 @@ public class IntroModule : LoadingModule
 		_logo = FCDFLMFEJGI.get_Logo();
 	}
 
-	public static bool Disabled = true;
+	// Eclipse: the intro plays on entering a save only when enabled under Options > Audio.
+	public static bool Disabled { get { return !Eclipse.UI.IntroVideoSetting.Enabled; } }
 
 	public override void Start()
 	{

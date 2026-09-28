@@ -28,6 +28,8 @@ namespace Nekki.SF2.GUI.Shop
 
 		private HintBox FLAPNMIDCAM;
 
+		private GameObject listAnchor;
+
 		public void Init()
 		{
 			if (hintBoxPrefab != null)
@@ -77,6 +79,13 @@ namespace Nekki.SF2.GUI.Shop
 					description = modDescription;
 				}
 				FLAPNMIDCAM.SetText(title, description);
+			if (AnchorToIcon(AOMLCBHAJJH))
+			{
+				showingHint = true;
+				OPCLGOHELNO = WaitAndHideHint();
+				StartCoroutine(OPCLGOHELNO);
+				return;
+			}
 			bool flag = false;
 			RectTransform component = base.transform.root.GetComponent<RectTransform>();
 			if (component != null)
@@ -101,6 +110,87 @@ namespace Nekki.SF2.GUI.Shop
 			StartCoroutine(OPCLGOHELNO);
 		}
 
+		public void ShowListHint(string titleAlias, string content, GameObject source, GameObject anchor)
+		{
+			if (FLAPNMIDCAM == null || source == null || anchor == null) return;
+			bool toggleOff = showingHint && DBEKMNDHBCG == source;
+			HideHintAndStopCorutine();
+			if (toggleOff) return;
+			DBEKMNDHBCG = source;
+			listAnchor = anchor;
+			FLAPNMIDCAM.ResetFlip();
+			FLAPNMIDCAM.gameObject.SetActive(true);
+			FLAPNMIDCAM.SetListContent(titleAlias, content);
+			AnchorToIcon(anchor);
+			showingHint = true;
+			OPCLGOHELNO = WaitAndHideHint();
+			StartCoroutine(OPCLGOHELNO);
+		}
+
+		// Called after the forge drawer docks during canvas layout.
+		public void UpdateListHintPosition()
+		{
+			if (!showingHint || listAnchor == null) return;
+			if (!listAnchor.activeInHierarchy) HideHintAndStopCorutine();
+			else AnchorToIcon(listAnchor);
+		}
+
+		// Eclipse: the recovered placement added a fixed (0,-25) world-space offset to the icon
+		// centre, which on the scaled canvas left the hint box covering the icon. Hang the box's
+		// arrow off the icon's own edge instead: below it, or above it when there is no room,
+		// kept inside the screen with the arrow still pointing at the icon.
+		private const float ArrowReach = 12f;
+
+		private bool AnchorToIcon(GameObject icon)
+		{
+			RectTransform iconRect = (icon != null) ? (icon.transform as RectTransform) : null;
+			RectTransform root = base.transform.root as RectTransform;
+			RectTransform box = FLAPNMIDCAM.get_RectTransform();
+			if (iconRect == null || root == null || box == null)
+			{
+				return false;
+			}
+			Rect iconBounds = LocalBounds(iconRect);
+			Rect screen = LocalBounds(root);
+			Vector2 size = box.rect.size;
+			float below = iconBounds.yMin - ArrowReach;
+			bool flip = below - size.y < screen.yMin && iconBounds.yMax + ArrowReach + size.y <= screen.yMax;
+			float y = flip ? (iconBounds.yMax + ArrowReach) : below;
+			float x = iconBounds.center.x;
+			float half = size.x * 0.5f;
+			if (screen.width > size.x)
+			{
+				x = Mathf.Clamp(x, screen.xMin + half, screen.xMax - half);
+			}
+			if (flip)
+			{
+				FLAPNMIDCAM.Flip();
+			}
+			else
+			{
+				FLAPNMIDCAM.ResetFlip();
+			}
+			box.localPosition = new Vector3(x, y, box.localPosition.z);
+			float arrowShift = iconBounds.center.x - x;
+			FLAPNMIDCAM.SetArrowOffset(flip ? -arrowShift : arrowShift, half - 60f);
+			return true;
+		}
+
+		private Rect LocalBounds(RectTransform target)
+		{
+			Vector3[] corners = new Vector3[4];
+			target.GetWorldCorners(corners);
+			Vector2 min = new Vector2(float.MaxValue, float.MaxValue);
+			Vector2 max = new Vector2(float.MinValue, float.MinValue);
+			for (int i = 0; i < 4; i++)
+			{
+				Vector2 local = base.transform.InverseTransformPoint(corners[i]);
+				min = Vector2.Min(min, local);
+				max = Vector2.Max(max, local);
+			}
+			return Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+		}
+
 		public void HideHintAndStopCorutine()
 		{
 			if (OPCLGOHELNO != null)
@@ -113,7 +203,8 @@ namespace Nekki.SF2.GUI.Shop
 		public void HideHint()
 		{
 			showingHint = false;
-			FLAPNMIDCAM.gameObject.SetActive(false);
+			if (FLAPNMIDCAM != null) FLAPNMIDCAM.gameObject.SetActive(false);
+			listAnchor = null;
 			DBEKMNDHBCG = null;
 			OPCLGOHELNO = null;
 		}
@@ -126,7 +217,7 @@ namespace Nekki.SF2.GUI.Shop
 
 		public void Update()
 		{
-			if (showingHint && (Input.touchCount > 0 || Input.anyKeyDown) && DBEKMNDHBCG != EventSystem.current.currentSelectedGameObject)
+			if (showingHint && (Input.touchCount > 0 || Input.anyKeyDown) && (EventSystem.current == null || DBEKMNDHBCG != EventSystem.current.currentSelectedGameObject))
 			{
 				HideHintAndStopCorutine();
 			}

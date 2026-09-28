@@ -67,7 +67,7 @@ namespace Eclipse.Forge
 		private readonly List<RecipeCard> _recipeCards = new List<RecipeCard>();
 
 		private GameObject _drawer;
-		private GameObject _recipePreview;
+		private readonly HintPanel _hintPanel;
 		private ScrollRect _recipeScroll;
 		private RectTransform _recipeContent;
 		private GameObject _shopButtonsContainer;
@@ -85,6 +85,11 @@ namespace Eclipse.Forge
 		private float _nextRefresh;
 		private bool _layoutOffsetApplied;
 		private ForgeUiDriver _driver;
+		private CanvasGroup _drawerOpacity;
+		private float _drawerReveal;
+		private float _currentOffset;
+		private float _enchantRevealUntil;
+		private readonly Vector3[] _panelCorners = new Vector3[4];
 
 		public bool IsOpen => _isOpen;
 
@@ -96,9 +101,11 @@ namespace Eclipse.Forge
 			PropertiesPanelContent propertiesContent,
 			RectTransform itemsRoot,
 			RectTransform parametersRoot,
-			RectTransform propertiesRoot)
+			RectTransform propertiesRoot,
+			HintPanel hintPanel)
 		{
 			_shop = shop;
+			_hintPanel = hintPanel;
 			_mainMenu = mainMenu;
 			_buttonTemplate = buttonTemplate;
 			_uiParent = uiParent;
@@ -116,6 +123,7 @@ namespace Eclipse.Forge
 
 		public void OnItemSelected(ItemInfo itemInfo)
 		{
+			if (_isOpen) _hintPanel?.HideHintAndStopCorutine();
 			_selectedInfo = itemInfo;
 			ResolveSelectedItem();
 			FinishPendingEnchantment();
@@ -155,6 +163,7 @@ namespace Eclipse.Forge
 			_isOpen = true;
 			SetShopForgeOffset(true);
 			_drawer.SetActive(true);
+			_drawerOpacity.blocksRaycasts = true;
 			_buttonTemplate.gameObject.SetActive(false);
 			// The forge action buttons live in the properties side panel, so forge mode
 			// slides that panel open and the parameters panel away, exactly like the
@@ -171,8 +180,9 @@ namespace Eclipse.Forge
 		{
 			if (!_isOpen) return;
 			_isOpen = false;
-			if (_drawer != null) _drawer.SetActive(false);
-			if (_recipePreview != null) UnityEngine.Object.Destroy(_recipePreview);
+			_enchantRevealUntil = 0f;
+			if (_drawerOpacity != null) _drawerOpacity.blocksRaycasts = false;
+			_hintPanel?.HideHintAndStopCorutine();
 			SetShopForgeOffset(false);
 			_propertiesPanel?.SetOpen(false, SidePanelMoveDuration);
 			_mainMenu?.SetNormalViewMode(false);
@@ -182,6 +192,8 @@ namespace Eclipse.Forge
 
 		public void Tick()
 		{
+			AnimatePresentation();
+			if (_enchantRevealUntil > 0f && Time.unscaledTime >= _enchantRevealUntil) Close();
 			if (Time.unscaledTime < _nextRefresh) return;
 			_nextRefresh = Time.unscaledTime + RefreshInterval;
 
@@ -194,6 +206,8 @@ namespace Eclipse.Forge
 		public void Shutdown()
 		{
 			SetShopForgeOffset(false);
+			_currentOffset = 0f;
+			ApplyShopOffset();
 			if (_isOpen) _mainMenu?.SetNormalViewMode(false);
 			if (_driver != null) UnityEngine.Object.Destroy(_driver);
 			if (_shopButtonsContainer != null)
@@ -363,7 +377,9 @@ namespace Eclipse.Forge
 			_drawer = new GameObject("ForgePanel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
 			_drawer.layer = _uiParent.gameObject.layer;
 			_drawer.transform.SetParent(_uiParent, false);
-			_drawer.transform.SetAsLastSibling();
+			// Keep dynamically created paper below the shop's shared tooltip layer.
+			if (_hintPanel != null && _hintPanel.transform.parent == _uiParent)
+				_drawer.transform.SetSiblingIndex(_hintPanel.transform.GetSiblingIndex());
 			RectTransform drawerRect = _drawer.GetComponent<RectTransform>();
 			drawerRect.anchorMin = drawerRect.anchorMax = new Vector2(0f, 0.5f);
 			drawerRect.pivot = new Vector2(0f, 0.5f);
@@ -374,6 +390,8 @@ namespace Eclipse.Forge
 			blocker.raycastTarget = true;
 
 			GameObject renderRoot = CreateStretched("RenderRoot", _drawer.transform, Vector2.zero, Vector2.zero);
+			_drawerOpacity = _drawer.AddComponent<CanvasGroup>();
+			_drawerOpacity.alpha = 0f;
 
 			// Scroll (paper body): panel rect inset by 18x94.
 			GameObject scroll = CreateStretched("Scroll", renderRoot.transform, Vector2.zero, new Vector2(-18f, -94f));
@@ -531,7 +549,7 @@ namespace Eclipse.Forge
 			{
 				int index = i;
 				RecipeCard card = CreateRecipeCard(_displayedRecipes[i]);
-				card.Button.onClick.AddListener(() => { SelectRecipe(index, true); ShowRecipePreview(); });
+				card.Button.onClick.AddListener(() => { SelectRecipe(index, true); ShowRecipePreview(card); });
 				_recipeCards.Add(card);
 			}
 			LayoutRebuilder.ForceRebuildLayoutImmediate(_recipeContent);
@@ -622,7 +640,8 @@ namespace Eclipse.Forge
 			horizontal.childForceExpandWidth = false;
 			horizontal.childForceExpandHeight = false;
 
-			ResolutionImage icon = CreateSprite("Icon", row.transform, "MiscSprites.random", new Vector2(109f, 95f), true);
+			// Standalone enchantment art avoids the mismatched recovered MiscSprites atlas region.
+			ResolutionImage icon = CreateSprite("Icon", row.transform, "unknown", new Vector2(95f, 95f), true, "UI/Enchantments/");
 			LayoutElement iconLayout = icon.gameObject.AddComponent<LayoutElement>();
 			iconLayout.minWidth = 109f;
 			iconLayout.minHeight = 95f;
@@ -755,9 +774,8 @@ namespace Eclipse.Forge
 		private void SelectRecipe(int index, bool scrollIntoView)
 		{
 			if (index < 0 || index >= _displayedRecipes.Count) return;
+			if (_selectedRecipe != _displayedRecipes[index]) _hintPanel?.HideHintAndStopCorutine();
 			_selectedRecipe = _displayedRecipes[index];
-			for (int i = 0; i < _recipeCards.Count; i++)
-				_recipeCards[i].Canvas.alpha = i == index ? 1f : 0.5f;
 
 			if (scrollIntoView && _displayedRecipes.Count > 1)
 			{
@@ -774,65 +792,49 @@ namespace Eclipse.Forge
 		// root put the recipe drawer on top of it.
 		public void UpdateDrawerPosition()
 		{
-			if (!_isOpen || _drawer == null || _propertiesRoot == null) return;
+			if (_drawer == null || !_drawer.activeSelf || _propertiesRoot == null) return;
 			RectTransform drawer = (RectTransform)_drawer.transform;
 			RectTransform visible = _propertiesRoot.Find("Panel/InfoPanel") as RectTransform;
 			if (visible == null) visible = _propertiesRoot;
-			Vector3 left = visible.TransformPoint(new Vector3(visible.rect.xMin, 0f, 0f));
-			Vector3 local = drawer.parent.InverseTransformPoint(left);
+			visible.GetWorldCorners(_panelCorners);
+			Vector3 minimum = drawer.parent.InverseTransformPoint(_panelCorners[0]);
+			Vector3 maximum = minimum;
+			for (int i = 1; i < _panelCorners.Length; i++)
+			{
+				Vector3 corner = drawer.parent.InverseTransformPoint(_panelCorners[i]);
+				minimum = Vector3.Min(minimum, corner);
+				maximum = Vector3.Max(maximum, corner);
+			}
+			// The shop nests 2x and 0.5x transforms under its ScrollRect. Match the
+			// visible paper's height in the drawer's space, then dock just left of it.
+			// ItemPropertiesPanel is rotated 180 degrees: its local left is the
+			// screen's right. Use the bounds of all corners, never a named local edge.
+			float scale = (maximum.y - minimum.y) / PanelHeight;
+			drawer.localScale = new Vector3(scale, scale, 1f);
 			Vector3 position = drawer.localPosition;
-			position.x = local.x - drawer.rect.width;
+			position.x = minimum.x - (drawer.rect.width + 16f) * scale;
+			position.y = (minimum.y + maximum.y) * .5f;
 			drawer.localPosition = position;
+			_hintPanel?.UpdateListHintPosition();
 		}
 
-		private void ShowRecipePreview()
+		private void ShowRecipePreview(RecipeCard card)
 		{
-			if (_selectedRecipe == null || _selectedItem == null) return;
+			if (_selectedRecipe == null || _selectedItem == null || _hintPanel == null) return;
 			int level = CurrentInfo(_selectedItem)?.ItemLevel ?? 1;
 			List<PerkStruct> candidates = _selectedRecipe.GetPossibleEnchantments(_selectedItem, level, false);
 			if (candidates.Count == 0) return;
-			if (_recipePreview != null) UnityEngine.Object.Destroy(_recipePreview);
-			_recipePreview = CreateStretched("RecipePreview", _drawer.transform, Vector2.zero, new Vector2(-70f, -110f));
-			Image paper = _recipePreview.AddComponent<Image>();
-			paper.color = new Color(0.77f, 0.64f, 0.43f, 1f);
-			LabelButton back = CloneLayoutButton("ClosePreview", _recipePreview.transform, LabelButton.FBMGEHJPPIK.BUTTON_BEIGE, "back");
-			RectTransform backRect = back.GetComponent<RectTransform>();
-			backRect.anchorMin = backRect.anchorMax = new Vector2(0.5f, 0f);
-			backRect.pivot = new Vector2(0.5f, 0f);
-			backRect.anchoredPosition = Vector2.zero;
-			backRect.sizeDelta = new Vector2(500f, 112f);
-			back.onClick.AddListener(() => UnityEngine.Object.Destroy(_recipePreview));
-			GameObject viewport = CreateStretched("PreviewScroll", _recipePreview.transform, new Vector2(0f, 60f), new Vector2(-20f, -140f));
-			Image scrollTarget = viewport.AddComponent<Image>();
-			scrollTarget.color = Color.clear;
-			viewport.AddComponent<RectMask2D>();
-			ScrollRect scroll = viewport.AddComponent<ScrollRect>();
-			scroll.horizontal = false;
-			scroll.movementType = ScrollRect.MovementType.Clamped;
-			scroll.viewport = (RectTransform)viewport.transform;
-			GameObject content = new GameObject("Enchantments", typeof(RectTransform));
-			content.layer = viewport.layer;
-			content.transform.SetParent(viewport.transform, false);
-			RectTransform contentRect = (RectTransform)content.transform;
-			contentRect.anchorMin = new Vector2(0f, 1f);
-			contentRect.anchorMax = new Vector2(1f, 1f);
-			contentRect.pivot = new Vector2(0.5f, 1f);
-			scroll.content = contentRect;
-			contentRect.sizeDelta = new Vector2(0f, candidates.Count * 120f);
+			var lines = new System.Text.StringBuilder();
 			for (int i = 0; i < candidates.Count; i++)
 			{
 				PerkInfoItem info = GameUtils.FDEJIIDIPBI.ABAGJKMKCBA(candidates[i].get_Name());
-				Text label = CreateText("Enchantment", content.transform, Vector2.zero, new Vector2(410f, 110f), 48, TextAnchor.MiddleLeft, DarkText);
-				label.rectTransform.anchorMin = label.rectTransform.anchorMax = new Vector2(0.5f, 1f);
-				label.rectTransform.anchoredPosition = new Vector2(45f, -60f - i * 120f);
-				label.text = LocalizationManager.GetString(info != null ? info.HBCNKNFPAIM : candidates[i].get_Name());
+				if (i > 0) lines.Append('\n');
 				if (info != null)
-				{
-					ResolutionImage icon = CreateSprite("Icon", content.transform, info.NHKMCLPOMFK, new Vector2(90f, 90f), true);
-					icon.rectTransform.anchorMin = icon.rectTransform.anchorMax = new Vector2(0f, 1f);
-					icon.rectTransform.anchoredPosition = new Vector2(50f, -60f - i * 120f);
-				}
+					lines.Append("<quad name=").Append(info.NHKMCLPOMFK).Append(" size=48 width=1 /> ");
+				lines.Append(LocalizationManager.GetString(info != null ? info.HBCNKNFPAIM : candidates[i].get_Name()));
 			}
+			Canvas.ForceUpdateCanvases();
+			_hintPanel.ShowListHint("hintPossibleEnchantments", lines.ToString(), card.Button.gameObject, card.PropertiesRoot);
 		}
 
 		private void OnRecipeScrollChanged(Vector2 position)
@@ -900,7 +902,7 @@ namespace Eclipse.Forge
 			{
 				RecipeProperty property = card.Properties[i];
 				property.Numbers.text = min == max ? min.ToString() : min + " - " + max;
-				property.Stripe.fillAmount = fill;
+				property.TargetFill = fill;
 			}
 		}
 
@@ -959,12 +961,13 @@ namespace Eclipse.Forge
 			{
 				bool available = _selectedRecipe != null && _selectedItem != null && _selectedRecipe.IsRecipeAvailableForItem(_selectedItem);
 				bool materials = available && _selectedRecipe.CheckMaterialsForItem(_selectedItem);
-				_applyButton.interactable = available && materials;
+				_applyButton.interactable = available && materials && _enchantRevealUntil <= 0f;
 			}
 		}
 
 		private void StartEnchant()
 		{
+			if (_enchantRevealUntil > 0f) return;
 			if (_selectedItem == null || _selectedRecipe == null) return;
 			if (!ListSF.TryEnchantItem(_selectedItem, _selectedRecipe))
 			{
@@ -983,7 +986,8 @@ namespace Eclipse.Forge
 			_mainMenu?.UpdateMainMenu();
 			_shop.RefreshAfterForgeMutation();
 			ResolveSelectedItem();
-			Close();
+			_enchantRevealUntil = Time.unscaledTime + .55f;
+			Eclipse.UI.UiReveal.Play(_propertyControls.transform as RectTransform, 0f, .45f, Vector2.zero, .94f);
 			RefreshPropertyControls();
 		}
 
@@ -1002,17 +1006,42 @@ namespace Eclipse.Forge
 		private void SetShopForgeOffset(bool forgeMode)
 		{
 			if (_layoutOffsetApplied == forgeMode) return;
-			Vector2 forgeOffset = forgeMode ? new Vector2(ForgeModeOffset, 0f) : Vector2.zero;
 
 			// 1.0.6 Shop.unity keeps ItemInfoPanel outside _PanelsContainer and only
 			// shifts the container that holds ItemParametersPanel, ItemPropertiesPanel
 			// and ItemsPanel. The recovered scene nests the info panel next to the two
 			// side panels, so the offset is applied to the three moving rects directly
 			// and the info panel stays where the shop authored it.
-			if (_itemsRoot != null) _itemsRoot.anchoredPosition = _itemsNormalPosition + forgeOffset;
-			if (_parametersRoot != null) _parametersRoot.anchoredPosition = _parametersNormalPosition + forgeOffset;
-			if (_propertiesRoot != null) _propertiesRoot.anchoredPosition = _propertiesNormalPosition + forgeOffset;
 			_layoutOffsetApplied = forgeMode;
+		}
+
+		private void ApplyShopOffset()
+		{
+			Vector2 offset = new Vector2(_currentOffset, 0f);
+			if (_itemsRoot != null) _itemsRoot.anchoredPosition = _itemsNormalPosition + offset;
+			if (_parametersRoot != null) _parametersRoot.anchoredPosition = _parametersNormalPosition + offset;
+			if (_propertiesRoot != null) _propertiesRoot.anchoredPosition = _propertiesNormalPosition + offset;
+		}
+
+		private void AnimatePresentation()
+		{
+			float step = 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime);
+			float target = _layoutOffsetApplied ? ForgeModeOffset : 0f;
+			if (_currentOffset != target)
+			{
+				_currentOffset = Mathf.Lerp(_currentOffset, target, step);
+				if (Mathf.Abs(_currentOffset - target) < .1f) _currentOffset = target;
+				ApplyShopOffset();
+			}
+			_drawerReveal = Mathf.MoveTowards(_drawerReveal, _isOpen ? 1f : 0f, Time.unscaledDeltaTime / .25f);
+			if (_drawerOpacity != null) _drawerOpacity.alpha = Mathf.SmoothStep(0f, 1f, _drawerReveal);
+			if (!_isOpen && _drawerReveal == 0f && _drawer != null) _drawer.SetActive(false);
+			foreach (RecipeCard card in _recipeCards)
+			{
+				card.Canvas.alpha = Mathf.Lerp(card.Canvas.alpha, card.Recipe == _selectedRecipe ? 1f : .5f, step);
+				foreach (RecipeProperty property in card.Properties)
+					property.Stripe.fillAmount = Mathf.Lerp(property.Stripe.fillAmount, property.TargetFill, step);
+			}
 		}
 
 		private bool ShouldShowForgeButton()
@@ -1036,6 +1065,7 @@ namespace Eclipse.Forge
 			button.name = name;
 			button.gameObject.layer = parent.gameObject.layer;
 			button.onClick.RemoveAllListeners();
+			Eclipse.UI.PressBounce.Attach(button.gameObject);
 			button.SetColor(color);
 			if (!string.IsNullOrEmpty(alias)) button.SetAlias(alias);
 			LayoutElement element = button.GetComponent<LayoutElement>();
@@ -1149,6 +1179,7 @@ namespace Eclipse.Forge
 			public readonly GameObject Root;
 			public readonly Text Numbers;
 			public readonly Image Stripe;
+			public float TargetFill;
 
 			public RecipeProperty(GameObject root, Text numbers, Image stripe)
 			{
@@ -1175,12 +1206,17 @@ namespace Eclipse.Forge
 	{
 		public ShopForgeController Controller;
 
+		private void OnEnable() { Canvas.willRenderCanvases += DockDrawer; }
+		private void OnDisable() { Canvas.willRenderCanvases -= DockDrawer; }
+
 		private void Update()
 		{
 			Controller?.Tick();
 		}
 
-		private void LateUpdate()
+		// ScrollRect and layout rebuilds can still move the current-enchantment
+		// paper after LateUpdate. Dock after that layout pass, immediately before drawing.
+		private void DockDrawer()
 		{
 			Controller?.UpdateDrawerPosition();
 		}

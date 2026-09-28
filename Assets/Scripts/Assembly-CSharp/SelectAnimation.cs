@@ -144,7 +144,7 @@ public class SelectAnimation
     internal void PrepareFormAnimation(Model model)
     {
         int index = BPIFJBJBKHA.IndexOf(model);
-        if (model == null || index < 0 || model.FHBLLPCEAHG() != null || model.IBIDGACDJNF())
+        if (model == null || index < 0 || model.GetCurrentAnimation() != null || model.IBIDGACDJNF())
             throw new System.InvalidOperationException("Form animation requires an unstarted registered body.");
         UpdateConditions();
         var selections = new List<List<SelectInfo>>();
@@ -864,7 +864,7 @@ public class SelectAnimation
 		}
 		if (!ACENLMONNPA.NLHFJIEHKMM())
 		{
-			InfoAnimation pJAHIOELGGD = ACENLMONNPA.FHBLLPCEAHG();
+			InfoAnimation pJAHIOELGGD = ACENLMONNPA.GetCurrentAnimation();
 			if (pJAHIOELGGD != null)
 			{
 				IPFMIJKPABH = pJAHIOELGGD.FOLOOGCLPNE();

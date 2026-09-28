@@ -330,6 +330,7 @@ namespace Nekki.SF2.GUI.Dialogs
 			string oKGJAMBPDGO = LocalizationManager.ILAJKOBCHFH.OKGJAMBPDGO;
 			oKGJAMBPDGO = ((!(oKGJAMBPDGO == string.Empty)) ? oKGJAMBPDGO : mMBELNEBNBM);
 			OHDFPIADEIG(btnLanguage, mMBELNEBNBM, oKGJAMBPDGO, 0f, 200f, AHDEAELNGBD.BTN_LANGUAGE);
+			Eclipse.UI.LanguageGlobeIcon.Apply(btnLanguage);
 			PGMBIJFAEHP(lblLanguage, LocalizationManager.ILAJKOBCHFH.LOKLDPLAPOL);
 			if (AssemblyController.JONCCPLEIBE().NPNOMBEEPJD())
 			{
@@ -800,6 +801,7 @@ namespace Nekki.SF2.GUI.Dialogs
 				string oKGJAMBPDGO = pPNFBAFOOAH.OKGJAMBPDGO;
 				oKGJAMBPDGO = ((!(oKGJAMBPDGO == string.Empty)) ? oKGJAMBPDGO : mMBELNEBNBM);
 				OHDFPIADEIG(btnLanguage, mMBELNEBNBM, oKGJAMBPDGO, btnLanguage.transform.localPosition.x, btnLanguage.transform.localPosition.y, AHDEAELNGBD.BTN_LANGUAGE);
+				Eclipse.UI.LanguageGlobeIcon.Apply(btnLanguage);
 				PGMBIJFAEHP(lblLanguage, pPNFBAFOOAH.LOKLDPLAPOL);
 				EIJHFKINNPF = true;
 				LFFLJJGJHIB = pPNFBAFOOAH;

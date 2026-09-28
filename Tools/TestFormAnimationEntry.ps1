@@ -154,7 +154,7 @@ class Model {
     public InfoAnimation.MGHNBEPCKIF DFLPNNBIFFN;public EventAnimation.EECEJKADLCK KMDKCFHMECJ;
     public ModelConditions EBABHGHPLFK()=>Conditions;
     public ModelAnimation OCPMJKIEPIG()=>_Animation;
-    public InfoAnimation FHBLLPCEAHG()=>_Animation.Current;
+    public InfoAnimation GetCurrentAnimation()=>_Animation.Current;
     public Model EGGEACCDAEK()=>Enemy;
     public Model NJDJHGDMCIJ()=>Owner;
     public Model NMGNPBMFJKP(ModelType.KEIDBIOIFGA kind)=>null;
@@ -247,14 +247,14 @@ static class ValidateFormAnimationEntry {
             selector.PrepareFormAnimation(form);
             Check(form.EJOGECPBJCE()==transition,"native priority chooses eligible entry without a hardcoded animation name");
             Check(transition.ConditionCalls==1,"duplicate candidate references are deduplicated by native selection");
-            Check(form.FHBLLPCEAHG()==null&&form.FirstFrameActions==0,"preparation schedules but does not execute animation actions");
-            Check(other.FHBLLPCEAHG()==previous&&!other.IBIDGACDJNF()&&other.FirstFrameActions==0,"opponent animation stays untouched");
+            Check(form.GetCurrentAnimation()==null&&form.FirstFrameActions==0,"preparation schedules but does not execute animation actions");
+            Check(other.GetCurrentAnimation()==previous&&!other.IBIDGACDJNF()&&other.FirstFrameActions==0,"opponent animation stays untouched");
             Check(form.Conditions.JMHJDHLBHLK==2,"selection preserves current fight stage");
             Check(form.CEOOLFLLIMC.Requested==EventAnimation.EECEJKADLCK.EVENT_ANIMATION_END,"requests native animation-end candidates");
             Check(selector.CFKGCLIKKOC.SequenceEqual(new[]{marker})&&selector.KPHAPCNOPNP.SequenceEqual(new[]{marker})&&selector.IJIHPHBMEOI.SequenceEqual(new[]{marker}),"pending animation and trigger records are unchanged");
             Check(selector._ExplicitBirthModels.SequenceEqual(new[]{other})&&selector.HKOBFBADDJN.SequenceEqual(new[]{other}),"helper creation queues are unchanged");
             Check(form._Animation.Moved.X==2*sign&&form._Animation.Moved.Y==3&&transition.Velocity.X==2,"native scheduling applies facing to an independent velocity vector");
-            Check(form.RenderAnimationDelay()&&form.FHBLLPCEAHG()==transition,"first native delayed-render step starts selected animation");
+            Check(form.RenderAnimationDelay()&&form.GetCurrentAnimation()==transition,"first native delayed-render step starts selected animation");
             Check(form.PlayedSign==sign&&form.PlayedFrameShift&&form.PlayedShift==6,"native matching transition and facing survive scheduling");
             Check(!form.RenderAnimationDelay()&&form.FirstFrameActions==1,"first animation actions execute exactly once");
         }

@@ -24,7 +24,7 @@ public class PerkConditionCurrentAnimation : PerkConditionMatchMinMax
 		{
 			return false;
 		}
-		InfoAnimation pJAHIOELGGD = fGCODGKLHED.FHBLLPCEAHG();
+		InfoAnimation pJAHIOELGGD = fGCODGKLHED.GetCurrentAnimation();
 		if (pJAHIOELGGD == null || !pJAHIOELGGD.CNPFHBMGDFP(Name))
 		{
 			return false;

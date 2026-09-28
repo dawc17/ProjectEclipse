@@ -17,7 +17,7 @@ class QuestAction {public int Index;public object NOFNJFOCIMK()=>this;}
 class Module {
  public enum FKHIMIAOCJL {OnOpenScene=1,OnCloseScene=3}
  public static Module Instance=new Module();public static Module GetInstance()=>Instance;
- public ScreenType Screen;public ScreenType NMCNDOPKFJD()=>Screen;
+ public ScreenType Screen;public ScreenType GetCurrentScreenType()=>Screen;
  System.Collections.Generic.Dictionary<int,Action<object>> handlers=new System.Collections.Generic.Dictionary<int,Action<object>>();
  public void AddEventListener(int n,Action<object> a){handlers.TryGetValue(n,out var old);handlers[n]=old+a;}
  public void RemoveEventListener(int n,Action<object> a){handlers.TryGetValue(n,out var old);handlers[n]=old-a;}

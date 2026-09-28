@@ -839,7 +839,7 @@ public class Model : global::EventDispatcher<object>
 	{
 		get
 		{
-			return FHBLLPCEAHG();
+			return GetCurrentAnimation();
 		}
 	}
 
@@ -1665,7 +1665,8 @@ public class Model : global::EventDispatcher<object>
 		return _Animation;
 	}
 
-	public InfoAnimation FHBLLPCEAHG()
+	// best guess for name
+	public InfoAnimation GetCurrentAnimation()
 	{
 		return _Animation.NNMAFFCCMHC();
 	}
@@ -2319,7 +2320,7 @@ public class Model : global::EventDispatcher<object>
 		bool inputAccepted = (JDDDODIJODK != FightCID.MagicButton || MJEJFBHOJKB != 0 || MJEJFBHOJKB != 0 || GameUtils.GLHMHHIADMK) && (JDDDODIJODK != FightCID.MissileButton || !MDFEHKBOHEL.MLDHFPCCCOP || MDFEHKBOHEL.DPMNMLHCJLK == MDFEHKBOHEL.MDOBBLKHOHI) && (JDDDODIJODK != FightCID.Kick || !MDFEHKBOHEL.MPIOLPLLFEM || MDFEHKBOHEL.CPKHGNDBKFL == MDFEHKBOHEL.AAIDLAFJECE) && (JDDDODIJODK != FightCID.Punch || !MDFEHKBOHEL.CNGALGBKFOK || MDFEHKBOHEL.KIKLFDLLDDP == MDFEHKBOHEL.PANKKFJFINL) && (JDDDODIJODK != FightCID.RaidChargeButton || !MDFEHKBOHEL.FDHAJDFJBCF || MDFEHKBOHEL.IFMNJHFPDIC == MDFEHKBOHEL.GBEADNMMOID) && HCPHOJKFIDM;
 		if (JDDDODIJODK == FightCID.MagicButton)
 		{
-			InfoAnimation current = FHBLLPCEAHG();
+			InfoAnimation current = GetCurrentAnimation();
 			Debug.Log("[MagicTrace] request actor=" + get_Name() +
 				" player=" + Parameters.IsPlayer +
 				" accepted=" + inputAccepted +
@@ -2861,7 +2862,7 @@ public class Model : global::EventDispatcher<object>
 
 	public void NFADDANANJL()
 	{
-		InfoAnimation dBOLBEOCEME = FHBLLPCEAHG();
+		InfoAnimation dBOLBEOCEME = GetCurrentAnimation();
 		Model fGCODGKLHED = EGGEACCDAEK();
 		if (fGCODGKLHED != null)
 		{
@@ -2922,7 +2923,7 @@ public class Model : global::EventDispatcher<object>
 		IntervalAnimation mNOIEOBBCMI = EMBBNNBFODN as IntervalAnimation;
 		if (GameUtils.BJACOFCAHPD.IsIntervalByName(mNOIEOBBCMI.Name))
 		{
-			InfoAnimation pJAHIOELGGD = FHBLLPCEAHG();
+			InfoAnimation pJAHIOELGGD = GetCurrentAnimation();
 			if (pJAHIOELGGD != null)
 			{
 				APOHBENDEKO = GameUtils.BJACOFCAHPD.GetDelayByName(pJAHIOELGGD.FOLOOGCLPNE());
@@ -3498,7 +3499,7 @@ public class Model : global::EventDispatcher<object>
 		{
 			int fOIPKLDNGDL2 = IBODMPMJELJ.OEAKCOHMIHH();
 			int bulletsBefore = MJEJFBHOJKB;
-			InfoAnimation currentMagicAnimation = FHBLLPCEAHG();
+			InfoAnimation currentMagicAnimation = GetCurrentAnimation();
 			IPGBFKOCOCK(fOIPKLDNGDL2);
 			Debug.Log("[MagicTrace] cast actor=" + get_Name() +
 				" player=" + Parameters.IsPlayer +
@@ -3620,7 +3621,7 @@ public class Model : global::EventDispatcher<object>
 				// A throw pulls the enemy into its paired animation, then strikes by collision.
 				// If the enemy refused (in physics, inactive or without that move), the throw
 				// still swept through them and dealt damage without a grab ("bluetooth throw").
-				_PairedGrab = FHBLLPCEAHG();
+				_PairedGrab = GetCurrentAnimation();
 				_PairedGrabVictim = target;
 				_PairedGrabAnimation = IBODMPMJELJ.AnimationName;
 				_PairedGrabRefused = !started;
@@ -3645,7 +3646,7 @@ public class Model : global::EventDispatcher<object>
 	private bool PairedGrabAllowsStrike(Model victim)
 	{
 		if (_PairedGrab == null || victim != _PairedGrabVictim) return true;
-		if (FHBLLPCEAHG() != _PairedGrab)
+		if (GetCurrentAnimation() != _PairedGrab)
 		{
 			_PairedGrab = null;
 			_PairedGrabVictim = null;
@@ -3653,7 +3654,7 @@ public class Model : global::EventDispatcher<object>
 			return true;
 		}
 		if (_PairedGrabRefused) return false;
-		InfoAnimation current = victim.FHBLLPCEAHG();
+		InfoAnimation current = victim.GetCurrentAnimation();
 		if ((current == null || current.Name != _PairedGrabAnimation) && !_PairedGrabLeftLogged)
 		{
 			_PairedGrabLeftLogged = true;
@@ -3774,7 +3775,7 @@ public class Model : global::EventDispatcher<object>
 		{
 			return _Physics.GetFrame();
 		}
-		InfoAnimation pJAHIOELGGD = FHBLLPCEAHG();
+		InfoAnimation pJAHIOELGGD = GetCurrentAnimation();
 		if (pJAHIOELGGD != null)
 		{
 			return _Animation.LPFPGDJALED();
@@ -3788,7 +3789,7 @@ public class Model : global::EventDispatcher<object>
 		{
 			return _Physics.GetFrame();
 		}
-		InfoAnimation pJAHIOELGGD = FHBLLPCEAHG();
+		InfoAnimation pJAHIOELGGD = GetCurrentAnimation();
 		if (pJAHIOELGGD != null)
 		{
 			return _Animation.NODAINEDAKJ();
@@ -3801,7 +3802,7 @@ public class Model : global::EventDispatcher<object>
 		int num = LPFPGDJALED();
 		if (num > -1)
 		{
-			InfoAnimation pJAHIOELGGD = FHBLLPCEAHG();
+			InfoAnimation pJAHIOELGGD = GetCurrentAnimation();
 			if (pJAHIOELGGD == null)
 			{
 				return true;
@@ -3998,7 +3999,7 @@ public class Model : global::EventDispatcher<object>
 			ActionEffect conditionalEffect = item as ActionEffect;
 			if (conditionalEffect != null && item.GetConditionCount() > 0)
 			{
-				InfoAnimation current = FHBLLPCEAHG();
+				InfoAnimation current = GetCurrentAnimation();
 				Debug.Log("[MagicTrace] effect-gate actor=" + get_Name() +
 					" animation=" + ((current != null) ? current.Name : "<none>") +
 					" action=" + conditionalEffect.get_Name() +

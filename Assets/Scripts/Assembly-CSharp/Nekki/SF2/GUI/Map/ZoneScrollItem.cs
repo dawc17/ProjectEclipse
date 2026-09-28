@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using Eclipse.Underworld.UI;
 using UnityEngine;
 
@@ -168,11 +169,48 @@ namespace Nekki.SF2.GUI.Map
 			}
 		}
 
+		private DG.Tweening.Tween _maskTween;
+
+		// Eclipse: eased mask change for a mode toggled while the map is on screen.
+		public void FadeBackgroundColor(Color color, float duration)
+		{
+			ResolutionImage component = GetComponent<ResolutionImage>();
+			if (duration <= 0f || component == null || !isActiveAndEnabled)
+			{
+				SetBackgroundColor(color);
+				return;
+			}
+			if (_maskTween != null)
+			{
+				_maskTween.Kill();
+			}
+			_maskColor = color;
+			Color initialColor = component.color;
+			float progress = 0f;
+			DG.Tweening.Tween tween = DG.Tweening.DOTween.To(() => progress, value =>
+			{
+				progress = value;
+				if (component != null)
+				{
+					component.color = Color.Lerp(initialColor, color, value);
+				}
+			}, 1f, duration);
+			DG.Tweening.TweenSettingsExtensions.SetEase(tween, DG.Tweening.Ease.InOutSine);
+			DG.Tweening.TweenSettingsExtensions.SetUpdate(tween, true);
+			_maskTween = tween;
+			tween.OnKill(() => _maskTween = null);
+		}
+
 		public void SetBackgroundColor(Color color)
 		{
+			if (_maskTween != null)
+			{
+				_maskTween.Kill();
+				_maskTween = null;
+			}
 			_maskColor = color;
 			ResolutionImage component = GetComponent<ResolutionImage>();
-			component.color = _maskColor;
+			if (component != null) component.color = _maskColor;
 		}
 
 		public void Enabled(bool value)
@@ -404,6 +442,7 @@ namespace Nekki.SF2.GUI.Map
 			{
 				BDGBIIIKMEH(DPOOIONCEOA);
 			});
+			Eclipse.UI.PressBounce.Attach(battleButton.gameObject);
 			battleButton.Locked = flag;
 			battleButton.set_Battle(DPOOIONCEOA);
 			battleButton.set_Hidden(hidden);
@@ -468,6 +507,7 @@ namespace Nekki.SF2.GUI.Map
 
 		private new void OnDestroy()
 		{
+			if (_maskTween != null) _maskTween.Kill();
 			for (int i = 0; i < _buttons.Count; i++)
 			{
 				_buttons[i].onClick = null;

@@ -72,7 +72,7 @@ public static class ValidateDE128TitanRewardNative
             var roster = ListSF.CCDKHLAMKKO();
             var module = Module.GetInstance();
             if (scripts == null || roster == null || module == null) return;
-            if (module.NMCNDOPKFJD() != ScreenType.ModuleDojo && module.NMCNDOPKFJD() != ScreenType.ModuleMap) return;
+            if (module.GetCurrentScreenType() != ScreenType.ModuleDojo && module.GetCurrentScreenType() != ScreenType.ModuleMap) return;
             if (scripts.Diagnostics.Count != 0 || scripts.StateDiagnostics.Count != 0)
                 throw new Exception("DE128 diagnostics: " + string.Join("; ", scripts.Diagnostics) +
                     "; state=" + string.Join("; ", scripts.StateDiagnostics));
