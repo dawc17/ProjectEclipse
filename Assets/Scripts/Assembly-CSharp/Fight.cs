@@ -1309,7 +1309,9 @@ public class Fight
 			{
 				break;
 			}
+			Eclipse.Diagnostics.PerformanceOverlay.BeginFightSimulation();
 			Render();
+			Eclipse.Diagnostics.PerformanceOverlay.EndFightSimulation();
 		}
 	}
 
@@ -1649,7 +1651,9 @@ public class Fight
 			_SelectAnimation.UpdateConditions();
 			foreach (Model item3 in LNDLFINJHDB)
 			{
+				Eclipse.Diagnostics.PerformanceOverlay.BeginAi();
 				item3.RenderAi();
+				Eclipse.Diagnostics.PerformanceOverlay.EndAi();
 			}
 		}
 		IGLLNGNGPOA();

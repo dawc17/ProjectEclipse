@@ -78,3 +78,6 @@ Assets/Resources/EclipseTitleBackground.png
 Assets/Resources/EclipseTitleBackground.png.meta
 unity-agent-plugin/
 *.zip
+
+# DE128 lives in its own repo (DefinitiveEdition128); Mods/de128 is a local link to it.
+/Mods/de128

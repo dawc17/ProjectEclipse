@@ -514,9 +514,11 @@ namespace Eclipse.UI
                 { SF2DisplayFrameRate.ToggleMotionBlur(); });
                 Row("Anti-aliasing", () => SF2DisplayFrameRate.AntiAliasingLabel(SF2DisplayFrameRate.AntiAliasing), 504, () =>
                 { SF2DisplayFrameRate.CycleAntiAliasing(); });
+                Row("Performance overlay (F3)", () => Eclipse.Diagnostics.PerformanceOverlay.ModeLabel(Eclipse.Diagnostics.PerformanceOverlay.CurrentMode), 556, () =>
+                { Eclipse.Diagnostics.PerformanceOverlay.CycleMode(); });
                 var apply = Button(page, "Apply display", 852, 604, 340, 48, ApplyDisplay);
                 apply.interactable = !Application.isMobilePlatform;
-                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately.", 76, 558, 1120, 36, 15, Ink);
+                Label(page, "Window and resolution changes require confirmation. Rendering options save immediately. F4 saves a performance report while the overlay is on.", 76, 610, 760, 44, 15, Ink);
             }
             else if (tab == "Accessibility")
             {

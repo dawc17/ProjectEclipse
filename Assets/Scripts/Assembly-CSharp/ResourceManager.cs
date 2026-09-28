@@ -81,6 +81,7 @@ public static class ResourceManager
 		private static string _devXmlRoot;
 		private static bool _devXmlRootInit;
 		private static readonly HashSet<string> _devXmlLogged = new HashSet<string>();
+		private static readonly string[] LocalQuestExtensions = { "forge_quests.xml", "eclipse.xml" };
 		private static readonly Dictionary<string, string> _devModelFallbacks =
 			new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 		// Newer plaintext gamedata is adapted at the boundary before old parsers see it.
@@ -323,18 +324,23 @@ public static class ResourceManager
 			{
 				output = source;
 			}
-			// Modern vanilla gates Eclipse Mode behind its mobile/Steam/Switch build
-			// channels. Eclipse local PC mode intentionally exposes that gameplay
-			// system without pretending to be one of those service platforms.
-			string eclipseFile = Path.Combine(GetDevXmlRoot(), "quest_extensions", "eclipse.xml");
-			if (output.DocumentElement != null && File.Exists(eclipseFile))
+			// Modern vanilla gates the forge (enchanting) and Eclipse Mode behind its
+			// F2P/Steam/Switch build channels. They are core progression here, so load
+			// them unconditionally without pretending to be one of those platforms.
+			// Eclipse Mode unlock requires ForgeEnabled >= 2, set by the forge tutorial.
+			foreach (string extension in LocalQuestExtensions)
 			{
-				int promotedEclipseQuests = QuestCompatibility.PromoteLocalQuestExtension(
-					output, LoadQuestSource(eclipseFile));
-				if (promotedEclipseQuests != 0 && _devXmlLogged.Add("local-eclipse-quests"))
+				string extensionFile = Path.Combine(GetDevXmlRoot(), "quest_extensions", extension);
+				if (output.DocumentElement == null || !File.Exists(extensionFile))
 				{
-					Debug.Log("[DevXml] enabled " + promotedEclipseQuests +
-						" vanilla Eclipse Mode quest(s) for local PC content mode");
+					continue;
+				}
+				int promotedQuests = QuestCompatibility.PromoteLocalQuestExtension(
+					output, LoadQuestSource(extensionFile));
+				if (promotedQuests != 0 && _devXmlLogged.Add("local-quests:" + extension))
+				{
+					Debug.Log("[DevXml] enabled " + promotedQuests + " vanilla quest(s) from " +
+						extension + " for local PC content mode");
 				}
 			}
 			int removedUpdateQuests = QuestCompatibility.RemoveObsoleteClientUpdateQuests(output);
