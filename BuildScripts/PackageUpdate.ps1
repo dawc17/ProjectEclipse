@@ -25,6 +25,11 @@ $GameDirectory = (Resolve-Path -LiteralPath $GameDirectory).Path
 foreach ($file in @('Eclipse.exe','UnityPlayer.dll','Eclipse_Data')) {
     if (!(Test-Path -LiteralPath (Join-Path $GameDirectory $file))) { throw "Missing $file" }
 }
+# The player compares this stamp with the published version file; a mismatch would block every install.
+$stampPath = Join-Path $GameDirectory 'Eclipse_Data/eclipse-version.txt'
+if (!(Test-Path -LiteralPath $stampPath -PathType Leaf)) { throw "Unversioned build. Rebuild with BuildPlayers.ps1 -Target Windows -Version $Version." }
+$stamped = (Get-Content -LiteralPath $stampPath -Raw).Trim()
+if ($stamped -ne $Version) { throw "Build is stamped $stamped, not $Version. Rebuild with BuildPlayers.ps1 -Target Windows -Version $Version." }
 if (!$OutputDirectory) { $OutputDirectory = Join-Path $PSScriptRoot "out/Releases/$Channel-$Version" }
 $OutputDirectory = [IO.Path]::GetFullPath($OutputDirectory)
 if (Test-Path -LiteralPath $OutputDirectory) { throw "Output already exists: $OutputDirectory" }
@@ -42,9 +47,12 @@ $argumentLine = ($builderArgs | ForEach-Object { '"' + ($_ -replace '(\\*)"', '$
 $process = Start-Process -FilePath $builder -ArgumentList $argumentLine -Wait -PassThru -NoNewWindow
 if ($process.ExitCode -ne 0) { throw 'Incremental packaging failed.' }
 Remove-Item -LiteralPath $builder
+# Players poll this small file instead of the manifest to decide whether their build is outdated.
+$versionFile = [ordered]@{ format = 1; version = $Version } | ConvertTo-Json -Compress
+[IO.File]::WriteAllText((Join-Path $OutputDirectory "$Channel-version.json"), $versionFile, (New-Object Text.UTF8Encoding($false)))
 if (!$IncludeLegacy) {
     if ($LegacyManifest) { Copy-Item -LiteralPath $LegacyManifest -Destination (Join-Path $OutputDirectory "$Channel.json") }
-    Write-Output "Ready in $OutputDirectory. Upload the new .gz objects, launcher/EclipseLauncher.exe and $Channel-v2.json. Nothing was published."
+    Write-Output "Ready in $OutputDirectory. Upload the new .gz objects, launcher/EclipseLauncher.exe, $Channel-v2.json and $Channel-version.json. Nothing was published."
     return
 }
 Add-Type -AssemblyName System.IO.Compression
@@ -90,4 +98,4 @@ try {
 } finally { $inputStream.Dispose() }
 $manifest = @{ format = 1; version = $Version; notes = $Notes; unpackedSize = $unpacked; parts = $parts }
 [IO.File]::WriteAllText((Join-Path $OutputDirectory "$Channel.json"), ($manifest | ConvertTo-Json -Depth 5), (New-Object Text.UTF8Encoding($false)))
-Write-Output "Bridge package ready in $OutputDirectory. Publish both manifests and all new .gz/.partNNN assets. Do not upload game.zip. Nothing was published."
+Write-Output "Bridge package ready in $OutputDirectory. Publish both manifests, $Channel-version.json and all new .gz/.partNNN assets. Do not upload game.zip. Nothing was published."

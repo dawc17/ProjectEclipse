@@ -47,11 +47,42 @@ Desktop mods are stored in `<launcher folder>/Mods`, passed through the
 `ECLIPSE_MODS_ROOT` environment variable. Existing mods beside a loose build stay
 there. Standalone game launches retain the original adjacent-Mods behavior.
 
+## Outdated game builds
+
+Versioned Windows builds check for updates themselves, so starting `Eclipse.exe`
+directly cannot bypass an update. During the splash, the game reads its own version from
+`Eclipse_Data/eclipse-version.txt` and downloads the few-byte
+`<channel>-version.json` for its launcher channel (same URLs as the manifests
+below). When that names a newer version, the title screen shows an "out of date"
+page instead of the menu:
+
+- Started from the launcher (`ECLIPSE_LAUNCHER_ROOT` is set): **Update in
+  launcher** quits with exit code 3. The launcher treats that code as an update
+  request, not a crash, so it checks for updates instead of rolling back.
+- Started directly: **Open launcher** starts the root bootstrap. The game finds it
+  beside a loose build or two levels above `versions/<version>/`. If no launcher
+  is found, the button opens the releases page.
+
+The channel and the version skipped by a rollback come from `launcher-state.json`
+in that root. A version that was rolled back does not block, matching the
+launcher, which does not offer it again. Only a confirmed newer version blocks:
+offline starts, timeouts (about 6 seconds), HTTP errors, a missing version file
+(any release published before this check) and malformed replies all allow play.
+Unversioned builds (no stamp, e.g. editor-menu or dev builds without `-Version`)
+never check. Android builds skip the check; there is no Android updater or
+published APK yet. The stamp is a plain file, so this is an update prompt, not tamper
+protection.
+
 ## Publishing
 
-Build Windows with `BuildScripts/BuildPlayers.ps1 -Target Windows`. Versions have
-three numeric components and must increase per channel. Packaging never contacts
-GitHub. Stop the build before packaging; source files must not change.
+Build Windows with `BuildScripts/BuildPlayers.ps1 -Target Windows -Version <version>`.
+The version is stamped into the player (`Application.version` and
+`Eclipse_Data/eclipse-version.txt`) for that build only; `ProjectSettings` keeps its
+committed value. `PackageUpdate.ps1` refuses builds without a stamp or with a stamp
+that differs from its `-Version`. A wrong stamp would make every install report
+itself as outdated. Versions have three numeric components and must increase per
+channel. Packaging never contacts GitHub. Stop the build before packaging; source
+files must not change.
 
 ### First release with the new updater
 
@@ -73,8 +104,8 @@ requires an existing draft and never changes the source tag:
 # After reviewing the draft, repeat with -Publish to publish and mark latest.
 ```
 
-The script uploads only the named payloads, both manifests and the standalone
-launcher. It excludes the intermediate `game.zip`. Reruns skip completed assets
+The script uploads only the named payloads, both manifests, the channel version
+file and the standalone launcher. It excludes the intermediate `game.zip`. Reruns skip completed assets
 only when GitHub reports matching size and SHA-256; different existing assets
 cause an error instead of being overwritten. It verifies all retained references
 before upload and all new assets before publication. Assets without a reported
@@ -111,16 +142,20 @@ compressed game. Actual savings depend on build changes.
 ### Channels and limits
 
 New launchers check `releases/latest/download/stable-v2.json`, or
-`releases/download/beta/beta-v2.json`. Only HTTP 404 falls back to the corresponding
+`releases/download/beta/beta-v2.json`. Games check `stable-version.json` or
+`beta-version.json` at the same locations: `{"format":1,"version":"1.0.7"}`.
+The publisher requires that version to match the manifest. Only HTTP 404 falls back to the corresponding
 legacy manifest; corrupt manifests and other HTTP failures remain errors.
 Changing channels only offers numerically newer versions, never silent downgrades.
 
 For beta, use `-Channel beta` on both scripts. Payloads use immutable version tags
 (default `v<version>-beta`) in draft **prereleases**. Create a public prerelease
 tagged `beta` for the channel index first. On `-Publish`, the script publishes the
-versioned payload before replacing the two manifests on `beta`. If channel upload
-fails after publication, manually upload the verified `beta.json` and
-`beta-v2.json` to `beta` before announcing the update. Do not reuse or move
+versioned payload before replacing the two manifests on `beta`, then replaces
+`beta-version.json` last, so games only require an update the launcher can already
+see. If channel upload fails after publication, manually upload the verified
+`beta.json`, `beta-v2.json` and then `beta-version.json` to `beta` before
+announcing the update. Do not reuse or move
 version-specific tags.
 
 GitHub permits at most 1000 assets per release and each must be below 2 GiB.
@@ -161,9 +196,10 @@ reuse, reconstruction, corrupt caches and resume response handling. Pass
 hashes and reconstruct both formats present. That optional check requires every
 referenced payload to be present locally; it does not fetch retained releases.
 Run `BuildScripts/TestPublishing.ps1` for real packaging and simulated GitHub
-upload, rerun, reference-retention and publication checks. GitHub is mocked.
+upload, rerun, reference-retention, version-stamp and publication checks. GitHub is mocked.
 Fixtures remain under ignored `BuildScripts/out/Launcher`. These tests do not
 launch Unity, measure live network throughput, or publish a release.
 Before distribution, exercise a draft/test-channel release with a real player:
-fresh install, offline Play, update from a loose old build, shared mods, and
-manual rollback. Keep the launcher in a user-writable directory.
+fresh install, offline Play, update from a loose old build, shared mods,
+manual rollback, and an older versioned build that is started directly and through the
+launcher, which should show the out-of-date page. Keep the launcher in a user-writable directory.

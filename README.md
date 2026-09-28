@@ -57,7 +57,11 @@ For unattended builds, close the editor for this project first and run:
 & .\BuildScripts\BuildPlayers.ps1 -Target All
 ```
 
-Use `-Target Windows` or `-Target Android` to build just one target. The script
+Use `-Target Windows` or `-Target Android` to build just one target. Pass
+`-Version major.minor.patch` for a release build: packaging requires it, and the
+player uses it to refuse to start once a newer release is published (see
+`Launcher/README.md`). Builds without `-Version` are unversioned dev builds that
+never check for updates. The script
 starts a separate Unity process with an explicit platform for each build; use
 `-Unity`, `-ProjectPath`, and `-OutputDirectory` to override its paths. Each target
 gets a build log alongside the output directories. The APK uses the

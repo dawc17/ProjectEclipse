@@ -5,8 +5,23 @@ New-Item -ItemType Directory -Path (Join-Path $game 'Eclipse_Data') -Force | Out
 foreach ($name in @('Eclipse.exe', 'UnityPlayer.dll', 'Eclipse_Data/data')) {
     [IO.File]::WriteAllText((Join-Path $game $name), $name)
 }
+function Assert([bool]$Condition, [string]$Label) {
+    if (!$Condition) { throw "FAIL $Label" }
+    Write-Output "PASS $Label"
+}
+$stamp = Join-Path $game 'Eclipse_Data/eclipse-version.txt'
 $package = Join-Path $testRoot 'first'
+$rejected = $false
+try { & "$PSScriptRoot/PackageUpdate.ps1" -Version 9.1.0 -GameDirectory $game -OutputDirectory $package -IncludeLegacy } catch { $rejected = $true }
+Assert ($rejected -and !(Test-Path -LiteralPath $package)) 'unversioned build cannot be packaged'
+[IO.File]::WriteAllText($stamp, '9.0.9')
+$rejected = $false
+try { & "$PSScriptRoot/PackageUpdate.ps1" -Version 9.1.0 -GameDirectory $game -OutputDirectory $package -IncludeLegacy } catch { $rejected = $true }
+Assert ($rejected -and !(Test-Path -LiteralPath $package)) 'mismatched version stamp cannot be packaged'
+[IO.File]::WriteAllText($stamp, '9.1.0')
 & "$PSScriptRoot/PackageUpdate.ps1" -Version 9.1.0 -GameDirectory $game -OutputDirectory $package -IncludeLegacy
+$versionFile = Get-Content -LiteralPath (Join-Path $package 'stable-version.json') -Raw | ConvertFrom-Json
+Assert ($versionFile.format -eq 1 -and $versionFile.version -eq '9.1.0') 'package writes channel version file'
 $publishingMock = @{}
 $publishingMock.releases = @{
     'v9.1.0' = @{ id = 1; draft = $true; prerelease = $false; html_url = 'https://example.invalid/draft' }
@@ -16,10 +31,6 @@ $publishingMock.releases = @{
 $publishingMock.remoteAssets = @{ 1 = @{}; 2 = @{}; 3 = @{} }
 $publishingMock.uploads = 0
 $publishingMock.publishes = 0
-function Assert([bool]$Condition, [string]$Label) {
-    if (!$Condition) { throw "FAIL $Label" }
-    Write-Output "PASS $Label"
-}
 # This function shadows gh for every publisher invocation; no network or real release writes.
 function gh {
     $arguments = @($args)
@@ -68,9 +79,10 @@ try { & "$PSScriptRoot/PublishUpdate.ps1" -PackageDirectory $package -ReleaseTag
 Assert ($rejected -and $publishingMock.publishes -eq 0) 'conflicting remote asset cannot publish'
 $publishingMock.remoteAssets[1]['stable-v2.json'].digest = $original
 & "$PSScriptRoot/PublishUpdate.ps1" -PackageDirectory $package -ReleaseTag v9.1.0 -Publish
-Assert ($publishingMock.publishes -eq 1) 'explicit publication after verification'
+Assert ($publishingMock.publishes -eq 1 -and $publishingMock.remoteAssets[1].ContainsKey('stable-version.json')) 'explicit publication after verification'
 
 [IO.File]::WriteAllText((Join-Path $game 'Eclipse_Data/data'), 'changed')
+[IO.File]::WriteAllText($stamp, '9.1.1')
 $second = Join-Path $testRoot 'second'
 & "$PSScriptRoot/PackageUpdate.ps1" -Version 9.1.1 -GameDirectory $game -OutputDirectory $second -PreviousManifest (Join-Path $package 'stable-v2.json') -LegacyManifest (Join-Path $package 'stable.json')
 $before = $publishingMock.uploads
@@ -85,7 +97,9 @@ $publishingMock.remoteAssets[1] = $savedAssets
 # Beta uses immutable payloads and updates the channel only after publication.
 Copy-Item -LiteralPath (Join-Path $second 'stable-v2.json') -Destination (Join-Path $second 'beta-v2.json')
 Copy-Item -LiteralPath (Join-Path $second 'stable.json') -Destination (Join-Path $second 'beta.json')
+Copy-Item -LiteralPath (Join-Path $second 'stable-version.json') -Destination (Join-Path $second 'beta-version.json')
 $publishingMock.releases['v9.1.1'].prerelease = $true
 & "$PSScriptRoot/PublishUpdate.ps1" -PackageDirectory $second -ReleaseTag v9.1.1 -Channel beta -Publish
-Assert ($publishingMock.publishes -eq 2 -and $publishingMock.remoteAssets[3].ContainsKey('beta-v2.json')) 'beta payload publishes before channel update'
+Assert ($publishingMock.publishes -eq 2 -and $publishingMock.remoteAssets[3].ContainsKey('beta-v2.json') -and
+    $publishingMock.remoteAssets[3].ContainsKey('beta-version.json')) 'beta payload publishes before channel update'
 Write-Output "Publishing tests passed with mocked GitHub; fixtures at $testRoot"

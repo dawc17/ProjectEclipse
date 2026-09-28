@@ -17,6 +17,11 @@ if ($manifest.format -ne 2) { throw 'Expected an incremental manifest.' }
 if (!(Test-Path -LiteralPath $legacyPath)) { throw 'Provide a bridge manifest using PackageUpdate -IncludeLegacy or -LegacyManifest.' }
 $legacy = Get-Content -LiteralPath $legacyPath -Raw | ConvertFrom-Json
 if ($legacy.format -ne 1) { throw 'Invalid bridge manifest.' }
+# Players refuse to start once this names a newer version than their own.
+$versionPath = Join-Path $PackageDirectory "$Channel-version.json"
+if (!(Test-Path -LiteralPath $versionPath)) { throw "Missing $Channel-version.json; repackage with the current PackageUpdate.ps1." }
+$versionFile = Get-Content -LiteralPath $versionPath -Raw | ConvertFrom-Json
+if ($versionFile.format -ne 1 -or $versionFile.version -ne $manifest.version) { throw 'Version file does not match the manifest.' }
 $payloads = @{}
 $references = @{}
 foreach ($part in @($manifest.parts) + @($legacy.parts)) {
@@ -38,6 +43,7 @@ foreach ($part in @($manifest.parts) + @($legacy.parts)) {
 $payloads['EclipseLauncher.exe'] = Join-Path $PackageDirectory 'launcher/EclipseLauncher.exe'
 $payloads["$Channel-v2.json"] = $manifestPath
 $payloads["$Channel.json"] = $legacyPath
+$payloads["$Channel-version.json"] = $versionPath
 if ($payloads.Count -gt 1000) { throw 'Package exceeds the GitHub 1000 asset limit.' }
 foreach ($path in $payloads.Values) { if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw "Missing file: $path" } }
 $bytes = ($payloads.Values | ForEach-Object { (Get-Item -LiteralPath $_).Length } | Measure-Object -Sum).Sum
@@ -130,5 +136,8 @@ if ($Channel -eq 'stable') {
     # Payloads are public before replacing the two independently readable channel manifests.
     & gh release upload beta $legacyPath $manifestPath --repo $repository --clobber
     if ($LASTEXITCODE -ne 0) { throw 'Beta channel update failed; payload release is public. Update the beta manifests before announcing it.' }
+    # Last, so games only demand the update once the launcher can install it.
+    & gh release upload beta $versionPath --repo $repository --clobber
+    if ($LASTEXITCODE -ne 0) { throw 'Beta version file update failed; launchers offer the update, but games do not require it yet. Upload beta-version.json to beta.' }
 }
 Write-Output "Published $ReleaseTag."

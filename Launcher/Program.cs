@@ -58,6 +58,8 @@ namespace Eclipse.Launcher
         private readonly Image emblem = Theme.Emblem(Theme.S(40));
         private Manifest candidate;
         private bool busy;
+        // Matches Eclipse.UI.ReleaseCheck.OutdatedExitCode: the game refused to run an outdated build.
+        private const int OutdatedExitCode = 3;
 
         public LauncherForm(string installRoot, InstallState installState)
         {
@@ -243,6 +245,8 @@ namespace Eclipse.Launcher
             string mods = Path.Combine(root, "Mods");
             Directory.CreateDirectory(mods);
             start.EnvironmentVariables["ECLIPSE_MODS_ROOT"] = mods;
+            // The game reads the channel and skipped version from here for its own update check.
+            start.EnvironmentVariables["ECLIPSE_LAUNCHER_ROOT"] = root;
             Process game;
             try { game = Process.Start(start); }
             catch { Rollback().GetAwaiter().GetResult(); throw; }
@@ -253,7 +257,8 @@ namespace Eclipse.Launcher
                 Hide();
                 try { await Task.Run(() => game.WaitForExit()); }
                 finally { Show(); Activate(); }
-                if (game.ExitCode != 0) { await Rollback(); status.Text = "Game exited with an error. Previous build restored when available."; }
+                if (game.ExitCode == OutdatedExitCode) { status.Text = "This build is out of date. Checking for the update…"; await Check(); }
+                else if (game.ExitCode != 0) { await Rollback(); status.Text = "Game exited with an error. Previous build restored when available."; }
                 else status.Text = ReadyText();
             }
         }

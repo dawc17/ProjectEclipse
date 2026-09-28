@@ -368,6 +368,10 @@ namespace Eclipse.UI
 
         private void Home()
         {
+            // An outdated release build never reaches the menu; see ReleaseCheck.
+            var release = ReleaseCheck.Current;
+            if (release == ReleaseCheck.Result.Pending) { DrawReleaseCheck(); return; }
+            if (release == ReleaseCheck.Result.Outdated) { DrawOutdated(); return; }
             Clear("Home");
             Box(page, "Sign frame", 483, 62, 314, 148, new Color32(164, 120, 66, 255));
             Box(page, "Sign border", 489, 68, 302, 136, Ink);
@@ -750,7 +754,7 @@ namespace Eclipse.UI
             PlayerPrefs.Save();
             if (currentPage == "Confirm") RevertDisplay();
             else if (optionsOnly) { IsOpen = false; Destroy(gameObject); }
-            else if (currentPage == "Home") QuitPrompt();
+            else if (currentPage == "Home" || currentPage == "Outdated") QuitPrompt();
             else if (currentPage == "Mod details") DrawMods();
             else if (currentPage == "Mod ZIP") CancelModZip();
             else if (currentPage == "New campaign" || currentPage == "Rename campaign" || currentPage == "Delete campaign") DrawCampaignSaves();
@@ -777,6 +781,11 @@ namespace Eclipse.UI
             UpdateEclipse();
             UpdateInputDevice();
             if (GameSessionRestart.IsRestarting || splashing) return;
+            if (currentPage == "Checking")
+            {
+                if (ReleaseCheck.Current != ReleaseCheck.Result.Pending) Home();
+                return;
+            }
             if (bindingAction >= 0) { CaptureControllerBinding(); return; }
             if (Time.frameCount == bindingFrame) return;
             if (leaving)

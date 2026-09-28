@@ -1,7 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Eclipse.Content;
+using Eclipse.UI;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -12,6 +14,8 @@ public static class EclipsePlayerBuild
     private const string WindowsOutputVariable = "ECLIPSE_WINDOWS_OUTPUT";
     private const string AndroidOutputVariable = "ECLIPSE_ANDROID_OUTPUT";
     private const string EditableXmlOutputVariable = "ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT";
+    // Release version from BuildPlayers.ps1 -Version. Without it the build is an unversioned dev build.
+    private const string VersionVariable = "ECLIPSE_BUILD_VERSION";
 
     [MenuItem("SF2/Build/Windows x86_64")]
     public static void BuildWindows()
@@ -93,23 +97,55 @@ public static class EclipsePlayerBuild
             throw new BuildFailedException("Build output has no parent directory: " + outputPath);
         Directory.CreateDirectory(outputDirectory);
 
-        BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+        string version = Environment.GetEnvironmentVariable(VersionVariable);
+        if (string.IsNullOrWhiteSpace(version)) version = null;
+        else if (!Regex.IsMatch(version, @"^\d{1,6}\.\d{1,6}\.\d{1,6}$"))
+            throw new BuildFailedException(VersionVariable + " must be major.minor.patch: " + version);
+
+        // Stamp the release version for this build only; ProjectSettings keeps its committed value.
+        string committedVersion = PlayerSettings.bundleVersion;
+        if (version != null) PlayerSettings.bundleVersion = version;
+        BuildReport report;
+        try
         {
-            scenes = scenes,
-            locationPathName = outputPath,
-            target = target,
-            // Raw recovered Resources plus the streaming archives exceed Gradle's
-            // intermediate AAR limit. Compress Unity data without dropping content.
-            options = target == BuildTarget.Android ? BuildOptions.CompressWithLz4HC : BuildOptions.None
-        });
+            report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = scenes,
+                locationPathName = outputPath,
+                target = target,
+                // Raw recovered Resources plus the streaming archives exceed Gradle's
+                // intermediate AAR limit. Compress Unity data without dropping content.
+                options = target == BuildTarget.Android ? BuildOptions.CompressWithLz4HC : BuildOptions.None
+            });
+        }
+        finally { PlayerSettings.bundleVersion = committedVersion; }
 
         BuildSummary summary = report.summary;
         if (summary.result != BuildResult.Succeeded)
             throw new BuildFailedException(target + " build failed with " + summary.totalErrors +
                 " errors and " + summary.totalWarnings + " warnings.");
+        if (target == BuildTarget.StandaloneWindows64) WriteReleaseStamp(outputPath, version);
 
         Debug.Log("[EclipseBuild] PASS: " + target + " -> " + outputPath +
             " (" + summary.totalSize + " bytes, " + summary.totalWarnings + " warnings)");
+    }
+
+    // The player's update check and PackageUpdate.ps1 read this file. A dev build must not
+    // keep a stamp left in the output folder by an earlier release build.
+    private static void WriteReleaseStamp(string outputPath, string version)
+    {
+        string stamp = Path.Combine(Path.GetDirectoryName(outputPath),
+            Path.GetFileNameWithoutExtension(outputPath) + "_Data", ReleaseCheck.StampFileName);
+        if (version != null)
+        {
+            File.WriteAllText(stamp, version);
+            Debug.Log("[EclipseBuild] Release version " + version + " -> " + stamp);
+        }
+        else
+        {
+            if (File.Exists(stamp)) File.Delete(stamp);
+            Debug.Log("[EclipseBuild] Unversioned build: the player's update check is disabled.");
+        }
     }
 
     private static string ResolveOutputPath(string variableName, string defaultRelativePath)

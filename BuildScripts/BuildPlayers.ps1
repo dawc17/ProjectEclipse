@@ -2,7 +2,9 @@ param(
     [ValidateSet('All', 'Windows', 'Android', 'WindowsEditableXml')][string]$Target = 'All',
     [string]$Unity = 'F:\UnityInstalls\2022.3.62f3\Editor\Unity.exe',
     [string]$ProjectPath = (Split-Path -Parent $PSScriptRoot),
-    [string]$OutputDirectory = ''
+    [string]$OutputDirectory = '',
+    # Release version for PackageUpdate.ps1. Omit for a dev build, which never checks for updates.
+    [ValidatePattern('^(\d{1,6}\.\d{1,6}\.\d{1,6})?$')][string]$Version = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -36,7 +38,9 @@ $plans = @(
 $previousWindowsOutput = $env:ECLIPSE_WINDOWS_OUTPUT
 $previousAndroidOutput = $env:ECLIPSE_ANDROID_OUTPUT
 $previousEditableXmlOutput = $env:ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT
+$previousVersion = $env:ECLIPSE_BUILD_VERSION
 try {
+    $env:ECLIPSE_BUILD_VERSION = $Version
     $env:ECLIPSE_WINDOWS_OUTPUT = Join-Path $OutputDirectory 'Windows/Eclipse.exe'
     $env:ECLIPSE_ANDROID_OUTPUT = Join-Path $OutputDirectory 'Android/Eclipse.apk'
     $env:ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT = Join-Path $OutputDirectory 'WindowsEditableXml/Eclipse.exe'
@@ -66,4 +70,5 @@ try {
     $env:ECLIPSE_WINDOWS_OUTPUT = $previousWindowsOutput
     $env:ECLIPSE_ANDROID_OUTPUT = $previousAndroidOutput
     $env:ECLIPSE_WINDOWS_EDITABLE_XML_OUTPUT = $previousEditableXmlOutput
+    $env:ECLIPSE_BUILD_VERSION = $previousVersion
 }
