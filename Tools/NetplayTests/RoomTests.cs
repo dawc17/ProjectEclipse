@@ -112,6 +112,7 @@ internal static class RoomTests
             Pump(() => _server.RoomCount == 0);
             Check(_server.RoomCount == 0, "empty room closes");
 
+            Rematches(server, identity);
             Hardening(server, identity);
             ChatAndPing(server, identity);
             RoomStateFitsFullLoadouts();
@@ -281,6 +282,79 @@ internal static class RoomTests
         byte[] small = unmeasured.Encode();
         var back = RoomState.Decode(new NetReader(small, 1, small.Length - 1));
         Check(back.Members[0].PingMs == -1 && !back.Members[0].Loadout.IsSet, "an unmeasured ping and an unset loadout survive");
+    }
+
+    /// <summary>Both players asking for a rematch pair them again; a waiting queue or a leaver refuses it.</summary>
+    private static void Rematches(IPEndPoint server, Func<string, NetIdentity> identity)
+    {
+        var eve = Connect(server, identity("Eve"));
+        var fay = Connect(server, identity("Fay"));
+        eve.CreateRoom(new RoomSettings { Name = "Rematch", WinsRequired = 1 }, "");
+        Pump(() => eve.Room != null);
+        fay.JoinByCode(eve.Room.Code, "");
+        Pump(() => fay.Room != null && eve.Room.Members.Count == 2);
+        eve.SetMember(Loadout(0), true);
+        fay.SetMember(Loadout(1), true);
+        Pump(() => eve.Link != null && fay.Link != null);
+        uint first = eve.Room.MatchId;
+        int firstSeed = eve.Link.Pairing.Seed;
+        Drain(eve); Drain(fay);
+
+        // Eve asks before Fay's report has resolved the fight; it is held until then.
+        eve.ReportMatch(first, MatchOutcome.LeftWon, "");
+        eve.Rematch(first, true);
+        Pump(() => eve.Room.Find(eve.ClientId)?.WantsRematch == true);
+        Check(eve.Room.Find(eve.ClientId).WantsRematch && eve.Room.MatchId == first, "a rematch request is accepted while the fight resolves");
+        fay.ReportMatch(first, MatchOutcome.LeftWon, "");
+        Pump(() => fay.Room.MatchId == 0);
+        Check(fay.Room.Find(eve.ClientId).WantsRematch && fay.Room.Find(fay.ClientId).Status == MemberStatus.Away, "the opponent sees the request");
+        fay.Rematch(first, true);
+        Pump(() => eve.Room.MatchId != 0 && eve.Room.MatchId != first && eve.Link != null && eve.Link.MatchId == eve.Room.MatchId && fay.Link != null && fay.Link.MatchId == eve.Room.MatchId);
+        Check(eve.Room.MatchId != first && eve.Link.Pairing.Side == 0 && fay.Link.Pairing.PeerId == eve.ClientId, "both asking starts a rematch on the same sides");
+        Check(eve.Link.Pairing.Seed == fay.Link.Pairing.Seed && eve.Link.Pairing.Seed != firstSeed, "the rematch has a fresh seed (a new random arena)");
+        Check(!eve.Room.Find(eve.ClientId).WantsRematch && eve.Room.Find(fay.ClientId).Status == MemberStatus.InMatch, "requests clear once the rematch starts");
+
+        // Someone waiting in line goes first.
+        uint second = eve.Room.MatchId;
+        var gus = Connect(server, identity("Gus"));
+        gus.JoinByCode(eve.Room.Code, "");
+        Pump(() => gus.Room != null && eve.Room.Members.Count == 3);
+        gus.SetMember(Loadout(2), true);
+        Pump(() => eve.Room.Queue.Contains(gus.ClientId));
+        eve.ReportMatch(second, MatchOutcome.RightWon, "");
+        fay.ReportMatch(second, MatchOutcome.RightWon, "");
+        Pump(() => eve.Room.MatchId == 0);
+        Drain(eve);
+        eve.Rematch(second, true);
+        string refusal = null;
+        Pump(() => (refusal = Drain(eve).Where(e => e.Type == RoomEventType.Error).Select(e => e.Text).FirstOrDefault()) != null);
+        Check(refusal != null && refusal.Contains("waiting") && !eve.Room.Find(eve.ClientId).WantsRematch, "no rematch while others queue: " + refusal);
+
+        // Continuing to the room ends a request, and the opponent can no longer rematch.
+        gus.SetMember(Loadout(2), false);
+        Pump(() => !eve.Room.Queue.Contains(gus.ClientId));
+        Drain(eve);
+        eve.Rematch(second, true);
+        Pump(() => fay.Room.Find(eve.ClientId)?.WantsRematch == true);
+        string errors = string.Join(" / ", Drain(eve).Where(e => e.Type == RoomEventType.Error).Select(e => e.Text));
+        Check(fay.Room.Find(eve.ClientId).WantsRematch, "a request with nobody waiting is accepted " + errors);
+        eve.SetMember(Loadout(0), false);
+        Pump(() => fay.Room.Find(eve.ClientId)?.WantsRematch == false && eve.Room.Find(eve.ClientId)?.Status == MemberStatus.Idle);
+        Check(!fay.Room.Find(eve.ClientId).WantsRematch && eve.Room.Find(eve.ClientId).Status == MemberStatus.Idle, "continuing to the room withdraws the request, out of the queue");
+        Drain(fay);
+        fay.Rematch(second, true);
+        string movedOn = null;
+        Pump(() => (movedOn = Drain(fay).Where(e => e.Type == RoomEventType.Error).Select(e => e.Text).FirstOrDefault()) != null);
+        Check(movedOn != null && movedOn.Contains("Eve") && !eve.Room.Find(fay.ClientId).WantsRematch, "no rematch once the opponent went back to the room: " + movedOn);
+        eve.LeaveRoom();
+        fay.LeaveRoom();
+        gus.LeaveRoom();
+        eve.ReleaseLink(second); fay.ReleaseLink(second);
+        Pump(() => fay.Room == null && gus.Room == null);
+        // The server allows a few players per address; free these slots for the later tests.
+        int before = _server.ClientCount;
+        foreach (var client in new[] { eve, fay, gus }) { client.Dispose(); _clients.Remove(client); }
+        Pump(() => _server.ClientCount <= before - 3, 3000);
     }
 
     private static RoomClient Connect(IPEndPoint server, NetIdentity identity)
