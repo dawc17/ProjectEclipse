@@ -684,6 +684,15 @@ namespace Eclipse.Multiplayer
         private RollbackRunner _runner;
         private int _recorded;
         private bool _started;
+        /// <summary>
+        /// Fixed steps allowed to simulate per rendered frame. After a slow frame Unity runs
+        /// many fixed steps to catch up, and each one saves and re-simulates rollback state,
+        /// which makes the next frame slower still. Skipped steps are harmless: this peer
+        /// falls behind and the timeline's pacing (catch-up ticks here, waits on the
+        /// opponent) evens it out.
+        /// </summary>
+        private const int MaxStepsPerFrame = 2;
+        private int _stepFrame = -1, _stepsThisFrame, _skippedSteps;
 
         /// <summary>This peer's state after <paramref name="tick"/>, if still in the recent history.</summary>
         public bool TryGetSnapshot(int tick, out VersusSnapshot snapshot)
@@ -727,6 +736,13 @@ namespace Eclipse.Multiplayer
                 _rollback = new Eclipse.Multiplayer.Rollback.FightRollback(fight, _timeline.MaxPrediction);
                 _rollback.TickSimulated = OnTick;
                 _runner = new RollbackRunner(_timeline, _rollback, _localSide);
+            }
+            if (Time.frameCount != _stepFrame) { _stepFrame = Time.frameCount; _stepsThisFrame = 0; }
+            if (++_stepsThisFrame > MaxStepsPerFrame)
+            {
+                _skippedSteps++;
+                VersusTickDriver.MarkStalled(false);
+                return;
             }
             bool advanced = false, waited = false;
             _runner.Resolve();
@@ -811,6 +827,13 @@ namespace Eclipse.Multiplayer
 
         public override void Stop()
         {
+            if (_runner != null && _rollback != null)
+                Debug.Log("[Rollback] Match stats: " + _runner.Tick + " ticks, " + _rollback.ObjectCount + " objects; " +
+                    _rollback.Saves + " saves (avg " + _rollback.AverageSaveMs.ToString("0.00") + " ms, max " + _rollback.MaxSaveMs.ToString("0.00") + " ms), " +
+                    _rollback.Loads + " restores (avg " + _rollback.AverageLoadMs.ToString("0.00") + " ms); " +
+                    _runner.Rollbacks + " rollbacks re-simulating " + _runner.TotalResimulated + " ticks (max " + _runner.MaxResimulated + "); " +
+                    _runner.Waits + " waits, " + _runner.Barriers + " barriers, " + _skippedSteps + " fixed steps skipped after slow frames. " +
+                    "Grew since the first snapshot: " + _rollback.GrowthSinceFirstSave() + ".");
             RecordFinal(_timeline.FinalTicks);
             Eclipse.Multiplayer.Rollback.RollbackObjects.Clear();
             base.Stop();

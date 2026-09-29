@@ -24,6 +24,20 @@ namespace Eclipse.Multiplayer.Rollback
         private FightRollback _rollback;
         private int _speculativeRun;
         private double _resimulationMs;
+        private const int MaxStepsPerFrame = 2;
+        private int _stepFrame = -1, _stepsThisFrame;
+        // Timings of the work an online match does (per-tick saves, restores), measured
+        // apart from the test's own checking, which costs far more.
+        private readonly System.Diagnostics.Stopwatch _watch = new System.Diagnostics.Stopwatch();
+        private readonly Timing _saveMs = new Timing(), _restoreMs = new Timing();
+
+        private sealed class Timing
+        {
+            public int Count;
+            public double Total, Max;
+            public void Add(double ms) { Count++; Total += ms; if (ms > Max) Max = ms; }
+            public override string ToString() => Count == 0 ? "-" : (Total / Count).ToString("0.00") + " ms avg, " + Max.ToString("0.00") + " max";
+        }
 
         public RollbackSelfTest(VersusReplay replay)
         {
@@ -49,11 +63,20 @@ namespace Eclipse.Multiplayer.Rollback
         public void RunStep(Fight fight)
         {
             if (_rollback == null) _rollback = new FightRollback(fight, NetProtocol.DefaultRollbackWindow);
+            // Like online play, a slow frame does not queue up extra steps: the test runs
+            // in slow motion instead of spiralling into ever longer frames.
+            if (Time.frameCount != _stepFrame) { _stepFrame = Time.frameCount; _stepsThisFrame = 0; }
+            if (++_stepsThisFrame > MaxStepsPerFrame) return;
             int tick = VersusTickDriver.Tick;
             if (tick >= _replay.TickCount) { ReachedEnd = true; return; }
             byte left = _replay.Left[tick], right = _replay.Right[tick];
             bool speculate = _rollback.CanSpeculate;
-            if (speculate) _rollback.SaveState(tick);
+            if (speculate)
+            {
+                _watch.Restart();
+                _rollback.SaveState(tick);
+                _saveMs.Add(_watch.Elapsed.TotalMilliseconds);
+            }
             if (!_rollback.Simulate(tick, left, right, speculate ? TickFlags.Speculative : TickFlags.None, out var hash))
             {
                 // A barrier: undo the tick and run it as confirmed, as an online match would.
@@ -77,8 +100,16 @@ namespace Eclipse.Multiplayer.Rollback
         private void RollBack(Fight fight, int tick)
         {
             int from = tick - Depth + 1;
+            // The two comparison captures check every direct field copy against
+            // reflection, so they are exact pictures of the live state; a restore or save
+            // that copied something wrong then shows up as a difference between them.
+            _rollback.Snapshotter.VerifyEveryCopy = true;
             _rollback.Capture(_original, tick + 1);
-            if (!_rollback.LoadState(from)) { Fail(from, "its snapshot was missing"); return; }
+            _rollback.Snapshotter.VerifyEveryCopy = false;
+            _watch.Restart();
+            bool restored = _rollback.LoadState(from);
+            _restoreMs.Add(_watch.Elapsed.TotalMilliseconds);
+            if (!restored) { Fail(from, "its snapshot was missing"); return; }
             Rollbacks++;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             for (int t = from; t <= tick; t++)
@@ -97,7 +128,9 @@ namespace Eclipse.Multiplayer.Rollback
             }
             watch.Stop();
             _resimulationMs = _resimulationMs <= 0 ? watch.Elapsed.TotalMilliseconds : _resimulationMs * 0.95 + watch.Elapsed.TotalMilliseconds * 0.05;
+            _rollback.Snapshotter.VerifyEveryCopy = true;
             _rollback.Capture(_redone, tick + 1);
+            _rollback.Snapshotter.VerifyEveryCopy = false;
             string difference = _rollback.Snapshotter.FirstDifference(_original, _redone);
             if (difference == null) return;
             Mismatches++;
@@ -126,8 +159,10 @@ namespace Eclipse.Multiplayer.Rollback
         public string Summary()
         {
             string cost = _rollback == null ? "" :
-                " Snapshot " + _rollback.ObjectCount + " objects, save " + _rollback.AverageSaveMs.ToString("0.00") + " ms, restore " +
-                _rollback.LastLoadMs.ToString("0.00") + " ms, " + Depth + "-tick re-simulation " + _resimulationMs.ToString("0.0") + " ms.";
+                " Snapshot " + _rollback.ObjectCount + " objects, save " + _saveMs + ", restore " + _restoreMs + ", " +
+                Depth + "-tick re-simulation " + _resimulationMs.ToString("0.0") + " ms (" +
+                (_rollback.Snapshotter.UsesRawMemory ? "direct copies; " + _rollback.Snapshotter.RawFallbacks + " types fell back to reflection" : "reflection") + "). " +
+                "Grew since the first snapshot: " + _rollback.GrowthSinceFirstSave() + ".";
             if (Rollbacks == 0) return "Rollback test: no mid-round ticks to roll back." + cost;
             if (Mismatches == 0 && HashMismatches == 0 && DivergedTick < 0)
                 return "Rollback test passed: " + Rollbacks + " rollbacks restored every value (" + Barriers + " barriers)." + cost;

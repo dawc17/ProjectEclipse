@@ -27,6 +27,24 @@ namespace Eclipse.Multiplayer.Online
         PropertyInfo[] ExtraProperties(Type type);
     }
 
+    /// <summary>
+    /// Direct access to managed object memory, for runtimes where reflection is slow (IL2CPP).
+    /// Offsets are bytes from the object reference. Blocks never contain references;
+    /// references are copied as typed stores so the collector's write barrier still runs.
+    /// </summary>
+    public interface IRawObjectMemory
+    {
+        /// <summary>The field's byte offset from the object reference, or -1 when unknown.</summary>
+        int FieldOffset(FieldInfo field);
+        /// <summary>The in-memory size of a value type without references, or -1 when unknown.</summary>
+        int SizeOf(Type valueType);
+        /// <summary>Copies byte ranges holding no references between two objects of the same type.</summary>
+        void CopyBlocks(object from, object to, int[] offsets, int[] sizes);
+        /// <summary>Copies reference fields between two objects of the same type.</summary>
+        void CopyReferences(object from, object to, int[] offsets);
+        object ReadReference(object target, int offset);
+    }
+
     /// <summary>Saves and restores one object in place, for types where reflection is too slow or incomplete.</summary>
     public abstract class SnapshotCodec
     {
@@ -46,6 +64,7 @@ namespace Eclipse.Multiplayer.Online
         private int _floatRead, _intRead, _objectRead;
 
         public int FloatCount => _floatCount;
+        public int IntCount => _intCount;
 
         public void Clear() { _floatCount = _intCount = 0; ClearObjects(); Rewind(); }
         public void Rewind() { _floatRead = _intRead = _objectRead = 0; }
@@ -73,6 +92,7 @@ namespace Eclipse.Multiplayer.Online
         public object ReadObject() => _objects[_objectRead++];
 
         internal float FloatAt(int index) => _floats[index];
+        internal int IntAt(int index) => _ints[index];
 
         private void ClearObjects()
         {
@@ -87,8 +107,12 @@ namespace Eclipse.Multiplayer.Online
     /// </summary>
     public sealed class StateSnapshot
     {
-        internal readonly List<object> Objects = new List<object>(4096);
-        internal readonly List<object> Saved = new List<object>(4096);
+        internal List<object> Objects = new List<object>(4096);
+        internal List<object> Saved = new List<object>(4096);
+        // The previous capture, whose saved copies are refilled instead of reallocated
+        // when the graph visits the same object at the same position.
+        internal List<object> RecycledObjects = new List<object>(4096);
+        internal List<object> RecycledSaved = new List<object>(4096);
         internal readonly List<FieldInfo> StaticFields = new List<FieldInfo>();
         internal readonly List<object> StaticValues = new List<object>();
         internal readonly SnapshotTape Tape = new SnapshotTape();
@@ -102,10 +126,36 @@ namespace Eclipse.Multiplayer.Online
         {
             Objects.Clear();
             Saved.Clear();
+            RecycledObjects.Clear();
+            RecycledSaved.Clear();
             StaticFields.Clear();
             StaticValues.Clear();
             Tape.Clear();
             Tick = -1;
+        }
+
+        /// <summary>Empties the snapshot for a new capture, keeping the old one for reuse.</summary>
+        internal void BeginCapture()
+        {
+            var objects = RecycledObjects; RecycledObjects = Objects; Objects = objects; Objects.Clear();
+            var saved = RecycledSaved; RecycledSaved = Saved; Saved = saved; Saved.Clear();
+            StaticFields.Clear();
+            StaticValues.Clear();
+            Tape.Clear();
+            Tick = -1;
+        }
+
+        /// <summary>The saved copy of <paramref name="target"/> from the previous capture, if it sat at this position.</summary>
+        internal object Recycle(object target)
+        {
+            int index = Objects.Count;
+            return index < RecycledObjects.Count && ReferenceEquals(RecycledObjects[index], target) ? RecycledSaved[index] : null;
+        }
+
+        internal void EndCapture()
+        {
+            RecycledObjects.Clear();
+            RecycledSaved.Clear();
         }
     }
 
@@ -128,6 +178,14 @@ namespace Eclipse.Multiplayer.Online
             public PropertyInfo[] Properties = Array.Empty<PropertyInfo>();
             public SnapshotCodec Codec;
             public TypeInfo Element;
+            // Raw copy plan for Class types (IRawObjectMemory): value bytes, reference
+            // slots, and the few fields (structs holding references) left to reflection.
+            public bool Raw;
+            public bool RawVerified;
+            public int[] BlockOffsets, BlockSizes, ReferenceOffsets;
+            public FieldInfo[] SlowFields;
+            /// <summary>Per <see cref="ReferenceFields"/> entry: its offset when read raw, or -1.</summary>
+            public int[] WalkOffsets;
         }
 
         private sealed class ReferenceComparer : IEqualityComparer<object>
@@ -147,10 +205,25 @@ namespace Eclipse.Multiplayer.Online
         private readonly List<object> _pending = new List<object>(1024);
         private readonly List<object> _walk = new List<object>(64);
         private Func<object, object> _clone;
+        private readonly IRawObjectMemory _raw;
 
-        public ObjectGraphSnapshotter(ISnapshotPolicy policy)
+        /// <summary>Receives a line when a type's raw copy disagrees with reflection and falls back.</summary>
+        public Action<string> Warn;
+        /// <summary>
+        /// Checks every raw copy against reflection, not only each type's first. Slow; for
+        /// tests that must prove the raw path exact.
+        /// </summary>
+        public bool VerifyEveryCopy;
+        /// <summary>Types whose raw plan was retired after disagreeing with reflection.</summary>
+        public int RawFallbacks { get; private set; }
+        /// <summary>True when fields are copied through direct memory access where possible.</summary>
+        public bool UsesRawMemory => _raw != null;
+
+        /// <param name="raw">Optional direct memory access; without it every field goes through reflection.</param>
+        public ObjectGraphSnapshotter(ISnapshotPolicy policy, IRawObjectMemory raw = null)
         {
             _policy = policy ?? throw new ArgumentNullException(nameof(policy));
+            _raw = raw;
             try { _clone = (Func<object, object>)Delegate.CreateDelegate(typeof(Func<object, object>), MemberwiseCloneMethod); }
             catch (Exception) { _clone = null; }
         }
@@ -161,7 +234,7 @@ namespace Eclipse.Multiplayer.Online
         /// <summary>Saves everything reachable from the roots and static fields into <paramref name="into"/>.</summary>
         public void Capture(StateSnapshot into, int tick, IList<object> roots, IList<FieldInfo> statics = null)
         {
-            into.Clear();
+            into.BeginCapture();
             _visited.Clear();
             _pending.Clear();
             if (statics != null)
@@ -183,6 +256,7 @@ namespace Eclipse.Multiplayer.Online
                 Save(into, target, Info(target.GetType()));
             }
             _visited.Clear();
+            into.EndCapture();
             into.Tick = tick;
             LastObjectCount = into.Objects.Count;
         }
@@ -203,8 +277,11 @@ namespace Eclipse.Multiplayer.Online
                 switch (info.Kind)
                 {
                     case Kind.Class:
+                        if (info.Raw) RawCopy(info, saved[i], target);
+                        else CopyFields(info, saved[i], target, false);
+                        break;
                     case Kind.FieldCopy:
-                        CopyFields(info, saved[i], target, info.Kind == Kind.FieldCopy);
+                        CopyFields(info, saved[i], target, true);
                         break;
                     case Kind.PrimitiveArray:
                     case Kind.ReferenceArray:
@@ -279,6 +356,17 @@ namespace Eclipse.Multiplayer.Online
                         break;
                 }
             }
+            if (a.Tape.IntCount != b.Tape.IntCount) { report.Append("codec value count differs; "); found++; }
+            else
+            {
+                for (int i = 0; i < a.Tape.IntCount && found < maxReports; i++)
+                {
+                    if (a.Tape.IntAt(i) == b.Tape.IntAt(i)) continue;
+                    report.Append("codec value #").Append(i).Append(": ").Append(a.Tape.IntAt(i)).Append(" vs ").Append(b.Tape.IntAt(i)).Append("; ");
+                    found++;
+                    break;
+                }
+            }
             if (a.Tape.FloatCount != b.Tape.FloatCount) { report.Append("vector count differs; "); found++; }
             else
             {
@@ -292,6 +380,40 @@ namespace Eclipse.Multiplayer.Online
                 }
             }
             return found == 0 ? null : report.ToString();
+        }
+
+        /// <summary>Saved objects counted by type, for finding what a graph accumulates.</summary>
+        public static Dictionary<Type, int> Census(StateSnapshot snapshot)
+        {
+            var counts = new Dictionary<Type, int>();
+            foreach (var target in snapshot.Objects)
+            {
+                var type = target.GetType();
+                counts.TryGetValue(type, out int count);
+                counts[type] = count + 1;
+            }
+            return counts;
+        }
+
+        /// <summary>The types that gained the most objects between two censuses, largest first.</summary>
+        public static string Growth(Dictionary<Type, int> before, Dictionary<Type, int> after, int top)
+        {
+            var grown = new List<KeyValuePair<Type, int>>();
+            foreach (var entry in after)
+            {
+                before.TryGetValue(entry.Key, out int old);
+                if (entry.Value > old) grown.Add(new KeyValuePair<Type, int>(entry.Key, entry.Value - old));
+            }
+            grown.Sort((a, b) => b.Value.CompareTo(a.Value));
+            var text = new System.Text.StringBuilder();
+            for (int i = 0; i < grown.Count && i < top; i++)
+            {
+                if (i > 0) text.Append(", ");
+                var type = grown[i].Key;
+                string name = type.IsGenericType ? type.Name + "<" + string.Join(",", Array.ConvertAll(type.GetGenericArguments(), Describe)) + ">" : Describe(type);
+                text.Append(name).Append(" +").Append(grown[i].Value);
+            }
+            return text.Length == 0 ? "nothing grew" : text.ToString();
         }
 
         private static Dictionary<object, int> IndexOf(StateSnapshot snapshot)
@@ -354,12 +476,20 @@ namespace Eclipse.Multiplayer.Online
             switch (info.Kind)
             {
                 case Kind.Class:
+                {
+                    // Refill last capture's copy of this object rather than allocating a new one.
+                    object copy = info.Raw ? into.Recycle(target) : null;
+                    if (copy != null) RawCopy(info, target, copy);
+                    else copy = Clone(target);
                     into.Objects.Add(target);
-                    into.Saved.Add(Clone(target));
-                    WalkFields(info, target);
+                    into.Saved.Add(copy);
+                    WalkFields(info, copy);
                     break;
+                }
                 case Kind.FieldCopy:
-                    var values = new object[info.Fields.Length + info.Properties.Length];
+                    int slots = info.Fields.Length + info.Properties.Length;
+                    var values = into.Recycle(target) as object[];
+                    if (values == null || values.Length != slots) values = new object[slots];
                     for (int i = 0; i < info.Fields.Length; i++) values[i] = info.Fields[i].GetValue(target);
                     for (int i = 0; i < info.Properties.Length; i++) values[info.Fields.Length + i] = info.Properties[i].GetValue(target, null);
                     into.Objects.Add(target);
@@ -368,12 +498,15 @@ namespace Eclipse.Multiplayer.Online
                         if (MayHoldReferences(info.Fields[i].FieldType)) WalkValue(values[i]);
                     break;
                 case Kind.PrimitiveArray:
+                {
+                    var array = CopyArray(into, (Array)target);
                     into.Objects.Add(target);
-                    into.Saved.Add(((Array)target).Clone());
+                    into.Saved.Add(array);
                     break;
+                }
                 case Kind.ReferenceArray:
                 {
-                    var array = (object[])((Array)target).Clone();
+                    var array = (object[])CopyArray(into, (Array)target);
                     into.Objects.Add(target);
                     into.Saved.Add(array);
                     for (int i = 0; i < array.Length; i++) WalkValue(array[i]);
@@ -381,7 +514,7 @@ namespace Eclipse.Multiplayer.Online
                 }
                 case Kind.StructArray:
                 {
-                    var array = (Array)((Array)target).Clone();
+                    var array = CopyArray(into, (Array)target);
                     into.Objects.Add(target);
                     into.Saved.Add(array);
                     for (int i = 0; i < array.Length; i++) WalkStruct(info.Element, array.GetValue(i));
@@ -409,9 +542,48 @@ namespace Eclipse.Multiplayer.Online
             return MemberwiseCloneMethod.Invoke(target, null);
         }
 
+        /// <summary>A copy of <paramref name="source"/>, refilling last capture's array when it still fits.</summary>
+        private static Array CopyArray(StateSnapshot into, Array source)
+        {
+            if (into.Recycle(source) is Array copy && copy.Length == source.Length)
+            {
+                Array.Copy(source, copy, source.Length);
+                return copy;
+            }
+            return (Array)source.Clone();
+        }
+
         private void WalkFields(TypeInfo info, object target)
         {
-            foreach (var field in info.ReferenceFields) WalkValue(field.GetValue(target));
+            var fields = info.ReferenceFields;
+            // Raw reads only once the type's plan has matched reflection.
+            var offsets = info.Raw && info.RawVerified ? info.WalkOffsets : null;
+            for (int i = 0; i < fields.Length; i++)
+                WalkValue(offsets != null && offsets[i] >= 0 ? _raw.ReadReference(target, offsets[i]) : fields[i].GetValue(target));
+        }
+
+        /// <summary>Copies every captured field of a Class object through its raw plan.</summary>
+        private void RawCopy(TypeInfo info, object from, object to)
+        {
+            if (info.BlockOffsets.Length > 0) _raw.CopyBlocks(from, to, info.BlockOffsets, info.BlockSizes);
+            if (info.ReferenceOffsets.Length > 0) _raw.CopyReferences(from, to, info.ReferenceOffsets);
+            foreach (var field in info.SlowFields) field.SetValue(to, field.GetValue(from));
+            if (info.RawVerified && !VerifyEveryCopy) return;
+            // The first raw copy of each type is checked against reflection; a disagreement
+            // (an unexpected object layout) retires the plan and repairs the copy.
+            info.RawVerified = true;
+            foreach (var field in info.Fields)
+            {
+                object expected = field.GetValue(from), actual = field.GetValue(to);
+                bool same = field.FieldType.IsValueType ? Equals(expected, actual) : ReferenceEquals(expected, actual);
+                if (same) continue;
+                info.Raw = false;
+                info.WalkOffsets = null;
+                RawFallbacks++;
+                Warn?.Invoke("Raw copy of " + Describe(from.GetType()) + "." + field.Name + " disagreed with reflection; using reflection for this type.");
+                CopyFields(info, from, to, false);
+                return;
+            }
         }
 
         private void WalkValue(object value)
@@ -484,11 +656,68 @@ namespace Eclipse.Multiplayer.Online
             }
             info.Fields = fields.ToArray();
             info.ReferenceFields = references.ToArray();
+            if (_raw != null && !type.IsValueType && !_policy.NeedsFieldCopy(type)) PlanRaw(type, info);
             if (!type.IsValueType && _policy.NeedsFieldCopy(type)) info.Properties = _policy.ExtraProperties(type) ?? Array.Empty<PropertyInfo>();
             // A boxed struct is never mutated in place, so it is kept by reference; its
             // fields are still walked for the references it carries.
             info.Kind = type.IsValueType ? Kind.Opaque : _policy.NeedsFieldCopy(type) ? Kind.FieldCopy : Kind.Class;
             return info;
+        }
+
+        private struct RawField
+        {
+            public int Offset, Size;
+            /// <summary>0 value bytes, 1 reference, 2 reflection (struct holding references), 3 not captured.</summary>
+            public int Mode;
+        }
+
+        /// <summary>
+        /// Splits a Class type's captured fields into value byte ranges and reference slots.
+        /// Adjacent value fields merge into one block; a block never spans a reference or a
+        /// field the policy skips. Types with unknown or overlapping layout keep reflection.
+        /// </summary>
+        private void PlanRaw(Type type, TypeInfo info)
+        {
+            var captured = new HashSet<FieldInfo>(info.Fields);
+            var layout = new List<RawField>();
+            var slow = new List<FieldInfo>();
+            for (var current = type; current != null && current != typeof(object); current = current.BaseType)
+            {
+                foreach (var field in current.GetFields(InstanceFields))
+                {
+                    int offset = _raw.FieldOffset(field);
+                    bool isCaptured = captured.Contains(field);
+                    var fieldType = field.FieldType;
+                    int mode = !isCaptured ? 3 : !fieldType.IsValueType ? 1 : MayHoldReferences(fieldType) ? 2 : 0;
+                    int size = mode == 1 ? IntPtr.Size : mode == 0 ? _raw.SizeOf(fieldType) : 0;
+                    if (mode == 2) slow.Add(field);
+                    // Without a position the field cannot be copied, nor kept out of a block.
+                    if (offset < 0 || mode <= 1 && size <= 0) return;
+                    if (mode >= 2) size = Math.Max(1, _raw.SizeOf(fieldType) > 0 ? _raw.SizeOf(fieldType) : IntPtr.Size);
+                    layout.Add(new RawField { Offset = offset, Size = size, Mode = mode });
+                }
+            }
+            layout.Sort((a, b) => a.Offset.CompareTo(b.Offset));
+            for (int i = 1; i < layout.Count; i++)
+                if (layout[i].Offset < layout[i - 1].Offset + layout[i - 1].Size) return;
+            var blockOffsets = new List<int>();
+            var blockSizes = new List<int>();
+            var references = new List<int>();
+            bool open = false;
+            foreach (var field in layout)
+            {
+                if (field.Mode != 0) { open = false; if (field.Mode == 1) references.Add(field.Offset); continue; }
+                if (open) blockSizes[blockSizes.Count - 1] = field.Offset + field.Size - blockOffsets[blockOffsets.Count - 1];
+                else { blockOffsets.Add(field.Offset); blockSizes.Add(field.Size); open = true; }
+            }
+            info.BlockOffsets = blockOffsets.ToArray();
+            info.BlockSizes = blockSizes.ToArray();
+            info.ReferenceOffsets = references.ToArray();
+            info.SlowFields = slow.ToArray();
+            info.WalkOffsets = new int[info.ReferenceFields.Length];
+            for (int i = 0; i < info.ReferenceFields.Length; i++)
+                info.WalkOffsets[i] = info.ReferenceFields[i].FieldType.IsValueType ? -1 : _raw.FieldOffset(info.ReferenceFields[i]);
+            info.Raw = true;
         }
 
         /// <summary>

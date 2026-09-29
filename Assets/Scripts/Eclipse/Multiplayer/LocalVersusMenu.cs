@@ -344,6 +344,7 @@ namespace Eclipse.Multiplayer
                 AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
             });
             var source = VersusTickDriver.Source;
+            if (source is Rollback.RollbackSelfTest selfTest) Debug.Log("[Rollback test] " + selfTest.Summary());
             SetStatus(source is ReplayInputSource replaySource ? replaySource.Summary()
                 : source is Rollback.RollbackSelfTest test ? test.Summary() : "Replay finished.");
         }

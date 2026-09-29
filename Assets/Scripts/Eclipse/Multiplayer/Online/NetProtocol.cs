@@ -135,14 +135,15 @@ namespace Eclipse.Multiplayer.Online
 
         /// <summary>
         /// Input delay for a measured round trip. Delay mode hides the whole one-way trip.
-        /// Rollback keeps a small delay that grows with latency, so rollbacks stay short.
+        /// Rollback hides all but about one tick of it (up to 4 ticks of delay), so a wrong
+        /// guess is usually corrected within a tick instead of visibly snapping back.
         /// </summary>
         public static int SuggestedDelay(NetcodeMode mode, int rttMs, int jitterMs = 0)
         {
             if (rttMs < 0) return mode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackDelay : NetProtocol.DefaultInputDelay;
             float oneWayTicks = (rttMs / 2f + Math.Max(0, jitterMs)) / NetProtocol.TickMs;
             if (mode == NetcodeMode.Rollback)
-                return Clamp((int)Math.Ceiling(oneWayTicks) - 4, NetProtocol.DefaultRollbackDelay, 4);
+                return Clamp((int)Math.Ceiling(oneWayTicks) - 1, NetProtocol.DefaultRollbackDelay, 4);
             return Clamp((int)Math.Ceiling(oneWayTicks) + 1, 1, 8);
         }
 

@@ -51,6 +51,9 @@ namespace Eclipse.Multiplayer.Rollback
             (typeof(Model), "BJKJBIMPPAM"),   // Effects attached to the model.
             (typeof(Render), "FPLGNMICCPH"),  // Blood drops,
             (typeof(Render), "OBCAJAIBJHP"),  // and their lifetime counter.
+            // The playing hit-effect animation. Only a tick's first run sets it, so a
+            // restored null would strand the effect object switched on.
+            (typeof(Render), "PHKBOGAICCI"),
         };
 
         private static readonly PropertyInfo FillAmount = typeof(UnityEngine.UI.Image).GetProperty("fillAmount");
@@ -84,7 +87,10 @@ namespace Eclipse.Multiplayer.Rollback
 
         public bool NeedsFieldCopy(Type type) => typeof(UnityEngine.Object).IsAssignableFrom(type);
 
-        public SnapshotCodec CodecFor(Type type) => type == typeof(Vector3f) || type == typeof(Vector2f) ? Vectors : null;
+        public SnapshotCodec CodecFor(Type type) =>
+            type == typeof(Vector3f) || type == typeof(Vector2f) ? Vectors : type == typeof(KeyFrames.Frame) ? Frames : null;
+
+        private static readonly SnapshotCodec Frames = new KeyFrameCodec();
 
         public PropertyInfo[] ExtraProperties(Type type)
         {
@@ -97,6 +103,56 @@ namespace Eclipse.Multiplayer.Rollback
         {
             string space = type.Namespace ?? string.Empty;
             return space == "UnityEngine" || space.StartsWith("UnityEngine.", StringComparison.Ordinal);
+        }
+
+        /// <summary>
+        /// A key-frame buffer frame: the pose of every node for one frame of the playing move.
+        /// A fighter's buffer keeps the frames of the longest move it has played, which is
+        /// most of the fight's saved objects, so each frame is saved whole instead of walking
+        /// every vector. Restores the same list, with the same vector objects at the same
+        /// positions, and their values, as the graph walk would.
+        /// </summary>
+        private sealed class KeyFrameCodec : SnapshotCodec
+        {
+            public override void Save(object target, SnapshotTape tape)
+            {
+                var frame = (KeyFrames.Frame)target;
+                tape.Int(frame.Size);
+                var data = frame.Data;
+                tape.Object(data);
+                tape.Int(data != null ? data.Count : -1);
+                if (data == null) return;
+                for (int i = 0; i < data.Count; i++)
+                {
+                    var vector = data[i];
+                    tape.Object(vector);
+                    if (vector == null) continue;
+                    tape.Float(vector.GetX());
+                    tape.Float(vector.GetY());
+                    tape.Float(vector.GetZ());
+                }
+            }
+
+            public override void Load(object target, SnapshotTape tape)
+            {
+                var frame = (KeyFrames.Frame)target;
+                frame.Size = tape.ReadInt();
+                var data = (List<Vector3f>)tape.ReadObject();
+                frame.Data = data;
+                int count = tape.ReadInt();
+                if (data == null) return;
+                if (data.Count > count) data.RemoveRange(count, data.Count - count);
+                for (int i = 0; i < count; i++)
+                {
+                    var vector = (Vector3f)tape.ReadObject();
+                    if (i < data.Count) data[i] = vector;
+                    else data.Add(vector);
+                    if (vector == null) continue;
+                    vector.SetX(tape.ReadFloat());
+                    vector.SetY(tape.ReadFloat());
+                    vector.SetZ(tape.ReadFloat());
+                }
+            }
         }
 
         /// <summary>Fighter skeletons and key frames hold thousands of vectors; save them without reflection.</summary>
@@ -128,7 +184,7 @@ namespace Eclipse.Multiplayer.Rollback
     {
         private static readonly FieldInfo[] StaticState = FindStatics();
         private readonly Fight _fight;
-        private readonly ObjectGraphSnapshotter _snapshotter = new ObjectGraphSnapshotter(new FightSnapshotPolicy());
+        private readonly ObjectGraphSnapshotter _snapshotter = CreateSnapshotter();
         private readonly StateSnapshot[] _ring;
         private readonly object[] _roots = new object[2];
         private readonly Stopwatch _watch = new Stopwatch();
@@ -144,8 +200,17 @@ namespace Eclipse.Multiplayer.Rollback
         public int Loads { get; private set; }
         public double LastSaveMs { get; private set; }
         public double AverageSaveMs { get; private set; }
+        public double MaxSaveMs { get; private set; }
         public double LastLoadMs { get; private set; }
+        public double AverageLoadMs { get; private set; }
         public int ObjectCount => _snapshotter.LastObjectCount;
+        private StateSnapshot _latest;
+        private Dictionary<Type, int> _firstCensus;
+
+        /// <summary>The object types the saved state gained most since the first snapshot.</summary>
+        public string GrowthSinceFirstSave(int top = 8) =>
+            _firstCensus == null || _latest == null || _latest.IsEmpty ? "no snapshots" :
+                ObjectGraphSnapshotter.Growth(_firstCensus, ObjectGraphSnapshotter.Census(_latest), top);
         internal ObjectGraphSnapshotter Snapshotter => _snapshotter;
 
         public bool CanSpeculate => VersusTickDriver.Owns(_fight) && _fight.VersusCanSpeculate;
@@ -163,8 +228,14 @@ namespace Eclipse.Multiplayer.Rollback
             _watch.Stop();
             LastSaveMs = _watch.Elapsed.TotalMilliseconds;
             AverageSaveMs = Saves == 0 ? LastSaveMs : AverageSaveMs * 0.95 + LastSaveMs * 0.05;
+            // The first save includes JIT and pool warm-up, so it does not count toward the peak.
+            if (Saves > 0 && LastSaveMs > MaxSaveMs) MaxSaveMs = LastSaveMs;
+            _latest = into;
             if (Saves++ == 0)
+            {
+                _firstCensus = ObjectGraphSnapshotter.Census(into);
                 UnityEngine.Debug.Log("[Rollback] First snapshot: " + ObjectCount + " objects in " + LastSaveMs.ToString("0.00") + " ms.");
+            }
         }
 
         public bool LoadState(int tick)
@@ -182,6 +253,7 @@ namespace Eclipse.Multiplayer.Rollback
             RollbackObjects.Restored(snapshot.Tick);
             _watch.Stop();
             LastLoadMs = _watch.Elapsed.TotalMilliseconds;
+            AverageLoadMs = Loads == 0 ? LastLoadMs : AverageLoadMs * 0.95 + LastLoadMs * 0.05;
             Loads++;
         }
 
@@ -193,6 +265,26 @@ namespace Eclipse.Multiplayer.Rollback
             if (!VersusTickDriver.SimulateTick(_fight, tick, left, right, flags, out hash)) return false;
             TickSimulated?.Invoke(tick);
             return true;
+        }
+
+        /// <summary>Uses direct field copies when this runtime supports them; reflection otherwise.</summary>
+        internal static ObjectGraphSnapshotter CreateSnapshotter()
+        {
+            // -rollback-reflection turns direct copies off, to compare against the reflection path.
+            bool forced = Array.IndexOf(Environment.GetCommandLineArgs(), "-rollback-reflection") >= 0;
+            var raw = ManagedMemory.Available && !forced ? new ManagedMemoryAccess() : null;
+            if (forced) UnityEngine.Debug.Log("[Rollback] -rollback-reflection: snapshots use reflection.");
+            else if (raw == null) UnityEngine.Debug.LogWarning("[Rollback] Direct field copies unavailable on this runtime; snapshots use reflection.");
+            return new ObjectGraphSnapshotter(new FightSnapshotPolicy(), raw) { Warn = message => UnityEngine.Debug.LogWarning("[Rollback] " + message) };
+        }
+
+        private sealed class ManagedMemoryAccess : IRawObjectMemory
+        {
+            public int FieldOffset(FieldInfo field) => ManagedMemory.FieldOffset(field);
+            public int SizeOf(Type valueType) => ManagedMemory.SizeOf(valueType);
+            public void CopyBlocks(object from, object to, int[] offsets, int[] sizes) => ManagedMemory.CopyBlocks(from, to, offsets, sizes);
+            public void CopyReferences(object from, object to, int[] offsets) => ManagedMemory.CopyReferences(from, to, offsets);
+            public object ReadReference(object target, int offset) => ManagedMemory.ReadReference(target, offset);
         }
 
         /// <summary>Per-fight state kept in static fields that the tick changes.</summary>

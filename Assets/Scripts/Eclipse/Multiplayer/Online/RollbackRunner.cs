@@ -75,6 +75,10 @@ namespace Eclipse.Multiplayer.Online
         public int Waits { get; private set; }
         /// <summary>Ticks re-simulated by the most recent <see cref="Resolve"/>.</summary>
         public int LastResimulated { get; private set; }
+        /// <summary>Rollbacks resolved so far, and the ticks they re-simulated.</summary>
+        public int Rollbacks { get; private set; }
+        public int TotalResimulated { get; private set; }
+        public int MaxResimulated { get; private set; }
 
         /// <summary>True when this peer is far enough ahead that it should skip this step.</summary>
         public bool ShouldWait()
@@ -116,6 +120,9 @@ namespace Eclipse.Multiplayer.Online
                 if (!RunTick(tick, true)) break;
                 LastResimulated++;
             }
+            Rollbacks++;
+            TotalResimulated += LastResimulated;
+            if (LastResimulated > MaxResimulated) MaxResimulated = LastResimulated;
         }
 
         /// <summary>Resolves rollbacks, then tries to simulate the next tick.</summary>

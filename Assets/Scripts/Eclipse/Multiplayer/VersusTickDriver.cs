@@ -84,6 +84,13 @@ namespace Eclipse.Multiplayer
         /// </summary>
         public static bool IsResimulating => _inTick && (_flags & TickFlags.Resimulating) != 0;
 
+        /// <summary>
+        /// Launch option <c>-rollback-strict-transitions</c>: round transitions never run on a
+        /// predicted input (each one then waits for the opponent, slowing it by the latency).
+        /// </summary>
+        public static readonly bool StrictTransitions =
+            System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-rollback-strict-transitions") >= 0;
+
         /// <summary>Set when a speculative tick reached a <see cref="Barrier"/>; the tick is then discarded.</summary>
         public static bool BarrierHit { get; private set; }
 

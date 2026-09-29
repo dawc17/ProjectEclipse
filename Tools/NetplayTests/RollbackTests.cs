@@ -14,15 +14,24 @@ internal static class RollbackTests
     public static void Run(Action<bool, string> check)
     {
         Check = check;
-        SnapshotRestoresInPlace();
-        SnapshotReportsDifferences();
-        SnapshotCollections();
+        // Every snapshot test runs through reflection, then through the raw field-copy path.
+        foreach (var raw in new[] { null, new FakeRawMemory() })
+        {
+            Raw = raw;
+            SnapshotRestoresInPlace();
+            SnapshotReportsDifferences();
+            SnapshotCollections();
+            CodecFramesRestoreWhole();
+            RollbackInMemory(latencySteps: 0, lossPercent: 0, delay: 1, window: 8, seed: 3);
+            RollbackInMemory(latencySteps: 5, lossPercent: 0, delay: 1, window: 8, seed: 4);
+            RollbackInMemory(latencySteps: 9, lossPercent: 25, delay: 2, window: 8, seed: 5);
+            RollbackInMemory(latencySteps: 14, lossPercent: 10, delay: 1, window: 6, seed: 6);
+            if (raw != null) Check(raw.Blocks > 0 && raw.References > 0 && raw.Reads > 0, "raw path copied blocks and references and walked references");
+        }
+        Raw = null;
+        RawLayoutMismatchFallsBack();
         RunLengthInputs();
         PredictionAndRollbackBookkeeping();
-        RollbackInMemory(latencySteps: 0, lossPercent: 0, delay: 1, window: 8, seed: 3);
-        RollbackInMemory(latencySteps: 5, lossPercent: 0, delay: 1, window: 8, seed: 4);
-        RollbackInMemory(latencySteps: 9, lossPercent: 25, delay: 2, window: 8, seed: 5);
-        RollbackInMemory(latencySteps: 14, lossPercent: 10, delay: 1, window: 6, seed: 6);
         TimeSyncSlowsTheLeader();
         RollbackOverUdp(latencyMs: 50, lossPercent: 5);
         SuggestedDelays();
@@ -71,6 +80,191 @@ internal static class RollbackTests
         public PropertyInfo[] ExtraProperties(Type type) => null;
     }
 
+    private static IRawObjectMemory Raw;
+
+    private static ObjectGraphSnapshotter NewSnapshotter() => new ObjectGraphSnapshotter(new TestPolicy(), Raw);
+
+    /// <summary>
+    /// Stands in for direct memory access: each field gets an 8-byte slot at a made-up
+    /// offset, and copies are done by reflection on the fields those slots name. It checks
+    /// that blocks never cover references and that reference slots name references.
+    /// </summary>
+    private sealed class FakeRawMemory : IRawObjectMemory
+    {
+        /// <summary>Simulates a wrong layout: block copies do nothing.</summary>
+        public bool DropBlocks;
+        /// <summary>Starts dropping block copies after this many, or never when negative.</summary>
+        public int DropAfter = -1;
+        public int Blocks, References, Reads;
+        private const BindingFlags Declared = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+        private readonly Dictionary<Type, Dictionary<int, FieldInfo>> _maps = new Dictionary<Type, Dictionary<int, FieldInfo>>();
+
+        public int FieldOffset(FieldInfo field)
+        {
+            int slot = 0;
+            for (var type = field.DeclaringType.BaseType; type != null; type = type.BaseType) slot += type.GetFields(Declared).Length;
+            return 16 + 8 * (slot + Array.IndexOf(field.DeclaringType.GetFields(Declared), field));
+        }
+
+        public int SizeOf(Type valueType) => 8;
+
+        private Dictionary<int, FieldInfo> Map(Type type)
+        {
+            if (_maps.TryGetValue(type, out var map)) return map;
+            map = new Dictionary<int, FieldInfo>();
+            for (var current = type; current != null; current = current.BaseType)
+                foreach (var field in current.GetFields(Declared)) map[FieldOffset(field)] = field;
+            return _maps[type] = map;
+        }
+
+        public void CopyBlocks(object from, object to, int[] offsets, int[] sizes)
+        {
+            var map = Map(from.GetType());
+            for (int i = 0; i < offsets.Length; i++)
+            {
+                Blocks++;
+                for (int at = offsets[i]; at < offsets[i] + sizes[i]; at += 8)
+                {
+                    if (!map.TryGetValue(at, out var field)) throw new Exception("block covers no field at " + at);
+                    if (!field.FieldType.IsValueType) throw new Exception("block covers reference " + field.Name);
+                    if (!DropBlocks && (DropAfter < 0 || Blocks <= DropAfter)) field.SetValue(to, field.GetValue(from));
+                }
+            }
+        }
+
+        public void CopyReferences(object from, object to, int[] offsets)
+        {
+            var map = Map(from.GetType());
+            foreach (int offset in offsets)
+            {
+                References++;
+                var field = map[offset];
+                if (field.FieldType.IsValueType) throw new Exception("reference slot holds value " + field.Name);
+                field.SetValue(to, field.GetValue(from));
+            }
+        }
+
+        public object ReadReference(object target, int offset)
+        {
+            Reads++;
+            var field = Map(target.GetType())[offset];
+            if (field.FieldType.IsValueType) throw new Exception("reference read of value " + field.Name);
+            return field.GetValue(target);
+        }
+    }
+
+    /// <summary>Shaped like the game's key-frame buffer frame: a size and a list of reusable points.</summary>
+    private sealed class Frame
+    {
+        public int Size;
+        public List<Point> Data = new List<Point>();
+    }
+
+    private sealed class Point { public float X, Y; }
+
+    private sealed class FramePolicy : ISnapshotPolicy
+    {
+        private static readonly SnapshotCodec Codec = new FrameCodec();
+        public bool IsOpaque(Type type) => false;
+        public bool Captures(FieldInfo field) => true;
+        public bool NeedsFieldCopy(Type type) => false;
+        public SnapshotCodec CodecFor(Type type) => type == typeof(Frame) ? Codec : null;
+        public PropertyInfo[] ExtraProperties(Type type) => null;
+    }
+
+    /// <summary>Saves a frame whole: ints, object references and floats interleaved on the tape.</summary>
+    private sealed class FrameCodec : SnapshotCodec
+    {
+        public override void Save(object target, SnapshotTape tape)
+        {
+            var frame = (Frame)target;
+            tape.Int(frame.Size);
+            tape.Object(frame.Data);
+            tape.Int(frame.Data.Count);
+            foreach (var point in frame.Data) { tape.Object(point); tape.Float(point.X); tape.Float(point.Y); }
+        }
+
+        public override void Load(object target, SnapshotTape tape)
+        {
+            var frame = (Frame)target;
+            frame.Size = tape.ReadInt();
+            frame.Data = (List<Point>)tape.ReadObject();
+            int count = tape.ReadInt();
+            if (frame.Data.Count > count) frame.Data.RemoveRange(count, frame.Data.Count - count);
+            for (int i = 0; i < count; i++)
+            {
+                var point = (Point)tape.ReadObject();
+                if (i < frame.Data.Count) frame.Data[i] = point; else frame.Data.Add(point);
+                point.X = tape.ReadFloat();
+                point.Y = tape.ReadFloat();
+            }
+        }
+    }
+
+    private static void CodecFramesRestoreWhole()
+    {
+        var frames = new List<Frame>();
+        for (int f = 0; f < 3; f++)
+        {
+            var frame = new Frame { Size = f + 1 };
+            for (int p = 0; p <= f; p++) frame.Data.Add(new Point { X = f, Y = p });
+            frames.Add(frame);
+        }
+        var kept = frames[2].Data[1];
+        var snapshotter = new ObjectGraphSnapshotter(new FramePolicy(), Raw);
+        var a = new StateSnapshot();
+        snapshotter.Capture(a, 0, new object[] { frames });
+        // Grow, shrink, replace and edit, as a buffer reused by a longer or shorter move would.
+        frames[0].Data.Add(new Point { X = 99 });
+        frames[2].Data.RemoveAt(2);
+        frames[2].Data[1] = new Point { X = -1 };
+        frames[1].Size = 50;
+        frames[1].Data[0].X = 42;
+        frames.Add(new Frame());
+        snapshotter.Restore(a);
+        Check(frames.Count == 3 && frames[0].Data.Count == 1 && frames[2].Data.Count == 3, "frame buffer counts restored");
+        Check(ReferenceEquals(frames[2].Data[1], kept) && kept.X == 2 && kept.Y == 1, "the same point objects restored in place");
+        Check(frames[1].Size == 2 && frames[1].Data[0].X == 1, "frame sizes and values restored");
+        var b = new StateSnapshot();
+        snapshotter.Capture(b, 0, new object[] { frames });
+        Check(snapshotter.FirstDifference(a, b) == null, "restored frames compare equal: " + snapshotter.FirstDifference(a, b));
+        frames[1].Size = 7;
+        snapshotter.Capture(b, 0, new object[] { frames });
+        Check(snapshotter.FirstDifference(a, b)?.Contains("codec value") == true, "a changed codec integer is reported");
+        Check(a.ObjectCount < 10, "points saved by the codec are not walked (" + a.ObjectCount + " objects)");
+    }
+
+    /// <summary>A raw plan that disagrees with reflection is retired, and the copy is still right.</summary>
+    private static void RawLayoutMismatchFallsBack()
+    {
+        var warnings = new List<string>();
+        var snapshotter = new ObjectGraphSnapshotter(new TestPolicy(), new FakeRawMemory { DropBlocks = true }) { Warn = warnings.Add };
+        var root = new Node { X = 1.5f, Count = 2 };
+        var snapshot = new StateSnapshot();
+        snapshotter.Capture(snapshot, 0, new object[] { root });
+        root.X = 5f; root.Count = 9;
+        snapshotter.Restore(snapshot);
+        Check(root.X == 1.5f && root.Count == 2, "a mismatched raw copy is repaired by reflection");
+        Check(warnings.Count > 0 && warnings[0].Contains("Node"), "the mismatch is reported: " + (warnings.Count > 0 ? warnings[0] : "none"));
+        root.X = 7f;
+        snapshotter.Capture(snapshot, 1, new object[] { root });
+        root.X = 8f;
+        snapshotter.Restore(snapshot);
+        Check(root.X == 7f, "the retired type keeps working through reflection");
+
+        // A copy that goes wrong after the first one: only full verification can catch it.
+        var late = new FakeRawMemory { DropAfter = 1 };
+        var lateWarnings = new List<string>();
+        var verifying = new ObjectGraphSnapshotter(new TestPolicy(), late) { Warn = lateWarnings.Add, VerifyEveryCopy = true };
+        var node = new Node { X = 1f, Count = 1 };
+        var slot = new StateSnapshot();
+        verifying.Capture(slot, 0, new object[] { node });
+        node.X = 2f; verifying.Restore(slot);
+        node.X = 3f; verifying.Restore(slot);
+        node.X = 4f; verifying.Restore(slot);
+        Check(node.X == 1f && lateWarnings.Count > 0 && verifying.RawFallbacks > 0, "full verification catches a later bad copy and repairs it (x " + node.X + ")");
+    }
+
     private static void SnapshotRestoresInPlace()
     {
         var shared = new Definition { Id = 7 };
@@ -83,7 +277,7 @@ internal static class RollbackTests
         root.Boxed = new Pair { Value = 5, Target = child };
         Action callback = () => { };
         root.Callback = callback;
-        var snapshotter = new ObjectGraphSnapshotter(new TestPolicy());
+        var snapshotter = NewSnapshotter();
         var snapshot = new StateSnapshot();
         snapshotter.Capture(snapshot, 10, new object[] { root });
         Check(snapshot.Tick == 10 && snapshot.ObjectCount > 5, "snapshot saved the graph (" + snapshot.ObjectCount + " objects)");
@@ -156,7 +350,7 @@ internal static class RollbackTests
         bag.Pairs[0] = new KeyValuePair<string, Node>("p", shared);
         bag.Structs.Add(new Pair { Value = 1, Target = shared });
         var weak = bag.Weak;
-        var snapshotter = new ObjectGraphSnapshotter(new TestPolicy());
+        var snapshotter = NewSnapshotter();
         var snapshot = new StateSnapshot();
         snapshotter.Capture(snapshot, 0, new object[] { bag });
 
@@ -185,7 +379,7 @@ internal static class RollbackTests
     private static void SnapshotReportsDifferences()
     {
         var root = new Node { X = 1f, Count = 1 };
-        var snapshotter = new ObjectGraphSnapshotter(new TestPolicy());
+        var snapshotter = NewSnapshotter();
         var a = new StateSnapshot();
         var b = new StateSnapshot();
         snapshotter.Capture(a, 0, new object[] { root });
@@ -287,7 +481,7 @@ internal static class RollbackTests
         public readonly List<(int tick, byte left, byte right)> FinalInputs = new List<(int, byte, byte)>();
         public int BarrierEvery = 97;
         public int Speculated, Resimulated, BarrierReplays;
-        private readonly ObjectGraphSnapshotter _snapshotter = new ObjectGraphSnapshotter(new TestPolicy());
+        private readonly ObjectGraphSnapshotter _snapshotter = NewSnapshotter();
         private readonly StateSnapshot[] _ring;
         private readonly InputTimeline _timeline;
 
@@ -530,6 +724,8 @@ internal static class RollbackTests
     private static void SuggestedDelays()
     {
         Check(NetcodeModes.SuggestedDelay(NetcodeMode.Rollback, 20) == 1, "LAN rollback uses one tick");
+        Check(NetcodeModes.SuggestedDelay(NetcodeMode.Rollback, 50) == 1, "nearby players keep one tick");
+        Check(NetcodeModes.SuggestedDelay(NetcodeMode.Rollback, 80) == 2, "a cross-country trip hides all but a tick");
         Check(NetcodeModes.SuggestedDelay(NetcodeMode.Rollback, 250) >= 2, "long trips add a little delay under rollback");
         Check(NetcodeModes.SuggestedDelay(NetcodeMode.Rollback, 2000) <= 4, "rollback delay stays small");
         Check(NetcodeModes.SuggestedDelay(NetcodeMode.Delay, 100) == 4, "delay mode hides the one-way trip");

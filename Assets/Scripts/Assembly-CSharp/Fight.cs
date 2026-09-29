@@ -4622,12 +4622,14 @@ public class Fight
 	}
 
 	/// <summary>
-	/// True while a versus tick may run on a predicted opponent input: mid-round, with no
-	/// round transition under way. Transitions drive UI and scene changes that a rollback
-	/// cannot undo, so they only ever run on confirmed input.
+	/// True while a versus tick may run on a predicted opponent input. The steps of a
+	/// transition that a rollback cannot undo (stage changes, banners, round end, the
+	/// result) each call VersusTickDriver.Barrier, which discards a predicted tick and
+	/// re-runs it on confirmed input, so intros and outros predict like the rest of the
+	/// round. -rollback-strict-transitions keeps whole transitions on confirmed input.
 	/// </summary>
-	internal bool VersusCanSpeculate => stageType == StageType.FDBBPEGEGMK.STAGE_FIGHT && round.processing &&
-		!isEndRound && !isGameOver && !isStopFight && !GJMHPBIBHMO && !IsPaused();
+	internal bool VersusCanSpeculate => !IsPaused() && (!Eclipse.Multiplayer.VersusTickDriver.StrictTransitions ||
+		stageType == StageType.FDBBPEGEGMK.STAGE_FIGHT && round.processing && !isEndRound && !isGameOver && !isStopFight && !GJMHPBIBHMO);
 
 	/// <summary>Advances intro/round banners by one fixed step; see VersusTickDriver.</summary>
 	internal void AdvanceVersusScreens(float step)

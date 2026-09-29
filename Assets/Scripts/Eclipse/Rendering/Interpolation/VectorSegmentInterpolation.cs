@@ -11,6 +11,7 @@ namespace Eclipse.Rendering.Interpolation
 		private Vector3 _previousEnd;
 		private Vector3 _currentEnd;
 		private bool _initialized;
+		private double _sampledFixedTime;
 
 		public void Sample(Vector3 rawStart, Vector3 rawEnd, out Vector3 start, out Vector3 end)
 		{
@@ -27,11 +28,16 @@ namespace Eclipse.Rendering.Interpolation
 			}
 			else if (rawStart != _currentStart || rawEnd != _currentEnd)
 			{
-				_previousStart = _currentStart;
-				_previousEnd = _currentEnd;
+				// The previous endpoint is the one last drawn. When a slow frame ran several
+				// ticks, blending from it would trail the rest of the body (which blends from
+				// the previous tick), so show the new endpoints directly.
+				bool severalTicks = Time.fixedTimeAsDouble - _sampledFixedTime > Time.fixedDeltaTime * 1.5;
+				_previousStart = severalTicks ? rawStart : _currentStart;
+				_previousEnd = severalTicks ? rawEnd : _currentEnd;
 				_currentStart = rawStart;
 				_currentEnd = rawEnd;
 			}
+			_sampledFixedTime = Time.fixedTimeAsDouble;
 
 			start = Vector3.LerpUnclamped(_previousStart, _currentStart, alpha);
 			end = Vector3.LerpUnclamped(_previousEnd, _currentEnd, alpha);
