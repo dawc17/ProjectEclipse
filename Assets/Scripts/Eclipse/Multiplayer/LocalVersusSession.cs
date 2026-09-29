@@ -200,6 +200,9 @@ namespace Eclipse.Multiplayer
             ResetSession();
         }
 
+        // Closing the game mid-match still keeps that match's replay.
+        private void OnApplicationQuit() => VersusTickDriver.Stop();
+
         private void OnApplicationFocus(bool focused)
         {
             if (!focused && Settings != null && Settings.Mode == VersusMode.Local) Pause("The game lost focus. Resume when both players are ready.");

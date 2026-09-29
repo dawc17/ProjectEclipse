@@ -214,7 +214,15 @@ namespace Eclipse.Multiplayer
             if (!File.Exists(LastPath)) { error = "No replay yet. Finish a versus match first."; return false; }
             try { replay = VersusReplay.Load(LastPath); }
             catch (Exception exception) { error = "The last replay could not be read: " + exception.Message; return false; }
-            if (replay.Build != OnlineVersusSession.BuildId) { error = "The last replay was recorded with another game version."; replay = null; return false; }
+            if (replay.Build != OnlineVersusSession.BuildId)
+            {
+                NetIdentity.SplitBuild(replay.Build, out var version, out var runtime);
+                error = version == Application.version && runtime != OnlineVersusSession.Runtime
+                    ? "The last replay was recorded by a " + (runtime.Length > 0 ? runtime : "different") + " build; it only plays back in the same kind of build."
+                    : "The last replay was recorded with another game version.";
+                replay = null;
+                return false;
+            }
             if (replay.Content != OnlineVersusSession.ContentFingerprint()) { error = "The last replay was recorded with different mods enabled."; replay = null; return false; }
             return true;
         }

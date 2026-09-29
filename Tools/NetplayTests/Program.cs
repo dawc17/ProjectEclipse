@@ -259,6 +259,11 @@ internal static class Program
             Check(guest.State == NetplayState.Closed && guest.CloseReason.Contains("mods"), "mod mismatch rejected: " + guest.CloseReason);
             Check(host.State == NetplayState.WaitingForGuest, "host keeps waiting after rejecting");
         }
+        var il2cpp = new NetIdentity("1.0/IL2CPP", "mods:none", "A");
+        string runtimeProblem = il2cpp.Incompatibility(new NetIdentity("1.0/Mono", "mods:none", "B"));
+        Check(runtimeProblem != null && runtimeProblem.Contains("Mono") && runtimeProblem.Contains("IL2CPP"), "Mono vs IL2CPP rejected with a runtime reason");
+        Check(il2cpp.Incompatibility(new NetIdentity("1.1/IL2CPP", "mods:none", "B")).Contains("versions differ"), "version mismatch keeps its reason");
+        Check(il2cpp.Incompatibility(new NetIdentity("1.0/IL2CPP", "mods:none", "B")) == null, "same version and runtime accepted");
         Check(NetplayPeer.TryParseAddress("127.0.0.1:9000", out var ep, out _) && ep.Port == 9000, "address with port");
         Check(NetplayPeer.TryParseAddress("127.0.0.1", out ep, out _) && ep.Port == NetProtocol.DefaultPort, "address default port");
         Check(!NetplayPeer.TryParseAddress("127.0.0.1:99999", out _, out var error) && error.Contains("port"), "bad port rejected");

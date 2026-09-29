@@ -97,8 +97,21 @@ per-tick controller input crosses the network (delay-based lockstep over UDP).
 - **Delay-based, not rollback.** Input delay (default 3 frames, suggested from
   ping in the lobby) is felt on both sides. A connection hiccup freezes both games
   until inputs arrive; the session gives up after 20 s of silence.
-- **Cross-architecture float determinism is unverified.** Mono vs IL2CPP and x64
-  vs ARM64 are untested. The state hash will report it if it diverges.
+- **Mono and IL2CPP builds can't play together.** Tested on 2026-09-29, a Mono
+  build (the editor or a Mono Linux player) against the IL2CPP Android build
+  desynced at tick 390, on the first moving frame of the start stance. Fighter
+  positions differed from about the third decimal place. IL2CPP Linux x64
+  against IL2CPP Android ARM64 stayed in sync, with IL2CPP built using
+  `--compiler-flags=-ffp-contract=off` (no fused multiply-add). The build ID is
+  `version/runtime`, so the handshake refuses mixed runtimes with a clear
+  reason, and replays only play back in the same runtime. Ship desktop builds as
+  IL2CPP; the editor only plays other Mono builds.
+- **A desync reports itself.** Hashes are compared every tick. On the first
+  mismatch each peer logs its exact state (floats include their bit patterns)
+  and sends it to the other, so one log holds both sides.
+- **Building IL2CPP for Linux on Arch-based systems** needs a
+  `libncurses.so.6` alias for Unity's bundled clang:
+  `sudo ln -s /usr/lib/libncursesw.so.6 /usr/lib/libncurses.so.6`.
 - **The state hash covers the main fight state, not every field.** A divergence in
   unhashed state shows up later, once it affects hashed state.
 - **Mod combat callbacks do not run in any versus mode** (as in Local Versus).

@@ -49,11 +49,19 @@ namespace Eclipse.Multiplayer
         private (int winner, string message)? _pendingEnd;
 
         /// <summary>
-        /// Peers must run the same game version. Builds are not fingerprinted beyond that
-        /// (editor and player, or Windows and Linux, may play together); the per-tick
-        /// state hash catches any build difference that actually changes the simulation.
+        /// Game version plus scripting runtime. Mono (the editor, Mono players) and IL2CPP
+        /// builds round fight math differently and desync within seconds, so they never
+        /// match. CPU and OS may differ: IL2CPP x64 and ARM64 stayed in sync in testing.
+        /// The per-tick state hash still catches anything else that changes the simulation.
         /// </summary>
-        public static string BuildId => Application.version;
+        public static string BuildId => Application.version + "/" + Runtime;
+
+        public const string Runtime =
+#if ENABLE_IL2CPP
+            "IL2CPP";
+#else
+            "Mono";
+#endif
 
         /// <summary>Enabled mods and versions; peers and replays must agree on gameplay content.</summary>
         public static string ContentFingerprint()
@@ -72,12 +80,7 @@ namespace Eclipse.Multiplayer
 
         /// <summary>Platform, CPU and scripting backend, for desync reports.</summary>
         public static string Platform =>
-            Application.platform + " " + System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture +
-#if ENABLE_IL2CPP
-            " IL2CPP";
-#else
-            " Mono";
-#endif
+            Application.platform + " " + System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture + " " + Runtime;
 
         public static string SavedName { get => PlayerPrefs.GetString(NamePreference, "Player"); set => PlayerPrefs.SetString(NamePreference, value ?? "Player"); }
         public static string SavedAddress { get => PlayerPrefs.GetString(AddressPreference, ""); set => PlayerPrefs.SetString(AddressPreference, value ?? ""); }

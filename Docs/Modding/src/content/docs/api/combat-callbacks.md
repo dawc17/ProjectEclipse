@@ -51,9 +51,10 @@ are disabled during Local Versus.
 The same boundary applies to online versus and to versus replays, which run on
 the Local Versus match. Both players' games simulate the whole fight from the
 same inputs, so mod content must match exactly: when you connect, the game
-compares the game version and the list of enabled mods with their versions, and
-refuses the match if they differ. A saved replay only plays back with the game
-version and enabled mods it was recorded with.
+compares the game version, the kind of build (IL2CPP builds and the Mono-based
+Unity editor cannot play together), and the list of enabled mods with their
+versions, and refuses the match if they differ. A saved replay only plays back
+with the game version, build kind and enabled mods it was recorded with.
 
 Local bootstrap also uses a temporary cloned profile document. Any profile changes
 or mod-state migrations made against that local profile are discarded and are not

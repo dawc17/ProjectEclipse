@@ -66,6 +66,14 @@ namespace Eclipse.Multiplayer.Online
             if (PlayerName.Length > 24) PlayerName = PlayerName.Substring(0, 24);
         }
 
+        /// <summary>Splits "version/runtime"; a missing runtime reads as empty.</summary>
+        public static void SplitBuild(string build, out string version, out string runtime)
+        {
+            int slash = (build ?? string.Empty).LastIndexOf('/');
+            version = slash < 0 ? build ?? string.Empty : build.Substring(0, slash);
+            runtime = slash < 0 ? string.Empty : build.Substring(slash + 1);
+        }
+
         public void Write(NetWriter writer)
         {
             writer.Str(Build);
@@ -80,7 +88,14 @@ namespace Eclipse.Multiplayer.Online
         {
             if (other == null) return "The other player sent no build information.";
             if (!string.Equals(Build, other.Build, StringComparison.Ordinal))
+            {
+                SplitBuild(Build, out var version, out var runtime);
+                SplitBuild(other.Build, out var otherVersion, out var otherRuntime);
+                if (version == otherVersion && runtime != otherRuntime)
+                    return "One game is a " + runtime + " build and the other " + otherRuntime +
+                        ". Their fight math differs, so they can't play together. Use IL2CPP builds (not the Unity editor).";
                 return "Game versions differ (" + Build + " vs " + other.Build + ").";
+            }
             if (!string.Equals(Content, other.Content, StringComparison.Ordinal))
                 return "Enabled mods differ. Both players need the same mods and versions.";
             return null;
