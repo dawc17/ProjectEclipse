@@ -12,6 +12,7 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/InputTimeline.cs" />
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetBuffer.cs" />
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetInput.cs" />
     <Compile Include="../../Assets/Scripts/Eclipse/Multiplayer/Online/NetProtocol.cs" />

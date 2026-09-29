@@ -296,24 +296,23 @@ namespace Eclipse.Multiplayer
 
         // ---- Presentation helpers ----
 
-        public string MemberLine(RoomMember member)
+        /// <summary>The roster's status column: fighting, the champion's streak, queue place, or watching.</summary>
+        public string MemberStatusLabel(RoomMember member)
         {
             var room = Room;
-            string crown = room != null && room.ChampionId == member.Id ? "* " : "";
-            string you = member.Id == ClientId ? " (you)" : "";
-            string host = room != null && room.HostId == member.Id ? " [host]" : "";
-            string status;
             switch (member.Status)
             {
-                case MemberStatus.Queued:
-                    int position = room != null ? room.Queue.IndexOf(member.Id) + 1 : 0;
-                    status = position > 0 ? "queued #" + position : "queued";
-                    break;
-                case MemberStatus.InMatch: status = "fighting"; break;
-                case MemberStatus.Away: status = "back soon"; break;
-                default: status = "watching"; break;
+                case MemberStatus.InMatch: return "Fighting";
+                case MemberStatus.Away: return "Back soon";
             }
-            return crown + member.Name + you + host + "  -  " + WeaponLabel(member.Weapon) + "  -  " + member.Wins + "W " + member.Losses + "L  -  " + status;
+            if (room != null && room.ChampionId == member.Id)
+                return room.Streak > 1 ? "Champion x" + room.Streak : "Champion";
+            if (member.Status == MemberStatus.Queued)
+            {
+                int position = room != null ? room.Queue.IndexOf(member.Id) + 1 : 0;
+                return position > 0 ? "Next #" + position : "In line";
+            }
+            return "Watching";
         }
 
         public string NowPlaying()
@@ -327,13 +326,13 @@ namespace Eclipse.Multiplayer
             }
             if (room.ChampionId != 0 && room.Find(room.ChampionId)?.Status == MemberStatus.Away)
                 return "Waiting for the winner to continue";
-            return room.Queue.Count >= 2 ? "Starting..." : "Waiting for challengers (" + room.Queue.Count + " queued)";
+            return room.Queue.Count >= 2 ? "Starting..." : room.Queue.Count == 1 ? "Waiting for a challenger" : "Nobody is in line to fight";
         }
 
         public static string WeaponLabel(string id)
         {
             int index = Array.IndexOf(LocalVersusMatch.WeaponIds, id);
-            return index >= 0 ? LocalVersusMatch.WeaponLabels[index] : "?";
+            return index >= 0 ? LocalVersusMatch.WeaponLabels[index] : "-";
         }
     }
 

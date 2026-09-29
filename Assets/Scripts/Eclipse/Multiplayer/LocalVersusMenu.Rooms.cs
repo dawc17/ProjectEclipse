@@ -29,20 +29,21 @@ namespace Eclipse.Multiplayer
                 var rooms = AddRow(body);
                 AddButton(rooms, "BROWSE ROOMS", () => WithRooms(session => { session.Client.RefreshRooms(); ShowRoomBrowser(); }), 0);
                 AddButton(rooms, "CREATE ROOM", () => WithRooms(_ => ShowRoomCreate(false)), 0);
-                codeField = AddTextField(body, "ROOM CODE", "", 8, "ABC123");
-                AddButton(body, "JOIN BY CODE", () =>
+                codeField = AddTextField(body, "ROOM CODE", "", 8, "ABC123", 170);
+                codeField.characterValidation = UnityEngine.UI.InputField.CharacterValidation.Alphanumeric;
+                AddButton((RectTransform)codeField.transform.parent, "JOIN", () =>
                 {
                     string code = codeField.text.Trim();
                     if (code.Length == 0) { SetStatus("Enter the room code your friend sees in their room."); return; }
                     WithRooms(session => session.Client.JoinByCode(code, ""));
-                });
+                }, 156);
                 var other = AddRow(body);
                 AddButton(other, "DIRECT CONNECT", ShowOnlineSetup, 0);
                 AddButton(other, "BACK", ShowLobby, 0);
             });
             SetStatus(RoomSession.SavedServer.Length == 0
                 ? "Enter the room server address once; it is remembered. Players need the same game version and mods."
-                : "No port forwarding needed: fights connect peer-to-peer, or through the server if they cannot.");
+                : "Fights connect peer-to-peer. No port forwarding needed.");
         }
 
         /// <summary>Connects to the room server named on the home page, then runs <paramref name="then"/>.</summary>
@@ -67,17 +68,18 @@ namespace Eclipse.Multiplayer
             EnsureEventSystem();
             page = Page.RoomBrowser;
             var rooms = session.Client.Rooms;
-            Rebuild("ROOMS", rooms.Count == 0 ? "No open rooms yet" : rooms.Count + (rooms.Count == 1 ? " room" : " rooms"), body =>
+            Rebuild("ROOMS", rooms.Count == 0 ? "No open rooms" : rooms.Count == 1 ? "1 open room" : rooms.Count + " open rooms", body =>
             {
+                passwordField = null;
                 foreach (var room in rooms.Take(6))
                 {
                     var listing = room;
-                    string label = listing.Name + "   " + listing.Players + "/" + listing.MaxPlayers + "   FT" + listing.WinsRequired +
+                    string details = listing.Players + "/" + listing.MaxPlayers + "  FIRST TO " + listing.WinsRequired +
                         (listing.Rotation == RoomRotation.Rotate ? "  ROTATE" : "") + (listing.Locked ? "  LOCKED" : "");
-                    AddButton(body, label, () => session.Client.JoinRoom(listing.Id, passwordField != null ? passwordField.text : ""));
+                    AddListing(body, listing.Name, details, () => session.Client.JoinRoom(listing.Id, passwordField != null ? passwordField.text : ""));
                 }
-                if (rooms.Count == 0) AddInfo(body, "BE THE FIRST", () => "Create a room");
-                passwordField = AddTextField(body, "PASSWORD", "", 24, "only for locked rooms");
+                if (rooms.Count == 0) AddNote(body, "Nobody is hosting right now.\nCreate a room and share its code with friends.");
+                if (rooms.Take(6).Any(room => room.Locked)) passwordField = AddTextField(body, "PASSWORD", "", 24, "for locked rooms");
                 var row = AddRow(body);
                 AddButton(row, "REFRESH", () => session.Client.RefreshRooms(), 0);
                 AddButton(row, "CREATE ROOM", () => ShowRoomCreate(false), 0);
@@ -126,16 +128,14 @@ namespace Eclipse.Multiplayer
             var room = session.Room;
             builtMembers = room.Members.Count;
             builtAsHost = session.IsHost;
-            string rotation = room.Settings.Rotation == RoomRotation.WinnerStays ? "winner stays" : "rotation";
-            Rebuild(room.Settings.Name.ToUpperInvariant(), "Code " + room.Code + "   -   first to " + room.Settings.WinsRequired + "   -   " + rotation, body =>
+            string rotation = room.Settings.Rotation == RoomRotation.WinnerStays ? "Winner stays" : "Everyone rotates";
+            Rebuild(room.Settings.Name.ToUpperInvariant(), "Room code " + room.Code + "     First to " + room.Settings.WinsRequired + "     " + rotation, body =>
             {
-                AddInfo(body, "NOW", () => RoomSession.Current?.NowPlaying() ?? "");
-                AddTextBlock(body, 26 * RoomProtocol.MaxMembers, () =>
-                {
-                    var current = RoomSession.Current;
-                    if (current?.Room == null) return "";
-                    return string.Join("\n", current.Room.Members.Select(current.MemberLine));
-                });
+                var now = AddNote(body, "");
+                now.color = Red;
+                liveLabels.Add((now, () => RoomSession.Current?.NowPlaying() ?? ""));
+                AddRoster(body, room.Members.Count);
+                if (room.Members.Count == 1) AddNote(body, "Share the code " + room.Code + " so friends can join.");
                 AddChoice(body, "YOUR WEAPON", () => RoomSession.WeaponLabel(RoomSession.Current?.LocalWeapon), () => RoomSession.Current?.CycleWeapon());
                 AddChoice(body, "QUEUE", () => RoomSession.Current != null && RoomSession.Current.WantsQueue ? "IN LINE TO FIGHT" : "WATCHING",
                     () => RoomSession.Current?.ToggleQueue());
@@ -213,15 +213,68 @@ namespace Eclipse.Multiplayer
             SetStatus(reason);
         }
 
-        /// <summary>A multi-line, self-refreshing text area.</summary>
-        private void AddTextBlock(RectTransform parent, float height, Func<string> value)
+        /// <summary>Centered body text sized to its lines.</summary>
+        private UnityEngine.UI.Text AddNote(RectTransform parent, string text)
         {
-            var box = Rect(parent, "Text block");
-            box.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = height;
-            var label = Label(box, value(), 19, Ink, TextAnchor.UpperLeft);
-            label.horizontalOverflow = HorizontalWrapMode.Overflow;
-            label.verticalOverflow = VerticalWrapMode.Truncate;
-            liveLabels.Add((label, value));
+            var box = Rect(parent, "Note");
+            int lines = 1 + text.Count(c => c == '\n');
+            box.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 8 + 26 * lines;
+            return Label(box, text, 20, Ink, TextAnchor.MiddleCenter);
+        }
+
+        /// <summary>A room listing: an ink plate with the name on the left and its settings on the right.</summary>
+        private void AddListing(RectTransform parent, string name, string details, Action join)
+        {
+            var button = AddButton(parent, name, join);
+            var title = button.GetComponentInChildren<UnityEngine.UI.Text>();
+            title.alignment = TextAnchor.MiddleLeft; title.rectTransform.offsetMin = new Vector2(34, 0); title.rectTransform.offsetMax = new Vector2(-330, 0);
+            title.horizontalOverflow = HorizontalWrapMode.Wrap; title.resizeTextForBestFit = true; title.resizeTextMinSize = 14; title.resizeTextMaxSize = 22;
+            var info = Label(button.transform, details, 17, new Color(Paper.r, Paper.g, Paper.b, .75f), TextAnchor.MiddleRight);
+            info.rectTransform.offsetMin = new Vector2(320, 0); info.rectTransform.offsetMax = new Vector2(-40, 0);
+            info.resizeTextForBestFit = true; info.resizeTextMinSize = 12; info.resizeTextMaxSize = 17;
+            button.GetComponent<Eclipse.UI.EclipseUiButton>()?.Rehome();
+        }
+
+        private static readonly float[] RosterColumns = { -1, 150, 90, 150 };
+
+        /// <summary>Room members in aligned columns; the room page rebuilds when the member count changes.</summary>
+        private void AddRoster(RectTransform parent, int count)
+        {
+            var table = Rect(parent, "Roster");
+            var layout = table.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>(); layout.spacing = 0; layout.childControlHeight = layout.childControlWidth = true; layout.childForceExpandHeight = false; layout.childForceExpandWidth = true;
+            var faded = new Color(Ink.r, Ink.g, Ink.b, .5f);
+            RosterRow(table, 24, 15, new Func<string>[] { () => "PLAYER", () => "WEAPON", () => "RECORD", () => "STATUS" }, _ => faded);
+            for (int i = 0; i < count; i++)
+            {
+                int index = i;
+                RoomMember Member() { var room = RoomSession.Current?.Room; return room != null && index < room.Members.Count ? room.Members[index] : null; }
+                RosterRow(table, 28, 20, new Func<string>[]
+                {
+                    () => { var m = Member(); return m == null ? "" : m.Name + (RoomSession.Current.Room.HostId == m.Id ? "  (host)" : ""); },
+                    () => { var m = Member(); return m == null ? "" : RoomSession.WeaponLabel(m.Weapon); },
+                    () => { var m = Member(); return m == null ? "" : m.Wins + " - " + m.Losses; },
+                    () => { var m = Member(); return m == null ? "" : RoomSession.Current.MemberStatusLabel(m); },
+                }, column =>
+                {
+                    var m = Member();
+                    return column == 0 && m != null && m.Id == RoomSession.Current.ClientId ? Red : Ink;
+                });
+            }
+        }
+
+        private void RosterRow(RectTransform table, float height, int size, Func<string>[] cells, Func<int, Color> color)
+        {
+            var row = Rect(table, "Roster Row"); row.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = height;
+            var horizontal = row.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>(); horizontal.spacing = 12; horizontal.childControlWidth = horizontal.childControlHeight = true; horizontal.childForceExpandWidth = false;
+            horizontal.padding = new RectOffset(8, 8, 0, 0);
+            for (int column = 0; column < cells.Length; column++)
+            {
+                var label = Label(row, cells[column](), size, color(column), column == 0 ? TextAnchor.MiddleLeft : TextAnchor.MiddleCenter);
+                var element = label.gameObject.AddComponent<UnityEngine.UI.LayoutElement>();
+                if (RosterColumns[column] < 0) element.flexibleWidth = 1; else element.minWidth = element.preferredWidth = RosterColumns[column];
+                var cell = cells[column]; int fixedColumn = column;
+                liveLabels.Add((label, () => { label.color = color(fixedColumn); return cell(); }));
+            }
         }
     }
 }

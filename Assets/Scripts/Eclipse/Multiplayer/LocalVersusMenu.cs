@@ -143,8 +143,9 @@ namespace Eclipse.Multiplayer
                 });
                 var row = AddRow(body);
                 AddButton(row, "PLAY ONLINE", ShowOnlineHome, 0);
-                AddButton(row, "WATCH LAST REPLAY", WatchLastReplay, 0);
-                AddButton(body, "TEST ROLLBACK ON LAST REPLAY", TestRollbackOnLastReplay);
+                AddButton(row, "WATCH REPLAY", WatchLastReplay, 0);
+                // A netcode self-test for development; players have no use for it.
+                if (Debug.isDebugBuild) AddButton(row, "ROLLBACK TEST", TestRollbackOnLastReplay, 0);
                 AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
             });
             RefreshDeviceStatus();
@@ -535,6 +536,11 @@ namespace Eclipse.Multiplayer
             var body = Rect(paper, "Options"); body.anchorMin = body.anchorMax = body.pivot = new Vector2(.5f, 1); body.anchoredPosition = new Vector2(0, -150); body.sizeDelta = new Vector2(650, 440);
             var layout = body.gameObject.AddComponent<UnityEngine.UI.VerticalLayoutGroup>(); layout.spacing = 9; layout.childControlHeight = layout.childControlWidth = true; layout.childForceExpandHeight = false; layout.childForceExpandWidth = true;
             build(body);
+            // The card fits its content, so short pages don't stretch their rows or float in empty paper.
+            UnityEngine.UI.LayoutRebuilder.ForceRebuildLayoutImmediate(body);
+            float content = UnityEngine.UI.LayoutUtility.GetPreferredHeight(body);
+            body.sizeDelta = new Vector2(650, content);
+            paper.sizeDelta = new Vector2(760, Mathf.Clamp(150 + content + 74, 340, 680));
             status = Label(paper, "", 16, Red, TextAnchor.MiddleCenter); status.rectTransform.anchorMin = new Vector2(0, 0); status.rectTransform.anchorMax = new Vector2(1, 0); status.rectTransform.pivot = new Vector2(.5f, 0); status.rectTransform.anchoredPosition = new Vector2(0, 14); status.rectTransform.sizeDelta = new Vector2(-40, 52);
             IsShowing = true; Cursor.visible = true; Cursor.lockState = CursorLockMode.None;
             Eclipse.UI.EclipseUiAudio.SuppressFocusSound();
@@ -582,17 +588,22 @@ namespace Eclipse.Multiplayer
             return row;
         }
 
-        private UnityEngine.UI.InputField AddTextField(RectTransform parent, string caption, string value, int limit, string placeholder = null)
+        private UnityEngine.UI.InputField AddTextField(RectTransform parent, string caption, string value, int limit, string placeholder = null, float width = 340)
         {
             var row = Rect(parent, caption); row.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().preferredHeight = 46;
             var horizontal = row.gameObject.AddComponent<UnityEngine.UI.HorizontalLayoutGroup>(); horizontal.spacing = 12; horizontal.childControlWidth = horizontal.childControlHeight = true; horizontal.childForceExpandWidth = false;
             var left = Label(row, caption, 22, Ink, TextAnchor.MiddleLeft); left.gameObject.AddComponent<UnityEngine.UI.LayoutElement>().flexibleWidth = 1;
-            var box = Rect(row, caption + " Field"); var element = box.gameObject.AddComponent<UnityEngine.UI.LayoutElement>(); element.minWidth = element.preferredWidth = 340;
-            var image = box.gameObject.AddComponent<UnityEngine.UI.Image>(); image.color = new Color32(242, 232, 211, 255); image.raycastTarget = true;
+            var box = Rect(row, caption + " Field"); var element = box.gameObject.AddComponent<UnityEngine.UI.LayoutElement>(); element.minWidth = element.preferredWidth = width;
+            // Written on the paper: a faint ink wash over a ruled line, darkening while focused.
+            var image = box.gameObject.AddComponent<UnityEngine.UI.Image>(); image.color = new Color(Ink.r, Ink.g, Ink.b, .12f); image.raycastTarget = true;
+            var rule = Rect(box, "Rule"); rule.anchorMin = Vector2.zero; rule.anchorMax = new Vector2(1, 0); rule.pivot = new Vector2(.5f, 0); rule.sizeDelta = new Vector2(0, 2);
+            var ruleImage = rule.gameObject.AddComponent<UnityEngine.UI.Image>(); ruleImage.color = new Color(Ink.r, Ink.g, Ink.b, .7f); ruleImage.raycastTarget = false;
             var text = Label(box, "", 22, Ink, TextAnchor.MiddleLeft); text.supportRichText = false; text.rectTransform.offsetMin = new Vector2(12, 0); text.rectTransform.offsetMax = new Vector2(-12, 0);
-            var hint = Label(box, placeholder ?? "", 20, new Color(Ink.r, Ink.g, Ink.b, .45f), TextAnchor.MiddleLeft); hint.rectTransform.offsetMin = new Vector2(12, 0); hint.rectTransform.offsetMax = new Vector2(-12, 0);
+            var hint = Label(box, placeholder ?? "", 20, new Color(Ink.r, Ink.g, Ink.b, .45f), TextAnchor.MiddleLeft); hint.fontStyle = FontStyle.Italic; hint.rectTransform.offsetMin = new Vector2(12, 0); hint.rectTransform.offsetMax = new Vector2(-12, 0);
             var field = box.gameObject.AddComponent<UnityEngine.UI.InputField>();
             field.textComponent = text; field.placeholder = hint; field.targetGraphic = image;
+            var tint = field.colors; tint.normalColor = new Color(1, 1, 1, .6f); tint.highlightedColor = tint.selectedColor = tint.pressedColor = Color.white; tint.fadeDuration = .08f; field.colors = tint;
+            field.customCaretColor = true; field.caretColor = Red; field.caretWidth = 2; field.selectionColor = new Color(Red.r, Red.g, Red.b, .3f);
             field.lineType = UnityEngine.UI.InputField.LineType.SingleLine; field.characterLimit = limit;
             field.text = value ?? string.Empty;
             return field;
