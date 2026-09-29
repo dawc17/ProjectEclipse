@@ -56,6 +56,12 @@ Unity editor cannot play together), and the list of enabled mods with their
 versions, and refuses the match if they differ. A saved replay only plays back
 with the game version, build kind and enabled mods it was recorded with.
 
+Online versus uses rollback netcode by default. When the opponent's input
+arrives late, the game runs ahead on a guess, then restores the fight state and
+simulates the same ticks again. The fight can therefore run a tick more than
+once, so any future versus-enabled callback would have to give the same result
+every time it runs and keep all of its state in the fight.
+
 Local bootstrap also uses a temporary cloned profile document. Any profile changes
 or mod-state migrations made against that local profile are discarded and are not
 written into the campaign save. Content mods and their projected definitions remain

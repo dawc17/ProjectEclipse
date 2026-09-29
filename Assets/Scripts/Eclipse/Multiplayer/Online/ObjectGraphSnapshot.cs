@@ -449,7 +449,7 @@ namespace Eclipse.Multiplayer.Online
             info = new TypeInfo();
             _types[type] = info;
             if (type.IsPrimitive || type.IsEnum || type.IsPointer || type == typeof(string) || typeof(Delegate).IsAssignableFrom(type) ||
-                typeof(System.Threading.WaitHandle).IsAssignableFrom(type) ||
+                typeof(System.Threading.WaitHandle).IsAssignableFrom(type) || HasFinalizer(type) && !_policy.NeedsFieldCopy(type) ||
                 typeof(MemberInfo).IsAssignableFrom(type) || typeof(Type).IsAssignableFrom(type) || _policy.IsOpaque(type))
             {
                 info.Kind = Kind.Opaque;
@@ -489,6 +489,22 @@ namespace Eclipse.Multiplayer.Online
             // fields are still walked for the references it carries.
             info.Kind = type.IsValueType ? Kind.Opaque : _policy.NeedsFieldCopy(type) ? Kind.FieldCopy : Kind.Class;
             return info;
+        }
+
+        /// <summary>
+        /// Objects with finalizers (weak references, native handles) must never be cloned:
+        /// the clone's finalizer would release what the original still owns.
+        /// </summary>
+        private static bool HasFinalizer(Type type)
+        {
+            if (type.IsValueType || type.IsArray) return false;
+            if (typeof(WeakReference).IsAssignableFrom(type) || type.IsGenericType && type.GetGenericTypeDefinition() == typeof(WeakReference<>)) return true;
+            for (var current = type; current != null && current != typeof(object); current = current.BaseType)
+            {
+                var finalizer = current.GetMethod("Finalize", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly, null, Type.EmptyTypes, null);
+                if (finalizer != null) return true;
+            }
+            return false;
         }
 
         private bool MayHoldReferences(Type type)
