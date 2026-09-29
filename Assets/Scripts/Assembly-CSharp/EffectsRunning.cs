@@ -118,6 +118,8 @@ public class EffectsRunning
 		}
 		cocosAnimation.SetFirstFrame();
 		cocosAnimation.set_ChangeSpriteTime(changeSpriteTime);
+		// A rollback that undoes this tick destroys the effect.
+		Eclipse.Multiplayer.Rollback.RollbackObjects.Created(gameObject);
 		CurrentEffect bNGLFPIBAIM = new CurrentEffect(ACENLMONNPA, IBODMPMJELJ, gameObject, cocosAnimation);
 		IGLOMLIOOBM.Add(bNGLFPIBAIM);
 		ACENLMONNPA.CMBHIBKEAJH(bNGLFPIBAIM);
@@ -135,6 +137,14 @@ public class EffectsRunning
 		for (int num2 = IGLOMLIOOBM.Count; i < num2; i++)
 		{
 			CurrentEffect bNGLFPIBAIM = IGLOMLIOOBM[i];
+			if (bNGLFPIBAIM.EGJHGBCEPHO == null)
+			{
+				// Destroyed by a rollback: drop it from the running list.
+				CNBFDLLLJOF(bNGLFPIBAIM, i);
+				num2--;
+				i--;
+				continue;
+			}
 			if (!bNGLFPIBAIM.BHHCMELOEJF.get_IsWork() || (bNGLFPIBAIM.LLOLBKJMKNC.DIGCODDLDAD() && bNGLFPIBAIM.ACENLMONNPA == null && !bNGLFPIBAIM.stopFollowEffect))
 			{
 				CNBFDLLLJOF(bNGLFPIBAIM.LLOLBKJMKNC.get_Name(), bNGLFPIBAIM.ACENLMONNPA);

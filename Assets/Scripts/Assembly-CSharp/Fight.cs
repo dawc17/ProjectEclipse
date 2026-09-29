@@ -189,6 +189,8 @@ public class Fight
     private void DrainModelTransitions()
     {
         if (_drainingModelTransitions || _modelTransitions.Count == 0) return;
+        // Form swaps call back into mod code and toggle bodies; they run on confirmed input only.
+        if (IsLocalVersus && Eclipse.Multiplayer.VersusTickDriver.Barrier()) return;
         _drainingModelTransitions = true;
         try
         {

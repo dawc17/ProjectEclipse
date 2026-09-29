@@ -23,8 +23,21 @@ namespace Eclipse.Multiplayer.Rollback
         private static readonly List<Entry> CreatedObjects = new List<Entry>();
         private static readonly List<Entry> HiddenObjects = new List<Entry>();
         private static readonly List<Entry> StartedLoops = new List<Entry>();
+        private static readonly List<Entry> Toggled = new List<Entry>();
 
-        public static int Pending => CreatedObjects.Count + HiddenObjects.Count + StartedLoops.Count;
+        public static int Pending => CreatedObjects.Count + HiddenObjects.Count + StartedLoops.Count + Toggled.Count;
+
+        /// <summary>
+        /// Sets an object's active state; during a speculative tick the previous state is
+        /// remembered so a rollback restores it (a vanish that never happened).
+        /// </summary>
+        public static void SetActive(GameObject target, bool value)
+        {
+            if (target == null) return;
+            if (VersusTickDriver.IsSpeculating && target.activeSelf != value)
+                Toggled.Add(new Entry { Tick = VersusTickDriver.Tick, Target = target, WasActive = target.activeSelf });
+            target.SetActive(value);
+        }
 
         /// <summary>A speculative tick created <paramref name="target"/>.</summary>
         public static void Created(GameObject target)
@@ -68,6 +81,13 @@ namespace Eclipse.Multiplayer.Rollback
                 if (HiddenObjects[i].Target != null) HiddenObjects[i].Target.SetActive(HiddenObjects[i].WasActive);
                 HiddenObjects.RemoveAt(i);
             }
+            // Newest first, so the earliest recorded state wins.
+            for (int i = Toggled.Count - 1; i >= 0; i--)
+            {
+                if (Toggled[i].Tick < tick) continue;
+                if (Toggled[i].Target != null) Toggled[i].Target.SetActive(Toggled[i].WasActive);
+                Toggled.RemoveAt(i);
+            }
             for (int i = StartedLoops.Count - 1; i >= 0; i--)
             {
                 if (StartedLoops[i].Tick < tick) continue;
@@ -81,6 +101,7 @@ namespace Eclipse.Multiplayer.Rollback
         {
             CreatedObjects.RemoveAll(entry => entry.Tick < finalTicks);
             StartedLoops.RemoveAll(entry => entry.Tick < finalTicks);
+            Toggled.RemoveAll(entry => entry.Tick < finalTicks);
             for (int i = HiddenObjects.Count - 1; i >= 0; i--)
             {
                 if (HiddenObjects[i].Tick >= finalTicks) continue;

@@ -112,10 +112,6 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void RemoveActivePerkItem(PerksStage.ActionPerk IBODMPMJELJ)
 		{
-			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
-			{
-				return;
-			}
 			if (IBODMPMJELJ == null)
 			{
 				return;

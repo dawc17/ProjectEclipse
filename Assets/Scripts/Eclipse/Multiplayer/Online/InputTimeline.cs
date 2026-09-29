@@ -242,7 +242,7 @@ namespace Eclipse.Multiplayer.Online
             if (hashTick >= 0 && !_remoteHashes.ContainsKey(hashTick))
             {
                 _remoteHashes[hashTick] = hash;
-                _remoteHashes.Remove(hashTick - HashHistory);
+                PruneRemoteHashes(hashTick - HashHistory);
                 if (hashTick < FinalTicks) Compare(hashTick);
             }
             CompareFinal();
@@ -257,6 +257,16 @@ namespace Eclipse.Multiplayer.Online
                 _hasAdvantage = true;
             }
             return true;
+        }
+
+        // Final ticks advance in bursts, so old entries are swept rather than removed by exact key.
+        private readonly List<int> _pruned = new List<int>();
+        private void PruneRemoteHashes(int below)
+        {
+            if (_remoteHashes.Count < HashHistory) return;
+            _pruned.Clear();
+            foreach (int tick in _remoteHashes.Keys) if (tick < below) _pruned.Add(tick);
+            foreach (int tick in _pruned) _remoteHashes.Remove(tick);
         }
 
         /// <summary>The caller waited one tick to let the opponent catch up.</summary>

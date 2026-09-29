@@ -22,7 +22,11 @@ namespace Eclipse.Multiplayer.Online
         public const int DefaultRollbackWindow = 8;
         /// <summary>One simulation tick in milliseconds (60 ticks per second).</summary>
         public const float TickMs = 1000f / 60f;
-        /// <summary>Peers compare state every tick, so a desync report names the first diverging tick.</summary>
+        /// <summary>
+        /// Every tick is hashed. Each packet carries the hash of the sender's latest final
+        /// tick, so a desync is reported at the first compared tick that differs (within a
+        /// few ticks of where the games diverged).
+        /// </summary>
         public const int HashInterval = 1;
         /// <summary>Replays keep a checkpoint every half second.</summary>
         public const int ReplayHashInterval = 30;

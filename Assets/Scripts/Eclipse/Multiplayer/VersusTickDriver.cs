@@ -94,6 +94,12 @@ namespace Eclipse.Multiplayer
         /// </summary>
         public static bool Barrier()
         {
+            if (_inTick && (_flags & TickFlags.BarrierReplay) != 0)
+            {
+                // Replaying a tick discarded here: from now on its presentation is new.
+                _flags &= ~(TickFlags.BarrierReplay | TickFlags.Resimulating);
+                return false;
+            }
             if (!IsSpeculating) return false;
             BarrierHit = true;
             return true;

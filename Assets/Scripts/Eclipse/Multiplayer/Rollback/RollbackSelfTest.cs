@@ -58,7 +58,7 @@ namespace Eclipse.Multiplayer.Rollback
             {
                 // A barrier: undo the tick and run it as confirmed, as an online match would.
                 Barriers++;
-                if (!_rollback.LoadState(tick) || !_rollback.Simulate(tick, left, right, TickFlags.None, out hash))
+                if (!_rollback.LoadState(tick) || !_rollback.Simulate(tick, left, right, TickFlags.Resimulating | TickFlags.BarrierReplay, out hash))
                 {
                     Fail(tick, "the tick could not run again after a barrier");
                     return;

@@ -286,7 +286,7 @@ internal static class RollbackTests
         public readonly State World = new State();
         public readonly List<(int tick, byte left, byte right)> FinalInputs = new List<(int, byte, byte)>();
         public int BarrierEvery = 97;
-        public int Speculated, Resimulated;
+        public int Speculated, Resimulated, BarrierReplays;
         private readonly ObjectGraphSnapshotter _snapshotter = new ObjectGraphSnapshotter(new TestPolicy());
         private readonly StateSnapshot[] _ring;
         private readonly InputTimeline _timeline;
@@ -317,6 +317,7 @@ internal static class RollbackTests
             if ((flags & TickFlags.Speculative) != 0 && tick % 50 == 49) return false;
             if ((flags & TickFlags.Speculative) != 0) Speculated++;
             if ((flags & TickFlags.Resimulating) != 0) Resimulated++;
+            if ((flags & TickFlags.BarrierReplay) != 0) BarrierReplays++;
             Step(World.Left, left, World.Right);
             Step(World.Right, right, World.Left);
             if ((left & NetInput.Ranged) != 0) World.Projectiles.Add(new Fighter { Position = World.Left.Position });
@@ -418,6 +419,7 @@ internal static class RollbackTests
         {
             Check(timelines[0].Rollbacks > 20 && fights[0].Resimulated > 0, "mispredictions were rolled back" + label + " (" + timelines[0].Rollbacks + ")");
             Check(runners[0].Barriers > 0, "barriers held speculation back" + label);
+            Check(fights[0].BarrierReplays > 0 && fights[0].BarrierReplays <= runners[0].Barriers, "correctly guessed barrier ticks replay quietly" + label);
         }
         Check(timelines[0].LongestRollback <= window && timelines[1].LongestRollback <= window, "rollbacks stay inside the window" + label);
     }

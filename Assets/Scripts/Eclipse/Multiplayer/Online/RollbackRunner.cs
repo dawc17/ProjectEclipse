@@ -11,6 +11,12 @@ namespace Eclipse.Multiplayer.Online
         Speculative = 1,
         /// <summary>The tick already ran once; presentation (sound, effects) should not repeat.</summary>
         Resimulating = 2,
+        /// <summary>
+        /// Re-running a tick that was discarded at a barrier, with the same inputs: everything
+        /// before the barrier already played, so presentation stays quiet until the game
+        /// reaches the barrier again (<c>Resimulating</c> is cleared there).
+        /// </summary>
+        BarrierReplay = 4,
     }
 
     /// <summary>The game side of rollback: one simulation tick plus state save and restore.</summary>
@@ -49,6 +55,7 @@ namespace Eclipse.Multiplayer.Online
         private readonly IRollbackGame _game;
         private readonly int _localSide;
         private int _barrierTick = -1;
+        private byte _barrierRemote;
         private int _ticksSinceWait;
 
         public RollbackRunner(InputTimeline timeline, IRollbackGame game, int localSide)
@@ -132,6 +139,8 @@ namespace Eclipse.Multiplayer.Online
             var flags = TickFlags.None;
             if (predicted) flags |= TickFlags.Speculative;
             if (resimulating) flags |= TickFlags.Resimulating;
+            // The discarded run guessed right: its presentation up to the barrier already played.
+            if (tick == _barrierTick && !predicted && remote == _barrierRemote) flags |= TickFlags.Resimulating | TickFlags.BarrierReplay;
             if (predicted) _game.SaveState(tick);
             byte left = _localSide == 0 ? local : remote;
             byte right = _localSide == 0 ? remote : local;
@@ -141,6 +150,7 @@ namespace Eclipse.Multiplayer.Online
                 // again once the opponent's input for it is confirmed.
                 Barriers++;
                 _barrierTick = tick;
+                _barrierRemote = remote;
                 if (!_game.LoadState(tick)) Failure = "The saved state for tick " + tick + " was missing.";
                 _timeline.Rewind(tick);
                 return false;

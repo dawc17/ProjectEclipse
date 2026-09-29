@@ -146,9 +146,18 @@ following already happened when the tick first ran and are skipped:
 - mod impact visuals;
 - combo labels and perk icons.
 
-The fight is left as the corrected run leaves it. If a wrong guess showed a hit
-that the correction removed, the combo label or perk icon from the guess can
-stay on screen until it expires. This affects presentation only.
+The fight is left as the corrected run leaves it.
+
+- Effects spawned by an undone tick are destroyed.
+- Perk icons can still be removed during a re-simulation.
+- If a wrong guess showed a hit that the correction removed, its combo label
+  can stay on screen until it slides away.
+- A hit that only the correction reveals plays no sound or effect, because it
+  never ran for the first time.
+- The end-of-fight combo statistics count the guessed run. Versus results do
+  not use them.
+
+These all affect presentation only.
 
 ### Speculation barriers
 
@@ -160,10 +169,18 @@ scene objects or end the match:
 - `ScreenFight.Start`/`Stop` (banners);
 - `LocalVersusSession.Complete` (the match result).
 
+Model form swaps (`Fight.DrainModelTransitions`) are a barrier too.
+
 Each calls `VersusTickDriver.Barrier()`. On a speculative tick this skips the
 action and marks the tick. The runner then restores the state from before the
 tick and waits until the opponent's input for it is confirmed. So a round only
 ever ends, and a match only ever finishes, on confirmed input.
+
+A deciding hit usually lands on a speculative tick, so its sound and effects
+already played before the round-end barrier discarded the tick. When the
+confirmed input matches the guess, the tick runs again with presentation muted
+(`TickFlags.BarrierReplay`) until it reaches the barrier. From there on,
+everything plays normally, so the final hit is heard once.
 
 `Fight.VersusCanSpeculate` also refuses prediction outside a running round
 (intros, banners, round ends). Those moments play as lockstep.
@@ -176,6 +193,9 @@ ever ends, and a match only ever finishes, on confirmed input.
   if that tick is rolled back.
 - **Models removed on a speculative tick** are only hidden. They are destroyed
   once the tick is final, or shown again if it is rolled back.
+- **Effects spawned on a speculative tick** are destroyed if it is rolled back.
+- **Fighters shown or hidden on a speculative tick** (vanish moves) go back to
+  their earlier visibility if it is rolled back.
 - **Looped sounds started on a speculative tick** are stopped if it is rolled
   back.
 
@@ -274,6 +294,10 @@ enter its address once in Online, then browse, create, or join rooms by code.
 - **Rollback costs CPU.** Each speculative tick saves the full fight graph with
   reflection, and a correction re-simulates up to 8 ticks at once. On a slow
   phone, a larger input delay means fewer speculative ticks.
+- **Transient perk flags now count simulation ticks in every versus mode.**
+  They used to count render frames, which was not deterministic. A replay
+  recorded before this change that depends on one of these flags could play
+  back differently.
 - **A long hiccup still freezes both games.** Past the 8-tick prediction window
   both games wait, and the session gives up after 20 s of silence.
 - **Mono and IL2CPP builds can't play together.** Tested on 2026-09-29, a Mono

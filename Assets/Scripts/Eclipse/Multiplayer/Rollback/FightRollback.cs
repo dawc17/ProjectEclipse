@@ -49,7 +49,8 @@ namespace Eclipse.Multiplayer.Rollback
         private static readonly HashSet<(Type, string)> SkippedFields = new HashSet<(Type, string)>
         {
             (typeof(Model), "BJKJBIMPPAM"),   // Effects attached to the model.
-            (typeof(Render), "FPLGNMICCPH"),  // Blood drops.
+            (typeof(Render), "FPLGNMICCPH"),  // Blood drops,
+            (typeof(Render), "OBCAJAIBJHP"),  // and their lifetime counter.
         };
 
         private static readonly PropertyInfo FillAmount = typeof(UnityEngine.UI.Image).GetProperty("fillAmount");
@@ -57,6 +58,8 @@ namespace Eclipse.Multiplayer.Rollback
 
         public bool IsOpaque(Type type)
         {
+            // Arrays are judged by their elements (a Vector2[] is state, not engine data).
+            if (type.IsArray) return false;
             if (typeof(UnityEngine.Object).IsAssignableFrom(type)) return !GameplayComponents.Contains(type);
             foreach (var definition in OpaqueBases)
                 if (definition.IsAssignableFrom(type)) return true;
