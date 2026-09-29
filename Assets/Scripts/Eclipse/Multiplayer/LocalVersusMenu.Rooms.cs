@@ -372,7 +372,8 @@ namespace Eclipse.Multiplayer
             var settings = LocalVersusSession.Settings;
             Rebuild(title, settings.PlayerOneName + "  " + playerOneWins + "  :  " + playerTwoWins + "  " + settings.PlayerTwoName, body =>
             {
-                AddButton(body, "CONTINUE", () => RoomSession.Current?.ContinueAfterFight(), -1, Eclipse.UI.UiSound.Begin);
+                AddButton(body, "REMATCH", () => RoomSession.Current?.RequestRematch(), -1, Eclipse.UI.UiSound.Begin);
+                AddButton(body, "BACK TO ROOM", () => RoomSession.Current?.ContinueAfterFight(), -1, Eclipse.UI.UiSound.Confirm);
                 AddButton(body, "LEAVE ROOM", () => { RoomSession.Current?.Leave(); ShowOnlineHome(); });
                 AddButton(body, "LEAVE AND RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
             });
@@ -382,6 +383,11 @@ namespace Eclipse.Multiplayer
                 var rooms = RoomSession.Current;
                 var online = OnlineVersusSession.Current;
                 string text = online?.SyncProblem ?? fixedMessage ?? "";
+                string opponent = online?.RoomMatch?.PeerName ?? "your opponent";
+                if (rooms != null && rooms.PendingPairing != null) text = "Rematch accepted. Connecting...";
+                else if (rooms != null && rooms.RematchRequested) text = (text.Length > 0 ? text + " " : "") + "Waiting for " + opponent + " to accept the rematch.";
+                else if (rooms != null && rooms.OpponentWantsRematch) text = (text.Length > 0 ? text + " " : "") + opponent + " wants a rematch.";
+                else if (rooms != null && rooms.RematchRefusal != null) text = rooms.RematchRefusal;
                 if (rooms != null && rooms.AutoContinueAtMs >= 0)
                 {
                     long seconds = Math.Max(0, (rooms.AutoContinueAtMs - OnlineVersusSession.NowMs + 999) / 1000);

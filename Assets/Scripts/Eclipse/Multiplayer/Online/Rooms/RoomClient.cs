@@ -100,6 +100,9 @@ namespace Eclipse.Multiplayer.Online.Rooms
         public void Kick(uint memberId) => Send(RoomMessages.Kick(memberId));
 
         /// <summary>Reports the fight's outcome from this side. The link stays up for the result screen.</summary>
+        /// <summary>Asks to fight the opponent of <paramref name="matchId"/> again, or withdraws that.</summary>
+        public void Rematch(uint matchId, bool wanted) => Send(RoomMessages.Rematch(matchId, wanted));
+
         public void ReportMatch(uint matchId, MatchOutcome outcome, string reason)
         {
             Send(RoomMessages.MatchReport(matchId, outcome, reason));

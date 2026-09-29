@@ -12,7 +12,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
     /// </summary>
     public static class RoomProtocol
     {
-        public const byte Version = 2;
+        public const byte Version = 3;
         public const int DefaultPort = 7300;
         public const int MaxMembers = 8;
         public const int MaxCandidates = 6;
@@ -94,6 +94,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
         Kick = 7,
         MatchReport = 8,
         Chat = 9,
+        /// <summary>After a fight: fight the same opponent again (or withdraw the request).</summary>
+        Rematch = 10,
         // Server to client.
         Error = 20,
         RoomList = 21,
@@ -201,6 +203,8 @@ namespace Eclipse.Multiplayer.Online.Rooms
         /// <summary>Round trip to the room server, or -1 before the first measurement.</summary>
         public int PingMs = -1;
         public MemberLink Link;
+        /// <summary>Back from a fight and asking to fight the same opponent again.</summary>
+        public bool WantsRematch;
     }
 
     public sealed class RoomListing
@@ -256,6 +260,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
                 writer.U16((ushort)Math.Min(member.Losses, ushort.MaxValue));
                 writer.U16((ushort)(member.PingMs < 0 ? ushort.MaxValue : Math.Min(member.PingMs, ushort.MaxValue - 1)));
                 writer.U8((byte)member.Link);
+                writer.Bool(member.WantsRematch);
             }
             writer.U8((byte)Queue.Count);
             foreach (uint id in Queue) writer.U32(id);
@@ -291,6 +296,7 @@ namespace Eclipse.Multiplayer.Online.Rooms
                     Losses = reader.U16(),
                     PingMs = PingFromWire(reader.U16()),
                     Link = (MemberLink)reader.U8(),
+                    WantsRematch = reader.Bool(),
                 });
             }
             int queue = reader.U8();
@@ -405,6 +411,15 @@ namespace Eclipse.Multiplayer.Online.Rooms
             var writer = new NetWriter(8);
             writer.U8((byte)RoomMessage.Kick);
             writer.U32(memberId);
+            return writer.ToArray();
+        }
+
+        public static byte[] Rematch(uint matchId, bool wanted)
+        {
+            var writer = new NetWriter(8);
+            writer.U8((byte)RoomMessage.Rematch);
+            writer.U32(matchId);
+            writer.Bool(wanted);
             return writer.ToArray();
         }
 

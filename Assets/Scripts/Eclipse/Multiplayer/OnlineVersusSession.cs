@@ -33,7 +33,8 @@ namespace Eclipse.Multiplayer
         public string LocalName { get; private set; }
         public string RemoteName => Peer?.RemoteIdentity?.PlayerName ?? "Opponent";
         public LobbyState Lobby { get; private set; } = new LobbyState();
-        public VersusLoadout LocalLoadout { get; private set; } = VersusLoadouts.Load(VersusLoadouts.Online);
+        /// <summary>Loaded in Awake: PlayerPrefs may not be read from a component's constructor.</summary>
+        public VersusLoadout LocalLoadout { get; private set; }
         public bool LocalReady { get; private set; }
         public bool LocalWantsRematch { get; private set; }
         public bool RemoteWantsRematch { get; private set; }
@@ -210,6 +211,11 @@ namespace Eclipse.Multiplayer
             session.Peer = null;
             session._source = null;
             Destroy(session.gameObject);
+        }
+
+        private void Awake()
+        {
+            if (LocalLoadout == null) LocalLoadout = VersusLoadouts.Load(VersusLoadouts.Online);
         }
 
         private static OnlineVersusSession Create(string playerName)

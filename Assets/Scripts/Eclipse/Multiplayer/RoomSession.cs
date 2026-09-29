@@ -140,13 +140,48 @@ namespace Eclipse.Multiplayer
             PendingPairing = null;
             AutoContinueAtMs = -1;
             WantsQueue = false;
+            RematchRequested = false;
             Client?.LeaveRoom();
         }
 
-        /// <summary>From the result screen: close the fight and return to the room.</summary>
+        /// <summary>This player asked (from the result screen) to fight the same opponent again.</summary>
+        public bool RematchRequested { get; private set; }
+        /// <summary>Why the server turned the last rematch request down, or null.</summary>
+        public string RematchRefusal { get; private set; }
+
+        /// <summary>Whether the opponent of the fight just finished has asked for a rematch.</summary>
+        public bool OpponentWantsRematch
+        {
+            get
+            {
+                var pairing = OnlineVersusSession.Current?.RoomMatch;
+                return pairing != null && Room?.Find(pairing.PeerId)?.WantsRematch == true;
+            }
+        }
+
+        /// <summary>
+        /// From the result screen: ask the room server to pair the same two players again.
+        /// The server starts it once both ask and nobody else is waiting in line.
+        /// </summary>
+        public void RequestRematch()
+        {
+            uint matchId = OnlineVersusSession.Current?.RoomMatch?.MatchId ?? 0;
+            if (!InFight || matchId == 0 || RematchRequested || ServerLost != null || Client.State != RoomClientState.Connected) return;
+            RematchRequested = true;
+            RematchRefusal = null;
+            Client.Rematch(matchId, true);
+            // Waiting on the opponent's answer; the screen stays until they accept or it times out.
+            AutoContinueAtMs = OnlineVersusSession.NowMs + AutoContinueSeconds * 1000;
+        }
+
+        /// <summary>From the result screen: close the fight and return to the room, out of the queue.</summary>
         public void ContinueAfterFight()
         {
             if (!InFight) return;
+            // Back to watching; the player queues again themselves when they want another fight.
+            WantsQueue = false;
+            RematchRequested = false;
+            RematchRefusal = null;
             if (ServerLost != null)
             {
                 string reason = ServerLost;
@@ -213,6 +248,9 @@ namespace Eclipse.Multiplayer
             {
                 case RoomEventType.Error:
                     Notice = roomEvent.Text;
+                    // A refused rematch (someone queued, the opponent left) says why; it can be asked for again.
+                    if (RematchRequested) RematchRefusal = roomEvent.Text;
+                    RematchRequested = false;
                     menu.OnRoomNotice(roomEvent.Text);
                     break;
                 case RoomEventType.RoomListUpdated:
@@ -236,6 +274,10 @@ namespace Eclipse.Multiplayer
                     PendingPairing = roomEvent.Pairing;
                     _pairedAtMs = OnlineVersusSession.NowMs;
                     LastOutcome = null;
+                    // A rematch pairs players still on the result screen; it must not time out to the room.
+                    AutoContinueAtMs = -1;
+                    RematchRequested = false;
+                    RematchRefusal = null;
                     Notice = "Next up: you vs " + roomEvent.Pairing.PeerName + ". Connecting...";
                     Debug.Log("[Rooms] Paired with " + roomEvent.Pairing.PeerName + " for match " + roomEvent.Pairing.MatchId + " as " +
                         (roomEvent.Pairing.Side == 0 ? "left (host)" : "right (guest)") + "; candidates " + string.Join(", ", roomEvent.Pairing.Candidates));

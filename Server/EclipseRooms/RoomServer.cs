@@ -379,6 +379,7 @@ namespace Eclipse.RoomServer
                     case RoomMessage.UpdateSettings: UpdateSettings(client, RoomSettings.Read(reader)); break;
                     case RoomMessage.Kick: Kick(client, reader.U32()); break;
                     case RoomMessage.MatchReport: Report(client, reader.U32(), (MatchOutcome)reader.U8(), reader.Str()); break;
+                    case RoomMessage.Rematch: Rematch(client, reader.U32(), reader.Bool()); break;
                 }
             }
             catch (NetFormatException)
@@ -484,6 +485,13 @@ namespace Eclipse.RoomServer
             }
             room.Members.Remove(client);
             room.Queue.Remove(client.Id);
+            // Whoever was waiting to fight them again is not any more.
+            foreach (var member in room.Members)
+            {
+                if (member.Member == null || !member.Member.WantsRematch || OpponentOf(member) != client) continue;
+                member.Member.WantsRematch = false;
+                Send(member, RoomMessages.Error(client.Identity.PlayerName + " left, so there is no rematch."));
+            }
             client.Room = null;
             client.Member = null;
             if (room.ChampionId == client.Id) { room.ChampionId = 0; room.Streak = 0; room.ChampionAwaySinceMs = -1; }
@@ -509,6 +517,8 @@ namespace Eclipse.RoomServer
             if (room == null || client.Member == null) return;
             // The server cannot read a loadout (only the game knows its roster); it stores and relays it.
             client.Member.Loadout = loadout;
+            // Continuing to the room (queued or not) ends any rematch request.
+            client.Member.WantsRematch = false;
             if (client.Member.Status == MemberStatus.InMatch) client.QueueAfterMatch = queued;
             else
             {
@@ -602,6 +612,12 @@ namespace Eclipse.RoomServer
             var left = room.Members.Find(member => member.Id == room.Queue[0]);
             var right = room.Members.Find(member => member.Id == room.Queue[1]);
             room.Queue.RemoveRange(0, 2);
+            StartMatch(room, left, right);
+        }
+
+        /// <summary>Pairs two members: each gets the other's address and a shared seed (which also picks a random arena).</summary>
+        private void StartMatch(Room room, Client left, Client right)
+        {
             var match = new Match
             {
                 Id = _nextMatchId++,
@@ -614,10 +630,74 @@ namespace Eclipse.RoomServer
             room.Current = match;
             left.Match = right.Match = match;
             left.Member.Status = right.Member.Status = MemberStatus.InMatch;
+            left.Member.WantsRematch = right.Member.WantsRematch = false;
+            left.QueueAfterMatch = right.QueueAfterMatch = false;
             int seed = _random.Next();
             Send(left, PairingFor(match, left, right, 0, seed).Encode());
             Send(right, PairingFor(match, right, left, 1, seed).Encode());
             Log("match " + match.Id + " in room " + room.Id + ": " + left.Identity.PlayerName + " vs " + right.Identity.PlayerName);
+        }
+
+        /// <summary>The other player of this member's last fight, while both are still in its room.</summary>
+        private static Client OpponentOf(Client client)
+        {
+            var last = client.LastMatch;
+            if (last == null || client.Room == null || last.Room != client.Room) return null;
+            var other = last.Left == client ? last.Right : last.Left;
+            return other.Room == client.Room && other.Member != null ? other : null;
+        }
+
+        /// <summary>
+        /// Both players of a finished fight asked to go again: pair them once more on the
+        /// same sides, with a new seed (so a random arena is drawn afresh). The room's
+        /// queue comes first: nobody may be waiting in line and no other fight running.
+        /// </summary>
+        private void Rematch(Client client, uint matchId, bool wanted)
+        {
+            var room = client.Room;
+            if (room == null || client.Member == null) return;
+            if (!wanted)
+            {
+                if (!client.Member.WantsRematch) return;
+                client.Member.WantsRematch = false;
+                Broadcast(room);
+                return;
+            }
+            // The request may arrive before the second result report resolves the fight.
+            var match = client.Match != null && client.Match.Id == matchId ? client.Match
+                : client.LastMatch != null && client.LastMatch.Id == matchId && client.Member.Status == MemberStatus.Away ? client.LastMatch : null;
+            if (match == null) { Send(client, RoomMessages.Error("That fight is over; there is nothing to rematch.")); return; }
+            var opponent = match.Left == client ? match.Right : match.Left;
+            if (opponent.Room != room || opponent.Member == null) { Send(client, RoomMessages.Error("Your opponent left the room.")); return; }
+            bool opponentStill = opponent.Match == match || opponent.Match == null && opponent.LastMatch == match && opponent.Member.Status == MemberStatus.Away;
+            if (!opponentStill) { Send(client, RoomMessages.Error(opponent.Identity.PlayerName + " has already moved on.")); return; }
+            if (room.Queue.Count > 0) { Send(client, RoomMessages.Error("Others are waiting to fight, so no rematch this time.")); return; }
+            client.Member.WantsRematch = true;
+            TryRematch(match);
+            Broadcast(room);
+        }
+
+        /// <summary>Starts the rematch once the fight has resolved and both players asked for it.</summary>
+        private bool TryRematch(Match match)
+        {
+            var room = match.Room;
+            var left = match.Left;
+            var right = match.Right;
+            bool bothBack = room.Current == null && left.Room == room && right.Room == room && left.Member != null && right.Member != null &&
+                left.LastMatch == match && right.LastMatch == match &&
+                left.Member.Status == MemberStatus.Away && right.Member.Status == MemberStatus.Away;
+            if (!bothBack || !left.Member.WantsRematch || !right.Member.WantsRematch) return false;
+            if (room.Queue.Count > 0)
+            {
+                // Someone joined the line while the fight was resolving; they go first.
+                left.Member.WantsRematch = right.Member.WantsRematch = false;
+                foreach (var player in new[] { left, right }) Send(player, RoomMessages.Error("Others are waiting to fight, so no rematch this time."));
+                return false;
+            }
+            room.ChampionAwaySinceMs = -1;
+            SystemLine(room, left.Identity.PlayerName + " and " + right.Identity.PlayerName + " go again.");
+            StartMatch(room, left, right);
+            return true;
         }
 
         private static RoomPairing PairingFor(Match match, Client self, Client peer, int side, int seed)
@@ -699,6 +779,7 @@ namespace Eclipse.RoomServer
                     (room.ChampionId == winner.Id && room.Streak > 1 ? " (" + room.Streak + " in a row)." : "."));
             }
             else SystemLine(room, match.Left.Identity.PlayerName + " vs " + match.Right.Identity.PlayerName + " ended without a result.");
+            if (TryRematch(match)) { Broadcast(room); return; }
             // Anyone who already asked to queue again (continued before the other report) goes straight in.
             foreach (var player in new[] { match.Left, match.Right })
             {
