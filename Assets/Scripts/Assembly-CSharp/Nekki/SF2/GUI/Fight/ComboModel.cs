@@ -118,32 +118,54 @@ namespace Nekki.SF2.GUI.Fight
 			return component;
 		}
 
+		// Combo labels are presentation: they update once per displayed tick, never
+		// again while a rollback re-simulates ticks that already ran.
 		public ComboNode CreateCritical()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return null;
+			}
 			ODOJIOOGLJM.IGMFLCNOKPA++;
 			return GLJMJOACEIP(BDBLCIILHHH(ComboTypes.TypeCritical));
 		}
 
 		public ComboNode CreateShock()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return null;
+			}
 			ODOJIOOGLJM.OGMOILIMCOM++;
 			return GLJMJOACEIP(BDBLCIILHHH(ComboTypes.TypeShock));
 		}
 
 		public ComboNode CreateFirstStrike()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return null;
+			}
 			ODOJIOOGLJM.MOLDOOIJELI++;
 			return GLJMJOACEIP(BDBLCIILHHH(ComboTypes.TypeFirstStrike));
 		}
 
 		public ComboNode CreateHeadStrike()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return null;
+			}
 			ODOJIOOGLJM.BAHCDHKAJBB++;
 			return GLJMJOACEIP(BDBLCIILHHH(ComboTypes.TypeHead));
 		}
 
 		public ComboNode CreateComboStrike(int value)
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return null;
+			}
 			ComboItem comboItem = BDBLCIILHHH(ComboTypes.TypeCombo);
 			comboItem.UpdateCount(value);
 			return GLJMJOACEIP(comboItem);
@@ -151,6 +173,10 @@ namespace Nekki.SF2.GUI.Fight
 
 		public ComboNode CreateHotGroundTimer(int value)
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return null;
+			}
 			ComboItem comboItem = BDBLCIILHHH(ComboTypes.TypeHotGroundTimer);
 			comboItem.UpdateCount(value);
 			return GLJMJOACEIP(comboItem);
@@ -188,12 +214,20 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void AddCrazyStyle(int value)
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			ODOJIOOGLJM.BPBDGAPENAK = (FightStatistics.EMKEIEJMONM)Mathf.Max((int)ODOJIOOGLJM.BPBDGAPENAK, value);
 			ODOJIOOGLJM.StatisticCrazyStyleToString = ODOJIOOGLJM.OLONAJAOFOA();
 		}
 
 		public void AddPerfect()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			ODOJIOOGLJM.JDKFHFOJKPI++;
 		}
 
@@ -209,6 +243,10 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void UpdateHotGroundTimer(int time)
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			MAOHKAOBHKO = time;
 			ComboNode iNEGMMHCDGN = OBKMHFLBGLE.Find((ComboNode DHDMNHCIPEH) => DHDMNHCIPEH.Type == ComboTypes.TypeHotGroundTimer);
 			if (iNEGMMHCDGN == null)
@@ -226,6 +264,10 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void UpdateCombo(int value, int HFMKKLJGPPN)
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			GHPGBLHFOKB = value;
 			if (GHPGBLHFOKB > 0)
 			{
@@ -383,6 +425,10 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void Render()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			NADGMCEPDAK();
 			BLMPDANIEDN();
 			if (GHPGBLHFOKB <= 0)

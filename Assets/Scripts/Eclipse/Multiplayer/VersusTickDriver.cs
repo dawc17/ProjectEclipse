@@ -21,6 +21,15 @@ namespace Eclipse.Multiplayer
     }
 
     /// <summary>
+    /// A source that runs the fixed step itself, for rollback: it may restore state and
+    /// simulate several ticks (<see cref="VersusTickDriver.SimulateTick"/>) in one step.
+    /// </summary>
+    public interface IVersusStepRunner
+    {
+        void RunStep(Fight fight);
+    }
+
+    /// <summary>
     /// Owns versus input. Instead of applying device events whenever Unity delivers
     /// them, every versus fight samples inputs per simulation tick and applies them
     /// immediately before that tick. Local, online and replayed matches share this
@@ -28,16 +37,28 @@ namespace Eclipse.Multiplayer
     /// </summary>
     public static class VersusTickDriver
     {
+        /// <summary>
+        /// Driver state that belongs to the simulation. Rollback snapshots include it, so
+        /// a restored tick sees the same held controls the original run did.
+        /// </summary>
+        internal sealed class TickState
+        {
+            public byte Left, Right;
+            public bool Resync;
+            public StageType.FDBBPEGEGMK LastStage;
+            public int Tick;
+        }
+
         private static IVersusInputSource _source;
         private static Fight _fight;
-        private static byte _left, _right;
+        private static TickState _state = new TickState();
         private static bool _applying;
         private static bool _inTick;
-        private static bool _resync;
-        private static StageType.FDBBPEGEGMK _lastStage;
+        private static TickFlags _flags;
         private static (int winner, int left, int right)? _pendingEnd;
 
-        public static int Tick { get; private set; }
+        public static int Tick => _state.Tick;
+        internal static TickState State => _state;
         /// <summary>The state behind the most recent tick hash.</summary>
         public static VersusSnapshot LastSnapshot { get; private set; }
         public static bool IsStalled { get; private set; }
@@ -51,17 +72,44 @@ namespace Eclipse.Multiplayer
         /// <summary>True while the driver itself is delivering control events to the fight.</summary>
         public static bool IsApplyingInput => _applying;
 
+        /// <summary>
+        /// True while simulating a tick that may still be undone (it ran on a predicted
+        /// opponent input). Anything that cannot be undone must go through <see cref="Barrier"/>.
+        /// </summary>
+        public static bool IsSpeculating => _inTick && (_flags & TickFlags.Speculative) != 0;
+
+        /// <summary>
+        /// True while re-simulating a tick after a rollback. Presentation that already
+        /// played (sounds, effects, blood, combo labels) must not play again.
+        /// </summary>
+        public static bool IsResimulating => _inTick && (_flags & TickFlags.Resimulating) != 0;
+
+        /// <summary>Set when a speculative tick reached a <see cref="Barrier"/>; the tick is then discarded.</summary>
+        public static bool BarrierHit { get; private set; }
+
+        /// <summary>
+        /// Call before something that must never be undone (a round transition, the match
+        /// result). Returns true when the current tick is speculative: skip the action; the
+        /// tick is thrown away and runs again once the opponent's input is confirmed.
+        /// </summary>
+        public static bool Barrier()
+        {
+            if (!IsSpeculating) return false;
+            BarrierHit = true;
+            return true;
+        }
+
         public static void Begin(Fight fight, IVersusInputSource source, int seed)
         {
             Stop();
             _fight = fight;
             _source = source;
-            _left = _right = NetInput.Neutral;
-            Tick = 0;
+            _state = new TickState { Left = NetInput.Neutral, Right = NetInput.Neutral, LastStage = fight != null ? fight.stageType : default };
             IsStalled = false;
-            _inTick = _resync = false;
+            _inTick = false;
+            _flags = TickFlags.None;
+            BarrierHit = false;
             _pendingEnd = null;
-            _lastStage = fight != null ? fight.stageType : default;
             VersusDeterminism.Seed(seed);
             VersusDeterminism.BeginTick(0);
         }
@@ -73,17 +121,24 @@ namespace Eclipse.Multiplayer
             _fight = null;
             IsStalled = false;
             _inTick = false;
+            _flags = TickFlags.None;
             _pendingEnd = null;
             VersusDeterminism.End();
             source?.Stop();
         }
 
+        /// <returns>How many ticks <see cref="Fight.Draw"/> should run; 0 when the source ran the step itself.</returns>
         internal static int StepsFor(Fight fight)
         {
             if (!Owns(fight)) return 1;
             // A local pause drops presses; held controls are re-delivered on resume.
-            if (fight.IsPaused()) _resync = true;
+            if (fight.IsPaused()) _state.Resync = true;
             _source.Pump();
+            if (_source is IVersusStepRunner runner)
+            {
+                if (fight.PrepareVersusStep()) runner.RunStep(fight);
+                return 0;
+            }
             return _source != null && _source.StepsWanted > 1 ? 2 : 1;
         }
 
@@ -91,13 +146,58 @@ namespace Eclipse.Multiplayer
         internal static bool BeforeTick(Fight fight)
         {
             if (!Owns(fight)) return true;
-            if (!_source.TryGetTick(Tick, out var left, out var right))
+            if (!_source.TryGetTick(_state.Tick, out var left, out var right))
             {
                 IsStalled = true;
                 return false;
             }
             IsStalled = false;
-            VersusDeterminism.BeginTick(Tick);
+            BeginTick(fight, left, right, TickFlags.None);
+            return true;
+        }
+
+        internal static void AfterTick(Fight fight)
+        {
+            if (!Owns(fight)) { _inTick = false; return; }
+            int tick = EndTick(fight, out var hash);
+            if (tick < 0) return;
+            _source.OnTickSimulated(tick, _state.Left, _state.Right, hash);
+            DeliverPendingEnd(tick);
+        }
+
+        /// <summary>
+        /// Runs exactly one tick with the given inputs, for sources that drive the step
+        /// themselves (<see cref="IVersusStepRunner"/>).
+        /// </summary>
+        /// <returns>False when a speculative tick hit a <see cref="Barrier"/> and must be discarded.</returns>
+        internal static bool SimulateTick(Fight fight, int tick, byte left, byte right, TickFlags flags, out uint hash)
+        {
+            hash = 0;
+            if (!Owns(fight)) return false;
+            if (tick != _state.Tick) throw new System.InvalidOperationException("Versus tick " + tick + " requested on state " + _state.Tick + ".");
+            IsStalled = false;
+            BarrierHit = false;
+            BeginTick(fight, left, right, flags);
+            Eclipse.Diagnostics.PerformanceOverlay.BeginFightSimulation();
+            try { fight.Render(); }
+            finally { Eclipse.Diagnostics.PerformanceOverlay.EndFightSimulation(); }
+            if (!Owns(fight)) { _inTick = false; _flags = TickFlags.None; return false; }
+            int done = EndTick(fight, out var tickHash);
+            bool kept = !BarrierHit;
+            BarrierHit = false;
+            hash = tickHash ?? 0u;
+            if (done >= 0 && kept) DeliverPendingEnd(done);
+            else _pendingEnd = null;
+            return kept && done >= 0;
+        }
+
+        /// <summary>The stepping source could not run a tick this step.</summary>
+        internal static void MarkStalled(bool stalled) => IsStalled = stalled;
+
+        private static void BeginTick(Fight fight, byte left, byte right, TickFlags flags)
+        {
+            VersusDeterminism.BeginTick(_state.Tick);
+            _flags = flags;
             _applying = true;
             _inTick = true;
             try
@@ -105,27 +205,26 @@ namespace Eclipse.Multiplayer
                 // The fight ignores presses outside the stages that accept them, so a
                 // control held across a stage change or pause is released and pressed
                 // again, like the controller restart this path replaced.
-                if (_resync || fight.stageType != _lastStage)
+                if (_state.Resync || fight.stageType != _state.LastStage)
                 {
-                    Apply(fight, 0, ref _left, NetInput.Neutral);
-                    Apply(fight, 1, ref _right, NetInput.Neutral);
-                    _resync = false;
-                    _lastStage = fight.stageType;
+                    Apply(fight, 0, ref _state.Left, NetInput.Neutral);
+                    Apply(fight, 1, ref _state.Right, NetInput.Neutral);
+                    _state.Resync = false;
+                    _state.LastStage = fight.stageType;
                 }
-                Apply(fight, 0, ref _left, left);
-                Apply(fight, 1, ref _right, right);
+                Apply(fight, 0, ref _state.Left, left);
+                Apply(fight, 1, ref _state.Right, right);
             }
             finally { _applying = false; }
-            return true;
         }
 
-        internal static void AfterTick(Fight fight)
+        /// <returns>The tick just finished, or -1 when the fight stopped being driven.</returns>
+        private static int EndTick(Fight fight, out uint? hash)
         {
-            if (!Owns(fight)) { _inTick = false; return; }
+            hash = null;
             fight.AdvanceVersusScreens(VersusDeterminism.TickSeconds);
-            if (!Owns(fight)) { _inTick = false; return; }
-            int tick = Tick++;
-            uint? hash = null;
+            if (!Owns(fight)) { _inTick = false; _flags = TickFlags.None; return -1; }
+            int tick = _state.Tick++;
             if (tick % NetProtocol.HashInterval == 0)
             {
                 // A hashing failure must never skip recording this tick's inputs.
@@ -140,22 +239,25 @@ namespace Eclipse.Multiplayer
                     hash = 0xDEADBEEFu ^ (uint)tick;
                 }
             }
-            _source.OnTickSimulated(tick, _left, _right, hash);
             _inTick = false;
-            // Delivered only now, so the tick the match ended on is recorded first.
-            if (_pendingEnd.HasValue && _source != null)
-            {
-                var end = _pendingEnd.Value;
-                _pendingEnd = null;
-                _source.OnMatchEnded(tick, end.winner, end.left, end.right);
-            }
+            _flags = TickFlags.None;
+            return tick;
+        }
+
+        // Delivered only now, so the tick the match ended on is recorded first.
+        private static void DeliverPendingEnd(int tick)
+        {
+            if (!_pendingEnd.HasValue || _source == null) return;
+            var end = _pendingEnd.Value;
+            _pendingEnd = null;
+            _source.OnMatchEnded(tick, end.winner, end.left, end.right);
         }
 
         internal static void MatchEnded(Fight fight, int winner, int leftRounds, int rightRounds)
         {
             if (!Owns(fight)) return;
             if (_inTick) _pendingEnd = (winner, leftRounds, rightRounds);
-            else _source.OnMatchEnded(Tick - 1, winner, leftRounds, rightRounds);
+            else _source.OnMatchEnded(_state.Tick - 1, winner, leftRounds, rightRounds);
         }
 
         // Releases before presses so a same-tick direction change never holds two quadrants.

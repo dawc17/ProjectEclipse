@@ -8,13 +8,20 @@ namespace Eclipse.Multiplayer.Online
     /// </summary>
     public static class NetProtocol
     {
-        public const byte Version = 1;
+        /// <summary>2: rollback netcode, run-length input blocks and time sync.</summary>
+        public const byte Version = 2;
         public const int DefaultPort = 7291;
         public const int MaxPacketSize = 1200;
         public const int MaxStringBytes = 200;
         public const int HeaderSize = 8;
         public const int MaxInputDelay = 10;
         public const int DefaultInputDelay = 3;
+        /// <summary>Rollback hides most latency, so it keeps only a small delay.</summary>
+        public const int DefaultRollbackDelay = 1;
+        /// <summary>How many ticks rollback may run on predicted opponent input before it waits.</summary>
+        public const int DefaultRollbackWindow = 8;
+        /// <summary>One simulation tick in milliseconds (60 ticks per second).</summary>
+        public const float TickMs = 1000f / 60f;
         /// <summary>Peers compare state every tick, so a desync report names the first diverging tick.</summary>
         public const int HashInterval = 1;
         /// <summary>Replays keep a checkpoint every half second.</summary>
@@ -102,6 +109,42 @@ namespace Eclipse.Multiplayer.Online
         }
     }
 
+    /// <summary>How an online match hides latency.</summary>
+    public enum NetcodeMode : byte
+    {
+        /// <summary>Both games wait for both inputs; the input delay covers the latency.</summary>
+        Delay = 0,
+        /// <summary>Run ahead on predicted opponent input and correct mistakes by re-simulating.</summary>
+        Rollback = 1,
+    }
+
+    public static class NetcodeModes
+    {
+        public static NetcodeMode Read(NetReader reader)
+        {
+            byte value = reader.U8();
+            if (value > (byte)NetcodeMode.Rollback) throw new NetFormatException("Unknown netcode mode.");
+            return (NetcodeMode)value;
+        }
+
+        public static string Label(NetcodeMode mode) => mode == NetcodeMode.Rollback ? "Rollback" : "Delay";
+
+        /// <summary>
+        /// Input delay for a measured round trip. Delay mode hides the whole one-way trip.
+        /// Rollback keeps a small delay that grows with latency, so rollbacks stay short.
+        /// </summary>
+        public static int SuggestedDelay(NetcodeMode mode, int rttMs, int jitterMs = 0)
+        {
+            if (rttMs < 0) return mode == NetcodeMode.Rollback ? NetProtocol.DefaultRollbackDelay : NetProtocol.DefaultInputDelay;
+            float oneWayTicks = (rttMs / 2f + Math.Max(0, jitterMs)) / NetProtocol.TickMs;
+            if (mode == NetcodeMode.Rollback)
+                return Clamp((int)Math.Ceiling(oneWayTicks) - 4, NetProtocol.DefaultRollbackDelay, 4);
+            return Clamp((int)Math.Ceiling(oneWayTicks) + 1, 1, 8);
+        }
+
+        private static int Clamp(int value, int min, int max) => value < min ? min : value > max ? max : value;
+    }
+
     public enum NetMessageType : byte
     {
         /// <summary>Guest to host: the guest's chosen weapon and ready flag.</summary>
@@ -127,6 +170,7 @@ namespace Eclipse.Multiplayer.Online
         public int WinsRequired = 2;
         public int RoundTimeSeconds = 99;
         public int InputDelay = NetProtocol.DefaultInputDelay;
+        public NetcodeMode Netcode = NetcodeMode.Rollback;
         public bool GuestReady;
 
         public byte[] Encode()
@@ -140,6 +184,7 @@ namespace Eclipse.Multiplayer.Online
             writer.U16((ushort)RoundTimeSeconds);
             writer.U8((byte)InputDelay);
             writer.Bool(GuestReady);
+            writer.U8((byte)Netcode);
             return writer.ToArray();
         }
 
@@ -154,6 +199,7 @@ namespace Eclipse.Multiplayer.Online
                 RoundTimeSeconds = reader.U16(),
                 InputDelay = reader.U8(),
                 GuestReady = reader.Bool(),
+                Netcode = NetcodeModes.Read(reader),
             };
             if (state.InputDelay > NetProtocol.MaxInputDelay) throw new NetFormatException("Input delay out of range.");
             return state;
@@ -171,6 +217,8 @@ namespace Eclipse.Multiplayer.Online
         public int RoundTimeSeconds;
         public int InputDelay;
         public int Seed;
+        /// <summary>Prediction window in ticks; 0 plays delay-based lockstep.</summary>
+        public int RollbackWindow;
 
         public byte[] Encode()
         {
@@ -184,6 +232,7 @@ namespace Eclipse.Multiplayer.Online
             writer.U16((ushort)RoundTimeSeconds);
             writer.U8((byte)InputDelay);
             writer.I32(Seed);
+            writer.U8((byte)RollbackWindow);
             return writer.ToArray();
         }
 
@@ -199,8 +248,10 @@ namespace Eclipse.Multiplayer.Online
                 RoundTimeSeconds = reader.U16(),
                 InputDelay = reader.U8(),
                 Seed = reader.I32(),
+                RollbackWindow = reader.U8(),
             };
             if (start.InputDelay > NetProtocol.MaxInputDelay) throw new NetFormatException("Input delay out of range.");
+            if (start.RollbackWindow > InputTimeline.MaxPredictionLimit) throw new NetFormatException("Rollback window out of range.");
             return start;
         }
     }

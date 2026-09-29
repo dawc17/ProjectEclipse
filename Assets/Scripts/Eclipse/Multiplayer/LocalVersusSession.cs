@@ -154,6 +154,8 @@ namespace Eclipse.Multiplayer
         internal static void Complete(Fight fight, bool abandoned = false)
         {
             if (HasResult || fight == null || !fight.IsLocalVersus) return;
+            // The result only ever lands on a confirmed tick.
+            if (VersusTickDriver.Barrier()) return;
             int one = fight.GetPlayerModel().Parameters.RoundsWon;
             int two = fight.GetEnemyModel().Parameters.RoundsWon;
             int winner = abandoned ? -1 : (one > two ? 0 : 1);

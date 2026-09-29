@@ -41,6 +41,11 @@ namespace Eclipse.Multiplayer.Online
         private long _peerStampReceivedMs;
         private bool _hasPeerStamp;
         private long _clockOriginMs = -1;
+        private ushort _sendSequence;
+        private bool _hasReceiveSequence;
+        private ushort _highestSequence;
+        private int _windowExpected, _windowReceived;
+        private const int LossWindow = 60;
 
         public bool IsHost { get; }
         public NetplayState State { get; private set; }
@@ -50,8 +55,12 @@ namespace Eclipse.Multiplayer.Online
         public EndPoint RemoteEndPoint => _remote;
         /// <summary>Smoothed round-trip time in milliseconds, or -1 before the first sample.</summary>
         public int RttMs { get; private set; } = -1;
+        /// <summary>Smoothed variation between round-trip samples in milliseconds.</summary>
+        public int JitterMs { get; private set; }
+        /// <summary>Recent share of the peer's data packets that never arrived (0-100).</summary>
+        public int LossPercent { get; private set; }
         public long LastReceiveMs { get; private set; }
-        public LockstepTimeline Timeline { get; set; }
+        public InputTimeline Timeline { get; set; }
         /// <summary>Set once a well-formed packet from the peer has been processed this session.</summary>
         public bool HasHeardFromPeer { get; private set; }
         /// <summary>Test aid: extra one-way delay added to every outgoing datagram.</summary>
@@ -185,10 +194,11 @@ namespace Eclipse.Multiplayer.Online
             _writer.U32(Stamp(nowMs));
             _writer.U32(_hasPeerStamp ? _lastPeerStamp : 0u);
             _writer.U16(_hasPeerStamp ? (ushort)Math.Min(ushort.MaxValue, nowMs - _peerStampReceivedMs) : ushort.MaxValue);
+            _writer.U16(_sendSequence++);
             var timeline = Timeline;
-            _reliable.Write(_writer, nowMs, timeline != null ? 160 : 1);
+            _reliable.Write(_writer, nowMs, timeline != null ? 300 : 1);
             _writer.Bool(timeline != null);
-            timeline?.WriteSync(_writer);
+            timeline?.WriteSync(_writer, nowMs, RttMs);
             SendRaw();
             _lastSendMs = nowMs;
         }
@@ -286,14 +296,40 @@ namespace Eclipse.Multiplayer.Online
             _lastPeerStamp = peerStamp;
             _peerStampReceivedMs = nowMs;
             _hasPeerStamp = true;
+            ushort sequence = reader.U16();
             if (held != ushort.MaxValue && echo != 0)
             {
                 long sample = Stamp(nowMs) - (long)echo - held;
                 if (sample >= 0 && sample < 5000)
+                {
+                    if (RttMs >= 0) JitterMs = (int)(JitterMs * 0.875 + Math.Abs(sample - RttMs) * 0.125);
                     RttMs = RttMs < 0 ? (int)sample : (int)(RttMs * 0.875 + sample * 0.125);
+                }
             }
+            CountSequence(sequence);
             _reliable.Read(reader);
-            if (reader.Bool()) Timeline?.ReadSync(reader);
+            if (reader.Bool()) Timeline?.ReadSync(reader, nowMs, RttMs);
+        }
+
+        // Loss from gaps in the peer's packet numbers; late (reordered) packets count as lost.
+        private void CountSequence(ushort sequence)
+        {
+            if (!_hasReceiveSequence)
+            {
+                _hasReceiveSequence = true;
+                _highestSequence = sequence;
+                _windowExpected = _windowReceived = 1;
+                return;
+            }
+            int ahead = (short)(ushort)(sequence - _highestSequence);
+            if (ahead <= 0) return;
+            _highestSequence = sequence;
+            _windowExpected += ahead;
+            _windowReceived++;
+            if (_windowExpected < LossWindow) return;
+            int loss = 100 - _windowReceived * 100 / _windowExpected;
+            LossPercent = Math.Max(0, Math.Min(100, (LossPercent + loss * 3) / 4));
+            _windowExpected = _windowReceived = 0;
         }
 
         private void MarkHeard(long nowMs)

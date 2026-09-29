@@ -433,6 +433,11 @@ public static class Sound
 
 	public static int IFKCCDAIADF(string DPBKBKDCIOI, bool KKHJAJFEPPA = false, float JIJAJFEJJHK = 1f)
 	{
+		// A rollback re-simulation replays ticks whose one-shot sounds already played.
+		if (!KKHJAJFEPPA && Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+		{
+			return -1;
+		}
 		bool flag = AudioManager.CheckAudioLoaded(DPBKBKDCIOI);
 		if (!flag)
 		{
@@ -447,6 +452,7 @@ public static class Sound
 			if (KKHJAJFEPPA)
 			{
 				EOIPDBEELIJ(DPBKBKDCIOI, (uint)num);
+				Eclipse.Multiplayer.Rollback.RollbackObjects.LoopStarted(DPBKBKDCIOI);
 			}
 		}
 		else

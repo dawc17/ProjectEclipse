@@ -30,6 +30,12 @@ namespace Eclipse.Multiplayer
 
         public static void End() { Active = false; }
 
+        /// <summary>
+        /// A frame counter for short-lived gameplay flags: the simulation tick in versus
+        /// (identical on every peer and across rollbacks), the render frame otherwise.
+        /// </summary>
+        public static int FrameStamp => Active ? VersusTickDriver.Tick : UnityEngine.Time.frameCount;
+
         internal static void BeginTick(int tick)
         {
             if (Active) Reseed((uint)tick);

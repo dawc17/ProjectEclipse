@@ -127,6 +127,8 @@ namespace Eclipse.Rendering
 		// A projectile attacker has struck, so its light goes out.
 		public static void Hit(Model victim, Vector3f point, bool critical, bool blocked, bool ko, Model attacker = null, Vector3f impulse = null)
 		{
+			// Already shown when the tick first ran; a rollback re-simulation stays quiet.
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating) return;
 			ModVisuals.NotifyHit(critical, blocked, ko);
 			if (attacker != null && attacker.NJDJHGDMCIJ() != null)
 				foreach (FighterParticles live in Live)

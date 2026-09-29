@@ -70,6 +70,11 @@ public class EffectsRunning
 		ModelConditions dGJJDPIAEAO = ACENLMONNPA.EBABHGHPLFK();
 		dGJJDPIAEAO.PCAOCHAIBJC = ACENLMONNPA.OCPMJKIEPIG().KFCNPADAMHA();
 		Vector3f eMAFACPEPDK = Vector3f.op_Implicit(IBODMPMJELJ.ECJPLFFAMJO().EMGKDOAMBOH(dGJJDPIAEAO));
+		// Effects are presentation; a rollback re-simulation does not spawn them twice.
+		if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+		{
+			return;
+		}
 		GameObject gameObject = new GameObject(IBODMPMJELJ.get_Name());
 		gameObject.transform.localPosition = new Vector3(eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
 		Quaternion attachmentRotation = Quaternion.identity;
@@ -120,6 +125,11 @@ public class EffectsRunning
 
 	public void DHOMHKADCFG()
 	{
+		// Effect animations advance once per displayed tick, not per re-simulated one.
+		if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+		{
+			return;
+		}
 		float num = 1f / (float)GameUtils.GGBABPJBGJB();
 		int i = 0;
 		for (int num2 = IGLOMLIOOBM.Count; i < num2; i++)
