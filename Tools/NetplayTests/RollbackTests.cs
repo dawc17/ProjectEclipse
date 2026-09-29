@@ -16,6 +16,7 @@ internal static class RollbackTests
         Check = check;
         SnapshotRestoresInPlace();
         SnapshotReportsDifferences();
+        SnapshotCollections();
         RunLengthInputs();
         PredictionAndRollbackBookkeeping();
         RollbackInMemory(latencySteps: 0, lossPercent: 0, delay: 1, window: 8, seed: 3);
@@ -132,6 +133,53 @@ internal static class RollbackTests
     {
         public static int Value;
         public static readonly List<int> List = new List<int>();
+    }
+
+    private sealed class Bag
+    {
+        public HashSet<string> Set = new HashSet<string> { "a" };
+        public Queue<int> Queue = new Queue<int>(new[] { 1, 2 });
+        public LinkedList<Node> Linked = new LinkedList<Node>();
+        public Dictionary<string, List<Node>> Table = new Dictionary<string, List<Node>>();
+        public KeyValuePair<string, Node>[] Pairs = new KeyValuePair<string, Node>[2];
+        public List<Pair> Structs = new List<Pair>();
+        public WeakReference Weak = new WeakReference(new object());
+        public int? Maybe = 3;
+    }
+
+    private static void SnapshotCollections()
+    {
+        var shared = new Node { X = 1 };
+        var bag = new Bag();
+        bag.Linked.AddLast(shared);
+        bag.Table["k"] = new List<Node> { shared };
+        bag.Pairs[0] = new KeyValuePair<string, Node>("p", shared);
+        bag.Structs.Add(new Pair { Value = 1, Target = shared });
+        var weak = bag.Weak;
+        var snapshotter = new ObjectGraphSnapshotter(new TestPolicy());
+        var snapshot = new StateSnapshot();
+        snapshotter.Capture(snapshot, 0, new object[] { bag });
+
+        bag.Set.Add("b"); bag.Set.Remove("a");
+        bag.Queue.Dequeue(); bag.Queue.Enqueue(9);
+        bag.Linked.AddFirst(new Node());
+        bag.Table["k"].Clear(); bag.Table["x"] = new List<Node>();
+        bag.Pairs[0] = default;
+        bag.Structs[0] = new Pair { Value = 2 };
+        shared.X = 7;
+        bag.Maybe = null;
+        bag.Weak = null;
+
+        snapshotter.Restore(snapshot);
+        Check(bag.Set.Count == 1 && bag.Set.Contains("a"), "hash set restored");
+        Check(bag.Queue.Count == 2 && bag.Queue.Peek() == 1, "queue restored");
+        Check(bag.Linked.Count == 1 && ReferenceEquals(bag.Linked.First.Value, shared), "linked list restored");
+        Check(bag.Table.Count == 1 && bag.Table["k"].Count == 1 && ReferenceEquals(bag.Table["k"][0], shared), "nested dictionary restored");
+        Check(bag.Pairs[0].Key == "p" && ReferenceEquals(bag.Pairs[0].Value, shared), "struct array with references restored");
+        Check(bag.Structs[0].Value == 1 && ReferenceEquals(bag.Structs[0].Target, shared), "list of structs restored");
+        Check(shared.X == 1, "objects reached through collections restored");
+        Check(bag.Maybe == 3, "nullable restored");
+        Check(ReferenceEquals(bag.Weak, weak) && weak.IsAlive | !weak.IsAlive, "weak reference kept by reference, never cloned");
     }
 
     private static void SnapshotReportsDifferences()

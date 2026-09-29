@@ -6,8 +6,8 @@ namespace Eclipse.Multiplayer.Rollback
 {
     /// <summary>
     /// Plays a recorded match while rolling back constantly, the way a bad connection
-    /// would: every mid-round tick runs speculatively, and once several have run the
-    /// state is restored and they are simulated again. The full saved state after the
+    /// would: every mid-round tick runs speculatively, and every other tick the last
+    /// <see cref="Depth"/> ticks are restored and simulated again. The full saved state after the
     /// re-simulation must equal the state after the first run; any difference names the
     /// field that rollback failed to restore. Needs only one machine.
     /// </summary>
@@ -69,7 +69,8 @@ namespace Eclipse.Multiplayer.Rollback
             _hashes[tick & (_hashes.Length - 1)] = hash;
             CheckRecording(tick, hash);
             _speculativeRun = speculate ? _speculativeRun + 1 : 0;
-            if (_speculativeRun >= Depth) RollBack(fight, tick);
+            // Every other tick keeps the test near real time while still covering each tick twice.
+            if (_speculativeRun >= Depth && tick % 2 == 0) RollBack(fight, tick);
             RollbackObjects.Finalized(tick - Depth + 2);
         }
 

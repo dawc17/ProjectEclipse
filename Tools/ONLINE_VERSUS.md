@@ -227,9 +227,9 @@ enter its address once in Online, then browse, create, or join rooms by code.
 3. Rollback on one machine: after a local versus match, choose **Test rollback
    on last replay**. `RollbackSelfTest` plays the recording with every
    mid-round tick treated as speculative.
-   - Every time six have run, it restores the state from before them,
-     simulates them again, and compares the full saved state with the first
-     run.
+   - Every other tick (once six have run), it restores the state from six ticks
+     back, simulates them again, and compares the full saved state with the
+     first run.
    - The result screen must say "Rollback test passed". A failure names the
      first field that differs, as `Type.field: first vs second`, and the log
      has up to five reports. That field is state the snapshot policy misses.
