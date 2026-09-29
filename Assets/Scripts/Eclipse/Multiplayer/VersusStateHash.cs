@@ -3,76 +3,124 @@ using Eclipse.Multiplayer.Online;
 
 namespace Eclipse.Multiplayer
 {
+    /// <summary>One fighter's hashed state after a tick. A plain struct, so a history costs no allocations.</summary>
+    public struct FighterSnapshot
+    {
+        public bool Present;
+        public float X, Y, Life;
+        public int Facing, RoundsWon, Frame, Interval;
+        public string Animation;
+    }
+
+    /// <summary>The versus simulation state that <see cref="VersusStateHash"/> fingerprints.</summary>
+    public struct VersusSnapshot
+    {
+        public int Tick, Stage, Round, FightFrames, TimeLeft;
+        public FighterSnapshot Left, Right;
+    }
+
     /// <summary>
     /// Fingerprint of the versus simulation after a tick. Peers exchange it to detect
     /// desyncs, and replays store it to prove they reproduce the match.
     /// </summary>
     public static class VersusStateHash
     {
-        public static uint Compute(Fight fight, int tick)
+        public static VersusSnapshot Capture(Fight fight, int tick)
+        {
+            var snapshot = new VersusSnapshot { Tick = tick };
+            if (fight == null) return snapshot;
+            snapshot.Stage = (int)fight.stageType;
+            snapshot.Round = fight.get_RoundNumber();
+            snapshot.FightFrames = fight.get_FightTimeInFrames();
+            snapshot.TimeLeft = fight.get_RoundTimeLeftFrames();
+            snapshot.Left = CaptureModel(fight.GetPlayerModel());
+            snapshot.Right = CaptureModel(fight.GetEnemyModel());
+            return snapshot;
+        }
+
+        private static FighterSnapshot CaptureModel(Model model)
+        {
+            if (model == null) return default;
+            var position = model.PLBNCDCFPML();
+            var result = new FighterSnapshot
+            {
+                Present = true,
+                X = position != null ? position.GetX() : float.NaN,
+                Y = position != null ? position.GetY() : float.NaN,
+                Facing = model.KFCNPADAMHA(),
+                Life = model.KKMCHCNOHMB(),
+                RoundsWon = model.Parameters != null ? model.Parameters.RoundsWon : -1,
+                Animation = model.GetCurrentAnimation()?.Name,
+            };
+            // Only counters that are safe without an active animation (fighters have none during the intro).
+            var animation = model.OCPMJKIEPIG();
+            if (animation != null)
+            {
+                result.Frame = animation.NEBJGKODIKP();
+                result.Interval = animation.HILLKPNMCIP();
+            }
+            return result;
+        }
+
+        public static uint Hash(in VersusSnapshot snapshot)
         {
             var hasher = new StateHasher();
-            hasher.Add(tick);
-            if (fight == null) return hasher.Value;
-            hasher.Add((int)fight.stageType);
-            hasher.Add(fight.get_RoundNumber());
-            hasher.Add(fight.get_FightTimeInFrames());
-            hasher.Add(fight.get_RoundTimeLeftFrames());
-            AddModel(ref hasher, fight.GetPlayerModel());
-            AddModel(ref hasher, fight.GetEnemyModel());
+            hasher.Add(snapshot.Tick);
+            hasher.Add(snapshot.Stage);
+            hasher.Add(snapshot.Round);
+            hasher.Add(snapshot.FightFrames);
+            hasher.Add(snapshot.TimeLeft);
+            Add(ref hasher, snapshot.Left);
+            Add(ref hasher, snapshot.Right);
             return hasher.Value;
         }
 
-        private static void AddModel(ref StateHasher hasher, Model model)
+        private static void Add(ref StateHasher hasher, in FighterSnapshot fighter)
         {
-            if (model == null) { hasher.Add(-1); return; }
-            var position = model.PLBNCDCFPML();
-            hasher.Add(position != null ? position.GetX() : float.NaN);
-            hasher.Add(position != null ? position.GetY() : float.NaN);
-            hasher.Add(model.KFCNPADAMHA());
-            hasher.Add(model.KKMCHCNOHMB());
-            hasher.Add(model.Parameters != null ? model.Parameters.RoundsWon : -1);
-            hasher.Add(model.GetCurrentAnimation()?.Name);
-            var animation = model.OCPMJKIEPIG();
-            // Only counters that are safe without an active animation (fighters have none during the intro).
-            if (animation != null)
-            {
-                hasher.Add(animation.NEBJGKODIKP());
-                hasher.Add(animation.HILLKPNMCIP());
-            }
+            if (!fighter.Present) { hasher.Add(-1); return; }
+            hasher.Add(fighter.X);
+            hasher.Add(fighter.Y);
+            hasher.Add(fighter.Facing);
+            hasher.Add(fighter.Life);
+            hasher.Add(fighter.RoundsWon);
+            hasher.Add(fighter.Animation);
+            hasher.Add(fighter.Frame);
+            hasher.Add(fighter.Interval);
         }
 
-        /// <summary>Human-readable state for desync logs.</summary>
-        public static string Describe(Fight fight)
-        {
-            if (fight == null) return "No fight.";
-            try { return DescribeUnchecked(fight); }
-            catch (System.Exception exception) { return "State unavailable (" + exception.GetType().Name + ")."; }
-        }
+        public static uint Compute(Fight fight, int tick) => Hash(Capture(fight, tick));
 
-        private static string DescribeUnchecked(Fight fight)
+        /// <summary>Exact state for desync reports; floats include their bit patterns.</summary>
+        public static string Format(in VersusSnapshot snapshot)
         {
-            var text = new StringBuilder();
-            text.Append("tick ").Append(VersusTickDriver.Tick).Append(", stage ").Append(fight.stageType)
-                .Append(", round ").Append(fight.get_RoundNumber()).Append(", fight frames ").Append(fight.get_FightTimeInFrames())
-                .Append(", time left ").Append(fight.get_RoundTimeLeftFrames());
-            Describe(text, "left", fight.GetPlayerModel());
-            Describe(text, "right", fight.GetEnemyModel());
+            var text = new StringBuilder(320);
+            text.Append("tick ").Append(snapshot.Tick).Append(" stage ").Append(snapshot.Stage).Append(" round ").Append(snapshot.Round)
+                .Append(" frames ").Append(snapshot.FightFrames).Append(" left ").Append(snapshot.TimeLeft);
+            Format(text, " | L ", snapshot.Left);
+            Format(text, " | R ", snapshot.Right);
             return text.ToString();
         }
 
-        private static void Describe(StringBuilder text, string side, Model model)
+        private static void Format(StringBuilder text, string label, in FighterSnapshot fighter)
         {
-            text.Append("; ").Append(side).Append(": ");
-            if (model == null) { text.Append("none"); return; }
-            var position = model.PLBNCDCFPML();
-            var animation = model.OCPMJKIEPIG();
-            text.Append("pos ").Append(position?.GetX().ToString("R")).Append(",").Append(position?.GetY().ToString("R"))
-                .Append(" facing ").Append(model.KFCNPADAMHA())
-                .Append(" life ").Append(model.KKMCHCNOHMB().ToString("R"))
-                .Append(" anim ").Append(model.GetCurrentAnimation()?.Name ?? "-");
-            if (animation != null)
-                text.Append(" frames ").Append(animation.NEBJGKODIKP()).Append("/").Append(animation.HILLKPNMCIP());
+            text.Append(label);
+            if (!fighter.Present) { text.Append("none"); return; }
+            text.Append(Exact(fighter.X)).Append(',').Append(Exact(fighter.Y)).Append(" f").Append(fighter.Facing)
+                .Append(" hp ").Append(Exact(fighter.Life)).Append(" w").Append(fighter.RoundsWon)
+                .Append(' ').Append(fighter.Animation ?? "-").Append(' ').Append(fighter.Frame).Append('/').Append(fighter.Interval);
+        }
+
+        private static string Exact(float value)
+        {
+            return value.ToString("R", System.Globalization.CultureInfo.InvariantCulture) + "#" + StateHasher.Bits(value).ToString("X8");
+        }
+
+        /// <summary>Human-readable current state for logs.</summary>
+        public static string Describe(Fight fight)
+        {
+            if (fight == null) return "No fight.";
+            try { return Format(Capture(fight, VersusTickDriver.Tick)); }
+            catch (System.Exception exception) { return "State unavailable (" + exception.GetType().Name + ")."; }
         }
     }
 }

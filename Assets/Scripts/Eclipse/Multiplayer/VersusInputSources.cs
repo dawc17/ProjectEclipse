@@ -24,7 +24,7 @@ namespace Eclipse.Multiplayer
         public virtual void OnTickSimulated(int tick, byte left, byte right, uint? hash)
         {
             Replay.Record(left, right);
-            if (hash.HasValue) Replay.Hashes[tick] = hash.Value;
+            if (hash.HasValue && tick % NetProtocol.ReplayHashInterval == 0) Replay.Hashes[tick] = hash.Value;
         }
 
         public virtual void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds) => Save(null);
@@ -89,12 +89,31 @@ namespace Eclipse.Multiplayer
     /// <summary>Plays a recorded match back and compares its state hashes.</summary>
     public sealed class ReplayInputSource : IVersusInputSource
     {
+        public const int MaxTraceTicks = 3000;
         private readonly VersusReplay _replay;
+        private StreamWriter _trace;
         public int CheckedHashes { get; private set; }
         public int DivergedTick { get; private set; } = -1;
         public bool ReachedEnd { get; private set; }
 
-        public ReplayInputSource(VersusReplay replay) { _replay = replay ?? throw new ArgumentNullException(nameof(replay)); }
+        public ReplayInputSource(VersusReplay replay)
+        {
+            _replay = replay ?? throw new ArgumentNullException(nameof(replay));
+            // Cross-device determinism probe: create Replays/trace.on to log every tick's
+            // state, then diff the files produced on two machines from the same replay.
+            try
+            {
+                if (File.Exists(Path.Combine(VersusReplays.Directory, "trace.on")))
+                {
+                    string platform = Application.platform + "-" + System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture;
+                    string path = Path.Combine(VersusReplays.Directory, "trace-" + platform + ".txt");
+                    _trace = new StreamWriter(path, false);
+                    _trace.WriteLine("# " + platform + " " + Application.version + " seed " + replay.Seed + " ticks " + replay.TickCount);
+                    Debug.Log("[Versus Replay] Tracing every tick to " + path);
+                }
+            }
+            catch (Exception exception) { Debug.LogWarning("[Versus Replay] Trace disabled: " + exception.Message); _trace = null; }
+        }
 
         public void Pump() { }
         public int StepsWanted => 1;
@@ -109,6 +128,12 @@ namespace Eclipse.Multiplayer
 
         public void OnTickSimulated(int tick, byte left, byte right, uint? hash)
         {
+            if (_trace != null)
+            {
+                var fight = Fight.GetCurrentFight();
+                _trace.WriteLine(tick + " " + VersusStateHash.Compute(fight, tick).ToString("X8") + " in " + left.ToString("X2") + right.ToString("X2") + " | " + VersusStateHash.Describe(fight));
+                if (tick >= MaxTraceTicks) Stop();
+            }
             if (!hash.HasValue || !_replay.Hashes.TryGetValue(tick, out var expected)) return;
             CheckedHashes++;
             if (expected != hash.Value && DivergedTick < 0)
@@ -119,8 +144,13 @@ namespace Eclipse.Multiplayer
             }
         }
 
-        public void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds) { ReachedEnd = true; }
-        public void Stop() { }
+        public void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds) { ReachedEnd = true; Stop(); }
+
+        public void Stop()
+        {
+            try { _trace?.Dispose(); } catch (Exception) { }
+            _trace = null;
+        }
 
         public string Summary()
         {

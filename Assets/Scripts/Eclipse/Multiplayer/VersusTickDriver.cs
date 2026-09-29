@@ -12,7 +12,8 @@ namespace Eclipse.Multiplayer
         int StepsWanted { get; }
         /// <returns>False to stall: the simulation does not advance this fixed step.</returns>
         bool TryGetTick(int tick, out byte left, out byte right);
-        /// <param name="hash">State hash after the tick, present every <see cref="NetProtocol.HashInterval"/> ticks.</param>
+        /// <param name="hash">State hash after the tick, present every <see cref="NetProtocol.HashInterval"/> ticks.
+        /// The matching snapshot is <see cref="VersusTickDriver.LastSnapshot"/>.</param>
         void OnTickSimulated(int tick, byte left, byte right, uint? hash);
         /// <summary>The match reached its result on <paramref name="finalTick"/>.</summary>
         void OnMatchEnded(int finalTick, int winner, int leftRounds, int rightRounds);
@@ -37,6 +38,8 @@ namespace Eclipse.Multiplayer
         private static (int winner, int left, int right)? _pendingEnd;
 
         public static int Tick { get; private set; }
+        /// <summary>The state behind the most recent tick hash.</summary>
+        public static VersusSnapshot LastSnapshot { get; private set; }
         public static bool IsStalled { get; private set; }
         public static IVersusInputSource Source => _source;
 
@@ -126,7 +129,11 @@ namespace Eclipse.Multiplayer
             if (tick % NetProtocol.HashInterval == 0)
             {
                 // A hashing failure must never skip recording this tick's inputs.
-                try { hash = VersusStateHash.Compute(fight, tick); }
+                try
+                {
+                    LastSnapshot = VersusStateHash.Capture(fight, tick);
+                    hash = VersusStateHash.Hash(LastSnapshot);
+                }
                 catch (System.Exception exception)
                 {
                     UnityEngine.Debug.LogException(exception);

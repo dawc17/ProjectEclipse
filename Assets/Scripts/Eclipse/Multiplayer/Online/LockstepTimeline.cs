@@ -11,7 +11,7 @@ namespace Eclipse.Multiplayer.Online
     public sealed class LockstepTimeline
     {
         public const int MaxInputsPerPacket = 120;
-        private const int HashHistory = 64;
+        private const int HashHistory = 256;
 
         private readonly List<byte> _local = new List<byte>();
         private readonly List<byte> _remote = new List<byte>();

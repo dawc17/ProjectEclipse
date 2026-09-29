@@ -32,7 +32,7 @@ namespace Eclipse.Multiplayer.Online
         public long RecordedUnixSeconds;
         public readonly List<byte> Left = new List<byte>();
         public readonly List<byte> Right = new List<byte>();
-        /// <summary>State hash after simulating the tick, recorded every <see cref="NetProtocol.HashInterval"/> ticks.</summary>
+        /// <summary>State hash after simulating the tick, recorded every <see cref="NetProtocol.ReplayHashInterval"/> ticks.</summary>
         public readonly SortedDictionary<int, uint> Hashes = new SortedDictionary<int, uint>();
 
         public int TickCount => Math.Min(Left.Count, Right.Count);
@@ -142,6 +142,9 @@ namespace Eclipse.Multiplayer.Online
 
         public void Add(bool value) => Add(value ? 1 : 0);
         public void Add(float value) => Add(new FloatBits { Float = value }.Int);
+
+        /// <summary>The exact bit pattern of a float, for logs.</summary>
+        public static uint Bits(float value) => unchecked((uint)new FloatBits { Float = value }.Int);
 
         public void Add(string value)
         {

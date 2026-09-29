@@ -70,6 +70,15 @@ namespace Eclipse.Multiplayer
             }
         }
 
+        /// <summary>Platform, CPU and scripting backend, for desync reports.</summary>
+        public static string Platform =>
+            Application.platform + " " + System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture +
+#if ENABLE_IL2CPP
+            " IL2CPP";
+#else
+            " Mono";
+#endif
+
         public static string SavedName { get => PlayerPrefs.GetString(NamePreference, "Player"); set => PlayerPrefs.SetString(NamePreference, value ?? "Player"); }
         public static string SavedAddress { get => PlayerPrefs.GetString(AddressPreference, ""); set => PlayerPrefs.SetString(AddressPreference, value ?? ""); }
         public static int SavedPort { get => PlayerPrefs.GetInt(PortPreference, NetProtocol.DefaultPort); set => PlayerPrefs.SetInt(PortPreference, value); }
@@ -426,7 +435,13 @@ namespace Eclipse.Multiplayer
             if (SyncProblem != null || Phase == OnlinePhase.Closed) return;
             SyncProblem = "The games fell out of sync at tick " + tick + ". A replay was saved for diagnosis.";
             Debug.LogError("[Online] Desync at tick " + tick + ". " + VersusStateHash.Describe(Fight.GetCurrentFight()));
-            if (CurrentMatch != null) Peer.SendReliable(NetMessages.Desync(CurrentMatch.MatchIndex, tick));
+            if (CurrentMatch != null)
+            {
+                Peer.SendReliable(NetMessages.Desync(CurrentMatch.MatchIndex, tick));
+                string mine = _source != null && _source.TryGetSnapshot(tick, out var snapshot) ? VersusStateHash.Format(snapshot) : "(no snapshot for this tick)";
+                Debug.LogError("[Online] Local state at tick " + tick + " (" + Platform + "): " + mine);
+                Peer.SendReliable(NetMessages.DesyncReport(CurrentMatch.MatchIndex, tick, Platform, mine));
+            }
             _source?.SaveDiagnostic("desync");
             if (MatchRunning)
             {
@@ -485,6 +500,15 @@ namespace Eclipse.Multiplayer
                     case NetMessageType.Desync:
                         if (CurrentMatch != null && reader.U8() == CurrentMatch.MatchIndex) OnDesync(reader.I32());
                         break;
+                    case NetMessageType.DesyncReport:
+                        if (CurrentMatch != null && reader.U8() == CurrentMatch.MatchIndex)
+                        {
+                            int reportTick = reader.I32();
+                            string platform = reader.Str();
+                            string state = System.Text.Encoding.UTF8.GetString(reader.Bytes(reader.U16()));
+                            Debug.LogError("[Online] Remote state at tick " + reportTick + " (" + platform + "): " + state);
+                        }
+                        break;
                     case NetMessageType.Forfeit:
                         if (CurrentMatch != null && reader.U8() == CurrentMatch.MatchIndex && MatchRunning)
                         {
@@ -524,6 +548,14 @@ namespace Eclipse.Multiplayer
         private readonly VersusInputSampler _sampler = new VersusInputSampler(GamePad.Player.One, true, true, true);
         private readonly int _localSide;
         private long _stallStartedMs = -1;
+        private readonly VersusSnapshot[] _history = new VersusSnapshot[256];
+
+        /// <summary>This peer's state after <paramref name="tick"/>, if still in the recent history.</summary>
+        public bool TryGetSnapshot(int tick, out VersusSnapshot snapshot)
+        {
+            snapshot = _history[tick & (_history.Length - 1)];
+            return tick >= 0 && snapshot.Tick == tick && (tick != 0 || snapshot.Left.Present);
+        }
 
         public OnlineInputSource(OnlineVersusSession session, LocalVersusSettings settings, LockstepTimeline timeline, int localSide) : base(settings)
         {
@@ -573,6 +605,7 @@ namespace Eclipse.Multiplayer
             if (tick == 0) _session.OnFightStarted();
             if (hash.HasValue)
             {
+                _history[tick & (_history.Length - 1)] = VersusTickDriver.LastSnapshot;
                 _timeline.RecordLocalHash(tick, hash.Value);
             }
             _session.Peer?.Flush(OnlineVersusSession.NowMs);

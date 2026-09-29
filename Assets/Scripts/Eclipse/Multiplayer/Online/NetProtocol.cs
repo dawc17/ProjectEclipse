@@ -15,7 +15,10 @@ namespace Eclipse.Multiplayer.Online
         public const int HeaderSize = 8;
         public const int MaxInputDelay = 10;
         public const int DefaultInputDelay = 3;
-        public const int HashInterval = 30;
+        /// <summary>Peers compare state every tick, so a desync report names the first diverging tick.</summary>
+        public const int HashInterval = 1;
+        /// <summary>Replays keep a checkpoint every half second.</summary>
+        public const int ReplayHashInterval = 30;
 
         public const byte KindConnect = 1;
         public const byte KindAccept = 2;
@@ -96,6 +99,8 @@ namespace Eclipse.Multiplayer.Online
         MatchResult = 6,
         Desync = 7,
         Forfeit = 8,
+        /// <summary>One peer's exact state on the first tick whose hashes disagreed.</summary>
+        DesyncReport = 9,
     }
 
     /// <summary>Lobby as seen by the host. The host owns arena, format and input delay.</summary>
@@ -211,6 +216,22 @@ namespace Eclipse.Multiplayer.Online
             writer.U8((byte)leftRounds);
             writer.U8((byte)rightRounds);
             writer.I32(finalTick);
+            return writer.ToArray();
+        }
+
+        public const int MaxReportBytes = 360;
+
+        public static byte[] DesyncReport(int matchIndex, int tick, string platform, string state)
+        {
+            var writer = new NetWriter(ReliableChannel.MaxMessageSize);
+            writer.U8((byte)NetMessageType.DesyncReport);
+            writer.U8((byte)matchIndex);
+            writer.I32(tick);
+            writer.Str(platform.Length > 40 ? platform.Substring(0, 40) : platform);
+            byte[] text = System.Text.Encoding.UTF8.GetBytes(state ?? string.Empty);
+            int length = Math.Min(text.Length, MaxReportBytes - writer.Length);
+            writer.U16((ushort)length);
+            writer.Bytes(text, 0, length);
             return writer.ToArray();
         }
 
