@@ -144,6 +144,7 @@ namespace Eclipse.Multiplayer
                 var row = AddRow(body);
                 AddButton(row, "PLAY ONLINE", ShowOnlineHome, 0);
                 AddButton(row, "WATCH LAST REPLAY", WatchLastReplay, 0);
+                AddButton(body, "TEST ROLLBACK ON LAST REPLAY", TestRollbackOnLastReplay);
                 AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
             });
             RefreshDeviceStatus();
@@ -263,6 +264,7 @@ namespace Eclipse.Multiplayer
                         {
                             AddChoice(body, "ARENA", () => ArenaLabel(session.Lobby.Arena), session.CycleArena);
                             AddChoice(body, "FIRST TO", () => WinsLabel(session.Lobby.WinsRequired), session.CycleWins);
+                            AddChoice(body, "NETCODE", () => NetcodeLabel(session), session.CycleNetcode);
                             AddChoice(body, "INPUT DELAY", () => DelayLabel(session), session.CycleDelay);
                             AddButton(body, "START MATCH", () =>
                             {
@@ -276,6 +278,7 @@ namespace Eclipse.Multiplayer
                         {
                             AddInfo(body, "ARENA", () => ArenaLabel(session.Lobby.Arena));
                             AddInfo(body, "FIRST TO", () => WinsLabel(session.Lobby.WinsRequired));
+                            AddInfo(body, "NETCODE", () => NetcodeLabel(session));
                             AddInfo(body, "INPUT DELAY", () => DelayLabel(session));
                             AddChoice(body, "READY", () => session.LocalReady ? "READY" : "NOT READY", session.ToggleReady);
                         }
@@ -339,8 +342,9 @@ namespace Eclipse.Multiplayer
                 AddButton(body, "BACK TO LOBBY", LocalVersusSession.ShowLobby);
                 AddButton(body, "RETURN TO TITLE", LocalVersusSession.ReturnToTitle);
             });
-            var source = VersusTickDriver.Source as ReplayInputSource;
-            SetStatus(source != null ? source.Summary() : "Replay finished.");
+            var source = VersusTickDriver.Source;
+            SetStatus(source is ReplayInputSource replaySource ? replaySource.Summary()
+                : source is Rollback.RollbackSelfTest test ? test.Summary() : "Replay finished.");
         }
 
         private void HostOnline()
@@ -362,6 +366,15 @@ namespace Eclipse.Multiplayer
         {
             OnlineVersusSession.Shutdown();
             ShowOnlineSetup();
+        }
+
+        /// <summary>Replays the last match while forcing a rollback every tick, to prove rollback restores all fight state.</summary>
+        private void TestRollbackOnLastReplay()
+        {
+            if (OnlineVersusSession.IsActive) { SetStatus("The rollback test runs after leaving the online session."); return; }
+            if (!VersusReplays.TryLoadLast(out var replay, out var error)) { SetStatus(error); return; }
+            try { LocalVersusSession.StartReplay(replay, rollbackTest: true); }
+            catch (Exception exception) { Debug.LogException(exception); SetStatus(exception.Message); }
         }
 
         private void WatchLastReplay()
@@ -409,6 +422,9 @@ namespace Eclipse.Multiplayer
         }
 
         private static string WinsLabel(int wins) => wins + (wins == 1 ? " WIN" : " WINS");
+
+        private static string NetcodeLabel(OnlineVersusSession session) =>
+            session.Lobby.Netcode == Online.NetcodeMode.Rollback ? "ROLLBACK" : "DELAY BASED";
 
         private static string DelayLabel(OnlineVersusSession session)
         {

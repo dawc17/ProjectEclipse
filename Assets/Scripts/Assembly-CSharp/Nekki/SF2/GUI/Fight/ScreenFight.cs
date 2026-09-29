@@ -369,6 +369,11 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void Start()
 		{
+			// Banners change scene state a rollback cannot undo.
+			if (Eclipse.Multiplayer.VersusTickDriver.Barrier())
+			{
+				return;
+			}
 			base.gameObject.SetActive(true);
 			KJIAPGDFEIK = true;
 			OnStartScreen.Invoke(Type);
@@ -376,6 +381,10 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void Stop()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.Barrier())
+			{
+				return;
+			}
 			base.gameObject.SetActive(false);
 			KJIAPGDFEIK = false;
 			OnStopScreen.Invoke(Type);

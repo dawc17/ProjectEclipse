@@ -33,8 +33,13 @@ namespace Nekki.SF2.GUI.Fight
 			_spacing = PerkGUI.FEHBEIFACMG();
 		}
 
+		// Perk icons are presentation and are not rebuilt by rollback re-simulation.
 		public void AddEffectPerk(PerksStage.ActionPerk CKOEFOCPMGK, PerksStage.ActionPerk IBODMPMJELJ)
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			PerkActionSetModEffect fBLKPCHKAHM = (PerkActionSetModEffect)IBODMPMJELJ.AMKJNPOCODK;
 			PerkActionSetModEffect.COLPJOBKGEI cOLPJOBKGEI = fBLKPCHKAHM.CKEDENENELC();
 			foreach (ActivePerkItem item in _activePerks)
@@ -49,6 +54,10 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void AddActivePerkItem(PerksStage.ActionPerk IBODMPMJELJ)
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			if (IBODMPMJELJ != null)
 			{
 				MMIOFGHCNFC(IBODMPMJELJ);
@@ -157,6 +166,10 @@ namespace Nekki.SF2.GUI.Fight
 
 		public void Render()
 		{
+			if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+			{
+				return;
+			}
 			for (int i = 0; i < _activePerksContainer.Count; i++)
 			{
 				ActivePerkItemContainer activePerkItemContainer = _activePerksContainer[i];

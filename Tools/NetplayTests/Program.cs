@@ -31,6 +31,7 @@ internal static class Program
             UdpMatch(latencyMs: 0, lossPercent: 0, delay: 2);
             UdpMatch(latencyMs: 40, lossPercent: 10, delay: 4);
             UdpDisconnectNotifies();
+            RollbackTests.Run(Check);
             RoomTests.Run(Check);
             Console.WriteLine("PASS: " + _checks + " online versus core checks.");
             return 0;
@@ -140,7 +141,7 @@ internal static class Program
 
     private sealed class Side
     {
-        public LockstepTimeline Timeline;
+        public InputTimeline Timeline;
         public ToySim Sim = new ToySim();
         public int Index;
         public List<(byte, byte)> Applied = new List<(byte, byte)>();
@@ -154,6 +155,7 @@ internal static class Program
             byte right = Index == 0 ? remote : local;
             Sim.Step(left, right);
             Applied.Add((left, right));
+            Timeline.MarkSimulated(tick, remote, false);
             if (tick % NetProtocol.HashInterval == 0) Timeline.RecordLocalHash(tick, Sim.Hash());
             return true;
         }
@@ -163,8 +165,8 @@ internal static class Program
     {
         const int delay = 3, ticks = 900;
         var random = new Random(seed);
-        var host = new Side { Index = 0, Timeline = new LockstepTimeline(4, delay) };
-        var guest = new Side { Index = 1, Timeline = new LockstepTimeline(4, delay) };
+        var host = new Side { Index = 0, Timeline = new InputTimeline(4, delay) };
+        var guest = new Side { Index = 1, Timeline = new InputTimeline(4, delay) };
         int stalls = 0;
         for (int step = 0; step < ticks * 20 && (host.Sim.Tick < ticks || guest.Sim.Tick < ticks); step++)
         {
@@ -180,13 +182,13 @@ internal static class Program
         Check(host.Applied[delay + 10].Item1 == ScriptedInput(0, delay + 10) && host.Applied[delay + 10].Item2 == ScriptedInput(1, delay + 10), "inputs land on their scheduled tick");
         Check(host.Timeline.DesyncTick < 0 && guest.Timeline.DesyncTick < 0, "no false desync");
         Check(host.Timeline.VerifiedTick > ticks - 200, "state hashes verified late into the match (" + host.Timeline.VerifiedTick + ")");
-        var other = new LockstepTimeline(5, delay);
+        var other = new InputTimeline(5, delay);
         var writer = new NetWriter();
         host.Timeline.WriteSync(writer);
         Check(!other.ReadSync(new NetReader(writer.ToArray())) && other.RemoteFrames == delay, "stale match index ignored");
     }
 
-    private static void Exchange(LockstepTimeline from, LockstepTimeline to, Random random, int lossPercent)
+    private static void Exchange(InputTimeline from, InputTimeline to, Random random, int lossPercent)
     {
         var writer = new NetWriter();
         from.WriteSync(writer);
@@ -194,21 +196,43 @@ internal static class Program
         to.ReadSync(new NetReader(writer.ToArray()));
     }
 
+    /// <summary>Runs both timelines in lockstep for ticks [from, to), with a hash per tick.</summary>
+    private static void RunPair(InputTimeline a, InputTimeline b, int from, int to, Func<int, uint> hashA, Func<int, uint> hashB)
+    {
+        var random = new Random(1);
+        for (int tick = from; tick < to; tick++)
+        {
+            if (a.NeedsLocalInput(tick)) a.AddLocal(0);
+            if (b.NeedsLocalInput(tick)) b.AddLocal(0);
+            Exchange(a, b, random, 0);
+            Exchange(b, a, random, 0);
+            bool ready = a.TryGetInputs(tick, out _, out var ra);
+            ready &= b.TryGetInputs(tick, out _, out var rb);
+            Check(ready, "lockstep inputs ready at " + tick);
+            a.MarkSimulated(tick, ra, false); a.RecordLocalHash(tick, hashA(tick));
+            b.MarkSimulated(tick, rb, false); b.RecordLocalHash(tick, hashB(tick));
+        }
+        Exchange(a, b, random, 0);
+        Exchange(b, a, random, 0);
+    }
+
     private static void DesyncDetection()
     {
-        var a = new LockstepTimeline(0, 1);
-        var b = new LockstepTimeline(0, 1);
-        a.RecordLocalHash(0, 10); b.RecordLocalHash(0, 10);
-        Exchange(a, b, new Random(1), 0); Exchange(b, a, new Random(1), 0);
-        Check(a.VerifiedTick == 0 && a.DesyncTick < 0, "matching hash verifies");
-        a.RecordLocalHash(30, 99); b.RecordLocalHash(30, 98);
-        Exchange(a, b, new Random(1), 0);
-        Check(b.DesyncTick == 30, "remote mismatch reported on arrival");
-        var c = new LockstepTimeline(0, 1);
-        var d = new LockstepTimeline(0, 1);
-        d.RecordLocalHash(60, 5);
+        var a = new InputTimeline(0, 1);
+        var b = new InputTimeline(0, 1);
+        RunPair(a, b, 0, 30, t => (uint)t, t => (uint)t);
+        Check(a.VerifiedTick >= 28 && a.DesyncTick < 0 && b.DesyncTick < 0, "matching hashes verify (" + a.VerifiedTick + ")");
+        RunPair(a, b, 30, 31, t => 99, t => 98);
+        Check(a.DesyncTick == 30 && b.DesyncTick == 30, "mismatch reported on both sides (" + a.DesyncTick + "/" + b.DesyncTick + ")");
+        // The remote hash arriving before this side finishes the tick is compared once it does.
+        var c = new InputTimeline(0, 1);
+        var d = new InputTimeline(0, 1);
+        RunPair(c, d, 0, 60, t => 1, t => 1);
+        d.AddLocal(0); c.AddLocal(0);
+        Exchange(c, d, new Random(1), 0); Exchange(d, c, new Random(1), 0);
+        d.TryGetInputs(60, out _, out var rd); d.MarkSimulated(60, rd, false); d.RecordLocalHash(60, 5);
         Exchange(d, c, new Random(1), 0);
-        c.RecordLocalHash(60, 6);
+        c.TryGetInputs(60, out _, out var rc); c.MarkSimulated(60, rc, false); c.RecordLocalHash(60, 6);
         Check(c.DesyncTick == 60, "mismatch detected when the remote hash arrived first");
     }
 
@@ -306,8 +330,8 @@ internal static class Program
             Check(received != null && received.Seed == 4242 && received.GuestWeapon == "WEAPON_KATANA" && received.InputDelay == delay, "match start arrives");
 
             const int ticks = 360;
-            var a = new Side { Index = 0, Timeline = new LockstepTimeline(received.MatchIndex, delay) };
-            var b = new Side { Index = 1, Timeline = new LockstepTimeline(received.MatchIndex, delay) };
+            var a = new Side { Index = 0, Timeline = new InputTimeline(received.MatchIndex, delay) };
+            var b = new Side { Index = 1, Timeline = new InputTimeline(received.MatchIndex, delay) };
             host.Timeline = a.Timeline;
             guest.Timeline = b.Timeline;
             long startMs = Now;

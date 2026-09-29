@@ -189,6 +189,8 @@ public class Fight
     private void DrainModelTransitions()
     {
         if (_drainingModelTransitions || _modelTransitions.Count == 0) return;
+        // Form swaps call back into mod code and toggle bodies; they run on confirmed input only.
+        if (IsLocalVersus && Eclipse.Multiplayer.VersusTickDriver.Barrier()) return;
         _drainingModelTransitions = true;
         try
         {
@@ -1555,6 +1557,10 @@ public class Fight
 
 	private void SetStage(StageType.FDBBPEGEGMK LFLGCDNKNJI)
 	{
+		if (IsLocalVersus && LFLGCDNKNJI != stageType && Eclipse.Multiplayer.VersusTickDriver.Barrier())
+		{
+			return;
+		}
 		switch (LFLGCDNKNJI)
 		{
 		case StageType.FDBBPEGEGMK.STAGE_FIGHT:
@@ -3508,6 +3514,11 @@ public class Fight
 		}
 		else if (FightDefinition.get_Type() != BattleType.FightNone && round.processing && (NMNCKBPFCCP.PCALDKCJGCK || AKBNKDBHCEO.PCALDKCJGCK || (preFight != null && preFight.IsTimeOut()) || _endFightRule != null))
 		{
+			// A round never ends on a predicted input; rollback re-runs this tick once confirmed.
+			if (IsLocalVersus && Eclipse.Multiplayer.VersusTickDriver.Barrier())
+			{
+				return;
+			}
 			if (FCCPOLAMJNO)
 			{
 				IFKFINOGOLC(false);
@@ -4522,6 +4533,7 @@ public class Fight
 	{
 		if (ACENLMONNPA != null)
 		{
+			Eclipse.Multiplayer.Rollback.RollbackObjects.Created(ACENLMONNPA.MJNPBMOAFML());
 			ACENLMONNPA.Index = _Camera.AddModel(ACENLMONNPA, false, false);
 			HCPGFOCGDAA.Add(ACENLMONNPA);
 			SetModelOnListening(ACENLMONNPA);
@@ -4598,6 +4610,24 @@ public class Fight
 		CIFHAMACGFJ.NOBKKLBJFIL();
 		JCICKLIMBEF.IBLHIAHECLK = CIFHAMACGFJ.IBLHIAHECLK;
 	}
+
+	/// <summary>Syncs the banner pause with the fight before a stepping source runs; false while paused.</summary>
+	internal bool PrepareVersusStep()
+	{
+		if ((bool)preFight)
+		{
+			preFight.SetPause(IsPaused());
+		}
+		return !IsPaused();
+	}
+
+	/// <summary>
+	/// True while a versus tick may run on a predicted opponent input: mid-round, with no
+	/// round transition under way. Transitions drive UI and scene changes that a rollback
+	/// cannot undo, so they only ever run on confirmed input.
+	/// </summary>
+	internal bool VersusCanSpeculate => stageType == StageType.FDBBPEGEGMK.STAGE_FIGHT && round.processing &&
+		!isEndRound && !isGameOver && !isStopFight && !GJMHPBIBHMO && !IsPaused();
 
 	/// <summary>Advances intro/round banners by one fixed step; see VersusTickDriver.</summary>
 	internal void AdvanceVersusScreens(float step)

@@ -212,6 +212,10 @@ public class Render
 
 	public void GEDDKEKGCBI(Vector3f NAAPALOFBCI, Vector3f IHFFJPLMIAL, int count)
 	{
+		if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+		{
+			return;
+		}
 		JBGIBKJIAPD();
 		for (int i = 0; i < count; i++)
 		{
@@ -296,6 +300,10 @@ public class Render
 
 	public void BHOMOMIPKGC(Vector3f NAAPALOFBCI, Vector3f IHFFJPLMIAL, float time, bool HKNHLNGMOJC, string HJCIKLIPILA, float NOOOCHHKECH)
 	{
+		if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+		{
+			return;
+		}
 		float num = Vector2f.GetAngle2DDegreeSigned(IHFFJPLMIAL, new Vector2f(1f));
 		PHKBOGAICCI = KPBKKJLLKIE.GetComponent<CocosAnimation>();
 		PHKBOGAICCI.Init("textures/effects/fight/" + HJCIKLIPILA, true);

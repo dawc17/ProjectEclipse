@@ -126,7 +126,8 @@ public class ViewerModel
 		{
 			if (item == ACENLMONNPA)
 			{
-				item.GetModel().MJNPBMOAFML().SetActive(value);
+				// Rollback remembers the previous state, so an undone vanish is shown again.
+				Eclipse.Multiplayer.Rollback.RollbackObjects.SetActive(item.GetModel().MJNPBMOAFML(), value);
 				break;
 			}
 		}

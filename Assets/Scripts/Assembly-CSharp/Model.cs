@@ -10,7 +10,7 @@ public class Model : global::EventDispatcher<object>
 	public void AddTransientPerkFlag(string name, int frames)
 	{
 		if (!string.IsNullOrEmpty(name))
-			_transientPerkFlags[name] = Time.frameCount + Mathf.Max(1, frames);
+			_transientPerkFlags[name] = Eclipse.Multiplayer.VersusDeterminism.FrameStamp + Mathf.Max(1, frames);
 	}
 
 	public bool HasTransientPerkFlag(string name)
@@ -18,7 +18,7 @@ public class Model : global::EventDispatcher<object>
 		int expires;
 		if (!_transientPerkFlags.TryGetValue(name, out expires))
 			return false;
-		if (Time.frameCount <= expires)
+		if (Eclipse.Multiplayer.VersusDeterminism.FrameStamp <= expires)
 			return true;
 		_transientPerkFlags.Remove(name);
 		return false;
@@ -1983,8 +1983,12 @@ public class Model : global::EventDispatcher<object>
 		}
 		if (_UnityObject != null)
 		{
-			_UnityObject.SetActive(false);
-			Object.Destroy(_UnityObject);
+			// A rollback may bring this model back, so a speculative tick only hides it.
+			if (!Eclipse.Multiplayer.Rollback.RollbackObjects.Hide(_UnityObject))
+			{
+				_UnityObject.SetActive(false);
+				Object.Destroy(_UnityObject);
+			}
 		}
 		if (_ModelObject != null) _ModelObject.Clear();
 		Clear();

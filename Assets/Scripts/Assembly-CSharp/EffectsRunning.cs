@@ -70,6 +70,11 @@ public class EffectsRunning
 		ModelConditions dGJJDPIAEAO = ACENLMONNPA.EBABHGHPLFK();
 		dGJJDPIAEAO.PCAOCHAIBJC = ACENLMONNPA.OCPMJKIEPIG().KFCNPADAMHA();
 		Vector3f eMAFACPEPDK = Vector3f.op_Implicit(IBODMPMJELJ.ECJPLFFAMJO().EMGKDOAMBOH(dGJJDPIAEAO));
+		// Effects are presentation; a rollback re-simulation does not spawn them twice.
+		if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+		{
+			return;
+		}
 		GameObject gameObject = new GameObject(IBODMPMJELJ.get_Name());
 		gameObject.transform.localPosition = new Vector3(eMAFACPEPDK.GetX(), eMAFACPEPDK.GetY(), eMAFACPEPDK.GetZ());
 		Quaternion attachmentRotation = Quaternion.identity;
@@ -113,6 +118,8 @@ public class EffectsRunning
 		}
 		cocosAnimation.SetFirstFrame();
 		cocosAnimation.set_ChangeSpriteTime(changeSpriteTime);
+		// A rollback that undoes this tick destroys the effect.
+		Eclipse.Multiplayer.Rollback.RollbackObjects.Created(gameObject);
 		CurrentEffect bNGLFPIBAIM = new CurrentEffect(ACENLMONNPA, IBODMPMJELJ, gameObject, cocosAnimation);
 		IGLOMLIOOBM.Add(bNGLFPIBAIM);
 		ACENLMONNPA.CMBHIBKEAJH(bNGLFPIBAIM);
@@ -120,11 +127,24 @@ public class EffectsRunning
 
 	public void DHOMHKADCFG()
 	{
+		// Effect animations advance once per displayed tick, not per re-simulated one.
+		if (Eclipse.Multiplayer.VersusTickDriver.IsResimulating)
+		{
+			return;
+		}
 		float num = 1f / (float)GameUtils.GGBABPJBGJB();
 		int i = 0;
 		for (int num2 = IGLOMLIOOBM.Count; i < num2; i++)
 		{
 			CurrentEffect bNGLFPIBAIM = IGLOMLIOOBM[i];
+			if (bNGLFPIBAIM.EGJHGBCEPHO == null)
+			{
+				// Destroyed by a rollback: drop it from the running list.
+				CNBFDLLLJOF(bNGLFPIBAIM, i);
+				num2--;
+				i--;
+				continue;
+			}
 			if (!bNGLFPIBAIM.BHHCMELOEJF.get_IsWork() || (bNGLFPIBAIM.LLOLBKJMKNC.DIGCODDLDAD() && bNGLFPIBAIM.ACENLMONNPA == null && !bNGLFPIBAIM.stopFollowEffect))
 			{
 				CNBFDLLLJOF(bNGLFPIBAIM.LLOLBKJMKNC.get_Name(), bNGLFPIBAIM.ACENLMONNPA);

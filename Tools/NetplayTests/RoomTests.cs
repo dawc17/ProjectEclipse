@@ -227,8 +227,8 @@ internal static class RoomTests
         _peers.Add(guest);
         Pump(() => host.State == NetplayState.Connected && guest.State == NetplayState.Connected);
         Check(host.State == NetplayState.Connected && guest.State == NetplayState.Connected, "fight connects over the " + (expectDirect ? "direct" : "relay") + " link");
-        var a = new LockstepTimeline(1, 2);
-        var b = new LockstepTimeline(1, 2);
+        var a = new InputTimeline(1, 2);
+        var b = new InputTimeline(1, 2);
         host.Timeline = a;
         guest.Timeline = b;
         int ta = 0, tb = 0;
@@ -245,7 +245,7 @@ internal static class RoomTests
         _peers.Clear();
     }
 
-    private static void Step(NetplayPeer peer, LockstepTimeline timeline, int side, ref int tick, ref uint hash)
+    private static void Step(NetplayPeer peer, InputTimeline timeline, int side, ref int tick, ref uint hash)
     {
         if (tick >= 240) { peer.Flush(Now); return; }
         if (timeline.NeedsLocalInput(tick)) timeline.AddLocal((byte)((tick * 7 + side * 3) % 9));
