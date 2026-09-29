@@ -449,6 +449,14 @@ namespace Nekki.SF2.GUI.Fight
 			return null;
 		}
 
+		public void AdvanceScreenSimulationStep(float step)
+		{
+			if (screenFight != null)
+			{
+				screenFight.AdvanceSimulationStep(step);
+			}
+		}
+
 		public void SetPause(bool value)
 		{
 			if (screenFight != null)

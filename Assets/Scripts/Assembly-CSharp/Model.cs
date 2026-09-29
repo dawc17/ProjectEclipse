@@ -4620,13 +4620,13 @@ public class Model : global::EventDispatcher<object>
 		if (GHHCDAFIKJE.DNGKOMPMPCD)
 		{
 			float num4 = num2 * num;
-			float num5 = Random.Range(0f, 1f);
+			float num5 = Eclipse.Multiplayer.VersusDeterminism.Range(0f, 1f);
 			flag2 = num4 > num5;
 		}
 		if (GHHCDAFIKJE.JMDIIIFJMFH && !GHHCDAFIKJE.DFOHNJEBDED)
 		{
 			float num6 = num3 * num;
-			float num7 = Random.Range(0f, 1f);
+			float num7 = Eclipse.Multiplayer.VersusDeterminism.Range(0f, 1f);
 			flag3 = num6 > num7;
 		}
 		return flag || flag3 || flag2;

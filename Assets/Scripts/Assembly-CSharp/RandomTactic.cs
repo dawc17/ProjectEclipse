@@ -53,7 +53,7 @@ public class RandomTactic
 			{
 				if (item.FGICHADOEHF == item2)
 				{
-					return Random.Range(item.DPGMCKCDMBC, item.EBDBPJNBHGI) + 1;
+					return Eclipse.Multiplayer.VersusDeterminism.Range(item.DPGMCKCDMBC, item.EBDBPJNBHGI) + 1;
 				}
 			}
 		}

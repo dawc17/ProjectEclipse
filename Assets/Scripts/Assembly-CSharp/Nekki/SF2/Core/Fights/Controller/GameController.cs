@@ -59,6 +59,10 @@ namespace Nekki.SF2.Core.Fights.Controller
 			private bool _localVersusInputEnabled;
 			private bool _localVersusKeyboardPlayerOne;
 			private bool _hasFocus = true;
+			private byte _versusTouch;
+
+			/// <summary>Held on-screen stick and buttons as a versus input byte; sampled per tick by the versus driver.</summary>
+			public byte VersusTouchInput => _versusTouch;
         private readonly Eclipse.Modding.ModUiControlGate<(FightCID, int)> _modUiControls =
             new Eclipse.Modding.ModUiControlGate<(FightCID, int)>();
         private readonly FightControlRuleGate _ruleControls = new FightControlRuleGate();
@@ -131,6 +135,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			private void OnDisable()
 			{
 				ReleaseLocalVersusInputs();
+				_versusTouch = 0;
 			}
 
 		private void Start()
@@ -146,14 +151,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 				if (!_localVersusInputEnabled) NBMONJPAMHI.Render();
 				if (JKDKBHNKCPH)
 			{
-				if (_localVersusInputEnabled)
-				{
-						if (!_hasFocus) return;
-						GetGamepadInput().Poll(_localVersusKeyboardPlayerOne,
-							_localVersusKeyboardPlayerOne, !_localVersusKeyboardPlayerOne);
-					GetLocalVersusPlayerTwoInput().Poll(false);
-				}
-				else
+				// Versus devices are sampled per simulation tick by Eclipse.Multiplayer.VersusTickDriver.
+				if (!_localVersusInputEnabled)
 				{
 					GetGamepadInput().Poll(!AssemblyController.JONCCPLEIBE().DBJOHGNPDDO());
 				}
@@ -170,6 +169,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 			_localVersusInputEnabled = enabled;
 				_localVersusKeyboardPlayerOne = enabled && keyboardPlayerOne;
 				_localVersusPlayerTwoInput = null;
+				_versusTouch = 0;
 				_hasFocus = Application.isFocused;
 				// Local input owns complete keyboard snapshots, including key releases.
 				// The campaign's legacy keyboard/debug dispatcher remains separate.
@@ -490,6 +490,8 @@ namespace Nekki.SF2.Core.Fights.Controller
 		private void KJJNFLFLNHB(object data)
 		{
 			CBBEIGACPPD cBBEIGACPPD = (CBBEIGACPPD)data;
+			// Touch presses reach a versus fight through the tick driver, not as events.
+			if (_localVersusInputEnabled) _versusTouch = Eclipse.Multiplayer.VersusInputSampler.ApplyControl(_versusTouch, 0, cBBEIGACPPD.KMOPCKPBHIA);
 			if (cBBEIGACPPD.KMOPCKPBHIA != FightCID.QuadrantZero && IsQuadrantEnabled(cBBEIGACPPD.KMOPCKPBHIA))
 			{
 				EmitControl(0, cBBEIGACPPD);
@@ -499,6 +501,7 @@ namespace Nekki.SF2.Core.Fights.Controller
 		private void CICPKENEGNI(object data)
 		{
 			CBBEIGACPPD cBBEIGACPPD = (CBBEIGACPPD)data;
+			if (_localVersusInputEnabled) _versusTouch = Eclipse.Multiplayer.VersusInputSampler.ApplyControl(_versusTouch, 1, cBBEIGACPPD.KMOPCKPBHIA);
 			if (IsQuadrantEnabled(cBBEIGACPPD.KMOPCKPBHIA))
 			{
 				EmitControl(1, cBBEIGACPPD);

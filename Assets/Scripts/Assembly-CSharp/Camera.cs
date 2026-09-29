@@ -573,7 +573,7 @@ public class Camera : global::EventDispatcher<object>
 			Eclipse.Modding.ModVisuals.TriggerImpact(IONLHJIDACJ.Type,
 				IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalShake : 1f);
 			bool wasPaused = HLDMKKKKAMI;
-			LLLNHELEKNF = IONLHJIDACJ.NHKPODHHDPF * (IONLHJIDACJ.Type == "CriticalHit" ? Eclipse.UI.AccessibilitySettings.CriticalPause : 1f);
+			LLLNHELEKNF = IONLHJIDACJ.NHKPODHHDPF * (IONLHJIDACJ.Type == "CriticalHit" ? (Eclipse.Multiplayer.VersusDeterminism.Active ? Eclipse.Multiplayer.VersusDeterminism.CriticalPause : Eclipse.UI.AccessibilitySettings.CriticalPause) : 1f);
 			OHNBKMHOMJI = true;
 			BIPHAGJDGOL = IONLHJIDACJ.OFJCKMNLAEP;
 			EPIPOLDCCHD = IONLHJIDACJ.OFJCKMNLAEP;

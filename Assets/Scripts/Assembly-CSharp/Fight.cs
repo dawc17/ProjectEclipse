@@ -1298,7 +1298,8 @@ public class Fight
 	public void Draw()
 	{
 		Eclipse.Rendering.Interpolation.FightInterpolation.MarkDrawStep();
-		int num = ((!GameUtils.LDBMFAMEMPF) ? 1 : 2);
+		// Versus ticks are paced by their input source (lockstep stalls or catch-up).
+		int num = IsLocalVersus ? Eclipse.Multiplayer.VersusTickDriver.StepsFor(this) : ((!GameUtils.LDBMFAMEMPF) ? 1 : 2);
 		for (int i = 0; i < num; i++)
 		{
 			if ((bool)preFight)
@@ -1309,9 +1310,17 @@ public class Fight
 			{
 				break;
 			}
+			if (IsLocalVersus && !Eclipse.Multiplayer.VersusTickDriver.BeforeTick(this))
+			{
+				break;
+			}
 			Eclipse.Diagnostics.PerformanceOverlay.BeginFightSimulation();
 			Render();
 			Eclipse.Diagnostics.PerformanceOverlay.EndFightSimulation();
+			if (IsLocalVersus)
+			{
+				Eclipse.Multiplayer.VersusTickDriver.AfterTick(this);
+			}
 		}
 	}
 
@@ -4590,8 +4599,30 @@ public class Fight
 		JCICKLIMBEF.IBLHIAHECLK = CIFHAMACGFJ.IBLHIAHECLK;
 	}
 
+	/// <summary>Advances intro/round banners by one fixed step; see VersusTickDriver.</summary>
+	internal void AdvanceVersusScreens(float step)
+	{
+		if (preFight != null)
+		{
+			preFight.AdvanceScreenSimulationStep(step);
+		}
+	}
+
+	/// <summary>Delivers one tick-aligned versus control event for <paramref name="side"/> (0 left, 1 right).</summary>
+	internal void ApplyVersusControl(int side, bool press, FightCID control)
+	{
+		var data = new CBBEIGACPPD { Index = side, KMOPCKPBHIA = control };
+		if (press) ControlPress(data);
+		else ControlRelease(data);
+	}
+
 	private void ControlPress(object data)
 	{
+		// The versus tick driver is the only input path while it owns the fight.
+		if (Eclipse.Multiplayer.VersusTickDriver.Owns(this) && !Eclipse.Multiplayer.VersusTickDriver.IsApplyingInput)
+		{
+			return;
+		}
 		if (!IOPJDMCBIMM || (IsLocalVersus && IsPaused()))
 		{
 			return;
@@ -4614,6 +4645,10 @@ public class Fight
 
 	private void ControlRelease(object data)
 	{
+		if (Eclipse.Multiplayer.VersusTickDriver.Owns(this) && !Eclipse.Multiplayer.VersusTickDriver.IsApplyingInput)
+		{
+			return;
+		}
 		if (IOPJDMCBIMM)
 		{
 			CBBEIGACPPD cBBEIGACPPD = (CBBEIGACPPD)data;

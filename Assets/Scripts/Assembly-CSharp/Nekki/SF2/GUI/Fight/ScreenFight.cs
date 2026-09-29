@@ -383,15 +383,31 @@ namespace Nekki.SF2.GUI.Fight
 
 		private void Update()
 		{
+			// Versus stage changes must land on the same simulation tick for every
+			// peer and replay, so the tick driver advances the timer instead.
+			if (!KCANPMPILKI && KJIAPGDFEIK && !Eclipse.Multiplayer.VersusTickDriver.PacesFightScreens)
+			{
+				AdvanceTimer(Time.deltaTime);
+			}
+		}
+
+		/// <summary>Advances the banner by one fixed simulation step (versus only).</summary>
+		public void AdvanceSimulationStep(float step)
+		{
 			if (!KCANPMPILKI && KJIAPGDFEIK)
 			{
-				timer -= Time.deltaTime;
-				bannerAnimation?.Evaluate(bannerDuration - timer);
-				roundAnimation?.Evaluate(bannerDuration - timer);
-				if (timer <= 0f)
-				{
-					Stop();
-				}
+				AdvanceTimer(step);
+			}
+		}
+
+		private void AdvanceTimer(float step)
+		{
+			timer -= step;
+			bannerAnimation?.Evaluate(bannerDuration - timer);
+			roundAnimation?.Evaluate(bannerDuration - timer);
+			if (timer <= 0f)
+			{
+				Stop();
 			}
 		}
 	}

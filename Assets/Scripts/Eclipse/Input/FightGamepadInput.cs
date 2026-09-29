@@ -68,6 +68,23 @@ namespace Eclipse.Input
         }
     }
 
+	/// <summary>
+	/// A fixed keyboard layout that replaces the player's rebindable keys, so two
+	/// players can share one keyboard. Each control accepts any of its keys.
+	/// </summary>
+	public sealed class FightKeyboardLayout
+	{
+		public KeyCode[] Up, Left, Down, Right, Punch, Kick, Ranged, Magic;
+
+		public static bool Held(KeyCode[] keys)
+		{
+			if (keys == null) return false;
+			foreach (var key in keys)
+				if (UnityEngine.Input.GetKey(key)) return true;
+			return false;
+		}
+	}
+
 	public sealed class FightGamepadInput
 	{
 		private const float DeadZone = 0.35f;
@@ -75,6 +92,7 @@ namespace Eclipse.Input
 		private readonly Func<FightCID, bool> _isControlEnabled;
 		private readonly Action<int, FightCID> _emitControlEvent;
 		private readonly GamePad.Player _player;
+		private readonly FightKeyboardLayout _layout;
 
 		private FightCID _direction = FightCID.QuadrantZero;
 		private bool _punchPressed;
@@ -84,11 +102,12 @@ namespace Eclipse.Input
 		private bool _chargePressed;
 
 		public FightGamepadInput(Func<FightCID, bool> isControlEnabled, Action<int, FightCID> emitControlEvent,
-			GamePad.Player player = GamePad.Player.One)
+			GamePad.Player player = GamePad.Player.One, FightKeyboardLayout layout = null)
 		{
 			_isControlEnabled = isControlEnabled;
 			_emitControlEvent = emitControlEvent;
 			_player = player;
+			_layout = layout;
 		}
 
 		public void Reset()
@@ -112,17 +131,18 @@ namespace Eclipse.Input
             if (keyboardMovement)
             {
                 var keyboard = new Vector2(
-                    (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.D)) ? 1 : 0) - (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.A)) ? 1 : 0),
-                    (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.W)) ? 1 : 0) - (UnityEngine.Input.GetKey(FightKeyBindings.Get(KeyCode.S)) ? 1 : 0));
+                    (Key(KeyCode.D, _layout?.Right) ? 1 : 0) - (Key(KeyCode.A, _layout?.Left) ? 1 : 0),
+                    (Key(KeyCode.W, _layout?.Up) ? 1 : 0) - (Key(KeyCode.S, _layout?.Down) ? 1 : 0));
                 if (keyboard != Vector2.zero) movement = keyboard;
             }
             SetDirection(GetDirection(movement));
 
-				SetButton(ref _punchPressed, ReadButton(0, KeyCode.O, keyboardActions, gamepadEnabled), FightCID.Punch);
-				SetButton(ref _kickPressed, ReadButton(1, KeyCode.P, keyboardActions, gamepadEnabled), FightCID.Kick);
-				SetButton(ref _rangedPressed, ReadButton(2, KeyCode.K, keyboardActions, gamepadEnabled), FightCID.MissileButton);
-				SetButton(ref _magicPressed, ReadButton(3, KeyCode.L, keyboardActions, gamepadEnabled), FightCID.MagicButton);
-				SetButton(ref _chargePressed, ReadButton(4, KeyCode.J, keyboardActions, gamepadEnabled), FightCID.RaidChargeButton);
+				SetButton(ref _punchPressed, ReadButton(0, KeyCode.O, _layout?.Punch, keyboardActions, gamepadEnabled), FightCID.Punch);
+				SetButton(ref _kickPressed, ReadButton(1, KeyCode.P, _layout?.Kick, keyboardActions, gamepadEnabled), FightCID.Kick);
+				SetButton(ref _rangedPressed, ReadButton(2, KeyCode.K, _layout?.Ranged, keyboardActions, gamepadEnabled), FightCID.MissileButton);
+				SetButton(ref _magicPressed, ReadButton(3, KeyCode.L, _layout?.Magic, keyboardActions, gamepadEnabled), FightCID.MagicButton);
+				// A shared-keyboard layout has no raid charge key.
+				SetButton(ref _chargePressed, _layout == null && ReadButton(4, KeyCode.J, null, keyboardActions, gamepadEnabled), FightCID.RaidChargeButton);
 			}
 
 			public static bool IsConnected(GamePad.Player player)
@@ -132,10 +152,16 @@ namespace Eclipse.Input
 				return index >= 0 && index < devices.Length && !string.IsNullOrEmpty(devices[index]);
 			}
 
-			private bool ReadButton(int action, KeyCode key, bool keyboard, bool gamepad)
+			private bool ReadButton(int action, KeyCode key, KeyCode[] layoutKeys, bool keyboard, bool gamepad)
 			{
-				return (keyboard && UnityEngine.Input.GetKey(FightKeyBindings.Get(key))) ||
+				return (keyboard && Key(key, layoutKeys)) ||
 					(gamepad && FightControllerBindings.IsPressed(FightControllerBindings.Get(action), _player));
+			}
+
+			// The player's rebindable key, unless a fixed layout replaces it.
+			private bool Key(KeyCode defaultKey, KeyCode[] layoutKeys)
+			{
+				return _layout != null ? FightKeyboardLayout.Held(layoutKeys) : UnityEngine.Input.GetKey(FightKeyBindings.Get(defaultKey));
 			}
 
 		public void ReleaseAll()

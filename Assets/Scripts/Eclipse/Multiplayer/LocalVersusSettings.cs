@@ -2,18 +2,37 @@ using System;
 
 namespace Eclipse.Multiplayer
 {
-    /// <summary>Immutable configuration for one local match and its rematches.</summary>
+    public enum VersusMode
+    {
+        /// <summary>Two players on this machine.</summary>
+        Local,
+        /// <summary>One player here and one over the network; the host is player one.</summary>
+        Online,
+        /// <summary>A recorded match played back from its inputs.</summary>
+        Replay,
+    }
+
+    /// <summary>Immutable configuration for one versus match and its rematches.</summary>
     public sealed class LocalVersusSettings
     {
         public string PlayerOneWeapon { get; }
         public string PlayerTwoWeapon { get; }
         public string Location { get; }
         public bool KeyboardPlayerOne { get; }
+        /// <summary>Both players on one keyboard with fixed layouts; no gamepad needed.</summary>
+        public bool SharedKeyboard { get; }
         public int WinsRequired { get; }
         public int RoundTimeSeconds { get; }
+        public VersusMode Mode { get; }
+        public string PlayerOneName { get; }
+        public string PlayerTwoName { get; }
+        /// <summary>Seeds every gameplay random source, so peers and replays roll identically.</summary>
+        public int Seed { get; }
 
         public LocalVersusSettings(string playerOneWeapon, string playerTwoWeapon, string location,
-            bool keyboardPlayerOne, int winsRequired = 2, int roundTimeSeconds = 99)
+            bool keyboardPlayerOne, int winsRequired = 2, int roundTimeSeconds = 99,
+            VersusMode mode = VersusMode.Local, string playerOneName = null, string playerTwoName = null, int? seed = null,
+            bool sharedKeyboard = false)
         {
             if (string.IsNullOrWhiteSpace(playerOneWeapon)) throw new ArgumentException("Choose player one's weapon.", nameof(playerOneWeapon));
             if (string.IsNullOrWhiteSpace(playerTwoWeapon)) throw new ArgumentException("Choose player two's weapon.", nameof(playerTwoWeapon));
@@ -23,9 +42,21 @@ namespace Eclipse.Multiplayer
             PlayerOneWeapon = playerOneWeapon;
             PlayerTwoWeapon = playerTwoWeapon;
             Location = location;
-            KeyboardPlayerOne = keyboardPlayerOne;
+            SharedKeyboard = sharedKeyboard;
+            KeyboardPlayerOne = keyboardPlayerOne || sharedKeyboard;
             WinsRequired = winsRequired;
             RoundTimeSeconds = roundTimeSeconds;
+            Mode = mode;
+            PlayerOneName = string.IsNullOrWhiteSpace(playerOneName) ? "PLAYER 1" : playerOneName.Trim();
+            PlayerTwoName = string.IsNullOrWhiteSpace(playerTwoName) ? "PLAYER 2" : playerTwoName.Trim();
+            Seed = seed ?? new Random().Next();
+        }
+
+        /// <summary>The same matchup with a fresh seed, for a local rematch.</summary>
+        public LocalVersusSettings Reseeded()
+        {
+            return new LocalVersusSettings(PlayerOneWeapon, PlayerTwoWeapon, Location, KeyboardPlayerOne,
+                WinsRequired, RoundTimeSeconds, Mode, PlayerOneName, PlayerTwoName, null, SharedKeyboard);
         }
     }
 

@@ -456,11 +456,11 @@ public class RulesInspector : global::EventDispatcher<object>
 			}
 			else
 			{
-				NekkiMath.KACCBCCEPGB();
+				Eclipse.Multiplayer.VersusDeterminism.ReseedRules(CurrentRound);
 			}
 			ResetRandomRules(RandomRule.EOAOMBKFMPF.REFRESH_EACH_FIGHT);
 		}
-		NekkiMath.KACCBCCEPGB();
+		Eclipse.Multiplayer.VersusDeterminism.ReseedRules(CurrentRound);
 		ResetRandomRules(RandomRule.EOAOMBKFMPF.REFRESH_EACH_ROUND);
 		PutRandomRules();
 	}

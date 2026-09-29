@@ -489,7 +489,7 @@ namespace Eclipse.UI
                 Eclipse.Multiplayer.LocalVersusSession.RequestEntry();
                 BeginCampaign();
             }, UiSound.Begin, 27);
-            versusCaption = Label(page, "LOCAL VERSUS", 405, 407, 470, 22, 15, SceneryAccent, TextAnchor.MiddleCenter);
+            versusCaption = Label(page, "LOCAL AND ONLINE VERSUS", 405, 407, 470, 22, 15, SceneryAccent, TextAnchor.MiddleCenter);
             HomeButton("MODS", 440, 52, OpenMods, UiSound.Open, 25);
             HomeButton("OPTIONS", 496, 52, () => Settings("Display"), UiSound.Open, 25);
             HomeButton("QUIT", 548, 48, QuitPrompt, UiSound.Open, 23);

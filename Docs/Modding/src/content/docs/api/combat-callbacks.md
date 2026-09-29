@@ -48,6 +48,13 @@ multiplayer version keeps its match lifecycle isolated from campaign/mod combat
 events. This is a documented implementation boundary, not a claim that all mods
 are disabled during Local Versus.
 
+The same boundary applies to online versus and to versus replays, which run on
+the Local Versus match. Both players' games simulate the whole fight from the
+same inputs, so mod content must match exactly: when you connect, the game
+compares the game version and the list of enabled mods with their versions, and
+refuses the match if they differ. A saved replay only plays back with the game
+version and enabled mods it was recorded with.
+
 Local bootstrap also uses a temporary cloned profile document. Any profile changes
 or mod-state migrations made against that local profile are discarded and are not
 written into the campaign save. Content mods and their projected definitions remain

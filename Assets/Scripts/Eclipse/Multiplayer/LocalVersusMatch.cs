@@ -46,12 +46,12 @@ namespace Eclipse.Multiplayer
             rosterNode.SetAttribute("Name", FightId.ToString());
             rosterDocument.AppendChild(rosterNode);
             SetRosterFight(new RosterFight(rosterNode));
-            PlayerOne = PrepareFighter(settings.PlayerOneWeapon, true);
-            PlayerTwo = PrepareFighter(settings.PlayerTwoWeapon, false);
+            PlayerOne = PrepareFighter(settings.PlayerOneWeapon, true, settings.PlayerOneName);
+            PlayerTwo = PrepareFighter(settings.PlayerTwoWeapon, false, settings.PlayerTwoName);
             AddOpponent(PlayerTwo);
         }
 
-        private static ModelParameters PrepareFighter(string weapon, bool left)
+        private static ModelParameters PrepareFighter(string weapon, bool left, string displayName)
         {
             var document = new XmlDocument();
             var warrior = document.CreateElement("Warrior");
@@ -73,7 +73,7 @@ namespace Eclipse.Multiplayer
             parameters.Weapon = CopyItem(weapon);
             parameters.Ranged = CopyItem(GameUtils.GetDefaultItem("Ranged"));
             parameters.Magic = CopyItem(GameUtils.GetDefaultItem("Magic"));
-            parameters.DisplayName = left ? "PLAYER 1" : "PLAYER 2";
+            parameters.DisplayName = displayName;
             parameters.AttributeAlignments.Clear();
             parameters.AttributeAlignments.Add(new AttributesAlign());
             parameters.ShieldTotal = 0;
@@ -109,6 +109,7 @@ namespace Eclipse.Multiplayer
             var fight = new Fight(this, PlayerOne, new List<ModelParameters> { PlayerTwo }, presentation, controller);
             controller.ConfigureLocalVersusInput(true, Settings.KeyboardPlayerOne);
             controller.gameObject.SetActive(true);
+            VersusTickDriver.Begin(fight, LocalVersusSession.CreateInputSource(), Settings.Seed);
             LocalVersusSession.FightReady(fight);
             return fight;
         }

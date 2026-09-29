@@ -424,7 +424,7 @@ public class SelectAnimation
 				list2.Add(nKDNDLNDFJH2);
 			}
 		}
-		int index = Random.Range(0, list2.Count);
+		int index = Eclipse.Multiplayer.VersusDeterminism.Range(0, list2.Count);
 		nKDNDLNDFJH = list2[index];
 		if (list.Count > 0)
 		{
